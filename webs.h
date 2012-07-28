@@ -54,7 +54,7 @@
  *	By license terms the software name and version defined in this section of
  *	code must not be modified.
  */
-#define WEBS_NAME				T("GoAhead-Webs")
+#define WEBS_NAME				T("GoAhead")
 #define WEBS_VERSION			T("2.5.0")
 #ifdef WEBS_SSL_SUPPORT
 #define SSL_NAME				T("PeerSec-MatrixSSL")

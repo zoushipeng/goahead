@@ -38,7 +38,7 @@ default: gold
 # Enable SSL build if MatrixSSL package found in root source directory 
 # (if automation is not working, simply define SSLINC, SSLLIB, and SSLSW)
 #
-matrixsslDir:=$(shell ls -d ../matrixssl-3-1*/)
+# matrixsslDir:=$(shell ls -d ../matrixssl-3-1*/)
 ifdef matrixsslDir
 SSLINC = $(matrixsslDir)
 SSLLIB = $(matrixsslDir)libmatrixssl.a
