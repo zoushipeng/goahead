@@ -1,10 +1,7 @@
 /*
- * uemf.h -- GoAhead Micro Embedded Management Framework Header
- *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
- *
- * See the file "license.txt" for usage and redistribution license requirements
- *
+    uemf.h -- GoAhead Micro Embedded Management Framework Header
+  
+    Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 #ifndef _h_UEMF
@@ -17,6 +14,156 @@
  */
 
 /******************************* Per O/S Includes *****************************/
+
+//  MOB - need config.h
+
+#define WEBS 1
+#define DIGEST_ACCESS_SUPPORT  1
+
+#ifndef BIT_DEBUG
+    #define BIT_DEBUG 0
+#endif
+#ifndef BIT_FEATURE_ASSERT
+    #if BIT_DEBUG
+        #define BIT_FEATURE_ASSERT 1
+    #else
+        #define BIT_FEATURE_ASSERT 0
+    #endif
+#endif
+#ifndef BIT_FEATURE_FLOAT
+    #define BIT_FEATURE_FLOAT 1
+#endif
+#ifndef BIT_FEATURE_ROMFS
+    #define BIT_FEATURE_ROMFS 0
+#endif
+#ifndef BIT_TUNE
+    #define BIT_TUNE MPR_TUNE_SIZE
+#endif
+
+/********************************* CPU Families *******************************/
+/*
+    CPU Architectures
+ */
+#define MPR_CPU_UNKNOWN     0
+#define MPR_CPU_ARM         1           /* Arm */
+#define MPR_CPU_ITANIUM     2           /* Intel Itanium */
+#define MPR_CPU_X86         3           /* X86 */
+#define MPR_CPU_X64         4           /* AMD64 or EMT64 */
+#define MPR_CPU_MIPS        5           /* Mips */
+#define MPR_CPU_PPC         6           /* Power PC */
+#define MPR_CPU_SPARC       7           /* Sparc */
+
+/*
+    Use compiler definitions to determine the CPU
+ */
+#if defined(__alpha__)
+    #define BIT_CPU "ALPHA"
+    #define BIT_CPU_ARCH MPR_CPU_ALPHA
+#elif defined(__arm__)
+    #define BIT_CPU "ARM"
+    #define BIT_CPU_ARCH MPR_CPU_ARM
+#elif defined(__x86_64__) || defined(_M_AMD64)
+    #define BIT_CPU "x64"
+    #define BIT_CPU_ARCH MPR_CPU_X64
+#elif defined(__i386__) || defined(__i486__) || defined(__i585__) || defined(__i686__) || defined(_M_IX86)
+    #define BIT_CPU "x86"
+    #define BIT_CPU_ARCH MPR_CPU_X86
+#elif defined(_M_IA64)
+    #define BIT_CPU "IA64"
+    #define BIT_CPU_ARCH MPR_CPU_ITANIUM
+#elif defined(__mips__)
+    #define BIT_CPU "MIPS"
+    #define BIT_CPU_ARCH MPR_CPU_SPARC
+#elif defined(__ppc__) || defined(__powerpc__) || defined(__ppc64__)
+    #define BIT_CPU "PPC"
+    #define BIT_CPU_ARCH MPR_CPU_PPC
+#elif defined(__sparc__)
+    #define BIT_CPU "SPARC"
+    #define BIT_CPU_ARCH MPR_CPU_SPARC
+#endif
+
+/*
+    Operating system defines. Use compiler standard defintions to sleuth. 
+    Works for all except VxWorks which does not define any special symbol.
+ */
+#if defined(__APPLE__)
+    #define BIT_OS "macosx"
+    #define MACOSX 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__linux__)
+    #define BIT_OS "linux"
+    #define LINUX 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__FreeBSD__)
+    #define BIT_OS "freebsd"
+    #define FREEBSD 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(_WIN32)
+    #define BIT_OS "windows"
+    #define WINDOWS 1
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 1
+#elif defined(__bsdi__)
+    #define BIT_OS "bsdi"
+    #define BSDI 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__NetBSD__)
+    #define BIT_OS "netbsd"
+    #define NETBSD 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__hpux)
+    #define BIT_OS "hpux"
+    #define HPUX 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(_AIX)
+    #define BIT_OS "aix"
+    #define AIX 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__CYGWIN__)
+    #define BIT_OS "cygwin"
+    #define CYGWIN 1
+    #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__VMS)
+    #define BIT_OS "vms"
+    #define VMS 1
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
+#elif defined(VXWORKS)
+    /* VxWorks does not have a pre-defined symbol */
+    #define BIT_OS "vxworks"
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
+#endif
+
+/********************************* O/S Includes *******************************/
+
+#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64
+    #define MPR_64_BIT 1
+    #define MPR_BITS 64
+#else
+    #define MPR_BITS 32
+#endif
+
+/*
+    Out-of-order definitions and includes. Order really matters in this section
+ */
+#if WINDOWS
+    #undef      _CRT_SECURE_NO_DEPRECATE
+    #define     _CRT_SECURE_NO_DEPRECATE 1
+    #undef      _CRT_SECURE_NO_WARNINGS
+    #define     _CRT_SECURE_NO_WARNINGS 1
+    #ifndef     _WIN32_WINNT
+        #define _WIN32_WINNT 0x501
+    #endif
+#endif
 
 #ifdef WIN
 	#include	<direct.h>
@@ -1122,3 +1269,38 @@ extern int		harnessLevel();
 
 /******************************************************************************/
 
+/*
+    @copy   default
+
+    Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
+    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
+    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
+
+    This software is distributed under commercial and open source licenses.
+    You may use the Embedthis GoAhead open source license or you may acquire 
+    a commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details.
+
+    This software is open source; you can redistribute it and/or modify it
+    under the terms of the Embedthis GoAhead Open Source License as published 
+    at:
+
+        http://embedthis.com/products/goahead/goahead-license.pdf 
+
+    This Embedthis GoAhead Open Source license does NOT generally permit 
+    incorporating this software into proprietary programs. If you are unable 
+    to comply with the Embedthis Open Source license, you must acquire a 
+    commercial license to use this software. Commercial licenses for this 
+    software and support services are available from Embedthis Software at:
+
+        http://embedthis.com
+
+    Local variables:
+    tab-width: 4
+    c-basic-offset: 4
+    End:
+    vim: sw=4 ts=4 expandtab
+
+    @end
+ */

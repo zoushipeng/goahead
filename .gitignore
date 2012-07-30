@@ -31,3 +31,5 @@ projects/WIN/mpr-dynamic/ipch
 .DS_Store
 *-xcode
 MACOSX/webs
+log.txt
+trace.txt
