@@ -1,5 +1,6 @@
 /*
     uemf.h -- GoAhead Micro Embedded Management Framework Header
+    MOB - rename  core.h 
   
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -7,84 +8,113 @@
 #ifndef _h_UEMF
 #define _h_UEMF 1
 
-/******************************** Description *********************************/
+/************************************ Defaults ********************************/
 
-/* 
- *  GoAhead Web Server header. This defines the Web public APIs
- */
-
-/******************************* Per O/S Includes *****************************/
-
-//  MOB - need config.h
-
-#define WEBS 1
 #define DIGEST_ACCESS_SUPPORT  1
 
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 0
 #endif
-#ifndef BIT_FEATURE_ASSERT
+#ifndef BIT_ASSERT
     #if BIT_DEBUG
-        #define BIT_FEATURE_ASSERT 1
+        #define BIT_ASSERT 1
     #else
-        #define BIT_FEATURE_ASSERT 0
+        #define BIT_ASSERT 0
     #endif
 #endif
-#ifndef BIT_FEATURE_FLOAT
-    #define BIT_FEATURE_FLOAT 1
+#ifndef BIT_FLOAT
+    #define BIT_FLOAT 1
 #endif
-#ifndef BIT_FEATURE_ROMFS
-    #define BIT_FEATURE_ROMFS 0
+#ifndef BIT_ROM
+    #define BIT_ROM 0
 #endif
+
+/********************************* Tunable Constants **************************/
+
+#define BIT_TUNE_SIZE       1       /**< Tune for size */
+#define BIT_TUNE_BALANCED   2       /**< Tune balancing speed and size */
+#define BIT_TUNE_SPEED      3       /**< Tune for speed, program will use memory more aggressively */
+
 #ifndef BIT_TUNE
-    #define BIT_TUNE MPR_TUNE_SIZE
+    #define BIT_TUNE BIT_TUNE_SIZE
+#endif
+
+#if BIT_TUNE == BIT_TUNE_SIZE || DOXYGEN
+    /*
+        Reduce size allocations to reduce memory usage
+     */ 
+    #define BUF_MAX             4096    /* General sanity check for bufs */
+    #define FNAMESIZE           254     /* Max length of file names */
+    #define SYM_MAX             (512)
+    #define VALUE_MAX_STRING    (4096 - 48)
+    #define E_MAX_ERROR         4096
+    #define E_MAX_REQUEST       2048    /* Request safeguard max */
+
+#elif BIT_TUNE == BIT_TUNE_BALANCED
+    #define BUF_MAX             4096
+    #define FNAMESIZE           PATHSIZE
+    #define SYM_MAX             (512)
+    #define VALUE_MAX_STRING    (4096 - 48)
+    #define E_MAX_ERROR         4096
+    #define E_MAX_REQUEST       4096
+
+#else /* BIT_TUNE == BIT_TUNE_SPEED */
+    #define BUF_MAX             4096
+    #define FNAMESIZE           PATHSIZE
+    #define SYM_MAX             (512)
+    #define VALUE_MAX_STRING    (4096 - 48)
+    #define E_MAX_ERROR         4096
+    #define E_MAX_REQUEST       4096
 #endif
 
 /********************************* CPU Families *******************************/
 /*
     CPU Architectures
  */
-#define MPR_CPU_UNKNOWN     0
-#define MPR_CPU_ARM         1           /* Arm */
-#define MPR_CPU_ITANIUM     2           /* Intel Itanium */
-#define MPR_CPU_X86         3           /* X86 */
-#define MPR_CPU_X64         4           /* AMD64 or EMT64 */
-#define MPR_CPU_MIPS        5           /* Mips */
-#define MPR_CPU_PPC         6           /* Power PC */
-#define MPR_CPU_SPARC       7           /* Sparc */
+#define BIT_CPU_UNKNOWN     0
+#define BIT_CPU_ARM         1           /* Arm */
+#define BIT_CPU_ITANIUM     2           /* Intel Itanium */
+#define BIT_CPU_X86         3           /* X86 */
+#define BIT_CPU_X64         4           /* AMD64 or EMT64 */
+#define BIT_CPU_MIPS        5           /* Mips */
+#define BIT_CPU_PPC         6           /* Power PC */
+#define BIT_CPU_SPARC       7           /* Sparc */
+
+//  MOB - others
 
 /*
     Use compiler definitions to determine the CPU
  */
 #if defined(__alpha__)
     #define BIT_CPU "ALPHA"
-    #define BIT_CPU_ARCH MPR_CPU_ALPHA
+    #define BIT_CPU_ARCH BIT_CPU_ALPHA
 #elif defined(__arm__)
     #define BIT_CPU "ARM"
-    #define BIT_CPU_ARCH MPR_CPU_ARM
+    #define BIT_CPU_ARCH BIT_CPU_ARM
 #elif defined(__x86_64__) || defined(_M_AMD64)
     #define BIT_CPU "x64"
-    #define BIT_CPU_ARCH MPR_CPU_X64
+    #define BIT_CPU_ARCH BIT_CPU_X64
 #elif defined(__i386__) || defined(__i486__) || defined(__i585__) || defined(__i686__) || defined(_M_IX86)
     #define BIT_CPU "x86"
-    #define BIT_CPU_ARCH MPR_CPU_X86
+    #define BIT_CPU_ARCH BIT_CPU_X86
 #elif defined(_M_IA64)
     #define BIT_CPU "IA64"
-    #define BIT_CPU_ARCH MPR_CPU_ITANIUM
+    #define BIT_CPU_ARCH BIT_CPU_ITANIUM
 #elif defined(__mips__)
     #define BIT_CPU "MIPS"
-    #define BIT_CPU_ARCH MPR_CPU_SPARC
+    #define BIT_CPU_ARCH BIT_CPU_SPARC
 #elif defined(__ppc__) || defined(__powerpc__) || defined(__ppc64__)
     #define BIT_CPU "PPC"
-    #define BIT_CPU_ARCH MPR_CPU_PPC
+    #define BIT_CPU_ARCH BIT_CPU_PPC
 #elif defined(__sparc__)
     #define BIT_CPU "SPARC"
-    #define BIT_CPU_ARCH MPR_CPU_SPARC
+    #define BIT_CPU_ARCH BIT_CPU_SPARC
 #endif
 
 /*
     Operating system defines. Use compiler standard defintions to sleuth. 
     Works for all except VxWorks which does not define any special symbol.
+    NOTE: Support for SCOV Unix, LynxOS and UnixWare is deprecated. 
  */
 #if defined(__APPLE__)
     #define BIT_OS "macosx"
@@ -106,6 +136,21 @@
     #define WINDOWS 1
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 1
+#elif defined(__OS2__)
+    #define BIT_OS "os2"
+    #define OS2 0
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
+#elif defined(MSDOS) || defined(__DOS__)
+    #define BIT_OS "msdos"
+    #define WINDOWS 0
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
+#elif defined(__NETWARE_386__)
+    #define BIT_OS "netware"
+    #define NETWARE 0
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
 #elif defined(__bsdi__)
     #define BIT_OS "bsdi"
     #define BSDI 1
@@ -115,6 +160,11 @@
     #define BIT_OS "netbsd"
     #define NETBSD 1
     #define BIT_UNIX_LIKE 1
+    #define BIT_WIN_LIKE 0
+#elif defined(__QNX__)
+    #define BIT_OS "qnx"
+    #define QNX 0
+    #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
 #elif defined(__hpux)
     #define BIT_OS "hpux"
@@ -141,17 +191,21 @@
     #define BIT_OS "vxworks"
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+#elif defined(ECOS)
+    /* ECOS may not have a pre-defined symbol */
+    #define BIT_OS "ecos"
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
+#endif
+
+#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64
+    #define BIT_64 1
+    #define BIT_WORDSIZE 64
+#else
+    #define BIT_WORDSIZE 32
 #endif
 
 /********************************* O/S Includes *******************************/
-
-#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64
-    #define MPR_64_BIT 1
-    #define MPR_BITS 64
-#else
-    #define MPR_BITS 32
-#endif
-
 /*
     Out-of-order definitions and includes. Order really matters in this section
  */
@@ -165,7 +219,7 @@
     #endif
 #endif
 
-#ifdef WIN
+#if WIN
     #include    <direct.h>
     #include    <io.h>
     #include    <sys/stat.h>
@@ -181,7 +235,7 @@
     #include    <errno.h>
 #endif /* WIN */
 
-#ifdef CE
+#if CE
     /*#include  <errno.h>*/
     #include    <limits.h>
     #include    <tchar.h>
@@ -192,7 +246,7 @@
     #include    <winsock.h>
 #endif /* CE */
 
-#ifdef NW
+#if NW
     #include    <direct.h>
     #include    <io.h>
     #include    <sys/stat.h>
@@ -217,7 +271,7 @@
     #include    <netinet/in.h>
 #endif /* NW */
 
-#ifdef SCOV5 
+#if SCOV5 
     #include    <sys/types.h>
     #include    <stdio.h>
     #include    "sys/socket.h"
@@ -227,11 +281,11 @@
     #include    "netdb.h"
 #endif /* SCOV5 */
 
-#ifdef UNIX
+#if UNIX
     #include    <stdio.h>
 #endif /* UNIX */
 
-#ifdef LINUX
+#if LINUX
     #include    <sys/types.h>
     #include    <sys/stat.h>
     #include    <sys/param.h>
@@ -249,7 +303,7 @@
     #include    <errno.h>
 #endif /* LINUX */
 
-#ifdef LYNX
+#if LYNX
     #include    <limits.h>
     #include    <stdarg.h>
     #include    <stdio.h>
@@ -264,7 +318,7 @@
     #include    <errno.h>
 #endif /* LYNX */
 
-#ifdef MACOSX
+#if MACOSX
     #include    <limits.h>
     #include    <sys/select.h>
     #include    <sys/types.h>
@@ -281,11 +335,11 @@
     #include    <time.h>
 #endif /* MACOSX */
 
-#ifdef UW
+#if UW
     #include    <stdio.h>
 #endif /* UW */
 
-#ifdef VXWORKS
+#if VXWORKS
     #include    <vxWorks.h>
     #include    <sockLib.h>
     #include    <selectLib.h>
@@ -299,11 +353,11 @@
     #include    <errno.h>
 #endif /* VXWORKS */
 
-#ifdef sparc
+#if sparc
 # define __NO_PACK
 #endif /* sparc */
 
-#ifdef SOLARIS
+#if SOLARIS
     #include    <sys/types.h>
     #include    <limits.h>
     #include    <stdio.h>
@@ -319,7 +373,7 @@
     #include    <errno.h>
 #endif /* SOLARIS */
 
-#ifdef QNX4
+#if QNX4
     #include    <sys/types.h>
     #include    <stdio.h>
     #include    <sys/socket.h>
@@ -333,7 +387,7 @@
     #include    <sys/wait.h>
 #endif /* QNX4 */
 
-#ifdef ECOS
+#if ECOS
     #include    <limits.h>
     #include    <cyg/infra/cyg_type.h>
     #include    <cyg/kernel/kapi.h>
@@ -348,65 +402,404 @@
 #include    <stdarg.h>
 #include    <string.h>
 
+#if UNUSED
 #ifndef WEBS
 #include    "messages.h"
 #endif /* ! WEBS */
+#endif
 
-/******************************* Per O/S Defines *****************************/
+/************************************** Defines *******************************/
+/*
+    Standard types
+ */
+#ifndef HAS_BOOL
+    #ifndef __cplusplus
+        #if !MACOSX
+            #define HAS_BOOL 1
+            /**
+                Boolean data type.
+             */
+            typedef char bool;
+        #endif
+    #endif
+#endif
 
+#ifndef HAS_UCHAR
+    #define HAS_UCHAR 1
+    /**
+        Unsigned char data type.
+     */
+    typedef unsigned char uchar;
+#endif
+
+#ifndef HAS_SCHAR
+    #define HAS_SCHAR 1
+    /**
+        Signed char data type.
+     */
+    typedef signed char schar;
+#endif
+
+#ifndef HAS_CCHAR
+    #define HAS_CCHAR 1
+    /**
+        Constant char data type.
+     */
+    typedef const char cchar;
+#endif
+
+#ifndef HAS_CUCHAR
+    #define HAS_CUCHAR 1
+    /**
+        Unsigned char data type.
+     */
+    typedef const unsigned char cuchar;
+#endif
+
+#ifndef HAS_USHORT
+    #define HAS_USHORT 1
+    /**
+        Unsigned short data type.
+     */
+    typedef unsigned short ushort;
+#endif
+
+#ifndef HAS_CUSHORT
+    #define HAS_CUSHORT 1
+    /**
+        Constant unsigned short data type.
+     */
+    typedef const unsigned short cushort;
+#endif
+
+#ifndef HAS_CVOID
+    #define HAS_CVOID 1
+    /**
+        Constant void data type.
+     */
+    typedef const void cvoid;
+#endif
+
+#ifndef HAS_INT32
+    #define HAS_INT32 1
+    /**
+        Integer 32 bits data type.
+     */
+    typedef int int32;
+#endif
+
+#ifndef HAS_UINT32
+    #define HAS_UINT32 1
+    /**
+        Unsigned integer 32 bits data type.
+     */
+    typedef unsigned int uint32;
+#endif
+
+#ifndef HAS_UINT
+    #define HAS_UINT 1
+    /**
+        Unsigned integer (machine dependent bit size) data type.
+     */
+    typedef unsigned int uint;
+#endif
+
+#ifndef HAS_ULONG
+    #define HAS_ULONG 1
+    /**
+        Unsigned long (machine dependent bit size) data type.
+     */
+    typedef unsigned long ulong;
+#endif
+
+#ifndef HAS_SSIZE
+    #define HAS_SSIZE 1
+    #if BIT_UNIX_LIKE || VXWORKS || DOXYGEN
+        /**
+            Signed integer size field large enough to hold a pointer offset.
+         */
+        typedef ssize_t ssize;
+    #else
+        typedef SSIZE_T ssize;
+    #endif
+#endif
+
+#ifdef __USE_FILE_OFFSET64
+    #define HAS_OFF64 1
+#else
+    #define HAS_OFF64 0
+#endif
+
+/*
+    Windows uses uint for write/read counts (Ugh!)
+ */
+#if BIT_WIN_LIKE
+    typedef uint wsize;
+#else
+    typedef ssize wsize;
+#endif
+
+#ifndef HAS_INT64
+    #if BIT_UNIX_LIKE
+        __extension__ typedef long long int int64;
+    #elif VXWORKS || DOXYGEN
+        /**
+            Integer 64 bit data type.
+         */
+        typedef long long int int64;
+    #elif BIT_WIN_LIKE
+        typedef __int64 int64;
+    #else
+        typedef long long int int64;
+    #endif
+#endif
+
+#ifndef HAS_UINT64
+    #if BIT_UNIX_LIKE
+        __extension__ typedef unsigned long long int uint64;
+    #elif VXWORKS || DOXYGEN
+        /**
+            Unsigned integer 64 bit data type.
+         */
+        typedef unsigned long long int uint64;
+    #elif BIT_WIN_LIKE
+        typedef unsigned __int64 uint64;
+    #else
+        typedef unsigned long long int uint64;
+    #endif
+#endif
+
+/**
+    Signed file offset data type. Supports large files greater than 4GB in size on all systems.
+ */
+typedef int64 MprOff;
+
+/*
+    Socklen_t
+ */
+#if DOXYGEN
+    typedef int MprSocklen;
+#elif VXWORKS
+    typedef int MprSocklen;
+#else
+    typedef socklen_t MprSocklen;
+#endif
+
+/**
+    Date and Time Service
+    @stability Evolving
+    @see MprTime mprCompareTime mprCreateTimeService mprDecodeLocalTime mprDecodeUniversalTime mprFormatLocalTime 
+        mprFormatTm mprGetDate mprGetElapsedTime mprGetRemainingTime mprGetTicks mprGetTimeZoneOffset mprMakeTime 
+        mprMakeUniversalTime mprParseTime 
+    @defgroup MprTime MprTime
+ */
+typedef int64 MprTime;
+
+#ifndef BITSPERBYTE
+    #define BITSPERBYTE     (8 * sizeof(char))
+#endif
+
+#ifndef BITS
+    #define BITS(type)      (BITSPERBYTE * (int) sizeof(type))
+#endif
+
+#if BIT_FLOAT
+    #ifndef MAXFLOAT
+        #if BIT_WIN_LIKE
+            #define MAXFLOAT        DBL_MAX
+        #else
+            #define MAXFLOAT        FLT_MAX
+        #endif
+    #endif
+    #if VXWORKS
+        #define isnan(n)  ((n) != (n))
+        #define isnanf(n) ((n) != (n))
+        #define isinf(n)  ((n) == (1.0 / 0.0) || (n) == (-1.0 / 0.0))
+        #define isinff(n) ((n) == (1.0 / 0.0) || (n) == (-1.0 / 0.0))
+    #endif
+    #if BIT_WIN_LIKE
+        #define isNan(f) (_isnan(f))
+    #elif VXWORKS || MACOSX || LINUX
+        #define isNan(f) (isnan(f))
+    #else
+        #define isNan(f) (fpclassify(f) == FP_NAN)
+    #endif
+#endif
+
+
+#ifndef MAXINT
+#if INT_MAX
+    #define MAXINT      INT_MAX
+#else
+    #define MAXINT      0x7fffffff
+#endif
+#endif
+
+#ifndef MAXINT64
+    #define MAXINT64    INT64(0x7fffffffffffffff)
+#endif
+
+#if SIZE_T_MAX
+    #define MAXSIZE     SIZE_T_MAX
+#elif BIT_64
+    #define MAXSIZE     INT64(0xffffffffffffffff)
+#else
+    #define MAXSIZE     MAXINT
+#endif
+
+#if SSIZE_T_MAX
+    #define MAXSSIZE     SSIZE_T_MAX
+#elif BIT_64
+    #define MAXSSIZE     INT64(0x7fffffffffffffff)
+#else
+    #define MAXSSIZE     MAXINT
+#endif
+
+#if OFF_T_MAX
+    #define MAXOFF       OFF_T_MAX
+#else
+    #define MAXOFF       INT64(0x7fffffffffffffff)
+#endif
+
+/*
+    Word size and conversions between integer and pointer.
+ */
+#if BIT_64
+    #define ITOP(i)     ((void*) ((int64) i))
+    #define PTOI(i)     ((int) ((int64) i))
+    #define LTOP(i)     ((void*) ((int64) i))
+    #define PTOL(i)     ((int64) i)
+#else
+    #define ITOP(i)     ((void*) ((int) i))
+    #define PTOI(i)     ((int) i)
+    #define LTOP(i)     ((void*) ((int) i))
+    #define PTOL(i)     ((int64) (int) i)
+#endif
+
+#if BIT_WIN_LIKE
+    #define INT64(x)    (x##i64)
+    #define UINT64(x)   (x##Ui64)
+    #define MPR_EXPORT  __declspec(dllexport)
+#else
+    #define INT64(x)    (x##LL)
+    #define UINT64(x)   (x##ULL)
+    #define MPR_EXPORT 
+#endif
+
+#ifndef max
+    #define max(a,b)  (((a) > (b)) ? (a) : (b))
+#endif
+#ifndef min
+    #define min(a,b)  (((a) < (b)) ? (a) : (b))
+#endif
+
+#ifndef PRINTF_ATTRIBUTE
+    #if (__GNUC__ >= 3) && !DOXYGEN && BIT_DEBUG && UNUSED && KEEP
+        /** 
+            Use gcc attribute to check printf fns.  a1 is the 1-based index of the parameter containing the format, 
+            and a2 the index of the first argument. Note that some gcc 2.x versions don't handle this properly 
+         */     
+        #define PRINTF_ATTRIBUTE(a1, a2) __attribute__ ((format (__printf__, a1, a2)))
+    #else
+        #define PRINTF_ATTRIBUTE(a1, a2)
+    #endif
+#endif
+
+/*
+    Optimize expression evaluation code depending if the value is likely or not
+ */
+#undef likely
+#undef unlikely
+#if (__GNUC__ >= 3)
+    #define likely(x)   __builtin_expect(!!(x), 1)
+    #define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+    #define likely(x)   (x)
+    #define unlikely(x) (x)
+#endif
+
+#if !__UCLIBC__ && !CYGWIN && __USE_XOPEN2K
+    #define BIT_HAS_SPINLOCK    1
+#endif
+
+#if BIT_HAS_DOUBLE_BRACES
+    #define  NULL_INIT    {{0}}
+#else
+    #define  NULL_INIT    {0}
+#endif
+
+#ifndef R_OK
+    #define R_OK    4
+    #define W_OK    2
+#if BIT_WIN_LIKE
+    #define X_OK    R_OK
+#else
+    #define X_OK    1
+#endif
+    #define F_OK    0
+#endif
+
+#if MACSOX
+    #define LD_LIBRARY_PATH "DYLD_LIBRARY_PATH"
+#else
+    #define LD_LIBRARY_PATH "LD_LIBRARY_PATH"
+#endif
+
+#if VXWORKS
+/*
+    Old VxWorks can't do array[]
+ */
+#define MPR_FLEX 0
+#else
+#define MPR_FLEX
+#endif
+
+/*********************************** Fixups ***********************************/
+
+//  MOB - sort this out
 #ifdef UW
     #define     __NO_PACK       1
 #endif /* UW */
 
-#if (defined (SCOV5) || defined (VXWORKS) || defined (LINUX) || defined (LYNX) || defined (MACOSX))
-#ifndef O_BINARY
-#define O_BINARY        0
-#endif /* O_BINARY */
-#define SOCKET_ERROR    -1
+#if SCOV5 || VXWORKS || LINUX || LYNX || MACOSX
+    #ifndef O_BINARY
+        #define O_BINARY 0
+    #endif /* O_BINARY */
+    #define SOCKET_ERROR -1
 #endif /* SCOV5 || VXWORKS || LINUX || LYNX || MACOSX */
 
-#if (defined (WIN) || defined (CE))
-/*
-    __NO_FCNTL means can't access fcntl function.  Fcntl.h is still available.
- */
-#define     __NO_FCNTL      1
-
-#undef R_OK
-#define R_OK    4
-#undef W_OK
-#define W_OK    2
-#undef X_OK
-#define X_OK    1
-#undef F_OK
-#define F_OK    0
-
-typedef int socklen_t;
-
+#if WIN || CE
+    #define     __NO_FCNTL      1
+    #undef R_OK
+    #define R_OK    4
+    #undef W_OK
+    #define W_OK    2
+    #undef X_OK
+    #define X_OK    1
+    #undef F_OK
+    #define F_OK    0
+    typedef int socklen_t;
 #endif /* WIN || CE */
 
-#if (defined (LINUX) && !defined (_STRUCT_TIMEVAL))
+//MOB - why?
+#if LINUX && !defined(_STRUCT_TIMEVAL)
 struct timeval
 {
     time_t  tv_sec;     /* Seconds.  */
     time_t  tv_usec;    /* Microseconds.  */
 };
 #define _STRUCT_TIMEVAL 1
-#endif /* LINUX && ! _STRUCT_TIMEVAL */
+#endif /* LINUX && !_STRUCT_TIMEVAL */
 
 #ifdef ECOS
     #define     O_RDONLY        1
     #define     O_BINARY        2
-
     #define     __NO_PACK       1
     #define     __NO_EJ_FILE    1
     #define     __NO_CGI_BIN    1
     #define     __NO_FCNTL      1
-
-/*
-    #define LIBKERN_INLINE to avoid kernel inline functions
- */
+    /* #define LIBKERN_INLINE to avoid kernel inline functions */
     #define     LIBKERN_INLINE
-
 #endif /* ECOS */
 
 #ifdef QNX4
@@ -422,9 +815,7 @@ struct timeval
     #define fd_mask         fd_set
     #define INADDR_NONE     -1l
     #define Sleep           delay
-
     #define __NO_FCNTL      1
-
     #undef R_OK
     #define R_OK    4
     #undef W_OK
@@ -435,29 +826,7 @@ struct timeval
     #define F_OK    0
 #endif /* NW */
 
-/********************************** Unicode ***********************************/
-/* 
-    Constants and limits. Also FNAMESIZE and PATHSIZE are currently defined 
-    in param.h to be 128 and 512
- */
-#define TRACE_MAX           (4096 - 48)
-#define VALUE_MAX_STRING    (4096 - 48)
-#define SYM_MAX             (512)
-#define XML_MAX             4096    /* Maximum size for tags/tokens */
-#define BUF_MAX             4096    /* General sanity check for bufs */
-#ifndef LINE_MAX
-#define LINE_MAX            2048    /* General sanity check for a single line */
-#endif /* LINE_MAX */
-#define FMT_STATIC_MAX      256     /* Maximum for fmtStatic calls */
 
-#if (defined (LITTLEFOOT) || defined (WEBS))
-#define LF_BUF_MAX      (510)
-#define LF_PATHSIZE     LF_BUF_MAX
-#else
-#define LF_BUF_MAX      BUF_MAX
-#define LF_PATHSIZE     PATHSIZE
-#define UPPATHSIZE      PATHSIZE
-#endif /* LITTLEFOOT || WEBS */ 
 #ifndef CHAR_T_DEFINED
 #define CHAR_T_DEFINED 1
 #ifdef UNICODE
@@ -489,13 +858,12 @@ typedef unsigned char       uchar_t;
 #endif /* WIN */
 
 #endif /* UNICODE */
-
 #endif /* ! CHAR_T_DEFINED */
 
 /*
     "Boolean" constants
+    MOB - remove these
  */
-
 #ifndef TRUE
 #define TRUE 1
 #endif
@@ -511,27 +879,16 @@ typedef unsigned char       uchar_t;
 #define GOAHEAD_COPYRIGHT T("Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved.")
 
 /*
-    The following include has to be after the unicode defines.  By putting it here, many modules in 
-    various parts of the tree are cleaner.
- */
-#if (defined (LITTLEFOOT) && defined (INMEM))
-    #include    "lf/inmem.h"
-#endif /* LITTLEFOOT && INMEM */
-
-/*
     Type for unicode systems
  */
 #ifdef UNICODE
-
 #define gmain       wmain
-
 #define gasctime    _wasctime
 #define gsprintf    swprintf
 #define gprintf     wprintf
 #define gfprintf    fwprintf
 #define gsscanf     swscanf
 #define gvsprintf   vswprintf
-
 #define gstrcpy     wcscpy
 #define gstrncpy    wcsncpy
 #define gstrncat    wcsncat
@@ -549,7 +906,6 @@ typedef unsigned char       uchar_t;
 #define gstrcspn    wcscspn
 #define gstrstr     wcsstr
 #define gstrtol     wcstol
-
 #define gfopen      _wfopen
 #define gopen       _wopen
 #define gclose      close
@@ -579,9 +935,9 @@ typedef struct _stat gstat_t;
 #define gchdir      _wchdir
 #define grmdir      _wrmdir
 #define ggetcwd     _wgetcwd
-
 #define gtolower    towlower
 #define gtoupper    towupper
+
 #ifdef CE
 #define gisspace    isspace
 #define gisdigit    isdigit
@@ -597,6 +953,7 @@ typedef struct _stat gstat_t;
 #define gisupper    iswupper
 #define gislower    iswlower
 #endif  /* if CE */
+
 #define gisalnum    iswalnum
 #define gisalpha    iswalpha
 #define gatoi(s)    wcstol(s, NULL, 10)
@@ -604,7 +961,6 @@ typedef struct _stat gstat_t;
 #define gctime      _wctime
 #define ggetenv     _wgetenv
 #define gexecvp     _wexecvp
-
 #else /* ! UNICODE */
 
 #ifdef VXWORKS
@@ -716,25 +1072,7 @@ typedef struct stat gstat_t;
 //#define strcat(x, y) strcat_s(x, elementsof(x), y)
 #endif
 
-
-/*
-    Include inmem.h here because it redefines many of the file access fucntions.
-    Otherwise there would be lots more #if-#elif-#else-#endif ugliness.
- */
-#ifdef INMEM
-    #include    "lf/inmem.h"
-#endif
-
-/********************************** Defines ***********************************/
-
-#ifndef FNAMESIZE
-#define FNAMESIZE           254         /* Max length of file names */
-#endif /* FNAMESIZE */
-
-#define E_MAX_ERROR         4096
-#define URL_MAX             4096
-#define E_MAX_REQUEST       2048        /* Request safeguard max */
-
+/******************************************************************************/
 /*
     Error types
  */
@@ -793,9 +1131,9 @@ typedef struct {
         long    hex;
         long    octal;
         long    big[2];
-#ifdef FLOATING_POINT_SUPPORT
+#if BIT_FLOAT
         double  floating;
-#endif /* FLOATING_POINT_SUPPORT */
+#endif
         char_t  *string;
         char    *bytes;
         char_t  *errmsg;
@@ -875,17 +1213,6 @@ typedef struct {
 } ringq_t;
 
 /*
-    Block allocation (balloc) definitions
- */
-#ifdef  B_STATS
-#ifndef B_L
-#define B_L             T(__FILE__), __LINE__
-#define B_ARGS_DEC      char_t *file, int line
-#define B_ARGS          file, line
-#endif /* B_L */
-#endif /* B_STATS */
-
-/*
     Block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 
  */
 typedef struct {
@@ -928,29 +1255,15 @@ typedef int sym_fd_t;                       /* Returned by symOpen */
 
 /*
     Script engines
+    MOB - remove
  */
 #define EMF_SCRIPT_JSCRIPT          0       /* javascript */
 #define EMF_SCRIPT_TCL              1       /* tcl */
 #define EMF_SCRIPT_EJSCRIPT         2       /* Ejscript */
 #define EMF_SCRIPT_MAX              3
 
-#if !defined(HAVE_MAXINT)
-#define MAXINT      INT_MAX
-#endif
-#define BITSPERBYTE 8
-#define BITS(type)  (BITSPERBYTE * (int) sizeof(type))
 #define STRSPACE    T("\t \n\r\t")
 
-#ifndef max
-#define max(a,b)  (((a) > (b)) ? (a) : (b))
-#endif /* max */
-
-#ifndef min
-#define min(a,b)  (((a) < (b)) ? (a) : (b))
-#endif /* min */
-
-/******************************************************************************/
-/*                                  CRON                                      */
 /******************************************************************************/
 
 typedef struct {
@@ -965,8 +1278,6 @@ extern long     cronUntil(cron_t *cp, int period, time_t testTime);
 extern int      cronAlloc(cron_t *cp, char_t *str);
 extern int      cronFree(cron_t *cp);
 
-/******************************************************************************/
-/*                                 SOCKET                                     */
 /******************************************************************************/
 /*
     Socket flags 
@@ -1076,7 +1387,7 @@ extern char *bstrdupANoBalloc(char *s);
 
 #else /* BALLOC */
 
-#ifndef B_STATS
+//  MOB - remove
 #define balloc(B_ARGS, num) balloc(num)
 #define bfree(B_ARGS, p) bfree(p)
 #define bfreeSafe(B_ARGS, p) bfreeSafe(p)
@@ -1088,8 +1399,6 @@ extern char *bstrdupANoBalloc(char *s);
 #else /* UNICODE */
 #define bstrdupA bstrdup
 #endif /* UNICODE */
-
-#endif /* B_STATS */
 
 #define gstrdup bstrdup
 extern void     *balloc(B_ARGS_DEC, int size);
@@ -1127,15 +1436,8 @@ extern void     emfInstSet(int inst);
 extern void     error(E_ARGS_DEC, int flags, char_t *fmt, ...);
 extern void     (*errorSetHandler(void (*function)(int etype, char_t *msg))) (int etype, char_t *msg);
 
-#ifdef B_STATS
-#define         hAlloc(x)               HALLOC(B_L, x)
-#define         hAllocEntry(x, y, z)    HALLOCENTRY(B_L, x, y, z)
-extern int      HALLOC(B_ARGS_DEC, void ***map);
-extern int      HALLOCENTRY(B_ARGS_DEC, void ***list, int *max, int size);
-#else
 extern int      hAlloc(void ***map);
 extern int      hAllocEntry(void ***list, int *max, int size);
-#endif /* B_STATS */
 
 extern int      hFree(void ***map, int handle);
 
@@ -1234,7 +1536,7 @@ extern int      vxchdir(char *dirname);
 
 extern unsigned int hextoi(char_t *hexstring);
 extern unsigned int gstrtoi(char_t *s);
-externtime_t    timeMsec();
+extern time_t    timeMsec();
 
 extern char_t   *ascToUni(char_t *ubuf, char *str, int nBytes);
 extern char     *uniToAsc(char *buf, char_t *ustr, int nBytes);

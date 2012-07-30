@@ -21,10 +21,6 @@ int             ejMax = -1;                             /* Maximum size of  */
 
 /****************************** Forward Declarations **************************/
 
-#ifndef B_STATS
-#define setString(a,b,c)     setstring(b,c)
-#endif
-
 static ej_t     *ejPtr(int eid);
 static void     clearString(char_t **ptr);
 static void     setString(B_ARGS_DEC, char_t **ptr, char_t *s);

@@ -665,7 +665,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
         }
     }
     if (pEntry == NULL) {
-        fmtAlloc(&pEntry, LF_PATHSIZE, T("%s_%s"), basename, T("cgientry"));
+        fmtAlloc(&pEntry, FNAMESIZE, T("%s_%s"), basename, T("cgientry"));
     }
     entryAddr = 0;
     if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {

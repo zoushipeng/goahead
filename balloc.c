@@ -29,53 +29,8 @@
 #include    <stdarg.h>
 #include    <stdlib.h>
 
-#ifndef NO_BALLOC
+#if !NO_BALLOC
 /********************************* Defines ************************************/
-
-/*
- *  Define B_STATS if you wish to track memory block and stack usage
- */
-#ifdef B_STATS
-/*
- *  Optional statistics
- */
-
-typedef struct {
-    long    alloc;                              /* Block allocation calls */
-    long    inuse;                              /* Blocks in use */
-} bStatsType;
-
-typedef struct {
-    char_t  file[FNAMESIZE];
-    long    allocated;                          /* Bytes currently allocated */
-    long    count;                              /* Current block count */
-    long    times;                              /* Count of alloc attempts */
-    long    largest;                            /* largest allocated here */
-    int     q;
-} bStatsFileType;
-
-/*
- *  This one is very expensive but great stats
- */
-typedef struct {
-    void            *ptr;                       /* Pointer to memory */
-    bStatsFileType  *who;                       /* Who allocated the memory */
-} bStatsBlkType;
-
-static bStatsType       bStats[B_MAX_CLASS];    /* Per class stats */
-static bStatsFileType   bStatsFiles[B_MAX_FILES];/* Per file stats */
-static bStatsBlkType    bStatsBlks[B_MAX_BLOCKS];/* Per block stats */
-static int              bStatsBlksMax = 0;      /* Max block entry */
-static int              bStatsFilesMax = 0;     /* Max file entry */
-static int              bStatsMemInUse = 0;     /* Memory currently in use */
-static int              bStatsBallocInUse = 0;  /* Memory currently balloced */
-static int              bStatsMemMax = 0;       /* Max memory ever used */
-static int              bStatsBallocMax = 0;    /* Max memory ever balloced */
-static void             *bStackMin = (void*) -1;/* Miniumum stack position */
-static void             *bStackStart;           /* Starting stack position */
-static int              bStatsMemMalloc = 0;    /* Malloced memory */
-#endif /* B_STATS */
-
 /*
  *  ROUNDUP4(size) returns the next higher integer value of size that is 
  *  divisible by 4, or the value of size if size is divisible by 4.
@@ -100,13 +55,6 @@ static int              bFlags = B_USE_MALLOC;  /* Default to auto-malloc */
 static int              bopenCount = 0;         /* Num tasks using balloc */
 
 /*************************** Forward Declarations *****************************/
-
-#ifdef B_STATS
-static void bStatsAlloc(B_ARGS_DEC, void *ptr, int q, int size);
-static void bStatsFree(B_ARGS_DEC, void *ptr, int q, int size);
-static void bstatsWrite(int handle, char_t *fmt, ...);
-static int  bStatsFileSort(const void *cp1, const void *cp2);
-#endif /* B_STATS */
 
 #if (defined (B_FILL) || defined (B_VERIFY_CAUSES_SEVERE_OVERHEAD))
 static void bFillBlock(void *buf, int bufsize);
@@ -162,9 +110,6 @@ int bopen(void *buf, int bufsize, int flags)
          --bopenCount;
             return -1;
         }
-#ifdef B_STATS
-        bStatsMemMalloc += bufsize;
-#endif
     } else {
         bFlags |= B_USER_BUF;
     }
@@ -174,9 +119,6 @@ int bopen(void *buf, int bufsize, int flags)
     memset(bQhead, 0, sizeof(bQhead));
 #if (defined (B_FILL) || defined (B_VERIFY_CAUSES_SEVERE_OVERHEAD))
     bFillBlock(buf, bufsize);
-#endif
-#ifdef B_STATS
-    bStackStart = &buf;
 #endif
 #ifdef B_VERIFY_CAUSES_SEVERE_OVERHEAD
     verifyFreeBlock(buf, bufsize);
@@ -240,9 +182,6 @@ void *balloc(B_ARGS_DEC, int size)
  *      Size if bigger than the maximum class. Malloc if use has been okayed
  */
         if (bFlags & B_USE_MALLOC) {
-#ifdef B_STATS
-            bstats(0, NULL);
-#endif
 #ifdef IRIX
             memSize = ROUNDUP4(memSize);
 #endif
@@ -251,9 +190,6 @@ void *balloc(B_ARGS_DEC, int size)
                 traceRaw(T("B: malloc failed\n"));
                 return NULL;
             }
-#ifdef B_STATS
-            bStatsMemMalloc += memSize;
-#endif
 #if (defined (B_FILL) || defined (B_VERIFY_CAUSES_SEVERE_OVERHEAD))
             bFillBlock(bp, memSize);
 #endif
@@ -302,12 +238,6 @@ void *balloc(B_ARGS_DEC, int size)
             bp->flags = 0;
 
         } else if (bFlags & B_USE_MALLOC) {
-#ifdef B_STATS
-            static int once = 0;
-            if (once++ == 0) {
-                bstats(0, NULL);
-            }
-#endif
 /*
  *          Nothing left on the primary free list, so malloc a new block
  */
@@ -318,9 +248,6 @@ void *balloc(B_ARGS_DEC, int size)
                 traceRaw(T("B: malloc failed\n"));
                 return NULL;
             }
-#ifdef B_STATS
-            bStatsMemMalloc += memSize;
-#endif
 #if (defined (B_FILL) || defined (B_VERIFY_CAUSES_SEVERE_OVERHEAD))
             bFillBlock(bp, memSize);
 #endif
@@ -332,23 +259,12 @@ void *balloc(B_ARGS_DEC, int size)
             return NULL;
         }
     }
-
-#ifdef B_STATS
-    bStatsAlloc(B_ARGS, bp, q, memSize);
-#endif
     bp->flags |= B_INTEGRITY;
 
 /*
  *  The following is a good place to put a breakpoint when trying to reduce
  *  determine and reduce maximum memory use.
  */
-#if 0
-#ifdef B_STATS
-    if (bStatsBallocInUse == bStatsBallocMax) {
-        bstats(0, NULL);
-    }
-#endif
-#endif
     return (void*) ((char*) bp + sizeof(bType));
 }
 
@@ -379,9 +295,6 @@ void bfree(B_ARGS_DEC, void *mp)
 
 #ifdef B_VERIFY_CAUSES_SEVERE_OVERHEAD
     verifyUsedBlock(bp,q);
-#endif
-#ifdef B_STATS
-    bStatsFree(B_ARGS, bp, q, bp->u.size+sizeof(bType));
 #endif
     if (bp->flags & B_MALLOCED) {
         free(bp);
@@ -521,300 +434,7 @@ static void bFillBlock(void *buf, int bufsize)
 #endif
 
 /******************************************************************************/
-#ifdef B_STATS
-/*
- *  Statistics. Do output via calling the writefn callback function with 
- *  "handle" as the output file handle. 
- */
-
-void bstats(int handle, void (*writefn)(int handle, char_t *fmt, ...))
-{
-    bStatsFileType  *fp, *files;
-    bStatsBlkType   *blkp;
-    bType           *bp;
-    char_t          *cp;
-    int             q, count, mem, total, len;
-    static  int     recurseProtect = 0;
-
-    if (recurseProtect++ > 0) {
-        recurseProtect--;
-        return;
-    }
-
-    if (writefn == NULL) {
-        writefn = bstatsWrite;
-    }
-
-/*
- *  Print stats for each memory block
- */
-    (*writefn)(handle, T("\nMemory Stats\n"));
-
-/*
- *  The following tabular format is now used for the output.
- *   Q  Size  Free Bytes Inuse Bytes Allocs
- *  dd ddddd   ddd ddddd  dddd ddddd   dddd
- */
-    (*writefn)(handle, " Q  Size   Free  Bytes Inuse Bytes Allocs\n");
-
-    total = 0;
-    for (q = 0; q < B_MAX_CLASS; q++) {
-        count = 0;
-        for (bp = bQhead[q]; bp; bp = bp->u.next) {
-            count++;
-        }
-        mem = count * (1 << (q + B_SHIFT));
-        total += mem;
-        (*writefn)(handle, 
-            T("%2d %5d   %4d %6d  %4d %5d   %4d\n"),
-            q, 1 << (q + B_SHIFT), count, mem, bStats[q].inuse, 
-            bStats[q].inuse * (1 << (q + B_SHIFT)), bStats[q].alloc);
-    }
-
-    (*writefn)(handle, T("\n"));
-
-/*
- *  Print summary stats
- *
- *  bFreeSize           Initial memory reserved with bopen call
- *  bStatsMemMalloc     memory from calls to system MALLOC
- *  bStatsMemMax        
- *  bStatsBallocMax     largest amount of memory from balloc calls
- *  bStatsMemInUse
- *  bStatsBallocInUse   present balloced memory being used
- *  bStatsBlksMax);
- *  bStackStart
- *  bStackMin);
- *  total);
- *  bFreeLeft);
- *
- */
-    (*writefn)(handle, T("Initial free list size    %7d\n"), bFreeSize);
-    (*writefn)(handle, T("Max memory malloced       %7d\n"), bStatsMemMalloc);
-    (*writefn)(handle, T("Max memory ever used      %7d\n"), bStatsMemMax);
-    (*writefn)(handle, T("Max memory ever balloced  %7d\n"), bStatsBallocMax);
-    (*writefn)(handle, T("Memory currently in use   %7d\n"), bStatsMemInUse);
-    (*writefn)(handle, T("Memory currently balloced %7d\n"), bStatsBallocInUse);
-    (*writefn)(handle, T("Max blocks allocated      %7d\n"), bStatsBlksMax);
-    (*writefn)(handle, T("Maximum stack used        %7d\n"), 
-        (int) bStackStart - (int) bStackMin);
-
-    (*writefn)(handle, T("Free memory on all queues %7d\n"), total);
-    (*writefn)(handle, T("Free list buffer left     %7d\n"), bFreeLeft);
-    (*writefn)(handle, T("Total free memory         %7d\n"), bFreeLeft + total);
-
-/*
- *  Print per file allocation stats. Sort the copied table.
- */
-    len = sizeof(bStatsFileType) * B_MAX_FILES;
-    files = malloc(len);
-    if (files == NULL) {
-        (*writefn)(handle, T("Can't allocate stats memory\n"));
-        recurseProtect--;
-        return;
-    }
-    memcpy(files, bStatsFiles, len);
-    qsort(files, bStatsFilesMax, sizeof(bStatsFileType), bStatsFileSort);
-    
-    (*writefn)(handle, T("\nMemory Currently Allocated\n"));
-    total = 0;
-    (*writefn)(handle, 
-        T("                      bytes, blocks in use, total times,")
-        T("largest,   q\n"));
-
-    for (fp = files; fp < &files[bStatsFilesMax]; fp++) {
-        if (fp->file[0]) {
-            (*writefn)(handle, T("%18s, %7d,         %5d,      %6d, %7d,%4d\n"),
-                fp->file, fp->allocated, fp->count, fp->times, fp->largest, 
-                fp->q);
-            total += fp->allocated;
-        }
-    }
-    (*writefn)(handle, T("\nTotal allocated %7d\n\n"), total);
-
-/*
- *  Dump the actual strings
- */
-    (*writefn)(handle, T("\nStrings\n"));
-    for (blkp = &bStatsBlks[bStatsBlksMax - 1]; blkp >= bStatsBlks; blkp--) {
-        if (blkp->ptr) {
-            cp = (char_t*) ((char*) blkp->ptr + sizeof(bType));
-            fp = blkp->who;
-            if (gisalnum(*cp)) {
-                (*writefn)(handle, T("%-50s allocated by %s\n"), cp, 
-                    fp->file);
-            }
-        }
-    }
-    free(files);
-    recurseProtect--;
-}
-
-/******************************************************************************/
-/*
- *  File sort function. Used to sort per file stats
- */
-
-static int bStatsFileSort(const void *cp1, const void *cp2)
-{
-    bStatsFileType  *s1, *s2;
-
-    s1 = (bStatsFileType*) cp1;
-    s2 = (bStatsFileType*) cp2;
-
-    if (s1->allocated < s2->allocated)
-        return -1;
-    else if (s1->allocated == s2->allocated)
-        return 0;
-    return 1;
-}
-
-/******************************************************************************/
-/*
- *  Accumulate allocation statistics
- */
-
-static void bStatsAlloc(B_ARGS_DEC, void *ptr, int q, int size)
-{
-    int             memSize;
-    bStatsFileType  *fp;
-    bStatsBlkType   *bp;
-    char_t          name[FNAMESIZE + 10];
-
-    gsprintf(name, T("%s:%d"), B_ARGS);
-
-    bStats[q].alloc++;
-    bStats[q].inuse++;
-    bStatsMemInUse += size;
-    if (bStatsMemInUse > bStatsMemMax) {
-        bStatsMemMax = bStatsMemInUse;
-    }
-    memSize = (1 << (B_SHIFT + q)) + sizeof(bType);
-    bStatsBallocInUse += memSize;
-    if (bStatsBallocInUse > bStatsBallocMax) {
-        bStatsBallocMax = bStatsBallocInUse;
-    }
-
-/*
- *  Track maximum stack usage. Assumes a stack growth down. Approximate as
- *  we only measure this on block allocation.
- */
-    if ((void*) &file < bStackMin) {
-        bStackMin = (void*) &file;
-    }
-
-/*
- *  Find the file and adjust the stats for this file
- */
-    for (fp = bStatsFiles; fp < &bStatsFiles[bStatsFilesMax]; fp++) {
-        if (fp->file[0] == file[0] && gstrcmp(fp->file, name) == 0) {
-            fp->allocated += size;
-            fp->count++;
-            fp->times++;
-            if (fp->largest < size) {
-                fp->largest = size;
-                fp->q = q;
-            }
-            break;
-        }
-    }
-
-/*
- *  New entry: find the first free slot and create a new entry
- */
-    if (fp >= &bStatsFiles[bStatsFilesMax]) {
-        for (fp = bStatsFiles; fp < &bStatsFiles[B_MAX_FILES]; fp++) {
-            if (fp->file[0] == '\0') {
-                gstrncpy(fp->file, name, TSZ(fp->file));
-                fp->allocated += size;
-                fp->count++;
-                fp->times++;
-                fp->largest = size;
-                fp->q = q;
-                if ((fp - bStatsFiles) >= bStatsFilesMax) {
-                    bStatsFilesMax = (fp - bStatsFiles) + 1;
-                }
-                break;
-            }
-        }
-    }
-
-/*
- *  Update the per block stats. Allocate a new slot.
- */
-    for (bp = bStatsBlks; bp < &bStatsBlks[B_MAX_BLOCKS]; bp++) {
-        if (bp->ptr == NULL) {
-            bp->ptr = ptr;
-            bp->who = fp;
-            if ((bp - bStatsBlks) >= bStatsBlksMax) {
-                bStatsBlksMax = (bp - bStatsBlks) + 1;
-            }
-            break;
-        }
-    }
-}
-
-/******************************************************************************/
-/*
- *  Free statistics
- */
-
-static void bStatsFree(B_ARGS_DEC, void *ptr, int q, int size)
-{
-    int             memSize;
-    bStatsFileType  *fp;
-    bStatsBlkType   *bp;
-
-    memSize = (1 << (B_SHIFT + q)) + sizeof(bType);
-    bStatsMemInUse -= size;
-    bStatsBallocInUse -= memSize;
-    bStats[q].inuse--;
-
-/*
- *  Update the per block stats. Try from the end first 
- */
-    for (bp = &bStatsBlks[bStatsBlksMax - 1]; bp >= bStatsBlks; bp--) {
-        if (bp->ptr == ptr) {
-            bp->ptr = NULL;
-            fp = bp->who;
-            bp->who = NULL;
-            fp->allocated -= size;
-            fp->count--;
-            return;
-        }
-    }
-}
-
-/******************************************************************************/
-/*
- *  Default output function. Just send to trace channel.
- */
-
-#undef sprintf
-static void bstatsWrite(int handle, char_t *fmt, ...)
-{
-    va_list     args;
-    char_t      buf[BUF_MAX];
-
-    va_start(args, fmt);
-    vsprintf(buf, fmt, args);
-    va_end(args);
-    traceRaw(buf);
-}
-
-
-#else /* not B_STATS */
-/******************************************************************************/
-/*
- *  Dummy bstats for external calls that aren't protected by #if B_STATS.
- */
-
-void bstats(int handle, void (*writefn)(int handle, char_t *fmt, ...))
-{
-}
-#endif /* B_STATS */
-
-/******************************************************************************/
+//  MOB - REMOVE
 #ifdef B_VERIFY_CAUSES_SEVERE_OVERHEAD
 /*
  *  The following routines verify the integrity of the balloc memory space.

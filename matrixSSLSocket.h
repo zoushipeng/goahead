@@ -25,6 +25,7 @@ extern "C" {
 #define LINUX 1
 #define OSX 1
 #endif
+
 /*
     OS specific macros
 */

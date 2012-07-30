@@ -5,7 +5,8 @@
 #   This simply invokes bit to do the work
 
 if ! type bit >/dev/null 2>&1 ; then
-    echo "Install Ejscript for building" >&2
+    echo "Install Bit for building. Distributed as part of Ejscript:" >&2
+    echo "  http://ejscript.org/downloads/ejs/download.ejs" >&2
     exit 255
 fi
 bit configure $*

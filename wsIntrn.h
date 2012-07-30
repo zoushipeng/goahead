@@ -18,6 +18,8 @@
 
 /********************************** Includes **********************************/
 
+//  MOB - merge back into uemf.h
+
 #include    <ctype.h>
 #include    <stdlib.h>
 #include    <string.h>

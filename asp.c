@@ -156,9 +156,6 @@ int websAspRequest(webs_t wp, char_t *lpath)
                     cp++;
                 }
             }
-            /*
-                Now call the relevant script engine. Output is done directly by the ASP script procedure by calling websWrite()
-             */
             if (*nextp) {
                 result = NULL;
                 if (engine == EMF_SCRIPT_EJSCRIPT) {

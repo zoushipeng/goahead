@@ -9,6 +9,8 @@
 
 /********************************* Includes ***********************************/
 
+//  MOB - move these into uemf.h
+
 #include    <ctype.h>
 #include    <stdarg.h>
 #include    <stdlib.h>

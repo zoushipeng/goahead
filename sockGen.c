@@ -8,8 +8,6 @@
 
 /********************************** Includes **********************************/
 
-//  MOB - LITTLEFOOT?
-
 #if (!defined (WIN) || defined (LITTLEFOOT) || defined (WEBS))
 #ifndef CE
 #include    <errno.h>

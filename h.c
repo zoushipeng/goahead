@@ -27,13 +27,7 @@
     Allocate a new file handle.  On the first call, the caller must set the handle map to be a pointer to a null
     pointer.  map points to the second element in the handle array.
  */
-
-//  MOB
-#ifdef B_STATS
-int HALLOC(B_ARGS_DEC, void ***map)
-#else
 int hAlloc(void ***map)
-#endif
 {
     int     *mp;
     int     handle, len, memsize, incr;
@@ -43,11 +37,7 @@ int hAlloc(void ***map)
     if (*map == NULL) {
         incr = H_INCR;
         memsize = (incr + H_OFFSET) * sizeof(void**);
-#ifdef B_STATS
-        if ((mp = (int*) balloc(B_ARGS, memsize)) == NULL) {
-#else
         if ((mp = (int*) balloc(B_L, memsize)) == NULL) {
-#endif
             return -1;
         }
         memset(mp, 0, memsize);
@@ -131,11 +121,7 @@ int hFree(void ***map, int handle)
 /*
     Allocate an entry in the halloc array.
  */
-#ifdef B_STATS
-int HALLOCENTRY(B_ARGS_DEC, void ***list, int *max, int size)
-#else
 int hAllocEntry(void ***list, int *max, int size)
-#endif
 {
     char_t  *cp;
     int     id;
@@ -143,19 +129,11 @@ int hAllocEntry(void ***list, int *max, int size)
     a_assert(list);
     a_assert(max);
 
-#ifdef B_STATS
-    if ((id = HALLOC(B_ARGS, (void***) list)) < 0) {
-#else
     if ((id = hAlloc((void***) list)) < 0) {
-#endif
         return -1;
     }
     if (size > 0) {
-#ifdef B_STATS
-        if ((cp = balloc(B_ARGS, size)) == NULL) {
-#else
         if ((cp = balloc(B_L, size)) == NULL) {
-#endif
             hFree(list, id);
             return -1;
         }
