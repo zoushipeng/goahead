@@ -1,15 +1,8 @@
 /*
     asp.c -- Active Server Page Support
+    MOB - rename to csp?
   
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	The ASP module processes ASP pages and executes embedded scripts. It 
- *	support an open scripting architecture with in-built support for 
- *	Ejscript(TM).
  */
 
 /********************************* Includes ***********************************/
@@ -28,29 +21,24 @@ static char_t	*skipWhite(char_t *s);
 
 /************************************* Code ***********************************/
 /*
- *	Create script spaces and commands
+  	Create script spaces and commands
  */
 
 int websAspOpen()
 {
 	if (++aspOpenCount == 1) {
-/*
- *	Create the table for ASP functions
- */
+        /*
+          	Create the table for ASP functions
+         */
 		websAspFunctions = symOpen(WEBS_SYM_INIT * 2);
 
-/*
- *	Create standard ASP commands
- */
+        /*
+          	Create standard ASP commands
+         */
 		websAspDefine(T("write"), websAspWrite);
 	}
 	return 0;
 }
-
-/************************************* Code ***********************************/
-/*
- *	Close Asp symbol table.
- */
 
 void websAspClose()
 {
@@ -62,13 +50,11 @@ void websAspClose()
 	}
 }
 
-/******************************************************************************/
-/*
- *	Process ASP requests and expand all scripting commands. We read the
- *	entire ASP page into memory and then process. If you have really big 
- *	documents, it is better to make them plain HTML files rather than ASPs.
- */
 
+/*
+    Process ASP requests and expand all scripting commands. We read the entire ASP page into memory and then process. If
+    you have really big documents, it is better to make them plain HTML files rather than ASPs.
+ */
 int websAspRequest(webs_t wp, char_t *lpath)
 {
 	websStatType	sbuf;
@@ -87,9 +73,9 @@ int websAspRequest(webs_t wp, char_t *lpath)
 	wp->flags |= WEBS_HEADER_DONE;
 	path = websGetRequestPath(wp);
 
-/*
- *	Create Ejscript instance in case it is needed
- */
+    /*
+      	Create Ejscript instance in case it is needed
+     */
 	ejid = ejOpenEngine(wp->cgiVars, websAspFunctions);
 	if (ejid < 0) {
 		websError(wp, 200, T("Can't create Ejscript engine"));
@@ -102,9 +88,9 @@ int websAspRequest(webs_t wp, char_t *lpath)
 		goto done;
 	}
 
-/*
- *	Create a buffer to hold the ASP file in-memory
- */
+    /*
+      	Create a buffer to hold the ASP file in-memory
+     */
 	len = sbuf.size * sizeof(char);
 	if ((rbuf = balloc(B_L, len + 1)) == NULL) {
 		websError(wp, 200, T("Can't get memory"));
@@ -126,18 +112,18 @@ int websAspRequest(webs_t wp, char_t *lpath)
 		goto done;
 	}
 
-/*
- *	Scan for the next "<%"
- */
+    /*
+      	Scan for the next "<%"
+     */
 	last = buf;
 	rc = 0;
 	while (rc == 0 && *last && ((nextp = gstrstr(last, T("<%"))) != NULL)) {
 		websWriteBlock(wp, last, (nextp - last));
 		nextp = skipWhite(nextp + 2);
 
-/*
- *		Decode the language
- */
+        /*
+            Decode the language
+         */
 		token = T("language");
 
 		if ((lang = strtokcmp(nextp, token)) != NULL) {
@@ -149,17 +135,17 @@ int websAspRequest(webs_t wp, char_t *lpath)
 			nextp = cp;
 		}
 
-/*
- *		Find tailing bracket and then evaluate the script
- */
+        /*
+            Find tailing bracket and then evaluate the script
+         */
 		if ((ep = gstrstr(nextp, T("%>"))) != NULL) {
 
 			*ep = '\0';
 			last = ep + 2;
 			nextp = skipWhite(nextp);
-/*
- *			Handle backquoted newlines
- */
+            /*
+                Handle backquoted newlines
+             */
 			for (cp = nextp; *cp; ) {
 				if (*cp == '\\' && (cp[1] == '\r' || cp[1] == '\n')) {
 					*cp++ = ' ';
@@ -170,11 +156,9 @@ int websAspRequest(webs_t wp, char_t *lpath)
 					cp++;
 				}
 			}
-
-/*
- *			Now call the relevant script engine. Output is done directly
- *			by the ASP script procedure by calling websWrite()
- */
+            /*
+                Now call the relevant script engine. Output is done directly by the ASP script procedure by calling websWrite()
+             */
 			if (*nextp) {
 				result = NULL;
 				if (engine == EMF_SCRIPT_EJSCRIPT) {
@@ -183,11 +167,10 @@ int websAspRequest(webs_t wp, char_t *lpath)
 					rc = scriptEval(engine, nextp, &result, wp);
 				}
 				if (rc < 0) {
-/*
- *					On an error, discard all output accumulated so far
- *					and store the error in the result buffer. Be careful if the
- *					user has called websError() already.
- */
+                    /*
+                         On an error, discard all output accumulated so far and store the error in the result buffer. Be
+                         careful if the user has called websError() already.
+                     */
 					if (websValid(wp)) {
 						if (result) {
 							websWrite(wp, T("<h2><b>ASP Error: %s</b></h2>\n"), 
@@ -211,16 +194,16 @@ int websAspRequest(webs_t wp, char_t *lpath)
 			goto done;
 		}
 	}
-/*
- *	Output any trailing HTML page text
- */
+    /*
+      	Output any trailing HTML page text
+     */
 	if (last && *last && rc == 0) {
 		websWriteBlock(wp, last, gstrlen(last));
 	}
 	rc = 0;
 
 /*
- *	Common exit and cleanup
+    Common exit and cleanup
  */
 done:
 	if (websValid(wp)) {
@@ -234,11 +217,10 @@ done:
 	return rc;
 }
 
-/******************************************************************************/
-/*
- *	Define an ASP Ejscript function. Bind an ASP name to a C procedure.
- */
 
+/*
+    Define an ASP Ejscript function. Bind an ASP name to a C procedure.
+ */
 int websAspDefine(char_t *name, 
 	int (*fn)(int ejid, webs_t wp, int argc, char_t **argv))
 {
@@ -246,11 +228,10 @@ int websAspDefine(char_t *name,
 		(int (*)(int, void*, int, char_t**)) fn);
 }
 
-/******************************************************************************/
-/*
- *	Asp write command. This implemements <% write("text"); %> command
- */
 
+/*
+    Asp write command. This implemements <% write("text"); %> command
+ */
 int websAspWrite(int ejid, webs_t wp, int argc, char_t **argv)
 {
 	int		i;
@@ -271,12 +252,10 @@ int websAspWrite(int ejid, webs_t wp, int argc, char_t **argv)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	strtokcmp -- Find s2 in s1. We skip leading white space in s1.
- *	Return a pointer to the location in s1 after s2 ends.
- */
 
+/*
+    Find s2 in s1. We skip leading white space in s1.  Return a pointer to the location in s1 after s2 ends.
+ */
 static char_t *strtokcmp(char_t *s1, char_t *s2)
 {
 	int		len;
@@ -296,10 +275,6 @@ static char_t *strtokcmp(char_t *s1, char_t *s2)
 	return NULL;
 }
 
-/******************************************************************************/
-/*
- *	Skip white space
- */
 
 static char_t *skipWhite(char_t *s) 
 {
@@ -314,34 +289,16 @@ static char_t *skipWhite(char_t *s)
 	return s;
 }
 
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

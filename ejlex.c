@@ -1,14 +1,9 @@
 /*
     ejlex.c -- Ejscript(TM) Lexical Analyser
   
+    Ejscript lexical analyser. This implementes a lexical analyser for a a subset of the JavaScript language.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	Ejscript lexical analyser. This implementes a lexical analyser for a 
- *	a subset of the JavaScript language.
  */
 
 /********************************** Includes **********************************/
@@ -29,28 +24,17 @@ static void		inputPutback(ej_t* ep, int c);
 static int		charConvert(ej_t* ep, int base, int maxDig);
 
 /************************************* Code ***********************************/
-/*
- *	Setup the lexical analyser
- */
 
 int ejLexOpen(ej_t* ep)
 {
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Close the lexicial analyser
- */
 
 void ejLexClose(ej_t* ep)
 {
 }
 
-/******************************************************************************/
-/*
- *	Open a new input script
- */
 
 int ejLexOpenScript(ej_t* ep, char_t *script)
 {
@@ -69,18 +53,18 @@ int ejLexOpenScript(ej_t* ep, char_t *script)
 	a_assert(ip->putBackToken == NULL);
 	a_assert(ip->putBackTokenId == 0);
 
-/*
- *	Create the parse token buffer and script buffer
- */
+    /*
+        Create the parse token buffer and script buffer
+     */
 	if (ringqOpen(&ip->tokbuf, EJ_INC, -1) < 0) {
 		return -1;
 	}
 	if (ringqOpen(&ip->script, EJ_SCRIPT_INC, -1) < 0) {
 		return -1;
 	}
-/*
- *	Put the Ejscript into a ring queue for easy parsing
- */
+    /*
+        Put the Ejscript into a ring queue for easy parsing
+     */
 	ringqPutStr(&ip->script, script);
 
 	ip->lineNumber = 1;
@@ -91,10 +75,6 @@ int ejLexOpenScript(ej_t* ep, char_t *script)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Close the input script
- */
 
 void ejLexCloseScript(ej_t* ep)
 {
@@ -115,17 +95,11 @@ void ejLexCloseScript(ej_t* ep)
 		bfree(B_L, ip->line);
 		ip->line = NULL;
 	}
-
 	ringqClose(&ip->tokbuf);
 	ringqClose(&ip->script);
-
 	bfree(B_L, ip);
 }
 
-/******************************************************************************/
-/*
- *	Save the input state
- */
 
 void ejLexSaveInputState(ej_t* ep, ejinput_t* state)
 {
@@ -142,10 +116,6 @@ void ejLexSaveInputState(ej_t* ep, ejinput_t* state)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Restore the input state
- */
 
 void ejLexRestoreInputState(ej_t* ep, ejinput_t* state)
 {
@@ -167,10 +137,6 @@ void ejLexRestoreInputState(ej_t* ep, ejinput_t* state)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Free a saved input state
- */
 
 void ejLexFreeInputState(ej_t* ep, ejinput_t* state)
 {
@@ -180,28 +146,13 @@ void ejLexFreeInputState(ej_t* ep, ejinput_t* state)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Get the next Ejscript token
- */
 
 int ejLexGetToken(ej_t* ep, int state)
 {
 	ep->tid = getLexicalToken(ep, state);
-   /*
-    * commented out 04 Apr 02 Bg Porter -- we found a case where very long
-    * arguments to write() were being corrupted downstream in the trace call
-    * (the ep->token pointer was being overwritten with the trace message.
-    * restore this if it's useful for your debugging.
-	trace(9, T("ejGetToken: %d, \"%s\"\n"), ep->tid, ep->token);
-    */
 	return ep->tid;
 }
 
-/******************************************************************************/
-/*
- *	Get the next Ejscript token
- */
 
 static int getLexicalToken(ej_t* ep, int state)
 {
@@ -215,11 +166,9 @@ static int getLexicalToken(ej_t* ep, int state)
 
 	inq = &ip->script;
 	tokq = &ip->tokbuf;
-
 	ep->tid = -1;
 	tid = -1;
 	ep->token = T("");
-
 	ringqFlush(tokq);
 
 	if (ip->putBackTokenId > 0) {
@@ -229,11 +178,9 @@ static int getLexicalToken(ej_t* ep, int state)
 		ep->token = (char_t*) tokq->servp;
 		return tid;
 	}
-
 	if ((c = inputGetc(ep)) < 0) {
 		return TOK_EOF;
 	}
-
 	for (done = 0; !done; ) {
 		switch (c) {
 		case -1:
@@ -302,9 +249,9 @@ static int getLexicalToken(ej_t* ep, int state)
 			return TOK_EXPR;
 
 		case '/':
-/*
- *			Handle the division operator and comments
- */
+            /*
+                Handle the division operator and comments
+             */
 			if ((c = inputGetc(ep)) < 0) {
 				ejError(ep, T("Syntax Error"));
 				return TOK_ERR;
@@ -315,9 +262,9 @@ static int getLexicalToken(ej_t* ep, int state)
 				return TOK_EXPR;
 			}
 			style = c;
-/*
- *			Eat comments. Both C and C++ comment styles are supported.
- */
+            /*
+                Eat comments. Both C and C++ comment styles are supported.
+             */
 			while (1) {
 				if ((c = inputGetc(ep)) < 0) {
 					ejError(ep, T("Syntax Error"));
@@ -338,9 +285,9 @@ static int getLexicalToken(ej_t* ep, int state)
 					}
 				}
 			}
-/*
- *			Continue looking for a token, so get the next character
- */
+            /*
+                Continue looking for a token, so get the next character
+             */
 			if ((c = inputGetc(ep)) < 0) {
 				return TOK_EOF;
 			}
@@ -436,17 +383,16 @@ static int getLexicalToken(ej_t* ep, int state)
 			}
 
 			while (c != quote) {
-/*
- *				check for escape sequence characters
- */
+                /*
+                    check for escape sequence characters
+                 */
 				if (c == '\\') {
 					c = inputGetc(ep);
 
 					if (gisdigit(c)) {
-/*
- *						octal support, \101 maps to 65 = 'A'. put first char
- *						back so converter will work properly.
- */
+                        /*
+                            octal support, \101 maps to 65 = 'A'. put first char back so converter will work properly.
+                         */
 						inputPutback(ep, c);
 						c = charConvert(ep, OCTAL, 3);
 
@@ -463,15 +409,15 @@ static int getLexicalToken(ej_t* ep, int state)
 						case 't':
 							c = '\t'; break;
 						case 'x':
-/*
- *							hex support, \x41 maps to 65 = 'A'
- */
+                            /*
+                                hex support, \x41 maps to 65 = 'A'
+                             */
 							c = charConvert(ep, HEX, 2);
 							break;
 						case 'u':
-/*
- *							unicode support, \x0401 maps to 65 = 'A'
- */
+                            /*
+                                unicode support, \x0401 maps to 65 = 'A'
+                             */
 							c = charConvert(ep, HEX, 2);
 							c = c*16 + charConvert(ep, HEX, 2);
 
@@ -513,14 +459,14 @@ static int getLexicalToken(ej_t* ep, int state)
 			return TOK_LITERAL;
 
 		default:
-/*
- *			Identifiers or a function names
- */
+            /*
+                Identifiers or a function names
+             */
 			while (1) {
 				if (c == '\\') {
-/*
- *					just ignore any \ characters.
- */
+                    /*
+                        just ignore any \ characters.
+                     */
 				} else if (tokenAddChar(ep, c) < 0) {
 						break;
 				}
@@ -537,10 +483,9 @@ static int getLexicalToken(ej_t* ep, int state)
 				ejError(ep, T("Invalid identifier %s"), tokq->servp);
 				return TOK_ERR;
 			}
-/*
- *			Check for reserved words (only "if", "else", "var", "for"
- *			and "return" at the moment)
- */
+            /*
+                Check for reserved words (only "if", "else", "var", "for" and "return" at the moment)
+             */
 			if (state == STATE_STMT) {
 				if (gstrcmp(ep->token, T("if")) == 0) {
 					return TOK_IF;
@@ -557,11 +502,9 @@ static int getLexicalToken(ej_t* ep, int state)
 					return TOK_RETURN;
 				}
 			}
-
-/* 
- * 			Skip white space after token to find out whether this is
- * 			a function or not.
- */ 
+            /* 
+                Skip white space after token to find out whether this is a function or not.
+             */ 
 			while (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
 				if ((c = inputGetc(ep)) < 0)
 					break;
@@ -572,17 +515,13 @@ static int getLexicalToken(ej_t* ep, int state)
 		}
 	}
 
-/*
- *	Putback the last extra character for next time
- */
+    /*
+        Putback the last extra character for next time
+     */
 	inputPutback(ep, c);
 	return tid;
 }
 
-/******************************************************************************/
-/*
- *	Putback the last token read
- */
 
 void ejLexPutbackToken(ej_t* ep, int tid, char_t *string)
 {
@@ -599,10 +538,6 @@ void ejLexPutbackToken(ej_t* ep, int tid, char_t *string)
 	ip->putBackToken = bstrdup(B_L, string);
 }
 
-/******************************************************************************/
-/*
- *	Add a character to the token ringq buffer
- */
 
 static int tokenAddChar(ej_t *ep, int c)
 {
@@ -622,10 +557,6 @@ static int tokenAddChar(ej_t *ep, int c)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Get another input character
- */
 
 static int inputGetc(ej_t* ep)
 {
@@ -655,10 +586,6 @@ static int inputGetc(ej_t* ep)
 	return c;
 }
 
-/******************************************************************************/
-/*
- *	Putback a character onto the input queue
- */
 
 static void inputPutback(ej_t* ep, int c)
 {
@@ -675,12 +602,10 @@ static void inputPutback(ej_t* ep, int c)
 	ip->line[ip->lineColumn] = '\0';
 }
 
-/******************************************************************************/
-/*
- *	Convert a hex or octal character back to binary, return original char if 
- *	not a hex digit
- */
 
+/*
+    Convert a hex or octal character back to binary, return original char if not a hex digit
+ */
 static int charConvert(ej_t* ep, int base, int maxDig)
 {
 	int		i, c, lval, convChar;
@@ -690,9 +615,9 @@ static int charConvert(ej_t* ep, int base, int maxDig)
 		if ((c = inputGetc(ep)) < 0) {
 			break;
 		}
-/*
- *		Initialize to out of range value
- */
+        /*
+            Initialize to out of range value
+         */
 		convChar = base;
 		if (gisdigit(c)) {
 			convChar = c - '0';
@@ -701,9 +626,9 @@ static int charConvert(ej_t* ep, int base, int maxDig)
 		} else if (c >= 'A' && c <= 'F') {
 			convChar = c - 'A' + 10;
 		}
-/*
- *		if unexpected character then return it to buffer.
- */
+        /*
+            if unexpected character then return it to buffer.
+         */
 		if (convChar >= base) {
 			inputPutback(ep, c);
 			break;
@@ -719,28 +644,12 @@ static int charConvert(ej_t* ep, int base, int maxDig)
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

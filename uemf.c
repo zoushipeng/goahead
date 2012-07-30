@@ -1,13 +1,8 @@
 /*
     uemf.c -- GoAhead Micro Embedded Management Framework
+    MOB - get rid of this term
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/********************************** Description *******************************/
-
-/*
- *	Micro embedded management framework
  */
 
 /*********************************** Includes *********************************/
@@ -28,8 +23,8 @@ static void (*traceHandler)(int level, char_t *buf) = defaultTraceHandler;
 
 /************************************* Code ***********************************/
 /*
- *	Error message that doesn't need user attention. Customize this code
- *	to direct error messages to wherever the developer wishes
+  	Error message that doesn't need user attention. Customize this code
+  	to direct error messages to wherever the developer wishes
  */
 
 void error(E_ARGS_DEC, int etype, char_t *fmt, ...)
@@ -42,43 +37,28 @@ void error(E_ARGS_DEC, int etype, char_t *fmt, ...)
 
 	if (etype == E_LOG) {
 		fmtAlloc(&buf, E_MAX_ERROR, T("%s\n"), fmtBuf);
-/*#ifdef DEV*/
 	} else if (etype == E_ASSERT) {
-		fmtAlloc(&buf, E_MAX_ERROR, 
-			T("Assertion %s, failed at %s %d\n"), fmtBuf, E_ARGS); 
-/*#endif*/
+		fmtAlloc(&buf, E_MAX_ERROR, T("Assertion %s, failed at %s %d\n"), fmtBuf, E_ARGS); 
 	} else if (etype == E_USER) {
 		fmtAlloc(&buf, E_MAX_ERROR, T("%s\n"), fmtBuf);
-	}
-   /*
-    * bugfix -- if etype is not E_LOG, E_ASSERT, or E_USER, the call to
-    * bfreeSafe(B_L, buf) below will fail, because 'buf' is randomly
-    * initialized. To be nice, we format a message saying that this is an
-    * unknown message type, and in doing so give buf a valid value. Thanks 
-    * to Simon Byholm.
-    */
-   else {
+	} else {
       fmtAlloc(&buf, E_MAX_ERROR, T("Unknown error"));
-   }
-	va_end(args);
-
+    }
+    va_end(args);
 	bfree(B_L, fmtBuf);
-
 	if (errorHandler) {
 		errorHandler(etype, buf);
 	}
-
 	bfreeSafe(B_L, buf);
 }
 
-/******************************************************************************/
-/*
- *	Replace the default error handler. Return pointer to old error handler.
- */
 
-void (*errorSetHandler(void (*function)(int etype, char_t *msg))) \
-	(int etype, char_t *msg)
+/*
+  	Replace the default error handler. Return pointer to old error handler.
+ */
+void (*errorSetHandler(void (*function)(int etype, char_t *msg))) (int etype, char_t *msg)
 {
+    //  MOB - typedef for this
 	void (*oldHandler)(int etype, char_t *buf);
 
 	oldHandler = errorHandler;
@@ -86,11 +66,10 @@ void (*errorSetHandler(void (*function)(int etype, char_t *msg))) \
 	return oldHandler;
 }
 
-/******************************************************************************/
-/*
- *	Trace log. Customize this function to log trace output
- */
 
+/*
+  	Trace log. Customize this function to log trace output
+ */
 void trace(int level, char_t *fmt, ...)
 {
 	va_list 	args;
@@ -106,11 +85,10 @@ void trace(int level, char_t *fmt, ...)
 	va_end(args);
 }
 
-/******************************************************************************/
-/*
- *	Trace log. Customize this function to log trace output
- */
 
+/*
+  	Trace log. Customize this function to log trace output
+ */
 void traceRaw(char_t *buf)
 {
 	if (traceHandler) {
@@ -118,13 +96,11 @@ void traceRaw(char_t *buf)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Replace the default trace handler. Return a pointer to the old handler.
- */
 
-void (*traceSetHandler(void (*function)(int level, char_t *buf))) 
-	(int level, char *buf)
+/*
+  	Replace the default trace handler. Return a pointer to the old handler.
+ */
+void (*traceSetHandler(void (*function)(int level, char_t *buf))) (int level, char *buf)
 {
 	void (*oldHandler)(int level, char_t *buf);
 
@@ -135,31 +111,22 @@ void (*traceSetHandler(void (*function)(int level, char_t *buf)))
 	return oldHandler;
 }
 
-/******************************************************************************/
-/*
- *	Save the instance handle
- */
 
 void emfInstSet(int inst)
 {
 	emfInst = inst;
 }
 
-/******************************************************************************/
-/*
- *	Get the instance handle
- */
 
 int emfInstGet()
 {
 	return emfInst;
 }
 
-/******************************************************************************/
-/*
- *	Convert a string to lower case
- */
 
+/*
+  	Convert a string to lower case
+ */
 char_t *strlower(char_t *string)
 {
 	char_t	*s;
@@ -169,7 +136,6 @@ char_t *strlower(char_t *string)
 	if (string == NULL) {
 		return NULL;
 	}
-
 	s = string;
 	while (*s) {
 		if (gisupper(*s)) {
@@ -181,11 +147,10 @@ char_t *strlower(char_t *string)
 	return string;
 }
 
-/******************************************************************************/
-/* 
- *	Convert a string to upper case
- */
 
+/* 
+  	Convert a string to upper case
+ */
 char_t *strupper(char_t *string)
 {
 	char_t	*s;
@@ -194,7 +159,6 @@ char_t *strupper(char_t *string)
 	if (string == NULL) {
 		return NULL;
 	}
-
 	s = string;
 	while (*s) {
 		if (gislower(*s)) {
@@ -206,12 +170,10 @@ char_t *strupper(char_t *string)
 	return string;
 }
 
-/******************************************************************************/
-/*
- *	Convert integer to ascii string. Allow a NULL string in which case we
- *	allocate a dynamic buffer. 
- */
 
+/*
+  	Convert integer to ascii string. Allow a NULL string in which case we allocate a dynamic buffer. 
+ */
 char_t *stritoa(int n, char_t *string, int width)
 {
 	char_t	*cp, *lim, *s;
@@ -262,32 +224,26 @@ char_t *stritoa(int n, char_t *string, int width)
 
 /******************************************************************************/
 /*
- *	Default error and trace	
+    Default error handler.  The developer should insert code to handle error messages in the desired manner.
  */
-/******************************************************************************/
-/*
- *  Default error handler.  The developer should insert code to handle
- *  error messages in the desired manner.
- */
-
 void defaultErrorHandler(int etype, char_t *msg)
 {
+    //  MOB - why?
 #if 0
     write(1, msg, gstrlen(msg));
 #endif
 }
 
-/******************************************************************************/
-/*
- *  Trace log. Customize this function to log trace output
- */
 
+/*
+    Trace log. Customize this function to log trace output
+ */
 void defaultTraceHandler(int level, char_t *buf)
 {
-/*
- *  The following code would write all trace regardless of level
- *  to stdout.
- */
+    /*
+        The following code would write all trace regardless of level to stdout.
+     */
+    //  MOB - why
 #if 0
     if (buf) {
         write(1, buf, gstrlen(buf));
@@ -295,11 +251,11 @@ void defaultTraceHandler(int level, char_t *buf)
 #endif
 }
 
-/******************************************************************************/
-/*
- *	Stubs
- */
 
+/*
+    Stubs
+    MOB - remove
+ */
 char_t *basicGetProduct()
 {
 	return T("uemf");
@@ -319,33 +275,17 @@ void errorClose()
 {
 }
 
-/******************************************************************************/
+
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

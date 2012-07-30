@@ -28,7 +28,7 @@ static int			schedMax;
 
 /************************************* Code ***********************************/
 /*
- *	Evaluate a script
+  	Evaluate a script
  */
 
 int scriptEval(int engine, char_t *cmd, char_t **result, void* chan)
@@ -37,11 +37,6 @@ int scriptEval(int engine, char_t *cmd, char_t **result, void* chan)
 
 	if (engine == EMF_SCRIPT_EJSCRIPT) {
 		ejid = (int) chan;
-      /*
-       * NOTE -- to disable better reporting of ASP errors, change the
-       * following line of code to
-       *	if (ejEval(ejid, cmd, NULL) ) {
-       */
 		if (ejEval(ejid, cmd, result) ) {
 			return 0;
 		} else {
@@ -51,15 +46,12 @@ int scriptEval(int engine, char_t *cmd, char_t **result, void* chan)
 	return -1;
 }
 
-/******************************************************************************/
 /*
- * Compare strings, ignoring case:  normal strcmp return codes.
- *
- *	WARNING: It is not good form to increment or decrement pointers inside a
- *	"call" to tolower et al. These can be MACROS, and have undesired side
- *	effects.
+    Compare strings, ignoring case:  normal strcmp return codes.
+  
+    WARNING: It is not good form to increment or decrement pointers inside a "call" to tolower et al. These can be
+    MACROS, and have undesired side effects.
  */
-
 int strcmpci(char_t *s1, char_t *s2)
 {
 	int		rc;
@@ -84,11 +76,11 @@ int strcmpci(char_t *s1, char_t *s2)
 	return rc;
 }
 
-/******************************************************************************/
-/*
- *	This function is called when a scheduled process time has come.
- */
 
+/*
+  	This function is called when a scheduled process time has come.
+    MOB - why caps?  Static?
+ */
 void TimerProc(int schedid)
 {
 	sched_t	*s;
@@ -100,12 +92,10 @@ void TimerProc(int schedid)
 	(s->routine)(s->arg, s->schedid);
 }
 
-/******************************************************************************/
-/*
- *	Schedule an event in delay milliseconds time. We will use 1 second
- *	granularity for webServer.
- */
 
+/*
+  	Schedule an event in delay milliseconds time. We will use 1 second granularity for webServer.
+ */
 int emfSchedCallback(int delay, emfSchedProc *proc, void *arg)
 {
 	sched_t	*s;
@@ -120,66 +110,60 @@ int emfSchedCallback(int delay, emfSchedProc *proc, void *arg)
 	s->arg = arg;
 	s->schedid = schedid;
 
-/*
- *	Round the delay up to seconds.
- */
+    /*
+      	Round the delay up to seconds.
+     */
 	s->at = ((delay + 500) / 1000) + time(0);
-
 	return schedid;
 }
 
-/******************************************************************************/
-/*
- *	Reschedule to a new delay.
- */
 
+/*
+  	Reschedule to a new delay.
+ */
 void emfReschedCallback(int schedid, int delay)
 {
 	sched_t	*s;
 
-	if (sched == NULL || schedid == -1 || schedid >= schedMax || 
-		(s = sched[schedid]) == NULL) {
+	if (sched == NULL || schedid == -1 || schedid >= schedMax || (s = sched[schedid]) == NULL) {
 		return;
 	}
 	s->at = ((delay + 500) / 1000) + time(0);
 }
 
-/******************************************************************************/
 
 void emfUnschedCallback(int schedid)
 {
 	sched_t	*s;
 
-	if (sched == NULL || schedid == -1 || schedid >= schedMax || 
-		(s = sched[schedid]) == NULL) {
+	if (sched == NULL || schedid == -1 || schedid >= schedMax || (s = sched[schedid]) == NULL) {
 		return;
 	}
 	bfree(B_L, s);
 	schedMax = hFree((void***) &sched, schedid);
 }
 
-/******************************************************************************/
-/*
- *	Take the tasks off the queue in a round robin fashion.
- */
 
+/*
+  	Take tasks off the queue in a round robin fashion.
+ */
 void emfSchedProcess()
 {
 	sched_t		*s;
 	int			schedid;
 	static int	next = 0;	
 
-/*
- *	If schedMax is 0, there are no tasks scheduled, so just return.
- */
+    /*
+        If schedMax is 0, there are no tasks scheduled, so just return.
+     */
 	if (schedMax <= 0) {
 		return;
 	}
 
-/*
- *	If next >= schedMax, the schedule queue was reduced in our absence
- *	so reset next to 0 to start from the begining of the queue again.
- */
+    /*
+      	If next >= schedMax, the schedule queue was reduced in our absence
+      	so reset next to 0 to start from the begining of the queue again.
+     */
 	if (next >= schedMax) {
 		next = 0;
 	}
@@ -195,43 +179,24 @@ void emfSchedProcess()
 			schedid = 0;
 		}
 		if (schedid == next) {
-/*
- *			We've gone all the way through the queue without finding 
- *			anything to do so just return.
- */
+            /*
+                We've gone all the way through the queue without finding anything to do so just return.
+             */
 			return;
 		}
 	}
 }
 
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

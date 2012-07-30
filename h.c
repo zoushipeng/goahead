@@ -1,15 +1,10 @@
 /*
     h.c -- Handle allocation module
 
+    This module provides a simple API to allocate and free handles. It maintains a dynamic array of pointers. These
+    usually point to per-handle structures.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	This module provides a simple API to allocate and free handles
- *	It maintains a dynamic array of pointers. These usually point to
- *	per-handle structures.
  */
 
 /********************************* Includes ***********************************/
@@ -18,11 +13,9 @@
 
 /********************************** Defines ***********************************/
 /*
- *	The handle list stores the length of the list and the number of used
- *	handles in the first two words.  These are hidden from the caller by
- *	returning a pointer to the third word to the caller
+    The handle list stores the length of the list and the number of used handles in the first two words.  These are
+    hidden from the caller by returning a pointer to the third word to the caller.
  */
-
 #define H_LEN		0		/* First entry holds length of list */
 #define H_USED		1		/* Second entry holds number of used */
 #define H_OFFSET	2		/* Offset to real start of list */
@@ -31,11 +24,11 @@
 
 /*********************************** Code *************************************/
 /*
- *	Allocate a new file handle.  On the first call, the caller must set the
- *	handle map to be a pointer to a null pointer.  *map points to the second
- *	element in the handle array.
+    Allocate a new file handle.  On the first call, the caller must set the handle map to be a pointer to a null
+    pointer.  map points to the second element in the handle array.
  */
 
+//  MOB
 #ifdef B_STATS
 int HALLOC(B_ARGS_DEC, void ***map)
 #else
@@ -64,12 +57,11 @@ int hAlloc(void ***map)
 	} else {
 		mp = &((*(int**)map)[-H_OFFSET]);
 	}
-
 	len = mp[H_LEN];
 
-/*
- *	Find the first null handle
- */
+    /*
+      	Find the first null handle
+     */
 	if (mp[H_USED] < mp[H_LEN]) {
 		for (handle = 0; handle < len; handle++) {
 			if (mp[handle+H_OFFSET] == 0) {
@@ -81,9 +73,9 @@ int hAlloc(void ***map)
 		handle = len;
 	}
 
-/*
- *	No free handle so grow the handle list. Grow list in chunks of H_INCR.
- */
+    /*
+      	No free handle so grow the handle list. Grow list in chunks of H_INCR.
+     */
 	len += H_INCR;
 	memsize = (len + H_OFFSET) * sizeof(void**);
 	if ((mp = (int*) brealloc(B_L, (void*) mp, memsize)) == NULL) {
@@ -96,12 +88,10 @@ int hAlloc(void ***map)
 	return handle;
 }
 
-/******************************************************************************/
-/*
- *	Free a handle.  This function returns the value of the largest
- *	handle in use plus 1, to be saved as a max value.
- */
 
+/*
+  	Free a handle.  This function returns the value of the largest handle in use plus 1, to be saved as a max value.
+ */
 int hFree(void ***map, int handle)
 {
 	int		*mp;
@@ -118,10 +108,9 @@ int hFree(void ***map, int handle)
 		bfree(B_L, (void*) mp);
 		*map = NULL;
 	}
-
-/*
- *	Find the greatest handle number in use.
- */
+    /*
+      	Find the greatest handle number in use.
+     */
 	if (*map == NULL) {
 		handle = -1;
 	} else {
@@ -138,11 +127,10 @@ int hFree(void ***map, int handle)
 	return handle + 1;
 }
 
-/******************************************************************************/
-/*
- *	Allocate an entry in the halloc array.
- */
 
+/*
+  	Allocate an entry in the halloc array.
+ */
 #ifdef B_STATS
 int HALLOCENTRY(B_ARGS_DEC, void ***list, int *max, int size)
 #else
@@ -162,7 +150,6 @@ int hAllocEntry(void ***list, int *max, int size)
 #endif
 		return -1;
 	}
-
 	if (size > 0) {
 #ifdef B_STATS
 		if ((cp = balloc(B_ARGS, size)) == NULL) {
@@ -184,33 +171,16 @@ int hAllocEntry(void ***list, int *max, int size)
 	return id;
 }
 
-/******************************************************************************/
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

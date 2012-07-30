@@ -1,15 +1,11 @@
 /*
     sym.c -- Symbol Table module
 
-    Copyright (c) All Rights Reserved. See details at the end of the file.
- */
+    This module implements a highly efficient generic symbol table with update and access routines. Symbols are simple
+    character strings and the values they take can be flexible types as defined by value_t.  This modules allows
+    multiple symbol tables to be created.
 
-/******************************** Description *********************************/
-/*
- *	This module implements a highly efficient generic symbol table with
- *	update and access routines. Symbols are simple character strings and
- *	the values they take can be flexible types as defined by value_t.
- *	This modules allows multiple symbol tables to be created.
+    Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 /********************************* Includes ***********************************/
@@ -40,12 +36,10 @@ static sym_t	*hash(sym_tabent_t *tp, char_t *name);
 static int		calcPrime(int size);
 
 /*********************************** Code *************************************/
-/*
- *	Open the symbol table subSystem.
- */
 
 int symSubOpen()
 {
+    //  MOB - why keep count?
 	if (++symOpenCount == 1) {
 		symMax = 0;
 		sym = NULL;
@@ -53,10 +47,6 @@ int symSubOpen()
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Close the symbol table subSystem.
- */
 
 void symSubClose()
 {
@@ -65,10 +55,6 @@ void symSubClose()
 	}
 }
 
-/******************************************************************************/
-/*
- *	Create a symbol table.
- */
 
 sym_fd_t symOpen(int hash_size)
 {
@@ -77,16 +63,16 @@ sym_fd_t symOpen(int hash_size)
 
 	a_assert(hash_size > 2);
 
-/*
- *	Create a new handle for this symbol table
- */
+    /*
+      	Create a new handle for this symbol table
+     */
 	if ((sd = hAlloc((void***) &sym)) < 0) {
 		return -1;
 	}
 
-/*
- *	Create a new symbol table structure and zero
- */
+    /*
+      	Create a new symbol table structure and zero
+     */
 	if ((tp = (sym_tabent_t*) balloc(B_L, sizeof(sym_tabent_t))) == NULL) {
 		symMax = hFree((void***) &sym, sd);
 		return -1;
@@ -98,9 +84,9 @@ sym_fd_t symOpen(int hash_size)
 	a_assert(0 <= sd && sd < symMax);
 	sym[sd] = tp;
 
-/*
- *	Now create the hash table for fast indexing.
- */
+    /*
+      	Now create the hash table for fast indexing.
+     */
 	tp->hash_size = calcPrime(hash_size);
 	tp->hash_table = (sym_t**) balloc(B_L, tp->hash_size * sizeof(sym_t*));
 	a_assert(tp->hash_table);
@@ -109,12 +95,11 @@ sym_fd_t symOpen(int hash_size)
 	return sd;
 }
 
-/******************************************************************************/
-/*
- *	Close this symbol table. Call a cleanup function to allow the caller
- *	to free resources associated with each symbol table entry.
- */
 
+/*
+    Close this symbol table. Call a cleanup function to allow the caller to free resources associated with each symbol
+    table entry.  
+ */
 void symClose(sym_fd_t sd)
 {
 	sym_tabent_t	*tp;
@@ -125,9 +110,9 @@ void symClose(sym_fd_t sd)
 	tp = sym[sd];
 	a_assert(tp);
 
-/*
- *	Free all symbols in the hash table, then the hash table itself.
- */
+    /*
+      	Free all symbols in the hash table, then the hash table itself.
+     */
 	for (i = 0; i < tp->hash_size; i++) {
 		for (sp = tp->hash_table[i]; sp; sp = forw) {
 			forw = sp->forw;
@@ -138,18 +123,15 @@ void symClose(sym_fd_t sd)
 		}
 	}
 	bfree(B_L, (void*) tp->hash_table);
-
 	symMax = hFree((void***) &sym, sd);
 	bfree(B_L, (void*) tp);
 }
 
-/******************************************************************************/
-/*
- *	Return the first symbol in the hashtable if there is one. This call is used
- *	as the first step in traversing the table. A call to symFirst should be
- *	followed by calls to symNext to get all the rest of the entries.
- */
 
+/*
+    Return the first symbol in the hashtable if there is one. This call is used as the first step in traversing the
+    table. A call to symFirst should be followed by calls to symNext to get all the rest of the entries.
+ */
 sym_t* symFirst(sym_fd_t sd)
 {
 	sym_tabent_t	*tp;
@@ -160,9 +142,9 @@ sym_t* symFirst(sym_fd_t sd)
 	tp = sym[sd];
 	a_assert(tp);
 
-/*
- *	Find the first symbol in the hashtable and return a pointer to it.
- */
+    /*
+      	Find the first symbol in the hashtable and return a pointer to it.
+     */
 	for (i = 0; i < tp->hash_size; i++) {
 		for (sp = tp->hash_table[i]; sp; sp = forw) {
 			forw = sp->forw;
@@ -180,11 +162,10 @@ sym_t* symFirst(sym_fd_t sd)
 	return NULL;
 }
 
-/******************************************************************************/
-/*
- *	Return the next symbol in the hashtable if there is one. See symFirst.
- */
 
+/*
+  	Return the next symbol in the hashtable if there is one. See symFirst.
+ */
 sym_t* symNext(sym_fd_t sd)
 {
 	sym_tabent_t	*tp;
@@ -195,9 +176,9 @@ sym_t* symNext(sym_fd_t sd)
 	tp = sym[sd];
 	a_assert(tp);
 
-/*
- *	Find the first symbol in the hashtable and return a pointer to it.
- */
+    /*
+      	Find the first symbol in the hashtable and return a pointer to it.
+     */
 	for (i = htIndex; i < tp->hash_size; i++) {
 		for (sp = next; sp; sp = forw) {
 			forw = sp->forw;
@@ -216,12 +197,10 @@ sym_t* symNext(sym_fd_t sd)
 	return NULL;
 }
 
-/******************************************************************************/
-/*
- *	Lookup a symbol and return a pointer to the symbol entry. If not present
- *	then return a NULL.
- */
 
+/*
+  	Lookup a symbol and return a pointer to the symbol entry. If not present then return a NULL.
+ */
 sym_t *symLookup(sym_fd_t sd, char_t *name)
 {
 	sym_tabent_t	*tp;
@@ -237,9 +216,9 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
 		return NULL;
 	}
 
-/*
- *	Do an initial hash and then follow the link chain to find the right entry
- */
+    /*
+      	Do an initial hash and then follow the link chain to find the right entry
+     */
 	for (sp = hash(tp, name); sp; sp = sp->forw) {
 		cp = sp->name.value.string;
 		if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
@@ -249,14 +228,12 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
 	return sp;
 }
 
-/******************************************************************************/
-/*
- *	Enter a symbol into the table. If already there, update its value.
- *	Always succeeds if memory available. We allocate a copy of "name" here
- *	so it can be a volatile variable. The value "v" is just a copy of the
- *	passed in value, so it MUST be persistent.
- */
 
+/*
+    Enter a symbol into the table. If already there, update its value.  Always succeeds if memory available. We allocate
+    a copy of "name" here so it can be a volatile variable. The value "v" is just a copy of the passed in value, so it
+    MUST be persistent.
+ */
 sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 {
 	sym_tabent_t	*tp;
@@ -269,10 +246,10 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 	tp = sym[sd];
 	a_assert(tp);
 
-/*
- *	Calculate the first daisy-chain from the hash table. If non-zero, then
- *	we have daisy-chain, so scan it and look for the symbol.
- */
+    /*
+        Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
+        for the symbol.  
+     */
 	last = NULL;
 	hindex = hashIndex(tp, name);
 	if ((sp = tp->hash_table[hindex]) != NULL) {
@@ -284,15 +261,12 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 			last = sp;
 		}
 		if (sp) {
-/*
- *			Found, so update the value
- *			If the caller stores handles which require freeing, they
- *			will be lost here. It is the callers responsibility to free
- *			resources before overwriting existing contents. We will here
- *			free allocated strings which occur due to value_instring().
- *			We should consider providing the cleanup function on the open rather
- *			than the close and then we could call it here and solve the problem.
- */
+            /*
+                Found, so update the value If the caller stores handles which require freeing, they will be lost here.
+                It is the callers responsibility to free resources before overwriting existing contents. We will here
+                free allocated strings which occur due to value_instring().  We should consider providing the cleanup
+                function on the open rather than the close and then we could call it here and solve the problem.
+             */
 			if (sp->content.valid) {
 				valueFree(&sp->content);
 			}
@@ -300,9 +274,9 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 			sp->arg = arg;
 			return sp;
 		}
-/*
- *		Not found so allocate and append to the daisy-chain
- */
+        /*
+            Not found so allocate and append to the daisy-chain
+         */
 		sp = (sym_t*) balloc(B_L, sizeof(sym_t));
 		if (sp == NULL) {
 			return NULL;
@@ -314,9 +288,9 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 		last->forw = sp;
 
 	} else {
-/*
- *		Daisy chain is empty so we need to start the chain
- */
+        /*
+            Daisy chain is empty so we need to start the chain
+         */
 		sp = (sym_t*) balloc(B_L, sizeof(sym_t));
 		if (sp == NULL) {
 			return NULL;
@@ -332,11 +306,10 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 	return sp;
 }
 
-/******************************************************************************/
-/*
- *	Delete a symbol from a table
- */
 
+/*
+  	Delete a symbol from a table
+ */
 int symDelete(sym_fd_t sd, char_t *name)
 {
 	sym_tabent_t	*tp;
@@ -349,10 +322,10 @@ int symDelete(sym_fd_t sd, char_t *name)
 	tp = sym[sd];
 	a_assert(tp);
 
-/*
- *	Calculate the first daisy-chain from the hash table. If non-zero, then
- *	we have daisy-chain, so scan it and look for the symbol.
- */
+    /*
+        Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
+        for the symbol.  
+     */
 	last = NULL;
 	hindex = hashIndex(tp, name);
 	if ((sp = tp->hash_table[hindex]) != NULL) {
@@ -368,10 +341,9 @@ int symDelete(sym_fd_t sd, char_t *name)
 		return -1;
 	}
 
-/*
- *	Unlink and free the symbol. Last will be set if the element to be deleted
- *	is not first in the chain.
- */
+    /*
+         Unlink and free the symbol. Last will be set if the element to be deleted is not first in the chain.
+     */
 	if (last) {
 		last->forw = sp->forw;
 	} else {
@@ -384,12 +356,11 @@ int symDelete(sym_fd_t sd, char_t *name)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Hash a symbol and return a pointer to the hash daisy-chain list
- *	All symbols reside on the chain (ie. none stored in the hash table itself)
- */
 
+/*
+    Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
+    the hash table itself) 
+ */
 static sym_t *hash(sym_tabent_t *tp, char_t *name)
 {
 	a_assert(tp);
@@ -397,24 +368,21 @@ static sym_t *hash(sym_tabent_t *tp, char_t *name)
 	return tp->hash_table[hashIndex(tp, name)];
 }
 
-/******************************************************************************/
-/*
- *	Compute the hash function and return an index into the hash table
- *	We use a basic additive function that is then made modulo the size of the
- *	table.
- */
 
+/*
+    Compute the hash function and return an index into the hash table We use a basic additive function that is then made
+    modulo the size of the table.
+ */
 static int hashIndex(sym_tabent_t *tp, char_t *name)
 {
 	unsigned int	sum;
 	int				i;
 
 	a_assert(tp);
-/*
- *	Add in each character shifted up progressively by 7 bits. The shift
- *	amount is rounded so as to not shift too far. It thus cycles with each
- *	new cycle placing character shifted up by one bit.
- */
+    /*
+        Add in each character shifted up progressively by 7 bits. The shift amount is rounded so as to not shift too
+        far. It thus cycles with each new cycle placing character shifted up by one bit.
+     */
 	i = 0;
 	sum = 0;
 	while (*name) {
@@ -424,11 +392,10 @@ static int hashIndex(sym_tabent_t *tp, char_t *name)
 	return sum % tp->hash_size;
 }
 
-/******************************************************************************/
-/*
- *	Check if this number is a prime
- */
 
+/*
+  	Check if this number is a prime
+ */
 static int isPrime(int n)
 {
 	int		i, max;
@@ -444,11 +411,10 @@ static int isPrime(int n)
 	return 1;
 }
 
-/******************************************************************************/
-/*
- *	Calculate the largest prime smaller than size.
- */
 
+/*
+  	Calculate the largest prime smaller than size.
+ */
 static int calcPrime(int size)
 {
 	int count;
@@ -463,33 +429,16 @@ static int calcPrime(int size)
 	return 1;
 }
 
-/******************************************************************************/
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

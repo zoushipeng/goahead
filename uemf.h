@@ -367,7 +367,7 @@
 
 #if (defined (WIN) || defined (CE))
 /*
- *	__NO_FCNTL means can't access fcntl function.  Fcntl.h is still available.
+  	__NO_FCNTL means can't access fcntl function.  Fcntl.h is still available.
  */
 #define		__NO_FCNTL		1
 
@@ -403,7 +403,7 @@ struct timeval
 	#define		__NO_FCNTL		1
 
 /*
- *	#define LIBKERN_INLINE to avoid kernel inline functions
+  	#define LIBKERN_INLINE to avoid kernel inline functions
  */
 	#define		LIBKERN_INLINE
 
@@ -437,8 +437,8 @@ struct timeval
 
 /********************************** Unicode ***********************************/
 /* 
- *	Constants and limits. Also FNAMESIZE and PATHSIZE are currently defined 
- *	in param.h to be 128 and 512
+  	Constants and limits. Also FNAMESIZE and PATHSIZE are currently defined 
+  	in param.h to be 128 and 512
  */
 #define TRACE_MAX			(4096 - 48)
 #define VALUE_MAX_STRING	(4096 - 48)
@@ -462,8 +462,7 @@ struct timeval
 #define CHAR_T_DEFINED 1
 #ifdef UNICODE
 /*
- *	To convert strings to UNICODE. We have a level of indirection so things
- *	like T(__FILE__) will expand properly.
+  	To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
  */
 #define	T(x)				__TXT(x)
 #define	__TXT(s)			L ## s
@@ -471,13 +470,12 @@ typedef unsigned short 		char_t;
 typedef unsigned short		uchar_t;
 
 /*
- *	Text size of buffer macro. A buffer bytes will hold (size / char size) 
- *	characters. 
+  	Text size of buffer macro. A buffer bytes will hold (size / char size) characters. 
  */
 #define	TSZ(x)				(sizeof(x) / sizeof(char_t))
 
 /*
- *	How many ASCII bytes are required to represent this UNICODE string?
+  	How many ASCII bytes are required to represent this UNICODE string?
  */
 #define	TASTRL(x)			((wcslen(x) + 1) * sizeof(char_t))
 
@@ -495,7 +493,7 @@ typedef unsigned char		uchar_t;
 #endif /* ! CHAR_T_DEFINED */
 
 /*
- *	"Boolean" constants
+  	"Boolean" constants
  */
 
 #ifndef TRUE
@@ -507,21 +505,21 @@ typedef unsigned char		uchar_t;
 #endif
 
 /*
- *	GoAhead Copyright.
+  	GoAhead Copyright.
+    MOB - this must be included in some source somewhere
  */
-#define GOAHEAD_COPYRIGHT \
-	T("Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.")
+#define GOAHEAD_COPYRIGHT T("Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved.")
 
 /*
- *	The following include has to be after the unicode defines.  By putting it
- *	here, many modules in various parts of the tree are cleaner.
+  	The following include has to be after the unicode defines.  By putting it here, many modules in 
+    various parts of the tree are cleaner.
  */
 #if (defined (LITTLEFOOT) && defined (INMEM))
 	#include	"lf/inmem.h"
 #endif /* LITTLEFOOT && INMEM */
 
 /*
- *	Type for unicode systems
+  	Type for unicode systems
  */
 #ifdef UNICODE
 
@@ -720,8 +718,8 @@ typedef struct stat gstat_t;
 
 
 /*
- *	Include inmem.h here because it redefines many of the file access fucntions.
- *	Otherwise there would be lots more #if-#elif-#else-#endif ugliness.
+  	Include inmem.h here because it redefines many of the file access fucntions.
+  	Otherwise there would be lots more #if-#elif-#else-#endif ugliness.
  */
 #ifdef INMEM
 	#include	"lf/inmem.h"
@@ -738,7 +736,7 @@ typedef struct stat gstat_t;
 #define E_MAX_REQUEST		2048		/* Request safeguard max */
 
 /*
- * Error types
+    Error types
  */
 #define	E_ASSERT			0x1			/* Assertion error */
 #define	E_LOG				0x2			/* Log error to log file */
@@ -760,7 +758,7 @@ typedef struct stat gstat_t;
 /*                                 VALUE                                      */
 /******************************************************************************/
 /*
- *	These values are not prefixed so as to aid code readability
+  	These values are not prefixed so as to aid code readability
  */
 
 typedef enum {
@@ -814,7 +812,7 @@ typedef struct {
 #endif /* __NO_PACK */
 
 /*
- *	Allocation flags 
+  	 llocation flags 
  */
 #define VALUE_ALLOCATE		0x1
 
@@ -827,44 +825,44 @@ typedef struct {
 
 /******************************************************************************/
 /*
- *	A ring queue allows maximum utilization of memory for data storage and is
- *	ideal for input/output buffering. This module provides a highly effecient
- *	implementation and a vehicle for dynamic strings.
- *
- *	WARNING:  This is a public implementation and callers have full access to
- *	the queue structure and pointers.  Change this module very carefully.
- *
- *	This module follows the open/close model.
- *
- *	Operation of a ringq where rq is a pointer to a ringq :
- *
- *		rq->buflen contains the size of the buffer.
- *		rq->buf will point to the start of the buffer.
- *		rq->servp will point to the first (un-consumed) data byte.
- *		rq->endp will point to the next free location to which new data is added
- *		rq->endbuf will point to one past the end of the buffer.
- *
- *	Eg. If the ringq contains the data "abcdef", it might look like :
- *
- *	+-------------------------------------------------------------------+
- *  |   |   |   |   |   |   |   | a | b | c | d | e | f |   |   |   |   |
- *	+-------------------------------------------------------------------+
- *    ^                           ^                       ^               ^
- *    |                           |                       |               |
- *  rq->buf                    rq->servp               rq->endp      rq->enduf
- *     
- *	The queue is empty when servp == endp.  This means that the queue will hold
- *	at most rq->buflen -1 bytes.  It is the fillers responsibility to ensure
- *	the ringq is never filled such that servp == endp.
- *
- *	It is the fillers responsibility to "wrap" the endp back to point to
- *	rq->buf when the pointer steps past the end. Correspondingly it is the
- *	consumers responsibility to "wrap" the servp when it steps to rq->endbuf.
- *	The ringqPutc and ringqGetc routines will do this automatically.
+  	A ring queue allows maximum utilization of memory for data storage and is
+  	ideal for input/output buffering. This module provides a highly effecient
+  	implementation and a vehicle for dynamic strings.
+  
+  	WARNING:  This is a public implementation and callers have full access to
+  	the queue structure and pointers.  Change this module very carefully.
+  
+  	This module follows the open/close model.
+  
+  	Operation of a ringq where rq is a pointer to a ringq :
+  
+  		rq->buflen contains the size of the buffer.
+  		rq->buf will point to the start of the buffer.
+  		rq->servp will point to the first (un-consumed) data byte.
+  		rq->endp will point to the next free location to which new data is added
+  		rq->endbuf will point to one past the end of the buffer.
+  
+  	Eg. If the ringq contains the data "abcdef", it might look like :
+  
+  	+-------------------------------------------------------------------+
+    |   |   |   |   |   |   |   | a | b | c | d | e | f |   |   |   |   |
+  	+-------------------------------------------------------------------+
+      ^                           ^                       ^               ^
+      |                           |                       |               |
+    rq->buf                    rq->servp               rq->endp      rq->enduf
+       
+  	The queue is empty when servp == endp.  This means that the queue will hold
+  	at most rq->buflen -1 bytes.  It is the fillers responsibility to ensure
+  	the ringq is never filled such that servp == endp.
+  
+  	It is the fillers responsibility to "wrap" the endp back to point to
+  	rq->buf when the pointer steps past the end. Correspondingly it is the
+  	consumers responsibility to "wrap" the servp when it steps to rq->endbuf.
+  	The ringqPutc and ringqGetc routines will do this automatically.
  */
 
 /*
- *	Ring queue buffer structure
+  	Ring queue buffer structure
  */
 typedef struct {
 	unsigned char	*buf;				/* Holding buffer for data */
@@ -877,7 +875,7 @@ typedef struct {
 } ringq_t;
 
 /*
- *	Block allocation (balloc) definitions
+  	Block allocation (balloc) definitions
  */
 #ifdef	B_STATS
 #ifndef B_L
@@ -888,8 +886,7 @@ typedef struct {
 #endif /* B_STATS */
 
 /*
- *	Block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 
- *					   16384, 32768, 65536 
+  	Block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 
  */
 typedef struct {
 	union {
@@ -910,7 +907,7 @@ typedef struct {
 #define B_MAX_BLOCKS	(64 * 1024)			/* Maximum allocated blocks */
 
 /*
- *	Flags. The integrity value is used as an arbitrary value to fill the flags.
+  	Flags. The integrity value is used as an arbitrary value to fill the flags.
  */
 #define B_INTEGRITY			0x8124000		/* Integrity value */
 #define B_INTEGRITY_MASK	0xFFFF000		/* Integrity mask */
@@ -918,9 +915,8 @@ typedef struct {
 #define B_USER_BUF			0x2				/* User supplied buffer for mem */
 
 /*
- *	The symbol table record for each symbol entry
+  	The symbol table record for each symbol entry
  */
-
 typedef struct sym_t {
 	struct sym_t	*forw;					/* Pointer to next hash list */
 	value_t			name;					/* Name of symbol */
@@ -931,7 +927,7 @@ typedef struct sym_t {
 typedef int sym_fd_t;						/* Returned by symOpen */
 
 /*
- *	Script engines
+  	Script engines
  */
 #define EMF_SCRIPT_JSCRIPT			0		/* javascript */
 #define EMF_SCRIPT_TCL	 			1		/* tcl */
@@ -973,7 +969,7 @@ extern int		cronFree(cron_t *cp);
 /*                                 SOCKET                                     */
 /******************************************************************************/
 /*
- *	Socket flags 
+  	Socket flags 
  */
 
 #if ((defined (WIN) || defined (CE)) && defined (WEBS) && !defined(WIN32))
@@ -1005,7 +1001,7 @@ extern int		cronFree(cron_t *cp);
 #define SOCKET_PORT_MAX			0xffff	/* Max Port size */
 
 /*
- *	Socket error values
+  	Socket error values
  */
 #define SOCKET_WOULDBLOCK		1		/* Socket would block on I/O */
 #define SOCKET_RESET			2		/* Socket has been reset */
@@ -1015,7 +1011,7 @@ extern int		cronFree(cron_t *cp);
 #define SOCKET_INVAL			6		/* Invalid */
 
 /*
- *	Handler event masks
+  	Handler event masks
  */
 #define SOCKET_READABLE			0x2		/* Make socket readable */ 
 #define SOCKET_WRITABLE			0x4		/* Make socket writable */
@@ -1056,16 +1052,14 @@ typedef struct {
 
 /********************************* Prototypes *********************************/
 /*
- *	Balloc module
- *
+  	Balloc module
  */
 
 extern void 	 bclose();
 extern int 		 bopen(void *buf, int bufsize, int flags);
 
 /*
- *	Define NO_BALLOC to turn off our balloc module altogether
- *		#define NO_BALLOC 1
+    Define NO_BALLOC to turn off our balloc module altogether #define NO_BALLOC 1
  */
 
 #ifdef NO_BALLOC
@@ -1114,7 +1108,7 @@ extern char *bstrdupA(B_ARGS_DEC, char *s);
 extern void bstats(int handle, void (*writefn)(int handle, char_t *fmt, ...));
 
 /*
- *	Flags. The integrity value is used as an arbitrary value to fill the flags.
+ 	Flags. The integrity value is used as an arbitrary value to fill the flags.
  */
 #define B_USE_MALLOC		0x1				/* Okay to use malloc if required */
 #define B_USER_BUF			0x2				/* User supplied buffer for mem */
@@ -1131,8 +1125,7 @@ extern void		emfSchedProcess();
 extern int		emfInstGet();
 extern void		emfInstSet(int inst);
 extern void		error(E_ARGS_DEC, int flags, char_t *fmt, ...);
-extern void		(*errorSetHandler(void (*function)(int etype, char_t *msg))) \
-					(int etype, char_t *msg);
+extern void		(*errorSetHandler(void (*function)(int etype, char_t *msg))) (int etype, char_t *msg);
 
 #ifdef B_STATS
 #define 		hAlloc(x) 				HALLOC(B_L, x)
@@ -1185,8 +1178,7 @@ extern int		scriptEval(int engine, char_t *cmd, char_t **rslt, void* chan);
 
 extern void		socketClose();
 extern void		socketCloseConnection(int sid);
-extern void		socketCreateHandler(int sid, int mask, socketHandler_t 
-					handler, void* arg);
+extern void		socketCreateHandler(int sid, int mask, socketHandler_t handler, void* arg);
 extern void		socketDeleteHandler(int sid);
 extern int		socketEof(int sid);
 extern int 		socketCanWrite(int sid);
@@ -1196,8 +1188,7 @@ extern int		socketGets(int sid, char_t **buf);
 extern int		socketGetPort(int sid);
 extern int		socketInputBuffered(int sid);
 extern int		socketOpen();
-extern int 		socketOpenConnection(char *host, int port, 
-					socketAccept_t accept, int flags);
+extern int 		socketOpenConnection(char *host, int port, socketAccept_t accept, int flags);
 extern void 	socketProcess(int hid);
 extern int		socketRead(int sid, char *buf, int len);
 extern int 		socketReady(int hid);
@@ -1207,8 +1198,7 @@ extern int 		socketSelect(int hid, int timeout);
 extern int 		socketGetHandle(int sid);
 extern int 		socketSetBlock(int sid, int flags);
 extern int 		socketGetBlock(int sid);
-extern int 		socketAlloc(char *host, int port, socketAccept_t accept, 
-					int flags);
+extern int 		socketAlloc(char *host, int port, socketAccept_t accept, int flags);
 extern void 	socketFree(int sid);
 extern int		socketGetError();
 extern socket_t *socketPtr(int sid);
@@ -1234,8 +1224,7 @@ extern void 	symSubClose();
 
 extern void		trace(int lev, char_t *fmt, ...);
 extern void		traceRaw(char_t *buf);
-extern void		(*traceSetHandler(void (*function)(int level, char_t *buf))) 
-					(int level, char_t *buf);
+extern void		(*traceSetHandler(void (*function)(int level, char_t *buf))) (int level, char_t *buf);
  
 extern value_t 	valueInteger(long value);
 extern value_t	valueString(char_t *value, int flags);
@@ -1245,7 +1234,7 @@ extern int		vxchdir(char *dirname);
 
 extern unsigned int hextoi(char_t *hexstring);
 extern unsigned int gstrtoi(char_t *s);
-extern				time_t	timeMsec();
+externtime_t	timeMsec();
 
 extern char_t 	*ascToUni(char_t *ubuf, char *str, int nBytes);
 extern char 	*uniToAsc(char *buf, char_t *ustr, int nBytes);
@@ -1267,34 +1256,16 @@ extern int		harnessLevel();
 
 #endif /* _h_UEMF */
 
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

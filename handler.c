@@ -1,14 +1,9 @@
 /*
     handler.c -- URL handler support
 
+  	This module implements a URL handler interface and API to permit the addition of user definable URL processors.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	This module implements a URL handler interface and API to permit
- *	the addition of user definable URL processors.
  */
 
 /********************************* Includes ***********************************/
@@ -29,9 +24,6 @@ static int 		websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 static char_t	*websCondenseMultipleChars(char_t *strToCondense, char_t cCondense);
 
 /*********************************** Code *************************************/
-/*
- *	Initialize the URL handler module
- */
 
 int websUrlHandlerOpen()
 {
@@ -43,10 +35,6 @@ int websUrlHandlerOpen()
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Close the URL handler module
- */
 
 void websUrlHandlerClose()
 {
@@ -66,18 +54,15 @@ void websUrlHandlerClose()
 	}
 }
 
-/******************************************************************************/
-/*
- *	Define a new URL handler. urlPrefix is the URL prefix to match. webDir is 
- *	an optional root directory path for a web directory. arg is an optional
- *	arg to pass to the URL handler. flags defines the matching order. Valid
- *	flags include WEBS_HANDLER_LAST, WEBS_HANDLER_FIRST. If multiple users 
- *	specify last or first, their order is defined alphabetically by the 
- *	urlPrefix.
- */
 
-int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
-		int (*handler)(webs_t wp, char_t *urlPrefix, char_t *webdir, int arg, 
+/*
+    Define a new URL handler. urlPrefix is the URL prefix to match. webDir is an optional root directory path for a web
+    directory. arg is an optional arg to pass to the URL handler. flags defines the matching order. Valid flags include
+    WEBS_HANDLER_LAST, WEBS_HANDLER_FIRST. If multiple users specify last or first, their order is defined
+    alphabetically by the urlPrefix.
+ */
+int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, 
+        int (*handler)(webs_t wp, char_t *urlPrefix, char_t *webdir, int arg, 
 		char_t *url, char_t *path, char_t *query), int flags)
 {
 	websUrlHandlerType	*sp;
@@ -86,9 +71,9 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
 	a_assert(urlPrefix);
 	a_assert(handler);
 
-/*
- *	Grow the URL handler array to create a new slot
- */
+    /*
+      	Grow the URL handler array to create a new slot
+     */
 	len = (websUrlHandlerMax + 1) * sizeof(websUrlHandlerType);
 	if ((websUrlHandler = brealloc(B_L, websUrlHandler, len)) == NULL) {
 		return -1;
@@ -107,20 +92,18 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
 	sp->arg = arg;
 	sp->flags = flags;
 
-/*
- *	Sort in decreasing URL length order observing the flags for first and last
- */
-	qsort(websUrlHandler, websUrlHandlerMax, sizeof(websUrlHandlerType), 
-		websUrlHandlerSort);
+    /*
+      	Sort in decreasing URL length order observing the flags for first and last
+     */
+	qsort(websUrlHandler, websUrlHandlerMax, sizeof(websUrlHandlerType), websUrlHandlerSort);
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Delete an existing URL handler. We don't reclaim the space of the old 
- *	handler, just NULL the entry. Return -1 if handler is not found.
- */
 
+/*
+    Delete an existing URL handler. We don't reclaim the space of the old handler, just NULL the entry. Return -1 if
+    handler is not found.  
+ */
 int websUrlHandlerDelete(int (*handler)(webs_t wp, char_t *urlPrefix, 
 	char_t *webDir, int arg, char_t *url, char_t *path, char_t *query))
 {
@@ -137,11 +120,10 @@ int websUrlHandlerDelete(int (*handler)(webs_t wp, char_t *urlPrefix,
 	return -1;
 }
 
-/******************************************************************************/
-/*
- *	Sort in decreasing URL length order observing the flags for first and last
- */
 
+/*
+  	Sort in decreasing URL length order observing the flags for first and last
+ */
 static int websUrlHandlerSort(const void *p1, const void *p2)
 {
 	websUrlHandlerType	*s1, *s2;
@@ -156,11 +138,9 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
 	if ((s1->flags & WEBS_HANDLER_FIRST) || (s2->flags & WEBS_HANDLER_LAST)) {
 		return -1;
 	}
-
 	if ((s2->flags & WEBS_HANDLER_FIRST) || (s1->flags & WEBS_HANDLER_LAST)) {
 		return 1;
 	}
-
 	if ((rc = gstrcmp(s1->urlPrefix, s2->urlPrefix)) == 0) {
 		if (s1->len < s2->len) {
 			return 1;
@@ -171,21 +151,19 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
 	return -rc; 
 }
 
-/******************************************************************************/
-/*
- *	Publish a new web directory (Use the default URL handler)
- */
 
+/*
+  	Publish a new web directory (Use the default URL handler)
+ */
 int websPublish(char_t *urlPrefix, char_t *path)
 {
 	return websUrlHandlerDefine(urlPrefix, path, 0, websPublishHandler, 0);
 }
 
-/******************************************************************************/
-/*
- *	Return the directory for a given prefix. Ignore empty prefixes
- */
 
+/*
+  	Return the directory for a given prefix. Ignore empty prefixes
+ */
 char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
 {
 	websUrlHandlerType	*sp;
@@ -206,36 +184,30 @@ char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
 	return NULL;
 }
 
-/******************************************************************************/
-/*
- *	Publish URL handler. We just patch the web page Directory and let the
- *	default handler do the rest.
- */
 
-static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, 
-	int sid, char_t *url, char_t *path, char_t *query)
+/*
+  	Publish URL handler. We just patch the web page Directory and let the default handler do the rest.
+ */
+static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int sid, char_t *url, char_t *path, char_t *query)
 {
 	int		len;
 
 	a_assert(websValid(wp));
 	a_assert(path);
 
-/*
- *	Trim the urlPrefix off the path and set the webdirectory. Add one to step 
- *	over the trailing '/'
- */
+    /*
+        Trim the urlPrefix off the path and set the webdirectory. Add one to step over the trailing '/'
+     */
 	len = gstrlen(urlPrefix) + 1;
 	websSetRequestPath(wp, webDir, &path[len]);
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	See if any valid handlers are defined for this request. If so, call them
- *	and continue calling valid handlers until one accepts the request. 
- *	Return true if a handler was invoked, else return FALSE.
- */
 
+/*
+    See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
+    one accepts the request.  Return true if a handler was invoked, else return FALSE.
+ */
 int websUrlHandlerRequest(webs_t wp)
 {
 	websUrlHandlerType	*sp;
@@ -243,34 +215,30 @@ int websUrlHandlerRequest(webs_t wp)
 
 	a_assert(websValid(wp));
 
-/*
- *	Delete the socket handler as we don't want to start reading any
- *	data on the connection as it may be for the next pipelined HTTP/1.1
- *	request if using Keep Alive
- */
+    /*
+        Delete the socket handler as we don't want to start reading any data on the connection as it may be for the next
+        pipelined HTTP/1.1 request if using Keep Alive.
+     */
 	socketDeleteHandler(wp->sid);
 	wp->state = WEBS_PROCESSING;
 	websStats.handlerHits++;
-	
 	websSetRequestPath(wp, websGetDefaultDir(), NULL);
 
-/*
- *	Eliminate security hole
- */
+    /*
+      	Eliminate security hole
+     */
  	websCondenseMultipleChars(wp->path, '/');
 	websCondenseMultipleChars(wp->url, '/');
 
-	/* Fix by Luigi Auriemma 19 Jan 2004 */
-	/* http://aluigi.altervista.org/adv/goahead-adv2.txt */
 	if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
 		websError(wp, 400, T("Bad request"));
 		return 0;
 	}
 
-/*
- *	We loop over each handler in order till one accepts the request. 
- *	The security handler will handle the request if access is NOT allowed.
- */
+    /*
+        We loop over each handler in order till one accepts the request.  The security handler will handle the request
+        if access is NOT allowed.  
+     */
 	first = 1;
 	for (i = 0; i < websUrlHandlerMax; i++) {
 		sp = &websUrlHandler[i];
@@ -279,57 +247,45 @@ int websUrlHandlerRequest(webs_t wp)
 				websSetEnv(wp);
 				first = 0;
 			}
-			if ((*sp->handler)(wp, sp->urlPrefix, sp->webDir, sp->arg, 
-					wp->url, wp->path, wp->query)) {
+			if ((*sp->handler)(wp, sp->urlPrefix, sp->webDir, sp->arg, wp->url, wp->path, wp->query)) {
 				return 1;
 			}
 			if (!websValid(wp)) {
-				trace(0, 
-				T("webs: handler %s called websDone, but didn't return 1\n"),
-					sp->urlPrefix);
+				trace(0, T("webs: handler %s called websDone, but didn't return 1\n"), sp->urlPrefix);
 				return 1;
 			}
 		}
 	}
-/*
- *	If no handler processed the request, then return an error. Note: It is 
- *	the handlers responsibility to call websDone
- */
+    /*
+      	If no handler processed the request, then return an error. Note: It is the handlers responsibility to call websDone
+     */
 	if (i >= websUrlHandlerMax) {
-      /*
-       * 13 Mar 03 BgP
-       * preventing a cross-site scripting exploit
-		websError(wp, 200, T("No handler for this URL %s"), wp->url);
-       */
 		websError(wp, 200, T("No handler for this URL"));
 	}
 	return 0;
 }
 
 
-/******************************************************************************/
-/*
- *	Convert multiple adjacent occurrences of a given character to a single
- *	instance.
- */
 
+/*
+  	Convert multiple adjacent occurrences of a given character to a single instance
+ */
 static char_t *websCondenseMultipleChars(char_t *strToCondense, char_t cCondense)
 {
+    char_t  *pStr, *pScan;
+
 	if (strToCondense != NULL) {
-		char_t *pStr, *pScan;
-
 		pStr = pScan = strToCondense;
-
 		while (*pScan && *pStr) {
-/*
- *			Advance scan pointer over multiple occurences of condense character
- */
+            /*
+                Advance scan pointer over multiple occurences of condense character
+             */
 			while ((*pScan == cCondense) && (*(pScan + 1) == cCondense)) {
 				pScan++;
 			}
-/*
- *			Copy character if an advance of the scan pointer has occurred
- */
+            /*
+                Copy character if an advance of the scan pointer has occurred
+             */
 			if (pStr != pScan) {
 				*pStr = *pScan;
 			}
@@ -337,45 +293,26 @@ static char_t *websCondenseMultipleChars(char_t *strToCondense, char_t cCondense
 			pScan++;
 			pStr++;
 		}
-/*
- *		Zero terminate string if multiple adjacent characters were found and condensed
- */
+        /*
+            Zero terminate string if multiple adjacent characters were found and condensed
+         */
 		if (pStr != pScan) {
 			*pStr = 0;
 		}
 	}
-
 	return strToCondense;
 }
-
-/******************************************************************************/
 
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

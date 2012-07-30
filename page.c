@@ -1,15 +1,10 @@
 /*
     page.c -- Support for page retrieval.
 
+    This file provides page retrieval handling. It provides support for reading web pages from file systems and has
+    expansion for ROMed web pages.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	This module provides page retrieval handling. It provides support for
- *	reading web pages from file systems and has expansion for ROMed web
- *	pages.
  */
 
 /********************************* Includes ***********************************/
@@ -18,11 +13,11 @@
 
 /*********************************** Code *************************************/
 /*
- *	Open a web page. lpath is the local filename. path is the URL path name.
+  	Open a web page. lpath is the local filename. path is the URL path name.
  */
-
 int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 {
+    //  MOB
 #if defined(WIN32)
 	errno_t	error;
 #endif
@@ -38,10 +33,6 @@ int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 #endif /* WEBS_PAGE_ROM */
 }
 
-/******************************************************************************/
-/*
- *	Close a web page
- */
 
 void websPageClose(webs_t wp)
 {
@@ -57,11 +48,10 @@ void websPageClose(webs_t wp)
 #endif
 }
 
-/******************************************************************************/
-/*
- *	Stat a web page lpath is the local filename. path is the URL path name.
- */
 
+/*
+  	Stat a web page lpath is the local filename. path is the URL path name.
+ */
 int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType* sbuf)
 {
 #ifdef WEBS_PAGE_ROM
@@ -79,10 +69,6 @@ int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType* sbuf)
 #endif
 }
 
-/******************************************************************************/
-/*
- *	Is this file a directory?
- */
 
 int websPageIsDirectory(char_t *lpath)
 {
@@ -106,12 +92,10 @@ int websPageIsDirectory(char_t *lpath)
 }
 
 
-/******************************************************************************/
-/*
- *	Read a web page. Returns the number of _bytes_ read.
- *	len is the size of buf, in bytes.
- */
 
+/*
+  	Read a web page. Returns the number of _bytes_ read. len is the size of buf, in bytes.
+ */
 int websPageReadData(webs_t wp, char *buf, int nBytes)
 {
 
@@ -124,11 +108,10 @@ int websPageReadData(webs_t wp, char *buf, int nBytes)
 #endif
 }
 
-/******************************************************************************/
-/*
- *	Move file pointer offset bytes.
- */
 
+/*
+  	Move file pointer offset bytes.
+ */
 void websPageSeek(webs_t wp, long offset)
 {
 	a_assert(websValid(wp));
@@ -140,35 +123,16 @@ void websPageSeek(webs_t wp, long offset)
 #endif
 }
 
-/******************************************************************************/
-
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

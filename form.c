@@ -1,16 +1,11 @@
 /*
     form.c -- Form processing (in-memory CGI) for the GoAhead Web server
 
+    This module implements the /goform handler. It emulates CGI processing but performs this in-process and not as an
+    external process. This enables a very high performance implementation with easy parsing and decoding of query
+    strings and posted data.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/********************************** Description *******************************/
-
-/*
- *	This module implements the /goform handler. It emulates CGI processing
- *	but performs this in-process and not as an external process. This enables
- *	a very high performance implementation with easy parsing and decoding 
- *	of query strings and posted data.
  */
 
 /*********************************** Includes *********************************/
@@ -23,11 +18,9 @@ static sym_fd_t	formSymtab = -1;			/* Symbol table for form handlers */
 
 /************************************* Code ***********************************/
 /*
- *	Process a form request. Returns 1 always to indicate it handled the URL
+  	Process a form request. Returns 1 always to indicate it handled the URL
  */
-
-int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, 
-	char_t *url, char_t *path, char_t *query)
+int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
 	sym_t		*sp;
 	char_t		formBuf[FNAMESIZE];
@@ -40,9 +33,9 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 
 	websStats.formHits++;
 
-/*
- *	Extract the form name
- */
+    /*
+      	Extract the form name
+     */
 	gstrncpy(formBuf, path, TSZ(formBuf));
 	if ((formName = gstrchr(&formBuf[1], '/')) == NULL) {
 		websError(wp, 200, T("Missing form name"));
@@ -53,10 +46,9 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		*cp = '\0';
 	}
 
-/*
- *	Lookup the C form function first and then try tcl (no javascript support 
- *	yet).
- */
+    /*
+      	Lookup the C form function first and then try tcl (no javascript support yet).
+     */
 	sp = symLookup(formSymtab, formName);
 	if (sp == NULL) {
 		websError(wp, 404, T("Form %s is not defined"), formName);
@@ -64,32 +56,20 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.integer;
 		a_assert(fn);
 		if (fn) {
-/*
- *			For good practice, forms must call websDone()
- */
-			(*fn)((void*) wp, formName, query);
-
-/*
- *			Remove the test to force websDone, since this prevents
- *			the server "push" from a form>
- */
-#if 0 /* push */
-			if (websValid(wp)) {
-				websError(wp, 200, T("Form didn't call websDone"));
-			}
-#endif /* push */
+            /*
+                For good practice, forms must call websDone()
+             */
+            (*fn)((void*) wp, formName, query);
 		}
 	}
 	return 1;
 }
 
-/******************************************************************************/
-/*
- *	Define a form function in the "form" map space.
- */
 
-int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, 
-	char_t *query))
+/*
+  	Define a form function in the "form" map space.
+ */
+int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query))
 {
 	a_assert(name && *name);
 	a_assert(fn);
@@ -97,25 +77,16 @@ int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path,
 	if (fn == NULL) {
 		return -1;
 	}
-
 	symEnter(formSymtab, name, valueInteger((int) fn), (int) NULL);
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Open the symbol table for forms.
- */
 
 void websFormOpen()
 {
 	formSymtab = symOpen(WEBS_SYM_INIT);
 }
 
-/******************************************************************************/
-/*
- *	Close the symbol table for forms.
- */
 
 void websFormClose()
 {
@@ -125,29 +96,24 @@ void websFormClose()
 	}
 }
 
-/******************************************************************************/
-/*
- *	Write a webs header. This is a convenience routine to write a common
- *	header for a form back to the browser.
- */
 
+/*
+    Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
+ */
 void websHeader(webs_t wp)
 {
 	a_assert(websValid(wp));
 
 	websWrite(wp, T("HTTP/1.0 200 OK\n"));
 
-/*
- *	The Server HTTP header below must not be modified unless
- *	explicitly allowed by licensing terms.
- */
+    /*
+        The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
+     */
 #ifdef WEBS_SSL_SUPPORT
-	websWrite(wp, T("Server: %s/%s %s/%s\r\n"), 
-		WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
+	websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
 #else
 	websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
 #endif
-
 	websWrite(wp, T("Pragma: no-cache\n"));
 	websWrite(wp, T("Cache-control: no-cache\n"));
 	websWrite(wp, T("Content-Type: text/html\n"));
@@ -155,10 +121,6 @@ void websHeader(webs_t wp)
 	websWrite(wp, T("<html>\n"));
 }
 
-/******************************************************************************/
-/*
- *	Write a webs footer
- */
 
 void websFooter(webs_t wp)
 {
@@ -167,34 +129,16 @@ void websFooter(webs_t wp)
 	websWrite(wp, T("</html>\n"));
 }
 
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

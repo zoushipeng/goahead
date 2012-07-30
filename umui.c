@@ -1,13 +1,7 @@
 /*
-    umui.c -- User Management GoForm Processing
+    umui.c -- User Management GoForm Processing for User Management
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	This module provides GoForm functions for User management
  */
 
 /********************************* Includes ***********************************/
@@ -26,23 +20,18 @@
 static void		formAddUser(webs_t wp, char_t *path, char_t *query);
 static void		formDeleteUser(webs_t wp, char_t *path, char_t *query);
 static void		formDisplayUser(webs_t wp, char_t *path, char_t *query);
-static int		aspGenerateUserList(int eid, webs_t wp, 
-									int argc, char_t **argv);
+static int		aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv);
 
 static void		formAddGroup(webs_t wp, char_t *path, char_t *query);
 static void		formDeleteGroup(webs_t wp, char_t *path, char_t *query);
-static int		aspGenerateGroupList(int eid, webs_t wp, 
-									 int argc, char_t **argv);
+static int		aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv);
 
 static void		formAddAccessLimit(webs_t wp, char_t *path, char_t *query);
 static void		formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query);
-static int		aspGenerateAccessLimitList(int eid, webs_t wp, 
-										   int argc, char_t **argv);
+static int		aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **argv);
 
-static int		aspGenerateAccessMethodList(int eid, webs_t wp, 
-											int argc, char_t **argv);
-static int		aspGeneratePrivilegeList(int eid, webs_t wp, 
-										 int argc, char_t **argv);
+static int		aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **argv);
+static int		aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv);
 
 static void		formSaveUserManagement(webs_t wp, char_t *path, char_t *query);
 static void		formLoadUserManagement(webs_t wp, char_t *path, char_t *query);
@@ -51,9 +40,6 @@ static void		websMsgStart(webs_t wp);
 static void		websMsgEnd(webs_t wp);
 
 /*********************************** Code *************************************/
-/*
- *	Set up the User Management form handlers
- */
 
 void formDefineUserMgmt(void)
 {
@@ -75,10 +61,6 @@ void formDefineUserMgmt(void)
 	websFormDefine(T("LoadUserManagement"), formLoadUserManagement);
 }
 
-/******************************************************************************/
-/*
- *  Add a user
- */
 
 static void formAddUser(webs_t wp, char_t *path, char_t *query)
 {
@@ -108,7 +90,6 @@ static void formAddUser(webs_t wp, char_t *path, char_t *query)
 		} else {
 			bDisable = TRUE;
 		}
-
 		nCheck = umAddUser(userid, pass1, group, 0, bDisable);
 		if (nCheck != 0) {
 			char_t * strError;
@@ -142,16 +123,11 @@ static void formAddUser(webs_t wp, char_t *path, char_t *query)
 				userid);
 		}
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Delete a user
- */
 
 static void formDeleteUser(webs_t wp, char_t *path, char_t *query)
 {
@@ -182,10 +158,6 @@ static void formDeleteUser(webs_t wp, char_t *path, char_t *query)
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Display the user info
- */
 
 static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
 {
@@ -218,11 +190,6 @@ static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
 }
 
 
-/******************************************************************************/
-/*
- *  Generate HTML to create a list box containing the users
- */
-
 static int aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv)
 {
 	char_t	*userid;
@@ -237,22 +204,18 @@ static int aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv)
 	nBytesSent = 0;
 
 	while (userid && (nBytes > 0)) {
-		nBytes = websWrite(wp, T("<OPTION VALUE=\"%s\">%s\n"), 
-			userid, userid);
+		nBytes = websWrite(wp, T("<OPTION VALUE=\"%s\">%s\n"), userid, userid);
 		userid = umGetNextUser(userid);
 		nBytesSent += nBytes;
 	}
-
 	nBytesSent += websWrite(wp, T("</SELECT>"));
-
 	return nBytesSent;
 }
 
-/******************************************************************************/
-/*
- *  Add a group
- */
 
+/*
+    Add a group
+ */
 static void formAddGroup(webs_t wp, char_t *path, char_t *query)
 {
 	char_t			*group, *enabled, *privilege, *method, *ok, *pChar;
@@ -280,10 +243,9 @@ static void formAddGroup(webs_t wp, char_t *path, char_t *query)
 		websWrite(wp, T("ERROR: Group, \"%s\" already exists."), group);
 	} else {
 		if (privilege && *privilege) {
-/*
- *			privilege is a mulitple <SELECT> var, and must be parsed.
- *			Values for these variables are space delimited.
- */
+            /*
+                privilege is a mulitple <SELECT> var, and must be parsed. Values for these variables are space delimited.
+             */
 			priv = 0;
 			for (pChar = privilege; *pChar; pChar++) {
 				if (*pChar == ' ') {
@@ -297,19 +259,16 @@ static void formAddGroup(webs_t wp, char_t *path, char_t *query)
 		} else {
 			priv = 0;
 		}
-
 		if (method && *method) {
 			am = (accessMeth_t) gatoi(method);
 		} else {
 			am = AM_FULL;
 		}
-
 		if (enabled && *enabled && (gstrcmp(enabled, T("on")) == 0)) {
 			bDisable = FALSE;
 		} else {
 			bDisable = TRUE;
 		}
-
 		nCheck = umAddGroup(group, priv, am, 0, bDisable);
 		if (nCheck != 0) {
 			websWrite(wp, T("Unable to add group, \"%s\", code: %d "),
@@ -319,16 +278,11 @@ static void formAddGroup(webs_t wp, char_t *path, char_t *query)
 				group);
 		}
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Delete a group
- */
 
 static void formDeleteGroup(webs_t wp, char_t *path, char_t *query)
 {
@@ -355,16 +309,11 @@ static void formDeleteGroup(webs_t wp, char_t *path, char_t *query)
 	} else {
 		websWrite(wp, T("Group, \"%s\" was successfully deleted."), group);
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Generate HTML to create a list box containing the groups
- */
 
 static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
 {
@@ -375,11 +324,11 @@ static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
 
 	row = 0;
 	nBytesSent = 0;
-	nBytes = websWrite(wp, 
-		T("<SELECT NAME=\"group\" SIZE=\"3\" TITLE=\"Select a Group\">"));
-/*
- *  Add a special "<NONE>" element to allow de-selection
- */
+	nBytes = websWrite(wp, T("<SELECT NAME=\"group\" SIZE=\"3\" TITLE=\"Select a Group\">"));
+
+    /*
+     *  Add a special "<NONE>" element to allow de-selection
+     */
 	nBytes = websWrite(wp, T("<OPTION VALUE=\"\">[NONE]\n"));
 
 	group = umGetFirstGroup();
@@ -388,16 +337,10 @@ static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
 		group = umGetNextGroup(group);
 		nBytesSent += nBytes;
 	}
-
 	nBytesSent += websWrite(wp, T("</SELECT>"));
-
 	return nBytesSent;
 }
 
-/******************************************************************************/
-/*
- *  Add an access limit
- */
 
 static void formAddAccessLimit(webs_t wp, char_t *path, char_t *query)
 {
@@ -422,39 +365,30 @@ static void formAddAccessLimit(webs_t wp, char_t *path, char_t *query)
 	} else if ((url == NULL) || (*url == 0)) {
 		websWrite(wp, T("ERROR:  No URL was entered."));
 	} else if (umAccessLimitExists(url)) {
-		websWrite(wp, T("ERROR:  An Access Limit for [%s] already exists."),
-			url);
+		websWrite(wp, T("ERROR:  An Access Limit for [%s] already exists."), url);
 	} else {
 		if (method && *method) {
 			am = (accessMeth_t) gatoi(method);
 		} else {
 			am = AM_FULL;
 		}
-
 		if (secure && *secure) {
 			nSecure = (short) gatoi(secure);
 		} else {
 			nSecure = 0;
 		}
-
 		nCheck = umAddAccessLimit(url, am, nSecure, group);
 		if (nCheck != 0) {
 			websWrite(wp, T("Unable to add Access Limit for [%s]"),	url);
 		} else {
-			websWrite(wp, T("Access limit for [%s], was successfully added."),
-				url);
+			websWrite(wp, T("Access limit for [%s], was successfully added."), url);
 		}
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Delete an Access Limit
- */
 
 static void formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query)
 {
@@ -471,25 +405,17 @@ static void formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query)
 	if (gstricmp(ok, T("ok")) != 0) {
 		websWrite(wp, T("Delete Access Limit Cancelled"));
 	} else if (umDeleteAccessLimit(url) != 0) {
-		websWrite(wp, T("ERROR: Unable to delete Access Limit for [%s]"), 
-			url);
+		websWrite(wp, T("ERROR: Unable to delete Access Limit for [%s]"), url);
 	} else {
-		websWrite(wp, T("Access Limit for [%s], was successfully deleted."), 
-			url);
+		websWrite(wp, T("Access Limit for [%s], was successfully deleted."), url);
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Generate HTML to create a list box containing the access limits
- */
 
-static int aspGenerateAccessLimitList(int eid, webs_t wp, 
-									  int argc, char_t **argv)
+static int aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **argv)
 {
 	char_t	*url;
 	int		row, nBytesSent, nBytes;
@@ -498,73 +424,47 @@ static int aspGenerateAccessLimitList(int eid, webs_t wp,
 
 	row = nBytesSent = 0;
 	url = umGetFirstAccessLimit();
-	nBytes = websWrite(wp, 
-		T("<SELECT NAME=\"url\" SIZE=\"3\" TITLE=\"Select a URL\">"));
+	nBytes = websWrite(wp, T("<SELECT NAME=\"url\" SIZE=\"3\" TITLE=\"Select a URL\">"));
 
 	while (url && (nBytes > 0)) {
 		nBytes = websWrite(wp, T("<OPTION VALUE=\"%s\">%s\n"), url, url);
 		url = umGetNextAccessLimit(url);
 		nBytesSent += nBytes;
 	}
-
 	nBytesSent += websWrite(wp, T("</SELECT>"));
-
 	return nBytesSent;
 }
 
-/******************************************************************************/
-/*
- *  Generate HTML to create a list box containing the access methods
- */
 
-static int aspGenerateAccessMethodList(int eid, webs_t wp, 
-									   int argc, char_t **argv)
+static int aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **argv)
 {
 	int		nBytes;
 
 	a_assert(wp);
-
-	nBytes = websWrite(wp, 
-		T("<SELECT NAME=\"method\" SIZE=\"3\" TITLE=\"Select a Method\">"));
-	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">FULL ACCESS\n"), 
-		AM_FULL);
-	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">BASIC ACCESS\n"), 
-		AM_BASIC);
-	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\" SELECTED>DIGEST ACCESS\n"), 
-		AM_DIGEST);
-	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">NO ACCESS\n"), 
-		AM_NONE);
-	nBytes += websWrite(wp, T("</SELECT>"));
-
+	nBytes = websWrite(wp, T("<SELECT NAME=\"method\" SIZE=\"3\" TITLE=\"Select a Method\">"));
+	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">FULL ACCESS\n"), AM_FULL);
+	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">BASIC ACCESS\n"), AM_BASIC);
+	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\" SELECTED>DIGEST ACCESS\n"), AM_DIGEST);
+	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">NO ACCESS\n"), AM_NONE);
+	nBytes += websWrite(wp, T("</SELECT>")); 
 	return nBytes;
 }
-/******************************************************************************/
-/*
- *  Generate HTML to create a list box containing privileges
- */
 
-static int aspGeneratePrivilegeList(int eid, webs_t wp, 
-									int argc, char_t **argv)
+
+static int aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv)
 {
 	int		nBytes;
 
 	a_assert(wp);
-
 	nBytes = websWrite(wp, T("<SELECT NAME=\"privilege\" SIZE=\"3\" "));
 	nBytes += websWrite(wp, T("MULTIPLE TITLE=\"Choose Privileges\">"));
 	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">READ\n"), PRIV_READ);
 	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">EXECUTE\n"), PRIV_WRITE);
-	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">ADMINISTRATE\n"), 
-		PRIV_ADMIN);
+	nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">ADMINISTRATE\n"), PRIV_ADMIN);
 	nBytes += websWrite(wp, T("</SELECT>"));
-
 	return nBytes;
 }
 
-/******************************************************************************/
-/*
- *  Save the user management configuration to a file
- */
 
 static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 {
@@ -573,7 +473,6 @@ static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 	a_assert(wp);
 
 	ok = websGetVar(wp, T("ok"), T("")); 
-
 	websHeader(wp);
 	websMsgStart(wp);
 
@@ -584,16 +483,11 @@ static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 	} else {
 		websWrite(wp, T("User configuration was saved successfully."));
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
 
-/******************************************************************************/
-/*
- *  Load the user management configuration from a file
- */
 
 static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
 {
@@ -602,10 +496,8 @@ static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
 	a_assert(wp);
 
 	ok = websGetVar(wp, T("ok"), T("")); 
-
 	websHeader(wp);
 	websMsgStart(wp);
-
 	if (gstricmp(ok, T("ok")) != 0) {
 		websWrite(wp, T("Load Cancelled."));
 	} else if (umRestore(NULL) != 0) {
@@ -613,55 +505,33 @@ static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
 	} else {
 		websWrite(wp, T("User configuration was re-loaded successfully."));
 	}
-
 	websMsgEnd(wp);
 	websFooter(wp);
 	websDone(wp, 200);
 }
-
-/******************************************************************************/
-/*
- *  Message start and end convenience functions
- */
 
 static void	websMsgStart(webs_t wp)
 {
 	websWrite(wp, MSG_START);
 }
 
+
 static void	websMsgEnd(webs_t wp)
 {
 	websWrite(wp, MSG_END);
 }
 
-/******************************************************************************/
 
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

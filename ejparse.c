@@ -1,14 +1,9 @@
 /*
     ejparse.c -- Ejscript(TM) Parser
 
+  	Ejscript parser. This implementes a subset of the JavaScript language.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	Ejscript parser. This implementes a subset of the JavaScript language.
- *	Multiple Ejscript parsers can be opened at a time.
  */
 
 /********************************** Includes **********************************/
@@ -47,9 +42,6 @@ static void		freeFunc(ejfunc_t *func);
 static void		ejRemoveNewlines(ej_t *ep, int state);
 
 /************************************* Code ***********************************/
-/*
- *	Initialize a Ejscript engine
- */
 
 int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
 {
@@ -62,11 +54,10 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
 	ep = ejHandles[eid];
 	ep->eid = eid;
 
-/*
- *	Create a top level symbol table if one is not provided for variables and
- *	functions. Variables may create other symbol tables for block level
- *	declarations so we use hAlloc to manage a list of variable tables.
- */
+    /*
+        Create a top level symbol table if one is not provided for variables and functions. Variables may create other
+        symbol tables for block level declarations so we use hAlloc to manage a list of variable tables.
+     */
 	if ((vid = hAlloc((void***) &ep->variables)) < 0) {
 		ejMax = hFree((void***) &ejHandles, ep->eid);
 		return -1;
@@ -91,18 +82,13 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
 
 	ejLexOpen(ep);
 
-/*
- *	Define standard constants
- */
+    /*
+      	Define standard constants
+     */
 	ejSetGlobalVar(ep->eid, T("null"), NULL);
-
 	return ep->eid;
 }
 
-/******************************************************************************/
-/*
- *	Close
- */
 
 void ejCloseEngine(int eid)
 {
@@ -136,10 +122,6 @@ void ejCloseEngine(int eid)
 }
 
 #ifndef __NO_EJ_FILE
-/******************************************************************************/
-/*
- *	Evaluate a Ejscript file
- */
 
 char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 {
@@ -164,31 +146,26 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 #else
 	_sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
 #endif
-
 	if (fd  < 0) {
 		ejError(ep, T("Bad handle %d"), eid);
 		return NULL;
 	}
-	
 	if (gstat(path, &sbuf) < 0) {
 		gclose(fd);
 		ejError(ep, T("Cant stat %s"), path);
 		return NULL;
 	}
-	
 	if ((fileBuf = balloc(B_L, sbuf.st_size + 1)) == NULL) {
 		gclose(fd);
 		ejError(ep, T("Cant malloc %d"), sbuf.st_size);
 		return NULL;
 	}
-	
 	if (gread(fd, fileBuf, sbuf.st_size) != (int)sbuf.st_size) {
 		gclose(fd);
 		bfree(B_L, fileBuf);
 		ejError(ep, T("Error reading %s"), path);
 		return NULL;
 	}
-	
 	fileBuf[sbuf.st_size] = '\0';
 	gclose(fd);
 
@@ -206,13 +183,11 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 }
 #endif /* __NO_EJ_FILE */
 
-/******************************************************************************/
-/*
- *	Create a new variable scope block so that consecutive ejEval calls may
- *	be made with the same varible scope. This space MUST be closed with
- *	ejCloseBlock when the evaluations are complete.
- */
 
+/*
+    Create a new variable scope block so that consecutive ejEval calls may be made with the same varible scope. This
+    space MUST be closed with ejCloseBlock when the evaluations are complete.
+ */
 int ejOpenBlock(int eid)
 {
 	ej_t	*ep;
@@ -221,11 +196,9 @@ int ejOpenBlock(int eid)
 	if((ep = ejPtr(eid)) == NULL) {
 		return -1;
 	}
-
 	if ((vid = hAlloc((void***) &ep->variables)) < 0) {
 		return -1;
 	}
-
 	if (vid >= ep->variableMax) {
 		ep->variableMax = vid + 1;
 	}
@@ -234,11 +207,6 @@ int ejOpenBlock(int eid)
 
 }
 
-/******************************************************************************/
-/*
- *	Close a variable scope block. The vid parameter is the return value from
- *	the call to ejOpenBlock
- */
 
 int ejCloseBlock(int eid, int vid)
 {
@@ -253,12 +221,11 @@ int ejCloseBlock(int eid, int vid)
 
 }
 
-/******************************************************************************/
-/*
- *	Create a new variable scope block and evaluate a script. All variables
- *	created during this context will be automatically deleted when complete.
- */
 
+/*
+    Create a new variable scope block and evaluate a script. All variables
+    created during this context will be automatically deleted when complete.
+ */
 char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
 {
 	char_t* returnVal;
@@ -273,13 +240,11 @@ char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
 	return returnVal;
 }
 
-/******************************************************************************/
-/*
- *	Parse and evaluate a Ejscript. The caller may provide a symbol table to
- *	use for variables and function definitions. Return char_t pointer on
- *	success otherwise NULL pointer is returned.
- */
 
+/*
+    Parse and evaluate a Ejscript. The caller may provide a symbol table to use for variables and function definitions.
+    Return char_t pointer on success otherwise NULL pointer is returned.
+ */
 char_t *ejEval(int eid, char_t *script, char_t **emsg)
 {
 	ej_t	*ep;
@@ -294,22 +259,20 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
 	if (emsg) {
 		*emsg = NULL;
 	} 
-
 	if ((ep = ejPtr(eid)) == NULL) {
 		return NULL;
 	}
-
 	setString(B_L, &ep->result, T(""));
 
-/*
- *	Allocate a new evaluation block, and save the old one
- */
+    /*
+        Allocate a new evaluation block, and save the old one
+     */
 	oldBlock = ep->input;
 	ejLexOpenScript(ep, script);
 
-/*
- *	Do the actual parsing and evaluation
- */
+    /*
+      	Do the actual parsing and evaluation
+     */
 	loopCounter = 0;
 	endlessLoopTest = NULL;
 
@@ -319,11 +282,10 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
 		if (state == STATE_RET) {
 			state = STATE_EOF;
 		}
-/*
- *		prevent parser from going into infinite loop.  If parsing the same
- *		line 10 times then fail and report Syntax error.  Most normal error
- *		are caught in the parser itself.
- */
+        /*
+            prevent parser from going into infinite loop.  If parsing the same line 10 times then fail and report Syntax
+            error.  Most normal error are caught in the parser itself.
+         */
 		if (endlessLoopTest == ep->input->script.servp) {
 			if (loopCounter++ > 10) {
 				state = STATE_ERR;
@@ -337,42 +299,40 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
 
 	ejLexCloseScript(ep);
 
-/*
- *	Return any error string to the user
- */
+    /*
+        Return any error string to the user
+     */
 	if (state == STATE_ERR && emsg) {
 		*emsg = bstrdup(B_L, ep->error);
 	}
 
-/*
- *	Restore the old evaluation block
- */
+    /*
+        Restore the old evaluation block
+     */
 	ep->input = oldBlock;
 
 	if (state == STATE_EOF) {
 		return ep->result;
 	}
-
 	if (state == STATE_ERR) {
 		return NULL;
 	}
-
 	return ep->result;
 }
 
-/******************************************************************************/
-/*
- *	Recursive descent parser for Ejscript
- */
 
+
+/*
+    Recursive descent parser for Ejscript
+ */
 static int parse(ej_t *ep, int state, int flags)
 {
 	a_assert(ep);
 
 	switch (state) {
-/*
- *	Any statement, function arguments or conditional expressions
- */
+    /*
+        Any statement, function arguments or conditional expressions
+     */
 	case STATE_STMT:
 		if ((state = parseStmt(ep, state, flags)) != STATE_STMT_DONE &&
 			state != STATE_EOF && state != STATE_STMT_BLOCK_DONE &&
@@ -395,30 +355,30 @@ static int parse(ej_t *ep, int state, int flags)
 		}
 		break;
 
-/*
- *	Variable declaration list
- */
+    /*
+      	Variable declaration list
+     */
 	case STATE_DEC_LIST:
 		state = parseDeclaration(ep, state, flags);
 		break;
 
-/*
- *	Function argument string
- */
+    /*
+      	Function argument string
+     */
 	case STATE_ARG_LIST:
 		state = parseArgs(ep, state, flags);
 		break;
 
-/*
- *	Logical condition list (relational operations separated by &&, ||)
- */
+    /*
+      	Logical condition list (relational operations separated by &&, ||)
+     */
 	case STATE_COND:
 		state = parseCond(ep, state, flags);
 		break;
 
-/*
- *	Expression list
- */
+    /*
+     j	Expression list
+     */
 	case STATE_RELEXP:
 		state = parseExpr(ep, state, flags);
 		break;
@@ -430,11 +390,10 @@ static int parse(ej_t *ep, int state, int flags)
 	return state;
 }
 
-/******************************************************************************/
-/*
- *	Parse any statement including functions and simple relational operations
- */
 
+/*
+  	Parse any statement including functions and simple relational operations
+ */
 static int parseStmt(ej_t *ep, int state, int flags)
 {
 	ejfunc_t	func;
@@ -446,9 +405,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 
 	a_assert(ep);
 
-/*
- *	Set these to NULL, else we try to free them if an error occurs.
- */
+    /*
+      	Set these to NULL, else we try to free them if an error occurs.
+     */
 	endScript.putBackToken = NULL;
 	bodyScript.putBackToken = NULL;
 	incrScript.putBackToken = NULL;
@@ -480,9 +439,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			break;
 
 		case TOK_SEMI:
-/*
- *			This case is when we discover no statement and just a lone ';'
- */
+            /*
+                This case is when we discover no statement and just a lone ';'
+             */
 			if (state != STATE_STMT) {
 				ejLexPutbackToken(ep, tid, ep->token);
 			}
@@ -490,14 +449,14 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			break;
 
 		case TOK_ID:
-/*
- *			This could either be a reference to a variable or an assignment
- */
+            /*
+                This could either be a reference to a variable or an assignment
+             */
 			identifier = NULL;
 			setString(B_L, &identifier, ep->token);
-/*
- *			Peek ahead to see if this is an assignment
- */
+            /*
+                Peek ahead to see if this is an assignment
+             */
 			tid = ejLexGetToken(ep, state);
 			if (tid == TOK_ASSIGNMENT) {
 				if (parse(ep, STATE_RELEXP, flags) != STATE_RELEXP_DONE) {
@@ -539,9 +498,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				}
 
 			} else {
-/*
- *				If we are processing a declaration, allow undefined vars
- */
+                /*
+                    If we are processing a declaration, allow undefined vars
+                 */
 				value = NULL;
 				if (state == STATE_DEC) {
 					if (ejGetVar(ep->eid, identifier, &value) > 0) {
@@ -573,9 +532,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			break;
 
 		case TOK_LITERAL:
-/*
- *			Set the result to the literal (number or string constant)
- */
+            /*
+                Set the result to the literal (number or string constant)
+             */
 			setString(B_L, &ep->result, ep->token);
 			if (state == STATE_STMT) {
 				expectSemi++;
@@ -584,9 +543,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			break;
 
 		case TOK_FUNCTION:
-/*
- *			We must save any current ep->func value for the current stack frame
- */
+            /*
+                We must save any current ep->func value for the current stack frame
+             */
 			if (ep->func) {
 				saveFunc = ep->func;
 			}
@@ -599,21 +558,19 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				freeFunc(&func);
 				goto error;
 			}
-
 			if (parse(ep, STATE_ARG_LIST, flags) != STATE_ARG_LIST_DONE) {
 				freeFunc(&func);
 				ep->func = saveFunc;
 				goto error;
 			}
-/*
- *			Evaluate the function if required
- */
+            /*
+                Evaluate the function if required
+             */
 			if (flags & FLAGS_EXE && evalFunction(ep) < 0) {
 				freeFunc(&func);
 				ep->func = saveFunc;
 				goto error;
 			}
-
 			freeFunc(&func);
 			ep->func = saveFunc;
 
@@ -633,19 +590,18 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			if (ejLexGetToken(ep, state) != TOK_LPAREN) {
 				goto error;
 			}
-/*
- *			Evaluate the entire condition list "(condition)"
- */
+            /*
+                Evaluate the entire condition list "(condition)"
+             */
 			if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
 				goto error;
 			}
 			if (ejLexGetToken(ep, state) != TOK_RPAREN) {
 				goto error;
 			}
-/*
- *			This is the "then" case. We need to always parse both cases and
- *			execute only the relevant case.
- */
+            /*
+                This is the "then" case. We need to always parse both cases and execute only the relevant case.
+             */
 			if (*ep->result == '1') {
 				thenFlags = flags;
 				elseFlags = flags & ~FLAGS_EXE;
@@ -664,9 +620,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			default:
 				goto error;
 			}
-/*
- *			check to see if there is an "else" case
- */
+            /*
+                check to see if there is an "else" case
+             */
 			ejRemoveNewlines(ep, state);
 			tid = ejLexGetToken(ep, state);
 			if (tid != TOK_ELSE) {
@@ -674,9 +630,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				done++;
 				break;
 			}
-/*
- *			Process the "else" case.  Allow for return.
- */
+            /*
+                Process the "else" case.  Allow for return.
+             */
 			switch (parse(ep, STATE_STMT, elseFlags)) {
 			case STATE_RET:
 				return STATE_RET;
@@ -689,13 +645,12 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			break;
 
 		case TOK_FOR:
-/*
- *			Format for the expression is:
- *
- *				for (initial; condition; incr) {
- *					body;
- *				}
- */
+            /*
+                Format for the expression is:
+                    for (initial; condition; incr) {
+                        body;
+                    }
+             */
 			if (state != STATE_STMT) {
 				goto error;
 			}
@@ -703,9 +658,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				goto error;
 			}
 
-/*
- *			Evaluate the for loop initialization statement
- */
+            /*
+                Evaluate the for loop initialization statement
+             */
 			if (parse(ep, STATE_EXPR, flags) != STATE_EXPR_DONE) {
 				goto error;
 			}
@@ -713,11 +668,10 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				goto error;
 			}
 
-/*
- *			The first time through, we save the current input context just
- *			to each step: prior to the conditional, the loop increment and the
- *			loop body.
- */
+            /*
+                The first time through, we save the current input context just to each step: prior to the conditional,
+                the loop increment and the loop body.  
+             */
 			ejLexSaveInputState(ep, &condScript);
 			if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
 				goto error;
@@ -728,9 +682,9 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				goto error;
 			}
 
-/*
- *			Don't execute the loop increment statement or the body first time
- */
+            /*
+                Don't execute the loop increment statement or the body first time
+             */
 			forFlags = flags & ~FLAGS_EXE;
 			ejLexSaveInputState(ep, &incrScript);
 			if (parse(ep, STATE_EXPR, forFlags) != STATE_EXPR_DONE) {
@@ -740,22 +694,22 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				goto error;
 			}
 
-/*
- *			Parse the body and remember the end of the body script
- */
+            /*
+                Parse the body and remember the end of the body script
+             */
 			ejLexSaveInputState(ep, &bodyScript);
 			if (parse(ep, STATE_STMT, forFlags) != STATE_STMT_DONE) {
 				goto error;
 			}
 			ejLexSaveInputState(ep, &endScript);
 
-/*
- *			Now actually do the for loop. Note loop has been rotated
- */
+            /*
+                Now actually do the for loop. Note loop has been rotated
+             */
 			while (cond && (flags & FLAGS_EXE) ) {
-/*
- *				Evaluate the body
- */
+                /*
+                    Evaluate the body
+                 */
 				ejLexRestoreInputState(ep, &bodyScript);
 
 				switch (parse(ep, STATE_STMT, flags)) {
@@ -766,16 +720,16 @@ static int parseStmt(ej_t *ep, int state, int flags)
 				default:
 					goto error;
 				}
-/*
- *				Evaluate the increment script
- */
+                /*
+                    Evaluate the increment script
+                 */
 				ejLexRestoreInputState(ep, &incrScript);
 				if (parse(ep, STATE_EXPR, flags) != STATE_EXPR_DONE) {
 					goto error;
 				}
-/*
- *				Evaluate the condition
- */
+                /*
+                    Evaluate the condition
+                 */
 				ejLexRestoreInputState(ep, &condScript);
 				if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
 					goto error;
@@ -816,23 +770,23 @@ static int parseStmt(ej_t *ep, int state, int flags)
 			return STATE_EXPR_DONE;
 
 		case TOK_LBRACE:
-/*
- *			This handles any code in braces except "if () {} else {}"
- */
+            /*
+                This handles any code in braces except "if () {} else {}"
+             */
 			if (state != STATE_STMT) {
 				goto error;
 			}
 
-/*
- *			Parse will return STATE_STMT_BLOCK_DONE when the RBRACE is seen
- */
+            /*
+                Parse will return STATE_STMT_BLOCK_DONE when the RBRACE is seen
+             */
 			do {
 				state = parse(ep, STATE_STMT, flags);
 			} while (state == STATE_STMT_DONE);
 
-/*
- *			Allow return statement.
- */
+            /*
+                Allow return statement.
+             */
 			if (state == STATE_RET) {
 				return state;
 			}
@@ -867,16 +821,12 @@ static int parseStmt(ej_t *ep, int state, int flags)
 		if (tid != TOK_SEMI && tid != TOK_NEWLINE) {
 			goto error;
 		}
-
-/*
- *		Skip newline after semi-colon
- */
+        /*
+            Skip newline after semi-colon
+         */
 		ejRemoveNewlines(ep, state);
 	}
 
-/*
- *	Free resources and return the correct status
- */
 doneParse:
 	if (tid == TOK_FOR) {
 		ejLexFreeInputState(ep, &condScript);
@@ -884,7 +834,6 @@ doneParse:
 		ejLexFreeInputState(ep, &endScript);
 		ejLexFreeInputState(ep, &bodyScript);
 	}
-
 	if (state == STATE_STMT) {
 		return STATE_STMT_DONE;
 	} else if (state == STATE_DEC) {
@@ -897,50 +846,45 @@ doneParse:
 		return STATE_ERR;
 	}
 
-/*
- *	Common error exit
- */
 error:
 	state = STATE_ERR;
 	goto doneParse;
 }
 
-/******************************************************************************/
-/*
- *	Parse variable declaration list
- */
 
+/*
+    Parse variable declaration list
+ */
 static int parseDeclaration(ej_t *ep, int state, int flags)
 {
 	int		tid;
 
 	a_assert(ep);
 
-/*
- *	Declarations can be of the following forms:
- *			var x;
- *			var x, y, z;
- *			var x = 1 + 2 / 3, y = 2 + 4;
- *
- *	We set the variable to NULL if there is no associated assignment.
- */
-
+    /*
+      	Declarations can be of the following forms:
+      			var x;
+      			var x, y, z;
+      			var x = 1 + 2 / 3, y = 2 + 4;
+      
+      	We set the variable to NULL if there is no associated assignment.
+     */
 	do {
 		if ((tid = ejLexGetToken(ep, state)) != TOK_ID) {
 			return STATE_ERR;
 		}
 		ejLexPutbackToken(ep, tid, ep->token);
 
-/*
- *		Parse the entire assignment or simple identifier declaration
- */
+        /*
+            Parse the entire assignment or simple identifier declaration
+         */
 		if (parse(ep, STATE_DEC, flags) != STATE_DEC_DONE) {
 			return STATE_ERR;
 		}
 
-/*
- *		Peek at the next token, continue if comma seen
- */
+        /*
+            Peek at the next token, continue if comma seen
+         */
 		tid = ejLexGetToken(ep, state);
 		if (tid == TOK_SEMI) {
 			return STATE_DEC_LIST_DONE;
@@ -955,11 +899,10 @@ static int parseDeclaration(ej_t *ep, int state, int flags)
 	return STATE_DEC_LIST_DONE;
 }
 
-/******************************************************************************/
-/*
- *	Parse function arguments
- */
 
+/*
+    Parse function arguments
+ */
 static int parseArgs(ej_t *ep, int state, int flags)
 {
 	int		tid, aid;
@@ -976,9 +919,9 @@ static int parseArgs(ej_t *ep, int state, int flags)
 			ep->func->args[aid] = bstrdup(B_L, ep->result);
 			ep->func->nArgs++;
 		}
-/*
- *		Peek at the next token, continue if more args (ie. comma seen)
- */
+        /*
+            Peek at the next token, continue if more args (ie. comma seen)
+         */
 		tid = ejLexGetToken(ep, state);
 		if (tid != TOK_COMMA) {
 			ejLexPutbackToken(ep, tid, ep->token);
@@ -991,11 +934,10 @@ static int parseArgs(ej_t *ep, int state, int flags)
 	return STATE_ARG_LIST_DONE;
 }
 
-/******************************************************************************/
-/*
- *	Parse conditional expression (relational ops separated by ||, &&)
- */
 
+/*
+    Parse conditional expression (relational ops separated by ||, &&)
+ */
 static int parseCond(ej_t *ep, int state, int flags)
 {
 	char_t	*lhs, *rhs;
@@ -1052,11 +994,10 @@ static int parseCond(ej_t *ep, int state, int flags)
 	return state;
 }
 
-/******************************************************************************/
-/*
- *	Parse expression (leftHandSide operator rightHandSide)
- */
 
+/*
+  	Parse expression (leftHandSide operator rightHandSide)
+ */
 static int parseExpr(ej_t *ep, int state, int flags)
 {
 	char_t	*lhs, *rhs;
@@ -1070,10 +1011,10 @@ static int parseExpr(ej_t *ep, int state, int flags)
 	tid = 0;
 
 	do {
-/*
- *	This loop will handle an entire expression list. We call parse
- *	to evalutate each term which returns the result in ep->result.
- */
+        /*
+            This loop will handle an entire expression list. We call parse to evalutate each term which returns the
+            result in ep->result.  
+         */
 		if (tid == TOK_LOGICAL) {
 			if ((state = parse(ep, STATE_RELEXP, flags)) != STATE_RELEXP_DONE) {
 				state = STATE_ERR;
@@ -1124,11 +1065,10 @@ static int parseExpr(ej_t *ep, int state, int flags)
 	return state;
 }
 
-/******************************************************************************/
-/*
- *	Evaluate a condition. Implements &&, ||, !
- */
 
+/*
+  	Evaluate a condition. Implements &&, ||, !
+ */
 static int evalCond(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
 {
 	char_t	buf[16];
@@ -1166,11 +1106,10 @@ static int evalCond(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Evaluate an operation
- */
 
+/*
+  	Evaluate an operation
+ */
 static int evalExpr(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
 {
 	char_t	*cp, buf[16];
@@ -1180,9 +1119,9 @@ static int evalExpr(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
 	a_assert(rhs);
 	a_assert(rel > 0);
 
-/*
- *	All of the characters in the lhs and rhs must be numeric
- */
+    /*
+      	All of the characters in the lhs and rhs must be numeric
+     */
 	numeric = 1;
 	for (cp = lhs; *cp; cp++) {
 		if (!gisdigit((int)*cp)) {
@@ -1308,11 +1247,10 @@ static int evalExpr(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Evaluate a function
- */
 
+/*
+  	Evaluate a function
+ */
 static int evalFunction(ej_t *ep)
 {
 	sym_t	*sp;
@@ -1322,22 +1260,18 @@ static int evalFunction(ej_t *ep)
 		ejError(ep, T("Undefined procedure %s"), ep->func->fname);
 		return -1;
 	}
-
 	fn = (int (*)(int, void*, int, char_t**)) sp->content.value.integer;
 	if (fn == NULL) {
 		ejError(ep, T("Undefined procedure %s"), ep->func->fname);
 		return -1;
 	}
-
-	return (*fn)(ep->eid, ep->userHandle, ep->func->nArgs,
-		ep->func->args);
+	return (*fn)(ep->eid, ep->userHandle, ep->func->nArgs, ep->func->args);
 }
 
-/******************************************************************************/
-/*
- *	Output a parse ej_error message
- */
 
+/*
+  	Output a parse ej_error message
+ */
 void ejError(ej_t* ep, char_t* fmt, ...)
 {
 	va_list		args;
@@ -1354,18 +1288,13 @@ void ejError(ej_t* ep, char_t* fmt, ...)
 	va_end(args);
 
 	if (ep && ip) {
-		fmtAlloc(&errbuf, E_MAX_ERROR, T("%s\n At line %d, line => \n\n%s\n"),
-			msgbuf, ip->lineNumber, ip->line);
+		fmtAlloc(&errbuf, E_MAX_ERROR, T("%s\n At line %d, line => \n\n%s\n"), msgbuf, ip->lineNumber, ip->line);
 		bfreeSafe(B_L, ep->error);
 		ep->error = errbuf;
 	}
 	bfreeSafe(B_L, msgbuf);
 }
 
-/******************************************************************************/
-/*
- *	Clear a string value
- */
 
 static void clearString(char_t **ptr)
 {
@@ -1377,10 +1306,6 @@ static void clearString(char_t **ptr)
 	*ptr = NULL;
 }
 
-/******************************************************************************/
-/*
- *	Set a string value
- */
 
 static void setString(B_ARGS_DEC, char_t **ptr, char_t *s)
 {
@@ -1392,10 +1317,6 @@ static void setString(B_ARGS_DEC, char_t **ptr, char_t *s)
 	*ptr = bstrdup(B_ARGS, s);
 }
 
-/******************************************************************************/
-/*
- *	Append to the pointer value
- */
 
 static void appendString(char_t **ptr, char_t *s)
 {
@@ -1418,13 +1339,11 @@ static void appendString(char_t **ptr, char_t *s)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Define a function
- */
 
-int ejSetGlobalFunction(int eid, char_t *name,
-	int (*fn)(int eid, void *handle, int argc, char_t **argv))
+/*
+  	Define a function
+ */
+int ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
 	ej_t	*ep;
 
@@ -1434,13 +1353,11 @@ int ejSetGlobalFunction(int eid, char_t *name,
 	return ejSetGlobalFunctionDirect(ep->functions, name, fn);
 }
 
-/******************************************************************************/
-/*
- *	Define a function directly into the function symbol table.
- */
 
-int ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name,
-	int (*fn)(int eid, void *handle, int argc, char_t **argv))
+/*
+  	Define a function directly into the function symbol table.
+ */
+int ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
 	if (symEnter(functions, name, valueInteger((long) fn), 0) == NULL) {
 		return -1;
@@ -1448,11 +1365,10 @@ int ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name,
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Remove ("undefine") a function
- */
 
+/*
+  	Remove ("undefine") a function
+ */
 int ejRemoveGlobalFunction(int eid, char_t *name)
 {
 	ej_t	*ep;
@@ -1463,10 +1379,6 @@ int ejRemoveGlobalFunction(int eid, char_t *name)
 	return symDelete(ep->functions, name);
 }
 
-/******************************************************************************/
-/*
- *	Get a function definition
- */
 
 void *ejGetGlobalFunction(int eid, char_t *name)
 {
@@ -1485,19 +1397,18 @@ void *ejGetGlobalFunction(int eid, char_t *name)
 	return NULL;
 }
 
-/******************************************************************************/
-/*
- *	Utility routine to crack Ejscript arguments. Return the number of args
- *	seen. This routine only supports %s and %d type args.
- *
- *	Typical usage:
- *
- *		if (ejArgs(argc, argv, "%s %d", &name, &age) < 2) {
- *			error("Insufficient args\n");
- *			return -1;
- *		}
- */
 
+/*
+  	Utility routine to crack Ejscript arguments. Return the number of args
+  	seen. This routine only supports %s and %d type args.
+  
+  	Typical usage:
+  
+  		if (ejArgs(argc, argv, "%s %d", &name, &age) < 2) {
+  			error("Insufficient args\n");
+  			return -1;
+  		}
+ */
 int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
 {
 	va_list	vargs;
@@ -1510,12 +1421,10 @@ int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
 	if (argv == NULL) {
 		return 0;
 	}
-
 	for (argn = 0, cp = fmt; cp && *cp && argv[argn]; ) {
 		if (*cp++ != '%') {
 			continue;
 		}
-
 		switch (*cp) {
 		case 'd':
 			ip = va_arg(vargs, int*);
@@ -1528,9 +1437,9 @@ int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
 			break;
 
 		default:
-/*
- *			Unsupported
- */
+            /*
+                Unsupported
+             */
 			a_assert(0);
 		}
 		argn++;
@@ -1540,10 +1449,6 @@ int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
 	return argn;
 }
 
-/******************************************************************************/
-/*
- *	Define the user handle
- */
 
 void ejSetUserHandle(int eid, void* handle)
 {
@@ -1555,10 +1460,6 @@ void ejSetUserHandle(int eid, void* handle)
 	ep->userHandle = handle;
 }
 
-/******************************************************************************/
-/*
- *	Get the user handle
- */
 
 void* ejGetUserHandle(int eid)
 {
@@ -1570,10 +1471,6 @@ void* ejGetUserHandle(int eid)
 	return ep->userHandle;
 }
 
-/******************************************************************************/
-/*
- *	Get the current line number
- */
 
 int ejGetLineNumber(int eid)
 {
@@ -1585,10 +1482,6 @@ int ejGetLineNumber(int eid)
 	return ep->input->lineNumber;
 }
 
-/******************************************************************************/
-/*
- *	Set the result
- */
 
 void ejSetResult(int eid, char_t *s)
 {
@@ -1600,10 +1493,6 @@ void ejSetResult(int eid, char_t *s)
 	setString(B_L, &ep->result, s);
 }
 
-/******************************************************************************/
-/*
- *	Get the result
- */
 
 char_t *ejGetResult(int eid)
 {
@@ -1615,12 +1504,10 @@ char_t *ejGetResult(int eid)
 	return ep->result;
 }
 
-/******************************************************************************/
 /*
- *	Set a variable. Note: a variable with a value of NULL means declared but
- *	undefined. The value is defined in the top-most variable frame.
+    Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
+    top-most variable frame.  
  */
-
 void ejSetVar(int eid, char_t *var, char_t *value)
 {
 	ej_t	*ep;
@@ -1631,7 +1518,6 @@ void ejSetVar(int eid, char_t *var, char_t *value)
 	if ((ep = ejPtr(eid)) == NULL) {
 		return;
 	}
-
 	if (value == NULL) {
 		v = valueString(value, 0);
 	} else {
@@ -1640,12 +1526,11 @@ void ejSetVar(int eid, char_t *var, char_t *value)
 	symEnter(ep->variables[ep->variableMax - 1] - EJ_OFFSET, var, v, 0);
 }
 
-/******************************************************************************/
-/*
- *	Set a local variable. Note: a variable with a value of NULL means
- *	declared but undefined. The value is defined in the top-most variable frame.
- */
 
+/*
+    Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
+    the top-most variable frame.  
+ */
 void ejSetLocalVar(int eid, char_t *var, char_t *value)
 {
 	ej_t	*ep;
@@ -1665,12 +1550,11 @@ void ejSetLocalVar(int eid, char_t *var, char_t *value)
 	symEnter(ep->variables[ep->variableMax - 1] - EJ_OFFSET, var, v, 0);
 }
 
-/******************************************************************************/
-/*
- *	Set a global variable. Note: a variable with a value of NULL means
- *	declared but undefined. The value is defined in the global variable frame.
- */
 
+/*
+    Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
+    the global variable frame.  
+ */
 void ejSetGlobalVar(int eid, char_t *var, char_t *value)
 {
 	ej_t	*ep;
@@ -1681,7 +1565,6 @@ void ejSetGlobalVar(int eid, char_t *var, char_t *value)
 	if ((ep = ejPtr(eid)) == NULL) {
 		return;
 	}
-
 	if (value == NULL) {
 		v = valueString(value, 0);
 	} else {
@@ -1690,11 +1573,10 @@ void ejSetGlobalVar(int eid, char_t *var, char_t *value)
 	symEnter(ep->variables[0] - EJ_OFFSET, var, v, 0);
 }
 
-/******************************************************************************/
-/*
- *	Get a variable
- */
 
+/*
+  	Get a variable
+ */
 int ejGetVar(int eid, char_t *var, char_t **value)
 {
 	ej_t	*ep;
@@ -1720,10 +1602,6 @@ int ejGetVar(int eid, char_t *var, char_t **value)
 	return i;
 }
 
-/******************************************************************************/
-/*
- *	Get the variable symbol table
- */
 
 sym_fd_t ejGetVariableTable(int eid)
 {
@@ -1735,10 +1613,6 @@ sym_fd_t ejGetVariableTable(int eid)
 	return *ep->variables;
 }
 
-/******************************************************************************/
-/*
- *	Get the functions symbol table
- */
 
 sym_fd_t ejGetFunctionTable(int eid)
 {
@@ -1750,11 +1624,10 @@ sym_fd_t ejGetFunctionTable(int eid)
 	return ep->functions;
 }
 
-/******************************************************************************/
-/*
- *	Free an argument list
- */
 
+/*
+  	Free an argument list
+ */
 static void freeFunc(ejfunc_t *func)
 {
 	int	i;
@@ -1770,11 +1643,10 @@ static void freeFunc(ejfunc_t *func)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Get Ejscript pointer
- */
 
+/*
+  	Get Ejscript pointer
+ */
 static ej_t *ejPtr(int eid)
 {
 	a_assert(0 <= eid && eid < ejMax);
@@ -1786,9 +1658,9 @@ static ej_t *ejPtr(int eid)
 	return ejHandles[eid];
 }
 
-/******************************************************************************/
+
 /*
- *	This function removes any new lines.  Used for else	cases, etc.
+  	This function removes any new lines.  Used for else	cases, etc.
  */
 static void ejRemoveNewlines(ej_t *ep, int state)
 {
@@ -1797,38 +1669,19 @@ static void ejRemoveNewlines(ej_t *ep, int state)
 	do {
 		tid = ejLexGetToken(ep, state);
 	} while (tid == TOK_NEWLINE);
-
 	ejLexPutbackToken(ep, tid, ep->token);
 }
-
-/******************************************************************************/
 
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

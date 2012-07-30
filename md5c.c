@@ -2,6 +2,8 @@
   	md5c.c - MD5 hash implementation
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
+
+    MOB - compare with MPR version
  */
 /******************************************************************************/
 
@@ -108,20 +110,21 @@ static const ulong32 Korder[] = {
 static void _md5_compress(psMd5Context_t *md)
 {
 	unsigned long	i, W[16], a, b, c, d;
+    //  MOB
 #ifdef SMALL_CODE
 	ulong32			t;
 #endif
 
-/*
-	copy the state into 512-bits into W[0..15]
- */
+    /*
+        copy the state into 512-bits into W[0..15]
+     */
 	for (i = 0; i < 16; i++) {
 		LOAD32L(W[i], md->buf + (4*i));
 	}
 
-/*
-	copy state
- */
+    /*
+        copy state
+     */
 	a = md->state[0];
 	b = md->state[1];
 	c = md->state[2];
@@ -269,11 +272,13 @@ void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
 		md->curlen	+= n;
 		buf			+= n;
 		len			-= n;
-/*
-		is 64 bytes full?
- */
+
+        /*
+            is 64 bytes full?
+         */
 		if (md->curlen == 64) {
 			md5_compress(md);
+            //  MOB
 #ifdef USE_INT64
 			md->length += 512;
 #else
@@ -298,9 +303,9 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
 	if (hash == NULL) {
 		return -1;
 	}
-/*
-	increase the length of the message
- */
+    /*
+        increase the length of the message
+     */
 #ifdef USE_INT64
 	md->length += md->curlen << 3;
 #else
@@ -311,14 +316,14 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
 	md->lengthHi += (md->curlen >> 29);
 	md->lengthLo = n;
 #endif /* USE_INT64 */
-/*
-	append the '1' bit
- */
+    /*
+        Append the '1' bit
+     */
 	md->buf[md->curlen++] = (unsigned char)0x80;
-/*
-	if the length is currently above 56 bytes we append zeros then compress.
-	Then we can fall back to padding zeros and length encoding like normal.
- */
+    /*
+        If the length is currently above 56 bytes we append zeros then compress.  Then we can fall back to padding zeros
+        and length encoding like normal.  
+     */
 	if (md->curlen > 56) {
 		while (md->curlen < 64) {
 			md->buf[md->curlen++] = (unsigned char)0;
@@ -326,15 +331,15 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
 		md5_compress(md);
 		md->curlen = 0;
 	}
-/*
-	pad upto 56 bytes of zeroes
- */
+    /*
+        pad upto 56 bytes of zeroes
+     */
 	while (md->curlen < 56) {
 		md->buf[md->curlen++] = (unsigned char)0;
 	}
-/*
-	store length
- */
+    /*
+        store length
+     */
 #ifdef USE_INT64
 	STORE64L(md->length, md->buf+56);
 #else
@@ -342,9 +347,9 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
 	STORE32L(md->lengthHi, md->buf+60);
 #endif /* USE_INT64 */
 	md5_compress(md);
-/*
-	copy output
- */
+    /*
+        copy output
+     */
 	for (i = 0; i < 4; i++) {
 		STORE32L(md->state[i], hash+(4*i));
 	}
@@ -353,34 +358,17 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
 }
 #endif /* !WEBS_SSL_SUPPORT */
 #endif /* !DIGEST_ACCESS_SUPPORT */
-/******************************************************************************/
+
 /*
     @copy   default
 
-    Copyright (c) PeerSec Networks Inc, 2002. All Rights Reserved.
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

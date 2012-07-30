@@ -1,17 +1,12 @@
 /*
     rom.c -- Support for ROMed page retrieval.
 
+    This module provides web page retrieval from compiled web pages. Use the webcomp program to compile web pages and
+    link into the GoAhead WebServer.  This module uses a hashed symbol table for fast page lookup.
+  
+  	Usage: webcomp -f webPageFileList -p Prefix >webrom.c
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *	This module provides web page retrieval from compiled web pages. Use the
- *	webcomp program to compile web pages and link into the GoAhead WebServer.
- *	This module uses a hashed symbol table for fast page lookup.
- *
- *	Usage: webcomp -f webPageFileList -p Prefix >webrom.c
  */
 
 /********************************* Includes ***********************************/
@@ -27,9 +22,6 @@
 sym_fd_t	romTab;						/* Symbol table for web pages */
 
 /*********************************** Code *************************************/
-/*
- *	Open the ROM module
- */
 
 int websRomOpen()
 {
@@ -51,20 +43,11 @@ int websRomOpen()
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Close the ROM module
- */
-
 void websRomClose()
 {
 	symClose(romTab);
 }
 
-/******************************************************************************/
-/*
- *	Open a web page
- */
 
 int websRomPageOpen(webs_t wp, char_t *path, int mode, int perm)
 {
@@ -82,19 +65,11 @@ int websRomPageOpen(webs_t wp, char_t *path, int mode, int perm)
 	return (wp->docfd = wip - websRomPageIndex);
 }
 
-/******************************************************************************/
-/*
- *	Close a web page
- */
 
 void websRomPageClose(int fd)
 {
 }
 
-/******************************************************************************/
-/*
- *	Stat a web page
- */
 
 int websRomPageStat(char_t *path, websStatType *sbuf)
 {
@@ -116,10 +91,6 @@ int websRomPageStat(char_t *path, websStatType *sbuf)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Read a web page
- */
 
 int websRomPageReadData(webs_t wp, char *buf, int nBytes)
 {
@@ -138,10 +109,6 @@ int websRomPageReadData(webs_t wp, char *buf, int nBytes)
 	return len;
 }
 
-/******************************************************************************/
-/*
- *	Position a web page
- */
 
 long websRomPageSeek(webs_t wp, long offset, int origin)
 {
@@ -158,12 +125,10 @@ long websRomPageSeek(webs_t wp, long offset, int origin)
 		errno = EINVAL;
 		return -1;
 	}
-
 	if (wp->docfd < 0) {
 		errno = EBADF;
 		return -1;
 	}
-
 	pos = offset;
 	switch (origin) {
 	case SEEK_CUR:
@@ -175,45 +140,25 @@ long websRomPageSeek(webs_t wp, long offset, int origin)
 	default:
 		break;
 	}
-
 	if (pos < 0) {
 		errno = EBADF;
 		return -1;
 	}
-
 	return (wip->pos = pos);
 }
 
 #endif /* WEBS_PAGE_ROM */
 
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

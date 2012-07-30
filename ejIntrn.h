@@ -1,19 +1,11 @@
 /* 
-  	ejIntrn.h -- Ejscript(TM) header
-  
+  	ejIntrn.h -- Internal Ejscript header
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 #ifndef _h_EJINTERNAL
 #define _h_EJINTERNAL 1
-
-/******************************** Description *********************************/
-
-/* 
- *	GoAhead Ejscript(TM) header. This defines the Ejscript API and internal
- *	structures.
- */
 
 /********************************* Includes ***********************************/
 
@@ -38,7 +30,7 @@
 
 /********************************** Defines ***********************************/
 /*
- *	Constants
+  	Constants
  */
 #define EJ_INC				110		/* Growth for tags/tokens */
 #define EJ_SCRIPT_INC		1023	/* Growth for ej scripts */
@@ -46,7 +38,7 @@
 #define EJ_MAX_RECURSE		100		/* Sanity for maximum recursion */
 
 /*
- *	Ejscript Lexical analyser tokens
+  	Ejscript Lexical analyser tokens
  */
 #define TOK_ERR				-1		/* Any error */
 #define TOK_LPAREN			1		/* ( */
@@ -71,7 +63,7 @@
 #define TOK_RETURN			20		/* return */
 
 /*
- *	Expression operators
+  	Expression operators
  */
 #define EXPR_LESS			1		/* < */
 #define EXPR_LESSEQ			2		/* <= */
@@ -91,14 +83,14 @@
 #define EXPR_DEC			16		/* -- */
 #define EXPR_BOOL_COMP		17		/* ! */
 /*
- *	Conditional operators
+  	Conditional operators
  */
 #define COND_AND			1		/* && */
 #define COND_OR				2		/* || */
 #define COND_NOT			3		/* ! */
 
 /*
- *	States
+  	States
  */
 #define STATE_ERR				-1			/* Error state */
 #define STATE_EOF				1			/* End of file */
@@ -123,14 +115,14 @@
 #define STATE_BEGIN				STATE_STMT
 
 /*
- *	Flags. Used in ej_t and as parameter to parse()
+  	Flags. Used in ej_t and as parameter to parse()
  */
 #define FLAGS_EXE				0x1				/* Execute statements */
 #define FLAGS_VARIABLES			0x2				/* Allocated variables store */
 #define FLAGS_FUNCTIONS			0x4				/* Allocated function store */
 
 /*
- *	Function call structure
+  	Function call structure
  */
 typedef struct {
 	char_t		*fname;							/* Function name */
@@ -139,7 +131,7 @@ typedef struct {
 } ejfunc_t;
 
 /*
- *	EJ evaluation block structure
+  	EJ evaluation block structure
  */
 typedef struct ejEval {
 	ringq_t		tokbuf;							/* Current token */
@@ -153,7 +145,7 @@ typedef struct ejEval {
 } ejinput_t;
 
 /*
- *	Per Ejscript session structure
+  	Per Ejscript session structure
  */
 typedef struct ej {
 	ejinput_t	*input;							/* Input evaluation block */
@@ -175,9 +167,11 @@ typedef struct ej {
 extern int		ejOpenBlock(int eid);
 extern int		ejCloseBlock(int eid, int vid);
 extern char_t	*ejEvalBlock(int eid, char_t *script, char_t **emsg);
+
 #ifndef __NO_EJ_FILE
 extern char_t	*ejEvalFile(int eid, char_t *path, char_t **emsg);
 #endif
+
 extern int		ejRemoveGlobalFunction(int eid, char_t *name);
 extern void		*ejGetGlobalFunction(int eid, char_t *name);
 extern int 		ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, 
@@ -220,28 +214,12 @@ extern int ejEmfDbCollectTable(int eid, void *handle, int argc, char_t **argv);
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

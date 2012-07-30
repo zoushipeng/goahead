@@ -4,12 +4,6 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-/******************************** Description *********************************/
-
-/*
- *	This module provides a basic security policy.
- */
-
 /********************************* Includes ***********************************/
 
 #include	"wsIntrn.h"
@@ -20,12 +14,9 @@
 
 /********************************** Defines ***********************************/
 /*
- *	The following #defines change the behaviour of security in the absence 
- *	of User Management.
- *	Note that use of User management functions require prior calling of
- *	umInit() to behave correctly
+  	The following #defines change the behaviour of security in the absence of User Management.
+  	Note that use of User management functions require prior calling of umInit() to behave correctly
  */
-
 #ifndef USER_MANAGEMENT_SUPPORT
 #define umGetAccessMethodForURL(url) AM_FULL
 #define umUserExists(userid) 0
@@ -38,6 +29,7 @@
 /******************************** Local Data **********************************/
 
 static char_t	websPassword[WEBS_MAX_PASS];	/* Access password (decoded) */
+//  MOB
 #ifdef _DEBUG
 static int		debugSecurity = 1;
 #else
@@ -46,37 +38,36 @@ static int		debugSecurity = 0;
 
 /*********************************** Code *************************************/
 /*
- *	Determine if this request should be honored
+  	Determine if this request should be honored
  */
-
-int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, 
-						char_t *url, char_t *path, char_t *query)
+int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
 	char_t			*type, *userid, *password, *accessLimit;
-	int				flags, nRet;
 	accessMeth_t	am;
+	int				flags, nRet;
 
 	a_assert(websValid(wp));
 	a_assert(url && *url);
 	a_assert(path && *path);
-/*
- *	Get the critical request details
- */
+
+    /*
+      	Get the critical request details
+     */
 	type = websGetRequestType(wp);
 	password = websGetRequestPassword(wp);
 	userid = websGetRequestUserName(wp);
 	flags = websGetRequestFlags(wp);
-/*
- *	Get the access limit for the URL.  Exit if none found.
- */
+    /*
+      	Get the access limit for the URL.  Exit if none found.
+     */
 	accessLimit = umGetAccessLimit(path);
 	if (accessLimit == NULL) {
 		return 0;
 	}
 		 
-/*
- *	Check to see if URL must be encrypted
- */
+    /*
+      	Check to see if URL must be encrypted
+     */
 #ifdef WEBS_SSL_SUPPORT
 	nRet = umGetAccessLimitSecure(accessLimit);
 	if (nRet && ((flags & WEBS_SECURE) == 0)) {
@@ -91,20 +82,20 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 	}
 #endif
 
-/*
- *	Get the access limit for the URL
- */
+    /*
+      	Get the access limit for the URL
+     */
 	am = umGetAccessMethodForURL(accessLimit);
 
 	nRet = 0;
 	if ((flags & WEBS_LOCAL_REQUEST) && (debugSecurity == 0)) {
-/*
- *		Local access is always allowed (defeat when debugging)
- */
+        /*
+            Local access is always allowed (defeat when debugging)
+         */
 	} else if (am == AM_NONE) {
-/*
- *		URL is supposed to be hidden!  Make like it wasn't found.
- */
+        /*
+            URL is supposed to be hidden!  Make like it wasn't found.
+         */
 		websStats.access++;
 		websError(wp, 404, T("Page Not Found"));
 		nRet = 1;
@@ -129,21 +120,19 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 								T("attempt to access <%s>\n"), userid, path);
 					nRet = 1;
 				} else {
-/*
- *					User and password check out.
- */
+                    /*
+                        User and password check out.
+                     */
 				}
-
 				bfree (B_L, userpass);
 			}
 #ifdef DIGEST_ACCESS_SUPPORT
 		} else if (flags & WEBS_AUTH_DIGEST) {
-
 			char_t *digestCalc;
 
-/*
- *			Check digest for equivalence
- */
+            /*
+                Check digest for equivalence
+             */
 			wp->password = umGetUserPassword(userid);
 
 			a_assert(wp->digest);
@@ -168,9 +157,9 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 			bfree (B_L, digestCalc);
 #endif
 		} else {
-/*
- *			No password has been specified
- */
+            /*
+                No password has been specified
+             */
 #ifdef DIGEST_ACCESS_SUPPORT
 			if (am == AM_DIGEST) {
 				wp->flags |= WEBS_AUTH_DIGEST;
@@ -182,10 +171,9 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 			nRet = 1;
 		}
 	} else if (am != AM_FULL) {
-/*
- *		This will cause the browser to display a password / username
- *		dialog
- */
+        /*
+          		This will cause the browser to display a password / username dialog
+         */
 #ifdef DIGEST_ACCESS_SUPPORT
 		if (am == AM_DIGEST) {
 			wp->flags |= WEBS_AUTH_DIGEST;
@@ -195,28 +183,20 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		websError(wp, 401, T("Access to this document requires a User ID"));
 		nRet = 1;
 	}
-
 	bfree(B_L, accessLimit);
-
 	return nRet;
 }
 
-/******************************************************************************/
-/*
- *	Delete the default security handler
- */
 
 void websSecurityDelete()
 {
 	websUrlHandlerDelete(websSecurityHandler);
 }
 
-/******************************************************************************/
-/*
- *	Store the new password, expect a decoded password. Store in websPassword in 
- *	the decoded form.
- */
 
+/*
+  	Store the new password, expect a decoded password. Store in websPassword in the decoded form.
+ */
 void websSetPassword(char_t *password)
 {
 	a_assert(password);
@@ -224,43 +204,26 @@ void websSetPassword(char_t *password)
 	gstrncpy(websPassword, password, TSZ(websPassword));
 }
 
-/******************************************************************************/
-/*
- *	Get password, return the decoded form
- */
 
+/*
+  	Get password, return the decoded form
+ */
 char_t *websGetPassword()
 {
 	return bstrdup(B_L, websPassword);
 }
 
-/******************************************************************************/
+
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

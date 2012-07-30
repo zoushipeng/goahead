@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+#   configure -- Configure for building on Unix systems
+#
+#   This simply invokes bit to do the work
+
+if ! type bit >/dev/null 2>&1 ; then
+    echo "Install Ejscript for building" >&2
+    exit 255
+fi
+bit configure $*

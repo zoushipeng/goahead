@@ -6,14 +6,11 @@
 
 /******************************** Description *********************************/
 
-/*
- *	Posix Socket Module.  This supports blocking and non-blocking buffered 
- *	socket I/O.
- */
+/********************************** Includes **********************************/
+
+//  MOB - LITTLEFOOT?
 
 #if (!defined (WIN) || defined (LITTLEFOOT) || defined (WEBS))
-
-/********************************** Includes **********************************/
 #ifndef CE
 #include	<errno.h>
 #include	<fcntl.h>
@@ -41,9 +38,6 @@ static int 	socketDoEvent(socket_t *sp);
 static int	tryAlternateConnect(int sock, struct sockaddr *sockaddr);
 
 /*********************************** Code *************************************/
-/*
- *	Open socket module
- */
 
 int socketOpen()
 {
@@ -72,10 +66,6 @@ int socketOpen()
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Close the socket module, by closing all open connections
- */
 
 void socketClose()
 {
@@ -91,11 +81,10 @@ void socketClose()
 	}
 }
 
-/******************************************************************************/
-/*
- *	Open a client or server socket. Host is NULL if we want server capability.
- */
 
+/*
+    Open a client or server socket. Host is NULL if we want server capability.
+ */
 int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 {
 #if (!defined (NO_GETHOSTBYNAME) && !defined (VXWORKS))
@@ -108,18 +97,12 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 	if (port > SOCKET_PORT_MAX) {
 		return -1;
 	}
-/*
- *	Allocate a socket structure
- */
 	if ((sid = socketAlloc(host, port, accept, flags)) < 0) {
 		return -1;
 	}
 	sp = socketList[sid];
 	a_assert(sp);
 
-/*
- *	Create the socket address structure
- */
 	memset((char *) &sockaddr, '\0', sizeof(struct sockaddr_in));
 	sockaddr.sin_family = AF_INET;
 	sockaddr.sin_port = htons((short) (port & 0xFFFF));
@@ -129,13 +112,11 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 	} else {
 		sockaddr.sin_addr.s_addr = inet_addr(host);
 		if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
-/*
- *			If the OS does not support gethostbyname functionality, the macro:
- *			NO_GETHOSTBYNAME should be defined to skip the use of gethostbyname.
- *			Unfortunatly there is no easy way to recover, the following code
- *			simply uses the basicGetHost IP for the sockaddr.
- */
-
+            /*
+                If the OS does not support gethostbyname functionality, the macro: NO_GETHOSTBYNAME should be defined to
+                skip the use of gethostbyname. Unfortunatly there is no easy way to recover, the following code simply
+                uses the basicGetHost IP for the sockaddr.  
+             */
 #ifdef NO_GETHOSTBYNAME
 			if (strcmp(host, basicGetHost()) == 0) {
 				sockaddr.sin_addr.s_addr = inet_addr(basicGetAddress());
@@ -154,9 +135,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 #else
 			hostent = gethostbyname(host);
 			if (hostent != NULL) {
-				memcpy((char *) &sockaddr.sin_addr, 
-					(char *) hostent->h_addr_list[0],
-					(size_t) hostent->h_length);
+				memcpy((char *) &sockaddr.sin_addr, (char *) hostent->h_addr_list[0], (size_t) hostent->h_length);
 			} else {
 				char	*asciiAddress;
 				char_t	*address;
@@ -174,17 +153,15 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 #endif /* (NO_GETHOSTBYNAME || VXWORKS) */
 		}
 	}
-
 	bcast = sp->flags & SOCKET_BROADCAST;
 	if (bcast) {
 		sp->flags |= SOCKET_DATAGRAM;
 	}
 	dgram = sp->flags & SOCKET_DATAGRAM;
 
-/*
- *	Create the socket. Support for datagram sockets. Set the close on
- *	exec flag so children don't inherit the socket.
- */
+    /*
+      	Create the socket. Support for datagram sockets. Set the close on exec flag so children don't inherit the socket.
+     */
 	sp->sock = socket(AF_INET, dgram ? SOCK_DGRAM: SOCK_STREAM, 0);
 	if (sp->sock < 0) {
 		socketFree(sid);
@@ -195,9 +172,9 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 #endif
 	socketHighestFd = max(socketHighestFd, sp->sock);
 
-/*
- *	If broadcast, we need to turn on broadcast capability.
- */
+    /*
+      	If broadcast, we need to turn on broadcast capability.
+     */
 	if (bcast) {
 		int broadcastFlag = 1;
 		if (setsockopt(sp->sock, SOL_SOCKET, SO_BROADCAST,
@@ -207,28 +184,26 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 		}
 	}
 
-/*
- *	Host is set if we are the client
- */
+    /*
+      	Host is set if we are the client
+     */
 	if (host) {
-/*
- *		Connect to the remote server in blocking mode, then go into 
- *		non-blocking mode if desired.
- */
+        /*
+            Connect to the remote server in blocking mode, then go into non-blocking mode if desired.
+         */
 		if (!dgram) {
 			if (! (sp->flags & SOCKET_BLOCK)) {
-/*
- *				sockGen.c is only used for Windows products when blocking
- *				connects are expected.  This applies to webserver connectws. 
- *				Therefore the asynchronous connect code here is not compiled.
- */
+                /*
+                    sockGen.c is only used for Windows products when blocking connects are expected.  This applies to
+                    webserver connectws.  Therefore the asynchronous connect code here is not compiled.
+                 */
 #if (defined (WIN) || defined (CE)) && (!defined (LITTLEFOOT) && !defined (WEBS))
 				int flag;
 
 				sp->flags |= SOCKET_ASYNC;
-/*
- *				Set to non-blocking for an async connect
- */
+                /*
+                    Set to non-blocking for an async connect
+                 */
 				flag = 1;
 				if (ioctlsocket(sp->sock, FIONBIO, &flag) == SOCKET_ERROR) {
 					socketFree(sid);
@@ -257,17 +232,15 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 			}
 		}
 	} else {
-/*
- *		Bind to the socket endpoint and the call listen() to start listening
- */
+        /*
+            Bind to the socket endpoint and the call listen() to start listening
+         */
 		rc = 1;
 		setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char *)&rc, sizeof(rc));
-		if (bind(sp->sock, (struct sockaddr *) &sockaddr, 
-				sizeof(sockaddr)) < 0) {
+		if (bind(sp->sock, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
 			socketFree(sid);
 			return -1;
 		}
-
 		if (! dgram) {
 			if (listen(sp->sock, SOMAXCONN) < 0) {
 				socketFree(sid);
@@ -278,10 +251,9 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 		sp->handlerMask |= SOCKET_READABLE;
 	}
 
-/*
- *	Set the blocking mode
- */
-
+    /*
+        Set the blocking mode
+     */
 	if (flags & SOCKET_BLOCK) {
 		socketSetBlock(sid, 1);
 	} else {
@@ -291,14 +263,10 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 }
 
 
-/******************************************************************************/
 /*
- *	If the connection failed, swap the first two bytes in the 
- *	sockaddr structure.  This is a kludge due to a change in
- *	VxWorks between versions 5.3 and 5.4, but we want the 
- *	product to run on either.
+    If the connection failed, swap the first two bytes in the sockaddr structure.  This is a kludge due to a change in
+    VxWorks between versions 5.3 and 5.4, but we want the product to run on either.
  */
-
 static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 {
 #ifdef VXWORKS
@@ -313,10 +281,6 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 #endif /* VXWORKS */
 }
 
-/******************************************************************************/
-/*
- *	Close a socket
- */
 
 void socketCloseConnection(int sid)
 {
@@ -328,11 +292,10 @@ void socketCloseConnection(int sid)
 	socketFree(sid);
 }
 
-/******************************************************************************/
-/*
- *	Accept a connection. Called as a callback on incoming connection.
- */
 
+/*
+  	Accept a connection. Called as a callback on incoming connection.
+ */
 static void socketAccept(socket_t *sp)
 {
 	struct sockaddr_in	addr;
@@ -340,7 +303,6 @@ static void socketAccept(socket_t *sp)
 	size_t				len;
 	char				*pString;
 	int 				newSock, nid;
-
 
 #ifdef NW
 	NETINET_DEFINE_CONTEXT;
@@ -361,9 +323,9 @@ static void socketAccept(socket_t *sp)
 #endif
 	socketHighestFd = max(socketHighestFd, newSock);
 
-/*
- *	Create a socket structure and insert into the socket list
- */
+    /*
+      	Create a socket structure and insert into the socket list
+     */
 	nid = socketAlloc(sp->host, sp->port, sp->accept, sp->flags);
 	nsp = socketList[nid];
 	a_assert(nsp);
@@ -373,15 +335,14 @@ static void socketAccept(socket_t *sp)
 	if (nsp == NULL) {
 		return;
 	}
-/*
- *	Set the blocking mode before calling the accept callback.
- */
+    /*
+      	Set the blocking mode before calling the accept callback.
+     */
 
 	socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK) ? 1: 0);
-/*
- *	Call the user accept callback. The user must call socketCreateHandler
- *	to register for further events of interest.
- */
+    /*
+        Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
+     */
 	if (sp->accept != NULL) {
 		pString = inet_ntoa(addr.sin_addr);
 		if ((sp->accept)(nid, pString, ntohs(addr.sin_port), sp->sid) < 0) {
@@ -393,12 +354,11 @@ static void socketAccept(socket_t *sp)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Get more input from the socket and return in buf.
- *	Returns 0 for EOF, -1 for errors and otherwise the number of bytes read.
- */
 
+/*
+    Get more input from the socket and return in buf. Returns 0 for EOF, -1 for errors and otherwise the number of bytes
+    read.  
+ */
 int socketGetInput(int sid, char *buf, int toRead, int *errCode)
 {
 	struct sockaddr_in 	server;
@@ -414,9 +374,9 @@ int socketGetInput(int sid, char *buf, int toRead, int *errCode)
 		return -1;
 	}
 
-/*
- *	If we have previously seen an EOF condition, then just return
- */
+    /*
+      	If we have previously seen an EOF condition, then just return
+     */
 	if (sp->flags & SOCKET_EOF) {
 		return 0;
 	}
@@ -427,9 +387,9 @@ int socketGetInput(int sid, char *buf, int toRead, int *errCode)
 	}
 #endif
 
-/*
- *	Read the data
- */
+    /*
+      	Read the data
+     */
 	if (sp->flags & SOCKET_DATAGRAM) {
 		len = sizeof(server);
 		bytesRead = recvfrom(sp->sock, buf, toRead, 0,
@@ -437,53 +397,28 @@ int socketGetInput(int sid, char *buf, int toRead, int *errCode)
 	} else {
 		bytesRead = recv(sp->sock, buf, toRead, 0);
 	}
-   
-   /*
-    * BUG 01865 -- CPU utilization hangs on Windows. The original code used 
-    * the 'errno' global variable, which is not set by the winsock functions
-    * as it is under *nix platforms. We use the platform independent
-    * socketGetError() function instead, which does handle Windows correctly. 
-    * Other, *nix compatible platforms should work as well, since on those
-    * platforms, socketGetError() just returns the value of errno.
-    * Thanks to Jonathan Burgoyne for the fix.
-    */
-   if (bytesRead < 0) 
-   {
-      *errCode = socketGetError();
-      if (*errCode == ECONNRESET) 
-      {
-         sp->flags |= SOCKET_CONNRESET;
-         return 0;
-      }
-      return -1;
-   }
-	return bytesRead;
+    if (bytesRead < 0) {
+        *errCode = socketGetError();
+        if (*errCode == ECONNRESET) {
+            sp->flags |= SOCKET_CONNRESET;
+            return 0;
+        }
+        return -1;
+    }
+    return bytesRead;
 }
 
-/******************************************************************************/
-/*
- *	Process an event on the event queue
- */
-
-
-/******************************************************************************/
-/*
- *	Define the events of interest
- */
 
 void socketRegisterInterest(socket_t *sp, int handlerMask)
 {
 	a_assert(sp);
-
 	sp->handlerMask = handlerMask;
 }
 
-/******************************************************************************/
-/*
- *	Wait until an event occurs on a socket. Return 1 on success, 0 on failure.
- *	or -1 on exception (UEMF only)
- */
 
+/*
+    Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception (UEMF only)
+ */
 int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 {
 	int	mask;
@@ -509,11 +444,10 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Return TRUE if there is a socket with an event ready to process,
- */
 
+/*
+  	Return TRUE if there is a socket with an event ready to process,
+ */
 int socketReady(int sid)
 {
 	socket_t 	*sp;
@@ -540,9 +474,9 @@ int socketReady(int sid)
 		if (sp->currentEvents & sp->handlerMask) {
 			return 1;
 		}
-/*
- *		If there is input data, also call select to test for new events
- */
+        /*
+            If there is input data, also call select to test for new events
+         */
 		if (sp->handlerMask & SOCKET_READABLE && socketInputBuffered(sid) > 0) {
 			socketSelect(sid, 0);
 			return 1;
@@ -554,12 +488,10 @@ int socketReady(int sid)
 	return 0;
 }
 
-/******************************************************************************/
-/*
- * 	Wait for a handle to become readable or writable and return a number of 
- *	noticed events. Timeout is in milliseconds.
- */
 
+/*
+    Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
+ */
 #if (defined (WIN) || defined (CE) || defined (NW))
 
 int socketSelect(int sid, int timeout)
@@ -578,9 +510,9 @@ int socketSelect(int sid, int timeout)
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = (timeout % 1000) * 1000;
 
-/*
- *	Set the select event masks for events to watch
- */
+    /*
+      	Set the select event masks for events to watch
+     */
 	all = nEvents = 0;
 
 	if (sid < 0) {
@@ -593,9 +525,9 @@ int socketSelect(int sid, int timeout)
 			continue;
 		}
 		a_assert(sp);
-/*
- * 		Set the appropriate bit in the ready masks for the sp->sock.
- */
+        /*
+           		Set the appropriate bit in the ready masks for the sp->sock.
+         */
 		if (sp->handlerMask & SOCKET_READABLE) {
 			FD_SET(sp->sock, &readFds);
 			nEvents++;
@@ -617,18 +549,18 @@ int socketSelect(int sid, int timeout)
 		}
 	}
 
-/*
- *	Windows select() fails if no descriptors are set, instead of just sleeping
- *	like other, nice select() calls. So, if WIN, sleep.
- */
+    /*
+        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. So,
+        if WIN, sleep.  
+     */
 	if (nEvents == 0) {
 		Sleep(timeout);
 		return 0;
 	}
 
-/*
- * 	Wait for the event or a timeout.
- */
+    /*
+       	Wait for the event or a timeout.
+     */
 	nEvents = select(socketHighestFd+1, &readFds, &writeFds, &exceptFds, &tv);
 
 	if (all) {
@@ -665,9 +597,9 @@ int socketSelect(int sid, int timeout)
 	fd_mask 		*readFds, *writeFds, *exceptFds;
 	int 			all, len, nwords, index, bit, nEvents;
 
-/*
- *	Allocate and zero the select masks
- */
+    /*
+      	Allocate and zero the select masks
+     */
 	nwords = (socketHighestFd + NFDBITS) / NFDBITS;
 	len = nwords * sizeof(fd_mask);
 
@@ -681,9 +613,9 @@ int socketSelect(int sid, int timeout)
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = (timeout % 1000) * 1000;
 
-/*
- *	Set the select event masks for events to watch
- */
+    /*
+      	Set the select event masks for events to watch
+     */
 	all = nEvents = 0;
 
 	if (sid < 0) {
@@ -701,15 +633,15 @@ int socketSelect(int sid, int timeout)
 		}
 		a_assert(sp);
 
-/*
- * 		Initialize the ready masks and compute the mask offsets.
- */
+        /*
+           		Initialize the ready masks and compute the mask offsets.
+         */
 		index = sp->sock / (NBBY * sizeof(fd_mask));
 		bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
 		
-/*
- * 		Set the appropriate bit in the ready masks for the sp->sock.
- */
+        /*
+            Set the appropriate bit in the ready masks for the sp->sock.
+         */
 		if (sp->handlerMask & SOCKET_READABLE) {
 			readFds[index] |= bit;
 			nEvents++;
@@ -731,12 +663,10 @@ int socketSelect(int sid, int timeout)
 		}
 	}
 
-/*
- * 	Wait for the event or a timeout. Reset nEvents to be the number of actual
- *	events now.
- */
-	nEvents = select(socketHighestFd + 1, (fd_set *) readFds,
-		(fd_set *) writeFds, (fd_set *) exceptFds, &tv);
+    /*
+        Wait for the event or a timeout. Reset nEvents to be the number of actual events now.
+     */
+	nEvents = select(socketHighestFd + 1, (fd_set *) readFds, (fd_set *) writeFds, (fd_set *) exceptFds, &tv);
 
 	if (nEvents > 0) {
 		if (all) {
@@ -750,7 +680,6 @@ int socketSelect(int sid, int timeout)
 					continue;
 				}
 			}
-
 			index = sp->sock / (NBBY * sizeof(fd_mask));
 			bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
 
@@ -768,19 +697,13 @@ int socketSelect(int sid, int timeout)
 			}
 		}
 	}
-
 	bfree(B_L, readFds);
 	bfree(B_L, writeFds);
 	bfree(B_L, exceptFds);
-
 	return nEvents;
 }
 #endif /* WIN || CE */
 
-/******************************************************************************/
-/*
- *	Process socket events
- */
 
 void socketProcess(int sid)
 {
@@ -792,9 +715,6 @@ void socketProcess(int sid)
 		all = 1;
 		sid = 0;
 	}
-/*
- * 	Process each socket
- */
 	for (; sid < socketMax; sid++) {
 		if ((sp = socketList[sid]) == NULL) {
 			if (! all) {
@@ -812,10 +732,6 @@ void socketProcess(int sid)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Process an event on the event queue
- */
 
 static int socketDoEvent(socket_t *sp)
 {
@@ -833,19 +749,17 @@ static int socketDoEvent(socket_t *sp)
 		} 
 
 	} else {
-/*
- *		If there is still read data in the buffers, trigger the read handler
- *		NOTE: this may busy spin if the read handler doesn't read the data
- */
+        /*
+             If there is still read data in the buffers, trigger the read handler
+             NOTE: this may busy spin if the read handler doesn't read the data
+         */
 		if (sp->handlerMask & SOCKET_READABLE && socketInputBuffered(sid) > 0) {
 			sp->currentEvents |= SOCKET_READABLE;
 		}
 	}
-
-
-/*
- *	If now writable and flushing in the background, continue flushing
- */
+    /*
+      	If now writable and flushing in the background, continue flushing
+     */
 	if (sp->currentEvents & SOCKET_WRITABLE) {
 		if (sp->flags & SOCKET_FLUSHING) {
 			rq = &sp->outBuf;
@@ -857,16 +771,15 @@ static int socketDoEvent(socket_t *sp)
 		}
 	}
 
-/*
- *	Now invoke the users socket handler. NOTE: the handler may delete the
- *	socket, so we must be very careful after calling the handler.
- */
+    /*
+      	Now invoke the users socket handler. NOTE: the handler may delete the
+      	socket, so we must be very careful after calling the handler.
+     */
 	if (sp->handler && (sp->handlerMask & sp->currentEvents)) {
-		(sp->handler)(sid, sp->handlerMask & sp->currentEvents, 
-			sp->handler_data);
-/*
- *		Make sure socket pointer is still valid, then reset the currentEvents.
- */ 
+		(sp->handler)(sid, sp->handlerMask & sp->currentEvents, sp->handler_data);
+        /*
+            Make sure socket pointer is still valid, then reset the currentEvents.
+         */ 
 		if (socketList && sid < socketMax && socketList[sid] == sp) {
 			sp->currentEvents = 0;
 		}
@@ -874,11 +787,10 @@ static int socketDoEvent(socket_t *sp)
 	return 1;
 }
 
-/******************************************************************************/
-/*
- *	Set the socket blocking mode
- */
 
+/*
+  	Set the socket blocking mode
+ */
 int socketSetBlock(int sid, int on)
 {
 	socket_t		*sp;
@@ -897,10 +809,9 @@ int socketSetBlock(int sid, int on)
 	if (on) {
 		sp->flags |= SOCKET_BLOCK;
 	}
-
-/*
- *	Put the socket into block / non-blocking mode
- */
+    /*
+      	Put the socket into block / non-blocking mode
+     */
 	if (sp->flags & SOCKET_BLOCK) {
 #if (defined (CE) || defined (WIN))
 		ioctlsocket(sp->sock, FIONBIO, &flag);
@@ -935,19 +846,17 @@ int socketSetBlock(int sid, int on)
 	return oldBlock;
 }
 
-/******************************************************************************/
-/*
- *	Return true if a readable socket has buffered data. - not public
- */
 
+/*
+  	Return true if a readable socket has buffered data. - not public
+ */
 int socketDontBlock()
 {
 	socket_t	*sp;
 	int			i;
 
 	for (i = 0; i < socketMax; i++) {
-		if ((sp = socketList[i]) == NULL || 
-				(sp->handlerMask & SOCKET_READABLE) == 0) {
+		if ((sp = socketList[i]) == NULL || (sp->handlerMask & SOCKET_READABLE) == 0) {
 			continue;
 		}
 		if (socketInputBuffered(i) > 0) {
@@ -957,11 +866,10 @@ int socketDontBlock()
 	return 0;
 }
 
-/******************************************************************************/
-/*
- *	Return true if a particular socket buffered data. - not public
- */
 
+/*
+  	Return true if a particular socket buffered data. - not public
+ */
 int socketSockBuffered(int sock)
 {
 	socket_t	*sp;
@@ -978,33 +886,17 @@ int socketSockBuffered(int sock)
 
 #endif /* (!WIN) | LITTLEFOOT | WEBS */
 
-/******************************************************************************/
+
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

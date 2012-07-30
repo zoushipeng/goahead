@@ -7,22 +7,13 @@
 #ifndef _h_UM
 #define _h_UM 1
 
-/******************************** Description *********************************/
-
-/*
- *	GoAhead User Management header. This defines the User Management
- *	public APIs.  Include this header for files that contain access to
- *	user inquiry or management.
- */
-
 /********************************* Includes ***********************************/
 
 #include	"uemf.h"
 
 /********************************** Defines ***********************************/
-
 /*
- *	Error Return Flags
+  	Error Return Flags
  */
 #define UM_OK				0
 #define UM_ERR_GENERAL		-1
@@ -34,7 +25,7 @@
 #define UM_ERR_BAD_PASSWORD -7
 
 /*
- *	Privilege Masks
+  	Privilege Masks
  */
 #define PRIV_NONE	0x00
 #define PRIV_READ	0x01
@@ -42,7 +33,7 @@
 #define PRIV_ADMIN	0x04
 
 /*
- *	User classes
+  	User classes
  */
 typedef short bool_t;
 
@@ -63,32 +54,31 @@ typedef enum {
 } accessMeth_t;
 
 /********************************** Prototypes ********************************/
-
+//  MOB - Doxygen
 /*
- *	umOpen() must be called before accessing User Management functions
+  	umOpen() must be called before accessing User Management functions
  */
 extern int				umOpen();
 
 /*
- *	umClose() should be called before shutdown to free memory
+  	umClose() should be called before shutdown to free memory
  */
 extern void				umClose();
 
 /*
- *	umCommit() persists the user management database
+  	umCommit() persists the user management database
  */
 extern int				umCommit(char_t *filename);
 
 /*
- *	umRestore() loads the user management database
+  	umRestore() loads the user management database
  */
 extern int				umRestore(char_t *filename);
 
 /*
- *	umUser functions use a user ID for a key
+  	umUser functions use a user ID for a key
  */
-extern int				umAddUser(char_t *user, char_t *password,
-							char_t *group, bool_t protect, bool_t disabled);
+extern int				umAddUser(char_t *user, char_t *password, char_t *group, bool_t protect, bool_t disabled);
 
 extern int				umDeleteUser(char_t *user);
 
@@ -110,10 +100,9 @@ extern bool_t			umGetUserProtected(char_t *user);
 extern int				umSetUserProtected(char_t *user, bool_t protect);
 
 /*
- *	umGroup functions use a group name for a key
+  	umGroup functions use a group name for a key
  */
-extern int				umAddGroup(char_t *group, short privilege,
-							accessMeth_t am, bool_t protect, bool_t disabled);
+extern int				umAddGroup(char_t *group, short privilege, accessMeth_t am, bool_t protect, bool_t disabled);
 
 extern int				umDeleteGroup(char_t *group);
 
@@ -136,7 +125,7 @@ extern bool_t			umGetGroupProtected(char_t *group);
 extern int				umSetGroupProtected(char_t *group, bool_t protect);
 
 /*
- *	umAccessLimit functions use a URL as a key
+  	umAccessLimit functions use a URL as a key
  */
 extern int			umAddAccessLimit(char_t *url, accessMeth_t am,
 						short secure, char_t *group);
@@ -147,7 +136,7 @@ extern char_t		*umGetFirstAccessLimit();
 extern char_t		*umGetNextAccessLimit(char_t *lastUser);
 
 /*
- *	Returns the name of an ancestor access limit if
+  	Returns the name of an ancestor access limit if
  */
 extern char_t		*umGetAccessLimit(char_t *url);
 
@@ -163,7 +152,7 @@ extern char_t		*umGetAccessLimitGroup(char_t *url);
 extern int			umSetAccessLimitGroup(char_t *url, char_t *group);
 
 /*
- *	Convenience Functions
+  	Convenience Functions
  */
 
 extern accessMeth_t	umGetAccessMethodForURL(char_t *url);
@@ -171,35 +160,16 @@ extern bool_t		umUserCanAccessURL(char_t *user, char_t *url);
 
 #endif /* _h_UM */
 
-/******************************************************************************/
-
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

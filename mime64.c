@@ -4,22 +4,15 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-/******************************** Description *********************************/
-
-/*
- *	The base64 command encodes and decodes a string in mime base64 format
- */
-
 /********************************* Includes ***********************************/
 
 #include	"wsIntrn.h"
 
 /******************************** Local Data **********************************/
 /*
- *	Mapping of ANSI chars to base64 Mime encoding alphabet (see below)
+  	Mapping of ANSI chars to base64 Mime encoding alphabet (see below)
  */
 
-/* Fix by Ian Bothwell, 2004/05/17 */
 static char_t	map64[] = {
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -45,7 +38,7 @@ static char_t	map64[] = {
 
 /*********************************** Code *************************************/
 /*
- *	Decode a buffer from "string" and into "outbuf"
+  	Decode a buffer from "string" and into "outbuf"
  */
 int websDecode64(char_t *outbuf, char_t *string, int outlen)
 {
@@ -57,9 +50,9 @@ int websDecode64(char_t *outbuf, char_t *string, int outlen)
 	*op = '\0';
 	cp = string;
 	while (*cp && *cp != '=') {
-/*
- *		Map 4 (6bit) input bytes and store in a single long (shiftbuf)
- */
+        /*
+            Map 4 (6bit) input bytes and store in a single long (shiftbuf)
+         */
 		shiftbuf = 0;
 		shift = 18;
 		for (i = 0; i < 4 && *cp && *cp != '='; i++, cp++) {
@@ -72,10 +65,9 @@ int websDecode64(char_t *outbuf, char_t *string, int outlen)
 			shiftbuf = shiftbuf | (c << shift);
 			shift -= 6;
 		}
-/*
- *		Interpret as 3 normal 8 bit bytes (fill in reverse order).
- *		Check for potential buffer overflow before filling.
- */
+        /*
+            Interpret as 3 normal 8 bit bytes (fill in reverse order). Check for potential buffer overflow before filling.
+         */
 		--i;
 		if ((op + i) >= &outbuf[outlen]) {
 			gstrcpy(outbuf, T("String too big"));
@@ -90,38 +82,16 @@ int websDecode64(char_t *outbuf, char_t *string, int outlen)
 }
 
 
-/******************************************************************************/
-/*
- *	Encode a buffer from "string" into "outbuf"
- */
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

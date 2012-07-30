@@ -8,17 +8,12 @@
 
 #include	"uemf.h"
 
-/*
- * 16 Sep 03 -- added option to use memcpy() instead of strncpy() in the
- * ascToUni and uniToAsc functions. 
- */
+//  MOB - remove and use this only
 #define kUseMemcopy
-
 
 /********************************* Defines ************************************/
 /*
- *	Sprintf buffer structure. Make the increment 64 so that
- *	a balloc can use a 64 byte block.
+  	Sprintf buffer structure. Make the increment 64 so that a balloc can use a 64 byte block.
  */
 
 #define STR_REALLOC		0x1				/* Reallocate the buffer as required */
@@ -33,7 +28,7 @@ typedef struct {
 } strbuf_t;
 
 /*
- *	Sprintf formatting flags
+  	Sprintf formatting flags
  */
 enum flag {
 	flag_none = 0,
@@ -48,29 +43,27 @@ enum flag {
 
 /************************** Forward Declarations ******************************/
 
-static int 	dsnprintf(char_t **s, int size, char_t *fmt, va_list arg,
-				int msize);
+static int 	dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize);
 static void	put_char(strbuf_t *buf, char_t c);
-static void	put_string(strbuf_t *buf, char_t *s, int len,
-				int width, int prec, enum flag f);
-static void	put_ulong(strbuf_t *buf, unsigned long int value, int base,
-				int upper, char_t *prefix, int width, int prec, enum flag f);
+static void	put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f);
+static void	put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, 
+        int prec, enum flag f);
 static int	gstrnlen(char_t *s, unsigned int n);
 
 /************************************ Code ************************************/
 /*
- *	"basename" returns a pointer to the last component of a pathname
- *  LINUX, LynxOS and Mac OS X have their own basename function
+    "basename" returns a pointer to the last component of a pathname LINUX, LynxOS and Mac OS X have their own basename
+    function 
  */
 
+//  MOB - use #if form
 #if (!defined (LINUX) && !defined (LYNX) && !defined (MACOSX))
 char_t *basename(char_t *name)
 {
 	char_t	*cp;
 
 #if (defined (NW) || defined (WIN))
-	if (((cp = gstrrchr(name, '\\')) == NULL) &&
-			((cp = gstrrchr(name, '/')) == NULL)) {
+	if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
 		return name;
 #else
 	if ((cp = gstrrchr(name, '/')) == NULL) {
@@ -88,10 +81,8 @@ char_t *basename(char_t *name)
 
 /******************************************************************************/
 /*
- *	Returns a pointer to the directory component of a pathname. bufsize is
- *	the size of the buffer in BYTES!
+  	Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
  */
-
 char_t *dirname(char_t *buf, char_t *name, int bufsize)
 {
 	char_t *cp;
@@ -102,8 +93,7 @@ char_t *dirname(char_t *buf, char_t *name, int bufsize)
 	a_assert(bufsize > 0);
 
 #if (defined (WIN) || defined (NW))
-	if ((cp = gstrrchr(name, '/')) == NULL && 
-		(cp = gstrrchr(name, '\\')) == NULL)
+	if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
 #else
 	if ((cp = gstrrchr(name, '/')) == NULL)
 #endif
@@ -111,15 +101,12 @@ char_t *dirname(char_t *buf, char_t *name, int bufsize)
 		gstrcpy(buf, T("."));
 		return buf;
 	}
-
 	if ((*(cp + 1) == '\0' && cp == name)) {
 		gstrncpy(buf, T("."), TSZ(bufsize));
 		gstrcpy(buf, T("."));
 		return buf;
 	}
-
 	len = cp - name;
-
 	if (len < bufsize) {
 		gstrncpy(buf, name, len);
 		buf[len] = '\0';
@@ -127,18 +114,14 @@ char_t *dirname(char_t *buf, char_t *name, int bufsize)
 		gstrncpy(buf, name, TSZ(bufsize));
 		buf[bufsize - 1] = '\0';
 	}
-
 	return buf;
 }
 
 
-/******************************************************************************/
 /*
- *	sprintf and vsprintf are bad, ok. You can easily clobber memory. Use
- *	fmtAlloc and fmtValloc instead! These functions do _not_ support floating
- *	point, like %e, %f, %g...
+    sprintf and vsprintf are bad, ok. You can easily clobber memory. Use fmtAlloc and fmtValloc instead! These functions
+    do _not_ support floating point, like %e, %f, %g...
  */
-
 int fmtAlloc(char_t **s, int n, char_t *fmt, ...)
 {
 	va_list	ap;
@@ -154,11 +137,10 @@ int fmtAlloc(char_t **s, int n, char_t *fmt, ...)
 	return result;
 }
 
-/******************************************************************************/
-/*
- *	Support a static buffer version for small buffers only!
- */
 
+/*
+  	Support a static buffer version for small buffers only!
+ */
 int fmtStatic(char_t *s, int n, char_t *fmt, ...)
 {
 	va_list	ap;
@@ -177,12 +159,10 @@ int fmtStatic(char_t *s, int n, char_t *fmt, ...)
 	return result;
 }
 
-/******************************************************************************/
-/*
- *	This function appends the formatted string to the supplied string,
- *	reallocing if required.
- */
 
+/*
+    This function appends the formatted string to the supplied string, reallocing if required.
+ */
 int fmtRealloc(char_t **s, int n, int msize, char_t *fmt, ...)
 {
 	va_list	ap;
@@ -200,11 +180,10 @@ int fmtRealloc(char_t **s, int n, int msize, char_t *fmt, ...)
 	return result;
 }
 
-/******************************************************************************/
-/*
- *	A vsprintf replacement.
- */
 
+/*
+  	A vsprintf replacement.
+ */
 int fmtValloc(char_t **s, int n, char_t *fmt, va_list arg)
 {
 	a_assert(s);
@@ -214,16 +193,13 @@ int fmtValloc(char_t **s, int n, char_t *fmt, va_list arg)
 	return dsnprintf(s, n, fmt, arg, 0);
 }
 
-/******************************************************************************/
-/*
- *	Dynamic sprintf implementation. Supports dynamic buffer allocation.
- *	This function can be called multiple times to grow an existing allocated
- *	buffer. In this case, msize is set to the size of the previously allocated
- *	buffer. The buffer will be realloced, as required. If msize is set, we
- *	return the size of the allocated buffer for use with the next call. For
- *	the first call, msize can be set to -1.
- */
 
+/*
+    Dynamic sprintf implementation. Supports dynamic buffer allocation. This function can be called multiple times to
+    grow an existing allocated buffer. In this case, msize is set to the size of the previously allocated buffer. The
+    buffer will be realloced, as required. If msize is set, we return the size of the allocated buffer for use with the
+    next call. For the first call, msize can be set to -1.
+ */
 static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 {
 	strbuf_t	buf;
@@ -247,7 +223,6 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 	} else {
 		buf.size = size;
 	}
-
 	while ((c = *fmt++) != '\0') {
 		if (c != '%' || (c = *fmt++) == '%') {
 			put_char(&buf, c);
@@ -345,10 +320,6 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 								prec, f);
 						}
 					} else {
-                  /* 04 Apr 02 BgP -- changed so that %X correctly outputs
-                   * uppercase hex digits when requested.
-						put_ulong(&buf, value, 16, 0, NULL, width, prec, f);
-                   */
 						put_ulong(&buf, value, 16, ('X' == c) , NULL, width, prec, f);
 					}
 				}
@@ -390,14 +361,12 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 	if (buf.s == NULL) {
 		put_char(&buf, '\0');
 	}
-
-/*
- *	If the user requested a dynamic buffer (*s == NULL), ensure it is returned.
- */
+    /*
+      	If the user requested a dynamic buffer (*s == NULL), ensure it is returned.
+     */
 	if (*s == NULL || msize != 0) {
 		*s = buf.s;
 	}
-
 	if (*s != NULL && size > 0) {
 		if (buf.count < size) {
 			(*s)[buf.count] = '\0';
@@ -412,9 +381,9 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 	return buf.count;
 }
 
-/******************************************************************************/
+
 /*
- *	Return the length of a string limited by a given length
+  	Return the length of a string limited by a given length
  */
 static int gstrnlen(char_t *s, unsigned int n)
 {
@@ -424,11 +393,10 @@ static int gstrnlen(char_t *s, unsigned int n)
 	return min(len, n);
 }
 
-/******************************************************************************/
-/*
- *	Add a character to a string buffer
- */
 
+/*
+  	Add a character to a string buffer
+ */
 static void put_char(strbuf_t *buf, char_t c)
 {
 	if (buf->count >= (buf->size - 1)) {
@@ -437,9 +405,9 @@ static void put_char(strbuf_t *buf, char_t c)
 		}
 		buf->size += STR_INC;
 		if (buf->size > buf->max && buf->size > STR_INC) {
-/*
- *			Caller should increase the size of the calling buffer
- */
+            /*
+                Caller should increase the size of the calling buffer
+             */
 			buf->size -= STR_INC;
 			return;
 		}
@@ -455,13 +423,11 @@ static void put_char(strbuf_t *buf, char_t c)
 	}
 }
 
-/******************************************************************************/
-/*
- *	Add a string to a string buffer
- */
 
-static void put_string(strbuf_t *buf, char_t *s, int len, int width,
-		int prec, enum flag f)
+/*
+  	Add a string to a string buffer
+ */
+static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f)
 {
 	int		i;
 
@@ -485,13 +451,12 @@ static void put_string(strbuf_t *buf, char_t *s, int len, int width,
 	}
 }
 
-/******************************************************************************/
-/*
- *	Add a long to a string buffer
- */
 
-static void put_ulong(strbuf_t *buf, unsigned long int value, int base,
-		int upper, char_t *prefix, int width, int prec, enum flag f)
+/*
+  	Add a long to a string buffer
+ */
+static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, int prec,
+        enum flag f) 
 {
 	unsigned long	x, x2;
 	int				len, zeros, i;
@@ -536,18 +501,15 @@ static void put_ulong(strbuf_t *buf, unsigned long int value, int base,
 	}
 }
 
-/******************************************************************************/
-/*
- *	Convert an ansi string to a unicode string. On an error, we return the
- * 	original ansi string which is better than returning NULL. nBytes is the
- *	size of the destination buffer (ubuf) in _bytes_.
- */
 
+/*
+    Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
+    returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
+ */
 char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
 {
 #ifdef UNICODE
-	if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf,
-			nBytes / sizeof(char_t)) < 0) {
+	if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
 		return (char_t*) str;
 	}
 #else
@@ -561,13 +523,11 @@ char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
 	return ubuf;
 }
 
-/******************************************************************************/
-/*
- *	Convert a unicode string to an ansi string. On an error, return the
- *	original unicode string which is better than returning NULL.
- *	N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
- */
 
+/*
+    Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
+    returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
+ */
 char *uniToAsc(char *buf, char_t *ustr, int nBytes)
 {
 #ifdef UNICODE
@@ -586,15 +546,12 @@ char *uniToAsc(char *buf, char_t *ustr, int nBytes)
    return (char*) buf;
 }
 
-/******************************************************************************/
-/*
- *	allocate (balloc) a buffer and do ascii to unicode conversion into it.
- *	cp points to the ascii buffer.  alen is the length of the buffer to be
- *	converted not including a terminating NULL.  Return a pointer to the
- *	unicode buffer which must be bfree'd later.  Return NULL on failure to
- *	get buffer.  The buffer returned is NULL terminated.
- */
 
+/*
+    Allocate (balloc) a buffer and do ascii to unicode conversion into it.  cp points to the ascii buffer.  alen is the
+    length of the buffer to be converted not including a terminating NULL.  Return a pointer to the unicode buffer which
+    must be bfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
+ */
 char_t *ballocAscToUni(char *cp, int alen)
 {
 	char_t *unip;
@@ -609,15 +566,12 @@ char_t *ballocAscToUni(char *cp, int alen)
 	return unip;
 }
 
-/******************************************************************************/
-/*
- *	allocate (balloc) a buffer and do unicode to ascii conversion into it.
- *	unip points to the unicoded string. ulen is the number of characters
- *	in the unicode string not including a teminating null.  Return a pointer
- *	to the ascii buffer which must be bfree'd later.  Return NULL on failure
- *	to get buffer.  The buffer returned is NULL terminated.
- */
 
+/*
+    Allocate (balloc) a buffer and do unicode to ascii conversion into it.  unip points to the unicoded string. ulen is
+    the number of characters in the unicode string not including a teminating null.  Return a pointer to the ascii
+    buffer which must be bfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
+ */
 char *ballocUniToAsc(char_t *unip, int ulen)
 {
 	char * cp;
@@ -630,12 +584,11 @@ char *ballocUniToAsc(char_t *unip, int ulen)
 	return cp;
 }
 
-/******************************************************************************/
-/*
- *	convert a hex string to an integer. The end of the string or a non-hex
- *	character will indicate the end of the hex specification.
- */
 
+/*
+    Convert a hex string to an integer. The end of the string or a non-hex character will indicate the end of the hex
+    specification.  
+ */
 unsigned int hextoi(char_t *hexstring)
 {
 	register char_t			*h;
@@ -661,12 +614,10 @@ unsigned int hextoi(char_t *hexstring)
 	return v;
 }
 
-/******************************************************************************/
-/*
- *	convert a string to an integer. If the string starts with "0x" or "0X"
- *	a hexidecimal conversion is done.
- */
 
+/*
+    Convert a string to an integer. If the string starts with "0x" or "0X" a hexidecimal conversion is done.
+ */
 unsigned int gstrtoi(char_t *s)
 {
 	if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
@@ -676,35 +627,17 @@ unsigned int gstrtoi(char_t *s)
 	return gatoi(s);
 }
 
-/******************************************************************************/
-
 
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

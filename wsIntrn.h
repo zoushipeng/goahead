@@ -212,15 +212,16 @@ extern int		 websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
 
 extern void  	 websDefaultOpen();
 extern void  	 websDefaultClose();
+
 #ifdef WEBS_WHITELIST_SUPPORT
-#define WHITELIST_SSL       0x001   /* File only accessible through https */
-#define WHITELIST_CGI       0x002   /* Node is in the cgi-bin dir */
+#define WHITELIST_SSL 0x001   /* File only accessible through https */
+#define WHITELIST_CGI 0x002   /* Node is in the cgi-bin dir */
 extern int		websBuildWhitelist(void);
 extern int		websWhitelistCheck(char *path);
 extern void		websDeleteWhitelist(void);
 #endif /* WEBS_WHITELIST_SUPPORT */
-extern int 		 websDefaultHandler(webs_t wp, char_t *urlPrefix, 
-					char_t *webDir, int arg, char_t *url, char_t *path, 
+
+extern int 		 websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query);
 extern int 		 websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
 extern int 		 websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
@@ -229,19 +230,15 @@ extern void		 websCgiCleanup();
 extern int		 websCheckCgiProc(int handle);
 extern char_t	 *websGetCgiCommName();
 
-extern int		 websLaunchCgiProc(char_t *cgiPath, char_t **argp,
-					char_t **envp, char_t *stdIn, char_t *stdOut);
+extern int		 websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
 extern int 		 websOpen(int sid);
-extern void 	 websResponse(webs_t wp, int code, char_t *msg, 
-					char_t *redirect);
+extern void 	 websResponse(webs_t wp, int code, char_t *msg, char_t *redirect);
 extern int 		 websJavaScriptEval(webs_t wp, char_t *script);
 extern int 		 websPageReadData(webs_t wp, char *buf, int nBytes);
-extern int		 websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode,
-					int perm);
+extern int		 websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
 extern void		 websPageClose(webs_t wp);
 extern void		 websPageSeek(webs_t wp, long offset);
-extern int 	 	 websPageStat(webs_t wp, char_t *lpath, char_t *path,
-					websStatType *sbuf);
+extern int 	 	 websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType *sbuf);
 extern int		 websPageIsDirectory(char_t *lpath);
 extern int 		 websRomOpen();
 extern void		 websRomClose();
@@ -270,34 +267,16 @@ extern int readAscToUni(int fid, void **buf, unsigned int len);
 
 #endif /* _h_WEBS_INTERNAL */
 
-/******************************************************************************/
-
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4

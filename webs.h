@@ -7,13 +7,6 @@
 #ifndef _h_WEBS
 #define _h_WEBS 1
 
-/******************************** Description *********************************/
-/* 
- *	GoAhead Web Server header. This defines the Web public APIs.
- *	Include this header for files that contain ASP or Form procedures.
- *	Include wsIntrn.h when creating URL handlers.
- */
-
 /********************************* Includes ***********************************/
 
 #include	"ej.h"
@@ -22,6 +15,8 @@
 #endif
 
 /*************************** User Configurable Defines ************************/
+
+//  MOB - move to a config.h
 
 #define WEBS_DEFAULT_HOME		T("home.htm") /* Default home page */
 #define WEBS_DEFAULT_PORT		8080		/* Default HTTP port */
@@ -48,8 +43,7 @@
 
 /****************************** Immutable Defines *****************************/
 /*
- *	By license terms the software name and version defined in this section of
- *	code must not be modified.
+  	By license terms the software name and version defined in this section of code must not be modified.
  */
 #define WEBS_NAME				T("GoAhead")
 #define WEBS_VERSION			T("2.5.0")
@@ -67,8 +61,6 @@
 #define WEBS_MAX_HEADER			(5 * 1024)	/* Sanity check header */
 #define WEBS_MAX_URL			2048		/* Maximum URL size for sanity */
 #define WEBS_SOCKET_BUFSIZ		256			/* Bytes read from socket */
-
-
 
 #define WEBS_HTTP_PORT			T("httpPort")
 #define CGI_BIN					T("cgi-bin")
@@ -97,13 +89,13 @@
 #define WEBS_HEADER_DONE		0x40000		/* Already output the HTTP header */
 
 /*
- *	URL handler flags
+  	URL handler flags
  */
 #define WEBS_HANDLER_FIRST	0x1			/* Process this handler first */
 #define WEBS_HANDLER_LAST	0x2			/* Process this handler last */
 
 /* 
- *	Per socket connection webs structure
+  	Per socket connection webs structure
  */
 typedef struct websRec {
 	ringq_t			header;				/* Header dynamic string */
@@ -161,9 +153,9 @@ typedef websRec	*webs_t;
 typedef websRec websType;
 
 /******************************** Prototypes **********************************/
+
 extern int		 websAccept(int sid, char *ipaddr, int port, int listenSid);
-extern int 		 websAspDefine(char_t *name, 
-					int (*fn)(int ejid, webs_t wp, int argc, char_t **argv));
+extern int 		 websAspDefine(char_t *name, int (*fn)(int ejid, webs_t wp, int argc, char_t **argv));
 extern int 		 websAspRequest(webs_t wp, char_t *lpath);
 extern void		 websCloseListen();
 extern int 		 websDecode64(char_t *outbuf, char_t *string, int buflen);
@@ -174,8 +166,7 @@ extern void  	 websError(webs_t wp, int code, char_t *msg, ...);
 /* function websErrorMsg() made extern 03 Jun 02 BgP */
 extern char_t 	*websErrorMsg(int code);
 extern void  	 websFooter(webs_t wp);
-extern int 		 websFormDefine(char_t *name, void (*fn)(webs_t wp, 
-					char_t *path, char_t *query));
+extern int 		 websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query));
 extern char_t 	*websGetDefaultDir();
 extern char_t 	*websGetDefaultPage();
 extern char_t 	*websGetHostUrl();
@@ -197,14 +188,12 @@ extern char_t 	*websGetVar(webs_t wp, char_t *var, char_t *def);
 extern int 		 websCompareVar(webs_t wp, char_t *var, char_t *value);
 extern void 	 websHeader(webs_t wp);
 extern int		 websOpenListen(int port, int retries);
-extern int 		 websPageOpen(webs_t wp, char_t *lpath, char_t *path,
-					int mode, int perm);
+extern int 		 websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
 extern void 	 websPageClose(webs_t wp);
 extern int 		 websPublish(char_t *urlPrefix, char_t *path);
 extern void		 websRedirect(webs_t wp, char_t *url);
 extern void 	 websSecurityDelete();
-extern int 		 websSecurityHandler(webs_t wp, char_t *urlPrefix, 
-					char_t *webDir, int arg, char_t *url, char_t *path, 
+extern int 		 websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query);
 extern void 	websSetDefaultDir(char_t *dir);
 extern void 	websSetDefaultPage(char_t *page);
@@ -222,16 +211,12 @@ extern void 	websSetRequestWritten(webs_t wp, int written);
 extern void 	websSetVar(webs_t wp, char_t *var, char_t *value);
 extern int 		websTestVar(webs_t wp, char_t *var);
 extern void		websTimeoutCancel(webs_t wp);
-extern int 		websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, 
-					int arg, int (*fn)(webs_t wp, char_t *urlPrefix, 
-					char_t *webDir, int arg, char_t *url, char_t *path, 
-					char_t *query), int flags);
-extern int 		websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix,
-					char_t *webDir, int arg, char_t *url, char_t *path, 
+extern int 		websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int (*fn)(webs_t wp, char_t *urlPrefix, 
+					char_t *webDir, int arg, char_t *url, char_t *path, char_t *query), int flags);
+extern int 		websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query));
 extern int		websUrlHandlerRequest(webs_t wp);
-extern int 		websUrlParse(char_t *url, char_t **buf, char_t **host, 
-					char_t **path, char_t **port, char_t **query, 
+extern int 		websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
 					char_t **proto, char_t **tag, char_t **ext);
 extern char_t 	*websUrlType(char_t *webs, char_t *buf, int charCnt);
 extern int 		 websWrite(webs_t wp, char_t* fmt, ...);
@@ -239,47 +224,28 @@ extern int 		 websWriteBlock(webs_t wp, char_t *buf, int nChars);
 extern int 		 websWriteDataNonBlock(webs_t wp, char *buf, int nChars);
 extern int 		 websValid(webs_t wp);
 extern int 		 websValidateUrl(webs_t wp, char_t *path);
-extern void		websSetTimeMark(webs_t wp);
+extern void		 websSetTimeMark(webs_t wp);
 
 /*
- *	The following prototypes are used by the SSL layer websSSL.c
+  	The following prototypes are used by the SSL layer websSSL.c
  */
 extern int 		websAlloc(int sid);
 extern void 	websFree(webs_t wp);
 extern void 	websTimeout(void *arg, int id);
 extern void 	websReadEvent(webs_t wp);
 
-
 #endif /* _h_WEBS */
-
-/******************************************************************************/
 
 /*
     @copy   default
 
     Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) GoAhead Software, 2003. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details.
-
-    This software is open source; you can redistribute it and/or modify it
-    under the terms of the Embedthis GoAhead Open Source License as published 
-    at:
-
-        http://embedthis.com/products/goahead/goahead-license.pdf 
-
-    This Embedthis GoAhead Open Source license does NOT generally permit 
-    incorporating this software into proprietary programs. If you are unable 
-    to comply with the Embedthis Open Source license, you must acquire a 
-    commercial license to use this software. Commercial licenses for this 
-    software and support services are available from Embedthis Software at:
-
-        http://embedthis.com
+    this software for full details and other copyrights.
 
     Local variables:
     tab-width: 4
