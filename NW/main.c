@@ -83,16 +83,16 @@ void NLMcleanup( void );
 
 int main(int argc, char** argv)
 {
-	int i, demo = 0;
+    int i, demo = 0;
 
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-demo") == 0) {
-			demo++;
-		}
-	}
+    for (i = 1; i < argc; i++) {
+        if (strcmp(argv[i], "-demo") == 0) {
+            demo++;
+        }
+    }
 
 /*
- *	Hook the unload routine in
+ *  Hook the unload routine in
  */
    signal( SIGTERM, SigTermSignalHandler ) ;
 
@@ -107,8 +107,8 @@ int main(int argc, char** argv)
    P( 1 ) ;
 
 /*
- *	Switch to LONG name-space. If LONG is not loaded, WEBS will default
- *	to 8.3
+ *  Switch to LONG name-space. If LONG is not loaded, WEBS will default
+ *  to 8.3
  */
    SetCurrentNameSpace( 4 ) ;
 
@@ -208,11 +208,11 @@ static int initWebs(int demo)
 
    Ps( 6, cp ) ;
 
-	if (demo) {
-	   sprintf(webdir, "%s/%s", cp, demoWeb);
-	} else {
-	   sprintf(webdir, "%s/%s", cp, rootWeb);
-	}
+    if (demo) {
+       sprintf(webdir, "%s/%s", cp, demoWeb);
+    } else {
+       sprintf(webdir, "%s/%s", cp, rootWeb);
+    }
 
    Ps( 6, webdir ) ;
 
@@ -245,9 +245,9 @@ static int initWebs(int demo)
    P( 9 ) ;
 
 /*
- *	First create the URL handlers. Note: handlers are called in sorted order
- *	with the longest path handler examined first. Here we define the security 
- *	handler, forms handler and the default web page handler.
+ *  First create the URL handlers. Note: handlers are called in sorted order
+ *  with the longest path handler examined first. Here we define the security 
+ *  handler, forms handler and the default web page handler.
  */
    websUrlHandlerDefine(T(""), NULL, 0, websSecurityHandler, 
       WEBS_HANDLER_FIRST);
@@ -321,8 +321,8 @@ void NLMcleanup( void )
 
 /******************************************************************************/
 /*
- *	Routine to handle the UNLOAD command gracefully
- *	Note:	sigtype is not used
+ *  Routine to handle the UNLOAD command gracefully
+ *  Note:   sigtype is not used
  */
 
 #pragma off(unreferenced)

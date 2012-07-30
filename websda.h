@@ -1,5 +1,5 @@
 /* 
-  	websda.h -- GoAhead Digest Access Authentication public header
+    websda.h -- GoAhead Digest Access Authentication public header
   
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -9,15 +9,15 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
-#include	"webs.h"
+#include    "uemf.h"
+#include    "webs.h"
 
 /****************************** Definitions ***********************************/
 
-extern char_t 	*websCalcNonce(webs_t wp);
-extern char_t 	*websCalcOpaque(webs_t wp);
-extern char_t 	*websCalcDigest(webs_t wp);
-extern char_t 	*websCalcUrlDigest(webs_t wp);
+extern char_t   *websCalcNonce(webs_t wp);
+extern char_t   *websCalcOpaque(webs_t wp);
+extern char_t   *websCalcDigest(webs_t wp);
+extern char_t   *websCalcUrlDigest(webs_t wp);
 
 #endif /* _h_WEBSDA */
 

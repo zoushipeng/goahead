@@ -6,48 +6,48 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#include    "uemf.h"
 
 /*********************************** Code *************************************/
 
 value_t valueInteger(long value)
 {
-	value_t	v;
+    value_t v;
 
-	memset(&v, 0x0, sizeof(v));
-	v.valid = 1;
-	v.type = integer;
-	v.value.integer = value;
-	return v;
+    memset(&v, 0x0, sizeof(v));
+    v.valid = 1;
+    v.type = integer;
+    v.value.integer = value;
+    return v;
 }
 
 
 value_t valueString(char_t* value, int flags)
 {
-	value_t	v;
+    value_t v;
 
-	memset(&v, 0x0, sizeof(v));
-	v.valid = 1;
-	v.type = string;
-	if (flags & VALUE_ALLOCATE) {
-		v.allocated = 1;
-		v.value.string = gstrdup(B_L, value);
-	} else {
-		v.allocated = 0;
-		v.value.string = value;
-	}
-	return v;
+    memset(&v, 0x0, sizeof(v));
+    v.valid = 1;
+    v.type = string;
+    if (flags & VALUE_ALLOCATE) {
+        v.allocated = 1;
+        v.value.string = gstrdup(B_L, value);
+    } else {
+        v.allocated = 0;
+        v.value.string = value;
+    }
+    return v;
 }
 
 
 void valueFree(value_t* v)
 {
-	if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
-		bfree(B_L, v->value.string);
-	}
-	v->type = undefined;
-	v->valid = 0;
-	v->allocated = 0;
+    if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
+        bfree(B_L, v->value.string);
+    }
+    v->type = undefined;
+    v->valid = 0;
+    v->allocated = 0;
 }
 
 

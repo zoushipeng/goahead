@@ -10,89 +10,89 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#include    "uemf.h"
 
 /********************************* Defines ************************************/
 
-typedef struct {						/* Symbol table descriptor */
-	int		inuse;						/* Is this entry in use */
-	int		hash_size;					/* Size of the table below */
-	sym_t	**hash_table;				/* Allocated at run time */
+typedef struct {                        /* Symbol table descriptor */
+    int     inuse;                      /* Is this entry in use */
+    int     hash_size;                  /* Size of the table below */
+    sym_t   **hash_table;               /* Allocated at run time */
 } sym_tabent_t;
 
 /********************************* Globals ************************************/
 
-static sym_tabent_t	**sym;				/* List of symbol tables */
-static int			symMax;				/* One past the max symbol table */
-static int			symOpenCount = 0;	/* Count of apps using sym */
+static sym_tabent_t **sym;              /* List of symbol tables */
+static int          symMax;             /* One past the max symbol table */
+static int          symOpenCount = 0;   /* Count of apps using sym */
 
-static int			htIndex;			/* Current location in table */
-static sym_t*		next;				/* Next symbol in iteration */
+static int          htIndex;            /* Current location in table */
+static sym_t*       next;               /* Next symbol in iteration */
 
 /**************************** Forward Declarations ****************************/
 
-static int		hashIndex(sym_tabent_t *tp, char_t *name);
-static sym_t	*hash(sym_tabent_t *tp, char_t *name);
-static int		calcPrime(int size);
+static int      hashIndex(sym_tabent_t *tp, char_t *name);
+static sym_t    *hash(sym_tabent_t *tp, char_t *name);
+static int      calcPrime(int size);
 
 /*********************************** Code *************************************/
 
 int symSubOpen()
 {
     //  MOB - why keep count?
-	if (++symOpenCount == 1) {
-		symMax = 0;
-		sym = NULL;
-	}
-	return 0;
+    if (++symOpenCount == 1) {
+        symMax = 0;
+        sym = NULL;
+    }
+    return 0;
 }
 
 
 void symSubClose()
 {
-	if (--symOpenCount <= 0) {
-		symOpenCount = 0;
-	}
+    if (--symOpenCount <= 0) {
+        symOpenCount = 0;
+    }
 }
 
 
 sym_fd_t symOpen(int hash_size)
 {
-	sym_fd_t		sd;
-	sym_tabent_t	*tp;
+    sym_fd_t        sd;
+    sym_tabent_t    *tp;
 
-	a_assert(hash_size > 2);
-
-    /*
-      	Create a new handle for this symbol table
-     */
-	if ((sd = hAlloc((void***) &sym)) < 0) {
-		return -1;
-	}
+    a_assert(hash_size > 2);
 
     /*
-      	Create a new symbol table structure and zero
+        Create a new handle for this symbol table
      */
-	if ((tp = (sym_tabent_t*) balloc(B_L, sizeof(sym_tabent_t))) == NULL) {
-		symMax = hFree((void***) &sym, sd);
-		return -1;
-	}
-	memset(tp, 0, sizeof(sym_tabent_t));
-	if (sd >= symMax) {
-		symMax = sd + 1;
-	}
-	a_assert(0 <= sd && sd < symMax);
-	sym[sd] = tp;
+    if ((sd = hAlloc((void***) &sym)) < 0) {
+        return -1;
+    }
 
     /*
-      	Now create the hash table for fast indexing.
+        Create a new symbol table structure and zero
      */
-	tp->hash_size = calcPrime(hash_size);
-	tp->hash_table = (sym_t**) balloc(B_L, tp->hash_size * sizeof(sym_t*));
-	a_assert(tp->hash_table);
-	memset(tp->hash_table, 0, tp->hash_size * sizeof(sym_t*));
+    if ((tp = (sym_tabent_t*) balloc(B_L, sizeof(sym_tabent_t))) == NULL) {
+        symMax = hFree((void***) &sym, sd);
+        return -1;
+    }
+    memset(tp, 0, sizeof(sym_tabent_t));
+    if (sd >= symMax) {
+        symMax = sd + 1;
+    }
+    a_assert(0 <= sd && sd < symMax);
+    sym[sd] = tp;
 
-	return sd;
+    /*
+        Now create the hash table for fast indexing.
+     */
+    tp->hash_size = calcPrime(hash_size);
+    tp->hash_table = (sym_t**) balloc(B_L, tp->hash_size * sizeof(sym_t*));
+    a_assert(tp->hash_table);
+    memset(tp->hash_table, 0, tp->hash_size * sizeof(sym_t*));
+
+    return sd;
 }
 
 
@@ -102,29 +102,29 @@ sym_fd_t symOpen(int hash_size)
  */
 void symClose(sym_fd_t sd)
 {
-	sym_tabent_t	*tp;
-	sym_t			*sp, *forw;
-	int				i;
+    sym_tabent_t    *tp;
+    sym_t           *sp, *forw;
+    int             i;
 
-	a_assert(0 <= sd && sd < symMax);
-	tp = sym[sd];
-	a_assert(tp);
+    a_assert(0 <= sd && sd < symMax);
+    tp = sym[sd];
+    a_assert(tp);
 
     /*
-      	Free all symbols in the hash table, then the hash table itself.
+        Free all symbols in the hash table, then the hash table itself.
      */
-	for (i = 0; i < tp->hash_size; i++) {
-		for (sp = tp->hash_table[i]; sp; sp = forw) {
-			forw = sp->forw;
-			valueFree(&sp->name);
-			valueFree(&sp->content);
-			bfree(B_L, (void*) sp);
-			sp = forw;
-		}
-	}
-	bfree(B_L, (void*) tp->hash_table);
-	symMax = hFree((void***) &sym, sd);
-	bfree(B_L, (void*) tp);
+    for (i = 0; i < tp->hash_size; i++) {
+        for (sp = tp->hash_table[i]; sp; sp = forw) {
+            forw = sp->forw;
+            valueFree(&sp->name);
+            valueFree(&sp->content);
+            bfree(B_L, (void*) sp);
+            sp = forw;
+        }
+    }
+    bfree(B_L, (void*) tp->hash_table);
+    symMax = hFree((void***) &sym, sd);
+    bfree(B_L, (void*) tp);
 }
 
 
@@ -134,98 +134,98 @@ void symClose(sym_fd_t sd)
  */
 sym_t* symFirst(sym_fd_t sd)
 {
-	sym_tabent_t	*tp;
-	sym_t			*sp, *forw;
-	int				i;
+    sym_tabent_t    *tp;
+    sym_t           *sp, *forw;
+    int             i;
 
-	a_assert(0 <= sd && sd < symMax);
-	tp = sym[sd];
-	a_assert(tp);
+    a_assert(0 <= sd && sd < symMax);
+    tp = sym[sd];
+    a_assert(tp);
 
     /*
-      	Find the first symbol in the hashtable and return a pointer to it.
+        Find the first symbol in the hashtable and return a pointer to it.
      */
-	for (i = 0; i < tp->hash_size; i++) {
-		for (sp = tp->hash_table[i]; sp; sp = forw) {
-			forw = sp->forw;
+    for (i = 0; i < tp->hash_size; i++) {
+        for (sp = tp->hash_table[i]; sp; sp = forw) {
+            forw = sp->forw;
 
-			if (forw == NULL) {
-				htIndex = i + 1;
-				next = tp->hash_table[htIndex];
-			} else {
-				htIndex = i;
-				next = forw;
-			}
-			return sp;
-		}
-	}
-	return NULL;
+            if (forw == NULL) {
+                htIndex = i + 1;
+                next = tp->hash_table[htIndex];
+            } else {
+                htIndex = i;
+                next = forw;
+            }
+            return sp;
+        }
+    }
+    return NULL;
 }
 
 
 /*
-  	Return the next symbol in the hashtable if there is one. See symFirst.
+    Return the next symbol in the hashtable if there is one. See symFirst.
  */
 sym_t* symNext(sym_fd_t sd)
 {
-	sym_tabent_t	*tp;
-	sym_t			*sp, *forw;
-	int				i;
+    sym_tabent_t    *tp;
+    sym_t           *sp, *forw;
+    int             i;
 
-	a_assert(0 <= sd && sd < symMax);
-	tp = sym[sd];
-	a_assert(tp);
+    a_assert(0 <= sd && sd < symMax);
+    tp = sym[sd];
+    a_assert(tp);
 
     /*
-      	Find the first symbol in the hashtable and return a pointer to it.
+        Find the first symbol in the hashtable and return a pointer to it.
      */
-	for (i = htIndex; i < tp->hash_size; i++) {
-		for (sp = next; sp; sp = forw) {
-			forw = sp->forw;
+    for (i = htIndex; i < tp->hash_size; i++) {
+        for (sp = next; sp; sp = forw) {
+            forw = sp->forw;
 
-			if (forw == NULL) {
-				htIndex = i + 1;
-				next = tp->hash_table[htIndex];
-			} else {
-				htIndex = i;
-				next = forw;
-			}
-			return sp;
-		}
-		next = tp->hash_table[i + 1];
-	}
-	return NULL;
+            if (forw == NULL) {
+                htIndex = i + 1;
+                next = tp->hash_table[htIndex];
+            } else {
+                htIndex = i;
+                next = forw;
+            }
+            return sp;
+        }
+        next = tp->hash_table[i + 1];
+    }
+    return NULL;
 }
 
 
 /*
-  	Lookup a symbol and return a pointer to the symbol entry. If not present then return a NULL.
+    Lookup a symbol and return a pointer to the symbol entry. If not present then return a NULL.
  */
 sym_t *symLookup(sym_fd_t sd, char_t *name)
 {
-	sym_tabent_t	*tp;
-	sym_t			*sp;
-	char_t			*cp;
+    sym_tabent_t    *tp;
+    sym_t           *sp;
+    char_t          *cp;
 
-	a_assert(0 <= sd && sd < symMax);
-	if ((tp = sym[sd]) == NULL) {
-		return NULL;
-	}
+    a_assert(0 <= sd && sd < symMax);
+    if ((tp = sym[sd]) == NULL) {
+        return NULL;
+    }
 
-	if (name == NULL || *name == '\0') {
-		return NULL;
-	}
+    if (name == NULL || *name == '\0') {
+        return NULL;
+    }
 
     /*
-      	Do an initial hash and then follow the link chain to find the right entry
+        Do an initial hash and then follow the link chain to find the right entry
      */
-	for (sp = hash(tp, name); sp; sp = sp->forw) {
-		cp = sp->name.value.string;
-		if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
-			break;
-		}
-	}
-	return sp;
+    for (sp = hash(tp, name); sp; sp = sp->forw) {
+        cp = sp->name.value.string;
+        if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
+            break;
+        }
+    }
+    return sp;
 }
 
 
@@ -236,124 +236,124 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
  */
 sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 {
-	sym_tabent_t	*tp;
-	sym_t			*sp, *last;
-	char_t			*cp;
-	int				hindex;
+    sym_tabent_t    *tp;
+    sym_t           *sp, *last;
+    char_t          *cp;
+    int             hindex;
 
-	a_assert(name);
-	a_assert(0 <= sd && sd < symMax);
-	tp = sym[sd];
-	a_assert(tp);
+    a_assert(name);
+    a_assert(0 <= sd && sd < symMax);
+    tp = sym[sd];
+    a_assert(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
         for the symbol.  
      */
-	last = NULL;
-	hindex = hashIndex(tp, name);
-	if ((sp = tp->hash_table[hindex]) != NULL) {
-		for (; sp; sp = sp->forw) {
-			cp = sp->name.value.string;
-			if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
-				break;
-			}
-			last = sp;
-		}
-		if (sp) {
+    last = NULL;
+    hindex = hashIndex(tp, name);
+    if ((sp = tp->hash_table[hindex]) != NULL) {
+        for (; sp; sp = sp->forw) {
+            cp = sp->name.value.string;
+            if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
+                break;
+            }
+            last = sp;
+        }
+        if (sp) {
             /*
                 Found, so update the value If the caller stores handles which require freeing, they will be lost here.
                 It is the callers responsibility to free resources before overwriting existing contents. We will here
                 free allocated strings which occur due to value_instring().  We should consider providing the cleanup
                 function on the open rather than the close and then we could call it here and solve the problem.
              */
-			if (sp->content.valid) {
-				valueFree(&sp->content);
-			}
-			sp->content = v;
-			sp->arg = arg;
-			return sp;
-		}
+            if (sp->content.valid) {
+                valueFree(&sp->content);
+            }
+            sp->content = v;
+            sp->arg = arg;
+            return sp;
+        }
         /*
             Not found so allocate and append to the daisy-chain
          */
-		sp = (sym_t*) balloc(B_L, sizeof(sym_t));
-		if (sp == NULL) {
-			return NULL;
-		}
-		sp->name = valueString(name, VALUE_ALLOCATE);
-		sp->content = v;
-		sp->forw = (sym_t*) NULL;
-		sp->arg = arg;
-		last->forw = sp;
+        sp = (sym_t*) balloc(B_L, sizeof(sym_t));
+        if (sp == NULL) {
+            return NULL;
+        }
+        sp->name = valueString(name, VALUE_ALLOCATE);
+        sp->content = v;
+        sp->forw = (sym_t*) NULL;
+        sp->arg = arg;
+        last->forw = sp;
 
-	} else {
+    } else {
         /*
             Daisy chain is empty so we need to start the chain
          */
-		sp = (sym_t*) balloc(B_L, sizeof(sym_t));
-		if (sp == NULL) {
-			return NULL;
-		}
-		tp->hash_table[hindex] = sp;
-		tp->hash_table[hashIndex(tp, name)] = sp;
+        sp = (sym_t*) balloc(B_L, sizeof(sym_t));
+        if (sp == NULL) {
+            return NULL;
+        }
+        tp->hash_table[hindex] = sp;
+        tp->hash_table[hashIndex(tp, name)] = sp;
 
-		sp->forw = (sym_t*) NULL;
-		sp->content = v;
-		sp->arg = arg;
-		sp->name = valueString(name, VALUE_ALLOCATE);
-	}
-	return sp;
+        sp->forw = (sym_t*) NULL;
+        sp->content = v;
+        sp->arg = arg;
+        sp->name = valueString(name, VALUE_ALLOCATE);
+    }
+    return sp;
 }
 
 
 /*
-  	Delete a symbol from a table
+    Delete a symbol from a table
  */
 int symDelete(sym_fd_t sd, char_t *name)
 {
-	sym_tabent_t	*tp;
-	sym_t			*sp, *last;
-	char_t			*cp;
-	int				hindex;
+    sym_tabent_t    *tp;
+    sym_t           *sp, *last;
+    char_t          *cp;
+    int             hindex;
 
-	a_assert(name && *name);
-	a_assert(0 <= sd && sd < symMax);
-	tp = sym[sd];
-	a_assert(tp);
+    a_assert(name && *name);
+    a_assert(0 <= sd && sd < symMax);
+    tp = sym[sd];
+    a_assert(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
         for the symbol.  
      */
-	last = NULL;
-	hindex = hashIndex(tp, name);
-	if ((sp = tp->hash_table[hindex]) != NULL) {
-		for ( ; sp; sp = sp->forw) {
-			cp = sp->name.value.string;
-			if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
-				break;
-			}
-			last = sp;
-		}
-	}
-	if (sp == (sym_t*) NULL) {				/* Not Found */
-		return -1;
-	}
+    last = NULL;
+    hindex = hashIndex(tp, name);
+    if ((sp = tp->hash_table[hindex]) != NULL) {
+        for ( ; sp; sp = sp->forw) {
+            cp = sp->name.value.string;
+            if (cp[0] == name[0] && gstrcmp(cp, name) == 0) {
+                break;
+            }
+            last = sp;
+        }
+    }
+    if (sp == (sym_t*) NULL) {              /* Not Found */
+        return -1;
+    }
 
     /*
          Unlink and free the symbol. Last will be set if the element to be deleted is not first in the chain.
      */
-	if (last) {
-		last->forw = sp->forw;
-	} else {
-		tp->hash_table[hindex] = sp->forw;
-	}
-	valueFree(&sp->name);
-	valueFree(&sp->content);
-	bfree(B_L, (void*) sp);
+    if (last) {
+        last->forw = sp->forw;
+    } else {
+        tp->hash_table[hindex] = sp->forw;
+    }
+    valueFree(&sp->name);
+    valueFree(&sp->content);
+    bfree(B_L, (void*) sp);
 
-	return 0;
+    return 0;
 }
 
 
@@ -363,9 +363,9 @@ int symDelete(sym_fd_t sd, char_t *name)
  */
 static sym_t *hash(sym_tabent_t *tp, char_t *name)
 {
-	a_assert(tp);
+    a_assert(tp);
 
-	return tp->hash_table[hashIndex(tp, name)];
+    return tp->hash_table[hashIndex(tp, name)];
 }
 
 
@@ -375,58 +375,58 @@ static sym_t *hash(sym_tabent_t *tp, char_t *name)
  */
 static int hashIndex(sym_tabent_t *tp, char_t *name)
 {
-	unsigned int	sum;
-	int				i;
+    unsigned int    sum;
+    int             i;
 
-	a_assert(tp);
+    a_assert(tp);
     /*
         Add in each character shifted up progressively by 7 bits. The shift amount is rounded so as to not shift too
         far. It thus cycles with each new cycle placing character shifted up by one bit.
      */
-	i = 0;
-	sum = 0;
-	while (*name) {
-		sum += (((int) *name++) << i);
-		i = (i + 7) % (BITS(int) - BITSPERBYTE);
-	}
-	return sum % tp->hash_size;
+    i = 0;
+    sum = 0;
+    while (*name) {
+        sum += (((int) *name++) << i);
+        i = (i + 7) % (BITS(int) - BITSPERBYTE);
+    }
+    return sum % tp->hash_size;
 }
 
 
 /*
-  	Check if this number is a prime
+    Check if this number is a prime
  */
 static int isPrime(int n)
 {
-	int		i, max;
+    int     i, max;
 
-	a_assert(n > 0);
+    a_assert(n > 0);
 
-	max = n / 2;
-	for (i = 2; i <= max; i++) {
-		if (n % i == 0) {
-			return 0;
-		}
-	}
-	return 1;
+    max = n / 2;
+    for (i = 2; i <= max; i++) {
+        if (n % i == 0) {
+            return 0;
+        }
+    }
+    return 1;
 }
 
 
 /*
-  	Calculate the largest prime smaller than size.
+    Calculate the largest prime smaller than size.
  */
 static int calcPrime(int size)
 {
-	int count;
+    int count;
 
-	a_assert(size > 0);
+    a_assert(size > 0);
 
-	for (count = size; count > 0; count--) {
-		if (isPrime(count)) {
-			return count;
-		}
-	}
-	return 1;
+    for (count = size; count > 0; count--) {
+        if (isPrime(count)) {
+            return count;
+        }
+    }
+    return 1;
 }
 
 /*

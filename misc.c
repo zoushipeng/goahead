@@ -6,49 +6,49 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#include    "uemf.h"
 
 //  MOB - remove and use this only
 #define kUseMemcopy
 
 /********************************* Defines ************************************/
 /*
-  	Sprintf buffer structure. Make the increment 64 so that a balloc can use a 64 byte block.
+    Sprintf buffer structure. Make the increment 64 so that a balloc can use a 64 byte block.
  */
 
-#define STR_REALLOC		0x1				/* Reallocate the buffer as required */
-#define STR_INC			64				/* Growth increment */
+#define STR_REALLOC     0x1             /* Reallocate the buffer as required */
+#define STR_INC         64              /* Growth increment */
 
 typedef struct {
-	char_t	*s;							/* Pointer to buffer */
-	int		size;						/* Current buffer size */
-	int		max;						/* Maximum buffer size */
-	int		count;						/* Buffer count */
-	int		flags;						/* Allocation flags */
+    char_t  *s;                         /* Pointer to buffer */
+    int     size;                       /* Current buffer size */
+    int     max;                        /* Maximum buffer size */
+    int     count;                      /* Buffer count */
+    int     flags;                      /* Allocation flags */
 } strbuf_t;
 
 /*
-  	Sprintf formatting flags
+    Sprintf formatting flags
  */
 enum flag {
-	flag_none = 0,
-	flag_minus = 1,
-	flag_plus = 2,
-	flag_space = 4,
-	flag_hash = 8,
-	flag_zero = 16,
-	flag_short = 32,
-	flag_long = 64
+    flag_none = 0,
+    flag_minus = 1,
+    flag_plus = 2,
+    flag_space = 4,
+    flag_hash = 8,
+    flag_zero = 16,
+    flag_short = 32,
+    flag_long = 64
 };
 
 /************************** Forward Declarations ******************************/
 
-static int 	dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize);
-static void	put_char(strbuf_t *buf, char_t c);
-static void	put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f);
-static void	put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, 
+static int  dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize);
+static void put_char(strbuf_t *buf, char_t c);
+static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f);
+static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, 
         int prec, enum flag f);
-static int	gstrnlen(char_t *s, unsigned int n);
+static int  gstrnlen(char_t *s, unsigned int n);
 
 /************************************ Code ************************************/
 /*
@@ -60,61 +60,61 @@ static int	gstrnlen(char_t *s, unsigned int n);
 #if (!defined (LINUX) && !defined (LYNX) && !defined (MACOSX))
 char_t *basename(char_t *name)
 {
-	char_t	*cp;
+    char_t  *cp;
 
 #if (defined (NW) || defined (WIN))
-	if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
-		return name;
+    if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
+        return name;
 #else
-	if ((cp = gstrrchr(name, '/')) == NULL) {
-		return name;
+    if ((cp = gstrrchr(name, '/')) == NULL) {
+        return name;
 #endif
-	} else if (*(cp + 1) == '\0' && cp == name) {
-		return name;
-	} else if (*(cp + 1) == '\0' && cp != name) {
-		return T("");
-	} else {
-		return ++cp;
-	}
+    } else if (*(cp + 1) == '\0' && cp == name) {
+        return name;
+    } else if (*(cp + 1) == '\0' && cp != name) {
+        return T("");
+    } else {
+        return ++cp;
+    }
 }
 #endif /* ! LINUX & ! LYNX & ! MACOSX */
 
 /******************************************************************************/
 /*
-  	Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
+    Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
  */
 char_t *dirname(char_t *buf, char_t *name, int bufsize)
 {
-	char_t *cp;
-	int		len;
+    char_t *cp;
+    int     len;
 
-	a_assert(name);
-	a_assert(buf);
-	a_assert(bufsize > 0);
+    a_assert(name);
+    a_assert(buf);
+    a_assert(bufsize > 0);
 
 #if (defined (WIN) || defined (NW))
-	if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
+    if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
 #else
-	if ((cp = gstrrchr(name, '/')) == NULL)
+    if ((cp = gstrrchr(name, '/')) == NULL)
 #endif
-	{
-		gstrcpy(buf, T("."));
-		return buf;
-	}
-	if ((*(cp + 1) == '\0' && cp == name)) {
-		gstrncpy(buf, T("."), TSZ(bufsize));
-		gstrcpy(buf, T("."));
-		return buf;
-	}
-	len = cp - name;
-	if (len < bufsize) {
-		gstrncpy(buf, name, len);
-		buf[len] = '\0';
-	} else {
-		gstrncpy(buf, name, TSZ(bufsize));
-		buf[bufsize - 1] = '\0';
-	}
-	return buf;
+    {
+        gstrcpy(buf, T("."));
+        return buf;
+    }
+    if ((*(cp + 1) == '\0' && cp == name)) {
+        gstrncpy(buf, T("."), TSZ(bufsize));
+        gstrcpy(buf, T("."));
+        return buf;
+    }
+    len = cp - name;
+    if (len < bufsize) {
+        gstrncpy(buf, name, len);
+        buf[len] = '\0';
+    } else {
+        gstrncpy(buf, name, TSZ(bufsize));
+        buf[bufsize - 1] = '\0';
+    }
+    return buf;
 }
 
 
@@ -124,39 +124,39 @@ char_t *dirname(char_t *buf, char_t *name, int bufsize)
  */
 int fmtAlloc(char_t **s, int n, char_t *fmt, ...)
 {
-	va_list	ap;
-	int		result;
+    va_list ap;
+    int     result;
 
-	a_assert(s);
-	a_assert(fmt);
+    a_assert(s);
+    a_assert(fmt);
 
-	*s = NULL;
-	va_start(ap, fmt);
-	result = dsnprintf(s, n, fmt, ap, 0);
-	va_end(ap);
-	return result;
+    *s = NULL;
+    va_start(ap, fmt);
+    result = dsnprintf(s, n, fmt, ap, 0);
+    va_end(ap);
+    return result;
 }
 
 
 /*
-  	Support a static buffer version for small buffers only!
+    Support a static buffer version for small buffers only!
  */
 int fmtStatic(char_t *s, int n, char_t *fmt, ...)
 {
-	va_list	ap;
-	int		result;
+    va_list ap;
+    int     result;
 
-	a_assert(s);
-	a_assert(fmt);
-	a_assert(n <= 256);
+    a_assert(s);
+    a_assert(fmt);
+    a_assert(n <= 256);
 
-	if (n <= 0) {
-		return -1;
-	}
-	va_start(ap, fmt);
-	result = dsnprintf(&s, n, fmt, ap, 0);
-	va_end(ap);
-	return result;
+    if (n <= 0) {
+        return -1;
+    }
+    va_start(ap, fmt);
+    result = dsnprintf(&s, n, fmt, ap, 0);
+    va_end(ap);
+    return result;
 }
 
 
@@ -165,32 +165,32 @@ int fmtStatic(char_t *s, int n, char_t *fmt, ...)
  */
 int fmtRealloc(char_t **s, int n, int msize, char_t *fmt, ...)
 {
-	va_list	ap;
-	int		result;
+    va_list ap;
+    int     result;
 
-	a_assert(s);
-	a_assert(fmt);
+    a_assert(s);
+    a_assert(fmt);
 
-	if (msize == -1) {
-		*s = NULL;
-	}
-	va_start(ap, fmt);
-	result = dsnprintf(s, n, fmt, ap, msize);
-	va_end(ap);
-	return result;
+    if (msize == -1) {
+        *s = NULL;
+    }
+    va_start(ap, fmt);
+    result = dsnprintf(s, n, fmt, ap, msize);
+    va_end(ap);
+    return result;
 }
 
 
 /*
-  	A vsprintf replacement.
+    A vsprintf replacement.
  */
 int fmtValloc(char_t **s, int n, char_t *fmt, va_list arg)
 {
-	a_assert(s);
-	a_assert(fmt);
+    a_assert(s);
+    a_assert(fmt);
 
-	*s = NULL;
-	return dsnprintf(s, n, fmt, arg, 0);
+    *s = NULL;
+    return dsnprintf(s, n, fmt, arg, 0);
 }
 
 
@@ -202,303 +202,303 @@ int fmtValloc(char_t **s, int n, char_t *fmt, va_list arg)
  */
 static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 {
-	strbuf_t	buf;
-	char_t		c;
+    strbuf_t    buf;
+    char_t      c;
 
-	a_assert(s);
-	a_assert(fmt);
+    a_assert(s);
+    a_assert(fmt);
 
-	memset(&buf, 0, sizeof(buf));
-	buf.s = *s;
+    memset(&buf, 0, sizeof(buf));
+    buf.s = *s;
 
-	if (*s == NULL || msize != 0) {
-		buf.max = size;
-		buf.flags |= STR_REALLOC;
-		if (msize != 0) {
-			buf.size = max(msize, 0);
-		}
-		if (*s != NULL && msize != 0) {
-			buf.count = gstrlen(*s);
-		}
-	} else {
-		buf.size = size;
-	}
-	while ((c = *fmt++) != '\0') {
-		if (c != '%' || (c = *fmt++) == '%') {
-			put_char(&buf, c);
-		} else {
-			enum flag f = flag_none;
-			int width = 0;
-			int prec = -1;
-			for ( ; c != '\0'; c = *fmt++) {
-				if (c == '-') { 
-					f |= flag_minus; 
-				} else if (c == '+') { 
-					f |= flag_plus; 
-				} else if (c == ' ') { 
-					f |= flag_space; 
-				} else if (c == '#') { 
-					f |= flag_hash; 
-				} else if (c == '0') { 
-					f |= flag_zero; 
-				} else {
-					break;
-				}
-			}
-			if (c == '*') {
-				width = va_arg(arg, int);
-				if (width < 0) {
-					f |= flag_minus;
-					width = -width;
-				}
-				c = *fmt++;
-			} else {
-				for ( ; gisdigit((int)c); c = *fmt++) {
-					width = width * 10 + (c - '0');
-				}
-			}
-			if (c == '.') {
-				f &= ~flag_zero;
-				c = *fmt++;
-				if (c == '*') {
-					prec = va_arg(arg, int);
-					c = *fmt++;
-				} else {
-					for (prec = 0; gisdigit((int)c); c = *fmt++) {
-						prec = prec * 10 + (c - '0');
-					}
-				}
-			}
-			if (c == 'h' || c == 'l') {
-				f |= (c == 'h' ? flag_short : flag_long);
-				c = *fmt++;
-			}
-			if (c == 'd' || c == 'i') {
-				long int value;
-				if (f & flag_short) {
-					value = (short int) va_arg(arg, int);
-				} else if (f & flag_long) {
-					value = va_arg(arg, long int);
-				} else {
-					value = va_arg(arg, int);
-				}
-				if (value >= 0) {
-					if (f & flag_plus) {
-						put_ulong(&buf, value, 10, 0, T("+"), width, prec, f);
-					} else if (f & flag_space) {
-						put_ulong(&buf, value, 10, 0, T(" "), width, prec, f);
-					} else {
-						put_ulong(&buf, value, 10, 0, NULL, width, prec, f);
-					}
-				} else {
-					put_ulong(&buf, -value, 10, 0, T("-"), width, prec, f);
-				}
-			} else if (c == 'o' || c == 'u' || c == 'x' || c == 'X') {
-				unsigned long int value;
-				if (f & flag_short) {
-					value = (unsigned short int) va_arg(arg, unsigned int);
-				} else if (f & flag_long) {
-					value = va_arg(arg, unsigned long int);
-				} else {
-					value = va_arg(arg, unsigned int);
-				}
-				if (c == 'o') {
-					if (f & flag_hash && value != 0) {
-						put_ulong(&buf, value, 8, 0, T("0"), width, prec, f);
-					} else {
-						put_ulong(&buf, value, 8, 0, NULL, width, prec, f);
-					}
-				} else if (c == 'u') {
-					put_ulong(&buf, value, 10, 0, NULL, width, prec, f);
-				} else {
-					if (f & flag_hash && value != 0) {
-						if (c == 'x') {
-							put_ulong(&buf, value, 16, 0, T("0x"), width, 
-								prec, f);
-						} else {
-							put_ulong(&buf, value, 16, 1, T("0X"), width, 
-								prec, f);
-						}
-					} else {
-						put_ulong(&buf, value, 16, ('X' == c) , NULL, width, prec, f);
-					}
-				}
+    if (*s == NULL || msize != 0) {
+        buf.max = size;
+        buf.flags |= STR_REALLOC;
+        if (msize != 0) {
+            buf.size = max(msize, 0);
+        }
+        if (*s != NULL && msize != 0) {
+            buf.count = gstrlen(*s);
+        }
+    } else {
+        buf.size = size;
+    }
+    while ((c = *fmt++) != '\0') {
+        if (c != '%' || (c = *fmt++) == '%') {
+            put_char(&buf, c);
+        } else {
+            enum flag f = flag_none;
+            int width = 0;
+            int prec = -1;
+            for ( ; c != '\0'; c = *fmt++) {
+                if (c == '-') { 
+                    f |= flag_minus; 
+                } else if (c == '+') { 
+                    f |= flag_plus; 
+                } else if (c == ' ') { 
+                    f |= flag_space; 
+                } else if (c == '#') { 
+                    f |= flag_hash; 
+                } else if (c == '0') { 
+                    f |= flag_zero; 
+                } else {
+                    break;
+                }
+            }
+            if (c == '*') {
+                width = va_arg(arg, int);
+                if (width < 0) {
+                    f |= flag_minus;
+                    width = -width;
+                }
+                c = *fmt++;
+            } else {
+                for ( ; gisdigit((int)c); c = *fmt++) {
+                    width = width * 10 + (c - '0');
+                }
+            }
+            if (c == '.') {
+                f &= ~flag_zero;
+                c = *fmt++;
+                if (c == '*') {
+                    prec = va_arg(arg, int);
+                    c = *fmt++;
+                } else {
+                    for (prec = 0; gisdigit((int)c); c = *fmt++) {
+                        prec = prec * 10 + (c - '0');
+                    }
+                }
+            }
+            if (c == 'h' || c == 'l') {
+                f |= (c == 'h' ? flag_short : flag_long);
+                c = *fmt++;
+            }
+            if (c == 'd' || c == 'i') {
+                long int value;
+                if (f & flag_short) {
+                    value = (short int) va_arg(arg, int);
+                } else if (f & flag_long) {
+                    value = va_arg(arg, long int);
+                } else {
+                    value = va_arg(arg, int);
+                }
+                if (value >= 0) {
+                    if (f & flag_plus) {
+                        put_ulong(&buf, value, 10, 0, T("+"), width, prec, f);
+                    } else if (f & flag_space) {
+                        put_ulong(&buf, value, 10, 0, T(" "), width, prec, f);
+                    } else {
+                        put_ulong(&buf, value, 10, 0, NULL, width, prec, f);
+                    }
+                } else {
+                    put_ulong(&buf, -value, 10, 0, T("-"), width, prec, f);
+                }
+            } else if (c == 'o' || c == 'u' || c == 'x' || c == 'X') {
+                unsigned long int value;
+                if (f & flag_short) {
+                    value = (unsigned short int) va_arg(arg, unsigned int);
+                } else if (f & flag_long) {
+                    value = va_arg(arg, unsigned long int);
+                } else {
+                    value = va_arg(arg, unsigned int);
+                }
+                if (c == 'o') {
+                    if (f & flag_hash && value != 0) {
+                        put_ulong(&buf, value, 8, 0, T("0"), width, prec, f);
+                    } else {
+                        put_ulong(&buf, value, 8, 0, NULL, width, prec, f);
+                    }
+                } else if (c == 'u') {
+                    put_ulong(&buf, value, 10, 0, NULL, width, prec, f);
+                } else {
+                    if (f & flag_hash && value != 0) {
+                        if (c == 'x') {
+                            put_ulong(&buf, value, 16, 0, T("0x"), width, 
+                                prec, f);
+                        } else {
+                            put_ulong(&buf, value, 16, 1, T("0X"), width, 
+                                prec, f);
+                        }
+                    } else {
+                        put_ulong(&buf, value, 16, ('X' == c) , NULL, width, prec, f);
+                    }
+                }
 
-			} else if (c == 'c') {
-				char_t value = va_arg(arg, int);
-				put_char(&buf, value);
+            } else if (c == 'c') {
+                char_t value = va_arg(arg, int);
+                put_char(&buf, value);
 
-			} else if (c == 's' || c == 'S') {
-				char_t *value = va_arg(arg, char_t *);
-				if (value == NULL) {
-					put_string(&buf, T("(null)"), -1, width, prec, f);
-				} else if (f & flag_hash) {
-					put_string(&buf,
-						value + 1, (char_t) *value, width, prec, f);
-				} else {
-					put_string(&buf, value, -1, width, prec, f);
-				}
-			} else if (c == 'p') {
-				void *value = va_arg(arg, void *);
-				put_ulong(&buf,
-					(unsigned long int) value, 16, 0, T("0x"), width, prec, f);
-			} else if (c == 'n') {
-				if (f & flag_short) {
-					short int *value = va_arg(arg, short int *);
-					*value = buf.count;
-				} else if (f & flag_long) {
-					long int *value = va_arg(arg, long int *);
-					*value = buf.count;
-				} else {
-					int *value = va_arg(arg, int *);
-					*value = buf.count;
-				}
-			} else {
-				put_char(&buf, c);
-			}
-		}
-	}
-	if (buf.s == NULL) {
-		put_char(&buf, '\0');
-	}
+            } else if (c == 's' || c == 'S') {
+                char_t *value = va_arg(arg, char_t *);
+                if (value == NULL) {
+                    put_string(&buf, T("(null)"), -1, width, prec, f);
+                } else if (f & flag_hash) {
+                    put_string(&buf,
+                        value + 1, (char_t) *value, width, prec, f);
+                } else {
+                    put_string(&buf, value, -1, width, prec, f);
+                }
+            } else if (c == 'p') {
+                void *value = va_arg(arg, void *);
+                put_ulong(&buf,
+                    (unsigned long int) value, 16, 0, T("0x"), width, prec, f);
+            } else if (c == 'n') {
+                if (f & flag_short) {
+                    short int *value = va_arg(arg, short int *);
+                    *value = buf.count;
+                } else if (f & flag_long) {
+                    long int *value = va_arg(arg, long int *);
+                    *value = buf.count;
+                } else {
+                    int *value = va_arg(arg, int *);
+                    *value = buf.count;
+                }
+            } else {
+                put_char(&buf, c);
+            }
+        }
+    }
+    if (buf.s == NULL) {
+        put_char(&buf, '\0');
+    }
     /*
-      	If the user requested a dynamic buffer (*s == NULL), ensure it is returned.
+        If the user requested a dynamic buffer (*s == NULL), ensure it is returned.
      */
-	if (*s == NULL || msize != 0) {
-		*s = buf.s;
-	}
-	if (*s != NULL && size > 0) {
-		if (buf.count < size) {
-			(*s)[buf.count] = '\0';
-		} else {
-			(*s)[buf.size - 1] = '\0';
-		}
-	}
+    if (*s == NULL || msize != 0) {
+        *s = buf.s;
+    }
+    if (*s != NULL && size > 0) {
+        if (buf.count < size) {
+            (*s)[buf.count] = '\0';
+        } else {
+            (*s)[buf.size - 1] = '\0';
+        }
+    }
 
-	if (msize != 0) {
-		return buf.size;
-	}
-	return buf.count;
+    if (msize != 0) {
+        return buf.size;
+    }
+    return buf.count;
 }
 
 
 /*
-  	Return the length of a string limited by a given length
+    Return the length of a string limited by a given length
  */
 static int gstrnlen(char_t *s, unsigned int n)
 {
-	unsigned int 	len;
+    unsigned int    len;
 
-	len = gstrlen(s);
-	return min(len, n);
+    len = gstrlen(s);
+    return min(len, n);
 }
 
 
 /*
-  	Add a character to a string buffer
+    Add a character to a string buffer
  */
 static void put_char(strbuf_t *buf, char_t c)
 {
-	if (buf->count >= (buf->size - 1)) {
-		if (! (buf->flags & STR_REALLOC)) {
-			return;
-		}
-		buf->size += STR_INC;
-		if (buf->size > buf->max && buf->size > STR_INC) {
+    if (buf->count >= (buf->size - 1)) {
+        if (! (buf->flags & STR_REALLOC)) {
+            return;
+        }
+        buf->size += STR_INC;
+        if (buf->size > buf->max && buf->size > STR_INC) {
             /*
                 Caller should increase the size of the calling buffer
              */
-			buf->size -= STR_INC;
-			return;
-		}
-		if (buf->s == NULL) {
-			buf->s = balloc(B_L, buf->size * sizeof(char_t));
-		} else {
-			buf->s = brealloc(B_L, buf->s, buf->size * sizeof(char_t));
-		}
-	}
-	buf->s[buf->count] = c;
-	if (c != '\0') {
-		++buf->count;
-	}
+            buf->size -= STR_INC;
+            return;
+        }
+        if (buf->s == NULL) {
+            buf->s = balloc(B_L, buf->size * sizeof(char_t));
+        } else {
+            buf->s = brealloc(B_L, buf->s, buf->size * sizeof(char_t));
+        }
+    }
+    buf->s[buf->count] = c;
+    if (c != '\0') {
+        ++buf->count;
+    }
 }
 
 
 /*
-  	Add a string to a string buffer
+    Add a string to a string buffer
  */
 static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f)
 {
-	int		i;
+    int     i;
 
-	if (len < 0) { 
-		len = gstrnlen(s, prec >= 0 ? prec : ULONG_MAX); 
-	} else if (prec >= 0 && prec < len) { 
-		len = prec; 
-	}
-	if (width > len && !(f & flag_minus)) {
-		for (i = len; i < width; ++i) { 
-			put_char(buf, ' '); 
-		}
-	}
-	for (i = 0; i < len; ++i) { 
-		put_char(buf, s[i]); 
-	}
-	if (width > len && f & flag_minus) {
-		for (i = len; i < width; ++i) { 
-			put_char(buf, ' '); 
-		}
-	}
+    if (len < 0) { 
+        len = gstrnlen(s, prec >= 0 ? prec : ULONG_MAX); 
+    } else if (prec >= 0 && prec < len) { 
+        len = prec; 
+    }
+    if (width > len && !(f & flag_minus)) {
+        for (i = len; i < width; ++i) { 
+            put_char(buf, ' '); 
+        }
+    }
+    for (i = 0; i < len; ++i) { 
+        put_char(buf, s[i]); 
+    }
+    if (width > len && f & flag_minus) {
+        for (i = len; i < width; ++i) { 
+            put_char(buf, ' '); 
+        }
+    }
 }
 
 
 /*
-  	Add a long to a string buffer
+    Add a long to a string buffer
  */
 static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, int prec,
         enum flag f) 
 {
-	unsigned long	x, x2;
-	int				len, zeros, i;
+    unsigned long   x, x2;
+    int             len, zeros, i;
 
-	for (len = 1, x = 1; x < ULONG_MAX / base; ++len, x = x2) {
-		x2 = x * base;
-		if (x2 > value) { 
-			break; 
-		}
-	}
-	zeros = (prec > len) ? prec - len : 0;
-	width -= zeros + len;
-	if (prefix != NULL) { 
-		width -= gstrnlen(prefix, ULONG_MAX); 
-	}
-	if (!(f & flag_minus)) {
-		if (f & flag_zero) {
-			for (i = 0; i < width; ++i) { 
-				put_char(buf, '0'); 
-			}
-		} else {
-			for (i = 0; i < width; ++i) { 
-				put_char(buf, ' '); 
-			}
-		}
-	}
-	if (prefix != NULL) { 
-		put_string(buf, prefix, -1, 0, -1, flag_none); 
-	}
-	for (i = 0; i < zeros; ++i) { 
-		put_char(buf, '0'); 
-	}
-	for ( ; x > 0; x /= base) {
-		int digit = (value / x) % base;
-		put_char(buf, (char) ((digit < 10 ? '0' : (upper ? 'A' : 'a') - 10) +
-			digit));
-	}
-	if (f & flag_minus) {
-		for (i = 0; i < width; ++i) { 
-			put_char(buf, ' '); 
-		}
-	}
+    for (len = 1, x = 1; x < ULONG_MAX / base; ++len, x = x2) {
+        x2 = x * base;
+        if (x2 > value) { 
+            break; 
+        }
+    }
+    zeros = (prec > len) ? prec - len : 0;
+    width -= zeros + len;
+    if (prefix != NULL) { 
+        width -= gstrnlen(prefix, ULONG_MAX); 
+    }
+    if (!(f & flag_minus)) {
+        if (f & flag_zero) {
+            for (i = 0; i < width; ++i) { 
+                put_char(buf, '0'); 
+            }
+        } else {
+            for (i = 0; i < width; ++i) { 
+                put_char(buf, ' '); 
+            }
+        }
+    }
+    if (prefix != NULL) { 
+        put_string(buf, prefix, -1, 0, -1, flag_none); 
+    }
+    for (i = 0; i < zeros; ++i) { 
+        put_char(buf, '0'); 
+    }
+    for ( ; x > 0; x /= base) {
+        int digit = (value / x) % base;
+        put_char(buf, (char) ((digit < 10 ? '0' : (upper ? 'A' : 'a') - 10) +
+            digit));
+    }
+    if (f & flag_minus) {
+        for (i = 0; i < width; ++i) { 
+            put_char(buf, ' '); 
+        }
+    }
 }
 
 
@@ -509,18 +509,18 @@ static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int uppe
 char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
 {
 #ifdef UNICODE
-	if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
-		return (char_t*) str;
-	}
+    if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
+        return (char_t*) str;
+    }
 #else
 
 #ifdef kUseMemcopy
    memcpy(ubuf, str, nBytes);
 #else
-	strncpy(ubuf, str, nBytes);
+    strncpy(ubuf, str, nBytes);
 #endif /*kUseMemcopy*/
 #endif
-	return ubuf;
+    return ubuf;
 }
 
 
@@ -554,16 +554,16 @@ char *uniToAsc(char *buf, char_t *ustr, int nBytes)
  */
 char_t *ballocAscToUni(char *cp, int alen)
 {
-	char_t *unip;
-	int ulen;
+    char_t *unip;
+    int ulen;
 
-	ulen = (alen + 1) * sizeof(char_t);
-	if ((unip = balloc(B_L, ulen)) == NULL) {
-		return NULL;
-	}
-	ascToUni(unip, cp, ulen);
-	unip[alen] = 0;
-	return unip;
+    ulen = (alen + 1) * sizeof(char_t);
+    if ((unip = balloc(B_L, ulen)) == NULL) {
+        return NULL;
+    }
+    ascToUni(unip, cp, ulen);
+    unip[alen] = 0;
+    return unip;
 }
 
 
@@ -574,14 +574,14 @@ char_t *ballocAscToUni(char *cp, int alen)
  */
 char *ballocUniToAsc(char_t *unip, int ulen)
 {
-	char * cp;
+    char * cp;
 
-	if ((cp = balloc(B_L, ulen+1)) == NULL) {
-		return NULL;
-	}
-	uniToAsc(cp, unip, ulen);
-	cp[ulen] = '\0';
-	return cp;
+    if ((cp = balloc(B_L, ulen+1)) == NULL) {
+        return NULL;
+    }
+    uniToAsc(cp, unip, ulen);
+    cp[ulen] = '\0';
+    return cp;
 }
 
 
@@ -591,27 +591,27 @@ char *ballocUniToAsc(char_t *unip, int ulen)
  */
 unsigned int hextoi(char_t *hexstring)
 {
-	register char_t			*h;
-	register unsigned int	c, v;
+    register char_t         *h;
+    register unsigned int   c, v;
 
-	v = 0;
-	h = hexstring;
-	if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
-		h += 2;
-	}
-	while ((c = (unsigned int)*h++) != 0) {
-		if (c >= '0' && c <= '9') {
-			c -= '0';
-		} else if (c >= 'a' && c <= 'f') {
-			c = (c - 'a') + 10;
-		} else if (c >=  'A' && c <= 'F') {
-			c = (c - 'A') + 10;
-		} else {
-			break;
-		}
-		v = (v * 0x10) + c;
-	}
-	return v;
+    v = 0;
+    h = hexstring;
+    if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
+        h += 2;
+    }
+    while ((c = (unsigned int)*h++) != 0) {
+        if (c >= '0' && c <= '9') {
+            c -= '0';
+        } else if (c >= 'a' && c <= 'f') {
+            c = (c - 'a') + 10;
+        } else if (c >=  'A' && c <= 'F') {
+            c = (c - 'A') + 10;
+        } else {
+            break;
+        }
+        v = (v * 0x10) + c;
+    }
+    return v;
 }
 
 
@@ -620,11 +620,11 @@ unsigned int hextoi(char_t *hexstring)
  */
 unsigned int gstrtoi(char_t *s)
 {
-	if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
-		s += 2;
-		return hextoi(s);
-	}
-	return gatoi(s);
+    if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
+        s += 2;
+        return hextoi(s);
+    }
+    return gatoi(s);
 }
 
 

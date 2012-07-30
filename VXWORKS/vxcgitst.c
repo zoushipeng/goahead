@@ -1,5 +1,5 @@
-#include	<envLib.h>
-#include	<stdio.h>
+#include    <envLib.h>
+#include    <stdio.h>
 
 void vxcgitst_cgientry(int argc, char **argv)
 {

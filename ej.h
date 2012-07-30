@@ -1,5 +1,5 @@
 /* 
-  	ej.h -- Ejscript header
+    ej.h -- Ejscript header
   
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -14,18 +14,18 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#include    "uemf.h"
 
 /******************************** Prototypes **********************************/
 
-extern int 		ejArgs(int argc, char_t **argv, char_t *fmt, ...);
-extern void		ejSetResult(int eid, char_t *s);
-extern int		ejOpenEngine(sym_fd_t variables, sym_fd_t functions);
-extern void		ejCloseEngine(int eid);
-extern int 		ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
-extern void		ejSetVar(int eid, char_t *var, char_t *value);
-extern int		ejGetVar(int eid, char_t *var, char_t **value);
-extern char_t	*ejEval(int eid, char_t *script, char_t **emsg);
+extern int      ejArgs(int argc, char_t **argv, char_t *fmt, ...);
+extern void     ejSetResult(int eid, char_t *s);
+extern int      ejOpenEngine(sym_fd_t variables, sym_fd_t functions);
+extern void     ejCloseEngine(int eid);
+extern int      ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
+extern void     ejSetVar(int eid, char_t *var, char_t *value);
+extern int      ejGetVar(int eid, char_t *var, char_t **value);
+extern char_t   *ejEval(int eid, char_t *script, char_t **emsg);
 
 #endif /* _h_EJ */
 
