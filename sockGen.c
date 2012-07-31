@@ -17,7 +17,7 @@
 #include    <stdlib.h>
 #endif
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 #if VXWORKS
     #include    <hostLib.h>
@@ -127,7 +127,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
             }
 #elif VXWORKS
             //  MOB - check what appweb does for this?
-            sockaddr.sin_addr.s_addr = (unsigned long) hostGetByName(host);
+            sockaddr.sin_addr.s_addr = (ulong) hostGetByName(host);
             if (sockaddr.sin_addr.s_addr == NULL) {
                 errno = ENXIO;
                 socketFree(sid);
@@ -790,7 +790,7 @@ static int socketDoEvent(socket_t *sp)
 int socketSetBlock(int sid, int on)
 {
     socket_t        *sp;
-    unsigned long   flag;
+    ulong           flag;
     int             iflag;
     int             oldBlock;
 

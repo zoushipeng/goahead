@@ -9,7 +9,7 @@
 #include    <string.h>
 #include    <stdlib.h>
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 /************************************ Locals **********************************/
 
@@ -65,7 +65,7 @@ int socketWrite(int sid, char *buf, int bufsize)
             continue;
         }
         len = min(room, bufsize);
-        ringqPutBlk(rq, (unsigned char *) buf, len);
+        ringqPutBlk(rq, (uchar *) buf, len);
         bytesWritten += len;
         bufsize -= len;
         buf += len;

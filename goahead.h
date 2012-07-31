@@ -1,6 +1,5 @@
 /*
-    uemf.h -- GoAhead Micro Embedded Management Framework Header
-    MOB - rename  core.h 
+    goahead.h -- GoAhead Web Server Header
   
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -829,12 +828,15 @@ struct timeval
 
 #ifndef CHAR_T_DEFINED
 #define CHAR_T_DEFINED 1
+
 #if UNICODE
 /*
     To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
  */
 #define T(x)                __TXT(x)
 #define __TXT(s)            L ## s
+
+//  MOB - review these. Perhaps use wchar and uwchar
 typedef unsigned short      char_t;
 typedef unsigned short      uchar_t;
 
@@ -849,13 +851,13 @@ typedef unsigned short      uchar_t;
 #define TASTRL(x)           ((wcslen(x) + 1) * sizeof(char_t))
 
 #else
-#define T(s)                s
-typedef char                char_t;
-#define TSZ(x)              (sizeof(x))
-#define TASTRL(x)           (strlen(x) + 1)
-#if WIN
-typedef unsigned char       uchar_t;
-#endif /* WIN */
+    #define T(s)                s
+    typedef char                char_t;
+    #define TSZ(x)              (sizeof(x))
+    #define TASTRL(x)           (strlen(x) + 1)
+    #if WIN
+    typedef unsigned char       uchar_t;
+    #endif /* WIN */
 
 #endif /* UNICODE */
 #endif /* ! CHAR_T_DEFINED */

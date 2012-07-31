@@ -18,7 +18,7 @@
 
 /********************************** Includes **********************************/
 
-//  MOB - merge back into uemf.h
+//  MOB - merge back into goahead.h
 
 #include    <ctype.h>
 #include    <stdlib.h>
@@ -94,7 +94,7 @@
     #include    <sys/stat.h>
 #endif
 
-#include    "uemf.h"
+#include    "goahead.h"
 #include    "ejIntrn.h"
 #include    "webs.h"
 

@@ -48,8 +48,7 @@ static int          finished;                       /* Finished flag */
 /****************************** Forward Declarations **************************/
 
 static int  initWebs(int demo);
-static long CALLBACK websWindProc(HWND hwnd, unsigned int msg, 
-                unsigned int wp, long lp);
+static long CALLBACK websWindProc(HWND hwnd, uint msg, uint wp, long lp);
 static int  aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  windowsInit(HINSTANCE hinstance);
@@ -290,8 +289,7 @@ static int windowsInit(HINSTANCE hinstance)
  *  Windows message handler. Just process the window destroy event.
  */
 
-static long CALLBACK websWindProc(HWND hwnd, unsigned int msg, 
-    unsigned int wp, long lp)
+static long CALLBACK websWindProc(HWND hwnd, uint msg, uint wp, long lp)
 {
     switch (msg) {
         case WM_DESTROY:

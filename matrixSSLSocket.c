@@ -9,7 +9,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "matrixSSLSocket.h"
-#include "uemf.h"
+#include "goahead.h"
 
 //  MOB
 #if MACOSX
@@ -98,8 +98,8 @@ int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, int32 
 */
 int sslRead(sslConn_t *cp, char *inbuf, int inlen)
 {   
-    unsigned char   *buf;
-    int             rc, len, transferred;
+    uchar   *buf;
+    int     rc, len, transferred;
 
     /*
         Always first look to see if any plaintext application data is waiting We have two levels of buffer here, one for
@@ -301,8 +301,8 @@ PROCESS_MORE:
 */
 int sslWrite(sslConn_t *cp, char *data, int len)
 {
-    unsigned char   *buf; 
-    int             rc, transferred, ctLen;
+    uchar   *buf; 
+    int     rc, transferred, ctLen;
 
     /*
         If sendBlocked is set, then the previous time into sslWrite with this cp could not send all the requested data,
@@ -365,8 +365,8 @@ WRITE_MORE:
 
 void sslWriteClosureAlert(sslConn_t *cp)
 {
-    unsigned char   *buf;
-    int             len;
+    uchar   *buf;
+    int     len;
     
     if (cp != NULL) {
         if (matrixSslEncodeClosureAlert(cp->ssl) >= 0) {

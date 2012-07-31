@@ -14,8 +14,7 @@
 /*********************************** Includes *********************************/
 
 #include    "wsIntrn.h"
-#include    "uemf.h"
-
+#include    "goahead.h"
 
 /*********************************** Defines **********************************/
 
@@ -799,12 +798,12 @@ int websCheckCgiProc(int handle)
     strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the balloc()
     function.  The returned pointer must be deleted using bfree().  Returns NULL on error.
  */
-static unsigned char *tableToBlock(char **table)
+static uchar *tableToBlock(char **table)
 {
-    unsigned char   *pBlock;        /*  Allocated block */
-    char            *pEntry;        /*  Pointer into block      */
-    size_t          sizeBlock;      /*  Size of table           */
-    int             index;          /*  Index into string table */
+    uchar   *pBlock;        /*  Allocated block */
+    char    *pEntry;        /*  Pointer into block      */
+    size_t  sizeBlock;      /*  Size of table           */
+    int     index;          /*  Index into string table */
 
     a_assert(table);
 
@@ -867,7 +866,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     char_t              **pArgs;
     BOOL                bReturn;
     int                 i, nLen;
-    unsigned char       *pEnvData;
+    uchar               *pEnvData;
 
     /*
         Replace directory delimiters with Windows-friendly delimiters

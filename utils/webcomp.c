@@ -12,7 +12,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 #if UNUSED
 #include <stdio.h>
@@ -77,7 +77,7 @@ static int compile(char *fileList, char *prefix)
     char            file[FNAMESIZE];
     char            *cp, *sl;
     char            buf[512];
-    unsigned char   *p;
+    uchar           *p;
     int             j, i, len, fd, nFile;
 
     if ((lp = fopen(fileList, "r")) == NULL) {
@@ -99,8 +99,7 @@ static int compile(char *fileList, char *prefix)
      */
     nFile = 0;
     while (fgets(file, sizeof(file), lp) != NULL) {
-        if ((p = (unsigned char *)strchr(file, '\n')) || 
-                (p = (unsigned char *)strchr(file, '\r'))) {
+        if ((p = (uchar*) strchr(file, '\n')) || (p = (uchar*) strchr(file, '\r'))) {
             *p = '\0';
         }
         if (*file == '\0') {
@@ -114,13 +113,13 @@ static int compile(char *fileList, char *prefix)
             return -1;
         }
         fprintf(stdout, "/* %s */\n", file);
-        fprintf(stdout, "static unsigned char p%d[] = {\n", nFile);
+        fprintf(stdout, "static uchar p%d[] = {\n", nFile);
 
         while ((len = read(fd, buf, sizeof(buf))) > 0) {
-            p = (unsigned char*)buf;
+            p = (uchar*)buf;
             for (i = 0; i < len; ) {
                 fprintf(stdout, "\t");
-                for (j = 0; p<(unsigned char*)(&buf[len]) && j < 16; j++, p++) {
+                for (j = 0; p<(uchar*)(&buf[len]) && j < 16; j++, p++) {
                     fprintf(stdout, "%3d,", *p);
                 }
                 i += j;
@@ -144,8 +143,7 @@ static int compile(char *fileList, char *prefix)
     }
     nFile = 0;
     while (fgets(file, sizeof(file), lp) != NULL) {
-        if ((p = (unsigned char *)strchr(file, '\n')) || 
-                (p = (unsigned char *)strchr(file, '\r'))) {
+        if ((p = (uchar*) strchr(file, '\n')) || (p = (uchar *) strchr(file, '\r'))) {
             *p = '\0';
         }
         if (*file == '\0') {

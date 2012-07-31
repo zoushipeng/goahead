@@ -9,7 +9,7 @@
 
 /********************************* Includes ***********************************/
 
-//  MOB - move these into uemf.h
+//  MOB - move these into goahead.h
 
 #include    <ctype.h>
 #include    <stdarg.h>
@@ -27,7 +27,7 @@
     #include    <dirent.h>
 #endif
 
-#include    "uemf.h"
+#include    "goahead.h"
 #include    "ej.h"
 
 /********************************** Defines ***********************************/

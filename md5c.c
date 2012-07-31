@@ -7,7 +7,7 @@
  */
 /******************************************************************************/
 
-#include "uemf.h"
+#include    "goahead.h"
 
 #if BIT_DIGEST_AUTH
 //  MOB - refactor
@@ -22,19 +22,19 @@ typedef int             int32;
 #define I(x,y,z)    (y^(x|(~z)))
 
 #define STORE32L(x, y)                         \
-    { (y)[3] = (unsigned char)(((x)>>24)&255); \
-      (y)[2] = (unsigned char)(((x)>>16)&255); \
-      (y)[1] = (unsigned char)(((x)>>8)&255);  \
-      (y)[0] = (unsigned char)((x)&255); }
+    { (y)[3] = (uchar)(((x)>>24)&255); \
+      (y)[2] = (uchar)(((x)>>16)&255); \
+      (y)[1] = (uchar)(((x)>>8)&255);  \
+      (y)[0] = (uchar)((x)&255); }
 
 #define LOAD32L(x, y)                           \
-    { x = ((unsigned long)((y)[3] & 255)<<24) | \
-          ((unsigned long)((y)[2] & 255)<<16) | \
-          ((unsigned long)((y)[1] & 255)<<8)  | \
-          ((unsigned long)((y)[0] & 255)); }
+    { x = ((ulong)((y)[3] & 255)<<24) | \
+          ((ulong)((y)[2] & 255)<<16) | \
+          ((ulong)((y)[1] & 255)<<8)  | \
+          ((ulong)((y)[0] & 255)); }
 
-#define ROL(x, y) ((((unsigned long)(x)<<(unsigned long)((y)&31)) | \
-    (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
+#define ROL(x, y) ((((ulong)(x)<<(ulong)((y)&31)) | \
+    (((ulong)(x)&0xFFFFFFFFUL)>>(ulong)(32-((y)&31)))) & 0xFFFFFFFFUL)
 
 #define FF(a,b,c,d,M,s,t) \
     a = (a + F(b,c,d) + M + t); a = ROL(a, s) + b;
@@ -48,14 +48,14 @@ typedef int             int32;
 #define II(a,b,c,d,M,s,t) \
     a = (a + I(b,c,d) + M + t); a = ROL(a, s) + b;
 
-static const unsigned char Worder[64] = {
+static const uchar Worder[64] = {
     0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,
     1,6,11,0,5,10,15,4,9,14,3,8,13,2,7,12,
     5,8,11,14,1,4,7,10,13,0,3,6,9,12,15,2,
     0,7,14,5,12,3,10,1,8,15,6,13,4,11,2,9
 };
 
-static const unsigned char Rorder[64] = {
+static const uchar Rorder[64] = {
     7,12,17,22,7,12,17,22,7,12,17,22,7,12,17,22,
     5,9,14,20,5,9,14,20,5,9,14,20,5,9,14,20,
     4,11,16,23,4,11,16,23,4,11,16,23,4,11,16,23,
@@ -84,8 +84,8 @@ static const ulong32 Korder[] = {
 
 static void _md5_compress(psMd5Context_t *md)
 {
-    unsigned long   i, W[16], a, b, c, d;
-    ulong32         t;
+    ulong       i, W[16], a, b, c, d;
+    ulong32     t;
 
     /*
         copy the state into 512-bits into W[0..15]
@@ -126,7 +126,7 @@ static void _md5_compress(psMd5Context_t *md)
 
 static void psZeromem(void *dst, int len)
 {
-    unsigned char *mem = (unsigned char *)dst;
+    uchar   *mem = (uchar*) dst;
 
     if (dst == (void*)0) { return; }
     while (len-- > 0) { *mem++ = 0; }
@@ -134,16 +134,16 @@ static void psZeromem(void *dst, int len)
 
 static void psBurnStack(int len)
 {
-    unsigned char buf[32];
+    uchar   buf[32];
 
     psZeromem(buf, sizeof(buf));
-    if (len > (unsigned long)sizeof(buf)) { psBurnStack(len - sizeof(buf)); }
+    if (len > (ulong)sizeof(buf)) { psBurnStack(len - sizeof(buf)); }
 }
 
 static void md5_compress(psMd5Context_t *md)
 {
     _md5_compress(md);
-    psBurnStack(sizeof(unsigned long) * 21);
+    psBurnStack(sizeof(ulong) * 21);
 }
 
 void psMd5Init(psMd5Context_t* md)
@@ -157,9 +157,9 @@ void psMd5Init(psMd5Context_t* md)
     md->lengthLo = 0;
 }
 
-void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
+void psMd5Update(psMd5Context_t* md, uchar *buf, uint len)
 {
-    unsigned long n;
+    ulong   n;
 
     while (len > 0) {
         n = min(len, (64 - md->curlen));
@@ -184,9 +184,9 @@ void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
     }
 }
 
-int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
+int32 psMd5Final(psMd5Context_t* md, uchar *hash)
 {
-    unsigned long   n;
+    ulong   n;
     int32 i;
 
     if (hash == NULL) {
@@ -204,14 +204,14 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
     /*
         Append the '1' bit
      */
-    md->buf[md->curlen++] = (unsigned char)0x80;
+    md->buf[md->curlen++] = (uchar) 0x80;
     /*
         If the length is currently above 56 bytes we append zeros then compress.  Then we can fall back to padding zeros
         and length encoding like normal.  
      */
     if (md->curlen > 56) {
         while (md->curlen < 64) {
-            md->buf[md->curlen++] = (unsigned char)0;
+            md->buf[md->curlen++] = 0;
         }
         md5_compress(md);
         md->curlen = 0;
@@ -220,7 +220,7 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
         pad upto 56 bytes of zeroes
      */
     while (md->curlen < 56) {
-        md->buf[md->curlen++] = (unsigned char)0;
+        md->buf[md->curlen++] = 0;
     }
     /*
         store length

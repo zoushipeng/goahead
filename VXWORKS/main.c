@@ -24,7 +24,7 @@
 #include    <sysSymTbl.h>
 #include    <unldLib.h>
 
-#include    "../uemf.h"
+#include    "../goahead.h"
 #include    "../wsIntrn.h"
 
 #if BIT_PACK_SSL
@@ -158,12 +158,11 @@ static int initWebs(int demo)
         error(E_L, E_LOG, T("Can't get hostname"));
         return -1;
     }
-    intaddr.s_addr = (unsigned long) hostGetByName(host);
+    intaddr.s_addr = (ulong) hostGetByName(host);
 
-
-/*
- *  Set ../web as the root web. Modify this to suit your needs
- */
+    /*
+        Set ../web as the root web. Modify this to suit your needs
+     */
     if (demo) {
         sprintf(webdir, "%s/%s", ROOT_DIR, demoWeb);
     } else {

@@ -12,20 +12,20 @@
 //  MOB - But this is only the case if MatrixSSL
 
 #ifndef ulong32
-typedef unsigned int    ulong32;
+typedef unsigned int ulong32;
 #endif
 
 typedef struct {
     ulong32 lengthHi;
     ulong32 lengthLo;
     ulong32 state[4], curlen;
-    unsigned char buf[64];
+    uchar buf[64];
 } psDigestContext_t;
 
 typedef psDigestContext_t   psMd5Context_t;
 extern void psMd5Init(psMd5Context_t *md);
-extern void psMd5Update(psMd5Context_t *md, unsigned char *buf, unsigned int len);
-extern int  psMd5Final(psMd5Context_t *md, unsigned char *hash);
+extern void psMd5Update(psMd5Context_t *md, uchar *buf, uint len);
+extern int  psMd5Final(psMd5Context_t *md, uchar *hash);
 
 #endif /* BIT_PACK_SSL */
 #endif /* _h_MD5 */

@@ -42,7 +42,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 /*********************************** Defines **********************************/
 /*
@@ -142,11 +142,11 @@ int ringqGetc(ringq_t *rq)
 
     cp = (char_t*) rq->servp;
     c = *cp++;
-    rq->servp = (unsigned char *) cp;
+    rq->servp = (uchar *) cp;
     if (rq->servp >= rq->endbuf) {
         rq->servp = rq->buf;
     }
-    return (int) ((unsigned char) c);
+    return (int) ((uchar) c);
 }
 
 
@@ -167,7 +167,7 @@ int ringqPutc(ringq_t *rq, char_t c)
 
     cp = (char_t*) rq->endp;
     *cp++ = (char_t) c;
-    rq->endp = (unsigned char *) cp;
+    rq->endp = (uchar *) cp;
     if (rq->endp >= rq->endbuf) {
         rq->endp = rq->buf;
     }
@@ -193,7 +193,7 @@ int ringqInsertc(ringq_t *rq, char_t c)
     }
     cp = (char_t*) rq->servp;
     *--cp = (char_t) c;
-    rq->servp = (unsigned char *) cp;
+    rq->servp = (uchar *) cp;
     return 0;
 }
 
@@ -209,7 +209,7 @@ int ringqPutStr(ringq_t *rq, char_t *str)
     a_assert(str);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
 
-    rc = ringqPutBlk(rq, (unsigned char*) str, gstrlen(str) * sizeof(char_t));
+    rc = ringqPutBlk(rq, (uchar*) str, gstrlen(str) * sizeof(char_t));
     *((char_t*) rq->endp) = (char_t) '\0';
     return rc;
 }
@@ -235,7 +235,7 @@ void ringqAddNull(ringq_t *rq)
  */
 int ringqGetcA(ringq_t *rq)
 {
-    unsigned char   c;
+    uchar   c;
 
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -263,7 +263,7 @@ int ringqPutcA(ringq_t *rq, char c)
     if (ringqPutBlkMax(rq) == 0 && !ringqGrow(rq)) {
         return -1;
     }
-    *rq->endp++ = (unsigned char) c;
+    *rq->endp++ = (uchar) c;
     if (rq->endp >= rq->endbuf) {
         rq->endp = rq->buf;
     }
@@ -285,7 +285,7 @@ int ringqInsertcA(ringq_t *rq, char c)
     if (rq->servp <= rq->buf) {
         rq->servp = rq->endbuf;
     }
-    *--rq->servp = (unsigned char) c;
+    *--rq->servp = (uchar) c;
     return 0;
 }
 
@@ -301,7 +301,7 @@ int ringqPutStrA(ringq_t *rq, char *str)
     a_assert(str);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
 
-    rc = ringqPutBlk(rq, (unsigned char*) str, strlen(str));
+    rc = ringqPutBlk(rq, (uchar*) str, strlen(str));
     rq->endp[0] = '\0';
     return rc;
 }
@@ -311,7 +311,7 @@ int ringqPutStrA(ringq_t *rq, char *str)
 /*
     Add a block of data to the ringq. Return the number of bytes added. Grow the q as required.
  */
-int ringqPutBlk(ringq_t *rq, unsigned char *buf, int size)
+int ringqPutBlk(ringq_t *rq, uchar *buf, int size)
 {
     int     this, bytes_put;
 
@@ -349,7 +349,7 @@ int ringqPutBlk(ringq_t *rq, unsigned char *buf, int size)
 /*
     Get a block of data from the ringq. Return the number of bytes returned.
  */
-int ringqGetBlk(ringq_t *rq, unsigned char *buf, int size)
+int ringqGetBlk(ringq_t *rq, uchar *buf, int size)
 {
     int     this, bytes_read;
 
@@ -486,8 +486,8 @@ void ringqFlush(ringq_t *rq)
  */
 static int ringqGrow(ringq_t *rq)
 {
-    unsigned char   *newbuf;
-    int             len;
+    uchar   *newbuf;
+    int     len;
 
     a_assert(rq);
 

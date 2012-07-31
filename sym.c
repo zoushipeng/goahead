@@ -10,7 +10,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 /********************************* Defines ************************************/
 
@@ -375,8 +375,8 @@ static sym_t *hash(sym_tabent_t *tp, char_t *name)
  */
 static int hashIndex(sym_tabent_t *tp, char_t *name)
 {
-    unsigned int    sum;
-    int             i;
+    uint        sum;
+    int         i;
 
     a_assert(tp);
     /*

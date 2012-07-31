@@ -19,7 +19,7 @@
 #define     IN_GETOPT
 
 #include    <windows.h>
-#include "../uemf.h"
+#include "../goahead.h"
 
 /************************************* Defines ********************************/
 
@@ -64,7 +64,7 @@ static char_t *days[] = {
 static char_t ceCwd[LF_PATHSIZE];
 
 char_t *_wgetcwd(char_t *dir, int len);
-int _wchdir(unsigned short *path);
+int _wchdir(ushort *path);
 
 /************************************ Code ************************************/
 
@@ -122,33 +122,26 @@ int getopt(int argc, char_t* const * argv, const char_t* opts)
     return(c);
 }
 
-/******************************************************************************/
-/*
- * sleep -- Sleep for N seconds
- */
-
-unsigned sleep(unsigned s)
+uint sleep(uint s)
 {
     Sleep(s * 1000);
     return 0;
 }
 
-/******************************************************************************/
-/*
- * nap -- Sleep for N milli-seconds
- */
 
+/*
+    nap -- Sleep for N milli-seconds
+ */
 long nap(long ms)
 {
     Sleep(ms);
     return 0;
 }
 
-/******************************************************************************/
-/*
- *  Return the elapsed time in milli-seconds
- */
 
+/*
+    Return the elapsed time in milli-seconds
+ */
 time_t timeMsec()
 {
     struct timeb    tbnow;
@@ -384,7 +377,7 @@ int close(int fid)
  *  Read bytes from a file.
  */
 
-int read(int fid, void *buf, unsigned int len)
+int read(int fid, void *buf, uint len)
 {
     fh_t    *fp;
     long    bytesRead;
@@ -406,7 +399,7 @@ int read(int fid, void *buf, unsigned int len)
  *  Read from a file into a buffer, converting from Ascii to Unicode.
  */
 
-int readAscToUni(int fid, void **buf, unsigned int len)
+int readAscToUni(int fid, void **buf, uint len)
 {
     fh_t    *fp;
     long    bytesRead;
@@ -434,7 +427,7 @@ int readAscToUni(int fid, void **buf, unsigned int len)
  *  Write to a file.
  */
 
-int write(int fid, void *buf, unsigned int len)
+int write(int fid, void *buf, uint len)
 {
     fh_t    *fp;
     long    bytesWritten;
@@ -456,7 +449,7 @@ int write(int fid, void *buf, unsigned int len)
  *  Write to a file, first converting from Unicode to Ascii.
  */
 
-int writeUniToAsc(int fid, void *buf, unsigned int len)
+int writeUniToAsc(int fid, void *buf, uint len)
 {
     fh_t    *fp;
     long    bytesWritten;
@@ -665,7 +658,7 @@ int _wrename(const char_t *oldname, const char_t *newname)
  *  Our implementation of wide character access: get file access permission.
  */
 
-int _waccess(const unsigned short *path, int mode)
+int _waccess(const ushort *path, int mode)
 {
     int fid, omode;
 
@@ -689,7 +682,7 @@ int _waccess(const unsigned short *path, int mode)
  *  this case we return the real file handle.
  */
 
-FILE* fdopen(int handle, const unsigned short *mode)
+FILE* fdopen(int handle, const ushort *mode)
 {
     return (FILE*) handle;
 }
@@ -870,7 +863,7 @@ char_t *_wgetcwd(char_t *dir, int len)
  *  Change the current working directory
  */
 
-int _wchdir(unsigned short *path)
+int _wchdir(ushort *path)
 {
     char_t  *p;
     char_t  buf[LF_PATHSIZE];

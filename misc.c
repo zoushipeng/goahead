@@ -6,7 +6,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 /********************************* Defines ************************************/
 /*
@@ -43,9 +43,9 @@ enum flag {
 static int  dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize);
 static void put_char(strbuf_t *buf, char_t c);
 static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f);
-static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, 
+static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *prefix, int width, 
         int prec, enum flag f);
-static int  gstrnlen(char_t *s, unsigned int n);
+static int  gstrnlen(char_t *s, uint n);
 
 /************************************ Code ************************************/
 /*
@@ -291,13 +291,13 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
                     put_ulong(&buf, -value, 10, 0, T("-"), width, prec, f);
                 }
             } else if (c == 'o' || c == 'u' || c == 'x' || c == 'X') {
-                unsigned long int value;
+                ulong value;
                 if (f & flag_short) {
-                    value = (unsigned short int) va_arg(arg, unsigned int);
+                    value = (ushort) va_arg(arg, uint);
                 } else if (f & flag_long) {
-                    value = va_arg(arg, unsigned long int);
+                    value = va_arg(arg, ulong);
                 } else {
-                    value = va_arg(arg, unsigned int);
+                    value = va_arg(arg, uint);
                 }
                 if (c == 'o') {
                     if (f & flag_hash && value != 0) {
@@ -337,8 +337,7 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
                 }
             } else if (c == 'p') {
                 void *value = va_arg(arg, void *);
-                put_ulong(&buf,
-                    (unsigned long int) value, 16, 0, T("0x"), width, prec, f);
+                put_ulong(&buf, (ulong) value, 16, 0, T("0x"), width, prec, f);
             } else if (c == 'n') {
                 if (f & flag_short) {
                     short int *value = va_arg(arg, short int *);
@@ -382,9 +381,9 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 /*
     Return the length of a string limited by a given length
  */
-static int gstrnlen(char_t *s, unsigned int n)
+static int gstrnlen(char_t *s, uint n)
 {
-    unsigned int    len;
+    uint    len;
 
     len = gstrlen(s);
     return min(len, n);
@@ -452,11 +451,10 @@ static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, e
 /*
     Add a long to a string buffer
  */
-static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int upper, char_t *prefix, int width, int prec,
-        enum flag f) 
+static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f) 
 {
-    unsigned long   x, x2;
-    int             len, zeros, i;
+    ulong       x, x2;
+    int         len, zeros, i;
 
     for (len = 1, x = 1; x < ULONG_MAX / base; ++len, x = x2) {
         x2 = x * base;
@@ -577,17 +575,17 @@ char *ballocUniToAsc(char_t *unip, int ulen)
     Convert a hex string to an integer. The end of the string or a non-hex character will indicate the end of the hex
     specification.  
  */
-unsigned int hextoi(char_t *hexstring)
+uint hextoi(char_t *hexstring)
 {
-    register char_t         *h;
-    register unsigned int   c, v;
+    char_t         *h;
+    uint            c, v;
 
     v = 0;
     h = hexstring;
     if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
         h += 2;
     }
-    while ((c = (unsigned int)*h++) != 0) {
+    while ((c = (uint)*h++) != 0) {
         if (c >= '0' && c <= '9') {
             c -= '0';
         } else if (c >= 'a' && c <= 'f') {
@@ -606,7 +604,7 @@ unsigned int hextoi(char_t *hexstring)
 /*
     Convert a string to an integer. If the string starts with "0x" or "0X" a hexidecimal conversion is done.
  */
-unsigned int gstrtoi(char_t *s)
+uint gstrtoi(char_t *s)
 {
     if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
         s += 2;

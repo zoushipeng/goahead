@@ -67,10 +67,8 @@ static int      sockServiceTime;                /* in milliseconds */
 /****************************** Forward Declarations **************************/
 
 static int      initWebs(int demo);
-static long     CALLBACK websWindProc(HWND hwnd, unsigned int msg, 
-                unsigned int wp, long lp);
-static long     CALLBACK websAboutProc(HWND hwnd, unsigned int msg, 
-                unsigned int wp, long lp);
+static long     CALLBACK websWindProc(HWND hwnd, uint msg, uint wp, long lp);
+static long     CALLBACK websAboutProc(HWND hwnd, uint msg, uint wp, long lp);
 static int      registerAboutBox(HINSTANCE hInstance);
 static int      createAboutBox(HINSTANCE hInstance, HWND hwnd);
 static int      aspTest(int eid, webs_t wp, int argc, char_t **argv);
@@ -364,8 +362,7 @@ static int windowsClose(HINSTANCE hInstance)
  *  Main menu window message handler.
  */
 
-static long CALLBACK websWindProc(HWND hwnd, unsigned int msg, 
-                                    unsigned int wp, long lp)
+static long CALLBACK websWindProc(HWND hwnd, uint msg, uint wp, long lp)
 {
     switch (msg) {
         case WM_DESTROY:
@@ -414,8 +411,7 @@ WPARAM checkWindowsMsgLoop()
  *  Windows message handler for the About Box
  */
 
-static long CALLBACK websAboutProc(HWND hwndDlg, unsigned int msg, 
-                                    unsigned int wp, long lp)
+static long CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 {
     long lResult;
     HWND hwnd;

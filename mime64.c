@@ -42,9 +42,9 @@ static char_t   map64[] = {
  */
 int websDecode64(char_t *outbuf, char_t *string, int outlen)
 {
-    unsigned long   shiftbuf;
-    char_t          *cp, *op;
-    int             c, i, j, shift;
+    ulong       shiftbuf;
+    char_t      *cp, *op;
+    int         c, i, j, shift;
 
     op = outbuf;
     *op = '\0';

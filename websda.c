@@ -31,11 +31,11 @@
     websMD5binary returns the MD5 hash
  */
 
-char *websMD5binary(unsigned char *buf, int length)
+char *websMD5binary(uchar *buf, int length)
 {
     const char      *hex = "0123456789abcdef";
     psDigestContext_t   md5ctx;
-    unsigned char   hash[HASH_SIZE];
+    uchar           hash[HASH_SIZE];
     char            *r, *strReturn;
     char            result[(HASH_SIZE * 2) + 1];
     int             i;
@@ -44,7 +44,7 @@ char *websMD5binary(unsigned char *buf, int length)
         Take the MD5 hash of the string argument.
      */
     psMd5Init(&md5ctx);
-    psMd5Update(&md5ctx, buf, (unsigned int)length);
+    psMd5Update(&md5ctx, buf, (uint) length);
     psMd5Final(&md5ctx, hash);
 
     /*
@@ -89,7 +89,7 @@ char_t *websMD5(char_t *string)
         /*
             Execute the digest calculation
          */
-        strHash = websMD5binary((unsigned char *)strTemp, nLen);
+        strHash = websMD5binary((uchar*)strTemp, nLen);
         /*
             Convert the returned char string digest to a char_t string
          */

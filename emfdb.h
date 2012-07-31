@@ -9,7 +9,7 @@
 #ifndef _h_EMFDB
 #define _h_EMFDB 1
 
-#include    "uemf.h"
+#include    "goahead.h"
 
 /********************************* Defines ************************************/
 
