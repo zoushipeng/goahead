@@ -587,11 +587,10 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
 /*
     Print a key-value pair to a file
  */
-static int dbWriteKeyValue(int fd, char_t *key, char_t *value)
+static ssize dbWriteKeyValue(int fd, char_t *key, char_t *value)
 {
-    int     rc;
-    int     len;
     char_t  *pLineOut;
+    ssize   len, rc;
 
     a_assert(key && *key);
     a_assert(value);
@@ -610,7 +609,6 @@ static int dbWriteKeyValue(int fd, char_t *key, char_t *value)
     } else {
         rc = -1;
     }
-
     return rc;
 }
 
@@ -621,11 +619,12 @@ static int dbWriteKeyValue(int fd, char_t *key, char_t *value)
 
 int dbSave(int did, char_t *filename, int flags)
 {
-    int         row, column, nColumns, nRows, fd, rc;
+    int         row, column, nColumns, nRows, fd;
     int         *colTypes, *pRow, nRet, tid;
     char_t      *path, *tmpFile, *tmpNum;
     char_t      **colNames;
     dbTable_t   *pTable;
+    ssize       rc;
 
     trace(5, T("DB: About to save database to file\n"));
 
@@ -692,10 +691,8 @@ int dbSave(int did, char_t *filename, int flags)
                         bfreeSafe(tmpNum);
                     }
                 }
-
                 if (rc < 0) {
-                    trace(1, T("WARNING: Failed to write to file %s\n"), 
-                        tmpFile);
+                    trace(1, T("WARNING: Failed to write to file %s\n"), tmpFile);
                     nRet = -1;
                 }
             }
@@ -943,13 +940,12 @@ static int GetColumnIndex(int tid, char_t *colName)
  */
 void basicSetProductDir(char_t *proddir)
 {
-    int len;
+    ssize   len;
 
     if (basicProdDir != NULL) { 
       bfree(basicProdDir);
     }
     basicProdDir = bstrdup(proddir);
-
     /*
         Make sure that prefix-directory doesn't end with a '/'
      */

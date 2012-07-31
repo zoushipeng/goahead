@@ -40,7 +40,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     sym_t       *s;
     char_t      cgiBuf[FNAMESIZE], *stdIn, *stdOut, cwd[FNAMESIZE];
     char_t      *cp, *cgiName, *cgiPath, **argp, **envp, **ep;
-    int         n, envpsize, argpsize, pHandle, cid, rc;
+    int         n, envpsize, argpsize, pHandle, cid;
 
     a_assert(websValid(wp));
     a_assert(url && *url);
@@ -51,6 +51,8 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         that the file exists under the current www root.  We will check if it is executable below.
      */
 #if BIT_WHITELIST
+{
+    int rc;
     if ((rc = websWhitelistCheck(wp->url)) < 0 || !(rc & WHITELIST_CGI)) {
         websBuildWhitelist();
         if ((rc = websWhitelistCheck(wp->url)) < 0 || !(rc & WHITELIST_CGI)) {
@@ -62,7 +64,8 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         websError(wp, 500, T("HTTPS Access Required"));
         return 1;
     }
-#endif /* WEBS_WHITELIST_SUPPORT */
+}
+#endif
 
     websStats.cgiHits++;
 
@@ -228,10 +231,12 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
  */
 void websCgiGatherOutput (cgiRec *cgip)
 {
-    gstat_t sbuf;
-    char_t  cgiBuf[FNAMESIZE];
+    webs_t      wp;
+    ssize       nRead;
+    gstat_t     sbuf;
+    char_t      cgiBuf[FNAMESIZE];
 #if WIN
-    errno_t error;
+    errno_t     error;
 #endif
 
     if ((gstat(cgip->stdOut, &sbuf) == 0) && 
@@ -248,8 +253,7 @@ void websCgiGatherOutput (cgiRec *cgip)
              Check to see if any data is available in the output file and send its contents to the socket.
          */
         if (fdout >= 0) {
-            webs_t  wp = cgip->wp;
-            int     nRead;
+            wp = cgip->wp;
             /*
                 Write the HTTP header on our first pass
              */

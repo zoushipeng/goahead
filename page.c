@@ -96,7 +96,7 @@ int websPageIsDirectory(char_t *lpath)
 /*
     Read a web page. Returns the number of _bytes_ read. len is the size of buf, in bytes.
  */
-int websPageReadData(webs_t wp, char *buf, int nBytes)
+ssize websPageReadData(webs_t wp, char *buf, ssize nBytes)
 {
 
 #if BIT_ROM

@@ -1169,13 +1169,13 @@ typedef struct {
     Ring queue buffer structure
  */
 typedef struct {
-    unsigned char   *buf;               /* Holding buffer for data */
-    unsigned char   *servp;             /* Pointer to start of data */
-    unsigned char   *endp;              /* Pointer to end of data */
-    unsigned char   *endbuf;            /* Pointer to end of buffer */
-    int             buflen;             /* Length of ring queue */
-    int             maxsize;            /* Maximum size */
-    int             increment;          /* Growth increment */
+    uchar   *buf;               /* Holding buffer for data */
+    uchar   *servp;             /* Pointer to start of data */
+    uchar   *endp;              /* Pointer to end of data */
+    uchar   *endbuf;            /* Pointer to end of buffer */
+    ssize   buflen;             /* Length of ring queue */
+    ssize   maxsize;            /* Maximum size */
+    int     increment;          /* Growth increment */
 } ringq_t;
 
 /*
@@ -1335,7 +1335,7 @@ extern int  bopen(void *buf, int bufsize, int flags);
         #define bstrdupA bstrdup
     #endif /* UNICODE */
     #define gstrdup bstrdup
-    extern void     *balloc(int size);
+    extern void     *balloc(ssize size);
     extern void     bfree(void *mp);
     extern void     bfreeSafe(void *mp);
     extern void     *brealloc(void *buf, int newsize);
@@ -1369,16 +1369,15 @@ extern int      hFree(void ***map, int handle);
 
 extern int      ringqOpen(ringq_t *rq, int increment, int maxsize);
 extern void     ringqClose(ringq_t *rq);
-extern int      ringqLen(ringq_t *rq);
-
+extern ssize    ringqLen(ringq_t *rq);
 extern int      ringqPutc(ringq_t *rq, char_t c);
 extern int      ringqInsertc(ringq_t *rq, char_t c);
-extern int      ringqPutStr(ringq_t *rq, char_t *str);
+extern ssize    ringqPutStr(ringq_t *rq, char_t *str);
 extern int      ringqGetc(ringq_t *rq);
 
-extern int      fmtValloc(char_t **s, int n, char_t *fmt, va_list arg);
-extern int      fmtAlloc(char_t **s, int n, char_t *fmt, ...);
-extern int      fmtStatic(char_t *s, int n, char_t *fmt, ...);
+extern ssize    fmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg);
+extern ssize    fmtAlloc(char_t **s, ssize n, char_t *fmt, ...);
+extern ssize    fmtStatic(char_t *s, ssize n, char_t *fmt, ...);
 
 #if UNICODE
 extern int      ringqPutcA(ringq_t *rq, char c);
@@ -1392,12 +1391,12 @@ extern int      ringqGetcA(ringq_t *rq);
 #define ringqGetcA ringqGetc
 #endif /* UNICODE */
 
-extern int      ringqPutBlk(ringq_t *rq, unsigned char *buf, int len);
-extern int      ringqPutBlkMax(ringq_t *rq);
-extern void     ringqPutBlkAdj(ringq_t *rq, int size);
-extern int      ringqGetBlk(ringq_t *rq, unsigned char *buf, int len);
-extern int      ringqGetBlkMax(ringq_t *rq);
-extern void     ringqGetBlkAdj(ringq_t *rq, int size);
+extern ssize    ringqPutBlk(ringq_t *rq, uchar *buf, ssize len);
+extern ssize    ringqPutBlkMax(ringq_t *rq);
+extern void     ringqPutBlkAdj(ringq_t *rq, ssize size);
+extern ssize    ringqGetBlk(ringq_t *rq, uchar *buf, ssize len);
+extern ssize    ringqGetBlkMax(ringq_t *rq);
+extern void     ringqGetBlkAdj(ringq_t *rq, ssize size);
 extern void     ringqFlush(ringq_t *rq);
 extern void     ringqAddNull(ringq_t *rq);
 
@@ -1418,9 +1417,9 @@ extern int      socketInputBuffered(int sid);
 extern int      socketOpen();
 extern int      socketOpenConnection(char *host, int port, socketAccept_t accept, int flags);
 extern void     socketProcess(int hid);
-extern int      socketRead(int sid, char *buf, int len);
+extern int      socketRead(int sid, char *buf, ssize len);
 extern int      socketReady(int hid);
-extern int      socketWrite(int sid, char *buf, int len);
+extern int      socketWrite(int sid, char *buf, ssize len);
 extern int      socketWriteString(int sid, char_t *buf);
 extern int      socketSelect(int hid, int timeout);
 extern int      socketGetHandle(int sid);
@@ -1482,18 +1481,8 @@ extern void     harnessPassed();
 extern void     harnessFailed(int line);
 extern int      harnessLevel();
 
-//  MOB - replace with mprCrypt MD5
-typedef struct {
-    uint lengthHi;
-    uint lengthLo;
-    uint state[4], curlen;
-    uchar buf[64];
-} psDigestContext_t;
-
-typedef psDigestContext_t psMd5Context_t;
-extern void psMd5Init(psMd5Context_t *md);
-extern void psMd5Update(psMd5Context_t *md, uchar *buf, uint len);
-extern int  psMd5Final(psMd5Context_t *md, uchar *hash);
+extern char *websMD5(cchar *s);
+extern char *websMD5binary(cchar *buf, ssize length, cchar *prefix);
 
 /*************************** User Configurable Defines ************************/
 
@@ -1656,7 +1645,7 @@ typedef struct {
             char_t *query);                 /* Callback URL handler function */
     char_t  *webDir;                        /* Web directory if required */
     char_t  *urlPrefix;                     /* URL leading prefix */
-    int     len;                            /* Length of urlPrefix for speed */
+    ssize   len;                            /* Length of urlPrefix for speed */
     int     arg;                            /* Argument to provide to handler */
     int     flags;                          /* Flags */
 } websUrlHandlerType;
@@ -1712,7 +1701,7 @@ typedef struct {
  */
 typedef struct {
     char_t          *path;                  /* Web page URL path */
-    unsigned char   *page;                  /* Web page data */
+    uchar           *page;                  /* Web page data */
     int             size;                   /* Size of web page in bytes */
     int             pos;                    /* Current read position */
 } websRomPageIndexType;
@@ -1746,16 +1735,21 @@ extern char_t           *websHostUrl;       /* URL for this host */
 extern char_t           *websIpaddrUrl;     /* URL for this host */
 extern int              websPort;           /* Port number */
 
+/**
+    Decode base 64 blocks up to a NULL or equals
+ */
+#define WEBS_DECODE_TOKEQ 1
+
 /******************************** Prototypes **********************************/
 
 extern int       websAccept(int sid, char *ipaddr, int port, int listenSid);
 extern int       websAspDefine(char_t *name, int (*fn)(int ejid, webs_t wp, int argc, char_t **argv));
 extern int       websAspRequest(webs_t wp, char_t *lpath);
 extern void      websCloseListen();
-extern int       websDecode64(char_t *outbuf, char_t *string, int buflen);
-extern void      websDecodeUrl(char_t *token, char_t *decoded, int len);
+extern char_t    *websDecode64(char_t *string);
+extern char_t   *websDecode64Block(char_t *s, ssize *len, int flags);
+extern void      websDecodeUrl(char_t *token, char_t *decoded, ssize len);
 extern void      websDone(webs_t wp, int code);
-extern void      websEncode64(char_t *outbuf, char_t *string, int buflen);
 extern void      websError(webs_t wp, int code, char_t *msg, ...);
 extern char_t   *websErrorMsg(int code);
 extern void      websFooter(webs_t wp);
@@ -1795,12 +1789,12 @@ extern void     websSetHost(char_t *host);
 extern void     websSetIpaddr(char_t *ipaddr);
 extern void     websSetPassword(char_t *password);
 extern void     websSetRealm(char_t *realmName);
-extern void     websSetRequestBytes(webs_t wp, int bytes);
+extern void     websSetRequestBytes(webs_t wp, ssize bytes);
 extern void     websSetRequestFlags(webs_t wp, int flags);
 extern void     websSetRequestLpath(webs_t wp, char_t *lpath);
 extern void     websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
 extern char_t  *websGetRequestUserName(webs_t wp);
-extern void     websSetRequestWritten(webs_t wp, int written);
+extern void     websSetRequestWritten(webs_t wp, ssize written);
 extern void     websSetVar(webs_t wp, char_t *var, char_t *value);
 extern int      websTestVar(webs_t wp, char_t *var);
 extern void     websTimeoutCancel(webs_t wp);
@@ -1813,8 +1807,8 @@ extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **
                     char_t **proto, char_t **tag, char_t **ext);
 extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
 extern int       websWrite(webs_t wp, char_t* fmt, ...);
-extern int       websWriteBlock(webs_t wp, char_t *buf, int nChars);
-extern int       websWriteDataNonBlock(webs_t wp, char *buf, int nChars);
+extern int       websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
+extern int       websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
 extern int       websValid(webs_t wp);
 extern int       websValidateUrl(webs_t wp, char_t *path);
 extern void      websSetTimeMark(webs_t wp);
@@ -1832,9 +1826,9 @@ extern char_t   *websCalcOpaque(webs_t wp);
 extern char_t   *websCalcDigest(webs_t wp);
 extern char_t   *websCalcUrlDigest(webs_t wp);
 
-#if BIT_JAVASCRIPT
 extern int       websAspOpen();
 extern void      websAspClose();
+#if BIT_JAVASCRIPT
 extern int       websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
 #endif
 
@@ -1863,7 +1857,7 @@ extern int       websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp
 extern int       websOpen(int sid);
 extern void      websResponse(webs_t wp, int code, char_t *msg, char_t *redirect);
 extern int       websJavaScriptEval(webs_t wp, char_t *script);
-extern int       websPageReadData(webs_t wp, char *buf, int nBytes);
+extern ssize     websPageReadData(webs_t wp, char *buf, ssize nBytes);
 extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
 extern void      websPageClose(webs_t wp);
 extern void      websPageSeek(webs_t wp, long offset);
@@ -1873,7 +1867,7 @@ extern int       websRomOpen();
 extern void      websRomClose();
 extern int       websRomPageOpen(webs_t wp, char_t *path, int mode, int perm);
 extern void      websRomPageClose(int fd);
-extern int       websRomPageReadData(webs_t wp, char *buf, int len);
+extern ssize     websRomPageReadData(webs_t wp, char *buf, ssize len);
 extern int       websRomPageStat(char_t *path, websStatType *sbuf);
 extern long      websRomPageSeek(webs_t wp, long offset, int origin);
 extern void      websSetRequestSocketHandler(webs_t wp, int mask, 
@@ -1892,8 +1886,8 @@ extern int      strcmpci(char_t* s1, char_t* s2);
 
 #if CE
 //  MOB - prefix
-extern int      writeUniToAsc(int fid, void *buf, unsigned int len);
-extern int      readAscToUni(int fid, void **buf, unsigned int len);
+extern int      writeUniToAsc(int fid, void *buf, ssize len);
+extern int      readAscToUni(int fid, void **buf, ssize len);
 #endif
 
 #if BIT_PACK_MATRIXSSL
@@ -1919,8 +1913,8 @@ extern int  websSSLSetCertFile(char_t *certFile);
 extern int  sslAccept(sslConn_t **cp, SOCKET fd, sslKeys_t *keys, int32 resume,
             int (*certValidator)(ssl_t *, psX509Cert_t *, int32));
 extern void sslFreeConnection(sslConn_t **cp);
-extern int  sslRead(sslConn_t *cp, char *buf, int len);
-extern int  sslWrite(sslConn_t *cp, char *buf, int len);
+extern int  sslRead(sslConn_t *cp, char *buf, ssize len);
+extern int  sslWrite(sslConn_t *cp, char *buf, ssize len);
 extern void sslWriteClosureAlert(sslConn_t *cp);
 
 /*

@@ -26,6 +26,7 @@
 #define HASH_SIZE   16
 
 /*********************************** Code *************************************/
+#if UNUSED && KEEP
 /*
     websMD5binary returns the MD5 hash
  */
@@ -104,6 +105,7 @@ char_t *websMD5(char_t *string)
     }
     return strReturn;
 }
+#endif
 
 
 /*

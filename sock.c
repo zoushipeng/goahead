@@ -51,7 +51,7 @@ int socketWrite(int sid, char *buf, int bufsize)
             }
             if ((room = ringqPutBlkMax(rq)) == 0) {
                 if (sp->flags & SOCKET_BLOCK) {
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
                     int     errCode;
                     if (! socketWaitForEvent(sp,  FD_WRITE | SOCKET_WRITABLE,
                         &errCode)) {
@@ -267,7 +267,7 @@ int socketFlush(int sid)
             if (errCode == EINTR) {
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
                 if (sp->flags & SOCKET_BLOCK) {
                     int     errCode;
                     if (! socketWaitForEvent(sp,  FD_WRITE | SOCKET_WRITABLE,
@@ -430,7 +430,7 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
 
     *errCode = 0;
 
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
     if ((sp->flags & SOCKET_ASYNC)
             && ! socketWaitForEvent(sp,  FD_CONNECT, errCode)) {
         return -1;
@@ -458,13 +458,13 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
     }
     if (bytes < 0) {
         *errCode = socketGetError();
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
         sp->currentEvents &= ~FD_WRITE;
 #endif
         return -1;
     } else if (bytes == 0 && bytes != toWrite) {
         *errCode = EWOULDBLOCK;
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
         sp->currentEvents &= ~FD_WRITE;
 #endif
         return -1;
@@ -563,7 +563,7 @@ void socketFree(int sid)
         if (shutdown(sp->sock, 1) >= 0) {
             recv(sp->sock, buf, sizeof(buf), 0);
         }
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
         closesocket(sp->sock);
 #else
         close(sp->sock);
@@ -610,7 +610,7 @@ socket_t *socketPtr(int sid)
  */
 int socketGetError()
 {
-#if (defined (WIN) || defined (CE))
+#if BIT_WIN_LIKE
     switch (WSAGetLastError()) {
     case WSAEWOULDBLOCK:
         return EWOULDBLOCK;

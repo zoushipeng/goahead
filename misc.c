@@ -18,9 +18,9 @@
 
 typedef struct {
     char_t  *s;                         /* Pointer to buffer */
-    int     size;                       /* Current buffer size */
-    int     max;                        /* Maximum buffer size */
-    int     count;                      /* Buffer count */
+    ssize   size;                       /* Current buffer size */
+    ssize   max;                        /* Maximum buffer size */
+    ssize   count;                      /* Buffer count */
     int     flags;                      /* Allocation flags */
 } strbuf_t;
 
@@ -40,12 +40,12 @@ enum flag {
 
 /************************** Forward Declarations ******************************/
 
-static int  dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize);
+static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize msize);
 static void put_char(strbuf_t *buf, char_t c);
-static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f);
+static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
 static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *prefix, int width, 
         int prec, enum flag f);
-static int  gstrnlen(char_t *s, uint n);
+static ssize gstrnlen(char_t *s, ssize n);
 
 /************************************ Code ************************************/
 /*
@@ -53,13 +53,12 @@ static int  gstrnlen(char_t *s, uint n);
     function 
  */
 
-//  MOB - use #if form
-#if (!defined (LINUX) && !defined (LYNX) && !defined (MACOSX))
+#if !BIT_UNIX_LIKE
 char_t *basename(char_t *name)
 {
     char_t  *cp;
 
-#if NETWARE || WIN
+#if NETWARE || BIT_WIN_LIKE
     if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
         return name;
 #else
@@ -74,16 +73,16 @@ char_t *basename(char_t *name)
         return ++cp;
     }
 }
-#endif /* ! LINUX & ! LYNX & ! MACOSX */
+#endif
 
 /******************************************************************************/
 /*
     Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
  */
-char_t *dirname(char_t *buf, char_t *name, int bufsize)
+char_t *dirname(char_t *buf, char_t *name, ssize bufsize)
 {
-    char_t *cp;
-    int     len;
+    char_t  *cp;
+    ssize   len;
 
     a_assert(name);
     a_assert(buf);
@@ -119,10 +118,10 @@ char_t *dirname(char_t *buf, char_t *name, int bufsize)
     sprintf and vsprintf are bad, ok. You can easily clobber memory. Use fmtAlloc and fmtValloc instead! These functions
     do _not_ support floating point, like %e, %f, %g...
  */
-int fmtAlloc(char_t **s, int n, char_t *fmt, ...)
+ssize fmtAlloc(char_t **s, ssize n, char_t *fmt, ...)
 {
     va_list ap;
-    int     result;
+    ssize   result;
 
     a_assert(s);
     a_assert(fmt);
@@ -138,10 +137,10 @@ int fmtAlloc(char_t **s, int n, char_t *fmt, ...)
 /*
     Support a static buffer version for small buffers only!
  */
-int fmtStatic(char_t *s, int n, char_t *fmt, ...)
+ssize fmtStatic(char_t *s, ssize n, char_t *fmt, ...)
 {
     va_list ap;
-    int     result;
+    ssize   result;
 
     a_assert(s);
     a_assert(fmt);
@@ -157,13 +156,14 @@ int fmtStatic(char_t *s, int n, char_t *fmt, ...)
 }
 
 
+#if UNUSED && KEEP
 /*
     This function appends the formatted string to the supplied string, reallocing if required.
  */
-int fmtRealloc(char_t **s, int n, int msize, char_t *fmt, ...)
+ssize fmtRealloc(char_t **s, ssize n, ssize msize, char_t *fmt, ...)
 {
-    va_list ap;
-    int     result;
+    va_list     ap;
+    ssize       result;
 
     a_assert(s);
     a_assert(fmt);
@@ -176,12 +176,13 @@ int fmtRealloc(char_t **s, int n, int msize, char_t *fmt, ...)
     va_end(ap);
     return result;
 }
+#endif
 
 
 /*
-    A vsprintf replacement.
+    A vsprintf replacement
  */
-int fmtValloc(char_t **s, int n, char_t *fmt, va_list arg)
+ssize fmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg)
 {
     a_assert(s);
     a_assert(fmt);
@@ -197,7 +198,7 @@ int fmtValloc(char_t **s, int n, char_t *fmt, va_list arg)
     buffer will be realloced, as required. If msize is set, we return the size of the allocated buffer for use with the
     next call. For the first call, msize can be set to -1.
  */
-static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
+static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize msize)
 {
     strbuf_t    buf;
     char_t      c;
@@ -340,13 +341,13 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
                 put_ulong(&buf, (ulong) value, 16, 0, T("0x"), width, prec, f);
             } else if (c == 'n') {
                 if (f & flag_short) {
-                    short int *value = va_arg(arg, short int *);
+                    short *value = va_arg(arg, short*);
                     *value = buf.count;
                 } else if (f & flag_long) {
-                    long int *value = va_arg(arg, long int *);
+                    long *value = va_arg(arg, long*);
                     *value = buf.count;
                 } else {
-                    int *value = va_arg(arg, int *);
+                    ssize *value = va_arg(arg, ssize*);
                     *value = buf.count;
                 }
             } else {
@@ -381,9 +382,9 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 /*
     Return the length of a string limited by a given length
  */
-static int gstrnlen(char_t *s, uint n)
+static ssize gstrnlen(char_t *s, ssize n)
 {
-    uint    len;
+    ssize   len;
 
     len = gstrlen(s);
     return min(len, n);
@@ -423,9 +424,9 @@ static void put_char(strbuf_t *buf, char_t c)
 /*
     Add a string to a string buffer
  */
-static void put_string(strbuf_t *buf, char_t *s, int len, int width, int prec, enum flag f)
+static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int prec, enum flag f)
 {
-    int     i;
+    ssize   i;
 
     if (len < 0) { 
         len = gstrnlen(s, prec >= 0 ? prec : ULONG_MAX); 

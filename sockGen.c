@@ -40,7 +40,7 @@ static int  tryAlternateConnect(int sock, struct sockaddr *sockaddr);
 
 int socketOpen()
 {
-#if (defined (CE) || defined (WIN))
+#if BIT_WIN_LIKE
     WSADATA     wsaData;
 #endif
 
@@ -48,7 +48,7 @@ int socketOpen()
         return 0;
     }
 
-#if (defined (CE) || defined (WIN))
+#if BIT_WIN_LIKE
     if (WSAStartup(MAKEWORD(1,1), &wsaData) != 0) {
         return -1;
     }
@@ -809,9 +809,9 @@ int socketSetBlock(int sid, int on)
         Put the socket into block / non-blocking mode
      */
     if (sp->flags & SOCKET_BLOCK) {
-#if (defined (CE) || defined (WIN))
+#if BIT_WIN_LIKE
         ioctlsocket(sp->sock, FIONBIO, &flag);
-#elif (defined (ECOS))
+#elif ECOS
         int off;
         off = 0;
         ioctl(sp->sock, FIONBIO, &off);
@@ -822,9 +822,9 @@ int socketSetBlock(int sid, int on)
 #endif
 
     } else {
-#if (defined (CE) || defined (WIN))
+#if BIT_WIN_LIKE
         ioctlsocket(sp->sock, FIONBIO, &flag);
-#elif (defined (ECOS))
+#elif ECOS
         int on;
         on = 1;
         ioctl(sp->sock, FIONBIO, &on);

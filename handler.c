@@ -188,9 +188,10 @@ char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
 /*
     Publish URL handler. We just patch the web page Directory and let the default handler do the rest.
  */
-static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int sid, char_t *url, char_t *path, char_t *query)
+static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int sid, char_t *url, char_t *path, 
+        char_t *query)
 {
-    int     len;
+    ssize   len;
 
     a_assert(websValid(wp));
     a_assert(path);

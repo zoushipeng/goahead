@@ -784,7 +784,7 @@ static int websParseFirst(webs_t wp, char_t *text)
 
 static void websParseRequest(webs_t wp)
 {
-    char_t  *authType, *upperKey, *cp, *browser, *lp, *key, *value;
+    char_t  *authType, *upperKey, *cp, *browser, *lp, *key, *value, *userAuth;
 
     a_assert(websValid(wp));
 
@@ -856,17 +856,16 @@ static void websParseRequest(webs_t wp)
             bfree(authType);
 
             if (gstricmp(wp->authType, T("basic")) == 0) {
-                char_t  userAuth[FNAMESIZE];
                 /*
                     The incoming value is username:password (Basic authentication)
                  */
                 if ((cp = gstrchr(value, ' ')) != NULL) {
                     *cp = '\0';
-                   bfree(wp->authType);
+                    bfree(wp->authType);
                     wp->authType = bstrdup(value);
-                    websDecode64(userAuth, ++cp, sizeof(userAuth));
+                    userAuth = websDecode64(++cp, NULL);
                 } else {
-                    websDecode64(userAuth, value, sizeof(userAuth));
+                    userAuth = websDecode64(value, NULL);
                 }
                 /*
                     Split userAuth into userid and password
@@ -881,9 +880,7 @@ static void websParseRequest(webs_t wp)
                     wp->userName = bstrdup(T(""));
                     wp->password = bstrdup(T(""));
                 }
-                /*
-                    Set the flags to indicate digest authentication
-                 */
+                bfree(userAuth);
                 wp->flags |= WEBS_AUTH_BASIC;
             } else {
 #if BIT_DIGEST_AUTH
@@ -896,9 +893,6 @@ static void websParseRequest(webs_t wp)
                 char_t *npv;    /* pointer to end of value, "next" pointer */
                 char_t tpv;     /* temporary character holding space */
 
-                /*
-                    Set the flags to indicate digest authentication
-                 */
                 wp->flags |= WEBS_AUTH_DIGEST;
                 /*
                     Move cp to Next word beyond "Digest", vp to first char after '='.
@@ -910,7 +904,6 @@ static void websParseRequest(webs_t wp)
                 while (!isgoodchar(*cp)) {
                     cp++;
                 }
-
                 /*
                     Find beginning of value
                  */
@@ -1227,7 +1220,6 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
 #if BIT_DIGEST_AUTH
             } else {
                 char_t *nonce, *opaque;
-
                 nonce = websCalcNonce(wp);
                 opaque = websCalcOpaque(wp); 
                 websWrite(wp, 
@@ -1484,7 +1476,7 @@ int websWrite(webs_t wp, char_t *fmt, ...)
     char_t's processed.  It spins until nChars are flushed to the socket.  For non-blocking behavior, use
     websWriteDataNonBlock.
  */
-int websWriteBlock(webs_t wp, char_t *buf, int nChars)
+int websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
 {
     int     len, done;
     char    *asciiBuf, *pBuf;
@@ -1539,7 +1531,7 @@ int websWriteBlock(webs_t wp, char_t *buf, int nChars)
     data, it will return the number of bytes flushed to the socket before it would have blocked.  This returns the
     number of chars processed or -1 if socketWrite fails.
  */
-int websWriteDataNonBlock(webs_t wp, char *buf, int nChars)
+int websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars)
 {
     int r;
 
@@ -1567,7 +1559,7 @@ int websWriteDataNonBlock(webs_t wp, char *buf, int nChars)
 /*
     Decode a URL (or part thereof). Allows insitu decoding.
  */
-void websDecodeUrl(char_t *decoded, char_t *token, int len)
+void websDecodeUrl(char_t *decoded, char_t *token, ssize len)
 {
     char_t  *ip,  *op;
     int     num, i, c;

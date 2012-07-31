@@ -112,7 +112,7 @@ void ringqClose(ringq_t *rq)
     Return the length of the data in the ringq. Users must fill the queue to a high water mark of at most one less than
     the queue size.  
  */
-int ringqLen(ringq_t *rq)
+ssize ringqLen(ringq_t *rq)
 {
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -201,9 +201,9 @@ int ringqInsertc(ringq_t *rq, char_t c)
 /*
     Add a string to the queue. Add a trailing null (maybe two nulls)
  */
-int ringqPutStr(ringq_t *rq, char_t *str)
+ssize ringqPutStr(ringq_t *rq, char_t *str)
 {
-    int     rc;
+    ssize   rc;
 
     a_assert(rq);
     a_assert(str);
@@ -311,9 +311,9 @@ int ringqPutStrA(ringq_t *rq, char *str)
 /*
     Add a block of data to the ringq. Return the number of bytes added. Grow the q as required.
  */
-int ringqPutBlk(ringq_t *rq, uchar *buf, int size)
+ssize ringqPutBlk(ringq_t *rq, uchar *buf, ssize size)
 {
-    int     this, bytes_put;
+    ssize   this, bytes_put;
 
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -349,9 +349,9 @@ int ringqPutBlk(ringq_t *rq, uchar *buf, int size)
 /*
     Get a block of data from the ringq. Return the number of bytes returned.
  */
-int ringqGetBlk(ringq_t *rq, uchar *buf, int size)
+ssize ringqGetBlk(ringq_t *rq, uchar *buf, ssize size)
 {
-    int     this, bytes_read;
+    ssize   this, bytes_read;
 
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -386,9 +386,9 @@ int ringqGetBlk(ringq_t *rq, uchar *buf, int size)
     Return the maximum number of bytes the ring q can accept via a single block copy. Useful if the user is doing their
     own data insertion.  
  */
-int ringqPutBlkMax(ringq_t *rq)
+ssize ringqPutBlkMax(ringq_t *rq)
 {
-    int     space, in_a_line;
+    ssize   space, in_a_line;
 
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -404,9 +404,9 @@ int ringqPutBlkMax(ringq_t *rq)
     Return the maximum number of bytes the ring q can provide via a single block copy. Useful if the user is doing their
     own data retrieval.  
  */
-int ringqGetBlkMax(ringq_t *rq)
+ssize ringqGetBlkMax(ringq_t *rq)
 {
-    int     len, in_a_line;
+    ssize   len, in_a_line;
 
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -421,7 +421,7 @@ int ringqGetBlkMax(ringq_t *rq)
 /*
     Adjust the endp pointer after the user has copied data into the queue.
  */
-void ringqPutBlkAdj(ringq_t *rq, int size)
+void ringqPutBlkAdj(ringq_t *rq, ssize size)
 {
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));
@@ -444,7 +444,7 @@ void ringqPutBlkAdj(ringq_t *rq, int size)
 /*
     Adjust the servp pointer after the user has copied data from the queue.
  */
-void ringqGetBlkAdj(ringq_t *rq, int size)
+void ringqGetBlkAdj(ringq_t *rq, ssize size)
 {
     a_assert(rq);
     a_assert(rq->buflen == (rq->endbuf - rq->buf));

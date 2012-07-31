@@ -58,8 +58,7 @@ int websDecode64(char_t *outbuf, char_t *string, int outlen)
         for (i = 0; i < 4 && *cp && *cp != '='; i++, cp++) {
             c = map64[*cp & 0xff];
             if (c == -1) {
-                error(E_L, E_LOG, T("Bad string: %s at %c index %d"), string,
-                    c, i);
+                error(E_L, E_LOG, T("Bad string: %s at %c index %d"), string, c, i);
                 return -1;
             } 
             shiftbuf = shiftbuf | (c << shift);

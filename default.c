@@ -53,7 +53,7 @@ static void websDeleteWhitelistRecursive(fileNode_t *dir);
 static void websMakePath(char *d, char *src, char *subdir, int wildcard);
 #else
 #define websBuildWhitelist()
-#endif /* WEBS_WHITELIST_SUPPORT */
+#endif
 
 static void websDefaultWriteEvent(webs_t wp);
 
@@ -68,7 +68,8 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
 {
     websStatType    sbuf;
     char_t          *lpath, *tmp, *date;
-    int             bytes, flags, nchars, rc;
+    ssize           nchars, bytes;
+    int             flags;
 
     a_assert(websValid(wp));
     a_assert(url && *url);
@@ -83,6 +84,8 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         secure connection, but the whitelist entry has the SSL flag set, do not serve the page.
      */
 #if BIT_WHITELIST
+{
+    int     rc;
     if ((rc = websWhitelistCheck(wp->url)) < 0) {
         websBuildWhitelist();
         if ((rc = websWhitelistCheck(wp->url)) < 0) {
@@ -94,7 +97,8 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         websError(wp, 500, T("HTTPS access required"));
         return 1;
     }
-#endif /* WEBS_WHITELIST_SUPPORT */
+}
+#endif
     /*
         Validate the URL and ensure that ".."s don't give access to unwanted files
      */
@@ -475,7 +479,7 @@ void websDefaultOpen()
 #endif
     whitelist = NULL;
     websBuildWhitelist();
-#endif /* WEBS_WHITELIST_SUPPORT */
+#endif
 }
 
 
@@ -495,7 +499,7 @@ void websDefaultClose()
     }   
 #endif
     websDeleteWhitelist();
-#endif /* WEBS_WHITELIST_SUPPORT */
+#endif
     if (websDefaultPage) {
         bfree(websDefaultPage);
         websDefaultPage = NULL;
@@ -858,7 +862,7 @@ static void websMakePath(char *d, char *src, char *subdir, int wildcard)
     *d = '\0';
 }
 
-#endif /* WEBS_WHITELIST_SUPPORT */
+#endif
 
 /******************************************************************************/
 /*
