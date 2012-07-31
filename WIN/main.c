@@ -602,20 +602,11 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
  */
     nchar = nCopyAnsiToWideChar(p, TEXT("GoAhead WebServer ") BIT_VERSION);
     p += nchar;
-#if BIT_PACK_SSL
-    p -= sizeof(char_t);
-    nchar = nCopyAnsiToWideChar(p, 
-        TEXT("\n") SSL_NAME TEXT(" ") SSL_VERSION);
-    p += nchar;
-#endif
-/*
- *  Advance pointer over nExtraStuff WORD
- */
     *p++ = 0;  
 
-/*
- *  Make sure the next item starts on a DWORD boundary
- */
+    /*
+        Make sure the next item starts on a DWORD boundary
+     */
     p = lpwAlign(p);
 
 /*

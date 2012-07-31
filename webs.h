@@ -42,24 +42,22 @@
 /* Support reading pages from ROM (with webcomp.c) */
 /* #define WEBS_PAGE_ROM 1 */
 
-/****************************** Immutable Defines *****************************/
-
-#if BIT_PACK_SSL
-#define SSL_NAME                T("PeerSec-MatrixSSL")
-#define SSL_VERSION             T(MATRIXSSL_VERSION)
-#endif
-
 /********************************** Defines ***********************************/
+
+//  MOB - some of these are tunables
 
 #define WEBS_HEADER_BUFINC      512         /* Header buffer size */
 #define WEBS_ASP_BUFINC         512         /* Asp expansion increment */
 #define WEBS_MAX_PASS           32          /* Size of password */
-#define WEBS_BUFSIZE            960     /* websWrite max output string */
+#define WEBS_BUFSIZE            960         /* websWrite max output string */
 #define WEBS_MAX_HEADER         (5 * 1024)  /* Sanity check header */
 #define WEBS_MAX_URL            2048        /* Maximum URL size for sanity */
 #define WEBS_SOCKET_BUFSIZ      256         /* Bytes read from socket */
 
+#if UNUSED
 #define WEBS_HTTP_PORT          T("httpPort")
+#endif
+
 #define CGI_BIN                 T("cgi-bin")
 
 /* 
@@ -159,7 +157,6 @@ extern void      websDecodeUrl(char_t *token, char_t *decoded, int len);
 extern void      websDone(webs_t wp, int code);
 extern void      websEncode64(char_t *outbuf, char_t *string, int buflen);
 extern void      websError(webs_t wp, int code, char_t *msg, ...);
-/* function websErrorMsg() made extern 03 Jun 02 BgP */
 extern char_t   *websErrorMsg(int code);
 extern void      websFooter(webs_t wp);
 extern int       websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query));
@@ -209,8 +206,8 @@ extern int      websTestVar(webs_t wp, char_t *var);
 extern void     websTimeoutCancel(webs_t wp);
 extern int      websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int (*fn)(webs_t wp, char_t *urlPrefix, 
                     char_t *webDir, int arg, char_t *url, char_t *path, char_t *query), int flags);
-extern int      websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
-                    char_t *query));
+extern int      websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
+                    char_t *path, char_t *query));
 extern int      websUrlHandlerRequest(webs_t wp);
 extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
                     char_t **proto, char_t **tag, char_t **ext);

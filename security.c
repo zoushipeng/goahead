@@ -17,7 +17,7 @@
     The following #defines change the behaviour of security in the absence of User Management.
     Note that use of User management functions require prior calling of umInit() to behave correctly
  */
-#ifndef USER_MANAGEMENT_SUPPORT
+#if !BIT_USER_MANAGEMENT
 #define umGetAccessMethodForURL(url) AM_FULL
 #define umUserExists(userid) 0
 #define umUserCanAccessURL(userid, url) 1

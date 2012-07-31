@@ -1,32 +1,25 @@
 /*
- * webcomp -- Compile web pages into C source
- *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
- *
- * See the file "license.txt" for usage and redistribution license requirements
- *
- * Release $Name: WEBSERVER-2-5 $
- */
+    webcomp -- Compile web pages into C source
 
-/******************************** Description *********************************/
+    Usage: webcomp prefix filelist >webrom.c
+    Where: 
+        filelist is a file containing the pathnames of all web pages
+        prefix is a path prefix to remove from all the web page pathnames
+        webrom.c is the resulting C source file to compile and link.
 
-/*
- *  Usage: webcomp prefix filelist >webrom.c
- *
- *  filelist is a file containing the pathnames of all web pages
- *  prefix is a path prefix to remove from all the web page pathnames
- *  webrom.c is the resulting C source file to compile and link.
+    Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 /********************************* Includes ***********************************/
 
+#include    "uemf.h"
+
+#if UNUSED
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-
-typedef struct stat stat_t;
 
 #ifndef O_BINARY
 #define O_BINARY        0
@@ -34,6 +27,9 @@ typedef struct stat stat_t;
 #ifndef FNAMESIZE
 #define FNAMESIZE           254         /* Max length of file names */
 #endif /* FNAMESIZE */
+#endif
+
+typedef struct stat stat_t;
 
 /**************************** Forward Declarations ****************************/
 
@@ -41,9 +37,6 @@ static int  compile(char *fileList, char *prefix);
 static void usage();
 
 /*********************************** Code *************************************/
-/*
- *  Main program
- */
 
 int main(int argc, char* argv[])
 {
@@ -64,10 +57,6 @@ int main(int argc, char* argv[])
     return 0;
 }
 
-/******************************************************************************/
-/*
- *  Output usage message
- */
 
 static void usage()
 {
@@ -79,10 +68,6 @@ static void usage()
     exit(2);
 }
 
-/******************************************************************************/
-/*
- *  Compile the web pages
- */
 
 static int compile(char *fileList, char *prefix)
 {
@@ -95,9 +80,6 @@ static int compile(char *fileList, char *prefix)
     unsigned char   *p;
     int             j, i, len, fd, nFile;
 
-/*
- *  Open list of files
- */
     if ((lp = fopen(fileList, "r")) == NULL) {
         fprintf(stderr, "Can't open file list %s\n", fileList);
         return -1;
@@ -105,17 +87,16 @@ static int compile(char *fileList, char *prefix)
 
     time(&now);
     fprintf(stdout, "/*\n * webrom.c -- Compiled Web Pages\n *\n");
-    fprintf(stdout, " * Compiled by GoAhead WebCompile: %s */\n\n", 
-        ctime(&now));
+    fprintf(stdout, " * Compiled by webcomp: %s */\n\n", ctime(&now));
     fprintf(stdout, "#include \"wsIntrn.h\"\n\n");
     fprintf(stdout, "#ifndef WEBS_PAGE_ROM\n");
     fprintf(stdout, "websRomPageIndexType websRomPageIndex[] = {\n");
     fprintf(stdout, "\t{ 0, 0, 0 }\n};\n");
     fprintf(stdout, "#else\n");
 
-/*
- *  Open each input file and compile each web page
- */
+    /*
+        Open each input file and compile each web page
+     */
     nFile = 0;
     while (fgets(file, sizeof(file), lp) != NULL) {
         if ((p = (unsigned char *)strchr(file, '\n')) || 
@@ -147,15 +128,14 @@ static int compile(char *fileList, char *prefix)
             }
         }
         fprintf(stdout, "\t0 };\n\n");
-
         close(fd);
         nFile++;
     }
     fclose(lp);
 
-/*
- *  Now output the page index
- */
+    /*
+        Output the page index
+     */
     fprintf(stdout, "websRomPageIndexType websRomPageIndex[] = {\n");
 
     if ((lp = fopen(fileList, "r")) == NULL) {
@@ -171,9 +151,9 @@ static int compile(char *fileList, char *prefix)
         if (*file == '\0') {
             continue;
         }
-/*
- *      Remove the prefix and add a leading "/" when we print the path
- */
+        /*
+            Remove the prefix and add a leading "/" when we print the path
+         */
         if (strncmp(file, prefix, strlen(prefix)) == 0) {
             cp = &file[strlen(prefix)];
         } else {
@@ -190,12 +170,10 @@ static int compile(char *fileList, char *prefix)
             fprintf(stdout, "\t{ T(\"/%s\"), 0, 0 },\n", cp);
             continue;
         }
-        fprintf(stdout, "\t{ T(\"/%s\"), p%d, %d },\n", cp, nFile, 
-            sbuf.st_size);
+        fprintf(stdout, "\t{ T(\"/%s\"), p%d, %d },\n", cp, nFile, (int) sbuf.st_size);
         nFile++;
     }
     fclose(lp); 
-    
     fprintf(stdout, "\t{ 0, 0, 0 }\n");
     fprintf(stdout, "};\n");
     fprintf(stdout, "#endif /* WEBS_PAGE_ROM */\n");
@@ -203,5 +181,22 @@ static int compile(char *fileList, char *prefix)
     return 0;
 }
 
-/******************************************************************************/
+/*
+    @copy   default
 
+    Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
+
+    This software is distributed under commercial and open source licenses.
+    You may use the Embedthis GoAhead open source license or you may acquire 
+    a commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
+    Local variables:
+    tab-width: 4
+    c-basic-offset: 4
+    End:
+    vim: sw=4 ts=4 expandtab
+
+    @end
+ */

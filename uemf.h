@@ -759,36 +759,6 @@ typedef int64 MprTime;
     #define     __NO_PACK       1
 #endif /* UW */
 
-#if SCOV5 || VXWORKS || LINUX || LYNX || MACOSX
-    #ifndef O_BINARY
-        #define O_BINARY 0
-    #endif /* O_BINARY */
-    #define SOCKET_ERROR -1
-#endif /* SCOV5 || VXWORKS || LINUX || LYNX || MACOSX */
-
-#if WIN || CE
-    #define     __NO_FCNTL      1
-    #undef R_OK
-    #define R_OK    4
-    #undef W_OK
-    #define W_OK    2
-    #undef X_OK
-    #define X_OK    1
-    #undef F_OK
-    #define F_OK    0
-    typedef int socklen_t;
-#endif /* WIN || CE */
-
-//MOB - why?
-#if LINUX && !defined(_STRUCT_TIMEVAL)
-struct timeval
-{
-    time_t  tv_sec;     /* Seconds.  */
-    time_t  tv_usec;    /* Microseconds.  */
-};
-#define _STRUCT_TIMEVAL 1
-#endif /* LINUX && !_STRUCT_TIMEVAL */
-
 #if ECOS
     #define     O_RDONLY        1
     #define     O_BINARY        2
@@ -799,6 +769,42 @@ struct timeval
     /* #define LIBKERN_INLINE to avoid kernel inline functions */
     #define     LIBKERN_INLINE
 #endif /* ECOS */
+
+#if BIT_WIN_LIKE
+    #define     __NO_FCNTL      1
+    #undef R_OK
+    #define R_OK    4
+    #undef W_OK
+    #define W_OK    2
+    #undef X_OK
+    #define X_OK    1
+    #undef F_OK
+    #define F_OK    0
+    typedef int socklen_t;
+    #ifndef EWOULDBLOCK
+        #define EWOULDBLOCK WSAEWOULDBLOCK
+    #endif
+    #ifndef ENETDOWN
+        #define ENETDOWN    WSAENETDOWN
+    #endif
+    #ifndef ECONNRESET
+        #define ECONNRESET  WSAECONNRESET
+#else
+    #ifndef O_BINARY
+        #define O_BINARY 0
+    #endif
+    #define SOCKET_ERROR -1
+#endif
+
+//MOB - why?
+#if LINUX && !defined(_STRUCT_TIMEVAL)
+struct timeval
+{
+    time_t  tv_sec;     /* Seconds.  */
+    time_t  tv_usec;    /* Microseconds.  */
+};
+#define _STRUCT_TIMEVAL 1
+#endif /* LINUX && !_STRUCT_TIMEVAL */
 
 #if QNX4
     typedef long        fd_mask;
@@ -1028,6 +1034,7 @@ typedef struct _stat gstat_t;
 #define gfindclose  _findclose
 #define gaccess     access
 
+//  MOB - move
 typedef struct stat gstat_t;
 
 #define gremove     remove
@@ -1049,12 +1056,14 @@ typedef struct stat gstat_t;
 #ifndef VXWORKS
 #define gmain       main
 #endif /* ! VXWORKS */
+
+//  MOB - move
 #if VXWORKS
 #define fcntl(a, b, c)
 #endif /* VXWORKS */
 #endif /* ! UNICODE */
 
-#if WIN32
+#if WIN
 #define getcwd  _getcwd
 #define tempnam _tempnam
 #define open    _open
@@ -1064,11 +1073,13 @@ typedef struct stat gstat_t;
 #define chdir   _chdir
 #define lseek   _lseek
 #define unlink  _unlink
-//#define strtok(x, y) strtok_s(x, y, NULL)
 #define localtime localtime_s
-//#define strcat(x, y) strcat_s(x, elementsof(x), y)
 #endif
 
+/******************************************************************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 /******************************************************************************/
 /*
     Error types
@@ -1081,21 +1092,18 @@ typedef struct stat gstat_t;
 #define E_ARGS_DEC          char_t *file, int line
 #define E_ARGS              file, line
 
-#if (defined (ASSERT) || defined (ASSERT_CE))
+//  MOB - should be gassert
+#if BIT_DEBUG
     #define a_assert(C)     if (C) ; else error(E_L, E_ASSERT, T("%s"), T(#C))
 #else
     #define a_assert(C)     if (1) ; else
-#endif /* ASSERT || ASSERT_CE */
+#endif
 
 #define elementsof(X) sizeof(X) / sizeof(X[0])
 
-/******************************************************************************/
-/*                                 VALUE                                      */
-/******************************************************************************/
 /*
     These values are not prefixed so as to aid code readability
  */
-
 typedef enum {
     undefined   = 0,
     byteint     = 1,
@@ -1118,7 +1126,6 @@ typedef enum {
 #endif /* _NO_PACK */
 
 typedef struct {
-
     union {
         char    flag;
         char    byteint;
@@ -1279,19 +1286,6 @@ extern int      cronFree(cron_t *cp);
 /*
     Socket flags 
  */
-
-#if ((defined (WIN) || defined (CE)) && defined (WEBS) && !defined(WIN32))
-
-#ifndef EWOULDBLOCK
-#define EWOULDBLOCK             WSAEWOULDBLOCK
-#endif
-#ifndef ENETDOWN
-#define ENETDOWN                WSAENETDOWN
-#endif
-#ifndef ECONNRESET
-#define ECONNRESET              WSAECONNRESET
-#endif
-#endif /* (WIN || CE) && WEBS) */
 
 #define SOCKET_EOF              0x1     /* Seen end of file */
 #define SOCKET_CONNECTING       0x2     /* Connect in progress */
@@ -1526,6 +1520,9 @@ extern void     harnessPassed();
 extern void     harnessFailed(int line);
 extern int      harnessLevel();
 
+#ifdef __cplusplus
+}
+#endif
 #endif /* _h_UEMF */
 
 /*

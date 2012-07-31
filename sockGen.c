@@ -10,7 +10,7 @@
 
 #if !WIN
 //  MOB - remove
-#ifndef CE
+#if !CE
 #include    <errno.h>
 #include    <fcntl.h>
 #include    <string.h>

@@ -51,5 +51,11 @@ Bit.load({
             sources: [ '*.c', '${OS}/*.c' ],
             headers: [ '*.h' ],
         },
+        webcomp: {
+            type: 'exe',
+            depends: [ ],
+            sources: [ 'utils/*.c' ],
+            headers: [ '*.h' ],
+        },
     },
 })

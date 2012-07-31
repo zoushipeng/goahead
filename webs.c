@@ -128,22 +128,24 @@ int websOpenServer(int port, int retries)
     websFormOpen();
 
 #if BIT_ACCESS_LOG
-#ifndef VXWORKS
+    //  MOB - refactor
+#if !VXWORKS
     websLogFd = gopen(websLogname, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
 #else
     websLogFd = gopen(websLogname, O_CREAT | O_TRUNC | O_WRONLY, 0666);
     lseek(fd, 0, SEEK_END);
-#endif /* VXWORKS */
+#endif
     a_assert(websLogFd >= 0);
 #endif
     
 #if BIT_DEBUG_TRACE
-#ifndef VXWORKS
+    //  MOB - refactor
+#if !VXWORKS
     websTraceFd = gopen(websTracename, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
 #else
     websTraceFd = gopen(websTracename, O_CREAT | O_TRUNC | O_WRONLY, 0666);
     lseek(fd, 0, SEEK_END);
-#endif /* VXWORKS */
+#endif
     a_assert(websTraceFd >= 0);
     traceSetHandler(traceHandler);
 #endif  
