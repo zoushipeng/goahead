@@ -80,6 +80,7 @@ int bopen(void *buf, int bufsize, int flags)
     return 0;
 }
 
+
 void bclose()
 {
     if (--bopenCount <= 0 && !(bFlags & B_USER_BUF)) {
@@ -87,6 +88,7 @@ void bclose()
         bopenCount = 0;
     }
 }
+
 
 /*
     Allocate a block of the requested size. First check the block queues for a suitable one.

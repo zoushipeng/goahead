@@ -52,10 +52,6 @@ static int  aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
                 int arg, char_t *url, char_t *path, char_t *query);
-#ifdef B_STATS
-static void printMemStats(int handle, char_t *fmt, ...);
-static void memLeaks();
-#endif
 
 /*********************************** Code *************************************/
 /*
@@ -118,9 +114,6 @@ int main(int argc, char **argv)
  */
     websCloseServer();
     socketClose();
-#ifdef B_STATS
-    memLeaks();
-#endif
     bclose();
     return 0;
 }
@@ -288,34 +281,3 @@ static int websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
     return 0;
 }
 
-/******************************************************************************/
-
-#ifdef B_STATS
-static void memLeaks() 
-{
-    int     fd;
-
-    if ((fd = gopen(T("leak.txt"), O_CREAT | O_TRUNC | O_WRONLY)) >= 0) {
-        bstats(fd, printMemStats);
-        close(fd);
-    }
-}
-
-/******************************************************************************/
-/*
- *  Print memory usage / leaks
- */
-
-static void printMemStats(int handle, char_t *fmt, ...)
-{
-    va_list     args;
-    char_t      buf[256];
-
-    va_start(args, fmt);
-    vsprintf(buf, fmt, args);
-    va_end(args);
-    write(handle, buf, strlen(buf));
-}
-#endif
-
-/******************************************************************************/

@@ -1137,7 +1137,7 @@ typedef struct {
 
     vtype_t         type;
     unsigned int    valid       : 8;
-    unsigned int    allocated   : 8;        /* String was balloced */
+    unsigned int    allocated   : 8;        /* String was allocated */
 } value_t;
 
 #ifndef __NO_PACK
@@ -1388,7 +1388,6 @@ extern int  bopen(void *buf, int bufsize, int flags);
     extern void     bfreeSafe(void *mp);
     extern void     *brealloc(void *buf, int newsize);
     extern char_t   *bstrdup(char_t *s);
-
 #endif /* BIT_REPLACE_MALLOC */
 
 /*
@@ -1397,7 +1396,7 @@ extern int  bopen(void *buf, int bufsize, int flags);
 #define B_USE_MALLOC        0x1             /* Okay to use malloc if required */
 #define B_USER_BUF          0x2             /* User supplied buffer for mem */
 
-#ifndef LINUX
+#if! LINUX
 extern char_t   *basename(char_t *name);
 #endif /* !LINUX */
 

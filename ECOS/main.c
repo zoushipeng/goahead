@@ -39,10 +39,6 @@ static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
                 int arg, char_t* url, char_t* path, char_t* query);
 
-#ifdef B_STATS
-#error WARNING:  B_STATS directive is not supported in this OS!
-#endif
-
 /*********************************** Code *************************************/
 /*
  *  Main -- entry point from eCos
