@@ -1,13 +1,10 @@
 /*
-    sock.c -- Posix Socket upper layer support module for general posix use
+    sock.c -- Sockets layer
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
 /********************************** Includes **********************************/
-
-#include    <string.h>
-#include    <stdlib.h>
 
 #include    "goahead.h"
 
@@ -16,22 +13,869 @@
 socket_t    **socketList;           /* List of open sockets */
 int         socketMax;              /* Maximum size of socket */
 int         socketHighestFd = -1;   /* Highest socket fd opened */
+int         socketOpenCount = 0;    /* Number of task using sockets */
 
 /***************************** Forward Declarations ***************************/
 
-static int  socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode);
-static int  tryAlternateSendTo(int sock, char *buf, int toWrite, int i, struct sockaddr *server);
+static void socketAccept(socket_t *sp);
+static int  socketDoEvent(socket_t *sp);
+static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode);
+static ssize tryAlternateSendTo(int sock, char *buf, ssize toWrite, int i, struct sockaddr *server);
+static int  tryAlternateConnect(int sock, struct sockaddr *sockaddr);
 
 /*********************************** Code *************************************/
+
+int socketOpen()
+{
+#if BIT_WIN_LIKE
+    WSADATA     wsaData;
+#endif
+
+    if (++socketOpenCount > 1) {
+        return 0;
+    }
+
+#if BIT_WIN_LIKE
+    if (WSAStartup(MAKEWORD(1,1), &wsaData) != 0) {
+        return -1;
+    }
+    if (wsaData.wVersion != MAKEWORD(1,1)) {
+        WSACleanup();
+        return -1;
+    }
+#endif
+
+    socketList = NULL;
+    socketMax = 0;
+    socketHighestFd = -1;
+
+    return 0;
+}
+
+
+void socketClose()
+{
+    int     i;
+
+    if (--socketOpenCount <= 0) {
+        for (i = socketMax; i >= 0; i--) {
+            if (socketList && socketList[i]) {
+                socketCloseConnection(i);
+            }
+        }
+        socketOpenCount = 0;
+    }
+}
+
+
+/*
+    Open a client or server socket. Host is NULL if we want server capability.
+ */
+int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
+{
+    //  MOB - refactor
+#if !NO_GETHOSTBYNAME && !VXWORKS
+    struct hostent      *hostent;                   /* Host database entry */
+#endif
+    socket_t            *sp;
+    struct sockaddr_in  sockaddr;
+    int                 sid, bcast, dgram, rc;
+
+    if (port > SOCKET_PORT_MAX) {
+        return -1;
+    }
+    if ((sid = socketAlloc(host, port, accept, flags)) < 0) {
+        return -1;
+    }
+    sp = socketList[sid];
+    a_assert(sp);
+
+    memset((char *) &sockaddr, '\0', sizeof(struct sockaddr_in));
+    sockaddr.sin_family = AF_INET;
+    sockaddr.sin_port = htons((short) (port & 0xFFFF));
+
+    if (host == NULL) {
+        sockaddr.sin_addr.s_addr = INADDR_ANY;
+    } else {
+        sockaddr.sin_addr.s_addr = inet_addr(host);
+        if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
+            /*
+                If the OS does not support gethostbyname functionality, the macro: NO_GETHOSTBYNAME should be defined to
+                skip the use of gethostbyname. Unfortunatly there is no easy way to recover, the following code simply
+                uses the basicGetHost IP for the sockaddr.  
+             */
+#if NO_GETHOSTBYNAME
+            if (strcmp(host, basicGetHost()) == 0) {
+                sockaddr.sin_addr.s_addr = inet_addr(basicGetAddress());
+            }
+            if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
+                socketFree(sid);
+                return -1;
+            }
+#elif VXWORKS
+            //  MOB - check what appweb does for this?
+            sockaddr.sin_addr.s_addr = (ulong) hostGetByName(host);
+            if (sockaddr.sin_addr.s_addr == NULL) {
+                errno = ENXIO;
+                socketFree(sid);
+                return -1;
+            }
+#else
+            hostent = gethostbyname(host);
+            if (hostent != NULL) {
+                memcpy((char *) &sockaddr.sin_addr, (char *) hostent->h_addr_list[0], (size_t) hostent->h_length);
+            } else {
+                char    *asciiAddress;
+                char_t  *address;
+
+                address = basicGetAddress();
+                asciiAddress = ballocUniToAsc(address, gstrlen(address));
+                sockaddr.sin_addr.s_addr = inet_addr(asciiAddress);
+                bfree(asciiAddress);
+                if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
+                    errno = ENXIO;
+                    socketFree(sid);
+                    return -1;
+                }
+            }
+#endif
+        }
+    }
+    bcast = sp->flags & SOCKET_BROADCAST;
+    if (bcast) {
+        sp->flags |= SOCKET_DATAGRAM;
+    }
+    dgram = sp->flags & SOCKET_DATAGRAM;
+
+    /*
+        Create the socket. Support for datagram sockets. Set the close on exec flag so children don't inherit the socket.
+     */
+    sp->sock = socket(AF_INET, dgram ? SOCK_DGRAM: SOCK_STREAM, 0);
+    if (sp->sock < 0) {
+        socketFree(sid);
+        return -1;
+    }
+#if BIT_HAS_FCNTL
+    fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
+#endif
+    socketHighestFd = max(socketHighestFd, sp->sock);
+
+    /*
+        If broadcast, we need to turn on broadcast capability.
+     */
+    if (bcast) {
+        int broadcastFlag = 1;
+        if (setsockopt(sp->sock, SOL_SOCKET, SO_BROADCAST,
+                (char *) &broadcastFlag, sizeof(broadcastFlag)) < 0) {
+            socketFree(sid);
+            return -1;
+        }
+    }
+
+    /*
+        Host is set if we are the client
+     */
+    if (host) {
+        /*
+            Connect to the remote server in blocking mode, then go into non-blocking mode if desired.
+         */
+        if (!dgram) {
+            if (! (sp->flags & SOCKET_BLOCK)) {
+                /*
+                    sockGen.c is only used for Windows products when blocking connects are expected.  This applies to
+                    webserver connectws.  Therefore the asynchronous connect code here is not compiled.
+                 */
+#if BIT_WIN_LIKE
+                int flag;
+                sp->flags |= SOCKET_ASYNC;
+                /*
+                    Set to non-blocking for an async connect
+                 */
+                flag = 1;
+                if (ioctlsocket(sp->sock, FIONBIO, &flag) == SOCKET_ERROR) {
+                    socketFree(sid);
+                    return -1;
+                }
+#else
+                socketSetBlock(sid, 1);
+#endif
+
+            }
+            if ((rc = connect(sp->sock, (struct sockaddr *) &sockaddr, sizeof(sockaddr))) < 0 && 
+                (rc = tryAlternateConnect(sp->sock, (struct sockaddr *) &sockaddr)) < 0) {
+#if BIT_WIN_LIKE
+                if (socketGetError() != EWOULDBLOCK) {
+                    socketFree(sid);
+                    return -1;
+                }
+#else
+                socketFree(sid);
+                return -1;
+
+#endif
+
+            }
+        }
+    } else {
+        /*
+            Bind to the socket endpoint and the call listen() to start listening
+         */
+        rc = 1;
+        setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char *)&rc, sizeof(rc));
+        if (bind(sp->sock, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
+            socketFree(sid);
+            return -1;
+        }
+        if (! dgram) {
+            if (listen(sp->sock, SOMAXCONN) < 0) {
+                socketFree(sid);
+                return -1;
+            }
+            sp->flags |= SOCKET_LISTENING;
+        }
+        sp->handlerMask |= SOCKET_READABLE;
+    }
+
+    /*
+        Set the blocking mode
+     */
+    if (flags & SOCKET_BLOCK) {
+        socketSetBlock(sid, 1);
+    } else {
+        socketSetBlock(sid, 0);
+    }
+    return sid;
+}
+
+
+/*
+    If the connection failed, swap the first two bytes in the sockaddr structure.  This is a kludge due to a change in
+    VxWorks between versions 5.3 and 5.4, but we want the product to run on either.
+ */
+static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
+{
+#if VXWORKS
+    char *ptr;
+
+    ptr = (char *)sockaddr;
+    *ptr = *(ptr+1);
+    *(ptr+1) = 0;
+    return connect(sock, sockaddr, sizeof(struct sockaddr));
+#else
+    return -1;
+#endif /* VXWORKS */
+}
+
+
+void socketCloseConnection(int sid)
+{
+    socket_t    *sp;
+
+    if ((sp = socketPtr(sid)) == NULL) {
+        return;
+    }
+    socketFree(sid);
+}
+
+
+/*
+    Accept a connection. Called as a callback on incoming connection.
+ */
+static void socketAccept(socket_t *sp)
+{
+    struct sockaddr_in  addr;
+    socket_t            *nsp;
+    size_t              len;
+    char                *pString;
+    int                 newSock, nid;
+
+#if NETWARE
+    NETINET_DEFINE_CONTEXT;
+#endif
+    a_assert(sp);
+
+    /*
+        Accept the connection and prevent inheriting by children (F_SETFD)
+     */
+    len = sizeof(struct sockaddr_in);
+    if ((newSock = 
+        accept(sp->sock, (struct sockaddr *) &addr, (socklen_t *) &len)) < 0) {
+        return;
+    }
+#if BIT_HAS_FCNTL
+    fcntl(newSock, F_SETFD, FD_CLOEXEC);
+#endif
+    socketHighestFd = max(socketHighestFd, newSock);
+
+    /*
+        Create a socket structure and insert into the socket list
+     */
+    nid = socketAlloc(sp->host, sp->port, sp->accept, sp->flags);
+    nsp = socketList[nid];
+    a_assert(nsp);
+    nsp->sock = newSock;
+    nsp->flags &= ~SOCKET_LISTENING;
+
+    if (nsp == NULL) {
+        return;
+    }
+    /*
+        Set the blocking mode before calling the accept callback.
+     */
+
+    socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK) ? 1: 0);
+    /*
+        Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
+     */
+    if (sp->accept != NULL) {
+        pString = inet_ntoa(addr.sin_addr);
+        if ((sp->accept)(nid, pString, ntohs(addr.sin_port), sp->sid) < 0) {
+            socketFree(nid);
+        }
+#if VXWORKS
+        free(pString);
+#endif
+    }
+}
+
+
+/*
+    Get more input from the socket and return in buf. Returns 0 for EOF, -1 for errors and otherwise the number of bytes
+    read.  
+ */
+ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
+{
+    struct sockaddr_in  server;
+    socket_t            *sp;
+    ssize               len, bytesRead;
+
+    a_assert(buf);
+    a_assert(errCode);
+
+    *errCode = 0;
+
+    if ((sp = socketPtr(sid)) == NULL) {
+        return -1;
+    }
+
+    /*
+        If we have previously seen an EOF condition, then just return
+     */
+    if (sp->flags & SOCKET_EOF) {
+        return 0;
+    }
+#if BIT_WIN_LIKE
+    if (!(sp->flags & SOCKET_BLOCK) && !socketWaitForEvent(sp,  FD_CONNECT, errCode)) {
+        return -1;
+    }
+#endif
+
+    /*
+        Read the data
+     */
+    if (sp->flags & SOCKET_DATAGRAM) {
+        len = sizeof(server);
+        bytesRead = recvfrom(sp->sock, buf, toRead, 0, (struct sockaddr *) &server, (socklen_t *) &len);
+    } else {
+        bytesRead = recv(sp->sock, buf, toRead, 0);
+    }
+    if (bytesRead < 0) {
+        *errCode = socketGetError();
+        if (*errCode == ECONNRESET) {
+            sp->flags |= SOCKET_CONNRESET;
+            return 0;
+        }
+        return -1;
+    }
+    return bytesRead;
+}
+
+
+void socketRegisterInterest(socket_t *sp, int handlerMask)
+{
+    a_assert(sp);
+    sp->handlerMask = handlerMask;
+}
+
+
+/*
+    Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception
+ */
+int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
+{
+    int mask;
+
+    a_assert(sp);
+
+    mask = sp->handlerMask;
+    sp->handlerMask |= handlerMask;
+    while (socketSelect(sp->sid, 1000)) {
+        if (sp->currentEvents & (handlerMask | SOCKET_EXCEPTION)) {
+            break;
+        }
+    }
+    sp->handlerMask = mask;
+    if (sp->currentEvents & SOCKET_EXCEPTION) {
+        return -1;
+    } else if (sp->currentEvents & handlerMask) {
+        return 1;
+    }
+    if (errCode) {
+        *errCode = errno = EWOULDBLOCK;
+    }
+    return 0;
+}
+
+
+/*
+    Return 1 if there is a socket with an event ready to process,
+ */
+int socketReady(int sid)
+{
+    socket_t    *sp;
+    int         all;
+
+    all = 0;
+    if (sid < 0) {
+        sid = 0;
+        all = 1;
+    }
+
+    for (; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) == NULL) {
+            if (! all) {
+                break;
+            } else {
+                continue;
+            }
+        } 
+        if (sp->flags & SOCKET_CONNRESET) {
+            socketCloseConnection(sid);
+            return 0;
+        }
+        if (sp->currentEvents & sp->handlerMask) {
+            return 1;
+        }
+        /*
+            If there is input data, also call select to test for new events
+         */
+        if (sp->handlerMask & SOCKET_READABLE && socketInputBuffered(sid) > 0) {
+            socketSelect(sid, 0);
+            return 1;
+        }
+        if (! all) {
+            break;
+        }
+    }
+    return 0;
+}
+
+
+/*
+    Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
+ */
+#if BLD_WIN|LIKE || NETWARE
+
+int socketSelect(int sid, int timeout)
+{
+    struct timeval  tv;
+    socket_t        *sp;
+    fd_set          readFds, writeFds, exceptFds;
+    int             nEvents;
+    int             all, socketHighestFd;   /* Highest socket fd opened */
+
+    FD_ZERO(&readFds);
+    FD_ZERO(&writeFds);
+    FD_ZERO(&exceptFds);
+    socketHighestFd = -1;
+
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+
+    /*
+        Set the select event masks for events to watch
+     */
+    all = nEvents = 0;
+
+    if (sid < 0) {
+        all++;
+        sid = 0;
+    }
+
+    for (; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) == NULL) {
+            continue;
+        }
+        a_assert(sp);
+        /*
+                Set the appropriate bit in the ready masks for the sp->sock.
+         */
+        if (sp->handlerMask & SOCKET_READABLE) {
+            FD_SET(sp->sock, &readFds);
+            nEvents++;
+            if (socketInputBuffered(sid) > 0) {
+                tv.tv_sec = 0;
+                tv.tv_usec = 0;
+            }
+        }
+        if (sp->handlerMask & SOCKET_WRITABLE) {
+            FD_SET(sp->sock, &writeFds);
+            nEvents++;
+        }
+        if (sp->handlerMask & SOCKET_EXCEPTION) {
+            FD_SET(sp->sock, &exceptFds);
+            nEvents++;
+        }
+        if (! all) {
+            break;
+        }
+    }
+
+    /*
+        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. So,
+        if WIN, sleep.  
+     */
+    if (nEvents == 0) {
+        Sleep(timeout);
+        return 0;
+    }
+
+    /*
+        Wait for the event or a timeout.
+     */
+    nEvents = select(socketHighestFd+1, &readFds, &writeFds, &exceptFds, &tv);
+
+    if (all) {
+        sid = 0;
+    }
+    for (; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) == NULL) {
+            continue;
+        }
+
+        if (FD_ISSET(sp->sock, &readFds) || socketInputBuffered(sid) > 0) {
+                sp->currentEvents |= SOCKET_READABLE;
+        }
+        if (FD_ISSET(sp->sock, &writeFds)) {
+                sp->currentEvents |= SOCKET_WRITABLE;
+        }
+        if (FD_ISSET(sp->sock, &exceptFds)) {
+                sp->currentEvents |= SOCKET_EXCEPTION;
+        }
+        if (! all) {
+            break;
+        }
+    }
+
+    return nEvents;
+}
+
+#else /* !BIT_WIN_LIKE && !NETWARE */
+
+int socketSelect(int sid, int timeout)
+{
+    socket_t        *sp;
+    struct timeval  tv;
+    fd_mask         *readFds, *writeFds, *exceptFds;
+    int             all, len, nwords, index, bit, nEvents;
+
+    /*
+        Allocate and zero the select masks
+     */
+    nwords = (socketHighestFd + NFDBITS) / NFDBITS;
+    len = nwords * sizeof(fd_mask);
+
+    readFds = balloc(len);
+    memset(readFds, 0, len);
+    writeFds = balloc(len);
+    memset(writeFds, 0, len);
+    exceptFds = balloc(len);
+    memset(exceptFds, 0, len);
+
+    tv.tv_sec = timeout / 1000;
+    tv.tv_usec = (timeout % 1000) * 1000;
+
+    /*
+        Set the select event masks for events to watch
+     */
+    all = nEvents = 0;
+
+    if (sid < 0) {
+        all++;
+        sid = 0;
+    }
+
+    for (; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) == NULL) {
+            if (all == 0) {
+                break;
+            } else {
+                continue;
+            }
+        }
+        a_assert(sp);
+
+        /*
+                Initialize the ready masks and compute the mask offsets.
+         */
+        index = sp->sock / (NBBY * sizeof(fd_mask));
+        bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
+        
+        /*
+            Set the appropriate bit in the ready masks for the sp->sock.
+         */
+        if (sp->handlerMask & SOCKET_READABLE) {
+            readFds[index] |= bit;
+            nEvents++;
+            if (socketInputBuffered(sid) > 0) {
+                tv.tv_sec = 0;
+                tv.tv_usec = 0;
+            }
+        }
+        if (sp->handlerMask & SOCKET_WRITABLE) {
+            writeFds[index] |= bit;
+            nEvents++;
+        }
+        if (sp->handlerMask & SOCKET_EXCEPTION) {
+            exceptFds[index] |= bit;
+            nEvents++;
+        }
+        if (! all) {
+            break;
+        }
+    }
+
+    /*
+        Wait for the event or a timeout. Reset nEvents to be the number of actual events now.
+     */
+    nEvents = select(socketHighestFd + 1, (fd_set *) readFds, (fd_set *) writeFds, (fd_set *) exceptFds, &tv);
+
+    if (nEvents > 0) {
+        if (all) {
+            sid = 0;
+        }
+        for (; sid < socketMax; sid++) {
+            if ((sp = socketList[sid]) == NULL) {
+                if (all == 0) {
+                    break;
+                } else {
+                    continue;
+                }
+            }
+            index = sp->sock / (NBBY * sizeof(fd_mask));
+            bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
+
+            if (readFds[index] & bit || socketInputBuffered(sid) > 0) {
+                sp->currentEvents |= SOCKET_READABLE;
+            }
+            if (writeFds[index] & bit) {
+                sp->currentEvents |= SOCKET_WRITABLE;
+            }
+            if (exceptFds[index] & bit) {
+                sp->currentEvents |= SOCKET_EXCEPTION;
+            }
+            if (! all) {
+                break;
+            }
+        }
+    }
+    bfree(readFds);
+    bfree(writeFds);
+    bfree(exceptFds);
+    return nEvents;
+}
+#endif /* WIN || CE */
+
+
+void socketProcess(int sid)
+{
+    socket_t    *sp;
+    int         all;
+
+    all = 0;
+    if (sid < 0) {
+        all = 1;
+        sid = 0;
+    }
+    for (; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) == NULL) {
+            if (! all) {
+                break;
+            } else {
+                continue;
+            }
+        }
+        if (socketReady(sid)) {
+            socketDoEvent(sp);
+        }
+        if (! all) {
+            break;
+        }
+    }
+}
+
+
+static int socketDoEvent(socket_t *sp)
+{
+    ringq_t     *rq;
+    int         sid;
+
+    a_assert(sp);
+
+    sid = sp->sid;
+    if (sp->currentEvents & SOCKET_READABLE) {
+        if (sp->flags & SOCKET_LISTENING) { 
+            socketAccept(sp);
+            sp->currentEvents = 0;
+            return 1;
+        } 
+
+    } else {
+        /*
+             If there is still read data in the buffers, trigger the read handler
+             NOTE: this may busy spin if the read handler doesn't read the data
+         */
+        if (sp->handlerMask & SOCKET_READABLE && socketInputBuffered(sid) > 0) {
+            sp->currentEvents |= SOCKET_READABLE;
+        }
+    }
+    /*
+        If now writable and flushing in the background, continue flushing
+     */
+    if (sp->currentEvents & SOCKET_WRITABLE) {
+        if (sp->flags & SOCKET_FLUSHING) {
+            rq = &sp->outBuf;
+            if (ringqLen(rq) > 0) {
+                socketFlush(sp->sid);
+            } else {
+                sp->flags &= ~SOCKET_FLUSHING;
+            }
+        }
+    }
+
+    /*
+        Now invoke the users socket handler. NOTE: the handler may delete the
+        socket, so we must be very careful after calling the handler.
+     */
+    if (sp->handler && (sp->handlerMask & sp->currentEvents)) {
+        (sp->handler)(sid, sp->handlerMask & sp->currentEvents, sp->handler_data);
+        /*
+            Make sure socket pointer is still valid, then reset the currentEvents.
+         */ 
+        if (socketList && sid < socketMax && socketList[sid] == sp) {
+            sp->currentEvents = 0;
+        }
+    }
+    return 1;
+}
+
+
+/*
+    Set the socket blocking mode
+ */
+int socketSetBlock(int sid, int on)
+{
+    socket_t        *sp;
+    ulong           flag;
+    int             iflag;
+    int             oldBlock;
+
+    flag = iflag = !on;
+
+    if ((sp = socketPtr(sid)) == NULL) {
+        a_assert(0);
+        return 0;
+    }
+    oldBlock = (sp->flags & SOCKET_BLOCK);
+    sp->flags &= ~(SOCKET_BLOCK);
+    if (on) {
+        sp->flags |= SOCKET_BLOCK;
+    }
+    /*
+        Put the socket into block / non-blocking mode
+     */
+    if (sp->flags & SOCKET_BLOCK) {
+#if BIT_WIN_LIKE
+        ioctlsocket(sp->sock, FIONBIO, &flag);
+#elif ECOS
+        int off;
+        off = 0;
+        ioctl(sp->sock, FIONBIO, &off);
+#elif VXWORKS || NETWARE
+        ioctl(sp->sock, FIONBIO, (int)&iflag);
+#else
+        fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) & ~O_NONBLOCK);
+#endif
+
+    } else {
+#if BIT_WIN_LIKE
+        ioctlsocket(sp->sock, FIONBIO, &flag);
+#elif ECOS
+        int on;
+        on = 1;
+        ioctl(sp->sock, FIONBIO, &on);
+#elif VXWORKS || NETWARE
+        ioctl(sp->sock, FIONBIO, (int)&iflag);
+#else
+        fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) | O_NONBLOCK);
+#endif
+    }
+    /* Prevent SIGPIPE when writing to closed socket on OS X */
+#if MACOSX
+    iflag = 1;
+    setsockopt(sp->sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&iflag, sizeof(iflag));
+#endif
+    return oldBlock;
+}
+
+
+/*
+    Return true if a readable socket has buffered data. - not public
+ */
+int socketDontBlock()
+{
+    socket_t    *sp;
+    int         i;
+
+    for (i = 0; i < socketMax; i++) {
+        if ((sp = socketList[i]) == NULL || (sp->handlerMask & SOCKET_READABLE) == 0) {
+            continue;
+        }
+        if (socketInputBuffered(i) > 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+
+/*
+    Return true if a particular socket buffered data. - not public
+ */
+ssize socketSockBuffered(int sock)
+{
+    socket_t    *sp;
+    int         i;
+
+    for (i = 0; i < socketMax; i++) {
+        if ((sp = socketList[i]) == NULL || sp->sock != sock) {
+            continue;
+        }
+        return socketInputBuffered(i);
+    }
+    return 0;
+}
+
+
 /*
     Write to a socket. Absorb as much data as the socket can buffer. Block if the socket is in blocking mode. Returns -1
     on error, otherwise the number of bytes written.
  */
-int socketWrite(int sid, char *buf, int bufsize)
+ssize socketWrite(int sid, char *buf, ssize bufsize)
 {
     socket_t    *sp;
     ringq_t     *rq;
-    int         len, bytesWritten, room;
+    ssize       len, bytesWritten, room;
 
     a_assert(buf);
     a_assert(bufsize >= 0);
@@ -77,11 +921,11 @@ int socketWrite(int sid, char *buf, int bufsize)
 /*
     Write a string to a socket
  */
-int socketWriteString(int sid, char_t *buf)
+ssize socketWriteString(int sid, char_t *buf)
 {
  #if UNICODE
     char    *byteBuf;
-    int     r, len;
+    ssize   r, len;
  
     len = gstrlen(buf);
     byteBuf = ballocUniToAsc(buf, len);
@@ -102,11 +946,12 @@ int socketWriteString(int sid, char_t *buf)
     Note: this ignores the line buffer, so a previous socketGets which read a partial line may cause a subsequent
     socketRead to miss some data. This routine may block if the socket is in blocking mode.
  */
-int socketRead(int sid, char *buf, int bufsize)
+ssize socketRead(int sid, char *buf, ssize bufsize)
 {
     socket_t    *sp;
     ringq_t     *rq;
-    int         len, room, errCode, bytesRead;
+    ssize       len, room, bytesRead;
+    int         errCode;
 
     a_assert(buf);
     a_assert(bufsize > 0);
@@ -114,11 +959,9 @@ int socketRead(int sid, char *buf, int bufsize)
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
     }
-
     if (sp->flags & SOCKET_EOF) {
         return 0;
     }
-
     rq = &sp->inBuf;
     for (bytesRead = 0; bufsize > 0; ) {
         len = min(ringqLen(rq), bufsize);
@@ -178,12 +1021,12 @@ int socketRead(int sid, char *buf, int bufsize)
     socketInputBuffered or socketEof can be used to distinguish between EOF and partial line still buffered. This
     routine eats and ignores carriage returns.
  */
-int socketGets(int sid, char_t **buf)
+ssize socketGets(int sid, char_t **buf)
 {
     socket_t    *sp;
     ringq_t     *lq;
     char        c;
-    int         rc, len;
+    ssize       rc, len;
 
     a_assert(buf);
     *buf = NULL;
@@ -196,7 +1039,6 @@ int socketGets(int sid, char_t **buf)
         if ((rc = socketRead(sid, &c, 1)) < 0) {
             return rc;
         }
-        
         if (rc == 0) {
             /*
                 If there is a partial line and we are at EOF, pretend we saw a '\n'
@@ -243,7 +1085,8 @@ int socketFlush(int sid)
 {
     socket_t    *sp;
     ringq_t     *rq;
-    int         len, bytesWritten, errCode;
+    ssize       len, bytesWritten;
+    int         errCode;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -316,7 +1159,7 @@ int socketFlush(int sid)
     Return the count of input characters buffered. We look at both the line
     buffer and the input (raw) buffer. Return -1 on error or EOF.
  */
-int socketInputBuffered(int sid)
+ssize socketInputBuffered(int sid)
 {
     socket_t    *sp;
 
@@ -347,7 +1190,7 @@ int socketEof(int sid)
 /*
     Return the number of bytes the socket can absorb without blocking
  */
-int socketCanWrite(int sid)
+ssize socketCanWrite(int sid)
 {
     socket_t    *sp;
 
@@ -418,10 +1261,10 @@ void socketDeleteHandler(int sid)
 /*
     Socket output procedure. Return -1 on errors otherwise return the number of bytes written.
  */
-static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
+static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode)
 {
     struct sockaddr_in  server;
-    int                 bytes;
+    ssize               bytes;
 
     a_assert(sp);
     a_assert(buf);
@@ -452,7 +1295,6 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
         server.sin_addr.s_addr = inet_addr(sp->host);
         server.sin_port = htons((short)(sp->port & 0xFFFF));
         bytes = sendto(sp->sock, buf, toWrite, 0, (struct sockaddr *) &server, sizeof(server));
-
     } else {
         bytes = send(sp->sock, buf, toWrite, 0);
     }
@@ -481,7 +1323,7 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
     If the sendto failed, swap the first two bytes in the sockaddr structure.  This is a kludge due to a change in
     VxWorks between versions 5.3 and 5.4, but we want the product to run on either.
  */
-static int tryAlternateSendTo(int sock, char *buf, int toWrite, int i, struct sockaddr *server)
+static ssize tryAlternateSendTo(int sock, char *buf, ssize toWrite, int i, struct sockaddr *server)
 {
 #if VXWORKS
     char *ptr;

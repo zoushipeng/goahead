@@ -351,6 +351,7 @@
     #include    <usrLib.h>
     #include    <fcntl.h>
     #include    <errno.h>
+    #include    <hostLib.h>
 #endif /* VXWORKS */
 
 #if SOLARIS
@@ -1308,6 +1309,8 @@ typedef struct {
     int             error;                  /* Last error */
 } socket_t;
 
+extern socket_t     **socketList;           /* List of open sockets */
+
 /********************************* Prototypes *********************************/
 /*
     Memory allocation
@@ -1408,19 +1411,19 @@ extern void     socketCloseConnection(int sid);
 extern void     socketCreateHandler(int sid, int mask, socketHandler_t handler, void* arg);
 extern void     socketDeleteHandler(int sid);
 extern int      socketEof(int sid);
-extern int      socketCanWrite(int sid);
+extern ssize    socketCanWrite(int sid);
 extern void     socketSetBufferSize(int sid, int in, int line, int out);
 extern int      socketFlush(int sid);
-extern int      socketGets(int sid, char_t **buf);
+extern ssize    socketGets(int sid, char_t **buf);
 extern int      socketGetPort(int sid);
-extern int      socketInputBuffered(int sid);
+extern ssize    socketInputBuffered(int sid);
 extern int      socketOpen();
 extern int      socketOpenConnection(char *host, int port, socketAccept_t accept, int flags);
 extern void     socketProcess(int hid);
-extern int      socketRead(int sid, char *buf, ssize len);
+extern ssize    socketRead(int sid, char *buf, ssize len);
 extern int      socketReady(int hid);
-extern int      socketWrite(int sid, char *buf, ssize len);
-extern int      socketWriteString(int sid, char_t *buf);
+extern ssize    socketWrite(int sid, char *buf, ssize len);
+extern ssize    socketWriteString(int sid, char_t *buf);
 extern int      socketSelect(int hid, int timeout);
 extern int      socketGetHandle(int sid);
 extern int      socketSetBlock(int sid, int flags);
@@ -1431,7 +1434,7 @@ extern int      socketGetError();
 extern socket_t *socketPtr(int sid);
 extern int      socketWaitForEvent(socket_t *sp, int events, int *errCode);
 extern void     socketRegisterInterest(socket_t *sp, int handlerMask);
-extern int      socketGetInput(int sid, char *buf, int toRead, int *errCode);
+extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 
 extern char_t   *strlower(char_t *string);
 extern char_t   *strupper(char_t *string);
@@ -1463,10 +1466,10 @@ extern unsigned int hextoi(char_t *hexstring);
 extern unsigned int gstrtoi(char_t *s);
 extern time_t    timeMsec();
 
-extern char_t   *ascToUni(char_t *ubuf, char *str, int nBytes);
-extern char     *uniToAsc(char *buf, char_t *ustr, int nBytes);
-extern char_t   *ballocAscToUni(char  *cp, int alen);
-extern char     *ballocUniToAsc(char_t *unip, int ulen);
+extern char_t   *ascToUni(char_t *ubuf, char *str, ssize nBytes);
+extern char     *uniToAsc(char *buf, char_t *ustr, ssize nBytes);
+extern char_t   *ballocAscToUni(char  *cp, ssize alen);
+extern char     *ballocUniToAsc(char_t *unip, ssize ulen);
 
 extern char_t   *basicGetHost();
 extern char_t   *basicGetAddress();
@@ -1616,8 +1619,8 @@ typedef struct websRec {
     int             wid;                /* Index into webs */
     char_t          *cgiStdin;          /* filename for CGI stdin */
     int             docfd;              /* Document file descriptor */
-    int             numbytes;           /* Bytes to transfer to browser */
-    int             written;            /* Bytes actually transferred */
+    ssize           numbytes;           /* Bytes to transfer to browser */
+    ssize           written;            /* Bytes actually transferred */
     void            (*writeSocket)(struct websRec *wp);
 #if BIT_DIGEST_AUTH
     char_t          *realm;     /* usually the same as "host" from websRec */
@@ -1762,7 +1765,7 @@ extern char_t   *websGetPassword();
 extern int       websGetPort();
 extern char_t   *websGetPublishDir(char_t *path, char_t **urlPrefix);
 extern char_t   *websGetRealm();
-extern int       websGetRequestBytes(webs_t wp);
+extern ssize     websGetRequestBytes(webs_t wp);
 extern char_t   *websGetRequestDir(webs_t wp);
 extern int       websGetRequestFlags(webs_t wp);
 extern char_t   *websGetRequestIpaddr(webs_t wp);
@@ -1770,7 +1773,7 @@ extern char_t   *websGetRequestLpath(webs_t wp);
 extern char_t   *websGetRequestPath(webs_t wp);
 extern char_t   *websGetRequestPassword(webs_t wp);
 extern char_t   *websGetRequestType(webs_t wp);
-extern int       websGetRequestWritten(webs_t wp);
+extern ssize     websGetRequestWritten(webs_t wp);
 extern char_t   *websGetVar(webs_t wp, char_t *var, char_t *def);
 extern int       websCompareVar(webs_t wp, char_t *var, char_t *value);
 extern void      websHeader(webs_t wp);
@@ -1806,9 +1809,9 @@ extern int      websUrlHandlerRequest(webs_t wp);
 extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
                     char_t **proto, char_t **tag, char_t **ext);
 extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
-extern int       websWrite(webs_t wp, char_t* fmt, ...);
-extern int       websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
-extern int       websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
+extern ssize     websWrite(webs_t wp, char_t* fmt, ...);
+extern ssize     websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
+extern ssize     websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
 extern int       websValid(webs_t wp);
 extern int       websValidateUrl(webs_t wp, char_t *path);
 extern void      websSetTimeMark(webs_t wp);

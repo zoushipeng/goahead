@@ -502,7 +502,7 @@ static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *p
     Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
     returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
  */
-char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
+char_t *ascToUni(char_t *ubuf, char *str, ssize nBytes)
 {
 #if UNICODE
     if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
@@ -519,7 +519,7 @@ char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
     Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
     returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
  */
-char *uniToAsc(char *buf, char_t *ustr, int nBytes)
+char *uniToAsc(char *buf, char_t *ustr, ssize nBytes)
 {
 #if UNICODE
    if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, 
@@ -539,10 +539,10 @@ char *uniToAsc(char *buf, char_t *ustr, int nBytes)
     length of the buffer to be converted not including a terminating NULL.  Return a pointer to the unicode buffer which
     must be bfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
  */
-char_t *ballocAscToUni(char *cp, int alen)
+char_t *ballocAscToUni(char *cp, ssize alen)
 {
-    char_t *unip;
-    int ulen;
+    char_t  *unip;
+    ssize   ulen;
 
     ulen = (alen + 1) * sizeof(char_t);
     if ((unip = balloc(ulen)) == NULL) {
@@ -559,9 +559,9 @@ char_t *ballocAscToUni(char *cp, int alen)
     the number of characters in the unicode string not including a teminating null.  Return a pointer to the ascii
     buffer which must be bfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
  */
-char *ballocUniToAsc(char_t *unip, int ulen)
+char *ballocUniToAsc(char_t *unip, ssize ulen)
 {
-    char * cp;
+    char    *cp;
 
     if ((cp = balloc(ulen+1)) == NULL) {
         return NULL;
@@ -578,8 +578,8 @@ char *ballocUniToAsc(char_t *unip, int ulen)
  */
 uint hextoi(char_t *hexstring)
 {
-    char_t         *h;
-    uint            c, v;
+    char_t      *h;
+    uint        c, v;
 
     v = 0;
     h = hexstring;

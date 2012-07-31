@@ -416,8 +416,9 @@ int websValidateUrl(webs_t wp, char_t *path)
  */
 static void websDefaultWriteEvent(webs_t wp)
 {
-    int     len, wrote, flags, bytes, written;
     char    *buf;
+    ssize   len, wrote, written, bytes;
+    int     flags;
 
     a_assert(websValid(wp));
 

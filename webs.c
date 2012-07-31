@@ -16,9 +16,6 @@
 
 #include    "goahead.h"
 
-//  MOB - mov eto header
-extern socket_t                **socketList;                   /* List of open sockets */
-
 /******************************** Global Data *********************************/
 
 websStatsType   websStats;              /* Web access stats */
@@ -71,11 +68,11 @@ static int      websOpenCount = 0;      /* count of apps using this module */
 /**************************** Forward Declarations ****************************/
 
 
-static int      websGetInput(webs_t wp, char_t **ptext, int *nbytes);
+static int      websGetInput(webs_t wp, char_t **ptext, ssize *nbytes);
 static int      websParseFirst(webs_t wp, char_t *text);
 static void     websParseRequest(webs_t wp);
 static void     websSocketEvent(int sid, int mask, void* data);
-static int      websGetTimeSinceMark(webs_t wp);
+static time_t   getTimeSinceMark(webs_t wp);
 
 #if BIT_ACCESS_LOG
 static void     websLog(webs_t wp, int code);
@@ -338,7 +335,8 @@ static void websSocketEvent(int sid, int mask, void* iwp)
 void websReadEvent(webs_t wp)
 {
     char_t  *text;
-    int     rc, nbytes, len, done, fd, size;
+    ssize   len, nbytes, size;
+    int     rc, done, fd;
 
     a_assert(wp);
     a_assert(websValid(wp));
@@ -539,11 +537,12 @@ void websReadEvent(webs_t wp)
     and may be zero. It returns -1 for errors. It returns 0 for EOF. Otherwise it returns the number of bytes read.
     Since this may be zero, callers should use socketEof() to distinguish between this and EOF.
  */
-static int websGetInput(webs_t wp, char_t **ptext, int *pnbytes) 
+//  MOB - rename because static
+static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes) 
 {
     char_t  *text;
     char    buf[WEBS_SOCKET_BUFSIZ+1];
-    int     nbytes, len, clen;
+    ssize   nbytes, len, clen;
 
     a_assert(websValid(wp));
     a_assert(ptext);
@@ -863,9 +862,9 @@ static void websParseRequest(webs_t wp)
                     *cp = '\0';
                     bfree(wp->authType);
                     wp->authType = bstrdup(value);
-                    userAuth = websDecode64(++cp, NULL);
+                    userAuth = websDecode64(++cp);
                 } else {
-                    userAuth = websDecode64(value, NULL);
+                    userAuth = websDecode64(value);
                 }
                 /*
                     Split userAuth into userid and password
@@ -1344,9 +1343,10 @@ static int charCount(const char_t* str, char_t ch)
 
 static char_t* websSafeUrl(const char_t* url)
 {
+    //  MOB refactor code style, and review
     int ltCount = charCount(url, kLt);
     int gtCount = charCount(url, kGt);
-    int safeLen = 0;
+    ssize safeLen = 0;
     char_t* safeUrl = NULL;
     char_t* src = NULL;
     char_t* dest = NULL;
@@ -1444,11 +1444,11 @@ char_t *websErrorMsg(int code)
 /*
     Do formatted output to the browser. This is the public ASP and form write procedure.
  */
-int websWrite(webs_t wp, char_t *fmt, ...)
+ssize websWrite(webs_t wp, char_t *fmt, ...)
 {
     va_list      vargs;
     char_t      *buf;
-    int          rc;
+    ssize        rc;
     
     a_assert(websValid(wp));
 
@@ -1476,10 +1476,10 @@ int websWrite(webs_t wp, char_t *fmt, ...)
     char_t's processed.  It spins until nChars are flushed to the socket.  For non-blocking behavior, use
     websWriteDataNonBlock.
  */
-int websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
+ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
 {
-    int     len, done;
     char    *asciiBuf, *pBuf;
+    ssize   len, done;
 
     a_assert(wp);
     a_assert(websValid(wp));
@@ -1531,9 +1531,10 @@ int websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
     data, it will return the number of bytes flushed to the socket before it would have blocked.  This returns the
     number of chars processed or -1 if socketWrite fails.
  */
-int websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars)
+ssize websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars)
 {
-    int r;
+    //  MOB - naming
+    ssize   r;
 
     a_assert(wp);
     a_assert(websValid(wp));
@@ -1612,7 +1613,8 @@ static void websLog(webs_t wp, int code)
 {
     char_t  *buf;
     char    *abuf;
-    int     len;
+    ssize   len;
+    //  MOB - refactor. Remove simple time
 #if !WEBS_SIMPLE_TIME
     time_t timer;
     struct tm localt;
@@ -1639,7 +1641,7 @@ static void websLog(webs_t wp, int code)
 #endif /* WIN */
     zoneStr[sizeof(zoneStr) - 1] = '\0';
     if (wp->written != 0) {
-        snprintf(dataStr, sizeof(dataStr), "%d", wp->written);
+        snprintf(dataStr, sizeof(dataStr), "%ld", wp->written);
         dataStr[sizeof(dataStr) - 1] = '\0';
     } else {
         dataStr[0] = '-'; dataStr[1] = '\0';
@@ -1674,8 +1676,8 @@ static void websLog(webs_t wp, int code)
 #if BIT_DEBUG_TRACE
 static void traceHandler(int level, char_t *buf)
 {
-    int     len;
     char    *abuf;
+    ssize   len;
 
     if (level <= WEBS_TRACE_LEVEL) {    
         len = gstrlen(buf);
@@ -1694,12 +1696,12 @@ static void traceHandler(int level, char_t *buf)
 void websTimeout(void *arg, int id)
 {
     webs_t      wp;
-    int         delay, tm;
+    time_t      tm, delay;
 
     wp = (webs_t) arg;
     a_assert(websValid(wp));
 
-    tm = websGetTimeSinceMark(wp) * 1000;
+    tm = getTimeSinceMark(wp) * 1000;
     if (tm >= WEBS_TIMEOUT) {
         websStats.timeouts++;
         emfUnschedCallback(id);
@@ -1711,7 +1713,7 @@ void websTimeout(void *arg, int id)
     } else {
         delay = WEBS_TIMEOUT - tm;
         a_assert(delay > 0);
-        emfReschedCallback(id, delay);
+        emfReschedCallback(id, (int) delay);
     }
 }
 
@@ -1921,7 +1923,7 @@ int websGetPort()
 }
 
 
-int websGetRequestBytes(webs_t wp)
+ssize websGetRequestBytes(webs_t wp)
 {
     a_assert(websValid(wp));
     return wp->numbytes;
@@ -2000,7 +2002,7 @@ char_t *websGetRequestUserName(webs_t wp)
 }
 
 
-int websGetRequestWritten(webs_t wp)
+ssize websGetRequestWritten(webs_t wp)
 {
     a_assert(websValid(wp));
 
@@ -2030,7 +2032,7 @@ void websSetIpaddr(char_t *ipaddr)
 }
 
 
-void websSetRequestBytes(webs_t wp, int bytes)
+void websSetRequestBytes(webs_t wp, ssize bytes)
 {
     a_assert(websValid(wp));
     a_assert(bytes >= 0);
@@ -2096,7 +2098,7 @@ void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp))
 }
 
 
-void websSetRequestWritten(webs_t wp, int written)
+void websSetRequestWritten(webs_t wp, ssize written)
 {
     a_assert(websValid(wp));
     wp->written = written;
@@ -2151,7 +2153,7 @@ void websSetTimeMark(webs_t wp)
 /*
     Get the number of seconds since the last mark.
  */
-static int websGetTimeSinceMark(webs_t wp)
+static time_t getTimeSinceMark(webs_t wp)
 {
     return time(0) - wp->timestamp;
 }

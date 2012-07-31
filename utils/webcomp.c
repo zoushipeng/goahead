@@ -47,10 +47,8 @@ int main(int argc, char* argv[])
     if (argc != 3) {
         usage();
     }
-
     prefix = argv[1];
     fileList = argv[2];
-
     if (compile(fileList, prefix) < 0) {
         return -1;
     }
@@ -78,13 +76,13 @@ static int compile(char *fileList, char *prefix)
     char            *cp, *sl;
     char            buf[512];
     uchar           *p;
-    int             j, i, len, fd, nFile;
+    ssize           len;
+    int             j, i, fd, nFile;
 
     if ((lp = fopen(fileList, "r")) == NULL) {
         fprintf(stderr, "Can't open file list %s\n", fileList);
         return -1;
     }
-
     time(&now);
     fprintf(stdout, "/*\n * webrom.c -- Compiled Web Pages\n *\n");
     fprintf(stdout, " * Compiled by webcomp: %s */\n\n", ctime(&now));

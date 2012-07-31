@@ -487,7 +487,7 @@ void ringqFlush(ringq_t *rq)
 static int ringqGrow(ringq_t *rq)
 {
     uchar   *newbuf;
-    int     len;
+    ssize   len;
 
     a_assert(rq);
 
