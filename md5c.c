@@ -9,8 +9,9 @@
 
 #include "uemf.h"
 
-#ifdef DIGEST_ACCESS_SUPPORT
-#ifndef WEBS_SSL_SUPPORT /* MD5 is built into MatrixSSL */
+#if BIT_DIGEST_AUTH
+//  MOB - refactor
+#if !BIT_PACK_SSL /* MD5 is built into MatrixSSL */
 #include <string.h>
 #include "md5.h"
 typedef int             int32;
@@ -19,10 +20,6 @@ typedef int             int32;
 #define G(x,y,z)    (y ^ (z & (y ^ x)))
 #define H(x,y,z)    (x^y^z)
 #define I(x,y,z)    (y^(x|(~z)))
-
-#ifndef MIN
-#define MIN(x, y) ( ((x)<(y))?(x):(y) )
-#endif
 
 #define STORE32L(x, y)                         \
     { (y)[3] = (unsigned char)(((x)>>24)&255); \
@@ -36,11 +33,10 @@ typedef int             int32;
           ((unsigned long)((y)[1] & 255)<<8)  | \
           ((unsigned long)((y)[0] & 255)); }
 
-#ifdef SMALL_CODE
+#if SMALL_CODE
 
-#define ROL(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | \
-(((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & \
-0xFFFFFFFFUL)
+#define ROL(x, y) ((((unsigned long)(x)<<(unsigned long)((y)&31)) | \
+    (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL)
 
 #define FF(a,b,c,d,M,s,t) \
     a = (a + F(b,c,d) + M + t); a = ROL(a, s) + b;
@@ -87,23 +83,15 @@ static const ulong32 Korder[] = {
     0xf7537e82UL, 0xbd3af235UL, 0x2ad7d2bbUL, 0xeb86d391UL,
     0xe1f27f3aUL, 0xf5710fb0UL, 0xada0e5c4UL, 0x98e4c919UL
  };
-#else /* SMALL_CODE */
+#else /* !SMALL_CODE */
 
-#define ROLc(x, y) ( (((unsigned long)(x)<<(unsigned long)((y)&31)) | \
-(((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & \
-0xFFFFFFFFUL) 
+#define ROLc(x, y) ((((unsigned long)(x)<<(unsigned long)((y)&31)) | \
+    (((unsigned long)(x)&0xFFFFFFFFUL)>>(unsigned long)(32-((y)&31)))) & 0xFFFFFFFFUL) 
 
-#define FF(a,b,c,d,M,s,t) \
-    a = (a + F(b,c,d) + M + t); a = ROLc(a, s) + b;
-
-#define GG(a,b,c,d,M,s,t) \
-    a = (a + G(b,c,d) + M + t); a = ROLc(a, s) + b;
-
-#define HH(a,b,c,d,M,s,t) \
-    a = (a + H(b,c,d) + M + t); a = ROLc(a, s) + b;
-
-#define II(a,b,c,d,M,s,t) \
-    a = (a + I(b,c,d) + M + t); a = ROLc(a, s) + b;
+#define FF(a,b,c,d,M,s,t) a = (a + F(b,c,d) + M + t); a = ROLc(a, s) + b;
+#define GG(a,b,c,d,M,s,t) a = (a + G(b,c,d) + M + t); a = ROLc(a, s) + b;
+#define HH(a,b,c,d,M,s,t) a = (a + H(b,c,d) + M + t); a = ROLc(a, s) + b;
+#define II(a,b,c,d,M,s,t) a = (a + I(b,c,d) + M + t); a = ROLc(a, s) + b;
 
 #endif /* SMALL_CODE */
 
@@ -135,17 +123,14 @@ static void _md5_compress(psMd5Context_t *md)
         FF(a,b,c,d,W[Worder[i]],Rorder[i],Korder[i]);
         t = d; d = c; c = b; b = a; a = t;
     }
-
     for (; i < 32; ++i) {
         GG(a,b,c,d,W[Worder[i]],Rorder[i],Korder[i]);
         t = d; d = c; c = b; b = a; a = t;
     }
-
     for (; i < 48; ++i) {
         HH(a,b,c,d,W[Worder[i]],Rorder[i],Korder[i]);
         t = d; d = c; c = b; b = a; a = t;
     }
-
     for (; i < 64; ++i) {
         II(a,b,c,d,W[Worder[i]],Rorder[i],Korder[i]);
         t = d; d = c; c = b; b = a; a = t;
@@ -254,12 +239,8 @@ void psMd5Init(psMd5Context_t* md)
     md->state[2] = 0x98badcfeUL;
     md->state[3] = 0x10325476UL;
     md->curlen = 0;
-#ifdef USE_INT64
-    md->length = 0;
-#else
     md->lengthHi = 0;
     md->lengthLo = 0;
-#endif /* USE_INT64 */
 }
 
 void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
@@ -267,7 +248,7 @@ void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
     unsigned long n;
 
     while (len > 0) {
-        n = MIN(len, (64 - md->curlen));
+        n = min(len, (64 - md->curlen));
         memcpy(md->buf + md->curlen, buf, (int)n);
         md->curlen  += n;
         buf         += n;
@@ -279,15 +260,11 @@ void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
         if (md->curlen == 64) {
             md5_compress(md);
             //  MOB
-#ifdef USE_INT64
-            md->length += 512;
-#else
             n = (md->lengthLo + 512) & 0xFFFFFFFFL;
             if (n < md->lengthLo) {
                 md->lengthHi++;
             }
             md->lengthLo = n;
-#endif /* USE_INT64 */
             md->curlen = 0;
         }
     }
@@ -295,10 +272,8 @@ void psMd5Update(psMd5Context_t* md, unsigned char *buf, unsigned int len)
 
 int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
 {
-    int32 i;
-#ifndef USE_INT64
     unsigned long   n;
-#endif
+    int32 i;
 
     if (hash == NULL) {
         return -1;
@@ -306,16 +281,12 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
     /*
         increase the length of the message
      */
-#ifdef USE_INT64
-    md->length += md->curlen << 3;
-#else
     n = (md->lengthLo + (md->curlen << 3)) & 0xFFFFFFFFL;
     if (n < md->lengthLo) {
         md->lengthHi++;
     }
     md->lengthHi += (md->curlen >> 29);
     md->lengthLo = n;
-#endif /* USE_INT64 */
     /*
         Append the '1' bit
      */
@@ -340,12 +311,8 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
     /*
         store length
      */
-#ifdef USE_INT64
-    STORE64L(md->length, md->buf+56);
-#else
     STORE32L(md->lengthLo, md->buf+56);
     STORE32L(md->lengthHi, md->buf+60);
-#endif /* USE_INT64 */
     md5_compress(md);
     /*
         copy output
@@ -356,8 +323,8 @@ int32 psMd5Final(psMd5Context_t* md, unsigned char *hash)
     psZeromem(md, sizeof(psMd5Context_t));
     return 16;
 }
-#endif /* !WEBS_SSL_SUPPORT */
-#endif /* !DIGEST_ACCESS_SUPPORT */
+#endif /* !BIT_PACK_SSL */
+#endif /* !BIT_DIGEST_AUTH */
 
 /*
     @copy   default

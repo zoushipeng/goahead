@@ -31,7 +31,7 @@ typedef struct {
 extern int  websSSLOpen();
 extern int  websSSLIsOpen();
 extern void websSSLClose();
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
 extern int  websRequireSSL(char *url);
 #endif /* WEBS_WHITELIST_SUPPORT */
 
@@ -48,7 +48,7 @@ extern int  websSSLFlush(websSSL_t *wsp);
 extern int  websSSLSetKeyFile(char_t *keyFile);
 extern int  websSSLSetCertFile(char_t *certFile);
 
-#endif /* WEBS_SSL_SUPPORT */
+#endif /* BIT_PACK_SSL */
 
 #endif /* _h_websSSL */
 

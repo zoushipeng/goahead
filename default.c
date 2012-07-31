@@ -19,7 +19,7 @@ static char_t   *websDefaultDir;            /* Default Web page directory */
 /**************************** Forward Declarations ****************************/
 #define MAX_URL_DEPTH           8   /* Max directory depth of websDefaultDir */
 
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
 
 #ifndef WIN
 #include <dirent.h>
@@ -36,7 +36,7 @@ typedef struct _sslList {
 } sslList_t;
 
 static sslList_t    *sslList;
-#endif /* WEBS_SSL_SUPPORT */
+#endif
 
 typedef struct _fileNode {
     struct _fileNode *next;     /* Next file/dir on same level (NULL if last) */
@@ -82,7 +82,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         invalid first.  If the whitelist check fails, rebuild the list and try again.  Also validate if we are not on a
         secure connection, but the whitelist entry has the SSL flag set, do not serve the page.
      */
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
     if ((rc = websWhitelistCheck(wp->url)) < 0) {
         websBuildWhitelist();
         if ((rc = websWhitelistCheck(wp->url)) < 0) {
@@ -148,7 +148,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         (ASP), then optimize request by sending a 304 Use local copy response.
      */
     websStats.localHits++;
-#ifdef WEBS_IF_MODIFIED_SUPPORT
+#if BIT_IF_MODIFIED
     if (flags & WEBS_IF_MODIFIED && !(flags & WEBS_ASP)) {
         if (sbuf.mtime <= wp->since) {
             websWrite(wp, T("HTTP/1.0 304 Use local copy\r\n"));
@@ -156,7 +156,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
                 NOTE: by license terms the following line of code must not be modified.
                 MOB: remove define
              */
-            websWrite(wp, T("Server: %s\r\n"), WEBS_NAME);
+            websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
             if (flags & WEBS_KEEP_ALIVE) {
                 websWrite(wp, T("Connection: keep-alive\r\n"));
             }
@@ -176,11 +176,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         /*
             The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
          */
-#if BIT_PACK_SSL
-        websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
-#else
-        websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
-#endif
+        websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
         bfree(date);
     }
     flags |= WEBS_HEADER_DONE;
@@ -471,7 +467,7 @@ static void websDefaultWriteEvent(webs_t wp)
 
 void websDefaultOpen()
 {
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
 #if BIT_PACK_SSL
     sslList = NULL;
 #endif
@@ -486,7 +482,7 @@ void websDefaultOpen()
  */
 void websDefaultClose()
 {
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
 #if BIT_PACK_SSL
     sslList_t   *l;
     while (sslList != NULL) {
@@ -550,7 +546,7 @@ void websSetDefaultDir(char_t *dir)
     websDefaultDir = bstrdup(dir);
 }
 
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
 /******************************************************************************/
 /*
     MOB - this should be a dev time utility
@@ -620,8 +616,7 @@ int websRequireSSL(char *url)
     websBuildWhitelist();
     return 0;
 }
-#endif /* WEBS_SSL_SUPPORT */
-
+#endif /* BIT_PACK_SSL */
 
 /*
     Free all allocated memory in whitelist
@@ -721,7 +716,7 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
                 cnode->flags |= WHITELIST_SSL;
             }
         }
-#endif /* WEBS_SSL_SUPPORT */
+#endif
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
             websMakePath(tmppath, path, findData.cFileName, 1);
             if (level < MAX_URL_DEPTH) {
@@ -808,7 +803,7 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
                 break;
             }
         }
-#endif /* WEBS_SSL_SUPPORT */
+#endif
         if (findData->d_type == DT_DIR) {
             websMakePath(tmppath, path, findData->d_name, 0);
             if (level < MAX_URL_DEPTH) {

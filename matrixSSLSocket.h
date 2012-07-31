@@ -16,16 +16,7 @@ extern "C" {
 
 #include "matrixssl/matrixsslApi.h"
 
-/*
-    Blocking or non-blocking socket model.  Disable for blocking
-*/
-#define USE_NONBLOCKING_SSL_SOCKETS
-
-#if MACOSX
-#define LINUX 1
-#define OSX 1
-#endif
-
+//  MOB - refactor and remove
 /*
     OS specific macros
 */
@@ -37,15 +28,15 @@ extern "C" {
     #define     MSG_DONTWAIT    0
     #define     WOULD_BLOCK WSAEWOULDBLOCK
     #define     getSocketError()  WSAGetLastError()
-#elif LINUX
+#elif LINUX || MACOSX
     #include    <sys/socket.h>
     #include    <netinet/in.h>
     #include    <netinet/tcp.h>
     #include    <arpa/inet.h>
-#ifdef OSX
+#if MACOSX
     #include    <sys/socket.h>
     #define     MSG_NOSIGNAL    0
-#endif /* OSX */
+#endif
     #include    <fcntl.h>
     #include    <unistd.h>
     #include    <string.h>
@@ -81,20 +72,11 @@ extern "C" {
     typedef int SOCKET;
 #endif /* OS macros */
 
-#if MACOSX
-#undef LINUX
-#undef OSX
-#endif
-
-#define sslAssert(C) if (C) ; else {fprintf(stderr, "%s:%d sslAssert(%s)\n",\
-                        __FILE__, __LINE__, #C); }
-#ifndef min
-#define min(a,b)    (((a) < (b)) ? (a) : (b))
-#endif /* min */
+#define sslAssert(C) if (C) ; else {fprintf(stderr, "%s:%d sslAssert(%s)\n", __FILE__, __LINE__, #C); }
 
 /*
     sslRead and sslWrite status values
-*/
+ */
 #define SSLSOCKET_EOF           0x1
 #define SSLSOCKET_CLOSE_NOTIFY  0x2
 
@@ -128,7 +110,7 @@ extern void sslWriteClosureAlert(sslConn_t *cp);
 
 #endif /* _h_SSLSOCKET */
 
-#endif /* WEBS_SSL_SUPPORT */
+#endif /* BIT_PACK_SSL */
 
 /*
     @copy   default

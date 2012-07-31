@@ -50,10 +50,7 @@ int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, int32 
             sslFreeConnection(&cp);
             return -1;
         }
-#ifdef USE_NONBLOCKING_SSL_SOCKETS
-        /* Set this ourselves, "just to make sure" */
         setSocketNonblock(fd);
-#endif
     } else {
         cp = *conn;
     }
@@ -342,19 +339,14 @@ WRITE_MORE:
     if (ctLen > 0) {
         transferred = send(cp->fd, buf, ctLen, MSG_NOSIGNAL); 
         if (transferred <= 0) {
-#ifdef USE_NONBLOCKING_SSL_SOCKETS
             if (socketGetError() != EWOULDBLOCK) {
                 return -1;
             }
             if (!cp->sendBlocked) {
                 cp->sendBlocked = 1;
                 cp->ptReqBytes = len;
-            } else {
             }
             return 0;
-#else
-            return -1;
-#endif
         }
         /* Update the SSL buffer that we've written > 0 bytes of data */ 
         if ((rc = matrixSslSentData(cp->ssl, transferred)) < 0) { 
@@ -447,7 +439,7 @@ static void setSocketNonblock(SOCKET sock)
 #endif
 }
 
-#endif /* WEBS_SSL_SUPPORT */
+#endif /* BIT_PACK_SSL */
 
 /*
     @copy   default

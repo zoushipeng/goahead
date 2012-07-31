@@ -10,7 +10,7 @@
 
 /************************************ Defaults ********************************/
 
-#define DIGEST_ACCESS_SUPPORT  1
+#include    "bit.h"
 
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 0
@@ -49,6 +49,7 @@
     #define VALUE_MAX_STRING    (4096 - 48)
     #define E_MAX_ERROR         4096
     #define E_MAX_REQUEST       2048    /* Request safeguard max */
+    #define SOCKET_BUFSIZ       510     /* Underlying buffer size */
 
 #elif BIT_TUNE == BIT_TUNE_BALANCED
     #define BUF_MAX             4096
@@ -57,6 +58,7 @@
     #define VALUE_MAX_STRING    (4096 - 48)
     #define E_MAX_ERROR         4096
     #define E_MAX_REQUEST       4096
+    #define SOCKET_BUFSIZ       1024
 
 #else /* BIT_TUNE == BIT_TUNE_SPEED */
     #define BUF_MAX             4096
@@ -65,6 +67,7 @@
     #define VALUE_MAX_STRING    (4096 - 48)
     #define E_MAX_ERROR         4096
     #define E_MAX_REQUEST       4096
+    #define SOCKET_BUFSIZ       1024
 #endif
 
 /********************************* CPU Families *******************************/
@@ -246,7 +249,7 @@
     #include    <winsock.h>
 #endif /* CE */
 
-#if NW
+#if NETWARE
     #include    <direct.h>
     #include    <io.h>
     #include    <sys/stat.h>
@@ -269,7 +272,7 @@
     #include    <sys/socket.h>
     #include    <sys/filio.h>
     #include    <netinet/in.h>
-#endif /* NW */
+#endif /* NETWARE */
 
 #if SCOV5 
     #include    <sys/types.h>
@@ -806,7 +809,7 @@ struct timeval
     typedef int32_t         fd_mask;
 #endif
 
-#if NW
+#if NETWARE
     #define fd_mask         fd_set
     #define INADDR_NONE     -1l
     #define Sleep           delay
@@ -819,8 +822,7 @@ struct timeval
     #define X_OK    1
     #undef F_OK
     #define F_OK    0
-#endif /* NW */
-
+#endif /* NETWARE */
 
 #ifndef CHAR_T_DEFINED
 #define CHAR_T_DEFINED 1
@@ -1325,12 +1327,6 @@ extern int      cronFree(cron_t *cp);
 #define EMF_SOCKET_MESSAGE      (WM_USER+13)
 
 #define WEBS_MAX_REQUEST        2048        /* Request safeguard max */
-
-#ifdef LITTLEFOOT
-#define SOCKET_BUFSIZ           510     /* Underlying buffer size */
-#else
-#define SOCKET_BUFSIZ           1024    /* Underlying buffer size */
-#endif /* LITTLEFOOT */
 
 typedef void    (*socketHandler_t)(int sid, int mask, void* data);
 typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, 

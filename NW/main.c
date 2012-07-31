@@ -48,7 +48,7 @@ static int        finished;                  /* Finished flag */
  * Debug defines for testing only (Should be removed for final compile)
  */
 
-#ifdef debug
+#if BIT_DEBUG
    #define P( x ) printf( "\rWEBS: %d\n\r", x )
    #define Ps( x, s ) printf( "\rWEBS: %d [%s]\n\r", x, s )
 #else

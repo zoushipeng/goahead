@@ -17,7 +17,7 @@
 
 /******************************** Local Data **********************************/
 
-#ifdef WEBS_PAGE_ROM
+#if BIT_ROM
 
 sym_fd_t    romTab;                     /* Symbol table for web pages */
 

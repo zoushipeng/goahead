@@ -24,6 +24,11 @@ Bit.load({
         whitelist: false,
         accessLog: true,
         debugTrace: true,
+        keepAlive: true,
+        ifModified: true,
+
+        simpleTime: false,
+        logQuery: false,
 
 /*
         webs: true,

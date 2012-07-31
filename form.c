@@ -109,11 +109,7 @@ void websHeader(webs_t wp)
     /*
         The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
      */
-#if BIT_PACK_SSL
-    websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
-#else
-    websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
-#endif
+    websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
     websWrite(wp, T("Pragma: no-cache\n"));
     websWrite(wp, T("Cache-control: no-cache\n"));
     websWrite(wp, T("Content-Type: text/html\n"));

@@ -43,15 +43,11 @@
 /* #define WEBS_PAGE_ROM 1 */
 
 /****************************** Immutable Defines *****************************/
-/*
-    By license terms the software name and version defined in this section of code must not be modified.
- */
-#define WEBS_NAME               T("GoAhead")
-#define WEBS_VERSION            T("2.5.0")
+
 #if BIT_PACK_SSL
 #define SSL_NAME                T("PeerSec-MatrixSSL")
 #define SSL_VERSION             T(MATRIXSSL_VERSION)
-#endif /* WEBS_SSL_SUPPORT */
+#endif
 
 /********************************** Defines ***********************************/
 
@@ -71,7 +67,6 @@
  */
 #define WEBS_LOCAL_PAGE         0x1         /* Request for local webs page */ 
 #define WEBS_KEEP_ALIVE         0x2         /* HTTP/1.1 keep alive */
-#define WEBS_DONT_USE_CACHE     0x4         /* Not implemented cache support */
 #define WEBS_COOKIE             0x8         /* Cookie supplied in request */
 #define WEBS_IF_MODIFIED        0x10        /* If-modified-since in request */
 #define WEBS_POST_REQUEST       0x20        /* Post request operation */
@@ -135,7 +130,7 @@ typedef struct websRec {
     int             numbytes;           /* Bytes to transfer to browser */
     int             written;            /* Bytes actually transferred */
     void            (*writeSocket)(struct websRec *wp);
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
     char_t          *realm;     /* usually the same as "host" from websRec */
     char_t          *nonce;     /* opaque-to-client string sent by server */
     char_t          *digest;    /* digest form of user password */

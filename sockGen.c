@@ -8,7 +8,8 @@
 
 /********************************** Includes **********************************/
 
-#if (!defined (WIN) || defined (LITTLEFOOT) || defined (WEBS))
+#if !WIN
+//  MOB - remove
 #ifndef CE
 #include    <errno.h>
 #include    <fcntl.h>
@@ -85,9 +86,10 @@ void socketClose()
  */
 int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 {
-#if (!defined (NO_GETHOSTBYNAME) && !defined (VXWORKS))
+    //  MOB - refactor
+#if !NO_GETHOSTBYNAME && !VXWORKS
     struct hostent      *hostent;                   /* Host database entry */
-#endif /* ! (NO_GETHOSTBYNAME || VXWORKS) */
+#endif
     socket_t            *sp;
     struct sockaddr_in  sockaddr;
     int                 sid, bcast, dgram, rc;
@@ -115,7 +117,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                 skip the use of gethostbyname. Unfortunatly there is no easy way to recover, the following code simply
                 uses the basicGetHost IP for the sockaddr.  
              */
-#ifdef NO_GETHOSTBYNAME
+#if NO_GETHOSTBYNAME
             if (strcmp(host, basicGetHost()) == 0) {
                 sockaddr.sin_addr.s_addr = inet_addr(basicGetAddress());
             }
@@ -123,7 +125,8 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                 socketFree(sid);
                 return -1;
             }
-#elif (defined (VXWORKS))
+#elif VXWORKS
+            //  MOB - check what appweb does for this?
             sockaddr.sin_addr.s_addr = (unsigned long) hostGetByName(host);
             if (sockaddr.sin_addr.s_addr == NULL) {
                 errno = ENXIO;
@@ -148,7 +151,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                     return -1;
                 }
             }
-#endif /* (NO_GETHOSTBYNAME || VXWORKS) */
+#endif
         }
     }
     bcast = sp->flags & SOCKET_BROADCAST;
@@ -195,9 +198,8 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                     sockGen.c is only used for Windows products when blocking connects are expected.  This applies to
                     webserver connectws.  Therefore the asynchronous connect code here is not compiled.
                  */
-#if (defined (WIN) || defined (CE)) && (!defined (LITTLEFOOT) && !defined (WEBS))
+#if BIT_WIN_LIKE
                 int flag;
-
                 sp->flags |= SOCKET_ASYNC;
                 /*
                     Set to non-blocking for an async connect
@@ -209,14 +211,12 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                 }
 #else
                 socketSetBlock(sid, 1);
-#endif /* #if (WIN || CE) && !(LITTLEFOOT || WEBS) */
+#endif
 
             }
-            if ((rc = connect(sp->sock, (struct sockaddr *) &sockaddr,
-                sizeof(sockaddr))) < 0 && 
-                (rc = tryAlternateConnect(sp->sock,
-                (struct sockaddr *) &sockaddr)) < 0) {
-#if (defined (WIN) || defined (CE))
+            if ((rc = connect(sp->sock, (struct sockaddr *) &sockaddr, sizeof(sockaddr))) < 0 && 
+                (rc = tryAlternateConnect(sp->sock, (struct sockaddr *) &sockaddr)) < 0) {
+#if BIT_WIN_LIKE
                 if (socketGetError() != EWOULDBLOCK) {
                     socketFree(sid);
                     return -1;
@@ -225,7 +225,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                 socketFree(sid);
                 return -1;
 
-#endif /* WIN || CE */
+#endif
 
             }
         }
@@ -302,15 +302,14 @@ static void socketAccept(socket_t *sp)
     char                *pString;
     int                 newSock, nid;
 
-#if NW
+#if NETWARE
     NETINET_DEFINE_CONTEXT;
 #endif
-
     a_assert(sp);
 
-/*
- *  Accept the connection and prevent inheriting by children (F_SETFD)
- */
+    /*
+        Accept the connection and prevent inheriting by children (F_SETFD)
+     */
     len = sizeof(struct sockaddr_in);
     if ((newSock = 
         accept(sp->sock, (struct sockaddr *) &addr, (socklen_t *) &len)) < 0) {
@@ -378,9 +377,8 @@ int socketGetInput(int sid, char *buf, int toRead, int *errCode)
     if (sp->flags & SOCKET_EOF) {
         return 0;
     }
-#if ((defined (WIN) || defined (CE)) && (!defined (LITTLEFOOT) && !defined  (WEBS)))
-    if ( !(sp->flags & SOCKET_BLOCK)
-            && ! socketWaitForEvent(sp,  FD_CONNECT, errCode)) {
+#if BIT_WIN_LIKE
+    if (!(sp->flags & SOCKET_BLOCK) && !socketWaitForEvent(sp,  FD_CONNECT, errCode)) {
         return -1;
     }
 #endif
@@ -415,7 +413,7 @@ void socketRegisterInterest(socket_t *sp, int handlerMask)
 
 
 /*
-    Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception (UEMF only)
+    Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception
  */
 int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 {
@@ -490,7 +488,7 @@ int socketReady(int sid)
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
-#if (defined (WIN) || defined (CE) || defined (NW))
+#if BLD_WIN|LIKE || NETWARE
 
 int socketSelect(int sid, int timeout)
 {
@@ -586,7 +584,7 @@ int socketSelect(int sid, int timeout)
     return nEvents;
 }
 
-#else /* not WIN || CE || NW */
+#else /* !BIT_WIN_LIKE && !NETWARE */
 
 int socketSelect(int sid, int timeout)
 {
@@ -817,7 +815,7 @@ int socketSetBlock(int sid, int on)
         int off;
         off = 0;
         ioctl(sp->sock, FIONBIO, &off);
-#elif (defined (VXWORKS) || defined (NW))
+#elif VXWORKS || NETWARE
         ioctl(sp->sock, FIONBIO, (int)&iflag);
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) & ~O_NONBLOCK);
@@ -830,7 +828,7 @@ int socketSetBlock(int sid, int on)
         int on;
         on = 1;
         ioctl(sp->sock, FIONBIO, &on);
-#elif (defined (VXWORKS) || defined (NW))
+#elif VXWORKS || NETWARE
         ioctl(sp->sock, FIONBIO, (int)&iflag);
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) | O_NONBLOCK);
@@ -882,7 +880,7 @@ int socketSockBuffered(int sock)
     return 0;
 }
 
-#endif /* (!WIN) | LITTLEFOOT | WEBS */
+#endif 
 
 
 /*

@@ -19,7 +19,7 @@
 #include    "websda.h"
 #include    "md5.h"
 
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
 /******************************** Local Data **********************************/
 
 #define RANDOMKEY   T("onceuponatimeinparadise")
@@ -271,7 +271,7 @@ char_t *websCalcUrlDigest(webs_t wp)
     return digest;
 }
 
-#endif /* DIGEST_ACCESS_SUPPORT */
+#endif /* BIT_DIGEST_AUTH */
 
 /*
     @copy   default

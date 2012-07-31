@@ -36,12 +36,13 @@
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <io.h>
-#define localtime_r(A, B)   localtime_s(B,A)
     #include    <share.h>
-#define snprintf            _snprintf
+    //  MOB - move to fixups
+    #define localtime_r(A, B)   localtime_s(B,A)
+    #define snprintf _snprintf
 #endif
 
-#if NW
+#if NETWARE
     #include    <fcntl.h>
     #include    <sys/stat.h>
 #endif
@@ -60,7 +61,8 @@
     #include    <unistd.h>
 #endif
 
-#ifdef UNIX
+//  MOB - what does this really correspond to.
+#if UNIX
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <signal.h>
@@ -215,7 +217,7 @@ extern int       websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
 extern void      websDefaultOpen();
 extern void      websDefaultClose();
 
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
 #define WHITELIST_SSL 0x001   /* File only accessible through https */
 #define WHITELIST_CGI 0x002   /* Node is in the cgi-bin dir */
 extern int      websBuildWhitelist(void);

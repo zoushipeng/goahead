@@ -15,7 +15,7 @@
 /********************************* Includes ***********************************/
 
 #include    "wsIntrn.h"
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
     #include    "websda.h"
 #endif
 
@@ -56,12 +56,12 @@ websErrorType websErrors[] = {
     { 0, NULL }
 };
 
-#ifdef WEBS_LOG_SUPPORT
+#if BIT_ACCESS_LOG
 static char_t   websLogname[64] = T("log.txt"); /* Log filename */
 static int      websLogFd;                      /* Log file handle */
 #endif
 
-#ifdef WEBS_TRACE_SUPPORT
+#if BIT_DEBUG_TRACE
 static char_t   websTracename[64] = T("trace.txt"); /* Log filename */
 static int      websTraceFd;                        /* Log file handle */
 #endif
@@ -80,13 +80,13 @@ static void     websParseRequest(webs_t wp);
 static void     websSocketEvent(int sid, int mask, void* data);
 static int      websGetTimeSinceMark(webs_t wp);
 
-#ifdef WEBS_LOG_SUPPORT
+#if BIT_ACCESS_LOG
 static void     websLog(webs_t wp, int code);
 #endif
-#ifdef WEBS_TRACE_SUPPORT
+#if BIT_DEBUG_TRACE
 static void     traceHandler(int level, char_t *buf);
 #endif
-#ifdef WEBS_IF_MODIFIED_SUPPORT
+#if BIT_IF_MODIFIED
 static time_t   dateParse(time_t tip, char_t *cmd);
 #endif
 
@@ -104,7 +104,7 @@ int websOpenServer(int port, int retries)
 
     websDefaultOpen();
 
-#ifdef WEBS_PAGE_ROM
+#if BIT_ROM
     websRomOpen();
 #endif
 
@@ -127,7 +127,7 @@ int websOpenServer(int port, int retries)
     }
     websFormOpen();
 
-#ifdef WEBS_LOG_SUPPORT
+#if BIT_ACCESS_LOG
 #ifndef VXWORKS
     websLogFd = gopen(websLogname, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
 #else
@@ -137,7 +137,7 @@ int websOpenServer(int port, int retries)
     a_assert(websLogFd >= 0);
 #endif
     
-#ifdef WEBS_TRACE_SUPPORT
+#if BIT_DEBUG_TRACE
 #ifndef VXWORKS
     websTraceFd = gopen(websTracename, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
 #else
@@ -169,20 +169,20 @@ void websCloseServer()
         websFree(wp);
     }
 
-#ifdef WEBS_LOG_SUPPORT
+#if BIT_ACCESS_LOG
     if (websLogFd >= 0) {
         close(websLogFd);
         websLogFd = -1;
     }
 #endif
-#ifdef WEBS_TRACE_SUPPORT
+#if BIT_DEBUG_TRACE
     if (websTraceFd >= 0) {
         close(websTraceFd);
         websTraceFd = -1;
     }
 #endif
 
-#ifdef WEBS_PAGE_ROM
+#if BIT_ROM
     websRomClose();
 #endif
     websDefaultClose();
@@ -771,24 +771,7 @@ static int websParseFirst(webs_t wp, char_t *text)
         wp->flags |= WEBS_ASP;
     }
     bfree(buf);
-
     websUrlType(url, wp->type, TSZ(wp->type));
-
-#ifdef WEBS_PROXY_SUPPORT
-    /*
-        Determine if this is a request for local webs data. If it is not a proxied 
-        request from the browser, we won't see the "http://" or the system name, so
-        we assume it must be talking to us directly for local webs data.
-        Note: not fully implemented yet.
-     */
-    if (gstrstr(wp->url, T("http://")) == NULL || ((gstrcmp(wp->host, T("localhost")) == 0 || 
-            gstrcmp(wp->host, websHost) == 0) && (wp->port == websPort))) {
-        wp->flags |= WEBS_LOCAL_PAGE;
-        if (gstrcmp(wp->path, T("/")) == 0) {
-            wp->flags |= WEBS_HOME_PAGE;
-        }
-    }
-#endif
     ringqFlush(&wp->header);
     return 0;
 }
@@ -903,7 +886,7 @@ static void websParseRequest(webs_t wp)
                  */
                 wp->flags |= WEBS_AUTH_BASIC;
             } else {
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
                 /*
                     The incoming value is slightly more complicated (Digest)
                  */
@@ -1002,7 +985,7 @@ static void websParseRequest(webs_t wp)
                         vp = NULL;
                     }
                 }
-#endif /* DIGEST_ACCESS_SUPPORT */
+#endif /* BIT_DIGEST_AUTH */
             }
         } else if (gstrcmp(key, T("content-length")) == 0) {
             wp->clen = gatoi(value);
@@ -1015,32 +998,18 @@ static void websParseRequest(webs_t wp)
         } else if (gstrcmp(key, T("content-type")) == 0) {
             websSetVar(wp, T("CONTENT_TYPE"), value);
 
-#ifdef WEBS_KEEP_ALIVE_SUPPORT
+#if BIT_KEEP_ALIVE
         } else if (gstrcmp(key, T("connection")) == 0) {
             strlower(value);
             if (gstrcmp(value, T("keep-alive")) == 0) {
                 wp->flags |= WEBS_KEEP_ALIVE;
             }
 #endif
-
-#ifdef WEBS_PROXY_SUPPORT
-        /*
-            This may be useful if you wish to keep a local cache of web pages for proxied requests.
-         */
-        } else if (gstrcmp(key, T("pragma")) == 0) {
-            char_t  tmp[256];
-            gstrncpy(tmp, value, TSZ(tmp));
-            strlower(tmp);
-            if (gstrstr(tmp, T("no-cache"))) {
-                wp->flags |= WEBS_DONT_USE_CACHE;
-            }
-#endif /* WEBS_PROXY_SUPPORT */
-
         } else if (gstrcmp(key, T("cookie")) == 0) {
             wp->flags |= WEBS_COOKIE;
             wp->cookie = bstrdup(value);
 
-#ifdef WEBS_IF_MODIFIED_SUPPORT
+#if BIT_IF_MODIFIED
         } else if (gstrcmp(key, T("if-modified-since")) == 0) {
             char_t *cmd;
             time_t tip = 0;
@@ -1081,12 +1050,8 @@ void websSetEnv(webs_t wp)
     websSetVar(wp, T("PATH_INFO"), wp->path);
     stritoa(websPort, portBuf, sizeof(portBuf));
     websSetVar(wp, T("SERVER_PORT"), portBuf);
-       websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
-#if BIT_PACK_SSL
-    fmtAlloc(&value, FNAMESIZE, T("%s/%s %s/%s"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
-#else
-    fmtAlloc(&value, FNAMESIZE, T("%s/%s"), WEBS_NAME, WEBS_VERSION);
-#endif
+    websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
+    fmtAlloc(&value, FNAMESIZE, T("GoAhead/%s"), BIT_VERSION);
     websSetVar(wp, T("SERVER_SOFTWARE"), value);
     bfreeSafe(value);
     websSetVar(wp, T("SERVER_PROTOCOL"), wp->protoVersion);
@@ -1247,14 +1212,8 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
         /*
             The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
          */
-#if BIT_PACK_SSL
-        websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
-#else
-        websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
-#endif
-        /*      
-            Timestamp/Date is usually the next to go
-         */
+        websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
+
         if ((date = websGetDateString(NULL)) != NULL) {
             websWrite(wp, T("Date: %s\r\n"), date);
             bfree(date);
@@ -1265,7 +1224,7 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
         if (code == 401) {
             if (!(wp->flags & WEBS_AUTH_DIGEST)) {
                 websWrite(wp, T("WWW-Authenticate: Basic realm=\"%s\"\r\n"), websGetRealm());
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
             } else {
                 char_t *nonce, *opaque;
 
@@ -1558,13 +1517,13 @@ int websWriteBlock(webs_t wp, char_t *buf, int nChars)
             }
             socketFlush(wp->sid);
         }
-#else /* ! WEBS_SSL_SUPPORT */
+#else
         if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
             bfree(asciiBuf);
             return -1;
         }
         socketFlush(wp->sid);
-#endif /* WEBS_SSL_SUPPORT */
+#endif
         nChars -= len;
         pBuf += len;
         done += len;
@@ -1645,7 +1604,7 @@ void websDecodeUrl(char_t *decoded, char_t *token, int len)
 }
 
 
-#ifdef WEBS_LOG_SUPPORT
+#if BIT_ACCESS_LOG
 /*
     Output a log message in Common Log Format
         http://httpd.apache.org/docs/1.3/logs.html#common
@@ -1655,14 +1614,14 @@ void websDecodeUrl(char_t *decoded, char_t *token, int len)
         the log, in addition to the URL path.  This can be a security issue
         if the query string contains sensitive information that shouldn't
         be hanging around in log files.
-    TODO - the number of bytes written is always 0 for goform, asp and cgi
+    MOB - get rid of LOG_QUERY
  */
 static void websLog(webs_t wp, int code)
 {
     char_t  *buf;
     char    *abuf;
     int     len;
-#ifndef WEBS_SIMPLE_TIME
+#if !WEBS_SIMPLE_TIME
     time_t timer;
     struct tm localt;
 #if WIN
@@ -1675,7 +1634,7 @@ static void websLog(webs_t wp, int code)
 #endif
     a_assert(websValid(wp));
     buf = NULL;
-#ifndef WEBS_SIMPLE_TIME
+#if !WEBS_SIMPLE_TIME
     time(&timer);
     localtime_r(&timer, &localt);
     strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt); 
@@ -1700,15 +1659,15 @@ static void websLog(webs_t wp, int code)
         timeStr, zoneStr,
         wp->flags & WEBS_POST_REQUEST ? "POST" : 
             (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"),
-#ifdef WEBS_LOG_QUERY
+#if WEBS_LOG_QUERY
         wp->url, /* SECURITY - Printing the query can 'leak' private data */
 #else
         wp->path,
 #endif /* WEBS_LOG_QUERY */
         wp->protoVersion, code, dataStr);
 #else
-    fmtAlloc(&buf, WEBS_MAX_URL + 80, T("%d %s %d %d\n"), time(0), 
-        wp->url, code, wp->written);
+    //  MOB - reverse conditional
+    fmtAlloc(&buf, WEBS_MAX_URL + 80, T("%d %s %d %d\n"), time(0), wp->url, code, wp->written);
 #endif
     len = gstrlen(buf);
     abuf = ballocUniToAsc(buf, len+1);
@@ -1720,7 +1679,7 @@ static void websLog(webs_t wp, int code)
 
 
 
-#ifdef WEBS_TRACE_SUPPORT
+#if BIT_DEBUG_TRACE
 static void traceHandler(int level, char_t *buf)
 {
     int     len;
@@ -1780,13 +1739,7 @@ void websDone(webs_t wp, int code)
     if (code != 200) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
-#ifdef WEBS_PROXY_SUPPORT
-    if (! (wp->flags & WEBS_LOCAL_PAGE)) {
-        websStats.activeNetRequests--;
-    }
-#endif
-
-#ifdef WEBS_LOG_SUPPORT
+#if BIT_ACCESS_LOG
     if (! (wp->flags & WEBS_REQUEST_DONE)) {
         websLog(wp, code);
     }
@@ -1857,7 +1810,7 @@ int websAlloc(int sid)
     wp->protoVersion = NULL;
     wp->password = NULL;
     wp->userName = NULL;
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
     wp->realm = NULL;
     wp->nonce = NULL;
     wp->digest = NULL;
@@ -1919,7 +1872,7 @@ void websFree(webs_t wp)
     if (wp->cgiStdin)
         bfree(wp->cgiStdin);
 
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
     if (wp->realm)
         bfree(wp->realm);
     if (wp->uri)
@@ -2015,7 +1968,7 @@ char_t *websGetRequestLpath(webs_t wp)
     a_assert(websValid(wp));
 
     //  MOB - unify
-#ifdef WEBS_PAGE_ROM
+#if BIT_ROM
     return wp->path;
 #else
     return wp->lpath;
@@ -2232,7 +2185,7 @@ char_t *websGetRealm()
 }
 
 
-#ifdef WEBS_IF_MODIFIED_SUPPORT
+#if BIT_IF_MODIFIED
 //  MOB - move all into a date.c
 /*  
     These functions are intended to closely mirror the syntax for HTTP-date 

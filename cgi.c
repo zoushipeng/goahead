@@ -52,7 +52,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         If the whitelist check fails, try to rebuild the list right away and try one more time. Whitelist just checks
         that the file exists under the current www root.  We will check if it is executable below.
      */
-#ifdef WEBS_WHITELIST_SUPPORT
+#if BIT_WHITELIST
     if ((rc = websWhitelistCheck(wp->url)) < 0 || !(rc & WHITELIST_CGI)) {
         websBuildWhitelist();
         if ((rc = websWhitelistCheck(wp->url)) < 0 || !(rc & WHITELIST_CGI)) {
@@ -82,7 +82,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     }
     fmtAlloc(&cgiPath, FNAMESIZE, T("%s/%s/%s"), websGetDefaultDir(),
         CGI_BIN, cgiName);
-#ifndef VXWORKS
+#if !VXWORKS
 
     /*
         See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
@@ -95,14 +95,14 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
             bfree(cgiPath);
             return 1;
         }
-#if (defined (WIN) || defined (CE))
-        if (gstrstr(cgiPath, T(".exe")) == NULL &&
-            gstrstr(cgiPath, T(".bat")) == NULL) {
-#elif (defined (NW))
-            if (gstrstr(cgiPath, T(".nlm")) == NULL) {
+#if BIT_WIN_LIKE
+        if (gstrstr(cgiPath, T(".exe")) == NULL && gstrstr(cgiPath, T(".bat")) == NULL)
+#elif NETWARE
+        if (gstrstr(cgiPath, T(".nlm")) == NULL)
 #else
-        if (gaccess(cgiPath, X_OK) != 0) {
-#endif /* WIN || CE */
+        if (gaccess(cgiPath, X_OK) != 0)
+#endif
+        {
             websError(wp, 200, T("CGI process file is not executable"));
             bfree(cgiPath);
             return 1;
@@ -515,7 +515,7 @@ int websCheckCgiProc(int handle)
 #endif /* LINUX || LYNX || MACOSX || QNX4 */
 
 
-#if NW
+#if NETWARE
 /*
      Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
      with bfree(); 
@@ -583,7 +583,7 @@ int websCheckCgiProc(int handle)
     }
 }
 
-#endif /* NW */
+#endif /* NETWARE */
 
 #if VXWORKS
 static void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv), char_t **argv, char_t **envp, char_t *stdIn, char_t

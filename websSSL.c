@@ -54,12 +54,7 @@ int websSSLOpen()
         trace(0, T("SSL support is disabled\n"));
         return -1;
     }
-
-#ifdef USE_NONBLOCKING_SSL_SOCKETS
     sslListenSock = socketOpenConnection(NULL, WEBS_DEFAULT_SSL_PORT, websSSLAccept, SOCKET_MYOWNBUFFERS);
-#else
-    sslListenSock = socketOpenConnection(NULL, WEBS_DEFAULT_SSL_PORT, websSSLAccept, SOCKET_BLOCK | SOCKET_MYOWNBUFFERS);
-#endif
     if (sslListenSock < 0) {
         trace(0, T("SSL: Unable to open SSL socket on port %d.\n"), WEBS_DEFAULT_SSL_PORT);
         return -1;
@@ -362,7 +357,8 @@ void websSSLClose()
     matrixSslClose();
 }
 
-#endif /* WEBS_SSL_SUPPORT */
+#endif /* BIT_PACK_SSL */
+
 /*
     @copy   default
 

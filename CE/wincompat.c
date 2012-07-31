@@ -15,28 +15,11 @@
 
 /********************************* Includes ***********************************/
 
+//  MOB  - fix
 #define     IN_GETOPT
 
 #include    <windows.h>
-
-#ifdef UEMF
-    #include "../uemf.h"
-#else /* not UEMF */
-    #include    "basic/basicInternal.h"
-    #include    <direct.h>
-    #include    <fcntl.h>
-    #include    <getopt.h>
-    #include    <io.h>
-    #include    <pwd.h>
-    #include    <stat.h>
-    #include    <stdio.h>
-    #include    <string.h>
-    #include    <time.h>
-    #include    <timeb.h>
-    #include    <types.h>
-    #include    <unistd.h>
-    #include    <ulimit.h>
-#endif /* UEMF */
+#include "../uemf.h"
 
 /************************************* Defines ********************************/
 
@@ -257,7 +240,6 @@ struct tm* localtime(const time_t *timer)
     return &localtm;
 }
 
-#ifndef LITTLEFOOT
 /******************************************************************************/
 /*
  *  Mock the UNIX ctime() call.
@@ -299,11 +281,10 @@ char_t *_wasctime(const struct tm *timeptr)
 
     return &strTime[0];
 }
-#endif  /* !LITTLEFOOT */
 
 /******************************************************************************/
 /*
- *  Mock the UNIX ftime() call.
+    Mock the UNIX ftime() call.
  */
 
 void ftime(struct timeb *tp)
@@ -311,10 +292,6 @@ void ftime(struct timeb *tp)
     tp->time = time(NULL);
     tp->millitm = 0;
     return;
-#ifdef UNSUPPORTED
-    short timezone;         /* timezone, minutes west of GMT */
-    short dstflag;          /* daylight savings */
-#endif /* UNSUPPORTED */
 }
 
 /******************************************************************************/
@@ -842,15 +819,11 @@ int isxdigit(int c)
 
 #endif
 
-/******************************************************************************/
-#ifndef LITTLEFOOT
 int umask(int mode)
 {
     return 0;
 }
-#endif
 
-/******************************************************************************/
 /*
  * If the application needs wprintf functionality, insert it here.
  */
@@ -873,12 +846,10 @@ int fputws(const char_t *fmt, FILE *stream)
 }
 #endif /* 0 */
 
-#ifndef LITTLEFOOT
 int _wexecvp(char_t *path, char_t** argv)
 {
     return -1;
 }
-#endif
 
 /******************************************************************************/
 /*

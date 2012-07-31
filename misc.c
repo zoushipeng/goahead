@@ -8,9 +8,6 @@
 
 #include    "uemf.h"
 
-//  MOB - remove and use this only
-#define kUseMemcopy
-
 /********************************* Defines ************************************/
 /*
     Sprintf buffer structure. Make the increment 64 so that a balloc can use a 64 byte block.
@@ -62,7 +59,7 @@ char_t *basename(char_t *name)
 {
     char_t  *cp;
 
-#if (defined (NW) || defined (WIN))
+#if NETWARE || WIN
     if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
         return name;
 #else
@@ -92,7 +89,7 @@ char_t *dirname(char_t *buf, char_t *name, int bufsize)
     a_assert(buf);
     a_assert(bufsize > 0);
 
-#if (defined (WIN) || defined (NW))
+#if NETWARE || WIN
     if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
 #else
     if ((cp = gstrrchr(name, '/')) == NULL)
@@ -513,12 +510,7 @@ char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
         return (char_t*) str;
     }
 #else
-
-#ifdef kUseMemcopy
    memcpy(ubuf, str, nBytes);
-#else
-    strncpy(ubuf, str, nBytes);
-#endif /*kUseMemcopy*/
 #endif
     return ubuf;
 }
@@ -537,11 +529,7 @@ char *uniToAsc(char *buf, char_t *ustr, int nBytes)
       return (char*) ustr;
    }
 #else
-#ifdef kUseMemcopy
    memcpy(buf, ustr, nBytes);
-#else
-   strncpy(buf, ustr, nBytes);
-#endif /* kUseMemcopy */
 #endif
    return (char*) buf;
 }

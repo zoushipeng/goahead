@@ -8,7 +8,7 @@
 
 #include    "wsIntrn.h"
 #include    "um.h"
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
 #include    "websda.h"
 #endif
 
@@ -29,12 +29,6 @@
 /******************************** Local Data **********************************/
 
 static char_t   websPassword[WEBS_MAX_PASS];    /* Access password (decoded) */
-//  MOB
-#ifdef _DEBUG
-static int      debugSecurity = 1;
-#else
-static int      debugSecurity = 0;
-#endif
 
 /*********************************** Code *************************************/
 /*
@@ -88,9 +82,9 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
     am = umGetAccessMethodForURL(accessLimit);
 
     nRet = 0;
-    if ((flags & WEBS_LOCAL_REQUEST) && (debugSecurity == 0)) {
+    if (flags & WEBS_LOCAL_REQUEST) {
         /*
-            Local access is always allowed (defeat when debugging)
+            Local access is always allowed
          */
     } else if (am == AM_NONE) {
         /*
@@ -126,7 +120,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
                 }
                 bfree (userpass);
             }
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
         } else if (flags & WEBS_AUTH_DIGEST) {
             char_t *digestCalc;
 
@@ -160,7 +154,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
             /*
                 No password has been specified
              */
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
             if (am == AM_DIGEST) {
                 wp->flags |= WEBS_AUTH_DIGEST;
             }
@@ -174,7 +168,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         /*
                 This will cause the browser to display a password / username dialog
          */
-#ifdef DIGEST_ACCESS_SUPPORT
+#if BIT_DIGEST_AUTH
         if (am == AM_DIGEST) {
             wp->flags |= WEBS_AUTH_DIGEST;
         }

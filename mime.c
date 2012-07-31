@@ -15,8 +15,6 @@
     Addd entries to the MimeList as required for your content
     MOB - compare with appweb
  */
-//  MOB - move to config?
-#define MORE_MIME_TYPES 1
 websMimeType websMimeList[] = {
     { T("application/java"), T(".class") },
     { T("application/java"), T(".jar") },
@@ -30,10 +28,9 @@ websMimeType websMimeList[] = {
     { T("image/vnd.microsoft.icon"), T(".ico") },
     { T("text/css"), T(".css") },
     { T("text/plain"), T(".txt") },
-   { T("application/x-javascript"), T(".js") },
-   { T("application/x-shockwave-flash"), T(".swf") },
+    { T("application/x-javascript"), T(".js") },
+    { T("application/x-shockwave-flash"), T(".swf") },
 
-#ifdef MORE_MIME_TYPES
     { T("application/binary"), T(".exe") },
     { T("application/compress"), T(".z") },
     { T("application/gzip"), T(".gz") },
@@ -106,7 +103,6 @@ websMimeType websMimeList[] = {
     { T("video/quicktime"), T(".mov") },
     { T("video/x-msvideo"), T(".avi") },
     { T("video/x-sgi-movie"), T(".movie") },
-#endif
     { NULL, NULL},
 };
 

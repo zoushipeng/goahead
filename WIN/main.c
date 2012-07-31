@@ -35,6 +35,7 @@ void        formDefineUserMgmt(void);
 /********************************** Defines ***********************************/
 /*
     Enable USE_DEMO_MODE to run Webs with the documentation tree and examples 
+    MOB - cleanup
 */
 /* #define USE_DEMO_MODE        1 */
 
@@ -89,13 +90,12 @@ static void     centerWindowOnDisplay(HWND hwndCenter);
 
 /*********************************** Code *************************************/
 /*
- *  WinMain -- entry point from Windows
+    WinMain -- entry point from Windows
  */
-int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
-                        char *args, int cmd_show)
+int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance, char *args, int cmd_show)
 {
     WPARAM  rc;
-#ifdef USE_DEMO_MODE
+#if USE_DEMO_MODE
     int demo = 1;
 #else
     int demo = 0;
@@ -444,7 +444,7 @@ static long CALLBACK websAboutProc(HWND hwndDlg, unsigned int msg,
  */
             hwnd = GetDlgItem(hwndDlg, IDC_VERSION);
             if (hwnd) {
-                SetWindowText(hwnd, WEBS_VERSION);
+                SetWindowText(hwnd, BIT_VERSION);
             }
 
             hwnd = GetDlgItem(hwndDlg, IDC_BUILDDATE);
@@ -562,7 +562,7 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
 /* 
  *  Copy the title of the dialog 
  */
-    nchar = nCopyAnsiToWideChar(p, WEBS_NAME);
+    nchar = nCopyAnsiToWideChar(p, BIT_TITLE);
     p += nchar;
 
 /*  
@@ -600,8 +600,7 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
 /*
  *  Copy the text of the first item
  */
-    nchar = nCopyAnsiToWideChar(p, 
-        TEXT("GoAhead WebServer ") WEBS_VERSION);
+    nchar = nCopyAnsiToWideChar(p, TEXT("GoAhead WebServer ") BIT_VERSION);
     p += nchar;
 #if BIT_PACK_SSL
     p -= sizeof(char_t);
