@@ -6,11 +6,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "wsIntrn.h"
-#include    "um.h"
-#if BIT_DIGEST_AUTH
-#include    "websda.h"
-#endif
+#include    "goahead.h"
 
 /********************************** Defines ***********************************/
 /*
@@ -51,6 +47,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
     password = websGetRequestPassword(wp);
     userid = websGetRequestUserName(wp);
     flags = websGetRequestFlags(wp);
+
     /*
         Get the access limit for the URL.  Exit if none found.
      */

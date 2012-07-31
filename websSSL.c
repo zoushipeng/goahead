@@ -9,14 +9,7 @@
 
 /********************************* Includes ***********************************/
 
-#include "wsIntrn.h"
-#include "websSSL.h"
-#include "webs.h"
-#include "matrixSSLSocket.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "goahead.h"
 
 /******************************* Definitions **********************************/
 
@@ -31,11 +24,11 @@ static int  websSSLReadEvent(webs_t wp);
 
 /******************************************************************************/
 /*
-      Start up the SSL Context for the application, and start a listen on the SSL port (usually 443, and defined by
-      WEBS_DEFAULT_SSL_PORT) Return 0 on success, -1 on failure.
+    Start up the SSL Context for the application, and start a listen on the SSL port (usually 443, and defined by
+    WEBS_DEFAULT_SSL_PORT) Return 0 on success, -1 on failure.
   
-      Not freeing keys or calling matrixSslClose on failures because websSSLClose will be called at application close to
-      do that
+    Not freeing keys or calling matrixSslClose on failures because websSSLClose will be called at application close to
+    do that
  */
 int websSSLOpen()
 {
@@ -119,7 +112,7 @@ int websSSLAccept(int sid, char *ipaddr, int port, int listenSid)
 
 
 /*
-      Perform a read of the SSL socket
+    Perform a read of the SSL socket
  */
 int websSSLRead(websSSL_t *wsp, char_t *buf, int len)
 {
@@ -130,13 +123,13 @@ int websSSLRead(websSSL_t *wsp, char_t *buf, int len)
 
 
 /*
-      Perform a gets of the SSL socket, returning an balloc'ed string
-  
-      Get a string from a socket. This returns data in *buf in a malloced string after trimming the '\n'. If there is
-      zero bytes returned, *buf will be set to NULL. If doing non-blocking I/O, it returns -1 for error, EOF or when no
-      complete line yet read. If doing blocking I/O, it will block until an entire line is read. If a partial line is
-      read socketInputBuffered or socketEof can be used to distinguish between EOF and partial line still buffered. This
-      routine eats and ignores carriage returns.
+    Perform a gets of the SSL socket, returning an balloc'ed string
+
+    Get a string from a socket. This returns data in *buf in a malloced string after trimming the '\n'. If there is
+    zero bytes returned, *buf will be set to NULL. If doing non-blocking I/O, it returns -1 for error, EOF or when no
+    complete line yet read. If doing blocking I/O, it will block until an entire line is read. If a partial line is
+    read socketInputBuffered or socketEof can be used to distinguish between EOF and partial line still buffered. This
+    routine eats and ignores carriage returns.
  */
 int websSSLGets(websSSL_t *wsp, char_t **buf)
 { 
@@ -188,7 +181,8 @@ int websSSLGets(websSSL_t *wsp, char_t **buf)
             }
         }
         /*
-            If a newline is seen, return the data excluding the new line to the caller. If carriage return is seen, just eat it.
+            If a newline is seen, return the data excluding the new line to the caller. If carriage return is seen, just
+            eat it.  
          */
         if (c == '\n') {
             len = ringqLen(lq);

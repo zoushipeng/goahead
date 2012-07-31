@@ -16,8 +16,7 @@
 #ifndef CE
 #include    <time.h>
 #endif
-#include    "websda.h"
-#include    "md5.h"
+#include    "goahead.h"
 
 #if BIT_DIGEST_AUTH
 /******************************** Local Data **********************************/

@@ -1,36 +1,18 @@
 /* 
-    ejIntrn.h -- Internal Ejscript header
+    js.h -- Mini JavaScript header
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-#ifndef _h_EJINTERNAL
-#define _h_EJINTERNAL 1
+#ifndef _h_JS
+#define _h_JS 1
 
 /********************************* Includes ***********************************/
 
-//  MOB - move these into goahead.h
-
-#include    <ctype.h>
-#include    <stdarg.h>
-#include    <stdlib.h>
-
-#if WIN32
-    #include    <share.h>
-#endif
-
-#if LYNX
-    #include    <unistd.h>
-#endif
-
-#if QNX
-    #include    <dirent.h>
-#endif
-
 #include    "goahead.h"
-#include    "ej.h"
 
 /********************************** Defines ***********************************/
+//  MOB - consider JS prefix instead of EJ
 /*
     Constants
  */
@@ -170,7 +152,7 @@ extern int      ejOpenBlock(int eid);
 extern int      ejCloseBlock(int eid, int vid);
 extern char_t   *ejEvalBlock(int eid, char_t *script, char_t **emsg);
 
-#ifndef __NO_EJ_FILE
+#if !ECOS && UNUSED && KEEP
 extern char_t   *ejEvalFile(int eid, char_t *path, char_t **emsg);
 #endif
 
@@ -210,7 +192,16 @@ extern int ejEmfTrace(int eid, void *handle, int argc, char_t **argv);
 extern int ejEmfDbWrite(int eid, void *handle, int argc, char_t **argv);
 extern int ejEmfDbCollectTable(int eid, void *handle, int argc, char_t **argv);
 
-#endif /* _h_EJINTERNAL */
+extern int      ejArgs(int argc, char_t **argv, char_t *fmt, ...);
+extern void     ejSetResult(int eid, char_t *s);
+extern int      ejOpenEngine(sym_fd_t variables, sym_fd_t functions);
+extern void     ejCloseEngine(int eid);
+extern int      ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
+extern void     ejSetVar(int eid, char_t *var, char_t *value);
+extern int      ejGetVar(int eid, char_t *var, char_t **value);
+extern char_t   *ejEval(int eid, char_t *script, char_t **emsg);
+
+#endif /* _h_JS */
 
 /*
     @copy   default

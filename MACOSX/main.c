@@ -17,17 +17,11 @@
 /********************************* Includes ***********************************/
 
 #include    "../goahead.h"
-#include    "../wsIntrn.h"
 #include    <signal.h>
 #include    <unistd.h> 
 #include    <sys/types.h>
 
-#if BIT_PACK_SSL
-#include    "../websSSL.h"
-#endif
-
 #if BIT_USER_MANAGEMENT
-#include    "../um.h"
 void    formDefineUserMgmt(void);
 #endif
 
@@ -44,11 +38,13 @@ static int          finished = 0;                   /* Finished flag */
 /****************************** Forward Declarations **************************/
 
 static int  initWebs(int demo);
-static int  aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
                 int arg, char_t *url, char_t *path, char_t *query);
 static void sigintHandler(int);
+#if BIT_JAVASCRIPT
+static int  aspTest(int eid, webs_t wp, int argc, char_t **argv);
+#endif
 
 /*********************************** Code *************************************/
 /*
@@ -209,18 +205,18 @@ static int initWebs(int demo)
  *  with the longest path handler examined first. Here we define the security 
  *  handler, forms handler and the default web page handler.
  */
-    websUrlHandlerDefine(T(""), NULL, 0, websSecurityHandler, 
-        WEBS_HANDLER_FIRST);
+    websUrlHandlerDefine(T(""), NULL, 0, websSecurityHandler, WEBS_HANDLER_FIRST);
     websUrlHandlerDefine(T("/goform"), NULL, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), NULL, 0, websCgiHandler, 0);
-    websUrlHandlerDefine(T(""), NULL, 0, websDefaultHandler, 
-        WEBS_HANDLER_LAST); 
+    websUrlHandlerDefine(T(""), NULL, 0, websDefaultHandler, WEBS_HANDLER_LAST); 
 
+#if BIT_JAVASCRIPT
 /*
  *  Now define two test procedures. Replace these with your application
  *  relevant ASP script procedures and form functions.
  */
     websAspDefine(T("aspTest"), aspTest);
+#endif
     websFormDefine(T("formTest"), formTest);
 
 /*
@@ -237,7 +233,7 @@ static int initWebs(int demo)
     return 0;
 }
 
-/******************************************************************************/
+#if BIT_JAVASCRIPT
 /*
  *  Test Javascript binding for ASP. This will be invoked when "aspTest" is
  *  embedded in an ASP page. See web/asp.asp for usage. Set browser to 
@@ -254,6 +250,7 @@ static int aspTest(int eid, webs_t wp, int argc, char_t **argv)
     }
     return websWrite(wp, T("Name: %s, Address %s"), name, address);
 }
+#endif
 
 /******************************************************************************/
 /*

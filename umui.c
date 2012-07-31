@@ -6,9 +6,9 @@
 
 /********************************* Includes ***********************************/
 
-#include    "wsIntrn.h"
-#include    "um.h"
+#include    "goahead.h"
 
+#if BIT_USER_MANAGEMENT
 /********************************* Defines ************************************/
 
 #define     NONE_OPTION     T("<NONE>")
@@ -521,6 +521,7 @@ static void websMsgEnd(webs_t wp)
     websWrite(wp, MSG_END);
 }
 
+#endif /* BIT_USER_MANAGEMENT */
 
 /*
     @copy   default

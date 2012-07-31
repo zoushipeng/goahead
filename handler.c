@@ -8,7 +8,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "wsIntrn.h"
+#include    "goahead.h"
 
 /*********************************** Locals ***********************************/
 
@@ -28,9 +28,9 @@ static char_t   *websCondenseMultipleChars(char_t *strToCondense, char_t cConden
 int websUrlHandlerOpen()
 {
     if (++urlHandlerOpenCount == 1) {
-        websAspOpen();
         websUrlHandler = NULL;
         websUrlHandlerMax = 0;
+        websAspOpen();
     }
     return 0;
 }

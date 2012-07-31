@@ -14,10 +14,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "wsIntrn.h"
-#if BIT_DIGEST_AUTH
-    #include    "websda.h"
-#endif
+#include    "goahead.h"
 
 //  MOB - mov eto header
 extern socket_t                **socketList;                   /* List of open sockets */
@@ -405,7 +402,7 @@ void websReadEvent(webs_t wp)
                 POST request with content specified by a content length.  If this is a CGI request, write the data to
                 the cgi stdin.
              */
-#ifndef __NO_CGI_BIN
+#if BIT_CGI
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
 #if !WIN
@@ -485,7 +482,7 @@ void websReadEvent(webs_t wp)
                 POST without content-length specification. If this is a CGI request, write the data to the cgi stdin.
                 socketGets was used to get the data and it strips \n's so add them back in here.
              */
-#ifndef __NO_CGI_BIN
+#if BIT_CGI
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
                     //  MOB - refactor and push into gopen
@@ -751,7 +748,7 @@ static int websParseFirst(webs_t wp, char_t *text)
     }
     wp->url = bstrdup(url);
 
-#ifndef __NO_CGI_BIN
+#if BIT_CGI
     if (gstrstr(url, CGI_BIN) != NULL) {
         wp->flags |= WEBS_CGI_REQUEST;
         if (wp->flags & WEBS_POST_REQUEST) {
@@ -2350,17 +2347,10 @@ const int GregorianEpoch = 1;
  */
 int GregorianLeapYearP(long year) 
 {
-    int     result;
     long    tmp;
     
     tmp = year % 400;
-
-    if ((year % 4 == 0) && (tmp != 100) && (tmp != 200) && (tmp != 300)) {
-        result = TRUE;
-    } else {
-        result = FALSE;
-    }
-    return result;
+    return (year % 4 == 0) && (tmp != 100) && (tmp != 200) && (tmp != 300);
 }
 
 
@@ -2379,7 +2369,7 @@ long FixedFromGregorian(long month, long day, long year)
 
     if (month <= 2) {
         fixedDate += 0;
-    } else if (TRUE == GregorianLeapYearP(year)) {
+    } else if (GregorianLeapYearP(year)) {
         fixedDate += -1;
     } else {
         fixedDate += -2;

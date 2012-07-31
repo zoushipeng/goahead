@@ -4,8 +4,8 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-#ifndef _h_UEMF
-#define _h_UEMF 1
+#ifndef _h_GOAHEAD
+#define _h_GOAHEAD 1
 
 /************************************ Defaults ********************************/
 
@@ -232,6 +232,7 @@
     #include    <stdlib.h>
     #include    <fcntl.h>
     #include    <errno.h>
+    #include    <share.h>
 #endif /* WIN */
 
 #if CE
@@ -352,10 +353,6 @@
     #include    <errno.h>
 #endif /* VXWORKS */
 
-#if sparc
-# define __NO_PACK
-#endif /* sparc */
-
 #if SOLARIS
     #include    <sys/types.h>
     #include    <limits.h>
@@ -384,6 +381,7 @@
     #include    <unistd.h>
     #include    <sys/uio.h>
     #include    <sys/wait.h>
+    #include    <dirent.h>
 #endif /* QNX */
 
 #if ECOS
@@ -395,8 +393,9 @@
     #include    <errno.h>
 #endif /* ECOS */
 
-/********************************** Includes **********************************/
-
+/*
+    Included by all
+ */
 #include    <ctype.h>
 #include    <stdarg.h>
 #include    <string.h>
@@ -519,9 +518,13 @@
 #endif
 
 #ifdef __USE_FILE_OFFSET64
-    #define HAS_OFF64 1
+    #define BIT_HAS_OFF64 1
 #else
-    #define HAS_OFF64 0
+    #define BIT_HAS_OFF64 0
+#endif
+
+#if BIT_UNIX_LIKE
+    #define BIT_HAS_FCNTL 1
 #endif
 
 /*
@@ -552,9 +555,6 @@
     #if BIT_UNIX_LIKE
         __extension__ typedef unsigned long long int uint64;
     #elif VXWORKS || DOXYGEN
-        /**
-            Unsigned integer 64 bit data type.
-         */
         typedef unsigned long long int uint64;
     #elif BIT_WIN_LIKE
         typedef unsigned __int64 uint64;
@@ -566,43 +566,32 @@
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
  */
-typedef int64 MprOff;
+typedef int64 filepos;
 
-/*
-    Socklen_t
- */
 #if DOXYGEN
-    typedef int MprSocklen;
-#elif VXWORKS
-    typedef int MprSocklen;
+    typedef int socklen;
+#elif VXWORKS || BLD_WIN_LIKE
+    typedef int socklen;
 #else
-    typedef socklen_t MprSocklen;
+    typedef socklen_t socklen;
 #endif
 
-/**
-    Date and Time Service
-    @stability Evolving
-    @see MprTime mprCompareTime mprCreateTimeService mprDecodeLocalTime mprDecodeUniversalTime mprFormatLocalTime 
-        mprFormatTm mprGetDate mprGetElapsedTime mprGetRemainingTime mprGetTicks mprGetTimeZoneOffset mprMakeTime 
-        mprMakeUniversalTime mprParseTime 
-    @defgroup MprTime MprTime
- */
-typedef int64 MprTime;
+typedef int64 datetime;
 
 #ifndef BITSPERBYTE
-    #define BITSPERBYTE     (8 * sizeof(char))
+    #define BITSPERBYTE (8 * sizeof(char))
 #endif
 
 #ifndef BITS
-    #define BITS(type)      (BITSPERBYTE * (int) sizeof(type))
+    #define BITS(type)  (BITSPERBYTE * (int) sizeof(type))
 #endif
 
 #if BIT_FLOAT
     #ifndef MAXFLOAT
         #if BIT_WIN_LIKE
-            #define MAXFLOAT        DBL_MAX
+            #define MAXFLOAT  DBL_MAX
         #else
-            #define MAXFLOAT        FLT_MAX
+            #define MAXFLOAT  FLT_MAX
         #endif
     #endif
     #if VXWORKS
@@ -672,11 +661,11 @@ typedef int64 MprTime;
 #if BIT_WIN_LIKE
     #define INT64(x)    (x##i64)
     #define UINT64(x)   (x##Ui64)
-    #define MPR_EXPORT  __declspec(dllexport)
+    #define BIT_EXPORT  __declspec(dllexport)
 #else
     #define INT64(x)    (x##LL)
     #define UINT64(x)   (x##ULL)
-    #define MPR_EXPORT 
+    #define BIT_EXPORT 
 #endif
 
 #ifndef max
@@ -732,6 +721,26 @@ typedef int64 MprTime;
     #define F_OK    0
 #endif
 
+#ifndef O_RDONLY
+    #if ECOS
+        #define     O_RDONLY  1
+    #else
+        #define     O_RDONLY  1
+    #endif
+#endif
+
+#ifndef O_BINARY
+    #if ECOS 
+        #define O_BINARY 2
+    #else
+        #define O_BINARY 0
+    #endif
+#endif
+
+#ifndef SOCKET_ERROR
+    #define SOCKET_ERROR -1
+#endif
+
 #if MACSOX
     #define LD_LIBRARY_PATH "DYLD_LIBRARY_PATH"
 #else
@@ -739,42 +748,22 @@ typedef int64 MprTime;
 #endif
 
 #if VXWORKS
-/*
-    Old VxWorks can't do array[]
- */
-#define MPR_FLEX 0
+    /* Old VxWorks can't do array[] */
+    #define BIT_FLEX 0
 #else
-#define MPR_FLEX
+    #define BIT_FLEX
 #endif
 
 /*********************************** Fixups ***********************************/
 
-//  MOB - sort this out
-#if UW
-    #define     __NO_PACK       1
-#endif /* UW */
-
 #if ECOS
-    #define     O_RDONLY        1
-    #define     O_BINARY        2
-    #define     __NO_PACK       1
-    #define     __NO_EJ_FILE    1
-    #define     __NO_CGI_BIN    1
-    #define     __NO_FCNTL      1
-    /* #define LIBKERN_INLINE to avoid kernel inline functions */
-    #define     LIBKERN_INLINE
+    #define     LIBKERN_INLINE          /* to avoid kernel inline functions */
+    #if BIT_CGI
+        #error "Ecos does not support CGI. Disable BIT_CGI"
+    #endif
 #endif /* ECOS */
 
 #if BIT_WIN_LIKE
-    #define     __NO_FCNTL      1
-    #undef R_OK
-    #define R_OK    4
-    #undef W_OK
-    #define W_OK    2
-    #undef X_OK
-    #define X_OK    1
-    #undef F_OK
-    #define F_OK    0
     typedef int socklen_t;
     #ifndef EWOULDBLOCK
         #define EWOULDBLOCK WSAEWOULDBLOCK
@@ -785,14 +774,8 @@ typedef int64 MprTime;
     #ifndef ECONNRESET
         #define ECONNRESET  WSAECONNRESET
     #endif
-#else
-    #ifndef O_BINARY
-        #define O_BINARY 0
-    #endif
-    #define SOCKET_ERROR -1
 #endif
 
-//MOB - why?
 #if LINUX && !defined(_STRUCT_TIMEVAL)
 struct timeval
 {
@@ -800,78 +783,66 @@ struct timeval
     time_t  tv_usec;    /* Microseconds.  */
 };
 #define _STRUCT_TIMEVAL 1
-#endif /* LINUX && !_STRUCT_TIMEVAL */
+#endif
 
 #if QNX
-    typedef long        fd_mask;
+    typedef long fd_mask;
     #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
 #endif
 
 #if MACOSX
-    typedef int32_t         fd_mask;
+    typedef int32_t fd_mask;
 #endif
 
 #if NETWARE
     #define fd_mask         fd_set
     #define INADDR_NONE     -1l
     #define Sleep           delay
-    #define __NO_FCNTL      1
-    #undef R_OK
-    #define R_OK    4
-    #undef W_OK
-    #define W_OK    2
-    #undef X_OK
-    #define X_OK    1
-    #undef F_OK
-    #define F_OK    0
 #endif /* NETWARE */
 
-#ifndef CHAR_T_DEFINED
-#define CHAR_T_DEFINED 1
-
 #if UNICODE
+
+typedef ushort char_t;
+typedef ushort uchar_t;
+
 /*
     To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
  */
-#define T(x)                __TXT(x)
-#define __TXT(s)            L ## s
-
-//  MOB - review these. Perhaps use wchar and uwchar
-typedef unsigned short      char_t;
-typedef unsigned short      uchar_t;
+#define T(x)      __TXT(x)
+#define __TXT(s)  L ## s
 
 /*
     Text size of buffer macro. A buffer bytes will hold (size / char size) characters. 
  */
-#define TSZ(x)              (sizeof(x) / sizeof(char_t))
+#define TSZ(x) (sizeof(x) / sizeof(char_t))
 
+#if UNUSED
 /*
     How many ASCII bytes are required to represent this UNICODE string?
  */
-#define TASTRL(x)           ((wcslen(x) + 1) * sizeof(char_t))
+#define TASTRL(x) ((wcslen(x) + 1) * sizeof(char_t))
+#endif
 
 #else
-    #define T(s)                s
-    typedef char                char_t;
-    #define TSZ(x)              (sizeof(x))
-    #define TASTRL(x)           (strlen(x) + 1)
+    #define T(s)        s
+    #define TSZ(x)      (sizeof(x))
+#if UNUSED
+    #define TASTRL(x)   (strlen(x) + 1)
+#endif
+    typedef char        char_t;
     #if WIN
-    typedef unsigned char       uchar_t;
-    #endif /* WIN */
-
+        typedef uchar   uchar_t;
+    #endif
 #endif /* UNICODE */
-#endif /* ! CHAR_T_DEFINED */
 
-/*
-    "Boolean" constants
-    MOB - remove these
- */
+#if UNUSED
 #ifndef TRUE
 #define TRUE 1
 #endif
 
 #ifndef FALSE
 #define FALSE 0
+#endif
 #endif
 
 /*
@@ -1120,10 +1091,6 @@ typedef enum {
     errmsg      = 13
 } vtype_t;
 
-#ifndef __NO_PACK
-#pragma pack(2)
-#endif /* _NO_PACK */
-
 typedef struct {
     union {
         char    flag;
@@ -1147,10 +1114,6 @@ typedef struct {
     unsigned int    valid       : 8;
     unsigned int    allocated   : 8;        /* String was allocated */
 } value_t;
-
-#ifndef __NO_PACK
-#pragma pack()
-#endif /* __NO_PACK */
 
 /*
      llocation flags 
@@ -1519,11 +1482,648 @@ extern void     harnessPassed();
 extern void     harnessFailed(int line);
 extern int      harnessLevel();
 
-#ifdef __cplusplus
-}
-#endif
-#endif /* _h_UEMF */
+//  MOB - replace with mprCrypt MD5
+typedef struct {
+    uint lengthHi;
+    uint lengthLo;
+    uint state[4], curlen;
+    uchar buf[64];
+} psDigestContext_t;
 
+typedef psDigestContext_t psMd5Context_t;
+extern void psMd5Init(psMd5Context_t *md);
+extern void psMd5Update(psMd5Context_t *md, uchar *buf, uint len);
+extern int  psMd5Final(psMd5Context_t *md, uchar *hash);
+
+/*************************** User Configurable Defines ************************/
+
+//  MOB - move to a config.h
+
+//  MOB - PREFIX
+#define DEFAULT_CERT_FILE   "certSrv.pem"     /* Public key certificate */
+#define DEFAULT_KEY_FILE    "privkeySrv.pem"  /* Private key file */
+
+#define WEBS_DEFAULT_HOME       T("home.htm") /* Default home page */
+#define WEBS_DEFAULT_PORT       8080        /* Default HTTP port */
+#define WEBS_DEFAULT_SSL_PORT   4433        /* Default HTTPS port */
+
+/* Enable Whitelist access to files */
+#define WEBS_WHITELIST_SUPPORT  1
+
+/* Enable logging of web accesses to a file */
+#define WEBS_LOG_SUPPORT 1
+
+/* Enable trace APIs to a file */
+#define WEBS_TRACE_SUPPORT 1
+#define WEBS_TRACE_LEVEL 3
+
+/* Enable HTTP/1.1 keep-alive support */
+/* #define WEBS_KEEP_ALIVE_SUPPORT 1 */
+
+/* Experimental support proxy capability and track local vs remote request */
+/* #define WEBS_PROXY_SUPPORT 1 */
+
+/* Support reading pages from ROM (with webcomp.c) */
+/* #define WEBS_PAGE_ROM 1 */
+
+/********************************** Defines ***********************************/
+
+//  MOB - some of these are tunables
+
+#define WEBS_HEADER_BUFINC      512         /* Header buffer size */
+//  MOB - rename ASP => WEBS_JS_BUFINC
+#define WEBS_ASP_BUFINC         512         /* Asp expansion increment */
+#define WEBS_MAX_PASS           32          /* Size of password */
+#define WEBS_BUFSIZE            960         /* websWrite max output string */
+#define WEBS_MAX_HEADER         (5 * 1024)  /* Sanity check header */
+#define WEBS_MAX_URL            2048        /* Maximum URL size for sanity */
+#define WEBS_SOCKET_BUFSIZ      256         /* Bytes read from socket */
+
+//  MOB - prefix
+#define PAGE_READ_BUFSIZE       512         /* bytes read from page files */
+#define MAX_PORT_LEN            10          /* max digits in port number */
+#define WEBS_SYM_INIT           64          /* initial # of sym table entries */
+
+#if UNUSED
+#define WEBS_HTTP_PORT          T("httpPort")
+#endif
+
+#define CGI_BIN                 T("cgi-bin")
+
+/* 
+    Request flags. Also returned by websGetRequestFlags()
+ */
+#define WEBS_LOCAL_PAGE         0x1         /* Request for local webs page */ 
+#define WEBS_KEEP_ALIVE         0x2         /* HTTP/1.1 keep alive */
+#define WEBS_COOKIE             0x8         /* Cookie supplied in request */
+#define WEBS_IF_MODIFIED        0x10        /* If-modified-since in request */
+#define WEBS_POST_REQUEST       0x20        /* Post request operation */
+#define WEBS_LOCAL_REQUEST      0x40        /* Request from this system */
+#define WEBS_HOME_PAGE          0x80        /* Request for the home page */ 
+//  MOB - rename ASP => WEBS_JS
+#define WEBS_ASP                0x100       /* ASP request */ 
+#define WEBS_HEAD_REQUEST       0x200       /* Head request */
+#define WEBS_CLEN               0x400       /* Request had a content length */
+#define WEBS_FORM               0x800       /* Request is a form */
+#define WEBS_REQUEST_DONE       0x1000      /* Request complete */
+#define WEBS_POST_DATA          0x2000      /* Already appended post data */
+#define WEBS_CGI_REQUEST        0x4000      /* cgi-bin request */
+#define WEBS_SECURE             0x8000      /* connection uses SSL */
+#define WEBS_AUTH_BASIC         0x10000     /* Basic authentication request */
+#define WEBS_AUTH_DIGEST        0x20000     /* Digest authentication request */
+#define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
+
+/*
+    URL handler flags
+ */
+#define WEBS_HANDLER_FIRST  0x1         /* Process this handler first */
+#define WEBS_HANDLER_LAST   0x2         /* Process this handler last */
+
+/* 
+    Read handler flags and state
+ */
+#define WEBS_BEGIN          0x1         /* Beginning state */
+#define WEBS_HEADER         0x2         /* Ready to read first line */
+#define WEBS_POST           0x4         /* POST without content */
+#define WEBS_POST_CLEN      0x8         /* Ready to read content for POST */
+#define WEBS_PROCESSING     0x10        /* Processing request */
+#define WEBS_KEEP_TIMEOUT   15000       /* Keep-alive timeout (15 secs) */
+#define WEBS_TIMEOUT        60000       /* General request timeout (60) */
+
+/* 
+    Per socket connection webs structure
+ */
+typedef struct websRec {
+    ringq_t         header;             /* Header dynamic string */
+    time_t          since;              /* Parsed if-modified-since time */
+    sym_fd_t        cgiVars;            /* CGI standard variables */
+    sym_fd_t        cgiQuery;           /* CGI decoded query string */
+    time_t          timestamp;          /* Last transaction with browser */
+    int             timeout;            /* Timeout handle */
+    char_t          ipaddr[32];         /* Connecting ipaddress */
+    char_t          ifaddr[32];         /* Local interface ipaddress */
+    char_t          type[64];           /* Mime type */
+    char_t          *dir;               /* Directory containing the page */
+    char_t          *path;              /* Path name without query */
+    char_t          *url;               /* Full request url */
+    char_t          *host;              /* Requested host */
+    char_t          *lpath;             /* Cache local path name */
+    char_t          *query;             /* Request query */
+    char_t          *decodedQuery;      /* Decoded request query */
+    char_t          *authType;          /* Authorization type (Basic/DAA) */
+    char_t          *password;          /* Authorization password */
+    char_t          *userName;          /* Authorization username */
+    char_t          *cookie;            /* Cookie string */
+    char_t          *userAgent;         /* User agent (browser) */
+    char_t          *protocol;          /* Protocol (normally HTTP) */
+    char_t          *protoVersion;      /* Protocol version */
+    int             sid;                /* Socket id (handler) */
+    int             listenSid;          /* Listen Socket id */
+    int             port;               /* Request port number */
+    int             state;              /* Current state */
+    int             flags;              /* Current flags -- see above */
+    int             code;               /* Request result code */
+    int             clen;               /* Content length */
+    int             wid;                /* Index into webs */
+    char_t          *cgiStdin;          /* filename for CGI stdin */
+    int             docfd;              /* Document file descriptor */
+    int             numbytes;           /* Bytes to transfer to browser */
+    int             written;            /* Bytes actually transferred */
+    void            (*writeSocket)(struct websRec *wp);
+#if BIT_DIGEST_AUTH
+    char_t          *realm;     /* usually the same as "host" from websRec */
+    char_t          *nonce;     /* opaque-to-client string sent by server */
+    char_t          *digest;    /* digest form of user password */
+    char_t          *uri;       /* URI found in DAA header */
+    char_t          *opaque;    /* opaque value passed from server */
+    char_t          *nc;        /* nonce count */
+    char_t          *cnonce;    /* check nonce */
+    char_t          *qop;       /* quality operator */
+#endif
+#if BIT_PACK_SSL
+    websSSL_t       *wsp;       /* SSL data structure */
+#endif
+} websRec;
+
+typedef websRec *webs_t;
+typedef websRec websType;
+
+/*
+    URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.
+ */ 
+typedef struct {
+    int     (*handler)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
+            char_t *query);                 /* Callback URL handler function */
+    char_t  *webDir;                        /* Web directory if required */
+    char_t  *urlPrefix;                     /* URL leading prefix */
+    int     len;                            /* Length of urlPrefix for speed */
+    int     arg;                            /* Argument to provide to handler */
+    int     flags;                          /* Flags */
+} websUrlHandlerType;
+
+/* 
+    Webs statistics
+    MOB - remove these?
+ */
+typedef struct {
+    long            errors;                 /* General errors */
+    long            redirects;
+    long            net_requests;
+    long            activeNetRequests;
+    long            activeBrowserRequests;
+    long            timeouts;
+    long            access;                 /* Access violations */
+    long            localHits;
+    long            remoteHits;
+    long            formHits;
+    long            cgiHits;
+    long            handlerHits;
+} websStatsType;
+
+extern websStatsType websStats;             /* Web access stats */
+
+/* 
+    Error code list
+ */
+typedef struct {
+    int     code;                           /* HTTP error code */
+    char_t  *msg;                           /* HTTP error message */
+} websErrorType;
+
+/* 
+    Mime type list
+ */
+typedef struct {
+    char_t  *type;                          /* Mime type */
+    char_t  *ext;                           /* File extension */
+} websMimeType;
+
+/*
+    File information structure.
+ */
+typedef struct {
+    unsigned long   size;                   /* File length */
+    int             isDir;                  /* Set if directory */
+    time_t          mtime;                  /* Modified time */
+} websStatType;
+
+/*
+    Compiled Rom Page Index
+ */
+typedef struct {
+    char_t          *path;                  /* Web page URL path */
+    unsigned char   *page;                  /* Web page data */
+    int             size;                   /* Size of web page in bytes */
+    int             pos;                    /* Current read position */
+} websRomPageIndexType;
+
+/*
+    Defines for file open.
+    MOB - move to goahead.h
+ */
+#if CE
+    #define SOCKET_RDONLY   0x1
+    #define SOCKET_BINARY   0x2
+#else /* CE */
+    #define SOCKET_RDONLY   O_RDONLY
+    #define SOCKET_BINARY   O_BINARY
+#endif /* CE */
+
+#define WHITELIST_SSL 0x001   /* File only accessible through https */
+#define WHITELIST_CGI 0x002   /* Node is in the cgi-bin dir */
+
+/*
+    Globals
+ */
+extern websRomPageIndexType websRomPageIndex[];
+extern websMimeType     websMimeList[];     /* List of mime types */
+extern sym_fd_t         websMime;           /* Set of mime types */
+extern webs_t*          webs;               /* Session list head */
+extern int              websMax;            /* List size */
+extern char_t           websHost[64];       /* Name of this host */
+extern char_t           websIpaddr[64];     /* IP address of this host */
+extern char_t           *websHostUrl;       /* URL for this host */
+extern char_t           *websIpaddrUrl;     /* URL for this host */
+extern int              websPort;           /* Port number */
+
+/******************************** Prototypes **********************************/
+
+extern int       websAccept(int sid, char *ipaddr, int port, int listenSid);
+extern int       websAspDefine(char_t *name, int (*fn)(int ejid, webs_t wp, int argc, char_t **argv));
+extern int       websAspRequest(webs_t wp, char_t *lpath);
+extern void      websCloseListen();
+extern int       websDecode64(char_t *outbuf, char_t *string, int buflen);
+extern void      websDecodeUrl(char_t *token, char_t *decoded, int len);
+extern void      websDone(webs_t wp, int code);
+extern void      websEncode64(char_t *outbuf, char_t *string, int buflen);
+extern void      websError(webs_t wp, int code, char_t *msg, ...);
+extern char_t   *websErrorMsg(int code);
+extern void      websFooter(webs_t wp);
+extern int       websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query));
+extern char_t   *websGetDefaultDir();
+extern char_t   *websGetDefaultPage();
+extern char_t   *websGetHostUrl();
+extern char_t   *websGetIpaddrUrl();
+extern char_t   *websGetPassword();
+extern int       websGetPort();
+extern char_t   *websGetPublishDir(char_t *path, char_t **urlPrefix);
+extern char_t   *websGetRealm();
+extern int       websGetRequestBytes(webs_t wp);
+extern char_t   *websGetRequestDir(webs_t wp);
+extern int       websGetRequestFlags(webs_t wp);
+extern char_t   *websGetRequestIpaddr(webs_t wp);
+extern char_t   *websGetRequestLpath(webs_t wp);
+extern char_t   *websGetRequestPath(webs_t wp);
+extern char_t   *websGetRequestPassword(webs_t wp);
+extern char_t   *websGetRequestType(webs_t wp);
+extern int       websGetRequestWritten(webs_t wp);
+extern char_t   *websGetVar(webs_t wp, char_t *var, char_t *def);
+extern int       websCompareVar(webs_t wp, char_t *var, char_t *value);
+extern void      websHeader(webs_t wp);
+extern int       websOpenListen(int port, int retries);
+extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
+extern void      websPageClose(webs_t wp);
+extern int       websPublish(char_t *urlPrefix, char_t *path);
+extern void      websRedirect(webs_t wp, char_t *url);
+extern void      websSecurityDelete();
+extern int       websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
+                    char_t *query);
+extern void     websSetDefaultDir(char_t *dir);
+extern void     websSetDefaultPage(char_t *page);
+extern void     websSetEnv(webs_t wp);
+extern void     websSetHost(char_t *host);
+extern void     websSetIpaddr(char_t *ipaddr);
+extern void     websSetPassword(char_t *password);
+extern void     websSetRealm(char_t *realmName);
+extern void     websSetRequestBytes(webs_t wp, int bytes);
+extern void     websSetRequestFlags(webs_t wp, int flags);
+extern void     websSetRequestLpath(webs_t wp, char_t *lpath);
+extern void     websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
+extern char_t  *websGetRequestUserName(webs_t wp);
+extern void     websSetRequestWritten(webs_t wp, int written);
+extern void     websSetVar(webs_t wp, char_t *var, char_t *value);
+extern int      websTestVar(webs_t wp, char_t *var);
+extern void     websTimeoutCancel(webs_t wp);
+extern int      websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int (*fn)(webs_t wp, char_t *urlPrefix, 
+                    char_t *webDir, int arg, char_t *url, char_t *path, char_t *query), int flags);
+extern int      websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
+                    char_t *path, char_t *query));
+extern int      websUrlHandlerRequest(webs_t wp);
+extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
+                    char_t **proto, char_t **tag, char_t **ext);
+extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
+extern int       websWrite(webs_t wp, char_t* fmt, ...);
+extern int       websWriteBlock(webs_t wp, char_t *buf, int nChars);
+extern int       websWriteDataNonBlock(webs_t wp, char *buf, int nChars);
+extern int       websValid(webs_t wp);
+extern int       websValidateUrl(webs_t wp, char_t *path);
+extern void      websSetTimeMark(webs_t wp);
+
+/*
+    The following prototypes are used by the SSL layer websSSL.c
+ */
+extern int      websAlloc(int sid);
+extern void     websFree(webs_t wp);
+extern void     websTimeout(void *arg, int id);
+extern void     websReadEvent(webs_t wp);
+
+extern char_t   *websCalcNonce(webs_t wp);
+extern char_t   *websCalcOpaque(webs_t wp);
+extern char_t   *websCalcDigest(webs_t wp);
+extern char_t   *websCalcUrlDigest(webs_t wp);
+
+#if BIT_JAVASCRIPT
+extern int       websAspOpen();
+extern void      websAspClose();
+extern int       websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
+#endif
+
+extern void      websFormOpen();
+extern void      websFormClose();
+extern void      websDefaultOpen();
+extern void      websDefaultClose();
+
+#if BIT_WHITELIST
+extern int      websBuildWhitelist(void);
+extern int      websWhitelistCheck(char *path);
+extern void     websDeleteWhitelist(void);
+#endif
+
+extern int       websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
+                    char_t *query);
+extern int       websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
+                    char_t *query);
+extern int       websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
+                    char_t *query);
+extern void      websCgiCleanup();
+extern int       websCheckCgiProc(int handle);
+extern char_t    *websGetCgiCommName();
+
+extern int       websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
+extern int       websOpen(int sid);
+extern void      websResponse(webs_t wp, int code, char_t *msg, char_t *redirect);
+extern int       websJavaScriptEval(webs_t wp, char_t *script);
+extern int       websPageReadData(webs_t wp, char *buf, int nBytes);
+extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
+extern void      websPageClose(webs_t wp);
+extern void      websPageSeek(webs_t wp, long offset);
+extern int       websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType *sbuf);
+extern int       websPageIsDirectory(char_t *lpath);
+extern int       websRomOpen();
+extern void      websRomClose();
+extern int       websRomPageOpen(webs_t wp, char_t *path, int mode, int perm);
+extern void      websRomPageClose(int fd);
+extern int       websRomPageReadData(webs_t wp, char *buf, int len);
+extern int       websRomPageStat(char_t *path, websStatType *sbuf);
+extern long      websRomPageSeek(webs_t wp, long offset, int origin);
+extern void      websSetRequestSocketHandler(webs_t wp, int mask, 
+                    void (*fn)(webs_t wp));
+extern int       websSolutionHandler(webs_t wp, char_t *urlPrefix,
+                    char_t *webDir, int arg, char_t *url, char_t *path, 
+                    char_t *query);
+extern void      websUrlHandlerClose();
+extern int       websUrlHandlerOpen();
+extern int       websOpenServer(int port, int retries);
+extern void      websCloseServer();
+extern char_t*   websGetDateString(websStatType* sbuf);
+
+//  MOB - why here
+extern int      strcmpci(char_t* s1, char_t* s2);
+
+#if CE
+//  MOB - prefix
+extern int      writeUniToAsc(int fid, void *buf, unsigned int len);
+extern int      readAscToUni(int fid, void **buf, unsigned int len);
+#endif
+
+#if BIT_PACK_MATRIXSSL
+//  MOB - sslConn_t ssl_t should not be visible in this file
+typedef struct {
+    sslConn_t* sslConn;
+    struct websRec* wp;
+} websSSL_t;
+
+extern int  websSSLOpen();
+extern int  websSSLIsOpen();
+extern void websSSLClose();
+extern int  websRequireSSL(char *url);
+extern int  websSSLWrite(websSSL_t *wsp, char_t *buf, int nChars);
+extern int  websSSLGets(websSSL_t *wsp, char_t **buf);
+extern int  websSSLRead(websSSL_t *wsp, char_t *buf, int nChars);
+extern int  websSSLEof(websSSL_t *wsp);
+extern int  websSSLFree(websSSL_t *wsp);
+extern int  websSSLFlush(websSSL_t *wsp);
+extern int  websSSLSetKeyFile(char_t *keyFile);
+extern int  websSSLSetCertFile(char_t *certFile);
+
+extern int  sslAccept(sslConn_t **cp, SOCKET fd, sslKeys_t *keys, int32 resume,
+            int (*certValidator)(ssl_t *, psX509Cert_t *, int32));
+extern void sslFreeConnection(sslConn_t **cp);
+extern int  sslRead(sslConn_t *cp, char *buf, int len);
+extern int  sslWrite(sslConn_t *cp, char *buf, int len);
+extern void sslWriteClosureAlert(sslConn_t *cp);
+
+/*
+    Connection structure
+    //  MOB - this is MatrixSSL only
+ */
+typedef struct {
+    ssl_t               *ssl;
+    char                *pt;        /* app data start */
+    char                *currPt;    /* app data current location */
+    int                 ptBytes;    /* plaintext bytes remaining */
+    SOCKET              fd;
+    int                 ptReqBytes;
+    int                 sendBlocked;
+} sslConn_t;
+#endif /* BIT_PACK_MATRIXSSL */
+
+/*************************************** EmfDb *********************************/
+
+//  MOB - prefix
+#define     T_INT                   0
+#define     T_STRING                1
+#define     DB_OK                   0
+#define     DB_ERR_GENERAL          -1
+#define     DB_ERR_COL_NOT_FOUND    -2
+#define     DB_ERR_COL_DELETED      -3
+#define     DB_ERR_ROW_NOT_FOUND    -4
+#define     DB_ERR_ROW_DELETED      -5
+#define     DB_ERR_TABLE_NOT_FOUND  -6
+#define     DB_ERR_TABLE_DELETED    -7
+#define     DB_ERR_BAD_FORMAT       -8
+#define     DB_CASE_INSENSITIVE     1
+
+//  MOB - remove _s 
+typedef struct dbTable_s {
+    char_t  *name;
+    int     nColumns;
+    char_t  **columnNames;
+    int     *columnTypes;
+    int     nRows;
+    int     **rows;
+} dbTable_t;
+
+/*
+    Add a schema to the module-internal schema database
+ */
+extern int      dbRegisterDBSchema(dbTable_t *sTable);
+extern int      dbOpen(char_t *databasename, char_t *filename, int (*gettime)(int did), int flags);
+extern void     dbClose(int did);
+extern int      dbGetTableId(int did, char_t *tname);
+extern char_t   *dbGetTableName(int did, int tid);
+extern int      dbReadInt(int did, char_t *table, char_t *column, int row, int *returnValue);
+extern int      dbReadStr(int did, char_t *table, char_t *column, int row, char_t **returnValue);
+extern int      dbWriteInt(int did, char_t *table, char_t *column, int row, int idata);
+extern int      dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s);
+extern int      dbAddRow(int did, char_t *table);
+extern int      dbDeleteRow(int did, char_t *table, int rid);
+extern int      dbSetTableNrow(int did, char_t *table, int nNewRows);
+extern int      dbGetTableNrow(int did, char_t *table);
+
+/*
+    Dump the contents of a database to file
+ */
+extern int      dbSave(int did, char_t *filename, int flags);
+
+/*
+    Load the contents of a database to file
+ */
+extern int      dbLoad(int did, char_t *filename, int flags);
+extern int      dbSearchStr(int did, char_t *table, char_t *column, char_t *value, int flags);
+extern void     dbZero(int did);
+extern char_t   *basicGetProductDir();
+extern void     basicSetProductDir(char_t *proddir);
+
+/******************************** User Management *****************************/
+
+//  MOB - prefix on type name and AM_NAME
+typedef enum {
+    AM_NONE = 0,
+    AM_FULL,
+    AM_BASIC,
+    AM_DIGEST,
+    AM_INVALID
+} accessMeth_t;
+
+//  MOB - remove bool_t
+typedef short bool_t;
+
+#if BIT_USER_MANAGEMENT
+/*
+    Error Return Flags
+ */
+#define UM_OK               0
+#define UM_ERR_GENERAL      -1
+#define UM_ERR_NOT_FOUND    -2
+#define UM_ERR_PROTECTED    -3
+#define UM_ERR_DUPLICATE    -4
+#define UM_ERR_IN_USE       -5
+#define UM_ERR_BAD_NAME     -6
+#define UM_ERR_BAD_PASSWORD -7
+
+/*
+    Privilege Masks
+ */
+//  MOB - prefix
+#define PRIV_NONE   0x00
+#define PRIV_READ   0x01
+#define PRIV_WRITE  0x02
+#define PRIV_ADMIN  0x04
+
+/*
+    User classes
+ */
+
+/*
+    umOpen() must be called before accessing User Management functions
+ */
+extern int umOpen();
+
+/*
+    umClose() should be called before shutdown to free memory
+ */
+extern void umClose();
+
+/*
+    umCommit() persists the user management database
+ */
+extern int umCommit(char_t *filename);
+
+/*
+    umRestore() loads the user management database
+ */
+extern int umRestore(char_t *filename);
+
+/*
+    umUser functions use a user ID for a key
+ */
+extern int umAddUser(char_t *user, char_t *password, char_t *group, bool_t protect, bool_t disabled);
+
+extern int umDeleteUser(char_t *user);
+
+//  MOB - sort
+extern char_t *umGetFirstUser();
+extern char_t *umGetNextUser(char_t *lastUser);
+extern bool_t umUserExists(char_t *user);
+extern char_t *umGetUserPassword(char_t *user);
+extern int umSetUserPassword(char_t *user, char_t *password);
+extern char_t *umGetUserGroup(char_t *user);
+extern int umSetUserGroup(char_t *user, char_t *password);
+extern bool_t umGetUserEnabled(char_t *user);
+extern int umSetUserEnabled(char_t *user, bool_t enabled);
+extern bool_t umGetUserProtected(char_t *user);
+extern int umSetUserProtected(char_t *user, bool_t protect);
+
+/*
+    umGroup functions use a group name for a key
+ */
+extern int umAddGroup(char_t *group, short privilege, accessMeth_t am, bool_t protect, bool_t disabled);
+
+extern int umDeleteGroup(char_t *group);
+
+extern char_t *umGetFirstGroup();
+extern char_t *umGetNextGroup(char_t *lastUser);
+
+extern bool_t umGroupExists(char_t *group);
+extern bool_t umGetGroupInUse(char_t *group);
+
+extern accessMeth_t umGetGroupAccessMethod(char_t *group);
+extern int umSetGroupAccessMethod(char_t *group, accessMeth_t am);
+
+extern bool_t umGetGroupEnabled(char_t *group);
+extern int umSetGroupEnabled(char_t *group, bool_t enabled);
+
+//  MOB - don't use short
+extern short umGetGroupPrivilege(char_t *group);
+extern int umSetGroupPrivilege(char_t *group, short privileges);
+
+extern bool_t umGetGroupProtected(char_t *group);
+extern int umSetGroupProtected(char_t *group, bool_t protect);
+
+/*
+    umAccessLimit functions use a URL as a key
+ */
+extern int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group);
+extern int umDeleteAccessLimit(char_t *url);
+extern char_t *umGetFirstAccessLimit();
+extern char_t *umGetNextAccessLimit(char_t *lastUser);
+
+/*
+    Returns the name of an ancestor access limit if
+ */
+extern char_t *umGetAccessLimit(char_t *url);
+extern bool_t umAccessLimitExists(char_t *url);
+extern accessMeth_t umGetAccessLimitMethod(char_t *url);
+extern int umSetAccessLimitMethod(char_t *url, accessMeth_t am);
+extern short umGetAccessLimitSecure(char_t *url);
+extern int umSetAccessLimitSecure(char_t *url, short secure);
+extern char_t *umGetAccessLimitGroup(char_t *url);
+extern int umSetAccessLimitGroup(char_t *url, char_t *group);
+extern accessMeth_t umGetAccessMethodForURL(char_t *url);
+extern bool_t umUserCanAccessURL(char_t *user, char_t *url);
+
+#endif /* BIT_USER_MANAGEMENT */
 /*
     @copy   default
 
@@ -1543,3 +2143,7 @@ extern int      harnessLevel();
 
     @end
  */
+#ifdef __cplusplus
+}
+#endif
+#endif /* _h_GOAHEAD */

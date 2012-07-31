@@ -4,7 +4,7 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-#include "wsIntrn.h"
+#include "goahead.h"
 
 websRomPageIndexType websRomPageIndex[] = {
   { 0, 0, 0 },

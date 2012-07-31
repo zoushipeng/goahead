@@ -1,5 +1,5 @@
 /*
-    ejparse.c -- Ejscript(TM) Parser
+    ejparse.c -- Mini JavaScript Parser
 
     Ejscript parser. This implementes a subset of the JavaScript language.
 
@@ -8,16 +8,18 @@
 
 /********************************** Includes **********************************/
 
-#include    "ejIntrn.h"
+#include    "js.h"
 
+#if BIT_JAVASCRIPT
+//  MOB - refactor. if required, should be in goahead.h
 #if CE
     #include    "CE/wincompat.h"
 #endif
 
 /********************************** Local Data ********************************/
 
-ej_t            **ejHandles;                            /* List of ej handles */
-int             ejMax = -1;                             /* Maximum size of  */
+ej_t            **ejHandles;    /* List of js handles */
+int             ejMax = -1;     /* Maximum size of  */
 
 /****************************** Forward Declarations **************************/
 
@@ -75,7 +77,6 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
     } else {
         ep->functions = functions;
     }
-
     ejLexOpen(ep);
 
     /*
@@ -108,17 +109,15 @@ void ejCloseEngine(int eid)
         }
         ep->variableMax = hFree((void***) &ep->variables, i);
     }
-
     if (ep->flags & FLAGS_FUNCTIONS) {
         symClose(ep->functions);
     }
-
     ejMax = hFree((void***) &ejHandles, ep->eid);
     bfree(ep);
 }
 
-#ifndef __NO_EJ_FILE
 
+#if !ECOS && UNUSED
 char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 {
     gstat_t sbuf;
@@ -171,13 +170,11 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
         return NULL;
     }
     bfree(fileBuf);
-
     rs = ejEvalBlock(eid, script, emsg);
-
     bfree(script);
     return rs;
 }
-#endif /* __NO_EJ_FILE */
+#endif
 
 
 /*
@@ -1667,6 +1664,8 @@ static void ejRemoveNewlines(ej_t *ep, int state)
     } while (tid == TOK_NEWLINE);
     ejLexPutbackToken(ep, tid, ep->token);
 }
+
+#endif /* BIT_JAVASCRIPT */
 
 /*
     @copy   default

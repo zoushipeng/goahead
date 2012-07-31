@@ -4,15 +4,9 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
-/******************************** Description *********************************/
-
-/*
- *  This module parses URLs into their components.
- */
-
 /********************************* Includes ***********************************/
 
-#include    "wsIntrn.h"
+#include    "goahead.h"
 
 /********************************* Statics ************************************/
 /*

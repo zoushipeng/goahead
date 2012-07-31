@@ -168,7 +168,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
         socketFree(sid);
         return -1;
     }
-#ifndef __NO_FCNTL
+#if BIT_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
     socketHighestFd = max(socketHighestFd, sp->sock);
@@ -315,7 +315,7 @@ static void socketAccept(socket_t *sp)
         accept(sp->sock, (struct sockaddr *) &addr, (socklen_t *) &len)) < 0) {
         return;
     }
-#ifndef __NO_FCNTL
+#if BIT_HAS_FCNTL
     fcntl(newSock, F_SETFD, FD_CLOEXEC);
 #endif
     socketHighestFd = max(socketHighestFd, newSock);
@@ -442,7 +442,7 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 
 
 /*
-    Return TRUE if there is a socket with an event ready to process,
+    Return 1 if there is a socket with an event ready to process,
  */
 int socketReady(int sid)
 {

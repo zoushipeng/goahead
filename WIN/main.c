@@ -21,14 +21,7 @@
 #include    <winuser.h>
 #include    <process.h>
 
-#include    "../wsIntrn.h"
-
-#if BIT_PACK_SSL
-#include    "../websSSL.h"
-#endif
-
 #if BIT_USER_MANAGEMENT
-#include    "../um.h"
 void        formDefineUserMgmt(void);
 #endif
 

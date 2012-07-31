@@ -1,4 +1,5 @@
 /*
+   //   MOB - rename
     websuemf.c -- GoAhead Micro Embedded Management Framework
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -6,8 +7,7 @@
 
 /*********************************** Includes *********************************/
 
-#include    "ejIntrn.h"
-#include    "wsIntrn.h"
+#include    "js.h"
 
 /*********************************** Defines **********************************/
 
@@ -27,25 +27,6 @@ static sched_t      **sched;
 static int          schedMax;
 
 /************************************* Code ***********************************/
-/*
-    Evaluate a script
- */
-
-int scriptEval(int engine, char_t *cmd, char_t **result, void* chan)
-{
-    int     ejid;
-
-    if (engine == EMF_SCRIPT_EJSCRIPT) {
-        ejid = (int) chan;
-        if (ejEval(ejid, cmd, result) ) {
-            return 0;
-        } else {
-            return -1;
-        }
-    }
-    return -1;
-}
-
 /*
     Compare strings, ignoring case:  normal strcmp return codes.
   

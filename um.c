@@ -9,10 +9,9 @@
 
 /********************************* Includes ***********************************/
 
-#include    "um.h"
-#include    "emfdb.h"
-#include    "webs.h"
+#include    "goahead.h"
 
+#if BIT_USER_MANAGEMENT
 /********************************** Defines ***********************************/
 
 #define UM_DB_FILENAME  T("um.xml")
@@ -437,12 +436,7 @@ char_t *umGetNextUser(char_t *userLast)
 bool_t umUserExists(char_t *user)
 {
     a_assert(user && *user);
-
-    if (dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0) >= 0) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
+    return dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0) >= 0;
 }
 
 
@@ -597,11 +591,11 @@ bool_t umGetUserProtected(char_t *user)
         Find the row of the user
      */
     row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
-    protect = FALSE;
+    protect = 0;
     if (row >= 0) {
         dbReadInt(didUM, UM_USER_TABLENAME, UM_PROT, row, &protect);
     }
-    return (bool_t)protect;
+    return (bool_t) protect;
 }
 
 
@@ -715,12 +709,7 @@ int umDeleteGroup(char_t *group)
 bool_t umGroupExists(char_t *group)
 {
     a_assert(group && *group);
-
-    if (dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0) >= 0) {
-        return TRUE;
-    } else {
-        return FALSE;
-    }
+    return dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0) >= 0;
 }
 
 
@@ -735,15 +724,15 @@ bool_t umGetGroupInUse(char_t *group)
         First, check the user table
      */
     if (dbSearchStr(didUM, UM_USER_TABLENAME, UM_GROUP, group, 0) >= 0) {
-        return TRUE;
+        return 1;
     } 
     /*
         Second, check the access limit table
      */
     if (dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_GROUP, group, 0) >= 0) {
-        return TRUE;
+        return 1;
     } 
-    return FALSE;
+    return 0;
 }
 
 
@@ -992,12 +981,7 @@ char_t *umGetNextAccessLimit(char_t *urlLast)
 bool_t  umAccessLimitExists(char_t *url)
 {
     a_assert(url && *url);
-
-    if (dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0) < 0) {
-        return FALSE;
-    } else {
-        return TRUE;
-    }
+    return dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0) >= 0;
 }
 
 /*
@@ -1196,14 +1180,14 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
         Make sure user exists
      */
     if (!umUserExists(user)) {
-        return FALSE;
+        return 0;
     }
 
     /*
         Make sure user is enabled
      */
     if (!umGetUserEnabled(user)) {
-        return FALSE;
+        return 0;
     }
 
     /*
@@ -1212,21 +1196,21 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
     usergroup = umGetUserGroup(user);
     priv = umGetGroupPrivilege(usergroup);
     if (priv == 0) {
-        return FALSE;
+        return 0;
     }
 
     /*
         Make sure user's group is enabled
      */
     if (!umGetGroupEnabled(usergroup)) {
-        return FALSE;
+        return 0;
     }
 
     /*
         The access method of the user group must not be AM_NONE
      */
     if (umGetGroupAccessMethod(usergroup) == AM_NONE) {
-        return FALSE;
+        return 0;
     }
 
     /*
@@ -1241,14 +1225,14 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
         /*
             If there isn't an access limit for the URL, user has full access
          */
-        return TRUE;
+        return 1;
     }
 
     /*
         If the access method for the URL is AM_NONE then the file "doesn't exist".
      */
     if (amURL == AM_NONE) {
-        return FALSE;
+        return 0;
     } 
     
     /*
@@ -1256,14 +1240,13 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
      */
     if (group && *group) {
         if (usergroup && (gstrcmp(group, usergroup) != 0)) {
-            return FALSE;
-
+            return 0;
         }
     } 
     /*
         Otherwise, user can access the URL 
      */
-    return TRUE;
+    return 1;
 
 }
 
@@ -1278,15 +1261,16 @@ static bool_t umCheckName(char_t *name)
     if (name && *name) {
         while (*name) {
             if (gisspace(*name)) {
-                return FALSE;
+                return 0;
             }
             name++;
         }
-        return TRUE;
+        return 1;
     }
-    return FALSE;
+    return 0;
 }
 
+#endif /* BIT_USER_MANAGEMENT */
 
 /*
     @copy   default

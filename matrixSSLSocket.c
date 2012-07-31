@@ -5,17 +5,25 @@
  */
 /******************************************************************************/
 
-#if BIT_PACK_SSL
-#include <stdlib.h>
-#include <stdio.h>
-#include "matrixSSLSocket.h"
-#include "goahead.h"
+#include    "bit.h"
 
-//  MOB
-#if MACOSX
-#define OSX 1
-#define LINUX 1
+#if BIT_FEATURE_MATRIXSSL
+/*
+    Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable. 
+    So must include matrixsslApi.h first and then workaround. 
+ */
+#if WIN32
+ #include   <winsock2.h>
+ #include   <windows.h>
 #endif
+ #include    "matrixsslApi.h"
+
+#define     HAS_INT32 1
+#define     HAS_UINT32 1
+#define     HAS_INT64 1
+#define     HAS_UINT64 1
+
+#include    "goahead.h"
 
 #define MAX_WRITE_MSEC  500 /* Fail if we block more than X millisec on write */
 
@@ -33,7 +41,8 @@ static void setSocketNonblock(SOCKET sock);
 
     return -1 on error, 0 on success, or WOULD_BLOCK for non-blocking sockets
 */
-int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, int32 (*certValidator)(ssl_t *, psX509Cert_t *, int32))
+int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, 
+        int32 (*certValidator)(ssl_t *, psX509Cert_t *, int32))
 {
     sslConn_t       *cp;
     int             rc;
@@ -67,7 +76,8 @@ int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, int32 
     
 
 /*
-    Primary MatrixSSL read function that transparently handles SSL handshakes and the subsequent incoming application data records.
+    Primary MatrixSSL read function that transparently handles SSL handshakes and the subsequent incoming application
+    data records.
     
     A NULL inbuf parameter is an indication that this is a call to perform a new SSL handshake with an incoming client
     and no out data is expected
@@ -426,7 +436,7 @@ static int waitForWriteEvent(int fd, int msec)
  */
 static void setSocketNonblock(SOCKET sock)
 {
-#if _WIN32
+#if WIN
     int     block = 1;
     ioctlsocket(sock, FIONBIO, &block);
 #elif LINUX

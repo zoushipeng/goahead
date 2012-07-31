@@ -5,6 +5,8 @@
  *
  */
 
+//  MOB - move to goahead.h
+
 #ifndef _h_WINCOMPAT
 #define _h_WINCOMPAT 1
 

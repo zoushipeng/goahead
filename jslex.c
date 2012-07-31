@@ -8,13 +8,14 @@
 
 /********************************** Includes **********************************/
 
-#include    "ejIntrn.h"
+#include    "js.h"
 
-#include    "goahead.h"
-
+#if BIT_JAVASCRIPT
 /********************************** Defines ***********************************/
+
 #define     OCTAL   8
 #define     HEX     16
+
 /****************************** Forward Declarations **************************/
 
 static int      getLexicalToken(ej_t* ep, int state);
@@ -638,7 +639,7 @@ static int charConvert(ej_t* ep, int base, int maxDig)
     return lval;
 }
 
-/******************************************************************************/
+#endif /* BIT_JAVASCRIPT */
 
 /*
     @copy   default

@@ -17,7 +17,6 @@
 /********************************* Includes ***********************************/
 
 #include  "../goahead.h"
-#include  "../wsIntrn.h"
 
 #include  <network.h>
 

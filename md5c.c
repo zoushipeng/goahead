@@ -3,31 +3,25 @@
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
 
-    MOB - compare with MPR version
+    MOB - replace with MPR version
  */
 /******************************************************************************/
 
 #include    "goahead.h"
 
 #if BIT_DIGEST_AUTH
-//  MOB - refactor
-#if !BIT_PACK_SSL /* MD5 is built into MatrixSSL */
-#include <string.h>
-#include "md5.h"
-typedef int             int32;
-
 #define F(x,y,z)    (z ^ (x & (y ^ z)))
 #define G(x,y,z)    (y ^ (z & (y ^ x)))
 #define H(x,y,z)    (x^y^z)
 #define I(x,y,z)    (y^(x|(~z)))
 
-#define STORE32L(x, y)                         \
+#define STORE32L(x, y) \
     { (y)[3] = (uchar)(((x)>>24)&255); \
       (y)[2] = (uchar)(((x)>>16)&255); \
       (y)[1] = (uchar)(((x)>>8)&255);  \
       (y)[0] = (uchar)((x)&255); }
 
-#define LOAD32L(x, y)                           \
+#define LOAD32L(x, y) \
     { x = ((ulong)((y)[3] & 255)<<24) | \
           ((ulong)((y)[2] & 255)<<16) | \
           ((ulong)((y)[1] & 255)<<8)  | \
@@ -62,7 +56,7 @@ static const uchar Rorder[64] = {
     6,10,15,21,6,10,15,21,6,10,15,21,6,10,15,21
 };
 
-static const ulong32 Korder[] = {
+static const uint Korder[] = {
     0xd76aa478UL, 0xe8c7b756UL, 0x242070dbUL, 0xc1bdceeeUL,
     0xf57c0fafUL, 0x4787c62aUL, 0xa8304613UL, 0xfd469501UL,
     0x698098d8UL, 0x8b44f7afUL, 0xffff5bb1UL, 0x895cd7beUL,
@@ -85,10 +79,10 @@ static const ulong32 Korder[] = {
 static void _md5_compress(psMd5Context_t *md)
 {
     ulong       i, W[16], a, b, c, d;
-    ulong32     t;
+    uint        t;
 
     /*
-        copy the state into 512-bits into W[0..15]
+        Copy the state into 512-bits into W[0..15]
      */
     for (i = 0; i < 16; i++) {
         LOAD32L(W[i], md->buf + (4*i));
@@ -184,10 +178,10 @@ void psMd5Update(psMd5Context_t* md, uchar *buf, uint len)
     }
 }
 
-int32 psMd5Final(psMd5Context_t* md, uchar *hash)
+int psMd5Final(psMd5Context_t* md, uchar *hash)
 {
     ulong   n;
-    int32 i;
+    int     i;
 
     if (hash == NULL) {
         return -1;
@@ -237,7 +231,6 @@ int32 psMd5Final(psMd5Context_t* md, uchar *hash)
     psZeromem(md, sizeof(psMd5Context_t));
     return 16;
 }
-#endif /* !BIT_PACK_SSL */
 #endif /* !BIT_DIGEST_AUTH */
 
 /*

@@ -9,7 +9,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "wsIntrn.h"
+#include    "goahead.h"
 
 /*********************************** Locals ***********************************/
 
@@ -25,7 +25,7 @@ static char_t   *websDefaultDir;            /* Default Web page directory */
 #include <dirent.h>
 #endif
 
-/* Whitelist flags (more flags in wsIntrn.h) */
+//  MOB - move to goahead.h
 #define WHITELIST_BLOCKED   0x100   /* File is in list, but inaccessible */
 #define WHITELIST_DIR       0x200   /* Node is a Directory */
 
@@ -214,16 +214,18 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         websDone(wp, 200);
         return 1;
     }
+#if BIT_JAVASCRIPT
     /*
         Evaluate ASP requests
      */
-        if (flags & WEBS_ASP) {
+    if (flags & WEBS_ASP) {
         if (websAspRequest(wp, lpath) < 0) {
             return 1;
         }
         websDone(wp, 200);
         return 1;
     }
+#endif
     /*
         Return the data via background write
      */

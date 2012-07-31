@@ -21,10 +21,12 @@ Bit.load({
         digestAuth: true,
         replaceMalloc: false,
         userManagement: false,
+        javascript: false,
         whitelist: false,
         accessLog: true,
         debugTrace: true,
         keepAlive: true,
+        cgi: true,
         ifModified: true,
 
         simpleTime: false,
@@ -33,14 +35,11 @@ Bit.load({
 /*
         webs: true,
         littlefoot: false,
-        __noCgiBin: false,
-        hpFix: true,
         websProxySupport: false,
         websSslSupport: false,
         websSimpleTime: false, 
         websIfModifiedSupport: false, 
         digestAccessSupport: true, 
-        __NO_CGI_BIN: false,
 */
     },
 

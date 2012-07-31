@@ -88,7 +88,7 @@ static int compile(char *fileList, char *prefix)
     time(&now);
     fprintf(stdout, "/*\n * webrom.c -- Compiled Web Pages\n *\n");
     fprintf(stdout, " * Compiled by webcomp: %s */\n\n", ctime(&now));
-    fprintf(stdout, "#include \"wsIntrn.h\"\n\n");
+    fprintf(stdout, "#include \"goahead.h\"\n\n");
     fprintf(stdout, "#ifndef WEBS_PAGE_ROM\n");
     fprintf(stdout, "websRomPageIndexType websRomPageIndex[] = {\n");
     fprintf(stdout, "\t{ 0, 0, 0 }\n};\n");

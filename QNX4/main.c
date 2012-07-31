@@ -21,15 +21,9 @@
 /********************************* Includes ***********************************/
 
 #include    "../goahead.h"
-#include    "../wsIntrn.h"
 #include     <signal.h>
 
-#if BIT_PACK_SSL
-#include    "../websSSL.h"
-#endif
-
 #if BIT_USER_MANAGEMENT
-#include    "../um.h"
 void    formDefineUserMgmt(void);
 #endif
 
