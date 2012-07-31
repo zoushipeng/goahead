@@ -43,7 +43,7 @@ int ejLexOpenScript(ej_t* ep, char_t *script)
     a_assert(ep);
     a_assert(script);
 
-    if ((ep->input = balloc(B_L, sizeof(ejinput_t))) == NULL) {
+    if ((ep->input = balloc(sizeof(ejinput_t))) == NULL) {
         return -1;
     }
     ip = ep->input;
@@ -86,18 +86,18 @@ void ejLexCloseScript(ej_t* ep)
     a_assert(ip);
 
     if (ip->putBackToken) {
-        bfree(B_L, ip->putBackToken);
+        bfree(ip->putBackToken);
         ip->putBackToken = NULL;
     }
     ip->putBackTokenId = 0;
 
     if (ip->line) {
-        bfree(B_L, ip->line);
+        bfree(ip->line);
         ip->line = NULL;
     }
     ringqClose(&ip->tokbuf);
     ringqClose(&ip->script);
-    bfree(B_L, ip);
+    bfree(ip);
 }
 
 
@@ -112,7 +112,7 @@ void ejLexSaveInputState(ej_t* ep, ejinput_t* state)
 
     *state = *ip;
     if (ip->putBackToken) {
-        state->putBackToken = bstrdup(B_L, ip->putBackToken);
+        state->putBackToken = bstrdup(ip->putBackToken);
     }
 }
 
@@ -130,10 +130,10 @@ void ejLexRestoreInputState(ej_t* ep, ejinput_t* state)
     ip->script = state->script;
     ip->putBackTokenId = state->putBackTokenId;
     if (ip->putBackToken) {
-        bfree(B_L, ip->putBackToken);
+        bfree(ip->putBackToken);
     }
     if (state->putBackToken) {
-        ip->putBackToken = bstrdup(B_L, state->putBackToken);
+        ip->putBackToken = bstrdup(state->putBackToken);
     }
 }
 
@@ -141,7 +141,7 @@ void ejLexRestoreInputState(ej_t* ep, ejinput_t* state)
 void ejLexFreeInputState(ej_t* ep, ejinput_t* state)
 {
     if (state->putBackToken) {
-        bfree(B_L, state->putBackToken);
+        bfree(state->putBackToken);
         state->putBackToken = NULL;
     }
 }
@@ -532,10 +532,10 @@ void ejLexPutbackToken(ej_t* ep, int tid, char_t *string)
     a_assert(ip);
 
     if (ip->putBackToken) {
-        bfree(B_L, ip->putBackToken);
+        bfree(ip->putBackToken);
     }
     ip->putBackTokenId = tid;
-    ip->putBackToken = bstrdup(B_L, string);
+    ip->putBackToken = bstrdup(string);
 }
 
 
@@ -578,7 +578,7 @@ static int inputGetc(ej_t* ep)
     } else {
         if ((ip->lineColumn + 2) >= ip->lineLength) {
             ip->lineLength += EJ_INC;
-            ip->line = brealloc(B_L, ip->line, ip->lineLength * sizeof(char_t));
+            ip->line = brealloc(ip->line, ip->lineLength * sizeof(char_t));
         }
         ip->line[ip->lineColumn++] = c;
         ip->line[ip->lineColumn] = '\0';

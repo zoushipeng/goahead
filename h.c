@@ -37,7 +37,7 @@ int hAlloc(void ***map)
     if (*map == NULL) {
         incr = H_INCR;
         memsize = (incr + H_OFFSET) * sizeof(void**);
-        if ((mp = (int*) balloc(B_L, memsize)) == NULL) {
+        if ((mp = (int*) balloc(memsize)) == NULL) {
             return -1;
         }
         memset(mp, 0, memsize);
@@ -68,7 +68,7 @@ int hAlloc(void ***map)
      */
     len += H_INCR;
     memsize = (len + H_OFFSET) * sizeof(void**);
-    if ((mp = (int*) brealloc(B_L, (void*) mp, memsize)) == NULL) {
+    if ((mp = (int*) brealloc((void*) mp, memsize)) == NULL) {
         return -1;
     }
     *map = (void**) &mp[H_OFFSET];
@@ -95,7 +95,7 @@ int hFree(void ***map, int handle)
     a_assert(mp[H_USED]);
     mp[handle + H_OFFSET] = 0;
     if (--(mp[H_USED]) == 0) {
-        bfree(B_L, (void*) mp);
+        bfree((void*) mp);
         *map = NULL;
     }
     /*
@@ -133,7 +133,7 @@ int hAllocEntry(void ***list, int *max, int size)
         return -1;
     }
     if (size > 0) {
-        if ((cp = balloc(B_L, size)) == NULL) {
+        if ((cp = balloc(size)) == NULL) {
             hFree(list, id);
             return -1;
         }

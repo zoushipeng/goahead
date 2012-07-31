@@ -61,7 +61,7 @@ int dbRegisterDBSchema(dbTable_t *pTableRegister)
     /*
         Copy the name of the table
      */
-    pTable->name = bstrdup(B_L, pTableRegister->name);
+    pTable->name = bstrdup(pTableRegister->name);
 
     /*
         Copy the number of columns
@@ -73,11 +73,11 @@ int dbRegisterDBSchema(dbTable_t *pTableRegister)
      */
     if (pTable->nColumns > 0) {
         int i;
-        pTable->columnNames = balloc(B_L, sizeof(char_t *) * pTable->nColumns);
-        pTable->columnTypes = balloc(B_L, sizeof(int *) * pTable->nColumns);
+        pTable->columnNames = balloc(sizeof(char_t *) * pTable->nColumns);
+        pTable->columnTypes = balloc(sizeof(int *) * pTable->nColumns);
 
         for (i = 0; (i < pTableRegister->nColumns); i++) {
-            pTable->columnNames[i] = bstrdup(B_L, pTableRegister->columnNames[i]);
+            pTable->columnNames[i] = bstrdup(pTableRegister->columnNames[i]);
             pTable->columnTypes[i] = pTableRegister->columnTypes[i];
         }
 
@@ -135,25 +135,25 @@ void dbClose(int did)
              */
             if (pTable->nColumns) {
                 for (column = 0; column < pTable->nColumns; column++) {
-                    bfreeSafe(B_L, pTable->columnNames[column]);
+                    bfreeSafe(pTable->columnNames[column]);
                 }
-                bfreeSafe(B_L, pTable->columnNames);
-                bfreeSafe(B_L, pTable->columnTypes);
+                bfreeSafe(pTable->columnNames);
+                bfreeSafe(pTable->columnTypes);
             }
             /*
                 Delete the table name
              */
-            bfreeSafe(B_L, pTable->name);
+            bfreeSafe(pTable->name);
             /*
                 Free the table
              */
-            bfreeSafe(B_L, pTable);
+            bfreeSafe(pTable);
             hFree((void ***) &dbListTables, table);
         }
     }
 
     if (dbListTables) {
-        bfree(B_L, dbListTables);
+        bfree(dbListTables);
     }
 
     /*
@@ -192,12 +192,12 @@ void dbZero(int did)
                      */
                     for (column = 0; column < nColumns; column++) {
                         if (pTable->columnTypes[column] == T_STRING) {
-                            bfreeSafe(B_L, (char_t *)(pRow[column]));
+                            bfreeSafe((char_t *)(pRow[column]));
                             pRow[column] = (int)NULL;
                         }
                     }
 
-                    bfreeSafe(B_L, pRow);
+                    bfreeSafe(pRow);
                     hFree((void ***) &pTable->rows, row);
                 }
             }
@@ -331,7 +331,7 @@ int dbDeleteRow(int did, char_t *tablename, int row)
             while (column < nColumns) {
                 if (pRow[column] && 
                     (pTable->columnTypes[column] == T_STRING)) {
-                    bfree(B_L, (char_t *)pRow[column]);
+                    bfree((char_t *)pRow[column]);
                 }
                 column++;
             }
@@ -340,7 +340,7 @@ int dbDeleteRow(int did, char_t *tablename, int row)
              */
             memset(pRow, 0, nColumns * max(sizeof(int), sizeof(char_t *)));
 
-            bfreeSafe(B_L, pRow);
+            bfreeSafe(pRow);
             pTable->nRows = hFree((void ***)&pTable->rows, row);
             trace(5, T("DB: Deleted row <%d> from table <%s>\n"), row, tablename);
         }
@@ -572,14 +572,14 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
         If the column already has a value, be sure to delete it to prevent memory leaks.
      */
     if (pRow[colIndex]) {
-        bfree(B_L, (char_t *) pRow[colIndex]);
+        bfree((char_t *) pRow[colIndex]);
     }
 
     /*
         Make sure we make a copy of the string to write into the column. This allocated string will be deleted when the
         row is deleted.  
      */
-    ptr = bstrdup(B_L, s);
+    ptr = bstrdup(s);
     pRow[colIndex] = (int)ptr;
     return 0;
 }
@@ -607,7 +607,7 @@ static int dbWriteKeyValue(int fd, char_t *key, char_t *value)
 #else
         rc = gwrite(fd, pLineOut, len);
 #endif
-        bfree(B_L, pLineOut);
+        bfree(pLineOut);
     } else {
         rc = -1;
     }
@@ -645,7 +645,7 @@ int dbSave(int did, char_t *filename, int flags)
     
     if (fd < 0) {
         trace(1, T("WARNING: Failed to open file %s\n"), tmpFile);
-        bfree(B_L, tmpFile);
+        bfree(tmpFile);
         return -1;
     }
 
@@ -676,7 +676,7 @@ int dbSave(int did, char_t *filename, int flags)
                  */
                 fmtAlloc(&tmpNum, 20, T("%d"), row);        
                 rc = dbWriteKeyValue(fd, KEYWORD_ROW, tmpNum);
-                bfreeSafe(B_L, tmpNum);
+                bfreeSafe(tmpNum);
 
                 colNames = pTable->columnNames;
                 colTypes = pTable->columnTypes;
@@ -690,7 +690,7 @@ int dbSave(int did, char_t *filename, int flags)
                     } else {
                         fmtAlloc(&tmpNum, 20, T("%d"), pRow[column]);       
                         rc = dbWriteKeyValue(fd, *colNames, tmpNum);
-                        bfreeSafe(B_L, tmpNum);
+                        bfreeSafe(tmpNum);
                     }
                 }
 
@@ -714,9 +714,9 @@ int dbSave(int did, char_t *filename, int flags)
             trace(1, T("WARNING: Failed to rename %s to %s\n"), tmpFile, path);
             nRet = -1;
         }
-        bfree(B_L, path);
+        bfree(path);
     }
-    bfree(B_L, tmpFile);
+    bfree(tmpFile);
     return nRet;
 }
 
@@ -767,7 +767,7 @@ int dbLoad(int did, char_t *filename, int flags)
 
     if (gstat(path, &sbuf) < 0) {
         trace(3, T("DB: Failed to stat persistent data file.\n"));
-        bfree(B_L, path);
+        bfree(path);
         return -1;
     }
 #if !defined(WIN32)
@@ -775,7 +775,7 @@ int dbLoad(int did, char_t *filename, int flags)
 #else
     _sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
 #endif
-    bfree(B_L, path);
+    bfree(path);
 
     if (fd < 0) {
         trace(3, T("DB: No persistent data file present.\n"));
@@ -789,14 +789,14 @@ int dbLoad(int did, char_t *filename, int flags)
     /*
         Read entire file into temporary buffer
      */
-    buf = balloc(B_L, sbuf.st_size + 1);
+    buf = balloc(sbuf.st_size + 1);
 #ifdef CE
     if (readAscToUni(fd, &buf, sbuf.st_size) != (int)sbuf.st_size) {
 #else
     if (gread(fd, buf, sbuf.st_size) != (int)sbuf.st_size) {
 #endif
         trace(3, T("DB: Persistent data read failed.\n"));
-        bfree(B_L, buf);
+        bfree(buf);
         gclose(fd);
         return -1;
     }
@@ -821,9 +821,9 @@ int dbLoad(int did, char_t *filename, int flags)
                 Table name found, check to see if it's registered
              */
             if (tablename) {
-                bfree(B_L, tablename);
+                bfree(tablename);
             }
-            tablename = bstrdup(B_L, value);
+            tablename = bstrdup(value);
             tid = dbGetTableId(did, tablename);
 
             if (tid >= 0) {
@@ -862,10 +862,10 @@ int dbLoad(int did, char_t *filename, int flags)
     } while ((ptr = gstrtok(NULL, T("\n"))) != NULL);
 
     if (tablename) {
-        bfree(B_L, tablename);
+        bfree(tablename);
     }
 
-    bfree(B_L, buf);
+    bfree(buf);
 
     return 0;
 }
@@ -947,9 +947,9 @@ void basicSetProductDir(char_t *proddir)
     int len;
 
     if (basicProdDir != NULL) { 
-      bfree(B_L, basicProdDir);
+      bfree(basicProdDir);
     }
-    basicProdDir = bstrdup(B_L, proddir);
+    basicProdDir = bstrdup(proddir);
 
     /*
         Make sure that prefix-directory doesn't end with a '/'

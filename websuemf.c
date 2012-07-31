@@ -139,7 +139,7 @@ void emfUnschedCallback(int schedid)
     if (sched == NULL || schedid == -1 || schedid >= schedMax || (s = sched[schedid]) == NULL) {
         return;
     }
-    bfree(B_L, s);
+    bfree(s);
     schedMax = hFree((void***) &sched, schedid);
 }
 

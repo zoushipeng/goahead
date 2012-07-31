@@ -73,7 +73,7 @@ sym_fd_t symOpen(int hash_size)
     /*
         Create a new symbol table structure and zero
      */
-    if ((tp = (sym_tabent_t*) balloc(B_L, sizeof(sym_tabent_t))) == NULL) {
+    if ((tp = (sym_tabent_t*) balloc(sizeof(sym_tabent_t))) == NULL) {
         symMax = hFree((void***) &sym, sd);
         return -1;
     }
@@ -88,7 +88,7 @@ sym_fd_t symOpen(int hash_size)
         Now create the hash table for fast indexing.
      */
     tp->hash_size = calcPrime(hash_size);
-    tp->hash_table = (sym_t**) balloc(B_L, tp->hash_size * sizeof(sym_t*));
+    tp->hash_table = (sym_t**) balloc(tp->hash_size * sizeof(sym_t*));
     a_assert(tp->hash_table);
     memset(tp->hash_table, 0, tp->hash_size * sizeof(sym_t*));
 
@@ -118,13 +118,13 @@ void symClose(sym_fd_t sd)
             forw = sp->forw;
             valueFree(&sp->name);
             valueFree(&sp->content);
-            bfree(B_L, (void*) sp);
+            bfree((void*) sp);
             sp = forw;
         }
     }
-    bfree(B_L, (void*) tp->hash_table);
+    bfree((void*) tp->hash_table);
     symMax = hFree((void***) &sym, sd);
-    bfree(B_L, (void*) tp);
+    bfree((void*) tp);
 }
 
 
@@ -277,7 +277,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         /*
             Not found so allocate and append to the daisy-chain
          */
-        sp = (sym_t*) balloc(B_L, sizeof(sym_t));
+        sp = (sym_t*) balloc(sizeof(sym_t));
         if (sp == NULL) {
             return NULL;
         }
@@ -291,7 +291,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         /*
             Daisy chain is empty so we need to start the chain
          */
-        sp = (sym_t*) balloc(B_L, sizeof(sym_t));
+        sp = (sym_t*) balloc(sizeof(sym_t));
         if (sp == NULL) {
             return NULL;
         }
@@ -351,7 +351,7 @@ int symDelete(sym_fd_t sd, char_t *name)
     }
     valueFree(&sp->name);
     valueFree(&sp->content);
-    bfree(B_L, (void*) sp);
+    bfree((void*) sp);
 
     return 0;
 }

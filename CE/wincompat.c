@@ -330,8 +330,8 @@ int _wopen(const char_t *path, int oflag, ...)
     int     fid;
     char_t  *cwd, *filepath;
 
-    filepath = balloc(B_L, LF_PATHSIZE * sizeof(char_t));
-    cwd = balloc(B_L, LF_PATHSIZE * sizeof(char_t));
+    filepath = balloc(LF_PATHSIZE * sizeof(char_t));
+    cwd = balloc(LF_PATHSIZE * sizeof(char_t));
 
     if ((*path != '/') && (*path != '\\')) {
         cwd = _wgetcwd(cwd, LF_PATHSIZE);
@@ -360,8 +360,8 @@ int _wopen(const char_t *path, int oflag, ...)
     if ((hFile = CreateFile(filepath, dwDesiredAccess, dwShareMode, NULL,
             dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, 
             NULL)) == INVALID_HANDLE_VALUE) {
-        bfree(B_L, filepath);
-        bfree(B_L, cwd);
+        bfree(filepath);
+        bfree(cwd);
         return -1;
     }
 
@@ -369,14 +369,14 @@ int _wopen(const char_t *path, int oflag, ...)
  *  Get a file number to associate with the handle.
  */
     if ((fid = hAllocEntry((void***) &f, &fMax, sizeof(fh_t))) < 0) {
-        bfree(B_L, filepath);
-        bfree(B_L, cwd);
+        bfree(filepath);
+        bfree(cwd);
         return -1;
     }
     fp = f[fid];
     fp->hand = hFile;
-    bfree(B_L, filepath);
-    bfree(B_L, cwd);
+    bfree(filepath);
+    bfree(cwd);
 
     return fid;
 }
@@ -397,7 +397,7 @@ int close(int fid)
     }
     CloseHandle(fp->hand);
     fMax = hFree((void***) &f, fid);
-    bfreeSafe(B_L, fp);
+    bfreeSafe(fp);
 
     return 0;
 }
@@ -446,7 +446,7 @@ int readAscToUni(int fid, void **buf, unsigned int len)
     }
 
     uniBuf =  ballocAscToUni(*buf, len);
-    bfree(B_L, *buf);
+    bfree(*buf);
     *buf = uniBuf;
 
     return bytesRead;
@@ -494,10 +494,10 @@ int writeUniToAsc(int fid, void *buf, unsigned int len)
     asciiBuf =  ballocUniToAsc(buf, len);
 
     if (WriteFile(fp->hand, asciiBuf, len, &bytesWritten, NULL) == 0) {
-        bfree(B_L, asciiBuf);
+        bfree(asciiBuf);
         return -1;
     }
-    bfree(B_L, asciiBuf);
+    bfree(asciiBuf);
     return bytesWritten;
 }
 
@@ -512,18 +512,18 @@ int _wunlink(char_t *file)
 
     cwdFile = NULL;
     if ((*file != '/') && (*file != '\\')) {
-        cwd = balloc(B_L, LF_PATHSIZE);
+        cwd = balloc(LF_PATHSIZE);
         ggetcwd(cwd, LF_PATHSIZE / sizeof(char_t));
         fmtAlloc(&cwdFile, LF_PATHSIZE / sizeof(char_t), T("%s/%s"), cwd, file);
-        bfree(B_L, cwd);
+        bfree(cwd);
         file = cwdFile;
     }
 
     if (DeleteFile(file) != TRUE) {
-        bfreeSafe(B_L, cwdFile);
+        bfreeSafe(cwdFile);
         return -1;
     }
-    bfreeSafe(B_L, cwdFile);
+    bfreeSafe(cwdFile);
     return 0;
 }
 
@@ -538,18 +538,18 @@ int _wmkdir(const char_t *path)
 
     cwdPath = NULL;
     if ((*path != '/') && (*path != '\\')) {
-        cwd = balloc(B_L, LF_PATHSIZE);
+        cwd = balloc(LF_PATHSIZE);
         ggetcwd(cwd, LF_PATHSIZE / sizeof(char_t));
         fmtAlloc(&cwdPath, LF_PATHSIZE, T("%s/%s"), cwd, path);
-        bfree(B_L, cwd);
+        bfree(cwd);
         path = cwdPath;
     }
 
     if (CreateDirectory(path, NULL) == 0) {
-        bfreeSafe(B_L, cwdPath);
+        bfreeSafe(cwdPath);
         return -1;
     }
-    bfreeSafe(B_L, cwdPath);
+    bfreeSafe(cwdPath);
     return 0;
 }
 
@@ -564,18 +564,18 @@ int _wrmdir(const char_t *path)
 
     cwdPath = NULL;
     if ((*path != '/') && (*path != '\\')) {
-        cwd = balloc(B_L, LF_PATHSIZE);
+        cwd = balloc(LF_PATHSIZE);
         ggetcwd(cwd, LF_PATHSIZE / sizeof(char_t));
         fmtAlloc(&cwdPath, LF_PATHSIZE, T("%s/%s"), cwd, path);
-        bfree(B_L, cwd);
+        bfree(cwd);
         path = cwdPath;
     }
 
     if (RemoveDirectory(path) == 0) {
-        bfreeSafe(B_L, cwdPath);
+        bfreeSafe(cwdPath);
         return -1;
     }
-    bfreeSafe(B_L, cwdPath);
+    bfreeSafe(cwdPath);
     return 0;
 }
 
@@ -654,7 +654,7 @@ int _wrename(const char_t *oldname, const char_t *newname)
 
     cwdOldname = cwd = NULL;
     if ((*oldname != '/') && (*oldname != '\\')) {
-        cwd = balloc(B_L, LF_PATHSIZE);
+        cwd = balloc(LF_PATHSIZE);
         ggetcwd(cwd, LF_PATHSIZE / sizeof(char_t));
         fmtAlloc(&cwdOldname, LF_PATHSIZE, T("%s/%s"), cwd, oldname);
         oldname = cwdOldname;
@@ -663,7 +663,7 @@ int _wrename(const char_t *oldname, const char_t *newname)
     cwdNewname = NULL;
     if ((*newname != '/') && (*newname != '\\')) {
         if (cwd != NULL) {
-            cwd = balloc(B_L, LF_PATHSIZE);
+            cwd = balloc(LF_PATHSIZE);
             ggetcwd(cwd, LF_PATHSIZE / sizeof(char_t));
         }
         fmtAlloc(&cwdNewname, LF_PATHSIZE, T("%s/%s"), cwd, newname);
@@ -671,14 +671,14 @@ int _wrename(const char_t *oldname, const char_t *newname)
     }
 
     if (MoveFile(oldname, newname) == 0) {
-        bfreeSafe(B_L, cwdOldname);
-        bfreeSafe(B_L, cwdNewname);
-        bfreeSafe(B_L, cwd);
+        bfreeSafe(cwdOldname);
+        bfreeSafe(cwdNewname);
+        bfreeSafe(cwd);
         return 1;
     } else {
-        bfreeSafe(B_L, cwdOldname);
-        bfreeSafe(B_L, cwdNewname);
-        bfreeSafe(B_L, cwd);
+        bfreeSafe(cwdOldname);
+        bfreeSafe(cwdNewname);
+        bfreeSafe(cwd);
         return 0;
     }
 }

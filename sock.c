@@ -86,7 +86,7 @@ int socketWriteString(int sid, char_t *buf)
     len = gstrlen(buf);
     byteBuf = ballocUniToAsc(buf, len);
     r = socketWrite(sid, byteBuf, len);
-    bfreeSafe(B_L, byteBuf);
+    bfreeSafe(byteBuf);
     return r;
  #else
     return socketWrite(sid, buf, strlen(buf));
@@ -574,7 +574,7 @@ void socketFree(int sid)
         ringqClose(&sp->outBuf);
     }
     ringqClose(&sp->lineBuf);
-    bfree(B_L, sp);
+    bfree(sp);
     socketMax = hFree((void***) &socketList, sid);
 
     /*

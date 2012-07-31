@@ -44,12 +44,12 @@ void websUrlHandlerClose()
         websAspClose();
         for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
             sp++) {
-            bfree(B_L, sp->urlPrefix);
+            bfree(sp->urlPrefix);
             if (sp->webDir) {
-                bfree(B_L, sp->webDir);
+                bfree(sp->webDir);
             }
         }
-        bfree(B_L, websUrlHandler);
+        bfree(websUrlHandler);
         websUrlHandlerMax = 0;
     }
 }
@@ -75,18 +75,18 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
         Grow the URL handler array to create a new slot
      */
     len = (websUrlHandlerMax + 1) * sizeof(websUrlHandlerType);
-    if ((websUrlHandler = brealloc(B_L, websUrlHandler, len)) == NULL) {
+    if ((websUrlHandler = brealloc(websUrlHandler, len)) == NULL) {
         return -1;
     }
     sp = &websUrlHandler[websUrlHandlerMax++];
     memset(sp, 0, sizeof(websUrlHandlerType));
 
-    sp->urlPrefix = bstrdup(B_L, urlPrefix);
+    sp->urlPrefix = bstrdup(urlPrefix);
     sp->len = gstrlen(sp->urlPrefix);
     if (webDir) {
-        sp->webDir = bstrdup(B_L, webDir);
+        sp->webDir = bstrdup(webDir);
     } else {
-        sp->webDir = bstrdup(B_L, T(""));
+        sp->webDir = bstrdup(T(""));
     }
     sp->handler = handler;
     sp->arg = arg;

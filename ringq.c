@@ -76,7 +76,7 @@ int ringqOpen(ringq_t *rq, int initSize, int maxsize)
     a_assert(initSize >= 0);
 
     increment = getBinBlockSize(initSize);
-    if ((rq->buf = balloc(B_L, (increment))) == NULL) {
+    if ((rq->buf = balloc((increment))) == NULL) {
         return -1;
     }
     rq->maxsize = maxsize;
@@ -103,7 +103,7 @@ void ringqClose(ringq_t *rq)
     }
 
     ringqFlush(rq);
-    bfree(B_L, (char*) rq->buf);
+    bfree((char*) rq->buf);
     rq->buf = NULL;
 }
 
@@ -495,11 +495,11 @@ static int ringqGrow(ringq_t *rq)
         return 0;
     }
     len = ringqLen(rq);
-    if ((newbuf = balloc(B_L, rq->buflen + rq->increment)) == NULL) {
+    if ((newbuf = balloc(rq->buflen + rq->increment)) == NULL) {
         return 0;
     }
     ringqGetBlk(rq, newbuf, ringqLen(rq));
-    bfree(B_L, (char*) rq->buf);
+    bfree((char*) rq->buf);
 
     rq->buflen += rq->increment;
     rq->endp = newbuf;

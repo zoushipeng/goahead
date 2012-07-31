@@ -31,7 +31,7 @@ value_t valueString(char_t* value, int flags)
     v.type = string;
     if (flags & VALUE_ALLOCATE) {
         v.allocated = 1;
-        v.value.string = gstrdup(B_L, value);
+        v.value.string = gstrdup(value);
     } else {
         v.allocated = 0;
         v.value.string = value;
@@ -43,7 +43,7 @@ value_t valueString(char_t* value, int flags)
 void valueFree(value_t* v)
 {
     if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
-        bfree(B_L, v->value.string);
+        bfree(v->value.string);
     }
     v->type = undefined;
     v->valid = 0;

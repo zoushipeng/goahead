@@ -141,7 +141,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
                 address = basicGetAddress();
                 asciiAddress = ballocUniToAsc(address, gstrlen(address));
                 sockaddr.sin_addr.s_addr = inet_addr(asciiAddress);
-                bfree(B_L, asciiAddress);
+                bfree(asciiAddress);
                 if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
                     errno = ENXIO;
                     socketFree(sid);
@@ -601,11 +601,11 @@ int socketSelect(int sid, int timeout)
     nwords = (socketHighestFd + NFDBITS) / NFDBITS;
     len = nwords * sizeof(fd_mask);
 
-    readFds = balloc(B_L, len);
+    readFds = balloc(len);
     memset(readFds, 0, len);
-    writeFds = balloc(B_L, len);
+    writeFds = balloc(len);
     memset(writeFds, 0, len);
-    exceptFds = balloc(B_L, len);
+    exceptFds = balloc(len);
     memset(exceptFds, 0, len);
 
     tv.tv_sec = timeout / 1000;
@@ -695,9 +695,9 @@ int socketSelect(int sid, int timeout)
             }
         }
     }
-    bfree(B_L, readFds);
-    bfree(B_L, writeFds);
-    bfree(B_L, exceptFds);
+    bfree(readFds);
+    bfree(writeFds);
+    bfree(exceptFds);
     return nEvents;
 }
 #endif /* WIN || CE */

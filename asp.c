@@ -92,7 +92,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
         Create a buffer to hold the ASP file in-memory
      */
     len = sbuf.size * sizeof(char);
-    if ((rbuf = balloc(B_L, len + 1)) == NULL) {
+    if ((rbuf = balloc(len + 1)) == NULL) {
         websError(wp, 200, T("Can't get memory"));
         goto done;
     }
@@ -170,13 +170,11 @@ int websAspRequest(webs_t wp, char_t *lpath)
                      */
                     if (websValid(wp)) {
                         if (result) {
-                            websWrite(wp, T("<h2><b>ASP Error: %s</b></h2>\n"), 
-                                result);
+                            websWrite(wp, T("<h2><b>ASP Error: %s</b></h2>\n"), result);
                             websWrite(wp, T("<pre>%s</pre>"), nextp);
-                            bfree(B_L, result);
+                            bfree(result);
                         } else {
-                            websWrite(wp, T("<h2><b>ASP Error</b></h2>\n%s\n"),
-                                nextp);
+                            websWrite(wp, T("<h2><b>ASP Error</b></h2>\n%s\n"), nextp);
                         }
                         websWrite(wp, T("</body></html>\n"));
                         rc = 0;
@@ -209,8 +207,8 @@ done:
             ejCloseEngine(ejid);
         }
     }
-    bfreeSafe(B_L, buf);
-    bfreeSafe(B_L, rbuf);
+    bfreeSafe(buf);
+    bfreeSafe(rbuf);
     return rc;
 }
 

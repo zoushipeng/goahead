@@ -221,13 +221,13 @@ int websOpenListen(int port, int retries)
         Determine the full URL address to access the home page for this web server
      */
     websPort = port;
-    bfreeSafe(B_L, websHostUrl);
-    bfreeSafe(B_L, websIpaddrUrl);
+    bfreeSafe(websHostUrl);
+    bfreeSafe(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
 
     if (port == 80) {
-        websHostUrl = bstrdup(B_L, websHost);
-        websIpaddrUrl = bstrdup(B_L, websIpaddr);
+        websHostUrl = bstrdup(websHost);
+        websIpaddrUrl = bstrdup(websIpaddr);
     } else {
         fmtAlloc(&websHostUrl, WEBS_MAX_URL + 80, T("%s:%d"), websHost, port);
         fmtAlloc(&websIpaddrUrl, WEBS_MAX_URL + 80, T("%s:%d"), websIpaddr, port);
@@ -243,8 +243,8 @@ void websCloseListen()
         socketCloseConnection(websListenSock);
         websListenSock = -1;
     }
-    bfreeSafe(B_L, websHostUrl);
-    bfreeSafe(B_L, websIpaddrUrl);
+    bfreeSafe(websHostUrl);
+    bfreeSafe(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
 }
 
@@ -354,7 +354,7 @@ void websReadEvent(webs_t wp)
     fd = -1;
     for (done = 0; !done; ) {
         if (text) {
-            bfree(B_L, text);
+            bfree(text);
             text = NULL;
         }
 
@@ -425,7 +425,7 @@ void websReadEvent(webs_t wp)
                     len = gstrlen(wp->query);
                     if (text) {
                         size = (len + gstrlen(text) + 2) * sizeof(char_t);
-                        wp->query = brealloc(B_L, wp->query, size);
+                        wp->query = brealloc(wp->query, size);
                         wp->query[len++] = '&';
 #if !defined(WIN32)
                         strcpy(&wp->query[len], text);
@@ -441,7 +441,7 @@ void websReadEvent(webs_t wp)
                     if (text != NULL) {
                         len = gstrlen(wp->query);
                         size = (len +   gstrlen(text) + 1) * sizeof(char_t);
-                        wp->query = brealloc(B_L, wp->query, size);
+                        wp->query = brealloc(wp->query, size);
                         if (wp->query) {
 #if !defined(WIN32)
                             gstrcpy(&wp->query[len], text);
@@ -453,7 +453,7 @@ void websReadEvent(webs_t wp)
                 }
 
             } else {
-                wp->query = bstrdup(B_L, text);
+                wp->query = bstrdup(text);
             }
             /*
                 Calculate how much more post data is to be read.
@@ -499,7 +499,7 @@ void websReadEvent(webs_t wp)
             if (wp->query && *wp->query && !(wp->flags & WEBS_POST_DATA)) {
                 len = gstrlen(wp->query);
                 size = (len + gstrlen(text) + 2) * sizeof(char_t);
-                wp->query = brealloc(B_L, wp->query, size);
+                wp->query = brealloc(wp->query, size);
                 if (wp->query) {
                     wp->query[len++] = '&';
 #if !defined(WIN32)
@@ -510,7 +510,7 @@ void websReadEvent(webs_t wp)
                 }
 
             } else {
-                wp->query = bstrdup(B_L, text);
+                wp->query = bstrdup(text);
             }
             wp->flags |= WEBS_POST_DATA;
             done++;
@@ -526,7 +526,7 @@ void websReadEvent(webs_t wp)
         fd = gclose (fd);
     }
     if (text) {
-        bfree(B_L, text);
+        bfree(text);
     }
 }
 
@@ -749,7 +749,7 @@ static int websParseFirst(webs_t wp, char_t *text)
         websError(wp, 400, T("Bad URL format"));
         return -1;
     }
-    wp->url = bstrdup(B_L, url);
+    wp->url = bstrdup(url);
 
 #ifndef __NO_CGI_BIN
     if (gstrstr(url, CGI_BIN) != NULL) {
@@ -759,11 +759,11 @@ static int websParseFirst(webs_t wp, char_t *text)
         }
     }
 #endif
-    wp->query = bstrdup(B_L, query);
-    wp->host = bstrdup(B_L, host);
-    wp->path = bstrdup(B_L, path);
-    wp->protocol = bstrdup(B_L, proto);
-    wp->protoVersion = bstrdup(B_L, protoVer);
+    wp->query = bstrdup(query);
+    wp->host = bstrdup(host);
+    wp->path = bstrdup(path);
+    wp->protocol = bstrdup(proto);
+    wp->protoVersion = bstrdup(protoVer);
     
     if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
         wp->port = testPort;
@@ -773,7 +773,7 @@ static int websParseFirst(webs_t wp, char_t *text)
     if (gstrcmp(ext, T(".asp")) == 0) {
         wp->flags |= WEBS_ASP;
     }
-    bfree(B_L, buf);
+    bfree(buf);
 
     websUrlType(url, wp->type, TSZ(wp->type));
 
@@ -846,13 +846,13 @@ static void websParseRequest(webs_t wp)
         }
         strupper(upperKey);
         websSetVar(wp, upperKey, value);
-        bfree(B_L, upperKey);
+        bfree(upperKey);
 
         /*
             Track the requesting agent (browser) type
          */
         if (gstrcmp(key, T("user-agent")) == 0) {
-            wp->userAgent = bstrdup(B_L, value);
+            wp->userAgent = bstrdup(value);
 
         /*
             Parse the user authorization. ie. password
@@ -861,7 +861,7 @@ static void websParseRequest(webs_t wp)
             /*
                 Determine the type of Authorization Request
              */
-            authType = bstrdup (B_L, value);
+            authType = bstrdup (value);
             a_assert (authType);
             /*          
                 Truncate authType at the next non-alpha character
@@ -872,8 +872,8 @@ static void websParseRequest(webs_t wp)
             }
             *cp = '\0';
 
-            wp->authType = bstrdup(B_L, authType);
-            bfree(B_L, authType);
+            wp->authType = bstrdup(authType);
+            bfree(authType);
 
             if (gstricmp(wp->authType, T("basic")) == 0) {
                 char_t  userAuth[FNAMESIZE];
@@ -882,8 +882,8 @@ static void websParseRequest(webs_t wp)
                  */
                 if ((cp = gstrchr(value, ' ')) != NULL) {
                     *cp = '\0';
-                   bfree(B_L, wp->authType);
-                    wp->authType = bstrdup(B_L, value);
+                   bfree(wp->authType);
+                    wp->authType = bstrdup(value);
                     websDecode64(userAuth, ++cp, sizeof(userAuth));
                 } else {
                     websDecode64(userAuth, value, sizeof(userAuth));
@@ -895,11 +895,11 @@ static void websParseRequest(webs_t wp)
                     *cp++ = '\0';
                 }
                 if (cp) {
-                    wp->userName = bstrdup(B_L, userAuth);
-                    wp->password = bstrdup(B_L, cp);
+                    wp->userName = bstrdup(userAuth);
+                    wp->password = bstrdup(cp);
                 } else {
-                    wp->userName = bstrdup(B_L, T(""));
-                    wp->password = bstrdup(B_L, T(""));
+                    wp->userName = bstrdup(T(""));
+                    wp->password = bstrdup(T(""));
                 }
                 /*
                     Set the flags to indicate digest authentication
@@ -965,23 +965,23 @@ static void websParseRequest(webs_t wp)
                         Extract the fields
                      */
                     if (gstricmp(cp, T("username")) == 0) {
-                        wp->userName = bstrdup(B_L, vp);
+                        wp->userName = bstrdup(vp);
                     } else if (gstricmp(cp, T("response")) == 0) {
-                        wp->digest = bstrdup(B_L, vp);
+                        wp->digest = bstrdup(vp);
                     } else if (gstricmp(cp, T("opaque")) == 0) {
-                        wp->opaque = bstrdup(B_L, vp);
+                        wp->opaque = bstrdup(vp);
                     } else if (gstricmp(cp, T("uri")) == 0) {
-                        wp->uri = bstrdup(B_L, vp);
+                        wp->uri = bstrdup(vp);
                     } else if (gstricmp(cp, T("realm")) == 0) {
-                        wp->realm = bstrdup(B_L, vp);
+                        wp->realm = bstrdup(vp);
                     } else if (gstricmp(cp, T("nonce")) == 0) {
-                        wp->nonce = bstrdup(B_L, vp);
+                        wp->nonce = bstrdup(vp);
                     } else if (gstricmp(cp, T("nc")) == 0) {
-                        wp->nc = bstrdup(B_L, vp);
+                        wp->nc = bstrdup(vp);
                     } else if (gstricmp(cp, T("cnonce")) == 0) {
-                        wp->cnonce = bstrdup(B_L, vp);
+                        wp->cnonce = bstrdup(vp);
                     } else if (gstricmp(cp, T("qop")) == 0) {
-                        wp->qop = bstrdup(B_L, vp);
+                        wp->qop = bstrdup(vp);
                     }
                     /*
                         Restore tag name and value zero-terminations
@@ -1041,7 +1041,7 @@ static void websParseRequest(webs_t wp)
 
         } else if (gstrcmp(key, T("cookie")) == 0) {
             wp->flags |= WEBS_COOKIE;
-            wp->cookie = bstrdup(B_L, value);
+            wp->cookie = bstrdup(value);
 
 #ifdef WEBS_IF_MODIFIED_SUPPORT
         } else if (gstrcmp(key, T("if-modified-since")) == 0) {
@@ -1057,7 +1057,7 @@ static void websParseRequest(webs_t wp)
             if ((wp->since = dateParse(tip, cmd)) != 0) {
                 wp->flags |= WEBS_IF_MODIFIED;
             }
-            bfreeSafe(B_L, cmd);
+            bfreeSafe(cmd);
 #endif /* WEBS_IF_MODIFIED_SUPPORT */
         }
     }
@@ -1091,14 +1091,14 @@ void websSetEnv(webs_t wp)
     fmtAlloc(&value, FNAMESIZE, T("%s/%s"), WEBS_NAME, WEBS_VERSION);
 #endif
     websSetVar(wp, T("SERVER_SOFTWARE"), value);
-    bfreeSafe(B_L, value);
+    bfreeSafe(value);
     websSetVar(wp, T("SERVER_PROTOCOL"), wp->protoVersion);
 
     /*
         Decode and create an environment query variable for each query keyword. We split into pairs at each '&', then
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
      */
-    wp->decodedQuery = bstrdup(B_L, wp->query);
+    wp->decodedQuery = bstrdup(wp->query);
     keyword = gstrtok(wp->decodedQuery, T("&"));
     while (keyword != NULL) {
         if ((value = gstrchr(keyword, '=')) != NULL) {
@@ -1115,7 +1115,7 @@ void websSetEnv(webs_t wp)
             if ((valCheck = websGetVar(wp, keyword, NULL)) != 0) {
                 fmtAlloc(&valNew, 256, T("%s %s"), valCheck, value);
                 websSetVar(wp, keyword, valNew);
-                bfreeSafe(B_L, valNew);
+                bfreeSafe(valNew);
             } else {
                 websSetVar(wp, keyword, value);
             }
@@ -1260,7 +1260,7 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
          */
         if ((date = websGetDateString(NULL)) != NULL) {
             websWrite(wp, T("Date: %s\r\n"), date);
-            bfree(B_L, date);
+            bfree(date);
         }
         /*
             If authentication is required, send the auth header info
@@ -1283,8 +1283,8 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
                     T("auth"),
                     nonce,
                     opaque, T("MD5"), T("FALSE"));
-                bfree(B_L, nonce);
-                bfree(B_L, opaque);
+                bfree(nonce);
+                bfree(opaque);
 #endif
             }
         }
@@ -1351,8 +1351,8 @@ void websRedirect(webs_t wp, char_t *url)
         </body></html>\r\n"), url);
 
     websResponse(wp, 302, msgbuf, url);
-    bfreeSafe(B_L, msgbuf);
-    bfreeSafe(B_L, urlbuf);
+    bfreeSafe(msgbuf);
+    bfreeSafe(urlbuf);
 }
 
 
@@ -1406,12 +1406,12 @@ static char_t* websSafeUrl(const char_t* url)
     if (NULL != url) {
         safeLen = gstrlen(url);
         if (ltCount == 0 && gtCount == 0) {
-            safeUrl = bstrdup(B_L, (char_t*) url);
+            safeUrl = bstrdup((char_t*) url);
         } else {
             safeLen += (ltCount * 4);
             safeLen += (gtCount * 4);
 
-            safeUrl = balloc(B_L, safeLen);
+            safeUrl = balloc(safeLen);
             if (safeUrl != NULL) {
                 src = (char_t*) url;
                 dest = safeUrl;
@@ -1453,7 +1453,7 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
     websStats.errors++;
 
     safeUrl = websSafeUrl(wp->url);
-    bfreeSafe(B_L, wp->url);
+    bfreeSafe(wp->url);
     wp->url = safeUrl;
 
     va_start(args, fmt);
@@ -1461,7 +1461,7 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
     fmtValloc(&userMsg, WEBS_BUFSIZE, fmt, args);
     va_end(args);
     safeMsg = websSafeUrl(userMsg);
-    bfreeSafe(B_L, userMsg);
+    bfreeSafe(userMsg);
     userMsg = safeMsg;
     safeMsg  = NULL;
 
@@ -1471,8 +1471,8 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
     buf = NULL;
     fmtAlloc(&buf, WEBS_BUFSIZE, msg, websErrorMsg(code), websErrorMsg(code), userMsg);
     websResponse(wp, code, buf, NULL);
-    bfreeSafe(B_L, buf);
-    bfreeSafe(B_L, userMsg);
+    bfreeSafe(buf);
+    bfreeSafe(userMsg);
 }
 
 
@@ -1515,7 +1515,7 @@ int websWrite(webs_t wp, char_t *fmt, ...)
     a_assert(buf);
     if (buf) {
         rc = websWriteBlock(wp, buf, gstrlen(buf));
-        bfree(B_L, buf);
+        bfree(buf);
     }
     return rc;
 }
@@ -1550,20 +1550,20 @@ int websWriteBlock(webs_t wp, char_t *buf, int nChars)
 #ifdef WEBS_SSL_SUPPORT
         if (wp->flags & WEBS_SECURE) {
             if ((len = websSSLWrite(wp->wsp, pBuf, nChars)) < 0) {
-                bfree(B_L, asciiBuf);
+                bfree(asciiBuf);
                 return -1;
             }
             websSSLFlush(wp->wsp);
         } else {
             if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
-                bfree(B_L, asciiBuf);
+                bfree(asciiBuf);
                 return -1;
             }
             socketFlush(wp->sid);
         }
 #else /* ! WEBS_SSL_SUPPORT */
         if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
-            bfree(B_L, asciiBuf);
+            bfree(asciiBuf);
             return -1;
         }
         socketFlush(wp->sid);
@@ -1572,7 +1572,7 @@ int websWriteBlock(webs_t wp, char_t *buf, int nChars)
         pBuf += len;
         done += len;
     }
-    bfree(B_L, asciiBuf);
+    bfree(asciiBuf);
     return done;
 }
 
@@ -1716,8 +1716,8 @@ static void websLog(webs_t wp, int code)
     len = gstrlen(buf);
     abuf = ballocUniToAsc(buf, len+1);
     write(websLogFd, abuf, len);
-    bfreeSafe(B_L, buf);
-    bfreeSafe(B_L, abuf);
+    bfreeSafe(buf);
+    bfreeSafe(abuf);
 }
 #endif /* WEBS_LOG_SUPPORT */
 
@@ -1733,7 +1733,7 @@ static void traceHandler(int level, char_t *buf)
         len = gstrlen(buf);
         abuf = ballocUniToAsc(buf, len+1);
         write(websTraceFd, abuf, len);
-        bfreeSafe(B_L, abuf);
+        bfreeSafe(abuf);
     }
 }
 
@@ -1892,53 +1892,53 @@ void websFree(webs_t wp)
 
     //  MOB _ better if bfree permits a null
     if (wp->path)
-        bfree(B_L, wp->path);
+        bfree(wp->path);
     if (wp->url)
-        bfree(B_L, wp->url);
+        bfree(wp->url);
     if (wp->host)
-        bfree(B_L, wp->host);
+        bfree(wp->host);
     if (wp->lpath)
-        bfree(B_L, wp->lpath);
+        bfree(wp->lpath);
     if (wp->query)
-        bfree(B_L, wp->query);
+        bfree(wp->query);
     if (wp->decodedQuery)
-        bfree(B_L, wp->decodedQuery);
+        bfree(wp->decodedQuery);
     if (wp->authType)
-        bfree(B_L, wp->authType);
+        bfree(wp->authType);
     if (wp->password)
-        bfree(B_L, wp->password);
+        bfree(wp->password);
     if (wp->userName)
-        bfree(B_L, wp->userName);
+        bfree(wp->userName);
     if (wp->cookie)
-        bfree(B_L, wp->cookie);
+        bfree(wp->cookie);
     if (wp->userAgent)
-        bfree(B_L, wp->userAgent);
+        bfree(wp->userAgent);
     if (wp->dir)
-        bfree(B_L, wp->dir);
+        bfree(wp->dir);
     if (wp->protocol)
-        bfree(B_L, wp->protocol);
+        bfree(wp->protocol);
     if (wp->protoVersion)
-        bfree(B_L, wp->protoVersion);
+        bfree(wp->protoVersion);
     if (wp->cgiStdin)
-        bfree(B_L, wp->cgiStdin);
+        bfree(wp->cgiStdin);
 
 #ifdef DIGEST_ACCESS_SUPPORT
     if (wp->realm)
-        bfree(B_L, wp->realm);
+        bfree(wp->realm);
     if (wp->uri)
-        bfree(B_L, wp->uri);
+        bfree(wp->uri);
     if (wp->digest)
-        bfree(B_L, wp->digest);
+        bfree(wp->digest);
     if (wp->opaque)
-        bfree(B_L, wp->opaque);
+        bfree(wp->opaque);
     if (wp->nonce)
-        bfree(B_L, wp->nonce);
+        bfree(wp->nonce);
     if (wp->nc)
-        bfree(B_L, wp->nc);
+        bfree(wp->nc);
     if (wp->cnonce)
-        bfree(B_L, wp->cnonce);
+        bfree(wp->cnonce);
     if (wp->qop)
-        bfree(B_L, wp->qop);
+        bfree(wp->qop);
 #endif
 #ifdef WEBS_SSL_SUPPORT
     websSSLFree(wp->wsp);
@@ -1950,7 +1950,7 @@ void websFree(webs_t wp)
     }
 
     websMax = hFree((void***) &webs, wp->wid);
-    bfree(B_L, wp);
+    bfree(wp);
     a_assert(websMax >= 0);
 }
 
@@ -2076,8 +2076,8 @@ void websSetHostUrl(char_t *url)
 {
     a_assert(url && *url);
 
-    bfreeSafe(B_L, websHostUrl);
-    websHostUrl = gstrdup(B_L, url);
+    bfreeSafe(websHostUrl);
+    websHostUrl = gstrdup(url);
 }
 
 
@@ -2109,9 +2109,9 @@ void websSetRequestLpath(webs_t wp, char_t *lpath)
     a_assert(lpath && *lpath);
 
     if (wp->lpath) {
-        bfree(B_L, wp->lpath);
+        bfree(wp->lpath);
     }
-    wp->lpath = bstrdup(B_L, lpath);
+    wp->lpath = bstrdup(lpath);
     websSetVar(wp, T("PATH_TRANSLATED"), wp->lpath);
 }
 
@@ -2127,17 +2127,17 @@ void websSetRequestPath(webs_t wp, char_t *dir, char_t *path)
 
     if (dir) { 
         tmp = wp->dir;
-        wp->dir = bstrdup(B_L, dir);
+        wp->dir = bstrdup(dir);
         if (tmp) {
-            bfree(B_L, tmp);
+            bfree(tmp);
         }
     }
     if (path) {
         tmp = wp->path;
-        wp->path = bstrdup(B_L, path);
+        wp->path = bstrdup(path);
         websSetVar(wp, T("PATH_INFO"), wp->path);
         if (tmp) {
-            bfree(B_L, tmp);
+            bfree(tmp);
         }
     }
 }
@@ -2189,7 +2189,7 @@ char_t *websGetDateString(websStatType *sbuf)
     }
     if ((cp = gctime(&now)) != NULL) {
         cp[gstrlen(cp) - 1] = '\0';
-        r = bstrdup(B_L, cp);
+        r = bstrdup(cp);
         return r;
     }
     return NULL;

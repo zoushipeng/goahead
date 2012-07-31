@@ -149,7 +149,7 @@ int umOpen()
         dbRegisterDBSchema(&accessTable);
     }
     if (saveFilename == NULL) {
-        saveFilename = bstrdup(B_L, UM_TXT_FILENAME);
+        saveFilename = bstrdup(UM_TXT_FILENAME);
     }
     return didUM;
 }
@@ -168,7 +168,7 @@ void umClose()
         didUM = -1;
     }
     if (saveFilename != NULL) {
-        bfree(B_L, saveFilename);
+        bfree(saveFilename);
         saveFilename = NULL;
     }
 }
@@ -181,9 +181,9 @@ int umCommit(char_t *filename)
 {
     if (filename && *filename) {
         if (saveFilename != NULL) {
-            bfree(B_L, saveFilename);
+            bfree(saveFilename);
         }
-        saveFilename = bstrdup(B_L, filename);
+        saveFilename = bstrdup(filename);
     }
     a_assert (saveFilename && *saveFilename);
     trace(3, T("UM: Writing User Configuration to file <%s>\n"), saveFilename);
@@ -197,9 +197,9 @@ int umRestore(char_t *filename)
 {
     if (filename && *filename) {
         if (saveFilename != NULL) {
-            bfree(B_L, saveFilename);
+            bfree(saveFilename);
         }
-        saveFilename = bstrdup(B_L, filename);
+        saveFilename = bstrdup(filename);
     }
     a_assert(saveFilename && *saveFilename);
     trace(3, T("UM: Loading User Configuration from file <%s>\n"), saveFilename);
@@ -374,10 +374,10 @@ int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t dis
     if (dbWriteStr(didUM, UM_USER_TABLENAME, UM_NAME, row, user) != 0) {
         return UM_ERR_GENERAL;
     }
-    password = bstrdup(B_L, pass);
+    password = bstrdup(pass);
     umEncryptString(password);
     dbWriteStr(didUM, UM_USER_TABLENAME, UM_PASS, row, password);
-    bfree(B_L, password);
+    bfree(password);
     dbWriteStr(didUM, UM_USER_TABLENAME, UM_GROUP, row, group);
     dbWriteInt(didUM, UM_USER_TABLENAME, UM_PROT, row, prot); 
     dbWriteInt(didUM, UM_USER_TABLENAME, UM_DISABLE, row, disabled);
@@ -466,7 +466,7 @@ char_t *umGetUserPassword(char_t *user)
             Decrypt password. Note, this function returns a copy of the password, which must be deleted at some time in
             the future.
          */
-        password = bstrdup(B_L, pass);
+        password = bstrdup(pass);
         umEncryptString(password);
     }
     return password;
@@ -491,10 +491,10 @@ int umSetUserPassword(char_t *user, char_t *pass)
     if ((row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0)) < 0) {
         return UM_ERR_NOT_FOUND;
     }
-    password = bstrdup(B_L, pass);
+    password = bstrdup(pass);
     umEncryptString(password);
     nRet = dbWriteStr(didUM, UM_USER_TABLENAME, UM_PASS, row, password);
-    bfree(B_L, password);
+    bfree(password);
 
     return nRet;
 }
@@ -1120,7 +1120,7 @@ char_t *umGetAccessLimit(char_t *url)
     
     a_assert(url && *url);
     urlRet = NULL;
-    urlCheck = bstrdup(B_L, url);
+    urlCheck = bstrdup(url);
     a_assert(urlCheck);
     len = gstrlen(urlCheck);
     /*
@@ -1128,7 +1128,7 @@ char_t *umGetAccessLimit(char_t *url)
      */
     while (len && !urlRet) {
         if (umAccessLimitExists(urlCheck)) {
-            urlRet = bstrdup(B_L, urlCheck);
+            urlRet = bstrdup(urlCheck);
         } else {
             /*
                 Trim the end portion of the URL to the previous directory marker
@@ -1149,7 +1149,7 @@ char_t *umGetAccessLimit(char_t *url)
             len = gstrlen(urlCheck);
         }
     }
-    bfree (B_L, urlCheck);
+    bfree (urlCheck);
 
     return urlRet;
 }
@@ -1172,7 +1172,7 @@ accessMeth_t umGetAccessMethodForURL(char_t *url)
         } else {
             amRet = umGetAccessLimitMethod(urlHavingLimit);
         }
-        bfree(B_L, urlHavingLimit);
+        bfree(urlHavingLimit);
     } else {
         amRet = AM_FULL;
     }
@@ -1236,7 +1236,7 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
     if (urlHavingLimit) {
         amURL = umGetAccessLimitMethod(urlHavingLimit);
         group = umGetAccessLimitGroup(urlHavingLimit);
-        bfree(B_L, urlHavingLimit);
+        bfree(urlHavingLimit);
     } else {
         /*
             If there isn't an access limit for the URL, user has full access

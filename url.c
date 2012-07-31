@@ -55,7 +55,7 @@ char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
     } else {
         gstrcpy(buf, T("text/plain"));
     }
-    bfree(B_L, parsebuf);
+    bfree(parsebuf);
     return buf;
 }
 
@@ -80,7 +80,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         we need room for 3 null chars.  We allocate MAX_PORT_LEN char_t's for the port number.  
      */
     len = ulen * 2 + MAX_PORT_LEN + 3;
-    if ((buf = balloc(B_L, len * sizeof(char_t))) == NULL) {
+    if ((buf = balloc(len * sizeof(char_t))) == NULL) {
         return -1;
     }
     portbuf = &buf[len - MAX_PORT_LEN - 1];

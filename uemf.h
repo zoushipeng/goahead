@@ -401,12 +401,7 @@
 #include    <ctype.h>
 #include    <stdarg.h>
 #include    <string.h>
-
-#if UNUSED
-#ifndef WEBS
-#include    "messages.h"
-#endif /* ! WEBS */
-#endif
+#include    <stdlib.h>
 
 /************************************** Defines *******************************/
 /*
@@ -1363,58 +1358,38 @@ typedef struct {
 
 /********************************* Prototypes *********************************/
 /*
-    Balloc module
+    Memory allocation
  */
 
-extern void      bclose();
-extern int       bopen(void *buf, int bufsize, int flags);
+extern void bclose();
+extern int  bopen(void *buf, int bufsize, int flags);
 
-/*
-    Define NO_BALLOC to turn off our balloc module altogether #define NO_BALLOC 1
- */
+#if !BIT_REPLACE_MALLOC
+    extern char_t *bstrdupNoBalloc(char_t *s);
+    extern char *bstrdupANoBalloc(char *s);
+    #define balloc(num) malloc(num)
+    #define bfree(p) free(p)
+    #define bfreeSafe(p) if (p) { free(p); } else
+    #define brealloc(p, num) realloc(p, num)
+    #define bstrdup(s) bstrdupNoBalloc(s)
+    #define bstrdupA(s) bstrdupANoBalloc(s)
+    #define gstrdup(s) bstrdupNoBalloc(s)
 
-#ifdef NO_BALLOC
-#define balloc(B_ARGS, num) malloc(num)
-#define bfree(B_ARGS, p) free(p)
-#define bfreeSafe(B_ARGS, p) \
-    if (p) { free(p); } else
-#define brealloc(B_ARGS, p, num) realloc(p, num)
-extern char_t *bstrdupNoBalloc(char_t *s);
-extern char *bstrdupANoBalloc(char *s);
-#define bstrdup(B_ARGS, s) bstrdupNoBalloc(s)
-#define bstrdupA(B_ARGS, s) bstrdupANoBalloc(s)
-#define gstrdup(B_ARGS, s) bstrdupNoBalloc(s)
+#else /* BIT_REPLACE_MALLOC */
+    #if UNICODE
+        extern char *bstrdupA(char *s);
+        #define bstrdupA(p) bstrdupA(p)
+    #else /* UNICODE */
+        #define bstrdupA bstrdup
+    #endif /* UNICODE */
+    #define gstrdup bstrdup
+    extern void     *balloc(int size);
+    extern void     bfree(void *mp);
+    extern void     bfreeSafe(void *mp);
+    extern void     *brealloc(void *buf, int newsize);
+    extern char_t   *bstrdup(char_t *s);
 
-#else /* BALLOC */
-
-//  MOB - remove
-#define balloc(B_ARGS, num) balloc(num)
-#define bfree(B_ARGS, p) bfree(p)
-#define bfreeSafe(B_ARGS, p) bfreeSafe(p)
-#define brealloc(B_ARGS, p, size) brealloc(p, size)
-#define bstrdup(B_ARGS, p) bstrdup(p)
-
-#ifdef UNICODE
-#define bstrdupA(B_ARGS, p) bstrdupA(p)
-#else /* UNICODE */
-#define bstrdupA bstrdup
-#endif /* UNICODE */
-
-#define gstrdup bstrdup
-extern void     *balloc(B_ARGS_DEC, int size);
-extern void     bfree(B_ARGS_DEC, void *mp);
-extern void     bfreeSafe(B_ARGS_DEC, void *mp);
-extern void     *brealloc(B_ARGS_DEC, void *buf, int newsize);
-extern char_t   *bstrdup(B_ARGS_DEC, char_t *s);
-
-#ifdef UNICODE
-extern char *bstrdupA(B_ARGS_DEC, char *s);
-#else /* UNICODE */
-#define bstrdupA bstrdup
-#endif /* UNICODE */
-#endif /* BALLOC */
-
-extern void bstats(int handle, void (*writefn)(int handle, char_t *fmt, ...));
+#endif /* BIT_REPLACE_MALLOC */
 
 /*
     Flags. The integrity value is used as an arbitrary value to fill the flags.

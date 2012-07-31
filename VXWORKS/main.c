@@ -345,9 +345,9 @@ static char_t *getAbsolutePath(char_t *path)
  *  an infinite loop
  */
     if (iosDevFind(path, &tail) != NULL && path != tail) {
-        return bstrdup(B_L, path);
+        return bstrdup(path);
     }
-    dev = balloc(B_L, LF_PATHSIZE);
+    dev = balloc(LF_PATHSIZE);
     getcwd(dev, LF_PATHSIZE);
     strcat(dev, "/");
     strcat(dev, path);
@@ -375,7 +375,7 @@ int vxchdir(char_t *dirname)
  *  loop will occur.
  */
     rc = chdir(path);
-    bfree(B_L, path);
+    bfree(path);
     return rc;
 }
 

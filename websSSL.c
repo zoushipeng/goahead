@@ -283,7 +283,7 @@ static int websSSLReadEvent (webs_t wp)
         /*
             Create the SSL data structure in the wp.
          */
-        wp->wsp = balloc(B_L, sizeof(websSSL_t));
+        wp->wsp = balloc(sizeof(websSSL_t));
         a_assert (wp->wsp);
     
         (wp->wsp)->sslConn = sslConn;
@@ -350,7 +350,7 @@ int websSSLFree(websSSL_t *wsp)
     if (wsp != NULL) {
         sslWriteClosureAlert(wsp->sslConn);
         sslFreeConnection(&wsp->sslConn);
-        bfree(B_L, wsp);
+        bfree(wsp);
     }
     return 0;
 }

@@ -63,7 +63,7 @@ char *websMD5binary(unsigned char *buf, int length)
         Allocate a new copy of the hash string
      */
     i = elementsof(result);
-    strReturn = balloc(B_L, i);
+    strReturn = balloc(i);
     strncpy(strReturn, result, i);
 
     return strReturn;
@@ -98,8 +98,8 @@ char_t *websMD5(char_t *string)
         /*
             Free up the temporary allocated resources
          */
-        bfree(B_L, strTemp);
-        bfree(B_L, strHash);
+        bfree(strTemp);
+        bfree(strHash);
     } else {
         strReturn = NULL;
     }
@@ -141,7 +141,7 @@ char_t *websCalcNonce(webs_t wp)
 
     a_assert(prenonce);
     nonce = websMD5(prenonce);
-    bfreeSafe(B_L, prenonce);
+    bfreeSafe(prenonce);
     return nonce;
 }
 
@@ -156,7 +156,7 @@ char_t *websCalcOpaque(webs_t wp)
     /*
         MOB ??? Temporary stub!
      */
-    opaque = bstrdup(B_L, T("5ccc069c403ebaf9f0171e9517f40e41"));
+    opaque = bstrdup(T("5ccc069c403ebaf9f0171e9517f40e41"));
     return opaque;
 }
 
@@ -178,7 +178,7 @@ char_t *websCalcDigest(webs_t wp)
     fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
     a_assert(a1);
     a1prime = websMD5(a1);
-    bfreeSafe(B_L, a1);
+    bfreeSafe(a1);
 
     /*
         Calculate second portion of digest H(A2)
@@ -189,7 +189,7 @@ char_t *websCalcDigest(webs_t wp)
     fmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri); 
     a_assert(a2);
     a2prime = websMD5(a2);
-    bfreeSafe(B_L, a2);
+    bfreeSafe(a2);
 
     /*
         Construct final digest KD(H(A1):nonce:H(A2))
@@ -208,9 +208,9 @@ char_t *websCalcDigest(webs_t wp)
 
     a_assert(preDigest);
     digest = websMD5(preDigest);
-    bfreeSafe(B_L, a1prime);
-    bfreeSafe(B_L, a2prime);
-    bfreeSafe(B_L, preDigest);
+    bfreeSafe(a1prime);
+    bfreeSafe(a2prime);
+    bfreeSafe(preDigest);
     return digest;
 }
 
@@ -233,18 +233,18 @@ char_t *websCalcUrlDigest(webs_t wp)
     fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
     a_assert(a1);
     a1prime = websMD5(a1);
-    bfreeSafe(B_L, a1);
+    bfreeSafe(a1);
 
     /*
         Calculate second portion of digest H(A2)
      */
     method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
     a_assert(method);
-    a2 = balloc(B_L, (gstrlen(method) +2 + gstrlen(wp->url) ) * sizeof(char_t));
+    a2 = balloc((gstrlen(method) +2 + gstrlen(wp->url) ) * sizeof(char_t));
     a_assert(a2);
     gsprintf(a2, T("%s:%s"), method, wp->url);
     a2prime = websMD5(a2);
-    bfreeSafe(B_L, a2);
+    bfreeSafe(a2);
 
     /*
         Construct final digest KD(H(A1):nonce:H(A2))
@@ -265,9 +265,9 @@ char_t *websCalcUrlDigest(webs_t wp)
     /*
         Now clean up
      */
-    bfreeSafe(B_L, a1prime);
-    bfreeSafe(B_L, a2prime);
-    bfreeSafe(B_L, preDigest);
+    bfreeSafe(a1prime);
+    bfreeSafe(a2prime);
+    bfreeSafe(preDigest);
     return digest;
 }
 

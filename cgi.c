@@ -92,7 +92,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         gstat_t     sbuf;
         if (gstat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
             websError(wp, 404, T("CGI process file does not exist"));
-            bfree(B_L, cgiPath);
+            bfree(cgiPath);
             return 1;
         }
 #if (defined (WIN) || defined (CE))
@@ -104,7 +104,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         if (gaccess(cgiPath, X_OK) != 0) {
 #endif /* WIN || CE */
             websError(wp, 200, T("CGI process file is not executable"));
-            bfree(B_L, cgiPath);
+            bfree(cgiPath);
             return 1;
         }
     }
@@ -131,7 +131,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
          in the query string, the for loop includes logic to grow the array size via brealloc.
      */
     argpsize = 10;
-    argp = balloc(B_L, argpsize * sizeof(char_t *));
+    argp = balloc(argpsize * sizeof(char_t *));
     *argp = cgiPath;
     n = 1;
     if (gstrchr(query, '=') == NULL) {
@@ -141,7 +141,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
             n++;
             if (n >= argpsize) {
                 argpsize *= 2;
-                argp = brealloc(B_L, argp, argpsize * sizeof(char_t *));
+                argp = brealloc(argp, argpsize * sizeof(char_t *));
             }
             cp = gstrtok(NULL, T(" "));
         }
@@ -156,7 +156,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         loop includes logic to grow the array size via brealloc.
      */
     envpsize = WEBS_SYM_INIT;
-    envp = balloc(B_L, envpsize * sizeof(char_t *));
+    envp = balloc(envpsize * sizeof(char_t *));
     n = 0;
     fmtAlloc(envp+n, FNAMESIZE, T("%s=%s"),T("PATH_TRANSLATED"), cgiPath);
     n++;
@@ -174,7 +174,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
             n++;
             if (n >= envpsize) {
                 envpsize *= 2;
-                envp = brealloc(B_L, envp, envpsize * sizeof(char_t *));
+                envp = brealloc(envp, envpsize * sizeof(char_t *));
             }
         }
     }
@@ -195,12 +195,12 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     if ((pHandle = websLaunchCgiProc(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
         websError(wp, 200, T("failed to spawn CGI task"));
         for (ep = envp; *ep != NULL; ep++) {
-            bfreeSafe(B_L, *ep);
+            bfreeSafe(*ep);
         }
-        bfreeSafe(B_L, cgiPath);
-        bfreeSafe(B_L, argp);
-        bfreeSafe(B_L, envp);
-        bfreeSafe(B_L, stdOut);
+        bfreeSafe(cgiPath);
+        bfreeSafe(argp);
+        bfreeSafe(envp);
+        bfreeSafe(stdOut);
     } else {
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
@@ -317,13 +317,13 @@ void websCgiCleanup()
                  */
                 cgiMax = hFree((void***) &cgiList, cid);
                 for (ep = cgip->envp; ep != NULL && *ep != NULL; ep++) {
-                    bfreeSafe(B_L, *ep);
+                    bfreeSafe(*ep);
                 }
-                bfreeSafe(B_L, cgip->cgiPath);
-                bfreeSafe(B_L, cgip->argp);
-                bfreeSafe(B_L, cgip->envp);
-                bfreeSafe(B_L, cgip->stdOut);
-                bfreeSafe(B_L, cgip);
+                bfreeSafe(cgip->cgiPath);
+                bfreeSafe(cgip->argp);
+                bfreeSafe(cgip->envp);
+                bfreeSafe(cgip->stdOut);
+                bfreeSafe(cgip);
             }
         }
     }
@@ -351,7 +351,7 @@ char_t *websGetCgiCommName()
     char_t  *pname1, *pname2;
 
     pname1 = gtmpnam(NULL, T("cgi"));
-    pname2 = bstrdup(B_L, pname1);
+    pname2 = bstrdup(pname1);
     free(pname1);
     return pname2;
 #endif
@@ -446,7 +446,7 @@ char_t *websGetCgiCommName()
     char_t  *pname1, *pname2;
 
     pname1 = tempnam(NULL, T("cgi"));
-    pname2 = bstrdup(B_L, pname1);
+    pname2 = bstrdup(pname1);
     free(pname1);
     return pname2;
 }
@@ -524,7 +524,7 @@ char_t *websGetCgiCommName()
 {
     char_t   *pname;
 
-    pname = bstrdup(B_L, tmpnam( NULL ) );
+    pname = bstrdup(tmpnam( NULL ) );
     return pname;
 }
 
@@ -642,7 +642,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if ((int)(p = gstrrchr(cgiPath, '/') + 1) == 1) {
         p = cgiPath;
     }
-    basename = bstrdup(B_L, p);
+    basename = bstrdup(p);
     if ((p = gstrrchr(basename, '.')) != NULL) {
         *p = '\0';
     }
@@ -660,7 +660,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
      */
     for (pp = envp, pEntry = NULL; pp != NULL && *pp != NULL; pp++) {
         if (gstrncmp(*pp, T("cgientry="), 9) == 0) {
-            pEntry = bstrdup(B_L, *pp + 9);
+            pEntry = bstrdup(*pp + 9);
             break;
         }
     }
@@ -671,7 +671,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {
         fmtAlloc(&pname, VALUE_MAX_STRING, T("_%s"), pEntry);
         symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
-        bfreeSafe(B_L, pname);
+        bfreeSafe(pname);
     }
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void *)vxWebsCgiEntry, (int)entryAddr, (int)argp, 
@@ -689,7 +689,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
         fmtAlloc(&pname, VALUE_MAX_STRING, T("_%s"), pEntry);
         symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
-        bfreeSafe(B_L, pname);
+        bfreeSafe(pname);
     }
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void *)vxWebsCgiEntry,
@@ -701,8 +701,8 @@ DONE:
     if (fd != -1) {
         gclose(fd);
     }
-    bfree(B_L, basename);
-    bfree(B_L, pEntry);
+    bfree(basename);
+    bfree(pEntry);
     return rc;
 }
 
@@ -817,7 +817,7 @@ static unsigned char *tableToBlock(char **table)
     /*
         Allocate the data block and fill it with the strings                   
      */
-    pBlock = balloc(B_L, sizeBlock);
+    pBlock = balloc(sizeBlock);
 
     if (pBlock != NULL) {
         pEntry = (char *) pBlock;
@@ -845,7 +845,7 @@ char_t *websGetCgiCommName()
     char_t  *pname1, *pname2;
 
     pname1 = tempnam(NULL, T("cgi"));
-    pname2 = bstrdup(B_L, pname1);
+    pname2 = bstrdup(pname1);
     free(pname1);
     return pname2;
 }
@@ -890,7 +890,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     /*
         Construct command line
      */
-    cmdLine = balloc(B_L, sizeof(char_t) * nLen);
+    cmdLine = balloc(sizeof(char_t) * nLen);
     a_assert (cmdLine);
     gstrcpy(cmdLine, "");
 
@@ -964,8 +964,8 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if (newinfo.hStdOutput) {
         CloseHandle(newinfo.hStdOutput);
     }
-    bfree(B_L, pEnvData);
-    bfree(B_L, cmdLine);
+    bfree(pEnvData);
+    bfree(cmdLine);
 
     if (bReturn == 0) {
         return -1;

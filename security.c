@@ -77,7 +77,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
       /* bugfix 5/24/02 -- we were leaking the memory pointed to by
        * 'accessLimit'. Thanks to Simon Byholm.
        */
-      bfree(B_L, accessLimit);
+      bfree(accessLimit);
         return 1;
     }
 #endif
@@ -124,7 +124,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
                         User and password check out.
                      */
                 }
-                bfree (B_L, userpass);
+                bfree (userpass);
             }
 #ifdef DIGEST_ACCESS_SUPPORT
         } else if (flags & WEBS_AUTH_DIGEST) {
@@ -143,7 +143,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
             a_assert(digestCalc);
 
             if (gstrcmp(wp->digest, digestCalc) != 0) {
-                bfree (B_L, digestCalc);
+                bfree (digestCalc);
                 digestCalc = websCalcUrlDigest(wp);
                 a_assert(digestCalc);
                 if (gstrcmp(wp->digest, digestCalc) != 0) {
@@ -154,7 +154,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
                 }
             }
 
-            bfree (B_L, digestCalc);
+            bfree (digestCalc);
 #endif
         } else {
             /*
@@ -183,7 +183,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         websError(wp, 401, T("Access to this document requires a User ID"));
         nRet = 1;
     }
-    bfree(B_L, accessLimit);
+    bfree(accessLimit);
     return nRet;
 }
 
@@ -210,7 +210,7 @@ void websSetPassword(char_t *password)
  */
 char_t *websGetPassword()
 {
-    return bstrdup(B_L, websPassword);
+    return bstrdup(websPassword);
 }
 
 

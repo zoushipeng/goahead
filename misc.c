@@ -412,9 +412,9 @@ static void put_char(strbuf_t *buf, char_t c)
             return;
         }
         if (buf->s == NULL) {
-            buf->s = balloc(B_L, buf->size * sizeof(char_t));
+            buf->s = balloc(buf->size * sizeof(char_t));
         } else {
-            buf->s = brealloc(B_L, buf->s, buf->size * sizeof(char_t));
+            buf->s = brealloc(buf->s, buf->size * sizeof(char_t));
         }
     }
     buf->s[buf->count] = c;
@@ -558,7 +558,7 @@ char_t *ballocAscToUni(char *cp, int alen)
     int ulen;
 
     ulen = (alen + 1) * sizeof(char_t);
-    if ((unip = balloc(B_L, ulen)) == NULL) {
+    if ((unip = balloc(ulen)) == NULL) {
         return NULL;
     }
     ascToUni(unip, cp, ulen);
@@ -576,7 +576,7 @@ char *ballocUniToAsc(char_t *unip, int ulen)
 {
     char * cp;
 
-    if ((cp = balloc(B_L, ulen+1)) == NULL) {
+    if ((cp = balloc(ulen+1)) == NULL) {
         return NULL;
     }
     uniToAsc(cp, unip, ulen);

@@ -124,7 +124,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         nchars += gstrlen(websDefaultPage) + 2;
         fmtAlloc(&tmp, nchars, T("%s/%s"), path, websDefaultPage);
         websRedirect(wp, tmp);
-        bfreeSafe(B_L, tmp);
+        bfreeSafe(tmp);
         return 1;
     }
 
@@ -181,7 +181,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
 #else
         websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
 #endif
-        bfree(B_L, date);
+        bfree(date);
     }
     flags |= WEBS_HEADER_DONE;
 
@@ -196,7 +196,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     } else {
         if ((date = websGetDateString(&sbuf)) != NULL) {
             websWrite(wp, T("Last-modified: %s\r\n"), date);
-            bfree(B_L, date);
+            bfree(date);
         }
         bytes = sbuf.size;
     }
@@ -344,7 +344,7 @@ int websValidateUrl(webs_t wp, char_t *path)
     /*
         Copy the string so we don't destroy the original
      */
-    path = bstrdup(B_L, path);
+    path = bstrdup(path);
     websDecodeUrl(path, path, gstrlen(path));
     len = npart = 0;
     parts[0] = NULL;
@@ -364,7 +364,7 @@ int websValidateUrl(webs_t wp, char_t *path)
              /*
               * malformed URL -- too many parts for us to process.
               */
-             bfree(B_L, path);
+             bfree(path);
              return -1;
         }
         if (gstrcmp(token, T("..")) == 0) {
@@ -381,7 +381,7 @@ int websValidateUrl(webs_t wp, char_t *path)
 
 #ifdef WIN32
    if (isBadWindowsPath(parts, npart)) {
-      bfree(B_L, path);
+      bfree(path);
       return -1;
    }
 
@@ -391,7 +391,7 @@ int websValidateUrl(webs_t wp, char_t *path)
         Create local path for document. Need extra space all "/" and null.
      */
     if (npart || (gstrcmp(path, T("/")) == 0) || (path[0] == '\0')) {
-        lpath = balloc(B_L, (gstrlen(dir) + 1 + len + 1) * sizeof(char_t));
+        lpath = balloc((gstrlen(dir) + 1 + len + 1) * sizeof(char_t));
         gstrcpy(lpath, dir);
 
         for (i = 0; i < npart; i++) {
@@ -399,10 +399,10 @@ int websValidateUrl(webs_t wp, char_t *path)
             gstrcat(lpath, parts[i]);
         }
         websSetRequestLpath(wp, lpath);
-        bfree(B_L, path);
-        bfree(B_L, lpath);
+        bfree(path);
+        bfree(lpath);
     } else {
-        bfree(B_L, path);
+        bfree(path);
         return -1;
     }
     return 0;
@@ -432,7 +432,7 @@ static void websDefaultWriteEvent(webs_t wp)
         /*
             Note: websWriteDataNonBlock may return less than we wanted. It will return -1 on a socket error
          */
-        if ((buf = balloc(B_L, PAGE_READ_BUFSIZE)) == NULL) {
+        if ((buf = balloc(PAGE_READ_BUFSIZE)) == NULL) {
             websError(wp, 200, T("Can't get memory"));
         } else {
             while ((len = websPageReadData(wp, buf, PAGE_READ_BUFSIZE)) > 0) {
@@ -452,7 +452,7 @@ static void websDefaultWriteEvent(webs_t wp)
                 a_assert(written >= bytes);
                 written = bytes;
             }
-            bfree(B_L, buf);
+            bfree(buf);
         }
     }
     /*
@@ -492,18 +492,18 @@ void websDefaultClose()
     while (sslList != NULL) {
         l = sslList;
         sslList = sslList->next;
-        bfreeSafe(B_L, l->url);
-        bfree(B_L, l);
+        bfreeSafe(l->url);
+        bfree(l);
     }   
 #endif
     websDeleteWhitelist();
 #endif /* WEBS_WHITELIST_SUPPORT */
     if (websDefaultPage) {
-        bfree(B_L, websDefaultPage);
+        bfree(websDefaultPage);
         websDefaultPage = NULL;
     }
     if (websDefaultDir) {
-        bfree(B_L, websDefaultDir);
+        bfree(websDefaultDir);
         websDefaultDir = NULL;
     }
 }
@@ -532,9 +532,9 @@ void websSetDefaultPage(char_t *page)
     a_assert(page && *page);
 
     if (websDefaultPage) {
-        bfree(B_L, websDefaultPage);
+        bfree(websDefaultPage);
     }
-    websDefaultPage = bstrdup(B_L, page);
+    websDefaultPage = bstrdup(page);
 }
 
 
@@ -545,9 +545,9 @@ void websSetDefaultDir(char_t *dir)
 {
     a_assert(dir && *dir);
     if (websDefaultDir) {
-        bfree(B_L, websDefaultDir);
+        bfree(websDefaultDir);
     }
-    websDefaultDir = bstrdup(B_L, dir);
+    websDefaultDir = bstrdup(dir);
 }
 
 #ifdef WEBS_WHITELIST_SUPPORT
@@ -603,14 +603,14 @@ int websRequireSSL(char *url)
     sslList_t   *l;
     int         sz;
     
-    l = balloc(B_L, sizeof(sslList_t));
+    l = balloc(sizeof(sslList_t));
     memset(l, 0x0, sizeof(sslList_t));
     sz = strlen(url) + 1;
     if (url[sz - 2] == '/') {
-        l->url = bstrdup(B_L, url);
+        l->url = bstrdup(url);
     } else {
         sz++;
-        l->url = balloc(B_L, sz);
+        l->url = balloc(sz);
         memcpy(l->url, url, sz - 1);
         l->url[sz - 2] = '/';
         l->url[sz - 1] = '\0';
@@ -643,10 +643,10 @@ static void websDeleteWhitelistRecursive(fileNode_t *dir)
         websDeleteWhitelistRecursive(dir->next);
     }
     if (dir->name) {
-        bfree(B_L, dir->name);
+        bfree(dir->name);
     }
     memset(dir, 0x0, sizeof(fileNode_t));
-    bfree(B_L, dir);
+    bfree(dir);
 }
 
 
@@ -659,9 +659,9 @@ int websBuildWhitelist(void)
         return -1;
     }
     websDeleteWhitelistRecursive(whitelist);
-    whitelist = balloc(B_L, sizeof(fileNode_t));
+    whitelist = balloc(sizeof(fileNode_t));
     memset(whitelist, 0x0, sizeof(fileNode_t));
-    whitelist->name = bstrdup(B_L, "/");
+    whitelist->name = bstrdup("/");
     whitelist->flags |= WHITELIST_DIR;
     return websBuildWhitelistRecursive(websDefaultDir, whitelist, 0);
 }
@@ -695,13 +695,13 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
                 (findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
             goto nextFile;
         }
-        nnode = balloc(B_L, sizeof(fileNode_t));
+        nnode = balloc(sizeof(fileNode_t));
         memset(nnode, 0x0, sizeof(fileNode_t));
         if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
             fmtAlloc(&(nnode->name), MAX_PATH, "%s/", findData.cFileName);
             nnode->flags |= WHITELIST_DIR;
         } else {
-            nnode->name = bstrdup(B_L, findData.cFileName);
+            nnode->name = bstrdup(findData.cFileName);
         }
         if (firstTime) {
             cnode->child = nnode;
@@ -767,13 +767,13 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
         configuration. http://womble.decadentplace.org.uk/readdir_r-advisory.html
      */ 
     if (sizeof(struct dirent) > PATH_MAX) {
-        findData = balloc(B_L, sizeof(struct dirent));
+        findData = balloc(sizeof(struct dirent));
     } else {
-        findData = balloc(B_L, sizeof(struct dirent) + PATH_MAX);
+        findData = balloc(sizeof(struct dirent) + PATH_MAX);
     }
     websMakePath(path, _path, NULL, 0);
     if ((fh = opendir(path)) == NULL) {
-        bfree(B_L, findData);
+        bfree(findData);
         return -1;  /* Likely no permission to access this directory */
     }
     while ((readdir_r(fh, findData, &result) == 0) && result) {
@@ -781,13 +781,13 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
                 (findData->d_type != DT_REG && findData->d_type != DT_DIR)) {
             continue;
         }
-        nnode = balloc(B_L, sizeof(fileNode_t));
+        nnode = balloc(sizeof(fileNode_t));
         memset(nnode, 0x0, sizeof(fileNode_t));
         if (findData->d_type == DT_DIR) {
             fmtAlloc(&(nnode->name), PATH_MAX, "%s/", findData->d_name);
             nnode->flags |= WHITELIST_DIR;
         } else {
-            nnode->name = bstrdup(B_L, findData->d_name);
+            nnode->name = bstrdup(findData->d_name);
         }
         if (firstTime) {
             cnode->child = nnode;
@@ -818,7 +818,7 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
             }
         }
     }
-    bfree(B_L, findData);
+    bfree(findData);
     closedir(fh);
     return 0;
 }

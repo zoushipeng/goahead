@@ -43,7 +43,7 @@ int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, int32 
             Associate a new ssl session with this socket.  The session represents the state of the ssl protocol over
             this socket.  Session caching is handled automatically by this api.  
          */
-        cp = balloc(B_L, sizeof(sslConn_t));
+        cp = balloc(sizeof(sslConn_t));
         memset(cp, 0x0, sizeof(sslConn_t));
         cp->fd = fd;
         if (matrixSslNewServerSession(&cp->ssl, keys, certValidator) < 0) {
@@ -118,7 +118,7 @@ int sslRead(sslConn_t *cp, char *inbuf, int inlen)
         cp->ptBytes -= inlen;
         /* Free buffer as we go if empty */
         if (cp->ptBytes == 0) {
-            bfree(B_L, cp->pt);
+            bfree(cp->pt);
             cp->pt = cp->currPt = NULL;
         }
         return inlen;
@@ -219,7 +219,7 @@ PROCESS_MORE:
                     cp->ptBytes -= inlen;
                     /* Free buffer as we go if empty */
                     if (cp->ptBytes == 0) {
-                        bfree(B_L, cp->pt);
+                        bfree(cp->pt);
                         cp->pt = cp->currPt = NULL;
                     }
                     return inlen;
@@ -235,7 +235,7 @@ PROCESS_MORE:
                     Catching here means this is new app data just grabbed off the wire. 
                  */
                 cp->ptBytes = len;
-                cp->pt = balloc(B_L, len);
+                cp->pt = balloc(len);
                 memcpy(cp->pt, buf, len);
                 cp->currPt = cp->pt;
             } else {
@@ -244,7 +244,7 @@ PROCESS_MORE:
                     'pt' cache so it is fine to assume an unprocessed buffer.
                 */
                 psAssert(cp->pt == cp->currPt);
-                cp->pt = brealloc(B_L, cp->pt, cp->ptBytes + len);
+                cp->pt = brealloc(cp->pt, cp->ptBytes + len);
                 memcpy(cp->pt + cp->ptBytes, buf, len);
                 cp->currPt = cp->pt;
                 cp->ptBytes += len;
@@ -401,9 +401,9 @@ void sslFreeConnection(sslConn_t **cpp)
     matrixSslDeleteSession(conn->ssl);
     conn->ssl = NULL;
     if (conn->pt != NULL) {
-        bfree(B_L, conn->pt);
+        bfree(conn->pt);
     }
-    bfree(B_L, conn);
+    bfree(conn);
     *cpp = NULL;
 }
 

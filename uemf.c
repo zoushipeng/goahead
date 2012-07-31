@@ -45,11 +45,11 @@ void error(E_ARGS_DEC, int etype, char_t *fmt, ...)
       fmtAlloc(&buf, E_MAX_ERROR, T("Unknown error"));
     }
     va_end(args);
-    bfree(B_L, fmtBuf);
+    bfree(fmtBuf);
     if (errorHandler) {
         errorHandler(etype, buf);
     }
-    bfreeSafe(B_L, buf);
+    bfreeSafe(buf);
 }
 
 
@@ -81,7 +81,7 @@ void trace(int level, char_t *fmt, ...)
     if (traceHandler) {
         traceHandler(level, buf);
     }
-    bfreeSafe(B_L, buf);
+    bfreeSafe(buf);
     va_end(args);
 }
 
@@ -186,7 +186,7 @@ char_t *stritoa(int n, char_t *string, int width)
         if (width == 0) {
             width = 10;
         }
-        if ((string = balloc(B_L, width + 1)) == NULL) {
+        if ((string = balloc(width + 1)) == NULL) {
             return NULL;
         }
     }
