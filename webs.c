@@ -563,7 +563,7 @@ static int websGetInput(webs_t wp, char_t **ptext, int *pnbytes)
     }
     if (len > 0) {
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
             nbytes = websSSLRead(wp->wsp, buf, len);
         } else {
@@ -598,7 +598,7 @@ static int websGetInput(webs_t wp, char_t **ptext, int *pnbytes)
         }
 
     } else {
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
             nbytes = websSSLGets(wp->wsp, &text);
         } else {
@@ -613,7 +613,7 @@ static int websGetInput(webs_t wp, char_t **ptext, int *pnbytes)
             /*
                 Error, EOF or incomplete
              */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
             if (wp->flags & WEBS_SECURE) {
                 /*
                     If state is WEBS_BEGIN and the request is secure, a -1 will usually indicate SSL negotiation
@@ -644,10 +644,7 @@ static int websGetInput(webs_t wp, char_t **ptext, int *pnbytes)
                 /*
                     If an error occurred and it wasn't an eof, close the connection
                  */
-#ifdef HP_FIX
                 websDone(wp, 0);
-#endif /*HP_FIX*/
-
             }
             /*
                 If state is WEBS_HEADER and the ringq is empty, then this is a simple request with no additional header
@@ -1085,7 +1082,7 @@ void websSetEnv(webs_t wp)
     stritoa(websPort, portBuf, sizeof(portBuf));
     websSetVar(wp, T("SERVER_PORT"), portBuf);
        websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     fmtAlloc(&value, FNAMESIZE, T("%s/%s %s/%s"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
 #else
     fmtAlloc(&value, FNAMESIZE, T("%s/%s"), WEBS_NAME, WEBS_VERSION);
@@ -1250,7 +1247,7 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
         /*
             The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
          */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
 #else
         websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
@@ -1332,7 +1329,7 @@ void websRedirect(webs_t wp, char_t *url)
         }
         redirectFmt = T("http://%s/%s");
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
             redirectFmt = T("https://%s/%s");
         }
@@ -1547,7 +1544,7 @@ int websWriteBlock(webs_t wp, char_t *buf, int nChars)
     pBuf = asciiBuf = ballocUniToAsc(buf, nChars);
 
     while (nChars > 0) {  
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
             if ((len = websSSLWrite(wp->wsp, pBuf, nChars)) < 0) {
                 bfree(asciiBuf);
@@ -1592,7 +1589,7 @@ int websWriteDataNonBlock(webs_t wp, char *buf, int nChars)
     a_assert(buf);
     a_assert(nChars >= 0);
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         r = websSSLWrite(wp->wsp, buf, nChars);
         websSSLFlush(wp->wsp);
@@ -1668,7 +1665,7 @@ static void websLog(webs_t wp, int code)
 #ifndef WEBS_SIMPLE_TIME
     time_t timer;
     struct tm localt;
-#ifdef WIN
+#if WIN
     DWORD   dwRet;
     TIME_ZONE_INFORMATION   tzi;
 #endif /* WIN */
@@ -1683,7 +1680,7 @@ static void websLog(webs_t wp, int code)
     localtime_r(&timer, &localt);
     strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt); 
     timeStr[sizeof(timeStr) - 1] = '\0';
-#ifdef WIN
+#if WIN
     dwRet = GetTimeZoneInformation(&tzi);
     snprintf(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
 #else
@@ -1803,7 +1800,7 @@ void websDone(webs_t wp, int code)
     /*
         Exit if secure
      */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         websTimeoutCancel(wp);
         websSSLFlush(wp->wsp);
@@ -1870,7 +1867,7 @@ int websAlloc(int sid)
     wp->cnonce = NULL;
     wp->qop = NULL;
 #endif
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     wp->wsp = NULL;
 #endif
 
@@ -1940,7 +1937,7 @@ void websFree(webs_t wp)
     if (wp->qop)
         bfree(wp->qop);
 #endif
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websSSLFree(wp->wsp);
 #endif
     symClose(wp->cgiVars);

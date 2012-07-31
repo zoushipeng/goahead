@@ -109,7 +109,7 @@ void websHeader(webs_t wp)
     /*
         The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
      */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
 #else
     websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);

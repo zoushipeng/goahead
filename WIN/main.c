@@ -23,11 +23,11 @@
 
 #include    "../wsIntrn.h"
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 #include    "../websSSL.h"
 #endif
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
 #include    "../um.h"
 void        formDefineUserMgmt(void);
 #endif
@@ -124,7 +124,7 @@ int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
         return FALSE;
     }
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websSSLOpen();
 /*  websRequireSSL("/"); */ /* Require all files be served via https */
 #endif
@@ -145,14 +145,14 @@ int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
         }
     }
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websSSLClose();
 #endif
 
 /*
  *  Close the User Management database
  */
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
     umClose();
 #endif
 
@@ -193,7 +193,7 @@ static int initWebs(int demo)
 /*
  *  Initialize the User Management database
  */
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
     umOpen();
     umRestore(T("umconfig.txt"));
 #endif
@@ -271,7 +271,7 @@ static int initWebs(int demo)
 /*
  *  Create the Form handlers for the User Management pages
  */
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
     formDefineUserMgmt();
 #endif
 
@@ -603,7 +603,7 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
     nchar = nCopyAnsiToWideChar(p, 
         TEXT("GoAhead WebServer ") WEBS_VERSION);
     p += nchar;
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     p -= sizeof(char_t);
     nchar = nCopyAnsiToWideChar(p, 
         TEXT("\n") SSL_NAME TEXT(" ") SSL_VERSION);

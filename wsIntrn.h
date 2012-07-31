@@ -25,14 +25,14 @@
 #include    <string.h>
 #include    <stdarg.h>
 
-#ifdef NETWARE
+#if NETWARE
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <signal.h>
     #include    <io.h>
 #endif
 
-#ifdef WIN
+#if WIN
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <io.h>
@@ -41,19 +41,19 @@
 #define snprintf            _snprintf
 #endif
 
-#ifdef NW
+#if NW
     #include    <fcntl.h>
     #include    <sys/stat.h>
 #endif
 
-#ifdef SCOV5
+#if SCOV5
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <signal.h>
     #include    <unistd.h>
 #endif
 
-#ifdef LYNX
+#if LYNX
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <signal.h>
@@ -67,7 +67,7 @@
     #include    <unistd.h>
 #endif
 
-#ifdef QNX4
+#if QNX4
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <signal.h>
@@ -75,18 +75,18 @@
     #include    <unix.h>
 #endif
 
-#ifdef UW
+#if UW
     #include    <fcntl.h>
     #include    <sys/stat.h>
 #endif
 
-#ifdef VXWORKS
+#if VXWORKS
     #include    <vxWorks.h>
     #include    <fcntl.h>
     #include    <sys/stat.h>
 #endif
 
-#ifdef SOLARIS
+#if SOLARIS
     #include    <macros.h>
     #include    <fcntl.h>
     #include    <sys/stat.h>
@@ -262,7 +262,7 @@ extern char_t*   websGetDateString(websStatType* sbuf);
 
 extern int      strcmpci(char_t* s1, char_t* s2);
 
-#ifdef CE
+#if CE
 extern int writeUniToAsc(int fid, void *buf, unsigned int len);
 extern int readAscToUni(int fid, void **buf, unsigned int len);
 #endif

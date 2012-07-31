@@ -5,7 +5,7 @@
  */
 /******************************************************************************/
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 
 #ifndef _h_SSLSOCKET
 #define _h_SSLSOCKET
@@ -21,7 +21,7 @@ extern "C" {
 */
 #define USE_NONBLOCKING_SSL_SOCKETS
 
-#ifdef MACOSX
+#if MACOSX
 #define LINUX 1
 #define OSX 1
 #endif
@@ -81,7 +81,7 @@ extern "C" {
     typedef int SOCKET;
 #endif /* OS macros */
 
-#ifdef MACOSX
+#if MACOSX
 #undef LINUX
 #undef OSX
 #endif

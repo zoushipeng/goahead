@@ -10,7 +10,7 @@
 
 /********************************* Includes ***********************************/
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 
 #include "webs.h"
 #include "matrixSSLSocket.h"

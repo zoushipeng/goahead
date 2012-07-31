@@ -18,7 +18,7 @@
 
 #include    "uemf.h"
 
-#ifdef VXWORKS
+#if VXWORKS
     #include    <hostLib.h>
 #endif
 
@@ -267,7 +267,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
  */
 static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 {
-#ifdef VXWORKS
+#if VXWORKS
     char *ptr;
 
     ptr = (char *)sockaddr;
@@ -302,7 +302,7 @@ static void socketAccept(socket_t *sp)
     char                *pString;
     int                 newSock, nid;
 
-#ifdef NW
+#if NW
     NETINET_DEFINE_CONTEXT;
 #endif
 
@@ -346,7 +346,7 @@ static void socketAccept(socket_t *sp)
         if ((sp->accept)(nid, pString, ntohs(addr.sin_port), sp->sid) < 0) {
             socketFree(nid);
         }
-#ifdef VXWORKS
+#if VXWORKS
         free(pString);
 #endif
     }
@@ -837,7 +837,7 @@ int socketSetBlock(int sid, int on)
 #endif
     }
     /* Prevent SIGPIPE when writing to closed socket on OS X */
-#ifdef MACOSX
+#if MACOSX
     iflag = 1;
     setsockopt(sp->sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&iflag, sizeof(iflag));
 #endif

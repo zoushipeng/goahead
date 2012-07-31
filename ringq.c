@@ -227,7 +227,7 @@ void ringqAddNull(ringq_t *rq)
 }
 
 
-#ifdef UNICODE
+#if UNICODE
 //  MOB - this should be the same code?
 
 /*

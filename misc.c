@@ -508,7 +508,7 @@ static void put_ulong(strbuf_t *buf, unsigned long int value, int base, int uppe
  */
 char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
 {
-#ifdef UNICODE
+#if UNICODE
     if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
         return (char_t*) str;
     }
@@ -530,7 +530,7 @@ char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
  */
 char *uniToAsc(char *buf, char_t *ustr, int nBytes)
 {
-#ifdef UNICODE
+#if UNICODE
    if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, 
     NULL, NULL) < 0) 
    {

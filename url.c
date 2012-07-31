@@ -171,7 +171,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
 
             if (ok) {
                 cp[length] = '\0';
-#ifdef WIN32
+#if WIN32
                 strlower(cp);            
 #endif
                 ext = cp;

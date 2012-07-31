@@ -68,7 +68,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
     /*
         Check to see if URL must be encrypted
      */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     nRet = umGetAccessLimitSecure(accessLimit);
     if (nRet && ((flags & WEBS_SECURE) == 0)) {
         websStats.access++;

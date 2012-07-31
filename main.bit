@@ -20,6 +20,10 @@ Bit.load({
 
         digestAuth: true,
         replaceMalloc: false,
+        userManagement: false,
+        whitelist: false,
+        accessLog: true,
+        debugTrace: true,
 
 /*
         webs: true,

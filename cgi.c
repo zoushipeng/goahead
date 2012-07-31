@@ -295,7 +295,7 @@ void websCgiCleanup()
                          There are some cases when we detect app exit before the file is ready. 
                      */
                     if (cgip->fplacemark == 0) {
-#ifdef WIN
+#if WIN
                         Sleep(10);
 #endif /* WIN*/
                     }
@@ -335,7 +335,7 @@ void websCgiCleanup()
         websGetCgiCommName, websLaunchCgiProc, websCheckCgiProc
 */
 
-#ifdef CE
+#if CE
 /*
      Returns a pointer to an allocated qualified unique temporary file name.
      This filename must eventually be deleted with bfree().
@@ -515,7 +515,7 @@ int websCheckCgiProc(int handle)
 #endif /* LINUX || LYNX || MACOSX || QNX4 */
 
 
-#ifdef NW
+#if NW
 /*
      Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
      with bfree(); 
@@ -585,7 +585,7 @@ int websCheckCgiProc(int handle)
 
 #endif /* NW */
 
-#ifdef VXWORKS
+#if VXWORKS
 static void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv), char_t **argv, char_t **envp, char_t *stdIn, char_t
         *stdOut); 
 /*
@@ -791,7 +791,7 @@ int websCheckCgiProc(int handle)
 }
 #endif /* VXWORKS */
 
-#ifdef WIN 
+#if WIN 
 /*
     Convert a table of strings into a single block of memory. The input table consists of an array of null-terminated
     strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the balloc()

@@ -15,15 +15,15 @@
 #include    <stdarg.h>
 #include    <stdlib.h>
 
-#ifdef WIN32
+#if WIN32
     #include    <share.h>
 #endif
 
-#ifdef LYNX
+#if LYNX
     #include    <unistd.h>
 #endif
 
-#ifdef QNX4
+#if QNX4
     #include    <dirent.h>
 #endif
 

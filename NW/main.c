@@ -21,11 +21,11 @@
 #include <signal.h>
 #include <sys/types.h>
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 #include "../websSSL.h"
 #endif
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
 #include "../um.h"
 void  formDefineUserMgmt(void);
 #endif
@@ -114,7 +114,7 @@ int main(int argc, char** argv)
       return -1;
    }
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
    websSSLOpen();
 #endif
 
@@ -161,7 +161,7 @@ static int initWebs(int demo)
 
    P( 3 ) ;
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
 /*
  * Initialize the User Management database
  */
@@ -265,7 +265,7 @@ static int initWebs(int demo)
 /*
  * Create the Form handlers for the User Management pages
  */
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
    formDefineUserMgmt();
 #endif
 
@@ -288,11 +288,11 @@ void NLMcleanup( void )
 {
    P( 23 ) ;
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
    websSSLClose();
 #endif
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
    umClose();
 #endif
 

@@ -79,7 +79,7 @@ int socketWrite(int sid, char *buf, int bufsize)
  */
 int socketWriteString(int sid, char_t *buf)
 {
- #ifdef UNICODE
+ #if UNICODE
     char    *byteBuf;
     int     r, len;
  
@@ -483,7 +483,7 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
  */
 static int tryAlternateSendTo(int sock, char *buf, int toWrite, int i, struct sockaddr *server)
 {
-#ifdef VXWORKS
+#if VXWORKS
     char *ptr;
 
     ptr = (char *)server;

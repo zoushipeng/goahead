@@ -5,14 +5,14 @@
  */
 /******************************************************************************/
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 #include <stdlib.h>
 #include <stdio.h>
 #include "matrixSSLSocket.h"
 #include "uemf.h"
 
 //  MOB
-#ifdef MACOSX
+#if MACOSX
 #define OSX 1
 #define LINUX 1
 #endif
@@ -440,7 +440,7 @@ static void setSocketNonblock(SOCKET sock)
 #elif LINUX
     fcntl(sock, F_SETFL, fcntl(sock, F_GETFL) | O_NONBLOCK);
 #endif
-#ifdef MACOSX
+#if MACOSX
     /* Prevent SIGPIPE when writing to closed socket on OS X */
     int     onoff = 1;
     setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&onoff, sizeof(onoff));

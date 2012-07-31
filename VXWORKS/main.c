@@ -27,11 +27,11 @@
 #include    "../uemf.h"
 #include    "../wsIntrn.h"
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 #include    "../websSSL.h"
 #endif
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
 #include    "../um.h"
 void    formDefineUserMgmt(void);
 #endif
@@ -89,7 +89,7 @@ int websvxmain(int argc, char **argv)
         return -1;
     }
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websSSLOpen();
 #endif
 
@@ -106,11 +106,11 @@ int websvxmain(int argc, char **argv)
         emfSchedProcess();
     }
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websSSLClose();
 #endif
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
     umClose();
 #endif
 
@@ -142,7 +142,7 @@ static int initWebs(int demo)
     socketOpen();
     symSubOpen();
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
 /*
  *  Initialize the User Management database
  */
@@ -215,7 +215,7 @@ static int initWebs(int demo)
 /*
  *  Create the Form handlers for the User Management pages
  */
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
     formDefineUserMgmt();
 #endif
 
@@ -300,11 +300,11 @@ static void websTermSigHandler(int signo)
     if (signo == SIGTERM) {
         finished = 1;
     } else if (signo == SIGKILL) {
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         websSSLClose();
 #endif
 
-#ifdef USER_MANAGEMENT_SUPPORT
+#if BIT_USER_MANAGEMENT
         umClose();
 #endif
         websCloseServer();

@@ -29,7 +29,7 @@ static char_t   *websDefaultDir;            /* Default Web page directory */
 #define WHITELIST_BLOCKED   0x100   /* File is in list, but inaccessible */
 #define WHITELIST_DIR       0x200   /* Node is a Directory */
 
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 typedef struct _sslList {
     struct _sslList *next;
     char            *url;
@@ -176,7 +176,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         /*
             The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
          */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         websWrite(wp, T("Server: %s/%s %s/%s\r\n"), WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
 #else
         websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
@@ -237,7 +237,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
 
 
 //  MOB - change define
-#ifdef WIN32
+#if WIN32
 static int badPath(char_t* path, char_t* badPath, int badLen)
 {
    int retval = 0;
@@ -379,7 +379,7 @@ int websValidateUrl(webs_t wp, char_t *path)
         token = gstrtok(NULL, T("/"));
     }
 
-#ifdef WIN32
+#if WIN32
    if (isBadWindowsPath(parts, npart)) {
       bfree(path);
       return -1;
@@ -472,7 +472,7 @@ static void websDefaultWriteEvent(webs_t wp)
 void websDefaultOpen()
 {
 #ifdef WEBS_WHITELIST_SUPPORT
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     sslList = NULL;
 #endif
     whitelist = NULL;
@@ -487,7 +487,7 @@ void websDefaultOpen()
 void websDefaultClose()
 {
 #ifdef WEBS_WHITELIST_SUPPORT
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     sslList_t   *l;
     while (sslList != NULL) {
         l = sslList;
@@ -597,7 +597,7 @@ static fileNode_t* websWhitelistCheckRecursive(fileNode_t *n, char *path)
     AFTER websOpenServer()
     URL should contain trailing '/', eg. "/matrixssl/"
  */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 int websRequireSSL(char *url)
 {
     sslList_t   *l;
@@ -670,13 +670,13 @@ int websBuildWhitelist(void)
 /*
     WINDOWS: Build whitelist
  */
-#ifdef WIN32
+#if WIN32
 static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
 {
     WIN32_FIND_DATA findData;
     HANDLE  fh;
     fileNode_t  *cnode, *nnode; /* current node, next node */
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     sslList_t   *l;
 #endif
     int     rc = 0;
@@ -714,7 +714,7 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
                 strlen(CGI_BIN) + 1) == 0) {
             cnode->flags |= WHITELIST_CGI;
         }
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         for (l = sslList; l != NULL; l = l->next) {
             if (strncmp(path + strlen(websDefaultDir), l->url, 
                     strlen(l->url)) == 0) {
@@ -800,7 +800,7 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
                 strlen(CGI_BIN) + 1) == 0) {
             cnode->flags |= WHITELIST_CGI;
         }
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
         sslList_t   *l;
         for (l = sslList; l != NULL; l = l->next) {
             if (strncmp(path + strlen(websDefaultDir), l->url, strlen(l->url)) == 0) {

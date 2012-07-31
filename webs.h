@@ -11,7 +11,7 @@
 
 #include    "uemf.h"
 #include    "ej.h"
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     #include    "websSSL.h"
 #endif
 
@@ -48,7 +48,7 @@
  */
 #define WEBS_NAME               T("GoAhead")
 #define WEBS_VERSION            T("2.5.0")
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
 #define SSL_NAME                T("PeerSec-MatrixSSL")
 #define SSL_VERSION             T(MATRIXSSL_VERSION)
 #endif /* WEBS_SSL_SUPPORT */
@@ -145,7 +145,7 @@ typedef struct websRec {
     char_t          *cnonce;    /* check nonce */
     char_t          *qop;       /* quality operator */
 #endif
-#ifdef WEBS_SSL_SUPPORT
+#if BIT_PACK_SSL
     websSSL_t       *wsp;       /* SSL data structure */
 #endif
 } websRec;

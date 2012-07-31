@@ -10,7 +10,7 @@
 
 #include    "ejIntrn.h"
 
-#ifdef CE
+#if CE
     #include    "CE/wincompat.h"
 #endif
 

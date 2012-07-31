@@ -602,7 +602,7 @@ static int dbWriteKeyValue(int fd, char_t *key, char_t *value)
     if (pLineOut) {
         len = gstrlen(pLineOut);
         //MOB
-#ifdef CE
+#if CE
         rc = writeUniToAsc(fd, pLineOut, len);
 #else
         rc = gwrite(fd, pLineOut, len);
@@ -790,7 +790,7 @@ int dbLoad(int did, char_t *filename, int flags)
         Read entire file into temporary buffer
      */
     buf = balloc(sbuf.st_size + 1);
-#ifdef CE
+#if CE
     if (readAscToUni(fd, &buf, sbuf.st_size) != (int)sbuf.st_size) {
 #else
     if (gread(fd, buf, sbuf.st_size) != (int)sbuf.st_size) {

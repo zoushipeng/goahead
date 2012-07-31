@@ -752,7 +752,7 @@ typedef int64 MprTime;
 /*********************************** Fixups ***********************************/
 
 //  MOB - sort this out
-#ifdef UW
+#if UW
     #define     __NO_PACK       1
 #endif /* UW */
 
@@ -786,7 +786,7 @@ struct timeval
 #define _STRUCT_TIMEVAL 1
 #endif /* LINUX && !_STRUCT_TIMEVAL */
 
-#ifdef ECOS
+#if ECOS
     #define     O_RDONLY        1
     #define     O_BINARY        2
     #define     __NO_PACK       1
@@ -797,16 +797,16 @@ struct timeval
     #define     LIBKERN_INLINE
 #endif /* ECOS */
 
-#ifdef QNX4
+#if QNX4
     typedef long        fd_mask;
     #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
 #endif /* QNX4 */
 
-#ifdef MACOSX
+#if MACOSX
     typedef int32_t         fd_mask;
 #endif
 
-#ifdef NW
+#if NW
     #define fd_mask         fd_set
     #define INADDR_NONE     -1l
     #define Sleep           delay
@@ -824,7 +824,7 @@ struct timeval
 
 #ifndef CHAR_T_DEFINED
 #define CHAR_T_DEFINED 1
-#ifdef UNICODE
+#if UNICODE
 /*
     To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
  */
@@ -848,7 +848,7 @@ typedef unsigned short      uchar_t;
 typedef char                char_t;
 #define TSZ(x)              (sizeof(x))
 #define TASTRL(x)           (strlen(x) + 1)
-#ifdef WIN
+#if WIN
 typedef unsigned char       uchar_t;
 #endif /* WIN */
 
@@ -876,7 +876,7 @@ typedef unsigned char       uchar_t;
 /*
     Type for unicode systems
  */
-#ifdef UNICODE
+#if UNICODE
 #define gmain       wmain
 #define gasctime    _wasctime
 #define gsprintf    swprintf
@@ -933,7 +933,7 @@ typedef struct _stat gstat_t;
 #define gtolower    towlower
 #define gtoupper    towupper
 
-#ifdef CE
+#if CE
 #define gisspace    isspace
 #define gisdigit    isdigit
 #define gisxdigit   isxdigit
@@ -958,7 +958,7 @@ typedef struct _stat gstat_t;
 #define gexecvp     _wexecvp
 #else /* ! UNICODE */
 
-#ifdef VXWORKS
+#if VXWORKS
 #define gchdir      vxchdir
 #define gmkdir      vxmkdir
 #define grmdir      vxrmdir
@@ -1047,12 +1047,12 @@ typedef struct stat gstat_t;
 #ifndef VXWORKS
 #define gmain       main
 #endif /* ! VXWORKS */
-#ifdef VXWORKS
+#if VXWORKS
 #define fcntl(a, b, c)
 #endif /* VXWORKS */
 #endif /* ! UNICODE */
 
-#ifdef WIN32
+#if WIN32
 #define getcwd  _getcwd
 #define tempnam _tempnam
 #define open    _open
@@ -1428,7 +1428,7 @@ extern int      fmtValloc(char_t **s, int n, char_t *fmt, va_list arg);
 extern int      fmtAlloc(char_t **s, int n, char_t *fmt, ...);
 extern int      fmtStatic(char_t *s, int n, char_t *fmt, ...);
 
-#ifdef UNICODE
+#if UNICODE
 extern int      ringqPutcA(ringq_t *rq, char c);
 extern int      ringqInsertcA(ringq_t *rq, char c);
 extern int      ringqPutStrA(ringq_t *rq, char *str);
