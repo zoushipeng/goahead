@@ -115,7 +115,7 @@ char_t *websCalcNonce(webs_t wp)
 {
     char_t      *nonce, *prenonce;
     time_t      longTime;
-#if defined(WIN32)
+#if WIN
     char_t      buf[26];
     errno_t error;
     struct tm   newtime;
@@ -125,13 +125,13 @@ char_t *websCalcNonce(webs_t wp)
 
     a_assert(wp);
     time(&longTime);
-#if !defined(WIN32)
+#if !WIN
     newtime = localtime(&longTime);
 #else
     error = localtime_s(&newtime, &longTime);
 #endif
 
-#if !defined(WIN32)
+#if !WIN
     prenonce = NULL;
     fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime), wp->realm); 
 #else

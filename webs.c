@@ -408,7 +408,7 @@ void websReadEvent(webs_t wp)
 #ifndef __NO_CGI_BIN
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
-#if !defined(WIN32)
+#if !WIN
                     fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
 #else
                     _sopen_s(&fd, wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
@@ -429,7 +429,7 @@ void websReadEvent(webs_t wp)
                         size = (len + gstrlen(text) + 2) * sizeof(char_t);
                         wp->query = brealloc(wp->query, size);
                         wp->query[len++] = '&';
-#if !defined(WIN32)
+#if !WIN
                         strcpy(&wp->query[len], text);
 #else
                         strcpy_s(&wp->query[len], size - len, text);
@@ -445,7 +445,7 @@ void websReadEvent(webs_t wp)
                         size = (len +   gstrlen(text) + 1) * sizeof(char_t);
                         wp->query = brealloc(wp->query, size);
                         if (wp->query) {
-#if !defined(WIN32)
+#if !WIN
                             gstrcpy(&wp->query[len], text);
 #else
                             strcpy_s(&wp->query[len], size - len, text);
@@ -488,7 +488,8 @@ void websReadEvent(webs_t wp)
 #ifndef __NO_CGI_BIN
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
-#if !defined(WIN32)
+                    //  MOB - refactor and push into gopen
+#if !WIN
                     fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
 #else
                     _sopen_s(&fd, wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
@@ -504,7 +505,7 @@ void websReadEvent(webs_t wp)
                 wp->query = brealloc(wp->query, size);
                 if (wp->query) {
                     wp->query[len++] = '&';
-#if !defined(WIN32)
+#if !WIN
                     gstrcpy(&wp->query[len], text);
 #else
                     strcpy_s(&wp->query[len], size - len, text);

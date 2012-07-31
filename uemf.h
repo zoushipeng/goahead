@@ -83,8 +83,6 @@
 #define BIT_CPU_PPC         6           /* Power PC */
 #define BIT_CPU_SPARC       7           /* Sparc */
 
-//  MOB - others
-
 /*
     Use compiler definitions to determine the CPU
  */
@@ -115,9 +113,8 @@
 #endif
 
 /*
-    Operating system defines. Use compiler standard defintions to sleuth. 
-    Works for all except VxWorks which does not define any special symbol.
-    NOTE: Support for SCOV Unix, LynxOS and UnixWare is deprecated. 
+    Operating system defines. Use compiler standard defintions to sleuth.  Works for all except VxWorks which does not
+    define any special symbol.  NOTE: Support for SCOV Unix, LynxOS and UnixWare is deprecated. 
  */
 #if defined(__APPLE__)
     #define BIT_OS "macosx"
@@ -166,7 +163,7 @@
     #define BIT_WIN_LIKE 0
 #elif defined(__QNX__)
     #define BIT_OS "qnx"
-    #define QNX 0
+    #define QNX 1
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
 #elif defined(__hpux)
@@ -376,7 +373,7 @@
     #include    <errno.h>
 #endif /* SOLARIS */
 
-#if QNX4
+#if QNX
     #include    <sys/types.h>
     #include    <stdio.h>
     #include    <sys/socket.h>
@@ -388,7 +385,7 @@
     #include    <unistd.h>
     #include    <sys/uio.h>
     #include    <sys/wait.h>
-#endif /* QNX4 */
+#endif /* QNX */
 
 #if ECOS
     #include    <limits.h>
@@ -624,7 +621,6 @@ typedef int64 MprTime;
     #endif
 #endif
 
-
 #ifndef MAXINT
 #if INT_MAX
     #define MAXINT      INT_MAX
@@ -789,6 +785,7 @@ typedef int64 MprTime;
     #endif
     #ifndef ECONNRESET
         #define ECONNRESET  WSAECONNRESET
+    #endif
 #else
     #ifndef O_BINARY
         #define O_BINARY 0
@@ -806,10 +803,10 @@ struct timeval
 #define _STRUCT_TIMEVAL 1
 #endif /* LINUX && !_STRUCT_TIMEVAL */
 
-#if QNX4
+#if QNX
     typedef long        fd_mask;
     #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
-#endif /* QNX4 */
+#endif
 
 #if MACOSX
     typedef int32_t         fd_mask;
@@ -970,7 +967,7 @@ typedef struct _stat gstat_t;
 #define gchdir      vxchdir
 #define gmkdir      vxmkdir
 #define grmdir      vxrmdir
-#elif (defined (LYNX) || defined (LINUX) || defined (MACOSX) || defined (SOLARIS))
+#elif BIT_UNIX_LIKE
 #define gchdir      chdir
 #define gmkdir(s)   mkdir(s,0755)
 #define grmdir      rmdir

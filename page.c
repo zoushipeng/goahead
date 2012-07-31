@@ -18,14 +18,14 @@
 int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 {
     //  MOB
-#if defined(WIN32)
+#if WIN
     errno_t error;
 #endif
     a_assert(websValid(wp));
 
 #if BIT_ROM
     return websRomPageOpen(wp, path, mode, perm);
-#elif defined(WIN32)
+#elif WIN
     error = _sopen_s(&(wp->docfd), lpath, mode, _SH_DENYNO, _S_IREAD);
     return (wp->docfd = gopen(lpath, mode, _S_IREAD));
 #else

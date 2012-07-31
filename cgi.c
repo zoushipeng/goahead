@@ -232,14 +232,15 @@ void websCgiGatherOutput (cgiRec *cgip)
 {
     gstat_t sbuf;
     char_t  cgiBuf[FNAMESIZE];
-#if defined(WIN32)
+#if WIN
     errno_t error;
 #endif
 
     if ((gstat(cgip->stdOut, &sbuf) == 0) && 
         (sbuf.st_size > cgip->fplacemark)) {
         int fdout;
-#if !defined(WIN32)
+        //  MOB - refactor and push into gopen
+#if !WIN
         fdout = gopen(cgip->stdOut, O_RDONLY | O_BINARY, 0444 );
 #else
         error = _sopen_s(&fdout, cgip->stdOut, O_RDONLY | O_BINARY, _SH_DENYNO, 0444);
@@ -434,7 +435,8 @@ int websCheckCgiProc(int handle)
 }
 #endif /* CE */
 
-#if defined(LINUX) || defined(LYNX) || defined(MACOSX) || defined(QNX4) 
+//  MOB - refactor
+#if BIT_UNIX_LIKE || QNX
 #include <sys/wait.h>
 
 /*

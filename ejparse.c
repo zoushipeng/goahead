@@ -136,8 +136,8 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
     if ((ep = ejPtr(eid)) == NULL) {
         return NULL;
     }
-    
-#if !defined(WIN32)
+    //  MOB - refactor and push into gopen
+#if !WIN
     fd = gopen(path, O_RDONLY | O_BINARY, 0666);
 #else
     _sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
@@ -1325,7 +1325,7 @@ static void appendString(char_t **ptr, char_t *s)
         oldlen = gstrlen(*ptr);
         size = (len + oldlen + 1) * sizeof(char_t);
         *ptr = brealloc(*ptr, size);
-#if !defined(WIN32)
+#if !WIN
         gstrcpy(&(*ptr)[oldlen], s);
 #else
         strcpy_s(&(*ptr)[oldlen], size - oldlen, s);

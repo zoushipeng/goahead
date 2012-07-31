@@ -69,7 +69,7 @@
     #include    <unistd.h>
 #endif
 
-#if QNX4
+#if QNX
     #include    <fcntl.h>
     #include    <sys/stat.h>
     #include    <signal.h>

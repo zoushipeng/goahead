@@ -636,8 +636,8 @@ int dbSave(int did, char_t *filename, int flags)
         First write to a temporary file, then switch around later.
      */
     fmtAlloc(&tmpFile, FNAMESIZE, T("%s/data.tmp"), basicGetProductDir());
-    //  MOB
-#if !defined(WIN32)
+    //  MOB -refactor into gopen
+#if !WIN
     fd = gopen(tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0666);
 #else
     _sopen_s(&fd, tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
@@ -770,7 +770,7 @@ int dbLoad(int did, char_t *filename, int flags)
         bfree(path);
         return -1;
     }
-#if !defined(WIN32)
+#if !WIN
     fd = gopen(path, O_RDONLY | O_BINARY, 0666);
 #else
     _sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);

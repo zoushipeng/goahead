@@ -23,7 +23,7 @@
     #include    <unistd.h>
 #endif
 
-#if QNX4
+#if QNX
     #include    <dirent.h>
 #endif
 
