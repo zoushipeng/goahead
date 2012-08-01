@@ -65,10 +65,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         websStats.access++;
         websError(wp, 405, T("Access Denied\nSecure access is required."));
         trace(3, T("SEC: Non-secure access attempted on <%s>\n"), path);
-      /* bugfix 5/24/02 -- we were leaking the memory pointed to by
-       * 'accessLimit'. Thanks to Simon Byholm.
-       */
-      bfree(accessLimit);
+        bfree(accessLimit);
         return 1;
     }
 #endif
@@ -101,7 +98,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
             websStats.access++;
             websError(wp, 403, T("Access Denied\nProhibited User"));
             nRet = 1;
-        } else if (password && * password) {
+        } else if (password && *password) {
             char_t * userpass = umGetUserPassword(userid);
             if (userpass) {
                 if (gstrcmp(password, userpass) != 0) {
@@ -120,19 +117,15 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
 #if BIT_DIGEST_AUTH
         } else if (flags & WEBS_AUTH_DIGEST) {
             char_t *digestCalc;
-
             /*
                 Check digest for equivalence
              */
             wp->password = umGetUserPassword(userid);
-
             a_assert(wp->digest);
             a_assert(wp->nonce);
             a_assert(wp->password);
-                             
             digestCalc = websCalcDigest(wp);
             a_assert(digestCalc);
-
             if (gstrcmp(wp->digest, digestCalc) != 0) {
                 bfree (digestCalc);
                 digestCalc = websCalcUrlDigest(wp);
@@ -162,9 +155,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
             nRet = 1;
         }
     } else if (am != AM_FULL) {
-        /*
-                This will cause the browser to display a password / username dialog
-         */
+        /* This will cause the browser to display a password / username dialog */
 #if BIT_DIGEST_AUTH
         if (am == AM_DIGEST) {
             wp->flags |= WEBS_AUTH_DIGEST;
@@ -191,13 +182,12 @@ void websSecurityDelete()
 void websSetPassword(char_t *password)
 {
     a_assert(password);
-
     gstrncpy(websPassword, password, TSZ(websPassword));
 }
 
 
 /*
-    Get password, return the decoded form
+    Get the decoded password
  */
 char_t *websGetPassword()
 {

@@ -182,6 +182,9 @@ void bfree(void *mp)
     bType   *bp;
     int     q, memSize;
 
+    if (mp == 0) {
+        return;
+    }
     bp = (bType*) ((char*) mp - sizeof(bType));
     a_assert((bp->flags & B_INTEGRITY_MASK) == B_INTEGRITY);
     if ((bp->flags & B_INTEGRITY_MASK) != B_INTEGRITY) {
@@ -198,14 +201,6 @@ void bfree(void *mp)
     bp->u.next = bQhead[q];
     bQhead[q] = bp;
     bp->flags = B_FILL_WORD;
-}
-
-
-void bfreeSafe(void *mp)
-{
-    if (mp) {
-        bfree(mp);
-    }
 }
 
 

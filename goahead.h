@@ -271,25 +271,24 @@
     #include    <netinet/in.h>
 #endif /* NETWARE */
 
-#if SCOV5 
+#if SCOV5 || AIX || HPUX
     #include    <sys/types.h>
     #include    <stdio.h>
+    #include    <signal.h>
+    #include    <unistd.h>
     #include    "sys/socket.h"
     #include    "sys/select.h"
     #include    "netinet/in.h"
     #include    "arpa/inet.h"
     #include    "netdb.h"
-#endif /* SCOV5 */
-
-#if UNIX
-    #include    <stdio.h>
-#endif /* UNIX */
+#endif /* SCOV5 || AIX || HUPX */
 
 #if LINUX
     #include    <sys/types.h>
     #include    <sys/stat.h>
     #include    <sys/param.h>
     #include    <limits.h>
+    #include    <signal.h>
     #include    <stdio.h>
     #include    <stdlib.h>
     #include    <unistd.h>
@@ -305,6 +304,7 @@
 
 #if LYNX
     #include    <limits.h>
+    #include    <signal.h>
     #include    <stdarg.h>
     #include    <stdio.h>
     #include    <stdlib.h>
@@ -802,7 +802,6 @@ struct timeval
 #endif /* NETWARE */
 
 #if UNICODE
-
 typedef ushort char_t;
 typedef ushort uchar_t;
 
@@ -1323,8 +1322,7 @@ extern int  bopen(void *buf, int bufsize, int flags);
     extern char_t *bstrdupNoBalloc(char_t *s);
     extern char *bstrdupANoBalloc(char *s);
     #define balloc(num) malloc(num)
-    #define bfree(p) free(p)
-    #define bfreeSafe(p) if (p) { free(p); } else
+    #define bfree(p) if (p) { free(p); } else
     #define brealloc(p, num) realloc(p, num)
     #define bstrdup(s) bstrdupNoBalloc(s)
     #define bstrdupA(s) bstrdupANoBalloc(s)
@@ -1340,10 +1338,11 @@ extern int  bopen(void *buf, int bufsize, int flags);
     #define gstrdup bstrdup
     extern void     *balloc(ssize size);
     extern void     bfree(void *mp);
-    extern void     bfreeSafe(void *mp);
     extern void     *brealloc(void *buf, int newsize);
     extern char_t   *bstrdup(char_t *s);
 #endif /* BIT_REPLACE_MALLOC */
+
+#define bfreeSafe(p) bfree(p)
 
 /*
     Flags. The integrity value is used as an arbitrary value to fill the flags.
@@ -1487,36 +1486,11 @@ extern int      harnessLevel();
 extern char *websMD5(cchar *s);
 extern char *websMD5binary(cchar *buf, ssize length, cchar *prefix);
 
-/*************************** User Configurable Defines ************************/
-
-//  MOB - move to a config.h
-
+#if UNUSED
 //  MOB - PREFIX
 #define DEFAULT_CERT_FILE   "certSrv.pem"     /* Public key certificate */
 #define DEFAULT_KEY_FILE    "privkeySrv.pem"  /* Private key file */
-
-#define WEBS_DEFAULT_HOME       T("home.htm") /* Default home page */
-#define WEBS_DEFAULT_PORT       8080        /* Default HTTP port */
-#define WEBS_DEFAULT_SSL_PORT   4433        /* Default HTTPS port */
-
-/* Enable Whitelist access to files */
-#define WEBS_WHITELIST_SUPPORT  1
-
-/* Enable logging of web accesses to a file */
-#define WEBS_LOG_SUPPORT 1
-
-/* Enable trace APIs to a file */
-#define WEBS_TRACE_SUPPORT 1
-#define WEBS_TRACE_LEVEL 3
-
-/* Enable HTTP/1.1 keep-alive support */
-/* #define WEBS_KEEP_ALIVE_SUPPORT 1 */
-
-/* Experimental support proxy capability and track local vs remote request */
-/* #define WEBS_PROXY_SUPPORT 1 */
-
-/* Support reading pages from ROM (with webcomp.c) */
-/* #define WEBS_PAGE_ROM 1 */
+#endif
 
 /********************************** Defines ***********************************/
 
@@ -1777,7 +1751,7 @@ extern ssize     websGetRequestWritten(webs_t wp);
 extern char_t   *websGetVar(webs_t wp, char_t *var, char_t *def);
 extern int       websCompareVar(webs_t wp, char_t *var, char_t *value);
 extern void      websHeader(webs_t wp);
-extern int       websOpenListen(int port, int retries);
+extern int       websOpenListen(int port);
 extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
 extern void      websPageClose(webs_t wp);
 extern int       websPublish(char_t *urlPrefix, char_t *path);
@@ -1809,7 +1783,7 @@ extern int      websUrlHandlerRequest(webs_t wp);
 extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
                     char_t **proto, char_t **tag, char_t **ext);
 extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
-extern ssize     websWrite(webs_t wp, char_t* fmt, ...);
+extern ssize     websWrite(webs_t wp, char_t *fmt, ...);
 extern ssize     websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
 extern ssize     websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
 extern int       websValid(webs_t wp);
@@ -1848,6 +1822,8 @@ extern void     websDeleteWhitelist(void);
 
 extern int       websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
                     char_t *query);
+extern int       websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
+                    char_t *path, char_t *query);
 extern int       websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
                     char_t *query);
 extern int       websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
@@ -1857,13 +1833,12 @@ extern int       websCheckCgiProc(int handle);
 extern char_t    *websGetCgiCommName();
 
 extern int       websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
-extern int       websOpen(int sid);
 extern void      websResponse(webs_t wp, int code, char_t *msg, char_t *redirect);
 extern int       websJavaScriptEval(webs_t wp, char_t *script);
 extern ssize     websPageReadData(webs_t wp, char *buf, ssize nBytes);
 extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
 extern void      websPageClose(webs_t wp);
-extern void      websPageSeek(webs_t wp, long offset);
+extern void      websPageSeek(webs_t wp, filepos offset);
 extern int       websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType *sbuf);
 extern int       websPageIsDirectory(char_t *lpath);
 extern int       websRomOpen();
@@ -1872,7 +1847,7 @@ extern int       websRomPageOpen(webs_t wp, char_t *path, int mode, int perm);
 extern void      websRomPageClose(int fd);
 extern ssize     websRomPageReadData(webs_t wp, char *buf, ssize len);
 extern int       websRomPageStat(char_t *path, websStatType *sbuf);
-extern long      websRomPageSeek(webs_t wp, long offset, int origin);
+extern long      websRomPageSeek(webs_t wp, filepos offset, int origin);
 extern void      websSetRequestSocketHandler(webs_t wp, int mask, 
                     void (*fn)(webs_t wp));
 extern int       websSolutionHandler(webs_t wp, char_t *urlPrefix,
@@ -1880,12 +1855,16 @@ extern int       websSolutionHandler(webs_t wp, char_t *urlPrefix,
                     char_t *query);
 extern void      websUrlHandlerClose();
 extern int       websUrlHandlerOpen();
-extern int       websOpenServer(int port, int retries);
+extern int       websOpen();
+extern void      websClose();
+extern int       websOpenServer(int port, char_t *documents);
 extern void      websCloseServer();
-extern char_t*   websGetDateString(websStatType* sbuf);
+extern char_t   *websGetDateString(websStatType* sbuf);
+extern void      websServiceEvents(int *finished);
+
 
 //  MOB - why here
-extern int      strcmpci(char_t* s1, char_t* s2);
+extern int      strcmpci(char_t *s1, char_t *s2);
 
 #if CE
 //  MOB - prefix
@@ -2120,7 +2099,14 @@ extern int umSetAccessLimitGroup(char_t *url, char_t *group);
 extern accessMeth_t umGetAccessMethodForURL(char_t *url);
 extern bool_t umUserCanAccessURL(char_t *user, char_t *url);
 
+extern void formDefineUserMgmt(void);
+
 #endif /* BIT_USER_MANAGEMENT */
+#ifdef __cplusplus
+}
+#endif
+#endif /* _h_GOAHEAD */
+
 /*
     @copy   default
 
@@ -2140,7 +2126,3 @@ extern bool_t umUserCanAccessURL(char_t *user, char_t *url);
 
     @end
  */
-#ifdef __cplusplus
-}
-#endif
-#endif /* _h_GOAHEAD */

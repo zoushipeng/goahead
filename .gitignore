@@ -33,3 +33,7 @@ projects/WIN/mpr-dynamic/ipch
 MACOSX/webs
 log.txt
 trace.txt
+start.bit
+macosx-*
+*-debug
+.*.swp

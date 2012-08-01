@@ -1,5 +1,5 @@
 /*
-    webrom.c -- Compiled Web Pages
+    documents.c -- Compiled Web Pages
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */

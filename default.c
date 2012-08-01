@@ -19,6 +19,7 @@ static char_t   *websDefaultDir;            /* Default Web page directory */
 /**************************** Forward Declarations ****************************/
 #define MAX_URL_DEPTH           8   /* Max directory depth of websDefaultDir */
 
+//  MOB - get whitelist out of here
 #if BIT_WHITELIST
 
 #ifndef WIN
@@ -63,7 +64,6 @@ static void websDefaultWriteEvent(webs_t wp);
     Server Pages. As the handler is the last handler to run, it always indicates that it has handled the URL by
     returning 1. 
  */
-
 int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
     websStatType    sbuf;
@@ -271,58 +271,57 @@ static int badPath(char_t* path, char_t* badPath, int badLen)
 }
 
 
+/*
+    If we're running on Windows 95/98/ME, malicious users can crash the OS by requesting an URL with any of several
+    reserved DOS device names in them (AUX, NUL, etc.).  If we're running on any of those OS versions, we scan the
+    URL for paths with any of these elements before trying to access them. If any of the subdirectory names match
+    one of our prohibited links, we declare this to be a 'bad' path, and return 1 to indicate this. This may be a
+    heavy-handed approach, but should prevent the DOS attack.  NOTE that this function is only compiled in when we
+    are running on Win32, and only has an effect when running on Win95/98, or ME. On all other versions of Windows,
+    we check the version info, and return 0 immediately.
+ 
+    According to http://packetstormsecurity.nl/0003-exploits/SCX-SA-01.txt: II.  Problem Description When the
+    Microsoft Windows operating system is parsing a path that is being crafted like "c:\[device]\[device]" it will
+    halt, and crash the entire operating system.  Four device drivers have been found to crash the system.  The CON,
+    NUL, AUX, CLOCK$ and CONFIG$ are the two device drivers which are known to crash.  Other devices as LPT[x]:,
+    COM[x]: and PRN have not been found to crash the system.  Making combinations as CON\NUL, NUL\CON, AUX\NUL, ...
+    seems to crash Ms Windows as well.  Calling a path such as "C:\CON\[filename]" won't result in a crash but in an
+    error-message.  Creating the map "CON", "CLOCK$", "AUX" "NUL" or "CONFIG$" will also result in a simple
+    error-message saying: ''creating that map isn't allowed''.
+ 
+    returns 1 if it finds a bad path element.
+*/
 static int isBadWindowsPath(char_t** parts, int partCount)
 {
-   /*
-        If we're running on Windows 95/98/ME, malicious users can crash the OS by requesting an URL with any of several
-        reserved DOS device names in them (AUX, NUL, etc.).  If we're running on any of those OS versions, we scan the
-        URL for paths with any of these elements before trying to access them. If any of the subdirectory names match
-        one of our prohibited links, we declare this to be a 'bad' path, and return 1 to indicate this. This may be a
-        heavy-handed approach, but should prevent the DOS attack.  NOTE that this function is only compiled in when we
-        are running on Win32, and only has an effect when running on Win95/98, or ME. On all other versions of Windows,
-        we check the version info, and return 0 immediately.
-     
-        According to http://packetstormsecurity.nl/0003-exploits/SCX-SA-01.txt: II.  Problem Description When the
-        Microsoft Windows operating system is parsing a path that is being crafted like "c:\[device]\[device]" it will
-        halt, and crash the entire operating system.  Four device drivers have been found to crash the system.  The CON,
-        NUL, AUX, CLOCK$ and CONFIG$ are the two device drivers which are known to crash.  Other devices as LPT[x]:,
-        COM[x]: and PRN have not been found to crash the system.  Making combinations as CON\NUL, NUL\CON, AUX\NUL, ...
-        seems to crash Ms Windows as well.  Calling a path such as "C:\CON\[filename]" won't result in a crash but in an
-        error-message.  Creating the map "CON", "CLOCK$", "AUX" "NUL" or "CONFIG$" will also result in a simple
-        error-message saying: ''creating that map isn't allowed''.
-     
-        returns 1 if it finds a bad path element.
-    */
-   OSVERSIONINFO version;
-   int i;
-   version.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-   if (GetVersionEx(&version)) {
-      if (VER_PLATFORM_WIN32_NT != version.dwPlatformId) {
-         /*
-          * we are currently running on 95/98/ME.
-          */
-         for (i = 0; i < partCount; ++i) {
+    OSVERSIONINFO version;
+    int i;
+    version.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+    if (GetVersionEx(&version)) {
+        if (VER_PLATFORM_WIN32_NT != version.dwPlatformId) {
             /*
-             * check against the prohibited names. If any of our requested 
-             * subdirectories match any of these, return '1' immediately.
+                we are currently running on 95/98/ME.
              */
-            if ( 
-             (badPath(parts[i], T("con"), 3)) ||
-             (badPath(parts[i], T("com"), 3)) ||
-             (badPath(parts[i], T("nul"), 3)) ||
-             (badPath(parts[i], T("aux"), 3)) ||
-             (badPath(parts[i], T("clock$"), 6)) ||
-             (badPath(parts[i], T("config$"), 7)) ) {
-                return 1;
+            for (i = 0; i < partCount; ++i) {
+                /*
+                   check against the prohibited names. If any of our requested 
+                   subdirectories match any of these, return '1' immediately.
+                 */
+                if ( 
+                    (badPath(parts[i], T("con"), 3)) ||
+                    (badPath(parts[i], T("com"), 3)) ||
+                    (badPath(parts[i], T("nul"), 3)) ||
+                    (badPath(parts[i], T("aux"), 3)) ||
+                    (badPath(parts[i], T("clock$"), 6)) ||
+                    (badPath(parts[i], T("config$"), 7)) ) {
+                    return 1;
+                }
             }
-         }
-      }
-   }
-
-   /*
-        either we're not on one of the bad OS versions, or the request has no problems.
-    */
-   return 0;
+        }
+    }
+    /*
+        Either we're not on one of the bad OS versions, or the request has no problems.
+     */
+    return 0;
 }
 #endif
 
@@ -381,12 +380,11 @@ int websValidateUrl(webs_t wp, char_t *path)
         token = gstrtok(NULL, T("/"));
     }
 
-#if WIN32
+#if WIN
    if (isBadWindowsPath(parts, npart)) {
       bfree(path);
       return -1;
    }
-
 #endif
 
     /*
@@ -395,7 +393,6 @@ int websValidateUrl(webs_t wp, char_t *path)
     if (npart || (gstrcmp(path, T("/")) == 0) || (path[0] == '\0')) {
         lpath = balloc((gstrlen(dir) + 1 + len + 1) * sizeof(char_t));
         gstrcpy(lpath, dir);
-
         for (i = 0; i < npart; i++) {
             gstrcat(lpath, T("/"));
             gstrcat(lpath, parts[i]);
@@ -481,6 +478,7 @@ void websDefaultOpen()
     whitelist = NULL;
     websBuildWhitelist();
 #endif
+    websDefaultPage = bstrdup(T("index.html"));
 }
 
 
@@ -595,10 +593,9 @@ static fileNode_t* websWhitelistCheckRecursive(fileNode_t *n, char *path)
 }
 
 /*
-    Add a DIRECTORY url to the ssl-only urls list, and rebuild the whitelist
-    This API can be called multiple times, but should only be called
-    AFTER websOpenServer()
-    URL should contain trailing '/', eg. "/matrixssl/"
+    MOB - refactor
+    Add a DIRECTORY url to the ssl-only urls list, and rebuild the whitelist. This API can be called multiple times, but
+    should only be called AFTER websOpenServer() URL should contain trailing '/', eg. "/matrixssl/"
  */
 #if BIT_PACK_SSL
 int websRequireSSL(char *url)
@@ -798,8 +795,7 @@ static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
             cnode->next = nnode;
         }
         cnode = nnode;
-        if (strncmp(path + strlen(websDefaultDir), "/" CGI_BIN, 
-                strlen(CGI_BIN) + 1) == 0) {
+        if (strncmp(path + strlen(websDefaultDir), "/" CGI_BIN, strlen(CGI_BIN) + 1) == 0) {
             cnode->flags |= WHITELIST_CGI;
         }
 #if BIT_PACK_SSL
@@ -865,7 +861,18 @@ static void websMakePath(char *d, char *src, char *subdir, int wildcard)
 
 #endif
 
-/******************************************************************************/
+int websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
+        char_t *path, char_t *query)
+{
+    //  MOB gmatch
+    //  MOB - could groutines apply T() to args)
+    if (*url == '\0' || gstrcmp(url, T("/")) == 0) {
+        websRedirect(wp, "index.html");
+        return 1;
+    }
+    return 0;
+}
+
 /*
     @copy   default
 

@@ -1,5 +1,5 @@
 /*
-    emfdb.c -- EMF text file database
+    db.c -- Simple text file database
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -785,11 +785,11 @@ int dbLoad(int did, char_t *filename, int flags)
     /*
         Read entire file into temporary buffer
      */
-    buf = balloc(sbuf.st_size + 1);
+    buf = balloc((ssize) sbuf.st_size + 1);
 #if CE
-    if (readAscToUni(fd, &buf, sbuf.st_size) != (int)sbuf.st_size) {
+    if (readAscToUni(fd, &buf, sbuf.st_size) != (ssize) sbuf.st_size) {
 #else
-    if (gread(fd, buf, sbuf.st_size) != (int)sbuf.st_size) {
+    if (gread(fd, buf, (ssize) sbuf.st_size) != (ssize) sbuf.st_size) {
 #endif
         trace(3, T("DB: Persistent data read failed.\n"));
         bfree(buf);

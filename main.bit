@@ -1,5 +1,5 @@
 /*
-    main.bit -- Main Bit File for GoAhead
+    main.bit -- Main Bit file for GoAhead
  */
 
 Bit.load({
@@ -13,11 +13,15 @@ Bit.load({
         company: 'Embedthis',
         version: '3.0.0',
         buildNumber: '0',
-        http_port: 80,
-        ssl_port: 443,
+        http_port: 8080,
+        ssl_port: 4443,
         packs: [ 'bits/packs' ]
         '+optional': [ 'doxygen', 'dsi', 'ejs', 'man', 'man2html', 'openssl', 'matrixssl', 'pmaker', 'ssl', 'utest', 'zip' ],
+        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
 
+        /*
+            MOB - comment each setting
+         */
         digestAuth: true,
         replaceMalloc: false,
         userManagement: false,
@@ -28,26 +32,22 @@ Bit.load({
         keepAlive: true,
         cgi: true,
         ifModified: true,
-
+        documents: "web",
+        certificate: "server.crt",
+        key: "server.key",
         simpleTime: false,
         logQuery: false,
+        traceLevel: 2,
+        password: "",
 
-/*
-        webs: true,
-        littlefoot: false,
-        websProxySupport: false,
-        websSslSupport: false,
-        websSimpleTime: false, 
-        websIfModifiedSupport: false, 
-        digestAccessSupport: true, 
-*/
     },
 
     targets: {
         goahead: {
             type: 'exe',
             depends: [ ],
-            sources: [ '*.c', '${OS}/*.c' ],
+            sources: [ '*.c' ],
+            _sources: [ '*.c', '${OS}/*.c' ],
             headers: [ '*.h' ],
         },
         webcomp: {

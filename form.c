@@ -121,7 +121,6 @@ void websHeader(webs_t wp)
 void websFooter(webs_t wp)
 {
     a_assert(websValid(wp));
-
     websWrite(wp, T("</html>\n"));
 }
 

@@ -12,7 +12,7 @@
 
 /********************************* Includes ***********************************/
 
-#include    "goahead.h"
+#include    "../goahead.h"
 
 #if UNUSED
 #include <stdio.h>

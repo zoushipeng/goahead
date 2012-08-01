@@ -13,9 +13,8 @@
 
 #include    "goahead.h"
 
-/******************************** Local Data **********************************/
-
 #if BIT_ROM
+/******************************** Local Data **********************************/
 
 sym_fd_t    romTab;                     /* Symbol table for web pages */
 
@@ -28,7 +27,6 @@ int websRomOpen()
     char_t                  name[SYM_MAX];
 
     romTab = symOpen(WEBS_SYM_INIT);
-
     for (wip = websRomPageIndex; wip->path; wip++) {
         gstrncpy(name, wip->path, SYM_MAX);
         nchars = gstrlen(name) - 1;
@@ -108,10 +106,10 @@ int websRomPageReadData(webs_t wp, char *buf, int nBytes)
 }
 
 
-long websRomPageSeek(webs_t wp, long offset, int origin)
+long websRomPageSeek(webs_t wp, filepos offset, int origin)
 {
     websRomPageIndexType    *wip;
-    long pos;
+    filepos                 pos;
 
     a_assert(websValid(wp));
     a_assert(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
@@ -145,7 +143,7 @@ long websRomPageSeek(webs_t wp, long offset, int origin)
     return (wip->pos = pos);
 }
 
-#endif /* WEBS_PAGE_ROM */
+#endif /* BIT_ROM */
 
 /*
     @copy   default

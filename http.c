@@ -1,7 +1,6 @@
 /*
-    webs.c -- GoAhead Embedded HTTP webs server
+    http.c -- GoAhead HTTP engine
 
-    MOB - rename
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -16,6 +15,17 @@
 
 #include    "goahead.h"
 
+/********************************** Defines ***********************************/
+
+#define kLt '<'
+#define kLessThan T("&lt;")
+#define kGt '>'
+#define kGreaterThan T("&gt;")
+
+#define RANDOMKEY   T("onceuponatimeinparadise")
+#define NONCE_SIZE  34
+#define HASH_SIZE   16
+
 /******************************** Global Data *********************************/
 
 websStatsType   websStats;              /* Web access stats */
@@ -23,14 +33,118 @@ webs_t          *webs;                  /* Open connection list head */
 sym_fd_t        websMime;               /* Set of mime types */
 int             websMax;                /* List size */
 int             websPort;               /* Listen port for server */
+
+//  MOB - should allocate
 char_t          websHost[64];           /* Host name for the server */
 char_t          websIpaddr[64];         /* IP address for the server */
 char_t          *websHostUrl = NULL;    /* URL to access server */
 char_t          *websIpaddrUrl = NULL;  /* URL to access server */
 
+/*
+    htmExt is declared in this way to avoid a Linux and Solaris segmentation
+    fault when a constant string is passed to strlower which could change its
+    argument.
+ */
+static char_t  htmExt[] = T(".htm");
+
 /*********************************** Locals ***********************************/
 /*
- *  Standard HTTP error codes
+    Addd entries to the MimeList as required for your content
+    MOB - compare with appweb
+ */
+websMimeType websMimeList[] = {
+    { T("application/java"), T(".class") },
+    { T("application/java"), T(".jar") },
+    { T("text/html"), T(".asp") },
+    { T("text/html"), T(".htm") },
+    { T("text/html"), T(".html") },
+    { T("text/xml"), T(".xml") },
+    { T("image/gif"), T(".gif") },
+    { T("image/jpeg"), T(".jpg") },
+    { T("image/png"), T(".png") },
+    { T("image/vnd.microsoft.icon"), T(".ico") },
+    { T("text/css"), T(".css") },
+    { T("text/plain"), T(".txt") },
+    { T("application/x-javascript"), T(".js") },
+    { T("application/x-shockwave-flash"), T(".swf") },
+
+    { T("application/binary"), T(".exe") },
+    { T("application/compress"), T(".z") },
+    { T("application/gzip"), T(".gz") },
+    { T("application/octet-stream"), T(".bin") },
+    { T("application/oda"), T(".oda") },
+    { T("application/pdf"), T(".pdf") },
+    { T("application/postscript"), T(".ai") },
+    { T("application/postscript"), T(".eps") },
+    { T("application/postscript"), T(".ps") },
+    { T("application/rtf"), T(".rtf") },
+    { T("application/x-bcpio"), T(".bcpio") },
+    { T("application/x-cpio"), T(".cpio") },
+    { T("application/x-csh"), T(".csh") },
+    { T("application/x-dvi"), T(".dvi") },
+    { T("application/x-gtar"), T(".gtar") },
+    { T("application/x-hdf"), T(".hdf") },
+    { T("application/x-latex"), T(".latex") },
+    { T("application/x-mif"), T(".mif") },
+    { T("application/x-netcdf"), T(".nc") },
+    { T("application/x-netcdf"), T(".cdf") },
+    { T("application/x-ns-proxy-autoconfig"), T(".pac") },
+    { T("application/x-patch"), T(".patch") },
+    { T("application/x-sh"), T(".sh") },
+    { T("application/x-shar"), T(".shar") },
+    { T("application/x-sv4cpio"), T(".sv4cpio") },
+    { T("application/x-sv4crc"), T(".sv4crc") },
+    { T("application/x-tar"), T(".tar") },
+    { T("application/x-tgz"), T(".tgz") },
+    { T("application/x-tcl"), T(".tcl") },
+    { T("application/x-tex"), T(".tex") },
+    { T("application/x-texinfo"), T(".texinfo") },
+    { T("application/x-texinfo"), T(".texi") },
+    { T("application/x-troff"), T(".t") },
+    { T("application/x-troff"), T(".tr") },
+    { T("application/x-troff"), T(".roff") },
+    { T("application/x-troff-man"), T(".man") },
+    { T("application/x-troff-me"), T(".me") },
+    { T("application/x-troff-ms"), T(".ms") },
+    { T("application/x-ustar"), T(".ustar") },
+    { T("application/x-wais-source"), T(".src") },
+    { T("application/zip"), T(".zip") },
+    { T("audio/basic"), T(".au snd") },
+    { T("audio/x-aiff"), T(".aif") },
+    { T("audio/x-aiff"), T(".aiff") },
+    { T("audio/x-aiff"), T(".aifc") },
+    { T("audio/x-wav"), T(".wav") },
+    { T("audio/x-wav"), T(".ram") },
+    { T("image/ief"), T(".ief") },
+    { T("image/jpeg"), T(".jpeg") },
+    { T("image/jpeg"), T(".jpe") },
+    { T("image/tiff"), T(".tiff") },
+    { T("image/tiff"), T(".tif") },
+    { T("image/x-cmu-raster"), T(".ras") },
+    { T("image/x-portable-anymap"), T(".pnm") },
+    { T("image/x-portable-bitmap"), T(".pbm") },
+    { T("image/x-portable-graymap"), T(".pgm") },
+    { T("image/x-portable-pixmap"), T(".ppm") },
+    { T("image/x-rgb"), T(".rgb") },
+    { T("image/x-xbitmap"), T(".xbm") },
+    { T("image/x-xpixmap"), T(".xpm") },
+    { T("image/x-xwindowdump"), T(".xwd") },
+    { T("text/html"), T(".cfm") },
+    { T("text/html"), T(".shtm") },
+    { T("text/html"), T(".shtml") },
+    { T("text/richtext"), T(".rtx") },
+    { T("text/tab-separated-values"), T(".tsv") },
+    { T("text/x-setext"), T(".etx") },
+    { T("video/mpeg"), T(".mpeg mpg mpe") },
+    { T("video/quicktime"), T(".qt") },
+    { T("video/quicktime"), T(".mov") },
+    { T("video/x-msvideo"), T(".avi") },
+    { T("video/x-sgi-movie"), T(".movie") },
+    { NULL, NULL},
+};
+
+/*
+    Standard HTTP error codes
  */
 
 websErrorType websErrors[] = {
@@ -63,11 +177,11 @@ static int      websTraceFd;                        /* Log file handle */
 static int      websListenSock;                 /* Listen socket */
 static char_t   websRealm[64] = T("GoAhead");   /* Realm name */
 
-static int      websOpenCount = 0;      /* count of apps using this module */
+static int      websOpenCount;                  /* count of apps using this module */
 
 /**************************** Forward Declarations ****************************/
 
-
+static int      setHost();
 static int      websGetInput(webs_t wp, char_t **ptext, ssize *nbytes);
 static int      websParseFirst(webs_t wp, char_t *text);
 static void     websParseRequest(webs_t wp);
@@ -86,24 +200,47 @@ static time_t   dateParse(time_t tip, char_t *cmd);
 
 /*********************************** Code *************************************/
 
-int websOpenServer(int port, int retries)
+int websOpen()
+{
+    socketOpen();
+    if (setHost() < 0) {
+        return -1;
+    }
+#if BIT_PACK_SSL
+    websSSLOpen();
+#endif 
+    return 0;
+}
+
+
+void websClose() 
+{
+#if BIT_PACK_SSL
+    websSSLClose();
+#endif
+    websCloseServer();
+    socketClose();
+}
+
+
+int websOpenServer(int port, char_t *documents)
 {
     websMimeType    *mt;
+
+    a_assert(port > 0);
 
     if (++websOpenCount != 1) {
         return websPort;
     }
-    a_assert(port > 0);
-    a_assert(retries >= 0);
-
+    webs = NULL;
+    websMax = 0;
+    if (documents) {
+        websSetDefaultDir(documents);
+    }
     websDefaultOpen();
-
 #if BIT_ROM
     websRomOpen();
 #endif
-
-    webs = NULL;
-    websMax = 0;
     /*
         Create a mime type lookup table for quickly determining the content type
      */
@@ -112,7 +249,6 @@ int websOpenServer(int port, int retries)
     for (mt = websMimeList; mt->type; mt++) {
         symEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
     }
-
     /*
         Open the URL handler module. The caller should create the required URL handlers after calling this function.
      */
@@ -143,7 +279,7 @@ int websOpenServer(int port, int retries)
     a_assert(websTraceFd >= 0);
     traceSetHandler(traceHandler);
 #endif  
-    return websOpenListen(port, retries);
+    return websOpenListen(port);
 }
 
 
@@ -188,31 +324,12 @@ void websCloseServer()
 }
 
 
-int websOpenListen(int port, int retries)
+int websOpenListen(int port)
 {
-    int     i, orig;
-
-    a_assert(port > 0);
-    a_assert(retries >= 0);
-
-    orig = port;
-
-    /*
-        Open the webs webs listen port. If we fail, try the next port.
-        MOB - not a good idea
-     */
-    for (i = 0; i <= retries; i++) {
-        websListenSock = socketOpenConnection(NULL, port, websAccept, 0);
-        if (websListenSock >= 0) {
-            break;
-        }
-        port++;
-    }
-    if (i > retries) {
-        error(E_L, E_USER, T("Couldn't open a socket on ports %d - %d"), orig, port - 1);
+    if ((websListenSock = socketOpenConnection(NULL, port, websAccept, 0)) < 0) {
+        error(E_L, E_USER, T("Couldn't open a socket on port %d"), port);
         return -1;
     } 
-
     /*
         Determine the full URL address to access the home page for this web server
      */
@@ -220,7 +337,6 @@ int websOpenListen(int port, int retries)
     bfreeSafe(websHostUrl);
     bfreeSafe(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
-
     if (port == 80) {
         websHostUrl = bstrdup(websHost);
         websIpaddrUrl = bstrdup(websIpaddr);
@@ -280,8 +396,8 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     gstrncpy(wp->ifaddr, pString, gstrlen(pString));
 
     /*
-     Check if this is a request from a browser on this system. This is useful to know for permitting administrative
-     operations only for local access 
+        Check if this is a request from a browser on this system. This is useful to know for permitting administrative
+        operations only for local access 
      */
     if (gstrcmp(wp->ipaddr, T("127.0.0.1")) == 0 || 
             gstrcmp(wp->ipaddr, websIpaddr) == 0 || 
@@ -1021,6 +1137,25 @@ static void websParseRequest(webs_t wp)
     }
 }
 
+
+/*
+    Basic event loop. SocketReady returns true when a socket is ready for service. SocketSelect will block until an
+    event occurs. SocketProcess will actually do the servicing.
+ */
+void websServiceEvents(int *finished)
+{
+    a_assert(finished);
+    *finished = 0;
+    while (!*finished) {
+        if (socketReady(-1) || socketSelect(-1, 1000)) {
+            socketProcess(-1);
+        }
+        websCgiCleanup();
+        emfSchedProcess();
+    }
+}
+
+
 /*
     Set the variable (CGI) environment for this request. Create variables for all standard CGI variables. Also decode
     the query string and create a variable for each name=value pair.
@@ -1235,7 +1370,6 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
 #endif
             }
         }
-
         if (wp->flags & WEBS_KEEP_ALIVE) {
             websWrite(wp, T("Connection: keep-alive\r\n"));
         }
@@ -1284,7 +1418,7 @@ void websRedirect(webs_t wp, char_t *url)
             redirectFmt = T("https://%s/%s");
         }
 #endif
-        fmtAlloc(&urlbuf, WEBS_MAX_URL + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"),    websHostUrl), url);
+        fmtAlloc(&urlbuf, WEBS_MAX_URL + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
         url = urlbuf;
     }
 
@@ -1309,12 +1443,6 @@ void websRedirect(webs_t wp, char_t *url)
    we replace all '<' and '>' characters with HTML entities so that the user's browser will not interpret the URL as
    JavaScript.
  */
-
-#define kLt '<'
-#define kLessThan T("&lt;")
-#define kGt '>'
-#define kGreaterThan T("&gt;")
-
 static int charCount(const char_t* str, char_t ch)
 {
    int count = 0;
@@ -1669,8 +1797,7 @@ static void websLog(webs_t wp, int code)
     bfreeSafe(buf);
     bfreeSafe(abuf);
 }
-#endif /* WEBS_LOG_SUPPORT */
-
+#endif
 
 
 #if BIT_DEBUG_TRACE
@@ -1679,15 +1806,14 @@ static void traceHandler(int level, char_t *buf)
     char    *abuf;
     ssize   len;
 
-    if (level <= WEBS_TRACE_LEVEL) {    
+    if (level <= BIT_TRACE_LEVEL) {    
         len = gstrlen(buf);
         abuf = ballocUniToAsc(buf, len+1);
         write(websTraceFd, abuf, len);
         bfreeSafe(abuf);
     }
 }
-
-#endif /* WEBS_TRACE_SUPPORT */
+#endif
 
 /*
     Request timeout. The timeout triggers if we have not read any data from the users browser in the last WEBS_TIMEOUT
@@ -1729,7 +1855,6 @@ void websDone(webs_t wp, int code)
         Disable socket handler in case keep alive set.
      */
     socketDeleteHandler(wp->sid);
-
     if (code != 200) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
@@ -1738,10 +1863,6 @@ void websDone(webs_t wp, int code)
         websLog(wp, code);
     }
 #endif
-
-    /*
-        Close any opened document by a handler
-     */
     websPageClose(wp);
 
     /*
@@ -1834,55 +1955,33 @@ void websFree(webs_t wp)
 {
     a_assert(websValid(wp));
 
-    //  MOB _ better if bfree permits a null
-    if (wp->path)
-        bfree(wp->path);
-    if (wp->url)
-        bfree(wp->url);
-    if (wp->host)
-        bfree(wp->host);
-    if (wp->lpath)
-        bfree(wp->lpath);
-    if (wp->query)
-        bfree(wp->query);
-    if (wp->decodedQuery)
-        bfree(wp->decodedQuery);
-    if (wp->authType)
-        bfree(wp->authType);
-    if (wp->password)
-        bfree(wp->password);
-    if (wp->userName)
-        bfree(wp->userName);
-    if (wp->cookie)
-        bfree(wp->cookie);
-    if (wp->userAgent)
-        bfree(wp->userAgent);
-    if (wp->dir)
-        bfree(wp->dir);
-    if (wp->protocol)
-        bfree(wp->protocol);
-    if (wp->protoVersion)
-        bfree(wp->protoVersion);
-    if (wp->cgiStdin)
-        bfree(wp->cgiStdin);
+    //  MOB - OPT reduce allocations
+    bfree(wp->path);
+    bfree(wp->url);
+    bfree(wp->host);
+    bfree(wp->lpath);
+    bfree(wp->query);
+    bfree(wp->decodedQuery);
+    bfree(wp->authType);
+    bfree(wp->password);
+    bfree(wp->userName);
+    bfree(wp->cookie);
+    bfree(wp->userAgent);
+    bfree(wp->dir);
+    bfree(wp->protocol);
+    bfree(wp->protoVersion);
+    bfree(wp->cgiStdin);
 
 #if BIT_DIGEST_AUTH
-    if (wp->realm)
-        bfree(wp->realm);
-    if (wp->uri)
-        bfree(wp->uri);
-    if (wp->digest)
-        bfree(wp->digest);
-    if (wp->opaque)
-        bfree(wp->opaque);
-    if (wp->nonce)
-        bfree(wp->nonce);
-    if (wp->nc)
-        bfree(wp->nc);
-    if (wp->cnonce)
-        bfree(wp->cnonce);
-    if (wp->qop)
-        bfree(wp->qop);
+    bfree(wp->realm);
+    //  MOB - is URI just for AUTH?
+    bfree(wp->uri);
+    bfree(wp->digest);
+    bfree(wp->opaque);
+    bfree(wp->nonce);
+    bfree(wp->nc);
+    bfree(wp->cnonce);
+    bfree(wp->qop);
 #endif
 #if BIT_PACK_SSL
     websSSLFree(wp->wsp);
@@ -2007,6 +2106,31 @@ ssize websGetRequestWritten(webs_t wp)
     a_assert(websValid(wp));
 
     return wp->written;
+}
+
+
+static int setHost()
+{
+    struct hostent  *hp;
+    struct in_addr  intaddr;
+    char            host[128], *cp;
+    char_t          wbuf[128];
+
+    if (gethostname(host, sizeof(host)) < 0) {
+        error(E_L, E_LOG, T("Can't get hostname"));
+        return -1;
+    }
+    if ((hp = gethostbyname(host)) == NULL) {
+        error(E_L, E_LOG, T("Can't get host address"));
+        return -1;
+    }
+    memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
+    cp = inet_ntoa(intaddr);
+    ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    websSetIpaddr(wbuf);
+    ascToUni(wbuf, host, min(strlen(host) + 1, sizeof(wbuf)));
+    websSetHost(wbuf);
+    return 0;
 }
 
 
@@ -2707,6 +2831,459 @@ static time_t dateParse(time_t tip, char_t *cmd)
 }
 
 #endif /* WEBS_IF_MODIFIED_SUPPORT */
+
+
+/*
+    Return the mime type for the given URL given a URL. The caller supplies the buffer to hold the result.
+    charCnt is the number of characters the buffer will hold, ascii or UNICODE.
+ */
+char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
+{
+    sym_t   *sp;
+    char_t  *ext, *parsebuf;
+
+    a_assert(url && *url);
+    a_assert(buf && charCnt > 0);
+
+    if (url == NULL || *url == '\0') {
+        gstrcpy(buf, T("text/plain"));
+        return buf;
+    }
+    if (websUrlParse(url, &parsebuf, NULL, NULL, NULL, NULL, NULL, 
+            NULL, &ext) < 0) {
+        gstrcpy(buf, T("text/plain"));
+        return buf;
+    }
+    strlower(ext);
+
+    /*
+        Lookup the mime type symbol table to find the relevant content type
+     */
+    if ((sp = symLookup(websMime, ext)) != NULL) {
+        gstrncpy(buf, sp->content.value.string, charCnt);
+    } else {
+        gstrcpy(buf, T("text/plain"));
+    }
+    bfree(parsebuf);
+    return buf;
+}
+
+
+/*
+    Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller. NOTE: tag
+    is not yet fully supported.  
+ */
+int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, char_t **pport, char_t **pquery, 
+        char_t **pproto, char_t **ptag, char_t **pext)
+{
+    char_t      *tok, *cp, *host, *path, *port, *proto, *tag, *query, *ext;
+    char_t      *hostbuf, *portbuf, *buf;
+    ssize       len, ulen;
+    int         c;
+
+    a_assert(url);
+    a_assert(pbuf);
+
+    ulen = gstrlen(url);
+    /*
+        We allocate enough to store separate hostname and port number fields.  As there are 3 strings in the one buffer,
+        we need room for 3 null chars.  We allocate MAX_PORT_LEN char_t's for the port number.  
+     */
+    len = ulen * 2 + MAX_PORT_LEN + 3;
+    if ((buf = balloc(len * sizeof(char_t))) == NULL) {
+        return -1;
+    }
+    portbuf = &buf[len - MAX_PORT_LEN - 1];
+    hostbuf = &buf[ulen+1];
+    websDecodeUrl(buf, url, ulen);
+
+    url = buf;
+
+    /*
+        Convert the current listen port to a string. We use this if the URL has no explicit port setting
+     */
+    stritoa(websGetPort(), portbuf, MAX_PORT_LEN);
+    port = portbuf;
+    path = T("/");
+    proto = T("http");
+    host = T("localhost");
+    query = T("");
+    ext = htmExt;
+    tag = T("");
+
+    if (gstrncmp(url, T("http://"), 7) == 0) {
+        tok = &url[7];
+        tok[-3] = '\0';
+        proto = url;
+        host = tok;
+        for (cp = tok; *cp; cp++) {
+            if (*cp == '/') {
+                break;
+            }
+            if (*cp == ':') {
+                *cp++ = '\0';
+                port = cp;
+                tok = cp;
+            }
+        }
+        if ((cp = gstrchr(tok, '/')) != NULL) {
+            /*
+                If a full URL is supplied, we need to copy the host and port portions into static buffers.
+             */
+            c = *cp;
+            *cp = '\0';
+            gstrncpy(hostbuf, host, ulen);
+            gstrncpy(portbuf, port, MAX_PORT_LEN);
+            *cp = c;
+            host = hostbuf;
+            port = portbuf;
+            path = cp;
+            tok = cp;
+        }
+    } else {
+        path = url;
+        tok = url;
+    }
+    /*
+        Parse the query string
+     */
+    if ((cp = gstrchr(tok, '?')) != NULL) {
+        *cp++ = '\0';
+        query = cp;
+        path = tok;
+        tok = query;
+    } 
+
+    /*
+        Parse the fragment identifier
+     */
+    if ((cp = gstrchr(tok, '#')) != NULL) {
+        *cp++ = '\0';
+        if (*query == 0) {
+            path = tok;
+        }
+    }
+
+    /*
+        Only do the following if asked for the extension
+     */
+    if (pext) {
+        /*
+            Later the path will be cleaned up for trailing slashes and so on.  To be ready, we need to clean up here,
+            much as in websValidateUrl.  Otherwise a URL ending in "asp/" or "asP" sends Ejscript source to the browser.
+        */
+        if ((cp = gstrrchr(path, '.')) != NULL) {
+            const char_t* garbage = T("/\\");
+            ssize length = gstrcspn(cp, garbage);
+            ssize garbageLength = gstrspn(cp + length, garbage);
+            ssize ok = (length + garbageLength == (int) gstrlen(cp));
+            if (ok) {
+                cp[length] = '\0';
+#if BIT_WIN_LIKE
+                strlower(cp);            
+#endif
+                ext = cp;
+            }
+        }
+    }
+    /*
+        Pass back the fields requested (if not NULL)
+     */
+    if (phost)
+        *phost = host;
+    if (ppath)
+        *ppath = path;
+    if (pport)
+        *pport = port;
+    if (pproto)
+        *pproto = proto;
+    if (pquery)
+        *pquery = query;
+    if (ptag)
+        *ptag = tag;
+    if (pext)
+        *pext = ext;
+    *pbuf = buf;
+    return 0;
+}
+
+
+#if BIT_DIGEST_AUTH
+/*
+    Get a Nonce value for passing along to the client.  This function composes the string "RANDOMKEY:timestamp:myrealm"
+    and calculates the MD5 digest placing it in output. 
+ */
+char_t *websCalcNonce(webs_t wp)
+{
+    char_t      *nonce, *prenonce;
+    time_t      longTime;
+#if WIN
+    char_t      buf[26];
+    errno_t     error;
+    struct tm   newtime;
+#else
+    struct tm   *newtime;
+#endif
+
+    a_assert(wp);
+    time(&longTime);
+#if !WIN
+    newtime = localtime(&longTime);
+#else
+    error = localtime_s(&newtime, &longTime);
+#endif
+
+#if !WIN
+    prenonce = NULL;
+    fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime), wp->realm); 
+#else
+    asctime_s(buf, elementsof(buf), &newtime);
+    fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, buf, RANDOMKEY); 
+#endif
+
+    a_assert(prenonce);
+    nonce = websMD5(prenonce);
+    bfreeSafe(prenonce);
+    return nonce;
+}
+
+
+/*
+    Get an Opaque value for passing along to the client
+ */
+char_t *websCalcOpaque(webs_t wp)
+{
+    char_t *opaque;
+    a_assert(wp);
+    /*
+        MOB ??? Temporary stub!
+     */
+    opaque = bstrdup(T("5ccc069c403ebaf9f0171e9517f40e41"));
+    return opaque;
+}
+
+
+/*
+    Get a Digest value using the MD5 algorithm
+ */
+char_t *websCalcDigest(webs_t wp)
+{
+    char_t  *digest, *a1, *a1prime, *a2, *a2prime, *preDigest, *method;
+
+    a_assert(wp);
+    digest = NULL;
+
+    /*
+        Calculate first portion of digest H(A1)
+     */
+    a1 = NULL;
+    fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
+    a_assert(a1);
+    a1prime = websMD5(a1);
+    bfreeSafe(a1);
+
+    /*
+        Calculate second portion of digest H(A2)
+     */
+    method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
+    a_assert(method);
+    a2 = NULL;
+    fmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri); 
+    a_assert(a2);
+    a2prime = websMD5(a2);
+    bfreeSafe(a2);
+
+    /*
+        Construct final digest KD(H(A1):nonce:H(A2))
+     */
+    a_assert(a1prime);
+    a_assert(a2prime);
+    a_assert(wp->nonce);
+
+    preDigest = NULL;
+    if (!wp->qop) {
+        fmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
+    } else {
+        fmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
+            a1prime, wp->nonce, wp->nc, wp->cnonce, wp->qop, a2prime);
+    }
+
+    a_assert(preDigest);
+    digest = websMD5(preDigest);
+    bfreeSafe(a1prime);
+    bfreeSafe(a2prime);
+    bfreeSafe(preDigest);
+    return digest;
+}
+
+
+/*
+    Get a Digest value using the MD5 algorithm. Digest is based on the full URL rather than the URI as above This
+    alternate way of calculating is what most browsers use.
+ */
+char_t *websCalcUrlDigest(webs_t wp)
+{
+    char_t  *digest, *a1, *a1prime, *a2, *a2prime, *preDigest, *method;
+
+    a_assert(wp);
+    digest = NULL;
+
+    /*
+        Calculate first portion of digest H(A1)
+     */
+    a1 = NULL;
+    fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
+    a_assert(a1);
+    a1prime = websMD5(a1);
+    bfreeSafe(a1);
+
+    /*
+        Calculate second portion of digest H(A2)
+     */
+    method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
+    a_assert(method);
+    a2 = balloc((gstrlen(method) +2 + gstrlen(wp->url) ) * sizeof(char_t));
+    a_assert(a2);
+    gsprintf(a2, T("%s:%s"), method, wp->url);
+    a2prime = websMD5(a2);
+    bfreeSafe(a2);
+
+    /*
+        Construct final digest KD(H(A1):nonce:H(A2))
+     */
+    a_assert(a1prime);
+    a_assert(a2prime);
+    a_assert(wp->nonce);
+
+    preDigest = NULL;
+    if (!wp->qop) {
+        fmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
+    } else {
+        fmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
+            a1prime, wp->nonce, wp->nc, wp->cnonce, wp->qop, a2prime);
+    }
+    a_assert(preDigest);
+    digest = websMD5(preDigest);
+    /*
+        Now clean up
+     */
+    bfreeSafe(a1prime);
+    bfreeSafe(a2prime);
+    bfreeSafe(preDigest);
+    return digest;
+}
+
+#endif /* BIT_DIGEST_AUTH */
+
+/*
+    Open a web page. lpath is the local filename. path is the URL path name.
+ */
+int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
+{
+    //  MOB
+#if WIN
+    errno_t error;
+#endif
+    a_assert(websValid(wp));
+
+#if BIT_ROM
+    return websRomPageOpen(wp, path, mode, perm);
+#elif WIN
+    error = _sopen_s(&(wp->docfd), lpath, mode, _SH_DENYNO, _S_IREAD);
+    return (wp->docfd = gopen(lpath, mode, _S_IREAD));
+#else
+    return (wp->docfd = gopen(lpath, mode, perm));
+#endif
+}
+
+
+void websPageClose(webs_t wp)
+{
+    a_assert(websValid(wp));
+
+#if BIT_ROM
+    websRomPageClose(wp->docfd);
+#else
+    if (wp->docfd >= 0) {
+        close(wp->docfd);
+        wp->docfd = -1;
+    }
+#endif
+}
+
+
+/*
+    Stat a web page lpath is the local filename. path is the URL path name.
+ */
+int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType* sbuf)
+{
+#if BIT_ROM
+    return websRomPageStat(path, sbuf);
+#else
+    gstat_t s;
+
+    if (gstat(lpath, &s) < 0) {
+        return -1;
+    }
+    sbuf->size = (ssize) s.st_size;
+    sbuf->mtime = s.st_mtime;
+    sbuf->isDir = s.st_mode & S_IFDIR;
+    return 0;
+#endif
+}
+
+
+int websPageIsDirectory(char_t *lpath)
+{
+#if BIT_ROM
+    websStatType    sbuf;
+
+    if (websRomPageStat(lpath, &sbuf) >= 0) {
+        return(sbuf.isDir);
+    } else {
+        return 0;
+    }
+#else
+    gstat_t sbuf;
+
+    if (gstat(lpath, &sbuf) >= 0) {
+        return(sbuf.st_mode & S_IFDIR);
+    } else {
+        return 0;
+    }
+#endif
+}
+
+
+/*
+    Read a web page. Returns the number of _bytes_ read. len is the size of buf, in bytes.
+ */
+ssize websPageReadData(webs_t wp, char *buf, ssize nBytes)
+{
+
+#if BIT_ROM
+    a_assert(websValid(wp));
+    return websRomPageReadData(wp, buf, nBytes);
+#else
+    a_assert(websValid(wp));
+    return read(wp->docfd, buf, nBytes);
+#endif
+}
+
+
+/*
+    Move file pointer offset bytes.
+ */
+void websPageSeek(webs_t wp, filepos offset)
+{
+    a_assert(websValid(wp));
+
+#if BIT_ROM
+    websRomPageSeek(wp, offset, SEEK_CUR);
+#else
+    lseek(wp->docfd, offset, SEEK_CUR);
+#endif
+}
 
 /*
     @copy   default

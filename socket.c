@@ -1,5 +1,5 @@
 /*
-    sock.c -- Sockets layer
+    socket.c -- Sockets layer
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -48,7 +48,6 @@ int socketOpen()
     socketList = NULL;
     socketMax = 0;
     socketHighestFd = -1;
-
     return 0;
 }
 
@@ -440,7 +439,6 @@ int socketReady(int sid)
         sid = 0;
         all = 1;
     }
-
     for (; sid < socketMax; sid++) {
         if ((sp = socketList[sid]) == NULL) {
             if (! all) {

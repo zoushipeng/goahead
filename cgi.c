@@ -290,7 +290,8 @@ void websCgiCleanup()
                  */
                 nTries = 0;
                 /*              
-                     Make sure we didn't miss something during a task switch.  Maximum wait is 100 times 10 msecs (1 second).
+                     Make sure we didn't miss something during a task switch.  Maximum wait is 100 times 10 msecs (1
+                     second).  
                  */
                 while ((cgip->fplacemark == 0) && (nTries < 100)) {
                     websCgiGatherOutput(cgip);
@@ -299,8 +300,9 @@ void websCgiCleanup()
                      */
                     if (cgip->fplacemark == 0) {
 #if WIN
+                        //  MOB - refactor
                         Sleep(10);
-#endif /* WIN*/
+#endif
                     }
                     nTries++;
                 }
@@ -315,7 +317,7 @@ void websCgiCleanup()
                 gunlink(cgip->stdIn);
                 gunlink(cgip->stdOut);
                 /*
-                     Free all the memory buffers pointed to by cgip. The stdin file name (wp->cgiStdin) gets freed as
+                    Free all the memory buffers pointed to by cgip. The stdin file name (wp->cgiStdin) gets freed as
                     part of websFree().
                  */
                 cgiMax = hFree((void***) &cgiList, cid);

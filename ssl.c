@@ -26,7 +26,6 @@ static int  websSSLReadEvent(webs_t wp);
 /*
     Start up the SSL Context for the application, and start a listen on the SSL port (usually 443, and defined by
     WEBS_DEFAULT_SSL_PORT) Return 0 on success, -1 on failure.
-  
     Not freeing keys or calling matrixSslClose on failures because websSSLClose will be called at application close to
     do that
  */
@@ -39,11 +38,8 @@ int websSSLOpen()
         trace(0, T("Failed to allocate keys in websSSLOpen\n"));
         return -1;
     }
-    if (matrixSslLoadRsaKeys(sslKeys, DEFAULT_CERT_FILE, DEFAULT_KEY_FILE, 
-                              NULL /* privPass */,  
-                              NULL /* trustedCAFile */) < 0) {
-        trace(0, T("Failed to read certificate %s in websSSLOpen\n"),
-            DEFAULT_CERT_FILE);
+    if (matrixSslLoadRsaKeys(sslKeys, BIT_CERTIFICATE, BIT_KEY, NULL /* privPass */,  NULL /* trustedCAFile */) < 0) {
+        trace(0, T("Failed to read certificate %s in websSSLOpen\n"), BIT_CERTIFICATE);
         trace(0, T("SSL support is disabled\n"));
         return -1;
     }
