@@ -47,27 +47,6 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     a_assert(url && *url);
     a_assert(path && *path == '/');
 
-    /*
-        If the whitelist check fails, try to rebuild the list right away and try one more time. Whitelist just checks
-        that the file exists under the current www root.  We will check if it is executable below.
-     */
-#if BIT_WHITELIST
-{
-    int rc;
-    if ((rc = websWhitelistCheck(wp->url)) < 0 || !(rc & WHITELIST_CGI)) {
-        websBuildWhitelist();
-        if ((rc = websWhitelistCheck(wp->url)) < 0 || !(rc & WHITELIST_CGI)) {
-            websError(wp, 500, T("Invalid CGI URL"));
-            return 1;
-        }
-    }
-    if (!(wp->flags & WEBS_SECURE) && (rc & WHITELIST_SSL)) {
-        websError(wp, 500, T("HTTPS Access Required"));
-        return 1;
-    }
-}
-#endif
-
     websStats.cgiHits++;
 
     /*

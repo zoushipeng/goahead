@@ -126,11 +126,6 @@ Bit.load({
             Build with user management support
          */
         userManagement: false,
-
-        /*
-            Build with request white list validation
-         */
-        whitelist: false,
     },
 
     targets: {

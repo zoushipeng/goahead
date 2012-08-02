@@ -1785,11 +1785,6 @@ typedef struct {
 } websRomPageIndexType;
 
 
-#define WHITELIST_SSL 0x001   /* File only accessible through https */
-#define WHITELIST_CGI 0x002   /* Node is in the cgi-bin dir */
-#define WHITELIST_BLOCKED   0x100   /* File is in list, but inaccessible */
-#define WHITELIST_DIR       0x200   /* Node is a Directory */
-
 /*
     Globals
  */
@@ -1907,12 +1902,6 @@ extern void      websFormClose();
 extern void      websDefaultOpen();
 extern void      websDefaultClose();
 
-#if BIT_WHITELIST
-extern int      websBuildWhitelist(void);
-extern int      websWhitelistCheck(char *path);
-extern void     websDeleteWhitelist(void);
-#endif
-
 extern int       websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
                     char_t *query);
 extern int       websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
@@ -1979,7 +1968,6 @@ typedef struct {
 extern int websSSLOpen();
 extern int websSSLIsOpen();
 extern void websSSLClose();
-extern int websRequireSSL(char *url);
 extern int websSSLAccept(webs_t wp, char_t *buf, ssize len);
 extern ssize websSSLWrite(webs_t wp, char_t *buf, ssize len);
 extern ssize websSSLGets(webs_t wp, char_t **buf);
