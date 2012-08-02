@@ -81,6 +81,13 @@ static sched_t      **sched;
 static int          schedMax;
 static int          emfInst;                   /* Application instance handle */
 
+#if BIT_DEBUG_LOG
+//  MOB - rename
+static char_t   *tracePath;
+static int      traceFd;                        /* Log file handle */
+static int      traceLevel;
+#endif
+
 /********************************** Forwards **********************************/
 
 static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize msize);
@@ -89,11 +96,10 @@ static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int pre
 static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f);
 static ssize gstrnlen(char_t *s, ssize n);
 
-//  MOB - why extern
-extern void defaultErrorHandler(int etype, char_t *buf);
-extern void defaultTraceHandler(int level, char_t *buf);
-static void (*errorHandler)(int etype, char_t *msg) = defaultErrorHandler;
-static void (*traceHandler)(int level, char_t *buf) = defaultTraceHandler;
+#if BIT_DEBUG_LOG
+static void defaultTraceHandler(int level, char_t *buf);
+static TraceHandler traceHandler = defaultTraceHandler;
+#endif
 
 static int  ringqGrow(ringq_t *rq);
 static int  getBinBlockSize(int size);
@@ -158,8 +164,7 @@ int emfSchedCallback(int delay, emfSchedProc *proc, void *arg)
     sched_t *s;
     int     schedid;
 
-    if ((schedid = hAllocEntry((void***) &sched, &schedMax,
-        sizeof(sched_t))) < 0) {
+    if ((schedid = hAllocEntry((void***) &sched, &schedMax, sizeof(sched_t))) < 0) {
         return -1;
     }
     s = sched[schedid];
@@ -255,7 +260,7 @@ char_t *basename(char_t *name)
 {
     char_t  *cp;
 
-#if NETWARE || BIT_WIN_LIKE
+#if BIT_WIN_LIKE
     if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
         return name;
 #else
@@ -285,7 +290,7 @@ char_t *dirname(char_t *buf, char_t *name, ssize bufsize)
     a_assert(buf);
     a_assert(bufsize > 0);
 
-#if NETWARE || WIN
+#if WIN
     if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
 #else
     if ((cp = gstrrchr(name, '/')) == NULL)
@@ -508,11 +513,9 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
                 } else {
                     if (f & flag_hash && value != 0) {
                         if (c == 'x') {
-                            put_ulong(&buf, value, 16, 0, T("0x"), width, 
-                                prec, f);
+                            put_ulong(&buf, value, 16, 0, T("0x"), width, prec, f);
                         } else {
-                            put_ulong(&buf, value, 16, 1, T("0X"), width, 
-                                prec, f);
+                            put_ulong(&buf, value, 16, 1, T("0X"), width, prec, f);
                         }
                     } else {
                         put_ulong(&buf, value, 16, ('X' == c) , NULL, width, prec, f);
@@ -528,8 +531,7 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
                 if (value == NULL) {
                     put_string(&buf, T("(null)"), -1, width, prec, f);
                 } else if (f & flag_hash) {
-                    put_string(&buf,
-                        value + 1, (char_t) *value, width, prec, f);
+                    put_string(&buf, value + 1, (char_t) *value, width, prec, f);
                 } else {
                     put_string(&buf, value, -1, width, prec, f);
                 }
@@ -626,7 +628,7 @@ static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int pre
     ssize   i;
 
     if (len < 0) { 
-        len = gstrnlen(s, prec >= 0 ? prec : ULONG_MAX); 
+        len = gstrnlen(s, prec >= 0 ? prec : MAXSSIZE);
     } else if (prec >= 0 && prec < len) { 
         len = prec; 
     }
@@ -663,7 +665,7 @@ static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *p
     zeros = (prec > len) ? prec - len : 0;
     width -= zeros + len;
     if (prefix != NULL) { 
-        width -= gstrnlen(prefix, ULONG_MAX); 
+        width -= gstrnlen(prefix, MAXSSIZE); 
     }
     if (!(f & flag_minus)) {
         if (f & flag_zero) {
@@ -719,15 +721,13 @@ char_t *ascToUni(char_t *ubuf, char *str, ssize nBytes)
 char *uniToAsc(char *buf, char_t *ustr, ssize nBytes)
 {
 #if UNICODE
-   if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, 
-    NULL, NULL) < 0) 
-   {
-      return (char*) ustr;
-   }
+    if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL, NULL) < 0) {
+        return (char*) ustr;
+    }
 #else
-   memcpy(buf, ustr, nBytes);
+    memcpy(buf, ustr, nBytes);
 #endif
-   return (char*) buf;
+    return (char*) buf;
 }
 
 
@@ -853,6 +853,7 @@ void valueFree(value_t* v)
 }
 
 
+#if BIT_DEBUG_LOG
 /*
     Error message that doesn't need user attention. Customize this code
     to direct error messages to wherever the developer wishes
@@ -865,35 +866,19 @@ void error(E_ARGS_DEC, int etype, char_t *fmt, ...)
     va_start(args, fmt);
     fmtValloc(&fmtBuf, E_MAX_ERROR, fmt, args);
 
-    if (etype == E_LOG) {
+    if (etype == E_LOG || etype == E_USER) {
         fmtAlloc(&buf, E_MAX_ERROR, T("%s\n"), fmtBuf);
     } else if (etype == E_ASSERT) {
         fmtAlloc(&buf, E_MAX_ERROR, T("Assertion %s, failed at %s %d\n"), fmtBuf, E_ARGS); 
-    } else if (etype == E_USER) {
-        fmtAlloc(&buf, E_MAX_ERROR, T("%s\n"), fmtBuf);
     } else {
       fmtAlloc(&buf, E_MAX_ERROR, T("Unknown error"));
     }
     va_end(args);
     bfree(fmtBuf);
-    if (errorHandler) {
-        errorHandler(etype, buf);
+    if (traceHandler) {
+        traceHandler(-1, buf);
     }
-    bfreeSafe(buf);
-}
-
-
-/*
-    Replace the default error handler. Return pointer to old error handler.
- */
-void (*errorSetHandler(void (*function)(int etype, char_t *msg))) (int etype, char_t *msg)
-{
-    //  MOB - typedef for this
-    void (*oldHandler)(int etype, char_t *buf);
-
-    oldHandler = errorHandler;
-    errorHandler = function;
-    return oldHandler;
+    bfree(buf);
 }
 
 
@@ -905,14 +890,15 @@ void trace(int level, char_t *fmt, ...)
     va_list     args;
     char_t      *buf;
 
-    va_start(args, fmt);
-    fmtValloc(&buf, VALUE_MAX_STRING, fmt, args);
-
-    if (traceHandler) {
-        traceHandler(level, buf);
+    if (level <= traceLevel) {    
+        va_start(args, fmt);
+        fmtValloc(&buf, VALUE_MAX_STRING, fmt, args);
+        if (traceHandler) {
+            traceHandler(level, buf);
+        }
+        bfree(buf);
+        va_end(args);
     }
-    bfreeSafe(buf);
-    va_end(args);
 }
 
 
@@ -930,17 +916,76 @@ void traceRaw(char_t *buf)
 /*
     Replace the default trace handler. Return a pointer to the old handler.
  */
-void (*traceSetHandler(void (*function)(int level, char_t *buf))) (int level, char *buf)
+TraceHandler traceSetHandler(TraceHandler handler)
 {
-    void (*oldHandler)(int level, char_t *buf);
+    TraceHandler    oldHandler;
 
     oldHandler = traceHandler;
-    if (function) {
-        traceHandler = function;
+    if (handler) {
+        traceHandler = handler;
     }
     return oldHandler;
 }
 
+
+int traceOpen()
+{
+    if (!tracePath) {
+        /* This defintion comes from main.bit and bit.h */
+        traceSetPath(BIT_TRACE);
+    }
+    if (gmatch(tracePath, "stdout")) {
+        traceFd = 1;
+    } else if (gmatch(tracePath, "stderr")) {
+        traceFd = 2;
+    } else if ((traceFd = gopen(tracePath, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
+        return -1;
+    }
+    traceSetHandler(traceHandler);
+    return 0;
+}
+
+
+void traceClose()
+{
+    if (traceFd >= 0) {
+        close(traceFd);                                                                              
+        traceFd = -1;                                                                                
+    }                                                                                                    
+}
+
+
+void traceSetPath(char_t *path)
+{
+    char_t  *lp;
+    
+    bfree(tracePath);
+    tracePath = bstrdup(path);
+    if ((lp = strchr(tracePath, ':')) != 0) {
+        *lp++ = '\0';
+        traceLevel = atoi(lp);
+    }
+}
+
+
+static void defaultTraceHandler(int level, char_t *buf)
+{
+    char    *abuf;
+    ssize   len;
+
+    if (traceFd >= 0) {
+        len = gstrlen(buf);
+        //  MOB OPT
+        abuf = ballocUniToAsc(buf, len + 1);
+        write(traceFd, abuf, len);
+        bfree(abuf);
+    }
+}
+
+#else /* !BIT_DEBUG_LOG */
+void error(E_ARGS_DEC, int etype, char_t *fmt, ...) { }
+void trace(int level, char_t *fmt, ...) { }
+#endif /* BIT_DEBUG_LOG */
 
 void emfInstSet(int inst)
 {
@@ -1027,7 +1072,6 @@ char_t *stritoa(int n, char_t *string, int width)
     } else {
         minus = 0;
     }
-
     cp = buf;
     lim = &buf[width - 1];
     while (n > 9 && cp < lim) {
@@ -1038,71 +1082,15 @@ char_t *stritoa(int n, char_t *string, int width)
     if (cp < lim) {
         *cp++ = (char_t) (n + '0');
     }
-
     s = string;
     if (minus) {
         *s++ = '-';
     }
-
     while (cp > buf) {
         *s++ = *--cp;
     }
-
     *s++ = '\0';
     return string;
-}
-
-
-/*
-    Default error handler.  The developer should insert code to handle error messages in the desired manner.
- */
-void defaultErrorHandler(int etype, char_t *msg)
-{
-    //  MOB - why?
-#if 0
-    write(1, msg, gstrlen(msg));
-#endif
-}
-
-
-/*
-    Trace log. Customize this function to log trace output
- */
-void defaultTraceHandler(int level, char_t *buf)
-{
-    /*
-        The following code would write all trace regardless of level to stdout.
-     */
-    //  MOB - why
-#if 0
-    if (buf) {
-        write(1, buf, gstrlen(buf));
-    }
-#endif
-}
-
-
-/*
-    Stubs
-    MOB - remove
- */
-char_t *basicGetProduct()
-{
-    return T("uemf");
-}
-
-char_t *basicGetAddress()
-{
-    return T("localhost");
-}
-
-int errorOpen(char_t *pname)
-{
-    return 0;
-}
-
-void errorClose()
-{
 }
 
 
@@ -1112,7 +1100,7 @@ void errorClose()
  */
 int hAlloc(void ***map)
 {
-    int     *mp;
+    ssize   *mp;
     int     handle, len, memsize, incr;
 
     a_assert(map);
@@ -1120,7 +1108,7 @@ int hAlloc(void ***map)
     if (*map == NULL) {
         incr = H_INCR;
         memsize = (incr + H_OFFSET) * sizeof(void**);
-        if ((mp = (int*) balloc(memsize)) == NULL) {
+        if ((mp = balloc(memsize)) == NULL) {
             return -1;
         }
         memset(mp, 0, memsize);
@@ -1128,16 +1116,16 @@ int hAlloc(void ***map)
         mp[H_USED] = 0;
         *map = (void**) &mp[H_OFFSET];
     } else {
-        mp = &((*(int**)map)[-H_OFFSET]);
+        mp = &((*(ssize**)map)[-H_OFFSET]);
     }
-    len = mp[H_LEN];
+    len = (int) mp[H_LEN];
 
     /*
         Find the first null handle
      */
     if (mp[H_USED] < mp[H_LEN]) {
         for (handle = 0; handle < len; handle++) {
-            if (mp[handle+H_OFFSET] == 0) {
+            if (mp[handle + H_OFFSET] == 0) {
                 mp[H_USED]++;
                 return handle;
             }
@@ -1151,27 +1139,27 @@ int hAlloc(void ***map)
      */
     len += H_INCR;
     memsize = (len + H_OFFSET) * sizeof(void**);
-    if ((mp = (int*) brealloc((void*) mp, memsize)) == NULL) {
+    if ((mp = brealloc(mp, memsize)) == NULL) {
         return -1;
     }
     *map = (void**) &mp[H_OFFSET];
     mp[H_LEN] = len;
-    memset(&mp[H_OFFSET + len - H_INCR], 0, sizeof(int*) * H_INCR);
+    memset(&mp[H_OFFSET + len - H_INCR], 0, sizeof(ssize*) * H_INCR);
     mp[H_USED]++;
     return handle;
 }
 
 
 /*
-    Free a handle.  This function returns the value of the largest handle in use plus 1, to be saved as a max value.
+    Free a handle. This function returns the value of the largest handle in use plus 1, to be saved as a max value.
  */
 int hFree(void ***map, int handle)
 {
-    int     *mp;
+    ssize   *mp;
     int     len;
 
     a_assert(map);
-    mp = &((*(int**)map)[-H_OFFSET]);
+    mp = &((*(ssize**)map)[-H_OFFSET]);
     a_assert(mp[H_LEN] >= H_INCR);
 
     a_assert(mp[handle + H_OFFSET]);
@@ -1187,7 +1175,7 @@ int hFree(void ***map, int handle)
     if (*map == NULL) {
         handle = -1;
     } else {
-        len = mp[H_LEN];
+        len = (int) mp[H_LEN];
         if (mp[H_USED] < mp[H_LEN]) {
             for (handle = len - 1; handle >= 0; handle--) {
                 if (mp[handle + H_OFFSET])
@@ -1202,7 +1190,7 @@ int hFree(void ***map, int handle)
 
 
 /*
-    Allocate an entry in the halloc array.
+    Allocate an entry in the halloc array
  */
 int hAllocEntry(void ***list, int *max, int size)
 {
@@ -1222,16 +1210,15 @@ int hAllocEntry(void ***list, int *max, int size)
         }
         a_assert(cp);
         memset(cp, 0, size);
-
         (*list)[id] = (void*) cp;
     }
-
     if (id >= *max) {
         *max = id + 1;
     }
     return id;
 }
 
+    
 /*
     Create a new ringq. "increment" is the amount to increase the size of the ringq should it need to grow to accomodate
     data being added. "maxsize" is an upper limit (sanity level) beyond which the q must not grow. Set maxsize to -1 to
@@ -2093,6 +2080,243 @@ static int calcPrime(int size)
     }
     return 1;
 }
+
+
+int gopen(char_t *path, int oflags, int mode)
+{
+    int     fd;
+
+#if BLD_WIN_LIKE
+    #if UNICODE
+        fd = _wopen(path, oflags, mode);
+    #else
+        error = _sopen_s(&fd, path, oflags, _SH_DENYNO, mode);
+    #endif
+#else
+    fd = open(path, oflags, mode);
+#endif
+#if VXWORKS
+    if (oflags & O_APPEND) {
+        lseek(fd, 0, SEEK_END);
+    }
+#endif
+    return fd;
+}
+
+int gcaselesscmp(char_t *s1, char_t *s2)
+{
+    if (s1 == 0 || s2 == 0) {
+        return -1;
+    } else if (s1 == 0) {
+        return -1;
+    } else if (s2 == 0) {
+        return 1;
+    }
+    return gncaselesscmp(s1, s2, max(glen(s1), glen(s2)));
+}
+
+
+bool gcaselessmatch(char_t *s1, char_t *s2)
+{
+    return gcaselesscmp(s1, s2) == 0;
+}
+
+
+bool gmatch(char_t *s1, char_t *s2)
+{
+    return gcmp(s1, s2) == 0;
+}
+
+
+int gcmp(char_t *s1, char_t *s2)
+{
+    if (s1 == s2) {
+        return 0;
+    } else if (s1 == 0) {
+        return -1;
+    } else if (s2 == 0) {
+        return 1;
+    }
+    return gncmp(s1, s2, max(glen(s1), glen(s2)));
+}
+
+
+/*
+    Case sensitive string comparison. Limited by length
+ */
+int gncmp(char_t *s1, char_t *s2, ssize n)
+{
+    int     rc;
+
+    a_assert(0 <= n && n < MAXINT);
+
+    if (s1 == 0 && s2 == 0) {
+        return 0;
+    } else if (s1 == 0) {
+        return -1;
+    } else if (s2 == 0) {
+        return 1;
+    }
+    for (rc = 0; n > 0 && *s1 && rc == 0; s1++, s2++, n--) {
+        rc = *s1 - *s2;
+    }
+    if (rc) {
+        return (rc > 0) ? 1 : -1;
+    } else if (n == 0) {
+        return 0;
+    } else if (*s1 == '\0' && *s2 == '\0') {
+        return 0;
+    } else if (*s1 == '\0') {
+        return -1;
+    } else if (*s2 == '\0') {
+        return 1;
+    }
+    return 0;
+}
+
+
+int gncaselesscmp(char_t *s1, char_t *s2, ssize n)
+{
+    int     rc;
+
+    a_assert(0 <= n && n < MAXINT);
+
+    if (s1 == 0 || s2 == 0) {
+        return -1;
+    } else if (s1 == 0) {
+        return -1;
+    } else if (s2 == 0) {
+        return 1;
+    }
+    for (rc = 0; n > 0 && *s1 && rc == 0; s1++, s2++, n--) {
+        rc = tolower((uchar) *s1) - tolower((uchar) *s2);
+    }
+    if (rc) {
+        return (rc > 0) ? 1 : -1;
+    } else if (n == 0) {
+        return 0;
+    } else if (*s1 == '\0' && *s2 == '\0') {
+        return 0;
+    } else if (*s1 == '\0') {
+        return -1;
+    } else if (*s2 == '\0') {
+        return 1;
+    }
+    return 0;
+}
+
+
+/*
+    Parse the args and return the count of args. If argv is NULL, the args are parsed read-only. If argv is set,
+    then the args will be extracted, back-quotes removed and argv will be set to point to all the args.
+    NOTE: this routine does not allocate.
+ */
+//  MOB - prefix
+int parseArgs(char *args, char **argv, int maxArgc)
+{
+    char    *dest, *src, *start;
+    int     quote, argc;
+
+    /*
+        Example     "showColors" red 'light blue' "yellow white" 'Can\'t \"render\"'
+        Becomes:    ["showColors", "red", "light blue", "yellow white", "Can't \"render\""]
+     */
+    for (argc = 0, src = args; src && *src != '\0' && argc < maxArgc; argc++) {
+        while (isspace((uchar) *src)) {
+            src++;
+        }
+        if (*src == '\0')  {
+            break;
+        }
+        start = dest = src;
+        if (*src == '"' || *src == '\'') {
+            quote = *src;
+            src++; 
+            dest++;
+        } else {
+            quote = 0;
+        }
+        if (argv) {
+            argv[argc] = src;
+        }
+        while (*src) {
+            if (*src == '\\' && src[1] && (src[1] == '\\' || src[1] == '"' || src[1] == '\'')) { 
+                src++;
+            } else {
+                if (quote) {
+                    if (*src == quote && !(src > start && src[-1] == '\\')) {
+                        break;
+                    }
+                } else if (*src == ' ') {
+                    break;
+                }
+            }
+            if (argv) {
+                *dest++ = *src;
+            }
+            src++;
+        }
+        if (*src != '\0') {
+            src++;
+        }
+        if (argv) {
+            *dest++ = '\0';
+        }
+    }
+    return argc;
+}
+
+#if VXWORKS
+
+/*
+    Get absolute path.  In VxWorks, functions like chdir, ioctl for mkdir and ioctl for rmdir, require an absolute path.
+    This function will take the path argument and convert it to an absolute path.  It is the caller's responsibility to
+    deallocate the returned string. 
+ */
+static char_t *getAbsolutePath(char_t *path)
+{
+    char_t  *tail;
+    char_t  *dev;
+
+    /*
+        Determine if path is relative or absolute.  If relative, prepend the current working directory to the name.
+        Otherwise, use it.  Note the getcwd call below must not be ggetcwd or else we go into an infinite loop
+    */
+    if (iosDevFind(path, &tail) != NULL && path != tail) {
+        return bstrdup(path);
+    }
+    dev = balloc(LF_PATHSIZE);
+    getcwd(dev, LF_PATHSIZE);
+    strcat(dev, "/");
+    strcat(dev, path);
+    return dev;
+}
+
+
+int vxchdir(char_t *dirname)
+{
+    char_t  *path;
+    int     rc;
+
+    path = getAbsolutePath(dirname);
+    rc = chdir(path);
+    bfree(path);
+    return rc;
+}
+#endif
+
+#if ECOS
+int send(int s, const void *buf, size_t len, int flags)
+{
+    return write(s, buf, len);
+}
+
+
+int recv(int s, void *buf, size_t len, int flags)
+{
+    return read(s, buf, len);
+}
+#endif
 
 /*
     @copy   default

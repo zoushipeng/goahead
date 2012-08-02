@@ -105,7 +105,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
              */
 #if NO_GETHOSTBYNAME
             if (strcmp(host, basicGetHost()) == 0) {
-                sockaddr.sin_addr.s_addr = inet_addr(basicGetAddress());
+                sockaddr.sin_addr.s_addr = inet_addr("localhost");
             }
             if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
                 socketFree(sid);
@@ -126,8 +126,7 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
             } else {
                 char    *asciiAddress;
                 char_t  *address;
-
-                address = basicGetAddress();
+                address = "localhost";
                 asciiAddress = ballocUniToAsc(address, gstrlen(address));
                 sockaddr.sin_addr.s_addr = inet_addr(asciiAddress);
                 bfree(asciiAddress);
@@ -285,20 +284,16 @@ static void socketAccept(socket_t *sp)
     struct sockaddr_in  addr;
     socket_t            *nsp;
     size_t              len;
-    char                *pString;
+    char                *ip;
     int                 newSock, nid;
 
-#if NETWARE
-    NETINET_DEFINE_CONTEXT;
-#endif
     a_assert(sp);
 
     /*
         Accept the connection and prevent inheriting by children (F_SETFD)
      */
     len = sizeof(struct sockaddr_in);
-    if ((newSock = 
-        accept(sp->sock, (struct sockaddr *) &addr, (socklen_t *) &len)) < 0) {
+    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (socklen_t*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -327,20 +322,19 @@ static void socketAccept(socket_t *sp)
         Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
      */
     if (sp->accept != NULL) {
-        pString = inet_ntoa(addr.sin_addr);
-        if ((sp->accept)(nid, pString, ntohs(addr.sin_port), sp->sid) < 0) {
+        ip = inet_ntoa(addr.sin_addr);
+        if ((sp->accept)(nid, ip, ntohs(addr.sin_port), sp->sid) < 0) {
             socketFree(nid);
         }
 #if VXWORKS
-        free(pString);
+        free(ip);
 #endif
     }
 }
 
 
 /*
-    Get more input from the socket and return in buf. Returns 0 for EOF, -1 for errors and otherwise the number of bytes
-    read.  
+    Get more from the socket and return in buf. Returns 0 for EOF, -1 for errors and otherwise the number of bytes read.  
  */
 ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
 {
@@ -472,7 +466,7 @@ int socketReady(int sid)
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
-#if BLD_WIN|LIKE || NETWARE
+#if BLD_WIN_LIKE
 
 int socketSelect(int sid, int timeout)
 {
@@ -568,7 +562,7 @@ int socketSelect(int sid, int timeout)
     return nEvents;
 }
 
-#else /* !BIT_WIN_LIKE && !NETWARE */
+#else /* !BIT_WIN_LIKE */
 
 int socketSelect(int sid, int timeout)
 {
@@ -799,7 +793,7 @@ int socketSetBlock(int sid, int on)
         int off;
         off = 0;
         ioctl(sp->sock, FIONBIO, &off);
-#elif VXWORKS || NETWARE
+#elif VXWORKS
         ioctl(sp->sock, FIONBIO, (int)&iflag);
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) & ~O_NONBLOCK);
@@ -812,7 +806,7 @@ int socketSetBlock(int sid, int on)
         int on;
         on = 1;
         ioctl(sp->sock, FIONBIO, &on);
-#elif VXWORKS || NETWARE
+#elif VXWORKS
         ioctl(sp->sock, FIONBIO, (int)&iflag);
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) | O_NONBLOCK);
@@ -928,7 +922,7 @@ ssize socketWriteString(int sid, char_t *buf)
     len = gstrlen(buf);
     byteBuf = ballocUniToAsc(buf, len);
     r = socketWrite(sid, byteBuf, len);
-    bfreeSafe(byteBuf);
+    bfree(byteBuf);
     return r;
  #else
     return socketWrite(sid, buf, strlen(buf));

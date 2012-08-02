@@ -1,9 +1,9 @@
 /*
-    matrixSSLSocket.c - SSL socket layer for MatrixSSL
+    matrixssl.c - SSL socket layer for MatrixSSL
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
-/******************************************************************************/
+/************************************ Includes ********************************/
 
 #include    "bit.h"
 
@@ -27,14 +27,64 @@
 
 #define MAX_WRITE_MSEC  500 /* Fail if we block more than X millisec on write */
 
-/******************************************************************************/
+/*
+    Connection structure
+    //  MOB - this is MatrixSSL only
+ */
+typedef struct {
+    ssl_t               *ssl;
+    char                *pt;        /* app data start */
+    char                *currPt;    /* app data current location */
+    int                 ptBytes;    /* plaintext bytes remaining */
+    SOCKET              fd;
+    int                 ptReqBytes;
+    int                 sendBlocked;
+} sslConn_t;
+
+static sslKeys_t    *sslKeys = NULL;
+
+/********************************** Forwards **********************************/
 /*
     Socket layer API for the MatrixSSL library.  
 */
 static int waitForWriteEvent(int fd, int msec);
 static void setSocketNonblock(SOCKET sock);
 
-/******************************************************************************/
+/************************************ Code ************************************/
+
+int sslOpen()
+{
+    if (matrixSslOpen() < 0) {
+        return -1;
+    }
+    if (matrixSslNewKeys(&sslKeys) < 0) {
+        trace(0, T("Failed to allocate keys in sslOpen\n"));
+        return -1;
+    }
+    if (matrixSslLoadRsaKeys(sslKeys, BIT_CERTIFICATE, BIT_KEY, NULL /* privPass */,  NULL /* trustedCAFile */) < 0) {
+        trace(0, T("Failed to read certificate %s in sslOpen\n"), BIT_CERTIFICATE);
+        trace(0, T("SSL support is disabled\n"));
+        return -1;
+    }
+    return 0;
+}
+
+
+void sslClose()
+{
+    matrixSslDeleteKeys(sslKeys);
+    matrixSslClose();
+}
+
+
+void sslFree(webs_t wp)
+{
+    sslWriteClosureAlert(wp->sslConn);                                                                
+    //  MOB - inline here
+    sslFreeConnection(&wp->sslConn);   
+}
+
+
 /*
     Server side.  Accept an incomming SSL connection request.
     'conn' will be filled in with information about the accepted ssl connection
@@ -59,6 +109,7 @@ int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume,
             sslFreeConnection(&cp);
             return -1;
         }
+        //  MOB - is the socket already non-blocking. If so, remove this routine
         setSocketNonblock(fd);
     } else {
         cp = *conn;
@@ -402,9 +453,7 @@ void sslFreeConnection(sslConn_t **cpp)
     conn = *cpp;
     matrixSslDeleteSession(conn->ssl);
     conn->ssl = NULL;
-    if (conn->pt != NULL) {
-        bfree(conn->pt);
-    }
+    bfree(conn->pt);
     bfree(conn);
     *cpp = NULL;
 }
@@ -423,8 +472,7 @@ static int waitForWriteEvent(int fd, int msec)
     FD_SET(fd, &writeFds);
     tv.tv_sec = msec / 1000;
     tv.tv_usec = (msec % 1000) * 1000;
-    if (select(fd + 1, NULL, &writeFds, NULL, &tv) > 0 && 
-            FD_ISSET(fd, &writeFds)) {
+    if (select(fd + 1, NULL, &writeFds, NULL, &tv) > 0 && FD_ISSET(fd, &writeFds)) {
         return 0;
     }
     return -1;
@@ -449,7 +497,7 @@ static void setSocketNonblock(SOCKET sock)
 #endif
 }
 
-#endif /* BIT_PACK_SSL */
+#endif /* BIT_PACK_MATRIXSSL */
 
 /*
     @copy   default

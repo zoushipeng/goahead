@@ -223,8 +223,8 @@ done:
             ejCloseEngine(ejid);
         }
     }
-    bfreeSafe(buf);
-    bfreeSafe(rbuf);
+    bfree(buf);
+    bfree(rbuf);
     return rc;
 }
 

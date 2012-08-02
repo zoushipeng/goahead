@@ -98,8 +98,6 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         }
 #if BIT_WIN_LIKE
         if (gstrstr(cgiPath, T(".exe")) == NULL && gstrstr(cgiPath, T(".bat")) == NULL)
-#elif NETWARE
-        if (gstrstr(cgiPath, T(".nlm")) == NULL)
 #else
         if (gaccess(cgiPath, X_OK) != 0)
 #endif
@@ -196,12 +194,12 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     if ((pHandle = websLaunchCgiProc(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
         websError(wp, 200, T("failed to spawn CGI task"));
         for (ep = envp; *ep != NULL; ep++) {
-            bfreeSafe(*ep);
+            bfree(*ep);
         }
-        bfreeSafe(cgiPath);
-        bfreeSafe(argp);
-        bfreeSafe(envp);
-        bfreeSafe(stdOut);
+        bfree(cgiPath);
+        bfree(argp);
+        bfree(envp);
+        bfree(stdOut);
     } else {
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
@@ -235,28 +233,17 @@ void websCgiGatherOutput (cgiRec *cgip)
     ssize       nRead;
     gstat_t     sbuf;
     char_t      cgiBuf[FNAMESIZE];
-#if WIN
-    errno_t     error;
-#endif
+    int         fdout;
 
-    if ((gstat(cgip->stdOut, &sbuf) == 0) && 
-        (sbuf.st_size > cgip->fplacemark)) {
-        int fdout;
-        //  MOB - refactor and push into gopen
-#if !WIN
-        fdout = gopen(cgip->stdOut, O_RDONLY | O_BINARY, 0444 );
-#else
-        error = _sopen_s(&fdout, cgip->stdOut, O_RDONLY | O_BINARY, _SH_DENYNO, 0444);
-#endif
-
-        /*
-             Check to see if any data is available in the output file and send its contents to the socket.
-         */
-        if (fdout >= 0) {
-            wp = cgip->wp;
+    if ((gstat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
+        if ((fdout = gopen(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
+            /*
+                 Check to see if any data is available in the output file and send its contents to the socket.
+             */
             /*
                 Write the HTTP header on our first pass
              */
+            wp = cgip->wp;
             if (cgip->fplacemark == 0) {
                 websWrite(wp, T("HTTP/1.0 200 OK\r\n"));
             }
@@ -322,13 +309,13 @@ void websCgiCleanup()
                  */
                 cgiMax = hFree((void***) &cgiList, cid);
                 for (ep = cgip->envp; ep != NULL && *ep != NULL; ep++) {
-                    bfreeSafe(*ep);
+                    bfree(*ep);
                 }
-                bfreeSafe(cgip->cgiPath);
-                bfreeSafe(cgip->argp);
-                bfreeSafe(cgip->envp);
-                bfreeSafe(cgip->stdOut);
-                bfreeSafe(cgip);
+                bfree(cgip->cgiPath);
+                bfree(cgip->argp);
+                bfree(cgip->envp);
+                bfree(cgip->stdOut);
+                bfree(cgip);
             }
         }
     }
@@ -521,76 +508,6 @@ int websCheckCgiProc(int handle)
 #endif /* LINUX || LYNX || MACOSX || QNX4 */
 
 
-#if NETWARE
-/*
-     Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
-     with bfree(); 
- */
-char_t *websGetCgiCommName()
-{
-    char_t   *pname;
-
-    pname = bstrdup(tmpnam( NULL ) );
-    return pname;
-}
-
-
-/*
-    Launch the CGI process and return a handle to it.
- */
-int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut)
-{
-    int   pid, fdin, fdout, hstdin, hstdout, rc;
-
-    fdin = fdout = -1;
-    if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
-            (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ) {
-        goto DONE;
-    }
-
-/*  COMMENTED BLOCK ùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùù
- *     printf( "[%s]\n[", cgiPath ) ;
- *  {
- *     char \**x = argp;
- *     while( *argp ) printf( "%s-", *argp ++ ) ;
- * 
- *  }
- *     printf( "]\n" ) ;
- *  END COMMENTS ùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùùù
- */
-    rc = spawnvp( P_NOWAIT, cgiPath, argp ) ;
-    if (rc != 0) {
-        exit (0);
-    }
-
-DONE:
-    if (fdout >= 0) {
-        close(fdout);
-    }
-    if (fdin >= 0) {
-        close(fdin);
-    }
-    return rc;
-}
-
-
-/*
-    Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
- */
-int websCheckCgiProc(int handle)
-{
-    /*
-        Check to see if the CGI child process has terminated or not yet.
-     */
-    if( handle ) {
-        return 0;
-    } else {
-        return 1;
-    }
-}
-
-#endif /* NETWARE */
-
 #if VXWORKS
 static void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv), char_t **argv, char_t **envp, char_t *stdIn, char_t
         *stdOut); 
@@ -677,7 +594,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {
         fmtAlloc(&pname, VALUE_MAX_STRING, T("_%s"), pEntry);
         symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
-        bfreeSafe(pname);
+        bfree(pname);
     }
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void *)vxWebsCgiEntry, (int)entryAddr, (int)argp, 
@@ -695,7 +612,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
         fmtAlloc(&pname, VALUE_MAX_STRING, T("_%s"), pEntry);
         symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
-        bfreeSafe(pname);
+        bfree(pname);
     }
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void *)vxWebsCgiEntry,

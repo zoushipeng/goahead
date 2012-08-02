@@ -1,5 +1,7 @@
 /*
     main.bit -- Main Bit file for GoAhead
+
+    This file contains the rules for targets to build and default settings for configuration
  */
 
 Bit.load({
@@ -13,43 +15,141 @@ Bit.load({
         company: 'Embedthis',
         version: '3.0.0',
         buildNumber: '0',
-        http_port: 8080,
-        ssl_port: 4443,
         packs: [ 'bits/packs' ]
+
+        /*
+            Optional packs to search for when configuring
+         */
         '+optional': [ 'doxygen', 'dsi', 'ejs', 'man', 'man2html', 'openssl', 'matrixssl', 'pmaker', 'ssl', 'utest', 'zip' ],
+
+        /*
+            Packs to disable when using --without all
+         */
         minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
 
         /*
-            MOB - comment each setting
+            Log for request access logging
+         */
+        accessLog: false,
+
+        /*
+            Directory for use when validating client certificates
+         */
+        caPath: "./certs",
+
+        /*
+            File of certificates 
+         */
+        caFile: "./certs/cacert.pem",
+
+        /*
+            Server certificate file for SSL
+         */
+        certificate: "server.crt",
+
+        /*
+            Build with CGI support
+         */
+        cgi: true,
+
+        /*
+            Build with debug and error logging support
+         */
+        debugLog: true,
+
+        /*
+            Build with HTTP Digest Authentication support
          */
         digestAuth: true,
-        replaceMalloc: false,
-        userManagement: false,
-        javascript: false,
-        whitelist: false,
-        accessLog: true,
-        debugTrace: true,
-        keepAlive: true,
-        cgi: true,
-        ifModified: true,
+
+        /*
+            Directory containing web documents to serve
+         */
         documents: "web",
-        certificate: "server.crt",
+
+        /*
+            HTTP port to listen on
+         */
+        httpPort: 8080,
+
+        /*
+            Build with support for javascript web templates
+         */
+        javascript: false,
+
+        /*
+            Build with for Http Keep-Alive support
+         */
+        keepAlive: true,
+
+        /*
+            Build with Http If-Modified header support
+         */
+        ifModified: true,
+
+        /*
+            Server SSL key
+         */
         key: "server.key",
-        simpleTime: false,
+
+        /*
+            Include HTTP request query string in access log records
+         */
         logQuery: false,
-        traceLevel: 2,
+
+        /*
+            Server authentication password (decoded)
+         */
         password: "",
 
+        /*
+            Replace malloc with a non-fragmenting allocator
+         */
+        replaceMalloc: false,
+
+        /*
+            Use simple time records in access log records. MOB - remove
+         */
+        simpleTime: false,
+
+        /*
+            SSL port to listen on
+         */
+        sslPort: 4443,
+
+        /*
+            Default location for debug log 
+         */
+        trace: "stdout:2",
+
+        /*
+            Build with user management support
+         */
+        userManagement: false,
+
+        /*
+            Build with request white list validation
+         */
+        whitelist: false,
     },
 
     targets: {
+        /*
+            Target for the goahead web server executable
+         */
         goahead: {
             type: 'exe',
+            rule: 'gui',
             depends: [ ],
             sources: [ '*.c' ],
-            _sources: [ '*.c', '${OS}/*.c' ],
             headers: [ '*.h' ],
+            depends: [ 'openssl', 'matrixssl' ],
+            _resources: [ 'goahead.rc' ],
         },
+
+        /*
+            Compiler for web pages into C code
+         */
         webcomp: {
             type: 'exe',
             depends: [ ],

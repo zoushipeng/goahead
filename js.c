@@ -47,7 +47,6 @@ static void     inputPutback(ej_t* ep, int c);
 static int      charConvert(ej_t* ep, int base, int maxDig);
 
 /************************************* Code ***********************************/
-/************************************* Code ***********************************/
 
 int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
 {
@@ -104,9 +103,9 @@ void ejCloseEngine(int eid)
         return;
     }
 
-    bfreeSafe(ep->error);
+    bfree(ep->error);
     ep->error = NULL;
-    bfreeSafe(ep->result);
+    bfree(ep->result);
     ep->result = NULL;
 
     ejLexClose(ep);
@@ -139,17 +138,10 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
     if (emsg) {
         *emsg = NULL;
     }
-
     if ((ep = ejPtr(eid)) == NULL) {
         return NULL;
     }
-    //  MOB - refactor and push into gopen
-#if !WIN
-    fd = gopen(path, O_RDONLY | O_BINARY, 0666);
-#else
-    _sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
-    if (fd  < 0) {
+    if ((fd = gopen(path, O_RDONLY | O_BINARY, 0666)) < 0) {
         ejError(ep, T("Bad handle %d"), eid);
         return NULL;
     }
@@ -1290,10 +1282,10 @@ void ejError(ej_t* ep, char_t* fmt, ...)
 
     if (ep && ip) {
         fmtAlloc(&errbuf, E_MAX_ERROR, T("%s\n At line %d, line => \n\n%s\n"), msgbuf, ip->lineNumber, ip->line);
-        bfreeSafe(ep->error);
+        bfree(ep->error);
         ep->error = errbuf;
     }
-    bfreeSafe(msgbuf);
+    bfree(msgbuf);
 }
 
 

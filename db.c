@@ -22,7 +22,6 @@ static char_t   *basicDefaultDir = T("."); /* Default set to current */
 /*
    hAlloc chain list of table schemas to be closed 
  */
-
 static int          dbMaxTables = 0;
 static dbTable_t    **dbListTables = NULL;
 
@@ -84,13 +83,11 @@ int dbRegisterDBSchema(dbTable_t *pTableRegister)
         pTable->columnNames = NULL;
         pTable->columnTypes = NULL;
     }
-
     /*
         Zero out the table's data (very important!)
      */
     pTable->nRows = 0;
     pTable->rows = NULL;
-
     return 0;
 }
 
@@ -118,7 +115,7 @@ void dbClose(int did)
     dbTable_t   *pTable;
 
     /*
-     j  Before doing anything, delete all the contents of the database
+        Before doing anything, delete all the contents of the database
      */
     dbZero(did);
 
@@ -134,19 +131,19 @@ void dbClose(int did)
              */
             if (pTable->nColumns) {
                 for (column = 0; column < pTable->nColumns; column++) {
-                    bfreeSafe(pTable->columnNames[column]);
+                    bfree(pTable->columnNames[column]);
                 }
-                bfreeSafe(pTable->columnNames);
-                bfreeSafe(pTable->columnTypes);
+                bfree(pTable->columnNames);
+                bfree(pTable->columnTypes);
             }
             /*
                 Delete the table name
              */
-            bfreeSafe(pTable->name);
+            bfree(pTable->name);
             /*
                 Free the table
              */
-            bfreeSafe(pTable);
+            bfree(pTable);
             hFree((void ***) &dbListTables, table);
         }
     }
@@ -191,12 +188,12 @@ void dbZero(int did)
                      */
                     for (column = 0; column < nColumns; column++) {
                         if (pTable->columnTypes[column] == T_STRING) {
-                            bfreeSafe((char_t *)(pRow[column]));
+                            bfree((char_t *)(pRow[column]));
                             pRow[column] = (int)NULL;
                         }
                     }
 
-                    bfreeSafe(pRow);
+                    bfree(pRow);
                     hFree((void ***) &pTable->rows, row);
                 }
             }
@@ -339,7 +336,7 @@ int dbDeleteRow(int did, char_t *tablename, int row)
              */
             memset(pRow, 0, nColumns * max(sizeof(int), sizeof(char_t *)));
 
-            bfreeSafe(pRow);
+            bfree(pRow);
             pTable->nRows = hFree((void ***)&pTable->rows, row);
             trace(5, T("DB: Deleted row <%d> from table <%s>\n"), row, tablename);
         }
@@ -634,19 +631,11 @@ int dbSave(int did, char_t *filename, int flags)
         First write to a temporary file, then switch around later.
      */
     fmtAlloc(&tmpFile, FNAMESIZE, T("%s/data.tmp"), basicGetProductDir());
-    //  MOB -refactor into gopen
-#if !WIN
-    fd = gopen(tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0666);
-#else
-    _sopen_s(&fd, tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
-    
-    if (fd < 0) {
+    if ((fd = gopen(tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0666)) < 0) {
         trace(1, T("WARNING: Failed to open file %s\n"), tmpFile);
         bfree(tmpFile);
         return -1;
     }
-
     nRet = 0;
     for (tid = 0; (tid < dbMaxTables) && (nRet != -1); tid++) {
         pTable = dbListTables[tid];
@@ -674,7 +663,7 @@ int dbSave(int did, char_t *filename, int flags)
                  */
                 fmtAlloc(&tmpNum, 20, T("%d"), row);        
                 rc = dbWriteKeyValue(fd, KEYWORD_ROW, tmpNum);
-                bfreeSafe(tmpNum);
+                bfree(tmpNum);
 
                 colNames = pTable->columnNames;
                 colTypes = pTable->columnTypes;
@@ -688,7 +677,7 @@ int dbSave(int did, char_t *filename, int flags)
                     } else {
                         fmtAlloc(&tmpNum, 20, T("%d"), pRow[column]);       
                         rc = dbWriteKeyValue(fd, *colNames, tmpNum);
-                        bfreeSafe(tmpNum);
+                        bfree(tmpNum);
                     }
                 }
                 if (rc < 0) {
@@ -766,13 +755,8 @@ int dbLoad(int did, char_t *filename, int flags)
         bfree(path);
         return -1;
     }
-#if !WIN
     fd = gopen(path, O_RDONLY | O_BINARY, 0666);
-#else
-    _sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
     bfree(path);
-
     if (fd < 0) {
         trace(3, T("DB: No persistent data file present.\n"));
         return -1;

@@ -128,7 +128,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         nchars += gstrlen(websDefaultPage) + 2;
         fmtAlloc(&tmp, nchars, T("%s/%s"), path, websDefaultPage);
         websRedirect(wp, tmp);
-        bfreeSafe(tmp);
+        bfree(tmp);
         return 1;
     }
 
@@ -174,6 +174,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
 
     /*
         Output the normal HTTP response header
+        MOB OPT - compute date periodically
      */
     if ((date = websGetDateString(NULL)) != NULL) {
         websWrite(wp, T("HTTP/1.0 200 OK\r\nDate: %s\r\n"), date);
@@ -493,7 +494,7 @@ void websDefaultClose()
     while (sslList != NULL) {
         l = sslList;
         sslList = sslList->next;
-        bfreeSafe(l->url);
+        bfree(l->url);
         bfree(l);
     }   
 #endif

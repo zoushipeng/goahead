@@ -333,6 +333,7 @@
     #include    <fcntl.h>
     #include    <errno.h>
     #include    <time.h>
+    #include    <stdbool.h>
 #endif /* MACOSX */
 
 #if UW
@@ -401,6 +402,38 @@
 #include    <stdarg.h>
 #include    <string.h>
 #include    <stdlib.h>
+
+
+#if BIT_PACK_OPENSSL
+/* Clashes with WinCrypt.h */
+#undef OCSP_RESPONSE
+#include    <openssl/ssl.h>
+#include    <openssl/evp.h>
+#include    <openssl/rand.h>
+#include    <openssl/err.h>
+#include    <openssl/dh.h>
+#endif
+
+#if BIT_FEATURE_MATRIXSSL
+/*
+       Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
+           So must include matrixsslApi.h first and then workaround.
+            */
+#if WIN32
+ #include   <winsock2.h>
+ #include   <windows.h>
+#endif
+ #include    "matrixsslApi.h"
+
+#define     HAS_INT32 1
+#define     HAS_UINT32 1
+#define     HAS_INT64 1
+#define     HAS_UINT64 1
+
+#include    "goahead.h"
+
+#define MAX_WRITE_MSEC  500 /* Fail if we block more than X millisec on write */
+#endif
 
 /************************************** Defines *******************************/
 /*
@@ -755,6 +788,55 @@ typedef int64 datetime;
     #define BIT_FLEX
 #endif
 
+#if VXWORKS
+    #define MAIN(name, _argc, _argv, _envp)  \
+        static int innerMain(int argc, char **argv, char **envp); \
+        int name(char *arg0, ...) { \
+            va_list args; \
+            char *argp, *largv[MPR_MAX_ARGC]; \
+            int largc = 0; \
+            va_start(args, arg0); \
+            largv[largc++] = #name; \
+            if (arg0) { \
+                largv[largc++] = arg0; \
+            } \
+            for (argp = va_arg(args, char*); argp && largc < MPR_MAX_ARGC; argp = va_arg(args, char*)) { \
+                largv[largc++] = argp; \
+            } \
+            return innerMain(largc, largv, NULL); \
+        } \
+        static int innerMain(_argc, _argv, _envp)
+#elif BIT_WIN_LIKE && UNICODE
+    #define MAIN(name, _argc, _argv, _envp)  \
+        APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, LPWSTR command, int junk2) { \
+            char *largv[MPR_MAX_ARGC]; \
+            extern int main(); \
+            char *mcommand[MPR_MAX_STRING]; \
+            int largc; \
+            wtom(mcommand, sizeof(dest), command, -1);
+            largc = parseArgs(mcommand, &largv[1], MPR_MAX_ARGC - 1); \
+            largv[0] = #name; \
+            main(largc, largv, NULL); \
+        } \
+        int main(argc, argv, _envp)
+#elif BIT_WIN_LIKE
+    #define MAIN(name, _argc, _argv, _envp)  \
+        APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *command, int junk2) { \
+            extern int main(); \
+            char *largv[MPR_MAX_ARGC]; \
+            int largc; \
+            largc = parseArgs(command, &largv[1], MPR_MAX_ARGC - 1); \
+            largv[0] = #name; \
+            main(largc, largv, NULL); \
+        } \
+        int main(_argc, _argv, _envp)
+#else
+    #define MAIN(name, _argc, _argv, _envp) int main(_argc, _argv, _envp)
+#endif
+
+//  MOB - prefix
+extern int parseArgs(char *args, char **argv, int maxArgc);
+
 /*********************************** Fixups ***********************************/
 
 #if ECOS
@@ -795,13 +877,10 @@ struct timeval
     typedef int32_t fd_mask;
 #endif
 
-#if NETWARE
-    #define fd_mask         fd_set
-    #define INADDR_NONE     -1l
-    #define Sleep           delay
-#endif /* NETWARE */
-
 #if UNICODE
+    #if !BLD_WIN_LIKE
+        #error "Unicode only supported on Windows or Windows CE"
+    #endif
 typedef ushort char_t;
 typedef ushort uchar_t;
 
@@ -880,7 +959,6 @@ typedef ushort uchar_t;
 #define gstrstr     wcsstr
 #define gstrtol     wcstol
 #define gfopen      _wfopen
-#define gopen       _wopen
 #define gclose      close
 #define gcreat      _wcreat
 #define gfgets      fgetws
@@ -925,7 +1003,7 @@ typedef struct _stat gstat_t;
 #define gisxdigit   iswxdigit
 #define gisupper    iswupper
 #define gislower    iswlower
-#endif  /* if CE */
+#endif  /* CE */
 
 #define gisalnum    iswalnum
 #define gisalpha    iswalpha
@@ -934,7 +1012,7 @@ typedef struct _stat gstat_t;
 #define gctime      _wctime
 #define ggetenv     _wgetenv
 #define gexecvp     _wexecvp
-#else /* ! UNICODE */
+#else /* !UNICODE */
 
 #if VXWORKS
 #define gchdir      vxchdir
@@ -956,7 +1034,6 @@ typedef struct _stat gstat_t;
 #define ggetcwd     getcwd
 #define glseek      lseek
 #define gloadModule loadModule
-#define gopen       open
 #define gopendir    opendir
 #define gread       read
 #define greaddir    readdir
@@ -1004,9 +1081,6 @@ typedef struct _stat gstat_t;
 #define gfindclose  _findclose
 #define gaccess     access
 
-//  MOB - move
-typedef struct stat gstat_t;
-
 #define gremove     remove
 
 #define gtolower    tolower
@@ -1046,6 +1120,10 @@ typedef struct stat gstat_t;
 #define localtime localtime_s
 #endif
 
+
+//  MOB - move
+typedef struct stat gstat_t;
+
 /******************************************************************************/
 #ifdef __cplusplus
 extern "C" {
@@ -1062,7 +1140,7 @@ extern "C" {
 #define E_ARGS_DEC          char_t *file, int line
 #define E_ARGS              file, line
 
-//  MOB - should be gassert
+//  MOB - should be gassert, or goassert
 #if BIT_DEBUG
     #define a_assert(C)     if (C) ; else error(E_L, E_ASSERT, T("%s"), T(#C))
 #else
@@ -1178,6 +1256,8 @@ typedef struct {
     int     increment;          /* Growth increment */
 } ringq_t;
 
+
+/******************************* Malloc Replacement ***************************/
 /*
     Block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 
  */
@@ -1207,6 +1287,7 @@ typedef struct {
 #define B_USE_MALLOC        0x1             /* Okay to use malloc if required */
 #define B_USER_BUF          0x2             /* User supplied buffer for mem */
 
+/******************************* Symbol Table *********************************/
 /*
     The symbol table record for each symbol entry
  */
@@ -1230,7 +1311,7 @@ typedef int sym_fd_t;                       /* Returned by symOpen */
 
 #define STRSPACE    T("\t \n\r\t")
 
-/******************************************************************************/
+/*********************************** Cron *************************************/
 
 typedef struct {
     char_t  *minute;
@@ -1244,11 +1325,10 @@ extern long     cronUntil(cron_t *cp, int period, time_t testTime);
 extern int      cronAlloc(cron_t *cp, char_t *str);
 extern int      cronFree(cron_t *cp);
 
-/******************************************************************************/
+/************************************ Socket **********************************/
 /*
     Socket flags 
  */
-
 #define SOCKET_EOF              0x1     /* Seen end of file */
 #define SOCKET_CONNECTING       0x2     /* Connect in progress */
 #define SOCKET_BROADCAST        0x4     /* Broadcast mode */
@@ -1282,11 +1362,8 @@ extern int      cronFree(cron_t *cp);
 #define SOCKET_EXCEPTION        0x8     /* Interested in exceptions */
 #define EMF_SOCKET_MESSAGE      (WM_USER+13)
 
-#define WEBS_MAX_REQUEST        2048        /* Request safeguard max */
-
 typedef void    (*socketHandler_t)(int sid, int mask, void* data);
-typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, 
-                    int listenSid);
+typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, int listenSid);
 typedef struct {
     char            host[64];               /* Host name */
     ringq_t         inBuf;                  /* Input ring queue */
@@ -1306,6 +1383,7 @@ typedef struct {
     int             selectEvents;           /* Events being selected */
     int             saveMask;               /* saved Mask for socketFlush */
     int             error;                  /* Last error */
+    int             secure;                 /* Socket is using SSL */
 } socket_t;
 
 extern socket_t     **socketList;           /* List of open sockets */
@@ -1361,8 +1439,6 @@ extern void     emfReschedCallback(int id, int delay);
 extern void     emfSchedProcess();
 extern int      emfInstGet();
 extern void     emfInstSet(int inst);
-extern void     error(E_ARGS_DEC, int flags, char_t *fmt, ...);
-extern void     (*errorSetHandler(void (*function)(int etype, char_t *msg))) (int etype, char_t *msg);
 
 extern int      hAlloc(void ***map);
 extern int      hAllocEntry(void ***list, int *max, int size);
@@ -1438,6 +1514,15 @@ extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 extern char_t   *strlower(char_t *string);
 extern char_t   *strupper(char_t *string);
 
+//  MOB - where should this be
+#define glen gstrlen
+extern int gopen(char_t *path, int oflag, int mode);
+extern int gcaselesscmp(char_t *s1, char_t *s2);
+extern bool gcaselessmatch(char_t *s1, char_t *s2);
+extern bool gmatch(char_t *s1, char_t *s2);
+extern int gcmp(char_t *s1, char_t *s2);
+extern int gncmp(char_t *s1, char_t *s2, ssize n);
+extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
 extern char_t   *stritoa(int n, char_t *string, int width);
 
 extern sym_fd_t symOpen(int hash_size);
@@ -1451,10 +1536,23 @@ extern sym_t    *symNext(sym_fd_t sd);
 extern int      symSubOpen();
 extern void     symSubClose();
 
+extern void     error(E_ARGS_DEC, int flags, char_t *fmt, ...);
 extern void     trace(int lev, char_t *fmt, ...);
-extern void     traceRaw(char_t *buf);
-extern void     (*traceSetHandler(void (*function)(int level, char_t *buf))) (int level, char_t *buf);
- 
+#if BIT_DEBUG_LOG
+    extern void     traceRaw(char_t *buf);
+    extern int      traceOpen();
+    extern void     traceClose();
+    typedef void    (*TraceHandler)(int level, char_t *msg);
+    extern TraceHandler traceSetHandler(TraceHandler handler);
+    extern void traceSetPath(char_t *path);
+    #define LOG trace
+#else
+    #define traceOpen() 
+    #define traceClose()
+    #define LOG if (0) trace
+#endif
+
+
 extern value_t  valueInteger(long value);
 extern value_t  valueString(char_t *value, int flags);
 extern value_t  valueErrmsg(char_t *value);
@@ -1470,27 +1568,20 @@ extern char     *uniToAsc(char *buf, char_t *ustr, ssize nBytes);
 extern char_t   *ballocAscToUni(char  *cp, ssize alen);
 extern char     *ballocUniToAsc(char_t *unip, ssize ulen);
 
+#if UNUSED
+//  MOB - do these exist?
 extern char_t   *basicGetHost();
-extern char_t   *basicGetAddress();
-extern char_t   *basicGetProduct();
 extern void     basicSetHost(char_t *host);
 extern void     basicSetAddress(char_t *addr);
+#endif
 
-extern int      harnessOpen(char_t **argv);
-extern void     harnessClose(int status);
-extern void     harnessTesting(char_t *msg, ...);
-extern void     harnessPassed();
-extern void     harnessFailed(int line);
-extern int      harnessLevel();
-
+//  MOB - move
 extern char *websMD5(cchar *s);
 extern char *websMD5binary(cchar *buf, ssize length, cchar *prefix);
 
-#if UNUSED
-//  MOB - PREFIX
-#define DEFAULT_CERT_FILE   "certSrv.pem"     /* Public key certificate */
-#define DEFAULT_KEY_FILE    "privkeySrv.pem"  /* Private key file */
-#endif
+//  MOB
+extern int goOpen();
+extern void goClose();
 
 /********************************** Defines ***********************************/
 
@@ -1504,16 +1595,15 @@ extern char *websMD5binary(cchar *buf, ssize length, cchar *prefix);
 #define WEBS_MAX_HEADER         (5 * 1024)  /* Sanity check header */
 #define WEBS_MAX_URL            2048        /* Maximum URL size for sanity */
 #define WEBS_SOCKET_BUFSIZ      256         /* Bytes read from socket */
+#define WEBS_MAX_REQUEST        2048        /* Request safeguard max */
+
 
 //  MOB - prefix
 #define PAGE_READ_BUFSIZE       512         /* bytes read from page files */
 #define MAX_PORT_LEN            10          /* max digits in port number */
 #define WEBS_SYM_INIT           64          /* initial # of sym table entries */
 
-#if UNUSED
-#define WEBS_HTTP_PORT          T("httpPort")
-#endif
-
+//  MOB move to main.bit
 #define CGI_BIN                 T("cgi-bin")
 
 /* 
@@ -1606,8 +1696,11 @@ typedef struct websRec {
     char_t          *cnonce;    /* check nonce */
     char_t          *qop;       /* quality operator */
 #endif
-#if BIT_PACK_SSL
-    websSSL_t       *wsp;       /* SSL data structure */
+#if BIT_PACK_OPENSSL
+    SSL             *ssl;
+    BIO             *bio;
+#elif BIT_PACK_MATRIXSSL
+    sslConn_t       *sslConn;
 #endif
 } websRec;
 
@@ -1683,17 +1776,6 @@ typedef struct {
     int             pos;                    /* Current read position */
 } websRomPageIndexType;
 
-/*
-    Defines for file open.
-    MOB - move to goahead.h
- */
-#if CE
-    #define SOCKET_RDONLY   0x1
-    #define SOCKET_BINARY   0x2
-#else /* CE */
-    #define SOCKET_RDONLY   O_RDONLY
-    #define SOCKET_BINARY   O_BINARY
-#endif /* CE */
 
 #define WHITELIST_SSL 0x001   /* File only accessible through https */
 #define WHITELIST_CGI 0x002   /* Node is in the cgi-bin dir */
@@ -1704,13 +1786,14 @@ typedef struct {
 extern websRomPageIndexType websRomPageIndex[];
 extern websMimeType     websMimeList[];     /* List of mime types */
 extern sym_fd_t         websMime;           /* Set of mime types */
-extern webs_t*          webs;               /* Session list head */
+extern webs_t           *webs;              /* Session list head */
 extern int              websMax;            /* List size */
 extern char_t           websHost[64];       /* Name of this host */
 extern char_t           websIpaddr[64];     /* IP address of this host */
 extern char_t           *websHostUrl;       /* URL for this host */
 extern char_t           *websIpaddrUrl;     /* URL for this host */
 extern int              websPort;           /* Port number */
+extern int              websDebug;          /* Run in debug mode */
 
 /**
     Decode base 64 blocks up to a NULL or equals
@@ -1751,7 +1834,7 @@ extern ssize     websGetRequestWritten(webs_t wp);
 extern char_t   *websGetVar(webs_t wp, char_t *var, char_t *def);
 extern int       websCompareVar(webs_t wp, char_t *var, char_t *value);
 extern void      websHeader(webs_t wp);
-extern int       websOpenListen(int port);
+extern int       websOpenListen(char *ip, int port, int sslPort);
 extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
 extern void      websPageClose(webs_t wp);
 extern int       websPublish(char_t *urlPrefix, char_t *path);
@@ -1857,7 +1940,7 @@ extern void      websUrlHandlerClose();
 extern int       websUrlHandlerOpen();
 extern int       websOpen();
 extern void      websClose();
-extern int       websOpenServer(int port, char_t *documents);
+extern int       websOpenServer(char *ip, int port, int sslPort, char_t *documents);
 extern void      websCloseServer();
 extern char_t   *websGetDateString(websStatType* sbuf);
 extern void      websServiceEvents(int *finished);
@@ -1873,46 +1956,50 @@ extern int      readAscToUni(int fid, void **buf, ssize len);
 #endif
 
 #if BIT_PACK_MATRIXSSL
+#if UNUSED
 //  MOB - sslConn_t ssl_t should not be visible in this file
 typedef struct {
     sslConn_t* sslConn;
     struct websRec* wp;
 } websSSL_t;
+#endif
+#endif
 
-extern int  websSSLOpen();
-extern int  websSSLIsOpen();
+#if BIT_PACK_SSL
+extern int websSSLOpen();
+extern int websSSLIsOpen();
 extern void websSSLClose();
-extern int  websRequireSSL(char *url);
-extern int  websSSLWrite(websSSL_t *wsp, char_t *buf, int nChars);
-extern int  websSSLGets(websSSL_t *wsp, char_t **buf);
-extern int  websSSLRead(websSSL_t *wsp, char_t *buf, int nChars);
-extern int  websSSLEof(websSSL_t *wsp);
-extern int  websSSLFree(websSSL_t *wsp);
-extern int  websSSLFlush(websSSL_t *wsp);
-extern int  websSSLSetKeyFile(char_t *keyFile);
-extern int  websSSLSetCertFile(char_t *certFile);
+extern int websRequireSSL(char *url);
+extern int websSSLAccept(webs_t wp, char_t *buf, ssize len);
+extern ssize websSSLWrite(webs_t wp, char_t *buf, ssize len);
+extern ssize websSSLGets(webs_t wp, char_t **buf);
+extern ssize websSSLRead(webs_t wp, char_t *buf, ssize len);
+extern int  websSSLEof(webs_t wp);
+extern void websSSLFree(webs_t wp);
+extern void websSSLFlush(webs_t wp);
+extern int websSSLSetKeyFile(char_t *keyFile);
+extern int websSSLSetCertFile(char_t *certFile);
+extern void websSSLSocketEvent(int sid, int mask, void *iwp);
 
+
+#if OLD && UNUSED
 extern int  sslAccept(sslConn_t **cp, SOCKET fd, sslKeys_t *keys, int32 resume,
             int (*certValidator)(ssl_t *, psX509Cert_t *, int32));
-extern void sslFreeConnection(sslConn_t **cp);
-extern int  sslRead(sslConn_t *cp, char *buf, ssize len);
-extern int  sslWrite(sslConn_t *cp, char *buf, ssize len);
+extern ssize sslRead(sslConn_t *cp, char *buf, ssize len);
+extern ssize sslWrite(sslConn_t *cp, char *buf, ssize len);
 extern void sslWriteClosureAlert(sslConn_t *cp);
+#else
+extern int sslOpen();
+extern void sslClose();
+extern int sslAccept(webs_t wp);
+extern void sslFree(webs_t wp);
+extern ssize sslRead(webs_t wp, char *buf, ssize len);
+extern ssize sslWrite(webs_t wp, char *buf, ssize len);
+extern void sslWriteClosureAlert(webs_t wp);
+extern void sslFlush(webs_t wp);
+#endif
 
-/*
-    Connection structure
-    //  MOB - this is MatrixSSL only
- */
-typedef struct {
-    ssl_t               *ssl;
-    char                *pt;        /* app data start */
-    char                *currPt;    /* app data current location */
-    int                 ptBytes;    /* plaintext bytes remaining */
-    SOCKET              fd;
-    int                 ptReqBytes;
-    int                 sendBlocked;
-} sslConn_t;
-#endif /* BIT_PACK_MATRIXSSL */
+#endif /* BIT_PACK_SSL */
 
 /*************************************** EmfDb *********************************/
 

@@ -226,7 +226,7 @@ int websUrlHandlerRequest(webs_t wp)
     websSetRequestPath(wp, websGetDefaultDir(), NULL);
 
     /*
-        Eliminate security hole
+        Eliminate security hole (MOB - see Appweb)
      */
     websCondenseMultipleChars(wp->path, '/');
     websCondenseMultipleChars(wp->url, '/');
@@ -252,7 +252,7 @@ int websUrlHandlerRequest(webs_t wp)
                 return 1;
             }
             if (!websValid(wp)) {
-                trace(0, T("webs: handler %s called websDone, but didn't return 1\n"), sp->urlPrefix);
+                trace(0, T("handler %s called websDone, but didn't return 1\n"), sp->urlPrefix);
                 return 1;
             }
         }

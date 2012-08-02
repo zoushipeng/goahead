@@ -33,6 +33,7 @@ webs_t          *webs;                  /* Open connection list head */
 sym_fd_t        websMime;               /* Set of mime types */
 int             websMax;                /* List size */
 int             websPort;               /* Listen port for server */
+int             websDebug;              /* Run in debug mode and defeat timeouts */
 
 //  MOB - should allocate
 char_t          websHost[64];           /* Host name for the server */
@@ -165,23 +166,24 @@ websErrorType websErrors[] = {
 };
 
 #if BIT_ACCESS_LOG
-static char_t   websLogname[64] = T("log.txt"); /* Log filename */
-static int      websLogFd;                      /* Log file handle */
+static char_t   accessLog[64] = T("access.log");    /* Log filename */
+static int      accessFd;                           /* Log file handle */
 #endif
 
-#if BIT_DEBUG_TRACE
-static char_t   websTracename[64] = T("trace.txt"); /* Log filename */
-static int      websTraceFd;                        /* Log file handle */
-#endif
+//  MOB - review
+static char_t   websRealm[64] = T("GoAhead");   /* Realm name */
 
 static int      websListenSock;                 /* Listen socket */
-static char_t   websRealm[64] = T("GoAhead");   /* Realm name */
+
+#if BIT_PACK_SSL
+static int      sslListenSock;                  /* SSL Listen socket */
+#endif
 
 static int      websOpenCount;                  /* count of apps using this module */
 
 /**************************** Forward Declarations ****************************/
 
-static int      setHost();
+static int      setLocalHost();
 static int      websGetInput(webs_t wp, char_t **ptext, ssize *nbytes);
 static int      websParseFirst(webs_t wp, char_t *text);
 static void     websParseRequest(webs_t wp);
@@ -191,9 +193,6 @@ static time_t   getTimeSinceMark(webs_t wp);
 #if BIT_ACCESS_LOG
 static void     websLog(webs_t wp, int code);
 #endif
-#if BIT_DEBUG_TRACE
-static void     traceHandler(int level, char_t *buf);
-#endif
 #if BIT_IF_MODIFIED
 static time_t   dateParse(time_t tip, char_t *cmd);
 #endif
@@ -202,8 +201,10 @@ static time_t   dateParse(time_t tip, char_t *cmd);
 
 int websOpen()
 {
+    //  MOB - need generic runtime open: goOpen(), goClose()
+    traceOpen();
     socketOpen();
-    if (setHost() < 0) {
+    if (setLocalHost() < 0) {
         return -1;
     }
 #if BIT_PACK_SSL
@@ -220,10 +221,11 @@ void websClose()
 #endif
     websCloseServer();
     socketClose();
+    traceClose();
 }
 
 
-int websOpenServer(int port, char_t *documents)
+int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
 {
     websMimeType    *mt;
 
@@ -258,28 +260,10 @@ int websOpenServer(int port, char_t *documents)
     websFormOpen();
 
 #if BIT_ACCESS_LOG
-    //  MOB - refactor
-#if !VXWORKS
-    websLogFd = gopen(websLogname, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
-#else
-    websLogFd = gopen(websLogname, O_CREAT | O_TRUNC | O_WRONLY, 0666);
-    lseek(fd, 0, SEEK_END);
+    accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
+    a_assert(accessFd >= 0);
 #endif
-    a_assert(websLogFd >= 0);
-#endif
-    
-#if BIT_DEBUG_TRACE
-    //  MOB - refactor
-#if !VXWORKS
-    websTraceFd = gopen(websTracename, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
-#else
-    websTraceFd = gopen(websTracename, O_CREAT | O_TRUNC | O_WRONLY, 0666);
-    lseek(fd, 0, SEEK_END);
-#endif
-    a_assert(websTraceFd >= 0);
-    traceSetHandler(traceHandler);
-#endif  
-    return websOpenListen(port);
+    return websOpenListen(ip, port, sslPort);
 }
 
 
@@ -302,18 +286,11 @@ void websCloseServer()
     }
 
 #if BIT_ACCESS_LOG
-    if (websLogFd >= 0) {
-        close(websLogFd);
-        websLogFd = -1;
+    if (accessFd >= 0) {
+        close(accessFd);
+        accessFd = -1;
     }
 #endif
-#if BIT_DEBUG_TRACE
-    if (websTraceFd >= 0) {
-        close(websTraceFd);
-        websTraceFd = -1;
-    }
-#endif
-
 #if BIT_ROM
     websRomClose();
 #endif
@@ -324,9 +301,9 @@ void websCloseServer()
 }
 
 
-int websOpenListen(int port)
+int websOpenListen(char_t *ip, int port, int sslPort)
 {
-    if ((websListenSock = socketOpenConnection(NULL, port, websAccept, 0)) < 0) {
+    if ((websListenSock = socketOpenConnection(ip, port, websAccept, 0)) < 0) {
         error(E_L, E_USER, T("Couldn't open a socket on port %d"), port);
         return -1;
     } 
@@ -334,8 +311,8 @@ int websOpenListen(int port)
         Determine the full URL address to access the home page for this web server
      */
     websPort = port;
-    bfreeSafe(websHostUrl);
-    bfreeSafe(websIpaddrUrl);
+    bfree(websHostUrl);
+    bfree(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
     if (port == 80) {
         websHostUrl = bstrdup(websHost);
@@ -344,8 +321,29 @@ int websOpenListen(int port)
         fmtAlloc(&websHostUrl, WEBS_MAX_URL + 80, T("%s:%d"), websHost, port);
         fmtAlloc(&websIpaddrUrl, WEBS_MAX_URL + 80, T("%s:%d"), websIpaddr, port);
     }
-    trace(0, T("webs: Listening for HTTP requests at address %s\n"), websIpaddrUrl);
-    return port;
+    trace(0, T("Started HTTP service on %s:%d\n"), ip ? ip : "*", port);
+
+#if BIT_PACK_SSL
+    {
+        socket_t    *sptr;
+
+        if ((sslListenSock = socketOpenConnection(ip, sslPort, websAccept, SOCKET_MYOWNBUFFERS)) < 0) {
+            trace(0, T("SSL: Unable to open SSL socket on port %d.\n"), port);
+            return -1;
+        }
+        sptr = socketPtr(sslListenSock);
+        sptr->secure = 1;
+        trace(0, T("Started HTTPS service on %s:%d\n"), ip ? ip : "*", sslPort);
+    }
+#endif
+    return 0;
+}
+
+
+//  MOB- naming
+int websSSLIsOpen()
+{
+    return (sslListenSock != -1);
 }
 
 
@@ -355,19 +353,19 @@ void websCloseListen()
         socketCloseConnection(websListenSock);
         websListenSock = -1;
     }
-    bfreeSafe(websHostUrl);
-    bfreeSafe(websIpaddrUrl);
+    bfree(websHostUrl);
+    bfree(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
 }
 
 
 int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
-    webs_t  wp;
-    int     wid;
-    struct sockaddr_in      ifAddr;
-    int len;
-    char *pString;
+    webs_t      wp;
+    socket_t    *lp;
+    int         wid, len;
+    char        *pString;
+    struct sockaddr_in ifAddr;
 
     a_assert(ipaddr && *ipaddr);
     a_assert(sid >= 0);
@@ -382,14 +380,15 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     wp = webs[wid];
     a_assert(wp);
     wp->listenSid = listenSid;
+    lp = socketPtr(wp->sid);
 
     ascToUni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
 
     /*
-        Get the ip address of the interface that acept the connection.
+        Get the ip address of the interface that accept the connection.
      */
     len = sizeof(struct sockaddr_in);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr *)&ifAddr, (socklen_t *) &len) < 0) {
+    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (socklen_t*) &len) < 0) {
         return -1;
     }
     pString = inet_ntoa(ifAddr.sin_addr);
@@ -399,22 +398,23 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
         operations only for local access 
      */
-    if (gstrcmp(wp->ipaddr, T("127.0.0.1")) == 0 || 
-            gstrcmp(wp->ipaddr, websIpaddr) == 0 || 
+    if (gstrcmp(wp->ipaddr, T("127.0.0.1")) == 0 || gstrcmp(wp->ipaddr, websIpaddr) == 0 || 
             gstrcmp(wp->ipaddr, websHost) == 0) {
         wp->flags |= WEBS_LOCAL_REQUEST;
     }
-
+    if (lp->secure) {
+        wp->flags |= WEBS_SECURE;
+    }
     /*
         Arrange for websSocketEvent to be called when read data is available
      */
-    socketCreateHandler(sid, SOCKET_READABLE, websSocketEvent, wp);
+    socketCreateHandler(sid, SOCKET_READABLE, (lp->secure) ? websSSLSocketEvent : websSocketEvent, wp);
 
     /*
         Arrange for a timeout to kill hung requests
      */
     wp->timeout = emfSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
-    trace(8, T("webs: accept request\n"));
+    trace(8, T("accept request\n"));
     return 0;
 }
 
@@ -457,35 +457,25 @@ void websReadEvent(webs_t wp)
     a_assert(wp);
     a_assert(websValid(wp));
 
+    text = NULL;
+    fd = -1;
     websSetTimeMark(wp);
 
     /*
         Read as many lines as possible. socketGets is called to read the header and socketRead is called to read posted
         data.  
      */
-    text = NULL;
-    fd = -1;
     for (done = 0; !done; ) {
-        if (text) {
-            bfree(text);
-            text = NULL;
-        }
-
+        bfree(text);
+        text = NULL;
         /*
              Get more input into "text". Returns 0, if more data is needed to continue, -1 if finished with the request,
              or 1 if all required data is available for current state.
          */
-        while ((rc = websGetInput(wp, &text, &nbytes)) == 0) {
-            ;
-        }
-
-        /*
-            websGetInput returns -1 if it finishes with the request
-         */
+        while ((rc = websGetInput(wp, &text, &nbytes)) == 0) { }
         if (rc < 0) {
             break;
         }
-
         /*
             This is the state machine for the web server. 
          */
@@ -517,13 +507,10 @@ void websReadEvent(webs_t wp)
                 the cgi stdin.
              */
 #if BIT_CGI
+            //  MOB - refactor as a handler 
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
-#if !WIN
                     fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
-#else
-                    _sopen_s(&fd, wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
                 }
                 gwrite(fd, text, nbytes);
             } else 
@@ -540,11 +527,7 @@ void websReadEvent(webs_t wp)
                         size = (len + gstrlen(text) + 2) * sizeof(char_t);
                         wp->query = brealloc(wp->query, size);
                         wp->query[len++] = '&';
-#if !WIN
                         strcpy(&wp->query[len], text);
-#else
-                        strcpy_s(&wp->query[len], size - len, text);
-#endif
                     }
 
                 } else {
@@ -553,15 +536,9 @@ void websReadEvent(webs_t wp)
                      */
                     if (text != NULL) {
                         len = gstrlen(wp->query);
-                        size = (len +   gstrlen(text) + 1) * sizeof(char_t);
+                        size = (len +  gstrlen(text) + 1) * sizeof(char_t);
                         wp->query = brealloc(wp->query, size);
-                        if (wp->query) {
-#if !WIN
-                            gstrcpy(&wp->query[len], text);
-#else
-                            strcpy_s(&wp->query[len], size - len, text);
-#endif
-                        }
+                        gstrcpy(&wp->query[len], text);
                     }
                 }
 
@@ -597,14 +574,10 @@ void websReadEvent(webs_t wp)
                 socketGets was used to get the data and it strips \n's so add them back in here.
              */
 #if BIT_CGI
+            //  MOB - refactor CGI to a handler
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
-                    //  MOB - refactor and push into gopen
-#if !WIN
                     fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
-#else
-                    _sopen_s(&fd, wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
                 }
                 gwrite(fd, text, nbytes);
                 gwrite(fd, T("\n"), sizeof(char_t));
@@ -616,11 +589,7 @@ void websReadEvent(webs_t wp)
                 wp->query = brealloc(wp->query, size);
                 if (wp->query) {
                     wp->query[len++] = '&';
-#if !WIN
                     gstrcpy(&wp->query[len], text);
-#else
-                    strcpy_s(&wp->query[len], size - len, text);
-#endif
                 }
 
             } else {
@@ -639,9 +608,7 @@ void websReadEvent(webs_t wp)
     if (fd != -1) {
         fd = gclose (fd);
     }
-    if (text) {
-        bfree(text);
-    }
+    bfree(text);
 }
 
 
@@ -679,8 +646,9 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
     if (len > 0) {
 
 #if BIT_PACK_SSL
+        //  MOB - have wrapper. Call websRead()
         if (wp->flags & WEBS_SECURE) {
-            nbytes = websSSLRead(wp->wsp, buf, len);
+            nbytes = websSSLRead(wp, buf, len);
         } else {
             nbytes = socketRead(wp->sid, buf, len);
         }
@@ -715,7 +683,7 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
     } else {
 #if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
-            nbytes = websSSLGets(wp->wsp, &text);
+            nbytes = websSSLGets(wp, &text);
         } else {
             nbytes = socketGets(wp->sid, &text);
         }
@@ -736,7 +704,7 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
                 if (wp->state == WEBS_BEGIN) {
                     eof = 1;
                 } else {
-                    eof = websSSLEof(wp->wsp);
+                    eof = websSSLEof(wp);
                 }
             } else {
                 eof = socketEof(wp->sid);
@@ -754,21 +722,25 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
                     websUrlHandlerRequest(wp);
                 } else {
                     websDone(wp, 0);
+                    return -1;
                 }
+            } else if (wp->state == WEBS_HEADER){
+                /*
+                 If state is WEBS_HEADER and the ringq is empty, then this is a simple request with no additional header
+                 fields to process and no empty line terminator. NOTE: this fix for earlier versions of browsers is
+                 troublesome because if we don't receive the entire header in the first pass this code assumes we were
+                 only expecting a one line header, which is not necessarily the case. So we weren't processing the whole
+                 header and weren't fufilling requests properly.
+                 */
+                return -1;
             } else {
                 /*
                     If an error occurred and it wasn't an eof, close the connection
+                    MOB - 
                  */
                 websDone(wp, 0);
+                return -1;
             }
-            /*
-                If state is WEBS_HEADER and the ringq is empty, then this is a simple request with no additional header
-                fields to process and no empty line terminator. NOTE: this fix for earlier versions of browsers is
-                troublesome because if we don't receive the entire header in the first pass this code assumes we were
-                only expecting a one line header, which is not necessarily the case. So we weren't processing the whole
-                header and weren't fufilling requests properly. 
-            */
-            return -1;
 
         } else if (nbytes == 0) {
             if (wp->state == WEBS_HEADER) {
@@ -864,6 +836,7 @@ static int websParseFirst(webs_t wp, char_t *text)
     wp->url = bstrdup(url);
 
 #if BIT_CGI
+    //  MOB - refactor as a handler
     if (gstrstr(url, CGI_BIN) != NULL) {
         wp->flags |= WEBS_CGI_REQUEST;
         if (wp->flags & WEBS_POST_REQUEST) {
@@ -876,7 +849,9 @@ static int websParseFirst(webs_t wp, char_t *text)
     wp->path = bstrdup(path);
     wp->protocol = bstrdup(proto);
     wp->protoVersion = bstrdup(protoVer);
-    
+    if (strcmp(protoVer, "HTTP/1.1") == 0) {
+        wp->flags |= WEBS_KEEP_ALIVE;
+    }
     if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
         wp->port = testPort;
     } else {
@@ -949,9 +924,6 @@ static void websParseRequest(webs_t wp)
         if (gstrcmp(key, T("user-agent")) == 0) {
             wp->userAgent = bstrdup(value);
 
-        /*
-            Parse the user authorization. ie. password
-         */
         } else if (gstricmp(key, T("authorization")) == 0) {
             /*
                 Determine the type of Authorization Request
@@ -1131,7 +1103,7 @@ static void websParseRequest(webs_t wp)
             if ((wp->since = dateParse(tip, cmd)) != 0) {
                 wp->flags |= WEBS_IF_MODIFIED;
             }
-            bfreeSafe(cmd);
+            bfree(cmd);
 #endif /* WEBS_IF_MODIFIED_SUPPORT */
         }
     }
@@ -1180,7 +1152,7 @@ void websSetEnv(webs_t wp)
     websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
     fmtAlloc(&value, FNAMESIZE, T("GoAhead/%s"), BIT_VERSION);
     websSetVar(wp, T("SERVER_SOFTWARE"), value);
-    bfreeSafe(value);
+    bfree(value);
     websSetVar(wp, T("SERVER_PROTOCOL"), wp->protoVersion);
 
     /*
@@ -1204,7 +1176,7 @@ void websSetEnv(webs_t wp)
             if ((valCheck = websGetVar(wp, keyword, NULL)) != 0) {
                 fmtAlloc(&valNew, 256, T("%s %s"), valCheck, value);
                 websSetVar(wp, keyword, valNew);
-                bfreeSafe(valNew);
+                bfree(valNew);
             } else {
                 websSetVar(wp, keyword, value);
             }
@@ -1432,8 +1404,8 @@ void websRedirect(webs_t wp, char_t *url)
         </body></html>\r\n"), url);
 
     websResponse(wp, 302, msgbuf, url);
-    bfreeSafe(msgbuf);
-    bfreeSafe(urlbuf);
+    bfree(msgbuf);
+    bfree(urlbuf);
 }
 
 
@@ -1529,7 +1501,7 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
     websStats.errors++;
 
     safeUrl = websSafeUrl(wp->url);
-    bfreeSafe(wp->url);
+    bfree(wp->url);
     wp->url = safeUrl;
 
     va_start(args, fmt);
@@ -1537,7 +1509,7 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
     fmtValloc(&userMsg, WEBS_BUFSIZE, fmt, args);
     va_end(args);
     safeMsg = websSafeUrl(userMsg);
-    bfreeSafe(userMsg);
+    bfree(userMsg);
     userMsg = safeMsg;
     safeMsg  = NULL;
 
@@ -1547,8 +1519,8 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
     buf = NULL;
     fmtAlloc(&buf, WEBS_BUFSIZE, msg, websErrorMsg(code), websErrorMsg(code), userMsg);
     websResponse(wp, code, buf, NULL);
-    bfreeSafe(buf);
-    bfreeSafe(userMsg);
+    bfree(buf);
+    bfree(userMsg);
 }
 
 
@@ -1585,7 +1557,7 @@ ssize websWrite(webs_t wp, char_t *fmt, ...)
     buf = NULL;
     rc = 0;
     if (fmtValloc(&buf, WEBS_BUFSIZE, fmt, vargs) >= WEBS_BUFSIZE) {
-        trace(0, T("webs: websWrite lost data, buffer overflow\n"));
+        trace(0, T("websWrite lost data, buffer overflow\n"));
     }
     va_end(vargs);
     a_assert(buf);
@@ -1625,12 +1597,13 @@ ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
     while (nChars > 0) {  
 #if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
-            if ((len = websSSLWrite(wp->wsp, pBuf, nChars)) < 0) {
+            if ((len = websSSLWrite(wp, pBuf, nChars)) < 0) {
                 bfree(asciiBuf);
                 return -1;
             }
-            websSSLFlush(wp->wsp);
+            websSSLFlush(wp);
         } else {
+            //  MOB - refactor duplicate
             if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
                 bfree(asciiBuf);
                 return -1;
@@ -1671,9 +1644,10 @@ ssize websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars)
 
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
-        r = websSSLWrite(wp->wsp, buf, nChars);
-        websSSLFlush(wp->wsp);
+        r = websSSLWrite(wp, buf, nChars);
+        websSSLFlush(wp);
     } else {
+        //  MOB - refactor duplicate
         r = socketWrite(wp->sid, buf, nChars);
         socketFlush(wp->sid);
     }
@@ -1793,27 +1767,12 @@ static void websLog(webs_t wp, int code)
 #endif
     len = gstrlen(buf);
     abuf = ballocUniToAsc(buf, len+1);
-    write(websLogFd, abuf, len);
-    bfreeSafe(buf);
-    bfreeSafe(abuf);
+    write(accessFd, abuf, len);
+    bfree(buf);
+    bfree(abuf);
 }
 #endif
 
-
-#if BIT_DEBUG_TRACE
-static void traceHandler(int level, char_t *buf)
-{
-    char    *abuf;
-    ssize   len;
-
-    if (level <= BIT_TRACE_LEVEL) {    
-        len = gstrlen(buf);
-        abuf = ballocUniToAsc(buf, len+1);
-        write(websTraceFd, abuf, len);
-        bfreeSafe(abuf);
-    }
-}
-#endif
 
 /*
     Request timeout. The timeout triggers if we have not read any data from the users browser in the last WEBS_TIMEOUT
@@ -1828,12 +1787,9 @@ void websTimeout(void *arg, int id)
     a_assert(websValid(wp));
 
     tm = getTimeSinceMark(wp) * 1000;
-    if (tm >= WEBS_TIMEOUT) {
+    if (tm >= WEBS_TIMEOUT && !websDebug) {
         websStats.timeouts++;
         emfUnschedCallback(id);
-        /*
-            Clear the timeout id
-         */
         wp->timeout = -1;
         websDone(wp, 404);
     } else {
@@ -1871,7 +1827,7 @@ void websDone(webs_t wp, int code)
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         websTimeoutCancel(wp);
-        websSSLFlush(wp->wsp);
+        websSSLFlush(wp);
         socketCloseConnection(wp->sid);
         websFree(wp);
         return;
@@ -1919,26 +1875,6 @@ int websAlloc(int sid)
     wp->state = WEBS_BEGIN;
     wp->docfd = -1;
     wp->timeout = -1;
-    wp->dir = NULL;
-    wp->authType = NULL;
-    wp->protocol = NULL;
-    wp->protoVersion = NULL;
-    wp->password = NULL;
-    wp->userName = NULL;
-#if BIT_DIGEST_AUTH
-    wp->realm = NULL;
-    wp->nonce = NULL;
-    wp->digest = NULL;
-    wp->uri = NULL;
-    wp->opaque = NULL;
-    wp->nc = NULL;
-    wp->cnonce = NULL;
-    wp->qop = NULL;
-#endif
-#if BIT_PACK_SSL
-    wp->wsp = NULL;
-#endif
-
     ringqOpen(&wp->header, WEBS_HEADER_BUFINC, WEBS_MAX_HEADER);
 
     /*
@@ -1946,7 +1882,6 @@ int websAlloc(int sid)
         functions. The function table is common to all webs instances (ie. all browsers)
      */
     wp->cgiVars = symOpen(WEBS_SYM_INIT);
-
     return wid;
 }
 
@@ -1984,7 +1919,7 @@ void websFree(webs_t wp)
     bfree(wp->qop);
 #endif
 #if BIT_PACK_SSL
-    websSSLFree(wp->wsp);
+    websSSLFree(wp);
 #endif
     symClose(wp->cgiVars);
 
@@ -2109,7 +2044,7 @@ ssize websGetRequestWritten(webs_t wp)
 }
 
 
-static int setHost()
+static int setLocalHost()
 {
     struct hostent  *hp;
     struct in_addr  intaddr;
@@ -2120,15 +2055,23 @@ static int setHost()
         error(E_L, E_LOG, T("Can't get hostname"));
         return -1;
     }
+#if VXWORKS
+    intaddr.s_addr = (ulong) hostGetByName(host);
+    cp = inet_ntoa(intaddr);
+#elif ECOS
+    cp = inet_ntoa(eth0_bootp_data.bp_yiaddr);
+#else
     if ((hp = gethostbyname(host)) == NULL) {
         error(E_L, E_LOG, T("Can't get host address"));
         return -1;
     }
     memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
     cp = inet_ntoa(intaddr);
+#endif
+    //  MOB - OPT so don't copy if not unicode
     ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    free(cp);
     websSetIpaddr(wbuf);
-    ascToUni(wbuf, host, min(strlen(host) + 1, sizeof(wbuf)));
     websSetHost(wbuf);
     return 0;
 }
@@ -2144,7 +2087,7 @@ void websSetHostUrl(char_t *url)
 {
     a_assert(url && *url);
 
-    bfreeSafe(websHostUrl);
+    bfree(websHostUrl);
     websHostUrl = gstrdup(url);
 }
 
@@ -3043,7 +2986,7 @@ char_t *websCalcNonce(webs_t wp)
 
     a_assert(prenonce);
     nonce = websMD5(prenonce);
-    bfreeSafe(prenonce);
+    bfree(prenonce);
     return nonce;
 }
 
@@ -3080,7 +3023,7 @@ char_t *websCalcDigest(webs_t wp)
     fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
     a_assert(a1);
     a1prime = websMD5(a1);
-    bfreeSafe(a1);
+    bfree(a1);
 
     /*
         Calculate second portion of digest H(A2)
@@ -3091,7 +3034,7 @@ char_t *websCalcDigest(webs_t wp)
     fmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri); 
     a_assert(a2);
     a2prime = websMD5(a2);
-    bfreeSafe(a2);
+    bfree(a2);
 
     /*
         Construct final digest KD(H(A1):nonce:H(A2))
@@ -3110,9 +3053,9 @@ char_t *websCalcDigest(webs_t wp)
 
     a_assert(preDigest);
     digest = websMD5(preDigest);
-    bfreeSafe(a1prime);
-    bfreeSafe(a2prime);
-    bfreeSafe(preDigest);
+    bfree(a1prime);
+    bfree(a2prime);
+    bfree(preDigest);
     return digest;
 }
 
@@ -3135,7 +3078,7 @@ char_t *websCalcUrlDigest(webs_t wp)
     fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
     a_assert(a1);
     a1prime = websMD5(a1);
-    bfreeSafe(a1);
+    bfree(a1);
 
     /*
         Calculate second portion of digest H(A2)
@@ -3146,7 +3089,7 @@ char_t *websCalcUrlDigest(webs_t wp)
     a_assert(a2);
     gsprintf(a2, T("%s:%s"), method, wp->url);
     a2prime = websMD5(a2);
-    bfreeSafe(a2);
+    bfree(a2);
 
     /*
         Construct final digest KD(H(A1):nonce:H(A2))
@@ -3167,9 +3110,9 @@ char_t *websCalcUrlDigest(webs_t wp)
     /*
         Now clean up
      */
-    bfreeSafe(a1prime);
-    bfreeSafe(a2prime);
-    bfreeSafe(preDigest);
+    bfree(a1prime);
+    bfree(a2prime);
+    bfree(preDigest);
     return digest;
 }
 
@@ -3180,17 +3123,9 @@ char_t *websCalcUrlDigest(webs_t wp)
  */
 int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 {
-    //  MOB
-#if WIN
-    errno_t error;
-#endif
     a_assert(websValid(wp));
-
 #if BIT_ROM
     return websRomPageOpen(wp, path, mode, perm);
-#elif WIN
-    error = _sopen_s(&(wp->docfd), lpath, mode, _SH_DENYNO, _S_IREAD);
-    return (wp->docfd = gopen(lpath, mode, _S_IREAD));
 #else
     return (wp->docfd = gopen(lpath, mode, perm));
 #endif

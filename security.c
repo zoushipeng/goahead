@@ -50,6 +50,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
 
     /*
         Get the access limit for the URL.  Exit if none found.
+        MOB OPT - move above
      */
     accessLimit = umGetAccessLimit(path);
     if (accessLimit == NULL) {
