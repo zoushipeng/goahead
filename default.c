@@ -19,16 +19,7 @@ static char_t   *websDefaultDir;            /* Default Web page directory */
 /**************************** Forward Declarations ****************************/
 #define MAX_URL_DEPTH           8   /* Max directory depth of websDefaultDir */
 
-//  MOB - get whitelist out of here
 #if BIT_WHITELIST
-
-#ifndef WIN
-#include <dirent.h>
-#endif
-
-//  MOB - move to goahead.h
-#define WHITELIST_BLOCKED   0x100   /* File is in list, but inaccessible */
-#define WHITELIST_DIR       0x200   /* Node is a Directory */
 
 #if BIT_PACK_SSL
 typedef struct _sslList {

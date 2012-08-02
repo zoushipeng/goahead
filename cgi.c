@@ -27,6 +27,7 @@ typedef struct {                /* Struct for CGI tasks which have completed */
     int     handle;             /* process handle of the task */
     long    fplacemark;         /* seek location for CGI output file */
 } cgiRec;
+
 static cgiRec   **cgiList;      /* hAlloc chain list of wp's to be closed */
 static int      cgiMax;         /* Size of hAlloc list */
 
@@ -81,10 +82,8 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     if ((cp = gstrchr(cgiName, '/')) != NULL) {
         *cp = '\0';
     }
-    fmtAlloc(&cgiPath, FNAMESIZE, T("%s/%s/%s"), websGetDefaultDir(),
-        CGI_BIN, cgiName);
+    fmtAlloc(&cgiPath, FNAMESIZE, T("%s/%s/%s"), websGetDefaultDir(), CGI_BIN, cgiName);
 #if !VXWORKS
-
     /*
         See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
         may already be part of the OS image, rather than in the file system.
@@ -108,12 +107,12 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         }
     }
 #endif /* ! VXWORKS */
-
          
     /*
         Get the CWD for resetting after launching the child process CGI
      */
     ggetcwd(cwd, FNAMESIZE);
+
     /*
         Retrieve the directory of the child process CGI
      */
@@ -157,13 +156,13 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     envpsize = WEBS_SYM_INIT;
     envp = balloc(envpsize * sizeof(char_t *));
     n = 0;
-    fmtAlloc(envp+n, FNAMESIZE, T("%s=%s"),T("PATH_TRANSLATED"), cgiPath);
+    fmtAlloc(envp + n, FNAMESIZE, T("%s=%s"),T("PATH_TRANSLATED"), cgiPath);
     n++;
-    fmtAlloc(envp+n, FNAMESIZE, T("%s=%s/%s"),T("SCRIPT_NAME"), CGI_BIN, cgiName);
+    fmtAlloc(envp + n, FNAMESIZE, T("%s=%s/%s"),T("SCRIPT_NAME"), CGI_BIN, cgiName);
     n++;
-    fmtAlloc(envp+n, FNAMESIZE, T("%s=%s"),T("REMOTE_USER"), wp->userName);
+    fmtAlloc(envp + n, FNAMESIZE, T("%s=%s"),T("REMOTE_USER"), wp->userName);
     n++;
-    fmtAlloc(envp+n, FNAMESIZE, T("%s=%s"),T("AUTH_TYPE"), wp->authType);
+    fmtAlloc(envp + n, FNAMESIZE, T("%s=%s"),T("AUTH_TYPE"), wp->authType);
     n++;
     for (s = symFirst(wp->cgiVars); s != NULL; s = symNext(wp->cgiVars)) {
         if (s->content.valid && s->content.type == string &&
@@ -238,9 +237,7 @@ void websCgiGatherOutput (cgiRec *cgip)
     if ((gstat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
         if ((fdout = gopen(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
             /*
-                 Check to see if any data is available in the output file and send its contents to the socket.
-             */
-            /*
+                Check to see if any data is available in the output file and send its contents to the socket.
                 Write the HTTP header on our first pass
              */
             wp = cgip->wp;
@@ -263,10 +260,11 @@ void websCgiGatherOutput (cgiRec *cgip)
  */
 void websCgiCleanup()
 {
-    cgiRec  *cgip;
-    webs_t  wp;
-    char_t  **ep;
-    int     cid, nTries;
+    webs_t      wp;
+    cgiRec      *cgip;
+    char_t      **ep;
+    int         cid, nTries;
+
     for (cid = 0; cid < cgiMax; cid++) {
         if ((cgip = cgiList[cid]) != NULL) {
             wp = cgip->wp;
@@ -341,7 +339,6 @@ char_t *websGetCgiCommName()
     //  MOB
 #if 0  
     char_t  *pname1, *pname2;
-
     pname1 = gtmpnam(NULL, T("cgi"));
     pname2 = bstrdup(pname1);
     free(pname1);
@@ -372,7 +369,6 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
             cgiPath[i] = '\\';
         }
     }
-
     fulldir = NULL;
     dwCreateFlags = CREATE_NEW_CONSOLE;
 
@@ -392,10 +388,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
         NULL,               /*  Current directory name           */
         NULL,               /*  STARTUPINFO                      */
         &procinfo);         /*  PROCESS_INFORMATION              */
-
     if (bReturn == 0) {
-        DWORD dw;
-        dw = GetLastError();
         return -1;
     } else {
         CloseHandle(procinfo.hThread);
@@ -413,7 +406,6 @@ int websCheckCgiProc(int handle)
     DWORD   exitCode;
 
     nReturn = GetExitCodeProcess((HANDLE)handle, &exitCode);
-
     /*
         We must close process handle to free up the window resource, but only when we're done with it.
      */
@@ -421,15 +413,11 @@ int websCheckCgiProc(int handle)
         CloseHandle((HANDLE)handle);
         return 0;
     }
-
     return 1;
 }
 #endif /* CE */
 
-//  MOB - refactor
 #if BIT_UNIX_LIKE || QNX
-#include <sys/wait.h>
-
 /*
      Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
      with bfree(); 
@@ -465,12 +453,10 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
             if pid == 0, then we are in the child process
          */
         if (execve(cgiPath, argp, envp) == -1) {
-            printf("content-type: text/html\n\n"
-                "Execution of cgi process failed\n");
+            printf("content-type: text/html\n\nExecution of cgi process failed\n");
         }
         exit (0);
     }
-
 DONE:
     if (hstdout >= 0) {
         dup2(hstdout, 1);
@@ -525,32 +511,23 @@ char_t *websGetCgiCommName()
 
 /******************************************************************************/
 /*
-    Launch the CGI process and return a handle to it. Process spawning
-    is not supported in VxWorks.  Instead, we spawn a "task".  A major
-    difference is that we have to know the entry point for the taskSpawn
-    API.  Also the module may have to be loaded before being executed;
-    it may also be part of the OS image, in which case it cannot be
-    loaded or unloaded.  The following sequence is used:
+    Launch the CGI process and return a handle to it. Process spawning is not supported in VxWorks.  Instead, we spawn a
+    "task".  A major difference is that we have to know the entry point for the taskSpawn API.  Also the module may have
+    to be loaded before being executed; it may also be part of the OS image, in which case it cannot be loaded or
+    unloaded.  
+    The following sequence is used:
     1. If the module is already loaded, unload it from memory.
-    2. Search for a query string keyword=value pair in the environment
-        variables where the keyword is cgientry.  If found use its value
-        as the the entry point name.  If there is no such pair set
-        the entry point name to the default: basename_cgientry, where
-        basename is the name of the cgi file without the extension.  Use
-        the entry point name in a symbol table search for that name to
-        use as the entry point address.  If successful go to step 5.
+    2. Search for a query string keyword=value pair in the environment variables where the keyword is cgientry.  If
+        found use its value as the the entry point name.  If there is no such pair set the entry point name to the
+        default: basename_cgientry, where basename is the name of the cgi file without the extension.  Use the entry
+        point name in a symbol table search for that name to use as the entry point address.  If successful go to step 5.
     3. Try to load the module into memory.  If not successful error out.
-    4. If step 3 is successful repeat the entry point search from step
-        2.  If the entry point exists, go to step 5.  If it does not,
-        error out.
-    5. Use taskSpawn to start a new task which uses vxWebsCgiEntry
-        as its starting point.  The five arguments to vxWebsCgiEntry
-        will be the user entry point address, argp, envp, stdIn
-        and stdOut.  vxWebsCgiEntry will convert argp to an argc
-        argv pair to pass to the user entry, it will initialize the
-        task environment with envp, it will open and redirect stdin
-        and stdout to stdIn and stdOut, and then it will call the
-        user entry.
+    4. If step 3 is successful repeat the entry point search from step 2. If the entry point exists, go to step 5.  If
+        it does not, error out.
+    5. Use taskSpawn to start a new task which uses vxWebsCgiEntry as its starting point. The five arguments to
+        vxWebsCgiEntry will be the user entry point address, argp, envp, stdIn and stdOut.  vxWebsCgiEntry will convert
+        argp to an argc argv pair to pass to the user entry, it will initialize the task environment with envp, it will
+        open and redirect stdin and stdout to stdIn and stdOut, and then it will call the user entry.
     6.  Return the taskSpawn return value.
  */
 int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut)
@@ -560,7 +537,7 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     int         priority, rc, fd;
 
     /*
-     *  Determine the basename, which is without path or the extension.
+        Determine the basename, which is without path or the extension.
      */
     if ((int)(p = gstrrchr(cgiPath, '/') + 1) == 1) {
         p = cgiPath;
@@ -569,7 +546,6 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     if ((p = gstrrchr(basename, '.')) != NULL) {
         *p = '\0';
     }
-
     /*
         Unload the module, if it is already loaded.  Get the current task priority.
      */
@@ -619,7 +595,6 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
             (int)entryAddr, (int)argp, (int)envp, (int)stdIn, (int)stdOut,
             0, 0, 0, 0, 0);
     }
-
 DONE:
     if (fd != -1) {
         gclose(fd);
@@ -651,10 +626,8 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv),
     }
     ioTaskStdSet(taskId, 1, fdout);
 
-    if ((fdin = gopen(stdIn, O_RDONLY | O_CREAT, 0666)) < 0 &&
-            (fdin = creat(stdIn, O_RDWR)) < 0) {
-        printf("content-type: text/html\n\n"
-                "Can not create CGI stdin to %s\n", stdIn);
+    if ((fdin = gopen(stdIn, O_RDONLY | O_CREAT, 0666)) < 0 && (fdin = creat(stdIn, O_RDWR)) < 0) {
+        printf("content-type: text/html\n\n" "Can not create CGI stdin to %s\n", stdIn);
         gclose(fdout);
         exit (0);
     }
@@ -663,15 +636,13 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv),
     /*
         Count the number of entries in argv
      */
-    for (argc = 0, p = argp; p != NULL && *p != NULL; p++, argc++) {
-    }
+    for (argc = 0, p = argp; p != NULL && *p != NULL; p++, argc++) { }
 
     /*
         Create a private envirnonment and copy the envp strings to it.
      */
     if (envPrivateCreate(taskId, -1) != OK) {
-        printf("content-type: text/html\n\n"
-            "Can not create CGI environment space\n");
+        printf("content-type: text/html\n\n" "Can not create CGI environment space\n");
         gclose(fdin);
         gclose(fdout);
         exit (0);
@@ -723,8 +694,8 @@ int websCheckCgiProc(int handle)
 static uchar *tableToBlock(char **table)
 {
     uchar   *pBlock;        /*  Allocated block */
-    char    *pEntry;        /*  Pointer into block      */
-    size_t  sizeBlock;      /*  Size of table           */
+    char    *pEntry;        /*  Pointer into block */
+    size_t  sizeBlock;      /*  Size of table */
     int     index;          /*  Index into string table */
 
     a_assert(table);
@@ -736,15 +707,13 @@ static uchar *tableToBlock(char **table)
     for (index = 0; table[index]; index++) {
         sizeBlock += strlen(table[index]) + 1;
     }
-
     /*
         Allocate the data block and fill it with the strings                   
      */
     pBlock = balloc(sizeBlock);
 
     if (pBlock != NULL) {
-        pEntry = (char *) pBlock;
-
+        pEntry = (char*) pBlock;
         for (index = 0; table[index]; index++) {
             strcpy(pEntry, table[index]);
             pEntry += strlen(pEntry) + 1;
@@ -754,7 +723,6 @@ static uchar *tableToBlock(char **table)
          */
         *pEntry = '\0';              
     }
-
     return pBlock;
 }
 
@@ -799,7 +767,6 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
             cgiPath[i] = '\\';
         }
     }
-
     /*
         Calculate length of command line
      */
@@ -848,14 +815,9 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     /*
         Stdout file is created and file pointer is reset to start.
      */
-    newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE,
-        FILE_SHARE_READ + FILE_SHARE_WRITE, &security, OPEN_ALWAYS,
-        FILE_ATTRIBUTE_NORMAL, NULL);
+    newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE, 
+            &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     SetFilePointer (newinfo.hStdOutput, 0, NULL, FILE_END);
-
-    /*
-        Stderr file is set to Stdout.
-     */
     newinfo.hStdError = newinfo.hStdOutput;
 
     dwCreateFlags = CREATE_NEW_CONSOLE;
@@ -915,11 +877,10 @@ int websCheckCgiProc(int handle)
         CloseHandle((HANDLE)handle);
         return 0;
     }
-
     return 1;
 }
-
 #endif /* WIN */
+
 /*
     @copy   default
 

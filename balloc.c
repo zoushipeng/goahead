@@ -29,13 +29,13 @@
 /*
     bQhead blocks are created as the original memory allocation is freed up. See bfree.
  */
-static bType            *bQhead[B_MAX_CLASS];   /* Per class block q head */
-static char             *bFreeBuf;              /* Pointer to free memory */
-static char             *bFreeNext;             /* Pointer to next free mem */
-static int              bFreeSize;              /* Size of free memory */
-static int              bFreeLeft;              /* Size of free left for use */
-static int              bFlags = B_USE_MALLOC;  /* Default to auto-malloc */
-static int              bopenCount = 0;         /* Num tasks using balloc */
+static bType    *bQhead[B_MAX_CLASS];   /* Per class block q head */
+static char     *bFreeBuf;              /* Pointer to free memory */
+static char     *bFreeNext;             /* Pointer to next free mem */
+static int      bFreeSize;              /* Size of free memory */
+static int      bFreeLeft;              /* Size of free left for use */
+static int      bFlags = B_USE_MALLOC;  /* Default to auto-malloc */
+static int      bopenCount = 0;         /* Num tasks using balloc */
 
 /*************************** Forward Declarations *****************************/
 
@@ -292,9 +292,14 @@ static int ballocGetSize(int size, int *q)
 
 
 #else /* !BIT_REPLACE_MALLOC */
+
+/*
+    Stubs
+ */
 int bopen(void *buf, int bufsize, int flags) { return 0; }
 void bclose() { }
 
+//  MOB - rename
 char_t *bstrdupNoBalloc(char_t *s)
 {
 #if UNICODE

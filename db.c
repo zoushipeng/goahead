@@ -424,7 +424,6 @@ int dbReadInt(int did, char_t *table, char_t *column, int row, int *returnValue)
     if (tid < 0) {
         return DB_ERR_TABLE_NOT_FOUND;
     }
-
     pTable = dbListTables[tid];
     if (pTable == NULL) {
         return DB_ERR_TABLE_DELETED;
@@ -434,7 +433,6 @@ int dbReadInt(int did, char_t *table, char_t *column, int row, int *returnValue)
     if ((row >= 0) && (row < pTable->nRows)) {
         colIndex = GetColumnIndex(tid, column);
         a_assert(colIndex >= 0);
-
         if (colIndex >= 0) {
             pRow = pTable->rows[row];
             if (pRow) {
@@ -467,18 +465,10 @@ int dbWriteInt(int did, char_t *table, char_t *column, int row, int iData)
     a_assert(table);
     a_assert(column);
 
-    /*
-        Make sure that this table exists
-     */
-    tid = dbGetTableId(0, table);
-    a_assert(tid >= 0);
-
-    if (tid < 0) {
+    if ((tid = dbGetTableId(0, table)) < 0) {
         return DB_ERR_TABLE_NOT_FOUND;
     }
-
     pTable = dbListTables[tid];
-    
     if (pTable) {
         /*
             Make sure that the column exists
@@ -521,10 +511,7 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
     a_assert(table);
     a_assert(column);
 
-    tid = dbGetTableId(0, table);
-    a_assert(tid >= 0);
-
-    if (tid < 0) {
+    if ((tid = dbGetTableId(0, table)) < 0) {
         return DB_ERR_TABLE_NOT_FOUND;
     }
     /*
@@ -535,7 +522,6 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
     if (!pTable) {
         return DB_ERR_TABLE_DELETED;
     }
-
     /*
         Make sure that this column exists
      */
@@ -550,7 +536,6 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
     if (pTable->columnTypes[colIndex] != T_STRING) {
         return DB_ERR_BAD_FORMAT;
     }
-
     /*
         Make sure that the row exists
      */
@@ -717,18 +702,15 @@ static int crack(char_t *buf, char_t **key, char_t **val)
             (ptr = gstrrchr(buf, '\r')) != NULL) {
         *ptr = '\0';
     }
-
     /*
         Find the = sign. It must exist.
      */
     if ((ptr = gstrstr(buf, T("="))) == NULL) {
         return -1;
     }
-
     *ptr++ = '\0';
     *key = trim(buf);
     *val = trim(ptr);
-
     return 0;
 }
 
@@ -841,12 +823,8 @@ int dbLoad(int did, char_t *filename, int flags)
         }
     } while ((ptr = gstrtok(NULL, T("\n"))) != NULL);
 
-    if (tablename) {
-        bfree(tablename);
-    }
-
+    bfree(tablename);
     bfree(buf);
-
     return 0;
 }
 
@@ -868,7 +846,6 @@ int dbGetTableId(int did, char_t *tablename)
             }
         }
     }
-    
     return -1;
 }
 
@@ -909,7 +886,6 @@ static int GetColumnIndex(int tid, char_t *colName)
 
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
         pTable = dbListTables[tid];
-
         for (column = 0; (column < pTable->nColumns); column++) {
             if (gstrcmp(colName, pTable->columnNames[column]) == 0)
                 return column;
@@ -926,9 +902,7 @@ void basicSetProductDir(char_t *proddir)
 {
     ssize   len;
 
-    if (basicProdDir != NULL) { 
-      bfree(basicProdDir);
-    }
+    bfree(basicProdDir);
     basicProdDir = bstrdup(proddir);
     /*
         Make sure that prefix-directory doesn't end with a '/'

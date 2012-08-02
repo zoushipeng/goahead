@@ -201,7 +201,13 @@ static time_t   dateParse(time_t tip, char_t *cmd);
 
 int websOpen()
 {
-    //  MOB - need generic runtime open: goOpen(), goClose()
+    //  MOB - move into an osdepOpen() platformOpen
+#if WINDOWS || VXWORKS
+    rand();
+#else
+    random();
+#endif
+
     traceOpen();
     socketOpen();
     if (setLocalHost() < 0) {

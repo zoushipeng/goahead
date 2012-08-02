@@ -1,5 +1,5 @@
 /*
-    md5.c - Base-64 encoding and decoding and MD5 support.
+    crypt.c - Base-64 encoding and decoding and MD5 support.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -137,17 +137,6 @@ static void transform(uint state[4], uchar block[64]);
 static void update(MD5CONTEXT *context, uchar *input, uint inputLen);
 
 /*********************************** Code *************************************/
-//  MOB - should call
-int websRandom()
-{
-#if WINDOWS || VXWORKS
-    return rand();
-#else
-    return (int) random();
-#endif
-}
-
-
 /*
     Decode a null terminated string and returns a null terminated string.
     Stops decoding at the end of string or '='
@@ -200,56 +189,6 @@ char_t *websDecode64Block(char_t *s, ssize *len, int flags)
     }
     return buffer;
 }
-
-
-#if UNUSED && KEEP
-/*
-    Encode a null terminated string.
-    Returns a null terminated block
- */
-char *websEncode64(cchar *s)
-{
-    return websEncode64Block(s, gstrlen(s));
-}
-
-
-/*
-    Encode a block of a given length
-    Returns a null terminated block
- */
-char *websEncode64Block(cchar *s, ssize len)
-{
-    uint    shiftbuf;
-    char    *buffer, *bp;
-    cchar   *end;
-    ssize   size;
-    int     i, j, shift;
-
-    size = len * 2;
-    if ((buffer = malloc(size + 1)) == 0) {
-        return NULL;
-    }
-    bp = buffer;
-    *bp = '\0';
-    end = &s[len];
-    while (s < end) {
-        shiftbuf = 0;
-        for (j = 2; j >= 0 && *s; j--, s++) {
-            shiftbuf |= ((*s & 0xff) << (j * 8));
-        }
-        shift = 18;
-        for (i = ++j; i < 4 && bp < &buffer[size] ; i++) {
-            *bp++ = encodeMap[(shiftbuf >> shift) & 0x3f];
-            shift -= 6;
-        }
-        while (j-- > 0) {
-            *bp++ = '=';
-        }
-        *bp = '\0';
-    }
-    return buffer;
-}
-#endif
 
 
 char *websMD5(cchar *s)
@@ -484,60 +423,66 @@ static void decode(uint *output, uchar *input, uint len)
 }
 
 
-/********************************** Copyright *********************************/
+#if UNUSED && KEEP
+/*
+    Encode a null terminated string.
+    Returns a null terminated block
+ */
+char *websEncode64(cchar *s)
+{
+    return websEncode64Block(s, gstrlen(s));
+}
+
 
 /*
-    @copy   custom
-    
-    Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
-    Copyright (c) Michael O'Brien, 1994-2012. All Rights Reserved.
-    Portions Copyright (C) 1991-2, RSA Data Security, Inc. All rights reserved. 
-    
-    RSA License:
+    Encode a block of a given length
+    Returns a null terminated block
+ */
+char *websEncode64Block(cchar *s, ssize len)
+{
+    uint    shiftbuf;
+    char    *buffer, *bp;
+    cchar   *end;
+    ssize   size;
+    int     i, j, shift;
 
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
-    
-    1. Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
-    
-    2. Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
-    
-    THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
-    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-    IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-    ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
-    FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-    DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-    OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-    HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-    OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-    SUCH DAMAGE.
-    
-    RSA License Details
-    -------------------
-    
-    License to copy and use this software is granted provided that it is 
-    identified as the "RSA Data Security, Inc. MD5 Message-Digest Algorithm" 
-    in all material mentioning or referencing this software or this function.
-    
-    License is also granted to make and use derivative works provided that such
-    works are identified as "derived from the RSA Data Security, Inc. MD5 
-    Message-Digest Algorithm" in all material mentioning or referencing the 
-    derived work.
-    
-    RSA Data Security, Inc. makes no representations concerning either the 
-    merchantability of this software or the suitability of this software for 
-    any particular purpose. It is provided "as is" without express or implied 
-    warranty of any kind.
-    
-    These notices must be retained in any copies of any part of this
-    documentation and/or software.
-    
+    size = len * 2;
+    if ((buffer = malloc(size + 1)) == 0) {
+        return NULL;
+    }
+    bp = buffer;
+    *bp = '\0';
+    end = &s[len];
+    while (s < end) {
+        shiftbuf = 0;
+        for (j = 2; j >= 0 && *s; j--, s++) {
+            shiftbuf |= ((*s & 0xff) << (j * 8));
+        }
+        shift = 18;
+        for (i = ++j; i < 4 && bp < &buffer[size] ; i++) {
+            *bp++ = encodeMap[(shiftbuf >> shift) & 0x3f];
+            shift -= 6;
+        }
+        while (j-- > 0) {
+            *bp++ = '=';
+        }
+        *bp = '\0';
+    }
+    return buffer;
+}
+#endif
+
+/*
+    @copy   default
+
+    Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
+
+    This software is distributed under commercial and open source licenses.
+    You may use the Embedthis GoAhead open source license or you may acquire 
+    a commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
     Local variables:
     tab-width: 4
     c-basic-offset: 4

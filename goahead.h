@@ -273,6 +273,7 @@
 
 #if SCOV5 || AIX || HPUX
     #include    <sys/types.h>
+    #include    <dirent.h>
     #include    <stdio.h>
     #include    <signal.h>
     #include    <unistd.h>
@@ -287,6 +288,7 @@
     #include    <sys/types.h>
     #include    <sys/stat.h>
     #include    <sys/param.h>
+    #include    <dirent.h>
     #include    <limits.h>
     #include    <signal.h>
     #include    <stdio.h>
@@ -300,9 +302,11 @@
     #include    <time.h>
     #include    <fcntl.h>
     #include    <errno.h>
+    #include    <sys/wait.h>
 #endif /* LINUX */
 
 #if LYNX
+    #include    <dirent.h>
     #include    <limits.h>
     #include    <signal.h>
     #include    <stdarg.h>
@@ -319,6 +323,7 @@
 #endif /* LYNX */
 
 #if MACOSX
+    #include    <dirent.h>
     #include    <limits.h>
     #include    <sys/select.h>
     #include    <sys/types.h>
@@ -334,6 +339,7 @@
     #include    <errno.h>
     #include    <time.h>
     #include    <stdbool.h>
+    #include    <sys/wait.h>
 #endif /* MACOSX */
 
 #if UW
@@ -353,6 +359,7 @@
     #include    <fcntl.h>
     #include    <errno.h>
     #include    <hostLib.h>
+    #include    <dirent.h>
 #endif /* VXWORKS */
 
 #if SOLARIS
@@ -369,6 +376,7 @@
     #include    <time.h>
     #include    <fcntl.h>
     #include    <errno.h>
+    #include    <dirent.h>
 #endif /* SOLARIS */
 
 #if QNX
@@ -1779,6 +1787,8 @@ typedef struct {
 
 #define WHITELIST_SSL 0x001   /* File only accessible through https */
 #define WHITELIST_CGI 0x002   /* Node is in the cgi-bin dir */
+#define WHITELIST_BLOCKED   0x100   /* File is in list, but inaccessible */
+#define WHITELIST_DIR       0x200   /* Node is a Directory */
 
 /*
     Globals
