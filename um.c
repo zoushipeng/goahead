@@ -146,8 +146,8 @@ static void     formAddGroup(webs_t wp, char_t *path, char_t *query);
 static void     formDeleteGroup(webs_t wp, char_t *path, char_t *query);
 static void     formAddAccessLimit(webs_t wp, char_t *path, char_t *query);
 static void     formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query);
-static void     formSaveUserManagement(webs_t wp, char_t *path, char_t *query);
 #if UNUSED
+static void     formSaveUserManagement(webs_t wp, char_t *path, char_t *query);
 static void     formLoadUserManagement(webs_t wp, char_t *path, char_t *query);
 #endif
 #endif
@@ -1182,8 +1182,8 @@ void formDefineUserMgmt(void)
     websFormDefine(T("AddAccessLimit"), formAddAccessLimit);
     websFormDefine(T("DeleteAccessLimit"), formDeleteAccessLimit);
 
-    websFormDefine(T("SaveUserManagement"), formSaveUserManagement);
 #if UNUSED
+    websFormDefine(T("SaveUserManagement"), formSaveUserManagement);
     websFormDefine(T("LoadUserManagement"), formLoadUserManagement);
 #endif
 }
@@ -1246,9 +1246,9 @@ static void formAddUser(webs_t wp, char_t *path, char_t *query)
         } else {
             websWrite(wp, T("User, \"%s\" was successfully added."), userid);
         }
-        //  MOB - where should commits be?
-        //  MOB - test commit status
-        umSave();
+        if (umSave() < 0) {
+            websWrite(wp, T("Unable to save user database"));
+        }
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1278,6 +1278,9 @@ static void formDeleteUser(webs_t wp, char_t *path, char_t *query)
         websWrite(wp, T("ERROR: Unable to delete user, \"%s\" "), userid);
     } else {
         websWrite(wp, T("User, \"%s\" was successfully deleted."), userid);
+    }
+    if (umSave() < 0) {
+        websWrite(wp, T("Unable to save user database"));
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1309,7 +1312,9 @@ static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
         enabled = umGetUserEnabled(userid);
         websWrite(wp, T("<h3>Enabled: <b>%d</b></h3>\n"), enabled);
     }
-
+    if (umSave() < 0) {
+        websWrite(wp, T("Unable to save user database"));
+    }
     websWrite(wp, T("</body>\n"));
     websFooter(wp);
     websDone(wp, 200);
@@ -1398,9 +1403,9 @@ static void formAddGroup(webs_t wp, char_t *path, char_t *query)
         } else {
             websWrite(wp, T("Group, \"%s\" was successfully added."), group);
         }
-        //  MOB - where should commits be?
-        //  MOB - test commit status
-        umSave();
+        if (umSave() < 0) {
+            websWrite(wp, T("Unable to save user database"));
+        }
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1432,6 +1437,9 @@ static void formDeleteGroup(webs_t wp, char_t *path, char_t *query)
         websWrite(wp, T("ERROR: Unable to delete group, \"%s\" "), group);
     } else {
         websWrite(wp, T("Group, \"%s\" was successfully deleted."), group);
+    }
+    if (umSave() < 0) {
+        websWrite(wp, T("Unable to save user database"));
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1509,6 +1517,9 @@ static void formAddAccessLimit(webs_t wp, char_t *path, char_t *query)
         } else {
             websWrite(wp, T("Access limit for [%s], was successfully added."), url);
         }
+        if (umSave() < 0) {
+            websWrite(wp, T("Unable to save user database"));
+        }
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1534,6 +1545,9 @@ static void formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query)
         websWrite(wp, T("ERROR: Unable to delete Access Limit for [%s]"), url);
     } else {
         websWrite(wp, T("Access Limit for [%s], was successfully deleted."), url);
+    }
+    if (umSave() < 0) {
+        websWrite(wp, T("Unable to save user database"));
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1593,6 +1607,7 @@ static int aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv)
 }
 
 
+#if UNUSED
 static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 {
     char_t  *ok;
@@ -1616,7 +1631,6 @@ static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 }
 
 
-#if UNUSED
 static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
 {
     char_t  *ok;
