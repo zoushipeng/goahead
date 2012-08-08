@@ -1,0 +1,243 @@
+#
+#   goahead-windows.nmake -- Build It Makefile to build Embedthis GoAhead for windows
+#
+
+PA        = $(PROCESSOR_ARCHITECTURE)
+!IF "$(PA)" == "AMD64"
+ARCH     = x64
+ENTRY    = _DllMainCRTStartup
+!ELSE
+ARCH  = x86
+ENTRY    = _DllMainCRTStartup@12
+!ENDIF
+
+OS       = windows
+PROFILE  = debug
+CONFIG   = $(OS)-$(ARCH)-$(PROFILE)
+CC       = cl
+LD       = link
+RC       = rc
+CFLAGS   = -nologo -GR- -W3 -Zi -Od -MDd
+DFLAGS   = -D_REENTRANT -D_MT -DBIT_DEBUG
+IFLAGS   = -I$(CONFIG)\inc
+LDFLAGS  = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
+LIBPATHS = -libpath:$(CONFIG)\bin
+LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+
+all: prep \
+        $(CONFIG)\bin\goahead.exe \
+        $(CONFIG)\bin\goahead-test.exe \
+        $(CONFIG)\bin\webcomp.exe
+
+.PHONY: prep
+
+prep:
+!IF "$(VSINSTALLDIR)" == ""
+	echo "Visual Studio vars not set. Run vcvars.bat."
+	exit 255
+!ENDIF
+	@if not exist $(CONFIG)\inc md $(CONFIG)\inc
+	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
+	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
+	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-$(OS)-bit.h $(CONFIG)\inc\bit.h
+	@if not exist $(CONFIG)\bin\libmpr.def xcopy /Y /S projects\goahead-windows\*.def $(CONFIG)\bin
+
+clean:
+	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
+	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
+	-if exist $(CONFIG)\bin\webcomp.exe del /Q $(CONFIG)\bin\webcomp.exe
+	-if exist $(CONFIG)\obj\balloc.obj del /Q $(CONFIG)\obj\balloc.obj
+	-if exist $(CONFIG)\obj\cgi.obj del /Q $(CONFIG)\obj\cgi.obj
+	-if exist $(CONFIG)\obj\crypt.obj del /Q $(CONFIG)\obj\crypt.obj
+	-if exist $(CONFIG)\obj\db.obj del /Q $(CONFIG)\obj\db.obj
+	-if exist $(CONFIG)\obj\default.obj del /Q $(CONFIG)\obj\default.obj
+	-if exist $(CONFIG)\obj\form.obj del /Q $(CONFIG)\obj\form.obj
+	-if exist $(CONFIG)\obj\goahead.obj del /Q $(CONFIG)\obj\goahead.obj
+	-if exist $(CONFIG)\obj\handler.obj del /Q $(CONFIG)\obj\handler.obj
+	-if exist $(CONFIG)\obj\http.obj del /Q $(CONFIG)\obj\http.obj
+	-if exist $(CONFIG)\obj\js.obj del /Q $(CONFIG)\obj\js.obj
+	-if exist $(CONFIG)\obj\matrixssl.obj del /Q $(CONFIG)\obj\matrixssl.obj
+	-if exist $(CONFIG)\obj\openssl.obj del /Q $(CONFIG)\obj\openssl.obj
+	-if exist $(CONFIG)\obj\rom-documents.obj del /Q $(CONFIG)\obj\rom-documents.obj
+	-if exist $(CONFIG)\obj\rom.obj del /Q $(CONFIG)\obj\rom.obj
+	-if exist $(CONFIG)\obj\runtime.obj del /Q $(CONFIG)\obj\runtime.obj
+	-if exist $(CONFIG)\obj\security.obj del /Q $(CONFIG)\obj\security.obj
+	-if exist $(CONFIG)\obj\socket.obj del /Q $(CONFIG)\obj\socket.obj
+	-if exist $(CONFIG)\obj\ssl.obj del /Q $(CONFIG)\obj\ssl.obj
+	-if exist $(CONFIG)\obj\template.obj del /Q $(CONFIG)\obj\template.obj
+	-if exist $(CONFIG)\obj\um.obj del /Q $(CONFIG)\obj\um.obj
+	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
+	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
+
+$(CONFIG)\inc\goahead.h: 
+	-if exist $(CONFIG)\inc\goahead.h del /Q $(CONFIG)\inc\goahead.h
+	copy /Y goahead.h $(CONFIG)\inc\goahead.h
+
+$(CONFIG)\inc\js.h: 
+	-if exist $(CONFIG)\inc\js.h del /Q $(CONFIG)\inc\js.h
+	copy /Y js.h $(CONFIG)\inc\js.h
+
+$(CONFIG)\obj\balloc.obj: \
+        balloc.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\balloc.obj -Fd$(CONFIG)\obj\balloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc balloc.c
+
+$(CONFIG)\obj\cgi.obj: \
+        cgi.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc cgi.c
+
+$(CONFIG)\obj\crypt.obj: \
+        crypt.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc crypt.c
+
+$(CONFIG)\obj\db.obj: \
+        db.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\db.obj -Fd$(CONFIG)\obj\db.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc db.c
+
+$(CONFIG)\obj\default.obj: \
+        default.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\default.obj -Fd$(CONFIG)\obj\default.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc default.c
+
+$(CONFIG)\obj\form.obj: \
+        form.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\form.obj -Fd$(CONFIG)\obj\form.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc form.c
+
+$(CONFIG)\obj\goahead.obj: \
+        goahead.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc goahead.c
+
+$(CONFIG)\obj\handler.obj: \
+        handler.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\handler.obj -Fd$(CONFIG)\obj\handler.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc handler.c
+
+$(CONFIG)\obj\http.obj: \
+        http.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc http.c
+
+$(CONFIG)\obj\js.obj: \
+        js.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc js.c
+
+$(CONFIG)\obj\matrixssl.obj: \
+        matrixssl.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc matrixssl.c
+
+$(CONFIG)\obj\openssl.obj: \
+        openssl.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc openssl.c
+
+$(CONFIG)\obj\rom-documents.obj: \
+        rom-documents.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc rom-documents.c
+
+$(CONFIG)\obj\rom.obj: \
+        rom.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\rom.obj -Fd$(CONFIG)\obj\rom.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc rom.c
+
+$(CONFIG)\obj\runtime.obj: \
+        runtime.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc runtime.c
+
+$(CONFIG)\obj\security.obj: \
+        security.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\security.obj -Fd$(CONFIG)\obj\security.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc security.c
+
+$(CONFIG)\obj\socket.obj: \
+        socket.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc socket.c
+
+$(CONFIG)\obj\ssl.obj: \
+        ssl.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\ssl.obj -Fd$(CONFIG)\obj\ssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc ssl.c
+
+$(CONFIG)\obj\template.obj: \
+        template.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\template.obj -Fd$(CONFIG)\obj\template.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc template.c
+
+$(CONFIG)\obj\um.obj: \
+        um.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\um.obj -Fd$(CONFIG)\obj\um.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc um.c
+
+$(CONFIG)\bin\goahead.exe:  \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
+        $(CONFIG)\obj\balloc.obj \
+        $(CONFIG)\obj\cgi.obj \
+        $(CONFIG)\obj\crypt.obj \
+        $(CONFIG)\obj\db.obj \
+        $(CONFIG)\obj\default.obj \
+        $(CONFIG)\obj\form.obj \
+        $(CONFIG)\obj\goahead.obj \
+        $(CONFIG)\obj\handler.obj \
+        $(CONFIG)\obj\http.obj \
+        $(CONFIG)\obj\js.obj \
+        $(CONFIG)\obj\matrixssl.obj \
+        $(CONFIG)\obj\openssl.obj \
+        $(CONFIG)\obj\rom-documents.obj \
+        $(CONFIG)\obj\rom.obj \
+        $(CONFIG)\obj\runtime.obj \
+        $(CONFIG)\obj\security.obj \
+        $(CONFIG)\obj\socket.obj \
+        $(CONFIG)\obj\ssl.obj \
+        $(CONFIG)\obj\template.obj \
+        $(CONFIG)\obj\um.obj
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\balloc.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(LIBS)
+
+$(CONFIG)\obj\test.obj: \
+        test.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test.c
+
+$(CONFIG)\bin\goahead-test.exe:  \
+        $(CONFIG)\obj\balloc.obj \
+        $(CONFIG)\obj\cgi.obj \
+        $(CONFIG)\obj\crypt.obj \
+        $(CONFIG)\obj\db.obj \
+        $(CONFIG)\obj\default.obj \
+        $(CONFIG)\obj\form.obj \
+        $(CONFIG)\obj\handler.obj \
+        $(CONFIG)\obj\http.obj \
+        $(CONFIG)\obj\js.obj \
+        $(CONFIG)\obj\matrixssl.obj \
+        $(CONFIG)\obj\openssl.obj \
+        $(CONFIG)\obj\rom-documents.obj \
+        $(CONFIG)\obj\rom.obj \
+        $(CONFIG)\obj\runtime.obj \
+        $(CONFIG)\obj\security.obj \
+        $(CONFIG)\obj\socket.obj \
+        $(CONFIG)\obj\ssl.obj \
+        $(CONFIG)\obj\template.obj \
+        $(CONFIG)\obj\test.obj \
+        $(CONFIG)\obj\um.obj
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\balloc.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\test.obj $(CONFIG)\obj\um.obj $(LIBS)
+
+$(CONFIG)\obj\webcomp.obj: \
+        webcomp.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\webcomp.obj -Fd$(CONFIG)\obj\webcomp.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc webcomp.c
+
+$(CONFIG)\bin\webcomp.exe:  \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
+        $(CONFIG)\obj\webcomp.obj
+	"$(LD)" -out:$(CONFIG)\bin\webcomp.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\webcomp.obj $(LIBS)
+
