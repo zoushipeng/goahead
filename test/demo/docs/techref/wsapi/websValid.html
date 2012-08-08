@@ -17,13 +17,13 @@ server connection handle is still open.</p><h2>Prototype</h2><pre> #include &quo
 <TR> <TD VALIGN="TOP" WIDTH="4%">wp <TD WIDTH="96%">Web server connection handle.</TD></TR></table><h2>Description</h2><P>The 
 websValid procedure returns TRUE if the Web server connection handle is valid. 
 This is useful for code which runs after an ASP or Form procedure that may close 
-the connection by calling <a href="websError.htm">websError</a>. </P><h2>Return 
-Value</h2><p> Pointer to a statically allocated string. Do not call <A href="../basicapi/bfree.htm">bfree</A>.</p><h2>Example</h2><pre> 
+the connection by calling <a href="websError.html">websError</a>. </P><h2>Return 
+Value</h2><p> Pointer to a statically allocated string. Do not call <A href="../basicapi/bfree.html">bfree</A>.</p><h2>Example</h2><pre> 
 if (websValid(wp)) { websWrite(wp, "More output");
  } </pre><h2>Stability Classification</h2><p>Stable.</p><h2>See 
-Also</h2><p> <A href="../../../over/asp.htm">Active Server Pages</A>, <A href="../../../over/goforms.htm">GoForms</A>, 
-<A href="websDone.htm">websDone</A>, <A href="websFooter.htm">websFooter</A>, 
-<A href="websHeader.htm">websHeader</A>, <A href="websWrite.htm">websWrite</A> 
+Also</h2><p> <A href="../../../over/asp.html">Active Server Pages</A>, <A href="../../../over/goforms.html">GoForms</A>, 
+<A href="websDone.html">websDone</A>, <A href="websFooter.html">websFooter</A>, 
+<A href="websHeader.html">websHeader</A>, <A href="websWrite.html">websWrite</A> 
 </p></td></tr></table>
 </body>
 </html>

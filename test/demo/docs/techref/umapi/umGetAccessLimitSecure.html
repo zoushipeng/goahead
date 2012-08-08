@@ -14,6 +14,11 @@ WebServer API</b></TD><td class="titleRight" align=right width="33%"><B>GoAhead
 EMF</B></TD></TR> </TABLE><HR><H2><B>Synopsis</B></H2><P>	Retrieve the security setting for the URL.</P><H2><B>Prototype</B></H2><PRE>
  #include &quot;um.h&quot;
 
- short umGetAccessLimitSecure(char_t * url);</PRE><H2><B>Parameters</B></H2><p><TABLE WIDTH="40%" BORDER="0"><TR><TD>url</TD><TD>URL name.</TD></TR></TABLE><H2><B>Description</B></H2><P>short	umGetAccessLimitSecure(char_t * url)</P><H2><B>Return Value</B></H2><P>	umGetAccessLimitSecure returns the security level if successful, or -1 on error.</P><H2><B>Example</B></H2><PRE>short secure = umGetAccessLimitSecure(T(&quot;trojanhorse.cgi&quot;));</PRE><H2><B>See Also</B></H2><P>	<A HREF="umSetAccessLimitSecure.htm">umSetAccessLimitSecure</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></TD></TR></TABLE>
+ short umGetAccessLimitSecure(char_t * url);</PRE><H2><B>Parameters</B></H2><p><TABLE WIDTH="40%"
+BORDER="0"><TR><TD>url</TD><TD>URL name.</TD></TR></TABLE><H2><B>Description</B></H2><P>short
+umGetAccessLimitSecure(char_t * url)</P><H2><B>Return Value</B></H2><P>	umGetAccessLimitSecure returns the security
+level if successful, or -1 on error.</P><H2><B>Example</B></H2><PRE>short secure =
+umGetAccessLimitSecure(T(&quot;trojanhorse.cgi&quot;));</PRE><H2><B>See Also</B></H2><P>	<A
+HREF="umSetAccessLimitSecure.html">umSetAccessLimitSecure</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></TD></TR></TABLE>
 </body>
 </html>

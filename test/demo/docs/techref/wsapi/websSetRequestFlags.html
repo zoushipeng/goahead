@@ -18,13 +18,13 @@ associated with a browser request.</p><h2>Prototype</h2><pre> #include &quot;web
 . <TR> <TD VALIGN="TOP" WIDTH="4%">flags <TD WIDTH="96%"> Flags to define.</TD></TR></table><h2>Description</h2><P>The 
 websSetRequestFlags procedure modifies the flags word for a given browser request. 
 You must be very careful when defining the flags word for a request. If you need 
-to modify a particular flag value, use <A href="websGetRequestFlags.htm">websGetRequestFlags</A> 
-to retrieve the current flags word and clear or set specific bits.</P><p>See <A href="websGetRequestFlags.htm">websGetRequestFlags</A> 
+to modify a particular flag value, use <A href="websGetRequestFlags.html">websGetRequestFlags</A> 
+to retrieve the current flags word and clear or set specific bits.</P><p>See <A href="websGetRequestFlags.html">websGetRequestFlags</A> 
 for a list of all available flags which are defined in webs.h.</p><h2>Return Value</h2><p> 
 None.</p><h2>Example</h2><pre>
 websSetRequestFlags(wp,
         websGetRequestFlags(wp,  flags) | WEBS_HEADER_DONE));
 </pre><h2>Stability Classification</h2><p>Stable.</p><h2>See 
-Also</h2><p> <A href="websGetRequestFlags.htm">websGetRequestFlags</A> </p></td></tr></table>
+Also</h2><p> <A href="websGetRequestFlags.html">websGetRequestFlags</A> </p></td></tr></table>
 </body>
 </html>

@@ -12,6 +12,10 @@
 WebServer API</b></TD><td class="titleRight" align=right width="33%"><B>GoAhead 
 EMF</B></TD></TR> </TABLE><HR><H2><B>Synopsis</B></H2><P>	Return the Table Identifier corresponding to the given table name.</P><H2><B>Prototype</B></H2><PRE> #include &quot;emfdb.h&quot;
 
- int dbGetTableId(int did, char_t * tname);</PRE><H2><B>Parameters</B></H2><P>	did -	Database Identifier. <BR>	tname -	The name of the table.</P><H2><B>Description</B></H2><P>	The database module defines the table identifier internally.</P><H2><B>Return Value</B></H2><P>	dbGetTableId returns the table id if successful or -1 if not found.</P><H2><B>Example</B></H2><PRE>int tableID = dbGetTableId(0, T(&quot;USERS&quot;));</PRE><H2><B>See Also</B></H2><P>	<A HREF="dbGetTableName.htm">dbGetTableName</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></td></tr></table>
+ int dbGetTableId(int did, char_t * tname);</PRE><H2><B>Parameters</B></H2><P>	did -	Database Identifier. <BR>
+tname -	The name of the table.</P><H2><B>Description</B></H2><P>	The database module defines the table identifier
+internally.</P><H2><B>Return Value</B></H2><P>	dbGetTableId returns the table id if successful or -1 if not
+found.</P><H2><B>Example</B></H2><PRE>int tableID = dbGetTableId(0, T(&quot;USERS&quot;));</PRE><H2><B>See
+Also</B></H2><P>	<A HREF="dbGetTableName.html">dbGetTableName</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></td></tr></table>
 </body>
 </html>

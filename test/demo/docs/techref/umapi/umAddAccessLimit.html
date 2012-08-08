@@ -23,6 +23,13 @@ EMF</B></TD></TR> </TABLE><HR> <H2><B>Synopsis</B></H2><P>	Add an access limit t
 <TR> <TD VALIGN="TOP" WIDTH="13%">am</TD><TD WIDTH="87%"> 	Access method.</TD></TR> 
 <TR> <TD VALIGN="TOP" WIDTH="13%">secure</TD><TD WIDTH="87%">Security flag. (reserved for future use)</TD></TR> 
 <TR> <TD VALIGN="TOP" WIDTH="13%">group</TD><TD WIDTH="87%">User group to use.</TD></TR> 
-</TABLE><H2><B>Description</B></H2><P>	Access method can be one of the following:<BR>		AM_NONE  -	 URL may not be accessed<BR>		AM_FULL -	no authorization is required for the URL<BR>		AM_BASIC - 	URL requires at least basic authentication<BR>		AM_DIGEST - 	URL requires at least digest authentication<BR>		AM_INVALID - 	not a valid access method</P><P>	Access limits apply to URLs, upon which they are keyed.  URLs can specify directories or filenames.  If an access limit specifies a user  group, then only members of that user  group can have access to the URL.</P><H2><B>Return Value</B></H2><P>	umAddAccessLimit returns 0 if successful or    -1 on error.</P><H2><B>Example</B></H2><PRE>int nCheck = umAddAccessLimit(T(&quot;/cgi-bin&quot;), AM_DIGEST, 0, T(&quot;users&quot;));</PRE><H2><B>See Also</B></H2><P>	<A HREF="umDeleteAccessLimit.htm">umDeleteAccessLimit</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></TD></TR></TABLE>
+</TABLE><H2><B>Description</B></H2><P>	Access method can be one of the following:<BR>		AM_NONE  -	 URL may not be
+accessed<BR>		AM_FULL -	no authorization is required for the URL<BR>		AM_BASIC - 	URL requires at least
+basic authentication<BR>		AM_DIGEST - 	URL requires at least digest authentication<BR>		AM_INVALID - 	not
+a valid access method</P><P>	Access limits apply to URLs, upon which they are keyed.  URLs can specify directories or
+filenames.  If an access limit specifies a user  group, then only members of that user  group can have access to the
+URL.</P><H2><B>Return Value</B></H2><P>	umAddAccessLimit returns 0 if successful or    -1 on
+error.</P><H2><B>Example</B></H2><PRE>int nCheck = umAddAccessLimit(T(&quot;/cgi-bin&quot;), AM_DIGEST, 0,
+T(&quot;users&quot;));</PRE><H2><B>See Also</B></H2><P>	<A HREF="umDeleteAccessLimit.html">umDeleteAccessLimit</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></TD></TR></TABLE>
 </body>
 </html>

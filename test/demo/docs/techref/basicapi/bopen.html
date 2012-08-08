@@ -30,7 +30,7 @@
   fragmentation. Once released by bfree, memory is not actually freed to the operating 
   system but is kept on the relevant binary queue for future use by the application.</p><p></p><p>The goal of the block allocator is to provide guaranteed, rapid allocation. 
   By calling bopen with the application memory requirements, memory can be defined 
-  or allocated up front, and subsequent calls to <a href="balloc.htm">balloc</a> 
+  or allocated up front, and subsequent calls to <a href="balloc.html">balloc</a> 
   are more likely to succeed. The block allocator is not perfect; you can still 
   get free memory of one class queue while memory requests for a large size cannot 
   be satisfied. However, in practice, many embedded applications tend to allocate 
@@ -46,7 +46,8 @@
 if (bopen(NULL, B_DEFAULT_MEM, 0) < 0) {
 	return NULL;
 	}
-</pre><h2>Stability Classification</h2><p>Stable.</p><h2></h2><h2></h2><h2>See Also</h2><p><a href="balloc.htm">balloc</a>, <a href="bfree.htm">bfree</a></p></td></tr></table>
+</pre><h2>Stability Classification</h2><p>Stable.</p><h2></h2><h2></h2><h2>See Also</h2><p><a
+  href="balloc.html">balloc</a>, <a href="bfree.html">bfree</a></p></td></tr></table>
 
 </body>
 </html>

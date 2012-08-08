@@ -16,12 +16,12 @@ file handle for the current Web page.</p><h2>Prototype</h2><pre> #include &quot;
  int <b>websGetRequestDocFd</b>(webs_t wp); </pre><h2>Parameters</h2><table width=100% BORDER="0" CELLPADDING="0" CELLSPACING="0"> 
 <TR> <TD VALIGN="TOP" WIDTH="5%">wp <TD WIDTH="95%"> Web server connection handle.</TD></TR></table><h2>Description</h2><P>The 
 websGetRequestDocFd procedure returns the Web page file handle defined for this 
-browser connection. This is only defined if a <A href="../../../over/urlhandles.htm">URL Handler</A> 
-has set the handle via <A href="websSetRequestDocFd.htm">websSetRequestDocFd</A>. <h2>Return 
+browser connection. This is only defined if a <A href="../../../over/urlhandles.html">URL Handler</A> 
+has set the handle via <A href="websSetRequestDocFd.html">websSetRequestDocFd</A>. <h2>Return 
 Value</h2><p>Returns -1 if there is no document handle defined; otherwise, the 
 handle is returned.</p><h2>Example</h2><pre> fd = websGetRequestDocFd(wp); 
 read(fd, buf, sizeof(buf); </pre><h2>Stability Classification</h2><p>Stable.</p><h2>See 
-Also</h2><p> <A href="websGetRequestBytes.htm">websGetRequestBytes</A>, <A href="websSetRequestPath.htm">websSetRequestPath</A>, 
-<A href="websSetRequestDocFd.htm">websSetRequestDocFd</A> </p></td></tr></table>
+Also</h2><p> <A href="websGetRequestBytes.html">websGetRequestBytes</A>, <A href="websSetRequestPath.html">websSetRequestPath</A>, 
+<A href="websSetRequestDocFd.html">websSetRequestDocFd</A> </p></td></tr></table>
 </body>
 </html>

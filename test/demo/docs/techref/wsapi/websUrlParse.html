@@ -29,15 +29,15 @@ query string portion after &quot;?&quot;.<TR> <TD VALIGN="TOP" WIDTH="6%">proto
 <TD WIDTH="94%">Document file name extension.</TD></TR></table><h2>Description</h2><P> 
 The websUrlParse procedure cracks the URL into its constituent components. To 
 store the parts, websUrlParse allocates a dynamic buffer. This must eventually 
-be freed via <A href="../basicapi/bfree.htm">bfree</A> by the caller.</P><P>websUrlParse 
+be freed via <A href="../basicapi/bfree.html">bfree</A> by the caller.</P><P>websUrlParse 
 stores pointers to the URL components in <EM>host, path, port, query, proto, tag 
 </EM>and <EM>ext. </EM>If any of these parameters contains NULL, that component 
 is ignored.</P><P> <B>Note:</B> Tag parsing is not fully supported.</P><h2>Return 
 Value</h2><p> Returns 0 if successful. Returns -1 if memory cannot be allocated 
 to hold the results.</p><h2>Example</h2><pre> char_t *host, *port, *buf; 
 websUrlParse(url, &amp;buf, &amp;host, NULL, &amp;port, NULL, NULL, NULL, NULL); </pre><h2>Stability 
-Classification</h2><p>Stable.</p><h2>See Also</h2><p> <A href="../basicapi/balloc.htm">balloc</A>, 
-<A href="../basicapi/bfree.htm">bfree</A>, <A href="websUrlType.htm">websUrlType</A> 
+Classification</h2><p>Stable.</p><h2>See Also</h2><p> <A href="../basicapi/balloc.html">balloc</A>, 
+<A href="../basicapi/bfree.html">bfree</A>, <A href="websUrlType.html">websUrlType</A> 
 </p></td></tr></table>
 </body>
 </html>

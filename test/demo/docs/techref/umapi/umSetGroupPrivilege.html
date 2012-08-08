@@ -13,6 +13,11 @@
 WebServer API</b></TD><td class="titleRight" align=right width="33%"><B>GoAhead 
 EMF</B></TD></TR> </TABLE><HR> <H2><B>Synopsis</B></H2><P>	Get the privilege mask for the user group.</P><H2><B>Prototype</B></H2><PRE> #include &quot;um.h&quot;
 
- int umSetGroupPrivilege(char_t * group, short privileges);</PRE><H2><B>Parameters</B></H2><p><TABLE WIDTH="75%" BORDER="0"><TR><TD WIDTH="20%">group</TD><TD WIDTH="80%">Group name.</TD></TR><TR><TD WIDTH="20%">privileges</TD><TD WIDTH="80%">Privilege mask for the user group.</TD></TR></TABLE><H2><B>Description</B></H2><P>int umSetGroupPrivilege(char_t * group, short privileges);</P><H2><B>Return Value</B></H2><P>	umSetGroupPrivilege returns 0 if successful or -1 on error.</P><H2><B>Example</B></H2><PRE>int nCheck = umSetGroupPrivilege(T(&quot;users&quot;), PRIV_READ  |  PRIV_WRITE );</PRE><H3><B>See Also</B></H3><P>	<A HREF="umGetGroupPrivilege.htm">umGetGroupPrivilege</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></TD></TR></TABLE>
+ int umSetGroupPrivilege(char_t * group, short privileges);</PRE><H2><B>Parameters</B></H2><p><TABLE WIDTH="75%"
+BORDER="0"><TR><TD WIDTH="20%">group</TD><TD WIDTH="80%">Group name.</TD></TR><TR><TD WIDTH="20%">privileges</TD><TD
+WIDTH="80%">Privilege mask for the user group.</TD></TR></TABLE><H2><B>Description</B></H2><P>int
+umSetGroupPrivilege(char_t * group, short privileges);</P><H2><B>Return Value</B></H2><P>	umSetGroupPrivilege returns
+0 if successful or -1 on error.</P><H2><B>Example</B></H2><PRE>int nCheck = umSetGroupPrivilege(T(&quot;users&quot;),
+PRIV_READ  |  PRIV_WRITE );</PRE><H3><B>See Also</B></H3><P>	<A HREF="umGetGroupPrivilege.html">umGetGroupPrivilege</A>()</P><H2>&nbsp;</H2><BLOCKQUOTE>&nbsp;</BLOCKQUOTE></TD></TR></TABLE>
 </body>
 </html>

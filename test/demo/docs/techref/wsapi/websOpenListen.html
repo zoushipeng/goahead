@@ -19,17 +19,17 @@ GoAhead WebServer to listen on.</TD></TR> <TR> <TD VALIGN="TOP" WIDTH="6%">retri
 number of times websOpen will try to open the next available port if <I>port</I> 
 is not available.</TD></TR> </TABLE><h2>Description</h2><P>The websOpenListen 
 procedure opens the TCP/IP port on which the GoAhead WebServer listens for browser 
-requests. You should call <A href="websCloseListen.htm">websCloseListen</A> to 
+requests. You should call <A href="websCloseListen.html">websCloseListen</A> to 
 close the existing listen port before calling websOpenListen. Normally websOpenListen 
-is called automatically when you call <A href="websOpen.htm">websOpen</A>.</P><P>The 
+is called automatically when you call <A href="websOpen.html">websOpen</A>.</P><P>The 
 <EM>port </EM>parameter specifies the TCP/IP to open. If this cannot be opened 
 and <EM>retries </EM>is greater than zero, the next port in sequence will be opened 
 for up to <EM>retries </EM>times until a port is successfully opened. To determine 
-the port number actually opened, call <a href="websGetPort.htm">websGetPort</a>.</P><h2>Return 
+the port number actually opened, call <a href="websGetPort.html">websGetPort</a>.</P><h2>Return 
 Value</h2><p>Returns 0 if the open succeeds; otherwise, -1 is returned.</p><h2>Example</h2><pre> 
 websCloseListen(); 
 websOpenListen(80, 5); </pre><h2>Stability Classification</h2><p>Stable.</p><h2>See 
-Also</h2><p> <A href="websClose.htm">websClose</A>, <A href="websCloseListen.htm">websCloseListen</A> 
+Also</h2><p> <A href="websClose.html">websClose</A>, <A href="websCloseListen.html">websCloseListen</A> 
 </p></td></tr></table>
 </body>
 </html>
