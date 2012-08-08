@@ -14,10 +14,20 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>goahead-test.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
 		<key>goahead.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>2</integer>
+		</dict>
+		<key>webcomp 2.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>4</integer>
 		</dict>
 		<key>webcomp.xcscheme</key>
 		<dict>
@@ -37,12 +47,37 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>9FC45C179FC48C4D0000000B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9FC45C179FC48C4D00000037</key>
 		<dict>
 			<key>primary</key>
 			<true/>
 		</dict>
 		<key>9FC45C179FC48C4D00000039</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000003B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000003D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000003F</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D00000041</key>
 		<dict>
 			<key>primary</key>
 			<true/>

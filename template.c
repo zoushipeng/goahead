@@ -7,6 +7,7 @@
 /********************************* Includes ***********************************/
 
 #include    "goahead.h"
+#include    "js.h"
 
 #if BIT_JAVASCRIPT
 /********************************** Locals ************************************/
@@ -77,7 +78,8 @@ int websAspRequest(webs_t wp, char_t *lpath)
     char            *rbuf;
     char_t          *token, *lang, *result, *path, *ep, *cp, *buf, *nextp;
     char_t          *last;
-    int             rc, engine, len, ejid;
+    ssize           len;
+    int             rc, engine, ejid;
 
     a_assert(websValid(wp));
     a_assert(lpath && *lpath);
@@ -87,6 +89,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
     rbuf = NULL;
     engine = EMF_SCRIPT_EJSCRIPT;
     wp->flags |= WEBS_HEADER_DONE;
+    wp->flags &= ~WEBS_KEEP_ALIVE;
     path = websGetRequestPath(wp);
 
     /*
@@ -120,9 +123,9 @@ int websAspRequest(webs_t wp, char_t *lpath)
     }
     websPageClose(wp);
 
-/*
- *  Convert to UNICODE if necessary.
- */
+    /*
+        Convert to UNICODE if necessary.
+     */
     if ((buf = ballocAscToUni(rbuf, len)) == NULL) {
         websError(wp, 200, T("Can't get memory"));
         goto done;
@@ -269,7 +272,7 @@ int websAspWrite(int ejid, webs_t wp, int argc, char_t **argv)
  */
 static char_t *strtokcmp(char_t *s1, char_t *s2)
 {
-    int     len;
+    ssize     len;
 
     s1 = skipWhite(s1);
     len = gstrlen(s2);

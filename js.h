@@ -11,6 +11,7 @@
 
 #include    "goahead.h"
 
+#if BIT_JAVASCRIPT
 /********************************** Defines ***********************************/
 //  MOB - consider JS prefix instead of EJ
 /*
@@ -201,6 +202,7 @@ extern void     ejSetVar(int eid, char_t *var, char_t *value);
 extern int      ejGetVar(int eid, char_t *var, char_t **value);
 extern char_t   *ejEval(int eid, char_t *script, char_t **emsg);
 
+#endif /* BIT_JAVASCRIPT */
 #endif /* _h_JS */
 
 /*

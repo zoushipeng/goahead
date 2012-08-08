@@ -23,7 +23,10 @@
 extern RSA *RSA_new(void);
 static SSL_CTX *sslctx = NULL;
 
+#if UNUSED
 static int setCerts(SSL_CTX *ctx, char *certFile, char *keyFile);
+#endif
+
 static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
 static int verifyCallback(int ok, X509_STORE_CTX *ctx);
 
@@ -41,9 +44,10 @@ typedef struct RandBuf {
 int sslOpen()
 {
     RandBuf             randBuf;
+    char_t              *caFile, *caPath;
 	const SSL_METHOD	*meth;
 
-	trace(7, T("SSL: Initializing SSL\n")); 
+	trace(7, T("Initializing SSL\n")); 
 
     randBuf.now = time(0);
     randBuf.pid = getpid();
@@ -64,7 +68,7 @@ int sslOpen()
 
 	meth = SSLv23_server_method();
 	if ((sslctx = SSL_CTX_new(meth)) == 0) {
-		error(E_L, E_USER, T("SSL: Unable to create SSL context!\n")); 
+		error(E_L, E_USER, T("Unable to create SSL context")); 
 		return -1;
 	}
 	SSL_CTX_set_quiet_shutdown(sslctx, 1);
@@ -74,19 +78,32 @@ int sslOpen()
     /*
       	Set the certificate verification locations
      */
-	if ((!SSL_CTX_load_verify_locations(sslctx, BIT_CA_FILE, BIT_CA_PATH)) ||
-		(!SSL_CTX_set_default_verify_paths(sslctx))) {
-		trace(2, T("SSL: Unable to set cert verification locations!\n")); 
-		websSSLClose();
-		return -1;
-	}
+    caFile = *BIT_CA_FILE ? BIT_CA_FILE : 0;
+    caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
+    if (caFile || caPath) {
+        if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
+            error(E_L, E_LOG, T("Unable to set cert verification locations"));
+            websSSLClose();
+            return -1;
+        }
+    }
     /*
       	Set the certificate and key files for the SSL context
      */
+    if (*BIT_KEY && websSSLSetKeyFile(BIT_KEY) < 0) {
+		websSSLClose();
+		return -1;
+    }
+    if (*BIT_CERTIFICATE && websSSLSetCertFile(BIT_CERTIFICATE) < 0) {
+		websSSLClose();
+		return -1;
+    }
+#if UNUSED
 	if (setCerts(sslctx, BIT_CERTIFICATE, BIT_KEY) != 0) {
 		websSSLClose();
 		return -1;
 	}
+#endif
 	SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
 	SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyCallback);
 
@@ -183,6 +200,7 @@ ssize sslWrite(webs_t wp, char *buf, ssize len)
 }
 
 
+#if UNUSED
 /*
   	Set the SSL certificate and key for the SSL context
  */
@@ -196,25 +214,26 @@ static int setCerts(SSL_CTX *ctx, char *cert, char *key)
     }
 	if (cert && SSL_CTX_use_certificate_chain_file(ctx, cert) <= 0) {
         if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_ASN1) <= 0) {
-            error(E_L, E_LOG, T("SSL: Unable to set certificate file <%s>\n"), cert); 
+            error(E_L, E_LOG, T("Unable to set certificate file: %s"), cert); 
             return -1;
         }
     }
     if (key && SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
-            error(E_L, E_LOG, T("SSL: Unable to set private key file <%s>\n"), key); 
+            error(E_L, E_LOG, T("Unable to set private key file: %s"), key); 
             return -1;
         }
         /*		
             Now we know that a key and cert have been set against the SSL context 
          */
 		if (!SSL_CTX_check_private_key(ctx)) {
-			error(E_L, E_LOG, T("SSL: Check of private key file <%s> FAILED!\n"), key); 
+			error(E_L, E_LOG, T("Check of private key file <%s> FAILED"), key); 
 			return -1;
 		}
 	}
 	return 0;
 }
+#endif
 
 
 /*
@@ -229,6 +248,10 @@ int websSSLSetCertFile(char_t *certFile)
 		return -1;
 	}
 	if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
+        if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
+            error(E_L, E_LOG, T("Unable to set certificate file: %s"), certFile); 
+            return -1;
+        }
 		return -1;
 	}
     /*		
@@ -253,14 +276,20 @@ int websSSLSetKeyFile(char_t *keyFile)
 		return -1;
 	}
 	if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
+        if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
+            error(E_L, E_LOG, T("Unable to set private key file: %s"), keyFile); 
+            return -1;
+        }
 		return -1;
 	}
-    /*		
+#if UNUSED
+    /*
         Confirm that the certificate and the private key jive.
      */
 	if (!SSL_CTX_check_private_key(sslctx)) {
 		return -1;
 	}
+#endif
 	return 0;
 }
 

@@ -28,7 +28,7 @@ static int finished = 0;
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char_t  *argp, *home, *ip, *documents, *pp;
+    char_t  *argp, *home, *ipAddrPort, *ip, *documents;
     int     port, sslPort, argind;
 
 #if WIN
@@ -55,13 +55,15 @@ MAIN(goahead, int argc, char **argv, char **envp)
             traceSetPath(argv[++argind]);
 
         } else if (gmatch(argp, "--verbose") || gmatch(argp, "-v")) {
-            traceSetPath("stdout:2");
+            traceSetPath("stdout:4");
 #endif
 
         } else if (gmatch(argp, "--version") || gmatch(argp, "-V")) {
             //  MOB - replace
             printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
+        } else {
+            usage();
         }
     }
     ip = NULL;
@@ -70,11 +72,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
     documents = BIT_DOCUMENTS;
     if (argc > argind) {
         if (argc > (argind + 2)) usage();
-        ip = bstrdup(argv[argind++]);
-        if ((pp = strchr(ip, ':')) != 0) {
-            *pp++ = '\0';
-            port = atoi(pp);
-        }
+        ipAddrPort = bstrdup(argv[argind++]);
+        socketParseAddress(ipAddrPort, &ip, &port, 80);
         if (argc > argind) {
             documents = argv[argind++];
         }
@@ -167,8 +166,7 @@ static int windowsInit(HINSTANCE hinstance)
     /*
         Create a window just so we can have a taskbar to close this web server
      */
-    hwnd = CreateWindow(name, title, WS_MINIMIZE | WS_POPUPWINDOW,
-        CW_USEDEFAULT, 0, 0, 0, NULL, NULL, hinstance, NULL);
+    hwnd = CreateWindow(name, title, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 0, 0, 0, NULL, NULL, hinstance, NULL);
     if (hwnd == NULL) {
         return -1;
     }
@@ -200,7 +198,7 @@ static void windowsClose(HINSTANCE hInstance)
 /*
     Main menu window message handler.
  */
-static long CALLBACK websWindProc(HWND hwnd, uint msg, uint wp, long lp)
+static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
 {
     switch (msg) {
         case WM_DESTROY:
@@ -219,7 +217,6 @@ static long CALLBACK websWindProc(HWND hwnd, uint msg, uint wp, long lp)
             }
             break;
     }
-
     return DefWindowProc(hwnd, msg, wp, lp);
 }
 

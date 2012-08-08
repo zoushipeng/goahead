@@ -32,9 +32,9 @@ static char_t   websPassword[WEBS_MAX_PASS];    /* Access password (decoded) */
  */
 int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
-    char_t          *type, *userid, *password, *accessLimit;
+    char_t          *type, *userid, *password, *accessLimit, *userpass;
     accessMeth_t    am;
-    int             flags, nRet;
+    int             flags, rc;
 
     a_assert(websValid(wp));
     a_assert(url && *url);
@@ -61,8 +61,8 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         Check to see if URL must be encrypted
      */
 #if BIT_PACK_SSL
-    nRet = umGetAccessLimitSecure(accessLimit);
-    if (nRet && ((flags & WEBS_SECURE) == 0)) {
+    rc = umGetAccessLimitSecure(accessLimit);
+    if (rc && ((flags & WEBS_SECURE) == 0)) {
         websStats.access++;
         websError(wp, 405, T("Access Denied\nSecure access is required."));
         trace(3, T("SEC: Non-secure access attempted on <%s>\n"), path);
@@ -76,7 +76,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
      */
     am = umGetAccessMethodForURL(accessLimit);
 
-    nRet = 0;
+    rc = 0;
     if (flags & WEBS_LOCAL_REQUEST) {
         /*
             Local access is always allowed
@@ -87,31 +87,27 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
          */
         websStats.access++;
         websError(wp, 404, T("Page Not Found"));
-        nRet = 1;
+        rc = 1;
     } else  if (userid && *userid) {
         if (!umUserExists(userid)) {
             websStats.access++;
             websError(wp, 401, T("Access Denied\nUnknown User"));
-            trace(3, T("SEC: Unknown user <%s> attempted to access <%s>\n"), 
-                userid, path);
-            nRet = 1;
+            trace(3, T("SEC: Unknown user <%s> attempted to access <%s>\n"), userid, path);
+            rc = 1;
         } else if (!umUserCanAccessURL(userid, accessLimit)) {
             websStats.access++;
             websError(wp, 403, T("Access Denied\nProhibited User"));
-            nRet = 1;
+            rc = 1;
         } else if (password && *password) {
-            char_t * userpass = umGetUserPassword(userid);
+            userpass = umGetUserPassword(userid);
             if (userpass) {
                 if (gstrcmp(password, userpass) != 0) {
                     websStats.access++;
                     websError(wp, 401, T("Access Denied\nWrong Password"));
-                    trace(3, T("SEC: Password fail for user <%s>")
-                                T("attempt to access <%s>\n"), userid, path);
-                    nRet = 1;
+                    trace(3, T("SEC: Password fail for user <%s>") T("attempt to access <%s>\n"), userid, path);
+                    rc = 1;
                 } else {
-                    /*
-                        User and password check out.
-                     */
+                    /* User and password check ok */
                 }
                 bfree (userpass);
             }
@@ -126,19 +122,15 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
             a_assert(wp->nonce);
             a_assert(wp->password);
             digestCalc = websCalcDigest(wp);
-            a_assert(digestCalc);
             if (gstrcmp(wp->digest, digestCalc) != 0) {
                 bfree (digestCalc);
                 digestCalc = websCalcUrlDigest(wp);
-                a_assert(digestCalc);
                 if (gstrcmp(wp->digest, digestCalc) != 0) {
                     websStats.access++;
-
                     websError(wp, 401, T("Access Denied\nWrong Password"));
-                    nRet = 1;
+                    rc = 1;
                 }
             }
-
             bfree (digestCalc);
 #endif
         } else {
@@ -151,9 +143,8 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
             }
 #endif
             websStats.errors++;
-            websError(wp, 401, 
-                T("Access to this document requires a password"));
-            nRet = 1;
+            websError(wp, 401, T("Access to this document requires a password"));
+            rc = 1;
         }
     } else if (am != AM_FULL) {
         /* This will cause the browser to display a password / username dialog */
@@ -164,10 +155,10 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
 #endif
         websStats.errors++;
         websError(wp, 401, T("Access to this document requires a User ID"));
-        nRet = 1;
+        rc = 1;
     }
     bfree(accessLimit);
-    return nRet;
+    return rc;
 }
 
 
@@ -188,7 +179,7 @@ void websSetPassword(char_t *password)
 
 
 /*
-    Get the decoded password
+    Get the decoded password. MOB - why strdup?
  */
 char_t *websGetPassword()
 {

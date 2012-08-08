@@ -14,18 +14,20 @@
 #if BIT_USER_MANAGEMENT
 /********************************** Defines ***********************************/
 
+#if UNUSED
 #define UM_DB_FILENAME  T("um.xml")
+#endif
 #define UM_TXT_FILENAME T("umconfig.txt")
 
 /*
- *  Table names
+    Table names
  */
 #define UM_USER_TABLENAME   T("users")
 #define UM_GROUP_TABLENAME  T("groups")
 #define UM_ACCESS_TABLENAME T("access")
 
 /*
- *  Column names
+    Column names
  */
 #define UM_NAME         T("name")
 #define UM_PASS         T("password")
@@ -42,11 +44,11 @@
         in order to enhance user password security.
     MOB - generate or move to config.
  */
-#define UM_XOR_ENCRYPT  T("*j7a(L#yZ98sSd5HfSgGjMj8;Ss;d)(*&^#@$a2s0i3g")
+#define UM_SALT  T("*j7a(L#yZ98sSd5HfSgGjMj8;Ss;d)(*&^#@$a2s0i3g")
 
-#define     NONE_OPTION     T("<NONE>")
-#define     MSG_START       T("<body><h2>")
-#define     MSG_END         T("</h2></body>")
+#define NONE_OPTION     T("<NONE>")
+#define MSG_START       T("<body><h2>")
+#define MSG_END         T("</h2></body>")
 
 /********************************** Defines ***********************************/
 /*
@@ -54,16 +56,15 @@
  */
 #define NUMBER_OF_USER_COLUMNS  5
 
-//  MOB - should these be static
-char_t  *userColumnNames[NUMBER_OF_USER_COLUMNS] = {
+static char_t *userColumnNames[NUMBER_OF_USER_COLUMNS] = {
         UM_NAME, UM_PASS, UM_GROUP, UM_PROT, UM_DISABLE
 };
 
-int     userColumnTypes[NUMBER_OF_USER_COLUMNS] = {
+static int userColumnTypes[NUMBER_OF_USER_COLUMNS] = {
         T_STRING, T_STRING, T_STRING, T_INT, T_INT
 };
 
-dbTable_t userTable = {
+static dbTable_t userTable = {
     UM_USER_TABLENAME,
     NUMBER_OF_USER_COLUMNS,
     userColumnNames,
@@ -77,15 +78,15 @@ dbTable_t userTable = {
  */
 #define NUMBER_OF_GROUP_COLUMNS 5
 
-char_t  *groupColumnNames[NUMBER_OF_GROUP_COLUMNS] = {
+static char_t *groupColumnNames[NUMBER_OF_GROUP_COLUMNS] = {
         UM_NAME, UM_PRIVILEGE, UM_METHOD, UM_PROT, UM_DISABLE
 };
 
-int     groupColumnTypes[NUMBER_OF_GROUP_COLUMNS] = {
+static int groupColumnTypes[NUMBER_OF_GROUP_COLUMNS] = {
     T_STRING, T_INT, T_INT, T_INT, T_INT
 };
 
-dbTable_t groupTable = {
+static dbTable_t groupTable = {
     UM_GROUP_TABLENAME,
     NUMBER_OF_GROUP_COLUMNS,
     groupColumnNames,
@@ -95,19 +96,19 @@ dbTable_t groupTable = {
 };
 
 /*
- *  Access Limit table definition
+    Access Limit table definition
  */
 #define NUMBER_OF_ACCESS_COLUMNS    4
 
-char_t  *accessColumnNames[NUMBER_OF_ACCESS_COLUMNS] = {
+static char_t *accessColumnNames[NUMBER_OF_ACCESS_COLUMNS] = {
     UM_NAME, UM_METHOD, UM_SECURE, UM_GROUP
 };
 
-int     accessColumnTypes[NUMBER_OF_ACCESS_COLUMNS] = {
+static int accessColumnTypes[NUMBER_OF_ACCESS_COLUMNS] = {
     T_STRING, T_INT, T_INT, T_STRING
 };
 
-dbTable_t accessTable = {
+static dbTable_t accessTable = {
     UM_ACCESS_TABLENAME,
     NUMBER_OF_ACCESS_COLUMNS,
     accessColumnNames,
@@ -119,17 +120,20 @@ dbTable_t accessTable = {
 /* 
     Database Identifier returned from dbOpen()
  */
-static int  didUM = -1; 
+static int udb = -1; 
 
 /* 
-    Configuration database persist filename
+    User database
+    MOB - rename
  */
-static char_t   *saveFilename = NULL;
-
-static int      umOpenCount = 0;        /* count of apps using this module */
+static char_t *umDbName = NULL;
 
 /********************************** Forwards **********************************/
 
+static bool_t   checkName(char_t *name);
+static void     cryptPassword(char_t *textString);
+
+#if BIT_USER_MANAGEMENT_GUI
 static int      aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv);
 static int      aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv);
 static int      aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **argv);
@@ -143,132 +147,49 @@ static void     formDeleteGroup(webs_t wp, char_t *path, char_t *query);
 static void     formAddAccessLimit(webs_t wp, char_t *path, char_t *query);
 static void     formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query);
 static void     formSaveUserManagement(webs_t wp, char_t *path, char_t *query);
+#if UNUSED
 static void     formLoadUserManagement(webs_t wp, char_t *path, char_t *query);
-static bool_t   umCheckName(char_t *name);
+#endif
+#endif
 
 /*********************************** Code *************************************/
-/*
- *  umOpen() registers the UM tables in the fake emf-database 
- */
 
-int umOpen()
+int umOpen(char_t *path)
 {
-    if (++umOpenCount != 1) {
-        return didUM;
+    if ((udb = dbOpen(UM_USER_TABLENAME, NULL, NULL, 0)) < 0) {
+        return -1;
     }
-/*
- *  Do not initialize if intialization has already taken place
- */
-    if (didUM == -1) {
-        didUM = dbOpen(UM_USER_TABLENAME, UM_DB_FILENAME, NULL, 0);
-        dbRegisterDBSchema(&userTable);
-        dbRegisterDBSchema(&groupTable);
-        dbRegisterDBSchema(&accessTable);
-    }
-    if (saveFilename == NULL) {
-        saveFilename = bstrdup(UM_TXT_FILENAME);
-    }
-    return didUM;
+    dbRegisterDBSchema(&userTable);
+    dbRegisterDBSchema(&groupTable);
+    dbRegisterDBSchema(&accessTable);
+    umDbName = bstrdup(path ? path : UM_TXT_FILENAME);
+#if UNUSED
+    dbZero(udb);
+#endif
+    return dbLoad(udb, umDbName, 0);
 }
 
 
 void umClose()
 {
-    if (--umOpenCount > 0) {
-        return;
+    if (udb >= 0) {
+        dbClose(udb);
+        udb = -1;
     }
-    /*
-        Do not close if intialization has not taken place
-     */
-    if (didUM != -1) {
-        dbClose(didUM);
-        didUM = -1;
-    }
-    if (saveFilename != NULL) {
-        bfree(saveFilename);
-        saveFilename = NULL;
-    }
+    bfree(umDbName);
+    umDbName = NULL;
 }
 
 
-/*
-    umCommit() persists all of the UM tables
- */
-int umCommit(char_t *filename)
+int umSave()
 {
-    if (filename && *filename) {
-        if (saveFilename != NULL) {
-            bfree(saveFilename);
-        }
-        saveFilename = bstrdup(filename);
-    }
-    a_assert (saveFilename && *saveFilename);
-    trace(3, T("UM: Writing User Configuration to file <%s>\n"), saveFilename);
-    return dbSave(didUM, saveFilename, 0);
-}
-
-/*
-    umRestore() loads up the UM tables with persisted data
- */
-int umRestore(char_t *filename)
-{
-    if (filename && *filename) {
-        if (saveFilename != NULL) {
-            bfree(saveFilename);
-        }
-        saveFilename = bstrdup(filename);
-    }
-    a_assert(saveFilename && *saveFilename);
-    trace(3, T("UM: Loading User Configuration from file <%s>\n"), saveFilename);
-    /*
-        First empty the database, otherwise we wind up with duplicates!
-     */
-    dbZero(didUM);
-    return dbLoad(didUM, saveFilename, 0);
+    trace(3, T("Save user configuration to: %s"), umDbName);
+    return dbSave(udb, umDbName, 0);
 }
 
 
 /*
-    Encrypt/Decrypt a text string. Returns the number of characters encrypted.
- */
-static int umEncryptString(char_t *textString)
-{
-    char_t  *enMask;
-    char_t  enChar;
-    int     numChars;
-
-    a_assert(textString);
-
-    enMask = UM_XOR_ENCRYPT;
-    numChars = 0;
-
-    while (*textString) {
-        enChar = *textString ^ *enMask;
-        /*
-            Do not produce encrypted text with embedded linefeeds or tabs. Simply use existing character.
-         */
-        if (enChar && !gisspace(enChar)) {
-            *textString = enChar;
-        }
-        /*
-            Increment all pointers.
-         */
-        enMask++;
-        textString++;
-        numChars++;
-        /*
-            Wrap encryption mask pointer if at end of length.
-         */
-        if (*enMask == '\0') {
-            enMask = UM_XOR_ENCRYPT;
-        }
-    }
-    return numChars;
-}
-
-/*
-    umGetFirstRowData() -   return a pointer to the first non-blank key value
-                            in the given column for the given table.
+    Return a pointer to the first non-blank key value in the given column for the given table.
  */
 static char_t *umGetFirstRowData(char_t *tableName, char_t *columnName)
 {
@@ -284,24 +205,19 @@ static char_t *umGetFirstRowData(char_t *tableName, char_t *columnName)
         Move through table until we retrieve the first row with non-null column data.
      */
     columnData = NULL;
-    while ((check = dbReadStr(didUM, tableName, columnName, row++, 
-        &columnData)) == 0 || (check == DB_ERR_ROW_DELETED)) {
+    while ((check = dbReadStr(udb, tableName, columnName, row++, &columnData)) == 0 || (check == DB_ERR_ROW_DELETED)) {
         if (columnData && *columnData) {
             return columnData;
         }
     }
-
     return NULL;
 }
 
 
 /*
-    umGetNextRowData() -    return a pointer to the first non-blank 
-                            key value following the given one.
+    Return a pointer to the first non-blank key value following the given one.
  */
-
-static char_t *umGetNextRowData(char_t *tableName, char_t *columnName, 
-                                char_t *keyLast)
+static char_t *umGetNextRowData(char_t *tableName, char_t *columnName, char_t *keyLast)
 {
     char_t  *key;
     int     row;
@@ -317,10 +233,8 @@ static char_t *umGetNextRowData(char_t *tableName, char_t *columnName,
     row = 0;
     key = NULL;
 
-    while ((((check = dbReadStr(didUM, tableName, columnName, row++, 
-        &key)) == 0) || (check == DB_ERR_ROW_DELETED)) &&
-        ((key == NULL) || (gstrcmp(key, keyLast) != 0))) {
-    }
+    while ((((check = dbReadStr(udb, tableName, columnName, row++, &key)) == 0) || (check == DB_ERR_ROW_DELETED)) &&
+        ((key == NULL) || (gstrcmp(key, keyLast) != 0))) { }
     /*
         If the last key value was not found, return NULL
      */
@@ -330,8 +244,7 @@ static char_t *umGetNextRowData(char_t *tableName, char_t *columnName,
     /*
         Move through table until we retrieve the next row with a non-null key
      */
-    while (((check = dbReadStr(didUM, tableName, columnName, row++, &key)) 
-        == 0) || (check == DB_ERR_ROW_DELETED)) {
+    while (((check = dbReadStr(udb, tableName, columnName, row++, &key)) == 0) || (check == DB_ERR_ROW_DELETED)) {
         if (key && *key && (gstrcmp(key, keyLast) != 0)) {
             return key;
         }
@@ -342,7 +255,7 @@ static char_t *umGetNextRowData(char_t *tableName, char_t *columnName,
 
 
 /*
-    umAddUser() - Adds a user to the "users" table.
+    Adds a user to the "users" table
  */
 int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t disabled)
 {
@@ -353,7 +266,7 @@ int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t dis
     a_assert(pass && *pass);
     a_assert(group && *group);
 
-    trace(3, T("UM: Adding User <%s>\n"), user);
+    trace(3, T("UM: Adding User <%s>"), user);
 
     /*
         Do not allow duplicates
@@ -361,21 +274,12 @@ int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t dis
     if (umUserExists(user)) {
         return UM_ERR_DUPLICATE;
     }
-
-    /*
-        Make sure user name and password contain valid characters
-     */
-    if (!umCheckName(user)) {
+    if (!checkName(user)) {
         return UM_ERR_BAD_NAME;
     }
-
-    if (!umCheckName(pass)) {
+    if (!checkName(pass)) {
         return UM_ERR_BAD_PASSWORD;
     }
-
-    /*
-        Make sure group exists
-     */
     if (!umGroupExists(group)) {
         return UM_ERR_NOT_FOUND;
     }
@@ -383,54 +287,48 @@ int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t dis
     /*
         Now create the user record
      */
-    row = dbAddRow(didUM, UM_USER_TABLENAME);
+    row = dbAddRow(udb, UM_USER_TABLENAME);
 
     if (row < 0) {
         return UM_ERR_GENERAL;
     }
-    if (dbWriteStr(didUM, UM_USER_TABLENAME, UM_NAME, row, user) != 0) {
+    if (dbWriteStr(udb, UM_USER_TABLENAME, UM_NAME, row, user) != 0) {
         return UM_ERR_GENERAL;
     }
     password = bstrdup(pass);
-    umEncryptString(password);
-    dbWriteStr(didUM, UM_USER_TABLENAME, UM_PASS, row, password);
+    cryptPassword(password);
+    dbWriteStr(udb, UM_USER_TABLENAME, UM_PASS, row, password);
     bfree(password);
-    dbWriteStr(didUM, UM_USER_TABLENAME, UM_GROUP, row, group);
-    dbWriteInt(didUM, UM_USER_TABLENAME, UM_PROT, row, prot); 
-    dbWriteInt(didUM, UM_USER_TABLENAME, UM_DISABLE, row, disabled);
 
+    dbWriteStr(udb, UM_USER_TABLENAME, UM_GROUP, row, group);
+    dbWriteInt(udb, UM_USER_TABLENAME, UM_PROT, row, prot); 
+    dbWriteInt(udb, UM_USER_TABLENAME, UM_DISABLE, row, disabled);
     return 0;
 }
 
 
-/*
-    umDeleteUser() - remove a user from the "users" table
- */
 int umDeleteUser(char_t *user)
 {
     int row;
 
     a_assert(user && *user);
-    trace(3, T("UM: Deleting User <%s>\n"), user);
+    trace(3, T("UM: Deleting User <%s>"), user);
+
     /*
         Check to see if user is delete-protected
      */
     if (umGetUserProtected(user)) {
         return UM_ERR_PROTECTED;
     } 
-    /*
-        If found, delete the user from the database
-     */
-    if ((row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0)) >= 0) {
-        return dbDeleteRow(didUM, UM_USER_TABLENAME, row);
+    if ((row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0)) >= 0) {
+        return dbDeleteRow(udb, UM_USER_TABLENAME, row);
     } 
     return UM_ERR_NOT_FOUND;
 }
 
 
 /*
-    umGetFirstUser() -  Returns the user ID of the first user found in the
-                        "users" table.
+    Returns the user ID of the first user found in the "users" table
  */
 char_t *umGetFirstUser()
 {
@@ -439,8 +337,7 @@ char_t *umGetFirstUser()
 
 
 /*
-    umGetNextUser() Returns the next user found in the "users" table after
-                    the given user.     
+    Returns the next user found in the "users" table after the given user.
  */
 char_t *umGetNextUser(char_t *userLast)
 {
@@ -448,94 +345,83 @@ char_t *umGetNextUser(char_t *userLast)
 }
 
 
-/*
-    umUserExists()  Returns TRUE if userid exists.
- */
 bool_t umUserExists(char_t *user)
 {
     a_assert(user && *user);
-    return dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0) >= 0;
+    return dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0) >= 0;
 }
 
 
 /*
-    umGetUserPassword() returns a de-crypted copy of the user password
+    Returns a decrypted copy of the user password
  */
 char_t *umGetUserPassword(char_t *user)
 {
-    char_t  *password;
+    char_t  *password, *pass;
     int     row;
 
     a_assert(user && *user);
 
     password = NULL;
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
-
-    if (row >= 0) {
-        char_t *pass = NULL;
-        dbReadStr(didUM, UM_USER_TABLENAME, UM_PASS, row, &pass);
+    if ((row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0)) >= 0) {
+        pass = NULL;
+        dbReadStr(udb, UM_USER_TABLENAME, UM_PASS, row, &pass);
         /*
-            Decrypt password. Note, this function returns a copy of the password, which must be deleted at some time in
-            the future.
+            Decrypt password. This returns a copy of the password, which must be deleted at some time in the future.
          */
         password = bstrdup(pass);
-        umEncryptString(password);
+        cryptPassword(password);
     }
     return password;
 }
 
+
 /*
-    umSetUserPassword() updates the user password in the user "table" after
-                        encrypting the given password
+    Updates the user password in the user "table" after encrypting the given password
  */
 int umSetUserPassword(char_t *user, char_t *pass)
 {
-    int     row, nRet;
     char_t  *password;
+    int     row, rc;
 
     a_assert(user && *user);
     a_assert(pass && *pass);
-    trace(3, T("UM: Attempting to change the password for user <%s>\n"), user);
+    trace(3, T("UM: Attempting to change the password for user <%s>"), user);
 
     /*
         Find the row of the user
      */
-    if ((row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0)) < 0) {
+    if ((row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0)) < 0) {
         return UM_ERR_NOT_FOUND;
     }
     password = bstrdup(pass);
-    umEncryptString(password);
-    nRet = dbWriteStr(didUM, UM_USER_TABLENAME, UM_PASS, row, password);
+    cryptPassword(password);
+    rc = dbWriteStr(udb, UM_USER_TABLENAME, UM_PASS, row, password);
     bfree(password);
-
-    return nRet;
+    return rc;
 }
 
 
-/*
-    umGetUserGroup() returns the name of the user group
- */
 char_t *umGetUserGroup(char_t *user)
 {
     char_t  *group;
     int     row;
 
     a_assert(user && *user);
-    group = NULL;
     /*
         Find the row of the user
      */
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
-
+    row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0);
+    group = NULL;
     if (row >= 0) {
-        dbReadStr(didUM, UM_USER_TABLENAME, UM_GROUP, row, &group);
+        dbReadStr(udb, UM_USER_TABLENAME, UM_GROUP, row, &group);
     }
     return group;
 }
 
 
 /*
-    umSetUserGroup() Sets the name of the user group for the user
+    Set the name of the user group for the user
  */
 int umSetUserGroup(char_t *user, char_t *group)
 {
@@ -547,39 +433,34 @@ int umSetUserGroup(char_t *user, char_t *group)
     /*
         Find the row of the user
      */
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
+    row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0);
     if (row >= 0) {
-        return dbWriteStr(didUM, UM_USER_TABLENAME, UM_GROUP, row, group);
+        return dbWriteStr(udb, UM_USER_TABLENAME, UM_GROUP, row, group);
     } else {
         return UM_ERR_NOT_FOUND;
     }
 }
 
 /*
-    umGetUserEnabled() - returns if the user is enabled
-    Returns FALSE if the user is not found.
+    Returns if the user is enabled. Returns FALSE if the user is not found.
  */
 bool_t  umGetUserEnabled(char_t *user)
 {
     int disabled, row;
 
     a_assert(user && *user);
-
     disabled = 1;
     /*
         Find the row of the user
      */
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
+    row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0);
     if (row >= 0) {
-        dbReadInt(didUM, UM_USER_TABLENAME, UM_DISABLE, row, &disabled);
+        dbReadInt(udb, UM_USER_TABLENAME, UM_DISABLE, row, &disabled);
     }
     return (bool_t)!disabled;
 }
 
 
-/*
-    umSetUserEnabled() Enables/disables the user
- */
 int umSetUserEnabled(char_t *user, bool_t enabled)
 {
     int row;
@@ -588,9 +469,9 @@ int umSetUserEnabled(char_t *user, bool_t enabled)
     /*
         Find the row of the user
      */
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
+    row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0);
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_USER_TABLENAME, UM_DISABLE, row, !enabled);
+        return dbWriteInt(udb, UM_USER_TABLENAME, UM_DISABLE, row, !enabled);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -598,7 +479,7 @@ int umSetUserEnabled(char_t *user, bool_t enabled)
 
 
 /*
-    umGetUserProtected() - determine deletability of user
+    Determine deletability of user
  */
 bool_t umGetUserProtected(char_t *user)
 {
@@ -608,17 +489,17 @@ bool_t umGetUserProtected(char_t *user)
     /*
         Find the row of the user
      */
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
+    row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0);
     protect = 0;
     if (row >= 0) {
-        dbReadInt(didUM, UM_USER_TABLENAME, UM_PROT, row, &protect);
+        dbReadInt(udb, UM_USER_TABLENAME, UM_PROT, row, &protect);
     }
     return (bool_t) protect;
 }
 
 
 /*
-    umSetUserProtected() sets the delete protection for the user
+    Sets the delete protection for the user
  */
 int umSetUserProtected(char_t *user, bool_t protect)
 {
@@ -628,24 +509,21 @@ int umSetUserProtected(char_t *user, bool_t protect)
     /*
         Find the row of the user
      */
-    row = dbSearchStr(didUM, UM_USER_TABLENAME, UM_NAME, user, 0);
+    row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0);
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_USER_TABLENAME, UM_PROT, row, protect);
+        return dbWriteInt(udb, UM_USER_TABLENAME, UM_PROT, row, protect);
     } else {
         return UM_ERR_NOT_FOUND;
     }
 }
 
 
-/*
-    umAddGroup() adds a group to the "Group" table
- */
 int umAddGroup(char_t *group, short priv, accessMeth_t am, bool_t prot, bool_t disabled)
 {
     int row;
 
     a_assert(group && *group);
-    trace(3, T("UM: Adding group <%s>\n"), group);
+    trace(3, T("UM: Adding group <%s>"), group);
     
     /*
         Do not allow duplicates
@@ -653,48 +531,35 @@ int umAddGroup(char_t *group, short priv, accessMeth_t am, bool_t prot, bool_t d
     if (umGroupExists(group)) {
         return UM_ERR_DUPLICATE;
     }
-
-    /*
-        Only allow valid characters in key field
-     */
-    if (!umCheckName(group)) {
+    if (!checkName(group)) {
         return UM_ERR_BAD_NAME;
     }
-
-    /*
-        Add a new row to the table
-     */
-    if ((row = dbAddRow(didUM, UM_GROUP_TABLENAME)) < 0) {
+    if ((row = dbAddRow(udb, UM_GROUP_TABLENAME)) < 0) {
         return UM_ERR_GENERAL;
     }
-
     /*
         Write the key field
      */
-    if (dbWriteStr(didUM, UM_GROUP_TABLENAME, UM_NAME, row, group) != 0) {
+    if (dbWriteStr(udb, UM_GROUP_TABLENAME, UM_NAME, row, group) != 0) {
         return UM_ERR_GENERAL;
     }
-
     /*
         Write the remaining fields
      */
-    dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_PRIVILEGE, row, priv);
-    dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_METHOD, row, (int) am);
-    dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_PROT, row, prot);
-    dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_DISABLE, row, disabled);
+    dbWriteInt(udb, UM_GROUP_TABLENAME, UM_PRIVILEGE, row, priv);
+    dbWriteInt(udb, UM_GROUP_TABLENAME, UM_METHOD, row, (int) am);
+    dbWriteInt(udb, UM_GROUP_TABLENAME, UM_PROT, row, prot);
+    dbWriteInt(udb, UM_GROUP_TABLENAME, UM_DISABLE, row, disabled);
     return 0;
 }
 
 
-/*
-    umDeleteGroup() - Delete a user group, if not protected
- */
 int umDeleteGroup(char_t *group)
 {
     int row;
 
     a_assert(group && *group);
-    trace(3, T("UM: Deleting Group <%s>\n"), group);
+    trace(3, T("UM: Deleting Group <%s>"), group);
 
     /*
         Check to see if the group is in use
@@ -702,37 +567,31 @@ int umDeleteGroup(char_t *group)
     if (umGetGroupInUse(group)) {
         return UM_ERR_IN_USE;
     } 
-
     /*
         Check to see if the group is delete-protected
      */
     if (umGetGroupProtected(group)) {
         return UM_ERR_PROTECTED;
     } 
-
     /*
         Find the row of the group to delete
      */
-    if ((row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0)) < 0) {
+    if ((row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0)) < 0) {
         return UM_ERR_NOT_FOUND;
     }
-
-    return dbDeleteRow(didUM, UM_GROUP_TABLENAME, row);
+    return dbDeleteRow(udb, UM_GROUP_TABLENAME, row);
 }
 
-/*
-    umGroupExists() returns TRUE if group exists, FALSE otherwise
- */
 
 bool_t umGroupExists(char_t *group)
 {
     a_assert(group && *group);
-    return dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0) >= 0;
+    return dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0) >= 0;
 }
 
 
 /*
-    umGetGroupInUse() returns TRUE if the group is referenced by a user or by an access limit.
+    Returns TRUE if the group is referenced by a user or by an access limit.
  */
 bool_t umGetGroupInUse(char_t *group)
 {
@@ -741,13 +600,13 @@ bool_t umGetGroupInUse(char_t *group)
     /*
         First, check the user table
      */
-    if (dbSearchStr(didUM, UM_USER_TABLENAME, UM_GROUP, group, 0) >= 0) {
+    if (dbSearchStr(udb, UM_USER_TABLENAME, UM_GROUP, group, 0) >= 0) {
         return 1;
     } 
     /*
         Second, check the access limit table
      */
-    if (dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_GROUP, group, 0) >= 0) {
+    if (dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_GROUP, group, 0) >= 0) {
         return 1;
     } 
     return 0;
@@ -755,16 +614,16 @@ bool_t umGetGroupInUse(char_t *group)
 
 
 /*
-    umGetFirstGroup() - return a pointer to the first non-blank group name
+    Return a pointer to the first non-blank group name
  */
 char_t *umGetFirstGroup()
 {
     return umGetFirstRowData(UM_GROUP_TABLENAME, UM_NAME);
 }
 
+
 /*
-    umGetNextGroup() -  return a pointer to the first non-blank group name
-                        following the given group name
+    Return a pointer to the first non-blank group name following the given group name
  */
 char_t *umGetNextGroup(char_t *groupLast)
 {
@@ -780,9 +639,9 @@ accessMeth_t umGetGroupAccessMethod(char_t *group)
     int am, row;
 
     a_assert(group && *group);
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
     if (row >= 0) {
-        dbReadInt(didUM, UM_GROUP_TABLENAME, UM_METHOD, row, (int *)&am);
+        dbReadInt(udb, UM_GROUP_TABLENAME, UM_METHOD, row, (int *)&am);
     } else {
         am = AM_INVALID;
     }
@@ -798,9 +657,9 @@ int umSetGroupAccessMethod(char_t *group, accessMeth_t am)
     int row;
 
     a_assert(group && *group);
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_METHOD, row, (int) am);
+        return dbWriteInt(udb, UM_GROUP_TABLENAME, UM_METHOD, row, (int) am);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -816,9 +675,9 @@ short umGetGroupPrivilege(char_t *group)
 
     a_assert(group && *group);
     privilege = -1;
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
     if (row >= 0) {
-        dbReadInt(didUM, UM_GROUP_TABLENAME, UM_PRIVILEGE, row, &privilege);
+        dbReadInt(udb, UM_GROUP_TABLENAME, UM_PRIVILEGE, row, &privilege);
     }
     return (short) privilege;
 }
@@ -832,10 +691,10 @@ int umSetGroupPrivilege(char_t *group, short privilege)
     int row;
 
     a_assert(group && *group);
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
 
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_PRIVILEGE, row, (int)privilege);
+        return dbWriteInt(udb, UM_GROUP_TABLENAME, UM_PRIVILEGE, row, (int)privilege);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -850,11 +709,11 @@ bool_t umGetGroupEnabled(char_t *group)
     int disabled, row;
 
     a_assert(group && *group);
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
     disabled = 1;
 
     if (row >= 0) {
-        dbReadInt(didUM, UM_GROUP_TABLENAME, UM_DISABLE, row, &disabled);
+        dbReadInt(udb, UM_GROUP_TABLENAME, UM_DISABLE, row, &disabled);
     }
     return (bool_t) !disabled;
 }
@@ -868,10 +727,10 @@ int umSetGroupEnabled(char_t *group, bool_t enabled)
     int row;
 
     a_assert(group && *group);
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
 
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_DISABLE, row, (int) !enabled);
+        return dbWriteInt(udb, UM_GROUP_TABLENAME, UM_DISABLE, row, (int) !enabled);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -888,9 +747,9 @@ bool_t umGetGroupProtected(char_t *group)
     a_assert(group && *group);
 
     protect = 0;
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
     if (row >= 0) {
-        dbReadInt(didUM, UM_GROUP_TABLENAME, UM_PROT, row, &protect);
+        dbReadInt(udb, UM_GROUP_TABLENAME, UM_PROT, row, &protect);
     }
     return (bool_t) protect;
 }
@@ -904,10 +763,10 @@ int umSetGroupProtected(char_t *group, bool_t protect)
     int row;
 
     a_assert(group && *group);
-    row = dbSearchStr(didUM, UM_GROUP_TABLENAME, UM_NAME, group, 0);
+    row = dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0);
 
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_GROUP_TABLENAME, UM_PROT, row, (int) protect);
+        return dbWriteInt(udb, UM_GROUP_TABLENAME, UM_PROT, row, (int) protect);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -915,14 +774,14 @@ int umSetGroupProtected(char_t *group, bool_t protect)
 
 
 /*
-    umAddAccessLimit() adds an access limit to the "access" table
+    Add an access limit to the "access" table
  */
 int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group)
 {
     int row;
 
     a_assert(url && *url);
-    trace(3, T("UM: Adding Access Limit for <%s>\n"), url);
+    trace(3, T("UM: Adding Access Limit for <%s>"), url);
 
     /*
         Do not allow duplicates
@@ -930,52 +789,47 @@ int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group)
     if (umAccessLimitExists(url)) {
         return UM_ERR_DUPLICATE;
     }
-
     /*
         Add a new row to the table
      */
-    if ((row = dbAddRow(didUM, UM_ACCESS_TABLENAME)) < 0) {
+    if ((row = dbAddRow(udb, UM_ACCESS_TABLENAME)) < 0) {
         return UM_ERR_GENERAL;
     }
-
     /*
         Write the key field
      */
-    if(dbWriteStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, row, url) < 0) {
+    if(dbWriteStr(udb, UM_ACCESS_TABLENAME, UM_NAME, row, url) < 0) {
         return UM_ERR_GENERAL;
     }
 
     /*
         Write the remaining fields
      */
-    dbWriteInt(didUM, UM_ACCESS_TABLENAME, UM_METHOD, row, (int)am);
-    dbWriteInt(didUM, UM_ACCESS_TABLENAME, UM_SECURE, row, (int)secure);
-    dbWriteStr(didUM, UM_ACCESS_TABLENAME, UM_GROUP, row, group);
+    dbWriteInt(udb, UM_ACCESS_TABLENAME, UM_METHOD, row, (int)am);
+    dbWriteInt(udb, UM_ACCESS_TABLENAME, UM_SECURE, row, (int)secure);
+    dbWriteStr(udb, UM_ACCESS_TABLENAME, UM_GROUP, row, group);
     return 0;
 }
 
 
-/*
-    umDeleteAccessLimit()
- */
 int umDeleteAccessLimit(char_t *url)
 {
     int row;
 
     a_assert(url && *url);
-    trace(3, T("UM: Deleting Access Limit for <%s>\n"), url);
+    trace(3, T("UM: Deleting Access Limit for <%s>"), url);
     /*
         Find the row of the access limit to delete
      */
-    if ((row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0)) < 0) {
+    if ((row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0)) < 0) {
         return UM_ERR_NOT_FOUND;
     }
-    return dbDeleteRow(didUM, UM_ACCESS_TABLENAME, row);
+    return dbDeleteRow(udb, UM_ACCESS_TABLENAME, row);
 }
 
 
 /*
-    umGetFirstGroup() - return a pointer to the first non-blank access limit
+    Return a pointer to the first non-blank access limit
  */
 char_t *umGetFirstAccessLimit()
 {
@@ -984,8 +838,7 @@ char_t *umGetFirstAccessLimit()
 
 
 /*
-    umGetNextAccessLimit() -    return a pointer to the first non-blank 
-                                access limit following the given one
+    Return a pointer to the first non-blank access limit following the given one
  */
 char_t *umGetNextAccessLimit(char_t *urlLast)
 {
@@ -999,38 +852,38 @@ char_t *umGetNextAccessLimit(char_t *urlLast)
 bool_t  umAccessLimitExists(char_t *url)
 {
     a_assert(url && *url);
-    return dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0) >= 0;
+    return dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0) >= 0;
 }
 
+
 /*
-    umGetAccessLimit() returns the Access Method for the URL
+    Returns the Access Method for the URL
  */
 accessMeth_t umGetAccessLimitMethod(char_t *url)
 {
     int am, row;
 
     am = (int) AM_INVALID;
-    row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
+    row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
 
     if (row >= 0) {
-        dbReadInt(didUM, UM_ACCESS_TABLENAME, UM_METHOD, row, &am);
+        dbReadInt(udb, UM_ACCESS_TABLENAME, UM_METHOD, row, &am);
     } 
     return (accessMeth_t) am;
 }
 
 
 /*
-    umSetAccessLimitMethod() - set Access Method for Access Limit
+    Set Access Method for Access Limit
  */
 int umSetAccessLimitMethod(char_t *url, accessMeth_t am)
 {
     int row;
 
     a_assert(url && *url);
-    row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
-
+    row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_ACCESS_TABLENAME, UM_METHOD, row, (int) am);
+        return dbWriteInt(udb, UM_ACCESS_TABLENAME, UM_METHOD, row, (int) am);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -1038,7 +891,7 @@ int umSetAccessLimitMethod(char_t *url, accessMeth_t am)
 
 
 /*
-    umGetAccessLimitSecure() - returns secure switch for access limit
+    Returns secure switch for access limit
  */
 short umGetAccessLimitSecure(char_t *url)
 {
@@ -1046,28 +899,27 @@ short umGetAccessLimitSecure(char_t *url)
 
     a_assert(url && *url);
     secure = -1;
-    row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
+    row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
 
     if (row >= 0) {
-        dbReadInt(didUM, UM_ACCESS_TABLENAME, UM_SECURE, row, &secure);
+        dbReadInt(udb, UM_ACCESS_TABLENAME, UM_SECURE, row, &secure);
     }
-
     return (short)secure;
 }
 
 
 /*
-    umSetAccessLimitSecure() - sets the secure flag for the URL
+    Sets the secure flag for the URL
  */
 int umSetAccessLimitSecure(char_t *url, short secure)
 {
     int row;
 
     a_assert(url && *url);
-    row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
+    row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
 
     if (row >= 0) {
-        return dbWriteInt(didUM, UM_ACCESS_TABLENAME, UM_SECURE, row, (int)secure);
+        return dbWriteInt(udb, UM_ACCESS_TABLENAME, UM_SECURE, row, (int)secure);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -1075,7 +927,7 @@ int umSetAccessLimitSecure(char_t *url, short secure)
 
 
 /*
-    umGetAccessLimitGroup() - returns the user group of the access limit
+    Returns the user group of the access limit
  */
 char_t *umGetAccessLimitGroup(char_t *url)
 {
@@ -1084,27 +936,25 @@ char_t *umGetAccessLimitGroup(char_t *url)
 
     a_assert(url && *url);
     group = NULL;
-    row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
-
+    row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
     if (row >= 0) {
-        dbReadStr(didUM, UM_ACCESS_TABLENAME, UM_GROUP, row, &group);
+        dbReadStr(udb, UM_ACCESS_TABLENAME, UM_GROUP, row, &group);
     }
     return group;
 }
 
 
 /*
-    umSetAccessLimitGroup() - sets the user group for the access limit.
+    Sets the user group for the access limit.
  */
 int umSetAccessLimitGroup(char_t *url, char_t *group)
 {
     int row;
 
     a_assert(url && *url);
-    row = dbSearchStr(didUM, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
-
+    row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
     if (row >= 0) {
-        return dbWriteStr(didUM, UM_ACCESS_TABLENAME, UM_GROUP, row, group);
+        return dbWriteStr(udb, UM_ACCESS_TABLENAME, UM_GROUP, row, group);
     } else {
         return UM_ERR_NOT_FOUND;
     }
@@ -1118,13 +968,14 @@ int umSetAccessLimitGroup(char_t *url, char_t *group)
 char_t *umGetAccessLimit(char_t *url)
 {
     char_t  *urlRet, *urlCheck, *lastChar;
-    int     len;
+    ssize   len;
     
     a_assert(url && *url);
     urlRet = NULL;
     urlCheck = bstrdup(url);
     a_assert(urlCheck);
     len = gstrlen(urlCheck);
+
     /*
         Scan back through URL to see if there is a "parent" access limit
      */
@@ -1200,14 +1051,12 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
     if (!umUserExists(user)) {
         return 0;
     }
-
     /*
         Make sure user is enabled
      */
     if (!umGetUserEnabled(user)) {
         return 0;
     }
-
     /*
         Make sure user has sufficient privileges (any will do)
      */
@@ -1216,14 +1065,9 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
     if (priv == 0) {
         return 0;
     }
-
-    /*
-        Make sure user's group is enabled
-     */
     if (!umGetGroupEnabled(usergroup)) {
         return 0;
     }
-
     /*
         The access method of the user group must not be AM_NONE
      */
@@ -1245,7 +1089,6 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
          */
         return 1;
     }
-
     /*
         If the access method for the URL is AM_NONE then the file "doesn't exist".
      */
@@ -1272,7 +1115,7 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
 /*
     Returns TRUE if given name has only valid chars
  */
-static bool_t umCheckName(char_t *name)
+static bool_t checkName(char_t *name)
 {
     a_assert(name && *name);
 
@@ -1289,6 +1132,40 @@ static bool_t umCheckName(char_t *name)
 }
 
 
+/*
+    Encrypt/Decrypt a text string
+ */
+static void cryptPassword(char_t *textString)
+{
+    char_t  c, *salt;
+
+    a_assert(textString);
+
+    salt = UM_SALT;
+    while (*textString) {
+        c = *textString ^ *salt;
+        /*
+            Do not produce encrypted text with embedded linefeeds or tabs. Simply use existing character.
+         */
+        if (c && !gisspace(c)) {
+            *textString = c;
+        }
+        /*
+            Increment all pointers.
+         */
+        salt++;
+        textString++;
+        /*
+            Wrap encryption mask pointer if at end of length.
+         */
+        if (*salt == '\0') {
+            salt = UM_SALT;
+        }
+    }
+}
+
+
+#if BIT_USER_MANAGEMENT_GUI
 void formDefineUserMgmt(void)
 {
     websAspDefine(T("MakeGroupList"), aspGenerateGroupList);
@@ -1306,7 +1183,9 @@ void formDefineUserMgmt(void)
     websFormDefine(T("DeleteAccessLimit"), formDeleteAccessLimit);
 
     websFormDefine(T("SaveUserManagement"), formSaveUserManagement);
+#if UNUSED
     websFormDefine(T("LoadUserManagement"), formLoadUserManagement);
+#endif
 }
 
 
@@ -1334,9 +1213,9 @@ static void formAddUser(webs_t wp, char_t *path, char_t *query)
         websWrite(wp, T("Confirmation Password did not match."));
     } else {
         if (enabled && *enabled && (gstrcmp(enabled, T("on")) == 0)) {
-            bDisable = FALSE;
+            bDisable = 0;
         } else {
-            bDisable = TRUE;
+            bDisable = 1;
         }
         nCheck = umAddUser(userid, pass1, group, 0, bDisable);
         if (nCheck != 0) {
@@ -1363,13 +1242,13 @@ static void formAddUser(webs_t wp, char_t *path, char_t *query)
                 strError = T("Error writing user record.");
                 break;
             }
-
-            websWrite(wp, T("Unable to add user, \"%s\".  %s"),
-                userid, strError);
+            websWrite(wp, T("Unable to add user, \"%s\".  %s"), userid, strError);
         } else {
-            websWrite(wp, T("User, \"%s\" was successfully added."),
-                userid);
+            websWrite(wp, T("User, \"%s\" was successfully added."), userid);
         }
+        //  MOB - where should commits be?
+        //  MOB - test commit status
+        umSave();
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1391,7 +1270,7 @@ static void formDeleteUser(webs_t wp, char_t *path, char_t *query)
 
     if (gstricmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Delete User Cancelled"));
-    } else if (umUserExists(userid) == FALSE) {
+    } else if (umUserExists(userid) == 0) {
         websWrite(wp, T("ERROR: User \"%s\" not found"), userid);
     } else if (umGetUserProtected(userid)) {
         websWrite(wp, T("ERROR: User, \"%s\" is delete-protected."), userid);
@@ -1421,7 +1300,7 @@ static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
 
     if (gstricmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Display User Cancelled"));
-    } else if (umUserExists(userid) == FALSE) {
+    } else if (umUserExists(userid) == 0) {
         websWrite(wp, T("ERROR: User <b>%s</b> not found.\n"), userid);
     } else {
         websWrite(wp, T("<h2>User ID: <b>%s</b></h2>\n"), userid);
@@ -1440,12 +1319,12 @@ static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
 static int aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv)
 {
     char_t  *userid;
-    int     row, nBytesSent, nBytes;
+    ssize   nBytes, nBytesSent;
+    int     row;
 
     a_assert(wp);
 
-    nBytes = websWrite(wp, 
-        T("<SELECT NAME=\"user\" SIZE=\"3\" TITLE=\"Select a User\">"));
+    nBytes = websWrite(wp, T("<SELECT NAME=\"user\" SIZE=\"3\" TITLE=\"Select a User\">"));
     row = 0;
     userid = umGetFirstUser();
     nBytesSent = 0;
@@ -1456,13 +1335,10 @@ static int aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv)
         nBytesSent += nBytes;
     }
     nBytesSent += websWrite(wp, T("</SELECT>"));
-    return nBytesSent;
+    return (int) nBytesSent;
 }
 
 
-/*
-    Add a group
- */
 static void formAddGroup(webs_t wp, char_t *path, char_t *query)
 {
     char_t          *group, *enabled, *privilege, *method, *ok, *pChar;
@@ -1512,18 +1388,19 @@ static void formAddGroup(webs_t wp, char_t *path, char_t *query)
             am = AM_FULL;
         }
         if (enabled && *enabled && (gstrcmp(enabled, T("on")) == 0)) {
-            bDisable = FALSE;
+            bDisable = 0;
         } else {
-            bDisable = TRUE;
+            bDisable = 1;
         }
         nCheck = umAddGroup(group, priv, am, 0, bDisable);
         if (nCheck != 0) {
-            websWrite(wp, T("Unable to add group, \"%s\", code: %d "),
-                group, nCheck);
+            websWrite(wp, T("Unable to add group, \"%s\", code: %d "), group, nCheck);
         } else {
-            websWrite(wp, T("Group, \"%s\" was successfully added."), 
-                group);
+            websWrite(wp, T("Group, \"%s\" was successfully added."), group);
         }
+        //  MOB - where should commits be?
+        //  MOB - test commit status
+        umSave();
     }
     websWrite(wp, MSG_END);
     websFooter(wp);
@@ -1565,7 +1442,8 @@ static void formDeleteGroup(webs_t wp, char_t *path, char_t *query)
 static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
 {
     char_t  *group;
-    int     row, nBytesSent, nBytes;
+    ssize   nBytesSent, nBytes;
+    int     row;
 
     a_assert(wp);
 
@@ -1574,7 +1452,7 @@ static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
     nBytes = websWrite(wp, T("<SELECT NAME=\"group\" SIZE=\"3\" TITLE=\"Select a Group\">"));
 
     /*
-     *  Add a special "<NONE>" element to allow de-selection
+     r  Add a special "<NONE>" element to allow de-selection
      */
     nBytes = websWrite(wp, T("<OPTION VALUE=\"\">[NONE]\n"));
 
@@ -1585,15 +1463,16 @@ static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
         nBytesSent += nBytes;
     }
     nBytesSent += websWrite(wp, T("</SELECT>"));
-    return nBytesSent;
+    return (int) nBytesSent;
 }
 
 
 static void formAddAccessLimit(webs_t wp, char_t *path, char_t *query)
 {
     char_t          *url, *method, *group, *secure, *ok;
-    int             nCheck;
     accessMeth_t    am;
+    int             nCheck;
+    //  MOB - change type
     short           nSecure;
 
     a_assert(wp);
@@ -1665,7 +1544,8 @@ static void formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query)
 static int aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **argv)
 {
     char_t  *url;
-    int     row, nBytesSent, nBytes;
+    ssize   nBytesSent, nBytes;
+    int     row;
 
     a_assert(wp);
 
@@ -1679,13 +1559,13 @@ static int aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **arg
         nBytesSent += nBytes;
     }
     nBytesSent += websWrite(wp, T("</SELECT>"));
-    return nBytesSent;
+    return (int) nBytesSent;
 }
 
 
 static int aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **argv)
 {
-    int     nBytes;
+    ssize     nBytes;
 
     a_assert(wp);
     nBytes = websWrite(wp, T("<SELECT NAME=\"method\" SIZE=\"3\" TITLE=\"Select a Method\">"));
@@ -1694,13 +1574,13 @@ static int aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **ar
     nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\" SELECTED>DIGEST ACCESS\n"), AM_DIGEST);
     nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">NO ACCESS\n"), AM_NONE);
     nBytes += websWrite(wp, T("</SELECT>")); 
-    return nBytes;
+    return (int) nBytes;
 }
 
 
 static int aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv)
 {
-    int     nBytes;
+    ssize     nBytes;
 
     a_assert(wp);
     nBytes = websWrite(wp, T("<SELECT NAME=\"privilege\" SIZE=\"3\" "));
@@ -1709,7 +1589,7 @@ static int aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv)
     nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">EXECUTE\n"), PRIV_WRITE);
     nBytes += websWrite(wp, T("<OPTION VALUE=\"%d\">ADMINISTRATE\n"), PRIV_ADMIN);
     nBytes += websWrite(wp, T("</SELECT>"));
-    return nBytes;
+    return (int) nBytes;
 }
 
 
@@ -1718,14 +1598,14 @@ static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
     char_t  *ok;
 
     a_assert(wp);
-
     ok = websGetVar(wp, T("ok"), T("")); 
     websHeader(wp);
     websWrite(wp, MSG_START);
 
     if (gstricmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Save Cancelled."));
-    } else if (umCommit(NULL) != 0) {
+//  MOB
+    } else if (umSave() != 0) {
         websWrite(wp, T("ERROR: Unable to save user configuration."));
     } else {
         websWrite(wp, T("User configuration was saved successfully."));
@@ -1736,12 +1616,12 @@ static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 }
 
 
+#if UNUSED
 static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
 {
     char_t  *ok;
 
     a_assert(wp);
-
     ok = websGetVar(wp, T("ok"), T("")); 
     websHeader(wp);
     websWrite(wp, MSG_START);
@@ -1756,6 +1636,9 @@ static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
     websFooter(wp);
     websDone(wp, 200);
 }
+#endif
+
+#endif /* BIT_USER_MANAGEMENT_GUI */
 
 #endif /* BIT_USER_MANAGEMENT */
 

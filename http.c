@@ -170,8 +170,7 @@ static char_t   accessLog[64] = T("access.log");    /* Log filename */
 static int      accessFd;                           /* Log file handle */
 #endif
 
-//  MOB - review
-static char_t   websRealm[64] = T("GoAhead");   /* Realm name */
+static char_t   websRealm[64] = T(BIT_DIGEST_REALM);
 
 static int      websListenSock;                 /* Listen socket */
 
@@ -184,14 +183,14 @@ static int      websOpenCount;                  /* count of apps using this modu
 /**************************** Forward Declarations ****************************/
 
 static int      setLocalHost();
-static int      websGetInput(webs_t wp, char_t **ptext, ssize *nbytes);
-static int      websParseFirst(webs_t wp, char_t *text);
-static void     websParseRequest(webs_t wp);
-static void     websSocketEvent(int sid, int mask, void* data);
+static int      getInput(webs_t wp, char_t **ptext, ssize *nbytes);
 static time_t   getTimeSinceMark(webs_t wp);
+static int      parseFirstLine(webs_t wp, char_t *text);
+static void     parseHeaders(webs_t wp);
+static void     socketEvent(int sid, int mask, void* data);
 
 #if BIT_ACCESS_LOG
-static void     websLog(webs_t wp, int code);
+static void     logRequest(webs_t wp, int code);
 #endif
 #if BIT_IF_MODIFIED
 static time_t   dateParse(time_t tip, char_t *cmd);
@@ -269,6 +268,8 @@ int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
     accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
     a_assert(accessFd >= 0);
 #endif
+    trace(0, T("Started HTTP service on %s:%d from %s\n"), ip ? ip : "*", port, documents);
+    trace(0, T("Started HTTPS service on %s:%d from %s\n"), ip ? ip : "*", sslPort, documents);
     return websOpenListen(ip, port, sslPort);
 }
 
@@ -309,7 +310,7 @@ void websCloseServer()
 
 int websOpenListen(char_t *ip, int port, int sslPort)
 {
-    if ((websListenSock = socketOpenConnection(ip, port, websAccept, 0)) < 0) {
+    if ((websListenSock = socketListen(ip, port, websAccept, 0)) < 0) {
         error(E_L, E_USER, T("Couldn't open a socket on port %d"), port);
         return -1;
     } 
@@ -327,19 +328,17 @@ int websOpenListen(char_t *ip, int port, int sslPort)
         fmtAlloc(&websHostUrl, WEBS_MAX_URL + 80, T("%s:%d"), websHost, port);
         fmtAlloc(&websIpaddrUrl, WEBS_MAX_URL + 80, T("%s:%d"), websIpaddr, port);
     }
-    trace(0, T("Started HTTP service on %s:%d\n"), ip ? ip : "*", port);
 
 #if BIT_PACK_SSL
     {
         socket_t    *sptr;
 
-        if ((sslListenSock = socketOpenConnection(ip, sslPort, websAccept, SOCKET_MYOWNBUFFERS)) < 0) {
-            trace(0, T("SSL: Unable to open SSL socket on port %d.\n"), port);
+        if ((sslListenSock = socketListen(ip, sslPort, websAccept, 0)) < 0) {
+            trace(0, T("Unable to open SSL socket on port %d.\n"), port);
             return -1;
         }
         sptr = socketPtr(sslListenSock);
         sptr->secure = 1;
-        trace(0, T("Started HTTPS service on %s:%d\n"), ip ? ip : "*", sslPort);
     }
 #endif
     return 0;
@@ -349,7 +348,11 @@ int websOpenListen(char_t *ip, int port, int sslPort)
 //  MOB- naming
 int websSSLIsOpen()
 {
+#if BIT_PACK_SSL
     return (sslListenSock != -1);
+#else
+    return 0;
+#endif
 }
 
 
@@ -370,7 +373,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     webs_t      wp;
     socket_t    *lp;
     int         wid, len;
-    char        *pString;
+    char        *cp;
     struct sockaddr_in ifAddr;
 
     a_assert(ipaddr && *ipaddr);
@@ -386,7 +389,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     wp = webs[wid];
     a_assert(wp);
     wp->listenSid = listenSid;
-    lp = socketPtr(wp->sid);
+    lp = socketPtr(listenSid);
 
     ascToUni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
 
@@ -397,8 +400,11 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (socklen_t*) &len) < 0) {
         return -1;
     }
-    pString = inet_ntoa(ifAddr.sin_addr);
-    gstrncpy(wp->ifaddr, pString, gstrlen(pString));
+    cp = inet_ntoa(ifAddr.sin_addr);
+    gstrncpy(wp->ifaddr, cp, gstrlen(cp));
+#if VXWORKS
+    free(cp);
+#endif
 
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
@@ -408,13 +414,17 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
             gstrcmp(wp->ipaddr, websHost) == 0) {
         wp->flags |= WEBS_LOCAL_REQUEST;
     }
+    /*
+        Arrange for socketEvent to be called when read data is available
+     */
+#if BIT_PACK_SSL
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
     }
-    /*
-        Arrange for websSocketEvent to be called when read data is available
-     */
-    socketCreateHandler(sid, SOCKET_READABLE, (lp->secure) ? websSSLSocketEvent : websSocketEvent, wp);
+    socketCreateHandler(sid, SOCKET_READABLE, (lp->secure) ? websSSLSocketEvent : socketEvent, wp);
+#else
+    socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
+#endif
 
     /*
         Arrange for a timeout to kill hung requests
@@ -429,7 +439,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     The webs socket handler.  Called in response to I/O. We just pass control to the relevant read or write handler. A
     pointer to the webs structure is passed as a (void*) in iwp.  
  */
-static void websSocketEvent(int sid, int mask, void* iwp)
+static void socketEvent(int sid, int mask, void* iwp)
 {
     webs_t  wp;
 
@@ -478,7 +488,7 @@ void websReadEvent(webs_t wp)
              Get more input into "text". Returns 0, if more data is needed to continue, -1 if finished with the request,
              or 1 if all required data is available for current state.
          */
-        while ((rc = websGetInput(wp, &text, &nbytes)) == 0) { }
+        while ((rc = getInput(wp, &text, &nbytes)) == 0) { }
         if (rc < 0) {
             break;
         }
@@ -490,7 +500,7 @@ void websReadEvent(webs_t wp)
             /*
                 Parse the first line of the Http header
              */
-            if (websParseFirst(wp, text) < 0) {
+            if (parseFirstLine(wp, text) < 0) {
                 done++;
                 break;
             }
@@ -507,13 +517,13 @@ void websReadEvent(webs_t wp)
             ringqPutStr(&wp->header, text);
             break;
 
+        //  MOB - refactor POST_CLEN into POST
         case WEBS_POST_CLEN:
             /*
-                POST request with content specified by a content length.  If this is a CGI request, write the data to
-                the cgi stdin.
+                POST request with content specified by a content length.  
+                If this is a CGI request, write the data to the cgi stdin.
              */
 #if BIT_CGI
-            //  MOB - refactor as a handler 
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
                     fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
@@ -580,7 +590,6 @@ void websReadEvent(webs_t wp)
                 socketGets was used to get the data and it strips \n's so add them back in here.
              */
 #if BIT_CGI
-            //  MOB - refactor CGI to a handler
             if (wp->flags & WEBS_CGI_REQUEST) {
                 if (fd == -1) {
                     fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
@@ -626,8 +635,7 @@ void websReadEvent(webs_t wp)
     and may be zero. It returns -1 for errors. It returns 0 for EOF. Otherwise it returns the number of bytes read.
     Since this may be zero, callers should use socketEof() to distinguish between this and EOF.
  */
-//  MOB - rename because static
-static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes) 
+static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes) 
 {
     char_t  *text;
     char    buf[WEBS_SOCKET_BUFSIZ+1];
@@ -641,8 +649,7 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
     *pnbytes = 0;
 
     /*
-        If this request is a POST with a content length, we know the number
-        of bytes to read so we use socketRead().
+        If this request is a POST with a content length, we know the number of bytes to read so we use socketRead().
      */
     if (wp->state == WEBS_POST_CLEN) {
         len = (wp->clen > WEBS_SOCKET_BUFSIZ) ? WEBS_SOCKET_BUFSIZ : wp->clen;
@@ -661,18 +668,11 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
 #else
         nbytes = socketRead(wp->sid, buf, len);
 #endif
-        if (nbytes < 0) {                       /* Error */
+        if (nbytes < 0) {                       /* Error or EOF */
             websDone(wp, 0);
             return -1;
 
-        }  else if (nbytes == 0) {              /* EOF or No data available */
-            /*
-               Infinite CPU usage if not all post data is sent. This is a side-effect of socketRead whose return value
-               does not distinguish between EOF and no-data and we have to explicitly use the socketEof() to test for it.
-             */
-            if (socketEof(wp->sid)) {
-                websDone(wp, 0);
-            }
+        }  else if (nbytes == 0) {              /* No data available */
             return -1;
 
         } else {                                /* Valid data */
@@ -730,7 +730,7 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
                     websDone(wp, 0);
                     return -1;
                 }
-            } else if (wp->state == WEBS_HEADER){
+            } else if (wp->state == WEBS_HEADER) {
                 /*
                  If state is WEBS_HEADER and the ringq is empty, then this is a simple request with no additional header
                  fields to process and no empty line terminator. NOTE: this fix for earlier versions of browsers is
@@ -753,22 +753,23 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
                 /*
                     Valid empty line, now finished with header
                  */
-                websParseRequest(wp);
+                trace(2, T("\n"));
+                parseHeaders(wp);
                 if (wp->flags & WEBS_POST_REQUEST) {
                     if (wp->flags & WEBS_CLEN) {
                         wp->state = WEBS_POST_CLEN;
                         clen = wp->clen;
+                        if (wp->clen > 0) {
+                            /* Need to get more data */
+                            return 0;
+                        }
                     } else {
                         wp->state = WEBS_POST;
-                        clen = 1;
+                        if (!(wp->flags & WEBS_HTTP11)) {
+                            return 0;
+                        }
+                        /* HTTP/1.1 without a content length */
                     }
-                    if (clen > 0) {
-                        /*
-                            Return 0 to get more data.
-                         */
-                        return 0;
-                    }
-                    return 1;
                 }
                 /*
                     We've read the header so go and handle the request
@@ -782,6 +783,17 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
     a_assert(nbytes > 0);
     *ptext = text;
     *pnbytes = nbytes;
+
+    /*
+        Trace the request 
+     */
+    if (wp->state <= WEBS_HEADER) {
+        if (wp->state == WEBS_BEGIN) {
+            trace(2, T("<<< Request\n%s\n"), text);
+        } else {
+            trace(2, T("%s\n"), text);
+        }
+    }
     return 1;
 }
 
@@ -789,7 +801,7 @@ static int websGetInput(webs_t wp, char_t **ptext, ssize *pnbytes)
 /*
     Parse the first line of a HTTP request
  */
-static int websParseFirst(webs_t wp, char_t *text)
+static int parseFirstLine(webs_t wp, char_t *text)
 {
     char_t  *op, *proto, *protoVer, *url, *host, *query, *path, *port, *ext;
     char_t  *buf;
@@ -816,10 +828,6 @@ static int websParseFirst(webs_t wp, char_t *text)
             return -1;
         }
     }
-
-    /*
-        Store result in the form (CGI) variable store
-     */
     websSetVar(wp, T("REQUEST_METHOD"), op);
 
     url = gstrtok(NULL, T(" \t\n"));
@@ -842,8 +850,7 @@ static int websParseFirst(webs_t wp, char_t *text)
     wp->url = bstrdup(url);
 
 #if BIT_CGI
-    //  MOB - refactor as a handler
-    if (gstrstr(url, CGI_BIN) != NULL) {
+    if (gstrstr(url, BIT_CGI_BIN) != NULL) {
         wp->flags |= WEBS_CGI_REQUEST;
         if (wp->flags & WEBS_POST_REQUEST) {
             wp->cgiStdin = websGetCgiCommName();
@@ -855,8 +862,8 @@ static int websParseFirst(webs_t wp, char_t *text)
     wp->path = bstrdup(path);
     wp->protocol = bstrdup(proto);
     wp->protoVersion = bstrdup(protoVer);
-    if (strcmp(protoVer, "HTTP/1.1") == 0) {
-        wp->flags |= WEBS_KEEP_ALIVE;
+    if (gmatch(protoVer, "HTTP/1.1")) {
+        wp->flags |= WEBS_KEEP_ALIVE | WEBS_HTTP11;
     }
     if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
         wp->port = testPort;
@@ -878,15 +885,12 @@ static int websParseFirst(webs_t wp, char_t *text)
  */
 #define isgoodchar(s) (gisalnum((s)) || ((s) == '/') || ((s) == '_') || ((s) == '.')  || ((s) == '-') )
 
-static void websParseRequest(webs_t wp)
+static void parseHeaders(webs_t wp)
 {
     char_t  *authType, *upperKey, *cp, *browser, *lp, *key, *value, *userAuth;
 
     a_assert(websValid(wp));
 
-    /*
-        Define default CGI values
-     */
     websSetVar(wp, T("HTTP_AUTHORIZATION"), T(""));
 
     /* 
@@ -988,7 +992,7 @@ static void websParseRequest(webs_t wp)
 
                 wp->flags |= WEBS_AUTH_DIGEST;
                 /*
-                    Move cp to Next word beyond "Digest", vp to first char after '='.
+                    Move cp to next word beyond "Digest", vp to first char after '='.
                  */
                 cp = value;
                 while (isgoodchar(*cp)) {
@@ -1153,6 +1157,7 @@ void websSetEnv(webs_t wp)
     websSetVar(wp, T("REMOTE_HOST"), wp->ipaddr);
     websSetVar(wp, T("REMOTE_ADDR"), wp->ipaddr);
     websSetVar(wp, T("PATH_INFO"), wp->path);
+    //  MOB - IPV6
     stritoa(websPort, portBuf, sizeof(portBuf));
     websSetVar(wp, T("SERVER_PORT"), portBuf);
     websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
@@ -1310,17 +1315,17 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
             Redirect behaves much better when sent with HTTP/1.0
          */
         if (redirect != NULL) {
-            websWrite(wp, T("HTTP/1.0 %d %s\r\n"), code, websErrorMsg(code));
+            websWriteHeader(wp, T("HTTP/1.0 %d %s\r\n"), code, websErrorMsg(code));
         } else {
-            websWrite(wp, T("HTTP/1.1 %d %s\r\n"), code, websErrorMsg(code));
+            websWriteHeader(wp, T("HTTP/1.1 %d %s\r\n"), code, websErrorMsg(code));
         }
         /*
             The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
          */
-        websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
+        websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
 
         if ((date = websGetDateString(NULL)) != NULL) {
-            websWrite(wp, T("Date: %s\r\n"), date);
+            websWriteHeader(wp, T("Date: %s\r\n"), date);
             bfree(date);
         }
         /*
@@ -1328,13 +1333,13 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
          */
         if (code == 401) {
             if (!(wp->flags & WEBS_AUTH_DIGEST)) {
-                websWrite(wp, T("WWW-Authenticate: Basic realm=\"%s\"\r\n"), websGetRealm());
+                websWriteHeader(wp, T("WWW-Authenticate: Basic realm=\"%s\"\r\n"), websGetRealm());
 #if BIT_DIGEST_AUTH
             } else {
                 char_t *nonce, *opaque;
                 nonce = websCalcNonce(wp);
                 opaque = websCalcOpaque(wp); 
-                websWrite(wp, 
+                websWriteHeader(wp, 
                     T("WWW-Authenticate: Digest realm=\"%s\", domain=\"%s\",")
                     T("qop=\"%s\", nonce=\"%s\", opaque=\"%s\",")
                     T("algorithm=\"%s\", stale=\"%s\"\r\n"), 
@@ -1349,14 +1354,14 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
             }
         }
         if (wp->flags & WEBS_KEEP_ALIVE) {
-            websWrite(wp, T("Connection: keep-alive\r\n"));
+            websWriteHeader(wp, T("Connection: keep-alive\r\n"));
         }
-        websWrite(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
-        websWrite(wp, T("Content-Type: text/html\r\n"));
+        websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
+        websWriteHeader(wp, T("Content-Type: text/html\r\n"));
         if (redirect) {
-            websWrite(wp, T("Location: %s\r\n"), redirect);
+            websWriteHeader(wp, T("Location: %s\r\n"), redirect);
         }
-        websWrite(wp, T("\r\n"));
+        websWriteHeader(wp, T("\r\n\r\n"));
     }
 
     /*
@@ -1548,6 +1553,39 @@ char_t *websErrorMsg(int code)
 
 
 /*
+    Trace a response header
+ */
+ssize websWriteHeader(webs_t wp, char_t *fmt, ...)
+{
+    va_list      vargs;
+    char_t      *buf;
+    ssize        rc;
+    
+    a_assert(websValid(wp));
+
+    va_start(vargs, fmt);
+
+    buf = NULL;
+    rc = 0;
+    if (fmtValloc(&buf, WEBS_BUFSIZE, fmt, vargs) >= WEBS_BUFSIZE) {
+        trace(0, T("websWrite lost data, buffer overflow\n"));
+    }
+    va_end(vargs);
+    a_assert(buf);
+    if (buf) {
+        if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
+            wp->flags |= WEBS_RESPONSE_TRACED;
+            trace(2, T(">>> Response\n"));
+        }
+        trace(2, T("%s"), buf);
+        rc = websWriteBlock(wp, buf, gstrlen(buf));
+        bfree(buf);
+    }
+    return rc;
+}
+
+
+/*
     Do formatted output to the browser. This is the public ASP and form write procedure.
  */
 ssize websWrite(webs_t wp, char_t *fmt, ...)
@@ -1709,21 +1747,21 @@ void websDecodeUrl(char_t *decoded, char_t *token, ssize len)
 /*
     Output a log message in Common Log Format
         http://httpd.apache.org/docs/1.3/logs.html#common
-    If WEBS_SIMPLE_TIME is defined, then only the time() external API is used
+    If BIT_SIMPLE_TIME is defined, then only the time() external API is used
         and a simple, non-standard log format is used.
-    If WEBS_LOG_QUERY is defined, then the query string will be printed to
+    If BIT_LOG_QUERY is defined, then the query string will be printed to
         the log, in addition to the URL path.  This can be a security issue
         if the query string contains sensitive information that shouldn't
         be hanging around in log files.
     MOB - get rid of LOG_QUERY
  */
-static void websLog(webs_t wp, int code)
+static void logRequest(webs_t wp, int code)
 {
     char_t  *buf;
     char    *abuf;
     ssize   len;
     //  MOB - refactor. Remove simple time
-#if !WEBS_SIMPLE_TIME
+#if !BIT_SIMPLE_TIME
     time_t timer;
     struct tm localt;
 #if WIN
@@ -1736,7 +1774,7 @@ static void websLog(webs_t wp, int code)
 #endif
     a_assert(websValid(wp));
     buf = NULL;
-#if !WEBS_SIMPLE_TIME
+#if !BIT_SIMPLE_TIME
     time(&timer);
     localtime_r(&timer, &localt);
     strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt); 
@@ -1759,13 +1797,12 @@ static void websLog(webs_t wp, int code)
         wp->ipaddr,
         wp->userName == NULL ? "-" : wp->userName,
         timeStr, zoneStr,
-        wp->flags & WEBS_POST_REQUEST ? "POST" : 
-            (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"),
-#if WEBS_LOG_QUERY
+        wp->flags & WEBS_POST_REQUEST ? "POST" : (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"),
+#if BIT_LOG_QUERY
         wp->url, /* SECURITY - Printing the query can 'leak' private data */
 #else
         wp->path,
-#endif /* WEBS_LOG_QUERY */
+#endif /* BIT_LOG_QUERY */
         wp->protoVersion, code, dataStr);
 #else
     //  MOB - reverse conditional
@@ -1793,7 +1830,10 @@ void websTimeout(void *arg, int id)
     a_assert(websValid(wp));
 
     tm = getTimeSinceMark(wp) * 1000;
-    if (tm >= WEBS_TIMEOUT && !websDebug) {
+    if (websDebug) {
+        emfReschedCallback(id, (int) WEBS_TIMEOUT);
+        return;
+    } else if (tm >= WEBS_TIMEOUT) {
         websStats.timeouts++;
         emfUnschedCallback(id);
         wp->timeout = -1;
@@ -1822,7 +1862,7 @@ void websDone(webs_t wp, int code)
     }
 #if BIT_ACCESS_LOG
     if (! (wp->flags & WEBS_REQUEST_DONE)) {
-        websLog(wp, code);
+        logRequest(wp, code);
     }
 #endif
     websPageClose(wp);
@@ -1834,6 +1874,7 @@ void websDone(webs_t wp, int code)
     if (wp->flags & WEBS_SECURE) {
         websTimeoutCancel(wp);
         websSSLFlush(wp);
+        //  MOB - why close connection. Why not keep-alive?
         socketCloseConnection(wp->sid);
         websFree(wp);
         return;
@@ -1850,11 +1891,9 @@ void websDone(webs_t wp, int code)
             if (wp->header.buf) {
                 ringqFlush(&wp->header);
             }
-            socketCreateHandler(wp->sid, SOCKET_READABLE, websSocketEvent, 
-                wp);
+            socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
             websTimeoutCancel(wp);
-            wp->timeout = emfSchedCallback(WEBS_TIMEOUT, websTimeout,
-                (void *) wp);
+            wp->timeout = emfSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
             return;
         }
     } else {
@@ -1881,6 +1920,7 @@ int websAlloc(int sid)
     wp->state = WEBS_BEGIN;
     wp->docfd = -1;
     wp->timeout = -1;
+    a_assert(wp->flags == 0);
     ringqOpen(&wp->header, WEBS_HEADER_BUFINC, WEBS_MAX_HEADER);
 
     /*
@@ -2064,8 +2104,13 @@ static int setLocalHost()
 #if VXWORKS
     intaddr.s_addr = (ulong) hostGetByName(host);
     cp = inet_ntoa(intaddr);
+    //  MOB - OPT so don't copy if not unicode
+    ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    free(cp);
 #elif ECOS
     cp = inet_ntoa(eth0_bootp_data.bp_yiaddr);
+    //  MOB - OPT so don't copy if not unicode
+    ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 #else
     if ((hp = gethostbyname(host)) == NULL) {
         error(E_L, E_LOG, T("Can't get host address"));
@@ -2073,10 +2118,9 @@ static int setLocalHost()
     }
     memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
     cp = inet_ntoa(intaddr);
-#endif
     //  MOB - OPT so don't copy if not unicode
     ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
-    free(cp);
+#endif
     websSetIpaddr(wbuf);
     websSetHost(wbuf);
     return 0;
@@ -2160,6 +2204,14 @@ void websSetRequestPath(webs_t wp, char_t *dir, char_t *path)
 }
 
 
+void websRewriteRequest(webs_t wp, char_t *url)
+{
+    bfree(wp->url);
+    wp->url = bstrdup(url);
+    websSetRequestPath(wp, NULL, wp->url);
+}
+
+
 /*
     Set the Write handler for this socket
  */
@@ -2167,7 +2219,7 @@ void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp))
 {
     a_assert(websValid(wp));
     wp->writeSocket = fn;
-    socketCreateHandler(wp->sid, SOCKET_WRITABLE, websSocketEvent, wp);
+    socketCreateHandler(wp->sid, SOCKET_WRITABLE, socketEvent, wp);
 }
 
 
@@ -2798,8 +2850,7 @@ char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
         gstrcpy(buf, T("text/plain"));
         return buf;
     }
-    if (websUrlParse(url, &parsebuf, NULL, NULL, NULL, NULL, NULL, 
-            NULL, &ext) < 0) {
+    if (websUrlParse(url, &parsebuf, NULL, NULL, NULL, NULL, NULL, NULL, &ext) < 0) {
         gstrcpy(buf, T("text/plain"));
         return buf;
     }

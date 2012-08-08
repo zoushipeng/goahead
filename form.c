@@ -53,12 +53,10 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_
     if (sp == NULL) {
         websError(wp, 404, T("Form %s is not defined"), formName);
     } else {
-        fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.integer;
+        //  MOB - should be a typedef
+        fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.symbol;
         a_assert(fn);
         if (fn) {
-            /*
-                For good practice, forms must call websDone()
-             */
             (*fn)((void*) wp, formName, query);
         }
     }
@@ -77,7 +75,7 @@ int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *que
     if (fn == NULL) {
         return -1;
     }
-    symEnter(formSymtab, name, valueInteger((int) fn), (int) NULL);
+    symEnter(formSymtab, name, valueSymbol((void*) fn), (int) NULL);
     return 0;
 }
 
@@ -104,16 +102,16 @@ void websHeader(webs_t wp)
 {
     a_assert(websValid(wp));
 
-    websWrite(wp, T("HTTP/1.0 200 OK\n"));
+    websWriteHeader(wp, T("HTTP/1.0 200 OK\n"));
 
     /*
         The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
      */
-    websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
-    websWrite(wp, T("Pragma: no-cache\n"));
-    websWrite(wp, T("Cache-control: no-cache\n"));
-    websWrite(wp, T("Content-Type: text/html\n"));
-    websWrite(wp, T("\n"));
+    websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
+    websWriteHeader(wp, T("Pragma: no-cache\r\n"));
+    websWriteHeader(wp, T("Cache-control: no-cache\r\n"));
+    websWriteHeader(wp, T("Content-Type: text/html\r\n"));
+    websWriteHeader(wp, T("\r\n"));
     websWrite(wp, T("<html>\n"));
 }
 

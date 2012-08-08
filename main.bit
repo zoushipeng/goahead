@@ -25,32 +25,34 @@ Bit.load({
         /*
             Packs to disable when using --without all
          */
-        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
+        _minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
+        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'matrixssl' ],
 
         /*
             Log for request access logging
          */
-        accessLog: false,
+        accessLog: true,
 
         /*
             Directory for use when validating client certificates
          */
-        caPath: "./certs",
+        caPath: "",
 
         /*
             File of certificates 
          */
-        caFile: "./certs/cacert.pem",
+        caFile: "",
 
         /*
             Server certificate file for SSL
          */
-        certificate: "server.crt",
+        certificate: "",
 
         /*
-            Build with CGI support
+            Build with CGI support and directory for CGI programs.
          */
         cgi: true,
+        cgiBin: "cgi-bin",
 
         /*
             Build with debug and error logging support
@@ -59,8 +61,10 @@ Bit.load({
 
         /*
             Build with HTTP Digest Authentication support
+            Replace the realm with a unique name for your authentication
          */
         digestAuth: true,
+        digestRealm: "realm",
 
         /*
             Directory containing web documents to serve
@@ -75,7 +79,7 @@ Bit.load({
         /*
             Build with support for javascript web templates
          */
-        javascript: false,
+        javascript: true,
 
         /*
             Build with for Http Keep-Alive support
@@ -90,7 +94,7 @@ Bit.load({
         /*
             Server SSL key
          */
-        key: "server.key",
+        key: "",
 
         /*
             Include HTTP request query string in access log records
@@ -125,7 +129,8 @@ Bit.load({
         /*
             Build with user management support
          */
-        userManagement: false,
+        userManagement: true,
+        userManagementGui: true,
     },
 
     targets: {
@@ -139,7 +144,17 @@ Bit.load({
             sources: [ '*.c' ],
             headers: [ '*.h' ],
             depends: [ 'openssl', 'matrixssl' ],
+            exclude: /webcomp\.c|test\.c/,
             _resources: [ 'goahead.rc' ],
+        },
+
+        'goahead-test': {
+            enable: bit.settings.profile != 'release',
+            type: 'exe',
+            depends: [ ],
+            sources: [ '*.c' ],
+            exclude: /goahead\.c|webcomp\.c/,
+            depends: [ 'openssl', 'matrixssl' ],
         },
 
         /*
@@ -148,7 +163,8 @@ Bit.load({
         webcomp: {
             type: 'exe',
             depends: [ ],
-            sources: [ 'utils/*.c' ],
+            sources: [ 'webcomp.c' ],
+            exclude: /test\.c/,
             headers: [ '*.h' ],
         },
     },

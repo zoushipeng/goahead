@@ -61,7 +61,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     if ((cp = gstrchr(cgiName, '/')) != NULL) {
         *cp = '\0';
     }
-    fmtAlloc(&cgiPath, FNAMESIZE, T("%s/%s/%s"), websGetDefaultDir(), CGI_BIN, cgiName);
+    fmtAlloc(&cgiPath, FNAMESIZE, T("%s/%s/%s"), websGetDefaultDir(), BIT_CGI_BIN, cgiName);
 #if !VXWORKS
     /*
         See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
@@ -137,7 +137,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     n = 0;
     fmtAlloc(envp + n, FNAMESIZE, T("%s=%s"),T("PATH_TRANSLATED"), cgiPath);
     n++;
-    fmtAlloc(envp + n, FNAMESIZE, T("%s=%s/%s"),T("SCRIPT_NAME"), CGI_BIN, cgiName);
+    fmtAlloc(envp + n, FNAMESIZE, T("%s=%s/%s"),T("SCRIPT_NAME"), BIT_CGI_BIN, cgiName);
     n++;
     fmtAlloc(envp + n, FNAMESIZE, T("%s=%s"),T("REMOTE_USER"), wp->userName);
     n++;
@@ -221,7 +221,7 @@ void websCgiGatherOutput (cgiRec *cgip)
              */
             wp = cgip->wp;
             if (cgip->fplacemark == 0) {
-                websWrite(wp, T("HTTP/1.0 200 OK\r\n"));
+                websWriteHeader(wp, T("HTTP/1.0 200 OK\r\n"));
             }
             glseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nRead = gread(fdout, cgiBuf, FNAMESIZE)) > 0) {

@@ -8,7 +8,7 @@
     <Link>
       <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
     </Link>
   </ItemDefinitionGroup>
 
@@ -111,6 +111,7 @@
     <ClCompile Include="..\..\http.c" />
     <ClCompile Include="..\..\js.c" />
     <ClCompile Include="..\..\matrixssl.c" />
+    <ClCompile Include="..\..\openssl.c" />
     <ClCompile Include="..\..\rom-documents.c" />
     <ClCompile Include="..\..\rom.c" />
     <ClCompile Include="..\..\runtime.c" />

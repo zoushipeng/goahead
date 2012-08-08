@@ -1,0 +1,69 @@
+/*
+    Initialize for GoAhead unit tests
+ */
+require ejs.unix
+
+let config      = Config.OS + '-' + Config.CPU + '-' + 'debug'
+let bit         = Path('../' + config + '/inc/bit.h').readString()
+const HOST      = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "127.0.0.1"
+const HTTP      = "http://"  + HOST   + ":" + bit.replace(/.*BIT_HTTP_PORT *([0-9]+).*/ms, "$1")
+const SSL       = "https://" + HOST   + ":" + bit.replace(/.*BIT_SSL_PORT *([0-9]+).*/ms, "$1")
+// const HOSTV6    = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "[::1]"
+// const IPV6      = "http://"  + HOSTV6 + ":" + bit.replace(/.*Listen *\[::\]:([0-9]+).*/ms, "$1")
+const PIDFILE   = ".pidfile"
+
+shareUri("http", HTTP)
+shareUri("ssl", SSL)
+
+/*
+if (test.hostOs != "VXWORKS") {
+    shareUri("ipv6", IPV6)
+}
+*/
+
+let service
+if (test.hostOs == "VXWORKS") {
+    /* Configuration for VxWorks simulator */
+    if (!test.env["WIND_BASE"]) {
+        test.skip("WIND_BASE is not defined")
+    } else if (!test.env["WIND_HOST_TYPE"]) {
+        test.skip("WIND_HOST_TYPE is not defined")
+    } else {
+        let base: Path = test.env["WIND_BASE"]
+        let vxsim: Path = base.join("host", test.env["WIND_HOST_TYPE"], "bin/vxsim")
+        let image: Path = test.top.join("out", test.hostSystem, "bin", "goahead.out")
+        service = vxsim + " -f " + base.join("target/proj/linux_diab/default/vxWorks") + 
+            " -d simnet -tn vxsim0 -e " + HOST + " -size 134217728 -s vxargs"
+        Path("vxargs").write('ld < ' + image + '\n' + 'taskSpawn "goahead",100,0,200000,goahead\n')
+        if (!App.getenv("NOSERVER")) {
+            Cmd.killall("vxsim")
+        }
+    }
+} else {
+    let path = Cmd.locate("goahead").portable
+    let tree = App.dir.parent.portable
+    if (!path.startsWith(tree) && !path.startsWith(tree.trimStart('/private'))) {
+        let tree = App.dir.parent.portable
+        throw 'Appweb is located outside of the build tree:\ngoahead: ' + path + '\nPATH: ' + 
+            App.getenv('PATH').split(App.SearchSeparator)
+    }
+    service = path + " --log trace.txt:4 " + HTTP + " web"
+}
+
+if (test.phase == "init") {
+    if (test.cross) {
+        stdout.write("precompiling esp pages .. ")
+        Cmd("esp compile")
+    }
+    if (!App.getenv("SECOND")) {
+        rm(find(".", "*.mod"))
+        rm(find(".", "*.tdat"))
+        cleanDir("web/tmp")
+    }
+    stdout.write("connecting to web server .. ")
+    startService(service, {address: HTTP})
+} else {
+    stopService()
+}
+rm(find(".", "*.tdat"))
+Path("vxargs").remove()

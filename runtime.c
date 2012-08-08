@@ -470,6 +470,7 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
                 }
             }
             if (c == 'h' || c == 'l') {
+                //  MOB - need support for %Ld
                 f |= (c == 'h' ? flag_short : flag_long);
                 c = *fmt++;
             }
@@ -824,6 +825,18 @@ value_t valueInteger(long value)
 }
 
 
+value_t valueSymbol(void *value)
+{
+    value_t v;
+
+    memset(&v, 0x0, sizeof(v));
+    v.valid = 1;
+    v.type = symbol;
+    v.value.symbol = value;
+    return v;
+}
+
+
 value_t valueString(char_t* value, int flags)
 {
     value_t v;
@@ -871,7 +884,7 @@ void error(E_ARGS_DEC, int etype, char_t *fmt, ...)
     } else if (etype == E_ASSERT) {
         fmtAlloc(&buf, E_MAX_ERROR, T("Assertion %s, failed at %s %d\n"), fmtBuf, E_ARGS); 
     } else {
-      fmtAlloc(&buf, E_MAX_ERROR, T("Unknown error"));
+      fmtAlloc(&buf, E_MAX_ERROR, T("Unknown error\n"));
     }
     va_end(args);
     bfree(fmtBuf);
@@ -2090,7 +2103,7 @@ int gopen(char_t *path, int oflags, int mode)
     #if UNICODE
         fd = _wopen(path, oflags, mode);
     #else
-        error = _sopen_s(&fd, path, oflags, _SH_DENYNO, mode);
+        error = _sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600);
     #endif
 #else
     fd = open(path, oflags, mode);

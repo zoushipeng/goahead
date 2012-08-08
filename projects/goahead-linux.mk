@@ -17,6 +17,7 @@ LIBS     := -lpthread -lm -ldl
 
 all: prep \
         $(CONFIG)/bin/goahead \
+        $(CONFIG)/bin/goahead-test \
         $(CONFIG)/bin/webcomp
 
 .PHONY: prep
@@ -31,6 +32,7 @@ prep:
 
 clean:
 	rm -rf $(CONFIG)/bin/goahead
+	rm -rf $(CONFIG)/bin/goahead-test
 	rm -rf $(CONFIG)/bin/webcomp
 	rm -rf $(CONFIG)/obj/balloc.o
 	rm -rf $(CONFIG)/obj/cgi.o
@@ -43,6 +45,7 @@ clean:
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/matrixssl.o
+	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/rom-documents.o
 	rm -rf $(CONFIG)/obj/rom.o
 	rm -rf $(CONFIG)/obj/runtime.o
@@ -51,6 +54,7 @@ clean:
 	rm -rf $(CONFIG)/obj/ssl.o
 	rm -rf $(CONFIG)/obj/template.o
 	rm -rf $(CONFIG)/obj/um.o
+	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/webcomp.o
 
 clobber: clean
@@ -119,6 +123,11 @@ $(CONFIG)/obj/matrixssl.o: \
         $(CONFIG)/inc/bit.h
 	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc matrixssl.c
 
+$(CONFIG)/obj/openssl.o: \
+        openssl.c \
+        $(CONFIG)/inc/bit.h
+	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc openssl.c
+
 $(CONFIG)/obj/rom-documents.o: \
         rom-documents.c \
         $(CONFIG)/inc/bit.h
@@ -173,6 +182,7 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/obj/http.o \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/matrixssl.o \
+        $(CONFIG)/obj/openssl.o \
         $(CONFIG)/obj/rom-documents.o \
         $(CONFIG)/obj/rom.o \
         $(CONFIG)/obj/runtime.o \
@@ -181,12 +191,40 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/obj/ssl.o \
         $(CONFIG)/obj/template.o \
         $(CONFIG)/obj/um.o
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/um.o $(LIBS) $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/um.o $(LIBS) $(LDFLAGS)
+
+$(CONFIG)/obj/test.o: \
+        test.c \
+        $(CONFIG)/inc/bit.h
+	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test.c
+
+$(CONFIG)/bin/goahead-test:  \
+        $(CONFIG)/obj/balloc.o \
+        $(CONFIG)/obj/cgi.o \
+        $(CONFIG)/obj/crypt.o \
+        $(CONFIG)/obj/db.o \
+        $(CONFIG)/obj/default.o \
+        $(CONFIG)/obj/form.o \
+        $(CONFIG)/obj/handler.o \
+        $(CONFIG)/obj/http.o \
+        $(CONFIG)/obj/js.o \
+        $(CONFIG)/obj/matrixssl.o \
+        $(CONFIG)/obj/openssl.o \
+        $(CONFIG)/obj/rom-documents.o \
+        $(CONFIG)/obj/rom.o \
+        $(CONFIG)/obj/runtime.o \
+        $(CONFIG)/obj/security.o \
+        $(CONFIG)/obj/socket.o \
+        $(CONFIG)/obj/ssl.o \
+        $(CONFIG)/obj/template.o \
+        $(CONFIG)/obj/test.o \
+        $(CONFIG)/obj/um.o
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/test.o $(CONFIG)/obj/um.o $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/webcomp.o: \
-        utils/webcomp.c \
+        webcomp.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/goahead.h \

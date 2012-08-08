@@ -611,11 +611,9 @@
 typedef int64 filepos;
 
 #if DOXYGEN
-    typedef int socklen;
+    typedef int socklen_t;
 #elif VXWORKS || BLD_WIN_LIKE
-    typedef int socklen;
-#else
-    typedef socklen_t socklen;
+    typedef int socklen_t;
 #endif
 
 typedef int64 datetime;
@@ -855,7 +853,6 @@ extern int parseArgs(char *args, char **argv, int maxArgc);
 #endif /* ECOS */
 
 #if BIT_WIN_LIKE
-    typedef int socklen_t;
     #ifndef EWOULDBLOCK
         #define EWOULDBLOCK WSAEWOULDBLOCK
     #endif
@@ -1196,9 +1193,9 @@ typedef struct {
         void    *symbol;
     } value;
 
-    vtype_t         type;
-    unsigned int    valid       : 8;
-    unsigned int    allocated   : 8;        /* String was allocated */
+    vtype_t     type;
+    uint        valid       : 8;
+    uint        allocated   : 8;        /* String was allocated */
 } value_t;
 
 /*
@@ -1339,16 +1336,16 @@ extern int      cronFree(cron_t *cp);
  */
 #define SOCKET_EOF              0x1     /* Seen end of file */
 #define SOCKET_CONNECTING       0x2     /* Connect in progress */
-#define SOCKET_BROADCAST        0x4     /* Broadcast mode */
-#define SOCKET_PENDING          0x8     /* Message pending on this socket */
-#define SOCKET_FLUSHING         0x10    /* Background flushing */
-#define SOCKET_DATAGRAM         0x20    /* Use datagrams */
-#define SOCKET_ASYNC            0x40    /* Use async connect */
-#define SOCKET_BLOCK            0x80    /* Use blocking I/O */
-#define SOCKET_LISTENING        0x100   /* Socket is server listener */
-#define SOCKET_CLOSING          0x200   /* Socket is closing */
-#define SOCKET_CONNRESET        0x400   /* Socket connection was reset */
-#define SOCKET_MYOWNBUFFERS     0x800   /* Not using inBuf/outBuf ringq */
+#define SOCKET_PENDING          0x4     /* Message pending on this socket */
+#define SOCKET_FLUSHING         0x8     /* Background flushing */
+#define SOCKET_ASYNC            0x10    /* Use async connect */
+#define SOCKET_BLOCK            0x20    /* Use blocking I/O */
+#define SOCKET_LISTENING        0x40    /* Socket is server listener */
+#define SOCKET_CLOSING          0x80    /* Socket is closing */
+#define SOCKET_CONNRESET        0x100   /* Socket connection was reset */
+
+//  MOB - unused remove
+#define SOCKET_OWN_BUFFERS      0x200   /* Not using inBuf/outBuf ringq */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
 
@@ -1373,12 +1370,12 @@ extern int      cronFree(cron_t *cp);
 typedef void    (*socketHandler_t)(int sid, int mask, void* data);
 typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, int listenSid);
 typedef struct {
-    char            host[64];               /* Host name */
     ringq_t         inBuf;                  /* Input ring queue */
     ringq_t         outBuf;                 /* Output ring queue */
     ringq_t         lineBuf;                /* Line ring queue */
     socketAccept_t  accept;                 /* Accept handler */
     socketHandler_t handler;                /* User I/O handler */
+    char            *ip;                    /* Server listen address or remote client address */
     void            *handler_data;          /* User handler data */
     int             handlerMask;            /* Handler events of interest */
     int             sid;                    /* Index into socket[] */
@@ -1397,9 +1394,9 @@ typedef struct {
 extern socket_t     **socketList;           /* List of open sockets */
 
 /********************************* Prototypes *********************************/
-/*
-    Memory allocation
- */
+
+//  MOB - sort all prototypes
+//  MOB - doxygen (copy text from web page)
 
 extern void bclose();
 extern int  bopen(void *buf, int bufsize, int flags);
@@ -1489,8 +1486,11 @@ extern void     ringqAddNull(ringq_t *rq);
 extern int      scriptSetVar(int engine, char_t *var, char_t *value);
 extern int      scriptEval(int engine, char_t *cmd, char_t **rslt, void* chan);
 
+extern int      socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port);
+extern bool     socketAddressIsV6(char_t *ip);
 extern void     socketClose();
 extern void     socketCloseConnection(int sid);
+extern int      socketConnect(char *host, int port, int flags);
 extern void     socketCreateHandler(int sid, int mask, socketHandler_t handler, void* arg);
 extern void     socketDeleteHandler(int sid);
 extern int      socketEof(int sid);
@@ -1499,9 +1499,13 @@ extern void     socketSetBufferSize(int sid, int in, int line, int out);
 extern int      socketFlush(int sid);
 extern ssize    socketGets(int sid, char_t **buf);
 extern int      socketGetPort(int sid);
+extern int      socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
+                    socklen_t *addrlen);
 extern ssize    socketInputBuffered(int sid);
+extern bool     socketIsV6(int sid);
 extern int      socketOpen();
-extern int      socketOpenConnection(char *host, int port, socketAccept_t accept, int flags);
+extern int      socketListen(char *host, int port, socketAccept_t accept, int flags);
+extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int defaultPort);
 extern void     socketProcess(int hid);
 extern ssize    socketRead(int sid, char *buf, ssize len);
 extern int      socketReady(int hid);
@@ -1519,8 +1523,17 @@ extern int      socketWaitForEvent(socket_t *sp, int events, int *errCode);
 extern void     socketRegisterInterest(socket_t *sp, int handlerMask);
 extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 
+//  MOB - should this have "g" prefix?
 extern char_t   *strlower(char_t *string);
 extern char_t   *strupper(char_t *string);
+extern char_t   *stritoa(int n, char_t *string, int width);
+extern int      strcmpci(char_t *s1, char_t *s2);
+
+
+//  MOB - need osdepOpen/Close
+//  MOB
+extern int goOpen();
+extern void goClose();
 
 //  MOB - where should this be
 #define glen gstrlen
@@ -1531,7 +1544,7 @@ extern bool gmatch(char_t *s1, char_t *s2);
 extern int gcmp(char_t *s1, char_t *s2);
 extern int gncmp(char_t *s1, char_t *s2, ssize n);
 extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
-extern char_t   *stritoa(int n, char_t *string, int width);
+extern uint gstrtoi(char_t *s);
 
 extern sym_fd_t symOpen(int hash_size);
 extern void     symClose(sym_fd_t sd);
@@ -1563,12 +1576,13 @@ extern void     trace(int lev, char_t *fmt, ...);
 
 extern value_t  valueInteger(long value);
 extern value_t  valueString(char_t *value, int flags);
+extern value_t valueSymbol(void *value);
 extern value_t  valueErrmsg(char_t *value);
 extern void     valueFree(value_t *v);
+
 extern int      vxchdir(char *dirname);
 
-extern unsigned int hextoi(char_t *hexstring);
-extern unsigned int gstrtoi(char_t *s);
+extern uint hextoi(char_t *hexstring);
 extern time_t    timeMsec();
 
 extern char_t   *ascToUni(char_t *ubuf, char *str, ssize nBytes);
@@ -1582,14 +1596,6 @@ extern char_t   *basicGetHost();
 extern void     basicSetHost(char_t *host);
 extern void     basicSetAddress(char_t *addr);
 #endif
-
-//  MOB - move
-extern char *websMD5(cchar *s);
-extern char *websMD5binary(cchar *buf, ssize length, cchar *prefix);
-
-//  MOB
-extern int goOpen();
-extern void goClose();
 
 /********************************** Defines ***********************************/
 
@@ -1610,9 +1616,6 @@ extern void goClose();
 #define PAGE_READ_BUFSIZE       512         /* bytes read from page files */
 #define MAX_PORT_LEN            10          /* max digits in port number */
 #define WEBS_SYM_INIT           64          /* initial # of sym table entries */
-
-//  MOB move to main.bit
-#define CGI_BIN                 T("cgi-bin")
 
 /* 
     Request flags. Also returned by websGetRequestFlags()
@@ -1636,6 +1639,8 @@ extern void goClose();
 #define WEBS_AUTH_BASIC         0x10000     /* Basic authentication request */
 #define WEBS_AUTH_DIGEST        0x20000     /* Digest authentication request */
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
+#define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
+#define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
 
 /*
     URL handler flags
@@ -1844,6 +1849,7 @@ extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, 
 extern void      websPageClose(webs_t wp);
 extern int       websPublish(char_t *urlPrefix, char_t *path);
 extern void      websRedirect(webs_t wp, char_t *url);
+extern void      websRewriteRequest(webs_t wp, char_t *url);
 extern void      websSecurityDelete();
 extern int       websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
                     char_t *query);
@@ -1871,16 +1877,16 @@ extern int      websUrlHandlerRequest(webs_t wp);
 extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
                     char_t **proto, char_t **tag, char_t **ext);
 extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
+extern ssize     websWriteHeader(webs_t wp, char_t *fmt, ...);
 extern ssize     websWrite(webs_t wp, char_t *fmt, ...);
 extern ssize     websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
 extern ssize     websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
 extern int       websValid(webs_t wp);
 extern int       websValidateUrl(webs_t wp, char_t *path);
 extern void      websSetTimeMark(webs_t wp);
+extern char *websMD5(char_t *s);
+extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
 
-/*
-    The following prototypes are used by the SSL layer websSSL.c
- */
 extern int      websAlloc(int sid);
 extern void     websFree(webs_t wp);
 extern void     websTimeout(void *arg, int id);
@@ -1943,10 +1949,6 @@ extern int       websOpenServer(char *ip, int port, int sslPort, char_t *documen
 extern void      websCloseServer();
 extern char_t   *websGetDateString(websStatType* sbuf);
 extern void      websServiceEvents(int *finished);
-
-
-//  MOB - why here
-extern int      strcmpci(char_t *s1, char_t *s2);
 
 #if CE
 //  MOB - prefix
@@ -2022,23 +2024,25 @@ typedef struct dbTable_s {
     char_t  **columnNames;
     int     *columnTypes;
     int     nRows;
-    int     **rows;
+    ssize   **rows;
 } dbTable_t;
 
 /*
     Add a schema to the module-internal schema database
+    MOB - sort
  */
-extern int      dbRegisterDBSchema(dbTable_t *sTable);
-extern int      dbOpen(char_t *databasename, char_t *filename, int (*gettime)(int did), int flags);
+extern int      dbAddRow(int did, char_t *table);
 extern void     dbClose(int did);
+extern int      dbDeleteRow(int did, char_t *table, int rid);
+//  MOB - revise args
+extern int      dbOpen(char_t *databasename, char_t *filename, int (*gettime)(int did), int flags);
 extern int      dbGetTableId(int did, char_t *tname);
 extern char_t   *dbGetTableName(int did, int tid);
 extern int      dbReadInt(int did, char_t *table, char_t *column, int row, int *returnValue);
 extern int      dbReadStr(int did, char_t *table, char_t *column, int row, char_t **returnValue);
 extern int      dbWriteInt(int did, char_t *table, char_t *column, int row, int idata);
 extern int      dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s);
-extern int      dbAddRow(int did, char_t *table);
-extern int      dbDeleteRow(int did, char_t *table, int rid);
+extern int      dbRegisterDBSchema(dbTable_t *sTable);
 extern int      dbSetTableNrow(int did, char_t *table, int nNewRows);
 extern int      dbGetTableNrow(int did, char_t *table);
 
@@ -2093,28 +2097,16 @@ typedef short bool_t;
 #define PRIV_ADMIN  0x04
 
 /*
-    User classes
- */
-
-/*
     umOpen() must be called before accessing User Management functions
  */
-extern int umOpen();
+extern int umOpen(char_t *path);
 
 /*
     umClose() should be called before shutdown to free memory
  */
 extern void umClose();
 
-/*
-    umCommit() persists the user management database
- */
-extern int umCommit(char_t *filename);
-
-/*
-    umRestore() loads the user management database
- */
-extern int umRestore(char_t *filename);
+extern int umSave();
 
 /*
     umUser functions use a user ID for a key

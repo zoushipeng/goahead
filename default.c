@@ -30,14 +30,17 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     websStatType    sbuf;
     char_t          *lpath, *tmp, *date;
     ssize           nchars, bytes;
-    int             flags;
 
     a_assert(websValid(wp));
     a_assert(url && *url);
     a_assert(path);
     a_assert(query);
 
-    flags = websGetRequestFlags(wp);
+    //  MOB - extract common code into a routine so other handlers can use.
+
+    if (wp->flags & WEBS_ASP) {
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+    }
 
     /*
         Validate the URL and ensure that ".."s don't give access to unwanted files
@@ -70,7 +73,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         bfree(tmp);
         return 1;
     }
-
     /*
         Open the document. Stat for later use.
      */
@@ -78,7 +80,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         websError(wp, 404, T("Cannot open URL"));
         return 1;
     } 
-
     if (websPageStat(wp, lpath, path, &sbuf) < 0) {
         websError(wp, 400, T("Cannot stat page for URL"));
         return 1;
@@ -90,69 +91,75 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
      */
     websStats.localHits++;
 #if BIT_IF_MODIFIED
-    if (flags & WEBS_IF_MODIFIED && !(flags & WEBS_ASP)) {
+    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_ASP)) {
         if (sbuf.mtime <= wp->since) {
-            websWrite(wp, T("HTTP/1.0 304 Use local copy\r\n"));
+            websWriteHeader(wp, T("HTTP/1.0 304 Use local copy\r\n"));
             /*
                 NOTE: by license terms the following line of code must not be modified.
                 MOB: remove define
              */
-            websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
-            if (flags & WEBS_KEEP_ALIVE) {
-                websWrite(wp, T("Connection: keep-alive\r\n"));
+            websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
+            if (wp->flags & WEBS_KEEP_ALIVE) {
+                websWriteHeader(wp, T("Connection: keep-alive\r\n"));
+            } else {
+                websWriteHeader(wp, T("Connection: close\r\n"));
             }
-            websWrite(wp, T("\r\n"));
-            websSetRequestFlags(wp, flags |= WEBS_HEADER_DONE);
+            websWriteHeader(wp, T("\r\n"));
+            wp->flags |= WEBS_HEADER_DONE;
             websDone(wp, 304);
             return 1;
         }
     }
 #endif
-
     /*
         Output the normal HTTP response header
         MOB OPT - compute date periodically
      */
     if ((date = websGetDateString(NULL)) != NULL) {
-        websWrite(wp, T("HTTP/1.0 200 OK\r\nDate: %s\r\n"), date);
+        websWriteHeader(wp, T("HTTP/1.0 200 OK\r\nDate: %s\r\n"), date);
         /*
             The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
          */
-        websWrite(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
+        websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
         bfree(date);
     }
-    flags |= WEBS_HEADER_DONE;
+    wp->flags |= WEBS_HEADER_DONE;
 
     /*
         If this is an ASP request, ensure the remote browser doesn't cache it.
         Send back both HTTP/1.0 and HTTP/1.1 cache control directives
      */
-    if (flags & WEBS_ASP) {
+    if (wp->flags & WEBS_ASP) {
         bytes = 0;
-        websWrite(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
+        websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
 
     } else {
         if ((date = websGetDateString(&sbuf)) != NULL) {
-            websWrite(wp, T("Last-modified: %s\r\n"), date);
+            websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
             bfree(date);
         }
         bytes = sbuf.size;
     }
-    if (bytes) {
-        websWrite(wp, T("Content-length: %d\r\n"), bytes);
+    //  MOB - transfer chunking
+    if (wp->flags & WEBS_HEAD_REQUEST) {
+        websWriteHeader(wp, T("Content-length: %d\r\n"), bytes);
+    } else if (bytes) {
+        websWriteHeader(wp, T("Content-length: %d\r\n"), bytes);
         websSetRequestBytes(wp, bytes);
     }
-    websWrite(wp, T("Content-type: %s\r\n"), websGetRequestType(wp));
+    websWriteHeader(wp, T("Content-type: %s\r\n"), websGetRequestType(wp));
 
-    if ((flags & WEBS_KEEP_ALIVE) && !(flags & WEBS_ASP)) {
-        websWrite(wp, T("Connection: keep-alive\r\n"));
+    if (wp->flags & WEBS_KEEP_ALIVE) {
+        websWriteHeader(wp, T("Connection: keep-alive\r\n"));
+    } else {
+        websWriteHeader(wp, T("Connection: close\r\n"));
     }
-    websWrite(wp, T("\r\n"));
+    websWriteHeader(wp, T("\r\n"));
 
     /*
         All done if the browser did a HEAD request
      */
-    if (flags & WEBS_HEAD_REQUEST) {
+    if (wp->flags & WEBS_HEAD_REQUEST) {
         websDone(wp, 200);
         return 1;
     }
@@ -160,7 +167,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     /*
         Evaluate ASP requests
      */
-    if (flags & WEBS_ASP) {
+    if (wp->flags & WEBS_ASP) {
         if (websAspRequest(wp, lpath) < 0) {
             return 1;
         }
@@ -365,7 +372,7 @@ static void websDefaultWriteEvent(webs_t wp)
     /*
         We only do this for non-ASP documents
      */
-    if ( !(flags & WEBS_ASP)) {
+    if (!(flags & WEBS_ASP)) {
         bytes = websGetRequestBytes(wp);
         /*
             Note: websWriteDataNonBlock may return less than we wanted. It will return -1 on a socket error

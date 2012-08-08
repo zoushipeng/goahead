@@ -7,14 +7,19 @@
  */
 
 /* Settings */
+#define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
 #define BIT_ACCESS_LOG 1
 #define BIT_BUILD_NUMBER "0"
-#define BIT_CERTIFICATE "server.crt"
+#define BIT_CA_FILE ""
+#define BIT_CA_PATH ""
+#define BIT_CERTIFICATE ""
 #define BIT_CGI 1
+#define BIT_CGI_BIN "cgi-bin"
 #define BIT_COMPANY "Embedthis"
-#define BIT_DEBUG_TRACE 1
+#define BIT_DEBUG_LOG 1
 #define BIT_DEPTH 1
 #define BIT_DIGEST_AUTH 1
+#define BIT_DIGEST_REALM "realm"
 #define BIT_DOCUMENTS "web"
 #define BIT_HAS_DOUBLE_BRACES 1
 #define BIT_HAS_DYN_LOAD 1
@@ -28,11 +33,11 @@
 #define BIT_HAS_UNNAMED_UNIONS 1
 #define BIT_HTTP_PORT 8080
 #define BIT_IF_MODIFIED 1
-#define BIT_JAVASCRIPT 0
+#define BIT_JAVASCRIPT 1
 #define BIT_KEEP_ALIVE 1
-#define BIT_KEY "server.key"
+#define BIT_KEY ""
 #define BIT_LOG_QUERY 0
-#define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
+#define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
 #define BIT_PACKS "bits/packs"
 #define BIT_PASSWORD ""
@@ -43,11 +48,11 @@
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"
 #define BIT_TRACE "stdout:2"
-#define BIT_USER_MANAGEMENT 0
+#define BIT_USER_MANAGEMENT 1
+#define BIT_USER_MANAGEMENT_GUI 1
 #define BIT_VERSION "3.0.0"
 #define BIT_WARN64TO32 1
 #define BIT_WARN_UNUSED 1
-#define BIT_WHITELIST 0
 
 /* Prefixes */
 #define BIT_CFG_PREFIX "/etc/goahead"
@@ -69,8 +74,8 @@
 
 /* Profile */
 #define BIT_GOAHEAD_PRODUCT 1
-#define BIT_PROFILE "debug"
-#define BIT_CONFIG_CMD "bit configure --without ssl"
+#define BIT_PROFILE "xcode"
+#define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64 -without all -profile xcode -configure . -gen xcode"
 
 /* Miscellaneous */
 #define BIT_MAJOR_VERSION 3
@@ -80,15 +85,15 @@
 
 /* Packs */
 #define BIT_PACK_CC 1
-#define BIT_PACK_DOXYGEN 1
-#define BIT_PACK_DSI 1
-#define BIT_PACK_EJS 1
+#define BIT_PACK_DOXYGEN 0
+#define BIT_PACK_DSI 0
+#define BIT_PACK_EJS 0
 #define BIT_PACK_LINK 1
-#define BIT_PACK_MAN 1
-#define BIT_PACK_MAN2HTML 1
+#define BIT_PACK_MAN 0
+#define BIT_PACK_MAN2HTML 0
 #define BIT_PACK_MATRIXSSL 0
-#define BIT_PACK_OPENSSL 0
-#define BIT_PACK_PMAKER 1
-#define BIT_PACK_SSL 0
+#define BIT_PACK_OPENSSL 1
+#define BIT_PACK_PMAKER 0
+#define BIT_PACK_SSL 1
 #define BIT_PACK_UTEST 1
 #define BIT_PACK_ZIP 1

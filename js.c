@@ -31,9 +31,9 @@ static void     appendString(char_t **ptr, char_t *s);
 static int      parse(ej_t *ep, int state, int flags);
 static int      parseStmt(ej_t *ep, int state, int flags);
 static int      parseDeclaration(ej_t *ep, int state, int flags);
-static int      parseArgs(ej_t *ep, int state, int flags);
 static int      parseCond(ej_t *ep, int state, int flags);
 static int      parseExpr(ej_t *ep, int state, int flags);
+static int      parseFunctionArgs(ej_t *ep, int state, int flags);
 static int      evalExpr(ej_t *ep, char_t *lhs, int rel, char_t *rhs);
 static int      evalCond(ej_t *ep, char_t *lhs, int rel, char_t *rhs);
 static int      evalFunction(ej_t *ep);
@@ -70,14 +70,12 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
     if (vid >= ep->variableMax) {
         ep->variableMax = vid + 1;
     }
-
     if (variables == -1) {
         ep->variables[vid] = symOpen(64) + EJ_OFFSET;
         ep->flags |= FLAGS_VARIABLES;
     } else {
         ep->variables[vid] = variables + EJ_OFFSET;
     }
-
     if (functions == -1) {
         ep->functions = symOpen(64);
         ep->flags |= FLAGS_FUNCTIONS;
@@ -359,7 +357,7 @@ static int parse(ej_t *ep, int state, int flags)
         Function argument string
      */
     case STATE_ARG_LIST:
-        state = parseArgs(ep, state, flags);
+        state = parseFunctionArgs(ep, state, flags);
         break;
 
     /*
@@ -896,7 +894,7 @@ static int parseDeclaration(ej_t *ep, int state, int flags)
 /*
     Parse function arguments
  */
-static int parseArgs(ej_t *ep, int state, int flags)
+static int parseFunctionArgs(ej_t *ep, int state, int flags)
 {
     int     tid, aid;
 
@@ -1313,7 +1311,7 @@ static void setString(char_t **ptr, char_t *s)
 
 static void appendString(char_t **ptr, char_t *s)
 {
-    int len, oldlen, size;
+    ssize   len, oldlen, size;
 
     a_assert(ptr);
 
@@ -1398,7 +1396,7 @@ void *ejGetGlobalFunction(int eid, char_t *name)
     Typical usage:
   
         if (ejArgs(argc, argv, "%s %d", &name, &age) < 2) {
-            error("Insufficient args\n");
+            error("Insufficient args");
             return -1;
         }
  */
@@ -2202,7 +2200,8 @@ static int tokenAddChar(ej_t *ep, int c)
 static int inputGetc(ej_t* ep)
 {
     ejinput_t   *ip;
-    int         c, len;
+    ssize       len;
+    int         c;
 
     a_assert(ep);
     ip = ep->input;
@@ -2210,9 +2209,7 @@ static int inputGetc(ej_t* ep)
     if ((len = ringqLen(&ip->script)) == 0) {
         return -1;
     }
-
     c = ringqGetc(&ip->script);
-
     if (c == '\n') {
         ip->lineNumber++;
         ip->lineColumn = 0;

@@ -17,25 +17,22 @@ int         socketOpenCount = 0;    /* Number of task using sockets */
 
 /***************************** Forward Declarations ***************************/
 
+static int ipv6(char_t *ip);
 static void socketAccept(socket_t *sp);
 static int  socketDoEvent(socket_t *sp);
 static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode);
-static ssize tryAlternateSendTo(int sock, char *buf, ssize toWrite, int i, struct sockaddr *server);
-static int  tryAlternateConnect(int sock, struct sockaddr *sockaddr);
 
 /*********************************** Code *************************************/
 
 int socketOpen()
 {
-#if BIT_WIN_LIKE
-    WSADATA     wsaData;
-#endif
-
     if (++socketOpenCount > 1) {
         return 0;
     }
 
 #if BIT_WIN_LIKE
+{
+    WSADATA     wsaData;
     if (WSAStartup(MAKEWORD(1,1), &wsaData) != 0) {
         return -1;
     }
@@ -43,8 +40,8 @@ int socketOpen()
         WSACleanup();
         return -1;
     }
+}
 #endif
-
     socketList = NULL;
     socketMax = 0;
     socketHighestFd = -1;
@@ -67,181 +64,118 @@ void socketClose()
 }
 
 
-/*
-    Open a client or server socket. Host is NULL if we want server capability.
- */
-int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
+int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 {
-    //  MOB - refactor
-#if !NO_GETHOSTBYNAME && !VXWORKS
-    struct hostent      *hostent;                   /* Host database entry */
-#endif
-    socket_t            *sp;
-    struct sockaddr_in  sockaddr;
-    int                 sid, bcast, dgram, rc;
+    socket_t                *sp;
+    struct sockaddr_storage addr;
+    socklen_t               addrlen;
+    int                     family, protocol, sid, rc;
 
     if (port > SOCKET_PORT_MAX) {
         return -1;
     }
-    if ((sid = socketAlloc(host, port, accept, flags)) < 0) {
+    if ((sid = socketAlloc(ip, port, accept, flags)) < 0) {
         return -1;
     }
     sp = socketList[sid];
     a_assert(sp);
 
-    memset((char *) &sockaddr, '\0', sizeof(struct sockaddr_in));
-    sockaddr.sin_family = AF_INET;
-    sockaddr.sin_port = htons((short) (port & 0xFFFF));
-
-    if (host == NULL) {
-        sockaddr.sin_addr.s_addr = INADDR_ANY;
-    } else {
-        sockaddr.sin_addr.s_addr = inet_addr(host);
-        if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
-            /*
-                If the OS does not support gethostbyname functionality, the macro: NO_GETHOSTBYNAME should be defined to
-                skip the use of gethostbyname. Unfortunatly there is no easy way to recover, the following code simply
-                uses the basicGetHost IP for the sockaddr.  
-             */
-#if NO_GETHOSTBYNAME
-            if (strcmp(host, basicGetHost()) == 0) {
-                sockaddr.sin_addr.s_addr = inet_addr("localhost");
-            }
-            if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
-                socketFree(sid);
-                return -1;
-            }
-#elif VXWORKS
-            //  MOB - check what appweb does for this?
-            sockaddr.sin_addr.s_addr = (ulong) hostGetByName(host);
-            if (sockaddr.sin_addr.s_addr == NULL) {
-                errno = ENXIO;
-                socketFree(sid);
-                return -1;
-            }
-#else
-            hostent = gethostbyname(host);
-            if (hostent != NULL) {
-                memcpy((char *) &sockaddr.sin_addr, (char *) hostent->h_addr_list[0], (size_t) hostent->h_length);
-            } else {
-                char    *asciiAddress;
-                char_t  *address;
-                address = "localhost";
-                asciiAddress = ballocUniToAsc(address, gstrlen(address));
-                sockaddr.sin_addr.s_addr = inet_addr(asciiAddress);
-                bfree(asciiAddress);
-                if (sockaddr.sin_addr.s_addr == INADDR_NONE) {
-                    errno = ENXIO;
-                    socketFree(sid);
-                    return -1;
-                }
-            }
-#endif
-        }
-    }
-    bcast = sp->flags & SOCKET_BROADCAST;
-    if (bcast) {
-        sp->flags |= SOCKET_DATAGRAM;
-    }
-    dgram = sp->flags & SOCKET_DATAGRAM;
-
     /*
-        Create the socket. Support for datagram sockets. Set the close on exec flag so children don't inherit the socket.
+        Bind to the socket endpoint and the call listen() to start listening
      */
-    sp->sock = socket(AF_INET, dgram ? SOCK_DGRAM: SOCK_STREAM, 0);
-    if (sp->sock < 0) {
+    if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
+        return -1;
+    }
+    if ((sp->sock = socket(family, SOCK_STREAM, protocol)) < 0) {
         socketFree(sid);
         return -1;
     }
+    socketHighestFd = max(socketHighestFd, sp->sock);
+
 #if BIT_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
+    rc = 1;
+    setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
+
+    if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
+        error(E_L, E_LOG, T("Can't bind to address %s:%d, errno %d"), ip, port, errno);
+        socketFree(sid);
+        return -1;
+    }
+    if (listen(sp->sock, SOMAXCONN) < 0) {
+        socketFree(sid);
+        return -1;
+    }
+    sp->flags |= SOCKET_LISTENING;
+    sp->handlerMask |= SOCKET_READABLE;
+    socketSetBlock(sid, (flags & SOCKET_BLOCK));
+    return sid;
+}
+
+
+#if UNUSED && KEEP
+int socketConnect(char *ip, int port, int flags)
+{
+    socket_t                *sp;
+    struct sockaddr_storage addr;
+    socklen_t               addrlen;
+    int                     family, protocol, sid, rc;
+
+    if (port > SOCKET_PORT_MAX) {
+        return -1;
+    }
+    if ((sid = socketAlloc(ip, port, NULL, flags)) < 0) {
+        return -1;
+    }
+    sp = socketList[sid];
+    a_assert(sp);
+
+    if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
+        return -1;       
+    }
+    if ((sp->sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+        socketFree(sid);
+        return -1;
+    }
     socketHighestFd = max(socketHighestFd, sp->sock);
 
+#if BIT_HAS_FCNTL
+    fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
+#endif
+
     /*
-        If broadcast, we need to turn on broadcast capability.
+        Connect to the remote server in blocking mode, then go into non-blocking mode if desired.
      */
-    if (bcast) {
-        int broadcastFlag = 1;
-        if (setsockopt(sp->sock, SOL_SOCKET, SO_BROADCAST,
-                (char *) &broadcastFlag, sizeof(broadcastFlag)) < 0) {
+    if (! (sp->flags & SOCKET_BLOCK)) {
+#if BIT_WIN_LIKE
+        /*
+            Set to non-blocking for an async connect
+         */
+        int flag = 1;
+        if (ioctlsocket(sp->sock, FIONBIO, &flag) == SOCKET_ERROR) {
             socketFree(sid);
             return -1;
         }
-    }
-
-    /*
-        Host is set if we are the client
-     */
-    if (host) {
-        /*
-            Connect to the remote server in blocking mode, then go into non-blocking mode if desired.
-         */
-        if (!dgram) {
-            if (! (sp->flags & SOCKET_BLOCK)) {
-                /*
-                    sockGen.c is only used for Windows products when blocking connects are expected.  This applies to
-                    webserver connectws.  Therefore the asynchronous connect code here is not compiled.
-                 */
-#if BIT_WIN_LIKE
-                int flag;
-                sp->flags |= SOCKET_ASYNC;
-                /*
-                    Set to non-blocking for an async connect
-                 */
-                flag = 1;
-                if (ioctlsocket(sp->sock, FIONBIO, &flag) == SOCKET_ERROR) {
-                    socketFree(sid);
-                    return -1;
-                }
+        sp->flags |= SOCKET_ASYNC;
 #else
-                socketSetBlock(sid, 1);
-#endif
-
-            }
-            if ((rc = connect(sp->sock, (struct sockaddr *) &sockaddr, sizeof(sockaddr))) < 0 && 
-                (rc = tryAlternateConnect(sp->sock, (struct sockaddr *) &sockaddr)) < 0) {
-#if BIT_WIN_LIKE
-                if (socketGetError() != EWOULDBLOCK) {
-                    socketFree(sid);
-                    return -1;
-                }
-#else
-                socketFree(sid);
-                return -1;
-
-#endif
-
-            }
-        }
-    } else {
-        /*
-            Bind to the socket endpoint and the call listen() to start listening
-         */
-        rc = 1;
-        setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char *)&rc, sizeof(rc));
-        if (bind(sp->sock, (struct sockaddr *) &sockaddr, sizeof(sockaddr)) < 0) {
-            socketFree(sid);
-            return -1;
-        }
-        if (! dgram) {
-            if (listen(sp->sock, SOMAXCONN) < 0) {
-                socketFree(sid);
-                return -1;
-            }
-            sp->flags |= SOCKET_LISTENING;
-        }
-        sp->handlerMask |= SOCKET_READABLE;
-    }
-
-    /*
-        Set the blocking mode
-     */
-    if (flags & SOCKET_BLOCK) {
         socketSetBlock(sid, 1);
-    } else {
-        socketSetBlock(sid, 0);
+#endif
     }
+    if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 && 
+        (rc = tryAlternateConnect(sp->sock, (struct sockaddr*) &addr)) < 0) {
+#if BIT_WIN_LIKE
+        if (socketGetError() != EWOULDBLOCK) {
+            socketFree(sid);
+            return -1;
+        }
+#else
+        socketFree(sid);
+        return -1;
+
+#endif
+    }
+    socketSetBlock(sid, (flags & SOCKET_BLOCK));
     return sid;
 }
 
@@ -255,7 +189,7 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 #if VXWORKS
     char *ptr;
 
-    ptr = (char *)sockaddr;
+    ptr = (char*) sockaddr;
     *ptr = *(ptr+1);
     *(ptr+1) = 0;
     return connect(sock, sockaddr, sizeof(struct sockaddr));
@@ -263,6 +197,7 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
     return -1;
 #endif /* VXWORKS */
 }
+#endif
 
 
 void socketCloseConnection(int sid)
@@ -304,20 +239,15 @@ static void socketAccept(socket_t *sp)
     /*
         Create a socket structure and insert into the socket list
      */
-    nid = socketAlloc(sp->host, sp->port, sp->accept, sp->flags);
-    nsp = socketList[nid];
+    nid = socketAlloc(sp->ip, sp->port, sp->accept, sp->flags);
+    if ((nsp = socketList[nid]) == 0) {
+        return;
+    }
     a_assert(nsp);
     nsp->sock = newSock;
     nsp->flags &= ~SOCKET_LISTENING;
+    socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK));
 
-    if (nsp == NULL) {
-        return;
-    }
-    /*
-        Set the blocking mode before calling the accept callback.
-     */
-
-    socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK) ? 1: 0);
     /*
         Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
      */
@@ -338,9 +268,8 @@ static void socketAccept(socket_t *sp)
  */
 ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
 {
-    struct sockaddr_in  server;
     socket_t            *sp;
-    ssize               len, bytesRead;
+    ssize               bytesRead;
 
     a_assert(buf);
     a_assert(errCode);
@@ -362,17 +291,7 @@ ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
         return -1;
     }
 #endif
-
-    /*
-        Read the data
-     */
-    if (sp->flags & SOCKET_DATAGRAM) {
-        len = sizeof(server);
-        bytesRead = recvfrom(sp->sock, buf, toRead, 0, (struct sockaddr *) &server, (socklen_t *) &len);
-    } else {
-        bytesRead = recv(sp->sock, buf, toRead, 0);
-    }
-    if (bytesRead < 0) {
+    if ((bytesRead = recv(sp->sock, buf, toRead, 0)) < 0) {
         *errCode = socketGetError();
         if (*errCode == ECONNRESET) {
             sp->flags |= SOCKET_CONNRESET;
@@ -932,8 +851,7 @@ ssize socketWriteString(int sid, char_t *buf)
 
 /*
     Read from a socket. Return the number of bytes read if successful. This may be less than the requested "bufsize" and
-    may be zero. Return -1 for errors. Return 0 for EOF. Otherwise return the number of bytes read.  If this routine
-    returns zero it indicates an EOF condition.  which can be verified with socketEof()
+    may be zero. Return -1 for errors or EOF. Distinguish between error and EOF via socketEof().
  
     Note: this ignores the line buffer, so a previous socketGets which read a partial line may cause a subsequent
     socketRead to miss some data. This routine may block if the socket is in blocking mode.
@@ -952,7 +870,7 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
         return -1;
     }
     if (sp->flags & SOCKET_EOF) {
-        return 0;
+        return -1;
     }
     rq = &sp->inBuf;
     for (bytesRead = 0; bufsize > 0; ) {
@@ -961,8 +879,7 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
             /*
                 If blocking mode and already have data, exit now or it may block forever.
              */
-            if ((sp->flags & SOCKET_BLOCK) &&
-                (bytesRead > 0)) {
+            if ((sp->flags & SOCKET_BLOCK) && (bytesRead > 0)) {
                 break;
             }
             /*
@@ -973,12 +890,11 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
             room = ringqPutBlkMax(rq);
             len = socketGetInput(sid, (char *) rq->endp, room, &errCode);
             if (len < 0) {
-                if (errCode == EWOULDBLOCK) {
-                    if ((sp->flags & SOCKET_BLOCK) &&
-                        (bytesRead ==  0)) {
+                if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
+                    if ((sp->flags & SOCKET_BLOCK) && (bytesRead == 0)) {
                         continue;
                     }
-                    if (bytesRead >= 0) {
+                    if (bytesRead > 0) {
                         return bytesRead;
                     }
                 }
@@ -991,6 +907,7 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
                  */
                 if (bytesRead == 0) {
                     sp->flags |= SOCKET_EOF;
+                    bytesRead = -1;
                 }
                 return bytesRead;
             }
@@ -1029,17 +946,14 @@ ssize socketGets(int sid, char_t **buf)
 
     while (1) {
         if ((rc = socketRead(sid, &c, 1)) < 0) {
-            return rc;
-        }
-        if (rc == 0) {
-            /*
-                If there is a partial line and we are at EOF, pretend we saw a '\n'
-             */
-            if (ringqLen(lq) > 0 && (sp->flags & SOCKET_EOF)) {
+            if (sp->flags & SOCKET_EOF && ringqLen(lq) > 0) {
                 c = '\n';
             } else {
-                return -1;
+                return rc;
             }
+        }
+        if (rc == 0) {
+            return -1;
         }
         /* 
             Validate length of request.  Ignore long strings without newlines to safeguard against long URL attacks.
@@ -1255,8 +1169,7 @@ void socketDeleteHandler(int sid)
  */
 static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode)
 {
-    struct sockaddr_in  server;
-    ssize               bytes;
+    ssize   bytes;
 
     a_assert(sp);
     a_assert(buf);
@@ -1271,26 +1184,7 @@ static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode
         return -1;
     }
 #endif
-
-    /*
-        Write the data
-     */
-    if (sp->flags & SOCKET_BROADCAST) {
-        server.sin_family = AF_INET;
-        server.sin_addr.s_addr = INADDR_BROADCAST;
-        server.sin_port = htons((short)(sp->port & 0xFFFF));
-        if ((bytes = sendto(sp->sock, buf, toWrite, 0, (struct sockaddr *) &server, sizeof(server))) < 0) {
-            bytes = tryAlternateSendTo(sp->sock, buf, toWrite, 0, (struct sockaddr *) &server);
-        }
-    } else if (sp->flags & SOCKET_DATAGRAM) {
-        server.sin_family = AF_INET;
-        server.sin_addr.s_addr = inet_addr(sp->host);
-        server.sin_port = htons((short)(sp->port & 0xFFFF));
-        bytes = sendto(sp->sock, buf, toWrite, 0, (struct sockaddr *) &server, sizeof(server));
-    } else {
-        bytes = send(sp->sock, buf, toWrite, 0);
-    }
-    if (bytes < 0) {
+    if ((bytes = send(sp->sock, buf, toWrite, 0)) < 0) {
         *errCode = socketGetError();
 #if BIT_WIN_LIKE
         sp->currentEvents &= ~FD_WRITE;
@@ -1312,28 +1206,9 @@ static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode
 
 
 /*
-    If the sendto failed, swap the first two bytes in the sockaddr structure.  This is a kludge due to a change in
-    VxWorks between versions 5.3 and 5.4, but we want the product to run on either.
- */
-static ssize tryAlternateSendTo(int sock, char *buf, ssize toWrite, int i, struct sockaddr *server)
-{
-#if VXWORKS
-    char *ptr;
-
-    ptr = (char *)server;
-    *ptr = *(ptr+1);
-    *(ptr+1) = 0;
-    return sendto(sock, buf, toWrite, i, server, sizeof(struct sockaddr));
-#else
-    return -1;
-#endif /* VXWORKS */
-}
-
-
-/*
     Allocate a new socket structure
  */
-int socketAlloc(char *host, int port, socketAccept_t accept, int flags)
+int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
 {
     socket_t    *sp;
     int         sid;
@@ -1347,18 +1222,16 @@ int socketAlloc(char *host, int port, socketAccept_t accept, int flags)
     sp->port = port;
     sp->fileHandle = -1;
     sp->saveMask = -1;
-
-    if (host) {
-        strncpy(sp->host, host, sizeof(sp->host));
+    if (ip) {
+        sp->ip = bstrdup(ip);
     }
 
     /*
         Preserve only specified flags from the callers open
      */
-    a_assert((flags & ~(SOCKET_BROADCAST|SOCKET_DATAGRAM|SOCKET_BLOCK| SOCKET_LISTENING)) == 0);
-    sp->flags = flags & (SOCKET_BROADCAST | SOCKET_DATAGRAM | SOCKET_BLOCK | SOCKET_LISTENING | SOCKET_MYOWNBUFFERS);
+    sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING | SOCKET_OWN_BUFFERS);
 
-    if (!(flags & SOCKET_MYOWNBUFFERS)) { 
+    if (!(flags & SOCKET_OWN_BUFFERS)) { 
         /*
             Add one to allow the user to write exactly SOCKET_BUFSIZ
          */
@@ -1403,11 +1276,12 @@ void socketFree(int sid)
         close(sp->sock);
 #endif
     }
-    if (!(sp->flags & SOCKET_MYOWNBUFFERS)) { 
+    if (!(sp->flags & SOCKET_OWN_BUFFERS)) { 
         ringqClose(&sp->inBuf);
         ringqClose(&sp->outBuf);
     }
     ringqClose(&sp->lineBuf);
+    bfree(sp->ip);
     bfree(sp);
     socketMax = hFree((void***) &socketList, sid);
 
@@ -1528,6 +1402,305 @@ int socketGetPort(int sid)
     return sp->port;
 }
 
+
+#if BIT_UNIX_LIKE || WIN
+/*  
+    Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
+    prefer the IPv4 address. This routine uses getaddrinfo.
+    Caller must free addr.
+ */
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, socklen_t *addrlen)
+{
+    struct addrinfo     hints, *res, *r;
+    char                portBuf[16];
+    int                 v6;
+
+    a_assert(addr);
+    memset((char*) &hints, '\0', sizeof(hints));
+
+    /*
+        Note that IPv6 does not support broadcast, there is no 255.255.255.255 equivalent.
+        Multicast can be used over a specific link, but the user must provide that address plus %scope_id.
+     */
+    if (ip == 0 || ip[0] == '\0') {
+        ip = 0;
+        hints.ai_flags |= AI_PASSIVE;           /* Bind to 0.0.0.0 and :: */
+    }
+    v6 = ipv6(ip);
+    hints.ai_socktype = SOCK_STREAM;
+    if (ip) {
+        hints.ai_family = v6 ? AF_INET6 : AF_INET;
+    } else {
+        hints.ai_family = AF_UNSPEC;
+    }
+    stritoa(port, portBuf, sizeof(portBuf));
+
+    /*  
+        Try to sleuth the address to avoid duplicate address lookups. Then try IPv4 first then IPv6.
+     */
+    res = 0;
+    if (getaddrinfo(ip, portBuf, &hints, &res) != 0) {
+        return -1;
+    }
+    /*
+        Prefer IPv4 if IPv6 not requested
+     */
+    for (r = res; r; r = r->ai_next) {
+        if (v6) {
+            if (r->ai_family == AF_INET6) {
+                break;
+            }
+        } else {
+            if (r->ai_family == AF_INET) {
+                break;
+            }
+        }
+    }
+    if (r == NULL) {
+        r = res;
+    }
+    memset(addr, 0, sizeof(*addr));
+    memcpy((char*) addr, (char*) r->ai_addr, (int) r->ai_addrlen);
+
+    *addrlen = (int) r->ai_addrlen;
+    *family = r->ai_family;
+    *protocol = r->ai_protocol;
+    freeaddrinfo(res);
+    return 0;
+}
+#else
+
+int socket_info(char_t *ip, int port, int *family, int *protocol, struct sockaddr **addr, socklen_t *addrlen)
+{
+    struct sockaddr_in  *sa;
+
+    if ((sa = balloc(sizeof(struct sockaddr_in))) == 0) {
+        return -1;
+    }
+    memset((char*) sa, '\0', sizeof(struct sockaddr_in));
+    sa->sin_family = AF_INET;
+    sa->sin_port = htons((short) (port & 0xFFFF));
+
+    if (strcmp(ip, "") != 0) {
+        sa->sin_addr.s_addr = inet_addr((char*) ip);
+    } else {
+        sa->sin_addr.s_addr = INADDR_ANY;
+    }
+
+    if (sa->sin_addr.s_addr == INADDR_NONE) {
+#if VXWORKS
+        /*
+            VxWorks only supports one interface and this code only supports IPv4
+         */
+        sa->sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
+        if (sa->sin_addr.s_addr < 0) {
+            a_assert(0);
+            return 0;
+        }
+#else
+        struct hostent *hostent;
+        hostent = gethostbyname2(ip, AF_INET);
+        if (hostent == 0) {
+            hostent = gethostbyname2(ip, AF_INET6);
+            if (hostent == 0) {
+                return -1;
+            }
+        }
+        memcpy((char*) &sa->sin_addr, (char*) hostent->h_addr_list[0], (ssize) hostent->h_length);
+#endif
+    }
+    *addr = (struct sockaddr*) sa;
+    *addrlen = sizeof(struct sockaddr_in);
+    *family = sa->sin_family;
+    *protocol = 0;
+    return 0;
+}
+#endif
+
+
+#if UNUSED && KEEP
+/*  
+    Return a numerical IP address and port for the given socket info
+ */
+int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
+{
+#if (BIT_UNIX_LIKE || WIN)
+    char    service[NI_MAXSERV];
+
+#ifdef IN6_IS_ADDR_V4MAPPED
+    if (addr->sa_family == AF_INET6) {
+        struct sockaddr_in6* addr6 = (struct sockaddr_in6*) addr;
+        if (IN6_IS_ADDR_V4MAPPED(&addr6->sin6_addr)) {
+            struct sockaddr_in addr4;
+            memset(&addr4, 0, sizeof(addr4));
+            addr4.sin_family = AF_INET;
+            addr4.sin_port = addr6->sin6_port;
+            memcpy(&addr4.sin_addr.s_addr, addr6->sin6_addr.s6_addr + 12, sizeof(addr4.sin_addr.s_addr));
+            memcpy(addr, &addr4, sizeof(addr4));
+            addrlen = sizeof(addr4);
+        }
+    }
+#endif
+    if (getnameinfo(addr, addrlen, ip, ipLen, service, sizeof(service), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN)) {
+        return -1;
+    }
+    *port = atoi(service);
+
+#else
+    struct sockaddr_in  *sa;
+
+#if HAVE_NTOA_R
+    sa = (struct sockaddr_in*) addr;
+    inet_ntoa_r(sa->sin_addr, ip, ipLen);
+#else
+    uchar   *cp;
+    sa = (struct sockaddr_in*) addr;
+    cp = (uchar*) &sa->sin_addr;
+    fmtStatic(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
+#endif
+    *port = ntohs(sa->sin_port);
+#endif
+    return 0;
+}
+#endif
+
+
+/*
+    Looks like an IPv6 address if it has 2 or more colons
+ */
+static int ipv6(char_t *ip)
+{
+    char_t  *cp;
+    int     colons;
+
+    if (ip == 0 || *ip == 0) {
+        /*
+            Listening on just a bare port means IPv4 only.
+         */
+        return 0;
+    }
+    colons = 0;
+    for (cp = (char*) ip; ((*cp != '\0') && (colons < 2)) ; cp++) {
+        if (*cp == ':') {
+            colons++;
+        }
+    }
+    return colons >= 2;
+}
+
+
+/*  
+    Parse ipAddrPort and return the IP address and port components. Handles ipv4 and ipv6 addresses. 
+    If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
+    If a ":*" port specifier is used, *pport is set to -1;
+    When an ipAddrPort
+    contains an ipv6 port it should be written as
+
+        aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii
+    or
+        [aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii]:port
+
+    If supplied an IPv6 address, the backets are stripped in the returned IP address.
+    This routine skips any "protocol://" prefix.
+
+    Caller must free *pip
+ */
+int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int defaultPort)
+{
+    char_t    *ip, *cp;
+
+    ip = 0;
+    if (defaultPort < 0) {
+        defaultPort = 80;
+    }
+    if ((cp = strstr(ipAddrPort, "://")) != 0) {
+        ipAddrPort = &cp[3];
+    }
+    if (ipv6(ipAddrPort)) {
+        /*  
+            IPv6. If port is present, it will follow a closing bracket ']'
+         */
+        if ((cp = strchr(ipAddrPort, ']')) != 0) {
+            cp++;
+            if ((*cp) && (*cp == ':')) {
+                *pport = (*++cp == '*') ? -1 : atoi(cp);
+
+                /* Set ipAddr to ipv6 address without brackets */
+                ip = bstrdup(ipAddrPort + 1);
+                cp = strchr(ip, ']');
+                *cp = '\0';
+
+            } else {
+                /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
+                ip = bstrdup(ipAddrPort + 1);
+                if ((cp = strchr(ip, ']')) != 0) {
+                    *cp = '\0';
+                }
+                if (*ip == '\0') {
+                    ip = 0;
+                }
+                /* No port present, use callers default */
+                *pport = defaultPort;
+            }
+        } else {
+            /* Handles a:b:c:d:e:f:g:h:i case (no port) */
+            ip = bstrdup(ipAddrPort);
+
+            /* No port present, use callers default */
+            *pport = defaultPort;
+        }
+
+    } else {
+        /*  
+            ipv4 
+         */
+        ip = bstrdup(ipAddrPort);
+        if ((cp = strchr(ip, ':')) != 0) {
+            *cp++ = '\0';
+            if (*cp == '*') {
+                *pport = -1;
+            } else {
+                *pport = atoi(cp);
+            }
+            if (*ip == '*') {
+                ip = 0;
+            }
+            
+        } else if (strchr(ip, '.')) {
+            *pport = defaultPort;
+            
+        } else {
+            if (isdigit((uchar) *ip)) {
+                *pport = atoi(ip);
+                ip = 0;
+            } else {
+                /* No port present, use callers default */
+                *pport = defaultPort;
+            }
+        }
+    }
+    if (pip) {
+        *pip = ip;
+    }
+    return 0;
+}
+
+
+bool socketIsV6(int sid)
+{
+    socket_t    *sp;
+
+    if ((sp = socketPtr(sid)) == NULL) {
+        return 0;
+    }
+    return sp->ip && ipv6(sp->ip);
+}
+
+
+bool socketAddressIsV6(char_t *ip)
+{
+    return ip && ipv6(ip);
+}
 
 /*
     @copy   default
