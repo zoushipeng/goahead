@@ -1,0 +1,15 @@
+TABLE=users
+ROW=0
+name=joshua
+password=ZaD
+group=admin
+prot=0
+disable=0
+TABLE=groups
+ROW=0
+name=admin
+priv=4
+method=1
+prot=0
+disable=0
+TABLE=access

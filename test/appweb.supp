@@ -1,0 +1,734 @@
+{
+   MyTest
+   Memcheck:Addr4
+   obj:/lib/ld-2.*.so
+}
+{
+   Crypto
+   Memcheck:Cond
+   fun:*
+}
+{
+   Crypto
+   Memcheck:Value4
+   fun:*
+}
+{
+   libld
+   Memcheck:Cond
+   obj:/lib/ld-2.*.so
+}
+{
+   libld
+   Memcheck:Leak
+   fun:*
+   obj:/lib/ld-2.*.so
+}
+{
+   libc
+   Memcheck:Leak
+   fun:*
+   obj:/lib/tls/*/cmov/libc-*.*.so
+}
+{
+   libdl
+   Memcheck:Leak
+   fun:*
+   obj:/lib/tls/*/cmov/libdl-*.*.so
+}
+{
+   libdl
+   Memcheck:Leak
+   fun:*
+   obj:/lib/ld-2.*.so
+}
+{
+   libdl
+   Memcheck:Leak
+   fun:*
+   fun:default_realloc_ex
+}
+{
+   libcrypto
+   Memcheck:Leak
+   fun:*
+   fun:default_malloc_ex
+}
+{
+   libdl
+   Memcheck:Leak
+   fun:_vgrZU_libcZdsoZa_malloc
+   fun:_vgrZU_libcZdsoZa_realloc
+   obj:*ld-2.*.so
+}
+{
+   Libld
+   Memcheck:Leak
+   fun:*malloc
+   fun:*realloc
+   obj:/lib/ld-*.*.so
+}
+{
+   Libld
+   Memcheck:Leak
+   obj:/lib/ld-*.*.so
+}
+{
+   MprServices use of pthreads
+   Memcheck:Cond
+   fun:strstr
+   fun:__pthread_initialize_minimal
+   obj:/lib/libpthread-*.so
+   obj:/lib/libpthread*.so*
+}
+{
+   Appweb use of dynamic loading dlopen
+   Memcheck:Leak
+   fun:malloc
+   fun:decompose_rpath
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_strndup
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zm_startup_dom
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_register_interfaces
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zm_startup_dir
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_register_default_exception
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_register_reflection_api
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:zend_class_implements
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zm_startup_sqlite
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zm_startup_user_filters
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:cwd_globals_ctor
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zm_startup_simplexml
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:zend_hash_init
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_startup_module
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:compiler_globals_ctor
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_post_startup
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:_zend_hash_init
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:OnUpdateTags
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_copy_ini_directives
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_allocate_tls
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_mangle_property_name
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object
+   fun:openaux
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_initialize_class_data
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:dl_open_worker
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:_dl_lookup_symbol_x
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_map_object_deps
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:zend_do_inherit_interfaces
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:spl_register_interfaces
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:_emalloc
+   fun:_estrndup
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:decompose_rapth
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:_dlerror_run
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:php_create_incomplete_class
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_declare_property_long
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_declare_property_null
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:open_path
+   fun:_dl_map_object
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:add_to_global
+   fun:dl_open_worker
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_declare_property_string
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:php_module_startup
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:spl_register_interface
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:zend_startup
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:do_register_internal_class
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:expand_dynamic_string_token
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:_zend_hash_add_or_update
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:_dl_new_object
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_check_map_versions
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:zend_hash_do_resize
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:calloc
+   fun:_dl_new_object
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:_zend_hash_add_or_update
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:_zend_hash_quick_add_or_update
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:realloc
+   fun:virtual_file_ex
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:zend_startup_constants
+}
+{
+   Appweb use of PHP5 library
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:php_error_cb
+}
+
+{
+   ERROR_0
+   Memcheck:Cond
+   fun:BN_add_word
+}
+
+{
+   ERROR_1
+   Memcheck:Cond
+   fun:BN_bin2bn
+}
+
+{
+   ERROR_2
+   Memcheck:Cond
+   fun:BN_cmp
+}
+
+{
+   ERROR_3
+   Memcheck:Cond
+   fun:BN_div
+}
+
+{
+   ERROR_4
+   Memcheck:Cond
+   fun:BN_from_montgomery
+}
+
+{
+   ERROR_5
+   Memcheck:Cond
+   fun:BN_generate_prime
+   fun:by 0x0: sav web WIN
+}
+
+{
+   ERROR_6
+   Memcheck:Cond
+   fun:BN_is_prime_fasttest
+}
+
+{
+   ERROR_7
+   Memcheck:Cond
+   fun:BN_lshift
+}
+
+{
+   ERROR_8
+   Memcheck:Cond
+   fun:BN_mod_exp_mont
+}
+
+{
+   ERROR_9
+   Memcheck:Cond
+   fun:BN_mod_inverse
+}
+
+{
+   ERROR_10
+   Memcheck:Cond
+   fun:BN_mul
+}
+
+{
+   ERROR_11
+   Memcheck:Cond
+   fun:BN_num_bits
+}
+
+{
+   ERROR_12
+   Memcheck:Cond
+   fun:BN_rshift
+}
+
+{
+   ERROR_13
+   Memcheck:Cond
+   fun:BN_rshift1
+}
+
+{
+   ERROR_14
+   Memcheck:Cond
+   fun:BN_sqr
+}
+
+{
+   ERROR_15
+   Memcheck:Cond
+   fun:BN_sub_word
+}
+
+{
+   ERROR_16
+   Memcheck:Cond
+   fun:BN_uadd
+}
+
+{
+   ERROR_17
+   Memcheck:Cond
+   fun:BN_ucmp
+}
+
+{
+   ERROR_18
+   Memcheck:Cond
+   fun:BN_usub
+}
+
+{
+   ERROR_19
+   Memcheck:Cond
+   fun:strstr
+   fun:__pthread_initialize_minimal
+   fun:by 0xC3D297: (within /lib/libpthread-*.so)
+   fun:by 0xC3CE7F: (within /lib/libpthread-*.so)
+}
+
+{
+   ERROR_20
+   Memcheck:Cond
+   fun:__umoddi3
+   fun:BN_mod_word
+}
+
+{
+   ERROR_21
+   Memcheck:Cond
+   fun:BN_generate_prime
+}
+
+{
+   ERROR_22
+   Memcheck:Value4
+   fun:BN_num_bits
+}
+
+{
+   ERROR_23
+   Memcheck:Cond
+   fun:BN_add
+}
+
+{
+   ERROR_24
+   Memcheck:Cond
+   fun:bn_cmp_words
+}
+
+{
+   ERROR_25
+   Memcheck:Cond
+   fun:BN_gcd
+}
+
+{
+   ERROR_26
+   Memcheck:Cond
+   fun:BN_lshift1
+}
+
+{
+   ERROR_27
+   Memcheck:Cond
+   fun:bn_mul_recursive
+}
+
+{
+   ERROR_28
+   Memcheck:Cond
+   fun:BN_mul_word
+}
+
+{
+   ERROR_29
+   Memcheck:Cond
+   fun:bn_sqr_recursive
+}
+
+{
+   ERROR_30
+   Memcheck:Cond
+   fun:RSA_generate_key
+}
+
+{
+   ERROR_31
+   Memcheck:Cond
+   fun:strstr
+}
+
+{
+   PHP_32
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:virtual_cwd_start
+}
+
+{
+   PHP_33
+   Memcheck:Leak
+   fun:calloc
+   fun:register_standard_class
+   fun:zend_startup
+}
+
+{
+   PHP_34
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   fun:zend_class_implements
+}
+
+{
+   PHP_35
+   Memcheck:Leak
+   fun:php_module_startup
+}
+
+{
+   ERROR_36
+   Memcheck:Leak
+   fun:malloc
+   fun:add_to_global
+   fun:dl_open_worker
+}
+
+{
+   ERROR_37
+   Memcheck:Leak
+   fun:malloc
+   fun:strdup
+   fun:virtual_cwd_startup
+}
+
+{
+   ERROR_38
+   Memcheck:Leak
+   fun:malloc
+   fun:by 0x1BCDEDDE
+}
+
+{
+   ERROR_39
+   Memcheck:Leak
+   fun:malloc
+   fun:by 0x1BCDEDDE
+}
+
+{
+   ERROR_40
+   Memcheck:Addr4
+   obj:/lib/ld-*.so
+}
+{
+   ERROR_41
+   Memcheck:Leak 
+   fun:*
+   obj:/lib/tls/*/cmov/libdl-*.so
+}
+{
+   ERROR_42
+   Memcheck:Leak
+   fun:*
+   obj:/lib/ld-*.so
+}
+{
+   ERROR_43
+   Memcheck:Leak
+   fun:*
+   obj:/lib/tls/*/cmov/libdl-*.so
+   fun:dlopen
+}
+{
+   ERROR_44
+   Memcheck:Leak
+   fun:*
+   obj:/lib/tls/*/cmov/libc-*.so
+}
+{
+   ERROR_45
+   Memcheck:Leak
+   fun:*
+   fun:__nss_lookup_function
+}
+{
+   ERROR_46
+   Memcheck:Leak
+   fun:*
+   fun:tsearch
+}
+{
+   ERROR_47
+   Memcheck:Addr8
+   obj:/lib/ld-2.*.so
+}
+{
+   ERROR_48
+   Memcheck:Value8
+   fun:*
+   fun:BN_*
+}
+{
+   ERROR_49
+   Memcheck:Leak
+   fun:*
+   obj:/lib/libdl-2.*.so
+   fun:dlopen
+}
+{
+   ERROR_50
+   Memcheck:Leak
+   fun:*
+   obj:*
+   fun:__nss_database_lookup
+}
+{
+   ERROR_60
+   Memcheck:Leak
+   fun:*
+   fun:CRYPTO_*
+}

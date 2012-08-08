@@ -1,0 +1,4 @@
+
+if (test.phase == "init" && test.depth == 1) {
+    test.skip("Stress tests run at depth 2 or greater")
+}
