@@ -638,7 +638,7 @@ static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes)
 {
     char_t  *text;
     char    buf[WEBS_SOCKET_BUFSIZ+1];
-    ssize   nbytes, len, clen;
+    ssize   nbytes, len;
 
     a_assert(websValid(wp));
     a_assert(ptext);
@@ -757,7 +757,6 @@ static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes)
                 if (wp->flags & WEBS_POST_REQUEST) {
                     if (wp->flags & WEBS_CLEN) {
                         wp->state = WEBS_POST_CLEN;
-                        clen = wp->clen;
                         if (wp->clen > 0) {
                             /* Need to get more data */
                             return 0;
@@ -886,7 +885,7 @@ static int parseFirstLine(webs_t wp, char_t *text)
 
 static void parseHeaders(webs_t wp)
 {
-    char_t  *authType, *upperKey, *cp, *browser, *lp, *key, *value, *userAuth;
+    char_t  *authType, *upperKey, *cp, *lp, *key, *value, *userAuth;
 
     a_assert(websValid(wp));
 
@@ -897,7 +896,6 @@ static void parseHeaders(webs_t wp)
         We rewrite the header as we go for non-local requests.  NOTE: this
         modifies the header string directly and tokenizes each line with '\0'.
     */
-    browser = NULL;
     for (lp = (char_t*) wp->header.servp; lp && *lp; ) {
         cp = lp;
         if ((lp = gstrchr(lp, '\n')) != NULL) {
@@ -1859,7 +1857,7 @@ static void logRequest(webs_t wp, int code)
 #endif /* WIN */
     zoneStr[sizeof(zoneStr) - 1] = '\0';
     if (wp->written != 0) {
-        snprintf(dataStr, sizeof(dataStr), "%ld", wp->written);
+        snprintf(dataStr, sizeof(dataStr), "%d", (int) wp->written);
         dataStr[sizeof(dataStr) - 1] = '\0';
     } else {
         dataStr[0] = '-'; dataStr[1] = '\0';
@@ -1878,7 +1876,7 @@ static void logRequest(webs_t wp, int code)
         wp->protoVersion, code, dataStr);
 #else
     //  MOB - reverse conditional
-    fmtAlloc(&buf, WEBS_MAX_URL + 80, T("%d %s %d %d\n"), time(0), wp->url, code, wp->written);
+    fmtAlloc(&buf, WEBS_MAX_URL + 80, T("%d %s %d %d\n"), time(0), wp->url, code, (int) wp->written);
 #endif
     len = gstrlen(buf);
     abuf = ballocUniToAsc(buf, len+1);
@@ -2578,7 +2576,7 @@ long FixedFromGregorian(long month, long day, long year)
  */
 long GregorianYearFromFixed(long fixedDate) 
 {
-    long result, d0, n400, d1, n100, d2, n4, d3, n1, d4, year;
+    long result, d0, n400, d1, n100, d2, n4, d3, n1, year;
 
     d0 =    fixedDate - GregorianEpoch;
     n400 =  (long)(floor((double)d0 / (double)146097));
@@ -2588,7 +2586,6 @@ long GregorianYearFromFixed(long fixedDate)
     n4 =    (long)(floor((double)d2 / (double)1461));
     d3 =    d2 % 1461;
     n1 =    (long)(floor((double)d3 / (double)365));
-    d4 =    (d3 % 365) + 1;
     year =  400 * n400 + 100 * n100 + 4 * n4 + n1;
 
     if ((n100 == 4) || (n1 == 4)) {

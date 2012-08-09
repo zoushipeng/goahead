@@ -687,11 +687,7 @@ static int socketDoEvent(socket_t *sp)
 int socketSetBlock(int sid, int on)
 {
     socket_t        *sp;
-    ulong           flag;
-    int             iflag;
     int             oldBlock;
-
-    flag = iflag = !on;
 
     if ((sp = socketPtr(sid)) == NULL) {
         a_assert(0);
@@ -707,34 +703,37 @@ int socketSetBlock(int sid, int on)
      */
     if (sp->flags & SOCKET_BLOCK) {
 #if BIT_WIN_LIKE
+        ulong flag = !on;
         ioctlsocket(sp->sock, FIONBIO, &flag);
 #elif ECOS
         int off;
         off = 0;
         ioctl(sp->sock, FIONBIO, &off);
 #elif VXWORKS
-        ioctl(sp->sock, FIONBIO, (int)&iflag);
+        int iflag = !on;
+        ioctl(sp->sock, FIONBIO, (int) &iflag);
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) & ~O_NONBLOCK);
 #endif
 
     } else {
 #if BIT_WIN_LIKE
+        ulong flag = !on;
         ioctlsocket(sp->sock, FIONBIO, &flag);
 #elif ECOS
-        int on;
-        on = 1;
+        int on = 1;
         ioctl(sp->sock, FIONBIO, &on);
 #elif VXWORKS
-        ioctl(sp->sock, FIONBIO, (int)&iflag);
+        int iflag = !on;
+        ioctl(sp->sock, FIONBIO, (int) &iflag);
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) | O_NONBLOCK);
 #endif
     }
-    /* Prevent SIGPIPE when writing to closed socket on OS X */
 #if MACOSX
-    iflag = 1;
-    setsockopt(sp->sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&iflag, sizeof(iflag));
+    /* Prevent SIGPIPE when writing to closed socket on OS X */
+    int iflag = 1;
+    setsockopt(sp->sock, SOL_SOCKET, SO_NOSIGPIPE, (void*) &iflag, sizeof(iflag));
 #endif
     return oldBlock;
 }

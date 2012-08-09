@@ -32,7 +32,7 @@ static char_t   websPassword[WEBS_MAX_PASS];    /* Access password (decoded) */
  */
 int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
-    char_t          *type, *userid, *password, *accessLimit, *userpass;
+    char_t          *userid, *password, *accessLimit, *userpass;
     accessMeth_t    am;
     int             flags, rc;
 
@@ -43,7 +43,6 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
     /*
         Get the critical request details
      */
-    type = websGetRequestType(wp);
     password = websGetRequestPassword(wp);
     userid = websGetRequestUserName(wp);
     flags = websGetRequestFlags(wp);

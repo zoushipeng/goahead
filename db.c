@@ -204,7 +204,7 @@ int dbSearchStr(int did, char_t *tablename, char_t *colName, char_t *value, int 
     dbTable_t   *pTable;
     char_t      *compareVal;
     ssize       *pRow;
-    int         row, tid, nRows, nColumns, column, match;
+    int         row, tid, nRows, column, match;
 
     a_assert(tablename);
     a_assert(colName);
@@ -216,8 +216,6 @@ int dbSearchStr(int did, char_t *tablename, char_t *colName, char_t *value, int 
     } else {
         return DB_ERR_TABLE_NOT_FOUND;
     }
-    
-    nColumns = pTable->nColumns;
     nRows = pTable->nRows;
     column = getColumnIndex(tid, colName);
     a_assert (column >= 0);
@@ -337,7 +335,7 @@ int dbDeleteRow(int did, char_t *tablename, int row)
  */
 int dbSetTableNrow(int did, char_t *tablename, int nNewRows)
 {
-    int         nRet, tid, nRows, nColumns;
+    int         nRet, tid, nRows;
     dbTable_t   *pTable;
 
     a_assert(tablename);
@@ -353,10 +351,8 @@ int dbSetTableNrow(int did, char_t *tablename, int nNewRows)
 
     a_assert(pTable);
     if (pTable) {
-        nColumns = pTable->nColumns;
         nRows = pTable->nRows;
         nRet = 0;
-
         if (nRows >= nNewRows) {
             /*      
                 If number of rows already allocated exceeds requested number, do nothing
