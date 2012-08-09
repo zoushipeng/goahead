@@ -2074,8 +2074,10 @@ extern char_t   *basicGetProductDir();
 extern void     basicSetProductDir(char_t *proddir);
 #endif
 
+#if WINDOWS
 extern void gsetAppInstance(HINSTANCE inst);
 extern HINSTANCE ggetAppInstance();
+#endif
 
 /******************************** User Management *****************************/
 //  MOB - prefix on type name and AM_NAME
