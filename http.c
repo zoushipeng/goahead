@@ -2164,6 +2164,7 @@ static int setLocalHost()
     //  MOB - OPT so don't copy if not unicode
     ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 #else
+{
     struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
         error(E_L, E_LOG, T("Can't get host address"));
@@ -2173,6 +2174,7 @@ static int setLocalHost()
     cp = inet_ntoa(intaddr);
     //  MOB - OPT so don't copy if not unicode
     ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+}
 #endif
     websSetIpaddr(wbuf);
     websSetHost(wbuf);
