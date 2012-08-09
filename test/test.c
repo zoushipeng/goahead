@@ -86,8 +86,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error(E_L, E_LOG, T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
+#if BIT_PACK_SSL
     websSSLSetKeyFile("server.key");
     websSSLSetCertFile("server.crt");
+#endif
     websSetPassword("pass1");
 #if BIT_USER_MANAGEMENT
     if (umOpen(T("umconfig.db")) < 0) {

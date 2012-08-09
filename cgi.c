@@ -68,7 +68,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         may already be part of the OS image, rather than in the file system.
     */
     {
-        gstat_t     sbuf;
+        gstat_t sbuf;
         if (gstat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
             websError(wp, 404, T("CGI process file does not exist"));
             bfree(cgiPath);
@@ -263,7 +263,7 @@ void websCgiCleanup()
                          There are some cases when we detect app exit before the file is ready. 
                      */
                     if (cgip->fplacemark == 0) {
-#if WIN
+#if WINDOWS
                         //  MOB - refactor
                         Sleep(10);
 #endif
@@ -664,7 +664,7 @@ int websCheckCgiProc(int handle)
 }
 #endif /* VXWORKS */
 
-#if WIN 
+#if WINDOWS 
 /*
     Convert a table of strings into a single block of memory. The input table consists of an array of null-terminated
     strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the balloc()

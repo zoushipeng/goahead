@@ -97,11 +97,6 @@ Bit.load({
         key: "",
 
         /*
-            Include HTTP request query string in access log records
-         */
-        logQuery: false,
-
-        /*
             Server authentication password (decoded)
          */
         password: "",
@@ -110,11 +105,6 @@ Bit.load({
             Replace malloc with a non-fragmenting allocator
          */
         replaceMalloc: false,
-
-        /*
-            Use simple time records in access log records. MOB - remove
-         */
-        simpleTime: false,
 
         /*
             SSL port to listen on

@@ -15,14 +15,22 @@
 
 #include    "goahead.h"
 
-/********************************** Forwards **********************************/
+/********************************* Defines ************************************/
 
 #define ALIGN(x) (((x) + 4 - 1) & ~(4 - 1))
+static int finished = 0;
+
+/********************************* Forwards ***********************************/
+
 static void initPlatform();
 static void sigHandler(int signo);
 static void usage();
 
-static int finished = 0;
+#if WINDOWS
+static void windowsClose();
+static int windowsInit();
+static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
+#endif
 
 /*********************************** Code *************************************/
 
@@ -31,8 +39,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
     char_t  *argp, *home, *ipAddrPort, *ip, *documents;
     int     port, sslPort, argind;
 
-#if WIN
-    if (windowsInit(inst) < 0) {
+#if WINDOWS
+    if (windowsInit() < 0) {
         return 0;
     }
 #endif
@@ -98,8 +106,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
      */
     websServiceEvents(&finished);
     websClose();
-#if WIN
-    windowsClose(inst);
+#if WINDOWS
+    windowsClose();
 #endif
     return 0;
 }
@@ -140,33 +148,35 @@ static void sigHandler(int signo)
 }
 
 
-#if WIN
+#if WINDOWS
 /*
     Create a taskbar entry. Register the window class and create a window
  */
-static int windowsInit(HINSTANCE hinstance)
+static int windowsInit()
 {
-    WNDCLASS        wc;                     /* Window class */
-    HMENU           hSysMenu;
+    HINSTANCE   inst;
+    WNDCLASS    wc;                     /* Window class */
+    HMENU       hSysMenu;
+    HWND        hwnd;
 
-    emfInstSet((int) hinstance);
-
+    inst = ggetAppInstance();
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
     wc.cbClsExtra    = 0;
     wc.cbWndExtra    = 0;
-    wc.hInstance     = hinstance;
+    wc.hInstance     = inst;
     wc.hIcon         = NULL;
     wc.lpfnWndProc   = (WNDPROC) websWindProc;
-    wc.lpszMenuName  = wc.lpszClassName = name;
+    wc.lpszMenuName  = wc.lpszClassName = BIT_PRODUCT;
     if (! RegisterClass(&wc)) {
         return -1;
     }
     /*
         Create a window just so we can have a taskbar to close this web server
      */
-    hwnd = CreateWindow(name, title, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 0, 0, 0, NULL, NULL, hinstance, NULL);
+    hwnd = CreateWindow(BIT_PRODUCT, BIT_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 
+        0, 0, 0, NULL, NULL, inst, NULL);
     if (hwnd == NULL) {
         return -1;
     }
@@ -177,21 +187,27 @@ static int windowsInit(HINSTANCE hinstance)
     hSysMenu = GetSystemMenu(hwnd, FALSE);
     if (hSysMenu != NULL) {
         AppendMenu(hSysMenu, MF_SEPARATOR, 0, NULL);
+#if UNUSED
         AppendMenu(hSysMenu, MF_STRING, IDM_ABOUTBOX, T("About WebServer"));
+#endif
     }
     ShowWindow(hwnd, SW_SHOWNORMAL);
     UpdateWindow(hwnd);
-    hwndAbout = NULL;
     return 0;
 }
 
 
-static void windowsClose(HINSTANCE hInstance)
+static void windowsClose()
 {
-    UnregisterClass(name, hInstance);
+    HINSTANCE   inst;
+
+    inst = ggetAppInstance();
+    UnregisterClass(BIT_PRODUCT, inst);
+#if UNUSED
     if (hwndAbout) {
         DestroyWindow(hwndAbout);
     }
+#endif
 }
 
 
@@ -207,6 +223,7 @@ static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
             return 0;
 
         case WM_SYSCOMMAND:
+#if UNUSED
             if (wp == IDM_ABOUTBOX) {
                 if (!hwndAbout) {
                     createAboutBox((HINSTANCE) emfInstGet(), hwnd);
@@ -215,6 +232,7 @@ static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
                     ShowWindow(hwndAbout, SW_SHOWNORMAL);
                 }
             }
+#endif
             break;
     }
     return DefWindowProc(hwnd, msg, wp, lp);
@@ -244,27 +262,33 @@ WPARAM checkWindowsMsgLoop()
  */
 static long CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 {
-    long lResult;
-    HWND hwnd;
+    long    lResult;
 
     lResult = DefWindowProc(hwndDlg, msg, wp, lp);
 
     switch (msg) {
         case WM_CREATE:
+#if UNUSED
             hwndAbout = hwndDlg;
+#endif
             break;
 
         case WM_DESTROY:
+#if UNUSED
             hwndAbout = NULL;
+#endif
             break;
 
         case WM_COMMAND:
+#if UNUSED
             if (wp == IDOK) {
                 EndDialog(hwndDlg, 0);
                 PostMessage(hwndDlg, WM_CLOSE, 0, 0);
             }
+#endif
             break;
 
+#if UNUSED
         case WM_INITDIALOG:
             /*
                 Set the version and build date values
@@ -282,11 +306,13 @@ static long CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
             hwndAbout = hwndDlg;
             lResult = FALSE;
             break;
+#endif
     }
     return lResult;
 }
 
 
+#if UNUSED
 /*
     Registers the About Box class
  */
@@ -310,8 +336,10 @@ static int registerAboutBox(HINSTANCE hInstance)
     }
     return 1;
 }
+#endif
 
 
+#if UNUSED
 /*
      Helper routine.  Takes second parameter as Ansi string, copies it to first parameter as wide character (16-bits /
      char) string, and returns integer number of wide characters (words) in string (including the trailing wide char
@@ -530,6 +558,7 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
     LocalFree(LocalHandle(pdlgtemplate));
     return 0;
 }
+#endif
 
 #endif
 

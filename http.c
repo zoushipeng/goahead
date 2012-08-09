@@ -1815,69 +1815,49 @@ void websDecodeUrl(char_t *decoded, char_t *token, ssize len)
 
 #if BIT_ACCESS_LOG
 /*
-    Output a log message in Common Log Format
-        http://httpd.apache.org/docs/1.3/logs.html#common
-    If BIT_SIMPLE_TIME is defined, then only the time() external API is used
-        and a simple, non-standard log format is used.
-    If BIT_LOG_QUERY is defined, then the query string will be printed to
-        the log, in addition to the URL path.  This can be a security issue
-        if the query string contains sensitive information that shouldn't
-        be hanging around in log files.
-    MOB - get rid of LOG_QUERY
+    Output a log message in Common Log Format: See http://httpd.apache.org/docs/1.3/logs.html#common
  */
 static void logRequest(webs_t wp, int code)
 {
-    char_t  *buf;
-    char    *abuf;
-    ssize   len;
-    //  MOB - refactor. Remove simple time
-#if !BIT_SIMPLE_TIME
-    time_t timer;
-    struct tm localt;
-#if WIN
-    DWORD   dwRet;
-    TIME_ZONE_INFORMATION   tzi;
-#endif /* WIN */
-    char_t timeStr[28];
-    char_t zoneStr[6];
-    char_t dataStr[16];
+    char_t      *buf, timeStr[28], zoneStr[6], dataStr[16];
+    char        *abuf;
+    ssize       len;
+    time_t      timer;
+    struct tm   localt;
+#if WINDOWS
+    DWORD       dwRet;
+    TIME_ZONE_INFORMATION tzi;
 #endif
-    a_assert(websValid(wp));
-    buf = NULL;
-#if !BIT_SIMPLE_TIME
+
     time(&timer);
+#if WINDOWS
+    localtime_s(&localt, &timer);
+#else
     localtime_r(&timer, &localt);
+#endif
     strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt); 
     timeStr[sizeof(timeStr) - 1] = '\0';
-#if WIN
+#if WINDOWS
     dwRet = GetTimeZoneInformation(&tzi);
-    snprintf(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
+    fmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
 #else
-    snprintf(zoneStr, sizeof(zoneStr), "%+03d00", (int)(localt.tm_gmtoff/3600));
-#endif /* WIN */
+    fmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", (int)(localt.tm_gmtoff/3600));
+#endif
     zoneStr[sizeof(zoneStr) - 1] = '\0';
     if (wp->written != 0) {
-        snprintf(dataStr, sizeof(dataStr), "%d", (int) wp->written);
+        fmtStatic(dataStr, sizeof(dataStr), "%d", (int) wp->written);
         dataStr[sizeof(dataStr) - 1] = '\0';
     } else {
         dataStr[0] = '-'; dataStr[1] = '\0';
     }
+    buf = NULL;
     fmtAlloc(&buf, WEBS_MAX_URL + 80, 
         T("%s - %s [%s %s] \"%s %s %s\" %d %s\n"), 
         wp->ipaddr,
         wp->userName == NULL ? "-" : wp->userName,
         timeStr, zoneStr,
-        wp->flags & WEBS_POST_REQUEST ? "POST" : (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"),
-#if BIT_LOG_QUERY
-        wp->url, /* SECURITY - Printing the query can 'leak' private data */
-#else
-        wp->path,
-#endif /* BIT_LOG_QUERY */
+        wp->flags & WEBS_POST_REQUEST ? "POST" : (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"), wp->path,
         wp->protoVersion, code, dataStr);
-#else
-    //  MOB - reverse conditional
-    fmtAlloc(&buf, WEBS_MAX_URL + 80, T("%d %s %d %d\n"), time(0), wp->url, code, (int) wp->written);
-#endif
     len = gstrlen(buf);
     abuf = ballocUniToAsc(buf, len+1);
     write(accessFd, abuf, len);
@@ -3089,9 +3069,9 @@ char_t *websCalcNonce(webs_t wp)
 {
     char_t      *nonce, *prenonce;
     time_t      longTime;
-#if WIN
+#if WINDOWS
     char_t      buf[26];
-    errno_t     error;
+    errno_t     err;
     struct tm   newtime;
 #else
     struct tm   *newtime;
@@ -3099,20 +3079,19 @@ char_t *websCalcNonce(webs_t wp)
 
     a_assert(wp);
     time(&longTime);
-#if !WIN
+#if !WINDOWS
     newtime = localtime(&longTime);
 #else
-    error = localtime_s(&newtime, &longTime);
+    err = localtime_s(&newtime, &longTime);
 #endif
 
-#if !WIN
+#if !WINDOWS
     prenonce = NULL;
     fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime), wp->realm); 
 #else
     asctime_s(buf, elementsof(buf), &newtime);
     fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, buf, RANDOMKEY); 
 #endif
-
     a_assert(prenonce);
     nonce = websMD5(prenonce);
     bfree(prenonce);
@@ -3345,7 +3324,7 @@ void websPageSeek(webs_t wp, filepos offset)
 #if BIT_ROM
     websRomPageSeek(wp, offset, SEEK_CUR);
 #else
-    lseek(wp->docfd, offset, SEEK_CUR);
+    lseek(wp->docfd, (long) offset, SEEK_CUR);
 #endif
 }
 

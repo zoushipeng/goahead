@@ -12,7 +12,7 @@
     Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable. 
     So must include matrixsslApi.h first and then workaround. 
  */
-#if WIN32
+#if WINDOWS
  #include   <winsock2.h>
  #include   <windows.h>
 #endif
@@ -484,7 +484,7 @@ static int waitForWriteEvent(int fd, int msec)
  */
 static void setSocketNonblock(SOCKET sock)
 {
-#if WIN
+#if WINDOWS
     int     block = 1;
     ioctlsocket(sock, FIONBIO, &block);
 #elif LINUX

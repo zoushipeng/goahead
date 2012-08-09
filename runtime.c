@@ -68,6 +68,10 @@ typedef struct {                        /* Symbol table descriptor */
     sym_t   **hash_table;               /* Allocated at run time */
 } sym_tabent_t;
 
+#if WINDOWS
+static HINSTANCE appInstance;
+#endif
+
 /********************************* Globals ************************************/
 
 static sym_tabent_t **sym;              /* List of symbol tables */
@@ -290,7 +294,7 @@ char_t *dirname(char_t *buf, char_t *name, ssize bufsize)
     a_assert(buf);
     a_assert(bufsize > 0);
 
-#if WIN
+#if WINDOWS
     if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
 #else
     if ((cp = gstrrchr(name, '/')) == NULL)
@@ -542,7 +546,7 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
             } else if (c == 'n') {
                 if (f & flag_short) {
                     short *value = va_arg(arg, short*);
-                    *value = buf.count;
+                    *value = (short) buf.count;
                 } else if (f & flag_long) {
                     long *value = va_arg(arg, long*);
                     *value = buf.count;
@@ -2099,11 +2103,11 @@ int gopen(char_t *path, int oflags, int mode)
 {
     int     fd;
 
-#if BLD_WIN_LIKE
+#if BIT_WIN_LIKE
     #if UNICODE
         fd = _wopen(path, oflags, mode);
     #else
-        error = _sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600);
+        fd = _sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600);
     #endif
 #else
     fd = open(path, oflags, mode);
@@ -2328,6 +2332,20 @@ int send(int s, const void *buf, size_t len, int flags)
 int recv(int s, void *buf, size_t len, int flags)
 {
     return read(s, buf, len);
+}
+#endif
+
+#if WINDOWS
+
+void gsetAppInstance(HINSTANCE inst)
+{
+    appInstance = inst;
+}
+
+
+HINSTANCE ggetAppInstance()
+{
+    return appInstance;
 }
 #endif
 

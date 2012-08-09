@@ -218,14 +218,16 @@
     #endif
 #endif
 
-#if WIN
+#if WINDOWS
     #include    <direct.h>
     #include    <io.h>
     #include    <sys/stat.h>
     #include    <limits.h>
     #include    <tchar.h>
+    #include    <winsock2.h>
     #include    <windows.h>
     #include    <winnls.h>
+    #include    <ws2tcpip.h>
     #include    <time.h>
     #include    <sys/types.h>
     #include    <stdio.h>
@@ -233,7 +235,7 @@
     #include    <fcntl.h>
     #include    <errno.h>
     #include    <share.h>
-#endif /* WIN */
+#endif /* WINDOWS */
 
 #if CE
     /*#include  <errno.h>*/
@@ -243,7 +245,6 @@
     #include    <winsock.h>
     #include    <winnls.h>
     #include    "CE/wincompat.h"
-    #include    <winsock.h>
 #endif /* CE */
 
 #if NETWARE
@@ -424,10 +425,10 @@
 
 #if BIT_FEATURE_MATRIXSSL
 /*
-       Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
-           So must include matrixsslApi.h first and then workaround.
-            */
-#if WIN32
+   Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
+   So must include matrixsslApi.h first and then workaround.
+ */
+#if WINDOWS && UNUSED
  #include   <winsock2.h>
  #include   <windows.h>
 #endif
@@ -612,7 +613,7 @@ typedef int64 filepos;
 
 #if DOXYGEN
     typedef int socklen_t;
-#elif VXWORKS || BLD_WIN_LIKE
+#elif VXWORKS || BIT_WIN_LIKE
     typedef int socklen_t;
 #endif
 
@@ -794,19 +795,21 @@ typedef int64 datetime;
     #define BIT_FLEX
 #endif
 
+#define BIT_MAX_ARGC    32
+
 #if VXWORKS
     #define MAIN(name, _argc, _argv, _envp)  \
         static int innerMain(int argc, char **argv, char **envp); \
         int name(char *arg0, ...) { \
             va_list args; \
-            char *argp, *largv[MPR_MAX_ARGC]; \
+            char *argp, *largv[BIT_MAX_ARGC]; \
             int largc = 0; \
             va_start(args, arg0); \
             largv[largc++] = #name; \
             if (arg0) { \
                 largv[largc++] = arg0; \
             } \
-            for (argp = va_arg(args, char*); argp && largc < MPR_MAX_ARGC; argp = va_arg(args, char*)) { \
+            for (argp = va_arg(args, char*); argp && largc < BIT_MAX_ARGC; argp = va_arg(args, char*)) { \
                 largv[largc++] = argp; \
             } \
             return innerMain(largc, largv, NULL); \
@@ -815,13 +818,14 @@ typedef int64 datetime;
 #elif BIT_WIN_LIKE && UNICODE
     #define MAIN(name, _argc, _argv, _envp)  \
         APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, LPWSTR command, int junk2) { \
-            char *largv[MPR_MAX_ARGC]; \
+            char *largv[BIT_MAX_ARGC]; \
             extern int main(); \
-            char *mcommand[MPR_MAX_STRING]; \
+            char *mcommand[VALUE_MAX_STRING]; \
             int largc; \
             wtom(mcommand, sizeof(dest), command, -1);
-            largc = parseArgs(mcommand, &largv[1], MPR_MAX_ARGC - 1); \
+            largc = parseArgs(mcommand, &largv[1], BIT_MAX_ARGC - 1); \
             largv[0] = #name; \
+            gsetAppInstance(inst); \
             main(largc, largv, NULL); \
         } \
         int main(argc, argv, _envp)
@@ -829,9 +833,9 @@ typedef int64 datetime;
     #define MAIN(name, _argc, _argv, _envp)  \
         APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *command, int junk2) { \
             extern int main(); \
-            char *largv[MPR_MAX_ARGC]; \
+            char *largv[BIT_MAX_ARGC]; \
             int largc; \
-            largc = parseArgs(command, &largv[1], MPR_MAX_ARGC - 1); \
+            largc = parseArgs(command, &largv[1], BIT_MAX_ARGC - 1); \
             largv[0] = #name; \
             main(largc, largv, NULL); \
         } \
@@ -881,9 +885,12 @@ struct timeval
 #if MACOSX
     typedef int32_t fd_mask;
 #endif
+#if WINDOWS
+    typedef fd_set fd_mask;
+#endif
 
 #if UNICODE
-    #if !BLD_WIN_LIKE
+    #if !BIT_WIN_LIKE
         #error "Unicode only supported on Windows or Windows CE"
     #endif
 typedef ushort char_t;
@@ -914,7 +921,7 @@ typedef ushort uchar_t;
     #define TASTRL(x)   (strlen(x) + 1)
 #endif
     typedef char        char_t;
-    #if WIN
+    #if WINDOWS
         typedef uchar   uchar_t;
     #endif
 #endif /* UNICODE */
@@ -1112,7 +1119,7 @@ typedef struct _stat gstat_t;
 #endif /* VXWORKS */
 #endif /* ! UNICODE */
 
-#if WIN
+#if WINDOWS
 #define getcwd  _getcwd
 #define tempnam _tempnam
 #define open    _open
@@ -1122,9 +1129,8 @@ typedef struct _stat gstat_t;
 #define chdir   _chdir
 #define lseek   _lseek
 #define unlink  _unlink
-#define localtime localtime_s
+#define stat    _stat
 #endif
-
 
 //  MOB - move
 typedef struct stat gstat_t;
@@ -2062,8 +2068,14 @@ extern int      dbSave(int did, char_t *filename, int flags);
 extern int      dbLoad(int did, char_t *filename, int flags);
 extern int      dbSearchStr(int did, char_t *table, char_t *column, char_t *value, int flags);
 extern void     dbZero(int did);
+
+#if UNUSED
 extern char_t   *basicGetProductDir();
 extern void     basicSetProductDir(char_t *proddir);
+#endif
+
+extern void gsetAppInstance(HINSTANCE inst);
+extern HINSTANCE ggetAppInstance();
 
 /******************************** User Management *****************************/
 //  MOB - prefix on type name and AM_NAME

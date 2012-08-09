@@ -1320,10 +1320,10 @@ static void appendString(char_t **ptr, char_t *s)
         oldlen = gstrlen(*ptr);
         size = (len + oldlen + 1) * sizeof(char_t);
         *ptr = brealloc(*ptr, size);
-#if !WIN
-        gstrcpy(&(*ptr)[oldlen], s);
-#else
+#if WINDOWS
         strcpy_s(&(*ptr)[oldlen], size - oldlen, s);
+#else
+        gstrcpy(&(*ptr)[oldlen], s);
 #endif
     } else {
         *ptr = bstrdup(s);

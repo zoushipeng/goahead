@@ -385,7 +385,7 @@ int socketReady(int sid)
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
-#if BLD_WIN_LIKE
+#if BIT_WIN_LIKE
 
 int socketSelect(int sid, int timeout)
 {
@@ -444,7 +444,7 @@ int socketSelect(int sid, int timeout)
 
     /*
         Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. So,
-        if WIN, sleep.  
+        if WINDOWS, sleep.  
      */
     if (nEvents == 0) {
         Sleep(timeout);
@@ -595,7 +595,7 @@ int socketSelect(int sid, int timeout)
     bfree(exceptFds);
     return nEvents;
 }
-#endif /* WIN || CE */
+#endif /* WINDOWS || CE */
 
 
 void socketProcess(int sid)
@@ -1402,7 +1402,7 @@ int socketGetPort(int sid)
 }
 
 
-#if BIT_UNIX_LIKE || WIN
+#if BIT_UNIX_LIKE || WINDOWS
 /*  
     Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
     prefer the IPv4 address. This routine uses getaddrinfo.
@@ -1469,7 +1469,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 }
 #else
 
-int socket_info(char_t *ip, int port, int *family, int *protocol, struct sockaddr **addr, socklen_t *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr **addr, socklen_t *addrlen)
 {
     struct sockaddr_in  *sa;
 
@@ -1485,7 +1485,6 @@ int socket_info(char_t *ip, int port, int *family, int *protocol, struct sockadd
     } else {
         sa->sin_addr.s_addr = INADDR_ANY;
     }
-
     if (sa->sin_addr.s_addr == INADDR_NONE) {
 #if VXWORKS
         /*
@@ -1523,7 +1522,7 @@ int socket_info(char_t *ip, int port, int *family, int *protocol, struct sockadd
  */
 int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
-#if (BIT_UNIX_LIKE || WIN)
+#if (BIT_UNIX_LIKE || WINDOWS)
     char    service[NI_MAXSERV];
 
 #ifdef IN6_IS_ADDR_V4MAPPED
