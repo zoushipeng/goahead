@@ -89,7 +89,7 @@ static int compile(char *fileList, char *prefix)
         if (stat(file, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) {
             continue;
         } 
-        if ((fd = open(file, O_RDONLY | O_BINARY)) < 0) {
+        if ((fd = open(file, O_RDONLY | O_BINARY, 0644)) < 0) {
             fprintf(stderr, "Can't open file %s\n", file);
             return -1;
         }

@@ -348,7 +348,11 @@
 #endif /* UW */
 
 #if VXWORKS
+    #ifndef _VSB_CONFIG_FILE                                                                               
+        #define _VSB_CONFIG_FILE "vsbConfig.h"                                                             
+    #endif
     #include    <vxWorks.h>
+    #include    <iosLib.h>
     #include    <sockLib.h>
     #include    <selectLib.h>
     #include    <inetLib.h>
@@ -361,6 +365,10 @@
     #include    <errno.h>
     #include    <hostLib.h>
     #include    <dirent.h>
+    #include    <sysSymTbl.h>
+    #include    <loadLib.h>
+    #include    <unldLib.h>
+    #include    <envLib.h>
 #endif /* VXWORKS */
 
 #if SOLARIS
@@ -608,14 +616,28 @@
 
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
+    MOB - naming
  */
 typedef int64 filepos;
 
-#if DOXYGEN
-    typedef int socklen_t;
-#elif VXWORKS || BIT_WIN_LIKE
+// MOB - naming
+#if VXWORKS
+    typedef int SockLenArg;
+#else
+    typedef socklen_t SockLenArg;
+#endif
+
+#if DOXYGEN || WINDOWS
     typedef int socklen_t;
 #endif
+#if VXWORKS
+    #define fcntl(a, b, c)
+    #if _WRS_VXWORKS_MAJOR < 6
+        #define NI_MAXHOST 128
+        extern STATUS access(char *path, int mode);
+        struct sockaddr_storage { char pad[1024]; };
+    #endif
+#endif /* VXWORKS */
 
 typedef int64 datetime;
 
@@ -1113,10 +1135,6 @@ typedef struct _stat gstat_t;
 #define gmain       main
 #endif /* ! VXWORKS */
 
-//  MOB - move
-#if VXWORKS
-#define fcntl(a, b, c)
-#endif /* VXWORKS */
 #endif /* ! UNICODE */
 
 #if WINDOWS
@@ -1506,7 +1524,7 @@ extern int      socketFlush(int sid);
 extern ssize    socketGets(int sid, char_t **buf);
 extern int      socketGetPort(int sid);
 extern int      socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
-                    socklen_t *addrlen);
+                    SockLenArg *addrlen);
 extern ssize    socketInputBuffered(int sid);
 extern bool     socketIsV6(int sid);
 extern int      socketOpen();

@@ -16,11 +16,14 @@
 #include    "goahead.h"
 #include    "js.h"
 
-/********************************** Forwards **********************************/
+/********************************* Defines ************************************/
 
 #define ALIGN(x) (((x) + 4 - 1) & ~(4 - 1))
+static int finished = 0;
+
+/********************************* Forwards ***********************************/
+
 static void initPlatform();
-static void sigHandler(int signo);
 static void usage();
 
 static int aliasTest(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
@@ -30,7 +33,9 @@ static int bigTest(int eid, webs_t wp, int argc, char_t **argv);
 #endif
 static void formTest(webs_t wp, char_t *path, char_t *query);
 
-static int finished = 0;
+#if BIT_UNIX_LIKE
+static void sigHandler(int signo);
+#endif
 
 /*********************************** Code *************************************/
 
@@ -145,7 +150,7 @@ static void usage() {
 
 void initPlatform() 
 {
-#if BIT_UNIX_LIKE || VXWORKS
+#if BIT_UNIX_LIKE
     signal(SIGTERM, sigHandler);
     signal(SIGKILL, sigHandler);
     #ifdef SIGPIPE
@@ -157,10 +162,12 @@ void initPlatform()
 }
 
 
+#if BIT_UNIX_LIKE
 static void sigHandler(int signo)
 {
     finished = 1;
 }
+#endif
 
 
 /*

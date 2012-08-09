@@ -2292,18 +2292,23 @@ int parseArgs(char *args, char **argv, int maxArgc)
  */
 static char_t *getAbsolutePath(char_t *path)
 {
-    char_t  *tail;
+#if _WRS_VXWORKS_MAJOR >= 6
+    const char_t  *tail;
+#else
+    char_t        *tail;
+#endif
     char_t  *dev;
 
     /*
         Determine if path is relative or absolute.  If relative, prepend the current working directory to the name.
         Otherwise, use it.  Note the getcwd call below must not be ggetcwd or else we go into an infinite loop
     */
+
     if (iosDevFind(path, &tail) != NULL && path != tail) {
         return bstrdup(path);
     }
-    dev = balloc(LF_PATHSIZE);
-    getcwd(dev, LF_PATHSIZE);
+    dev = balloc(FNAMESIZE);
+    getcwd(dev, FNAMESIZE);
     strcat(dev, "/");
     strcat(dev, path);
     return dev;

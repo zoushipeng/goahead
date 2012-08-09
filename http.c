@@ -396,7 +396,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Get the ip address of the interface that accept the connection.
      */
     len = sizeof(struct sockaddr_in);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (socklen_t*) &len) < 0) {
+    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (SockLenArg*) &len) < 0) {
         return -1;
     }
     cp = inet_ntoa(ifAddr.sin_addr);
@@ -1840,8 +1840,10 @@ static void logRequest(webs_t wp, int code)
 #if WINDOWS
     dwRet = GetTimeZoneInformation(&tzi);
     fmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
-#else
+#elif !VXWORKS
     fmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", (int)(localt.tm_gmtoff/3600));
+#else
+    zoneStr[0] = '\0';
 #endif
     zoneStr[sizeof(zoneStr) - 1] = '\0';
     if (wp->written != 0) {
@@ -2143,7 +2145,6 @@ ssize websGetRequestWritten(webs_t wp)
 
 static int setLocalHost()
 {
-    struct hostent  *hp;
     struct in_addr  intaddr;
     char            host[128], *cp;
     char_t          wbuf[128];
@@ -2163,6 +2164,7 @@ static int setLocalHost()
     //  MOB - OPT so don't copy if not unicode
     ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 #else
+    struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
         error(E_L, E_LOG, T("Can't get host address"));
         return -1;

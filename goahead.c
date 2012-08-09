@@ -23,13 +23,16 @@ static int finished = 0;
 /********************************* Forwards ***********************************/
 
 static void initPlatform();
-static void sigHandler(int signo);
 static void usage();
 
 #if WINDOWS
 static void windowsClose();
 static int windowsInit();
 static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
+#endif
+
+#if BIT_UNIX_LIKE
+static void sigHandler(int signo);
 #endif
 
 /*********************************** Code *************************************/
@@ -130,7 +133,7 @@ static void usage() {
 
 void initPlatform() 
 {
-#if BIT_UNIX_LIKE || VXWORKS
+#if BIT_UNIX_LIKE
     signal(SIGTERM, sigHandler);
     signal(SIGKILL, sigHandler);
     #ifdef SIGPIPE
@@ -142,10 +145,12 @@ void initPlatform()
 }
 
 
+#if BIT_UNIX_LIKE
 static void sigHandler(int signo)
 {
     finished = 1;
 }
+#endif
 
 
 #if WINDOWS

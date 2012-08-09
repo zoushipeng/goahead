@@ -68,7 +68,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 {
     socket_t                *sp;
     struct sockaddr_storage addr;
-    socklen_t               addrlen;
+    SockLenArg              addrlen;
     int                     family, protocol, sid, rc;
 
     if (port > SOCKET_PORT_MAX) {
@@ -228,7 +228,7 @@ static void socketAccept(socket_t *sp)
         Accept the connection and prevent inheriting by children (F_SETFD)
      */
     len = sizeof(struct sockaddr_in);
-    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (socklen_t*) &len)) < 0) {
+    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (SockLenArg*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -1408,7 +1408,7 @@ int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, socklen_t *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, SockLenArg *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -1469,29 +1469,26 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 }
 #else
 
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr **addr, socklen_t *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, SockLenArg *addrlen)
 {
-    struct sockaddr_in  *sa;
+    struct sockaddr_in  sa;
 
-    if ((sa = balloc(sizeof(struct sockaddr_in))) == 0) {
-        return -1;
-    }
-    memset((char*) sa, '\0', sizeof(struct sockaddr_in));
-    sa->sin_family = AF_INET;
-    sa->sin_port = htons((short) (port & 0xFFFF));
+    memset((char*) &sa, '\0', sizeof(struct sockaddr_in));
+    sa.sin_family = AF_INET;
+    sa.sin_port = htons((short) (port & 0xFFFF));
 
     if (strcmp(ip, "") != 0) {
-        sa->sin_addr.s_addr = inet_addr((char*) ip);
+        sa.sin_addr.s_addr = inet_addr((char*) ip);
     } else {
-        sa->sin_addr.s_addr = INADDR_ANY;
+        sa.sin_addr.s_addr = INADDR_ANY;
     }
-    if (sa->sin_addr.s_addr == INADDR_NONE) {
+    if (sa.sin_addr.s_addr == INADDR_NONE) {
 #if VXWORKS
         /*
             VxWorks only supports one interface and this code only supports IPv4
          */
-        sa->sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
-        if (sa->sin_addr.s_addr < 0) {
+        sa.sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
+        if (sa.sin_addr.s_addr < 0) {
             a_assert(0);
             return 0;
         }
@@ -1504,12 +1501,12 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
                 return -1;
             }
         }
-        memcpy((char*) &sa->sin_addr, (char*) hostent->h_addr_list[0], (ssize) hostent->h_length);
+        memcpy((char*) &sa.sin_addr, (char*) hostent->h_addr_list[0], (ssize) hostent->h_length);
 #endif
     }
-    *addr = (struct sockaddr*) sa;
+    memcpy((char*) addr, (char*) &sa, sizeof(sa));
     *addrlen = sizeof(struct sockaddr_in);
-    *family = sa->sin_family;
+    *family = sa.sin_family;
     *protocol = 0;
     return 0;
 }
