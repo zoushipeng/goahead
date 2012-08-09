@@ -40,7 +40,7 @@ if (test.hostOs == "VXWORKS") {
         }
     }
 } else {
-    let path = Cmd.locate("goahead").portable
+    let path = Cmd.locate("goahead-test").portable
     let tree = App.dir.parent.portable
     if (!path.startsWith(tree) && !path.startsWith(tree.trimStart('/private'))) {
         let tree = App.dir.parent.portable

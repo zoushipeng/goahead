@@ -37,3 +37,4 @@ start.bit
 macosx-*
 *-debug
 .*.swp
+access.log

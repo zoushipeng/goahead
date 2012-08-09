@@ -8,7 +8,7 @@ let http: Http = new Http
 let dotcgi = (global.test && test.hostOs != "VXWORKS")
 let vxworks = (global.test && test.hostOs == "VXWORKS")
 
-if (App.config.bld_cgi && Path(test.top).join("test/web/cgiProgram.cgi").exists) {
+if (App.config.bit_cgi && Path(test.top).join("test/web/cgiProgram.cgi").exists) {
     /* Suport routines */
 
     function contains(pat): Void {
@@ -110,6 +110,7 @@ if (App.config.bld_cgi && Path(test.top).join("test/web/cgiProgram.cgi").exists)
 */
 
         http.get(HTTP + "/cgiProgram.cgi?a+b+c")
+dump(http.response)
         match("QUERY_STRING", "a+b+c")
         contains("QVAR a b c")
 

@@ -1618,7 +1618,7 @@ extern void     basicSetAddress(char_t *addr);
 #define WEBS_SYM_INIT           64          /* initial # of sym table entries */
 
 /* 
-    Request flags. Also returned by websGetRequestFlags()
+    Request flags
  */
 #define WEBS_LOCAL_PAGE         0x1         /* Request for local webs page */ 
 #define WEBS_KEEP_ALIVE         0x2         /* HTTP/1.1 keep alive */
@@ -1632,7 +1632,9 @@ extern void     basicSetAddress(char_t *addr);
 #define WEBS_HEAD_REQUEST       0x200       /* Head request */
 #define WEBS_CLEN               0x400       /* Request had a content length */
 #define WEBS_FORM               0x800       /* Request is a form */
+#if UNUSED
 #define WEBS_REQUEST_DONE       0x1000      /* Request complete */
+#endif
 #define WEBS_POST_DATA          0x2000      /* Already appended post data */
 #define WEBS_CGI_REQUEST        0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
@@ -1861,7 +1863,9 @@ extern void     websSetIpaddr(char_t *ipaddr);
 extern void     websSetPassword(char_t *password);
 extern void     websSetRealm(char_t *realmName);
 extern void     websSetRequestBytes(webs_t wp, ssize bytes);
+#if UNUSED
 extern void     websSetRequestFlags(webs_t wp, int flags);
+#endif
 extern void     websSetRequestLpath(webs_t wp, char_t *lpath);
 extern void     websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
 extern char_t  *websGetRequestUserName(webs_t wp);
@@ -1877,6 +1881,7 @@ extern int      websUrlHandlerRequest(webs_t wp);
 extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
                     char_t **proto, char_t **tag, char_t **ext);
 extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
+extern void      websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect);
 extern ssize     websWriteHeader(webs_t wp, char_t *fmt, ...);
 extern ssize     websWrite(webs_t wp, char_t *fmt, ...);
 extern ssize     websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
@@ -2061,8 +2066,8 @@ extern char_t   *basicGetProductDir();
 extern void     basicSetProductDir(char_t *proddir);
 
 /******************************** User Management *****************************/
-
 //  MOB - prefix on type name and AM_NAME
+//  MOB - convert to defines with numbers
 typedef enum {
     AM_NONE = 0,
     AM_FULL,
@@ -2096,26 +2101,12 @@ typedef short bool_t;
 #define PRIV_WRITE  0x02
 #define PRIV_ADMIN  0x04
 
-/*
-    umOpen() must be called before accessing User Management functions
- */
 extern int umOpen(char_t *path);
-
-/*
-    umClose() should be called before shutdown to free memory
- */
 extern void umClose();
-
 extern int umSave();
 
-/*
-    umUser functions use a user ID for a key
- */
 extern int umAddUser(char_t *user, char_t *password, char_t *group, bool_t protect, bool_t disabled);
-
 extern int umDeleteUser(char_t *user);
-
-//  MOB - sort
 extern char_t *umGetFirstUser();
 extern char_t *umGetNextUser(char_t *lastUser);
 extern bool_t umUserExists(char_t *user);
@@ -2127,44 +2118,24 @@ extern bool_t umGetUserEnabled(char_t *user);
 extern int umSetUserEnabled(char_t *user, bool_t enabled);
 extern bool_t umGetUserProtected(char_t *user);
 extern int umSetUserProtected(char_t *user, bool_t protect);
-
-/*
-    umGroup functions use a group name for a key
- */
 extern int umAddGroup(char_t *group, short privilege, accessMeth_t am, bool_t protect, bool_t disabled);
-
 extern int umDeleteGroup(char_t *group);
-
 extern char_t *umGetFirstGroup();
 extern char_t *umGetNextGroup(char_t *lastUser);
-
 extern bool_t umGroupExists(char_t *group);
 extern bool_t umGetGroupInUse(char_t *group);
-
 extern accessMeth_t umGetGroupAccessMethod(char_t *group);
 extern int umSetGroupAccessMethod(char_t *group, accessMeth_t am);
-
 extern bool_t umGetGroupEnabled(char_t *group);
 extern int umSetGroupEnabled(char_t *group, bool_t enabled);
-
-//  MOB - don't use short
 extern short umGetGroupPrivilege(char_t *group);
 extern int umSetGroupPrivilege(char_t *group, short privileges);
-
 extern bool_t umGetGroupProtected(char_t *group);
 extern int umSetGroupProtected(char_t *group, bool_t protect);
-
-/*
-    umAccessLimit functions use a URL as a key
- */
 extern int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group);
 extern int umDeleteAccessLimit(char_t *url);
 extern char_t *umGetFirstAccessLimit();
 extern char_t *umGetNextAccessLimit(char_t *lastUser);
-
-/*
-    Returns the name of an ancestor access limit if
- */
 extern char_t *umGetAccessLimit(char_t *url);
 extern bool_t umAccessLimitExists(char_t *url);
 extern accessMeth_t umGetAccessLimitMethod(char_t *url);
@@ -2175,8 +2146,57 @@ extern char_t *umGetAccessLimitGroup(char_t *url);
 extern int umSetAccessLimitGroup(char_t *url, char_t *group);
 extern accessMeth_t umGetAccessMethodForURL(char_t *url);
 extern bool_t umUserCanAccessURL(char_t *user, char_t *url);
-
 extern void formDefineUserMgmt(void);
+
+#if BIT_ACCESS_MANAGEMENT
+Users
+    - name      Y
+    - group     Y role
+    - enabled   Y
+
+Group
+    - name      Y role
+    - priv      
+    - method
+    - enabled   N   (not useful)
+
+Database
+    - users
+        name, enable, password, role|role|role, capability|capability|capability
+    - role
+        name, capability|capability|capability
+    - uri
+        uri, secure, capability
+
+Text file:
+    user name enable password role||| capability|||
+    role name role||| capability|||
+    uri /path capability
+
+extern int amOpen(char_t *path);
+extern void amClose();
+extern int amAddUser(char_t *name);
+extern int amSetPassword(char_t *name, char_t *password);
+extern int amLoginUser(char_t *name, char_t *password);
+extern int amEnableUser(char_t *name, int enable);
+extern int amRemoveUser(char_t *name);
+extern int amAddUserRole(char_t *name, char_t *role);
+extern int amRemoveUserRole(char_t *name, char_t *role);
+extern bool amUserHasCapability(char_t *name, char_t *capability);
+
+extern int amAddRole(char_t *role);
+extern int amRemoveRole(char_t *role);
+extern int amAddRoleCapability(char_t *role, char_t *capability);
+extern int amRemoveRoleCapability(char_t *role, char_t *capability);
+
+extern int amAddUri(char_t *uri, char_t *capability, int secure);
+extern int amRemoveUri(char_t *uri);
+extern bool amTestUri(char_t *uri, char_t *user);
+extern bool amCan(char_t *capability);
+
+//  ASP
+extern void can(char_t *capability):
+#endif
 
 #endif /* BIT_USER_MANAGEMENT */
 #ifdef __cplusplus

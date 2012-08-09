@@ -150,7 +150,7 @@ int dbRegisterDBSchema(dbTable_t *pTableRegister)
 
     a_assert(pTableRegister);
 
-    trace(4, T("DB: Registering database table <%s>\n"), pTableRegister->name);
+    trace(4, T("DB: Registering database table <%s>"), pTableRegister->name);
 
     /*
         Bump up the size of the table array
@@ -250,7 +250,7 @@ int dbSearchStr(int did, char_t *tablename, char_t *colName, char_t *value, int 
         /*
             Return -2 if search column was not found
          */
-        trace(3, T("DB: Unable to find column <%s> in table <%s>\n"), colName, tablename);
+        trace(3, T("DB: Unable to find column <%s> in table <%s>"), colName, tablename);
         return DB_ERR_COL_NOT_FOUND;
     }
     return -1;
@@ -278,7 +278,7 @@ int dbAddRow(int did, char_t *tablename)
     a_assert(pTable);
 
     if (pTable) {
-        trace(5, T("DB: Adding a row to table <%s>\n"), tablename);
+        trace(5, T("DB: Adding a row to table <%s>"), tablename);
         size = pTable->nColumns * sizeof(ssize);
         return hAllocEntry((void***) &(pTable->rows), &(pTable->nRows), size);
     } 
@@ -322,11 +322,11 @@ int dbDeleteRow(int did, char_t *tablename, int row)
             }
             bfree(pRow);
             pTable->nRows = hFree((void***)&pTable->rows, row);
-            trace(5, T("DB: Deleted row <%d> from table <%s>\n"), row, tablename);
+            trace(5, T("DB: Deleted row <%d> from table <%s>"), row, tablename);
         }
         return 0;
     } else {
-        trace(3, T("DB: Unable to delete row <%d> from table <%s>\n"), row, tablename);
+        trace(3, T("DB: Unable to delete row <%d> from table <%s>"), row, tablename);
     }
     return -1;
 }
@@ -361,9 +361,9 @@ int dbSetTableNrow(int did, char_t *tablename, int nNewRows)
             /*      
                 If number of rows already allocated exceeds requested number, do nothing
              */
-            trace(4, T("DB: Ignoring row set to <%d> in table <%s>\n"), nNewRows, tablename);
+            trace(4, T("DB: Ignoring row set to <%d> in table <%s>"), nNewRows, tablename);
         } else {
-            trace(4, T("DB: Setting rows to <%d> in table <%s>\n"), nNewRows, tablename);
+            trace(4, T("DB: Setting rows to <%d> in table <%s>"), nNewRows, tablename);
             while (pTable->nRows < nNewRows) {
                 if (dbAddRow(did, tablename) < 0) {
                     return -1;
@@ -600,7 +600,7 @@ int dbSave(int did, char_t *filename, int flags)
     ssize       rc, *pRow;
     int         row, column, nColumns, nRows, fd, *colTypes, nRet, tid;
 
-    trace(5, T("DB: About to save database to file\n"));
+    trace(5, T("DB: About to save database to file"));
 
     a_assert(dbMaxTables > 0);
 
@@ -609,7 +609,7 @@ int dbSave(int did, char_t *filename, int flags)
      */
     tmpFile = T("data.tmp");
     if ((fd = gopen(tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0666)) < 0) {
-        trace(1, T("WARNING: Failed to open file %s\n"), tmpFile);
+        trace(1, T("WARNING: Failed to open file %s"), tmpFile);
         return -1;
     }
     nRet = 0;
@@ -657,7 +657,7 @@ int dbSave(int did, char_t *filename, int flags)
                     }
                 }
                 if (rc < 0) {
-                    trace(1, T("WARNING: Failed to write to file %s\n"), tmpFile);
+                    trace(1, T("WARNING: Failed to write to file %s"), tmpFile);
                     nRet = -1;
                 }
             }
@@ -671,7 +671,7 @@ int dbSave(int did, char_t *filename, int flags)
     if (nRet == 0) {
         gunlink(filename);
         if (grename(tmpFile, filename) != 0) {
-            trace(1, T("WARNING: Failed to rename %s to %s\n"), tmpFile, filename);
+            trace(1, T("WARNING: Failed to rename %s to %s"), tmpFile, filename);
             nRet = -1;
         }
     }
@@ -717,19 +717,19 @@ int dbLoad(int did, char_t *filename, int flags)
 
     a_assert(did >= 0);
 
-    trace(4, T("DB: About to read data file <%s>\n"), filename);
+    trace(4, T("DB: About to read data file <%s>"), filename);
 
     if (gstat(filename, &sbuf) < 0) {
-        trace(3, T("DB: Failed to stat persistent data file.\n"));
+        error(E_L, E_LOG, T("DB: Failed to stat persistent data file"));
         return -1;
     }
     fd = gopen(filename, O_RDONLY | O_BINARY, 0666);
     if (fd < 0) {
-        trace(3, T("DB: No persistent data file present.\n"));
+        trace(3, T("DB: No persistent data file present."));
         return -1;
     }
     if (sbuf.st_size <= 0) {
-        trace(3, T("DB: Persistent data file is empty.\n"));
+        trace(3, T("DB: Persistent data file is empty."));
         gclose(fd);
         return -1;
     }
@@ -744,7 +744,7 @@ int dbLoad(int did, char_t *filename, int flags)
 #else
     if (gread(fd, buf, (ssize) sbuf.st_size) != (ssize) sbuf.st_size) {
 #endif
-        trace(3, T("DB: Persistent data read failed.\n"));
+        trace(3, T("DB: Persistent data read failed."));
         bfree(buf);
         gclose(fd);
         return -1;
@@ -760,7 +760,7 @@ int dbLoad(int did, char_t *filename, int flags)
 
     do {
         if (crack(ptr, &keyword, &value) < 0) {
-            trace(5, T("DB: Failed to crack line %s\n"), ptr);
+            trace(5, T("DB: Failed to crack line %s"), ptr);
             continue;
         }
         a_assert(keyword && *keyword);

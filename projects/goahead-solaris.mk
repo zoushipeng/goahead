@@ -18,7 +18,8 @@ LIBS     := -llxnet -lrt -lsocket -lpthread -lm -ldl
 all: prep \
         $(CONFIG)/bin/goahead \
         $(CONFIG)/bin/goahead-test \
-        $(CONFIG)/bin/webcomp
+        $(CONFIG)/bin/webcomp \
+        test/cgi-bin/cgitest
 
 .PHONY: prep
 
@@ -34,6 +35,8 @@ clean:
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
 	rm -rf $(CONFIG)/bin/webcomp
+	rm -rf test/cgi-bin/cgitest
+	rm -rf $(CONFIG)/obj/access.o
 	rm -rf $(CONFIG)/obj/balloc.o
 	rm -rf $(CONFIG)/obj/cgi.o
 	rm -rf $(CONFIG)/obj/crypt.o
@@ -56,6 +59,7 @@ clean:
 	rm -rf $(CONFIG)/obj/um.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/webcomp.o
+	rm -rf $(CONFIG)/obj/cgitest.o
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -67,6 +71,11 @@ $(CONFIG)/inc/goahead.h:
 $(CONFIG)/inc/js.h: 
 	rm -fr $(CONFIG)/inc/js.h
 	cp -r js.h $(CONFIG)/inc/js.h
+
+$(CONFIG)/obj/access.o: \
+        access.c \
+        $(CONFIG)/inc/bit.h
+	$(CC) -c -o $(CONFIG)/obj/access.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc access.c
 
 $(CONFIG)/obj/balloc.o: \
         balloc.c \
@@ -171,6 +180,7 @@ $(CONFIG)/obj/um.o: \
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
+        $(CONFIG)/obj/access.o \
         $(CONFIG)/obj/balloc.o \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
@@ -191,14 +201,15 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/obj/ssl.o \
         $(CONFIG)/obj/template.o \
         $(CONFIG)/obj/um.o
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/um.o $(LIBS) $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/access.o $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/um.o $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/test.o: \
-        test.c \
+        test/test.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/test.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
+        $(CONFIG)/obj/access.o \
         $(CONFIG)/obj/balloc.o \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
@@ -217,18 +228,29 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/obj/socket.o \
         $(CONFIG)/obj/ssl.o \
         $(CONFIG)/obj/template.o \
-        $(CONFIG)/obj/test.o \
-        $(CONFIG)/obj/um.o
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/test.o $(CONFIG)/obj/um.o $(LIBS) $(LDFLAGS)
+        $(CONFIG)/obj/um.o \
+        $(CONFIG)/obj/test.o
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/access.o $(CONFIG)/obj/balloc.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/db.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/security.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/um.o $(CONFIG)/obj/test.o $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/webcomp.o: \
-        webcomp.c \
+        utils/webcomp.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/webcomp.o
 	$(CC) -o $(CONFIG)/bin/webcomp $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS) $(LDFLAGS)
+
+$(CONFIG)/obj/cgitest.o: \
+        test/cgitest.c \
+        $(CONFIG)/inc/bit.h
+	$(CC) -c -o $(CONFIG)/obj/cgitest.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
+
+test/cgi-bin/cgitest:  \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
+        $(CONFIG)/obj/cgitest.o
+	$(CC) -o test/cgi-bin/cgitest $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/cgitest.o $(LIBS) $(LDFLAGS)
 

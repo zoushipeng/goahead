@@ -149,22 +149,23 @@ websMimeType websMimeList[] = {
  */
 
 websErrorType websErrors[] = {
-    { 200, T("Data follows") },
+    { 200, T("OK") },
     { 204, T("No Content") },
     { 301, T("Redirect") },
     { 302, T("Redirect") },
-    { 304, T("Use local copy") },
-    { 400, T("Page not found") },
+    { 304, T("Not Modified") },
+    { 400, T("Bad Request") },
     { 401, T("Unauthorized") },
     { 403, T("Forbidden") },
-    { 404, T("Site or Page Not Found") },
+    { 404, T("Not Found") },
     { 405, T("Access Denied") },
-    { 500, T("Web Error") },
+    { 500, T("Internal Server Error") },
     { 501, T("Not Implemented") },
-    { 503, T("Site Temporarily Unavailable. Try again.") },
+    { 503, T("Service Unavailable") },
     { 0, NULL }
 };
 
+//  MOB - should be main.bit
 #if BIT_ACCESS_LOG
 static char_t   accessLog[64] = T("access.log");    /* Log filename */
 static int      accessFd;                           /* Log file handle */
@@ -172,13 +173,11 @@ static int      accessFd;                           /* Log file handle */
 
 static char_t   websRealm[64] = T(BIT_DIGEST_REALM);
 
+static int      websOpenCount;                  /* count of apps using this module */
 static int      websListenSock;                 /* Listen socket */
-
 #if BIT_PACK_SSL
 static int      sslListenSock;                  /* SSL Listen socket */
 #endif
-
-static int      websOpenCount;                  /* count of apps using this module */
 
 /**************************** Forward Declarations ****************************/
 
@@ -1296,8 +1295,6 @@ void websTimeoutCancel(webs_t wp)
  */
 void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
 {
-    char_t      *date;
-
     a_assert(websValid(wp));
 
     /*
@@ -1306,6 +1303,7 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
      */
     wp->flags &= ~WEBS_KEEP_ALIVE;
 
+#if UNUSED
     /*
         Only output the header if a header has not already been output.
      */
@@ -1363,13 +1361,15 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
         }
         websWriteHeader(wp, T("\r\n\r\n"));
     }
-
-    /*
-        If the browser didn't do a HEAD only request, send the message as well.
-     */
+#else
     if ((wp->flags & WEBS_HEAD_REQUEST) == 0 && message && *message) {
+        websWriteHeaders(wp, code, glen(message) + 2, redirect);
+        websWriteHeader(wp, T("\r\n"));
         websWrite(wp, T("%s\r\n"), message);
+    } else {
+        websWriteHeaders(wp, code, -1, redirect);
     }
+#endif
     websDone(wp, code);
 }
 
@@ -1582,6 +1582,78 @@ ssize websWriteHeader(webs_t wp, char_t *fmt, ...)
         bfree(buf);
     }
     return rc;
+}
+
+
+/*
+    Write a set of headers. Does not write the trailing blank line so callers can add more headers
+ */
+void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
+{
+    char_t      *date;
+
+    a_assert(websValid(wp));
+
+    if (!(wp->flags & WEBS_HEADER_DONE)) {
+        wp->flags |= WEBS_HEADER_DONE;
+        websWriteHeader(wp, T("HTTP/1.0 %d %s\r\n"), code, websErrorMsg(code));
+        /*
+            The Embedthis Open Source license does not permit modification to the Server header
+         */
+        websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
+
+        if ((date = websGetDateString(NULL)) != NULL) {
+            websWriteHeader(wp, T("Date: %s\r\n"), date);
+            bfree(date);
+        }
+        /*
+            If authentication is required, send the auth header info
+         */
+        if (code == 401) {
+            if (!(wp->flags & WEBS_AUTH_DIGEST)) {
+                websWriteHeader(wp, T("WWW-Authenticate: Basic realm=\"%s\"\r\n"), websGetRealm());
+#if BIT_DIGEST_AUTH
+            } else {
+                char_t *nonce, *opaque;
+                nonce = websCalcNonce(wp);
+                opaque = websCalcOpaque(wp); 
+                websWriteHeader(wp, 
+                    T("WWW-Authenticate: Digest realm=\"%s\", domain=\"%s\",")
+                    T("qop=\"%s\", nonce=\"%s\", opaque=\"%s\",")
+                    T("algorithm=\"%s\", stale=\"%s\"\r\n"), 
+                    websGetRealm(),
+                    websGetHostUrl(),
+                    T("auth"),
+                    nonce,
+                    opaque, T("MD5"), T("FALSE"));
+                bfree(nonce);
+                bfree(opaque);
+#endif
+            }
+        }
+        if (nbytes < 0) {
+            wp->flags &= ~WEBS_KEEP_ALIVE;
+        }
+        if (wp->flags & WEBS_KEEP_ALIVE) {
+            websWriteHeader(wp, T("Connection: keep-alive\r\n"));
+        } else {
+            websWriteHeader(wp, T("Connection: close\r\n"));   
+        }
+        if (wp->flags & (WEBS_ASP | WEBS_CGI_REQUEST | WEBS_FORM)) {
+            websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
+        }
+        if (wp->flags & WEBS_HEAD_REQUEST) {
+            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) nbytes);                                           
+        } else if (nbytes >= 0) {                                                                                    
+            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) nbytes);                                           
+            websSetRequestBytes(wp, bytes);                                                                    
+        }  
+        if (redirect) {
+            websWriteHeader(wp, T("Location: %s\r\n"), redirect);
+        } else if (wp->type) {
+            websWriteHeader(wp, T("Content-type: %s\r\n"), wp->type);
+        }
+    }
 }
 
 
@@ -1861,9 +1933,7 @@ void websDone(webs_t wp, int code)
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
 #if BIT_ACCESS_LOG
-    if (! (wp->flags & WEBS_REQUEST_DONE)) {
-        logRequest(wp, code);
-    }
+    logRequest(wp, code);
 #endif
     websPageClose(wp);
 
@@ -1887,7 +1957,10 @@ void websDone(webs_t wp, int code)
     if (wp->flags & WEBS_KEEP_ALIVE) {
         if (socketFlush(wp->sid) == 0) {
             wp->state = WEBS_BEGIN;
+#if UNUSED
             wp->flags |= WEBS_REQUEST_DONE;
+#endif
+            wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
             if (wp->header.buf) {
                 ringqFlush(&wp->header);
             }
@@ -2157,11 +2230,13 @@ void websSetRequestBytes(webs_t wp, ssize bytes)
 }
 
 
+#if UNUSED
 void websSetRequestFlags(webs_t wp, int flags)
 {
     a_assert(websValid(wp));
     wp->flags = flags;
 }
+#endif
 
 
 void websSetRequestLpath(webs_t wp, char_t *lpath)

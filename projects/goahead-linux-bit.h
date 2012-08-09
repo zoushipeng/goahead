@@ -9,6 +9,7 @@
 /* Settings */
 #define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
 #define BIT_ACCESS_LOG 1
+#define BIT_ACCESS_MANAGEMENT 0
 #define BIT_BUILD_NUMBER "0"
 #define BIT_CA_FILE ""
 #define BIT_CA_PATH ""
@@ -48,8 +49,8 @@
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"
 #define BIT_TRACE "stdout:2"
-#define BIT_USER_MANAGEMENT 1
-#define BIT_USER_MANAGEMENT_GUI 1
+#define BIT_USER_MANAGEMENT 0
+#define BIT_USER_MANAGEMENT_GUI 0
 #define BIT_VERSION "3.0.0"
 #define BIT_WARN64TO32 0
 #define BIT_WARN_UNUSED 1

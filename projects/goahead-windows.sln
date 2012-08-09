@@ -17,6 +17,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "webcomp", "goahead-windows\
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cgitest", "goahead-windows\cgitest.vcxproj", "{6770521F-03CB-427F-AE3F-A89E066E16B0}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+EndProject
 
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +63,14 @@ Global
 {AB436208-C727-475A-AD2D-180D8F0995F4}.Release|Win32.Build.0 = Release|Win32
 {AB436208-C727-475A-AD2D-180D8F0995F4}.Release|x64.ActiveCfg = Release|x64
 {AB436208-C727-475A-AD2D-180D8F0995F4}.Release|x64.Build.0 = Release|x64
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Debug|Win32.ActiveCfg = Debug|Win32
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Debug|Win32.Build.0 = Debug|Win32
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Debug|x64.ActiveCfg = Debug|x64
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Debug|x64.Build.0 = Debug|x64
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Release|Win32.ActiveCfg = Release|Win32
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Release|Win32.Build.0 = Release|Win32
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Release|x64.ActiveCfg = Release|x64
+{6770521F-03CB-427F-AE3F-A89E066E16B0}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
   GlobalSection(SolutionProperties) = preSolution

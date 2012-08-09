@@ -41,18 +41,18 @@ function postTest(url: String) {
 
 postTest("/index.html")
 
-if (App.config.bld_ejscript) {
+if (App.config.bit_ejscript) {
     postTest("/form.ejs")
 }
 
-if (App.config.bld_php) {
+if (App.config.bit_php) {
     postTest("/form.php")
 }
 
-if (App.config.bld_cgi) {
+if (App.config.bit_cgi) {
     postTest("/cgi-bin/cgiProgram")
 }
 
-if (App.config.bld_esp) {
+if (App.config.bit_esp) {
     postTest("/test.esp")
 }

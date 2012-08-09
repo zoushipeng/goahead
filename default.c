@@ -29,18 +29,13 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
 {
     websStatType    sbuf;
     char_t          *lpath, *tmp, *date;
-    ssize           nchars, bytes;
+    ssize           nchars;
+    int             code;
 
     a_assert(websValid(wp));
     a_assert(url && *url);
     a_assert(path);
     a_assert(query);
-
-    //  MOB - extract common code into a routine so other handlers can use.
-
-    if (wp->flags & WEBS_ASP) {
-        wp->flags &= ~WEBS_KEEP_ALIVE;
-    }
 
     /*
         Validate the URL and ensure that ".."s don't give access to unwanted files
@@ -90,13 +85,15 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         (ASP), then optimize request by sending a 304 Use local copy response.
      */
     websStats.localHits++;
+    code = 200;
 #if BIT_IF_MODIFIED
     if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_ASP)) {
         if (sbuf.mtime <= wp->since) {
+            code = 304;
+#if UNUSED
             websWriteHeader(wp, T("HTTP/1.0 304 Use local copy\r\n"));
             /*
                 NOTE: by license terms the following line of code must not be modified.
-                MOB: remove define
              */
             websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
             if (wp->flags & WEBS_KEEP_ALIVE) {
@@ -108,9 +105,12 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
             wp->flags |= WEBS_HEADER_DONE;
             websDone(wp, 304);
             return 1;
+#endif
         }
     }
 #endif
+
+#if UNUSED
     /*
         Output the normal HTTP response header
         MOB OPT - compute date periodically
@@ -155,6 +155,16 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         websWriteHeader(wp, T("Connection: close\r\n"));
     }
     websWriteHeader(wp, T("\r\n"));
+#else
+    websWriteHeaders(wp, code, (wp->flags & WEBS_ASP) ? -1 : sbuf.size, 0);
+    if (!(wp->flags & WEBS_ASP)) {
+        if ((date = websGetDateString(&sbuf)) != NULL) {
+            websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
+            bfree(date);
+        }
+    }
+    websWriteHeader(wp, T("\r\n"));
+#endif
 
     /*
         All done if the browser did a HEAD request

@@ -5,7 +5,7 @@
 const HTTP = App.config.uris.http || "127.0.0.1:4100"
 const TESTFILE = "upload-" + hashcode(self) + ".tdat"
 
-if (App.config.bld_ejscript) {
+if (App.config.bit_ejscript) {
 
     let http: Http = new Http
 

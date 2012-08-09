@@ -29,7 +29,7 @@ for (iter in depth) {
     assert(http.status == 200)
     assert(http.response.contains("Hello /index.html"))
 
-    if (App.config.bld_ejscript) {
+    if (App.config.bit_ejscript) {
         //  Test /index.ejs
         http.get(HTTP + "/index.ejs?" + query)
         assert(http.status == 200)

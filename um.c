@@ -17,7 +17,7 @@
 #if UNUSED
 #define UM_DB_FILENAME  T("um.xml")
 #endif
-#define UM_TXT_FILENAME T("umconfig.txt")
+#define UM_TXT_FILENAME T("umconfig.db")
 
 /*
     Table names
@@ -865,7 +865,6 @@ accessMeth_t umGetAccessLimitMethod(char_t *url)
 
     am = (int) AM_INVALID;
     row = dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0);
-
     if (row >= 0) {
         dbReadInt(udb, UM_ACCESS_TABLENAME, UM_METHOD, row, &am);
     } 
@@ -1061,8 +1060,7 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
         Make sure user has sufficient privileges (any will do)
      */
     usergroup = umGetUserGroup(user);
-    priv = umGetGroupPrivilege(usergroup);
-    if (priv == 0) {
+    if ((priv = umGetGroupPrivilege(usergroup)) == 0) {
         return 0;
     }
     if (!umGetGroupEnabled(usergroup)) {

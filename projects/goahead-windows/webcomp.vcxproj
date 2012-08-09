@@ -100,7 +100,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\webcomp.c" />
+    <ClCompile Include="..\..\utils\webcomp.c" />
   </ItemGroup>
 
   <ItemGroup>

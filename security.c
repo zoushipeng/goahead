@@ -52,17 +52,11 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         Get the access limit for the URL.  Exit if none found.
         MOB OPT - move above
      */
-    accessLimit = umGetAccessLimit(path);
-    if (accessLimit == NULL) {
+    if ((accessLimit = umGetAccessLimit(path)) == 0) {
         return 0;
     }
-         
-    /*
-        Check to see if URL must be encrypted
-     */
 #if BIT_PACK_SSL
-    rc = umGetAccessLimitSecure(accessLimit);
-    if (rc && ((flags & WEBS_SECURE) == 0)) {
+    if (umGetAccessLimitSecure(accessLimit) && (flags & WEBS_SECURE) == 0) {
         websStats.access++;
         websError(wp, 405, T("Access Denied\nSecure access is required."));
         trace(3, T("SEC: Non-secure access attempted on <%s>\n"), path);
@@ -70,7 +64,6 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         return 1;
     }
 #endif
-
     /*
         Get the access limit for the URL
      */

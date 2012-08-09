@@ -129,8 +129,9 @@ Bit.load({
         /*
             Build with user management support
          */
-        userManagement: true,
-        userManagementGui: true,
+        accessManagement: false,
+        userManagement: false,
+        userManagementGui: false,
     },
 
     targets: {
@@ -144,7 +145,6 @@ Bit.load({
             sources: [ '*.c' ],
             headers: [ '*.h' ],
             depends: [ 'openssl', 'matrixssl' ],
-            exclude: /webcomp\.c|test\.c/,
             _resources: [ 'goahead.rc' ],
         },
 
@@ -152,8 +152,8 @@ Bit.load({
             enable: bit.settings.profile != 'release',
             type: 'exe',
             depends: [ ],
-            sources: [ '*.c' ],
-            exclude: /goahead\.c|webcomp\.c/,
+            sources: [ '*.c', 'test/test.c' ],
+            exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
         },
 
@@ -163,9 +163,47 @@ Bit.load({
         webcomp: {
             type: 'exe',
             depends: [ ],
-            sources: [ 'webcomp.c' ],
-            exclude: /test\.c/,
+            sources: [ 'utils/webcomp.c' ],
             headers: [ '*.h' ],
+        },
+
+        cgitest: {
+            path: 'test/cgi-bin/cgitest${EXE}'
+            type: 'exe',
+            depends: [ ],
+            sources: [ 'test/cgitest.c' ],
+            headers: [ '*.h' ],
+        },
+
+        test: {
+            action: "
+                let ro = {noio: true, dir: 'test'}
+                let depth = bit.settings.depth
+                run('utest -v -i 2 --depth ' + depth, ro)
+                if (depth >= 3) {
+                    trace('Test', 'Light load tests')
+                    run('utest -v -i 20 --depth ' + depth, ro)
+                    for each (t in [2, 4]) {
+                        trace('Test', 'Light thread tests')
+                        run('utest -v -i 20 --depth ' + depth + ' --threads ' + t, ro)
+                    }
+                }
+                if (depth >= 4) {
+                    trace('Test', 'Longevity load tests')
+                    run('utest -v -i 100 --depth ' + depth, ro)
+                    for each (t in [8, 16]) {
+                        trace('Test', 'Light thread tests')
+                        run('utest -v -i 100 --depth ' + depth + ' --threads ' + t, ro)
+                    }
+                }
+                trace('Test', 'Unit tests complete')
+            ",
+            platforms: [ 'local' ],
+        },
+        run: {
+            action: "
+                run('goahead -v', {noio: true})
+            ",
         },
     },
 })

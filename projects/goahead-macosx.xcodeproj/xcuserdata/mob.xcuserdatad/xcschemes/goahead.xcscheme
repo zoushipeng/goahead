@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9FC45C179FC48C4D0000003D"
+               BlueprintIdentifier = "9FC45C179FC48C4D00000043"
                BuildableName = "goahead"
                BlueprintName = "goahead"
                ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D0000003F"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -52,7 +52,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D0000003F"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -84,7 +84,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D0000003D"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000043"
             BuildableName = "goahead"
             BlueprintName = "goahead"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">

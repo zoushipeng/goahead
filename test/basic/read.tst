@@ -12,10 +12,10 @@ count = 0
 while (http.read(buf) > 0) {
     count += buf.length
 }
-if (count != 63201) {
+if (count != 61491) {
     print("COUNT IS " + count + " code " + http.status)
 }
-assert(count == 63201)
+assert(count == 61491)
 http.close()
 
 http.get(HTTP + "/lines.txt")

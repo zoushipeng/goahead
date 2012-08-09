@@ -99,7 +99,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
 
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
-        error(E_L, E_LOG, T("Can't bind to address %s:%d, errno %d"), ip, port, errno);
+        error(E_L, E_LOG, T("Can't bind to address %s:%d, errno %d"), ip ? ip : "*", port, errno);
         socketFree(sid);
         return -1;
     }
