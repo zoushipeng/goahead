@@ -845,7 +845,13 @@ static int parseFirstLine(webs_t wp, char_t *text)
         websError(wp, 400, T("Bad URL format"));
         return -1;
     }
+    if ((wp->path = websNormalizeUriPath(path)) == 0) {
+        websError(wp, 400, T("Bad URL format"));
+        return -1;
+    }
     wp->url = bstrdup(url);
+    wp->dir = bstrdup( websGetDefaultDir());
+    fmtAlloc(&wp->lpath, FNAMESIZE, "%s%s", wp->dir, wp->path);
 
 #if BIT_CGI
     if (gstrstr(url, BIT_CGI_BIN) != NULL) {
@@ -857,7 +863,6 @@ static int parseFirstLine(webs_t wp, char_t *text)
 #endif
     wp->query = bstrdup(query);
     wp->host = bstrdup(host);
-    wp->path = bstrdup(path);
     wp->protocol = bstrdup(proto);
     wp->protoVersion = bstrdup(protoVer);
     if (gmatch(protoVer, "HTTP/1.1")) {
@@ -1300,66 +1305,6 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
         MOB - OPT REMOVE
      */
     wp->flags &= ~WEBS_KEEP_ALIVE;
-
-#if UNUSED
-    /*
-        Only output the header if a header has not already been output.
-     */
-    if ( !(wp->flags & WEBS_HEADER_DONE)) {
-        wp->flags |= WEBS_HEADER_DONE;
-        /*
-            Redirect behaves much better when sent with HTTP/1.0
-         */
-        if (redirect != NULL) {
-            websWriteHeader(wp, T("HTTP/1.0 %d %s\r\n"), code, websErrorMsg(code));
-        } else {
-            websWriteHeader(wp, T("HTTP/1.1 %d %s\r\n"), code, websErrorMsg(code));
-        }
-        /*
-            The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
-         */
-        websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
-
-        if ((date = websGetDateString(NULL)) != NULL) {
-            websWriteHeader(wp, T("Date: %s\r\n"), date);
-            bfree(date);
-        }
-        /*
-            If authentication is required, send the auth header info
-         */
-        if (code == 401) {
-            if (!(wp->flags & WEBS_AUTH_DIGEST)) {
-                websWriteHeader(wp, T("WWW-Authenticate: Basic realm=\"%s\"\r\n"), websGetRealm());
-#if BIT_DIGEST_AUTH
-            } else {
-                char_t *nonce, *opaque;
-                nonce = websCalcNonce(wp);
-                opaque = websCalcOpaque(wp); 
-                websWriteHeader(wp, 
-                    T("WWW-Authenticate: Digest realm=\"%s\", domain=\"%s\",")
-                    T("qop=\"%s\", nonce=\"%s\", opaque=\"%s\",")
-                    T("algorithm=\"%s\", stale=\"%s\"\r\n"), 
-                    websGetRealm(),
-                    websGetHostUrl(),
-                    T("auth"),
-                    nonce,
-                    opaque, T("MD5"), T("FALSE"));
-                bfree(nonce);
-                bfree(opaque);
-#endif
-            }
-        }
-        if (wp->flags & WEBS_KEEP_ALIVE) {
-            websWriteHeader(wp, T("Connection: keep-alive\r\n"));
-        }
-        websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
-        websWriteHeader(wp, T("Content-Type: text/html\r\n"));
-        if (redirect) {
-            websWriteHeader(wp, T("Location: %s\r\n"), redirect);
-        }
-        websWriteHeader(wp, T("\r\n\r\n"));
-    }
-#else
     if ((wp->flags & WEBS_HEAD_REQUEST) == 0 && message && *message) {
         websWriteHeaders(wp, code, glen(message) + 2, redirect);
         websWriteHeader(wp, T("\r\n"));
@@ -1367,7 +1312,6 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
     } else {
         websWriteHeaders(wp, code, -1, redirect);
     }
-#endif
     websDone(wp, code);
 }
 
@@ -1937,9 +1881,6 @@ void websDone(webs_t wp, int code)
     if (wp->flags & WEBS_KEEP_ALIVE) {
         if (socketFlush(wp->sid) == 0) {
             wp->state = WEBS_BEGIN;
-#if UNUSED
-            wp->flags |= WEBS_REQUEST_DONE;
-#endif
             wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
             if (wp->header.buf) {
                 ringqFlush(&wp->header);
@@ -2212,15 +2153,6 @@ void websSetRequestBytes(webs_t wp, ssize bytes)
 }
 
 
-#if UNUSED
-void websSetRequestFlags(webs_t wp, int flags)
-{
-    a_assert(websValid(wp));
-    wp->flags = flags;
-}
-#endif
-
-
 void websSetRequestLpath(webs_t wp, char_t *lpath)
 {
     a_assert(websValid(wp));
@@ -2266,6 +2198,8 @@ void websRewriteRequest(webs_t wp, char_t *url)
     bfree(wp->url);
     wp->url = bstrdup(url);
     websSetRequestPath(wp, NULL, wp->url);
+    bfree(wp->lpath);
+    fmtAlloc(&wp->lpath, FNAMESIZE, "%s%s", wp->dir, wp->path);
 }
 
 
@@ -2585,7 +2519,7 @@ long GregorianYearFromFixed(long fixedDate)
     Returns the Gregorian date from a fixed date (not needed for this use, but included for completeness)
  */
 #if UNUSED && KEEP
-GregorianFromFixed(long fixedDate, long *month, long *day, long *year) 
+void GregorianFromFixed(long fixedDate, long *month, long *day, long *year) 
 {
     long priorDays, correction;
 
@@ -2608,8 +2542,7 @@ GregorianFromFixed(long fixedDate, long *month, long *day, long *year)
 /* 
     Returns the difference between two Gregorian dates
  */
-long GregorianDateDifferenc(long month1, long day1, long year1,
-                            long month2, long day2, long year2) 
+long GregorianDateDifferenc(long month1, long day1, long year1, long month2, long day2, long year2) 
 {
     return FixedFromGregorian(month2, day2, year2) - FixedFromGregorian(month1, day1, year1);
 }
@@ -2953,11 +2886,10 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
     hostbuf = &buf[ulen+1];
     websDecodeUrl(buf, url, ulen);
 
-    url = buf;
-
     /*
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
      */
+    url = buf;
     stritoa(websGetPort(), portbuf, MAX_PORT_LEN);
     port = portbuf;
     path = T("/");
@@ -3019,24 +2951,18 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
             path = tok;
         }
     }
-
-    /*
-        Only do the following if asked for the extension
-     */
     if (pext) {
-        /*
-            Later the path will be cleaned up for trailing slashes and so on.  To be ready, we need to clean up here,
-            much as in websValidateUrl.  Otherwise a URL ending in "asp/" or "asP" sends Ejscript source to the browser.
-        */
         if ((cp = gstrrchr(path, '.')) != NULL) {
+            //  MOB - review. See httpCreateUri
             const char_t* garbage = T("/\\");
             ssize length = gstrcspn(cp, garbage);
-            ssize garbageLength = gstrspn(cp + length, garbage);
-            ssize ok = (length + garbageLength == (int) gstrlen(cp));
+            ssize glen = gstrspn(cp + length, garbage);
+            ssize ok = (cp[length + glen] == '\0');
             if (ok) {
                 cp[length] = '\0';
 #if BIT_WIN_LIKE
                 strlower(cp);            
+                //  MOB - don't map extension case. Those who test should use caseless test
 #endif
                 ext = cp;
             }
@@ -3061,6 +2987,83 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         *pext = ext;
     *pbuf = buf;
     return 0;
+}
+
+
+/*
+    Normalize a URI path to remove redundant "./" and cleanup "../" and make separator uniform. Does not make an abs path.
+    It does not map separators nor change case. 
+ */
+char_t *websNormalizeUriPath(char_t *pathArg)
+{
+    char    *dupPath, *path, *sp, *dp, *mark, **segments;
+    int     firstc, j, i, nseg, len;
+
+    if (pathArg == 0 || *pathArg == '\0') {
+        return "";
+    }
+    len = (int) glen(pathArg);
+    if ((dupPath = balloc(len + 2)) == 0) {
+        return NULL;
+    }
+    strcpy(dupPath, pathArg);
+
+    if ((segments = balloc(sizeof(char*) * (len + 1))) == 0) {
+        return NULL;
+    }
+    nseg = len = 0;
+    firstc = *dupPath;
+    for (mark = sp = dupPath; *sp; sp++) {
+        if (*sp == '/') {
+            *sp = '\0';
+            while (sp[1] == '/') {
+                sp++;
+            }
+            segments[nseg++] = mark;
+            len += (int) (sp - mark);
+            mark = sp + 1;
+        }
+    }
+    segments[nseg++] = mark;
+    len += (int) (sp - mark);
+    for (j = i = 0; i < nseg; i++, j++) {
+        sp = segments[i];
+        if (sp[0] == '.') {
+            if (sp[1] == '\0')  {
+                if ((i+1) == nseg) {
+                    segments[j] = "";
+                } else {
+                    j--;
+                }
+            } else if (sp[1] == '.' && sp[2] == '\0')  {
+                if (i == 1 && *segments[0] == '\0') {
+                    j = 0;
+                } else if ((i+1) == nseg) {
+                    if (--j >= 0) {
+                        segments[j] = "";
+                    }
+                } else {
+                    j = max(j - 2, -1);
+                }
+            }
+        } else {
+            segments[j] = segments[i];
+        }
+    }
+    nseg = j;
+    a_assert(nseg >= 0);
+    if ((path = balloc(len + nseg + 1)) != 0) {
+        for (i = 0, dp = path; i < nseg; ) {
+            strcpy(dp, segments[i]);
+            len = (int) glen(segments[i]);
+            dp += len;
+            if (++i < nseg || (nseg == 1 && *segments[0] == '\0' && firstc == '/')) {
+                *dp++ = '/';
+            }
+        }
+        *dp = '\0';
+    }
+    return path;
 }
 
 

@@ -251,13 +251,13 @@ $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/webcomp.o
-	$(CC) -o $(CONFIG)/bin/webcomp -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS)
+	$(CC) -o $(CONFIG)/bin/webcomp -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/webcomp.o $(LIBS) -lssl -lcrypto
 
 $(CONFIG)/obj/cgitest.o: \
         test/cgitest.c \

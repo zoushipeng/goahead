@@ -37,22 +37,13 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     a_assert(path);
     a_assert(query);
 
-    /*
-        Validate the URL and ensure that ".."s don't give access to unwanted files
-     */
-    if (websValidateUrl(wp, path) < 0) {
-        /* 
-            preventing a cross-site scripting exploit -- you may restore the following line of code to revert to the
-            original behavior...  websError(wp, 500, T("Invalid URL %s"), url);
-        */
-        websError(wp, 500, T("Invalid URL"));
-        return 1;
-    }
     lpath = websGetRequestLpath(wp);
+#if UNUSED
     nchars = gstrlen(lpath) - 1;
     if (lpath[nchars] == '/' || lpath[nchars] == '\\') {
         lpath[nchars] = '\0';
     }
+#endif
 
     /*
         If the file is a directory, redirect using the nominated default page
@@ -87,75 +78,10 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     websStats.localHits++;
     code = 200;
 #if BIT_IF_MODIFIED
-    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_ASP)) {
-        if (sbuf.mtime <= wp->since) {
-            code = 304;
-#if UNUSED
-            websWriteHeader(wp, T("HTTP/1.0 304 Use local copy\r\n"));
-            /*
-                NOTE: by license terms the following line of code must not be modified.
-             */
-            websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
-            if (wp->flags & WEBS_KEEP_ALIVE) {
-                websWriteHeader(wp, T("Connection: keep-alive\r\n"));
-            } else {
-                websWriteHeader(wp, T("Connection: close\r\n"));
-            }
-            websWriteHeader(wp, T("\r\n"));
-            wp->flags |= WEBS_HEADER_DONE;
-            websDone(wp, 304);
-            return 1;
-#endif
-        }
+    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_ASP) && sbuf.mtime <= wp->since) {
+        code = 304;
     }
 #endif
-
-#if UNUSED
-    /*
-        Output the normal HTTP response header
-        MOB OPT - compute date periodically
-     */
-    if ((date = websGetDateString(NULL)) != NULL) {
-        websWriteHeader(wp, T("HTTP/1.0 200 OK\r\nDate: %s\r\n"), date);
-        /*
-            The Server HTTP header below must not be modified unless explicitly allowed by licensing terms.
-         */
-        websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
-        bfree(date);
-    }
-    wp->flags |= WEBS_HEADER_DONE;
-
-    /*
-        If this is an ASP request, ensure the remote browser doesn't cache it.
-        Send back both HTTP/1.0 and HTTP/1.1 cache control directives
-     */
-    if (wp->flags & WEBS_ASP) {
-        bytes = 0;
-        websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
-
-    } else {
-        if ((date = websGetDateString(&sbuf)) != NULL) {
-            websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
-            bfree(date);
-        }
-        bytes = sbuf.size;
-    }
-    //  MOB - transfer chunking
-    if (wp->flags & WEBS_HEAD_REQUEST) {
-        websWriteHeader(wp, T("Content-length: %d\r\n"), bytes);
-    } else if (bytes) {
-        websWriteHeader(wp, T("Content-length: %d\r\n"), bytes);
-        websSetRequestBytes(wp, bytes);
-    }
-    websWriteHeader(wp, T("Content-type: %s\r\n"), websGetRequestType(wp));
-
-    if (wp->flags & WEBS_KEEP_ALIVE) {
-        websWriteHeader(wp, T("Connection: keep-alive\r\n"));
-    } else {
-        websWriteHeader(wp, T("Connection: close\r\n"));
-    }
-    websWriteHeader(wp, T("\r\n"));
-#else
     websWriteHeaders(wp, code, (wp->flags & WEBS_ASP) ? -1 : sbuf.size, 0);
     if (!(wp->flags & WEBS_ASP)) {
         if ((date = websGetDateString(&sbuf)) != NULL) {
@@ -164,7 +90,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         }
     }
     websWriteHeader(wp, T("\r\n"));
-#endif
 
     /*
         All done if the browser did a HEAD request
@@ -190,175 +115,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
      */
     websSetRequestSocketHandler(wp, SOCKET_WRITABLE, websDefaultWriteEvent);
     return 1;
-}
-
-
-#if WINDOWS
-static int badPath(char_t* path, char_t* badPath, int badLen)
-{
-   int retval = 0;
-   int len = gstrlen(path);
-   int i = 0;
-
-   if (len <= badLen + 1) {
-      for (i = 0; i < badLen; ++i) {
-         if (badPath[i] != gtolower(path[i])) {
-            return 0;
-         }
-      }
-      /* 
-            If we get here, the first 'badLen' characters match.  If 'path' is 1 character larger than 'badPath' and
-            that extra character is NOT a letter or a number, we have a bad path.
-       */
-      retval = 1;
-      if (badLen + 1 == len) {
-         /* e.g. path == "aux:" */
-         if (gisalnum(path[len-1])) {
-            /* 
-                the last character is alphanumeric, so we let this path go through. 
-             */
-            retval = 0;
-         }
-      }
-   }
-   return retval;
-}
-
-
-/*
-    If we're running on Windows 95/98/ME, malicious users can crash the OS by requesting an URL with any of several
-    reserved DOS device names in them (AUX, NUL, etc.).  If we're running on any of those OS versions, we scan the
-    URL for paths with any of these elements before trying to access them. If any of the subdirectory names match
-    one of our prohibited links, we declare this to be a 'bad' path, and return 1 to indicate this. This may be a
-    heavy-handed approach, but should prevent the DOS attack.  NOTE that this function is only compiled in when we
-    are running on Win32, and only has an effect when running on Win95/98, or ME. On all other versions of Windows,
-    we check the version info, and return 0 immediately.
- 
-    According to http://packetstormsecurity.nl/0003-exploits/SCX-SA-01.txt: II.  Problem Description When the
-    Microsoft Windows operating system is parsing a path that is being crafted like "c:\[device]\[device]" it will
-    halt, and crash the entire operating system.  Four device drivers have been found to crash the system.  The CON,
-    NUL, AUX, CLOCK$ and CONFIG$ are the two device drivers which are known to crash.  Other devices as LPT[x]:,
-    COM[x]: and PRN have not been found to crash the system.  Making combinations as CON\NUL, NUL\CON, AUX\NUL, ...
-    seems to crash Ms Windows as well.  Calling a path such as "C:\CON\[filename]" won't result in a crash but in an
-    error-message.  Creating the map "CON", "CLOCK$", "AUX" "NUL" or "CONFIG$" will also result in a simple
-    error-message saying: ''creating that map isn't allowed''.
- 
-    returns 1 if it finds a bad path element.
-*/
-static int isBadWindowsPath(char_t** parts, int partCount)
-{
-    OSVERSIONINFO version;
-    int i;
-    version.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
-    if (GetVersionEx(&version)) {
-        if (VER_PLATFORM_WIN32_NT != version.dwPlatformId) {
-            /*
-                we are currently running on 95/98/ME.
-             */
-            for (i = 0; i < partCount; ++i) {
-                /*
-                   check against the prohibited names. If any of our requested 
-                   subdirectories match any of these, return '1' immediately.
-                 */
-                if ( 
-                    (badPath(parts[i], T("con"), 3)) ||
-                    (badPath(parts[i], T("com"), 3)) ||
-                    (badPath(parts[i], T("nul"), 3)) ||
-                    (badPath(parts[i], T("aux"), 3)) ||
-                    (badPath(parts[i], T("clock$"), 6)) ||
-                    (badPath(parts[i], T("config$"), 7)) ) {
-                    return 1;
-                }
-            }
-        }
-    }
-    /*
-        Either we're not on one of the bad OS versions, or the request has no problems.
-     */
-    return 0;
-}
-#endif
-
-
-/*
-    Validate the URL path and process ".." path segments. Return -1 if the URL is bad.
- */
-int websValidateUrl(webs_t wp, char_t *path)
-{
-    char_t  *parts[MAX_URL_DEPTH];  /* Array of ptr's to URL parts */
-    char_t  *token, *dir, *lpath; 
-    int       i, len, npart;
-
-    a_assert(websValid(wp));
-    a_assert(path);
-
-    dir = websGetRequestDir(wp);
-    if (dir == NULL || *dir == '\0') {
-        return -1;
-    }
-    /*
-        Copy the string so we don't destroy the original
-     */
-    path = bstrdup(path);
-    websDecodeUrl(path, path, gstrlen(path));
-    len = npart = 0;
-    parts[0] = NULL;
-    token = gstrchr(path, '\\');
-    while (token != NULL) {
-        *token = '/';
-        token = gstrchr(token, '\\');
-    }
-    token = gstrtok(path, T("/"));
-
-    /*
-        Look at each directory segment and process "." and ".." segments. Don't allow the browser to pop outside the
-        root web
-    */
-    while (token != NULL) {
-        if (npart >= MAX_URL_DEPTH) {
-             /*
-              * malformed URL -- too many parts for us to process.
-              */
-             bfree(path);
-             return -1;
-        }
-        if (gstrcmp(token, T("..")) == 0) {
-            if (npart > 0) {
-                npart--;
-            }
-        } else if (gstrcmp(token, T(".")) != 0) {
-            parts[npart] = token;
-            len += gstrlen(token) + 1;
-            npart++;
-        }
-        token = gstrtok(NULL, T("/"));
-    }
-
-#if WINDOWS
-   if (isBadWindowsPath(parts, npart)) {
-      bfree(path);
-      return -1;
-   }
-#endif
-
-    /*
-        Create local path for document. Need extra space all "/" and null.
-     */
-    if (npart || (gstrcmp(path, T("/")) == 0) || (path[0] == '\0')) {
-        lpath = balloc((gstrlen(dir) + 1 + len + 1) * sizeof(char_t));
-        gstrcpy(lpath, dir);
-        for (i = 0; i < npart; i++) {
-            gstrcat(lpath, T("/"));
-            gstrcat(lpath, parts[i]);
-        }
-        websSetRequestLpath(wp, lpath);
-        bfree(path);
-        bfree(lpath);
-    } else {
-        bfree(path);
-        return -1;
-    }
-    return 0;
 }
 
 

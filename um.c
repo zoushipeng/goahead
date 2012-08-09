@@ -14,9 +14,6 @@
 #if BIT_USER_MANAGEMENT
 /********************************** Defines ***********************************/
 
-#if UNUSED
-#define UM_DB_FILENAME  T("um.xml")
-#endif
 #define UM_TXT_FILENAME T("umconfig.db")
 
 /*
@@ -146,10 +143,6 @@ static void     formAddGroup(webs_t wp, char_t *path, char_t *query);
 static void     formDeleteGroup(webs_t wp, char_t *path, char_t *query);
 static void     formAddAccessLimit(webs_t wp, char_t *path, char_t *query);
 static void     formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query);
-#if UNUSED
-static void     formSaveUserManagement(webs_t wp, char_t *path, char_t *query);
-static void     formLoadUserManagement(webs_t wp, char_t *path, char_t *query);
-#endif
 #endif
 
 /*********************************** Code *************************************/

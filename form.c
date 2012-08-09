@@ -104,14 +104,6 @@ void websHeader(webs_t wp)
 
     websWriteHeaders(wp, 200, -1, 0);
     websWriteHeader(wp, T("\r\n"));
-#if UNUSED
-    websWriteHeader(wp, T("HTTP/1.0 200 OK\n"));    
-    websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
-    websWriteHeader(wp, T("Pragma: no-cache\r\n"));
-    websWriteHeader(wp, T("Cache-control: no-cache\r\n"));
-    websWriteHeader(wp, T("Content-Type: text/html\r\n"));
-    websWriteHeader(wp, T("\r\n"));
-#endif
     websWrite(wp, T("<html>\n"));
 }
 

@@ -20,8 +20,7 @@ static int                  urlHandlerOpenCount = 0;    /* count of apps */
 
 static int      websUrlHandlerSort(const void *p1, const void *p2);
 static int      websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, 
-                int sid, char_t *url, char_t *path, char_t *query);
-static char_t   *websCondenseMultipleChars(char_t *strToCondense, char_t cCondense);
+                    int sid, char_t *url, char_t *path, char_t *query);
 
 /*********************************** Code *************************************/
 
@@ -223,19 +222,11 @@ int websUrlHandlerRequest(webs_t wp)
     socketDeleteHandler(wp->sid);
     wp->state = WEBS_PROCESSING;
     websStats.handlerHits++;
-    websSetRequestPath(wp, websGetDefaultDir(), NULL);
-
-    /*
-        Eliminate security hole (MOB - see Appweb)
-     */
-    websCondenseMultipleChars(wp->path, '/');
-    websCondenseMultipleChars(wp->url, '/');
 
     if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
         websError(wp, 400, T("Bad request"));
         return 0;
     }
-
     /*
         We loop over each handler in order till one accepts the request.  The security handler will handle the request
         if access is NOT allowed.  
@@ -266,43 +257,6 @@ int websUrlHandlerRequest(webs_t wp)
     return 0;
 }
 
-
-
-/*
-    Convert multiple adjacent occurrences of a given character to a single instance
- */
-static char_t *websCondenseMultipleChars(char_t *strToCondense, char_t cCondense)
-{
-    char_t  *pStr, *pScan;
-
-    if (strToCondense != NULL) {
-        pStr = pScan = strToCondense;
-        while (*pScan && *pStr) {
-            /*
-                Advance scan pointer over multiple occurences of condense character
-             */
-            while ((*pScan == cCondense) && (*(pScan + 1) == cCondense)) {
-                pScan++;
-            }
-            /*
-                Copy character if an advance of the scan pointer has occurred
-             */
-            if (pStr != pScan) {
-                *pStr = *pScan;
-            }
-            
-            pScan++;
-            pStr++;
-        }
-        /*
-            Zero terminate string if multiple adjacent characters were found and condensed
-         */
-        if (pStr != pScan) {
-            *pStr = 0;
-        }
-    }
-    return strToCondense;
-}
 
 /*
     @copy   default

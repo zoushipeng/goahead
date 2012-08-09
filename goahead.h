@@ -1702,7 +1702,7 @@ typedef struct websRec {
     char_t          *path;              /* Path name without query */
     char_t          *url;               /* Full request url */
     char_t          *host;              /* Requested host */
-    char_t          *lpath;             /* Cache local path name */
+    char_t          *lpath;             /* Document path name */
     char_t          *query;             /* Request query */
     char_t          *decodedQuery;      /* Decoded request query */
     char_t          *authType;          /* Authorization type (Basic/DAA) */
@@ -1726,14 +1726,14 @@ typedef struct websRec {
     ssize           written;            /* Bytes actually transferred */
     void            (*writeSocket)(struct websRec *wp);
 #if BIT_DIGEST_AUTH
-    char_t          *realm;     /* usually the same as "host" from websRec */
-    char_t          *nonce;     /* opaque-to-client string sent by server */
-    char_t          *digest;    /* digest form of user password */
-    char_t          *uri;       /* URI found in DAA header */
-    char_t          *opaque;    /* opaque value passed from server */
-    char_t          *nc;        /* nonce count */
-    char_t          *cnonce;    /* check nonce */
-    char_t          *qop;       /* quality operator */
+    char_t          *realm;             /* usually the same as "host" from websRec */
+    char_t          *nonce;             /* opaque-to-client string sent by server */
+    char_t          *digest;            /* digest form of user password */
+    char_t          *uri;               /* URI found in DAA header */
+    char_t          *opaque;            /* opaque value passed from server */
+    char_t          *nc;                /* nonce count */
+    char_t          *cnonce;            /* check nonce */
+    char_t          *qop;               /* quality operator */
 #endif
 #if BIT_PACK_OPENSSL
     SSL             *ssl;
@@ -1911,10 +1911,10 @@ extern ssize     websWrite(webs_t wp, char_t *fmt, ...);
 extern ssize     websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
 extern ssize     websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
 extern int       websValid(webs_t wp);
-extern int       websValidateUrl(webs_t wp, char_t *path);
+extern char_t    *websNormalizeUriPath(char_t *path);
 extern void      websSetTimeMark(webs_t wp);
-extern char *websMD5(char_t *s);
-extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
+extern char      *websMD5(char_t *s);
+extern char      *websMD5binary(char_t *buf, ssize length, char_t *prefix);
 
 extern int      websAlloc(int sid);
 extern void     websFree(webs_t wp);

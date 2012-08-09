@@ -31,7 +31,6 @@
 #define BIT_JAVASCRIPT 1
 #define BIT_KEEP_ALIVE 1
 #define BIT_KEY ""
-#define BIT_LOG_QUERY 0
 #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
 #define BIT_PACKS "bits/packs"
@@ -39,7 +38,6 @@
 #define BIT_PRODUCT "goahead"
 #define BIT_REPLACE_MALLOC 0
 #define BIT_REQUIRED "winsdk,compiler,link,dumpbin,rc"
-#define BIT_SIMPLE_TIME 0
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"
 #define BIT_TRACE "stdout:2"
