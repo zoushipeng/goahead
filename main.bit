@@ -205,5 +205,8 @@ Bit.load({
                 run('goahead -v', {noio: true})
             ",
         },
+        package: {
+            action: "/* TODO */",
+        },
     },
 })
