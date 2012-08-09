@@ -2,8 +2,8 @@
     bigUrl.tst - Stress test very long URLs 
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:4100"
-// const HTTP = App.config.uris.http || "vx:4100"
+const HTTP = App.config.uris.http || "127.0.0.1:8080"
+// const HTTP = App.config.uris.http || "vx:8080"
 let depth = (global.test && test.depth) || 4
 
 let http: Http = new Http

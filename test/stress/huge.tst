@@ -2,7 +2,7 @@
     huge.tst - Huge get file
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:4100"
+const HTTP = App.config.uris.http || "127.0.0.1:8080"
 const TIMEOUT = 10000
 const HUGE= "../web/huge.txt"
 var SIZE = 5 * 1024 * 1024 * 1024
