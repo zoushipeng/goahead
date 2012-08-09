@@ -155,6 +155,7 @@ Bit.load({
             depends: [ ],
             sources: [ 'utils/webcomp.c' ],
             headers: [ '*.h' ],
+            depends: [ 'openssl', 'matrixssl' ],
         },
 
         cgitest: {

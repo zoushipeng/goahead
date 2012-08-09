@@ -39,3 +39,4 @@ macosx-*
 .*.swp
 access.log
 cgitest
+windows-*.bit
