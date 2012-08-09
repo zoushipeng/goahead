@@ -38,3 +38,4 @@ macosx-*
 *-debug
 .*.swp
 access.log
+cgitest

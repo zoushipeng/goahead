@@ -13,7 +13,7 @@
   </ItemDefinitionGroup>
 
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{11e96946-49f4-415d-9b2d-301fee7be810}</ProjectGuid>
+    <ProjectGuid>{6770521f-03cb-427f-ae3f-a89e066e16b0}</ProjectGuid>
     <RootNamespace />
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -83,43 +83,32 @@
     <_ProjectFileVersion>10</_ProjectFileVersion>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\goahead-test\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\cgitest\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\goahead-test\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\cgitest\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\goahead-test\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\cgitest\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\goahead-test\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\cgitest\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\balloc.c" />
-    <ClCompile Include="..\..\cgi.c" />
-    <ClCompile Include="..\..\crypt.c" />
-    <ClCompile Include="..\..\db.c" />
-    <ClCompile Include="..\..\default.c" />
-    <ClCompile Include="..\..\form.c" />
-    <ClCompile Include="..\..\handler.c" />
-    <ClCompile Include="..\..\http.c" />
-    <ClCompile Include="..\..\js.c" />
-    <ClCompile Include="..\..\matrixssl.c" />
-    <ClCompile Include="..\..\openssl.c" />
-    <ClCompile Include="..\..\rom-documents.c" />
-    <ClCompile Include="..\..\rom.c" />
-    <ClCompile Include="..\..\runtime.c" />
-    <ClCompile Include="..\..\security.c" />
-    <ClCompile Include="..\..\socket.c" />
-    <ClCompile Include="..\..\ssl.c" />
-    <ClCompile Include="..\..\template.c" />
-    <ClCompile Include="..\..\um.c" />
-    <ClCompile Include="..\..\test\test.c" />
+    <ClCompile Include="..\..\test\cgitest.c" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="$(IncDir)\goahead.h" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="$(IncDir)\js.h" />
   </ItemGroup>
 
   <ItemDefinitionGroup>
@@ -127,6 +116,14 @@
     <AdditionalDependencies>;%(AdditionalDependencies)</AdditionalDependencies>
     <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
+
+  <CustomBuildStep>
+    <Command>cd ..\..
+xcopy /Y /S /D goahead.h $(IncDir)
+xcopy /Y /S /D js.h $(IncDir)
+cd projects\goahead-windows</Command>
+    <Outputs>..\..\test\cgi-bin\cgitest.exe</Outputs>
+  </CustomBuildStep>
   </ItemDefinitionGroup>
 
   <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />

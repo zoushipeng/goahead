@@ -48,7 +48,6 @@ clean:
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
 	-if exist $(CONFIG)\bin\webcomp.exe del /Q $(CONFIG)\bin\webcomp.exe
 	-if exist test\cgi-bin\cgitest.exe del /Q test\cgi-bin\cgitest.exe
-	-if exist $(CONFIG)\obj\access.obj del /Q $(CONFIG)\obj\access.obj
 	-if exist $(CONFIG)\obj\balloc.obj del /Q $(CONFIG)\obj\balloc.obj
 	-if exist $(CONFIG)\obj\cgi.obj del /Q $(CONFIG)\obj\cgi.obj
 	-if exist $(CONFIG)\obj\crypt.obj del /Q $(CONFIG)\obj\crypt.obj
@@ -80,11 +79,6 @@ $(CONFIG)\inc\goahead.h:
 $(CONFIG)\inc\js.h: 
 	-if exist $(CONFIG)\inc\js.h del /Q $(CONFIG)\inc\js.h
 	copy /Y js.h $(CONFIG)\inc\js.h
-
-$(CONFIG)\obj\access.obj: \
-        access.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\access.obj -Fd$(CONFIG)\obj\access.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc access.c
 
 $(CONFIG)\obj\balloc.obj: \
         balloc.c \
@@ -189,7 +183,6 @@ $(CONFIG)\obj\um.obj: \
 $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\inc\goahead.h \
         $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\access.obj \
         $(CONFIG)\obj\balloc.obj \
         $(CONFIG)\obj\cgi.obj \
         $(CONFIG)\obj\crypt.obj \
@@ -210,7 +203,7 @@ $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\obj\ssl.obj \
         $(CONFIG)\obj\template.obj \
         $(CONFIG)\obj\um.obj
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\access.obj $(CONFIG)\obj\balloc.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\balloc.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(LIBS)
 
 $(CONFIG)\obj\test.obj: \
         test\test.c \
@@ -218,7 +211,6 @@ $(CONFIG)\obj\test.obj: \
 	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\test.c
 
 $(CONFIG)\bin\goahead-test.exe:  \
-        $(CONFIG)\obj\access.obj \
         $(CONFIG)\obj\balloc.obj \
         $(CONFIG)\obj\cgi.obj \
         $(CONFIG)\obj\crypt.obj \
@@ -239,7 +231,7 @@ $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\obj\template.obj \
         $(CONFIG)\obj\um.obj \
         $(CONFIG)\obj\test.obj
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\access.obj $(CONFIG)\obj\balloc.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(CONFIG)\obj\test.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\balloc.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(CONFIG)\obj\test.obj $(LIBS)
 
 $(CONFIG)\obj\webcomp.obj: \
         utils\webcomp.c \

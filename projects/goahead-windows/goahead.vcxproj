@@ -100,7 +100,6 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\access.c" />
     <ClCompile Include="..\..\balloc.c" />
     <ClCompile Include="..\..\cgi.c" />
     <ClCompile Include="..\..\crypt.c" />
