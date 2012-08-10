@@ -180,7 +180,7 @@ void *galloc(ssize size)
 void gfree(void *mp)
 {
     gType   *bp;
-    int     q, memSize;
+    int     q;
 
     if (mp == 0) {
         return;
@@ -190,7 +190,7 @@ void gfree(void *mp)
     if ((bp->flags & G_INTEGRITY_MASK) != G_INTEGRITY) {
         return;
     }
-    memSize = gallocGetSize(bp->u.size, &q);
+    gallocGetSize(bp->u.size, &q);
     if (bp->flags & G_MALLOCED) {
         free(bp);
         return;
