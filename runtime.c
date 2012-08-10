@@ -22,7 +22,7 @@ typedef struct {
 } sched_t;
 
 /*
-    Sprintf buffer structure. Make the increment 64 so that a balloc can use a 64 byte block.
+    Sprintf buffer structure. Make the increment 64 so that a galloc can use a 64 byte block.
  */
 
 #define STR_REALLOC     0x1             /* Reallocate the buffer as required */
@@ -83,9 +83,6 @@ static sym_t*       next;               /* Next symbol in iteration */
 
 static sched_t      **sched;
 static int          schedMax;
-#if UNUSED
-static int          emfInst;                   /* Application instance handle */
-#endif
 
 #if BIT_DEBUG_LOG
 //  MOB - rename
@@ -118,47 +115,16 @@ static int calcPrime(int size);
 
 /************************************* Code ***********************************/
 /*
-    Compare strings, ignoring case:  normal strcmp return codes.
-  
-    WARNING: It is not good form to increment or decrement pointers inside a "call" to tolower et al. These can be
-    MACROS, and have undesired side effects.
- */
-int strcmpci(char_t *s1, char_t *s2)
-{
-    int     rc;
-
-    a_assert(s1 && s2);
-    if (s1 == NULL || s2 == NULL) {
-        return 0;
-    }
-
-    if (s1 == s2) {
-        return 0;
-    }
-
-    do {
-        rc = gtolower(*s1) - gtolower(*s2);
-        if (*s1 == '\0') {
-            break;
-        }
-        s1++;
-        s2++;
-    } while (rc == 0);
-    return rc;
-}
-
-
-/*
     This function is called when a scheduled process time has come.
     MOB - why caps?  Static?
  */
-void TimerProc(int schedid)
+static void timerProc(int schedid)
 {
     sched_t *s;
 
-    a_assert(0 <= schedid && schedid < schedMax);
+    gassert(0 <= schedid && schedid < schedMax);
     s = sched[schedid];
-    a_assert(s);
+    gassert(s);
 
     (s->routine)(s->arg, s->schedid);
 }
@@ -167,12 +133,12 @@ void TimerProc(int schedid)
 /*
     Schedule an event in delay milliseconds time. We will use 1 second granularity for webServer.
  */
-int emfSchedCallback(int delay, emfSchedProc *proc, void *arg)
+int gSchedCallback(int delay, GSchedProc *proc, void *arg)
 {
     sched_t *s;
     int     schedid;
 
-    if ((schedid = hAllocEntry((void***) &sched, &schedMax, sizeof(sched_t))) < 0) {
+    if ((schedid = gallocEntry((void***) &sched, &schedMax, sizeof(sched_t))) < 0) {
         return -1;
     }
     s = sched[schedid];
@@ -191,7 +157,7 @@ int emfSchedCallback(int delay, emfSchedProc *proc, void *arg)
 /*
     Reschedule to a new delay.
  */
-void emfReschedCallback(int schedid, int delay)
+void gReschedCallback(int schedid, int delay)
 {
     sched_t *s;
 
@@ -202,22 +168,22 @@ void emfReschedCallback(int schedid, int delay)
 }
 
 
-void emfUnschedCallback(int schedid)
+void gUnschedCallback(int schedid)
 {
     sched_t *s;
 
     if (sched == NULL || schedid == -1 || schedid >= schedMax || (s = sched[schedid]) == NULL) {
         return;
     }
-    bfree(s);
-    schedMax = hFree((void***) &sched, schedid);
+    gfree(s);
+    schedMax = gfreeHandle((void***) &sched, schedid);
 }
 
 
 /*
     Take tasks off the queue in a round robin fashion.
  */
-void emfSchedProcess()
+void gSchedProcess()
 {
     sched_t     *s;
     int         schedid;
@@ -241,7 +207,7 @@ void emfSchedProcess()
     schedid = next;
     for (;;) {
         if ((s = sched[schedid]) != NULL && (int)s->at <= (int)time(0)) {
-            TimerProc(schedid);
+            timerProc(schedid);
             next = schedid + 1;
             return;
         }
@@ -294,9 +260,9 @@ char_t *dirname(char_t *buf, char_t *name, ssize bufsize)
     char_t  *cp;
     ssize   len;
 
-    a_assert(name);
-    a_assert(buf);
-    a_assert(bufsize > 0);
+    gassert(name);
+    gassert(buf);
+    gassert(bufsize > 0);
 
 #if WINDOWS
     if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
@@ -325,16 +291,16 @@ char_t *dirname(char_t *buf, char_t *name, ssize bufsize)
 
 
 /*
-    sprintf and vsprintf are bad, ok. You can easily clobber memory. Use fmtAlloc and fmtValloc instead! These functions
+    sprintf and vsprintf are bad, ok. You can easily clobber memory. Use gfmtAlloc and gfmtValloc instead! These functions
     do _not_ support floating point, like %e, %f, %g...
  */
-ssize fmtAlloc(char_t **s, ssize n, char_t *fmt, ...)
+ssize gfmtAlloc(char_t **s, ssize n, char_t *fmt, ...)
 {
     va_list ap;
     ssize   result;
 
-    a_assert(s);
-    a_assert(fmt);
+    gassert(s);
+    gassert(fmt);
 
     *s = NULL;
     va_start(ap, fmt);
@@ -347,14 +313,14 @@ ssize fmtAlloc(char_t **s, ssize n, char_t *fmt, ...)
 /*
     Support a static buffer version for small buffers only!
  */
-ssize fmtStatic(char_t *s, ssize n, char_t *fmt, ...)
+ssize gfmtStatic(char_t *s, ssize n, char_t *fmt, ...)
 {
     va_list ap;
     ssize   result;
 
-    a_assert(s);
-    a_assert(fmt);
-    a_assert(n <= 256);
+    gassert(s);
+    gassert(fmt);
+    gassert(n <= 256);
 
     if (n <= 0) {
         return -1;
@@ -375,8 +341,8 @@ ssize fmtRealloc(char_t **s, ssize n, ssize msize, char_t *fmt, ...)
     va_list     ap;
     ssize       result;
 
-    a_assert(s);
-    a_assert(fmt);
+    gassert(s);
+    gassert(fmt);
 
     if (msize == -1) {
         *s = NULL;
@@ -392,10 +358,10 @@ ssize fmtRealloc(char_t **s, ssize n, ssize msize, char_t *fmt, ...)
 /*
     A vsprintf replacement
  */
-ssize fmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg)
+ssize gfmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg)
 {
-    a_assert(s);
-    a_assert(fmt);
+    gassert(s);
+    gassert(fmt);
 
     *s = NULL;
     return dsnprintf(s, n, fmt, arg, 0);
@@ -413,9 +379,12 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
     strbuf_t    buf;
     char_t      c;
 
-    a_assert(s);
-    a_assert(fmt);
+    gassert(s);
+    gassert(fmt);
 
+    if (size < 0) {
+        size = BIT_LIMIT_STRING;
+    }
     memset(&buf, 0, sizeof(buf));
     buf.s = *s;
 
@@ -617,9 +586,9 @@ static void put_char(strbuf_t *buf, char_t c)
             return;
         }
         if (buf->s == NULL) {
-            buf->s = balloc(buf->size * sizeof(char_t));
+            buf->s = galloc(buf->size * sizeof(char_t));
         } else {
-            buf->s = brealloc(buf->s, buf->size * sizeof(char_t));
+            buf->s = grealloc(buf->s, buf->size * sizeof(char_t));
         }
     }
     buf->s[buf->count] = c;
@@ -710,7 +679,7 @@ static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *p
     Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
     returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
  */
-char_t *ascToUni(char_t *ubuf, char *str, ssize nBytes)
+char_t *gAscToUni(char_t *ubuf, char *str, ssize nBytes)
 {
 #if UNICODE
     if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
@@ -727,7 +696,7 @@ char_t *ascToUni(char_t *ubuf, char *str, ssize nBytes)
     Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
     returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
  */
-char *uniToAsc(char *buf, char_t *ustr, ssize nBytes)
+char *gUniToAsc(char *buf, char_t *ustr, ssize nBytes)
 {
 #if UNICODE
     if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL, NULL) < 0) {
@@ -741,38 +710,38 @@ char *uniToAsc(char *buf, char_t *ustr, ssize nBytes)
 
 
 /*
-    Allocate (balloc) a buffer and do ascii to unicode conversion into it.  cp points to the ascii buffer.  alen is the
+    Allocate (galloc) a buffer and do ascii to unicode conversion into it.  cp points to the ascii buffer.  alen is the
     length of the buffer to be converted not including a terminating NULL.  Return a pointer to the unicode buffer which
-    must be bfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
+    must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
  */
-char_t *ballocAscToUni(char *cp, ssize alen)
+char_t *gallocAscToUni(char *cp, ssize alen)
 {
     char_t  *unip;
     ssize   ulen;
 
     ulen = (alen + 1) * sizeof(char_t);
-    if ((unip = balloc(ulen)) == NULL) {
+    if ((unip = galloc(ulen)) == NULL) {
         return NULL;
     }
-    ascToUni(unip, cp, ulen);
+    gAscToUni(unip, cp, ulen);
     unip[alen] = 0;
     return unip;
 }
 
 
 /*
-    Allocate (balloc) a buffer and do unicode to ascii conversion into it.  unip points to the unicoded string. ulen is
+    Allocate (galloc) a buffer and do unicode to ascii conversion into it.  unip points to the unicoded string. ulen is
     the number of characters in the unicode string not including a teminating null.  Return a pointer to the ascii
-    buffer which must be bfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
+    buffer which must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
  */
-char *ballocUniToAsc(char_t *unip, ssize ulen)
+char *gallocUniToAsc(char_t *unip, ssize ulen)
 {
     char    *cp;
 
-    if ((cp = balloc(ulen+1)) == NULL) {
+    if ((cp = galloc(ulen+1)) == NULL) {
         return NULL;
     }
-    uniToAsc(cp, unip, ulen);
+    gUniToAsc(cp, unip, ulen);
     cp[ulen] = '\0';
     return cp;
 }
@@ -866,7 +835,7 @@ value_t valueString(char_t* value, int flags)
 void valueFree(value_t* v)
 {
     if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
-        bfree(v->value.string);
+        gfree(v->value.string);
     }
     v->type = undefined;
     v->valid = 0;
@@ -879,27 +848,36 @@ void valueFree(value_t* v)
     Error message that doesn't need user attention. Customize this code
     to direct error messages to wherever the developer wishes
  */
-void error(E_ARGS_DEC, int etype, char_t *fmt, ...)
+void error(char_t *fmt, ...)
+{
+    va_list     args;
+    char_t      *buf;
+
+    va_start(args, fmt);
+    gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
+    va_end(args);
+    if (traceHandler) {
+        traceHandler(-1, buf);
+    }
+    gfree(buf);
+}
+
+
+void gassertError(G_ARGS_DEC, char_t *fmt, ...)
 {
     va_list     args;
     char_t      *fmtBuf, *buf;
 
     va_start(args, fmt);
-    fmtValloc(&fmtBuf, E_MAX_ERROR, fmt, args);
+    gfmtValloc(&fmtBuf, BIT_LIMIT_STRING, fmt, args);
 
-    if (etype == E_LOG || etype == E_USER) {
-        fmtAlloc(&buf, E_MAX_ERROR, T("%s\n"), fmtBuf);
-    } else if (etype == E_ASSERT) {
-        fmtAlloc(&buf, E_MAX_ERROR, T("Assertion %s, failed at %s %d\n"), fmtBuf, E_ARGS); 
-    } else {
-      fmtAlloc(&buf, E_MAX_ERROR, T("Unknown error\n"));
-    }
+    gfmtAlloc(&buf, BIT_LIMIT_STRING, T("Assertion %s, failed at %s %d\n"), fmtBuf, G_ARGS); 
     va_end(args);
-    bfree(fmtBuf);
+    gfree(fmtBuf);
     if (traceHandler) {
         traceHandler(-1, buf);
     }
-    bfree(buf);
+    gfree(buf);
 }
 
 
@@ -913,11 +891,11 @@ void trace(int level, char_t *fmt, ...)
 
     if (level <= traceLevel) {    
         va_start(args, fmt);
-        fmtValloc(&buf, VALUE_MAX_STRING, fmt, args);
+        gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
         if (traceHandler) {
             traceHandler(level, buf);
         }
-        bfree(buf);
+        gfree(buf);
         va_end(args);
     }
 }
@@ -980,8 +958,8 @@ void traceSetPath(char_t *path)
 {
     char_t  *lp;
     
-    bfree(tracePath);
-    tracePath = bstrdup(path);
+    gfree(tracePath);
+    tracePath = gstrdup(path);
     if ((lp = strchr(tracePath, ':')) != 0) {
         *lp++ = '\0';
         traceLevel = atoi(lp);
@@ -997,39 +975,25 @@ static void defaultTraceHandler(int level, char_t *buf)
     if (traceFd >= 0) {
         len = gstrlen(buf);
         //  MOB OPT
-        abuf = ballocUniToAsc(buf, len + 1);
+        abuf = gallocUniToAsc(buf, len + 1);
         write(traceFd, abuf, len);
-        bfree(abuf);
+        gfree(abuf);
     }
 }
 
 #else /* !BIT_DEBUG_LOG */
-void error(E_ARGS_DEC, int etype, char_t *fmt, ...) { }
+void error(char_t *fmt, ...) { }
 void trace(int level, char_t *fmt, ...) { }
 #endif /* BIT_DEBUG_LOG */
-
-#if UNUSED
-void emfInstSet(int inst)
-{
-    emfInst = inst;
-}
-
-
-int emfInstGet()
-{
-    return emfInst;
-}
-#endif
-
 
 /*
     Convert a string to lower case
  */
-char_t *strlower(char_t *string)
+char_t *gstrlower(char_t *string)
 {
     char_t  *s;
 
-    a_assert(string);
+    gassert(string);
 
     if (string == NULL) {
         return NULL;
@@ -1049,11 +1013,11 @@ char_t *strlower(char_t *string)
 /* 
     Convert a string to upper case
  */
-char_t *strupper(char_t *string)
+char_t *gstrupper(char_t *string)
 {
     char_t  *s;
 
-    a_assert(string);
+    gassert(string);
     if (string == NULL) {
         return NULL;
     }
@@ -1072,19 +1036,19 @@ char_t *strupper(char_t *string)
 /*
     Convert integer to ascii string. Allow a NULL string in which case we allocate a dynamic buffer. 
  */
-char_t *stritoa(int n, char_t *string, int width)
+char_t *gstritoa(int n, char_t *string, int width)
 {
     char_t  *cp, *lim, *s;
     char_t  buf[16];                        /* Just temp to hold number */
     int     next, minus;
 
-    a_assert(string && width > 0);
+    gassert(string && width > 0);
 
     if (string == NULL) {
         if (width == 0) {
             width = 10;
         }
-        if ((string = balloc(width + 1)) == NULL) {
+        if ((string = galloc(width + 1)) == NULL) {
             return NULL;
         }
     }
@@ -1121,17 +1085,17 @@ char_t *stritoa(int n, char_t *string, int width)
     Allocate a new file handle.  On the first call, the caller must set the handle map to be a pointer to a null
     pointer.  map points to the second element in the handle array.
  */
-int hAlloc(void ***map)
+int gallocHandle(void ***map)
 {
     ssize   *mp;
     int     handle, len, memsize, incr;
 
-    a_assert(map);
+    gassert(map);
 
     if (*map == NULL) {
         incr = H_INCR;
         memsize = (incr + H_OFFSET) * sizeof(void**);
-        if ((mp = balloc(memsize)) == NULL) {
+        if ((mp = galloc(memsize)) == NULL) {
             return -1;
         }
         memset(mp, 0, memsize);
@@ -1162,7 +1126,7 @@ int hAlloc(void ***map)
      */
     len += H_INCR;
     memsize = (len + H_OFFSET) * sizeof(void**);
-    if ((mp = brealloc(mp, memsize)) == NULL) {
+    if ((mp = grealloc(mp, memsize)) == NULL) {
         return -1;
     }
     *map = (void**) &mp[H_OFFSET];
@@ -1176,20 +1140,20 @@ int hAlloc(void ***map)
 /*
     Free a handle. This function returns the value of the largest handle in use plus 1, to be saved as a max value.
  */
-int hFree(void ***map, int handle)
+int gfreeHandle(void ***map, int handle)
 {
     ssize   *mp;
     int     len;
 
-    a_assert(map);
+    gassert(map);
     mp = &((*(ssize**)map)[-H_OFFSET]);
-    a_assert(mp[H_LEN] >= H_INCR);
+    gassert(mp[H_LEN] >= H_INCR);
 
-    a_assert(mp[handle + H_OFFSET]);
-    a_assert(mp[H_USED]);
+    gassert(mp[handle + H_OFFSET]);
+    gassert(mp[H_USED]);
     mp[handle + H_OFFSET] = 0;
     if (--(mp[H_USED]) == 0) {
-        bfree((void*) mp);
+        gfree((void*) mp);
         *map = NULL;
     }
     /*
@@ -1215,23 +1179,23 @@ int hFree(void ***map, int handle)
 /*
     Allocate an entry in the halloc array
  */
-int hAllocEntry(void ***list, int *max, int size)
+int gallocEntry(void ***list, int *max, int size)
 {
     char_t  *cp;
     int     id;
 
-    a_assert(list);
-    a_assert(max);
+    gassert(list);
+    gassert(max);
 
-    if ((id = hAlloc((void***) list)) < 0) {
+    if ((id = gallocHandle((void***) list)) < 0) {
         return -1;
     }
     if (size > 0) {
-        if ((cp = balloc(size)) == NULL) {
-            hFree(list, id);
+        if ((cp = galloc(size)) == NULL) {
+            gfreeHandle(list, id);
             return -1;
         }
-        a_assert(cp);
+        gassert(cp);
         memset(cp, 0, size);
         (*list)[id] = (void*) cp;
     }
@@ -1251,11 +1215,11 @@ int ringqOpen(ringq_t *rq, int initSize, int maxsize)
 {
     int increment;
 
-    a_assert(rq);
-    a_assert(initSize >= 0);
+    gassert(rq);
+    gassert(initSize >= 0);
 
     increment = getBinBlockSize(initSize);
-    if ((rq->buf = balloc((increment))) == NULL) {
+    if ((rq->buf = galloc((increment))) == NULL) {
         return -1;
     }
     rq->maxsize = maxsize;
@@ -1274,15 +1238,15 @@ int ringqOpen(ringq_t *rq, int initSize, int maxsize)
  */
 void ringqClose(ringq_t *rq)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (rq == NULL) {
         return;
     }
 
     ringqFlush(rq);
-    bfree((char*) rq->buf);
+    gfree((char*) rq->buf);
     rq->buf = NULL;
 }
 
@@ -1293,8 +1257,8 @@ void ringqClose(ringq_t *rq)
  */
 ssize ringqLen(ringq_t *rq)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (rq->servp > rq->endp) {
         return rq->buflen + rq->endp - rq->servp;
@@ -1312,8 +1276,8 @@ int ringqGetc(ringq_t *rq)
     char_t  c;
     char_t* cp;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (rq->servp == rq->endp) {
         return -1;
@@ -1337,8 +1301,8 @@ int ringqPutc(ringq_t *rq, char_t c)
 {
     char_t *cp;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if ((ringqPutBlkMax(rq) < (int) sizeof(char_t)) && !ringqGrow(rq)) {
         return -1;
@@ -1361,8 +1325,8 @@ int ringqInsertc(ringq_t *rq, char_t c)
 {
     char_t *cp;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (ringqPutBlkMax(rq) < (int) sizeof(char_t) && !ringqGrow(rq)) {
         return -1;
@@ -1384,9 +1348,9 @@ ssize ringqPutStr(ringq_t *rq, char_t *str)
 {
     ssize   rc;
 
-    a_assert(rq);
-    a_assert(str);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(str);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     rc = ringqPutBlk(rq, (uchar*) str, gstrlen(str) * sizeof(char_t));
     *((char_t*) rq->endp) = (char_t) '\0';
@@ -1399,8 +1363,8 @@ ssize ringqPutStr(ringq_t *rq, char_t *str)
  */
 void ringqAddNull(ringq_t *rq)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     *((char_t*) rq->endp) = (char_t) '\0';
 }
@@ -1416,8 +1380,8 @@ int ringqGetcA(ringq_t *rq)
 {
     uchar   c;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (rq->servp == rq->endp) {
         return -1;
@@ -1436,8 +1400,8 @@ int ringqGetcA(ringq_t *rq)
  */
 int ringqPutcA(ringq_t *rq, char c)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (ringqPutBlkMax(rq) == 0 && !ringqGrow(rq)) {
         return -1;
@@ -1455,8 +1419,8 @@ int ringqPutcA(ringq_t *rq, char c)
  */
 int ringqInsertcA(ringq_t *rq, char c)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     if (ringqPutBlkMax(rq) == 0 && !ringqGrow(rq)) {
         return -1;
@@ -1476,9 +1440,9 @@ int ringqPutStrA(ringq_t *rq, char *str)
 {
     int     rc;
 
-    a_assert(rq);
-    a_assert(str);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(str);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     rc = ringqPutBlk(rq, (uchar*) str, strlen(str));
     rq->endp[0] = '\0';
@@ -1494,10 +1458,10 @@ ssize ringqPutBlk(ringq_t *rq, uchar *buf, ssize size)
 {
     ssize   this, bytes_put;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
-    a_assert(buf);
-    a_assert(0 <= size);
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(buf);
+    gassert(0 <= size);
 
     /*
         Loop adding the maximum bytes we can add in a single straight line copy
@@ -1532,10 +1496,10 @@ ssize ringqGetBlk(ringq_t *rq, uchar *buf, ssize size)
 {
     ssize   this, bytes_read;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
-    a_assert(buf);
-    a_assert(0 <= size && size < rq->buflen);
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(buf);
+    gassert(0 <= size && size < rq->buflen);
 
     /*
         Loop getting the maximum bytes we can get in a single straight line copy
@@ -1569,8 +1533,8 @@ ssize ringqPutBlkMax(ringq_t *rq)
 {
     ssize   space, in_a_line;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
     
     space = rq->buflen - RINGQ_LEN(rq) - 1;
     in_a_line = rq->endbuf - rq->endp;
@@ -1587,8 +1551,8 @@ ssize ringqGetBlkMax(ringq_t *rq)
 {
     ssize   len, in_a_line;
 
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
 
     len = RINGQ_LEN(rq);
     in_a_line = rq->endbuf - rq->servp;
@@ -1602,9 +1566,9 @@ ssize ringqGetBlkMax(ringq_t *rq)
  */
 void ringqPutBlkAdj(ringq_t *rq, ssize size)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
-    a_assert(0 <= size && size < rq->buflen);
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(0 <= size && size < rq->buflen);
 
     rq->endp += size;
     if (rq->endp >= rq->endbuf) {
@@ -1614,7 +1578,7 @@ void ringqPutBlkAdj(ringq_t *rq, ssize size)
         Flush the queue if the endp pointer is corrupted via a bad size
      */
     if (rq->endp >= rq->endbuf) {
-        error(E_L, E_LOG, T("Bad end pointer"));
+        error(T("Bad end pointer"));
         ringqFlush(rq);
     }
 }
@@ -1625,9 +1589,9 @@ void ringqPutBlkAdj(ringq_t *rq, ssize size)
  */
 void ringqGetBlkAdj(ringq_t *rq, ssize size)
 {
-    a_assert(rq);
-    a_assert(rq->buflen == (rq->endbuf - rq->buf));
-    a_assert(0 < size && size < rq->buflen);
+    gassert(rq);
+    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(0 < size && size < rq->buflen);
 
     rq->servp += size;
     if (rq->servp >= rq->endbuf) {
@@ -1637,7 +1601,7 @@ void ringqGetBlkAdj(ringq_t *rq, ssize size)
         Flush the queue if the servp pointer is corrupted via a bad size
      */
     if (rq->servp >= rq->endbuf) {
-        error(E_L, E_LOG, T("Bad serv pointer"));
+        error(T("Bad serv pointer"));
         ringqFlush(rq);
     }
 }
@@ -1648,8 +1612,8 @@ void ringqGetBlkAdj(ringq_t *rq, ssize size)
  */
 void ringqFlush(ringq_t *rq)
 {
-    a_assert(rq);
-    a_assert(rq->servp);
+    gassert(rq);
+    gassert(rq->servp);
 
     rq->servp = rq->buf;
     rq->endp = rq->buf;
@@ -1668,17 +1632,17 @@ static int ringqGrow(ringq_t *rq)
     uchar   *newbuf;
     ssize   len;
 
-    a_assert(rq);
+    gassert(rq);
 
     if (rq->maxsize >= 0 && rq->buflen >= rq->maxsize) {
         return 0;
     }
     len = ringqLen(rq);
-    if ((newbuf = balloc(rq->buflen + rq->increment)) == NULL) {
+    if ((newbuf = galloc(rq->buflen + rq->increment)) == NULL) {
         return 0;
     }
     ringqGetBlk(rq, newbuf, ringqLen(rq));
-    bfree((char*) rq->buf);
+    gfree((char*) rq->buf);
 
     rq->buflen += rq->increment;
     rq->endp = newbuf;
@@ -1688,7 +1652,7 @@ static int ringqGrow(ringq_t *rq)
     ringqPutBlk(rq, newbuf, len);
 
     /*
-        Double the increment so the next grow will line up with balloc'ed memory
+        Double the increment so the next grow will line up with galloc'ed memory
      */
     rq->increment = getBinBlockSize(2 * rq->increment);
     return 1;
@@ -1697,19 +1661,18 @@ static int ringqGrow(ringq_t *rq)
 
 /*
     Find the smallest binary memory size that "size" will fit into.  This makes the ringq and ringqGrow routines much
-    more efficient.  The balloc routine likes powers of 2 minus 1.
+    more efficient.  The galloc routine likes powers of 2 minus 1.
  */
 static int  getBinBlockSize(int size)
 {
     int q;
 
-    size = size >> B_SHIFT;
+    size = size >> G_SHIFT;
     for (q = 0; size; size >>= 1) {
         q++;
     }
-    return (1 << (B_SHIFT + q));
+    return (1 << (G_SHIFT + q));
 }
-
 
 
 int symSubOpen()
@@ -1736,35 +1699,35 @@ sym_fd_t symOpen(int hash_size)
     sym_fd_t        sd;
     sym_tabent_t    *tp;
 
-    a_assert(hash_size > 2);
+    gassert(hash_size > 2);
 
     /*
         Create a new handle for this symbol table
      */
-    if ((sd = hAlloc((void***) &sym)) < 0) {
+    if ((sd = gallocHandle((void***) &sym)) < 0) {
         return -1;
     }
 
     /*
         Create a new symbol table structure and zero
      */
-    if ((tp = (sym_tabent_t*) balloc(sizeof(sym_tabent_t))) == NULL) {
-        symMax = hFree((void***) &sym, sd);
+    if ((tp = (sym_tabent_t*) galloc(sizeof(sym_tabent_t))) == NULL) {
+        symMax = gfreeHandle((void***) &sym, sd);
         return -1;
     }
     memset(tp, 0, sizeof(sym_tabent_t));
     if (sd >= symMax) {
         symMax = sd + 1;
     }
-    a_assert(0 <= sd && sd < symMax);
+    gassert(0 <= sd && sd < symMax);
     sym[sd] = tp;
 
     /*
         Now create the hash table for fast indexing.
      */
     tp->hash_size = calcPrime(hash_size);
-    tp->hash_table = (sym_t**) balloc(tp->hash_size * sizeof(sym_t*));
-    a_assert(tp->hash_table);
+    tp->hash_table = (sym_t**) galloc(tp->hash_size * sizeof(sym_t*));
+    gassert(tp->hash_table);
     memset(tp->hash_table, 0, tp->hash_size * sizeof(sym_t*));
 
     return sd;
@@ -1781,9 +1744,9 @@ void symClose(sym_fd_t sd)
     sym_t           *sp, *forw;
     int             i;
 
-    a_assert(0 <= sd && sd < symMax);
+    gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    a_assert(tp);
+    gassert(tp);
 
     /*
         Free all symbols in the hash table, then the hash table itself.
@@ -1793,13 +1756,13 @@ void symClose(sym_fd_t sd)
             forw = sp->forw;
             valueFree(&sp->name);
             valueFree(&sp->content);
-            bfree((void*) sp);
+            gfree((void*) sp);
             sp = forw;
         }
     }
-    bfree((void*) tp->hash_table);
-    symMax = hFree((void***) &sym, sd);
-    bfree((void*) tp);
+    gfree((void*) tp->hash_table);
+    symMax = gfreeHandle((void***) &sym, sd);
+    gfree((void*) tp);
 }
 
 
@@ -1813,9 +1776,9 @@ sym_t* symFirst(sym_fd_t sd)
     sym_t           *sp, *forw;
     int             i;
 
-    a_assert(0 <= sd && sd < symMax);
+    gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    a_assert(tp);
+    gassert(tp);
 
     /*
         Find the first symbol in the hashtable and return a pointer to it.
@@ -1847,9 +1810,9 @@ sym_t* symNext(sym_fd_t sd)
     sym_t           *sp, *forw;
     int             i;
 
-    a_assert(0 <= sd && sd < symMax);
+    gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    a_assert(tp);
+    gassert(tp);
 
     /*
         Find the first symbol in the hashtable and return a pointer to it.
@@ -1882,7 +1845,7 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
     sym_t           *sp;
     char_t          *cp;
 
-    a_assert(0 <= sd && sd < symMax);
+    gassert(0 <= sd && sd < symMax);
     if ((tp = sym[sd]) == NULL) {
         return NULL;
     }
@@ -1916,10 +1879,10 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
     char_t          *cp;
     int             hindex;
 
-    a_assert(name);
-    a_assert(0 <= sd && sd < symMax);
+    gassert(name);
+    gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    a_assert(tp);
+    gassert(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
@@ -1952,7 +1915,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         /*
             Not found so allocate and append to the daisy-chain
          */
-        sp = (sym_t*) balloc(sizeof(sym_t));
+        sp = (sym_t*) galloc(sizeof(sym_t));
         if (sp == NULL) {
             return NULL;
         }
@@ -1966,7 +1929,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         /*
             Daisy chain is empty so we need to start the chain
          */
-        sp = (sym_t*) balloc(sizeof(sym_t));
+        sp = (sym_t*) galloc(sizeof(sym_t));
         if (sp == NULL) {
             return NULL;
         }
@@ -1992,10 +1955,10 @@ int symDelete(sym_fd_t sd, char_t *name)
     char_t          *cp;
     int             hindex;
 
-    a_assert(name && *name);
-    a_assert(0 <= sd && sd < symMax);
+    gassert(name && *name);
+    gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    a_assert(tp);
+    gassert(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
@@ -2026,7 +1989,7 @@ int symDelete(sym_fd_t sd, char_t *name)
     }
     valueFree(&sp->name);
     valueFree(&sp->content);
-    bfree((void*) sp);
+    gfree((void*) sp);
 
     return 0;
 }
@@ -2038,7 +2001,7 @@ int symDelete(sym_fd_t sd, char_t *name)
  */
 static sym_t *hash(sym_tabent_t *tp, char_t *name)
 {
-    a_assert(tp);
+    gassert(tp);
 
     return tp->hash_table[hashIndex(tp, name)];
 }
@@ -2053,7 +2016,7 @@ static int hashIndex(sym_tabent_t *tp, char_t *name)
     uint        sum;
     int         i;
 
-    a_assert(tp);
+    gassert(tp);
     /*
         Add in each character shifted up progressively by 7 bits. The shift amount is rounded so as to not shift too
         far. It thus cycles with each new cycle placing character shifted up by one bit.
@@ -2075,7 +2038,7 @@ static int isPrime(int n)
 {
     int     i, max;
 
-    a_assert(n > 0);
+    gassert(n > 0);
 
     max = n / 2;
     for (i = 2; i <= max; i++) {
@@ -2094,7 +2057,7 @@ static int calcPrime(int size)
 {
     int count;
 
-    a_assert(size > 0);
+    gassert(size > 0);
 
     for (count = size; count > 0; count--) {
         if (isPrime(count)) {
@@ -2164,6 +2127,12 @@ int gcmp(char_t *s1, char_t *s2)
 }
 
 
+ssize glen(char_t *s)
+{
+    return s ? strlen(s) : 0;
+}
+
+
 /*
     Case sensitive string comparison. Limited by length
  */
@@ -2171,7 +2140,7 @@ int gncmp(char_t *s1, char_t *s2, ssize n)
 {
     int     rc;
 
-    a_assert(0 <= n && n < MAXINT);
+    gassert(0 <= n && n < MAXINT);
 
     if (s1 == 0 && s2 == 0) {
         return 0;
@@ -2202,7 +2171,7 @@ int gncaselesscmp(char_t *s1, char_t *s2, ssize n)
 {
     int     rc;
 
-    a_assert(0 <= n && n < MAXINT);
+    gassert(0 <= n && n < MAXINT);
 
     if (s1 == 0 || s2 == 0) {
         return -1;
@@ -2234,8 +2203,7 @@ int gncaselesscmp(char_t *s1, char_t *s2, ssize n)
     then the args will be extracted, back-quotes removed and argv will be set to point to all the args.
     NOTE: this routine does not allocate.
  */
-//  MOB - prefix
-int parseArgs(char *args, char **argv, int maxArgc)
+int egParseArgs(char *args, char **argv, int maxArgc)
 {
     char    *dest, *src, *start;
     int     quote, argc;
@@ -2311,16 +2279,17 @@ static char_t *getAbsolutePath(char_t *path)
     */
 
     if (iosDevFind(path, &tail) != NULL && path != tail) {
-        return bstrdup(path);
+        return gstrdup(path);
     }
-    dev = balloc(FNAMESIZE);
-    getcwd(dev, FNAMESIZE);
+    dev = galloc(BIT_LIMIT_FILENAME);
+    getcwd(dev, BIT_LIMIT_FILENAME);
     strcat(dev, "/");
     strcat(dev, path);
     return dev;
 }
 
 
+#if UNUSED
 int vxchdir(char_t *dirname)
 {
     char_t  *path;
@@ -2328,9 +2297,10 @@ int vxchdir(char_t *dirname)
 
     path = getAbsolutePath(dirname);
     rc = chdir(path);
-    bfree(path);
+    gfree(path);
     return rc;
 }
+#endif
 #endif
 
 #if ECOS
@@ -2348,13 +2318,13 @@ int recv(int s, void *buf, size_t len, int flags)
 
 #if WINDOWS
 
-void gsetAppInstance(HINSTANCE inst)
+void egSetInst(HINSTANCE inst)
 {
     appInstance = inst;
 }
 
 
-HINSTANCE ggetAppInstance()
+HINSTANCE egGetInst()
 {
     return appInstance;
 }

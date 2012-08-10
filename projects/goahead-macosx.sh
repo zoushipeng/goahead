@@ -29,8 +29,6 @@ cp -r goahead.h ${CONFIG}/inc/goahead.h
 rm -rf ${CONFIG}/inc/js.h
 cp -r js.h ${CONFIG}/inc/js.h
 
-${CC} -c -o ${CONFIG}/obj/balloc.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include balloc.c
-
 ${CC} -c -o ${CONFIG}/obj/cgi.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include cgi.c
 
 ${CC} -c -o ${CONFIG}/obj/crypt.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include crypt.c
@@ -40,6 +38,8 @@ ${CC} -c -o ${CONFIG}/obj/db.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc 
 ${CC} -c -o ${CONFIG}/obj/default.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include default.c
 
 ${CC} -c -o ${CONFIG}/obj/form.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include form.c
+
+${CC} -c -o ${CONFIG}/obj/galloc.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include galloc.c
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include goahead.c
 
@@ -69,11 +69,11 @@ ${CC} -c -o ${CONFIG}/obj/template.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG
 
 ${CC} -c -o ${CONFIG}/obj/um.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include um.c
 
-${CC} -o ${CONFIG}/bin/goahead -arch x86_64 ${LDFLAGS} ${LIBPATHS} -L../packages-macosx-x64/openssl/openssl-1.0.1b ${CONFIG}/obj/balloc.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/db.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/goahead.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/security.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/um.o ${LIBS} -lssl -lcrypto
+${CC} -o ${CONFIG}/bin/goahead -arch x86_64 ${LDFLAGS} ${LIBPATHS} -L../packages-macosx-x64/openssl/openssl-1.0.1b ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/db.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/goahead.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/security.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/um.o ${LIBS} -lssl -lcrypto
 
 ${CC} -c -o ${CONFIG}/obj/test.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test -arch x86_64 ${LDFLAGS} ${LIBPATHS} -L../packages-macosx-x64/openssl/openssl-1.0.1b ${CONFIG}/obj/balloc.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/db.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/security.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/um.o ${CONFIG}/obj/test.o ${LIBS} -lssl -lcrypto
+${CC} -o ${CONFIG}/bin/goahead-test -arch x86_64 ${LDFLAGS} ${LIBPATHS} -L../packages-macosx-x64/openssl/openssl-1.0.1b ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/db.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/security.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/um.o ${CONFIG}/obj/test.o ${LIBS} -lssl -lcrypto
 
 ${CC} -c -o ${CONFIG}/obj/webcomp.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include utils/webcomp.c
 

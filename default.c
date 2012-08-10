@@ -32,10 +32,10 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     ssize           nchars;
     int             code;
 
-    a_assert(websValid(wp));
-    a_assert(url && *url);
-    a_assert(path);
-    a_assert(query);
+    gassert(websValid(wp));
+    gassert(url && *url);
+    gassert(path);
+    gassert(query);
 
     lpath = websGetRequestLpath(wp);
 #if UNUSED
@@ -54,9 +54,9 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
             path[--nchars] = '\0';
         }
         nchars += gstrlen(websDefaultPage) + 2;
-        fmtAlloc(&tmp, nchars, T("%s/%s"), path, websDefaultPage);
+        gfmtAlloc(&tmp, nchars, T("%s/%s"), path, websDefaultPage);
         websRedirect(wp, tmp);
-        bfree(tmp);
+        gfree(tmp);
         return 1;
     }
     /*
@@ -78,15 +78,15 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     websStats.localHits++;
     code = 200;
 #if BIT_IF_MODIFIED
-    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_ASP) && sbuf.mtime <= wp->since) {
+    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_JS) && sbuf.mtime <= wp->since) {
         code = 304;
     }
 #endif
-    websWriteHeaders(wp, code, (wp->flags & WEBS_ASP) ? -1 : sbuf.size, 0);
-    if (!(wp->flags & WEBS_ASP)) {
+    websWriteHeaders(wp, code, (wp->flags & WEBS_JS) ? -1 : sbuf.size, 0);
+    if (!(wp->flags & WEBS_JS)) {
         if ((date = websGetDateString(&sbuf)) != NULL) {
             websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
-            bfree(date);
+            gfree(date);
         }
     }
     websWriteHeader(wp, T("\r\n"));
@@ -102,7 +102,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     /*
         Evaluate ASP requests
      */
-    if (wp->flags & WEBS_ASP) {
+    if (wp->flags & WEBS_JS) {
         if (websAspRequest(wp, lpath) < 0) {
             return 1;
         }
@@ -127,7 +127,7 @@ static void websDefaultWriteEvent(webs_t wp)
     ssize   len, wrote, written, bytes;
     int     flags;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     flags = websGetRequestFlags(wp);
     websSetTimeMark(wp);
@@ -137,15 +137,15 @@ static void websDefaultWriteEvent(webs_t wp)
     /*
         We only do this for non-ASP documents
      */
-    if (!(flags & WEBS_ASP)) {
+    if (!(flags & WEBS_JS)) {
         bytes = websGetRequestBytes(wp);
         /*
             Note: websWriteDataNonBlock may return less than we wanted. It will return -1 on a socket error
          */
-        if ((buf = balloc(PAGE_READ_BUFSIZE)) == NULL) {
+        if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
             websError(wp, 200, T("Can't get memory"));
         } else {
-            while ((len = websPageReadData(wp, buf, PAGE_READ_BUFSIZE)) > 0) {
+            while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
                 if ((wrote = websWriteDataNonBlock(wp, buf, len)) < 0) {
                     break;
                 }
@@ -159,10 +159,10 @@ static void websDefaultWriteEvent(webs_t wp)
                 Safety: If we are at EOF, we must be done
              */
             if (len == 0) {
-                a_assert(written >= bytes);
+                gassert(written >= bytes);
                 written = bytes;
             }
-            bfree(buf);
+            gfree(buf);
         }
     }
     /*
@@ -181,7 +181,7 @@ static void websDefaultWriteEvent(webs_t wp)
 
 void websDefaultOpen()
 {
-    websDefaultPage = bstrdup(T("index.html"));
+    websDefaultPage = gstrdup(T("index.html"));
 }
 
 
@@ -190,9 +190,9 @@ void websDefaultOpen()
  */
 void websDefaultClose()
 {
-    bfree(websDefaultPage);
+    gfree(websDefaultPage);
     websDefaultPage = NULL;
-    bfree(websDefaultDir);
+    gfree(websDefaultDir);
     websDefaultDir = NULL;
 }
 
@@ -217,12 +217,12 @@ char_t *websGetDefaultDir()
  */
 void websSetDefaultPage(char_t *page)
 {
-    a_assert(page && *page);
+    gassert(page && *page);
 
     if (websDefaultPage) {
-        bfree(websDefaultPage);
+        gfree(websDefaultPage);
     }
-    websDefaultPage = bstrdup(page);
+    websDefaultPage = gstrdup(page);
 }
 
 
@@ -231,11 +231,11 @@ void websSetDefaultPage(char_t *page)
  */
 void websSetDefaultDir(char_t *dir)
 {
-    a_assert(dir && *dir);
+    gassert(dir && *dir);
     if (websDefaultDir) {
-        bfree(websDefaultDir);
+        gfree(websDefaultDir);
     }
-    websDefaultDir = bstrdup(dir);
+    websDefaultDir = gstrdup(dir);
 }
 
 

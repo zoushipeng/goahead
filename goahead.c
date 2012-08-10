@@ -57,7 +57,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (argind >= argc) usage();
             home = argv[++argind];
             if (chdir(home) < 0) {
-                error(E_L, E_LOG, T("Can't change directory to %s"), home);
+                error(T("Can't change directory to %s"), home);
                 exit(-1);
             }
 #if BIT_DEBUG_LOG
@@ -83,7 +83,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     documents = BIT_DOCUMENTS;
     if (argc > argind) {
         if (argc > (argind + 2)) usage();
-        ipAddrPort = bstrdup(argv[argind++]);
+        ipAddrPort = gstrdup(argv[argind++]);
         socketParseAddress(ipAddrPort, &ip, &port, 80);
         if (argc > argind) {
             documents = argv[argind++];
@@ -91,11 +91,11 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
     initPlatform();
     if (websOpen() < 0) {
-        error(E_L, E_LOG, T("Can't initialize Goahead server. Exiting."));
+        error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
     if (websOpenServer(ip, port, sslPort, documents) < 0) {
-        error(E_L, E_LOG, T("Can't open GoAhead server. Exiting."));
+        error(T("Can't open GoAhead server. Exiting."));
         return -1;
     }
     websUrlHandlerDefine(T(""), 0, 0, websSecurityHandler, WEBS_HANDLER_FIRST);
@@ -164,7 +164,7 @@ static int windowsInit()
     HMENU       hSysMenu;
     HWND        hwnd;
 
-    inst = ggetAppInstance();
+    inst = egGetInst();
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
@@ -206,7 +206,7 @@ static void windowsClose()
 {
     HINSTANCE   inst;
 
-    inst = ggetAppInstance();
+    inst = egGetInst();
     UnregisterClass(BIT_PRODUCT, inst);
 #if UNUSED
     if (hwndAbout) {
@@ -231,7 +231,7 @@ static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
 #if UNUSED
             if (wp == IDM_ABOUTBOX) {
                 if (!hwndAbout) {
-                    createAboutBox((HINSTANCE) emfInstGet(), hwnd);
+                    createAboutBox((HINSTANCE) egGetInst(), hwnd);
                 }
                 if (hwndAbout) {
                     ShowWindow(hwndAbout, SW_SHOWNORMAL);

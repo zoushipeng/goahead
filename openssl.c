@@ -68,7 +68,7 @@ int sslOpen()
 
 	meth = SSLv23_server_method();
 	if ((sslctx = SSL_CTX_new(meth)) == 0) {
-		error(E_L, E_USER, T("Unable to create SSL context")); 
+		error(T("Unable to create SSL context")); 
 		return -1;
 	}
 	SSL_CTX_set_quiet_shutdown(sslctx, 1);
@@ -82,7 +82,7 @@ int sslOpen()
     caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
     if (caFile || caPath) {
         if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
-            error(E_L, E_LOG, T("Unable to set cert verification locations"));
+            error(T("Unable to set cert verification locations"));
             websSSLClose();
             return -1;
         }
@@ -134,18 +134,18 @@ int sslAccept(webs_t wp)
     long        ret;
 	int			sock;
 
-	a_assert (wp);
-	a_assert(websValid(wp));
+	gassert (wp);
+	gassert(websValid(wp));
 
 	sptr = socketPtr(wp->sid);
-	a_assert(sptr);
+	gassert(sptr);
 	sock = sptr->sock;
 
     /*
       	Create a new BIO and SSL session for this web request
      */
 	bio = BIO_new(BIO_f_buffer());
-	a_assert(bio);
+	gassert(bio);
 
 	if (!BIO_set_write_buffer_size(bio, 128)) {
 		return -1;
@@ -179,7 +179,7 @@ ssize sslRead(webs_t wp, char *buf, ssize len)
 
 void sslFlush(webs_t wp)
 {
-    a_assert(wp);
+    gassert(wp);
 
     if (!wp || !wp->bio) {
         return;
@@ -190,8 +190,8 @@ void sslFlush(webs_t wp)
 
 ssize sslWrite(webs_t wp, char *buf, ssize len)
 {
-    a_assert(wp);
-    a_assert(buf);
+    gassert(wp);
+    gassert(buf);
 
     if (!wp || !wp->bio) {
         return -1;
@@ -206,28 +206,28 @@ ssize sslWrite(webs_t wp, char *buf, ssize len)
  */
 static int setCerts(SSL_CTX *ctx, char *cert, char *key)
 {
-	a_assert (ctx);
-	a_assert (cert);
+	gassert (ctx);
+	gassert (cert);
 
     if (key == NULL) {
         key = cert;
     }
 	if (cert && SSL_CTX_use_certificate_chain_file(ctx, cert) <= 0) {
         if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_ASN1) <= 0) {
-            error(E_L, E_LOG, T("Unable to set certificate file: %s"), cert); 
+            error(T("Unable to set certificate file: %s"), cert); 
             return -1;
         }
     }
     if (key && SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
-            error(E_L, E_LOG, T("Unable to set private key file: %s"), key); 
+            error(T("Unable to set private key file: %s"), key); 
             return -1;
         }
         /*		
             Now we know that a key and cert have been set against the SSL context 
          */
 		if (!SSL_CTX_check_private_key(ctx)) {
-			error(E_L, E_LOG, T("Check of private key file <%s> FAILED"), key); 
+			error(T("Check of private key file <%s> FAILED"), key); 
 			return -1;
 		}
 	}
@@ -241,15 +241,15 @@ static int setCerts(SSL_CTX *ctx, char *cert, char *key)
  */
 int websSSLSetCertFile(char_t *certFile)
 {
-	a_assert (sslctx);
-	a_assert (certFile);
+	gassert (sslctx);
+	gassert (certFile);
 
 	if (sslctx == NULL) {
 		return -1;
 	}
 	if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
-            error(E_L, E_LOG, T("Unable to set certificate file: %s"), certFile); 
+            error(T("Unable to set certificate file: %s"), certFile); 
             return -1;
         }
 		return -1;
@@ -269,15 +269,15 @@ int websSSLSetCertFile(char_t *certFile)
  */
 int websSSLSetKeyFile(char_t *keyFile)
 {
-	a_assert (sslctx);
-	a_assert (keyFile);
+	gassert (sslctx);
+	gassert (keyFile);
 
 	if (sslctx == NULL) {
 		return -1;
 	}
 	if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
-            error(E_L, E_LOG, T("Unable to set private key file: %s"), keyFile); 
+            error(T("Unable to set private key file: %s"), keyFile); 
             return -1;
         }
 		return -1;

@@ -52,7 +52,7 @@ void websAspClose()
 }
 
 
-int scriptEval(char_t *cmd, char_t **result, void* chan)
+int websEval(char_t *cmd, char_t **result, void* chan)
 {
     int     ejid;
 
@@ -79,8 +79,8 @@ int websAspRequest(webs_t wp, char_t *lpath)
     ssize           len;
     int             rc, ejid;
 
-    a_assert(websValid(wp));
-    a_assert(lpath && *lpath);
+    gassert(websValid(wp));
+    gassert(lpath && *lpath);
 
     rc = -1;
     buf = NULL;
@@ -107,7 +107,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
         Create a buffer to hold the ASP file in-memory
      */
     len = sbuf.size * sizeof(char);
-    if ((rbuf = balloc(len + 1)) == NULL) {
+    if ((rbuf = galloc(len + 1)) == NULL) {
         websError(wp, 200, T("Can't get memory"));
         goto done;
     }
@@ -122,7 +122,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
     /*
         Convert to UNICODE if necessary.
      */
-    if ((buf = ballocAscToUni(rbuf, len)) == NULL) {
+    if ((buf = gallocAscToUni(rbuf, len)) == NULL) {
         websError(wp, 200, T("Can't get memory"));
         goto done;
     }
@@ -173,7 +173,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
             }
             if (*nextp) {
                 result = NULL;
-                rc = scriptEval(nextp, &result, (void *) ejid);
+                rc = websEval(nextp, &result, (void *) ejid);
                 if (rc < 0) {
                     /*
                          On an error, discard all output accumulated so far and store the error in the result buffer. Be
@@ -183,7 +183,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
                         if (result) {
                             websWrite(wp, T("<h2><b>ASP Error: %s</b></h2>\n"), result);
                             websWrite(wp, T("<pre>%s</pre>"), nextp);
-                            bfree(result);
+                            gfree(result);
                         } else {
                             websWrite(wp, T("<h2><b>ASP Error</b></h2>\n%s\n"), nextp);
                         }
@@ -218,8 +218,8 @@ done:
             ejCloseEngine(ejid);
         }
     }
-    bfree(buf);
-    bfree(rbuf);
+    gfree(buf);
+    gfree(rbuf);
     return rc;
 }
 
@@ -242,10 +242,10 @@ int websAspWrite(int ejid, webs_t wp, int argc, char_t **argv)
 {
     int     i;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     
     for (i = 0; i < argc; ) {
-        a_assert(argv);
+        gassert(argv);
         if (websWriteBlock(wp, argv[i], gstrlen(argv[i])) < 0) {
             return -1;
         }
@@ -284,7 +284,7 @@ static char_t *strtokcmp(char_t *s1, char_t *s2)
 
 static char_t *skipWhite(char_t *s) 
 {
-    a_assert(s);
+    gassert(s);
 
     if (s == NULL) {
         return s;

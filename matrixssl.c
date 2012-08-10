@@ -102,7 +102,7 @@ int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume,
             Associate a new ssl session with this socket.  The session represents the state of the ssl protocol over
             this socket.  Session caching is handled automatically by this api.  
          */
-        cp = balloc(sizeof(sslConn_t));
+        cp = galloc(sizeof(sslConn_t));
         memset(cp, 0x0, sizeof(sslConn_t));
         cp->fd = fd;
         if (matrixSslNewServerSession(&cp->ssl, keys, certValidator) < 0) {
@@ -176,7 +176,7 @@ int sslRead(sslConn_t *cp, char *inbuf, int inlen)
         cp->ptBytes -= inlen;
         /* Free buffer as we go if empty */
         if (cp->ptBytes == 0) {
-            bfree(cp->pt);
+            gfree(cp->pt);
             cp->pt = cp->currPt = NULL;
         }
         return inlen;
@@ -277,7 +277,7 @@ PROCESS_MORE:
                     cp->ptBytes -= inlen;
                     /* Free buffer as we go if empty */
                     if (cp->ptBytes == 0) {
-                        bfree(cp->pt);
+                        gfree(cp->pt);
                         cp->pt = cp->currPt = NULL;
                     }
                     return inlen;
@@ -293,7 +293,7 @@ PROCESS_MORE:
                     Catching here means this is new app data just grabbed off the wire. 
                  */
                 cp->ptBytes = len;
-                cp->pt = balloc(len);
+                cp->pt = galloc(len);
                 memcpy(cp->pt, buf, len);
                 cp->currPt = cp->pt;
             } else {
@@ -302,7 +302,7 @@ PROCESS_MORE:
                     'pt' cache so it is fine to assume an unprocessed buffer.
                 */
                 psAssert(cp->pt == cp->currPt);
-                cp->pt = brealloc(cp->pt, cp->ptBytes + len);
+                cp->pt = grealloc(cp->pt, cp->ptBytes + len);
                 memcpy(cp->pt + cp->ptBytes, buf, len);
                 cp->currPt = cp->pt;
                 cp->ptBytes += len;
@@ -386,7 +386,7 @@ int sslWrite(sslConn_t *cp, char *data, int len)
             as sent. Ensure caller is retrying with same len (and presumably the same data).
          */
         if (len != cp->ptReqBytes) {
-            a_assert(len != cp->ptReqBytes);
+            gassert(len != cp->ptReqBytes);
             return -1;
         }
     }
@@ -453,8 +453,8 @@ void sslFreeConnection(sslConn_t **cpp)
     conn = *cpp;
     matrixSslDeleteSession(conn->ssl);
     conn->ssl = NULL;
-    bfree(conn->pt);
-    bfree(conn);
+    gfree(conn->pt);
+    gfree(conn);
     *cpp = NULL;
 }
 

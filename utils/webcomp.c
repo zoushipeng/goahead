@@ -52,12 +52,10 @@ static void usage()
 
 static int compile(char *fileList, char *prefix)
 {
-    gstat_t         sbuf;
+    GStat           sbuf;
     FILE            *lp;
     time_t          now;
-    char            file[FNAMESIZE];
-    char            *cp, *sl;
-    char            buf[512];
+    char            buf[512], file[BIT_LIMIT_FILENAME], *cp, *sl;
     uchar           *p;
     ssize           len;
     int             j, i, fd, nFile;

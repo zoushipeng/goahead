@@ -100,12 +100,12 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\balloc.c" />
     <ClCompile Include="..\..\cgi.c" />
     <ClCompile Include="..\..\crypt.c" />
     <ClCompile Include="..\..\db.c" />
     <ClCompile Include="..\..\default.c" />
     <ClCompile Include="..\..\form.c" />
+    <ClCompile Include="..\..\galloc.c" />
     <ClCompile Include="..\..\goahead.c" />
     <ClCompile Include="..\..\handler.c" />
     <ClCompile Include="..\..\http.c" />

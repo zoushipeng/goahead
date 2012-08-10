@@ -28,47 +28,6 @@
     #define BIT_ROM 0
 #endif
 
-/********************************* Tunable Constants **************************/
-
-#define BIT_TUNE_SIZE       1       /**< Tune for size */
-#define BIT_TUNE_BALANCED   2       /**< Tune balancing speed and size */
-#define BIT_TUNE_SPEED      3       /**< Tune for speed, program will use memory more aggressively */
-
-#ifndef BIT_TUNE
-    #define BIT_TUNE BIT_TUNE_SIZE
-#endif
-
-#if BIT_TUNE == BIT_TUNE_SIZE || DOXYGEN
-    /*
-        Reduce size allocations to reduce memory usage
-     */ 
-    #define BUF_MAX             4096    /* General sanity check for bufs */
-    #define FNAMESIZE           254     /* Max length of file names */
-    #define SYM_MAX             (512)
-    #define VALUE_MAX_STRING    (4096 - 48)
-    #define E_MAX_ERROR         4096
-    #define E_MAX_REQUEST       2048    /* Request safeguard max */
-    #define SOCKET_BUFSIZ       510     /* Underlying buffer size */
-
-#elif BIT_TUNE == BIT_TUNE_BALANCED
-    #define BUF_MAX             4096
-    #define FNAMESIZE           PATHSIZE
-    #define SYM_MAX             (512)
-    #define VALUE_MAX_STRING    (4096 - 48)
-    #define E_MAX_ERROR         4096
-    #define E_MAX_REQUEST       4096
-    #define SOCKET_BUFSIZ       1024
-
-#else /* BIT_TUNE == BIT_TUNE_SPEED */
-    #define BUF_MAX             4096
-    #define FNAMESIZE           PATHSIZE
-    #define SYM_MAX             (512)
-    #define VALUE_MAX_STRING    (4096 - 48)
-    #define E_MAX_ERROR         4096
-    #define E_MAX_REQUEST       4096
-    #define SOCKET_BUFSIZ       1024
-#endif
-
 /********************************* CPU Families *******************************/
 /*
     CPU Architectures
@@ -445,6 +404,10 @@
 #endif
 
 /************************************** Defines *******************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
     Standard types
  */
@@ -800,16 +763,14 @@
 
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
-    //  MOB RENAME
  */
-typedef int64 filepos;
-typedef int64 datetime;
+typedef int64 EgFilePos;
+typedef int64 EgDateTime;
 
-// MOB - naming
 #if VXWORKS
-    typedef int SockLenArg;
+    typedef int GSockLenArg;
 #else
-    typedef socklen_t SockLenArg;
+    typedef socklen_t GSockLenArg;
 #endif
 
 #if DOXYGEN || WINDOWS
@@ -865,6 +826,15 @@ typedef int64 datetime;
     typedef fd_set fd_mask;
 #endif
 
+/*
+    Copyright. The software license requires that this not be modified or removed.
+ */
+#define EMBEDTHIS_GOAHEAD_COPYRIGHT T(\
+    "Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved." \
+    "Copyright (c) GoAhead Software Inc., 2012. All Rights Reserved." \
+    )
+
+/************************************ Unicode *********************************/
 #if UNICODE
     #if !BIT_WIN_LIKE
         #error "Unicode only supported on Windows or Windows CE"
@@ -883,208 +853,179 @@ typedef int64 datetime;
      */
     #define TSZ(x) (sizeof(x) / sizeof(char_t))
 
-    #if UNUSED
-        /*
-            How many ASCII bytes are required to represent this UNICODE string?
-         */
-        #define TASTRL(x) ((wcslen(x) + 1) * sizeof(char_t))
-    #endif
+    #define gaccess     _waccess
+    #define gasctime    _wasctime
+    #define gatoi(s)    wcstol(s, NULL, 10)
+    #define gchdir      _wchdir
+    #define gchmod      _wchmod
+    #define gclose      close
+    #define gcreat      _wcreat
+    #define gctime      _wctime
+    #define gexecvp     _wexecvp
+    #define gfgets      fgetws
+    #define gfindclose  _findclose
+    #define gfinddata_t _wfinddata_t
+    #define gfindfirst  _wfindfirst
+    #define gfindnext   _wfindnext
+    #define gfopen      _wfopen
+    #define gfprintf    fwprintf
+    #define gfputs      fputws
+    #define gfscanf     fwscanf
+    #define ggetcwd     _wgetcwd
+    #define ggetenv     _wgetenv
+    #define ggets       _getws
+    #define gisalnum    iswalnum
+    #define gisalpha    iswalpha
+    #define glseek      lseek
+    #define gmkdir      _wmkdir
+    #define gprintf     wprintf
+    #define gread       read
+    #define grename     _wrename
+    #define grmdir      _wrmdir
+    #define gsprintf    swprintf
+    #define gsscanf     swscanf
+    #define gstat       _wstat
+    #define gstrcat     wcscat
+    #define gstrchr     wcschr
+    #define gstrcmp     wcscmp
+    #define gstrcpy     wcscpy
+    #define gstrcspn    wcscspn
+    #define gstricmp    wcsicmp
+    #define gstrlen     wcslen
+    #define gstrncat    wcsncat
+    #define gstrncmp    wcsncmp
+    #define gstrncpy    wcsncpy
+    #define gstrnset    wcsnset
+    #define gstrrchr    wcsrchr
+    #define gstrspn     wcsspn
+    #define gstrstr     wcsstr
+    #define gstrtok     wcstok
+    #define gstrtol     wcstol
+    #define gtempnam    _wtempnam
+    #define gtmpnam     _wtmpnam
+    #define gtolower    towlower
+    #define gtoupper    towupper
+    #define gunlink     _wunlink
+    #define gvsprintf   vswprintf
+    #define gwrite      write
 
-#else
+    #if CE
+        #define gisspace    isspace
+        #define gisdigit    isdigit
+        #define gisxdigit   isxdigit
+        #define gisupper    isupper
+        #define gislower    islower
+        #define gisprint    isprint
+    #else
+        #define gremove     _wremove
+        #define gisspace    iswspace
+        #define gisdigit    iswdigit
+        #define gisxdigit   iswxdigit
+        #define gisupper    iswupper
+        #define gislower    iswlower
+    #endif  /* CE */
+    
+    typedef struct _stat GStat;
+    
+#else /* !UNICODE */
+
     #define T(s)        s
     #define TSZ(x)      (sizeof(x))
-    #if UNUSED
-        #define TASTRL(x)   (strlen(x) + 1)
-    #endif
     typedef char        char_t;
     #if WINDOWS
         typedef uchar   uchar_t;
     #endif
-#endif /* UNICODE */
-
-/*
-    Copyright. The software license requires that this not be modified or removed.
- */
-#define EMBEDTHIS_GOAHEAD_COPYRIGHT T(\
-    "Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved." \
-    "Copyright (c) GoAhead Software Inc., 2012. All Rights Reserved." \
-    )
-
-//  MOB - move
-typedef struct stat gstat_t;
-
-/************************************* Defines ********************************/
-/************************************ Unicode *********************************/
-#if UNICODE
-    #define gmain       wmain
-    #define gasctime    _wasctime
-    #define gsprintf    swprintf
-    #define gprintf     wprintf
-    #define gfprintf    fwprintf
-    #define gsscanf     swscanf
-    #define gvsprintf   vswprintf
-    #define gstrcpy     wcscpy
-    #define gstrncpy    wcsncpy
-    #define gstrncat    wcsncat
-    #define gstrlen     wcslen
-    #define gstrcat     wcscat
-    #define gstrcmp     wcscmp
-    #define gstrncmp    wcsncmp
-    #define gstricmp    wcsicmp
-    #define gstrchr     wcschr
-    #define gstrrchr    wcsrchr
-    #define gstrtok     wcstok
-    #define gstrnset    wcsnset
-    #define gstrrchr    wcsrchr
-    #define gstrspn     wcsspn
-    #define gstrcspn    wcscspn
-    #define gstrstr     wcsstr
-    #define gstrtol     wcstol
-    #define gfopen      _wfopen
-    #define gclose      close
-    #define gcreat      _wcreat
-    #define gfgets      fgetws
-    #define gfputs      fputws
-    #define gfscanf     fwscanf
-    #define ggets       _getws
-    #define glseek      lseek
-    #define gunlink     _wunlink
-    #define gread       read
-    #define grename     _wrename
-    #define gwrite      write
-    #define gtmpnam     _wtmpnam
-    #define gtempnam    _wtempnam
-    #define gfindfirst  _wfindfirst
-    #define gfinddata_t _wfinddata_t
-    #define gfindnext   _wfindnext
-    #define gfindclose  _findclose
-    #define gstat       _wstat
-    #define gaccess     _waccess
-    #define gchmod      _wchmod
-    
-        typedef struct _stat gstat_t;
-    
-    #define gmkdir      _wmkdir
-    #define gchdir      _wchdir
-    #define grmdir      _wrmdir
-    #define ggetcwd     _wgetcwd
-    #define gtolower    towlower
-    #define gtoupper    towupper
-    
-    #if CE
-    #define gisspace    isspace
-    #define gisdigit    isdigit
-    #define gisxdigit   isxdigit
-    #define gisupper    isupper
-    #define gislower    islower
-    #define gisprint    isprint
-    #else
-    #define gremove     _wremove
-    #define gisspace    iswspace
-    #define gisdigit    iswdigit
-    #define gisxdigit   iswxdigit
-    #define gisupper    iswupper
-    #define gislower    iswlower
-    #endif  /* CE */
-    
-    #define gisalnum    iswalnum
-    #define gisalpha    iswalpha
-    #define gatoi(s)    wcstol(s, NULL, 10)
-    
-    #define gctime      _wctime
-    #define ggetenv     _wgetenv
-    #define gexecvp     _wexecvp
-#else /* !UNICODE */
-
     #if VXWORKS
-    #define gchdir      vxchdir
-    #define gmkdir      vxmkdir
-    #define grmdir      vxrmdir
+        #define gchdir      vxchdir
+        #define gmkdir      vxmkdir
+        #define grmdir      vxrmdir
     #elif BIT_UNIX_LIKE
-    #define gchdir      chdir
-    #define gmkdir(s)   mkdir(s,0755)
-    #define grmdir      rmdir
+        #define gchdir      chdir
+        #define gmkdir(s)   mkdir(s,0755)
+        #define grmdir      rmdir
     #else
-    #define gchdir      chdir
-    #define gmkdir      mkdir
-    #define grmdir      rmdir
-    #endif /* VXWORKS #elif LYNX || LINUX || MACOSX || SOLARIS*/
-    
+        #define gchdir      chdir
+        #define gmkdir      mkdir
+        #define grmdir      rmdir
+    #endif
+    #define gaccess     access
+    #define gasctime    asctime
+    #define gatoi       atoi
+    #define gchmod      chmod
     #define gclose      close
     #define gclosedir   closedir
-    #define gchmod      chmod
-    #define ggetcwd     getcwd
-    #define glseek      lseek
-    #define gloadModule loadModule
-    #define gopendir    opendir
-    #define gread       read
-    #define greaddir    readdir
-    #define grename     rename
-    #define gstat       stat
-    #define gunlink     unlink
-    #define gwrite      write
-    
-    #define gasctime    asctime
-    #define gsprintf    sprintf
-    #define gprintf     printf
-    #define gfprintf    fprintf
-    #define gsscanf     sscanf
-    #define gvsprintf   vsprintf
-    
-    #define gstrcpy     strcpy
-    #define gstrncpy    strncpy
-    #define gstrncat    strncat
-    #define gstrlen     strlen
-    #define gstrcat     strcat
-    #define gstrcmp     strcmp
-    #define gstrncmp    strncmp
-    #define gstricmp    strcmpci
-    #define gstrchr     strchr
-    #define gstrrchr    strrchr
-    #define gstrtok     strtok
-    #define gstrnset    strnset
-    #define gstrrchr    strrchr
-    #define gstrspn strspn
-    #define gstrcspn    strcspn
-    #define gstrstr     strstr
-    #define gstrtol     strtol
-    
-    #define gfopen      fopen
     #define gcreat      creat
+    #define gctime      ctime
+    #define gexecvp     execvp
     #define gfgets      fgets
+    #define gfindclose  _findclose
+    #define gfinddata_t _finddata_t
+    #define gfindfirst  _findfirst
+    #define gfindnext   _findnext
+    #define gfopen      fopen
+    #define gfprintf    fprintf
     #define gfputs      fputs
     #define gfscanf     fscanf
+    #define ggetcwd     getcwd
+    #define ggetenv     getenv
     #define ggets       gets
-    #define gtmpnam     tmpnam
-    #define gtempnam    tempnam
-    #define gfindfirst  _findfirst
-    #define gfinddata_t _finddata_t
-    #define gfindnext   _findnext
-    #define gfindclose  _findclose
-    #define gaccess     access
-    
-    #define gremove     remove
-    
-    #define gtolower    tolower
-    #define gtoupper    toupper
-    #define gisspace    isspace
-    #define gisdigit    isdigit
-    #define gisxdigit   isxdigit
     #define gisalnum    isalnum
     #define gisalpha    isalpha
-    #define gisupper    isupper
+    #define gisdigit    isdigit
     #define gislower    islower
-    #define gatoi       atoi
-    
-    #define gctime      ctime
-    #define ggetenv     getenv
-    #define gexecvp     execvp
-    #ifndef VXWORKS
-    #define gmain       main
-    #endif /* ! VXWORKS */
-#endif /* ! UNICODE */
+    #define gisspace    isspace
+    #define gisupper    isupper
+    #define gisxdigit   isxdigit
+    #define gloadModule loadModule
+    #define glseek      lseek
+    #define gopendir    opendir
+    #define gprintf     printf
+    #define gread       read
+    #define greaddir    readdir
+    #define gremove     remove
+    #define grename     rename
+    #define gsprintf    sprintf
+    #define gsscanf     sscanf
+    #define gstat       stat
+    #define gstrcat     strcat
+    #define gstrchr     strchr
+    #define gstrcmp     strcmp
+    #define gstrcpy     strcpy
+    #define gstrcspn    strcspn
+    #define gstricmp    strcmpci
+    #define gstrlen     strlen
+    #define gstrncat    strncat
+    #define gstrncmp    strncmp
+    #define gstrncpy    strncpy
+    #define gstrnset    strnset
+    #define gstrrchr    strrchr
+    #define gstrspn     strspn
+    #define gstrstr     strstr
+    #define gstrtok     strtok
+    #define gstrtol     strtol
+    #define gtempnam    tempnam
+    #define gtmpnam     tmpnam
+    #define gtolower    tolower
+    #define gtoupper    toupper
+    #define gunlink     unlink
+    #define gvsprintf   vsprintf
+    #define gwrite      write
+    typedef struct stat GStat;
+#endif /* !UNICODE */
 
-/************************************* Defines ********************************/
+extern char_t *gAscToUni(char_t *ubuf, char *str, ssize nBytes);
+extern char *gUniToAsc(char *buf, char_t *ustr, ssize nBytes);
+
+#if CE
+extern int gwriteUniToAsc(int fid, void *buf, ssize len);
+extern int greadAscToUni(int fid, void **buf, ssize len);
+#endif
+
+#if !LINUX
+    extern char_t *basename(char_t *name);
+#endif /* !LINUX */
+
+/************************************* Main ***********************************/
 
 #define BIT_MAX_ARGC 32
 #if VXWORKS
@@ -1113,7 +1054,7 @@ typedef struct stat gstat_t;
             char *mcommand[VALUE_MAX_STRING]; \
             int largc; \
             wtom(mcommand, sizeof(dest), command, -1);
-            largc = parseArgs(mcommand, &largv[1], BIT_MAX_ARGC - 1); \
+            largc = egParseArgs(mcommand, &largv[1], BIT_MAX_ARGC - 1); \
             largv[0] = #name; \
             gsetAppInstance(inst); \
             main(largc, largv, NULL); \
@@ -1125,7 +1066,7 @@ typedef struct stat gstat_t;
             extern int main(); \
             char *largv[BIT_MAX_ARGC]; \
             int largc; \
-            largc = parseArgs(command, &largv[1], BIT_MAX_ARGC - 1); \
+            largc = egParseArgs(command, &largv[1], BIT_MAX_ARGC - 1); \
             largv[0] = #name; \
             main(largc, largv, NULL); \
         } \
@@ -1134,35 +1075,41 @@ typedef struct stat gstat_t;
     #define MAIN(name, _argc, _argv, _envp) int main(_argc, _argv, _envp)
 #endif
 
-//  MOB - prefix
-extern int parseArgs(char *args, char **argv, int maxArgc);
+extern int egParseArgs(char *args, char **argv, int maxArgc);
 
-#ifdef __cplusplus
-extern "C" {
+#if WINDOWS
+    extern void egSetInst(HINSTANCE inst);
+    extern HINSTANCE egGetInst();
 #endif
+
 /************************************* Error **********************************/
-/*
-    Error types
- */
-#define E_ASSERT            0x1         /* Assertion error */
-#define E_LOG               0x2         /* Log error to log file */
-#define E_USER              0x3         /* Error that must be displayed */
 
-#define E_L                 T(__FILE__), __LINE__
-#define E_ARGS_DEC          char_t *file, int line
-#define E_ARGS              file, line
+#define G_L                 T(__FILE__), __LINE__
+#define G_ARGS_DEC          char_t *file, int line
+#define G_ARGS              file, line
 
-//  MOB - should be gassert, or goassert
 #if BIT_DEBUG
-    #define a_assert(C)     if (C) ; else error(E_L, E_ASSERT, T("%s"), T(#C))
+    #define gassert(C)     if (C) ; else gassertError(G_L, T("%s"), T(#C))
 #else
-    #define a_assert(C)     if (1) ; else
+    #define gassert(C)     if (1) ; else
 #endif
 
-#define elementsof(X) sizeof(X) / sizeof(X[0])
+extern void gassertError(G_ARGS_DEC, char_t *fmt, ...);
+extern void error(char_t *fmt, ...);
+extern void trace(int lev, char_t *fmt, ...);
 
-#if LEGACY
-#define a_assert gassert
+#if BIT_DEBUG_LOG
+    #define LOG trace
+    extern void traceRaw(char_t *buf);
+    extern int traceOpen();
+    extern void traceClose();
+    typedef void (*TraceHandler)(int level, char_t *msg);
+    extern TraceHandler traceSetHandler(TraceHandler handler);
+    extern void traceSetPath(char_t *path);
+#else
+    #define LOG if (0) trace
+    #define traceOpen() 
+    #define traceClose()
 #endif
 
 /************************************* Value **********************************/
@@ -1210,17 +1157,19 @@ typedef struct {
     uint        allocated   : 8;        /* String was allocated */
 } value_t;
 
-/*
-     llocation flags 
- */
-#define VALUE_ALLOCATE      0x1
-
 #define value_numeric(t)    (t >= byteint && t <= big)
 #define value_str(t)        (t >= string && t <= bytes)
 #define value_ok(t)         (t > undefined && t <= symbol)
 
+#define VALUE_ALLOCATE      0x1
 #define VALUE_VALID         { {0}, integer, 1 }
 #define VALUE_INVALID       { {0}, undefined, 0 }
+
+extern value_t valueInteger(long value);
+extern value_t valueString(char_t *value, int flags);
+extern value_t valueSymbol(void *value);
+extern value_t valueErrmsg(char_t *value);
+extern void valueFree(value_t *v);
 
 /************************************* Ringq **********************************/
 /*
@@ -1270,6 +1219,34 @@ typedef struct {
     int     increment;          /* Growth increment */
 } ringq_t;
 
+extern int ringqOpen(ringq_t *rq, int increment, int maxsize);
+extern void ringqClose(ringq_t *rq);
+extern ssize ringqLen(ringq_t *rq);
+extern int ringqPutc(ringq_t *rq, char_t c);
+extern int ringqInsertc(ringq_t *rq, char_t c);
+extern ssize ringqPutStr(ringq_t *rq, char_t *str);
+extern int ringqGetc(ringq_t *rq);
+
+#if UNICODE || DOXYGEN
+    extern int ringqPutcA(ringq_t *rq, char c);
+    extern int ringqInsertcA(ringq_t *rq, char c);
+    extern int ringqPutStrA(ringq_t *rq, char *str);
+    extern int ringqGetcA(ringq_t *rq);
+#else
+    #define ringqPutcA ringqPutc
+    #define ringqInsertcA ringqInsertc
+    #define ringqPutStrA ringqPutStr
+    #define ringqGetcA ringqGetc
+#endif /* UNICODE */
+
+extern ssize ringqPutBlk(ringq_t *rq, uchar *buf, ssize len);
+extern ssize ringqPutBlkMax(ringq_t *rq);
+extern void ringqPutBlkAdj(ringq_t *rq, ssize size);
+extern ssize ringqGetBlk(ringq_t *rq, uchar *buf, ssize len);
+extern ssize ringqGetBlkMax(ringq_t *rq);
+extern void ringqGetBlkAdj(ringq_t *rq, ssize size);
+extern void ringqFlush(ringq_t *rq);
+extern void ringqAddNull(ringq_t *rq);
 
 /******************************* Malloc Replacement ***************************/
 /*
@@ -1281,25 +1258,54 @@ typedef struct {
         int     size;                           /* Actual requested size */
     } u;
     int         flags;                          /* Per block allocation flags */
-} bType;
+} gType;
 
-#define B_SHIFT         4                   /* Convert size to class */
-#define B_ROUND         ((1 << (B_SHIFT)) - 1)
-#define B_MAX_CLASS     13                  /* Maximum class number + 1 */
-#define B_MALLOCED      0x80000000          /* Block was malloced */
-#define B_DEFAULT_MEM   (64 * 1024)         /* Default memory allocation */
-#define B_MAX_FILES     (512)               /* Maximum number of files */
-#define B_FILL_CHAR     (0x77)              /* Fill byte for buffers */
-#define B_FILL_WORD     (0x77777777)        /* Fill word for buffers */
+#define G_SHIFT         4                   /* Convert size to class */
+#define G_ROUND         ((1 << (B_SHIFT)) - 1)
+#define G_MAX_CLASS     13                  /* Maximum class number + 1 */
+#define G_MALLOCED      0x80000000          /* Block was malloced */
+#define G_DEFAULT_MEM   (64 * 1024)         /* Default memory allocation */
+#define G_MAX_FILES     (512)               /* Maximum number of files */
+#define G_FILL_CHAR     (0x77)              /* Fill byte for buffers */
+#define G_FILL_WORD     (0x77777777)        /* Fill word for buffers */
 #define B_MAX_BLOCKS    (64 * 1024)         /* Maximum allocated blocks */
 
 /*
     Flags. The integrity value is used as an arbitrary value to fill the flags.
  */
-#define B_INTEGRITY         0x8124000       /* Integrity value */
-#define B_INTEGRITY_MASK    0xFFFF000       /* Integrity mask */
-#define B_USE_MALLOC        0x1             /* Okay to use malloc if required */
-#define B_USER_BUF          0x2             /* User supplied buffer for mem */
+#define G_INTEGRITY         0x8124000       /* Integrity value */
+#define G_INTEGRITY_MASK    0xFFFF000       /* Integrity mask */
+#define G_USE_MALLOC        0x1             /* Okay to use malloc if required */
+#define G_USER_BUF          0x2             /* User supplied buffer for mem */
+
+extern void gcloseAlloc();
+extern int  gopenAlloc(void *buf, int bufsize, int flags);
+
+#if !BIT_REPLACE_MALLOC
+    extern char_t *gstrdupNoAlloc(char_t *s);
+    extern char *gstrdupANoAlloc(char *s);
+    #define galloc(num) malloc(num)
+    #define gfree(p) if (p) { free(p); } else
+    #define grealloc(p, num) realloc(p, num)
+    #define gstrdup(s) gstrdupNoAlloc(s)
+    #define gstrdupA(s) gstrdupANoAlloc(s)
+    #define gstrdup(s) gstrdupNoAlloc(s)
+
+#else /* BIT_REPLACE_MALLOC */
+    #if UNICODE
+        extern char *gstrdupA(char *s);
+        #define gstrdupA(p) gstrdupA(p)
+    #else
+        #define gstrdupA gstrdup
+    #endif
+    extern void *galloc(ssize size);
+    extern void gfree(void *mp);
+    extern void *grealloc(void *buf, ssize newsize);
+    extern char_t *gstrdup(char_t *s);
+#endif /* BIT_REPLACE_MALLOC */
+
+extern char_t *gallocAscToUni(char  *cp, ssize alen);
+extern char *gallocUniToAsc(char_t *unip, ssize ulen);
 
 /******************************* Symbol Table *********************************/
 /*
@@ -1314,21 +1320,16 @@ typedef struct sym_t {
 
 typedef int sym_fd_t;                       /* Returned by symOpen */
 
-#define STRSPACE    T("\t \n\r\t")
-
-/*********************************** Cron *************************************/
-
-typedef struct {
-    char_t  *minute;
-    char_t  *hour;
-    char_t  *day;
-    char_t  *month;
-    char_t  *dayofweek;
-} cron_t;
-
-extern long     cronUntil(cron_t *cp, int period, time_t testTime);
-extern int      cronAlloc(cron_t *cp, char_t *str);
-extern int      cronFree(cron_t *cp);
+extern sym_fd_t symOpen(int hash_size);
+extern void     symClose(sym_fd_t sd);
+extern sym_t    *symLookup(sym_fd_t sd, char_t *name);
+extern sym_t    *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg);
+extern int      symDelete(sym_fd_t sd, char_t *name);
+extern void     symWalk(sym_fd_t sd, void (*fn)(sym_t *symp));
+extern sym_t    *symFirst(sym_fd_t sd);
+extern sym_t    *symNext(sym_fd_t sd);
+extern int      symSubOpen();
+extern void     symSubClose();
 
 /************************************ Socket **********************************/
 /*
@@ -1343,8 +1344,6 @@ extern int      cronFree(cron_t *cp);
 #define SOCKET_LISTENING        0x40    /* Socket is server listener */
 #define SOCKET_CLOSING          0x80    /* Socket is closing */
 #define SOCKET_CONNRESET        0x100   /* Socket connection was reset */
-
-//  MOB - unused remove
 #define SOCKET_OWN_BUFFERS      0x200   /* Not using inBuf/outBuf ringq */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
@@ -1365,7 +1364,6 @@ extern int      cronFree(cron_t *cp);
 #define SOCKET_READABLE         0x2     /* Make socket readable */ 
 #define SOCKET_WRITABLE         0x4     /* Make socket writable */
 #define SOCKET_EXCEPTION        0x8     /* Interested in exceptions */
-#define EMF_SOCKET_MESSAGE      (WM_USER+13)
 
 typedef void    (*socketHandler_t)(int sid, int mask, void* data);
 typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, int listenSid);
@@ -1393,103 +1391,6 @@ typedef struct {
 
 extern socket_t     **socketList;           /* List of open sockets */
 
-/********************************* Prototypes *********************************/
-
-//  MOB - sort all prototypes
-//  MOB - doxygen (copy text from web page)
-
-extern void bclose();
-extern int  bopen(void *buf, int bufsize, int flags);
-
-#if !BIT_REPLACE_MALLOC
-    extern char_t *bstrdupNoBalloc(char_t *s);
-    extern char *bstrdupANoBalloc(char *s);
-    #define balloc(num) malloc(num)
-    #define bfree(p) if (p) { free(p); } else
-    #define brealloc(p, num) realloc(p, num)
-    #define bstrdup(s) bstrdupNoBalloc(s)
-    #define bstrdupA(s) bstrdupANoBalloc(s)
-    #define gstrdup(s) bstrdupNoBalloc(s)
-
-#else /* BIT_REPLACE_MALLOC */
-    #if UNICODE
-        extern char *bstrdupA(char *s);
-        #define bstrdupA(p) bstrdupA(p)
-    #else /* UNICODE */
-        #define bstrdupA bstrdup
-    #endif /* UNICODE */
-    #define gstrdup bstrdup
-    extern void     *balloc(ssize size);
-    extern void     bfree(void *mp);
-    extern void     *brealloc(void *buf, int newsize);
-    extern char_t   *bstrdup(char_t *s);
-#endif /* BIT_REPLACE_MALLOC */
-
-#define bfreeSafe(p) bfree(p)
-
-/*
-    Flags. The integrity value is used as an arbitrary value to fill the flags.
- */
-#define B_USE_MALLOC        0x1             /* Okay to use malloc if required */
-#define B_USER_BUF          0x2             /* User supplied buffer for mem */
-
-#if! LINUX
-extern char_t   *basename(char_t *name);
-#endif /* !LINUX */
-
-
-
-
-//  RENAME
-typedef void    (emfSchedProc)(void *data, int id);
-extern int      emfSchedCallback(int delay, emfSchedProc *proc, void *arg);
-extern void     emfUnschedCallback(int id);
-extern void     emfReschedCallback(int id, int delay);
-extern void     emfSchedProcess();
-extern int      emfInstGet();
-extern void     emfInstSet(int inst);
-
-extern int      hAlloc(void ***map);
-extern int      hAllocEntry(void ***list, int *max, int size);
-
-extern int      hFree(void ***map, int handle);
-
-extern int      ringqOpen(ringq_t *rq, int increment, int maxsize);
-extern void     ringqClose(ringq_t *rq);
-extern ssize    ringqLen(ringq_t *rq);
-extern int      ringqPutc(ringq_t *rq, char_t c);
-extern int      ringqInsertc(ringq_t *rq, char_t c);
-extern ssize    ringqPutStr(ringq_t *rq, char_t *str);
-extern int      ringqGetc(ringq_t *rq);
-
-extern ssize    fmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg);
-extern ssize    fmtAlloc(char_t **s, ssize n, char_t *fmt, ...);
-extern ssize    fmtStatic(char_t *s, ssize n, char_t *fmt, ...);
-
-#if UNICODE
-extern int      ringqPutcA(ringq_t *rq, char c);
-extern int      ringqInsertcA(ringq_t *rq, char c);
-extern int      ringqPutStrA(ringq_t *rq, char *str);
-extern int      ringqGetcA(ringq_t *rq);
-#else
-#define ringqPutcA ringqPutc
-#define ringqInsertcA ringqInsertc
-#define ringqPutStrA ringqPutStr
-#define ringqGetcA ringqGetc
-#endif /* UNICODE */
-
-extern ssize    ringqPutBlk(ringq_t *rq, uchar *buf, ssize len);
-extern ssize    ringqPutBlkMax(ringq_t *rq);
-extern void     ringqPutBlkAdj(ringq_t *rq, ssize size);
-extern ssize    ringqGetBlk(ringq_t *rq, uchar *buf, ssize len);
-extern ssize    ringqGetBlkMax(ringq_t *rq);
-extern void     ringqGetBlkAdj(ringq_t *rq, ssize size);
-extern void     ringqFlush(ringq_t *rq);
-extern void     ringqAddNull(ringq_t *rq);
-
-extern int      scriptSetVar(char_t *var, char_t *value);
-extern int      scriptEval(char_t *cmd, char_t **rslt, void* chan);
-
 extern int      socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port);
 extern bool     socketAddressIsV6(char_t *ip);
 extern void     socketClose();
@@ -1504,7 +1405,7 @@ extern int      socketFlush(int sid);
 extern ssize    socketGets(int sid, char_t **buf);
 extern int      socketGetPort(int sid);
 extern int      socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
-                    SockLenArg *addrlen);
+                    GSockLenArg *addrlen);
 extern ssize    socketInputBuffered(int sid);
 extern bool     socketIsV6(int sid);
 extern int      socketOpen();
@@ -1527,99 +1428,40 @@ extern int      socketWaitForEvent(socket_t *sp, int events, int *errCode);
 extern void     socketRegisterInterest(socket_t *sp, int handlerMask);
 extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 
-//  MOB - should this have "g" prefix?
-extern char_t   *strlower(char_t *string);
-extern char_t   *strupper(char_t *string);
-extern char_t   *stritoa(int n, char_t *string, int width);
-extern int      strcmpci(char_t *s1, char_t *s2);
+/*********************************** Runtime **********************************/
 
-
-//  MOB - need osdepOpen/Close
-//  MOB
-extern int goOpen();
-extern void goClose();
-
-//  MOB - where should this be
-#define glen gstrlen
-extern int gopen(char_t *path, int oflag, int mode);
+extern int gallocHandle(void ***map);
+extern int gallocEntry(void ***list, int *max, int size);
+extern int gfreeHandle(void ***map, int handle);
 extern int gcaselesscmp(char_t *s1, char_t *s2);
 extern bool gcaselessmatch(char_t *s1, char_t *s2);
-extern bool gmatch(char_t *s1, char_t *s2);
 extern int gcmp(char_t *s1, char_t *s2);
-extern int gncmp(char_t *s1, char_t *s2, ssize n);
+extern ssize gfmtAlloc(char_t **s, ssize n, char_t *fmt, ...);
+extern ssize gfmtStatic(char_t *s, ssize n, char_t *fmt, ...);
+extern ssize gfmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg);
+extern ssize glen(char_t *s1);
+extern bool gmatch(char_t *s1, char_t *s2);
+extern int gopen(char_t *path, int oflag, int mode);
 extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
+extern int gncmp(char_t *s1, char_t *s2, ssize n);
+extern char_t *gstrlower(char_t *string);
+extern char_t *gstrupper(char_t *string);
+extern char_t *gstritoa(int n, char_t *string, int width);
 extern uint gstrtoi(char_t *s);
 
-extern sym_fd_t symOpen(int hash_size);
-extern void     symClose(sym_fd_t sd);
-extern sym_t    *symLookup(sym_fd_t sd, char_t *name);
-extern sym_t    *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg);
-extern int      symDelete(sym_fd_t sd, char_t *name);
-extern void     symWalk(sym_fd_t sd, void (*fn)(sym_t *symp));
-extern sym_t    *symFirst(sym_fd_t sd);
-extern sym_t    *symNext(sym_fd_t sd);
-extern int      symSubOpen();
-extern void     symSubClose();
-
-extern void     error(E_ARGS_DEC, int flags, char_t *fmt, ...);
-extern void     trace(int lev, char_t *fmt, ...);
-#if BIT_DEBUG_LOG
-    extern void     traceRaw(char_t *buf);
-    extern int      traceOpen();
-    extern void     traceClose();
-    typedef void    (*TraceHandler)(int level, char_t *msg);
-    extern TraceHandler traceSetHandler(TraceHandler handler);
-    extern void traceSetPath(char_t *path);
-    #define LOG trace
-#else
-    #define traceOpen() 
-    #define traceClose()
-    #define LOG if (0) trace
-#endif
+extern uint hextoi(char_t *hexstring);
 
 
-extern value_t  valueInteger(long value);
-extern value_t  valueString(char_t *value, int flags);
-extern value_t valueSymbol(void *value);
-extern value_t  valueErrmsg(char_t *value);
-extern void     valueFree(value_t *v);
-
-extern int      vxchdir(char *dirname);
-
-extern uint     hextoi(char_t *hexstring);
-extern time_t    timeMsec();
-
-extern char_t   *ascToUni(char_t *ubuf, char *str, ssize nBytes);
-extern char     *uniToAsc(char *buf, char_t *ustr, ssize nBytes);
-extern char_t   *ballocAscToUni(char  *cp, ssize alen);
-extern char     *ballocUniToAsc(char_t *unip, ssize ulen);
-
-#if UNUSED
-//  MOB - do these exist?
-extern char_t   *basicGetHost();
-extern void     basicSetHost(char_t *host);
-extern void     basicSetAddress(char_t *addr);
-#endif
+typedef void (GSchedProc)(void *data, int id);
+extern int gSchedCallback(int delay, GSchedProc *proc, void *arg);
+extern void gUnschedCallback(int id);
+extern void gReschedCallback(int id, int delay);
+extern void gSchedProcess();
 
 /********************************** Defines ***********************************/
 
-//  MOB - some of these are tunables
-
-#define WEBS_HEADER_BUFINC      512         /* Header buffer size */
-//  MOB - rename ASP => WEBS_JS_BUFINC
-#define WEBS_ASP_BUFINC         512         /* Asp expansion increment */
-#define WEBS_MAX_PASS           32          /* Size of password */
-#define WEBS_BUFSIZE            960         /* websWrite max output string */
-#define WEBS_MAX_HEADER         (5 * 1024)  /* Sanity check header */
-#define WEBS_MAX_URL            2048        /* Maximum URL size for sanity */
-#define WEBS_SOCKET_BUFSIZ      256         /* Bytes read from socket */
-#define WEBS_MAX_REQUEST        2048        /* Request safeguard max */
-
-
-//  MOB - prefix
-#define PAGE_READ_BUFSIZE       512         /* bytes read from page files */
 #define MAX_PORT_LEN            10          /* max digits in port number */
-#define WEBS_SYM_INIT           64          /* initial # of sym table entries */
+#define WEBS_SYM_INIT           64          /* Hash size for form table */
 
 /* 
     Request flags
@@ -1631,14 +1473,10 @@ extern void     basicSetAddress(char_t *addr);
 #define WEBS_POST_REQUEST       0x20        /* Post request operation */
 #define WEBS_LOCAL_REQUEST      0x40        /* Request from this system */
 #define WEBS_HOME_PAGE          0x80        /* Request for the home page */ 
-//  MOB - rename ASP => WEBS_JS
-#define WEBS_ASP                0x100       /* ASP request */ 
+#define WEBS_JS                 0x100       /* Javscript request */ 
 #define WEBS_HEAD_REQUEST       0x200       /* Head request */
 #define WEBS_CLEN               0x400       /* Request had a content length */
 #define WEBS_FORM               0x800       /* Request is a form */
-#if UNUSED
-#define WEBS_REQUEST_DONE       0x1000      /* Request complete */
-#endif
 #define WEBS_POST_DATA          0x2000      /* Already appended post data */
 #define WEBS_CGI_REQUEST        0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
@@ -1816,166 +1654,129 @@ extern int              websDebug;          /* Run in debug mode */
  */
 #define WEBS_DECODE_TOKEQ 1
 
-/******************************** Prototypes **********************************/
+extern int websAccept(int sid, char *ipaddr, int port, int listenSid);
+extern int websAlloc(int sid);
+extern void websAspClose();
+extern int websAspDefine(char_t *name, int (*fn)(int ejid, webs_t wp, int argc, char_t **argv));
+extern int websAspOpen();
+extern int websAspRequest(webs_t wp, char_t *lpath);
+extern char_t *websCalcNonce(webs_t wp);
+extern char_t *websCalcOpaque(webs_t wp);
+extern char_t *websCalcDigest(webs_t wp);
+extern char_t *websCalcUrlDigest(webs_t wp);
+extern int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern void websCgiCleanup();
+extern int websCheckCgiProc(int handle);
+extern void websClose();
+extern void websCloseListen();
+extern void websCloseServer();
+extern char_t *websDecode64(char_t *string);
+extern char_t *websDecode64Block(char_t *s, ssize *len, int flags);
+extern void websDecodeUrl(char_t *token, char_t *decoded, ssize len);
+extern void websDefaultOpen();
+extern void websDefaultClose();
+extern int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern int websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern void websDone(webs_t wp, int code);
+extern void websError(webs_t wp, int code, char_t *msg, ...);
+extern char_t *websErrorMsg(int code);
+extern int websEval(char_t *cmd, char_t **rslt, void* chan);
+extern void websFooter(webs_t wp);
+extern void websFormClose();
+extern int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query));
+extern int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern void websFormOpen();
+extern void websFree(webs_t wp);
+extern char_t *websGetCgiCommName();
+extern char_t *websGetDateString(websStatType* sbuf);
+extern char_t *websGetDefaultDir();
+extern char_t *websGetDefaultPage();
+extern char_t *websGetHostUrl();
+extern char_t *websGetIpaddrUrl();
+extern char_t *websGetPassword();
+extern int websGetPort();
+extern char_t *websGetPublishDir(char_t *path, char_t **urlPrefix);
+extern char_t *websGetRealm();
+extern ssize websGetRequestBytes(webs_t wp);
+extern char_t *websGetRequestDir(webs_t wp);
+extern int websGetRequestFlags(webs_t wp);
+extern char_t *websGetRequestIpaddr(webs_t wp);
+extern char_t *websGetRequestLpath(webs_t wp);
+extern char_t *websGetRequestPath(webs_t wp);
+extern char_t *websGetRequestPassword(webs_t wp);
+extern char_t *websGetRequestType(webs_t wp);
+extern ssize websGetRequestWritten(webs_t wp);
+extern char_t *websGetVar(webs_t wp, char_t *var, char_t *def);
+extern int websCompareVar(webs_t wp, char_t *var, char_t *value);
+extern void websHeader(webs_t wp);
+extern int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
+extern char *websMD5(char_t *s);
+extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
+extern char_t *websNormalizeUriPath(char_t *path);
+extern int websOpen();
+extern int websOpenListen(char *ip, int port, int sslPort);
+extern int websOpenServer(char *ip, int port, int sslPort, char_t *documents);
+extern void websPageClose(webs_t wp);
+extern int websPageIsDirectory(char_t *lpath);
+extern int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
+extern ssize websPageReadData(webs_t wp, char *buf, ssize nBytes);
+extern void websPageSeek(webs_t wp, EgFilePos offset);
+extern int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType *sbuf);
+extern int websPublish(char_t *urlPrefix, char_t *path);
+extern void websReadEvent(webs_t wp);
+extern void websRedirect(webs_t wp, char_t *url);
+extern void websResponse(webs_t wp, int code, char_t *msg, char_t *redirect);
+extern void websRewriteRequest(webs_t wp, char_t *url);
+extern int websRomOpen();
+extern void websRomClose();
+extern int websRomPageOpen(webs_t wp, char_t *path, int mode, int perm);
+extern void websRomPageClose(int fd);
+extern ssize websRomPageReadData(webs_t wp, char *buf, ssize len);
+extern int websRomPageStat(char_t *path, websStatType *sbuf);
+extern long websRomPageSeek(webs_t wp, EgFilePos offset, int origin);
+extern void websSecurityDelete();
+extern int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
+extern void websSetDefaultDir(char_t *dir);
+extern void websSetDefaultPage(char_t *page);
+extern void websSetEnv(webs_t wp);
+extern void websSetHost(char_t *host);
+extern void websSetIpaddr(char_t *ipaddr);
+extern void websSetPassword(char_t *password);
+extern void websSetRealm(char_t *realmName);
+extern void websSetRequestBytes(webs_t wp, ssize bytes);
+extern void websSetRequestLpath(webs_t wp, char_t *lpath);
+extern void websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
+extern void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp));
+extern char_t *websGetRequestUserName(webs_t wp);
+extern void websServiceEvents(int *finished);
+extern void websSetRequestWritten(webs_t wp, ssize written);
+extern void websSetTimeMark(webs_t wp);
+extern void websSetVar(webs_t wp, char_t *var, char_t *value);
+extern int websSolutionHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern int websTestVar(webs_t wp, char_t *var);
+extern void websTimeout(void *arg, int id);
+extern void websTimeoutCancel(webs_t wp);
+extern int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query), int flags);
+extern void websUrlHandlerClose();
+extern int websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query));
+extern int websUrlHandlerOpen();
+extern int websUrlHandlerRequest(webs_t wp);
+extern int websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, char_t **proto, char_t **tag, char_t **ext);
+extern char_t *websUrlType(char_t *webs, char_t *buf, int charCnt);
+extern void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect);
+extern ssize websWriteHeader(webs_t wp, char_t *fmt, ...);
+extern ssize websWrite(webs_t wp, char_t *fmt, ...);
+extern ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
+extern ssize websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
+extern int websValid(webs_t wp);
 
-extern int       websAccept(int sid, char *ipaddr, int port, int listenSid);
-extern int       websAspDefine(char_t *name, int (*fn)(int ejid, webs_t wp, int argc, char_t **argv));
-extern int       websAspRequest(webs_t wp, char_t *lpath);
-extern void      websCloseListen();
-extern char_t    *websDecode64(char_t *string);
-extern char_t   *websDecode64Block(char_t *s, ssize *len, int flags);
-extern void      websDecodeUrl(char_t *token, char_t *decoded, ssize len);
-extern void      websDone(webs_t wp, int code);
-extern void      websError(webs_t wp, int code, char_t *msg, ...);
-extern char_t   *websErrorMsg(int code);
-extern void      websFooter(webs_t wp);
-extern int       websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query));
-extern char_t   *websGetDefaultDir();
-extern char_t   *websGetDefaultPage();
-extern char_t   *websGetHostUrl();
-extern char_t   *websGetIpaddrUrl();
-extern char_t   *websGetPassword();
-extern int       websGetPort();
-extern char_t   *websGetPublishDir(char_t *path, char_t **urlPrefix);
-extern char_t   *websGetRealm();
-extern ssize     websGetRequestBytes(webs_t wp);
-extern char_t   *websGetRequestDir(webs_t wp);
-extern int       websGetRequestFlags(webs_t wp);
-extern char_t   *websGetRequestIpaddr(webs_t wp);
-extern char_t   *websGetRequestLpath(webs_t wp);
-extern char_t   *websGetRequestPath(webs_t wp);
-extern char_t   *websGetRequestPassword(webs_t wp);
-extern char_t   *websGetRequestType(webs_t wp);
-extern ssize     websGetRequestWritten(webs_t wp);
-extern char_t   *websGetVar(webs_t wp, char_t *var, char_t *def);
-extern int       websCompareVar(webs_t wp, char_t *var, char_t *value);
-extern void      websHeader(webs_t wp);
-extern int       websOpenListen(char *ip, int port, int sslPort);
-extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
-extern void      websPageClose(webs_t wp);
-extern int       websPublish(char_t *urlPrefix, char_t *path);
-extern void      websRedirect(webs_t wp, char_t *url);
-extern void      websRewriteRequest(webs_t wp, char_t *url);
-extern void      websSecurityDelete();
-extern int       websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
-                    char_t *query);
-extern void     websSetDefaultDir(char_t *dir);
-extern void     websSetDefaultPage(char_t *page);
-extern void     websSetEnv(webs_t wp);
-extern void     websSetHost(char_t *host);
-extern void     websSetIpaddr(char_t *ipaddr);
-extern void     websSetPassword(char_t *password);
-extern void     websSetRealm(char_t *realmName);
-extern void     websSetRequestBytes(webs_t wp, ssize bytes);
-#if UNUSED
-extern void     websSetRequestFlags(webs_t wp, int flags);
-#endif
-extern void     websSetRequestLpath(webs_t wp, char_t *lpath);
-extern void     websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
-extern char_t  *websGetRequestUserName(webs_t wp);
-extern void     websSetRequestWritten(webs_t wp, ssize written);
-extern void     websSetVar(webs_t wp, char_t *var, char_t *value);
-extern int      websTestVar(webs_t wp, char_t *var);
-extern void     websTimeoutCancel(webs_t wp);
-extern int      websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int (*fn)(webs_t wp, char_t *urlPrefix, 
-                    char_t *webDir, int arg, char_t *url, char_t *path, char_t *query), int flags);
-extern int      websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
-                    char_t *path, char_t *query));
-extern int      websUrlHandlerRequest(webs_t wp);
-extern int      websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, 
-                    char_t **proto, char_t **tag, char_t **ext);
-extern char_t   *websUrlType(char_t *webs, char_t *buf, int charCnt);
-extern void      websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect);
-extern ssize     websWriteHeader(webs_t wp, char_t *fmt, ...);
-extern ssize     websWrite(webs_t wp, char_t *fmt, ...);
-extern ssize     websWriteBlock(webs_t wp, char_t *buf, ssize nChars);
-extern ssize     websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars);
-extern int       websValid(webs_t wp);
-extern char_t    *websNormalizeUriPath(char_t *path);
-extern void      websSetTimeMark(webs_t wp);
-extern char      *websMD5(char_t *s);
-extern char      *websMD5binary(char_t *buf, ssize length, char_t *prefix);
-
-extern int      websAlloc(int sid);
-extern void     websFree(webs_t wp);
-extern void     websTimeout(void *arg, int id);
-extern void     websReadEvent(webs_t wp);
-
-extern char_t   *websCalcNonce(webs_t wp);
-extern char_t   *websCalcOpaque(webs_t wp);
-extern char_t   *websCalcDigest(webs_t wp);
-extern char_t   *websCalcUrlDigest(webs_t wp);
-
-extern int       websAspOpen();
-extern void      websAspClose();
 #if BIT_JAVASCRIPT
-extern int       websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
+extern int websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
 #endif
 
-extern void      websFormOpen();
-extern void      websFormClose();
-extern void      websDefaultOpen();
-extern void      websDefaultClose();
-
-extern int       websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
-                    char_t *query);
-extern int       websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
-                    char_t *path, char_t *query);
-extern int       websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
-                    char_t *query);
-extern int       websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
-                    char_t *query);
-extern void      websCgiCleanup();
-extern int       websCheckCgiProc(int handle);
-extern char_t    *websGetCgiCommName();
-
-extern int       websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
-extern void      websResponse(webs_t wp, int code, char_t *msg, char_t *redirect);
-extern int       websJavaScriptEval(webs_t wp, char_t *script);
-extern ssize     websPageReadData(webs_t wp, char *buf, ssize nBytes);
-extern int       websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm);
-extern void      websPageClose(webs_t wp);
-extern void      websPageSeek(webs_t wp, filepos offset);
-extern int       websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType *sbuf);
-extern int       websPageIsDirectory(char_t *lpath);
-extern int       websRomOpen();
-extern void      websRomClose();
-extern int       websRomPageOpen(webs_t wp, char_t *path, int mode, int perm);
-extern void      websRomPageClose(int fd);
-extern ssize     websRomPageReadData(webs_t wp, char *buf, ssize len);
-extern int       websRomPageStat(char_t *path, websStatType *sbuf);
-extern long      websRomPageSeek(webs_t wp, filepos offset, int origin);
-extern void      websSetRequestSocketHandler(webs_t wp, int mask, 
-                    void (*fn)(webs_t wp));
-extern int       websSolutionHandler(webs_t wp, char_t *urlPrefix,
-                    char_t *webDir, int arg, char_t *url, char_t *path, 
-                    char_t *query);
-extern void      websUrlHandlerClose();
-extern int       websUrlHandlerOpen();
-extern int       websOpen();
-extern void      websClose();
-extern int       websOpenServer(char *ip, int port, int sslPort, char_t *documents);
-extern void      websCloseServer();
-extern char_t   *websGetDateString(websStatType* sbuf);
-extern void      websServiceEvents(int *finished);
-
-#if CE
-//  MOB - prefix
-extern int      writeUniToAsc(int fid, void *buf, ssize len);
-extern int      readAscToUni(int fid, void **buf, ssize len);
-#endif
-
-#if BIT_PACK_MATRIXSSL
-#if UNUSED
-//  MOB - sslConn_t ssl_t should not be visible in this file
-typedef struct {
-    sslConn_t* sslConn;
-    struct websRec* wp;
-} websSSL_t;
-#endif
-#endif
-
+/*************************************** SSL ***********************************/
 #if BIT_PACK_SSL
+
 extern int websSSLOpen();
 extern int websSSLIsOpen();
 extern void websSSLClose();
@@ -1991,13 +1792,6 @@ extern int websSSLSetCertFile(char_t *certFile);
 extern void websSSLSocketEvent(int sid, int mask, void *iwp);
 
 
-#if OLD && UNUSED
-extern int  sslAccept(sslConn_t **cp, SOCKET fd, sslKeys_t *keys, int32 resume,
-            int (*certValidator)(ssl_t *, psX509Cert_t *, int32));
-extern ssize sslRead(sslConn_t *cp, char *buf, ssize len);
-extern ssize sslWrite(sslConn_t *cp, char *buf, ssize len);
-extern void sslWriteClosureAlert(sslConn_t *cp);
-#else
 extern int sslOpen();
 extern void sslClose();
 extern int sslAccept(webs_t wp);
@@ -2006,12 +1800,12 @@ extern ssize sslRead(webs_t wp, char *buf, ssize len);
 extern ssize sslWrite(webs_t wp, char *buf, ssize len);
 extern void sslWriteClosureAlert(webs_t wp);
 extern void sslFlush(webs_t wp);
-#endif
 
 #endif /* BIT_PACK_SSL */
 
-/*************************************** EmfDb *********************************/
+/************************************* Database ********************************/
 
+#if BIT_DATABASE
 //  MOB - prefix
 #define     T_INT                   0
 #define     T_STRING                1
@@ -2067,17 +1861,10 @@ extern int      dbLoad(int did, char_t *filename, int flags);
 extern int      dbSearchStr(int did, char_t *table, char_t *column, char_t *value, int flags);
 extern void     dbZero(int did);
 
-#if UNUSED
-extern char_t   *basicGetProductDir();
-extern void     basicSetProductDir(char_t *proddir);
-#endif
-
-#if WINDOWS
-extern void gsetAppInstance(HINSTANCE inst);
-extern HINSTANCE ggetAppInstance();
-#endif
+#endif /* BIT_DATABASE */
 
 /******************************** User Management *****************************/
+
 //  MOB - prefix on type name and AM_NAME
 //  MOB - convert to defines with numbers
 typedef enum {
@@ -2210,6 +1997,45 @@ extern bool amCan(char_t *capability);
 extern void can(char_t *capability):
 #endif
 #endif /* BIT_USER_MANAGEMENT */
+
+/************************************ Legacy **********************************/
+
+#if BIT_LEGACY
+    #define a_assert gassert
+    typedef GStat gstat_t;
+    #define emfSchedProc GSchedProc
+    #define emfSchedCallback gSchedCallback
+    #define emfUnschedCallback gUnschedCallback
+    #define emfReschedCallback gReschedCallback
+    #define emfSchedProcess gSchedProcess
+
+    #define hAlloc gAlloc
+    #define hAllocEntry gAllocEntry
+    #define hFree gFree
+
+    #define ascToUni gAscToUni
+    #define uniToAsc gUniToAsc
+
+    #define bopen gcloseAlloc
+    #define bopen gopenAlloc
+    #define bstrdupNoBalloc gstrdupNoAlloc
+    #define bstrdupANoBalloc gstrdupANoAlloc
+    #define balloc galloc
+    #define bfree(p) gfree
+    #define bfreeSafe(p) gfree(p)
+    #define brealloc grealloc
+    #define bstrdup gstrdup
+    #define bstrdupA gstrdupA
+
+    #define strlower gstrlower
+    #define strupper gstrupper
+    #define stritoa gstritoa
+    #define WEBS_ASP WEBS_JS
+
+    #define fmtValloc gfmtValloc
+    #define fmtAlloc gfmtAlloc
+    #define fmtStatic gfmtStatic
+#endif
 
 #ifdef __cplusplus
 }

@@ -7,19 +7,6 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../socket.c"
-         timestampString = "365738883.013951"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1391"
-         endingLineNumber = "1391"
-         landmarkName = "socketSetMode()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
          filePath = "../http.c"
          timestampString = "365541111.200918"
          startingColumnNumber = "9223372036854775807"
@@ -146,13 +133,26 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../http.c"
-         timestampString = "366244101.055818"
+         filePath = "../test/test.c"
+         timestampString = "366318853.139819"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "2252"
-         endingLineNumber = "2252"
-         landmarkName = "websSetRequestPath()"
+         startingLineNumber = "83"
+         endingLineNumber = "83"
+         landmarkName = "MAIN()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../galloc.c"
+         timestampString = "366318912.811884"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "105"
+         endingLineNumber = "105"
+         landmarkName = "galloc()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

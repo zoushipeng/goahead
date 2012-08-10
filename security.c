@@ -24,7 +24,7 @@
 
 /******************************** Local Data **********************************/
 
-static char_t   websPassword[WEBS_MAX_PASS];    /* Access password (decoded) */
+static char_t websPassword[BIT_LIMIT_PASSWORD];    /* Access password (decoded) */
 
 /*********************************** Code *************************************/
 /*
@@ -36,9 +36,9 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
     accessMeth_t    am;
     int             flags, rc;
 
-    a_assert(websValid(wp));
-    a_assert(url && *url);
-    a_assert(path && *path);
+    gassert(websValid(wp));
+    gassert(url && *url);
+    gassert(path && *path);
 
     /*
         Get the critical request details
@@ -59,7 +59,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         websStats.access++;
         websError(wp, 405, T("Access Denied\nSecure access is required."));
         trace(3, T("SEC: Non-secure access attempted on <%s>\n"), path);
-        bfree(accessLimit);
+        gfree(accessLimit);
         return 1;
     }
 #endif
@@ -101,7 +101,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
                 } else {
                     /* User and password check ok */
                 }
-                bfree (userpass);
+                gfree (userpass);
             }
 #if BIT_DIGEST_AUTH
         } else if (flags & WEBS_AUTH_DIGEST) {
@@ -110,12 +110,12 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
                 Check digest for equivalence
              */
             wp->password = umGetUserPassword(userid);
-            a_assert(wp->digest);
-            a_assert(wp->nonce);
-            a_assert(wp->password);
+            gassert(wp->digest);
+            gassert(wp->nonce);
+            gassert(wp->password);
             digestCalc = websCalcDigest(wp);
             if (gstrcmp(wp->digest, digestCalc) != 0) {
-                bfree (digestCalc);
+                gfree (digestCalc);
                 digestCalc = websCalcUrlDigest(wp);
                 if (gstrcmp(wp->digest, digestCalc) != 0) {
                     websStats.access++;
@@ -123,7 +123,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
                     rc = 1;
                 }
             }
-            bfree (digestCalc);
+            gfree (digestCalc);
 #endif
         } else {
             /*
@@ -149,7 +149,7 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, c
         websError(wp, 401, T("Access to this document requires a User ID"));
         rc = 1;
     }
-    bfree(accessLimit);
+    gfree(accessLimit);
     return rc;
 }
 
@@ -165,7 +165,7 @@ void websSecurityDelete()
  */
 void websSetPassword(char_t *password)
 {
-    a_assert(password);
+    gassert(password);
     gstrncpy(websPassword, password, TSZ(websPassword));
 }
 
@@ -175,7 +175,7 @@ void websSetPassword(char_t *password)
  */
 char_t *websGetPassword()
 {
-    return bstrdup(websPassword);
+    return gstrdup(websPassword);
 }
 
 

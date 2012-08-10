@@ -31,12 +31,21 @@
 #define BIT_JAVASCRIPT 1
 #define BIT_KEEP_ALIVE 1
 #define BIT_KEY ""
+#define BIT_LEGACY 0
+#define BIT_LIMIT_BUFFER 1024
+#define BIT_LIMIT_FILENAME 256
+#define BIT_LIMIT_HEADER 2048
+#define BIT_LIMIT_HEADERS 8192
+#define BIT_LIMIT_PASSWORD 32
+#define BIT_LIMIT_SOCKET_BUFFER 512
+#define BIT_LIMIT_STRING 4096
+#define BIT_LIMIT_URL 2048
 #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
 #define BIT_PACKS "bits/packs"
 #define BIT_PASSWORD ""
 #define BIT_PRODUCT "goahead"
-#define BIT_REPLACE_MALLOC 0
+#define BIT_REPLACE_MALLOC 1
 #define BIT_REQUIRED "winsdk,compiler,link,dumpbin,rc"
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"

@@ -8,13 +8,14 @@
 
 #include    "goahead.h"
 
+#if BIT_DATABASE
 /********************************* Defines ************************************/
 
 #define KEYWORD_TABLE   T("TABLE")
 #define KEYWORD_ROW     T("ROW")
 
 /*
-   hAlloc chain list of table schemas to be closed 
+   galloc chain list of table schemas to be closed 
  */
 static int          dbMaxTables = 0;
 static dbTable_t    **dbListTables = NULL;
@@ -67,25 +68,25 @@ void dbClose(int did)
              */
             if (pTable->nColumns) {
                 for (column = 0; column < pTable->nColumns; column++) {
-                    bfree(pTable->columnNames[column]);
+                    gfree(pTable->columnNames[column]);
                 }
-                bfree(pTable->columnNames);
-                bfree(pTable->columnTypes);
+                gfree(pTable->columnNames);
+                gfree(pTable->columnTypes);
             }
             /*
                 Delete the table name
              */
-            bfree(pTable->name);
+            gfree(pTable->name);
             /*
                 Free the table
              */
-            bfree(pTable);
-            hFree((void ***) &dbListTables, table);
+            gfree(pTable);
+            gfree((void ***) &dbListTables, table);
         }
     }
 
     if (dbListTables) {
-        bfree(dbListTables);
+        gfree(dbListTables);
     }
 
     /*
@@ -124,12 +125,12 @@ void dbZero(int did)
                      */
                     for (column = 0; column < nColumns; column++) {
                         if (pTable->columnTypes[column] == T_STRING) {
-                            bfree((char_t*) pRow[column]);
+                            gfree((char_t*) pRow[column]);
                             pRow[column] = 0;
                         }
                     }
-                    bfree(pRow);
-                    hFree((void ***) &pTable->rows, row);
+                    gfree(pRow);
+                    gfree((void ***) &pTable->rows, row);
                 }
             }
             pTable->rows = NULL;
@@ -148,26 +149,26 @@ int dbRegisterDBSchema(dbTable_t *pTableRegister)
     dbTable_t   *pTable;
     int         tid;
 
-    a_assert(pTableRegister);
+    gassert(pTableRegister);
 
     trace(4, T("DB: Registering database table <%s>"), pTableRegister->name);
 
     /*
         Bump up the size of the table array
      */
-    tid = hAllocEntry((void***) &dbListTables, &dbMaxTables, sizeof(dbTable_t));    
+    tid = gallocEntry((void***) &dbListTables, &dbMaxTables, sizeof(dbTable_t));    
 
     /*
         Copy the table schema to the last spot in schema array
      */
-    a_assert(dbListTables);
+    gassert(dbListTables);
     pTable = dbListTables[tid];
-    a_assert(pTable);
+    gassert(pTable);
 
     /*
         Copy the name of the table and column
      */
-    pTable->name = bstrdup(pTableRegister->name);
+    pTable->name = gstrdup(pTableRegister->name);
     pTable->nColumns = pTableRegister->nColumns;
 
     /*
@@ -175,11 +176,11 @@ int dbRegisterDBSchema(dbTable_t *pTableRegister)
      */
     if (pTable->nColumns > 0) {
         int i;
-        pTable->columnNames = balloc(sizeof(char_t *) * pTable->nColumns);
-        pTable->columnTypes = balloc(sizeof(int *) * pTable->nColumns);
+        pTable->columnNames = galloc(sizeof(char_t *) * pTable->nColumns);
+        pTable->columnTypes = galloc(sizeof(int *) * pTable->nColumns);
 
         for (i = 0; (i < pTableRegister->nColumns); i++) {
-            pTable->columnNames[i] = bstrdup(pTableRegister->columnNames[i]);
+            pTable->columnNames[i] = gstrdup(pTableRegister->columnNames[i]);
             pTable->columnTypes[i] = pTableRegister->columnTypes[i];
         }
 
@@ -206,9 +207,9 @@ int dbSearchStr(int did, char_t *tablename, char_t *colName, char_t *value, int 
     ssize       *pRow;
     int         row, tid, nRows, column, match;
 
-    a_assert(tablename);
-    a_assert(colName);
-    a_assert(value);
+    gassert(tablename);
+    gassert(colName);
+    gassert(value);
 
     tid = dbGetTableId(0, tablename);
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
@@ -218,7 +219,7 @@ int dbSearchStr(int did, char_t *tablename, char_t *colName, char_t *value, int 
     }
     nRows = pTable->nRows;
     column = getColumnIndex(tid, colName);
-    a_assert (column >= 0);
+    gassert (column >= 0);
 
     if (column >= 0) {
         /*
@@ -233,7 +234,7 @@ int dbSearchStr(int did, char_t *tablename, char_t *colName, char_t *value, int 
                 compareVal = (char_t*) (pRow[column]); 
                 if (NULL != compareVal) {
                     if (DB_CASE_INSENSITIVE == flags) {
-                        match = gstricmp(compareVal, value);
+                        match = gcaselesscmp(compareVal, value);
                     } else {
                         match = gstrcmp(compareVal, value);
                     }
@@ -263,22 +264,22 @@ int dbAddRow(int did, char_t *tablename)
     int         tid, size;
     dbTable_t   *pTable;
 
-    a_assert(tablename);
+    gassert(tablename);
 
     tid = dbGetTableId(0, tablename);
-    a_assert(tid >= 0);
+    gassert(tid >= 0);
 
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
         pTable = dbListTables[tid];
     } else {
         return DB_ERR_TABLE_NOT_FOUND;
     }
-    a_assert(pTable);
+    gassert(pTable);
 
     if (pTable) {
         trace(5, T("DB: Adding a row to table <%s>"), tablename);
         size = pTable->nColumns * sizeof(ssize);
-        return hAllocEntry((void***) &(pTable->rows), &(pTable->nRows), size);
+        return gallocEntry((void***) &(pTable->rows), &(pTable->nRows), size);
     } 
     return -1;
 }
@@ -293,9 +294,9 @@ int dbDeleteRow(int did, char_t *tablename, int row)
     ssize       *pRow;
     int         tid, nColumns, nRows;
 
-    a_assert(tablename);
+    gassert(tablename);
     tid = dbGetTableId(0, tablename);
-    a_assert(tid >= 0);
+    gassert(tid >= 0);
 
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
         pTable = dbListTables[tid];
@@ -314,12 +315,12 @@ int dbDeleteRow(int did, char_t *tablename, int row)
              */
             while (column < nColumns) {
                 if (pRow[column] && (pTable->columnTypes[column] == T_STRING)) {
-                    bfree((char_t*) pRow[column]);
+                    gfree((char_t*) pRow[column]);
                 }
                 column++;
             }
-            bfree(pRow);
-            pTable->nRows = hFree((void***)&pTable->rows, row);
+            gfree(pRow);
+            pTable->nRows = gfreeHandle((void***)&pTable->rows, row);
             trace(5, T("DB: Deleted row <%d> from table <%s>"), row, tablename);
         }
         return 0;
@@ -338,9 +339,9 @@ int dbSetTableNrow(int did, char_t *tablename, int nNewRows)
     int         nRet, tid, nRows;
     dbTable_t   *pTable;
 
-    a_assert(tablename);
+    gassert(tablename);
     tid = dbGetTableId(0, tablename);
-    a_assert(tid >= 0) ;
+    gassert(tid >= 0) ;
 
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
         pTable = dbListTables[tid];
@@ -349,7 +350,7 @@ int dbSetTableNrow(int did, char_t *tablename, int nNewRows)
     }
     nRet = -1;
 
-    a_assert(pTable);
+    gassert(pTable);
     if (pTable) {
         nRows = pTable->nRows;
         nRet = 0;
@@ -378,7 +379,7 @@ int dbGetTableNrow(int did, char_t *tablename)
 {
     int tid;
     
-    a_assert(tablename);
+    gassert(tablename);
     tid = dbGetTableId(did, tablename);
 
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
@@ -395,12 +396,12 @@ static int dbRead(int did, char_t *table, char_t *column, int row, ssize *return
     ssize       *pRow;
     int         colIndex, tid;
     
-    a_assert(table);
-    a_assert(column);
-    a_assert(returnValue);
+    gassert(table);
+    gassert(column);
+    gassert(returnValue);
 
     tid = dbGetTableId(0, table);
-    a_assert(tid >= 0);
+    gassert(tid >= 0);
 
     if (tid < 0) {
         return DB_ERR_TABLE_NOT_FOUND;
@@ -409,11 +410,11 @@ static int dbRead(int did, char_t *table, char_t *column, int row, ssize *return
     if (pTable == NULL) {
         return DB_ERR_TABLE_DELETED;
     }
-    a_assert(row >= 0);
+    gassert(row >= 0);
 
     if ((row >= 0) && (row < pTable->nRows)) {
         colIndex = getColumnIndex(tid, column);
-        a_assert(colIndex >= 0);
+        gassert(colIndex >= 0);
         if (colIndex >= 0) {
             pRow = pTable->rows[row];
             if (pRow) {
@@ -457,8 +458,8 @@ int dbWriteInt(int did, char_t *table, char_t *column, int row, int iData)
     ssize       *pRow;
     int         tid, colIndex;
 
-    a_assert(table);
-    a_assert(column);
+    gassert(table);
+    gassert(column);
 
     if ((tid = dbGetTableId(0, table)) < 0) {
         return DB_ERR_TABLE_NOT_FOUND;
@@ -469,12 +470,12 @@ int dbWriteInt(int did, char_t *table, char_t *column, int row, int iData)
             Make sure that the column exists
          */
         colIndex = getColumnIndex(tid, column);
-        a_assert(colIndex >= 0);
+        gassert(colIndex >= 0);
         if (colIndex >= 0) {
             /*
                 Make sure that the row exists
              */
-            a_assert((row >= 0) && (row < pTable->nRows));
+            gassert((row >= 0) && (row < pTable->nRows));
             if ((row >= 0) && (row < pTable->nRows)) {
                 pRow = pTable->rows[row];
                 if (pRow) {
@@ -502,8 +503,8 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
     ssize       *pRow;
     int         tid, colIndex;
 
-    a_assert(table);
-    a_assert(column);
+    gassert(table);
+    gassert(column);
 
     if ((tid = dbGetTableId(0, table)) < 0) {
         return DB_ERR_TABLE_NOT_FOUND;
@@ -512,7 +513,7 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
         Make sure that this table exists
      */
     pTable = dbListTables[tid];
-    a_assert(pTable);
+    gassert(pTable);
     if (!pTable) {
         return DB_ERR_TABLE_DELETED;
     }
@@ -533,7 +534,7 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
     /*
         Make sure that the row exists
      */
-    a_assert((row >= 0) && (row < pTable->nRows));
+    gassert((row >= 0) && (row < pTable->nRows));
     if ((row >= 0) && (row < pTable->nRows)) {
         pRow = pTable->rows[row];
     } else {
@@ -547,13 +548,13 @@ int dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s)
         If the column already has a value, be sure to delete it to prevent memory leaks.
      */
     if (pRow[colIndex]) {
-        bfree((char*) pRow[colIndex]);
+        gfree((char*) pRow[colIndex]);
     }
 
     /*
         Make sure we make a copy of the string to write into the column. This allocated string will be deleted when the row is deleted.  
      */
-    pRow[colIndex] = (ssize) bstrdup(s);
+    pRow[colIndex] = (ssize) gstrdup(s);
     return 0;
 }
 
@@ -566,20 +567,20 @@ static ssize dbWriteKeyValue(int fd, char_t *key, char_t *value)
     char_t  *pLineOut;
     ssize   len, rc;
 
-    a_assert(key && *key);
-    a_assert(value);
+    gassert(key && *key);
+    gassert(value);
     
-    fmtAlloc(&pLineOut, BUF_MAX, T("%s=%s\n"), key, value);
+    gfmtAlloc(&pLineOut, -1, T("%s=%s\n"), key, value);
 
     if (pLineOut) {
         len = gstrlen(pLineOut);
         //MOB
 #if CE
-        rc = writeUniToAsc(fd, pLineOut, len);
+        rc = gwriteUniToAsc(fd, pLineOut, len);
 #else
         rc = gwrite(fd, pLineOut, len);
 #endif
-        bfree(pLineOut);
+        gfree(pLineOut);
     } else {
         rc = -1;
     }
@@ -598,7 +599,7 @@ int dbSave(int did, char_t *filename, int flags)
 
     trace(5, T("DB: About to save database to file"));
 
-    a_assert(dbMaxTables > 0);
+    gassert(dbMaxTables > 0);
 
     /*
         First write to a temporary file, then switch around later.
@@ -632,9 +633,9 @@ int dbSave(int did, char_t *filename, int flags)
                 /*
                     Print the ROW=rowNumber directive to the file
                  */
-                fmtAlloc(&tmpNum, 20, T("%d"), row);        
+                gfmtAlloc(&tmpNum, 20, T("%d"), row);        
                 rc = dbWriteKeyValue(fd, KEYWORD_ROW, tmpNum);
-                bfree(tmpNum);
+                gfree(tmpNum);
 
                 colNames = pTable->columnNames;
                 colTypes = pTable->columnTypes;
@@ -647,9 +648,9 @@ int dbSave(int did, char_t *filename, int flags)
                         rc = dbWriteKeyValue(fd, *colNames, (char_t*)(pRow[column]));
                     } else {
                         //  MOB - need support for '%Ld'
-                        fmtAlloc(&tmpNum, 20, T("%d"), (int) pRow[column]);       
+                        gfmtAlloc(&tmpNum, 20, T("%d"), (int) pRow[column]);       
                         rc = dbWriteKeyValue(fd, *colNames, tmpNum);
-                        bfree(tmpNum);
+                        gfree(tmpNum);
                     }
                 }
                 if (rc < 0) {
@@ -705,18 +706,18 @@ static int crack(char_t *buf, char_t **key, char_t **val)
  */
 int dbLoad(int did, char_t *filename, int flags)
 {
-    gstat_t     sbuf;
+    GStat      sbuf;
     char_t      *buf, *keyword, *value, *ptr;
     char_t      *tablename;
     int         fd, tid, row;
     dbTable_t   *pTable;
 
-    a_assert(did >= 0);
+    gassert(did >= 0);
 
     trace(4, T("DB: About to read data file <%s>"), filename);
 
     if (gstat(filename, &sbuf) < 0) {
-        error(E_L, E_LOG, T("DB: Failed to stat persistent data file"));
+        error(T("DB: Failed to stat persistent data file"));
         return -1;
     }
     fd = gopen(filename, O_RDONLY | O_BINARY, 0666);
@@ -732,16 +733,16 @@ int dbLoad(int did, char_t *filename, int flags)
     /*
         Read entire file into temporary buffer
      */
-    buf = balloc((ssize) sbuf.st_size + 1);
+    buf = galloc((ssize) sbuf.st_size + 1);
 
     //  MOB - unify
 #if CE
-    if (readAscToUni(fd, &buf, sbuf.st_size) != (ssize) sbuf.st_size) {
+    if (greadAscToUni(fd, &buf, sbuf.st_size) != (ssize) sbuf.st_size) {
 #else
     if (gread(fd, buf, (ssize) sbuf.st_size) != (ssize) sbuf.st_size) {
 #endif
         trace(3, T("DB: Persistent data read failed."));
-        bfree(buf);
+        gfree(buf);
         gclose(fd);
         return -1;
     }
@@ -759,16 +760,16 @@ int dbLoad(int did, char_t *filename, int flags)
             trace(5, T("DB: Failed to crack line %s"), ptr);
             continue;
         }
-        a_assert(keyword && *keyword);
+        gassert(keyword && *keyword);
 
         if (gstrcmp(keyword, KEYWORD_TABLE) == 0) {
             /*
                 Table name found, check to see if it's registered
              */
             if (tablename) {
-                bfree(tablename);
+                gfree(tablename);
             }
-            tablename = bstrdup(value);
+            tablename = gstrdup(value);
             tid = dbGetTableId(did, tablename);
 
             if (tid >= 0) {
@@ -806,8 +807,8 @@ int dbLoad(int did, char_t *filename, int flags)
         }
     } while ((ptr = gstrtok(NULL, T("\n"))) != NULL);
 
-    bfree(tablename);
-    bfree(buf);
+    gfree(tablename);
+    gfree(buf);
     return 0;
 }
 
@@ -817,7 +818,7 @@ int dbGetTableId(int did, char_t *tablename)
     int         tid;
     dbTable_t   *pTable;
 
-    a_assert(tablename);
+    gassert(tablename);
 
     for (tid = 0; (tid < dbMaxTables); tid++) {
         if ((pTable = dbListTables[tid]) != NULL) {
@@ -856,7 +857,7 @@ static int getColumnIndex(int tid, char_t *colName)
     int         column;
     dbTable_t   *pTable;
 
-    a_assert(colName);
+    gassert(colName);
 
     if ((tid >= 0) && (tid < dbMaxTables) && (dbListTables[tid] != NULL)) {
         pTable = dbListTables[tid];
@@ -868,6 +869,7 @@ static int getColumnIndex(int tid, char_t *colName)
     return -1;
 }
 
+#endif /* BIT_DATABASE */
 
 /*
     @copy   default

@@ -178,7 +178,7 @@ char_t *websDecode64Block(char_t *s, ssize *len, int flags)
             shift -= 6;
         }
         --i;
-        a_assert((bp + i) < &buffer[size]);
+        gassert((bp + i) < &buffer[size]);
         for (j = 0; j < i; j++) {
             *bp++ = (char) ((bitBuf >> (8 * (2 - j))) & 0xff);
         }

@@ -23,13 +23,13 @@ static sym_fd_t formSymtab = -1;            /* Symbol table for form handlers */
 int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
     sym_t       *sp;
-    char_t      formBuf[FNAMESIZE];
+    char_t      formBuf[BIT_LIMIT_FILENAME];
     char_t      *cp, *formName;
     int         (*fn)(void *sock, char_t *path, char_t *args);
 
-    a_assert(websValid(wp));
-    a_assert(url && *url);
-    a_assert(path && *path == '/');
+    gassert(websValid(wp));
+    gassert(url && *url);
+    gassert(path && *path == '/');
 
     websStats.formHits++;
 
@@ -55,7 +55,7 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_
     } else {
         //  MOB - should be a typedef
         fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.symbol;
-        a_assert(fn);
+        gassert(fn);
         if (fn) {
             (*fn)((void*) wp, formName, query);
         }
@@ -69,8 +69,8 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_
  */
 int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query))
 {
-    a_assert(name && *name);
-    a_assert(fn);
+    gassert(name && *name);
+    gassert(fn);
 
     if (fn == NULL) {
         return -1;
@@ -100,7 +100,7 @@ void websFormClose()
  */
 void websHeader(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     websWriteHeaders(wp, 200, -1, 0);
     websWriteHeader(wp, T("\r\n"));
@@ -110,7 +110,7 @@ void websHeader(webs_t wp)
 
 void websFooter(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     websWrite(wp, T("</html>\n"));
 }
 

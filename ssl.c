@@ -48,7 +48,7 @@ ssize websSSLGets(webs_t wp, char_t **buf)
     ssize       len, nbytes;
     int         sid;
     
-    a_assert(buf);
+    gassert(buf);
     
     *buf = NULL;
     sid = wp->sid;
@@ -72,7 +72,7 @@ ssize websSSLGets(webs_t wp, char_t **buf)
             } else {
                 len = ringqLen(lq);
                 if (len > 0) {
-                    *buf = ballocAscToUni((char *)lq->servp, len);
+                    *buf = gallocAscToUni((char *)lq->servp, len);
                 } else {
                     *buf = NULL;
                 }
@@ -87,7 +87,7 @@ ssize websSSLGets(webs_t wp, char_t **buf)
         if (c == '\n') {
             len = ringqLen(lq);
             if (len > 0) {
-                *buf = ballocAscToUni((char *)lq->servp, len);
+                *buf = gallocAscToUni((char *)lq->servp, len);
             } else {
                 *buf = NULL;
             }
@@ -113,10 +113,10 @@ static int websSSLReadEvent(webs_t wp)
     sslConn_t   *sslConn;
     int         ret, sock, resume;
     
-    a_assert (wp);
-    a_assert(websValid(wp));
+    gassert (wp);
+    gassert(websValid(wp));
     sp = socketPtr(wp->sid);
-    a_assert(sp);
+    gassert(sp);
     
     sock = sp->sock;
     //  What do do about this
@@ -163,7 +163,7 @@ void websSSLSocketEvent(int sid, int mask, void *iwp)
     webs_t    wp;
     
     wp = (webs_t) iwp;
-    a_assert(wp);
+    gassert(wp);
     
     if (! websValid(wp)) {
         return;

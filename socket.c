@@ -68,7 +68,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 {
     socket_t                *sp;
     struct sockaddr_storage addr;
-    SockLenArg              addrlen;
+    GSockLenArg            addrlen;
     int                     family, protocol, sid, rc;
 
     if (port > SOCKET_PORT_MAX) {
@@ -78,7 +78,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
         return -1;
     }
     sp = socketList[sid];
-    a_assert(sp);
+    gassert(sp);
 
     /*
         Bind to the socket endpoint and the call listen() to start listening
@@ -99,7 +99,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
 
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
-        error(E_L, E_LOG, T("Can't bind to address %s:%d, errno %d"), ip ? ip : "*", port, errno);
+        error(T("Can't bind to address %s:%d, errno %d"), ip ? ip : "*", port, errno);
         socketFree(sid);
         return -1;
     }
@@ -129,7 +129,7 @@ int socketConnect(char *ip, int port, int flags)
         return -1;
     }
     sp = socketList[sid];
-    a_assert(sp);
+    gassert(sp);
 
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;       
@@ -222,13 +222,13 @@ static void socketAccept(socket_t *sp)
     char                *ip;
     int                 newSock, nid;
 
-    a_assert(sp);
+    gassert(sp);
 
     /*
         Accept the connection and prevent inheriting by children (F_SETFD)
      */
     len = sizeof(struct sockaddr_in);
-    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (SockLenArg*) &len)) < 0) {
+    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (GSockLenArg*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -243,7 +243,7 @@ static void socketAccept(socket_t *sp)
     if ((nsp = socketList[nid]) == 0) {
         return;
     }
-    a_assert(nsp);
+    gassert(nsp);
     nsp->sock = newSock;
     nsp->flags &= ~SOCKET_LISTENING;
     socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK));
@@ -271,8 +271,8 @@ ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
     socket_t            *sp;
     ssize               bytesRead;
 
-    a_assert(buf);
-    a_assert(errCode);
+    gassert(buf);
+    gassert(errCode);
 
     *errCode = 0;
 
@@ -305,7 +305,7 @@ ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
 
 void socketRegisterInterest(socket_t *sp, int handlerMask)
 {
-    a_assert(sp);
+    gassert(sp);
     sp->handlerMask = handlerMask;
 }
 
@@ -317,7 +317,7 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 {
     int mask;
 
-    a_assert(sp);
+    gassert(sp);
 
     mask = sp->handlerMask;
     sp->handlerMask |= handlerMask;
@@ -417,7 +417,7 @@ int socketSelect(int sid, int timeout)
         if ((sp = socketList[sid]) == NULL) {
             continue;
         }
-        a_assert(sp);
+        gassert(sp);
         /*
                 Set the appropriate bit in the ready masks for the sp->sock.
          */
@@ -496,11 +496,11 @@ int socketSelect(int sid, int timeout)
     nwords = (socketHighestFd + NFDBITS) / NFDBITS;
     len = nwords * sizeof(fd_mask);
 
-    readFds = balloc(len);
+    readFds = galloc(len);
     memset(readFds, 0, len);
-    writeFds = balloc(len);
+    writeFds = galloc(len);
     memset(writeFds, 0, len);
-    exceptFds = balloc(len);
+    exceptFds = galloc(len);
     memset(exceptFds, 0, len);
 
     tv.tv_sec = timeout / 1000;
@@ -524,7 +524,7 @@ int socketSelect(int sid, int timeout)
                 continue;
             }
         }
-        a_assert(sp);
+        gassert(sp);
 
         /*
                 Initialize the ready masks and compute the mask offsets.
@@ -590,9 +590,9 @@ int socketSelect(int sid, int timeout)
             }
         }
     }
-    bfree(readFds);
-    bfree(writeFds);
-    bfree(exceptFds);
+    gfree(readFds);
+    gfree(writeFds);
+    gfree(exceptFds);
     return nEvents;
 }
 #endif /* WINDOWS || CE */
@@ -631,7 +631,7 @@ static int socketDoEvent(socket_t *sp)
     ringq_t     *rq;
     int         sid;
 
-    a_assert(sp);
+    gassert(sp);
 
     sid = sp->sid;
     if (sp->currentEvents & SOCKET_READABLE) {
@@ -690,7 +690,7 @@ int socketSetBlock(int sid, int on)
     int             oldBlock;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        a_assert(0);
+        gassert(0);
         return 0;
     }
     oldBlock = (sp->flags & SOCKET_BLOCK);
@@ -787,8 +787,8 @@ ssize socketWrite(int sid, char *buf, ssize bufsize)
     ringq_t     *rq;
     ssize       len, bytesWritten, room;
 
-    a_assert(buf);
-    a_assert(bufsize >= 0);
+    gassert(buf);
+    gassert(bufsize >= 0);
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -838,9 +838,9 @@ ssize socketWriteString(int sid, char_t *buf)
     ssize   r, len;
  
     len = gstrlen(buf);
-    byteBuf = ballocUniToAsc(buf, len);
+    byteBuf = gallocUniToAsc(buf, len);
     r = socketWrite(sid, byteBuf, len);
-    bfree(byteBuf);
+    gfree(byteBuf);
     return r;
  #else
     return socketWrite(sid, buf, strlen(buf));
@@ -862,8 +862,8 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
     ssize       len, room, bytesRead;
     int         errCode;
 
-    a_assert(buf);
-    a_assert(bufsize > 0);
+    gassert(buf);
+    gassert(bufsize > 0);
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -936,7 +936,7 @@ ssize socketGets(int sid, char_t **buf)
     char        c;
     ssize       rc, len;
 
-    a_assert(buf);
+    gassert(buf);
     *buf = NULL;
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -957,7 +957,7 @@ ssize socketGets(int sid, char_t **buf)
         /* 
             Validate length of request.  Ignore long strings without newlines to safeguard against long URL attacks.
          */
-        if (ringqLen(lq) > E_MAX_REQUEST) {
+        if (ringqLen(lq) > BIT_LIMIT_HEADER) {
             c = '\n';
         }
         /*
@@ -967,7 +967,7 @@ ssize socketGets(int sid, char_t **buf)
         if (c == '\n') {
             len = ringqLen(lq);
             if (len > 0) {
-                *buf = ballocAscToUni((char *)lq->servp, len);
+                *buf = gallocAscToUni((char *)lq->servp, len);
             } else {
                 *buf = NULL;
             }
@@ -1106,9 +1106,6 @@ ssize socketCanWrite(int sid)
 }
 
 
-/*
-    Add one to allow the user to write exactly SOCKET_BUFSIZ
- */
 void socketSetBufferSize(int sid, int in, int line, int out)
 {
     socket_t    *sp;
@@ -1170,10 +1167,10 @@ static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode
 {
     ssize   bytes;
 
-    a_assert(sp);
-    a_assert(buf);
-    a_assert(toWrite > 0);
-    a_assert(errCode);
+    gassert(sp);
+    gassert(buf);
+    gassert(toWrite > 0);
+    gassert(errCode);
 
     *errCode = 0;
 
@@ -1212,7 +1209,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
     socket_t    *sp;
     int         sid;
 
-    if ((sid = hAllocEntry((void***) &socketList, &socketMax, sizeof(socket_t))) < 0) {
+    if ((sid = gallocEntry((void***) &socketList, &socketMax, sizeof(socket_t))) < 0) {
         return -1;
     }
     sp = socketList[sid];
@@ -1222,7 +1219,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
     sp->fileHandle = -1;
     sp->saveMask = -1;
     if (ip) {
-        sp->ip = bstrdup(ip);
+        sp->ip = gstrdup(ip);
     }
 
     /*
@@ -1231,16 +1228,13 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
     sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING | SOCKET_OWN_BUFFERS);
 
     if (!(flags & SOCKET_OWN_BUFFERS)) { 
-        /*
-            Add one to allow the user to write exactly SOCKET_BUFSIZ
-         */
-        ringqOpen(&sp->inBuf, SOCKET_BUFSIZ, SOCKET_BUFSIZ);
-        ringqOpen(&sp->outBuf, SOCKET_BUFSIZ + 1, SOCKET_BUFSIZ + 1);
+        ringqOpen(&sp->inBuf, BIT_LIMIT_SOCKET_BUFFER + 1, BIT_LIMIT_SOCKET_BUFFER + 1);
+        ringqOpen(&sp->outBuf, BIT_LIMIT_SOCKET_BUFFER + 1, BIT_LIMIT_SOCKET_BUFFER + 1);
     } else {
         memset(&sp->inBuf, 0x0, sizeof(ringq_t));
         memset(&sp->outBuf, 0x0, sizeof(ringq_t));
     }
-    ringqOpen(&sp->lineBuf, SOCKET_BUFSIZ, -1);
+    ringqOpen(&sp->lineBuf, BIT_LIMIT_SOCKET_BUFFER, -1);
     return sid;
 }
 
@@ -1280,9 +1274,9 @@ void socketFree(int sid)
         ringqClose(&sp->outBuf);
     }
     ringqClose(&sp->lineBuf);
-    bfree(sp->ip);
-    bfree(sp);
-    socketMax = hFree((void***) &socketList, sid);
+    gfree(sp->ip);
+    gfree(sp);
+    socketMax = gfreeHandle((void***) &socketList, sid);
 
     /*
         Calculate the new highest socket number
@@ -1303,11 +1297,11 @@ void socketFree(int sid)
 socket_t *socketPtr(int sid)
 {
     if (sid < 0 || sid >= socketMax || socketList[sid] == NULL) {
-        a_assert(NULL);
+        gassert(NULL);
         errno = EBADF;
         return NULL;
     }
-    a_assert(socketList[sid]);
+    gassert(socketList[sid]);
     return socketList[sid];
 }
 
@@ -1360,7 +1354,7 @@ int socketGetBlock(int sid)
     socket_t    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        a_assert(0);
+        gassert(0);
         return 0;
     }
     return (sp->flags & SOCKET_BLOCK);
@@ -1372,7 +1366,7 @@ int socketGetMode(int sid)
     socket_t    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        a_assert(0);
+        gassert(0);
         return 0;
     }
     return sp->flags;
@@ -1384,7 +1378,7 @@ void socketSetMode(int sid, int mode)
     socket_t    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        a_assert(0);
+        gassert(0);
         return;
     }
     sp->flags = mode;
@@ -1408,13 +1402,13 @@ int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, SockLenArg *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, GSockLenArg *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
     int                 v6;
 
-    a_assert(addr);
+    gassert(addr);
     memset((char*) &hints, '\0', sizeof(hints));
 
     /*
@@ -1432,7 +1426,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
     } else {
         hints.ai_family = AF_UNSPEC;
     }
-    stritoa(port, portBuf, sizeof(portBuf));
+    gstritoa(port, portBuf, sizeof(portBuf));
 
     /*  
         Try to sleuth the address to avoid duplicate address lookups. Then try IPv4 first then IPv6.
@@ -1469,7 +1463,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 }
 #else
 
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, SockLenArg *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, GSockLenArg *addrlen)
 {
     struct sockaddr_in  sa;
 
@@ -1489,7 +1483,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
          */
         sa.sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
         if (sa.sin_addr.s_addr < 0) {
-            a_assert(0);
+            gassert(0);
             return 0;
         }
 #else
@@ -1551,7 +1545,7 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
     uchar   *cp;
     sa = (struct sockaddr_in*) addr;
     cp = (uchar*) &sa->sin_addr;
-    fmtStatic(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
+    gfmtStatic(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
 #endif
     *port = ntohs(sa->sin_port);
 #endif
@@ -1621,13 +1615,13 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
                 *pport = (*++cp == '*') ? -1 : atoi(cp);
 
                 /* Set ipAddr to ipv6 address without brackets */
-                ip = bstrdup(ipAddrPort + 1);
+                ip = gstrdup(ipAddrPort + 1);
                 cp = strchr(ip, ']');
                 *cp = '\0';
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
-                ip = bstrdup(ipAddrPort + 1);
+                ip = gstrdup(ipAddrPort + 1);
                 if ((cp = strchr(ip, ']')) != 0) {
                     *cp = '\0';
                 }
@@ -1639,7 +1633,7 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
             }
         } else {
             /* Handles a:b:c:d:e:f:g:h:i case (no port) */
-            ip = bstrdup(ipAddrPort);
+            ip = gstrdup(ipAddrPort);
 
             /* No port present, use callers default */
             *pport = defaultPort;
@@ -1649,7 +1643,7 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
         /*  
             ipv4 
          */
-        ip = bstrdup(ipAddrPort);
+        ip = gstrdup(ipAddrPort);
         if ((cp = strchr(ip, ':')) != 0) {
             *cp++ = '\0';
             if (*cp == '*') {

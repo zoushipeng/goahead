@@ -1,13 +1,13 @@
 /*
-    balloc.c -- Block allocation module
+    galloc.c -- Block allocation module
 
     This file implements a fast block allocation scheme suitable for operating systems whoes malloc suffers from
     fragmentation.  This allocator maintains block class queues for rapid allocation and minimal fragmentation. This
     allocator does not coalesce blocks. The storage space may be populated statically or via the traditional malloc
     mechanisms. Large blocks greater than the maximum class size may be allocated from the O/S or run-time system via
-    malloc. To permit the use of malloc, call bopen with flags set to B_USE_MALLOC (this is the default).  It is
-    recommended that bopen be called first thing in the application.  If it is not, it will be called with default
-    values on the first call to balloc(). Note that this code is not designed for multi-threading purposes and it
+    malloc. To permit the use of malloc, call gopen with flags set to G_USE_MALLOC (this is the default).  It is
+    recommended that gopen be called first thing in the application.  If it is not, it will be called with default
+    values on the first call to galloc(). Note that this code is not designed for multi-threading purposes and it
     depends on newly declared variables being initialized to zero.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -27,65 +27,65 @@
 #define ROUNDUP4(size) ((size) % 4) ? (size) + (4 - ((size) % 4)) : (size)
 
 /*
-    bQhead blocks are created as the original memory allocation is freed up. See bfree.
+    gQhead blocks are created as the original memory allocation is freed up. See gfree.
  */
-static bType    *bQhead[B_MAX_CLASS];   /* Per class block q head */
-static char     *bFreeBuf;              /* Pointer to free memory */
-static char     *bFreeNext;             /* Pointer to next free mem */
-static int      bFreeSize;              /* Size of free memory */
-static int      bFreeLeft;              /* Size of free left for use */
-static int      bFlags = B_USE_MALLOC;  /* Default to auto-malloc */
-static int      bopenCount = 0;         /* Num tasks using balloc */
+static gType    *gQhead[G_MAX_CLASS];   /* Per class block q head */
+static char     *gfreeBuf;              /* Pointer to free memory */
+static char     *gfreeNext;             /* Pointer to next free mem */
+static int      gfreeSize;              /* Size of free memory */
+static int      gfreeLeft;              /* Size of free left for use */
+static int      gFlags = G_USE_MALLOC;  /* Default to auto-malloc */
+static int      gopenCount = 0;         /* Num tasks using galloc */
 
 /*************************** Forward Declarations *****************************/
 
-static int ballocGetSize(int size, int *q);
+static int gallocGetSize(ssize size, int *q);
 
 /********************************** Code **************************************/
 /*
-    Initialize the balloc module. bopen should be called the very first thing after the application starts and bclose
-    should be called the last thing before exiting. If bopen is not called, it will be called on the first allocation
+    Initialize the galloc module. gopen should be called the very first thing after the application starts and bclose
+    should be called the last thing before exiting. If gopen is not called, it will be called on the first allocation
     with default values. "buf" points to memory to use of size "bufsize". If buf is NULL, memory is allocated using
-    malloc. flags may be set to B_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial buffer of
+    malloc. flags may be set to G_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial buffer of
     size bufsize for use by the application.
  */
-int bopen(void *buf, int bufsize, int flags)
+int gopenAlloc(void *buf, int bufsize, int flags)
 {
-    bFlags = flags;
+    gFlags = flags;
 
     /*
-        If bopen already called by a shared process, just increment the count and return
+        If gopen already called by a shared process, just increment the count and return
      */
-    if (++bopenCount > 1) {
+    if (++gopenCount > 1) {
         return 0;
     }
-
+    if (buf == NULL) {
         if (bufsize == 0) {
-            bufsize = B_DEFAULT_MEM;
+            bufsize = G_DEFAULT_MEM;
         }
         bufsize = ROUNDUP4(bufsize);
         if ((buf = malloc(bufsize)) == NULL) {
             /* 
-                Resetting bopenCount lets client code decide to attempt to call bopen() again with a smaller memory request.
+                Resetting gopenCount lets client code decide to attempt to call gopen() again with a smaller memory request.
             */
-             --bopenCount;
+             --gopenCount;
             return -1;
         }
     } else {
-        bFlags |= B_USER_BUF;
+        gFlags |= G_USER_BUF;
     }
-    bFreeSize = bFreeLeft = bufsize;
-    bFreeBuf = bFreeNext = buf;
-    memset(bQhead, 0, sizeof(bQhead));
+    gfreeSize = gfreeLeft = bufsize;
+    gfreeBuf = gfreeNext = buf;
+    memset(gQhead, 0, sizeof(gQhead));
     return 0;
 }
 
 
-void bclose()
+void gcloseAlloc()
 {
-    if (--bopenCount <= 0 && !(bFlags & B_USER_BUF)) {
-        free(bFreeBuf);
-        bopenCount = 0;
+    if (--gopenCount <= 0 && !(gFlags & G_USER_BUF)) {
+        free(gfreeBuf);
+        gopenCount = 0;
     }
 }
 
@@ -93,31 +93,31 @@ void bclose()
 /*
     Allocate a block of the requested size. First check the block queues for a suitable one.
  */
-void *balloc(int size)
+void *galloc(ssize size)
 {
-    bType   *bp;
+    gType   *bp;
     int     q, memSize;
 
     /*
-        Call bopen with default values if the application has not yet done so
+        Call gopen with default values if the application has not yet done so
      */
-    if (bFreeBuf == NULL) {
-        if (bopen(NULL, B_DEFAULT_MEM, 0) < 0) {
+    if (gfreeBuf == NULL) {
+        if (gopenAlloc(NULL, G_DEFAULT_MEM, 0) < 0) {
             return NULL;
         }
     }
     if (size < 0) {
         return NULL;
     }
-    memSize = ballocGetSize(size, &q);
+    memSize = gallocGetSize(size, &q);
 
-    if (q >= B_MAX_CLASS) {
+    if (q >= G_MAX_CLASS) {
         /*
             Size if bigger than the maximum class. Malloc if use has been okayed
          */
-        if (bFlags & B_USE_MALLOC) {
+        if (gFlags & G_USE_MALLOC) {
             memSize = ROUNDUP4(memSize);
-            bp = (bType*) malloc(memSize);
+            bp = (gType*) malloc(memSize);
             if (bp == NULL) {
                 traceRaw(T("B: malloc failed\n"));
                 return NULL;
@@ -129,47 +129,47 @@ void *balloc(int size)
         /*
             the u.size is the actual size allocated for data
          */
-        bp->u.size = memSize - sizeof(bType);
-        bp->flags = B_MALLOCED;
+        bp->u.size = memSize - sizeof(gType);
+        bp->flags = G_MALLOCED;
 
-    } else if ((bp = bQhead[q]) != NULL) {
+    } else if ((bp = gQhead[q]) != NULL) {
         /*
             Take first block off the relevant q if non-empty
          */
-        bQhead[q] = bp->u.next;
-        bp->u.size = memSize - sizeof(bType);
+        gQhead[q] = bp->u.next;
+        bp->u.size = memSize - sizeof(gType);
         bp->flags = 0;
 
     } else {
-        if (bFreeLeft > memSize) {
+        if (gfreeLeft > memSize) {
             /*
                 The q was empty, and the free list has spare memory so create a new block out of the primary free block
              */
-            bp = (bType*) bFreeNext;
-            bFreeNext += memSize;
-            bFreeLeft -= memSize;
-            bp->u.size = memSize - sizeof(bType);
+            bp = (gType*) gfreeNext;
+            gfreeNext += memSize;
+            gfreeLeft -= memSize;
+            bp->u.size = memSize - sizeof(gType);
             bp->flags = 0;
 
-        } else if (bFlags & B_USE_MALLOC) {
+        } else if (gFlags & G_USE_MALLOC) {
             /*
                 Nothing left on the primary free list, so malloc a new block
              */
             memSize = ROUNDUP4(memSize);
-            if ((bp = (bType*) malloc(memSize)) == NULL) {
+            if ((bp = (gType*) malloc(memSize)) == NULL) {
                 traceRaw(T("B: malloc failed\n"));
                 return NULL;
             }
-            bp->u.size = memSize - sizeof(bType);
-            bp->flags = B_MALLOCED;
+            bp->u.size = memSize - sizeof(gType);
+            bp->flags = G_MALLOCED;
 
         } else {
             traceRaw(T("B: malloc failed\n"));
             return NULL;
         }
     }
-    bp->flags |= B_INTEGRITY;
-    return (void*) ((char*) bp + sizeof(bType));
+    bp->flags |= G_INTEGRITY;
+    return (void*) ((char*) bp + sizeof(gType));
 }
 
 
@@ -177,30 +177,30 @@ void *balloc(int size)
     Free a block back to the relevant free q. We don't free back to the O/S or run time system unless the block is
     greater than the maximum class size. We also do not coalesce blocks.  
  */
-void bfree(void *mp)
+void gfree(void *mp)
 {
-    bType   *bp;
+    gType   *bp;
     int     q, memSize;
 
     if (mp == 0) {
         return;
     }
-    bp = (bType*) ((char*) mp - sizeof(bType));
-    a_assert((bp->flags & B_INTEGRITY_MASK) == B_INTEGRITY);
-    if ((bp->flags & B_INTEGRITY_MASK) != B_INTEGRITY) {
+    bp = (gType*) ((char*) mp - sizeof(gType));
+    gassert((bp->flags & G_INTEGRITY_MASK) == G_INTEGRITY);
+    if ((bp->flags & G_INTEGRITY_MASK) != G_INTEGRITY) {
         return;
     }
-    memSize = ballocGetSize(bp->u.size, &q);
-    if (bp->flags & B_MALLOCED) {
+    memSize = gallocGetSize(bp->u.size, &q);
+    if (bp->flags & G_MALLOCED) {
         free(bp);
         return;
     }
     /*
         Simply link onto the head of the relevant q
      */
-    bp->u.next = bQhead[q];
-    bQhead[q] = bp;
-    bp->flags = B_FILL_WORD;
+    bp->u.next = gQhead[q];
+    gQhead[q] = bp;
+    bp->flags = G_FILL_WORD;
 }
 
 
@@ -208,7 +208,7 @@ void bfree(void *mp)
 /*
     Duplicate a string, allow NULL pointers and then dup an empty string.
  */
-char *bstrdupA(char *s)
+char *gstrdupA(char *s)
 {
     char    *cp;
     int     len;
@@ -217,7 +217,7 @@ char *bstrdupA(char *s)
         s = "";
     }
     len = strlen(s) + 1;
-    if (cp = balloc(len)) {
+    if (cp = galloc(len)) {
         strcpy(cp, s);
     }
     return cp;
@@ -226,19 +226,19 @@ char *bstrdupA(char *s)
 #endif /* UNICODE */
 
 /*
-    Duplicate an ascii string, allow NULL pointers and then dup an empty string. If UNICODE, bstrdup above works with
+    Duplicate an ascii string, allow NULL pointers and then dup an empty string. If UNICODE, gstrdup above works with
     wide chars, so we need this routine *  for ascii strings. 
  */
-char_t *bstrdup(char_t *s)
+char_t *gstrdup(char_t *s)
 {
     char_t  *cp;
-    int     len;
+    ssize   len;
 
     if (s == NULL) {
         s = T("");
     }
     len = gstrlen(s) + 1;
-    if ((cp = balloc(len * sizeof(char_t))) != NULL) {
+    if ((cp = galloc(len * sizeof(char_t))) != NULL) {
         gstrncpy(cp, s, len * sizeof(char_t));
     }
     return cp;
@@ -249,16 +249,16 @@ char_t *bstrdup(char_t *s)
     Reallocate a block. Allow NULL pointers and just do a malloc. Note: if the realloc fails, we return NULL and the
     previous buffer is preserved.
  */
-void *brealloc(void *mp, int newsize)
+void *grealloc(void *mp, ssize newsize)
 {
-    bType   *bp;
+    gType   *bp;
     void    *newbuf;
 
     if (mp == NULL) {
-        return balloc(newsize);
+        return galloc(newsize);
     }
-    bp = (bType*) ((char*) mp - sizeof(bType));
-    a_assert((bp->flags & B_INTEGRITY_MASK) == B_INTEGRITY);
+    bp = (gType*) ((char*) mp - sizeof(gType));
+    gassert((bp->flags & G_INTEGRITY_MASK) == G_INTEGRITY);
 
     /*
         If the allocated memory already has enough room just return the previously allocated address.
@@ -266,28 +266,28 @@ void *brealloc(void *mp, int newsize)
     if (bp->u.size >= newsize) {
         return mp;
     }
-    if ((newbuf = balloc(newsize)) != NULL) {
+    if ((newbuf = galloc(newsize)) != NULL) {
         memcpy(newbuf, mp, bp->u.size);
-        bfree(mp);
+        gfree(mp);
     }
     return newbuf;
 }
 
 
 /*
-    Find the size of the block to be balloc'ed.  It takes in a size, finds the smallest binary block it fits into, adds
+    Find the size of the block to be galloc'ed.  It takes in a size, finds the smallest binary block it fits into, adds
     an overhead amount and returns.  q is the binary size used to keep track of block sizes in use.  Called from both
-    balloc and bfree.
+    galloc and gfree.
  */
-static int ballocGetSize(int size, int *q)
+static int gallocGetSize(ssize size, int *q)
 {
     int mask;
 
-    mask = (size == 0) ? 0 : (size-1) >> B_SHIFT;
+    mask = (size == 0) ? 0 : (size-1) >> G_SHIFT;
     for (*q = 0; mask; mask >>= 1) {
         *q = *q + 1;
     }
-    return ((1 << (B_SHIFT + *q)) + sizeof(bType));
+    return ((1 << (G_SHIFT + *q)) + sizeof(gType));
 }
 
 
@@ -296,11 +296,10 @@ static int ballocGetSize(int size, int *q)
 /*
     Stubs
  */
-int bopen(void *buf, int bufsize, int flags) { return 0; }
-void bclose() { }
+int gopenAlloc(void *buf, int bufsize, int flags) { return 0; }
+void gcloseAlloc() { }
 
-//  MOB - rename
-char_t *bstrdupNoBalloc(char_t *s)
+char_t *gstrdupNoAlloc(char_t *s)
 {
 #if UNICODE
     if (s) {
@@ -309,12 +308,12 @@ char_t *bstrdupNoBalloc(char_t *s)
         return wcsdup(T(""));
     }
 #else
-    return bstrdupANoBalloc(s);
+    return gstrdupANoAlloc(s);
 #endif
 }
 
 
-char *bstrdupANoBalloc(char *s)
+char *gstrdupANoAlloc(char *s)
 {
     char*   buf;
 

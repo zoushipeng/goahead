@@ -54,7 +54,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (argind >= argc) usage();
             home = argv[++argind];
             if (chdir(home) < 0) {
-                error(E_L, E_LOG, T("Can't change directory to %s"), home);
+                error(T("Can't change directory to %s"), home);
                 exit(-1);
             }
 #if BIT_DEBUG_LOG
@@ -80,7 +80,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     documents = BIT_DOCUMENTS;
     if (argc > argind) {
         if (argc > (argind + 2)) usage();
-        ipAddrPort = bstrdup(argv[argind++]);
+        ipAddrPort = gstrdup(argv[argind++]);
         socketParseAddress(ipAddrPort, &ip, &port, 80);
         if (argc > argind) {
             documents = argv[argind++];
@@ -88,7 +88,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
     initPlatform();
     if (websOpen() < 0) {
-        error(E_L, E_LOG, T("Can't initialize Goahead server. Exiting."));
+        error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
 #if BIT_PACK_SSL
@@ -103,7 +103,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
 #endif
     
     if (websOpenServer(ip, port, sslPort, documents) < 0) {
-        error(E_L, E_LOG, T("Can't open GoAhead server. Exiting."));
+        error(T("Can't open GoAhead server. Exiting."));
         return -1;
     }
     websUrlHandlerDefine(T(""), 0, 0, websSecurityHandler, WEBS_HANDLER_FIRST);

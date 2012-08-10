@@ -43,7 +43,7 @@ char_t          *websIpaddrUrl = NULL;  /* URL to access server */
 
 /*
     htmExt is declared in this way to avoid a Linux and Solaris segmentation
-    fault when a constant string is passed to strlower which could change its
+    fault when a constant string is passed to gstrlower which could change its
     argument.
  */
 static char_t  htmExt[] = T(".htm");
@@ -233,7 +233,7 @@ int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
 {
     websMimeType    *mt;
 
-    a_assert(port > 0);
+    gassert(port > 0);
 
     if (++websOpenCount != 1) {
         return websPort;
@@ -251,7 +251,7 @@ int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
         Create a mime type lookup table for quickly determining the content type
      */
     websMime = symOpen(WEBS_SYM_INIT * 4);
-    a_assert(websMime >= 0);
+    gassert(websMime >= 0);
     for (mt = websMimeList; mt->type; mt++) {
         symEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
     }
@@ -265,7 +265,7 @@ int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
 
 #if BIT_ACCESS_LOG
     accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
-    a_assert(accessFd >= 0);
+    gassert(accessFd >= 0);
 #endif
     trace(0, T("Started HTTP service on %s:%d from %s\n"), ip ? ip : "*", port, documents);
     trace(0, T("Started HTTPS service on %s:%d from %s\n"), ip ? ip : "*", sslPort, documents);
@@ -310,22 +310,22 @@ void websCloseServer()
 int websOpenListen(char_t *ip, int port, int sslPort)
 {
     if ((websListenSock = socketListen(ip, port, websAccept, 0)) < 0) {
-        error(E_L, E_USER, T("Couldn't open a socket on port %d"), port);
+        error(T("Couldn't open a socket on port %d"), port);
         return -1;
     } 
     /*
         Determine the full URL address to access the home page for this web server
      */
     websPort = port;
-    bfree(websHostUrl);
-    bfree(websIpaddrUrl);
+    gfree(websHostUrl);
+    gfree(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
     if (port == 80) {
-        websHostUrl = bstrdup(websHost);
-        websIpaddrUrl = bstrdup(websIpaddr);
+        websHostUrl = gstrdup(websHost);
+        websIpaddrUrl = gstrdup(websIpaddr);
     } else {
-        fmtAlloc(&websHostUrl, WEBS_MAX_URL + 80, T("%s:%d"), websHost, port);
-        fmtAlloc(&websIpaddrUrl, WEBS_MAX_URL + 80, T("%s:%d"), websIpaddr, port);
+        gfmtAlloc(&websHostUrl, BIT_LIMIT_URL + 80, T("%s:%d"), websHost, port);
+        gfmtAlloc(&websIpaddrUrl, BIT_LIMIT_URL + 80, T("%s:%d"), websIpaddr, port);
     }
 
 #if BIT_PACK_SSL
@@ -361,8 +361,8 @@ void websCloseListen()
         socketCloseConnection(websListenSock);
         websListenSock = -1;
     }
-    bfree(websHostUrl);
-    bfree(websIpaddrUrl);
+    gfree(websHostUrl);
+    gfree(websIpaddrUrl);
     websIpaddrUrl = websHostUrl = NULL;
 }
 
@@ -375,9 +375,9 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     char        *cp;
     struct sockaddr_in ifAddr;
 
-    a_assert(ipaddr && *ipaddr);
-    a_assert(sid >= 0);
-    a_assert(port >= 0);
+    gassert(ipaddr && *ipaddr);
+    gassert(sid >= 0);
+    gassert(port >= 0);
 
     /*
         Allocate a new handle for this accepted connection. This will allocate a webs_t structure in the webs[] list
@@ -386,17 +386,17 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         return -1;
     }
     wp = webs[wid];
-    a_assert(wp);
+    gassert(wp);
     wp->listenSid = listenSid;
     lp = socketPtr(listenSid);
 
-    ascToUni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
+    gAscToUni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
 
     /*
         Get the ip address of the interface that accept the connection.
      */
     len = sizeof(struct sockaddr_in);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (SockLenArg*) &len) < 0) {
+    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (GSockLenArg*) &len) < 0) {
         return -1;
     }
     cp = inet_ntoa(ifAddr.sin_addr);
@@ -428,7 +428,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = emfSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+    wp->timeout = gSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
     trace(8, T("accept request\n"));
     return 0;
 }
@@ -443,7 +443,7 @@ static void socketEvent(int sid, int mask, void* iwp)
     webs_t  wp;
 
     wp = (webs_t) iwp;
-    a_assert(wp);
+    gassert(wp);
 
     if (! websValid(wp)) {
         return;
@@ -469,8 +469,8 @@ void websReadEvent(webs_t wp)
     ssize   len, nbytes, size;
     int     rc, done, fd;
 
-    a_assert(wp);
-    a_assert(websValid(wp));
+    gassert(wp);
+    gassert(websValid(wp));
 
     text = NULL;
     fd = -1;
@@ -481,7 +481,7 @@ void websReadEvent(webs_t wp)
         data.  
      */
     for (done = 0; !done; ) {
-        bfree(text);
+        gfree(text);
         text = NULL;
         /*
              Get more input into "text". Returns 0, if more data is needed to continue, -1 if finished with the request,
@@ -540,7 +540,7 @@ void websReadEvent(webs_t wp)
                     len = gstrlen(wp->query);
                     if (text) {
                         size = (len + gstrlen(text) + 2) * sizeof(char_t);
-                        wp->query = brealloc(wp->query, size);
+                        wp->query = grealloc(wp->query, size);
                         wp->query[len++] = '&';
                         strcpy(&wp->query[len], text);
                     }
@@ -552,13 +552,13 @@ void websReadEvent(webs_t wp)
                     if (text != NULL) {
                         len = gstrlen(wp->query);
                         size = (len +  gstrlen(text) + 1) * sizeof(char_t);
-                        wp->query = brealloc(wp->query, size);
+                        wp->query = grealloc(wp->query, size);
                         gstrcpy(&wp->query[len], text);
                     }
                 }
 
             } else {
-                wp->query = bstrdup(text);
+                wp->query = gstrdup(text);
             }
             /*
                 Calculate how much more post data is to be read.
@@ -600,14 +600,14 @@ void websReadEvent(webs_t wp)
             if (wp->query && *wp->query && !(wp->flags & WEBS_POST_DATA)) {
                 len = gstrlen(wp->query);
                 size = (len + gstrlen(text) + 2) * sizeof(char_t);
-                wp->query = brealloc(wp->query, size);
+                wp->query = grealloc(wp->query, size);
                 if (wp->query) {
                     wp->query[len++] = '&';
                     gstrcpy(&wp->query[len], text);
                 }
 
             } else {
-                wp->query = bstrdup(text);
+                wp->query = gstrdup(text);
             }
             wp->flags |= WEBS_POST_DATA;
             done++;
@@ -622,7 +622,7 @@ void websReadEvent(webs_t wp)
     if (fd != -1) {
         fd = gclose (fd);
     }
-    bfree(text);
+    gfree(text);
 }
 
 
@@ -637,12 +637,12 @@ void websReadEvent(webs_t wp)
 static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes) 
 {
     char_t  *text;
-    char    buf[WEBS_SOCKET_BUFSIZ+1];
+    char    buf[BIT_LIMIT_SOCKET_BUFFER + 1];
     ssize   nbytes, len;
 
-    a_assert(websValid(wp));
-    a_assert(ptext);
-    a_assert(pnbytes);
+    gassert(websValid(wp));
+    gassert(ptext);
+    gassert(pnbytes);
 
     *ptext = text = NULL;
     *pnbytes = 0;
@@ -651,7 +651,7 @@ static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes)
         If this request is a POST with a content length, we know the number of bytes to read so we use socketRead().
      */
     if (wp->state == WEBS_POST_CLEN) {
-        len = (wp->clen > WEBS_SOCKET_BUFSIZ) ? WEBS_SOCKET_BUFSIZ : wp->clen;
+        len = (wp->clen > BIT_LIMIT_SOCKET_BUFFER) ? BIT_LIMIT_SOCKET_BUFFER : wp->clen;
     } else {
         len = 0;
     }
@@ -679,7 +679,7 @@ static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes)
                 Convert to UNICODE if necessary.  First be sure the string is NULL terminated.
              */
             buf[nbytes] = '\0';
-            if ((text = ballocAscToUni(buf, nbytes)) == NULL) {
+            if ((text = gallocAscToUni(buf, nbytes)) == NULL) {
                 websError(wp, 503, T("Insufficient memory"));
                 return -1;
             }
@@ -777,8 +777,8 @@ static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes)
             return -1;
         }
     }
-    a_assert(text);
-    a_assert(nbytes > 0);
+    gassert(text);
+    gassert(nbytes > 0);
     *ptext = text;
     *pnbytes = nbytes;
 
@@ -805,8 +805,8 @@ static int parseFirstLine(webs_t wp, char_t *text)
     char_t  *buf;
     int     testPort;
 
-    a_assert(websValid(wp));
-    a_assert(text && *text);
+    gassert(websValid(wp));
+    gassert(text && *text);
 
     /*
         Determine the request type: GET, HEAD or POST
@@ -849,9 +849,9 @@ static int parseFirstLine(webs_t wp, char_t *text)
         websError(wp, 400, T("Bad URL format"));
         return -1;
     }
-    wp->url = bstrdup(url);
-    wp->dir = bstrdup( websGetDefaultDir());
-    fmtAlloc(&wp->lpath, FNAMESIZE, "%s%s", wp->dir, wp->path);
+    wp->url = gstrdup(url);
+    wp->dir = gstrdup( websGetDefaultDir());
+    gfmtAlloc(&wp->lpath, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
 
 #if BIT_CGI
     if (gstrstr(url, BIT_CGI_BIN) != NULL) {
@@ -861,10 +861,10 @@ static int parseFirstLine(webs_t wp, char_t *text)
         }
     }
 #endif
-    wp->query = bstrdup(query);
-    wp->host = bstrdup(host);
-    wp->protocol = bstrdup(proto);
-    wp->protoVersion = bstrdup(protoVer);
+    wp->query = gstrdup(query);
+    wp->host = gstrdup(host);
+    wp->protocol = gstrdup(proto);
+    wp->protoVersion = gstrdup(protoVer);
     if (gmatch(protoVer, "HTTP/1.1")) {
         wp->flags |= WEBS_KEEP_ALIVE | WEBS_HTTP11;
     }
@@ -874,9 +874,9 @@ static int parseFirstLine(webs_t wp, char_t *text)
         wp->port = gatoi(port);
     }
     if (gstrcmp(ext, T(".asp")) == 0) {
-        wp->flags |= WEBS_ASP;
+        wp->flags |= WEBS_JS;
     }
-    bfree(buf);
+    gfree(buf);
     websUrlType(url, wp->type, TSZ(wp->type));
     ringqFlush(&wp->header);
     return 0;
@@ -892,7 +892,7 @@ static void parseHeaders(webs_t wp)
 {
     char_t  *authType, *upperKey, *cp, *lp, *key, *value, *userAuth;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     websSetVar(wp, T("HTTP_AUTHORIZATION"), T(""));
 
@@ -915,33 +915,33 @@ static void parseHeaders(webs_t wp)
         while (gisspace(*value)) {
             value++;
         }
-        strlower(key);
+        gstrlower(key);
 
         /*
             Create a variable (CGI) for each line in the header
          */
-        fmtAlloc(&upperKey, (gstrlen(key) + 6), T("HTTP_%s"), key);
+        gfmtAlloc(&upperKey, (gstrlen(key) + 6), T("HTTP_%s"), key);
         for (cp = upperKey; *cp; cp++) {
             if (*cp == '-') {
                 *cp = '_';
             }
         }
-        strupper(upperKey);
+        gstrupper(upperKey);
         websSetVar(wp, upperKey, value);
-        bfree(upperKey);
+        gfree(upperKey);
 
         /*
             Track the requesting agent (browser) type
          */
         if (gstrcmp(key, T("user-agent")) == 0) {
-            wp->userAgent = bstrdup(value);
+            wp->userAgent = gstrdup(value);
 
-        } else if (gstricmp(key, T("authorization")) == 0) {
+        } else if (gcaselesscmp(key, T("authorization")) == 0) {
             /*
                 Determine the type of Authorization Request
              */
-            authType = bstrdup (value);
-            a_assert (authType);
+            authType = gstrdup (value);
+            gassert (authType);
             /*          
                 Truncate authType at the next non-alpha character
              */
@@ -951,17 +951,17 @@ static void parseHeaders(webs_t wp)
             }
             *cp = '\0';
 
-            wp->authType = bstrdup(authType);
-            bfree(authType);
+            wp->authType = gstrdup(authType);
+            gfree(authType);
 
-            if (gstricmp(wp->authType, T("basic")) == 0) {
+            if (gcaselesscmp(wp->authType, T("basic")) == 0) {
                 /*
                     The incoming value is username:password (Basic authentication)
                  */
                 if ((cp = gstrchr(value, ' ')) != NULL) {
                     *cp = '\0';
-                    bfree(wp->authType);
-                    wp->authType = bstrdup(value);
+                    gfree(wp->authType);
+                    wp->authType = gstrdup(value);
                     userAuth = websDecode64(++cp);
                 } else {
                     userAuth = websDecode64(value);
@@ -973,13 +973,13 @@ static void parseHeaders(webs_t wp)
                     *cp++ = '\0';
                 }
                 if (cp) {
-                    wp->userName = bstrdup(userAuth);
-                    wp->password = bstrdup(cp);
+                    wp->userName = gstrdup(userAuth);
+                    wp->password = gstrdup(cp);
                 } else {
-                    wp->userName = bstrdup(T(""));
-                    wp->password = bstrdup(T(""));
+                    wp->userName = gstrdup(T(""));
+                    wp->password = gstrdup(T(""));
                 }
-                bfree(userAuth);
+                gfree(userAuth);
                 wp->flags |= WEBS_AUTH_BASIC;
             } else {
 #if BIT_DIGEST_AUTH
@@ -1036,24 +1036,24 @@ static void parseHeaders(webs_t wp)
                     /*
                         Extract the fields
                      */
-                    if (gstricmp(cp, T("username")) == 0) {
-                        wp->userName = bstrdup(vp);
-                    } else if (gstricmp(cp, T("response")) == 0) {
-                        wp->digest = bstrdup(vp);
-                    } else if (gstricmp(cp, T("opaque")) == 0) {
-                        wp->opaque = bstrdup(vp);
-                    } else if (gstricmp(cp, T("uri")) == 0) {
-                        wp->uri = bstrdup(vp);
-                    } else if (gstricmp(cp, T("realm")) == 0) {
-                        wp->realm = bstrdup(vp);
-                    } else if (gstricmp(cp, T("nonce")) == 0) {
-                        wp->nonce = bstrdup(vp);
-                    } else if (gstricmp(cp, T("nc")) == 0) {
-                        wp->nc = bstrdup(vp);
-                    } else if (gstricmp(cp, T("cnonce")) == 0) {
-                        wp->cnonce = bstrdup(vp);
-                    } else if (gstricmp(cp, T("qop")) == 0) {
-                        wp->qop = bstrdup(vp);
+                    if (gcaselesscmp(cp, T("username")) == 0) {
+                        wp->userName = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("response")) == 0) {
+                        wp->digest = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("opaque")) == 0) {
+                        wp->opaque = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("uri")) == 0) {
+                        wp->uri = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("realm")) == 0) {
+                        wp->realm = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("nonce")) == 0) {
+                        wp->nonce = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("nc")) == 0) {
+                        wp->nc = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("cnonce")) == 0) {
+                        wp->cnonce = gstrdup(vp);
+                    } else if (gcaselesscmp(cp, T("qop")) == 0) {
+                        wp->qop = gstrdup(vp);
                     }
                     /*
                         Restore tag name and value zero-terminations
@@ -1092,14 +1092,14 @@ static void parseHeaders(webs_t wp)
 
 #if BIT_KEEP_ALIVE
         } else if (gstrcmp(key, T("connection")) == 0) {
-            strlower(value);
+            gstrlower(value);
             if (gstrcmp(value, T("keep-alive")) == 0) {
                 wp->flags |= WEBS_KEEP_ALIVE;
             }
 #endif
         } else if (gstrcmp(key, T("cookie")) == 0) {
             wp->flags |= WEBS_COOKIE;
-            wp->cookie = bstrdup(value);
+            wp->cookie = gstrdup(value);
 
 #if BIT_IF_MODIFIED
         } else if (gstrcmp(key, T("if-modified-since")) == 0) {
@@ -1110,12 +1110,12 @@ static void parseHeaders(webs_t wp)
                 *cp = '\0';
             }
 
-            fmtAlloc(&cmd, 64, T("%s"), value);
+            gfmtAlloc(&cmd, 64, T("%s"), value);
 
             if ((wp->since = dateParse(tip, cmd)) != 0) {
                 wp->flags |= WEBS_IF_MODIFIED;
             }
-            bfree(cmd);
+            gfree(cmd);
 #endif /* WEBS_IF_MODIFIED_SUPPORT */
         }
     }
@@ -1128,14 +1128,14 @@ static void parseHeaders(webs_t wp)
  */
 void websServiceEvents(int *finished)
 {
-    a_assert(finished);
+    gassert(finished);
     *finished = 0;
     while (!*finished) {
         if (socketReady(-1) || socketSelect(-1, 1000)) {
             socketProcess(-1);
         }
         websCgiCleanup();
-        emfSchedProcess();
+        gSchedProcess();
     }
 }
 
@@ -1149,7 +1149,7 @@ void websSetEnv(webs_t wp)
     char_t  portBuf[8];
     char_t  *keyword, *value, *valCheck, *valNew;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     websSetVar(wp, T("QUERY_STRING"), wp->query);
     websSetVar(wp, T("GATEWAY_INTERFACE"), T("CGI/1.1"));
@@ -1160,19 +1160,19 @@ void websSetEnv(webs_t wp)
     websSetVar(wp, T("REMOTE_ADDR"), wp->ipaddr);
     websSetVar(wp, T("PATH_INFO"), wp->path);
     //  MOB - IPV6
-    stritoa(websPort, portBuf, sizeof(portBuf));
+    gstritoa(websPort, portBuf, sizeof(portBuf));
     websSetVar(wp, T("SERVER_PORT"), portBuf);
     websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
-    fmtAlloc(&value, FNAMESIZE, T("GoAhead/%s"), BIT_VERSION);
+    gfmtAlloc(&value, BIT_LIMIT_FILENAME, T("GoAhead/%s"), BIT_VERSION);
     websSetVar(wp, T("SERVER_SOFTWARE"), value);
-    bfree(value);
+    gfree(value);
     websSetVar(wp, T("SERVER_PROTOCOL"), wp->protoVersion);
 
     /*
         Decode and create an environment query variable for each query keyword. We split into pairs at each '&', then
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
      */
-    wp->decodedQuery = bstrdup(wp->query);
+    wp->decodedQuery = gstrdup(wp->query);
     keyword = gstrtok(wp->decodedQuery, T("&"));
     while (keyword != NULL) {
         if ((value = gstrchr(keyword, '=')) != NULL) {
@@ -1187,9 +1187,9 @@ void websSetEnv(webs_t wp)
                 If keyword has already been set, append the new value to what has been stored.
              */
             if ((valCheck = websGetVar(wp, keyword, NULL)) != 0) {
-                fmtAlloc(&valNew, 256, T("%s %s"), valCheck, value);
+                gfmtAlloc(&valNew, 256, T("%s %s"), valCheck, value);
                 websSetVar(wp, keyword, valNew);
-                bfree(valNew);
+                gfree(valNew);
             } else {
                 websSetVar(wp, keyword, value);
             }
@@ -1207,7 +1207,7 @@ void websSetVar(webs_t wp, char_t *var, char_t *value)
 {
     value_t      v;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     /*
         value_instring will allocate the string if required.
@@ -1228,7 +1228,7 @@ int websTestVar(webs_t wp, char_t *var)
 {
     sym_t       *sp;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     if (var == NULL || *var == '\0') {
         return 0;
@@ -1248,11 +1248,11 @@ char_t *websGetVar(webs_t wp, char_t *var, char_t *defaultGetValue)
 {
     sym_t   *sp;
 
-    a_assert(websValid(wp));
-    a_assert(var && *var);
+    gassert(websValid(wp));
+    gassert(var && *var);
  
     if ((sp = symLookup(wp->cgiVars, var)) != NULL) {
-        a_assert(sp->content.type == string);
+        gassert(sp->content.type == string);
         if (sp->content.value.string) {
             return sp->content.value.string;
         } else {
@@ -1268,8 +1268,8 @@ char_t *websGetVar(webs_t wp, char_t *var, char_t *defaultGetValue)
  */
 int websCompareVar(webs_t wp, char_t *var, char_t *value)
 {
-    a_assert(websValid(wp));
-    a_assert(var && *var);
+    gassert(websValid(wp));
+    gassert(var && *var);
  
     if (gstrcmp(value, websGetVar(wp, var, T(" __UNDEF__ "))) == 0) {
         return 1;
@@ -1283,10 +1283,10 @@ int websCompareVar(webs_t wp, char_t *var, char_t *value)
  */
 void websTimeoutCancel(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     if (wp->timeout >= 0) {
-        emfUnschedCallback(wp->timeout);
+        gUnschedCallback(wp->timeout);
         wp->timeout = -1;
     }
 }
@@ -1298,7 +1298,7 @@ void websTimeoutCancel(webs_t wp)
  */
 void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     /*
         IE3.0 needs no Keep Alive for some return codes.
@@ -1323,8 +1323,8 @@ void websRedirect(webs_t wp, char_t *url)
 {
     char_t  *msgbuf, *urlbuf, *redirectFmt;
 
-    a_assert(websValid(wp));
-    a_assert(url);
+    gassert(websValid(wp));
+    gassert(url);
 
     websStats.redirects++;
     msgbuf = urlbuf = NULL;
@@ -1343,22 +1343,22 @@ void websRedirect(webs_t wp, char_t *url)
             redirectFmt = T("https://%s/%s");
         }
 #endif
-        fmtAlloc(&urlbuf, WEBS_MAX_URL + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
+        gfmtAlloc(&urlbuf, BIT_LIMIT_URL + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
         url = urlbuf;
     }
 
     /*
         Add human readable message for completeness. Should not be required.
      */
-    fmtAlloc(&msgbuf, WEBS_MAX_URL + 80, 
+    gfmtAlloc(&msgbuf, BIT_LIMIT_URL + 80, 
         T("<html><head></head><body>\r\n\
         This document has moved to a new <a href=\"%s\">location</a>.\r\n\
         Please update your documents to reflect the new location.\r\n\
         </body></html>\r\n"), url);
 
     websResponse(wp, 302, msgbuf, url);
-    bfree(msgbuf);
-    bfree(urlbuf);
+    gfree(msgbuf);
+    gfree(urlbuf);
 }
 
 
@@ -1407,12 +1407,12 @@ static char_t* websSafeUrl(const char_t* url)
     if (NULL != url) {
         safeLen = gstrlen(url);
         if (ltCount == 0 && gtCount == 0) {
-            safeUrl = bstrdup((char_t*) url);
+            safeUrl = gstrdup((char_t*) url);
         } else {
             safeLen += (ltCount * 4);
             safeLen += (gtCount * 4);
 
-            safeUrl = balloc(safeLen);
+            safeUrl = galloc(safeLen);
             if (safeUrl != NULL) {
                 src = (char_t*) url;
                 dest = safeUrl;
@@ -1448,21 +1448,21 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
    char_t*     safeUrl = NULL;
    char_t*     safeMsg = NULL;
 
-    a_assert(websValid(wp));
-    a_assert(fmt);
+    gassert(websValid(wp));
+    gassert(fmt);
 
     websStats.errors++;
 
     safeUrl = websSafeUrl(wp->url);
-    bfree(wp->url);
+    gfree(wp->url);
     wp->url = safeUrl;
 
     va_start(args, fmt);
     userMsg = NULL;
-    fmtValloc(&userMsg, WEBS_BUFSIZE, fmt, args);
+    gfmtValloc(&userMsg, BIT_LIMIT_BUFFER, fmt, args);
     va_end(args);
     safeMsg = websSafeUrl(userMsg);
-    bfree(userMsg);
+    gfree(userMsg);
     userMsg = safeMsg;
     safeMsg  = NULL;
 
@@ -1470,10 +1470,10 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
         <body><h2>Access Error: %s</h2>\r\n\
         <p>%s</p></body></html>\r\n");
     buf = NULL;
-    fmtAlloc(&buf, WEBS_BUFSIZE, msg, websErrorMsg(code), websErrorMsg(code), userMsg);
+    gfmtAlloc(&buf, BIT_LIMIT_BUFFER, msg, websErrorMsg(code), websErrorMsg(code), userMsg);
     websResponse(wp, code, buf, NULL);
-    bfree(buf);
-    bfree(userMsg);
+    gfree(buf);
+    gfree(userMsg);
 }
 
 
@@ -1489,7 +1489,7 @@ char_t *websErrorMsg(int code)
             return ep->msg;
         }
     }
-    a_assert(0);
+    gassert(0);
     return T("");
 }
 
@@ -1503,17 +1503,17 @@ ssize websWriteHeader(webs_t wp, char_t *fmt, ...)
     char_t      *buf;
     ssize        rc;
     
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     va_start(vargs, fmt);
 
     buf = NULL;
     rc = 0;
-    if (fmtValloc(&buf, WEBS_BUFSIZE, fmt, vargs) >= WEBS_BUFSIZE) {
+    if (gfmtValloc(&buf, BIT_LIMIT_BUFFER, fmt, vargs) >= BIT_LIMIT_BUFFER) {
         trace(0, T("websWrite lost data, buffer overflow\n"));
     }
     va_end(vargs);
-    a_assert(buf);
+    gassert(buf);
     if (buf) {
         if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
             wp->flags |= WEBS_RESPONSE_TRACED;
@@ -1521,7 +1521,7 @@ ssize websWriteHeader(webs_t wp, char_t *fmt, ...)
         }
         trace(2, T("%s"), buf);
         rc = websWriteBlock(wp, buf, gstrlen(buf));
-        bfree(buf);
+        gfree(buf);
     }
     return rc;
 }
@@ -1534,7 +1534,7 @@ void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
 {
     char_t      *date;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     if (!(wp->flags & WEBS_HEADER_DONE)) {
         wp->flags |= WEBS_HEADER_DONE;
@@ -1546,7 +1546,7 @@ void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
 
         if ((date = websGetDateString(NULL)) != NULL) {
             websWriteHeader(wp, T("Date: %s\r\n"), date);
-            bfree(date);
+            gfree(date);
         }
         /*
             If authentication is required, send the auth header info
@@ -1568,8 +1568,8 @@ void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
                     T("auth"),
                     nonce,
                     opaque, T("MD5"), T("FALSE"));
-                bfree(nonce);
-                bfree(opaque);
+                gfree(nonce);
+                gfree(opaque);
 #endif
             }
         }
@@ -1581,7 +1581,7 @@ void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
         } else {
             websWriteHeader(wp, T("Connection: close\r\n"));   
         }
-        if (wp->flags & (WEBS_ASP | WEBS_CGI_REQUEST | WEBS_FORM)) {
+        if (wp->flags & (WEBS_JS | WEBS_CGI_REQUEST | WEBS_FORM)) {
             websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
         }
         if (wp->flags & WEBS_HEAD_REQUEST) {
@@ -1608,20 +1608,20 @@ ssize websWrite(webs_t wp, char_t *fmt, ...)
     char_t      *buf;
     ssize        rc;
     
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     va_start(vargs, fmt);
 
     buf = NULL;
     rc = 0;
-    if (fmtValloc(&buf, WEBS_BUFSIZE, fmt, vargs) >= WEBS_BUFSIZE) {
+    if (gfmtValloc(&buf, BIT_LIMIT_BUFFER, fmt, vargs) >= BIT_LIMIT_BUFFER) {
         trace(0, T("websWrite lost data, buffer overflow\n"));
     }
     va_end(vargs);
-    a_assert(buf);
+    gassert(buf);
     if (buf) {
         rc = websWriteBlock(wp, buf, gstrlen(buf));
-        bfree(buf);
+        gfree(buf);
     }
     return rc;
 }
@@ -1639,38 +1639,38 @@ ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
     char    *asciiBuf, *pBuf;
     ssize   len, done;
 
-    a_assert(wp);
-    a_assert(websValid(wp));
-    a_assert(buf);
-    a_assert(nChars >= 0);
+    gassert(wp);
+    gassert(websValid(wp));
+    gassert(buf);
+    gassert(nChars >= 0);
 
     done = len = 0;
 
     /*
-        ballocUniToAsc will convert Unicode to strings to Ascii.  If Unicode is
-        not turned on then ballocUniToAsc will not do the conversion.
+        gallocUniToAsc will convert Unicode to strings to Ascii.  If Unicode is
+        not turned on then gallocUniToAsc will not do the conversion.
      */
-    pBuf = asciiBuf = ballocUniToAsc(buf, nChars);
+    pBuf = asciiBuf = gallocUniToAsc(buf, nChars);
 
     while (nChars > 0) {  
 #if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
             if ((len = websSSLWrite(wp, pBuf, nChars)) < 0) {
-                bfree(asciiBuf);
+                gfree(asciiBuf);
                 return -1;
             }
             websSSLFlush(wp);
         } else {
             //  MOB - refactor duplicate
             if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
-                bfree(asciiBuf);
+                gfree(asciiBuf);
                 return -1;
             }
             socketFlush(wp->sid);
         }
 #else
         if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
-            bfree(asciiBuf);
+            gfree(asciiBuf);
             return -1;
         }
         socketFlush(wp->sid);
@@ -1679,7 +1679,7 @@ ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
         pBuf += len;
         done += len;
     }
-    bfree(asciiBuf);
+    gfree(asciiBuf);
     return done;
 }
 
@@ -1695,10 +1695,10 @@ ssize websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars)
     //  MOB - naming
     ssize   r;
 
-    a_assert(wp);
-    a_assert(websValid(wp));
-    a_assert(buf);
-    a_assert(nChars >= 0);
+    gassert(wp);
+    gassert(websValid(wp));
+    gassert(buf);
+    gassert(nChars >= 0);
 
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
@@ -1725,8 +1725,8 @@ void websDecodeUrl(char_t *decoded, char_t *token, ssize len)
     char_t  *ip,  *op;
     int     num, i, c;
     
-    a_assert(decoded);
-    a_assert(token);
+    gassert(decoded);
+    gassert(token);
 
     op = decoded;
     for (ip = token; *ip && len > 0; ip++, op++) {
@@ -1783,21 +1783,21 @@ static void logRequest(webs_t wp, int code)
     timeStr[sizeof(timeStr) - 1] = '\0';
 #if WINDOWS
     dwRet = GetTimeZoneInformation(&tzi);
-    fmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
+    gfmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
 #elif !VXWORKS
-    fmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", (int)(localt.tm_gmtoff/3600));
+    gfmtStatic(zoneStr, sizeof(zoneStr), "%+03d00", (int)(localt.tm_gmtoff/3600));
 #else
     zoneStr[0] = '\0';
 #endif
     zoneStr[sizeof(zoneStr) - 1] = '\0';
     if (wp->written != 0) {
-        fmtStatic(dataStr, sizeof(dataStr), "%d", (int) wp->written);
+        gfmtStatic(dataStr, sizeof(dataStr), "%d", (int) wp->written);
         dataStr[sizeof(dataStr) - 1] = '\0';
     } else {
         dataStr[0] = '-'; dataStr[1] = '\0';
     }
     buf = NULL;
-    fmtAlloc(&buf, WEBS_MAX_URL + 80, 
+    gfmtAlloc(&buf, BIT_LIMIT_URL + 80, 
         T("%s - %s [%s %s] \"%s %s %s\" %d %s\n"), 
         wp->ipaddr,
         wp->userName == NULL ? "-" : wp->userName,
@@ -1805,10 +1805,10 @@ static void logRequest(webs_t wp, int code)
         wp->flags & WEBS_POST_REQUEST ? "POST" : (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"), wp->path,
         wp->protoVersion, code, dataStr);
     len = gstrlen(buf);
-    abuf = ballocUniToAsc(buf, len+1);
+    abuf = gallocUniToAsc(buf, len+1);
     write(accessFd, abuf, len);
-    bfree(buf);
-    bfree(abuf);
+    gfree(buf);
+    gfree(abuf);
 }
 #endif
 
@@ -1823,21 +1823,21 @@ void websTimeout(void *arg, int id)
     time_t      tm, delay;
 
     wp = (webs_t) arg;
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     tm = getTimeSinceMark(wp) * 1000;
     if (websDebug) {
-        emfReschedCallback(id, (int) WEBS_TIMEOUT);
+        gReschedCallback(id, (int) WEBS_TIMEOUT);
         return;
     } else if (tm >= WEBS_TIMEOUT) {
         websStats.timeouts++;
-        emfUnschedCallback(id);
+        gUnschedCallback(id);
         wp->timeout = -1;
         websDone(wp, 404);
     } else {
         delay = WEBS_TIMEOUT - tm;
-        a_assert(delay > 0);
-        emfReschedCallback(id, (int) delay);
+        gassert(delay > 0);
+        gReschedCallback(id, (int) delay);
     }
 }
 
@@ -1847,7 +1847,7 @@ void websTimeout(void *arg, int id)
  */
 void websDone(webs_t wp, int code)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     /*
         Disable socket handler in case keep alive set.
@@ -1887,7 +1887,7 @@ void websDone(webs_t wp, int code)
             }
             socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
             websTimeoutCancel(wp);
-            wp->timeout = emfSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+            wp->timeout = gSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
             return;
         }
     } else {
@@ -1905,7 +1905,7 @@ int websAlloc(int sid)
     webs_t      wp;
     int         wid;
 
-    if ((wid = hAllocEntry((void***) &webs, &websMax, sizeof(struct websRec))) < 0) {
+    if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(struct websRec))) < 0) {
         return -1;
     }
     wp = webs[wid];
@@ -1914,8 +1914,8 @@ int websAlloc(int sid)
     wp->state = WEBS_BEGIN;
     wp->docfd = -1;
     wp->timeout = -1;
-    a_assert(wp->flags == 0);
-    ringqOpen(&wp->header, WEBS_HEADER_BUFINC, WEBS_MAX_HEADER);
+    gassert(wp->flags == 0);
+    ringqOpen(&wp->header, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS);
 
     /*
         Create storage for the CGI variables. We supply the symbol tables for both the CGI variables and for the global
@@ -1928,35 +1928,35 @@ int websAlloc(int sid)
 
 void websFree(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     //  MOB - OPT reduce allocations
-    bfree(wp->path);
-    bfree(wp->url);
-    bfree(wp->host);
-    bfree(wp->lpath);
-    bfree(wp->query);
-    bfree(wp->decodedQuery);
-    bfree(wp->authType);
-    bfree(wp->password);
-    bfree(wp->userName);
-    bfree(wp->cookie);
-    bfree(wp->userAgent);
-    bfree(wp->dir);
-    bfree(wp->protocol);
-    bfree(wp->protoVersion);
-    bfree(wp->cgiStdin);
+    gfree(wp->path);
+    gfree(wp->url);
+    gfree(wp->host);
+    gfree(wp->lpath);
+    gfree(wp->query);
+    gfree(wp->decodedQuery);
+    gfree(wp->authType);
+    gfree(wp->password);
+    gfree(wp->userName);
+    gfree(wp->cookie);
+    gfree(wp->userAgent);
+    gfree(wp->dir);
+    gfree(wp->protocol);
+    gfree(wp->protoVersion);
+    gfree(wp->cgiStdin);
 
 #if BIT_DIGEST_AUTH
-    bfree(wp->realm);
+    gfree(wp->realm);
     //  MOB - is URI just for AUTH?
-    bfree(wp->uri);
-    bfree(wp->digest);
-    bfree(wp->opaque);
-    bfree(wp->nonce);
-    bfree(wp->nc);
-    bfree(wp->cnonce);
-    bfree(wp->qop);
+    gfree(wp->uri);
+    gfree(wp->digest);
+    gfree(wp->opaque);
+    gfree(wp->nonce);
+    gfree(wp->nc);
+    gfree(wp->cnonce);
+    gfree(wp->qop);
 #endif
 #if BIT_PACK_SSL
     websSSLFree(wp);
@@ -1966,10 +1966,9 @@ void websFree(webs_t wp)
     if (wp->header.buf) {
         ringqClose(&wp->header);
     }
-
-    websMax = hFree((void***) &webs, wp->wid);
-    bfree(wp);
-    a_assert(websMax >= 0);
+    websMax = gfreeHandle((void***) &webs, wp->wid);
+    gfree(wp);
+    gassert(websMax >= 0);
 }
 
 
@@ -1999,14 +1998,14 @@ int websGetPort()
 
 ssize websGetRequestBytes(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     return wp->numbytes;
 }
 
 
 char_t *websGetRequestDir(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     if (wp->dir == NULL) {
         return T("");
@@ -2017,7 +2016,7 @@ char_t *websGetRequestDir(webs_t wp)
 
 int websGetRequestFlags(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     return wp->flags;
 }
@@ -2025,7 +2024,7 @@ int websGetRequestFlags(webs_t wp)
 
 char_t *websGetRequestIpaddr(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     return wp->ipaddr;
 }
@@ -2033,7 +2032,7 @@ char_t *websGetRequestIpaddr(webs_t wp)
 
 char_t *websGetRequestLpath(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     //  MOB - unify
 #if BIT_ROM
@@ -2046,7 +2045,7 @@ char_t *websGetRequestLpath(webs_t wp)
 
 char_t *websGetRequestPath(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     if (wp->path == NULL) {
         return T("");
@@ -2057,28 +2056,28 @@ char_t *websGetRequestPath(webs_t wp)
 
 char_t *websGetRequestPassword(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     return wp->password;
 }
 
 
 char_t *websGetRequestType(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     return wp->type;
 }
 
 
 char_t *websGetRequestUserName(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     return wp->userName;
 }
 
 
 ssize websGetRequestWritten(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     return wp->written;
 }
@@ -2091,30 +2090,30 @@ static int setLocalHost()
     char_t          wbuf[128];
 
     if (gethostname(host, sizeof(host)) < 0) {
-        error(E_L, E_LOG, T("Can't get hostname"));
+        error(T("Can't get hostname"));
         return -1;
     }
 #if VXWORKS
     intaddr.s_addr = (ulong) hostGetByName(host);
     cp = inet_ntoa(intaddr);
     //  MOB - OPT so don't copy if not unicode
-    ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    gAscToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
     free(cp);
 #elif ECOS
     cp = inet_ntoa(eth0_bootp_data.bp_yiaddr);
     //  MOB - OPT so don't copy if not unicode
-    ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    gAscToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 #else
 {
     struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
-        error(E_L, E_LOG, T("Can't get host address"));
+        error(T("Can't get host address"));
         return -1;
     }
     memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
     cp = inet_ntoa(intaddr);
     //  MOB - OPT so don't copy if not unicode
-    ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    gAscToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 }
 #endif
     websSetIpaddr(wbuf);
@@ -2131,37 +2130,37 @@ void websSetHost(char_t *host)
 
 void websSetHostUrl(char_t *url)
 {
-    a_assert(url && *url);
+    gassert(url && *url);
 
-    bfree(websHostUrl);
+    gfree(websHostUrl);
     websHostUrl = gstrdup(url);
 }
 
 
 void websSetIpaddr(char_t *ipaddr)
 {
-    a_assert(ipaddr && *ipaddr);
+    gassert(ipaddr && *ipaddr);
     gstrncpy(websIpaddr, ipaddr, TSZ(websIpaddr));
 }
 
 
 void websSetRequestBytes(webs_t wp, ssize bytes)
 {
-    a_assert(websValid(wp));
-    a_assert(bytes >= 0);
+    gassert(websValid(wp));
+    gassert(bytes >= 0);
     wp->numbytes = bytes;
 }
 
 
 void websSetRequestLpath(webs_t wp, char_t *lpath)
 {
-    a_assert(websValid(wp));
-    a_assert(lpath && *lpath);
+    gassert(websValid(wp));
+    gassert(lpath && *lpath);
 
     if (wp->lpath) {
-        bfree(wp->lpath);
+        gfree(wp->lpath);
     }
-    wp->lpath = bstrdup(lpath);
+    wp->lpath = gstrdup(lpath);
     websSetVar(wp, T("PATH_TRANSLATED"), wp->lpath);
 }
 
@@ -2173,21 +2172,21 @@ void websSetRequestPath(webs_t wp, char_t *dir, char_t *path)
 {
     char_t  *tmp;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     if (dir) { 
         tmp = wp->dir;
-        wp->dir = bstrdup(dir);
+        wp->dir = gstrdup(dir);
         if (tmp) {
-            bfree(tmp);
+            gfree(tmp);
         }
     }
     if (path) {
         tmp = wp->path;
-        wp->path = bstrdup(path);
+        wp->path = gstrdup(path);
         websSetVar(wp, T("PATH_INFO"), wp->path);
         if (tmp) {
-            bfree(tmp);
+            gfree(tmp);
         }
     }
 }
@@ -2195,11 +2194,11 @@ void websSetRequestPath(webs_t wp, char_t *dir, char_t *path)
 
 void websRewriteRequest(webs_t wp, char_t *url)
 {
-    bfree(wp->url);
-    wp->url = bstrdup(url);
+    gfree(wp->url);
+    wp->url = gstrdup(url);
     websSetRequestPath(wp, NULL, wp->url);
-    bfree(wp->lpath);
-    fmtAlloc(&wp->lpath, FNAMESIZE, "%s%s", wp->dir, wp->path);
+    gfree(wp->lpath);
+    gfmtAlloc(&wp->lpath, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
 }
 
 
@@ -2208,7 +2207,7 @@ void websRewriteRequest(webs_t wp, char_t *url)
  */
 void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp))
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     wp->writeSocket = fn;
     socketCreateHandler(wp->sid, SOCKET_WRITABLE, socketEvent, wp);
 }
@@ -2216,7 +2215,7 @@ void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp))
 
 void websSetRequestWritten(webs_t wp, ssize written)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     wp->written = written;
 }
 
@@ -2249,7 +2248,7 @@ char_t *websGetDateString(websStatType *sbuf)
     }
     if ((cp = gctime(&now)) != NULL) {
         cp[gstrlen(cp) - 1] = '\0';
-        r = bstrdup(cp);
+        r = gstrdup(cp);
         return r;
     }
     return NULL;
@@ -2280,7 +2279,7 @@ static time_t getTimeSinceMark(webs_t wp)
  */
 void websSetRealm(char_t *realmName)
 {
-    a_assert(realmName);
+    gassert(realmName);
 
     gstrncpy(websRealm, realmName, TSZ(websRealm));
 }
@@ -2832,8 +2831,8 @@ char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
     sym_t   *sp;
     char_t  *ext, *parsebuf;
 
-    a_assert(url && *url);
-    a_assert(buf && charCnt > 0);
+    gassert(url && *url);
+    gassert(buf && charCnt > 0);
 
     if (url == NULL || *url == '\0') {
         gstrcpy(buf, T("text/plain"));
@@ -2843,7 +2842,7 @@ char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
         gstrcpy(buf, T("text/plain"));
         return buf;
     }
-    strlower(ext);
+    gstrlower(ext);
 
     /*
         Lookup the mime type symbol table to find the relevant content type
@@ -2853,7 +2852,7 @@ char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
     } else {
         gstrcpy(buf, T("text/plain"));
     }
-    bfree(parsebuf);
+    gfree(parsebuf);
     return buf;
 }
 
@@ -2870,8 +2869,8 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
     ssize       len, ulen;
     int         c;
 
-    a_assert(url);
-    a_assert(pbuf);
+    gassert(url);
+    gassert(pbuf);
 
     ulen = gstrlen(url);
     /*
@@ -2879,7 +2878,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         we need room for 3 null chars.  We allocate MAX_PORT_LEN char_t's for the port number.  
      */
     len = ulen * 2 + MAX_PORT_LEN + 3;
-    if ((buf = balloc(len * sizeof(char_t))) == NULL) {
+    if ((buf = galloc(len * sizeof(char_t))) == NULL) {
         return -1;
     }
     portbuf = &buf[len - MAX_PORT_LEN - 1];
@@ -2890,7 +2889,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
      */
     url = buf;
-    stritoa(websGetPort(), portbuf, MAX_PORT_LEN);
+    gstritoa(websGetPort(), portbuf, MAX_PORT_LEN);
     port = portbuf;
     path = T("/");
     proto = T("http");
@@ -2961,7 +2960,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
             if (ok) {
                 cp[length] = '\0';
 #if BIT_WIN_LIKE
-                strlower(cp);            
+                gstrlower(cp);            
                 //  MOB - don't map extension case. Those who test should use caseless test
 #endif
                 ext = cp;
@@ -3003,12 +3002,12 @@ char_t *websNormalizeUriPath(char_t *pathArg)
         return "";
     }
     len = (int) glen(pathArg);
-    if ((dupPath = balloc(len + 2)) == 0) {
+    if ((dupPath = galloc(len + 2)) == 0) {
         return NULL;
     }
     strcpy(dupPath, pathArg);
 
-    if ((segments = balloc(sizeof(char*) * (len + 1))) == 0) {
+    if ((segments = galloc(sizeof(char*) * (len + 1))) == 0) {
         return NULL;
     }
     nseg = len = 0;
@@ -3051,8 +3050,8 @@ char_t *websNormalizeUriPath(char_t *pathArg)
         }
     }
     nseg = j;
-    a_assert(nseg >= 0);
-    if ((path = balloc(len + nseg + 1)) != 0) {
+    gassert(nseg >= 0);
+    if ((path = galloc(len + nseg + 1)) != 0) {
         for (i = 0, dp = path; i < nseg; ) {
             strcpy(dp, segments[i]);
             len = (int) glen(segments[i]);
@@ -3084,7 +3083,7 @@ char_t *websCalcNonce(webs_t wp)
     struct tm   *newtime;
 #endif
 
-    a_assert(wp);
+    gassert(wp);
     time(&longTime);
 #if !WINDOWS
     newtime = localtime(&longTime);
@@ -3094,14 +3093,14 @@ char_t *websCalcNonce(webs_t wp)
 
 #if !WINDOWS
     prenonce = NULL;
-    fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime), wp->realm); 
+    gfmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime), wp->realm); 
 #else
-    asctime_s(buf, elementsof(buf), &newtime);
-    fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, buf, RANDOMKEY); 
+    asctime_s(buf, sizeof(buf) / sizeof(buf[0]), &newtime);
+    gfmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, buf, RANDOMKEY); 
 #endif
-    a_assert(prenonce);
+    gassert(prenonce);
     nonce = websMD5(prenonce);
-    bfree(prenonce);
+    gfree(prenonce);
     return nonce;
 }
 
@@ -3112,11 +3111,11 @@ char_t *websCalcNonce(webs_t wp)
 char_t *websCalcOpaque(webs_t wp)
 {
     char_t *opaque;
-    a_assert(wp);
+    gassert(wp);
     /*
         MOB ??? Temporary stub!
      */
-    opaque = bstrdup(T("5ccc069c403ebaf9f0171e9517f40e41"));
+    opaque = gstrdup(T("5ccc069c403ebaf9f0171e9517f40e41"));
     return opaque;
 }
 
@@ -3128,49 +3127,49 @@ char_t *websCalcDigest(webs_t wp)
 {
     char_t  *digest, *a1, *a1prime, *a2, *a2prime, *preDigest, *method;
 
-    a_assert(wp);
+    gassert(wp);
     digest = NULL;
 
     /*
         Calculate first portion of digest H(A1)
      */
     a1 = NULL;
-    fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
-    a_assert(a1);
+    gfmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
+    gassert(a1);
     a1prime = websMD5(a1);
-    bfree(a1);
+    gfree(a1);
 
     /*
         Calculate second portion of digest H(A2)
      */
     method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
-    a_assert(method);
+    gassert(method);
     a2 = NULL;
-    fmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri); 
-    a_assert(a2);
+    gfmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri); 
+    gassert(a2);
     a2prime = websMD5(a2);
-    bfree(a2);
+    gfree(a2);
 
     /*
         Construct final digest KD(H(A1):nonce:H(A2))
      */
-    a_assert(a1prime);
-    a_assert(a2prime);
-    a_assert(wp->nonce);
+    gassert(a1prime);
+    gassert(a2prime);
+    gassert(wp->nonce);
 
     preDigest = NULL;
     if (!wp->qop) {
-        fmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
+        gfmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
     } else {
-        fmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
+        gfmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
             a1prime, wp->nonce, wp->nc, wp->cnonce, wp->qop, a2prime);
     }
 
-    a_assert(preDigest);
+    gassert(preDigest);
     digest = websMD5(preDigest);
-    bfree(a1prime);
-    bfree(a2prime);
-    bfree(preDigest);
+    gfree(a1prime);
+    gfree(a2prime);
+    gfree(preDigest);
     return digest;
 }
 
@@ -3183,51 +3182,51 @@ char_t *websCalcUrlDigest(webs_t wp)
 {
     char_t  *digest, *a1, *a1prime, *a2, *a2prime, *preDigest, *method;
 
-    a_assert(wp);
+    gassert(wp);
     digest = NULL;
 
     /*
         Calculate first portion of digest H(A1)
      */
     a1 = NULL;
-    fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
-    a_assert(a1);
+    gfmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
+    gassert(a1);
     a1prime = websMD5(a1);
-    bfree(a1);
+    gfree(a1);
 
     /*
         Calculate second portion of digest H(A2)
      */
     method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
-    a_assert(method);
-    a2 = balloc((gstrlen(method) +2 + gstrlen(wp->url) ) * sizeof(char_t));
-    a_assert(a2);
+    gassert(method);
+    a2 = galloc((gstrlen(method) +2 + gstrlen(wp->url) ) * sizeof(char_t));
+    gassert(a2);
     gsprintf(a2, T("%s:%s"), method, wp->url);
     a2prime = websMD5(a2);
-    bfree(a2);
+    gfree(a2);
 
     /*
         Construct final digest KD(H(A1):nonce:H(A2))
      */
-    a_assert(a1prime);
-    a_assert(a2prime);
-    a_assert(wp->nonce);
+    gassert(a1prime);
+    gassert(a2prime);
+    gassert(wp->nonce);
 
     preDigest = NULL;
     if (!wp->qop) {
-        fmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
+        gfmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
     } else {
-        fmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
+        gfmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
             a1prime, wp->nonce, wp->nc, wp->cnonce, wp->qop, a2prime);
     }
-    a_assert(preDigest);
+    gassert(preDigest);
     digest = websMD5(preDigest);
     /*
         Now clean up
      */
-    bfree(a1prime);
-    bfree(a2prime);
-    bfree(preDigest);
+    gfree(a1prime);
+    gfree(a2prime);
+    gfree(preDigest);
     return digest;
 }
 
@@ -3238,7 +3237,7 @@ char_t *websCalcUrlDigest(webs_t wp)
  */
 int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 #if BIT_ROM
     return websRomPageOpen(wp, path, mode, perm);
 #else
@@ -3249,7 +3248,7 @@ int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 
 void websPageClose(webs_t wp)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
 #if BIT_ROM
     websRomPageClose(wp->docfd);
@@ -3270,7 +3269,7 @@ int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType* sbuf)
 #if BIT_ROM
     return websRomPageStat(path, sbuf);
 #else
-    gstat_t s;
+    GStat s;
 
     if (gstat(lpath, &s) < 0) {
         return -1;
@@ -3294,7 +3293,7 @@ int websPageIsDirectory(char_t *lpath)
         return 0;
     }
 #else
-    gstat_t sbuf;
+    GStat sbuf;
 
     if (gstat(lpath, &sbuf) >= 0) {
         return(sbuf.st_mode & S_IFDIR);
@@ -3312,10 +3311,10 @@ ssize websPageReadData(webs_t wp, char *buf, ssize nBytes)
 {
 
 #if BIT_ROM
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     return websRomPageReadData(wp, buf, nBytes);
 #else
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
     return read(wp->docfd, buf, nBytes);
 #endif
 }
@@ -3324,9 +3323,9 @@ ssize websPageReadData(webs_t wp, char *buf, ssize nBytes)
 /*
     Move file pointer offset bytes.
  */
-void websPageSeek(webs_t wp, filepos offset)
+void websPageSeek(webs_t wp, EgFilePos offset)
 {
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
 #if BIT_ROM
     websRomPageSeek(wp, offset, SEEK_CUR);

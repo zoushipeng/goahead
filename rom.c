@@ -24,11 +24,11 @@ int websRomOpen()
 {
     websRomPageIndexType    *wip;
     int                     nchars;
-    char_t                  name[SYM_MAX];
+    char_t                  name[BIT_LIMIT_FILENAME];
 
     romTab = symOpen(WEBS_SYM_INIT);
     for (wip = websRomPageIndex; wip->path; wip++) {
-        gstrncpy(name, wip->path, SYM_MAX);
+        gstrncpy(name, wip->path, BIT_LIMIT_FILENAME);
         nchars = gstrlen(name) - 1;
         if (nchars > 0 &&
             (name[nchars] == '/' || name[nchars] == '\\')) {
@@ -50,8 +50,8 @@ int websRomPageOpen(webs_t wp, char_t *path, int mode, int perm)
     websRomPageIndexType    *wip;
     sym_t                   *sp;
 
-    a_assert(websValid(wp));
-    a_assert(path && *path);
+    gassert(websValid(wp));
+    gassert(path && *path);
 
     if ((sp = symLookup(romTab, path)) == NULL) {
         return -1;
@@ -72,7 +72,7 @@ int websRomPageStat(char_t *path, websStatType *sbuf)
     websRomPageIndexType    *wip;
     sym_t                   *sp;
 
-    a_assert(path && *path);
+    gassert(path && *path);
 
     if ((sp = symLookup(romTab, path)) == NULL) {
         return -1;
@@ -93,9 +93,9 @@ int websRomPageReadData(webs_t wp, char *buf, int nBytes)
     websRomPageIndexType    *wip;
     int                     len;
 
-    a_assert(websValid(wp));
-    a_assert(buf);
-    a_assert(wp->docfd >= 0);
+    gassert(websValid(wp));
+    gassert(buf);
+    gassert(wp->docfd >= 0);
 
     wip = &websRomPageIndex[wp->docfd];
 
@@ -106,14 +106,14 @@ int websRomPageReadData(webs_t wp, char *buf, int nBytes)
 }
 
 
-long websRomPageSeek(webs_t wp, filepos offset, int origin)
+long websRomPageSeek(webs_t wp, EgFilePos offset, int origin)
 {
     websRomPageIndexType    *wip;
-    filepos                 pos;
+    EgFilePos               pos;
 
-    a_assert(websValid(wp));
-    a_assert(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
-    a_assert(wp->docfd >= 0);
+    gassert(websValid(wp));
+    gassert(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
+    gassert(wp->docfd >= 0);
 
     wip = &websRomPageIndex[wp->docfd];
 

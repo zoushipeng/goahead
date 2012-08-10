@@ -53,7 +53,7 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
     ej_t    *ep;
     int     eid, vid;
 
-    if ((eid = hAllocEntry((void***) &ejHandles, &ejMax, sizeof(ej_t))) < 0) {
+    if ((eid = gallocEntry((void***) &ejHandles, &ejMax, sizeof(ej_t))) < 0) {
         return -1;
     }
     ep = ejHandles[eid];
@@ -61,10 +61,10 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
 
     /*
         Create a top level symbol table if one is not provided for variables and functions. Variables may create other
-        symbol tables for block level declarations so we use hAlloc to manage a list of variable tables.
+        symbol tables for block level declarations so we use galloc to manage a list of variable tables.
      */
-    if ((vid = hAlloc((void***) &ep->variables)) < 0) {
-        ejMax = hFree((void***) &ejHandles, ep->eid);
+    if ((vid = gallocHandle((void***) &ep->variables)) < 0) {
+        ejMax = gfreeHandle((void***) &ejHandles, ep->eid);
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -101,9 +101,9 @@ void ejCloseEngine(int eid)
         return;
     }
 
-    bfree(ep->error);
+    gfree(ep->error);
     ep->error = NULL;
-    bfree(ep->result);
+    gfree(ep->result);
     ep->result = NULL;
 
     ejLexClose(ep);
@@ -112,26 +112,26 @@ void ejCloseEngine(int eid)
         if (ep->flags & FLAGS_VARIABLES) {
             symClose(ep->variables[i] - EJ_OFFSET);
         }
-        ep->variableMax = hFree((void***) &ep->variables, i);
+        ep->variableMax = gfreeHandle((void***) &ep->variables, i);
     }
     if (ep->flags & FLAGS_FUNCTIONS) {
         symClose(ep->functions);
     }
-    ejMax = hFree((void***) &ejHandles, ep->eid);
-    bfree(ep);
+    ejMax = gfreeHandle((void***) &ejHandles, ep->eid);
+    gfree(ep);
 }
 
 
 #if !ECOS && UNUSED
 char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 {
-    gstat_t sbuf;
+    GStat  sbuf;
     ej_t    *ep;
     char_t  *script, *rs;
     char    *fileBuf;
     int     fd;
 
-    a_assert(path && *path);
+    gassert(path && *path);
 
     if (emsg) {
         *emsg = NULL;
@@ -148,28 +148,28 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
         ejError(ep, T("Cant stat %s"), path);
         return NULL;
     }
-    if ((fileBuf = balloc(sbuf.st_size + 1)) == NULL) {
+    if ((fileBuf = galloc(sbuf.st_size + 1)) == NULL) {
         gclose(fd);
         ejError(ep, T("Cant malloc %d"), sbuf.st_size);
         return NULL;
     }
     if (gread(fd, fileBuf, sbuf.st_size) != (int)sbuf.st_size) {
         gclose(fd);
-        bfree(fileBuf);
+        gfree(fileBuf);
         ejError(ep, T("Error reading %s"), path);
         return NULL;
     }
     fileBuf[sbuf.st_size] = '\0';
     gclose(fd);
 
-    if ((script = ballocAscToUni(fileBuf, sbuf.st_size)) == NULL) {
-        bfree(fileBuf);
+    if ((script = gallocAscToUni(fileBuf, sbuf.st_size)) == NULL) {
+        gfree(fileBuf);
         ejError(ep, T("Cant malloc %d"), sbuf.st_size + 1);
         return NULL;
     }
-    bfree(fileBuf);
+    gfree(fileBuf);
     rs = ejEvalBlock(eid, script, emsg);
-    bfree(script);
+    gfree(script);
     return rs;
 }
 #endif
@@ -187,7 +187,7 @@ int ejOpenBlock(int eid)
     if((ep = ejPtr(eid)) == NULL) {
         return -1;
     }
-    if ((vid = hAlloc((void***) &ep->variables)) < 0) {
+    if ((vid = gallocHandle((void***) &ep->variables)) < 0) {
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -207,7 +207,7 @@ int ejCloseBlock(int eid, int vid)
         return -1;
     }
     symClose(ep->variables[vid] - EJ_OFFSET);
-    ep->variableMax = hFree((void***) &ep->variables, vid);
+    ep->variableMax = gfreeHandle((void***) &ep->variables, vid);
     return 0;
 
 }
@@ -222,7 +222,7 @@ char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
     char_t* returnVal;
     int     vid;
 
-    a_assert(script);
+    gassert(script);
 
     vid = ejOpenBlock(eid);
     returnVal = ejEval(eid, script, emsg);
@@ -245,7 +245,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
     int     loopCounter;
     
     
-    a_assert(script);
+    gassert(script);
 
     if (emsg) {
         *emsg = NULL;
@@ -294,7 +294,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
         Return any error string to the user
      */
     if (state == STATE_ERR && emsg) {
-        *emsg = bstrdup(ep->error);
+        *emsg = gstrdup(ep->error);
     }
 
     /*
@@ -318,7 +318,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
  */
 static int parse(ej_t *ep, int state, int flags)
 {
-    a_assert(ep);
+    gassert(ep);
 
     switch (state) {
     /*
@@ -394,7 +394,7 @@ static int parseStmt(ej_t *ep, int state, int flags)
     int         done, expectSemi, thenFlags, elseFlags, tid, cond, forFlags;
     int         ejVarType;
 
-    a_assert(ep);
+    gassert(ep);
 
     /*
         Set these to NULL, else we try to free them if an error occurs.
@@ -850,7 +850,7 @@ static int parseDeclaration(ej_t *ep, int state, int flags)
 {
     int     tid;
 
-    a_assert(ep);
+    gassert(ep);
 
     /*
         Declarations can be of the following forms:
@@ -898,7 +898,7 @@ static int parseFunctionArgs(ej_t *ep, int state, int flags)
 {
     int     tid, aid;
 
-    a_assert(ep);
+    gassert(ep);
 
     do {
         state = parse(ep, STATE_RELEXP, flags);
@@ -906,8 +906,8 @@ static int parseFunctionArgs(ej_t *ep, int state, int flags)
             return state;
         }
         if (state == STATE_RELEXP_DONE) {
-            aid = hAlloc((void***) &ep->func->args);
-            ep->func->args[aid] = bstrdup(ep->result);
+            aid = gallocHandle((void***) &ep->func->args);
+            ep->func->args[aid] = gstrdup(ep->result);
             ep->func->nArgs++;
         }
         /*
@@ -934,7 +934,7 @@ static int parseCond(ej_t *ep, int state, int flags)
     char_t  *lhs, *rhs;
     int     tid, operator;
 
-    a_assert(ep);
+    gassert(ep);
 
     setString(&ep->result, T(""));
     rhs = lhs = NULL;
@@ -976,11 +976,11 @@ static int parseCond(ej_t *ep, int state, int flags)
     } while (state == STATE_RELEXP_DONE);
 
     if (lhs) {
-        bfree(lhs);
+        gfree(lhs);
     }
 
     if (rhs) {
-        bfree(rhs);
+        gfree(rhs);
     }
     return state;
 }
@@ -994,7 +994,7 @@ static int parseExpr(ej_t *ep, int state, int flags)
     char_t  *lhs, *rhs;
     int     rel, tid;
 
-    a_assert(ep);
+    gassert(ep);
 
     setString(&ep->result, T(""));
     rhs = lhs = NULL;
@@ -1046,11 +1046,11 @@ static int parseExpr(ej_t *ep, int state, int flags)
     } while (state == STATE_EXPR_DONE);
 
     if (rhs) {
-        bfree(rhs);
+        gfree(rhs);
     }
 
     if (lhs) {
-        bfree(lhs);
+        gfree(lhs);
     }
 
     return state;
@@ -1065,9 +1065,9 @@ static int evalCond(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
     char_t  buf[16];
     int     l, r, lval;
 
-    a_assert(lhs);
-    a_assert(rhs);
-    a_assert(rel > 0);
+    gassert(lhs);
+    gassert(rhs);
+    gassert(rel > 0);
 
     lval = 0;
     if (gisdigit((int)*lhs) && gisdigit((int)*rhs)) {
@@ -1091,8 +1091,7 @@ static int evalCond(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
             ejError(ep, T("Conditional must be numeric"), rhs);
         }
     }
-
-    stritoa(lval, buf, sizeof(buf));
+    gstritoa(lval, buf, sizeof(buf));
     setString(&ep->result, buf);
     return 0;
 }
@@ -1106,9 +1105,9 @@ static int evalExpr(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
     char_t  *cp, buf[16];
     int     numeric, l, r, lval;
 
-    a_assert(lhs);
-    a_assert(rhs);
-    a_assert(rel > 0);
+    gassert(lhs);
+    gassert(rhs);
+    gassert(rel > 0);
 
     /*
         All of the characters in the lhs and rhs must be numeric
@@ -1232,8 +1231,7 @@ static int evalExpr(ej_t *ep, char_t *lhs, int rel, char_t *rhs)
             return -1;
         }
     }
-
-    stritoa(lval, buf, sizeof(buf));
+    gstritoa(lval, buf, sizeof(buf));
     setString(&ep->result, buf);
     return 0;
 }
@@ -1269,30 +1267,30 @@ void ejError(ej_t* ep, char_t* fmt, ...)
     ejinput_t   *ip;
     char_t      *errbuf, *msgbuf;
 
-    a_assert(ep);
-    a_assert(fmt);
+    gassert(ep);
+    gassert(fmt);
     ip = ep->input;
 
     va_start(args, fmt);
     msgbuf = NULL;
-    fmtValloc(&msgbuf, E_MAX_ERROR, fmt, args);
+    gfmtValloc(&msgbuf, BIT_LIMIT_STRING, fmt, args);
     va_end(args);
 
     if (ep && ip) {
-        fmtAlloc(&errbuf, E_MAX_ERROR, T("%s\n At line %d, line => \n\n%s\n"), msgbuf, ip->lineNumber, ip->line);
-        bfree(ep->error);
+        gfmtAlloc(&errbuf, BIT_LIMIT_STRING, T("%s\n At line %d, line => \n\n%s\n"), msgbuf, ip->lineNumber, ip->line);
+        gfree(ep->error);
         ep->error = errbuf;
     }
-    bfree(msgbuf);
+    gfree(msgbuf);
 }
 
 
 static void clearString(char_t **ptr)
 {
-    a_assert(ptr);
+    gassert(ptr);
 
     if (*ptr) {
-        bfree(*ptr);
+        gfree(*ptr);
     }
     *ptr = NULL;
 }
@@ -1300,12 +1298,12 @@ static void clearString(char_t **ptr)
 
 static void setString(char_t **ptr, char_t *s)
 {
-    a_assert(ptr);
+    gassert(ptr);
 
     if (*ptr) {
-        bfree(*ptr);
+        gfree(*ptr);
     }
-    *ptr = bstrdup(s);
+    *ptr = gstrdup(s);
 }
 
 
@@ -1313,20 +1311,20 @@ static void appendString(char_t **ptr, char_t *s)
 {
     ssize   len, oldlen, size;
 
-    a_assert(ptr);
+    gassert(ptr);
 
     if (*ptr) {
         len = gstrlen(s);
         oldlen = gstrlen(*ptr);
         size = (len + oldlen + 1) * sizeof(char_t);
-        *ptr = brealloc(*ptr, size);
+        *ptr = grealloc(*ptr, size);
 #if WINDOWS
         strcpy_s(&(*ptr)[oldlen], size - oldlen, s);
 #else
         gstrcpy(&(*ptr)[oldlen], s);
 #endif
     } else {
-        *ptr = bstrdup(s);
+        *ptr = gstrdup(s);
     }
 }
 
@@ -1431,7 +1429,7 @@ int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
             /*
                 Unsupported
              */
-            a_assert(0);
+            gassert(0);
         }
         argn++;
     }
@@ -1504,7 +1502,7 @@ void ejSetVar(int eid, char_t *var, char_t *value)
     ej_t    *ep;
     value_t v;
 
-    a_assert(var && *var);
+    gassert(var && *var);
 
     if ((ep = ejPtr(eid)) == NULL) {
         return;
@@ -1527,7 +1525,7 @@ void ejSetLocalVar(int eid, char_t *var, char_t *value)
     ej_t    *ep;
     value_t v;
 
-    a_assert(var && *var);
+    gassert(var && *var);
 
     if ((ep = ejPtr(eid)) == NULL) {
         return;
@@ -1551,7 +1549,7 @@ void ejSetGlobalVar(int eid, char_t *var, char_t *value)
     ej_t    *ep;
     value_t v;
 
-    a_assert(var && *var);
+    gassert(var && *var);
 
     if ((ep = ejPtr(eid)) == NULL) {
         return;
@@ -1574,8 +1572,8 @@ int ejGetVar(int eid, char_t *var, char_t **value)
     sym_t   *sp;
     int     i;
 
-    a_assert(var && *var);
-    a_assert(value);
+    gassert(var && *var);
+    gassert(value);
 
     if ((ep = ejPtr(eid)) == NULL) {
         return -1;
@@ -1588,7 +1586,7 @@ int ejGetVar(int eid, char_t *var, char_t **value)
             return -1;
         }
     }
-    a_assert(sp->content.type == string);
+    gassert(sp->content.type == string);
     *value = sp->content.value.string;
     return i;
 }
@@ -1624,12 +1622,12 @@ static void freeFunc(ejfunc_t *func)
     int i;
 
     for (i = func->nArgs - 1; i >= 0; i--) {
-        bfree(func->args[i]);
-        func->nArgs = hFree((void***) &func->args, i);
+        gfree(func->args[i]);
+        func->nArgs = gfreeHandle((void***) &func->args, i);
     }
 
     if (func->fname) {
-        bfree(func->fname);
+        gfree(func->fname);
         func->fname = NULL;
     }
 }
@@ -1640,7 +1638,7 @@ static void freeFunc(ejfunc_t *func)
  */
 static ej_t *ejPtr(int eid)
 {
-    a_assert(0 <= eid && eid < ejMax);
+    gassert(0 <= eid && eid < ejMax);
 
     if (eid < 0 || eid >= ejMax || ejHandles[eid] == NULL) {
         ejError(NULL, T("Bad handle %d"), eid);
@@ -1679,18 +1677,18 @@ int ejLexOpenScript(ej_t* ep, char_t *script)
 {
     ejinput_t   *ip;
 
-    a_assert(ep);
-    a_assert(script);
+    gassert(ep);
+    gassert(script);
 
-    if ((ep->input = balloc(sizeof(ejinput_t))) == NULL) {
+    if ((ep->input = galloc(sizeof(ejinput_t))) == NULL) {
         return -1;
     }
     ip = ep->input;
     memset(ip, 0, sizeof(*ip));
 
-    a_assert(ip);
-    a_assert(ip->putBackToken == NULL);
-    a_assert(ip->putBackTokenId == 0);
+    gassert(ip);
+    gassert(ip->putBackToken == NULL);
+    gassert(ip->putBackTokenId == 0);
 
     /*
         Create the parse token buffer and script buffer
@@ -1719,24 +1717,24 @@ void ejLexCloseScript(ej_t* ep)
 {
     ejinput_t   *ip;
 
-    a_assert(ep);
+    gassert(ep);
 
     ip = ep->input;
-    a_assert(ip);
+    gassert(ip);
 
     if (ip->putBackToken) {
-        bfree(ip->putBackToken);
+        gfree(ip->putBackToken);
         ip->putBackToken = NULL;
     }
     ip->putBackTokenId = 0;
 
     if (ip->line) {
-        bfree(ip->line);
+        gfree(ip->line);
         ip->line = NULL;
     }
     ringqClose(&ip->tokbuf);
     ringqClose(&ip->script);
-    bfree(ip);
+    gfree(ip);
 }
 
 
@@ -1744,14 +1742,14 @@ void ejLexSaveInputState(ej_t* ep, ejinput_t* state)
 {
     ejinput_t   *ip;
 
-    a_assert(ep);
+    gassert(ep);
 
     ip = ep->input;
-    a_assert(ip);
+    gassert(ip);
 
     *state = *ip;
     if (ip->putBackToken) {
-        state->putBackToken = bstrdup(ip->putBackToken);
+        state->putBackToken = gstrdup(ip->putBackToken);
     }
 }
 
@@ -1760,19 +1758,19 @@ void ejLexRestoreInputState(ej_t* ep, ejinput_t* state)
 {
     ejinput_t   *ip;
 
-    a_assert(ep);
+    gassert(ep);
 
     ip = ep->input;
-    a_assert(ip);
+    gassert(ip);
 
     ip->tokbuf = state->tokbuf;
     ip->script = state->script;
     ip->putBackTokenId = state->putBackTokenId;
     if (ip->putBackToken) {
-        bfree(ip->putBackToken);
+        gfree(ip->putBackToken);
     }
     if (state->putBackToken) {
-        ip->putBackToken = bstrdup(state->putBackToken);
+        ip->putBackToken = gstrdup(state->putBackToken);
     }
 }
 
@@ -1780,7 +1778,7 @@ void ejLexRestoreInputState(ej_t* ep, ejinput_t* state)
 void ejLexFreeInputState(ej_t* ep, ejinput_t* state)
 {
     if (state->putBackToken) {
-        bfree(state->putBackToken);
+        gfree(state->putBackToken);
         state->putBackToken = NULL;
     }
 }
@@ -1799,9 +1797,9 @@ static int getLexicalToken(ej_t* ep, int state)
     ejinput_t*  ip;
     int         done, tid, c, quote, style;
 
-    a_assert(ep);
+    gassert(ep);
     ip = ep->input;
-    a_assert(ip);
+    gassert(ip);
 
     tokq = &ip->tokbuf;
     ep->tid = -1;
@@ -2165,15 +2163,15 @@ void ejLexPutbackToken(ej_t* ep, int tid, char_t *string)
 {
     ejinput_t*  ip;
 
-    a_assert(ep);
+    gassert(ep);
     ip = ep->input;
-    a_assert(ip);
+    gassert(ip);
 
     if (ip->putBackToken) {
-        bfree(ip->putBackToken);
+        gfree(ip->putBackToken);
     }
     ip->putBackTokenId = tid;
-    ip->putBackToken = bstrdup(string);
+    ip->putBackToken = gstrdup(string);
 }
 
 
@@ -2181,9 +2179,9 @@ static int tokenAddChar(ej_t *ep, int c)
 {
     ejinput_t*  ip;
 
-    a_assert(ep);
+    gassert(ep);
     ip = ep->input;
-    a_assert(ip);
+    gassert(ip);
 
     if (ringqPutc(&ip->tokbuf, (char_t) c) < 0) {
         ejError(ep, T("Token too big"));
@@ -2202,7 +2200,7 @@ static int inputGetc(ej_t* ep)
     ssize       len;
     int         c;
 
-    a_assert(ep);
+    gassert(ep);
     ip = ep->input;
 
     if ((len = ringqLen(&ip->script)) == 0) {
@@ -2215,7 +2213,7 @@ static int inputGetc(ej_t* ep)
     } else {
         if ((ip->lineColumn + 2) >= ip->lineLength) {
             ip->lineLength += EJ_INC;
-            ip->line = brealloc(ip->line, ip->lineLength * sizeof(char_t));
+            ip->line = grealloc(ip->line, ip->lineLength * sizeof(char_t));
         }
         ip->line[ip->lineColumn++] = c;
         ip->line[ip->lineColumn] = '\0';
@@ -2228,7 +2226,7 @@ static void inputPutback(ej_t* ep, int c)
 {
     ejinput_t   *ip;
 
-    a_assert(ep);
+    gassert(ep);
 
     ip = ep->input;
     ringqInsertc(&ip->script, (char_t) c);

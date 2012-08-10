@@ -43,12 +43,12 @@ void websUrlHandlerClose()
         websAspClose();
         for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
             sp++) {
-            bfree(sp->urlPrefix);
+            gfree(sp->urlPrefix);
             if (sp->webDir) {
-                bfree(sp->webDir);
+                gfree(sp->webDir);
             }
         }
-        bfree(websUrlHandler);
+        gfree(websUrlHandler);
         websUrlHandlerMax = 0;
     }
 }
@@ -67,25 +67,25 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     websUrlHandlerType  *sp;
     int                 len;
 
-    a_assert(urlPrefix);
-    a_assert(handler);
+    gassert(urlPrefix);
+    gassert(handler);
 
     /*
         Grow the URL handler array to create a new slot
      */
     len = (websUrlHandlerMax + 1) * sizeof(websUrlHandlerType);
-    if ((websUrlHandler = brealloc(websUrlHandler, len)) == NULL) {
+    if ((websUrlHandler = grealloc(websUrlHandler, len)) == NULL) {
         return -1;
     }
     sp = &websUrlHandler[websUrlHandlerMax++];
     memset(sp, 0, sizeof(websUrlHandlerType));
 
-    sp->urlPrefix = bstrdup(urlPrefix);
+    sp->urlPrefix = gstrdup(urlPrefix);
     sp->len = gstrlen(sp->urlPrefix);
     if (webDir) {
-        sp->webDir = bstrdup(webDir);
+        sp->webDir = gstrdup(webDir);
     } else {
-        sp->webDir = bstrdup(T(""));
+        sp->webDir = gstrdup(T(""));
     }
     sp->handler = handler;
     sp->arg = arg;
@@ -128,8 +128,8 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
     websUrlHandlerType  *s1, *s2;
     int                 rc;
 
-    a_assert(p1);
-    a_assert(p2);
+    gassert(p1);
+    gassert(p2);
 
     s1 = (websUrlHandlerType*) p1;
     s2 = (websUrlHandlerType*) p2;
@@ -192,8 +192,8 @@ static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int 
 {
     ssize   len;
 
-    a_assert(websValid(wp));
-    a_assert(path);
+    gassert(websValid(wp));
+    gassert(path);
 
     /*
         Trim the urlPrefix off the path and set the webdirectory. Add one to step over the trailing '/'
@@ -213,7 +213,7 @@ int websUrlHandlerRequest(webs_t wp)
     websUrlHandlerType  *sp;
     int                 i, first;
 
-    a_assert(websValid(wp));
+    gassert(websValid(wp));
 
     /*
         Delete the socket handler as we don't want to start reading any data on the connection as it may be for the next
