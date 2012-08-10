@@ -121,7 +121,7 @@ Bit.load({
         /*
             Replace malloc with a non-fragmenting allocator
          */
-        replaceMalloc: true,
+        replaceMalloc: false,
 
         /*
             SSL port to listen on
