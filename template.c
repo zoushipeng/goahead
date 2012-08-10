@@ -52,17 +52,15 @@ void websAspClose()
 }
 
 
-int scriptEval(int engine, char_t *cmd, char_t **result, void* chan)
+int scriptEval(char_t *cmd, char_t **result, void* chan)
 {
     int     ejid;
 
-    if (engine == EMF_SCRIPT_EJSCRIPT) {
-        ejid = (int) chan;
-        if (ejEval(ejid, cmd, result) ) {
-            return 0;
-        } else {
-            return -1;
-        }
+    ejid = (int) chan;
+    if (ejEval(ejid, cmd, result) ) {
+        return 0;
+    } else {
+        return -1;
     }
     return -1;
 }
@@ -79,7 +77,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
     char_t          *token, *lang, *result, *path, *ep, *cp, *buf, *nextp;
     char_t          *last;
     ssize           len;
-    int             rc, engine, ejid;
+    int             rc, ejid;
 
     a_assert(websValid(wp));
     a_assert(lpath && *lpath);
@@ -87,7 +85,6 @@ int websAspRequest(webs_t wp, char_t *lpath)
     rc = -1;
     buf = NULL;
     rbuf = NULL;
-    engine = EMF_SCRIPT_EJSCRIPT;
     wp->flags |= WEBS_HEADER_DONE;
     wp->flags &= ~WEBS_KEEP_ALIVE;
     path = websGetRequestPath(wp);
@@ -95,9 +92,8 @@ int websAspRequest(webs_t wp, char_t *lpath)
     /*
         Create Ejscript instance in case it is needed
      */
-    ejid = ejOpenEngine(wp->cgiVars, websAspFunctions);
-    if (ejid < 0) {
-        websError(wp, 200, T("Can't create Ejscript engine"));
+    if ((ejid = ejOpenEngine(wp->cgiVars, websAspFunctions)) < 0) {
+        websError(wp, 200, T("Can't create JavaScript engine"));
         goto done;
     }
     ejSetUserHandle(ejid, wp);
@@ -147,7 +143,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
 
         if ((lang = strtokcmp(nextp, token)) != NULL) {
             if ((cp = strtokcmp(lang, T("=javascript"))) != NULL) {
-                engine = EMF_SCRIPT_EJSCRIPT;
+                /* Ignore */;
             } else {
                 cp = nextp;
             }
@@ -177,11 +173,7 @@ int websAspRequest(webs_t wp, char_t *lpath)
             }
             if (*nextp) {
                 result = NULL;
-                if (engine == EMF_SCRIPT_EJSCRIPT) {
-                    rc = scriptEval(engine, nextp, &result, (void *) ejid);
-                } else {
-                    rc = scriptEval(engine, nextp, &result, wp);
-                }
+                rc = scriptEval(nextp, &result, (void *) ejid);
                 if (rc < 0) {
                     /*
                          On an error, discard all output accumulated so far and store the error in the result buffer. Be

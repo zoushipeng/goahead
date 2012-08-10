@@ -455,7 +455,7 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
     /*
         Copy the text of the item
      */
-    nchar = nCopyAnsiToWideChar(p, GOAHEAD_COPYRIGHT);
+    nchar = nCopyAnsiToWideChar(p, EMBEDTHIS_GOAHEAD_COPYRIGHT);
     p += nchar;
     *p++ = 0;  
     p = ALIGN(p);

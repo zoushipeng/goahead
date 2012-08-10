@@ -83,7 +83,9 @@ static sym_t*       next;               /* Next symbol in iteration */
 
 static sched_t      **sched;
 static int          schedMax;
+#if UNUSED
 static int          emfInst;                   /* Application instance handle */
+#endif
 
 #if BIT_DEBUG_LOG
 //  MOB - rename
@@ -91,6 +93,8 @@ static char_t   *tracePath;
 static int      traceFd;                        /* Log file handle */
 static int      traceLevel;
 #endif
+
+char* embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
 
 /********************************** Forwards **********************************/
 
@@ -105,12 +109,12 @@ static void defaultTraceHandler(int level, char_t *buf);
 static TraceHandler traceHandler = defaultTraceHandler;
 #endif
 
-static int  ringqGrow(ringq_t *rq);
-static int  getBinBlockSize(int size);
+static int ringqGrow(ringq_t *rq);
+static int getBinBlockSize(int size);
 
-static int      hashIndex(sym_tabent_t *tp, char_t *name);
-static sym_t    *hash(sym_tabent_t *tp, char_t *name);
-static int      calcPrime(int size);
+static int hashIndex(sym_tabent_t *tp, char_t *name);
+static sym_t *hash(sym_tabent_t *tp, char_t *name);
+static int calcPrime(int size);
 
 /************************************* Code ***********************************/
 /*
@@ -1004,6 +1008,7 @@ void error(E_ARGS_DEC, int etype, char_t *fmt, ...) { }
 void trace(int level, char_t *fmt, ...) { }
 #endif /* BIT_DEBUG_LOG */
 
+#if UNUSED
 void emfInstSet(int inst)
 {
     emfInst = inst;
@@ -1014,6 +1019,7 @@ int emfInstGet()
 {
     return emfInst;
 }
+#endif
 
 
 /*

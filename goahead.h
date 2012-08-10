@@ -420,7 +420,6 @@
 #include    <string.h>
 #include    <stdlib.h>
 
-
 #if BIT_PACK_OPENSSL
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
@@ -431,25 +430,18 @@
 #include    <openssl/dh.h>
 #endif
 
-#if BIT_FEATURE_MATRIXSSL
+#if BIT_FEATURE_MATRIXSSL && UNUSED
 /*
    Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
    So must include matrixsslApi.h first and then workaround.
  */
-#if WINDOWS && UNUSED
- #include   <winsock2.h>
- #include   <windows.h>
-#endif
  #include    "matrixsslApi.h"
 
 #define     HAS_INT32 1
 #define     HAS_UINT32 1
 #define     HAS_INT64 1
 #define     HAS_UINT64 1
-
-#include    "goahead.h"
-
-#define MAX_WRITE_MSEC  500 /* Fail if we block more than X millisec on write */
+#define     MAX_WRITE_MSEC 500
 #endif
 
 /************************************** Defines *******************************/
@@ -614,33 +606,6 @@
     #endif
 #endif
 
-/**
-    Signed file offset data type. Supports large files greater than 4GB in size on all systems.
-    MOB - naming
- */
-typedef int64 filepos;
-
-// MOB - naming
-#if VXWORKS
-    typedef int SockLenArg;
-#else
-    typedef socklen_t SockLenArg;
-#endif
-
-#if DOXYGEN || WINDOWS
-    typedef int socklen_t;
-#endif
-#if VXWORKS
-    #define fcntl(a, b, c)
-    #if _WRS_VXWORKS_MAJOR < 6
-        #define NI_MAXHOST 128
-        extern STATUS access(char *path, int mode);
-        struct sockaddr_storage { char pad[1024]; };
-    #endif
-#endif /* VXWORKS */
-
-typedef int64 datetime;
-
 #ifndef BITSPERBYTE
     #define BITSPERBYTE (8 * sizeof(char))
 #endif
@@ -773,6 +738,8 @@ typedef int64 datetime;
     #define  NULL_INIT    {0}
 #endif
 
+/*********************************** Fixups ***********************************/
+
 #ifndef R_OK
     #define R_OK    4
     #define W_OK    2
@@ -817,8 +784,309 @@ typedef int64 datetime;
     #define BIT_FLEX
 #endif
 
-#define BIT_MAX_ARGC    32
 
+#if WINDOWS
+    #define getcwd  _getcwd
+    #define tempnam _tempnam
+    #define open    _open
+    #define close   _close
+    #define read    _read
+    #define write   _write
+    #define chdir   _chdir
+    #define lseek   _lseek
+    #define unlink  _unlink
+    #define stat    _stat
+#endif
+
+/**
+    Signed file offset data type. Supports large files greater than 4GB in size on all systems.
+    //  MOB RENAME
+ */
+typedef int64 filepos;
+typedef int64 datetime;
+
+// MOB - naming
+#if VXWORKS
+    typedef int SockLenArg;
+#else
+    typedef socklen_t SockLenArg;
+#endif
+
+#if DOXYGEN || WINDOWS
+    typedef int socklen_t;
+#endif
+
+#if VXWORKS
+    #define fcntl(a, b, c)
+    #if _WRS_VXWORKS_MAJOR < 6
+        #define NI_MAXHOST 128
+        extern STATUS access(char *path, int mode);
+        struct sockaddr_storage { char pad[1024]; };
+    #endif
+#endif /* VXWORKS */
+
+#if ECOS
+    #define     LIBKERN_INLINE          /* to avoid kernel inline functions */
+    #if BIT_CGI
+        #error "Ecos does not support CGI. Disable BIT_CGI"
+    #endif
+#endif /* ECOS */
+
+#if BIT_WIN_LIKE
+    #ifndef EWOULDBLOCK
+        #define EWOULDBLOCK WSAEWOULDBLOCK
+    #endif
+    #ifndef ENETDOWN
+        #define ENETDOWN    WSAENETDOWN
+    #endif
+    #ifndef ECONNRESET
+        #define ECONNRESET  WSAECONNRESET
+    #endif
+#endif
+
+#if LINUX && !defined(_STRUCT_TIMEVAL)
+    struct timeval
+    {
+        time_t  tv_sec;     /* Seconds.  */
+        time_t  tv_usec;    /* Microseconds.  */
+    };
+    #define _STRUCT_TIMEVAL 1
+#endif
+
+#if QNX
+    typedef long fd_mask;
+    #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
+#endif
+
+#if MACOSX
+    typedef int32_t fd_mask;
+#endif
+#if WINDOWS
+    typedef fd_set fd_mask;
+#endif
+
+#if UNICODE
+    #if !BIT_WIN_LIKE
+        #error "Unicode only supported on Windows or Windows CE"
+    #endif
+    typedef ushort char_t;
+    typedef ushort uchar_t;
+
+    /*
+        To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
+     */
+    #define T(x)      __TXT(x)
+    #define __TXT(s)  L ## s
+
+    /*
+        Text size of buffer macro. A buffer bytes will hold (size / char size) characters. 
+     */
+    #define TSZ(x) (sizeof(x) / sizeof(char_t))
+
+    #if UNUSED
+        /*
+            How many ASCII bytes are required to represent this UNICODE string?
+         */
+        #define TASTRL(x) ((wcslen(x) + 1) * sizeof(char_t))
+    #endif
+
+#else
+    #define T(s)        s
+    #define TSZ(x)      (sizeof(x))
+    #if UNUSED
+        #define TASTRL(x)   (strlen(x) + 1)
+    #endif
+    typedef char        char_t;
+    #if WINDOWS
+        typedef uchar   uchar_t;
+    #endif
+#endif /* UNICODE */
+
+/*
+    Copyright. The software license requires that this not be modified or removed.
+ */
+#define EMBEDTHIS_GOAHEAD_COPYRIGHT T(\
+    "Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved." \
+    "Copyright (c) GoAhead Software Inc., 2012. All Rights Reserved." \
+    )
+
+//  MOB - move
+typedef struct stat gstat_t;
+
+/************************************* Defines ********************************/
+/************************************ Unicode *********************************/
+#if UNICODE
+    #define gmain       wmain
+    #define gasctime    _wasctime
+    #define gsprintf    swprintf
+    #define gprintf     wprintf
+    #define gfprintf    fwprintf
+    #define gsscanf     swscanf
+    #define gvsprintf   vswprintf
+    #define gstrcpy     wcscpy
+    #define gstrncpy    wcsncpy
+    #define gstrncat    wcsncat
+    #define gstrlen     wcslen
+    #define gstrcat     wcscat
+    #define gstrcmp     wcscmp
+    #define gstrncmp    wcsncmp
+    #define gstricmp    wcsicmp
+    #define gstrchr     wcschr
+    #define gstrrchr    wcsrchr
+    #define gstrtok     wcstok
+    #define gstrnset    wcsnset
+    #define gstrrchr    wcsrchr
+    #define gstrspn     wcsspn
+    #define gstrcspn    wcscspn
+    #define gstrstr     wcsstr
+    #define gstrtol     wcstol
+    #define gfopen      _wfopen
+    #define gclose      close
+    #define gcreat      _wcreat
+    #define gfgets      fgetws
+    #define gfputs      fputws
+    #define gfscanf     fwscanf
+    #define ggets       _getws
+    #define glseek      lseek
+    #define gunlink     _wunlink
+    #define gread       read
+    #define grename     _wrename
+    #define gwrite      write
+    #define gtmpnam     _wtmpnam
+    #define gtempnam    _wtempnam
+    #define gfindfirst  _wfindfirst
+    #define gfinddata_t _wfinddata_t
+    #define gfindnext   _wfindnext
+    #define gfindclose  _findclose
+    #define gstat       _wstat
+    #define gaccess     _waccess
+    #define gchmod      _wchmod
+    
+        typedef struct _stat gstat_t;
+    
+    #define gmkdir      _wmkdir
+    #define gchdir      _wchdir
+    #define grmdir      _wrmdir
+    #define ggetcwd     _wgetcwd
+    #define gtolower    towlower
+    #define gtoupper    towupper
+    
+    #if CE
+    #define gisspace    isspace
+    #define gisdigit    isdigit
+    #define gisxdigit   isxdigit
+    #define gisupper    isupper
+    #define gislower    islower
+    #define gisprint    isprint
+    #else
+    #define gremove     _wremove
+    #define gisspace    iswspace
+    #define gisdigit    iswdigit
+    #define gisxdigit   iswxdigit
+    #define gisupper    iswupper
+    #define gislower    iswlower
+    #endif  /* CE */
+    
+    #define gisalnum    iswalnum
+    #define gisalpha    iswalpha
+    #define gatoi(s)    wcstol(s, NULL, 10)
+    
+    #define gctime      _wctime
+    #define ggetenv     _wgetenv
+    #define gexecvp     _wexecvp
+#else /* !UNICODE */
+
+    #if VXWORKS
+    #define gchdir      vxchdir
+    #define gmkdir      vxmkdir
+    #define grmdir      vxrmdir
+    #elif BIT_UNIX_LIKE
+    #define gchdir      chdir
+    #define gmkdir(s)   mkdir(s,0755)
+    #define grmdir      rmdir
+    #else
+    #define gchdir      chdir
+    #define gmkdir      mkdir
+    #define grmdir      rmdir
+    #endif /* VXWORKS #elif LYNX || LINUX || MACOSX || SOLARIS*/
+    
+    #define gclose      close
+    #define gclosedir   closedir
+    #define gchmod      chmod
+    #define ggetcwd     getcwd
+    #define glseek      lseek
+    #define gloadModule loadModule
+    #define gopendir    opendir
+    #define gread       read
+    #define greaddir    readdir
+    #define grename     rename
+    #define gstat       stat
+    #define gunlink     unlink
+    #define gwrite      write
+    
+    #define gasctime    asctime
+    #define gsprintf    sprintf
+    #define gprintf     printf
+    #define gfprintf    fprintf
+    #define gsscanf     sscanf
+    #define gvsprintf   vsprintf
+    
+    #define gstrcpy     strcpy
+    #define gstrncpy    strncpy
+    #define gstrncat    strncat
+    #define gstrlen     strlen
+    #define gstrcat     strcat
+    #define gstrcmp     strcmp
+    #define gstrncmp    strncmp
+    #define gstricmp    strcmpci
+    #define gstrchr     strchr
+    #define gstrrchr    strrchr
+    #define gstrtok     strtok
+    #define gstrnset    strnset
+    #define gstrrchr    strrchr
+    #define gstrspn strspn
+    #define gstrcspn    strcspn
+    #define gstrstr     strstr
+    #define gstrtol     strtol
+    
+    #define gfopen      fopen
+    #define gcreat      creat
+    #define gfgets      fgets
+    #define gfputs      fputs
+    #define gfscanf     fscanf
+    #define ggets       gets
+    #define gtmpnam     tmpnam
+    #define gtempnam    tempnam
+    #define gfindfirst  _findfirst
+    #define gfinddata_t _finddata_t
+    #define gfindnext   _findnext
+    #define gfindclose  _findclose
+    #define gaccess     access
+    
+    #define gremove     remove
+    
+    #define gtolower    tolower
+    #define gtoupper    toupper
+    #define gisspace    isspace
+    #define gisdigit    isdigit
+    #define gisxdigit   isxdigit
+    #define gisalnum    isalnum
+    #define gisalpha    isalpha
+    #define gisupper    isupper
+    #define gislower    islower
+    #define gatoi       atoi
+    
+    #define gctime      ctime
+    #define ggetenv     getenv
+    #define gexecvp     execvp
+    #ifndef VXWORKS
+    #define gmain       main
+    #endif /* ! VXWORKS */
+#endif /* ! UNICODE */
+
+/************************************* Defines ********************************/
+
+#define BIT_MAX_ARGC 32
 #if VXWORKS
     #define MAIN(name, _argc, _argv, _envp)  \
         static int innerMain(int argc, char **argv, char **envp); \
@@ -869,295 +1137,10 @@ typedef int64 datetime;
 //  MOB - prefix
 extern int parseArgs(char *args, char **argv, int maxArgc);
 
-/*********************************** Fixups ***********************************/
-
-#if ECOS
-    #define     LIBKERN_INLINE          /* to avoid kernel inline functions */
-    #if BIT_CGI
-        #error "Ecos does not support CGI. Disable BIT_CGI"
-    #endif
-#endif /* ECOS */
-
-#if BIT_WIN_LIKE
-    #ifndef EWOULDBLOCK
-        #define EWOULDBLOCK WSAEWOULDBLOCK
-    #endif
-    #ifndef ENETDOWN
-        #define ENETDOWN    WSAENETDOWN
-    #endif
-    #ifndef ECONNRESET
-        #define ECONNRESET  WSAECONNRESET
-    #endif
-#endif
-
-#if LINUX && !defined(_STRUCT_TIMEVAL)
-struct timeval
-{
-    time_t  tv_sec;     /* Seconds.  */
-    time_t  tv_usec;    /* Microseconds.  */
-};
-#define _STRUCT_TIMEVAL 1
-#endif
-
-#if QNX
-    typedef long fd_mask;
-    #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
-#endif
-
-#if MACOSX
-    typedef int32_t fd_mask;
-#endif
-#if WINDOWS
-    typedef fd_set fd_mask;
-#endif
-
-#if UNICODE
-    #if !BIT_WIN_LIKE
-        #error "Unicode only supported on Windows or Windows CE"
-    #endif
-typedef ushort char_t;
-typedef ushort uchar_t;
-
-/*
-    To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
- */
-#define T(x)      __TXT(x)
-#define __TXT(s)  L ## s
-
-/*
-    Text size of buffer macro. A buffer bytes will hold (size / char size) characters. 
- */
-#define TSZ(x) (sizeof(x) / sizeof(char_t))
-
-#if UNUSED
-/*
-    How many ASCII bytes are required to represent this UNICODE string?
- */
-#define TASTRL(x) ((wcslen(x) + 1) * sizeof(char_t))
-#endif
-
-#else
-    #define T(s)        s
-    #define TSZ(x)      (sizeof(x))
-#if UNUSED
-    #define TASTRL(x)   (strlen(x) + 1)
-#endif
-    typedef char        char_t;
-    #if WINDOWS
-        typedef uchar   uchar_t;
-    #endif
-#endif /* UNICODE */
-
-#if UNUSED
-#ifndef TRUE
-#define TRUE 1
-#endif
-
-#ifndef FALSE
-#define FALSE 0
-#endif
-#endif
-
-/*
-    GoAhead Copyright.
-    MOB - this must be included in some source somewhere
- */
-#define GOAHEAD_COPYRIGHT T("Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved.")
-
-/*
-    Type for unicode systems
- */
-#if UNICODE
-#define gmain       wmain
-#define gasctime    _wasctime
-#define gsprintf    swprintf
-#define gprintf     wprintf
-#define gfprintf    fwprintf
-#define gsscanf     swscanf
-#define gvsprintf   vswprintf
-#define gstrcpy     wcscpy
-#define gstrncpy    wcsncpy
-#define gstrncat    wcsncat
-#define gstrlen     wcslen
-#define gstrcat     wcscat
-#define gstrcmp     wcscmp
-#define gstrncmp    wcsncmp
-#define gstricmp    wcsicmp
-#define gstrchr     wcschr
-#define gstrrchr    wcsrchr
-#define gstrtok     wcstok
-#define gstrnset    wcsnset
-#define gstrrchr    wcsrchr
-#define gstrspn wcsspn
-#define gstrcspn    wcscspn
-#define gstrstr     wcsstr
-#define gstrtol     wcstol
-#define gfopen      _wfopen
-#define gclose      close
-#define gcreat      _wcreat
-#define gfgets      fgetws
-#define gfputs      fputws
-#define gfscanf     fwscanf
-#define ggets       _getws
-#define glseek      lseek
-#define gunlink     _wunlink
-#define gread       read
-#define grename     _wrename
-#define gwrite      write
-#define gtmpnam     _wtmpnam
-#define gtempnam    _wtempnam
-#define gfindfirst  _wfindfirst
-#define gfinddata_t _wfinddata_t
-#define gfindnext   _wfindnext
-#define gfindclose  _findclose
-#define gstat       _wstat
-#define gaccess     _waccess
-#define gchmod      _wchmod
-
-typedef struct _stat gstat_t;
-
-#define gmkdir      _wmkdir
-#define gchdir      _wchdir
-#define grmdir      _wrmdir
-#define ggetcwd     _wgetcwd
-#define gtolower    towlower
-#define gtoupper    towupper
-
-#if CE
-#define gisspace    isspace
-#define gisdigit    isdigit
-#define gisxdigit   isxdigit
-#define gisupper    isupper
-#define gislower    islower
-#define gisprint    isprint
-#else
-#define gremove     _wremove
-#define gisspace    iswspace
-#define gisdigit    iswdigit
-#define gisxdigit   iswxdigit
-#define gisupper    iswupper
-#define gislower    iswlower
-#endif  /* CE */
-
-#define gisalnum    iswalnum
-#define gisalpha    iswalpha
-#define gatoi(s)    wcstol(s, NULL, 10)
-
-#define gctime      _wctime
-#define ggetenv     _wgetenv
-#define gexecvp     _wexecvp
-#else /* !UNICODE */
-
-#if VXWORKS
-#define gchdir      vxchdir
-#define gmkdir      vxmkdir
-#define grmdir      vxrmdir
-#elif BIT_UNIX_LIKE
-#define gchdir      chdir
-#define gmkdir(s)   mkdir(s,0755)
-#define grmdir      rmdir
-#else
-#define gchdir      chdir
-#define gmkdir      mkdir
-#define grmdir      rmdir
-#endif /* VXWORKS #elif LYNX || LINUX || MACOSX || SOLARIS*/
-
-#define gclose      close
-#define gclosedir   closedir
-#define gchmod      chmod
-#define ggetcwd     getcwd
-#define glseek      lseek
-#define gloadModule loadModule
-#define gopendir    opendir
-#define gread       read
-#define greaddir    readdir
-#define grename     rename
-#define gstat       stat
-#define gunlink     unlink
-#define gwrite      write
-
-#define gasctime    asctime
-#define gsprintf    sprintf
-#define gprintf     printf
-#define gfprintf    fprintf
-#define gsscanf     sscanf
-#define gvsprintf   vsprintf
-
-#define gstrcpy     strcpy
-#define gstrncpy    strncpy
-#define gstrncat    strncat
-#define gstrlen     strlen
-#define gstrcat     strcat
-#define gstrcmp     strcmp
-#define gstrncmp    strncmp
-#define gstricmp    strcmpci
-#define gstrchr     strchr
-#define gstrrchr    strrchr
-#define gstrtok     strtok
-#define gstrnset    strnset
-#define gstrrchr    strrchr
-#define gstrspn strspn
-#define gstrcspn    strcspn
-#define gstrstr     strstr
-#define gstrtol     strtol
-
-#define gfopen      fopen
-#define gcreat      creat
-#define gfgets      fgets
-#define gfputs      fputs
-#define gfscanf     fscanf
-#define ggets       gets
-#define gtmpnam     tmpnam
-#define gtempnam    tempnam
-#define gfindfirst  _findfirst
-#define gfinddata_t _finddata_t
-#define gfindnext   _findnext
-#define gfindclose  _findclose
-#define gaccess     access
-
-#define gremove     remove
-
-#define gtolower    tolower
-#define gtoupper    toupper
-#define gisspace    isspace
-#define gisdigit    isdigit
-#define gisxdigit   isxdigit
-#define gisalnum    isalnum
-#define gisalpha    isalpha
-#define gisupper    isupper
-#define gislower    islower
-#define gatoi       atoi
-
-#define gctime      ctime
-#define ggetenv     getenv
-#define gexecvp     execvp
-#ifndef VXWORKS
-#define gmain       main
-#endif /* ! VXWORKS */
-
-#endif /* ! UNICODE */
-
-#if WINDOWS
-#define getcwd  _getcwd
-#define tempnam _tempnam
-#define open    _open
-#define close   _close
-#define read    _read
-#define write   _write
-#define chdir   _chdir
-#define lseek   _lseek
-#define unlink  _unlink
-#define stat    _stat
-#endif
-
-//  MOB - move
-typedef struct stat gstat_t;
-
-/******************************************************************************/
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
+/************************************* Error **********************************/
 /*
     Error types
  */
@@ -1178,6 +1161,11 @@ extern "C" {
 
 #define elementsof(X) sizeof(X) / sizeof(X[0])
 
+#if LEGACY
+#define a_assert gassert
+#endif
+
+/************************************* Value **********************************/
 /*
     These values are not prefixed so as to aid code readability
  */
@@ -1234,7 +1222,7 @@ typedef struct {
 #define VALUE_VALID         { {0}, integer, 1 }
 #define VALUE_INVALID       { {0}, undefined, 0 }
 
-/******************************************************************************/
+/************************************* Ringq **********************************/
 /*
     A ring queue allows maximum utilization of memory for data storage and is
     ideal for input/output buffering. This module provides a highly effecient
@@ -1272,9 +1260,6 @@ typedef struct {
     The ringqPutc and ringqGetc routines will do this automatically.
  */
 
-/*
-    Ring queue buffer structure
- */
 typedef struct {
     uchar   *buf;               /* Holding buffer for data */
     uchar   *servp;             /* Pointer to start of data */
@@ -1328,15 +1313,6 @@ typedef struct sym_t {
 } sym_t;
 
 typedef int sym_fd_t;                       /* Returned by symOpen */
-
-/*
-    Script engines
-    MOB - remove
- */
-#define EMF_SCRIPT_JSCRIPT          0       /* javascript */
-#define EMF_SCRIPT_TCL              1       /* tcl */
-#define EMF_SCRIPT_EJSCRIPT         2       /* Ejscript */
-#define EMF_SCRIPT_MAX              3
 
 #define STRSPACE    T("\t \n\r\t")
 
@@ -1461,6 +1437,10 @@ extern int  bopen(void *buf, int bufsize, int flags);
 extern char_t   *basename(char_t *name);
 #endif /* !LINUX */
 
+
+
+
+//  RENAME
 typedef void    (emfSchedProc)(void *data, int id);
 extern int      emfSchedCallback(int delay, emfSchedProc *proc, void *arg);
 extern void     emfUnschedCallback(int id);
@@ -1507,8 +1487,8 @@ extern void     ringqGetBlkAdj(ringq_t *rq, ssize size);
 extern void     ringqFlush(ringq_t *rq);
 extern void     ringqAddNull(ringq_t *rq);
 
-extern int      scriptSetVar(int engine, char_t *var, char_t *value);
-extern int      scriptEval(int engine, char_t *cmd, char_t **rslt, void* chan);
+extern int      scriptSetVar(char_t *var, char_t *value);
+extern int      scriptEval(char_t *cmd, char_t **rslt, void* chan);
 
 extern int      socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port);
 extern bool     socketAddressIsV6(char_t *ip);
@@ -1606,7 +1586,7 @@ extern void     valueFree(value_t *v);
 
 extern int      vxchdir(char *dirname);
 
-extern uint hextoi(char_t *hexstring);
+extern uint     hextoi(char_t *hexstring);
 extern time_t    timeMsec();
 
 extern char_t   *ascToUni(char_t *ubuf, char *str, ssize nBytes);
@@ -2229,8 +2209,8 @@ extern bool amCan(char_t *capability);
 //  ASP
 extern void can(char_t *capability):
 #endif
-
 #endif /* BIT_USER_MANAGEMENT */
+
 #ifdef __cplusplus
 }
 #endif
