@@ -161,6 +161,7 @@ Bit.load({
             depends: [ ],
             headers: [ '*.h' ],
             sources: [ '*.c', 'test/test.c' ],
+            headers: [ '*.h' ],
             exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
         },

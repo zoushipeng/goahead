@@ -2076,7 +2076,9 @@ int gopen(char_t *path, int oflags, int mode)
     #if UNICODE
         fd = _wopen(path, oflags, mode);
     #else
-        fd = _sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600);
+        if (_sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600) != 0) {
+			fd = -1;
+		}
     #endif
 #else
     fd = open(path, oflags, mode);

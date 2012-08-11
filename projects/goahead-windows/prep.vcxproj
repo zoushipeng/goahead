@@ -98,8 +98,7 @@
     <Command>if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
-if not exist "$(IncDir)\bit.h" copy "..\goahead-windows-bit.h" "$(IncDir)\bit.h"
-if not exist "$(BinDir)\libmpr.def" xcopy /Y /S *.def "$(BinDir)"</Command>
+if not exist "$(IncDir)\bit.h" copy "..\goahead-windows-bit.h" "$(IncDir)\bit.h"</Command>
     <Outputs>..\..\always</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
