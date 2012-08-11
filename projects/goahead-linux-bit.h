@@ -51,7 +51,7 @@
 #define BIT_PACKS "bits/packs"
 #define BIT_PASSWORD ""
 #define BIT_PRODUCT "goahead"
-#define BIT_REPLACE_MALLOC 1
+#define BIT_REPLACE_MALLOC 0
 #define BIT_REQUIRED "compiler,link"
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"

@@ -202,6 +202,8 @@ $(CONFIG)/obj/test.o: \
 	$(CC) -c -o $(CONFIG)/obj/test.o -Wall -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
         $(CONFIG)/obj/db.o \

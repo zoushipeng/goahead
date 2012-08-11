@@ -55,15 +55,15 @@
 #define BIT_VERSION "3.0.0"
 
 /* Prefixes */
-#define BIT_CFG_PREFIX "C:/Program Files/Embedthis GoAhead"
-#define BIT_BIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
-#define BIT_INC_PREFIX "C:/Program Files/Embedthis GoAhead/inc"
-#define BIT_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/logs"
-#define BIT_PRD_PREFIX "C:/Program Files/Embedthis GoAhead"
-#define BIT_SPL_PREFIX "C:/Program Files/Embedthis GoAhead/tmp"
-#define BIT_SRC_PREFIX "C:/Program Files/Embedthis GoAhead/src"
-#define BIT_VER_PREFIX "C:/Program Files/Embedthis GoAhead"
-#define BIT_WEB_PREFIX "C:/Program Files/Embedthis GoAhead/web"
+#define BIT_CFG_PREFIX "C:/Program Files (x86)/Embedthis GoAhead"
+#define BIT_BIN_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/bin"
+#define BIT_INC_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/inc"
+#define BIT_LOG_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/logs"
+#define BIT_PRD_PREFIX "C:/Program Files (x86)/Embedthis GoAhead"
+#define BIT_SPL_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/tmp"
+#define BIT_SRC_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/src"
+#define BIT_VER_PREFIX "C:/Program Files (x86)/Embedthis GoAhead"
+#define BIT_WEB_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/web"
 
 /* Suffixes */
 #define BIT_EXE ".exe"
@@ -75,7 +75,7 @@
 /* Profile */
 #define BIT_GOAHEAD_PRODUCT 1
 #define BIT_PROFILE "vs"
-#define BIT_CONFIG_CMD "bit -d -q -configure . -without all --without ssl -profile vs -gen vs"
+#define BIT_CONFIG_CMD "bit -d -q -platform windows-x86 -without all -profile vs -configure . -gen vs"
 
 /* Miscellaneous */
 #define BIT_MAJOR_VERSION 3
@@ -87,7 +87,7 @@
 #define BIT_PACK_CC 1
 #define BIT_PACK_DOXYGEN 0
 #define BIT_PACK_DSI 0
-#define BIT_PACK_DUMPBIN 1
+#define BIT_PACK_DUMPBIN 0
 #define BIT_PACK_EJS 0
 #define BIT_PACK_LINK 1
 #define BIT_PACK_MAN 0
@@ -100,4 +100,3 @@
 #define BIT_PACK_UTEST 1
 #define BIT_PACK_WINSDK 1
 #define BIT_PACK_ZIP 1
-#define BIT_VISUAL_STUDIO_VERSION "10.0"

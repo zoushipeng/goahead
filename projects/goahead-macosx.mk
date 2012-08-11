@@ -225,6 +225,8 @@ $(CONFIG)/obj/test.o: \
 	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
         $(CONFIG)/obj/db.o \
