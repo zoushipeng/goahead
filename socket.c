@@ -147,7 +147,7 @@ int socketConnect(char *ip, int port, int flags)
     /*
         Connect to the remote server in blocking mode, then go into non-blocking mode if desired.
      */
-    if (! (sp->flags & SOCKET_BLOCK)) {
+    if (!(sp->flags & SOCKET_BLOCK)) {
 #if BIT_WIN_LIKE
         /*
             Set to non-blocking for an async connect
@@ -286,11 +286,6 @@ ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
     if (sp->flags & SOCKET_EOF) {
         return 0;
     }
-#if BIT_WIN_LIKE
-    if (!(sp->flags & SOCKET_BLOCK) && !socketWaitForEvent(sp,  FD_CONNECT, errCode)) {
-        return -1;
-    }
-#endif
     if ((bytesRead = recv(sp->sock, buf, toRead, 0)) < 0) {
         *errCode = socketGetError();
         if (*errCode == ECONNRESET) {
@@ -441,20 +436,18 @@ int socketSelect(int sid, int timeout)
             break;
         }
     }
-
     /*
-        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. So,
-        if WINDOWS, sleep.  
+        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. 
+        So, if WINDOWS, sleep.  
      */
     if (nEvents == 0) {
         Sleep(timeout);
         return 0;
     }
-
     /*
         Wait for the event or a timeout.
      */
-    nEvents = select(socketHighestFd+1, &readFds, &writeFds, &exceptFds, &tv);
+    nEvents = select(socketHighestFd + 1, &readFds, &writeFds, &exceptFds, &tv);
 
     if (all) {
         sid = 0;
@@ -465,19 +458,18 @@ int socketSelect(int sid, int timeout)
         }
 
         if (FD_ISSET(sp->sock, &readFds) || socketInputBuffered(sid) > 0) {
-                sp->currentEvents |= SOCKET_READABLE;
+            sp->currentEvents |= SOCKET_READABLE;
         }
         if (FD_ISSET(sp->sock, &writeFds)) {
-                sp->currentEvents |= SOCKET_WRITABLE;
+            sp->currentEvents |= SOCKET_WRITABLE;
         }
         if (FD_ISSET(sp->sock, &exceptFds)) {
-                sp->currentEvents |= SOCKET_EXCEPTION;
+            sp->currentEvents |= SOCKET_EXCEPTION;
         }
         if (! all) {
             break;
         }
     }
-
     return nEvents;
 }
 
@@ -719,7 +711,8 @@ int socketSetBlock(int sid, int on)
     } else {
 #if BIT_WIN_LIKE
         ulong flag = !on;
-        ioctlsocket(sp->sock, FIONBIO, &flag);
+        int rc = ioctlsocket(sp->sock, FIONBIO, &flag);
+		rc = rc;
 #elif ECOS
         int on = 1;
         ioctl(sp->sock, FIONBIO, &on);
@@ -806,9 +799,8 @@ ssize socketWrite(int sid, char *buf, ssize bufsize)
             if ((room = ringqPutBlkMax(rq)) == 0) {
                 if (sp->flags & SOCKET_BLOCK) {
 #if BIT_WIN_LIKE
-                    int     errCode;
-                    if (! socketWaitForEvent(sp,  FD_WRITE | SOCKET_WRITABLE,
-                        &errCode)) {
+                    int errCode;
+                    if (!socketWaitForEvent(sp, /* UNUSED FD_WRITE | */ SOCKET_WRITABLE, &errCode)) {
                         return -1;
                     }
 #endif
@@ -1017,16 +1009,15 @@ int socketFlush(int sid)
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
 #if BIT_WIN_LIKE
                 if (sp->flags & SOCKET_BLOCK) {
-                    int     errCode;
-                    if (! socketWaitForEvent(sp,  FD_WRITE | SOCKET_WRITABLE,
-                        &errCode)) {
+                    int errCode;
+                    if (! socketWaitForEvent(sp, /* UNUSED FD_WRITE | */ SOCKET_WRITABLE, &errCode)) {
                         return -1;
                     }
                     continue;
                 } 
 #endif
                 /*
-                    Ensure we get a FD_WRITE message when the socket can absorb more data (non-blocking only.) Store the
+                    Ensure we get a writable event when the socket can absorb more data (non-blocking only.) Store the
                     user's mask if we haven't done it already.
                  */
                 if (sp->saveMask < 0 ) {
@@ -1175,21 +1166,20 @@ static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode
     *errCode = 0;
 
 #if BIT_WIN_LIKE
-    if ((sp->flags & SOCKET_ASYNC)
-            && ! socketWaitForEvent(sp,  FD_CONNECT, errCode)) {
+    if ((sp->flags & SOCKET_ASYNC) && !socketWaitForEvent(sp, SOCKET_WRITABLE, errCode)) {
         return -1;
     }
 #endif
     if ((bytes = send(sp->sock, buf, toWrite, 0)) < 0) {
         *errCode = socketGetError();
 #if BIT_WIN_LIKE
-        sp->currentEvents &= ~FD_WRITE;
+        sp->currentEvents &= ~SOCKET_WRITABLE;       //  MOB ~FD_WRITE;
 #endif
         return -1;
     } else if (bytes == 0 && bytes != toWrite) {
         *errCode = EWOULDBLOCK;
 #if BIT_WIN_LIKE
-        sp->currentEvents &= ~FD_WRITE;
+        sp->currentEvents &= ~SOCKET_WRITABLE;       //  MOB ~FD_WRITE;
 #endif
         return -1;
     }

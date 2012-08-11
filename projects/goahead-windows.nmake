@@ -82,103 +82,124 @@ $(CONFIG)\inc\js.h:
 
 $(CONFIG)\obj\cgi.obj: \
         cgi.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc cgi.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 cgi.c
 
 $(CONFIG)\obj\crypt.obj: \
         crypt.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc crypt.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 crypt.c
 
 $(CONFIG)\obj\db.obj: \
         db.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\db.obj -Fd$(CONFIG)\obj\db.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc db.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\db.obj -Fd$(CONFIG)\obj\db.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 db.c
 
 $(CONFIG)\obj\default.obj: \
         default.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\default.obj -Fd$(CONFIG)\obj\default.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc default.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\default.obj -Fd$(CONFIG)\obj\default.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 default.c
 
 $(CONFIG)\obj\form.obj: \
         form.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\form.obj -Fd$(CONFIG)\obj\form.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc form.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\form.obj -Fd$(CONFIG)\obj\form.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 form.c
 
 $(CONFIG)\obj\galloc.obj: \
         galloc.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\galloc.obj -Fd$(CONFIG)\obj\galloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc galloc.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\galloc.obj -Fd$(CONFIG)\obj\galloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 galloc.c
 
 $(CONFIG)\obj\goahead.obj: \
         goahead.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc goahead.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 goahead.c
 
 $(CONFIG)\obj\handler.obj: \
         handler.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\handler.obj -Fd$(CONFIG)\obj\handler.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc handler.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\handler.obj -Fd$(CONFIG)\obj\handler.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 handler.c
 
 $(CONFIG)\obj\http.obj: \
         http.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc http.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 http.c
 
 $(CONFIG)\obj\js.obj: \
         js.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc js.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\js.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 js.c
 
 $(CONFIG)\obj\matrixssl.obj: \
         matrixssl.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc matrixssl.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 matrixssl.c
 
 $(CONFIG)\obj\openssl.obj: \
         openssl.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc openssl.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 openssl.c
 
 $(CONFIG)\obj\rom-documents.obj: \
         rom-documents.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc rom-documents.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 rom-documents.c
 
 $(CONFIG)\obj\rom.obj: \
         rom.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\rom.obj -Fd$(CONFIG)\obj\rom.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc rom.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\rom.obj -Fd$(CONFIG)\obj\rom.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 rom.c
 
 $(CONFIG)\obj\runtime.obj: \
         runtime.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc runtime.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 runtime.c
 
 $(CONFIG)\obj\security.obj: \
         security.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\security.obj -Fd$(CONFIG)\obj\security.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc security.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\security.obj -Fd$(CONFIG)\obj\security.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 security.c
 
 $(CONFIG)\obj\socket.obj: \
         socket.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc socket.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 socket.c
 
 $(CONFIG)\obj\ssl.obj: \
         ssl.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\ssl.obj -Fd$(CONFIG)\obj\ssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc ssl.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\ssl.obj -Fd$(CONFIG)\obj\ssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 ssl.c
 
 $(CONFIG)\obj\template.obj: \
         template.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\template.obj -Fd$(CONFIG)\obj\template.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc template.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\template.obj -Fd$(CONFIG)\obj\template.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 template.c
 
 $(CONFIG)\obj\um.obj: \
         um.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\um.obj -Fd$(CONFIG)\obj\um.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc um.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\um.obj -Fd$(CONFIG)\obj\um.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 um.c
 
 $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\inc\goahead.h \
@@ -203,12 +224,14 @@ $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\obj\ssl.obj \
         $(CONFIG)\obj\template.obj \
         $(CONFIG)\obj\um.obj
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) -libpath:..\packages-windows-x86\openssl\openssl-1.0.1b\out32dll $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(LIBS) libeay32.lib ssleay32.lib
 
 $(CONFIG)\obj\test.obj: \
         test\test.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\test.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 test\test.c
 
 $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\obj\cgi.obj \
@@ -231,18 +254,19 @@ $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\obj\template.obj \
         $(CONFIG)\obj\um.obj \
         $(CONFIG)\obj\test.obj
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(CONFIG)\obj\test.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) -libpath:..\packages-windows-x86\openssl\openssl-1.0.1b\out32dll $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\db.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\security.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\um.obj $(CONFIG)\obj\test.obj $(LIBS) libeay32.lib ssleay32.lib
 
 $(CONFIG)\obj\webcomp.obj: \
         utils\webcomp.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\webcomp.obj -Fd$(CONFIG)\obj\webcomp.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc utils\webcomp.c
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\webcomp.obj -Fd$(CONFIG)\obj\webcomp.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -I..\packages-windows-x86\openssl\openssl-1.0.1b\inc32 utils\webcomp.c
 
 $(CONFIG)\bin\webcomp.exe:  \
         $(CONFIG)\inc\goahead.h \
         $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\webcomp.obj
-	"$(LD)" -out:$(CONFIG)\bin\webcomp.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\webcomp.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\webcomp.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) -libpath:..\packages-windows-x86\openssl\openssl-1.0.1b\out32dll $(CONFIG)\obj\webcomp.obj $(LIBS) libeay32.lib ssleay32.lib
 
 $(CONFIG)\obj\cgitest.obj: \
         test\cgitest.c \

@@ -138,8 +138,8 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-xcopy /Y /S /D goahead.h $(IncDir)
-xcopy /Y /S /D js.h $(IncDir)
+copy /Y goahead.h $(IncDir)
+copy /Y js.h $(IncDir)
 cd projects\goahead-windows</Command>
     <Outputs>$(BinDir)\goahead.exe</Outputs>
   </CustomBuildStep>
