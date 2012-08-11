@@ -159,6 +159,7 @@ Bit.load({
             enable: bit.settings.profile != 'release',
             type: 'exe',
             depends: [ ],
+            headers: [ '*.h' ],
             sources: [ '*.c', 'test/test.c' ],
             exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
