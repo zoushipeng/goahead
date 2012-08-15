@@ -53,9 +53,9 @@ int sslOpen()
     randBuf.pid = getpid();
     RAND_seed((void*) &randBuf, sizeof(randBuf));
 #if BIT_UNIX_LIKE
-    trace(6, T("OpenSsl: Before calling RAND_load_file"));
+    trace(6, T("OpenSsl: Before calling RAND_load_file\n"));
     RAND_load_file("/dev/urandom", 256);
-    trace(6, T("OpenSsl: After calling RAND_load_file"));
+    trace(6, T("OpenSsl: After calling RAND_load_file\n"));
 #endif
 
     CRYPTO_malloc_init(); 

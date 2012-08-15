@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9FC45C179FC48C4D00000043"
-               BuildableName = "goahead-test"
-               BlueprintName = "goahead-test"
+               BuildableName = "cgitest"
+               BlueprintName = "cgitest"
                ReferencedContainer = "container:goahead-macosx.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000043"
+            BlueprintIdentifier = "9FC45C179FC48C4D0000003F"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -52,7 +52,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000043"
+            BlueprintIdentifier = "9FC45C179FC48C4D0000003F"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -64,7 +64,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--debug 127.0.0.1:8080 web"
+            argument = "--log stdout:4 --debug 127.0.0.1:8080 web"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9FC45C179FC48C4D00000043"
-            BuildableName = "goahead-test"
-            BlueprintName = "goahead-test"
+            BuildableName = "cgitest"
+            BlueprintName = "cgitest"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

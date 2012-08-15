@@ -90,7 +90,6 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     sp->handler = handler;
     sp->arg = arg;
     sp->flags = flags;
-
     /*
         Sort in decreasing URL length order observing the flags for first and last
      */
@@ -227,6 +226,13 @@ int websUrlHandlerRequest(webs_t wp)
         websError(wp, 400, T("Bad request"));
         return 0;
     }
+#if BIT_AUTH
+    if (!amVerifyUri(wp)) {
+        gassert(wp->code);
+        websStats.access++;
+        return 1;
+    }
+#endif
     /*
         We loop over each handler in order till one accepts the request.  The security handler will handle the request
         if access is NOT allowed.  

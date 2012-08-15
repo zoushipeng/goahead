@@ -84,7 +84,6 @@ typedef struct {
 
 #define CRYPT_HASH_SIZE   16
 
-#if UNUSED && KEEP
 /*
     Encoding map lookup
  */
@@ -98,7 +97,6 @@ static char encodeMap[] = {
     'w', 'x', 'y', 'z', '0', '1', '2', '3',
     '4', '5', '6', '7', '8', '9', '+', '/',
 };
-#endif
 
 
 /*
@@ -160,7 +158,7 @@ char_t *websDecode64Block(char_t *s, ssize *len, int flags)
     int     c, i, j, shift;
 
     size = gstrlen(s);
-    if ((buffer = malloc(size + 1)) == 0) {
+    if ((buffer = galloc(size + 1)) == 0) {
         return NULL;
     }
     bp = buffer;
@@ -223,7 +221,7 @@ char *websMD5binary(char_t *buf, ssize length, char_t *prefix)
     }
     *r = '\0';
     len = (prefix) ? gstrlen(prefix) : 0;
-    str = malloc(sizeof(result) + len);
+    str = galloc(sizeof(result) + len);
     if (str) {
         if (prefix) {
             strcpy(str, prefix);
@@ -423,14 +421,13 @@ static void decode(uint *output, uchar *input, uint len)
 }
 
 
-#if UNUSED && KEEP
 /*
     Encode a null terminated string.
     Returns a null terminated block
  */
-char *websEncode64(cchar *s)
+char_t *websEncode64(char_t *s)
 {
-    return websEncode64Block(s, gstrlen(s));
+    return websEncode64Block(s, glen(s));
 }
 
 
@@ -438,7 +435,7 @@ char *websEncode64(cchar *s)
     Encode a block of a given length
     Returns a null terminated block
  */
-char *websEncode64Block(cchar *s, ssize len)
+char_t *websEncode64Block(char_t *s, ssize len)
 {
     uint    shiftbuf;
     char    *buffer, *bp;
@@ -447,7 +444,7 @@ char *websEncode64Block(cchar *s, ssize len)
     int     i, j, shift;
 
     size = len * 2;
-    if ((buffer = malloc(size + 1)) == 0) {
+    if ((buffer = galloc(size + 1)) == 0) {
         return NULL;
     }
     bp = buffer;
@@ -470,7 +467,6 @@ char *websEncode64Block(cchar *s, ssize len)
     }
     return buffer;
 }
-#endif
 
 /*
     @copy   default

@@ -90,7 +90,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
     }
     initPlatform();
-    if (websOpen() < 0) {
+    if (websOpen(0) < 0) {
         error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
@@ -98,7 +98,6 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error(T("Can't open GoAhead server. Exiting."));
         return -1;
     }
-    websUrlHandlerDefine(T(""), 0, 0, websSecurityHandler, WEBS_HANDLER_FIRST);
     websUrlHandlerDefine(T("/forms"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
     websUrlHandlerDefine(T("/"), 0, 0, websDefaultHomePageHandler, 0); 

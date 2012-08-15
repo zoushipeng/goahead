@@ -32,6 +32,7 @@ static int aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static int bigTest(int eid, webs_t wp, int argc, char_t **argv);
 #endif
 static void formTest(webs_t wp, char_t *path, char_t *query);
+static void loginTest(webs_t wp, char_t *path, char_t *query);
 
 #if BIT_UNIX_LIKE
 static void sigHandler(int signo);
@@ -87,7 +88,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
     }
     initPlatform();
-    if (websOpen() < 0) {
+    if (websOpen("auth.txt") < 0) {
         error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
@@ -95,18 +96,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websSSLSetKeyFile("server.key");
     websSSLSetCertFile("server.crt");
 #endif
-    websSetPassword("pass1");
-#if BIT_USER_MANAGEMENT
-    if (umOpen(T("umconfig.db")) < 0) {
-        return -1;
-    }
-#endif
-    
     if (websOpenServer(ip, port, sslPort, documents) < 0) {
         error(T("Can't open GoAhead server. Exiting."));
         return -1;
     }
-    websUrlHandlerDefine(T(""), 0, 0, websSecurityHandler, WEBS_HANDLER_FIRST);
     websUrlHandlerDefine(T("/form"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
     websUrlHandlerDefine(T("/alias/"), 0, 0, aliasTest, 0);
@@ -122,6 +115,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websAspDefine(T("bigTest"), bigTest);
 #endif
     websFormDefine(T("test"), formTest);
+    websFormDefine(T("login"), loginTest);
 
     websServiceEvents(&finished);
 
@@ -227,6 +221,59 @@ static void formTest(webs_t wp, char_t *path, char_t *query)
 	address = websGetVar(wp, T("address"), NULL);
 	websHeader(wp);
 	websWrite(wp, T("<body><h2>name: %s, address: %s</h2>\n"), name, address);
+	websFooter(wp);
+	websDone(wp, 200);
+}
+
+
+/*
+    Implement /form/login
+ */
+static void loginTest(webs_t wp, char_t *path, char_t *query)
+{
+	char_t	*username, *password, *msg;
+#if BIT_SESSIONS && BIT_AUTH
+	char_t	*referrer;
+#endif
+
+    msg = 0;
+    if (gcaselessmatch(wp->method, "POST")) {
+        username = websGetVar(wp, T("username"), NULL);
+        password = websGetVar(wp, T("password"), NULL);
+#if BIT_AUTH
+        if (amFormLogin(wp, username, password)) {
+#if BIT_SESSIONS
+            referrer = websGetSessionVar(wp, T("referrer"), NULL);
+#else
+            referrer = 0;
+#endif
+            if (referrer) {
+                websRedirect(wp, referrer);
+            } else {
+                websHeader(wp);
+                websWrite(wp, T("<body><p>Logged in</p></body>\n"));
+                websFooter(wp);
+                websDone(wp, 200);
+            }
+            return;
+        } else {
+            msg = "Bad user credentials";
+        }
+#endif
+    }
+#if BIT_SESSIONS && BIT_AUTH
+    websSetSessionVar(wp, T("referrer"), websGetVar(wp, T("referrer"), NULL));
+#endif
+    websHeader(wp);
+    websWrite(wp, T("<body>\n"));
+    if (msg) {
+        websWrite(wp, T("<p>%s</p>\n"), msg);
+    }
+    websWrite(wp, T("<form action='/form/login' method='POST'><table>\n"));
+    websWrite(wp, T("<tr><td>User name</td><td><input name='username' type='text' value=''</td></tr>\n"));
+    websWrite(wp, T("<tr><td>Password</td><td><input name='password' type='password' value=''</td></tr>\n"));
+    websWrite(wp, T("<tr><td><input name='commit' type='submit' value='OK'></td><td></td></tr>\n"));
+    websWrite(wp, T("</table></form>\n"));
 	websFooter(wp);
 	websDone(wp, 200);
 }

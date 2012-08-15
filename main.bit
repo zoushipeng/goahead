@@ -31,7 +31,14 @@ Bit.load({
         /*
             Log for request access logging
          */
-        accessLog: true,
+        accessLog: false,
+
+        /*
+            Build with user authentication support
+            Replace the realm with a unique name for your application. Used in all forms of authentication.
+         */
+        auth: false,
+        authRealm: "Acme Inc",
 
         /*
             Directory for use when validating client certificates
@@ -61,10 +68,8 @@ Bit.load({
 
         /*
             Build with HTTP Digest Authentication support
-            Replace the realm with a unique name for your authentication
          */
         digestAuth: true,
-        digestRealm: "realm",
 
         /*
             Directory containing web documents to serve
@@ -106,7 +111,9 @@ Bit.load({
         limitHeader:        2048,   /* Maximum HTTP single header size */
         limitHeaders:       8192,   /* Maximum HTTP header size */
         limitUrl:           2048,   /* Maximum URL size */
-        limitPassword:      32,     /* Maximum password size*/
+        limitPassword:      32,     /* Maximum password size */
+        limitSessionLife:   1800,   /* Session lifespan in secons */
+        limitSessionCount:  120,    /* Maximum number of sessions to support */
 
         /*
             Server SSL key
@@ -124,6 +131,11 @@ Bit.load({
         replaceMalloc: false,
 
         /*
+            Build with session state storage. Needed if using form-based authentication.
+         */
+        sessions: true,
+
+        /*
             SSL port to listen on
          */
         sslPort: 4443,
@@ -132,13 +144,6 @@ Bit.load({
             Default location for debug log 
          */
         trace: "stdout:2",
-
-        /*
-            Build with user management support
-         */
-        accessManagement: false,
-        userManagement: false,
-        userManagementGui: false,
     },
 
     targets: {

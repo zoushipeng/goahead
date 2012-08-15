@@ -143,7 +143,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     n++;
     gfmtAlloc(envp + n, BIT_LIMIT_FILENAME, T("%s=%s"),T("AUTH_TYPE"), wp->authType);
     n++;
-    for (s = symFirst(wp->cgiVars); s != NULL; s = symNext(wp->cgiVars)) {
+    for (s = symFirst(wp->cgiVars); s != NULL; s = symNext(wp->cgiVars, s)) {
         if (s->content.valid && s->content.type == string &&
             gstrcmp(s->name.value.string, T("REMOTE_HOST")) != 0 &&
             gstrcmp(s->name.value.string, T("HTTP_AUTHORIZATION")) != 0) {

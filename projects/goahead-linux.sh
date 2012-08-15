@@ -29,11 +29,11 @@ cp -r goahead.h ${CONFIG}/inc/goahead.h
 rm -rf ${CONFIG}/inc/js.h
 cp -r js.h ${CONFIG}/inc/js.h
 
+${CC} -c -o ${CONFIG}/obj/auth.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc auth.c
+
 ${CC} -c -o ${CONFIG}/obj/cgi.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc cgi.c
 
 ${CC} -c -o ${CONFIG}/obj/crypt.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc crypt.c
-
-${CC} -c -o ${CONFIG}/obj/db.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc db.c
 
 ${CC} -c -o ${CONFIG}/obj/default.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc default.c
 
@@ -59,21 +59,17 @@ ${CC} -c -o ${CONFIG}/obj/rom.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc rom.c
 
 ${CC} -c -o ${CONFIG}/obj/runtime.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc runtime.c
 
-${CC} -c -o ${CONFIG}/obj/security.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc security.c
-
 ${CC} -c -o ${CONFIG}/obj/socket.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc socket.c
 
 ${CC} -c -o ${CONFIG}/obj/ssl.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc ssl.c
 
 ${CC} -c -o ${CONFIG}/obj/template.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc template.c
 
-${CC} -c -o ${CONFIG}/obj/um.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc um.c
-
-${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/db.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/goahead.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/security.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/um.o ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/goahead.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/test.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/db.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/security.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/um.o ${CONFIG}/obj/test.o ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/default.o ${CONFIG}/obj/form.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/handler.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/ssl.o ${CONFIG}/obj/template.o ${CONFIG}/obj/test.o ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/webcomp.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 

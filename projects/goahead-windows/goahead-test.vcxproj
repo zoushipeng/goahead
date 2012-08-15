@@ -100,9 +100,9 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <ClCompile Include="..\..\auth.c" />
     <ClCompile Include="..\..\cgi.c" />
     <ClCompile Include="..\..\crypt.c" />
-    <ClCompile Include="..\..\db.c" />
     <ClCompile Include="..\..\default.c" />
     <ClCompile Include="..\..\form.c" />
     <ClCompile Include="..\..\galloc.c" />
@@ -114,11 +114,9 @@
     <ClCompile Include="..\..\rom-documents.c" />
     <ClCompile Include="..\..\rom.c" />
     <ClCompile Include="..\..\runtime.c" />
-    <ClCompile Include="..\..\security.c" />
     <ClCompile Include="..\..\socket.c" />
     <ClCompile Include="..\..\ssl.c" />
     <ClCompile Include="..\..\template.c" />
-    <ClCompile Include="..\..\um.c" />
     <ClCompile Include="..\..\test\test.c" />
   </ItemGroup>
 

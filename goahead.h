@@ -217,8 +217,6 @@
     #include    <fcntl.h>
     #include    <errno.h>
     #include    <niterror.h>
-    #define     EINTR EINUSE
-    #define      WEBS   1
     #include    <limits.h>
     #include    <netdb.h>
     #include    <process.h>
@@ -695,7 +693,7 @@ extern "C" {
     #define BIT_HAS_SPINLOCK    1
 #endif
 
-#if BIT_HAS_DOUBLE_BRACES
+#if BIT_HAS_DOUBLE_BRACES || MACOSX || LINUX
     #define  NULL_INIT    {{0}}
 #else
     #define  NULL_INIT    {0}
@@ -746,7 +744,6 @@ extern "C" {
 #else
     #define BIT_FLEX
 #endif
-
 
 #if WINDOWS
     #define getcwd  _getcwd
@@ -1082,21 +1079,22 @@ extern int egParseArgs(char *args, char **argv, int maxArgc);
     extern HINSTANCE egGetInst();
 #endif
 
+/************************************ Tunables ********************************/
+
+#define G_SMALL_HASH          31          /* General small hash size */
+
 /************************************* Error **********************************/
 
 #define G_L                 T(__FILE__), __LINE__
 #define G_ARGS_DEC          char_t *file, int line
 #define G_ARGS              file, line
 
-#if BIT_DEBUG
+#if BIT_DEBUG && BIT_DEBUG_LOG
     #define gassert(C)     if (C) ; else gassertError(G_L, T("%s"), T(#C))
+    extern void gassertError(G_ARGS_DEC, char_t *fmt, ...);
 #else
     #define gassert(C)     if (1) ; else
 #endif
-
-extern void gassertError(G_ARGS_DEC, char_t *fmt, ...);
-extern void error(char_t *fmt, ...);
-extern void trace(int lev, char_t *fmt, ...);
 
 #if BIT_DEBUG_LOG
     #define LOG trace
@@ -1107,10 +1105,14 @@ extern void trace(int lev, char_t *fmt, ...);
     extern TraceHandler traceSetHandler(TraceHandler handler);
     extern void traceSetPath(char_t *path);
 #else
-    #define LOG if (0) trace
+    #define TRACE if (0) trace
+    #define ERROR if (0) error
     #define traceOpen() 
     #define traceClose()
 #endif
+
+extern void error(char_t *fmt, ...);
+extern void trace(int lev, char_t *fmt, ...);
 
 /************************************* Value **********************************/
 /*
@@ -1316,6 +1318,7 @@ typedef struct sym_t {
     value_t         name;                   /* Name of symbol */
     value_t         content;                /* Value of symbol */
     int             arg;                    /* Parameter value */
+    int             bucket;                 /* Bucket index */
 } sym_t;
 
 typedef int sym_fd_t;                       /* Returned by symOpen */
@@ -1327,7 +1330,7 @@ extern sym_t    *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg);
 extern int      symDelete(sym_fd_t sd, char_t *name);
 extern void     symWalk(sym_fd_t sd, void (*fn)(sym_t *symp));
 extern sym_t    *symFirst(sym_fd_t sd);
-extern sym_t    *symNext(sym_fd_t sd);
+extern sym_t    *symNext(sym_fd_t sd, sym_t *last);
 extern int      symSubOpen();
 extern void     symSubClose();
 
@@ -1386,7 +1389,9 @@ typedef struct {
     int             selectEvents;           /* Events being selected */
     int             saveMask;               /* saved Mask for socketFlush */
     int             error;                  /* Last error */
+#if BIT_PACK_SSL
     int             secure;                 /* Socket is using SSL */
+#endif
 } socket_t;
 
 extern socket_t     **socketList;           /* List of open sockets */
@@ -1448,10 +1453,11 @@ extern char_t *gstrlower(char_t *string);
 extern char_t *gstrupper(char_t *string);
 extern char_t *gstritoa(int n, char_t *string, int width);
 extern uint gstrtoi(char_t *s);
+extern char_t *gtok(char_t *str, char_t *delim, char_t **last);
 
 extern uint hextoi(char_t *hexstring);
 
-
+//  MOB NAMING (cap first char after 'g')
 typedef void (GSchedProc)(void *data, int id);
 extern int gSchedCallback(int delay, GSchedProc *proc, void *arg);
 extern void gUnschedCallback(int id);
@@ -1462,6 +1468,10 @@ extern void gSchedProcess();
 
 #define MAX_PORT_LEN            10          /* max digits in port number */
 #define WEBS_SYM_INIT           64          /* Hash size for form table */
+#define WEBS_SESSION_HASH       31          /* Hash size for session stores */
+#define WEBS_SESSION_PRUNE      60          /* Prune sessions every minute */
+#define WEBS_SESSION            "-goahead-session-"
+#define WEBS_ENCODE_HTML        0x1         /* Bit setting in charMap */
 
 /* 
     Request flags
@@ -1480,8 +1490,8 @@ extern void gSchedProcess();
 #define WEBS_POST_DATA          0x2000      /* Already appended post data */
 #define WEBS_CGI_REQUEST        0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
-#define WEBS_AUTH_BASIC         0x10000     /* Basic authentication request */
-#define WEBS_AUTH_DIGEST        0x20000     /* Digest authentication request */
+#define WEBS_BASIC_AUTH         0x10000     /* Basic authentication request */
+#define WEBS_DIGEST_AUTH        0x20000     /* Digest authentication request */
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
@@ -1503,6 +1513,16 @@ extern void gSchedProcess();
 #define WEBS_KEEP_TIMEOUT   15000       /* Keep-alive timeout (15 secs) */
 #define WEBS_TIMEOUT        60000       /* General request timeout (60) */
 
+/* Forward declare */
+#if BIT_AUTH
+struct User;
+struct Uri;
+#endif
+
+#if BIT_SESSIONS
+struct Session;
+#endif
+
 /* 
     Per socket connection webs structure
  */
@@ -1516,6 +1536,8 @@ typedef struct websRec {
     char_t          ipaddr[32];         /* Connecting ipaddress */
     char_t          ifaddr[32];         /* Local interface ipaddress */
     char_t          type[64];           /* Mime type */
+    char_t          *authType;          /* Authorization type (Basic/DAA) */
+    char_t          *authDetails;       /* Http header auth details */
     char_t          *dir;               /* Directory containing the page */
     char_t          *path;              /* Path name without query */
     char_t          *url;               /* Full request url */
@@ -1523,10 +1545,12 @@ typedef struct websRec {
     char_t          *lpath;             /* Document path name */
     char_t          *query;             /* Request query */
     char_t          *decodedQuery;      /* Decoded request query */
-    char_t          *authType;          /* Authorization type (Basic/DAA) */
+    char_t          *method;            /* HTTP request method */
     char_t          *password;          /* Authorization password */
     char_t          *userName;          /* Authorization username */
-    char_t          *cookie;            /* Cookie string */
+    char_t          *cookie;            /* Request cookie string */
+    char_t          *responseCookie;    /* Outgoing cookie */
+    char_t          *authResponse;      /* Outgoing auth header */
     char_t          *userAgent;         /* User agent (browser) */
     char_t          *protocol;          /* Protocol (normally HTTP) */
     char_t          *protoVersion;      /* Protocol version */
@@ -1535,7 +1559,7 @@ typedef struct websRec {
     int             port;               /* Request port number */
     int             state;              /* Current state */
     int             flags;              /* Current flags -- see above */
-    int             code;               /* Request result code */
+    int             code;               /* Response status code */
     int             clen;               /* Content length */
     int             wid;                /* Index into webs */
     char_t          *cgiStdin;          /* filename for CGI stdin */
@@ -1543,15 +1567,22 @@ typedef struct websRec {
     ssize           numbytes;           /* Bytes to transfer to browser */
     ssize           written;            /* Bytes actually transferred */
     void            (*writeSocket)(struct websRec *wp);
+#if BIT_SESSIONS
+    struct Session  *session;           /* Session record */
+#endif
+#if BIT_AUTH
+    struct User     *user;              /* User auth record */
+    //  MOB - rename. Uri is confusing with appweb
+    struct Uri      *uri;               /* Uri auth record */
 #if BIT_DIGEST_AUTH
     char_t          *realm;             /* usually the same as "host" from websRec */
     char_t          *nonce;             /* opaque-to-client string sent by server */
-    char_t          *digest;            /* digest form of user password */
-    char_t          *uri;               /* URI found in DAA header */
+    char_t          *digestUri;         /* URI found in digest header */
     char_t          *opaque;            /* opaque value passed from server */
     char_t          *nc;                /* nonce count */
     char_t          *cnonce;            /* check nonce */
     char_t          *qop;               /* quality operator */
+#endif
 #endif
 #if BIT_PACK_OPENSSL
     SSL             *ssl;
@@ -1678,6 +1709,9 @@ extern void websDefaultClose();
 extern int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
 extern int websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
 extern void websDone(webs_t wp, int code);
+extern char_t *websEncode64(char_t *string);
+extern char_t *websEncode64Block(char_t *s, ssize len);
+extern char *websEscapeHtml(cchar *html);
 extern void websError(webs_t wp, int code, char_t *msg, ...);
 extern char_t *websErrorMsg(int code);
 extern int websEval(char_t *cmd, char_t **rslt, void* chan);
@@ -1734,8 +1768,6 @@ extern void websRomPageClose(int fd);
 extern ssize websRomPageReadData(webs_t wp, char *buf, ssize len);
 extern int websRomPageStat(char_t *path, websStatType *sbuf);
 extern long websRomPageSeek(webs_t wp, EgFilePos offset, int origin);
-extern void websSecurityDelete();
-extern int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
 extern void websSetDefaultDir(char_t *dir);
 extern void websSetDefaultPage(char_t *page);
 extern void websSetEnv(webs_t wp);
@@ -1791,7 +1823,6 @@ extern int websSSLSetKeyFile(char_t *keyFile);
 extern int websSSLSetCertFile(char_t *certFile);
 extern void websSSLSocketEvent(int sid, int mask, void *iwp);
 
-
 extern int sslOpen();
 extern void sslClose();
 extern int sslAccept(webs_t wp);
@@ -1803,200 +1834,111 @@ extern void sslFlush(webs_t wp);
 
 #endif /* BIT_PACK_SSL */
 
-/************************************* Database ********************************/
+/************************************** Sessions *******************************/
 
-#if BIT_DATABASE
-//  MOB - prefix
-#define     T_INT                   0
-#define     T_STRING                1
-#define     DB_OK                   0
-#define     DB_ERR_GENERAL          -1
-#define     DB_ERR_COL_NOT_FOUND    -2
-#define     DB_ERR_COL_DELETED      -3
-#define     DB_ERR_ROW_NOT_FOUND    -4
-#define     DB_ERR_ROW_DELETED      -5
-#define     DB_ERR_TABLE_NOT_FOUND  -6
-#define     DB_ERR_TABLE_DELETED    -7
-#define     DB_ERR_BAD_FORMAT       -8
-#define     DB_CASE_INSENSITIVE     1
+#if BIT_SESSIONS
 
-//  MOB - remove _s 
-typedef struct dbTable_s {
+struct User;
+
+typedef struct Session {
+    char        *id;                    /**< Session ID key */
+    struct User *user;                  /**< User reference */
+    time_t      lifespan;               /**< Session inactivity timeout (msecs) */
+    sym_fd_t    cache;                  /**< Cache of session variables */
+} Session;
+
+/*
+    Flags for httpSetCookie
+ */
+#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
+#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
+
+extern void websSetCookie(webs_t wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
+
+extern Session *websAllocSession(webs_t wp, char_t *id, time_t lifespan);
+extern Session *websGetSession(webs_t wp, int create);
+extern char_t *websGetSessionVar(webs_t wp, char_t *name, char_t *defaultValue);
+extern int websSetSessionVar(webs_t wp, char_t *name, char_t *value);
+extern char *websGetSessionID(webs_t wp);
+#endif
+
+/*************************************** Auth **********************************/
+#if BIT_AUTH
+#define AM_MAX_WORD     32
+
+//  MOB - prefix and move to goahead.h
+typedef struct User {
     char_t  *name;
-    int     nColumns;
-    char_t  **columnNames;
-    int     *columnTypes;
-    int     nRows;
-    ssize   **rows;
-} dbTable_t;
+    char_t  *password;
+    int     enable;
+    char_t  *roles;
+    char_t  *capabilities;
+} User;
+
+typedef struct Role {
+    int     enable;
+    char_t  *capabilities;
+} Role;
+
+#if UNUSED
+#define AM_BASIC    1
+#define AM_DIGEST   2
+#define AM_FORM     3
+#define AM_CUSTOM   4
+#endif
 
 /*
-    Add a schema to the module-internal schema database
-    MOB - sort
+    Login reason codes
  */
-extern int      dbAddRow(int did, char_t *table);
-extern void     dbClose(int did);
-extern int      dbDeleteRow(int did, char_t *table, int rid);
-//  MOB - revise args
-extern int      dbOpen(char_t *databasename, char_t *filename, int (*gettime)(int did), int flags);
-extern int      dbGetTableId(int did, char_t *tname);
-extern char_t   *dbGetTableName(int did, int tid);
-extern int      dbReadInt(int did, char_t *table, char_t *column, int row, int *returnValue);
-extern int      dbReadStr(int did, char_t *table, char_t *column, int row, char_t **returnValue);
-extern int      dbWriteInt(int did, char_t *table, char_t *column, int row, int idata);
-extern int      dbWriteStr(int did, char_t *table, char_t *column, int row, char_t *s);
-extern int      dbRegisterDBSchema(dbTable_t *sTable);
-extern int      dbSetTableNrow(int did, char_t *table, int nNewRows);
-extern int      dbGetTableNrow(int did, char_t *table);
+#define AM_LOGIN_REQUIRED   1
+#define AM_BAD_PASSWORD     2
+#define AM_BAD_USERNAME     3
 
-/*
-    Dump the contents of a database to file
- */
-extern int      dbSave(int did, char_t *filename, int flags);
+typedef void (*AmLogin)(webs_t wp, int why);
+typedef bool (*AmVerify)(webs_t wp);
 
-/*
-    Load the contents of a database to file
- */
-extern int      dbLoad(int did, char_t *filename, int flags);
-extern int      dbSearchStr(int did, char_t *table, char_t *column, char_t *value, int flags);
-extern void     dbZero(int did);
+//  MOB - rename to Location
+typedef struct Uri {
+    char        *prefix;
+    ssize       prefixLen;
+    int         enable;
+#if BIT_PACK_SSL
+    int         secure;
+#endif
+    AmLogin     login;
+    AmVerify    verify;
+    char_t      *loginUri;
+    char_t      *capabilities;
+} Uri;
 
-#endif /* BIT_DATABASE */
-
-/******************************** User Management *****************************/
-
-//  MOB - prefix on type name and AM_NAME
-//  MOB - convert to defines with numbers
-typedef enum {
-    AM_NONE = 0,
-    AM_FULL,
-    AM_BASIC,
-    AM_DIGEST,
-    AM_INVALID
-} accessMeth_t;
-
-//  MOB - remove bool_t
-typedef short bool_t;
-
-#if BIT_USER_MANAGEMENT
-/*
-    Error Return Flags
- */
-#define UM_OK               0
-#define UM_ERR_GENERAL      -1
-#define UM_ERR_NOT_FOUND    -2
-#define UM_ERR_PROTECTED    -3
-#define UM_ERR_DUPLICATE    -4
-#define UM_ERR_IN_USE       -5
-#define UM_ERR_BAD_NAME     -6
-#define UM_ERR_BAD_PASSWORD -7
-
-/*
-    Privilege Masks
- */
-//  MOB - prefix
-#define PRIV_NONE   0x00
-#define PRIV_READ   0x01
-#define PRIV_WRITE  0x02
-#define PRIV_ADMIN  0x04
-
-extern int umOpen(char_t *path);
-extern void umClose();
-extern int umSave();
-
-extern int umAddUser(char_t *user, char_t *password, char_t *group, bool_t protect, bool_t disabled);
-extern int umDeleteUser(char_t *user);
-extern char_t *umGetFirstUser();
-extern char_t *umGetNextUser(char_t *lastUser);
-extern bool_t umUserExists(char_t *user);
-extern char_t *umGetUserPassword(char_t *user);
-extern int umSetUserPassword(char_t *user, char_t *password);
-extern char_t *umGetUserGroup(char_t *user);
-extern int umSetUserGroup(char_t *user, char_t *password);
-extern bool_t umGetUserEnabled(char_t *user);
-extern int umSetUserEnabled(char_t *user, bool_t enabled);
-extern bool_t umGetUserProtected(char_t *user);
-extern int umSetUserProtected(char_t *user, bool_t protect);
-extern int umAddGroup(char_t *group, short privilege, accessMeth_t am, bool_t protect, bool_t disabled);
-extern int umDeleteGroup(char_t *group);
-extern char_t *umGetFirstGroup();
-extern char_t *umGetNextGroup(char_t *lastUser);
-extern bool_t umGroupExists(char_t *group);
-extern bool_t umGetGroupInUse(char_t *group);
-extern accessMeth_t umGetGroupAccessMethod(char_t *group);
-extern int umSetGroupAccessMethod(char_t *group, accessMeth_t am);
-extern bool_t umGetGroupEnabled(char_t *group);
-extern int umSetGroupEnabled(char_t *group, bool_t enabled);
-extern short umGetGroupPrivilege(char_t *group);
-extern int umSetGroupPrivilege(char_t *group, short privileges);
-extern bool_t umGetGroupProtected(char_t *group);
-extern int umSetGroupProtected(char_t *group, bool_t protect);
-extern int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group);
-extern int umDeleteAccessLimit(char_t *url);
-extern char_t *umGetFirstAccessLimit();
-extern char_t *umGetNextAccessLimit(char_t *lastUser);
-extern char_t *umGetAccessLimit(char_t *url);
-extern bool_t umAccessLimitExists(char_t *url);
-extern accessMeth_t umGetAccessLimitMethod(char_t *url);
-extern int umSetAccessLimitMethod(char_t *url, accessMeth_t am);
-extern short umGetAccessLimitSecure(char_t *url);
-extern int umSetAccessLimitSecure(char_t *url, short secure);
-extern char_t *umGetAccessLimitGroup(char_t *url);
-extern int umSetAccessLimitGroup(char_t *url, char_t *group);
-extern accessMeth_t umGetAccessMethodForURL(char_t *url);
-extern bool_t umUserCanAccessURL(char_t *user, char_t *url);
-extern void formDefineUserMgmt(void);
-
-#if BIT_ACCESS_MANAGEMENT
-Users
-    - name      Y
-    - group     Y role
-    - enabled   Y
-
-Group
-    - name      Y role
-    - priv      
-    - method
-    - enabled   N   (not useful)
-
-Database
-    - users
-        name, enable, password, role|role|role, capability|capability|capability
-    - role
-        name, capability|capability|capability
-    - uri
-        uri, secure, capability
-
-Text file:
-    user name enable password role||| capability|||
-    role name role||| capability|||
-    uri /path capability
-
+//  MOB - sort
 extern int amOpen(char_t *path);
 extern void amClose();
-extern int amAddUser(char_t *name);
+extern int amAddUser(char_t *name, char_t *password, char_t *roles);
 extern int amSetPassword(char_t *name, char_t *password);
-extern int amLoginUser(char_t *name, char_t *password);
+extern int amVerifyUser(char_t *name, char_t *password);
 extern int amEnableUser(char_t *name, int enable);
 extern int amRemoveUser(char_t *name);
 extern int amAddUserRole(char_t *name, char_t *role);
 extern int amRemoveUserRole(char_t *name, char_t *role);
 extern bool amUserHasCapability(char_t *name, char_t *capability);
+extern bool amFormLogin(webs_t wp, char_t *userName, char_t *password);
 
-extern int amAddRole(char_t *role);
+extern int amAddRole(char_t *role, char_t *capabilities);
 extern int amRemoveRole(char_t *role);
 extern int amAddRoleCapability(char_t *role, char_t *capability);
 extern int amRemoveRoleCapability(char_t *role, char_t *capability);
 
-extern int amAddUri(char_t *uri, char_t *capability, int secure);
+extern int amAddUri(char_t *name, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify);
 extern int amRemoveUri(char_t *uri);
-extern bool amTestUri(char_t *uri, char_t *user);
-extern bool amCan(char_t *capability);
-
+extern bool amVerifyUri(webs_t wp);
+extern bool amCan(webs_t wp, char_t *capability);
 //  ASP
-extern void can(char_t *capability):
-#endif
-#endif /* BIT_USER_MANAGEMENT */
+extern bool can(char_t *capability);
+
+extern int amGetSessionUser(webs_t wp);
+
+#endif /* BIT_AUTH */
 
 /************************************ Legacy **********************************/
 

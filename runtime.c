@@ -78,8 +78,10 @@ static sym_tabent_t **sym;              /* List of symbol tables */
 static int          symMax;             /* One past the max symbol table */
 static int          symOpenCount = 0;   /* Count of apps using sym */
 
+#if UNUSED
 static int          htIndex;            /* Current location in table */
-static sym_t*       next;               /* Next symbol in iteration */
+static sym_t        *next;              /* Next symbol in iteration */
+#endif
 
 static sched_t      **sched;
 static int          schedMax;
@@ -116,7 +118,6 @@ static int calcPrime(int size);
 /************************************* Code ***********************************/
 /*
     This function is called when a scheduled process time has come.
-    MOB - why caps?  Static?
  */
 static void timerProc(int schedid)
 {
@@ -1770,10 +1771,10 @@ void symClose(sym_fd_t sd)
     Return the first symbol in the hashtable if there is one. This call is used as the first step in traversing the
     table. A call to symFirst should be followed by calls to symNext to get all the rest of the entries.
  */
-sym_t* symFirst(sym_fd_t sd)
+sym_t *symFirst(sym_fd_t sd)
 {
     sym_tabent_t    *tp;
-    sym_t           *sp, *forw;
+    sym_t           *sp;
     int             i;
 
     gassert(0 <= sd && sd < symMax);
@@ -1784,53 +1785,39 @@ sym_t* symFirst(sym_fd_t sd)
         Find the first symbol in the hashtable and return a pointer to it.
      */
     for (i = 0; i < tp->hash_size; i++) {
-        for (sp = tp->hash_table[i]; sp; sp = forw) {
-            forw = sp->forw;
-
-            if (forw == NULL) {
-                htIndex = i + 1;
-                next = tp->hash_table[htIndex];
-            } else {
-                htIndex = i;
-                next = forw;
-            }
+        if ((sp = tp->hash_table[i]) != 0) {
             return sp;
         }
     }
-    return NULL;
+    return 0;
 }
 
 
 /*
     Return the next symbol in the hashtable if there is one. See symFirst.
  */
-sym_t* symNext(sym_fd_t sd)
+sym_t *symNext(sym_fd_t sd, sym_t *last)
 {
     sym_tabent_t    *tp;
-    sym_t           *sp, *forw;
+    sym_t           *sp;
     int             i;
 
     gassert(0 <= sd && sd < symMax);
+    if (sd < 0) {
+        return 0;
+    }
     tp = sym[sd];
     gassert(tp);
-
-    /*
-        Find the first symbol in the hashtable and return a pointer to it.
-     */
-    for (i = htIndex; i < tp->hash_size; i++) {
-        for (sp = next; sp; sp = forw) {
-            forw = sp->forw;
-
-            if (forw == NULL) {
-                htIndex = i + 1;
-                next = tp->hash_table[htIndex];
-            } else {
-                htIndex = i;
-                next = forw;
-            }
+    if (last == 0) {
+        return symFirst(sd);
+    }
+    if (last->forw) {
+        return last->forw;
+    }
+    for (i = last->bucket + 1; i < tp->hash_size; i++) {
+        if ((sp = tp->hash_table[i]) != 0) {
             return sp;
         }
-        next = tp->hash_table[i + 1];
     }
     return NULL;
 }
@@ -1849,11 +1836,9 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
     if ((tp = sym[sd]) == NULL) {
         return NULL;
     }
-
     if (name == NULL || *name == '\0') {
         return NULL;
     }
-
     /*
         Do an initial hash and then follow the link chain to find the right entry
      */
@@ -1923,6 +1908,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         sp->content = v;
         sp->forw = (sym_t*) NULL;
         sp->arg = arg;
+        sp->bucket = hindex;
         last->forw = sp;
 
     } else {
@@ -1934,12 +1920,15 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
             return NULL;
         }
         tp->hash_table[hindex] = sp;
+        //  MOB - remove
+        gassert(hindex == hashIndex(tp, name));
         tp->hash_table[hashIndex(tp, name)] = sp;
 
         sp->forw = (sym_t*) NULL;
         sp->content = v;
         sp->arg = arg;
         sp->name = valueString(name, VALUE_ALLOCATE);
+        sp->bucket = hindex;
     }
     return sp;
 }
@@ -2197,6 +2186,37 @@ int gncaselesscmp(char_t *s1, char_t *s2, ssize n)
         return 1;
     }
     return 0;
+}
+
+
+/*
+    Note "str" is modifed as per strtok()
+    WARNING:  this does not allocate
+ */
+char_t *gtok(char_t *str, char_t *delim, char_t **last)
+{
+    char_t  *start, *end;
+    ssize   i;
+
+    start = str ? str : *last;
+    if (start == 0) {
+        *last = 0;
+        return 0;
+    }
+    i = strspn(start, delim);
+    start += i;
+    if (*start == '\0') {
+        *last = 0;
+        return 0;
+    }
+    end = strpbrk(start, delim);
+    if (end) {
+        *end++ = '\0';
+        i = strspn(end, delim);
+        end += i;
+    }
+    *last = end;
+    return start;
 }
 
 

@@ -75,7 +75,7 @@ int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *que
     if (fn == NULL) {
         return -1;
     }
-    symEnter(formSymtab, name, valueSymbol((void*) fn), (int) NULL);
+    symEnter(formSymtab, name, valueSymbol((void*) fn), 0);
     return 0;
 }
 

@@ -8,8 +8,9 @@
 
 /* Settings */
 #define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
-#define BIT_ACCESS_LOG 1
-#define BIT_ACCESS_MANAGEMENT 0
+#define BIT_ACCESS_LOG 0
+#define BIT_AUTH 1
+#define BIT_AUTH_REALM "Acme Inc"
 #define BIT_BUILD_NUMBER "0"
 #define BIT_CA_FILE ""
 #define BIT_CA_PATH ""
@@ -20,7 +21,6 @@
 #define BIT_DEBUG_LOG 1
 #define BIT_DEPTH 1
 #define BIT_DIGEST_AUTH 1
-#define BIT_DIGEST_REALM "realm"
 #define BIT_DOCUMENTS "web"
 #define BIT_HAS_DOUBLE_BRACES 0
 #define BIT_HAS_DYN_LOAD 1
@@ -43,6 +43,8 @@
 #define BIT_LIMIT_HEADER 2048
 #define BIT_LIMIT_HEADERS 8192
 #define BIT_LIMIT_PASSWORD 32
+#define BIT_LIMIT_SESSION_COUNT 120
+#define BIT_LIMIT_SESSION_LIFE 1800
 #define BIT_LIMIT_SOCKET_BUFFER 512
 #define BIT_LIMIT_STRING 4096
 #define BIT_LIMIT_URL 2048
@@ -53,11 +55,10 @@
 #define BIT_PRODUCT "goahead"
 #define BIT_REPLACE_MALLOC 0
 #define BIT_REQUIRED "compiler,link"
+#define BIT_SESSIONS 1
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"
 #define BIT_TRACE "stdout:2"
-#define BIT_USER_MANAGEMENT 0
-#define BIT_USER_MANAGEMENT_GUI 0
 #define BIT_VERSION "3.0.0"
 #define BIT_WARN64TO32 0
 #define BIT_WARN_UNUSED 1
