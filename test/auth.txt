@@ -1,0 +1,24 @@
+#
+#   auth.db - Authorization data
+#
+#   Schema
+#       user: enable: name: password: role [role...]
+#       role: enable: name: capability [capability...]
+#       uri: enable: uri: method: capability [capability...]
+#
+
+user: 1: julie: 3d0b6fdc86ba02fc00c687428d91c406: user
+user: 1: peter: 484c20a75cf5d95778b1401f681c40dd: user
+user: 1: mary: 4616cd3f285887e8890fbac9df1919ba: user 
+user: 1: joshua: 3cc654d84f2b4361fe45a0c92e3f0e0b: user administrator purchase
+
+role: 1: person: breathe
+role: 1: user: person view
+role: 1: administrator: user manage
+
+uri: 1: none: /form/login:
+uri: 1: digest: /auth/digest/: manage
+uri: 1: basic: /auth/basic/: manage
+uri: 1: form: /auth/form/: manage: /form/login
+uri: 1: form: /admin: SECURE manage: /form/login
+uri: 1: form: /: user: /form/login
