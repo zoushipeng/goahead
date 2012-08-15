@@ -1370,6 +1370,7 @@ extern void     symSubClose();
 
 typedef void    (*socketHandler_t)(int sid, int mask, void* data);
 typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, int listenSid);
+
 typedef struct {
     ringq_t         inBuf;                  /* Input ring queue */
     ringq_t         outBuf;                 /* Output ring queue */
@@ -1471,7 +1472,6 @@ extern void gSchedProcess();
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      60          /* Prune sessions every minute */
 #define WEBS_SESSION            "-goahead-session-"
-#define WEBS_ENCODE_HTML        0x1         /* Bit setting in charMap */
 
 /* 
     Request flags
@@ -1575,7 +1575,7 @@ typedef struct websRec {
     //  MOB - rename. Uri is confusing with appweb
     struct Uri      *uri;               /* Uri auth record */
 #if BIT_DIGEST_AUTH
-    char_t          *realm;             /* usually the same as "host" from websRec */
+    char_t          *realm;             /* Realm field supplied in auth header */
     char_t          *nonce;             /* opaque-to-client string sent by server */
     char_t          *digestUri;         /* URI found in digest header */
     char_t          *opaque;            /* opaque value passed from server */
@@ -1774,7 +1774,6 @@ extern void websSetEnv(webs_t wp);
 extern void websSetHost(char_t *host);
 extern void websSetIpaddr(char_t *ipaddr);
 extern void websSetPassword(char_t *password);
-extern void websSetRealm(char_t *realmName);
 extern void websSetRequestBytes(webs_t wp, ssize bytes);
 extern void websSetRequestLpath(webs_t wp, char_t *lpath);
 extern void websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
@@ -1869,6 +1868,7 @@ extern char *websGetSessionID(webs_t wp);
 //  MOB - prefix and move to goahead.h
 typedef struct User {
     char_t  *name;
+    char_t  *realm;
     char_t  *password;
     int     enable;
     char_t  *roles;
@@ -1900,6 +1900,7 @@ typedef bool (*AmVerify)(webs_t wp);
 //  MOB - rename to Location
 typedef struct Uri {
     char        *prefix;
+    char        *realm;
     ssize       prefixLen;
     int         enable;
 #if BIT_PACK_SSL
@@ -1914,7 +1915,7 @@ typedef struct Uri {
 //  MOB - sort
 extern int amOpen(char_t *path);
 extern void amClose();
-extern int amAddUser(char_t *name, char_t *password, char_t *roles);
+extern int amAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles);
 extern int amSetPassword(char_t *name, char_t *password);
 extern int amVerifyUser(char_t *name, char_t *password);
 extern int amEnableUser(char_t *name, int enable);
@@ -1929,7 +1930,7 @@ extern int amRemoveRole(char_t *role);
 extern int amAddRoleCapability(char_t *role, char_t *capability);
 extern int amRemoveRoleCapability(char_t *role, char_t *capability);
 
-extern int amAddUri(char_t *name, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify);
+extern int amAddUri(char_t *realm, char_t *name, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify);
 extern int amRemoveUri(char_t *uri);
 extern bool amVerifyUri(webs_t wp);
 extern bool amCan(webs_t wp, char_t *capability);

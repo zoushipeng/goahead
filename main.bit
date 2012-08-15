@@ -35,10 +35,8 @@ Bit.load({
 
         /*
             Build with user authentication support
-            Replace the realm with a unique name for your application. Used in all forms of authentication.
          */
-        auth: false,
-        authRealm: "Acme Inc",
+        auth: true,
 
         /*
             Directory for use when validating client certificates

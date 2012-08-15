@@ -24,7 +24,9 @@ static int uriCount = 0;
 static int uriMax = 0;
 static char_t *secret;
 
-static char_t websRealm[BIT_LIMIT_PASSWORD] = T(BIT_AUTH_REALM);
+#if UNUSED
+static char_t websRealm[BIT_LIMIT_PASSWORD] = T("Acme Inc");
+#endif
 
 /********************************** Forwards **********************************/
 
@@ -35,6 +37,7 @@ static int decodeBasicDetails(webs_t wp);
 static char_t *findString(char_t *field, char_t *word);
 static int loadAuth(char_t *path);
 static int removeString(char_t *field, char_t *word);
+static char_t *trimSpace(char_t *s);
 
 #if BIT_DIGEST_AUTH
 static char_t *calcDigest(webs_t wp, char_t *userName, char_t *password);
@@ -100,57 +103,57 @@ static void growUris()
 
 /*
     Load an auth database. Schema:
-        user: enable: name: password: role [role...]
+        user: enable: realm: name: password: role [role...]
         role: enable: name: capability [capability...]
-        uri: enable: uri: method: capability [capability...]
+        uri: enable: realm: type: uri: method: capability [capability...]
  */
 static int loadAuth(char_t *path)
 {
     AmLogin     login;
     AmVerify    verify;
     FILE        *fp;
-    char        buf[512], *name, *enabled, *method, *password, *uri, *capabilities, *roles, *line, *kind, *loginUri;
+    char        buf[512], *name, *enabled, *type, *password, *uri, *capabilities, *roles, *line, *kind, *loginUri, *realm;
 
     if ((fp = fopen(path, "rt")) == 0) {
         return -1;
     }
     buf[sizeof(buf) - 1] = '\0';
     while ((line = fgets(buf, sizeof(buf) -1, fp)) != 0) {
-        kind = strtok(buf, " :\t\r\n");
+        kind = strtok(buf, " \t:\r\n");
         // for (cp = kind; cp && isspace((uchar) *cp); cp++) { }
         if (kind == 0 || *kind == '\0' || *kind == '#') {
             continue;
         }
-        enabled = strtok(NULL, " :\t");
+        enabled = strtok(NULL, " \t:");
         if (*enabled != '1') continue;
         if (gmatch(kind, "user")) {
-            name = strtok(NULL, " :\t");
-            password = strtok(NULL, " :\t");
+            realm = trimSpace(strtok(NULL, ":"));
+            name = strtok(NULL, " \t:");
+            password = strtok(NULL, " \t:");
             roles = strtok(NULL, "\r\n");
-            if (amAddUser(name, password, roles) < 0) {
+            if (amAddUser(realm, name, password, roles) < 0) {
                 return -1;
             }
-
         } else if (gmatch(kind, "role")) {
-            name = strtok(NULL, " :\t");
+            name = strtok(NULL, " \t:");
             capabilities = strtok(NULL, "\r\n");
             if (amAddRole(name, capabilities) < 0) {
                 return -1;
             }
-
         } else if (gmatch(kind, "uri")) {
-            method = strtok(NULL, " :\t");
-            uri = strtok(NULL, " :\t");
-            capabilities = strtok(NULL, " :\t\r\n");
-            if (gmatch(method, "basic")) {
+            realm = trimSpace(strtok(NULL, ":"));
+            type = strtok(NULL, " \t:");
+            uri = strtok(NULL, " \t:");
+            capabilities = strtok(NULL, " \t:\r\n");
+            if (gmatch(type, "basic")) {
                 login = basicLogin;
                 verify = verifyBasicPassword;
 #if BIT_DIGEST_AUTH
-            } else if (gmatch(method, "digest")) {
+            } else if (gmatch(type, "digest")) {
                 login = digestLogin;
                 verify = verifyDigestPassword;
 #endif
-            } else if (gmatch(method, "form")) {
+            } else if (gmatch(type, "form")) {
                 login = formLogin;
                 verify = verifyFormPassword;
                 loginUri = strtok(NULL, " \t\r\n");
@@ -159,7 +162,7 @@ static int loadAuth(char_t *path)
                 verify = 0;
                 loginUri = 0;
             }
-            if (amAddUri(uri, capabilities, loginUri, login, verify) < 0) {
+            if (amAddUri(realm, uri, capabilities, loginUri, login, verify) < 0) {
                 return -1;
             }
         }
@@ -177,7 +180,7 @@ int amSave(char_t *path)
 }
 
 
-int amAddUser(char_t *name, char_t *password, char_t *roles)
+int amAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
 {
     User    *up;
 
@@ -195,6 +198,7 @@ int amAddUser(char_t *name, char_t *password, char_t *roles)
     } else {
         up->roles = gstrdup(T(" "));
     }
+    up->realm = gstrdup(realm);
     up->password = gstrdup(password);
     up->capabilities = 0;
     up->enable = 1;
@@ -205,6 +209,7 @@ int amAddUser(char_t *name, char_t *password, char_t *roles)
 }
 
 
+#if UNUSED
 int amSetPassword(char_t *name, char_t *password) 
 {
     sym_t   *sym;
@@ -219,6 +224,7 @@ int amSetPassword(char_t *name, char_t *password)
     up->password = gstrdup(password);
     return 0;
 }
+#endif
 
 
 bool amFormLogin(webs_t wp, char_t *userName, char_t *password)
@@ -235,7 +241,6 @@ bool amFormLogin(webs_t wp, char_t *userName, char_t *password)
         return 0;
     }
     up = (User*) sym->content.value.symbol;
-
 #if BIT_SESSION
 {
     Session     *sp;
@@ -272,6 +277,7 @@ int amEnableUser(char_t *name, int enable)
 
 int amRemoveUser(char_t *name) 
 {
+    //  MOB - must free all memory for user
     return symDelete(users, name);
 }
 
@@ -341,7 +347,7 @@ static void computeCapabilities(User *user)
     ringqAddNull(&buf);
     user->capabilities = gstrdup((char*) buf.servp);
     symClose(capabilities);
-    trace(4, "User \"%s\" has capabilities:%s\n", user->name, user->capabilities);
+    trace(4, "User \"%s\" in realm \"%s\" has capabilities:%s\n", user->name, user->realm, user->capabilities);
 }
 
 
@@ -472,7 +478,7 @@ int amRemoveRoleCapability(char_t *name, char_t *capability)
 }
 
 
-int amAddUri(char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify)
+int amAddUri(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify)
 {
     //  MOB - using up as both uri and user 
     Uri     *up;
@@ -489,6 +495,7 @@ int amAddUri(char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login,
     if ((up = galloc(sizeof(Uri))) == 0) {
         return 0;
     }
+    up->realm = gstrdup(realm);
     up->prefix = gstrdup(uri);
     up->prefixLen = glen(uri);
     up->loginUri = gstrdup(loginUri);
@@ -502,6 +509,7 @@ int amAddUri(char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login,
     up->enable = 1;
     growUris();
     uris[uriCount++] = up;
+    trace(4, T("Uri \"%s\" in realm \%s\" requires capabilities: %s\n"), uri, realm, capabilities);
     return 0;
 }
 
@@ -533,15 +541,17 @@ int amRemoveUri(char_t *uri)
         uris[i] = uris[i+1];
     }
     uriCount++;
+    //  MOB - must free URI
     return 0;
 }
 
 
 static void basicLogin(webs_t wp, int why)
 {
+    gassert(wp->uri);
     gfree(wp->authResponse);
-    gfmtAlloc(&wp->authResponse, -1, T("Basic realm=\"%s\"\r\n"), websRealm);
-    websError(wp, 401, T("Access Denied\nUser not logged in."));
+    gfmtAlloc(&wp->authResponse, -1, T("Basic realm=\"%s\""), wp->uri->realm);
+    websError(wp, 401, T("Access Denied. User not logged in."));
 }
 
 
@@ -556,14 +566,15 @@ static void digestLogin(webs_t wp, int why)
 {
     char_t  *nonce, *opaque;
 
+    gassert(wp->uri);
     nonce = createDigestNonce(wp);
     //  MOB - opaque should be one time?  Appweb too.
     opaque = T("5ccc069c403ebaf9f0171e9517f40e41");
     gfmtAlloc(&wp->authResponse, -1,
-        "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"\r\n",
-        websRealm, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
+        "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
+        wp->uri->realm, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
     gfree(nonce);
-    websError(wp, 401, T("Access Denied\nUser not logged in."));
+    websError(wp, 401, T("Access Denied. User not logged in."));
 }
 
 
@@ -572,17 +583,25 @@ static bool verifyDigestPassword(webs_t wp)
     char_t  *digest, *secret, *realm;
     time_t  when;
 
+    if (!wp->user || !wp->uri) {
+        return 0;
+    }
     /*
         Validate the nonce value - prevents replay attacks
-    */
+     */
     when = 0; secret = 0; realm = 0;
     parseDigestNonce(wp->nonce, &secret, &realm, &when);
 
-    if (!gmatch(secret, secret) || !gmatch(realm, websRealm)) {
+    if (!gmatch(secret, secret)) {
         trace(2, T("Access denied: Nonce mismatch\n"));
         return 0;
+    } else if (!gmatch(realm, wp->uri->realm)) {
+        trace(2, T("Access denied: Realm mismatch\n"));
+        return 0;
+    } else if (!gmatch(wp->qop, "auth")) {
+        trace(2, T("Access denied: Bad qop\n"));
+        return 0;
     } else if ((when + (5 * 60)) < time(0)) {
-        //  MOB - this time period should be configurable 
         trace(2, T("Access denied: Nonce is stale\n"));
         return 0;
     }
@@ -600,13 +619,16 @@ static bool verifyDigestPassword(webs_t wp)
 #endif
 
 
-
 static bool verifyBasicPassword(webs_t wp)
 {
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     bool    rc;
     
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, websRealm, wp->password);
+    if (!wp->user || !wp->uri) {
+        return 0;
+    }
+    gassert(wp->uri);
+    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->uri->realm, wp->password);
     password = websMD5(passbuf);
     rc = gmatch(wp->user->password, password);
     gfree(password);
@@ -620,10 +642,10 @@ static bool verifyFormPassword(webs_t wp)
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     int     rc;
 
-    if (!wp->user) {
+    if (!wp->user || !wp->uri) {
         return 0;
     }
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, websRealm, wp->password);
+    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->uri->realm, wp->password);
     password = websMD5(passbuf);
     rc = gmatch(password, wp->user->password);
     gfree(password);
@@ -650,7 +672,7 @@ bool amVerifyUri(webs_t wp)
     }
     if (up->secure && !(wp->flags & WEBS_SECURE)) {
         websStats.access++;
-        websError(wp, 405, T("Access Denied\nSecure access is required."));
+        websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
     if (gmatch(up->capabilities, " ")) {
@@ -934,7 +956,8 @@ static char_t *createDigestNonce(webs_t wp)
     char_t       nonce[256];
     static int64 next = 0;
 
-    gfmtStatic(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, websRealm, time(0), next++);
+    gassert(wp->uri);
+    gfmtStatic(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, wp->uri->realm, time(0), next++);
     return websEncode64(nonce);
 }
 
@@ -959,7 +982,7 @@ static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time
 */
 static char_t *calcDigest(webs_t wp, char_t *userName, char_t *password)
 {
-    char_t  a1Buf[BIT_LIMIT_PASSWORD * 3 + 3], a2Buf[BIT_LIMIT_PASSWORD * 3 + 3], digestBuf[BIT_LIMIT_PASSWORD * 3 + 3];
+    char_t  a1Buf[256], a2Buf[256], digestBuf[256];
     char_t  *ha1, *ha2, *method, *result;
 
     /*
@@ -1000,6 +1023,7 @@ static char_t *calcDigest(webs_t wp, char_t *userName, char_t *password)
 #endif /* BIT_DIGEST_AUTH */
 
 
+#if UNUSED
 /*
     Store the new realm name
     MOB -rename and legacy preserve old name
@@ -1019,7 +1043,22 @@ char_t *websGetRealm()
 {
     return websRealm;
 }
+#endif
 
+
+static char_t *trimSpace(char_t *s)
+{
+    char_t  *end;
+    
+    while (*s && isspace((int) *s)) {
+        s++;
+    }
+    for (end = &s[strlen(s) - 1]; end > s && isspace((int) *end); ) {
+        end--;
+    }
+    end[1] = '\0';
+    return s;
+}
 
 #endif /* BIT_AUTH */
 
