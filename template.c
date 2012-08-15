@@ -54,10 +54,10 @@ void websJsClose()
 
 int websEval(char_t *cmd, char_t **result, void* chan)
 {
-    int     ejid;
+    int     jsid;
 
-    ejid = (int) chan;
-    if (ejEval(ejid, cmd, result)) {
+    jsid = (int) chan;
+    if (jsEval(jsid, cmd, result)) {
         return 0;
     } else {
         return -1;
@@ -77,7 +77,7 @@ int websJsRequest(Webs *wp, char_t *lpath)
     char_t          *token, *lang, *result, *path, *ep, *cp, *buf, *nextp;
     char_t          *last;
     ssize           len;
-    int             rc, ejid;
+    int             rc, jsid;
 
     gassert(websValid(wp));
     gassert(lpath && *lpath);
@@ -92,11 +92,11 @@ int websJsRequest(Webs *wp, char_t *lpath)
     /*
         Create Javascript instance in case it is needed
      */
-    if ((ejid = ejOpenEngine(wp->cgiVars, websJsFunctions)) < 0) {
+    if ((jsid = jsOpenEngine(wp->cgiVars, websJsFunctions)) < 0) {
         websError(wp, 200, T("Can't create JavaScript engine"));
         goto done;
     }
-    ejSetUserHandle(ejid, wp);
+    jsSetUserHandle(jsid, wp);
 
     if (websPageStat(wp, lpath, path, &sbuf) < 0) {
         websError(wp, 404, T("Can't stat %s"), lpath);
@@ -173,7 +173,7 @@ int websJsRequest(Webs *wp, char_t *lpath)
             }
             if (*nextp) {
                 result = NULL;
-                rc = websEval(nextp, &result, (void *) ejid);
+                rc = websEval(nextp, &result, (void *) jsid);
                 if (rc < 0) {
                     /*
                          On an error, discard all output accumulated so far and store the error in the result buffer. Be
@@ -214,8 +214,8 @@ int websJsRequest(Webs *wp, char_t *lpath)
 done:
     if (websValid(wp)) {
         websPageClose(wp);
-        if (ejid >= 0) {
-            ejCloseEngine(ejid);
+        if (jsid >= 0) {
+            jsCloseEngine(jsid);
         }
     }
     gfree(buf);
@@ -228,9 +228,9 @@ done:
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
 int websJsDefine(char_t *name, 
-    int (*fn)(int ejid, Webs *wp, int argc, char_t **argv))
+    int (*fn)(int jsid, Webs *wp, int argc, char_t **argv))
 {
-    return ejSetGlobalFunctionDirect(websJsFunctions, name, 
+    return jsSetGlobalFunctionDirect(websJsFunctions, name, 
         (int (*)(int, void*, int, char_t**)) fn);
 }
 
@@ -238,7 +238,7 @@ int websJsDefine(char_t *name,
 /*
     Javascript write command. This implemements <% write("text"); %> command
  */
-int websJsWrite(int ejid, Webs *wp, int argc, char_t **argv)
+int websJsWrite(int jsid, Webs *wp, int argc, char_t **argv)
 {
     int     i;
 

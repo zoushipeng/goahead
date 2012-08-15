@@ -19,44 +19,44 @@
 #define     OCTAL   8
 #define     HEX     16
 
-static WebsJs  **ejHandles;    /* List of js handles */
-static int     ejMax = -1;     /* Maximum size of  */
+static Js  **jsHandles;    /* List of js handles */
+static int     jsMax = -1;     /* Maximum size of  */
 
 /****************************** Forward Declarations **************************/
 
-static WebsJs   *ejPtr(int eid);
+static Js   *jsPtr(int eid);
 static void     clearString(char_t **ptr);
 static void     setString(char_t **ptr, char_t *s);
 static void     appendString(char_t **ptr, char_t *s);
-static int      parse(WebsJs *ep, int state, int flags);
-static int      parseStmt(WebsJs *ep, int state, int flags);
-static int      parseDeclaration(WebsJs *ep, int state, int flags);
-static int      parseCond(WebsJs *ep, int state, int flags);
-static int      parseExpr(WebsJs *ep, int state, int flags);
-static int      parseFunctionArgs(WebsJs *ep, int state, int flags);
-static int      evalExpr(WebsJs *ep, char_t *lhs, int rel, char_t *rhs);
-static int      evalCond(WebsJs *ep, char_t *lhs, int rel, char_t *rhs);
-static int      evalFunction(WebsJs *ep);
-static void     freeFunc(ejfunc_t *func);
-static void     ejRemoveNewlines(WebsJs *ep, int state);
+static int      parse(Js *ep, int state, int flags);
+static int      parseStmt(Js *ep, int state, int flags);
+static int      parseDeclaration(Js *ep, int state, int flags);
+static int      parseCond(Js *ep, int state, int flags);
+static int      parseExpr(Js *ep, int state, int flags);
+static int      parseFunctionArgs(Js *ep, int state, int flags);
+static int      evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs);
+static int      evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs);
+static int      evalFunction(Js *ep);
+static void     freeFunc(JsFun *func);
+static void     jsRemoveNewlines(Js *ep, int state);
 
-static int      getLexicalToken(WebsJs *ep, int state);
-static int      tokenAddChar(WebsJs *ep, int c);
-static int      inputGetc(WebsJs *ep);
-static void     inputPutback(WebsJs *ep, int c);
-static int      charConvert(WebsJs *ep, int base, int maxDig);
+static int      getLexicalToken(Js *ep, int state);
+static int      tokenAddChar(Js *ep, int c);
+static int      inputGetc(Js *ep);
+static void     inputPutback(Js *ep, int c);
+static int      charConvert(Js *ep, int base, int maxDig);
 
 /************************************* Code ***********************************/
 
-int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
+int jsOpenEngine(sym_fd_t variables, sym_fd_t functions)
 {
-    WebsJs  *ep;
+    Js  *ep;
     int     eid, vid;
 
-    if ((eid = gallocEntry((void***) &ejHandles, &ejMax, sizeof(WebsJs))) < 0) {
+    if ((eid = gallocEntry((void***) &jsHandles, &jsMax, sizeof(Js))) < 0) {
         return -1;
     }
-    ep = ejHandles[eid];
+    ep = jsHandles[eid];
     ep->eid = eid;
 
     /*
@@ -64,7 +64,7 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
         symbol tables for block level declarations so we use galloc to manage a list of variable tables.
      */
     if ((vid = gallocHandle((void***) &ep->variables)) < 0) {
-        ejMax = gfreeHandle((void***) &ejHandles, ep->eid);
+        jsMax = gfreeHandle((void***) &jsHandles, ep->eid);
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -82,22 +82,22 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
     } else {
         ep->functions = functions;
     }
-    ejLexOpen(ep);
+    jsLexOpen(ep);
 
     /*
         Define standard constants
      */
-    ejSetGlobalVar(ep->eid, T("null"), NULL);
+    jsSetGlobalVar(ep->eid, T("null"), NULL);
     return ep->eid;
 }
 
 
-void ejCloseEngine(int eid)
+void jsCloseEngine(int eid)
 {
-    WebsJs  *ep;
+    Js  *ep;
     int     i;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return;
     }
 
@@ -106,7 +106,7 @@ void ejCloseEngine(int eid)
     gfree(ep->result);
     ep->result = NULL;
 
-    ejLexClose(ep);
+    jsLexClose(ep);
 
     for (i = ep->variableMax - 1; i >= 0; i--) {
         if (ep->flags & FLAGS_VARIABLES) {
@@ -117,16 +117,16 @@ void ejCloseEngine(int eid)
     if (ep->flags & FLAGS_FUNCTIONS) {
         symClose(ep->functions);
     }
-    ejMax = gfreeHandle((void***) &ejHandles, ep->eid);
+    jsMax = gfreeHandle((void***) &jsHandles, ep->eid);
     gfree(ep);
 }
 
 
 #if !ECOS && UNUSED
-char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
+char_t *jsEvalFile(int eid, char_t *path, char_t **emsg)
 {
     WebsStat    sbuf;
-    WebsJs      *ep;
+    Js          *ep;
     char_t      *script, *rs;
     char        *fileBuf;
     int         fd;
@@ -136,27 +136,27 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
     if (emsg) {
         *emsg = NULL;
     }
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
     if ((fd = gopen(path, O_RDONLY | O_BINARY, 0666)) < 0) {
-        ejError(ep, T("Bad handle %d"), eid);
+        jsError(ep, T("Bad handle %d"), eid);
         return NULL;
     }
     if (gstat(path, &sbuf) < 0) {
         gclose(fd);
-        ejError(ep, T("Cant stat %s"), path);
+        jsError(ep, T("Cant stat %s"), path);
         return NULL;
     }
     if ((fileBuf = galloc(sbuf.st_size + 1)) == NULL) {
         gclose(fd);
-        ejError(ep, T("Cant malloc %d"), sbuf.st_size);
+        jsError(ep, T("Cant malloc %d"), sbuf.st_size);
         return NULL;
     }
     if (gread(fd, fileBuf, sbuf.st_size) != (int)sbuf.st_size) {
         gclose(fd);
         gfree(fileBuf);
-        ejError(ep, T("Error reading %s"), path);
+        jsError(ep, T("Error reading %s"), path);
         return NULL;
     }
     fileBuf[sbuf.st_size] = '\0';
@@ -164,11 +164,11 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 
     if ((script = gallocAscToUni(fileBuf, sbuf.st_size)) == NULL) {
         gfree(fileBuf);
-        ejError(ep, T("Cant malloc %d"), sbuf.st_size + 1);
+        jsError(ep, T("Cant malloc %d"), sbuf.st_size + 1);
         return NULL;
     }
     gfree(fileBuf);
-    rs = ejEvalBlock(eid, script, emsg);
+    rs = jsEvalBlock(eid, script, emsg);
     gfree(script);
     return rs;
 }
@@ -176,15 +176,15 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 
 
 /*
-    Create a new variable scope block so that consecutive ejEval calls may be made with the same varible scope. This
-    space MUST be closed with ejCloseBlock when the evaluations are complete.
+    Create a new variable scope block so that consecutive jsEval calls may be made with the same varible scope. This
+    space MUST be closed with jsCloseBlock when the evaluations are complete.
  */
-int ejOpenBlock(int eid)
+int jsOpenBlock(int eid)
 {
-    WebsJs  *ep;
+    Js  *ep;
     int     vid;
 
-    if((ep = ejPtr(eid)) == NULL) {
+    if((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
     if ((vid = gallocHandle((void***) &ep->variables)) < 0) {
@@ -199,11 +199,11 @@ int ejOpenBlock(int eid)
 }
 
 
-int ejCloseBlock(int eid, int vid)
+int jsCloseBlock(int eid, int vid)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if((ep = ejPtr(eid)) == NULL) {
+    if((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
     symClose(ep->variables[vid] - JS_OFFSET);
@@ -217,16 +217,16 @@ int ejCloseBlock(int eid, int vid)
     Create a new variable scope block and evaluate a script. All variables
     created during this context will be automatically deleted when complete.
  */
-char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
+char_t *jsEvalBlock(int eid, char_t *script, char_t **emsg)
 {
     char_t* returnVal;
     int     vid;
 
     gassert(script);
 
-    vid = ejOpenBlock(eid);
-    returnVal = ejEval(eid, script, emsg);
-    ejCloseBlock(eid, vid);
+    vid = jsOpenBlock(eid);
+    returnVal = jsEval(eid, script, emsg);
+    jsCloseBlock(eid, vid);
     return returnVal;
 }
 
@@ -235,10 +235,10 @@ char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
     Parse and evaluate Javascript. The caller may provide a symbol table to use for variables and function definitions.
     Return char_t pointer on success otherwise NULL pointer is returned.
  */
-char_t *ejEval(int eid, char_t *script, char_t **emsg)
+char_t *jsEval(int eid, char_t *script, char_t **emsg)
 {
-    WebsJs  *ep;
-    ejinput_t   *oldBlock;
+    Js      *ep;
+    JsInput *oldBlock;
     int     state;
     void    *endlessLoopTest;
     int     loopCounter;
@@ -249,7 +249,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
     if (emsg) {
         *emsg = NULL;
     } 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
     setString(&ep->result, T(""));
@@ -258,7 +258,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
         Allocate a new evaluation block, and save the old one
      */
     oldBlock = ep->input;
-    ejLexOpenScript(ep, script);
+    jsLexOpenScript(ep, script);
 
     /*
         Do the actual parsing and evaluation
@@ -279,7 +279,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
         if (endlessLoopTest == ep->input->script.servp) {
             if (loopCounter++ > 10) {
                 state = STATE_ERR;
-                ejError(ep, T("Syntax error"));
+                jsError(ep, T("Syntax error"));
             }
         } else {
             endlessLoopTest = ep->input->script.servp;
@@ -287,7 +287,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
         }
     } while (state != STATE_EOF && state != STATE_ERR);
 
-    ejLexCloseScript(ep);
+    jsLexCloseScript(ep);
 
     /*
         Return any error string to the user
@@ -315,7 +315,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
 /*
     Recursive descent parser for Javascript
  */
-static int parse(WebsJs *ep, int state, int flags)
+static int parse(Js *ep, int state, int flags)
 {
     gassert(ep);
 
@@ -375,7 +375,7 @@ static int parse(WebsJs *ep, int state, int flags)
     }
 
     if (state == STATE_ERR && ep->error == NULL) {
-        ejError(ep, T("Syntax error"));
+        jsError(ep, T("Syntax error"));
     }
     return state;
 }
@@ -384,14 +384,14 @@ static int parse(WebsJs *ep, int state, int flags)
 /*
     Parse any statement including functions and simple relational operations
  */
-static int parseStmt(WebsJs *ep, int state, int flags)
+static int parseStmt(Js *ep, int state, int flags)
 {
-    ejfunc_t    func;
-    ejfunc_t    *saveFunc;
-    ejinput_t   condScript, endScript, bodyScript, incrScript;
+    JsFun       func;
+    JsFun       *saveFunc;
+    JsInput     condScript, endScript, bodyScript, incrScript;
     char_t      *value, *identifier;
     int         done, expectSemi, thenFlags, elseFlags, tid, cond, forFlags;
-    int         ejVarType;
+    int         jsVarType;
 
     gassert(ep);
 
@@ -407,11 +407,11 @@ static int parseStmt(WebsJs *ep, int state, int flags)
     saveFunc = NULL;
 
     for (done = 0; !done; ) {
-        tid = ejLexGetToken(ep, state);
+        tid = jsLexGetToken(ep, state);
 
         switch (tid) {
         default:
-            ejLexPutbackToken(ep, TOK_EXPR, ep->token);
+            jsLexPutbackToken(ep, TOK_EXPR, ep->token);
             done++;
             break;
 
@@ -433,7 +433,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 This case is when we discover no statement and just a lone ';'
              */
             if (state != STATE_STMT) {
-                ejLexPutbackToken(ep, tid, ep->token);
+                jsLexPutbackToken(ep, tid, ep->token);
             }
             done++;
             break;
@@ -447,7 +447,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             /*
                 Peek ahead to see if this is an assignment
              */
-            tid = ejLexGetToken(ep, state);
+            tid = jsLexGetToken(ep, state);
             if (tid == TOK_ASSIGNMENT) {
                 if (parse(ep, STATE_RELEXP, flags) != STATE_RELEXP_DONE) {
                     clearString(&identifier);
@@ -455,13 +455,13 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 }
                 if (flags & FLAGS_EXE) {
                     if ( state == STATE_DEC ) {
-                        ejSetLocalVar(ep->eid, identifier, ep->result);
+                        jsSetLocalVar(ep->eid, identifier, ep->result);
                     } else {
-                        ejVarType = ejGetVar(ep->eid, identifier, &value);
-                        if (ejVarType > 0) {
-                            ejSetLocalVar(ep->eid, identifier, ep->result);
+                        jsVarType = jsGetVar(ep->eid, identifier, &value);
+                        if (jsVarType > 0) {
+                            jsSetLocalVar(ep->eid, identifier, ep->result);
                         } else {
-                            ejSetGlobalVar(ep->eid, identifier, ep->result);
+                            jsSetGlobalVar(ep->eid, identifier, ep->result);
                         }
                     }
                 }
@@ -469,9 +469,9 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             } else if (tid == TOK_INC_DEC ) {
                 value = NULL;
                 if (flags & FLAGS_EXE) {
-                    ejVarType = ejGetVar(ep->eid, identifier, &value);
-                    if (ejVarType < 0) {
-                        ejError(ep, T("Undefined variable %s\n"), identifier);
+                    jsVarType = jsGetVar(ep->eid, identifier, &value);
+                    if (jsVarType < 0) {
+                        jsError(ep, T("Undefined variable %s\n"), identifier);
                         goto error;
                     }
                     setString(&ep->result, value);
@@ -480,10 +480,10 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                         break;
                     }
 
-                    if (ejVarType > 0) {
-                        ejSetLocalVar(ep->eid, identifier, ep->result);
+                    if (jsVarType > 0) {
+                        jsSetLocalVar(ep->eid, identifier, ep->result);
                     } else {
-                        ejSetGlobalVar(ep->eid, identifier, ep->result);
+                        jsSetGlobalVar(ep->eid, identifier, ep->result);
                     }
                 }
 
@@ -493,17 +493,17 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                  */
                 value = NULL;
                 if (state == STATE_DEC) {
-                    if (ejGetVar(ep->eid, identifier, &value) > 0) {
-                        ejError(ep, T("Variable already declared"),
+                    if (jsGetVar(ep->eid, identifier, &value) > 0) {
+                        jsError(ep, T("Variable already declared"),
                             identifier);
                         clearString(&identifier);
                         goto error;
                     }
-                    ejSetLocalVar(ep->eid, identifier, NULL);
+                    jsSetLocalVar(ep->eid, identifier, NULL);
                 } else {
                     if ( flags & FLAGS_EXE ) {
-                        if (ejGetVar(ep->eid, identifier, &value) < 0) {
-                            ejError(ep, T("Undefined variable %s\n"),
+                        if (jsGetVar(ep->eid, identifier, &value) < 0) {
+                            jsError(ep, T("Undefined variable %s\n"),
                                 identifier);
                             clearString(&identifier);
                             goto error;
@@ -511,7 +511,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                     }
                 }
                 setString(&ep->result, value);
-                ejLexPutbackToken(ep, tid, ep->token);
+                jsLexPutbackToken(ep, tid, ep->token);
             }
             clearString(&identifier);
 
@@ -539,12 +539,12 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             if (ep->func) {
                 saveFunc = ep->func;
             }
-            memset(&func, 0, sizeof(ejfunc_t));
+            memset(&func, 0, sizeof(JsFun));
             setString(&func.fname, ep->token);
             ep->func = &func;
 
             setString(&ep->result, T(""));
-            if (ejLexGetToken(ep, state) != TOK_LPAREN) {
+            if (jsLexGetToken(ep, state) != TOK_LPAREN) {
                 freeFunc(&func);
                 goto error;
             }
@@ -564,7 +564,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             freeFunc(&func);
             ep->func = saveFunc;
 
-            if (ejLexGetToken(ep, state) != TOK_RPAREN) {
+            if (jsLexGetToken(ep, state) != TOK_RPAREN) {
                 goto error;
             }
             if (state == STATE_STMT) {
@@ -577,7 +577,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             if (state != STATE_STMT) {
                 goto error;
             }
-            if (ejLexGetToken(ep, state) != TOK_LPAREN) {
+            if (jsLexGetToken(ep, state) != TOK_LPAREN) {
                 goto error;
             }
             /*
@@ -586,7 +586,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
                 goto error;
             }
-            if (ejLexGetToken(ep, state) != TOK_RPAREN) {
+            if (jsLexGetToken(ep, state) != TOK_RPAREN) {
                 goto error;
             }
             /*
@@ -613,10 +613,10 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             /*
                 check to see if there is an "else" case
              */
-            ejRemoveNewlines(ep, state);
-            tid = ejLexGetToken(ep, state);
+            jsRemoveNewlines(ep, state);
+            tid = jsLexGetToken(ep, state);
             if (tid != TOK_ELSE) {
-                ejLexPutbackToken(ep, tid, ep->token);
+                jsLexPutbackToken(ep, tid, ep->token);
                 done++;
                 break;
             }
@@ -644,7 +644,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             if (state != STATE_STMT) {
                 goto error;
             }
-            if (ejLexGetToken(ep, state) != TOK_LPAREN) {
+            if (jsLexGetToken(ep, state) != TOK_LPAREN) {
                 goto error;
             }
 
@@ -654,7 +654,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             if (parse(ep, STATE_EXPR, flags) != STATE_EXPR_DONE) {
                 goto error;
             }
-            if (ejLexGetToken(ep, state) != TOK_SEMI) {
+            if (jsLexGetToken(ep, state) != TOK_SEMI) {
                 goto error;
             }
 
@@ -662,13 +662,13 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 The first time through, we save the current input context just to each step: prior to the conditional,
                 the loop increment and the loop body.  
              */
-            ejLexSaveInputState(ep, &condScript);
+            jsLexSaveInputState(ep, &condScript);
             if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
                 goto error;
             }
             cond = (*ep->result != '0');
 
-            if (ejLexGetToken(ep, state) != TOK_SEMI) {
+            if (jsLexGetToken(ep, state) != TOK_SEMI) {
                 goto error;
             }
 
@@ -676,22 +676,22 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 Don't execute the loop increment statement or the body first time
              */
             forFlags = flags & ~FLAGS_EXE;
-            ejLexSaveInputState(ep, &incrScript);
+            jsLexSaveInputState(ep, &incrScript);
             if (parse(ep, STATE_EXPR, forFlags) != STATE_EXPR_DONE) {
                 goto error;
             }
-            if (ejLexGetToken(ep, state) != TOK_RPAREN) {
+            if (jsLexGetToken(ep, state) != TOK_RPAREN) {
                 goto error;
             }
 
             /*
                 Parse the body and remember the end of the body script
              */
-            ejLexSaveInputState(ep, &bodyScript);
+            jsLexSaveInputState(ep, &bodyScript);
             if (parse(ep, STATE_STMT, forFlags) != STATE_STMT_DONE) {
                 goto error;
             }
-            ejLexSaveInputState(ep, &endScript);
+            jsLexSaveInputState(ep, &endScript);
 
             /*
                 Now actually do the for loop. Note loop has been rotated
@@ -700,7 +700,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 /*
                     Evaluate the body
                  */
-                ejLexRestoreInputState(ep, &bodyScript);
+                jsLexRestoreInputState(ep, &bodyScript);
 
                 switch (parse(ep, STATE_STMT, flags)) {
                 case STATE_RET:
@@ -713,20 +713,20 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 /*
                     Evaluate the increment script
                  */
-                ejLexRestoreInputState(ep, &incrScript);
+                jsLexRestoreInputState(ep, &incrScript);
                 if (parse(ep, STATE_EXPR, flags) != STATE_EXPR_DONE) {
                     goto error;
                 }
                 /*
                     Evaluate the condition
                  */
-                ejLexRestoreInputState(ep, &condScript);
+                jsLexRestoreInputState(ep, &condScript);
                 if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
                     goto error;
                 }
                 cond = (*ep->result != '0');
             }
-            ejLexRestoreInputState(ep, &endScript);
+            jsLexRestoreInputState(ep, &endScript);
             done++;
             break;
 
@@ -738,7 +738,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             break;
 
         case TOK_COMMA:
-            ejLexPutbackToken(ep, TOK_EXPR, ep->token);
+            jsLexPutbackToken(ep, TOK_EXPR, ep->token);
             done++;
             break;
 
@@ -747,7 +747,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 if (parse(ep, STATE_RELEXP, flags) != STATE_RELEXP_DONE) {
                     goto error;
                 }
-                if (ejLexGetToken(ep, state) != TOK_RPAREN) {
+                if (jsLexGetToken(ep, state) != TOK_RPAREN) {
                     goto error;
                 }
                 return STATE_EXPR_DONE;
@@ -756,7 +756,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
             break;
 
         case TOK_RPAREN:
-            ejLexPutbackToken(ep, tid, ep->token);
+            jsLexPutbackToken(ep, tid, ep->token);
             return STATE_EXPR_DONE;
 
         case TOK_LBRACE:
@@ -781,14 +781,14 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 return state;
             }
 
-            if (ejLexGetToken(ep, state) != TOK_RBRACE) {
+            if (jsLexGetToken(ep, state) != TOK_RBRACE) {
                 goto error;
             }
             return STATE_STMT_DONE;
 
         case TOK_RBRACE:
             if (state == STATE_STMT) {
-                ejLexPutbackToken(ep, tid, ep->token);
+                jsLexPutbackToken(ep, tid, ep->token);
                 return STATE_STMT_BLOCK_DONE;
             }
             goto error;
@@ -798,7 +798,7 @@ static int parseStmt(WebsJs *ep, int state, int flags)
                 goto error;
             }
             if (flags & FLAGS_EXE) {
-                while ( ejLexGetToken(ep, state) != TOK_EOF );
+                while ( jsLexGetToken(ep, state) != TOK_EOF );
                 done++;
                 return STATE_RET;
             }
@@ -807,22 +807,22 @@ static int parseStmt(WebsJs *ep, int state, int flags)
     }
 
     if (expectSemi) {
-        tid = ejLexGetToken(ep, state);
+        tid = jsLexGetToken(ep, state);
         if (tid != TOK_SEMI && tid != TOK_NEWLINE) {
             goto error;
         }
         /*
             Skip newline after semi-colon
          */
-        ejRemoveNewlines(ep, state);
+        jsRemoveNewlines(ep, state);
     }
 
 doneParse:
     if (tid == TOK_FOR) {
-        ejLexFreeInputState(ep, &condScript);
-        ejLexFreeInputState(ep, &incrScript);
-        ejLexFreeInputState(ep, &endScript);
-        ejLexFreeInputState(ep, &bodyScript);
+        jsLexFreeInputState(ep, &condScript);
+        jsLexFreeInputState(ep, &incrScript);
+        jsLexFreeInputState(ep, &endScript);
+        jsLexFreeInputState(ep, &bodyScript);
     }
     if (state == STATE_STMT) {
         return STATE_STMT_DONE;
@@ -845,7 +845,7 @@ error:
 /*
     Parse variable declaration list
  */
-static int parseDeclaration(WebsJs *ep, int state, int flags)
+static int parseDeclaration(Js *ep, int state, int flags)
 {
     int     tid;
 
@@ -860,10 +860,10 @@ static int parseDeclaration(WebsJs *ep, int state, int flags)
         We set the variable to NULL if there is no associated assignment.
      */
     do {
-        if ((tid = ejLexGetToken(ep, state)) != TOK_ID) {
+        if ((tid = jsLexGetToken(ep, state)) != TOK_ID) {
             return STATE_ERR;
         }
-        ejLexPutbackToken(ep, tid, ep->token);
+        jsLexPutbackToken(ep, tid, ep->token);
 
         /*
             Parse the entire assignment or simple identifier declaration
@@ -875,7 +875,7 @@ static int parseDeclaration(WebsJs *ep, int state, int flags)
         /*
             Peek at the next token, continue if comma seen
          */
-        tid = ejLexGetToken(ep, state);
+        tid = jsLexGetToken(ep, state);
         if (tid == TOK_SEMI) {
             return STATE_DEC_LIST_DONE;
         } else if (tid != TOK_COMMA) {
@@ -893,7 +893,7 @@ static int parseDeclaration(WebsJs *ep, int state, int flags)
 /*
     Parse function arguments
  */
-static int parseFunctionArgs(WebsJs *ep, int state, int flags)
+static int parseFunctionArgs(Js *ep, int state, int flags)
 {
     int     tid, aid;
 
@@ -912,9 +912,9 @@ static int parseFunctionArgs(WebsJs *ep, int state, int flags)
         /*
             Peek at the next token, continue if more args (ie. comma seen)
          */
-        tid = ejLexGetToken(ep, state);
+        tid = jsLexGetToken(ep, state);
         if (tid != TOK_COMMA) {
-            ejLexPutbackToken(ep, tid, ep->token);
+            jsLexPutbackToken(ep, tid, ep->token);
         }
     } while (tid == TOK_COMMA);
 
@@ -928,7 +928,7 @@ static int parseFunctionArgs(WebsJs *ep, int state, int flags)
 /*
     Parse conditional expression (relational ops separated by ||, &&)
  */
-static int parseCond(WebsJs *ep, int state, int flags)
+static int parseCond(Js *ep, int state, int flags)
 {
     char_t  *lhs, *rhs;
     int     tid, operator;
@@ -959,17 +959,17 @@ static int parseCond(WebsJs *ep, int state, int flags)
         }
         setString(&lhs, ep->result);
 
-        tid = ejLexGetToken(ep, state);
+        tid = jsLexGetToken(ep, state);
         if (tid == TOK_LOGICAL) {
             operator = (int) *ep->token;
 
         } else if (tid == TOK_RPAREN || tid == TOK_SEMI) {
-            ejLexPutbackToken(ep, tid, ep->token);
+            jsLexPutbackToken(ep, tid, ep->token);
             state = STATE_COND_DONE;
             break;
 
         } else {
-            ejLexPutbackToken(ep, tid, ep->token);
+            jsLexPutbackToken(ep, tid, ep->token);
         }
 
     } while (state == STATE_RELEXP_DONE);
@@ -988,7 +988,7 @@ static int parseCond(WebsJs *ep, int state, int flags)
 /*
     Parse expression (leftHandSide operator rightHandSide)
  */
-static int parseExpr(WebsJs *ep, int state, int flags)
+static int parseExpr(Js *ep, int state, int flags)
 {
     char_t  *lhs, *rhs;
     int     rel, tid;
@@ -1033,12 +1033,12 @@ static int parseExpr(WebsJs *ep, int state, int flags)
         }
         setString(&lhs, ep->result);
 
-        if ((tid = ejLexGetToken(ep, state)) == TOK_EXPR ||
+        if ((tid = jsLexGetToken(ep, state)) == TOK_EXPR ||
              tid == TOK_INC_DEC || tid == TOK_LOGICAL) {
             rel = (int) *ep->token;
 
         } else {
-            ejLexPutbackToken(ep, tid, ep->token);
+            jsLexPutbackToken(ep, tid, ep->token);
             state = STATE_RELEXP_DONE;
         }
 
@@ -1059,7 +1059,7 @@ static int parseExpr(WebsJs *ep, int state, int flags)
 /*
     Evaluate a condition. Implements &&, ||, !
  */
-static int evalCond(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
+static int evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs)
 {
     char_t  buf[16];
     int     l, r, lval;
@@ -1080,14 +1080,14 @@ static int evalCond(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
             lval = l || r;
             break;
         default:
-            ejError(ep, T("Bad operator %d"), rel);
+            jsError(ep, T("Bad operator %d"), rel);
             return -1;
         }
     } else {
         if (!gisdigit((int)*lhs)) {
-            ejError(ep, T("Conditional must be numeric"), lhs);
+            jsError(ep, T("Conditional must be numeric"), lhs);
         } else {
-            ejError(ep, T("Conditional must be numeric"), rhs);
+            jsError(ep, T("Conditional must be numeric"), rhs);
         }
     }
     gstritoa(lval, buf, sizeof(buf));
@@ -1099,7 +1099,7 @@ static int evalCond(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
 /*
     Evaluate an operation
  */
-static int evalExpr(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
+static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
 {
     char_t  *cp, buf[16];
     int     numeric, l, r, lval;
@@ -1189,7 +1189,7 @@ static int evalExpr(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
             lval = (r == 0) ? 1 : 0;
             break;
         default:
-            ejError(ep, T("Bad operator %d"), rel);
+            jsError(ep, T("Bad operator %d"), rel);
             return -1;
         }
 
@@ -1226,7 +1226,7 @@ static int evalExpr(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
         case EXPR_LSHIFT:
         case EXPR_RSHIFT:
         default:
-            ejError(ep, T("Bad operator"));
+            jsError(ep, T("Bad operator"));
             return -1;
         }
     }
@@ -1239,18 +1239,18 @@ static int evalExpr(WebsJs *ep, char_t *lhs, int rel, char_t *rhs)
 /*
     Evaluate a function
  */
-static int evalFunction(WebsJs *ep)
+static int evalFunction(Js *ep)
 {
     sym_t   *sp;
     int     (*fn)(int eid, void *handle, int argc, char_t **argv);
 
     if ((sp = symLookup(ep->functions, ep->func->fname)) == NULL) {
-        ejError(ep, T("Undefined procedure %s"), ep->func->fname);
+        jsError(ep, T("Undefined procedure %s"), ep->func->fname);
         return -1;
     }
     fn = (int (*)(int, void*, int, char_t**)) sp->content.value.integer;
     if (fn == NULL) {
-        ejError(ep, T("Undefined procedure %s"), ep->func->fname);
+        jsError(ep, T("Undefined procedure %s"), ep->func->fname);
         return -1;
     }
     return (*fn)(ep->eid, ep->userHandle, ep->func->nArgs, ep->func->args);
@@ -1258,12 +1258,12 @@ static int evalFunction(WebsJs *ep)
 
 
 /*
-    Output a parse ej_error message
+    Output a parse js_error message
  */
-void ejError(WebsJs *ep, char_t* fmt, ...)
+void jsError(Js *ep, char_t* fmt, ...)
 {
     va_list     args;
-    ejinput_t   *ip;
+    JsInput     *ip;
     char_t      *errbuf, *msgbuf;
 
     gassert(ep);
@@ -1331,21 +1331,21 @@ static void appendString(char_t **ptr, char_t *s)
 /*
     Define a function
  */
-int ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
+int jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
-    return ejSetGlobalFunctionDirect(ep->functions, name, fn);
+    return jsSetGlobalFunctionDirect(ep->functions, name, fn);
 }
 
 
 /*
     Define a function directly into the function symbol table.
  */
-int ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
+int jsSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
     if (symEnter(functions, name, valueInteger((long) fn), 0) == NULL) {
         return -1;
@@ -1357,24 +1357,24 @@ int ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int ei
 /*
     Remove ("undefine") a function
  */
-int ejRemoveGlobalFunction(int eid, char_t *name)
+int jsRemoveGlobalFunction(int eid, char_t *name)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
     return symDelete(ep->functions, name);
 }
 
 
-void *ejGetGlobalFunction(int eid, char_t *name)
+void *jsGetGlobalFunction(int eid, char_t *name)
 {
-    WebsJs  *ep;
+    Js  *ep;
     sym_t   *sp;
     int     (*fn)(int eid, void *handle, int argc, char_t **argv);
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
 
@@ -1392,12 +1392,12 @@ void *ejGetGlobalFunction(int eid, char_t *name)
   
     Typical usage:
   
-        if (ejArgs(argc, argv, "%s %d", &name, &age) < 2) {
+        if (jsArgs(argc, argv, "%s %d", &name, &age) < 2) {
             error("Insufficient args");
             return -1;
         }
  */
-int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
+int jsArgs(int argc, char_t **argv, char_t *fmt, ...)
 {
     va_list vargs;
     char_t  *cp, **sp;
@@ -1438,55 +1438,55 @@ int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
 }
 
 
-void ejSetUserHandle(int eid, void* handle)
+void jsSetUserHandle(int eid, void* handle)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return;
     }
     ep->userHandle = handle;
 }
 
 
-void* ejGetUserHandle(int eid)
+void* jsGetUserHandle(int eid)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
     return ep->userHandle;
 }
 
 
-int ejGetLineNumber(int eid)
+int jsGetLineNumber(int eid)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
     return ep->input->lineNumber;
 }
 
 
-void ejSetResult(int eid, char_t *s)
+void jsSetResult(int eid, char_t *s)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return;
     }
     setString(&ep->result, s);
 }
 
 
-char_t *ejGetResult(int eid)
+char_t *jsGetResult(int eid)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
     return ep->result;
@@ -1496,14 +1496,14 @@ char_t *ejGetResult(int eid)
     Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
     top-most variable frame.  
  */
-void ejSetVar(int eid, char_t *var, char_t *value)
+void jsSetVar(int eid, char_t *var, char_t *value)
 {
-    WebsJs      *ep;
+    Js      *ep;
     value_t     v;
 
     gassert(var && *var);
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return;
     }
     if (value == NULL) {
@@ -1519,14 +1519,14 @@ void ejSetVar(int eid, char_t *var, char_t *value)
     Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the top-most variable frame.  
  */
-void ejSetLocalVar(int eid, char_t *var, char_t *value)
+void jsSetLocalVar(int eid, char_t *var, char_t *value)
 {
-    WebsJs      *ep;
+    Js      *ep;
     value_t     v;
 
     gassert(var && *var);
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return;
     }
 
@@ -1543,14 +1543,14 @@ void ejSetLocalVar(int eid, char_t *var, char_t *value)
     Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the global variable frame.  
  */
-void ejSetGlobalVar(int eid, char_t *var, char_t *value)
+void jsSetGlobalVar(int eid, char_t *var, char_t *value)
 {
-    WebsJs      *ep;
+    Js      *ep;
     value_t     v;
 
     gassert(var && *var);
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return;
     }
     if (value == NULL) {
@@ -1565,16 +1565,16 @@ void ejSetGlobalVar(int eid, char_t *var, char_t *value)
 /*
     Get a variable
  */
-int ejGetVar(int eid, char_t *var, char_t **value)
+int jsGetVar(int eid, char_t *var, char_t **value)
 {
-    WebsJs      *ep;
+    Js      *ep;
     sym_t       *sp;
     int         i;
 
     gassert(var && *var);
     gassert(value);
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
 
@@ -1591,22 +1591,22 @@ int ejGetVar(int eid, char_t *var, char_t **value)
 }
 
 
-sym_fd_t ejGetVariableTable(int eid)
+sym_fd_t jsGetVariableTable(int eid)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
     return *ep->variables;
 }
 
 
-sym_fd_t ejGetFunctionTable(int eid)
+sym_fd_t jsGetFunctionTable(int eid)
 {
-    WebsJs    *ep;
+    Js    *ep;
 
-    if ((ep = ejPtr(eid)) == NULL) {
+    if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
     return ep->functions;
@@ -1616,7 +1616,7 @@ sym_fd_t ejGetFunctionTable(int eid)
 /*
     Free an argument list
  */
-static void freeFunc(ejfunc_t *func)
+static void freeFunc(JsFun *func)
 {
     int i;
 
@@ -1634,51 +1634,51 @@ static void freeFunc(ejfunc_t *func)
 /*
     Get Javascript engine pointer
  */
-static WebsJs *ejPtr(int eid)
+static Js *jsPtr(int eid)
 {
-    gassert(0 <= eid && eid < ejMax);
+    gassert(0 <= eid && eid < jsMax);
 
-    if (eid < 0 || eid >= ejMax || ejHandles[eid] == NULL) {
-        ejError(NULL, T("Bad handle %d"), eid);
+    if (eid < 0 || eid >= jsMax || jsHandles[eid] == NULL) {
+        jsError(NULL, T("Bad handle %d"), eid);
         return NULL;
     }
-    return ejHandles[eid];
+    return jsHandles[eid];
 }
 
 
 /*
     This function removes any new lines.  Used for else cases, etc.
  */
-static void ejRemoveNewlines(WebsJs *ep, int state)
+static void jsRemoveNewlines(Js *ep, int state)
 {
     int tid;
 
     do {
-        tid = ejLexGetToken(ep, state);
+        tid = jsLexGetToken(ep, state);
     } while (tid == TOK_NEWLINE);
-    ejLexPutbackToken(ep, tid, ep->token);
+    jsLexPutbackToken(ep, tid, ep->token);
 }
 
 
-int ejLexOpen(WebsJs *ep)
+int jsLexOpen(Js *ep)
 {
     return 0;
 }
 
 
-void ejLexClose(WebsJs *ep)
+void jsLexClose(Js *ep)
 {
 }
 
 
-int ejLexOpenScript(WebsJs *ep, char_t *script)
+int jsLexOpenScript(Js *ep, char_t *script)
 {
-    ejinput_t   *ip;
+    JsInput     *ip;
 
     gassert(ep);
     gassert(script);
 
-    if ((ep->input = galloc(sizeof(ejinput_t))) == NULL) {
+    if ((ep->input = galloc(sizeof(JsInput))) == NULL) {
         return -1;
     }
     ip = ep->input;
@@ -1711,9 +1711,9 @@ int ejLexOpenScript(WebsJs *ep, char_t *script)
 }
 
 
-void ejLexCloseScript(WebsJs *ep)
+void jsLexCloseScript(Js *ep)
 {
-    ejinput_t   *ip;
+    JsInput     *ip;
 
     gassert(ep);
 
@@ -1736,9 +1736,9 @@ void ejLexCloseScript(WebsJs *ep)
 }
 
 
-void ejLexSaveInputState(WebsJs *ep, ejinput_t* state)
+void jsLexSaveInputState(Js *ep, JsInput *state)
 {
-    ejinput_t   *ip;
+    JsInput     *ip;
 
     gassert(ep);
 
@@ -1752,9 +1752,9 @@ void ejLexSaveInputState(WebsJs *ep, ejinput_t* state)
 }
 
 
-void ejLexRestoreInputState(WebsJs *ep, ejinput_t* state)
+void jsLexRestoreInputState(Js *ep, JsInput *state)
 {
-    ejinput_t   *ip;
+    JsInput     *ip;
 
     gassert(ep);
 
@@ -1773,7 +1773,7 @@ void ejLexRestoreInputState(WebsJs *ep, ejinput_t* state)
 }
 
 
-void ejLexFreeInputState(WebsJs *ep, ejinput_t* state)
+void jsLexFreeInputState(Js *ep, JsInput *state)
 {
     if (state->putBackToken) {
         gfree(state->putBackToken);
@@ -1782,17 +1782,17 @@ void ejLexFreeInputState(WebsJs *ep, ejinput_t* state)
 }
 
 
-int ejLexGetToken(WebsJs *ep, int state)
+int jsLexGetToken(Js *ep, int state)
 {
     ep->tid = getLexicalToken(ep, state);
     return ep->tid;
 }
 
 
-static int getLexicalToken(WebsJs *ep, int state)
+static int getLexicalToken(Js *ep, int state)
 {
     ringq_t     *tokq;
-    ejinput_t*  ip;
+    JsInput     *ip;
     int         done, tid, c, quote, style;
 
     gassert(ep);
@@ -1850,7 +1850,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '+':
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c != '+' ) {
@@ -1863,7 +1863,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '-':
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c != '-' ) {
@@ -1887,7 +1887,7 @@ static int getLexicalToken(WebsJs *ep, int state)
                 Handle the division operator and comments
              */
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c != '*' && c != '/') {
@@ -1901,7 +1901,7 @@ static int getLexicalToken(WebsJs *ep, int state)
              */
             while (1) {
                 if ((c = inputGetc(ep)) < 0) {
-                    ejError(ep, T("Syntax Error"));
+                    jsError(ep, T("Syntax Error"));
                     return TOK_ERR;
                 }
                 if (c == '\n' && style == '/') {
@@ -1929,7 +1929,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '<':                                   /* < and <= */
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c == '<') {
@@ -1945,7 +1945,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '>':                                   /* > and >= */
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c == '>') {
@@ -1961,7 +1961,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '=':                                   /* "==" */
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c == '=') {
@@ -1973,7 +1973,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '!':                                   /* "!=" or "!"*/
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             if (c == '=') {
@@ -1994,7 +1994,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '|':                                   /* "||" */
             if ((c = inputGetc(ep)) < 0 || c != '|') {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             tokenAddChar(ep, COND_OR);
@@ -2002,7 +2002,7 @@ static int getLexicalToken(WebsJs *ep, int state)
 
         case '&':                                   /* "&&" */
             if ((c = inputGetc(ep)) < 0 || c != '&') {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
             tokenAddChar(ep, COND_AND);
@@ -2012,7 +2012,7 @@ static int getLexicalToken(WebsJs *ep, int state)
         case '\'':
             quote = c;
             if ((c = inputGetc(ep)) < 0) {
-                ejError(ep, T("Syntax Error"));
+                jsError(ep, T("Syntax Error"));
                 return TOK_ERR;
             }
 
@@ -2061,7 +2061,7 @@ static int getLexicalToken(WebsJs *ep, int state)
                         case '\\':
                             break;
                         default:
-                            ejError(ep, T("Invalid Escape Sequence"));
+                            jsError(ep, T("Invalid Escape Sequence"));
                             return TOK_ERR;
                         }
                     }
@@ -2074,7 +2074,7 @@ static int getLexicalToken(WebsJs *ep, int state)
                     }
                 }
                 if ((c = inputGetc(ep)) < 0) {
-                    ejError(ep, T("Unmatched Quote"));
+                    jsError(ep, T("Unmatched Quote"));
                     return TOK_ERR;
                 }
             }
@@ -2114,7 +2114,7 @@ static int getLexicalToken(WebsJs *ep, int state)
             }
             if (! gisalpha(*tokq->servp) && *tokq->servp != '$' && 
                     *tokq->servp != '_') {
-                ejError(ep, T("Invalid identifier %s"), tokq->servp);
+                jsError(ep, T("Invalid identifier %s"), tokq->servp);
                 return TOK_ERR;
             }
             /*
@@ -2157,9 +2157,9 @@ static int getLexicalToken(WebsJs *ep, int state)
 }
 
 
-void ejLexPutbackToken(WebsJs *ep, int tid, char_t *string)
+void jsLexPutbackToken(Js *ep, int tid, char_t *string)
 {
-    ejinput_t*  ip;
+    JsInput *ip;
 
     gassert(ep);
     ip = ep->input;
@@ -2173,16 +2173,16 @@ void ejLexPutbackToken(WebsJs *ep, int tid, char_t *string)
 }
 
 
-static int tokenAddChar(WebsJs *ep, int c)
+static int tokenAddChar(Js *ep, int c)
 {
-    ejinput_t*  ip;
+    JsInput *ip;
 
     gassert(ep);
     ip = ep->input;
     gassert(ip);
 
     if (ringqPutc(&ip->tokbuf, (char_t) c) < 0) {
-        ejError(ep, T("Token too big"));
+        jsError(ep, T("Token too big"));
         return -1;
     }
     * ((char_t*) ip->tokbuf.endp) = '\0';
@@ -2192,9 +2192,9 @@ static int tokenAddChar(WebsJs *ep, int c)
 }
 
 
-static int inputGetc(WebsJs *ep)
+static int inputGetc(Js *ep)
 {
-    ejinput_t   *ip;
+    JsInput     *ip;
     ssize       len;
     int         c;
 
@@ -2220,9 +2220,9 @@ static int inputGetc(WebsJs *ep)
 }
 
 
-static void inputPutback(WebsJs *ep, int c)
+static void inputPutback(Js *ep, int c)
 {
-    ejinput_t   *ip;
+    JsInput   *ip;
 
     gassert(ep);
 
@@ -2239,7 +2239,7 @@ static void inputPutback(WebsJs *ep, int c)
 /*
     Convert a hex or octal character back to binary, return original char if not a hex digit
  */
-static int charConvert(WebsJs *ep, int base, int maxDig)
+static int charConvert(Js *ep, int base, int maxDig)
 {
     int     i, c, lval, convChar;
 

@@ -1101,8 +1101,8 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
     extern void traceRaw(char_t *buf);
     extern int traceOpen();
     extern void traceClose();
-    typedef void (*TraceHandler)(int level, char_t *msg);
-    extern TraceHandler traceSetHandler(TraceHandler handler);
+    typedef void (*WebsTraceHandler)(int level, char_t *msg);
+    extern WebsTraceHandler traceSetHandler(WebsTraceHandler handler);
     extern void traceSetPath(char_t *path);
 #else
     #define TRACE if (0) trace
@@ -1331,8 +1331,6 @@ extern int      symDelete(sym_fd_t sd, char_t *name);
 extern void     symWalk(sym_fd_t sd, void (*fn)(sym_t *symp));
 extern sym_t    *symFirst(sym_fd_t sd);
 extern sym_t    *symNext(sym_fd_t sd, sym_t *last);
-extern int      symSubOpen();
-extern void     symSubClose();
 
 /************************************ Socket **********************************/
 /*
@@ -1452,6 +1450,7 @@ extern int gopen(char_t *path, int oflag, int mode);
 extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
 extern int gncmp(char_t *s1, char_t *s2, ssize n);
 extern char_t *gstrlower(char_t *string);
+extern ssize gstrnlen(char_t *s, ssize n);
 extern char_t *gstrupper(char_t *string);
 extern char_t *gstritoa(int n, char_t *string, int width);
 extern uint gstrtoi(char_t *s);
@@ -1587,8 +1586,6 @@ typedef struct Webs {
     sslConn_t       *sslConn;
 #endif
 } Webs;
-
-typedef Webs *webs_t;
 
 /*
     URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.

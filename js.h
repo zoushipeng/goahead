@@ -93,13 +93,12 @@
 #define STATE_DEC_LIST_DONE     17
 #define STATE_DEC               18
 #define STATE_DEC_DONE          19
-
 #define STATE_RET               20          /* Return statement */
 
 #define STATE_BEGIN             STATE_STMT
 
 /*
-    Flags. Used in WebsJs and as parameter to parse()
+    Flags. Used in Js and as parameter to parse()
  */
 #define FLAGS_EXE               0x1             /* Execute statements */
 #define FLAGS_VARIABLES         0x2             /* Allocated variables store */
@@ -108,16 +107,16 @@
 /*
     Function call structure
  */
-typedef struct {
+typedef struct JsFun {
     char_t      *fname;                         /* Function name */
     char_t      **args;                         /* Args for function (halloc) */
     int         nArgs;                          /* Number of args */
-} ejfunc_t;
+} JsFun;
 
 /*
-    EJ evaluation block structure
+    Evaluation block structure
  */
-typedef struct ejEval {
+typedef struct JsInput {
     ringq_t     tokbuf;                         /* Current token */
     ringq_t     script;                         /* Input script for parsing */
     char_t      *putBackToken;                  /* Putback token string */
@@ -126,17 +125,18 @@ typedef struct ejEval {
     int         lineLength;                     /* Current line length */
     int         lineNumber;                     /* Parse line number */
     int         lineColumn;                     /* Column in line */
-} ejinput_t;
+} JsInput;
+
 
 /*
     Per Javascript session structure
  */
-typedef struct WebsJs {
-    ejinput_t   *input;                         /* Input evaluation block */
+typedef struct Js {
+    JsInput     *input;                         /* Input evaluation block */
     sym_fd_t    functions;                      /* Symbol table for functions */
     sym_fd_t    *variables;                     /* hAlloc list of variables */
     int         variableMax;                    /* Number of entries */
-    ejfunc_t    *func;                          /* Current function */
+    JsFun       *func;                          /* Current function */
     char_t      *result;                        /* Current expression result */
     char_t      *error;                         /* Error message */
     char_t      *token;                         /* Pointer to token string */
@@ -144,55 +144,57 @@ typedef struct WebsJs {
     int         eid;                            /* Halloc handle */
     int         flags;                          /* Flags */
     void        *userHandle;                    /* User defined handle */
-} WebsJs;
-
+} Js;
 
 /******************************** Prototypes **********************************/
 
-extern int      ejOpenBlock(int eid);
-extern int      ejCloseBlock(int eid, int vid);
-extern char_t   *ejEvalBlock(int eid, char_t *script, char_t **emsg);
+extern int      jsOpenBlock(int eid);
+extern int      jsCloseBlock(int eid, int vid);
+extern char_t   *jsEvalBlock(int eid, char_t *script, char_t **emsg);
 
 #if !ECOS && UNUSED && KEEP
-extern char_t   *ejEvalFile(int eid, char_t *path, char_t **emsg);
+extern char_t   *jsEvalFile(int eid, char_t *path, char_t **emsg);
 #endif
 
-extern int      ejRemoveGlobalFunction(int eid, char_t *name);
-extern void     *ejGetGlobalFunction(int eid, char_t *name);
-extern int      ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, 
+extern int      jsRemoveGlobalFunction(int eid, char_t *name);
+extern void     *jsGetGlobalFunction(int eid, char_t *name);
+extern int      jsSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, 
                     int (*fn)(int eid, void *handle, int argc, char_t **argv));
-extern void     ejError(WebsJs *ep, char_t *fmt, ...);
-extern void     ejSetUserHandle(int eid, void *handle);
-extern void     *ejGetUserHandle(int eid);
-extern int      ejGetLineNumber(int eid);
-extern char_t   *ejGetResult(int eid);
-extern void     ejSetLocalVar(int eid, char_t *var, char_t *value);
-extern void     ejSetGlobalVar(int eid, char_t *var, char_t *value);
+extern void     jsError(Js *ep, char_t *fmt, ...);
+extern void     jsSetUserHandle(int eid, void *handle);
+extern void     *jsGetUserHandle(int eid);
+extern int      jsGetLineNumber(int eid);
+extern char_t   *jsGetResult(int eid);
+extern void     jsSetLocalVar(int eid, char_t *var, char_t *value);
+extern void     jsSetGlobalVar(int eid, char_t *var, char_t *value);
 
-extern int      ejLexOpen(WebsJs *ep);
-extern void     ejLexClose(WebsJs *ep);
-extern int      ejLexOpenScript(WebsJs *ep, char_t *script);
-extern void     ejLexCloseScript(WebsJs *ep);
-extern void     ejLexSaveInputState(WebsJs *ep, ejinput_t *state);
-extern void     ejLexFreeInputState(WebsJs *ep, ejinput_t *state);
-extern void     ejLexRestoreInputState(WebsJs *ep, ejinput_t *state);
-extern int      ejLexGetToken(WebsJs *ep, int state);
-extern void     ejLexPutbackToken(WebsJs *ep, int tid, char_t *string);
+extern int      jsLexOpen(Js *ep);
+extern void     jsLexClose(Js *ep);
+extern int      jsLexOpenScript(Js *ep, char_t *script);
+extern void     jsLexCloseScript(Js *ep);
+extern void     jsLexSaveInputState(Js *ep, JsInput *state);
+extern void     jsLexFreeInputState(Js *ep, JsInput *state);
+extern void     jsLexRestoreInputState(Js *ep, JsInput *state);
+extern int      jsLexGetToken(Js *ep, int state);
+extern void     jsLexPutbackToken(Js *ep, int tid, char_t *string);
 
-extern sym_fd_t ejGetVariableTable(int eid);
-extern sym_fd_t ejGetFunctionTable(int eid);
+extern sym_fd_t jsGetVariableTable(int eid);
+extern sym_fd_t jsGetFunctionTable(int eid);
 
-extern int      ejArgs(int argc, char_t **argv, char_t *fmt, ...);
-extern void     ejSetResult(int eid, char_t *s);
-extern int      ejOpenEngine(sym_fd_t variables, sym_fd_t functions);
-extern void     ejCloseEngine(int eid);
-extern int      ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
-extern void     ejSetVar(int eid, char_t *var, char_t *value);
-extern int      ejGetVar(int eid, char_t *var, char_t **value);
-extern char_t   *ejEval(int eid, char_t *script, char_t **emsg);
+extern int      jsArgs(int argc, char_t **argv, char_t *fmt, ...);
+extern void     jsSetResult(int eid, char_t *s);
+extern int      jsOpenEngine(sym_fd_t variables, sym_fd_t functions);
+extern void     jsCloseEngine(int eid);
+extern int      jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
+extern void     jsSetVar(int eid, char_t *var, char_t *value);
+extern int      jsGetVar(int eid, char_t *var, char_t **value);
+extern char_t   *jsEval(int eid, char_t *script, char_t **emsg);
 
 #if BIT_LEGACY
-    typedef WebsJs ej_t;
+    typedef Js ej_t;
+    typedef JsInput jsinput_t;
+    typedef JsFun jsfunc_t;
+
     #define ejOpenBlock jsOpenBlock
     #define ejCloseBlock jsCloseBlock
     #define ejEvalBlock jsEvalBlock

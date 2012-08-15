@@ -1,8 +1,32 @@
 /*
     auth.c -- Authorization Management
 
-    Copyright (c) All Rights Reserved. See details at the end of the file.
+    This modules supports a user/role/capability based authorization scheme.
 
+    In this scheme Users have passwords and can have multiple roles. A role is associated with the capabilit to do
+    things like "admin" or "user" or "support". A role may have capabilities (which are typically verbs) like "add",
+    "shutdown". 
+
+    When the web server starts up, it loads an authentication text file that specifies the Users, Roles and Routes.
+    Routes specify the required capabilities to access URLs by specifying the URL prefix. Once logged in, the user's
+    capabilies are tested against the route capabilites. When the web server receivess a request, the set of Routes is
+    consulted to select the best route. If the routes requires capabilities, the user must be logged in and
+    authenticated. 
+
+    Three authentication backend protocols are supported:
+        HTTP basic authentication which uses browser dialogs and clear text passwords (insecure unless over TLS)
+        HTTP digest authentication which uses browser dialogs
+        Web form authentication which uses a web page form to login (insecure unless over TLS)
+
+    The user, role and route information is loaded form a text file that uses the schema (see test/auth.txt)
+        user: enable: realm: name: password: role [role...]
+        role: enable: name: capability [capability...]
+        uri: enable: realm: type: uri: method: capability [capability...]
+
+    Note:
+        - The psudo capability SECURE can be used to require TLS communications
+
+    Copyright (c) All Rights Reserved. See details at the end of the file.
 */
 
 /********************************* Includes ***********************************/
@@ -12,33 +36,32 @@
 #if BIT_AUTH
 /*********************************** Locals ***********************************/
 
-//  MOB - rethink
-#define NONCE_PREFIX    T("onceuponatimeinparadise")
-#define NONCE_SIZE      34
-#define HASH_SIZE       16
-
-static sym_fd_t users = -1;
-static sym_fd_t roles = -1;
 static WebsRoute **routes = 0;
 static int routeCount = 0;
 static int routeMax = 0;
+static sym_fd_t users = -1;
+static sym_fd_t roles = -1;
 static char_t *secret;
-
-#if UNUSED
-static char_t websRealm[BIT_LIMIT_PASSWORD] = T("Acme Inc");
-#endif
 
 /********************************** Forwards **********************************/
 
 static char *addString(char_t *field, char_t *word);
-static int aspCan(int ejid, Webs *wp, int argc, char_t **argv);
+static void basicLogin(Webs *wp, int why);
 static void computeAllCapabilities();
 static void computeCapabilities(WebsUser *user);
 static int decodeBasicDetails(Webs *wp);
 static char_t *findString(char_t *field, char_t *word);
+static void formLogin(Webs *wp, int why);
+static void freeRole(WebsRole *rp);
+static void freeRoute(WebsRoute *rp);
+static void freeUser(WebsUser *up);
+static void growRoutes();
+static int jsCan(int jsid, Webs *wp, int argc, char_t **argv);
 static int loadAuth(char_t *path);
 static int removeString(char_t *field, char_t *word);
 static char_t *trimSpace(char_t *s);
+static bool verifyBasicPassword(Webs *wp);
+static bool verifyFormPassword(Webs *wp);
 
 #if BIT_DIGEST_AUTH
 static char_t *calcDigest(Webs *wp, char_t *userName, char_t *password);
@@ -48,10 +71,6 @@ static void digestLogin(Webs *wp, int why);
 static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time_t *when);
 static bool verifyDigestPassword(Webs *wp);
 #endif
-static void basicLogin(Webs *wp, int why);
-static bool verifyBasicPassword(Webs *wp);
-static void formLogin(Webs *wp, int why);
-static bool verifyFormPassword(Webs *wp);
 
 /************************************ Code ************************************/
 
@@ -71,7 +90,7 @@ int websOpenAuth(char_t *path)
         return loadAuth(path);
     }
 #if BIT_JAVASCRIPT
-    websJsDefine(T("can"), aspCan);
+    websJsDefine(T("can"), jsCan);
 #endif
     return 0;
 }
@@ -79,38 +98,28 @@ int websOpenAuth(char_t *path)
 
 void websCloseAuth() 
 {
-    int     i;
-   
-    //  MOB - not good enough. Must free all users, roles and routes
+    sym_t       *sym;
+    int         i;
+
+    gfree(secret);
+    for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
+        freeUser(sym->content.value.symbol);
+    }
     symClose(users);
+    for (sym = symFirst(roles); sym; sym = symNext(roles, sym)) {
+        freeRole(sym->content.value.symbol);
+    }
     symClose(roles);
     for (i = 0; i < routeCount; i++) {
-        gfree(routes[i]);
+        freeRoute(routes[i]);
     }
     gfree(routes);
     users = roles = -1;
     routes = 0;
     routeCount = routeMax = 0;
-    gfree(secret);
 }
 
 
-static void growRoutes()
-{
-    if (routeCount >= routeMax) {
-        routeMax += 16;
-        //  RC
-        routes = grealloc(routes, sizeof(WebsRoute*) * routeMax);
-    }
-}
-
-
-/*
-    Load an auth database. Schema:
-        user: enable: realm: name: password: role [role...]
-        role: enable: name: capability [capability...]
-        uri: enable: realm: type: uri: method: capability [capability...]
- */
 static int loadAuth(char_t *path)
 {
     WebsLogin   login;
@@ -213,22 +222,15 @@ int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
 }
 
 
-#if UNUSED
-int websSetPassword(char_t *name, char_t *password) 
+static void freeUser(WebsUser *up)
 {
-    WebsUser    *up;
-    sym_t       *sym;
-
-    if ((sym = symLookup(users, name)) == 0) {
-        return -1;
-    }
-    up = (WebsUser*) sym->content.value.symbol;
-    gassert(up);
-    //  MOB - MD5
-    up->password = gstrdup(password);
-    return 0;
+    gfree(up->name);
+    gfree(up->realm);
+    gfree(up->password);
+    gfree(up->roles);
+    gfree(up->capabilities);
+    gfree(up);
 }
-#endif
 
 
 bool websFormLogin(Webs *wp, char_t *userName, char_t *password)
@@ -281,7 +283,12 @@ int websEnableUser(char_t *name, int enable)
 
 int websRemoveUser(char_t *name) 
 {
-    //  MOB - must free all memory for user
+    sym_t   *sym;
+
+    if ((sym = symLookup(users, name)) == 0) {
+        return -1;
+    }
+    gfree(sym->content.value.symbol);
     return symDelete(users, name);
 }
 
@@ -367,18 +374,20 @@ static void computeAllCapabilities()
 }
 
 
-//  MOB - remove role from user
-//  MOB - must recompute capabilities
 int websRemoveUserRole(char_t *name, char_t *role) 
 {
     WebsUser    *up;
     sym_t       *sym;
+    int         rc;
 
     if ((sym = symLookup(users, name)) == 0) {
         return -1;
     }
     up = (WebsUser*) sym->content.value.symbol;
-    return removeString(up->roles, role);
+    if ((rc = removeString(up->roles, role)) == 0) {
+        computeCapabilities(up);
+    }
+    return rc;
 }
 
 
@@ -447,10 +456,24 @@ int websAddRole(char_t *name, char_t *capabilities)
 }
 
 
-//  MOB - note. Does not recompute user capabilities
+static void freeRole(WebsRole *rp)
+{
+    gfree(rp->capabilities);
+    gfree(rp);
+}
+
+
+/*
+    Remove a role. Does not recompute capabilities for users that use this role
+ */
 int websRemoveRole(char_t *name) 
 {
-    //  MOB - need to free full role
+    sym_t   *sym;
+
+    if ((sym = symLookup(roles, name)) == 0) {
+        return -1;
+    }
+    gfree(sym->content.value.symbol);
     return symDelete(roles, name);
 }
 
@@ -472,6 +495,9 @@ int websAddRoleCapability(char_t *name, char_t *capability)
 }
 
 
+/*
+    Remove a role capability. Does not recompute users capabilities that use this role
+ */
 int websRemoveRoleCapability(char_t *name, char_t *capability) 
 {
     WebsRole    *rp;
@@ -520,6 +546,16 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *login
 }
 
 
+static void growRoutes()
+{
+    if (routeCount >= routeMax) {
+        routeMax += 16;
+        //  RC
+        routes = grealloc(routes, sizeof(WebsRoute*) * routeMax);
+    }
+}
+
+
 static int lookupRoute(char_t *uri) 
 {
     WebsRoute    *rp;
@@ -535,18 +571,28 @@ static int lookupRoute(char_t *uri)
 }
 
 
-int amRemoveRoute(char_t *uri) 
+static void freeRoute(WebsRoute *rp)
 {
-    int     i;
+    gfree(rp->prefix);
+    gfree(rp->realm);
+    gfree(rp->loginUri);
+    gfree(rp->capabilities);
+    gfree(rp);
+}
+
+
+int websRemoveRoute(char_t *uri) 
+{
+    int         i;
 
     if ((i = lookupRoute(uri)) == 0) {
         return -1;
     }
+    freeRoute(routes[i]);
     for (; i < routeCount; i++) {
         routes[i] = routes[i+1];
     }
-    routeCount++;
-    //  MOB - must free URI
+    routeCount--;
     return 0;
 }
 
@@ -641,7 +687,6 @@ static bool verifyBasicPassword(Webs *wp)
 }
 
 
-//  MOB - same as verifyBasicPassword
 static bool verifyFormPassword(Webs *wp)
 {
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
@@ -716,7 +761,6 @@ bool websVerifyRoute(Webs *wp)
 }
 
 
-//  MOB - should this be capabilities?
 bool websCan(Webs *wp, char_t *capabilities) 
 {
     sym_t   *sym;
@@ -736,7 +780,7 @@ bool websCan(Webs *wp, char_t *capabilities)
 }
 
 
-static int aspCan(int ejid, Webs *wp, int argc, char_t **argv)
+static int jsCan(int jsid, Webs *wp, int argc, char_t **argv)
 {
     if (websCan(wp, argv[0])) {
         //  MOB - how to set return 
@@ -758,35 +802,6 @@ static char_t *findString(char_t *field, char_t *word)
     if ((cp = strstr(field, word)) != 0) {
         return &cp[1];
     }
-    return 0;
-}
-
-
-/*
-    The field always has a leading and trailing space
- */
-static char *addString(char_t *field, char_t *word)
-{
-    char_t  *old;
-
-    old = field;
-    gfmtAlloc(&field, -1, "%s%s ", old, word);
-    gfree(old);
-    return field;
-}
-
-
-static int removeString(char_t *field, char_t *word)
-{
-    char_t  *old, *cp;
-
-    if ((cp = findString(field, word)) == 0) {
-        return -1;
-    }
-    old = field;
-    cp[-1] = '\0';
-    gfmtAlloc(&field, -1, "%s%s ", field, &cp[strlen(word)]);
-    gfree(old);
     return 0;
 }
 
@@ -1033,27 +1048,33 @@ static char_t *calcDigest(Webs *wp, char_t *userName, char_t *password)
 #endif /* BIT_DIGEST_AUTH */
 
 
-#if UNUSED
 /*
-    Store the new realm name
-    MOB -rename and legacy preserve old name
+    The field always has a leading and trailing space
  */
-void websSetRealm(char_t *realmName)
+static char *addString(char_t *field, char_t *word)
 {
-    gassert(realmName);
+    char_t  *old;
 
-    gstrncpy(websRealm, realmName, TSZ(websRealm));
+    old = field;
+    gfmtAlloc(&field, -1, "%s%s ", old, word);
+    gfree(old);
+    return field;
 }
 
 
-/*
-    Return the realm name (used for authorization)
- */
-char_t *websGetRealm()
+static int removeString(char_t *field, char_t *word)
 {
-    return websRealm;
+    char_t  *old, *cp;
+
+    if ((cp = findString(field, word)) == 0) {
+        return -1;
+    }
+    old = field;
+    cp[-1] = '\0';
+    gfmtAlloc(&field, -1, "%s%s ", field, &cp[strlen(word)]);
+    gfree(old);
+    return 0;
 }
-#endif
 
 
 static char_t *trimSpace(char_t *s)

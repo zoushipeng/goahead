@@ -8,33 +8,31 @@
 
 #include    "goahead.h"
 
-//  MOB sort file
-
 /*********************************** Defines **********************************/
 /*
     This structure stores scheduled events.
  */
-typedef struct {
+typedef struct Callback {
     void    (*routine)(void *arg, int id);
     void    *arg;
     time_t  at;
-    int     schedid;
-} sched_t;
+    int     id;
+} Callback;
 
-/*
-    Sprintf buffer structure. Make the increment 64 so that a galloc can use a 64 byte block.
- */
 
 #define STR_REALLOC     0x1             /* Reallocate the buffer as required */
 #define STR_INC         64              /* Growth increment */
 
-typedef struct {
+/*
+    Sprintf buffer structure. Make the increment 64 so that a galloc can use a 64 byte block.
+ */
+typedef struct FmtBuf {
     char_t  *s;                         /* Pointer to buffer */
     ssize   size;                       /* Current buffer size */
     ssize   max;                        /* Maximum buffer size */
     ssize   count;                      /* Buffer count */
     int     flags;                      /* Allocation flags */
-} strbuf_t;
+} FmtBuf;
 
 /*
     Sprintf formatting flags
@@ -57,37 +55,29 @@ enum flag {
 #define H_LEN       0       /* First entry holds length of list */
 #define H_USED      1       /* Second entry holds number of used */
 #define H_OFFSET    2       /* Offset to real start of list */
-
 #define H_INCR      16      /* Grow handle list in chunks this size */
 
 #define RINGQ_LEN(rq) ((rq->servp > rq->endp) ? (rq->buflen + (rq->endp - rq->servp)) : (rq->endp - rq->servp))
 
-typedef struct {                        /* Symbol table descriptor */
+typedef struct SymTab {                 /* Symbol table descriptor */
     int     inuse;                      /* Is this entry in use */
     int     hash_size;                  /* Size of the table below */
     sym_t   **hash_table;               /* Allocated at run time */
-} sym_tabent_t;
+} SymTab;
 
 #if WINDOWS
 static HINSTANCE appInstance;
 #endif
 
-/********************************* Globals ************************************/
+/************************************* Locals *********************************/
 
-static sym_tabent_t **sym;              /* List of symbol tables */
+static Callback     **callbacks;
+static int          callbackMax;
+
+static SymTab       **sym;              /* List of symbol tables */
 static int          symMax;             /* One past the max symbol table */
-static int          symOpenCount = 0;   /* Count of apps using sym */
-
-#if UNUSED
-static int          htIndex;            /* Current location in table */
-static sym_t        *next;              /* Next symbol in iteration */
-#endif
-
-static sched_t      **sched;
-static int          schedMax;
 
 #if BIT_DEBUG_LOG
-//  MOB - rename
 static char_t   *tracePath;
 static int      traceFd;                        /* Log file handle */
 static int      traceLevel;
@@ -97,37 +87,34 @@ char* embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
 
 /********************************** Forwards **********************************/
 
+static int calcPrime(int size);
 static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize msize);
-static void put_char(strbuf_t *buf, char_t c);
-static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
-static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f);
-static ssize gstrnlen(char_t *s, ssize n);
+static int getBinBlockSize(int size);
+static int hashIndex(SymTab *tp, char_t *name);
+static sym_t *hash(SymTab *tp, char_t *name);
+static void put_char(FmtBuf *buf, char_t c);
+static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
+static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f);
+static int ringqGrow(ringq_t *rq);
 
 #if BIT_DEBUG_LOG
 static void defaultTraceHandler(int level, char_t *buf);
-static TraceHandler traceHandler = defaultTraceHandler;
+static WebsTraceHandler traceHandler = defaultTraceHandler;
 #endif
-
-static int ringqGrow(ringq_t *rq);
-static int getBinBlockSize(int size);
-
-static int hashIndex(sym_tabent_t *tp, char_t *name);
-static sym_t *hash(sym_tabent_t *tp, char_t *name);
-static int calcPrime(int size);
 
 /************************************* Code ***********************************/
 /*
     This function is called when a scheduled process time has come.
  */
-static void timerProc(int schedid)
+static void callbackProc(int id)
 {
-    sched_t *s;
+    Callback    *cp;
 
-    gassert(0 <= schedid && schedid < schedMax);
-    s = sched[schedid];
-    gassert(s);
+    gassert(0 <= id && id < callbackMax);
+    cp = callbacks[id];
+    gassert(cp);
 
-    (s->routine)(s->arg, s->schedid);
+    (cp->routine)(cp->arg, cp->id);
 }
 
 
@@ -136,80 +123,78 @@ static void timerProc(int schedid)
  */
 int gschedCallback(int delay, WebsCallback *proc, void *arg)
 {
-    sched_t *s;
-    int     schedid;
+    Callback    *s;
+    int         id;
 
-    if ((schedid = gallocEntry((void***) &sched, &schedMax, sizeof(sched_t))) < 0) {
+    if ((id = gallocEntry((void***) &callbacks, &callbackMax, sizeof(Callback))) < 0) {
         return -1;
     }
-    s = sched[schedid];
+    s = callbacks[id];
     s->routine = proc;
     s->arg = arg;
-    s->schedid = schedid;
+    s->id = id;
 
     /*
         Round the delay up to seconds.
      */
     s->at = ((delay + 500) / 1000) + time(0);
-    return schedid;
+    return id;
 }
 
 
-void greschedCallback(int schedid, int delay)
+void greschedCallback(int id, int delay)
 {
-    sched_t *s;
+    Callback    *s;
 
-    if (sched == NULL || schedid == -1 || schedid >= schedMax || (s = sched[schedid]) == NULL) {
+    if (callbacks == NULL || id == -1 || id >= callbackMax || (s = callbacks[id]) == NULL) {
         return;
     }
     s->at = ((delay + 500) / 1000) + time(0);
 }
 
 
-void gunschedCallback(int schedid)
+void gunschedCallback(int id)
 {
-    sched_t *s;
+    Callback    *s;
 
-    if (sched == NULL || schedid == -1 || schedid >= schedMax || (s = sched[schedid]) == NULL) {
+    if (callbacks == NULL || id == -1 || id >= callbackMax || (s = callbacks[id]) == NULL) {
         return;
     }
     gfree(s);
-    schedMax = gfreeHandle((void***) &sched, schedid);
+    callbackMax = gfreeHandle((void***) &callbacks, id);
 }
 
 
 void grunCallbacks()
 {
-    sched_t     *s;
-    int         schedid;
+    Callback    *s;
+    int         id;
     static int  next = 0;   
 
     /*
-        If schedMax is 0, there are no tasks scheduled, so just return.
+        If callbackMax is 0, there are no tasks scheduled, so just return.
      */
-    if (schedMax <= 0) {
+    if (callbackMax <= 0) {
         return;
     }
-
     /*
-        If next >= schedMax, the schedule queue was reduced in our absence
+        If next >= callbackMax, the schedule queue was reduced in our absence
         so reset next to 0 to start from the begining of the queue again.
      */
-    if (next >= schedMax) {
+    if (next >= callbackMax) {
         next = 0;
     }
-
-    schedid = next;
+    id = next;
     for (;;) {
-        if ((s = sched[schedid]) != NULL && (int)s->at <= (int)time(0)) {
-            timerProc(schedid);
-            next = schedid + 1;
+        if ((s = callbacks[id]) != NULL && (int)s->at <= (int)time(0)) {
+            callbackProc(id);
+            next = id + 1;
             return;
         }
-        if (++schedid >= schedMax) {
-            schedid = 0;
+        if (++id >= callbackMax) {
+            id = 0;
         }
-        if (schedid == next) {
+        if (id == next) {
             /*
                 We've gone all the way through the queue without finding anything to do so just return.
              */
@@ -217,35 +202,6 @@ void grunCallbacks()
         }
     }
 }
-
-/************************************ Code ************************************/
-/*
-    "basename" returns a pointer to the last component of a pathname LINUX, LynxOS and Mac OS X have their own basename
-    function 
- */
-
-#if !BIT_UNIX_LIKE
-char_t *basename(char_t *name)
-{
-    char_t  *cp;
-
-#if BIT_WIN_LIKE
-    if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
-        return name;
-#else
-    if ((cp = gstrrchr(name, '/')) == NULL) {
-        return name;
-#endif
-    } else if (*(cp + 1) == '\0' && cp == name) {
-        return name;
-    } else if (*(cp + 1) == '\0' && cp != name) {
-        return T("");
-    } else {
-        return ++cp;
-    }
-}
-#endif
-
 
 /*
     Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
@@ -371,7 +327,7 @@ ssize gfmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg)
  */
 static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize msize)
 {
-    strbuf_t    buf;
+    FmtBuf      buf;
     char_t      c;
 
     gassert(s);
@@ -552,21 +508,9 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
 
 
 /*
-    Return the length of a string limited by a given length
- */
-static ssize gstrnlen(char_t *s, ssize n)
-{
-    ssize   len;
-
-    len = gstrlen(s);
-    return min(len, n);
-}
-
-
-/*
     Add a character to a string buffer
  */
-static void put_char(strbuf_t *buf, char_t c)
+static void put_char(FmtBuf *buf, char_t c)
 {
     if (buf->count >= (buf->size - 1)) {
         if (! (buf->flags & STR_REALLOC)) {
@@ -596,7 +540,7 @@ static void put_char(strbuf_t *buf, char_t c)
 /*
     Add a string to a string buffer
  */
-static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int prec, enum flag f)
+static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec, enum flag f)
 {
     ssize   i;
 
@@ -624,7 +568,7 @@ static void put_string(strbuf_t *buf, char_t *s, ssize len, ssize width, int pre
 /*
     Add a long to a string buffer
  */
-static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f) 
+static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f) 
 {
     ulong       x, x2;
     int         len, zeros, i;
@@ -667,121 +611,6 @@ static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *p
             put_char(buf, ' '); 
         }
     }
-}
-
-
-/*
-    Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
-    returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
- */
-char_t *guni(char_t *ubuf, char *str, ssize nBytes)
-{
-#if UNICODE
-    if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
-        return (char_t*) str;
-    }
-#else
-   memcpy(ubuf, str, nBytes);
-#endif
-    return ubuf;
-}
-
-
-/*
-    Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
-    returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
- */
-char *gasc(char *buf, char_t *ustr, ssize nBytes)
-{
-#if UNICODE
-    if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL, NULL) < 0) {
-        return (char*) ustr;
-    }
-#else
-    memcpy(buf, ustr, nBytes);
-#endif
-    return (char*) buf;
-}
-
-
-/*
-    Allocate (galloc) a buffer and do ascii to unicode conversion into it.  cp points to the ascii buffer.  alen is the
-    length of the buffer to be converted not including a terminating NULL.  Return a pointer to the unicode buffer which
-    must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
- */
-char_t *gallocAscToUni(char *cp, ssize alen)
-{
-    char_t  *unip;
-    ssize   ulen;
-
-    ulen = (alen + 1) * sizeof(char_t);
-    if ((unip = galloc(ulen)) == NULL) {
-        return NULL;
-    }
-    guni(unip, cp, ulen);
-    unip[alen] = 0;
-    return unip;
-}
-
-
-/*
-    Allocate (galloc) a buffer and do unicode to ascii conversion into it.  unip points to the unicoded string. ulen is
-    the number of characters in the unicode string not including a teminating null.  Return a pointer to the ascii
-    buffer which must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
- */
-char *gallocUniToAsc(char_t *unip, ssize ulen)
-{
-    char    *cp;
-
-    if ((cp = galloc(ulen+1)) == NULL) {
-        return NULL;
-    }
-    gasc(cp, unip, ulen);
-    cp[ulen] = '\0';
-    return cp;
-}
-
-
-/*
-    Convert a hex string to an integer. The end of the string or a non-hex character will indicate the end of the hex
-    specification.  
- */
-uint ghextoi(char_t *hexstring)
-{
-    char_t      *h;
-    uint        c, v;
-
-    v = 0;
-    h = hexstring;
-    if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
-        h += 2;
-    }
-    while ((c = (uint)*h++) != 0) {
-        if (c >= '0' && c <= '9') {
-            c -= '0';
-        } else if (c >= 'a' && c <= 'f') {
-            c = (c - 'a') + 10;
-        } else if (c >=  'A' && c <= 'F') {
-            c = (c - 'A') + 10;
-        } else {
-            break;
-        }
-        v = (v * 0x10) + c;
-    }
-    return v;
-}
-
-
-/*
-    Convert a string to an integer. If the string starts with "0x" or "0X" a hexidecimal conversion is done.
- */
-uint gstrtoi(char_t *s)
-{
-    if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
-        s += 2;
-        return ghextoi(s);
-    }
-    return gatoi(s);
 }
 
 
@@ -910,9 +739,9 @@ void traceRaw(char_t *buf)
 /*
     Replace the default trace handler. Return a pointer to the old handler.
  */
-TraceHandler traceSetHandler(TraceHandler handler)
+WebsTraceHandler traceSetHandler(WebsTraceHandler handler)
 {
-    TraceHandler    oldHandler;
+    WebsTraceHandler    oldHandler;
 
     oldHandler = traceHandler;
     if (handler) {
@@ -980,6 +809,7 @@ static void defaultTraceHandler(int level, char_t *buf)
 void error(char_t *fmt, ...) { }
 void trace(int level, char_t *fmt, ...) { }
 #endif /* BIT_DEBUG_LOG */
+
 
 /*
     Convert a string to lower case
@@ -1366,8 +1196,6 @@ void ringqAddNull(ringq_t *rq)
 
 
 #if UNICODE
-//  MOB - this should be the same code?
-
 /*
     Get a byte from the queue
  */
@@ -1670,29 +1498,10 @@ static int  getBinBlockSize(int size)
 }
 
 
-int symSubOpen()
-{
-    //  MOB - why keep count?
-    if (++symOpenCount == 1) {
-        symMax = 0;
-        sym = NULL;
-    }
-    return 0;
-}
-
-
-void symSubClose()
-{
-    if (--symOpenCount <= 0) {
-        symOpenCount = 0;
-    }
-}
-
-
 sym_fd_t symOpen(int hash_size)
 {
-    sym_fd_t        sd;
-    sym_tabent_t    *tp;
+    sym_fd_t    sd;
+    SymTab      *tp;
 
     gassert(hash_size > 2);
 
@@ -1706,11 +1515,11 @@ sym_fd_t symOpen(int hash_size)
     /*
         Create a new symbol table structure and zero
      */
-    if ((tp = (sym_tabent_t*) galloc(sizeof(sym_tabent_t))) == NULL) {
+    if ((tp = (SymTab*) galloc(sizeof(SymTab))) == NULL) {
         symMax = gfreeHandle((void***) &sym, sd);
         return -1;
     }
-    memset(tp, 0, sizeof(sym_tabent_t));
+    memset(tp, 0, sizeof(SymTab));
     if (sd >= symMax) {
         symMax = sd + 1;
     }
@@ -1735,9 +1544,9 @@ sym_fd_t symOpen(int hash_size)
  */
 void symClose(sym_fd_t sd)
 {
-    sym_tabent_t    *tp;
-    sym_t           *sp, *forw;
-    int             i;
+    SymTab      *tp;
+    sym_t       *sp, *forw;
+    int         i;
 
     gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
@@ -1767,9 +1576,9 @@ void symClose(sym_fd_t sd)
  */
 sym_t *symFirst(sym_fd_t sd)
 {
-    sym_tabent_t    *tp;
-    sym_t           *sp;
-    int             i;
+    SymTab      *tp;
+    sym_t       *sp;
+    int         i;
 
     gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
@@ -1792,9 +1601,9 @@ sym_t *symFirst(sym_fd_t sd)
  */
 sym_t *symNext(sym_fd_t sd, sym_t *last)
 {
-    sym_tabent_t    *tp;
-    sym_t           *sp;
-    int             i;
+    SymTab      *tp;
+    sym_t       *sp;
+    int         i;
 
     gassert(0 <= sd && sd < symMax);
     if (sd < 0) {
@@ -1822,9 +1631,9 @@ sym_t *symNext(sym_fd_t sd, sym_t *last)
  */
 sym_t *symLookup(sym_fd_t sd, char_t *name)
 {
-    sym_tabent_t    *tp;
-    sym_t           *sp;
-    char_t          *cp;
+    SymTab      *tp;
+    sym_t       *sp;
+    char_t      *cp;
 
     gassert(0 <= sd && sd < symMax);
     if ((tp = sym[sd]) == NULL) {
@@ -1853,10 +1662,10 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
  */
 sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 {
-    sym_tabent_t    *tp;
-    sym_t           *sp, *last;
-    char_t          *cp;
-    int             hindex;
+    SymTab      *tp;
+    sym_t       *sp, *last;
+    char_t      *cp;
+    int         hindex;
 
     gassert(name);
     gassert(0 <= sd && sd < symMax);
@@ -1933,10 +1742,10 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
  */
 int symDelete(sym_fd_t sd, char_t *name)
 {
-    sym_tabent_t    *tp;
-    sym_t           *sp, *last;
-    char_t          *cp;
-    int             hindex;
+    SymTab      *tp;
+    sym_t       *sp, *last;
+    char_t      *cp;
+    int         hindex;
 
     gassert(name && *name);
     gassert(0 <= sd && sd < symMax);
@@ -1961,7 +1770,6 @@ int symDelete(sym_fd_t sd, char_t *name)
     if (sp == (sym_t*) NULL) {              /* Not Found */
         return -1;
     }
-
     /*
          Unlink and free the symbol. Last will be set if the element to be deleted is not first in the chain.
      */
@@ -1973,7 +1781,6 @@ int symDelete(sym_fd_t sd, char_t *name)
     valueFree(&sp->name);
     valueFree(&sp->content);
     gfree((void*) sp);
-
     return 0;
 }
 
@@ -1982,7 +1789,7 @@ int symDelete(sym_fd_t sd, char_t *name)
     Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
     the hash table itself) 
  */
-static sym_t *hash(sym_tabent_t *tp, char_t *name)
+static sym_t *hash(SymTab *tp, char_t *name)
 {
     gassert(tp);
 
@@ -1994,7 +1801,7 @@ static sym_t *hash(sym_tabent_t *tp, char_t *name)
     Compute the hash function and return an index into the hash table We use a basic additive function that is then made
     modulo the size of the table.
  */
-static int hashIndex(sym_tabent_t *tp, char_t *name)
+static int hashIndex(SymTab *tp, char_t *name)
 {
     uint        sum;
     int         i;
@@ -2074,6 +1881,122 @@ int gopen(char_t *path, int oflags, int mode)
     return fd;
 }
 
+
+/*
+    Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
+    returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
+ */
+char_t *guni(char_t *ubuf, char *str, ssize nBytes)
+{
+#if UNICODE
+    if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
+        return (char_t*) str;
+    }
+#else
+   memcpy(ubuf, str, nBytes);
+#endif
+    return ubuf;
+}
+
+
+/*
+    Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
+    returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
+ */
+char *gasc(char *buf, char_t *ustr, ssize nBytes)
+{
+#if UNICODE
+    if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL, NULL) < 0) {
+        return (char*) ustr;
+    }
+#else
+    memcpy(buf, ustr, nBytes);
+#endif
+    return (char*) buf;
+}
+
+
+/*
+    Allocate (galloc) a buffer and do ascii to unicode conversion into it.  cp points to the ascii buffer.  alen is the
+    length of the buffer to be converted not including a terminating NULL.  Return a pointer to the unicode buffer which
+    must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
+ */
+char_t *gallocAscToUni(char *cp, ssize alen)
+{
+    char_t  *unip;
+    ssize   ulen;
+
+    ulen = (alen + 1) * sizeof(char_t);
+    if ((unip = galloc(ulen)) == NULL) {
+        return NULL;
+    }
+    guni(unip, cp, ulen);
+    unip[alen] = 0;
+    return unip;
+}
+
+
+/*
+    Allocate (galloc) a buffer and do unicode to ascii conversion into it.  unip points to the unicoded string. ulen is
+    the number of characters in the unicode string not including a teminating null.  Return a pointer to the ascii
+    buffer which must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
+ */
+char *gallocUniToAsc(char_t *unip, ssize ulen)
+{
+    char    *cp;
+
+    if ((cp = galloc(ulen+1)) == NULL) {
+        return NULL;
+    }
+    gasc(cp, unip, ulen);
+    cp[ulen] = '\0';
+    return cp;
+}
+
+
+/*
+    Convert a hex string to an integer. The end of the string or a non-hex character will indicate the end of the hex
+    specification.  
+ */
+uint ghextoi(char_t *hexstring)
+{
+    char_t      *h;
+    uint        c, v;
+
+    v = 0;
+    h = hexstring;
+    if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
+        h += 2;
+    }
+    while ((c = (uint)*h++) != 0) {
+        if (c >= '0' && c <= '9') {
+            c -= '0';
+        } else if (c >= 'a' && c <= 'f') {
+            c = (c - 'a') + 10;
+        } else if (c >=  'A' && c <= 'F') {
+            c = (c - 'A') + 10;
+        } else {
+            break;
+        }
+        v = (v * 0x10) + c;
+    }
+    return v;
+}
+
+
+/*
+    Convert a string to an integer. If the string starts with "0x" or "0X" a hexidecimal conversion is done.
+ */
+uint gstrtoi(char_t *s)
+{
+    if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
+        s += 2;
+        return ghextoi(s);
+    }
+    return gatoi(s);
+}
+
+
 int gcaselesscmp(char_t *s1, char_t *s2)
 {
     if (s1 == 0 || s2 == 0) {
@@ -2115,6 +2038,18 @@ int gcmp(char_t *s1, char_t *s2)
 ssize glen(char_t *s)
 {
     return s ? strlen(s) : 0;
+}
+
+
+/*
+    Return the length of a string limited by a given length
+ */
+ssize gstrnlen(char_t *s, ssize n)
+{
+    ssize   len;
+
+    len = gstrlen(s);
+    return min(len, n);
 }
 
 
@@ -2332,8 +2267,8 @@ int recv(int s, void *buf, size_t len, int flags)
 }
 #endif
 
-#if WINDOWS
 
+#if WINDOWS
 void egSetInst(HINSTANCE inst)
 {
     appInstance = inst;
@@ -2345,6 +2280,34 @@ HINSTANCE egGetInst()
     return appInstance;
 }
 #endif
+
+/*
+    "basename" returns a pointer to the last component of a pathname LINUX, LynxOS and Mac OS X have their own basename
+    function 
+ */
+
+#if !BIT_UNIX_LIKE
+char_t *basename(char_t *name)
+{
+    char_t  *cp;
+
+#if BIT_WIN_LIKE
+    if (((cp = gstrrchr(name, '\\')) == NULL) && ((cp = gstrrchr(name, '/')) == NULL)) {
+        return name;
+#else
+    if ((cp = gstrrchr(name, '/')) == NULL) {
+        return name;
+#endif
+    } else if (*(cp + 1) == '\0' && cp == name) {
+        return name;
+    } else if (*(cp + 1) == '\0' && cp != name) {
+        return T("");
+    } else {
+        return ++cp;
+    }
+}
+#endif
+
 
 /*
     @copy   default

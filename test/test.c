@@ -188,7 +188,7 @@ static int aspTest(int eid, Webs *wp, int argc, char_t **argv)
 {
 	char_t	*name, *address;
 
-	if (ejArgs(argc, argv, T("%s %s"), &name, &address) < 2) {
+	if (jsArgs(argc, argv, T("%s %s"), &name, &address) < 2) {
 		websError(wp, 400, T("Insufficient args\n"));
 		return -1;
 	}
