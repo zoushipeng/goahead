@@ -1516,7 +1516,7 @@ extern void gSchedProcess();
 /* Forward declare */
 #if BIT_AUTH
 struct User;
-struct Uri;
+struct Route;
 #endif
 
 #if BIT_SESSIONS
@@ -1572,8 +1572,7 @@ typedef struct websRec {
 #endif
 #if BIT_AUTH
     struct User     *user;              /* User auth record */
-    //  MOB - rename. Uri is confusing with appweb
-    struct Uri      *uri;               /* Uri auth record */
+    struct Route    *route;             /* Route for authorization */
 #if BIT_DIGEST_AUTH
     char_t          *realm;             /* Realm field supplied in auth header */
     char_t          *nonce;             /* opaque-to-client string sent by server */
@@ -1897,8 +1896,7 @@ typedef struct Role {
 typedef void (*AmLogin)(webs_t wp, int why);
 typedef bool (*AmVerify)(webs_t wp);
 
-//  MOB - rename to Location
-typedef struct Uri {
+typedef struct Route {
     char        *prefix;
     char        *realm;
     ssize       prefixLen;
@@ -1910,7 +1908,7 @@ typedef struct Uri {
     AmVerify    verify;
     char_t      *loginUri;
     char_t      *capabilities;
-} Uri;
+} Route;
 
 //  MOB - sort
 extern int amOpen(char_t *path);
@@ -1930,9 +1928,9 @@ extern int amRemoveRole(char_t *role);
 extern int amAddRoleCapability(char_t *role, char_t *capability);
 extern int amRemoveRoleCapability(char_t *role, char_t *capability);
 
-extern int amAddUri(char_t *realm, char_t *name, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify);
-extern int amRemoveUri(char_t *uri);
-extern bool amVerifyUri(webs_t wp);
+extern int amAddRoute(char_t *realm, char_t *name, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify);
+extern int amRemoveRoute(char_t *uri);
+extern bool amVerifyRoute(webs_t wp);
 extern bool amCan(webs_t wp, char_t *capability);
 //  ASP
 extern bool can(char_t *capability);

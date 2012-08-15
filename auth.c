@@ -19,9 +19,9 @@
 
 static sym_fd_t users = -1;
 static sym_fd_t roles = -1;
-static Uri **uris = 0;
-static int uriCount = 0;
-static int uriMax = 0;
+static Route **routes = 0;
+static int routeCount = 0;
+static int routeMax = 0;
 static char_t *secret;
 
 #if UNUSED
@@ -77,26 +77,26 @@ void amClose()
 {
     int     i;
    
-    //  MOB - not good enough. Must free all users, roles and uris
+    //  MOB - not good enough. Must free all users, roles and routes
     symClose(users);
     symClose(roles);
-    for (i = 0; i < uriCount; i++) {
-        gfree(uris[i]);
+    for (i = 0; i < routeCount; i++) {
+        gfree(routes[i]);
     }
-    gfree(uris);
+    gfree(routes);
     users = roles = -1;
-    uris = 0;
-    uriCount = uriMax = 0;
+    routes = 0;
+    routeCount = routeMax = 0;
     gfree(secret);
 }
 
 
-static void growUris()
+static void growRoutes()
 {
-    if (uriCount >= uriMax) {
-        uriMax += 16;
+    if (routeCount >= routeMax) {
+        routeMax += 16;
         //  RC
-        uris = grealloc(uris, sizeof(Uri*) * uriMax);
+        routes = grealloc(routes, sizeof(Route*) * routeMax);
     }
 }
 
@@ -162,7 +162,7 @@ static int loadAuth(char_t *path)
                 verify = 0;
                 loginUri = 0;
             }
-            if (amAddUri(realm, uri, capabilities, loginUri, login, verify) < 0) {
+            if (amAddRoute(realm, uri, capabilities, loginUri, login, verify) < 0) {
                 return -1;
             }
         }
@@ -229,8 +229,8 @@ int amSetPassword(char_t *name, char_t *password)
 
 bool amFormLogin(webs_t wp, char_t *userName, char_t *password)
 {
-    User        *up;
-    sym_t       *sym;
+    User    *up;
+    sym_t   *sym;
 
     gfree(wp->userName);
     wp->userName = gstrdup(userName);
@@ -363,6 +363,8 @@ static void computeAllCapabilities()
 }
 
 
+//  MOB - remove role from user
+//  MOB - must recompute capabilities
 int amRemoveUserRole(char_t *name, char_t *role) 
 {
     sym_t   *sym;
@@ -441,6 +443,7 @@ int amAddRole(char_t *name, char_t *capabilities)
 }
 
 
+//  MOB - note. Does not recompute user capabilities
 int amRemoveRole(char_t *name) 
 {
     //  MOB - need to free full role
@@ -478,50 +481,49 @@ int amRemoveRoleCapability(char_t *name, char_t *capability)
 }
 
 
-int amAddUri(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify)
+int amAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify)
 {
-    //  MOB - using up as both uri and user 
-    Uri     *up;
+    Route   *rp;
     int     i;
 
-    for (i = 0; i < uriCount; i++) {
-        up = uris[i];
-        if (gmatch(up->prefix, uri)) {
+    for (i = 0; i < routeCount; i++) {
+        rp = routes[i];
+        if (gmatch(rp->prefix, uri)) {
             error(T("URI %s already exists"), uri);
             /* Already exists */
             return -1;
         }
     }
-    if ((up = galloc(sizeof(Uri))) == 0) {
+    if ((rp = galloc(sizeof(Route))) == 0) {
         return 0;
     }
-    up->realm = gstrdup(realm);
-    up->prefix = gstrdup(uri);
-    up->prefixLen = glen(uri);
-    up->loginUri = gstrdup(loginUri);
+    rp->realm = gstrdup(realm);
+    rp->prefix = gstrdup(uri);
+    rp->prefixLen = glen(uri);
+    rp->loginUri = gstrdup(loginUri);
 #if BIT_PACK_SSL
-    up->secure = (capabilities && strstr(capabilities, "SECURE")) ? 1 : 0;
+    rp->secure = (capabilities && strstr(capabilities, "SECURE")) ? 1 : 0;
 #endif
     /* Always have a leading and trailing space to make matching quicker */
-    gfmtAlloc(&up->capabilities, -1, " %s", capabilities ? capabilities : "");
-    up->login = login;
-    up->verify = verify;
-    up->enable = 1;
-    growUris();
-    uris[uriCount++] = up;
-    trace(4, T("Uri \"%s\" in realm \%s\" requires capabilities: %s\n"), uri, realm, capabilities);
+    gfmtAlloc(&rp->capabilities, -1, " %s", capabilities ? capabilities : "");
+    rp->login = login;
+    rp->verify = verify;
+    rp->enable = 1;
+    growRoutes();
+    routes[routeCount++] = rp;
+    trace(4, T("Route \"%s\" in realm \%s\" requires capabilities: %s\n"), uri, realm, capabilities);
     return 0;
 }
 
 
-static int lookupUri(char_t *uri) 
+static int lookupRoute(char_t *uri) 
 {
-    Uri     *up;
+    Route   *rp;
     int     i;
 
-    for (i = 0; i < uriCount; i++) {
-        up = uris[i];
-        if (gmatch(up->prefix, uri)) {
+    for (i = 0; i < routeCount; i++) {
+        rp = routes[i];
+        if (gmatch(rp->prefix, uri)) {
             return i;
         }
     }
@@ -529,18 +531,17 @@ static int lookupUri(char_t *uri)
 }
 
 
-//  MOB - when is this called
-int amRemoveUri(char_t *uri) 
+int amRemoveRoute(char_t *uri) 
 {
     int     i;
 
-    if ((i = lookupUri(uri)) == 0) {
+    if ((i = lookupRoute(uri)) == 0) {
         return -1;
     }
-    for (; i < uriCount; i++) {
-        uris[i] = uris[i+1];
+    for (; i < routeCount; i++) {
+        routes[i] = routes[i+1];
     }
-    uriCount++;
+    routeCount++;
     //  MOB - must free URI
     return 0;
 }
@@ -548,16 +549,16 @@ int amRemoveUri(char_t *uri)
 
 static void basicLogin(webs_t wp, int why)
 {
-    gassert(wp->uri);
+    gassert(wp->route);
     gfree(wp->authResponse);
-    gfmtAlloc(&wp->authResponse, -1, T("Basic realm=\"%s\""), wp->uri->realm);
+    gfmtAlloc(&wp->authResponse, -1, T("Basic realm=\"%s\""), wp->route->realm);
     websError(wp, 401, T("Access Denied. User not logged in."));
 }
 
 
 static void formLogin(webs_t wp, int why)
 {
-    websRedirect(wp, wp->uri->loginUri);
+    websRedirect(wp, wp->route->loginUri);
 }
 
 
@@ -566,13 +567,13 @@ static void digestLogin(webs_t wp, int why)
 {
     char_t  *nonce, *opaque;
 
-    gassert(wp->uri);
+    gassert(wp->route);
     nonce = createDigestNonce(wp);
     //  MOB - opaque should be one time?  Appweb too.
     opaque = T("5ccc069c403ebaf9f0171e9517f40e41");
     gfmtAlloc(&wp->authResponse, -1,
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
-        wp->uri->realm, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
+        wp->route->realm, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
     gfree(nonce);
     websError(wp, 401, T("Access Denied. User not logged in."));
 }
@@ -583,7 +584,7 @@ static bool verifyDigestPassword(webs_t wp)
     char_t  *digest, *secret, *realm;
     time_t  when;
 
-    if (!wp->user || !wp->uri) {
+    if (!wp->user || !wp->route) {
         return 0;
     }
     /*
@@ -595,7 +596,7 @@ static bool verifyDigestPassword(webs_t wp)
     if (!gmatch(secret, secret)) {
         trace(2, T("Access denied: Nonce mismatch\n"));
         return 0;
-    } else if (!gmatch(realm, wp->uri->realm)) {
+    } else if (!gmatch(realm, wp->route->realm)) {
         trace(2, T("Access denied: Realm mismatch\n"));
         return 0;
     } else if (!gmatch(wp->qop, "auth")) {
@@ -624,11 +625,11 @@ static bool verifyBasicPassword(webs_t wp)
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     bool    rc;
     
-    if (!wp->user || !wp->uri) {
+    if (!wp->user || !wp->route) {
         return 0;
     }
-    gassert(wp->uri);
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->uri->realm, wp->password);
+    gassert(wp->route);
+    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->route->realm, wp->password);
     password = websMD5(passbuf);
     rc = gmatch(wp->user->password, password);
     gfree(password);
@@ -642,10 +643,10 @@ static bool verifyFormPassword(webs_t wp)
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     int     rc;
 
-    if (!wp->user || !wp->uri) {
+    if (!wp->user || !wp->route) {
         return 0;
     }
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->uri->realm, wp->password);
+    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->route->realm, wp->password);
     password = websMD5(passbuf);
     rc = gmatch(password, wp->user->password);
     gfree(password);
@@ -653,29 +654,29 @@ static bool verifyFormPassword(webs_t wp)
 }
 
 
-bool amVerifyUri(webs_t wp)
+bool amVerifyRoute(webs_t wp)
 {
     sym_t   *sym;
-    Uri     *up;
+    Route   *rp;
     ssize   plen, len;
     int     i;
 
     plen = glen(wp->path);
-    for (i = 0; i < uriCount; i++) {
-        up = uris[i];
-        if (plen < up->prefixLen) continue;
-        len = min(up->prefixLen, plen);
-        if (strncmp(wp->path, up->prefix, len) == 0) {
-            wp->uri = up;
+    for (i = 0; i < routeCount; i++) {
+        rp = routes[i];
+        if (plen < rp->prefixLen) continue;
+        len = min(rp->prefixLen, plen);
+        if (strncmp(wp->path, rp->prefix, len) == 0) {
+            wp->route = rp;
             break;
         }
     }
-    if (up->secure && !(wp->flags & WEBS_SECURE)) {
+    if (rp->secure && !(wp->flags & WEBS_SECURE)) {
         websStats.access++;
         websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
-    if (gmatch(up->capabilities, " ")) {
+    if (gmatch(rp->capabilities, " ")) {
         /* URI does not require any capabilities, return success */
         return 1;
     }
@@ -693,21 +694,21 @@ bool amVerifyUri(webs_t wp)
     if (!wp->user) {
         if (!wp->userName || !*wp->userName) {
             websStats.access++;
-            (up->login)(wp, AM_LOGIN_REQUIRED);
+            (rp->login)(wp, AM_LOGIN_REQUIRED);
             return 0;
         }
         if ((sym = symLookup(users, wp->userName)) == 0) {
-            (up->login)(wp, AM_BAD_USERNAME);
+            (rp->login)(wp, AM_BAD_USERNAME);
             return 0;
         }
         wp->user = (User*) sym->content.value.symbol;
-        if (!(up->verify)(wp)) {
-            (up->login)(wp, AM_BAD_PASSWORD);
+        if (!(rp->verify)(wp)) {
+            (rp->login)(wp, AM_BAD_PASSWORD);
             return 0;
         }
     }
     gassert(wp->user);
-    return amCan(wp, up->capabilities);
+    return amCan(wp, rp->capabilities);
 }
 
 
@@ -934,7 +935,7 @@ static int decodeDigestDetails(webs_t wp)
             }
         }
     }
-    if (wp->userName == 0 || wp->realm == 0 || wp->nonce == 0 || wp->uri == 0 || wp->password == 0) {
+    if (wp->userName == 0 || wp->realm == 0 || wp->nonce == 0 || wp->route == 0 || wp->password == 0) {
         return -1;
     }
     if (wp->qop && (wp->cnonce == 0 || wp->nc == 0)) {
@@ -956,8 +957,8 @@ static char_t *createDigestNonce(webs_t wp)
     char_t       nonce[256];
     static int64 next = 0;
 
-    gassert(wp->uri);
-    gfmtStatic(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, wp->uri->realm, time(0), next++);
+    gassert(wp->route);
+    gfmtStatic(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, wp->route->realm, time(0), next++);
     return websEncode64(nonce);
 }
 
