@@ -1772,7 +1772,6 @@ extern void websSetDefaultPage(char_t *page);
 extern void websSetEnv(webs_t wp);
 extern void websSetHost(char_t *host);
 extern void websSetIpaddr(char_t *ipaddr);
-extern void websSetPassword(char_t *password);
 extern void websSetRequestBytes(webs_t wp, ssize bytes);
 extern void websSetRequestLpath(webs_t wp, char_t *lpath);
 extern void websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
@@ -1862,9 +1861,11 @@ extern char *websGetSessionID(webs_t wp);
 
 /*************************************** Auth **********************************/
 #if BIT_AUTH
-#define AM_MAX_WORD     32
+#define WEBS_MAX_WORD     32
 
-//  MOB - prefix and move to goahead.h
+typedef void (*WebsLogin)(webs_t wp, int why);
+typedef bool (*WebsVerify)(webs_t wp);
+
 typedef struct User {
     char_t  *name;
     char_t  *realm;
@@ -1879,23 +1880,6 @@ typedef struct Role {
     char_t  *capabilities;
 } Role;
 
-#if UNUSED
-#define AM_BASIC    1
-#define AM_DIGEST   2
-#define AM_FORM     3
-#define AM_CUSTOM   4
-#endif
-
-/*
-    Login reason codes
- */
-#define AM_LOGIN_REQUIRED   1
-#define AM_BAD_PASSWORD     2
-#define AM_BAD_USERNAME     3
-
-typedef void (*AmLogin)(webs_t wp, int why);
-typedef bool (*AmVerify)(webs_t wp);
-
 typedef struct Route {
     char        *prefix;
     char        *realm;
@@ -1904,38 +1888,39 @@ typedef struct Route {
 #if BIT_PACK_SSL
     int         secure;
 #endif
-    AmLogin     login;
-    AmVerify    verify;
+    WebsLogin   login;
+    WebsVerify  verify;
     char_t      *loginUri;
     char_t      *capabilities;
 } Route;
 
-//  MOB - sort
-extern int amOpen(char_t *path);
-extern void amClose();
-extern int amAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles);
-extern int amSetPassword(char_t *name, char_t *password);
-extern int amVerifyUser(char_t *name, char_t *password);
-extern int amEnableUser(char_t *name, int enable);
-extern int amRemoveUser(char_t *name);
-extern int amAddUserRole(char_t *name, char_t *role);
-extern int amRemoveUserRole(char_t *name, char_t *role);
-extern bool amUserHasCapability(char_t *name, char_t *capability);
-extern bool amFormLogin(webs_t wp, char_t *userName, char_t *password);
+/*
+    Login reason codes
+ */
+#define WEBS_LOGIN_REQUIRED   1
+#define WEBS_BAD_PASSWORD     2
+#define WEBS_BAD_USERNAME     3
 
-extern int amAddRole(char_t *role, char_t *capabilities);
-extern int amRemoveRole(char_t *role);
-extern int amAddRoleCapability(char_t *role, char_t *capability);
-extern int amRemoveRoleCapability(char_t *role, char_t *capability);
-
-extern int amAddRoute(char_t *realm, char_t *name, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify);
-extern int amRemoveRoute(char_t *uri);
-extern bool amVerifyRoute(webs_t wp);
-extern bool amCan(webs_t wp, char_t *capability);
-//  ASP
-extern bool can(char_t *capability);
-
-extern int amGetSessionUser(webs_t wp);
+extern int websAddRole(char_t *role, char_t *capabilities);
+extern int websAddRoleCapability(char_t *role, char_t *capability);
+extern int websAddRoute(char_t *realm, char_t *name, char_t *capabilities, char_t *loginUri, WebsLogin login, 
+                WebsVerify verify);
+extern int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles);
+extern int websAddUserRole(char_t *name, char_t *role);
+extern bool websCan(webs_t wp, char_t *capability);
+extern void websCloseAuth();
+extern int websEnableUser(char_t *name, int enable);
+extern bool websFormLogin(webs_t wp, char_t *userName, char_t *password);
+extern int websOpenAuth(char_t *path);
+extern int websRemoveRole(char_t *role);
+extern int websRemoveRoleCapability(char_t *role, char_t *capability);
+extern int websRemoveRoute(char_t *uri);
+extern int websRemoveUser(char_t *name);
+extern int websRemoveUserRole(char_t *name, char_t *role);
+extern int websSetPassword(char_t *name, char_t *password);
+extern bool websUserHasCapability(char_t *name, char_t *capability);
+extern bool websVerifyRoute(webs_t wp);
+extern int websVerifyUser(char_t *name, char_t *password);
 
 #endif /* BIT_AUTH */
 

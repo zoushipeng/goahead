@@ -251,7 +251,7 @@ int websOpen(char_t *authPath)
     }
 #endif
 #if BIT_AUTH
-    if (amOpen(authPath) < 0) {
+    if (websOpenAuth(authPath) < 0) {
         return -1;
     }
 #endif
@@ -262,7 +262,7 @@ int websOpen(char_t *authPath)
 void websClose() 
 {
 #if BIT_AUTH
-    amClose();
+    websCloseAuth();
 #endif
 #if BIT_SESSIONS
     if (pruneId >= 0) {

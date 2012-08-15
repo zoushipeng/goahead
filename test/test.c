@@ -32,7 +32,9 @@ static int aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static int bigTest(int eid, webs_t wp, int argc, char_t **argv);
 #endif
 static void formTest(webs_t wp, char_t *path, char_t *query);
+#if BIT_SESSIONS && BIT_AUTH
 static void loginTest(webs_t wp, char_t *path, char_t *query);
+#endif
 
 #if BIT_UNIX_LIKE
 static void sigHandler(int signo);
@@ -115,7 +117,9 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websAspDefine(T("bigTest"), bigTest);
 #endif
     websFormDefine(T("test"), formTest);
+#if BIT_SESSIONS && BIT_AUTH
     websFormDefine(T("login"), loginTest);
+#endif
 
     websServiceEvents(&finished);
 
@@ -226,27 +230,20 @@ static void formTest(webs_t wp, char_t *path, char_t *query)
 }
 
 
+#if BIT_SESSIONS && BIT_AUTH
 /*
     Implement /form/login
  */
 static void loginTest(webs_t wp, char_t *path, char_t *query)
 {
-	char_t	*username, *password, *msg;
-#if BIT_SESSIONS && BIT_AUTH
-	char_t	*referrer;
-#endif
+	char_t	*username, *password, *msg, *referrer;
 
     msg = 0;
     if (gcaselessmatch(wp->method, "POST")) {
         username = websGetVar(wp, T("username"), NULL);
         password = websGetVar(wp, T("password"), NULL);
-#if BIT_AUTH
-        if (amFormLogin(wp, username, password)) {
-#if BIT_SESSIONS
+        if (websFormLogin(wp, username, password)) {
             referrer = websGetSessionVar(wp, T("referrer"), NULL);
-#else
-            referrer = 0;
-#endif
             if (referrer) {
                 websRedirect(wp, referrer);
             } else {
@@ -259,11 +256,8 @@ static void loginTest(webs_t wp, char_t *path, char_t *query)
         } else {
             msg = "Bad user credentials";
         }
-#endif
     }
-#if BIT_SESSIONS && BIT_AUTH
     websSetSessionVar(wp, T("referrer"), websGetVar(wp, T("referrer"), NULL));
-#endif
     websHeader(wp);
     websWrite(wp, T("<body>\n"));
     if (msg) {
@@ -277,6 +271,7 @@ static void loginTest(webs_t wp, char_t *path, char_t *query)
 	websFooter(wp);
 	websDone(wp, 200);
 }
+#endif
 
 /*
     @copy   default

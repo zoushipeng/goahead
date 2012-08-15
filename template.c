@@ -57,7 +57,7 @@ int websEval(char_t *cmd, char_t **result, void* chan)
     int     ejid;
 
     ejid = (int) chan;
-    if (ejEval(ejid, cmd, result) ) {
+    if (ejEval(ejid, cmd, result)) {
         return 0;
     } else {
         return -1;

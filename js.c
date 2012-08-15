@@ -227,7 +227,6 @@ char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
     vid = ejOpenBlock(eid);
     returnVal = ejEval(eid, script, emsg);
     ejCloseBlock(eid, vid);
-
     return returnVal;
 }
 

@@ -31,6 +31,7 @@ static char_t websRealm[BIT_LIMIT_PASSWORD] = T("Acme Inc");
 /********************************** Forwards **********************************/
 
 static char *addString(char_t *field, char_t *word);
+static int aspCan(int ejid, webs_t wp, int argc, char_t **argv);
 static void computeAllCapabilities();
 static void computeCapabilities(User *user);
 static int decodeBasicDetails(webs_t wp);
@@ -54,7 +55,7 @@ static bool verifyFormPassword(webs_t wp);
 
 /************************************ Code ************************************/
 
-int amOpen(char_t *path) 
+int websOpenAuth(char_t *path) 
 {
     char    sbuf[64];
     
@@ -69,11 +70,14 @@ int amOpen(char_t *path)
     if (path) {
         return loadAuth(path);
     }
+#if BIT_JAVASCRIPT
+    websAspDefine(T("can"), aspCan);
+#endif
     return 0;
 }
 
 
-void amClose() 
+void websCloseAuth() 
 {
     int     i;
    
@@ -109,8 +113,8 @@ static void growRoutes()
  */
 static int loadAuth(char_t *path)
 {
-    AmLogin     login;
-    AmVerify    verify;
+    WebsLogin   login;
+    WebsVerify  verify;
     FILE        *fp;
     char        buf[512], *name, *enabled, *type, *password, *uri, *capabilities, *roles, *line, *kind, *loginUri, *realm;
 
@@ -131,13 +135,13 @@ static int loadAuth(char_t *path)
             name = strtok(NULL, " \t:");
             password = strtok(NULL, " \t:");
             roles = strtok(NULL, "\r\n");
-            if (amAddUser(realm, name, password, roles) < 0) {
+            if (websAddUser(realm, name, password, roles) < 0) {
                 return -1;
             }
         } else if (gmatch(kind, "role")) {
             name = strtok(NULL, " \t:");
             capabilities = strtok(NULL, "\r\n");
-            if (amAddRole(name, capabilities) < 0) {
+            if (websAddRole(name, capabilities) < 0) {
                 return -1;
             }
         } else if (gmatch(kind, "uri")) {
@@ -162,7 +166,7 @@ static int loadAuth(char_t *path)
                 verify = 0;
                 loginUri = 0;
             }
-            if (amAddRoute(realm, uri, capabilities, loginUri, login, verify) < 0) {
+            if (websAddRoute(realm, uri, capabilities, loginUri, login, verify) < 0) {
                 return -1;
             }
         }
@@ -173,14 +177,14 @@ static int loadAuth(char_t *path)
 }
 
 
-int amSave(char_t *path)
+int websSave(char_t *path)
 {
     //  MOB TODO
     return 0;
 }
 
 
-int amAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
+int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
 {
     User    *up;
 
@@ -210,7 +214,7 @@ int amAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
 
 
 #if UNUSED
-int amSetPassword(char_t *name, char_t *password) 
+int websSetPassword(char_t *name, char_t *password) 
 {
     sym_t   *sym;
     User    *up;
@@ -227,7 +231,7 @@ int amSetPassword(char_t *name, char_t *password)
 #endif
 
 
-bool amFormLogin(webs_t wp, char_t *userName, char_t *password)
+bool websFormLogin(webs_t wp, char_t *userName, char_t *password)
 {
     User    *up;
     sym_t   *sym;
@@ -237,7 +241,7 @@ bool amFormLogin(webs_t wp, char_t *userName, char_t *password)
     wp->password = gstrdup(password);
 
     if ((sym = symLookup(users, userName)) == 0) {
-        trace(2, T("amFormLogin: Unknown user %s\n"), userName);
+        trace(2, T("websFormLogin: Unknown user %s\n"), userName);
         return 0;
     }
     up = (User*) sym->content.value.symbol;
@@ -254,14 +258,14 @@ bool amFormLogin(webs_t wp, char_t *userName, char_t *password)
     wp->user = up;
     if (!verifyFormPassword(wp)) {
         trace(2, T("Form password does not match\n"));
-        // (up->login)(wp, AM_BAD_PASSWORD);
+        // (up->login)(wp, WEBS_BAD_PASSWORD);
         return 0;
     }
     return 1;
 }
 
 
-int amEnableUser(char_t *name, int enable) 
+int websEnableUser(char_t *name, int enable) 
 {
     sym_t   *sym;
     User    *user;
@@ -275,14 +279,14 @@ int amEnableUser(char_t *name, int enable)
 }
 
 
-int amRemoveUser(char_t *name) 
+int websRemoveUser(char_t *name) 
 {
     //  MOB - must free all memory for user
     return symDelete(users, name);
 }
 
 
-int amAddUserRole(char_t *name, char_t *role) 
+int websAddUserRole(char_t *name, char_t *role) 
 {
     sym_t   *sym;
     User    *user;
@@ -365,7 +369,7 @@ static void computeAllCapabilities()
 
 //  MOB - remove role from user
 //  MOB - must recompute capabilities
-int amRemoveUserRole(char_t *name, char_t *role) 
+int websRemoveUserRole(char_t *name, char_t *role) 
 {
     sym_t   *sym;
     User    *up;
@@ -378,7 +382,7 @@ int amRemoveUserRole(char_t *name, char_t *role)
 }
 
 
-bool amUserHasCapability(char_t *name, char_t *capability) 
+bool websUserHasCapability(char_t *name, char_t *capability) 
 {
     sym_t   *sym;
     User    *up;
@@ -416,7 +420,7 @@ static void expandCapabilities(ringq_t *buf, char_t *str)
 }
 
 
-int amAddRole(char_t *name, char_t *capabilities)
+int websAddRole(char_t *name, char_t *capabilities)
 {
     Role        *rp;
     ringq_t     buf;
@@ -444,14 +448,14 @@ int amAddRole(char_t *name, char_t *capabilities)
 
 
 //  MOB - note. Does not recompute user capabilities
-int amRemoveRole(char_t *name) 
+int websRemoveRole(char_t *name) 
 {
     //  MOB - need to free full role
     return symDelete(roles, name);
 }
 
 
-int amAddRoleCapability(char_t *name, char_t *capability) 
+int websAddRoleCapability(char_t *name, char_t *capability) 
 {
     Role    *rp;
     sym_t   *sym;
@@ -468,7 +472,7 @@ int amAddRoleCapability(char_t *name, char_t *capability)
 }
 
 
-int amRemoveRoleCapability(char_t *name, char_t *capability) 
+int websRemoveRoleCapability(char_t *name, char_t *capability) 
 {
     sym_t   *sym;
     Role    *rp;
@@ -481,7 +485,7 @@ int amRemoveRoleCapability(char_t *name, char_t *capability)
 }
 
 
-int amAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, AmLogin login, AmVerify verify)
+int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, WebsLogin login, WebsVerify verify)
 {
     Route   *rp;
     int     i;
@@ -654,7 +658,7 @@ static bool verifyFormPassword(webs_t wp)
 }
 
 
-bool amVerifyRoute(webs_t wp)
+bool websVerifyRoute(webs_t wp)
 {
     sym_t   *sym;
     Route   *rp;
@@ -694,25 +698,26 @@ bool amVerifyRoute(webs_t wp)
     if (!wp->user) {
         if (!wp->userName || !*wp->userName) {
             websStats.access++;
-            (rp->login)(wp, AM_LOGIN_REQUIRED);
+            (rp->login)(wp, WEBS_LOGIN_REQUIRED);
             return 0;
         }
         if ((sym = symLookup(users, wp->userName)) == 0) {
-            (rp->login)(wp, AM_BAD_USERNAME);
+            (rp->login)(wp, WEBS_BAD_USERNAME);
             return 0;
         }
         wp->user = (User*) sym->content.value.symbol;
         if (!(rp->verify)(wp)) {
-            (rp->login)(wp, AM_BAD_PASSWORD);
+            (rp->login)(wp, WEBS_BAD_PASSWORD);
             return 0;
         }
     }
     gassert(wp->user);
-    return amCan(wp, rp->capabilities);
+    return websCan(wp, rp->capabilities);
 }
 
 
-bool amCan(webs_t wp, char_t *capability) 
+//  MOB - should this be capabilities?
+bool websCan(webs_t wp, char_t *capabilities) 
 {
     sym_t   *sym;
 
@@ -726,20 +731,24 @@ bool amCan(webs_t wp, char_t *capability)
         }
         wp->user = (User*) sym->content.value.symbol;
     }
-    return findString(wp->user->capabilities, capability) ? 1 : 0;
+    //  MOB - not implemented using multiple capabilities
+    return findString(wp->user->capabilities, capabilities) ? 1 : 0;
 }
 
 
-bool can(char_t *capability)
+static int aspCan(int ejid, webs_t wp, int argc, char_t **argv)
 {
-    //  TODO
+    if (websCan(wp, argv[0])) {
+        //  MOB - how to set return 
+        return 0;
+    }
     return 1;
 } 
 
 
 static char_t *findString(char_t *field, char_t *word)
 {
-    char_t  str[AM_MAX_WORD], *cp;
+    char_t  str[WEBS_MAX_WORD], *cp;
 
     if (!field) {
         return 0;

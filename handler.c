@@ -227,7 +227,7 @@ int websUrlHandlerRequest(webs_t wp)
         return 0;
     }
 #if BIT_AUTH
-    if (!amVerifyRoute(wp)) {
+    if (!websVerifyRoute(wp)) {
         gassert(wp->code);
         websStats.access++;
         return 1;
