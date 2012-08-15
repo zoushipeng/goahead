@@ -25,7 +25,7 @@ void websSSLClose()
 }
 
 
-ssize websSSLRead(webs_t wp, char_t *buf, ssize len)
+ssize websSSLRead(Webs *wp, char_t *buf, ssize len)
 {
     return sslRead(wp, buf, len);
 }
@@ -40,7 +40,7 @@ ssize websSSLRead(webs_t wp, char_t *buf, ssize len)
     read socketInputBuffered or socketEof can be used to distinguish between EOF and partial line still buffered. This
     routine eats and ignores carriage returns.
  */
-ssize websSSLGets(webs_t wp, char_t **buf)
+ssize websSSLGets(Webs *wp, char_t **buf)
 { 
     socket_t    *sp;
     ringq_t     *lq;
@@ -106,7 +106,7 @@ ssize websSSLGets(webs_t wp, char_t **buf)
 /*
       Handler for SSL Read Events
  */
-static int websSSLReadEvent(webs_t wp)
+static int websSSLReadEvent(Webs *wp)
 {
 #if MOB
     socket_t    *sp;
@@ -160,9 +160,9 @@ static int websSSLReadEvent(webs_t wp)
  */
 void websSSLSocketEvent(int sid, int mask, void *iwp)
 {
-    webs_t    wp;
+    Webs      *wp;
     
-    wp = (webs_t) iwp;
+    wp = (Webs*) iwp;
     gassert(wp);
     
     if (! websValid(wp)) {
@@ -179,26 +179,26 @@ void websSSLSocketEvent(int sid, int mask, void *iwp)
 }
 
 
-ssize websSSLWrite(webs_t wp, char_t *buf, ssize len)
+ssize websSSLWrite(Webs *wp, char_t *buf, ssize len)
 {
     return sslWrite(wp, buf, len);
 }
 
 
-int websSSLEof(webs_t wp)
+int websSSLEof(Webs *wp)
 {
     return socketEof(wp->sid);
 }
 
 
 //  MOB - do we need this. Should it be return int?
-void websSSLFlush(webs_t wp)
+void websSSLFlush(Webs *wp)
 {
     sslFlush(wp);
 }
 
 
-void websSSLFree(webs_t wp)
+void websSSLFree(Webs *wp)
 {
     sslFree(wp);
 }

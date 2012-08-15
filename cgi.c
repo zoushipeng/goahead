@@ -18,14 +18,14 @@
 /*********************************** Defines **********************************/
 
 typedef struct {                /* Struct for CGI tasks which have completed */
-    webs_t  wp;                 /* pointer to session websRec */
-    char_t  *stdIn;             /* file desc. for task's temp input fd */
-    char_t  *stdOut;            /* file desc. for task's temp output fd */
-    char_t  *cgiPath;           /* path to executable process file */
-    char_t  **argp;             /* pointer to buf containing argv tokens */
-    char_t  **envp;             /* pointer to array of environment strings */
-    int     handle;             /* process handle of the task */
-    long    fplacemark;         /* seek location for CGI output file */
+    Webs    *wp;                /* Connection object */
+    char_t  *stdIn;             /* File desc. for task's temp input fd */
+    char_t  *stdOut;            /* File desc. for task's temp output fd */
+    char_t  *cgiPath;           /* Path to executable process file */
+    char_t  **argp;             /* Pointer to buf containing argv tokens */
+    char_t  **envp;             /* Pointer to array of environment strings */
+    int     handle;             /* Process handle of the task */
+    long    fplacemark;         /* Seek location for CGI output file */
 } cgiRec;
 
 static cgiRec   **cgiList;      /* galloc chain list of wp's to be closed */
@@ -35,7 +35,7 @@ static int      cgiMax;         /* Size of galloc list */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t* query)
+int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t* query)
 {
     cgiRec      *cgip;
     sym_t       *s;
@@ -68,7 +68,7 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         may already be part of the OS image, rather than in the file system.
     */
     {
-        GStat sbuf;
+        WebsStat sbuf;
         if (gstat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
             websError(wp, 404, T("CGI process file does not exist"));
             gfree(cgiPath);
@@ -207,11 +207,11 @@ int websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
  */
 void websCgiGatherOutput (cgiRec *cgip)
 {
-    webs_t      wp;
-    ssize       nRead;
-    GStat      sbuf;
-    char_t      cgiBuf[BIT_LIMIT_FILENAME];
-    int         fdout;
+    Webs     *wp;
+    WebsStat sbuf;
+    ssize    nRead;
+    char_t   cgiBuf[BIT_LIMIT_FILENAME];
+    int      fdout;
 
     if ((gstat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
         if ((fdout = gopen(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
@@ -239,10 +239,10 @@ void websCgiGatherOutput (cgiRec *cgip)
  */
 void websCgiCleanup()
 {
-    webs_t      wp;
-    cgiRec      *cgip;
-    char_t      **ep;
-    int         cid, nTries;
+    Webs    *wp;
+    cgiRec  *cgip;
+    char_t  **ep;
+    int     cid, nTries;
 
     for (cid = 0; cid < cgiMax; cid++) {
         if ((cgip = cgiList[cid]) != NULL) {

@@ -31,27 +31,27 @@ static char_t websRealm[BIT_LIMIT_PASSWORD] = T("Acme Inc");
 /********************************** Forwards **********************************/
 
 static char *addString(char_t *field, char_t *word);
-static int aspCan(int ejid, webs_t wp, int argc, char_t **argv);
+static int aspCan(int ejid, Webs *wp, int argc, char_t **argv);
 static void computeAllCapabilities();
 static void computeCapabilities(WebsUser *user);
-static int decodeBasicDetails(webs_t wp);
+static int decodeBasicDetails(Webs *wp);
 static char_t *findString(char_t *field, char_t *word);
 static int loadAuth(char_t *path);
 static int removeString(char_t *field, char_t *word);
 static char_t *trimSpace(char_t *s);
 
 #if BIT_DIGEST_AUTH
-static char_t *calcDigest(webs_t wp, char_t *userName, char_t *password);
-static char_t *createDigestNonce(webs_t wp);
-static int decodeDigestDetails(webs_t wp);
-static void digestLogin(webs_t wp, int why);
+static char_t *calcDigest(Webs *wp, char_t *userName, char_t *password);
+static char_t *createDigestNonce(Webs *wp);
+static int decodeDigestDetails(Webs *wp);
+static void digestLogin(Webs *wp, int why);
 static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time_t *when);
-static bool verifyDigestPassword(webs_t wp);
+static bool verifyDigestPassword(Webs *wp);
 #endif
-static void basicLogin(webs_t wp, int why);
-static bool verifyBasicPassword(webs_t wp);
-static void formLogin(webs_t wp, int why);
-static bool verifyFormPassword(webs_t wp);
+static void basicLogin(Webs *wp, int why);
+static bool verifyBasicPassword(Webs *wp);
+static void formLogin(Webs *wp, int why);
+static bool verifyFormPassword(Webs *wp);
 
 /************************************ Code ************************************/
 
@@ -231,7 +231,7 @@ int websSetPassword(char_t *name, char_t *password)
 #endif
 
 
-bool websFormLogin(webs_t wp, char_t *userName, char_t *password)
+bool websFormLogin(Webs *wp, char_t *userName, char_t *password)
 {
     WebsUser    *up;
     sym_t       *sym;
@@ -551,7 +551,7 @@ int amRemoveRoute(char_t *uri)
 }
 
 
-static void basicLogin(webs_t wp, int why)
+static void basicLogin(Webs *wp, int why)
 {
     gassert(wp->route);
     gfree(wp->authResponse);
@@ -560,14 +560,14 @@ static void basicLogin(webs_t wp, int why)
 }
 
 
-static void formLogin(webs_t wp, int why)
+static void formLogin(Webs *wp, int why)
 {
     websRedirect(wp, wp->route->loginUri);
 }
 
 
 #if BIT_DIGEST_AUTH
-static void digestLogin(webs_t wp, int why)
+static void digestLogin(Webs *wp, int why)
 {
     char_t  *nonce, *opaque;
 
@@ -583,7 +583,7 @@ static void digestLogin(webs_t wp, int why)
 }
 
 
-static bool verifyDigestPassword(webs_t wp)
+static bool verifyDigestPassword(Webs *wp)
 {
     char_t  *digest, *secret, *realm;
     time_t  when;
@@ -624,7 +624,7 @@ static bool verifyDigestPassword(webs_t wp)
 #endif
 
 
-static bool verifyBasicPassword(webs_t wp)
+static bool verifyBasicPassword(Webs *wp)
 {
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     bool    rc;
@@ -642,7 +642,7 @@ static bool verifyBasicPassword(webs_t wp)
 
 
 //  MOB - same as verifyBasicPassword
-static bool verifyFormPassword(webs_t wp)
+static bool verifyFormPassword(Webs *wp)
 {
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     int     rc;
@@ -658,7 +658,7 @@ static bool verifyFormPassword(webs_t wp)
 }
 
 
-bool websVerifyRoute(webs_t wp)
+bool websVerifyRoute(Webs *wp)
 {
     WebsRoute   *rp;
     sym_t       *sym;
@@ -717,7 +717,7 @@ bool websVerifyRoute(webs_t wp)
 
 
 //  MOB - should this be capabilities?
-bool websCan(webs_t wp, char_t *capabilities) 
+bool websCan(Webs *wp, char_t *capabilities) 
 {
     sym_t   *sym;
 
@@ -736,7 +736,7 @@ bool websCan(webs_t wp, char_t *capabilities)
 }
 
 
-static int aspCan(int ejid, webs_t wp, int argc, char_t **argv)
+static int aspCan(int ejid, Webs *wp, int argc, char_t **argv)
 {
     if (websCan(wp, argv[0])) {
         //  MOB - how to set return 
@@ -791,7 +791,7 @@ static int removeString(char_t *field, char_t *word)
 }
 
 
-static int decodeBasicDetails(webs_t wp)
+static int decodeBasicDetails(Webs *wp)
 {
     char    *cp, *userAuth;
 
@@ -816,7 +816,7 @@ static int decodeBasicDetails(webs_t wp)
 
 
 #if BIT_DIGEST_AUTH
-static int decodeDigestDetails(webs_t wp)
+static int decodeDigestDetails(Webs *wp)
 {
     char        *value, *tok, *key, *dp, *sp;
     int         seenComma;
@@ -961,7 +961,7 @@ static int decodeDigestDetails(webs_t wp)
 /*
     Create a nonce value for digest authentication (RFC 2617)
  */
-static char_t *createDigestNonce(webs_t wp)
+static char_t *createDigestNonce(Webs *wp)
 {
     char_t       nonce[256];
     static int64 next = 0;
@@ -982,7 +982,7 @@ static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time
     *secret = gtok(decoded, ":", &tok);
     *realm = gtok(NULL, ":", &tok);
     whenStr = gtok(NULL, ":", &tok);
-    *when = hextoi(whenStr);
+    *when = ghextoi(whenStr);
     return 0;
 }
 
@@ -990,7 +990,7 @@ static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time
 /*
    Get a Digest value using the MD5 algorithm -- See RFC 2617 to understand this code.
 */
-static char_t *calcDigest(webs_t wp, char_t *userName, char_t *password)
+static char_t *calcDigest(Webs *wp, char_t *userName, char_t *password)
 {
     char_t  a1Buf[256], a2Buf[256], digestBuf[256];
     char_t  *ha1, *ha2, *method, *result;

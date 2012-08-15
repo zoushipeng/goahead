@@ -6,7 +6,7 @@
 
 #include "goahead.h"
 
-websRomPageIndexType websRomPageIndex[] = {
+WebsRomIndex  websRomPageIndex[] = {
   { 0, 0, 0 },
 };
 

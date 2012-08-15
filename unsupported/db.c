@@ -706,7 +706,7 @@ static int crack(char_t *buf, char_t **key, char_t **val)
  */
 int dbLoad(int did, char_t *filename, int flags)
 {
-    GStat      sbuf;
+    WebsStat   sbuf;
     char_t      *buf, *keyword, *value, *ptr;
     char_t      *tablename;
     int         fd, tid, row;

@@ -125,11 +125,11 @@ void ejCloseEngine(int eid)
 #if !ECOS && UNUSED
 char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 {
-    GStat  sbuf;
-    ej_t    *ep;
-    char_t  *script, *rs;
-    char    *fileBuf;
-    int     fd;
+    WebsStat    sbuf;
+    ej_t        *ep;
+    char_t      *script, *rs;
+    char        *fileBuf;
+    int         fd;
 
     gassert(path && *path);
 

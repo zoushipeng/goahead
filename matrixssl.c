@@ -77,7 +77,7 @@ void sslClose()
 }
 
 
-void sslFree(webs_t wp)
+void sslFree(Webs *wp)
 {
     sslWriteClosureAlert(wp->sslConn);                                                                
     //  MOB - inline here

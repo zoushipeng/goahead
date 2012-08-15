@@ -26,14 +26,14 @@ static int finished = 0;
 static void initPlatform();
 static void usage();
 
-static int aliasTest(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
+static int aliasTest(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
 #if BIT_JAVASCRIPT
-static int aspTest(int eid, webs_t wp, int argc, char_t **argv);
-static int bigTest(int eid, webs_t wp, int argc, char_t **argv);
+static int aspTest(int eid, Webs *wp, int argc, char_t **argv);
+static int bigTest(int eid, Webs *wp, int argc, char_t **argv);
 #endif
-static void formTest(webs_t wp, char_t *path, char_t *query);
+static void formTest(Webs *wp, char_t *path, char_t *query);
 #if BIT_SESSIONS && BIT_AUTH
-static void loginTest(webs_t wp, char_t *path, char_t *query);
+static void loginTest(Webs *wp, char_t *path, char_t *query);
 #endif
 
 #if BIT_UNIX_LIKE
@@ -171,7 +171,7 @@ static void sigHandler(int signo)
 /*
     Rewrite /alias => /alias/atest.html
  */
-static int aliasTest(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
+static int aliasTest(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
     if (gmatch(urlPrefix, "/alias/")) {
         websRewriteRequest(wp, "/alias/atest.html");
@@ -184,7 +184,7 @@ static int aliasTest(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char
 /*
     Parse the form variables: name, address and echo back
  */
-static int aspTest(int eid, webs_t wp, int argc, char_t **argv)
+static int aspTest(int eid, Webs *wp, int argc, char_t **argv)
 {
 	char_t	*name, *address;
 
@@ -199,7 +199,7 @@ static int aspTest(int eid, webs_t wp, int argc, char_t **argv)
 /*
     Generate a large response
  */
-static int bigTest(int eid, webs_t wp, int argc, char_t **argv)
+static int bigTest(int eid, Webs *wp, int argc, char_t **argv)
 {
     int     i;
 
@@ -217,7 +217,7 @@ static int bigTest(int eid, webs_t wp, int argc, char_t **argv)
 /*
     Implement /form/formTest. Parse the form variables: name, address and echo back.
  */
-static void formTest(webs_t wp, char_t *path, char_t *query)
+static void formTest(Webs *wp, char_t *path, char_t *query)
 {
 	char_t	*name, *address;
 
@@ -234,7 +234,7 @@ static void formTest(webs_t wp, char_t *path, char_t *query)
 /*
     Implement /form/login
  */
-static void loginTest(webs_t wp, char_t *path, char_t *query)
+static void loginTest(Webs *wp, char_t *path, char_t *query)
 {
 	char_t	*username, *password, *msg, *referrer;
 

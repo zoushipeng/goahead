@@ -12,14 +12,14 @@
 
 /*********************************** Locals ***********************************/
 
-static websUrlHandlerType   *websUrlHandler;            /* URL handler list */
-static int                  websUrlHandlerMax;          /* Number of entries */
-static int                  urlHandlerOpenCount = 0;    /* count of apps */
+static WebsHandler  *websUrlHandler;            /* URL handler list */
+static int          websUrlHandlerMax;          /* Number of entries */
+static int          urlHandlerOpenCount = 0;    /* count of apps */
 
 /**************************** Forward Declarations ****************************/
 
 static int      websUrlHandlerSort(const void *p1, const void *p2);
-static int      websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, 
+static int      websPublishHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, 
                     int sid, char_t *url, char_t *path, char_t *query);
 
 /*********************************** Code *************************************/
@@ -37,7 +37,7 @@ int websUrlHandlerOpen()
 
 void websUrlHandlerClose()
 {
-    websUrlHandlerType *sp;
+    WebsHandler     *sp;
 
     if (--urlHandlerOpenCount <= 0) {
         websAspClose();
@@ -61,11 +61,11 @@ void websUrlHandlerClose()
     alphabetically by the urlPrefix.
  */
 int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, 
-        int (*handler)(webs_t wp, char_t *urlPrefix, char_t *webdir, int arg, 
+        int (*handler)(Webs *wp, char_t *urlPrefix, char_t *webdir, int arg, 
         char_t *url, char_t *path, char_t *query), int flags)
 {
-    websUrlHandlerType  *sp;
-    int                 len;
+    WebsHandler *sp;
+    int         len;
 
     gassert(urlPrefix);
     gassert(handler);
@@ -73,12 +73,12 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     /*
         Grow the URL handler array to create a new slot
      */
-    len = (websUrlHandlerMax + 1) * sizeof(websUrlHandlerType);
+    len = (websUrlHandlerMax + 1) * sizeof(WebsHandler);
     if ((websUrlHandler = grealloc(websUrlHandler, len)) == NULL) {
         return -1;
     }
     sp = &websUrlHandler[websUrlHandlerMax++];
-    memset(sp, 0, sizeof(websUrlHandlerType));
+    memset(sp, 0, sizeof(WebsHandler));
 
     sp->urlPrefix = gstrdup(urlPrefix);
     sp->len = gstrlen(sp->urlPrefix);
@@ -93,7 +93,7 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     /*
         Sort in decreasing URL length order observing the flags for first and last
      */
-    qsort(websUrlHandler, websUrlHandlerMax, sizeof(websUrlHandlerType), websUrlHandlerSort);
+    qsort(websUrlHandler, websUrlHandlerMax, sizeof(WebsHandler), websUrlHandlerSort);
     return 0;
 }
 
@@ -102,11 +102,11 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     Delete an existing URL handler. We don't reclaim the space of the old handler, just NULL the entry. Return -1 if
     handler is not found.  
  */
-int websUrlHandlerDelete(int (*handler)(webs_t wp, char_t *urlPrefix, 
+int websUrlHandlerDelete(int (*handler)(Webs *wp, char_t *urlPrefix, 
     char_t *webDir, int arg, char_t *url, char_t *path, char_t *query))
 {
-    websUrlHandlerType  *sp;
-    int                 i;
+    WebsHandler *sp;
+    int         i;
 
     for (i = 0; i < websUrlHandlerMax; i++) {
         sp = &websUrlHandler[i];
@@ -124,14 +124,14 @@ int websUrlHandlerDelete(int (*handler)(webs_t wp, char_t *urlPrefix,
  */
 static int websUrlHandlerSort(const void *p1, const void *p2)
 {
-    websUrlHandlerType  *s1, *s2;
-    int                 rc;
+    WebsHandler     *s1, *s2;
+    int             rc;
 
     gassert(p1);
     gassert(p2);
 
-    s1 = (websUrlHandlerType*) p1;
-    s2 = (websUrlHandlerType*) p2;
+    s1 = (WebsHandler*) p1;
+    s2 = (WebsHandler*) p2;
 
     if ((s1->flags & WEBS_HANDLER_FIRST) || (s2->flags & WEBS_HANDLER_LAST)) {
         return -1;
@@ -164,8 +164,8 @@ int websPublish(char_t *urlPrefix, char_t *path)
  */
 char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
 {
-    websUrlHandlerType  *sp;
-    int                 i;
+    WebsHandler  *sp;
+    int          i;
 
     for (i = 0; i < websUrlHandlerMax; i++) {
         sp = &websUrlHandler[i];
@@ -186,7 +186,7 @@ char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
 /*
     Publish URL handler. We just patch the web page Directory and let the default handler do the rest.
  */
-static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int sid, char_t *url, char_t *path, 
+static int websPublishHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int sid, char_t *url, char_t *path, 
         char_t *query)
 {
     ssize   len;
@@ -207,10 +207,10 @@ static int websPublishHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int 
     See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
     one accepts the request.  Return true if a handler was invoked, else return FALSE.
  */
-int websUrlHandlerRequest(webs_t wp)
+int websUrlHandlerRequest(Webs *wp)
 {
-    websUrlHandlerType  *sp;
-    int                 i, first;
+    WebsHandler   *sp;
+    int           i, first;
 
     gassert(websValid(wp));
 

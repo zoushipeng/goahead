@@ -70,9 +70,9 @@ int websEval(char_t *cmd, char_t **result, void* chan)
     Process ASP requests and expand all scripting commands. We read the entire ASP page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than ASPs.
  */
-int websAspRequest(webs_t wp, char_t *lpath)
+int websAspRequest(Webs *wp, char_t *lpath)
 {
-    websStatType    sbuf;
+    WebsFileInfo    sbuf;
     char            *rbuf;
     char_t          *token, *lang, *result, *path, *ep, *cp, *buf, *nextp;
     char_t          *last;
@@ -228,7 +228,7 @@ done:
     Define an ASP Ejscript function. Bind an ASP name to a C procedure.
  */
 int websAspDefine(char_t *name, 
-    int (*fn)(int ejid, webs_t wp, int argc, char_t **argv))
+    int (*fn)(int ejid, Webs *wp, int argc, char_t **argv))
 {
     return ejSetGlobalFunctionDirect(websAspFunctions, name, 
         (int (*)(int, void*, int, char_t**)) fn);
@@ -238,7 +238,7 @@ int websAspDefine(char_t *name,
 /*
     Asp write command. This implemements <% write("text"); %> command
  */
-int websAspWrite(int ejid, webs_t wp, int argc, char_t **argv)
+int websAspWrite(int ejid, Webs *wp, int argc, char_t **argv)
 {
     int     i;
 

@@ -131,18 +131,18 @@ static bool_t   checkName(char_t *name);
 static void     cryptPassword(char_t *textString);
 
 #if BIT_USER_MANAGEMENT_GUI
-static int      aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv);
-static int      aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv);
-static int      aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **argv);
-static int      aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **argv);
-static int      aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv);
-static void     formAddUser(webs_t wp, char_t *path, char_t *query);
-static void     formDeleteUser(webs_t wp, char_t *path, char_t *query);
-static void     formDisplayUser(webs_t wp, char_t *path, char_t *query);
-static void     formAddGroup(webs_t wp, char_t *path, char_t *query);
-static void     formDeleteGroup(webs_t wp, char_t *path, char_t *query);
-static void     formAddAccessLimit(webs_t wp, char_t *path, char_t *query);
-static void     formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query);
+static int      aspGenerateUserList(int eid, Webs *wp, int argc, char_t **argv);
+static int      aspGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv);
+static int      aspGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv);
+static int      aspGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv);
+static int      aspGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv);
+static void     formAddUser(Webs *wp, char_t *path, char_t *query);
+static void     formDeleteUser(Webs *wp, char_t *path, char_t *query);
+static void     formDisplayUser(Webs *wp, char_t *path, char_t *query);
+static void     formAddGroup(Webs *wp, char_t *path, char_t *query);
+static void     formDeleteGroup(Webs *wp, char_t *path, char_t *query);
+static void     formAddAccessLimit(Webs *wp, char_t *path, char_t *query);
+static void     formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query);
 #endif
 
 /*********************************** Code *************************************/
@@ -1180,7 +1180,7 @@ void formDefineUserMgmt(void)
 }
 
 
-static void formAddUser(webs_t wp, char_t *path, char_t *query)
+static void formAddUser(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *userid, *pass1, *pass2, *group, *enabled, *ok;
     bool_t bDisable;
@@ -1247,7 +1247,7 @@ static void formAddUser(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static void formDeleteUser(webs_t wp, char_t *path, char_t *query)
+static void formDeleteUser(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *userid, *ok;
 
@@ -1279,7 +1279,7 @@ static void formDeleteUser(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
+static void formDisplayUser(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *userid, *ok, *temp;
     bool_t  enabled;
@@ -1312,7 +1312,7 @@ static void formDisplayUser(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static int aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv)
+static int aspGenerateUserList(int eid, Webs *wp, int argc, char_t **argv)
 {
     char_t  *userid;
     ssize   nBytes, nBytesSent;
@@ -1335,7 +1335,7 @@ static int aspGenerateUserList(int eid, webs_t wp, int argc, char_t **argv)
 }
 
 
-static void formAddGroup(webs_t wp, char_t *path, char_t *query)
+static void formAddGroup(Webs *wp, char_t *path, char_t *query)
 {
     char_t          *group, *enabled, *privilege, *method, *ok, *pChar;
     int             nCheck;
@@ -1404,7 +1404,7 @@ static void formAddGroup(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static void formDeleteGroup(webs_t wp, char_t *path, char_t *query)
+static void formDeleteGroup(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *group, *ok;
 
@@ -1438,7 +1438,7 @@ static void formDeleteGroup(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
+static int aspGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv)
 {
     char_t  *group;
     ssize   nBytesSent, nBytes;
@@ -1466,7 +1466,7 @@ static int aspGenerateGroupList(int eid, webs_t wp, int argc, char_t **argv)
 }
 
 
-static void formAddAccessLimit(webs_t wp, char_t *path, char_t *query)
+static void formAddAccessLimit(Webs *wp, char_t *path, char_t *query)
 {
     char_t          *url, *method, *group, *secure, *ok;
     accessMeth_t    am;
@@ -1518,7 +1518,7 @@ static void formAddAccessLimit(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static void formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query)
+static void formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *url, *ok;
 
@@ -1546,7 +1546,7 @@ static void formDeleteAccessLimit(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static int aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **argv)
+static int aspGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv)
 {
     char_t  *url;
     ssize   nBytesSent, nBytes;
@@ -1568,7 +1568,7 @@ static int aspGenerateAccessLimitList(int eid, webs_t wp, int argc, char_t **arg
 }
 
 
-static int aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **argv)
+static int aspGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv)
 {
     ssize     nBytes;
 
@@ -1583,7 +1583,7 @@ static int aspGenerateAccessMethodList(int eid, webs_t wp, int argc, char_t **ar
 }
 
 
-static int aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv)
+static int aspGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv)
 {
     ssize     nBytes;
 
@@ -1599,7 +1599,7 @@ static int aspGeneratePrivilegeList(int eid, webs_t wp, int argc, char_t **argv)
 
 
 #if UNUSED
-static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
+static void formSaveUserManagement(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *ok;
 
@@ -1622,7 +1622,7 @@ static void formSaveUserManagement(webs_t wp, char_t *path, char_t *query)
 }
 
 
-static void formLoadUserManagement(webs_t wp, char_t *path, char_t *query)
+static void formLoadUserManagement(Webs *wp, char_t *path, char_t *query)
 {
     char_t  *ok;
 

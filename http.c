@@ -24,8 +24,8 @@
 
 /******************************** Global Data *********************************/
 
-websStatsType   websStats;              /* Web access stats */
-webs_t          *webs;                  /* Open connection list head */
+WebsStats       websStats;              /* Web access stats */
+Webs            **webs;                 /* Open connection list head */
 sym_fd_t        websMime;               /* Set of mime types */
 int             websMax;                /* List size */
 int             websPort;               /* Listen port for server */
@@ -73,7 +73,7 @@ static uchar charMatch[256] = {
     Addd entries to the MimeList as required for your content
     MOB - compare with appweb
  */
-websMimeType websMimeList[] = {
+WebsMime websMimeList[] = {
     { T("application/java"), T(".class") },
     { T("application/java"), T(".jar") },
     { T("text/html"), T(".asp") },
@@ -168,7 +168,7 @@ websMimeType websMimeList[] = {
     Standard HTTP error codes
  */
 
-websErrorType websErrors[] = {
+WebsError websErrors[] = {
     { 200, T("OK") },
     { 204, T("No Content") },
     { 301, T("Redirect") },
@@ -206,17 +206,17 @@ static int      pruneId;                            /* Callback ID */
 /**************************** Forward Declarations ****************************/
 
 static int      setLocalHost();
-static int      getInput(webs_t wp, char_t **ptext, ssize *nbytes);
-static time_t   getTimeSinceMark(webs_t wp);
-static int      parseFirstLine(webs_t wp, char_t *text);
-static void     parseHeaders(webs_t wp);
+static int      getInput(Webs *wp, char_t **ptext, ssize *nbytes);
+static time_t   getTimeSinceMark(Webs *wp);
+static int      parseFirstLine(Webs *wp, char_t *text);
+static void     parseHeaders(Webs *wp);
 static void     socketEvent(int sid, int mask, void* data);
 
 #if BIT_SESSIONS
 static void     pruneCache();
 #endif
 #if BIT_ACCESS_LOG
-static void     logRequest(webs_t wp, int code);
+static void     logRequest(Webs *wp, int code);
 #endif
 #if BIT_IF_MODIFIED
 static time_t   dateParse(time_t tip, char_t *cmd);
@@ -247,7 +247,7 @@ int websOpen(char_t *authPath)
         return -1;
     }
     if (!websDebug) {
-        pruneId = gSchedCallback(WEBS_SESSION_PRUNE, pruneCache, 0);
+        pruneId = gschedCallback(WEBS_SESSION_PRUNE, pruneCache, 0);
     }
 #endif
 #if BIT_AUTH
@@ -266,7 +266,7 @@ void websClose()
 #endif
 #if BIT_SESSIONS
     if (pruneId >= 0) {
-        gUnschedCallback(pruneId);
+        gunschedCallback(pruneId);
         pruneId = -1;
     }
     if (sessions >= 0) {
@@ -285,7 +285,7 @@ void websClose()
 
 int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
 {
-    websMimeType    *mt;
+    WebsMime    *mt;
 
     gassert(port > 0);
 
@@ -329,7 +329,7 @@ int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
 
 void websCloseServer()
 {
-    webs_t  wp;
+    Webs    *wp;
     int     wid;
 
     if (--websOpenCount > 0) {
@@ -423,7 +423,7 @@ void websCloseListen()
 
 int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
-    webs_t      wp;
+    Webs        *wp;
     socket_t    *lp;
     int         wid, len;
     char        *cp;
@@ -434,7 +434,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     gassert(port >= 0);
 
     /*
-        Allocate a new handle for this accepted connection. This will allocate a webs_t structure in the webs[] list
+        Allocate a new handle for this accepted connection. This will allocate a Webs structure in the webs[] list
      */
     if ((wid = websAlloc(sid)) < 0) {
         return -1;
@@ -444,13 +444,13 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     wp->listenSid = listenSid;
     lp = socketPtr(listenSid);
 
-    gAscToUni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
+    guni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
 
     /*
         Get the ip address of the interface that accept the connection.
      */
     len = sizeof(struct sockaddr_in);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (GSockLenArg*) &len) < 0) {
+    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (WebsSockLenArg*) &len) < 0) {
         return -1;
     }
     cp = inet_ntoa(ifAddr.sin_addr);
@@ -482,7 +482,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = gSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+    wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
     trace(8, T("accept request\n"));
     return 0;
 }
@@ -492,11 +492,11 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     The webs socket handler.  Called in response to I/O. We just pass control to the relevant read or write handler. A
     pointer to the webs structure is passed as a (void*) in iwp.  
  */
-static void socketEvent(int sid, int mask, void* iwp)
+static void socketEvent(int sid, int mask, void *iwp)
 {
-    webs_t  wp;
+    Webs    *wp;
 
-    wp = (webs_t) iwp;
+    wp = (Webs*) iwp;
     gassert(wp);
 
     if (! websValid(wp)) {
@@ -517,7 +517,7 @@ static void socketEvent(int sid, int mask, void* iwp)
     The webs read handler. This is the primary read event loop. It uses a state machine to track progress while parsing
     the HTTP request.  Note: we never block as the socket is always in non-blocking mode.
  */
-void websReadEvent(webs_t wp)
+void websReadEvent(Webs *wp)
 {
     char_t  *text;
     ssize   len, nbytes, size;
@@ -688,7 +688,7 @@ void websReadEvent(webs_t wp)
     and may be zero. It returns -1 for errors. It returns 0 for EOF. Otherwise it returns the number of bytes read.
     Since this may be zero, callers should use socketEof() to distinguish between this and EOF.
  */
-static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes) 
+static int getInput(Webs *wp, char_t **ptext, ssize *pnbytes) 
 {
     char_t  *text;
     char    buf[BIT_LIMIT_SOCKET_BUFFER + 1];
@@ -853,7 +853,7 @@ static int getInput(webs_t wp, char_t **ptext, ssize *pnbytes)
 /*
     Parse the first line of a HTTP request
  */
-static int parseFirstLine(webs_t wp, char_t *text)
+static int parseFirstLine(Webs *wp, char_t *text)
 {
     char_t  *op, *proto, *protoVer, *url, *host, *query, *path, *port, *ext;
     char_t  *buf;
@@ -941,7 +941,7 @@ static int parseFirstLine(webs_t wp, char_t *text)
 /*
     Parse a full request
  */
-static void parseHeaders(webs_t wp)
+static void parseHeaders(Webs *wp)
 {
     char_t  *upperKey, *cp, *lp, *key, *value, *tok;
 
@@ -1050,7 +1050,7 @@ void websServiceEvents(int *finished)
             socketProcess(-1);
         }
         websCgiCleanup();
-        gSchedProcess();
+        grunCallbacks();
     }
 }
 
@@ -1059,7 +1059,7 @@ void websServiceEvents(int *finished)
     Set the variable (CGI) environment for this request. Create variables for all standard CGI variables. Also decode
     the query string and create a variable for each name=value pair.
  */
-void websSetEnv(webs_t wp)
+void websSetEnv(Webs *wp)
 {
     char_t  portBuf[8];
     char_t  *keyword, *value, *valCheck, *valNew;
@@ -1118,7 +1118,7 @@ void websSetEnv(webs_t wp)
     Define a webs (CGI) variable for this connection. Also create in relevant scripting engines. Note: the incoming
     value may be volatile.  
  */
-void websSetVar(webs_t wp, char_t *var, char_t *value)
+void websSetVar(Webs *wp, char_t *var, char_t *value)
 {
     value_t      v;
 
@@ -1139,7 +1139,7 @@ void websSetVar(webs_t wp, char_t *var, char_t *value)
 /*
  *  Return TRUE if a webs variable exists for this connection.
  */
-int websTestVar(webs_t wp, char_t *var)
+int websTestVar(Webs *wp, char_t *var)
 {
     sym_t       *sp;
 
@@ -1159,7 +1159,7 @@ int websTestVar(webs_t wp, char_t *var)
     Get a webs variable but return a default value if string not found.  Note, defaultGetValue can be NULL to permit
     testing existence.  
  */
-char_t *websGetVar(webs_t wp, char_t *var, char_t *defaultGetValue)
+char_t *websGetVar(Webs *wp, char_t *var, char_t *defaultGetValue)
 {
     sym_t   *sp;
 
@@ -1181,7 +1181,7 @@ char_t *websGetVar(webs_t wp, char_t *var, char_t *defaultGetValue)
 /*
     Return TRUE if a webs variable is set to a given value
  */
-int websCompareVar(webs_t wp, char_t *var, char_t *value)
+int websCompareVar(Webs *wp, char_t *var, char_t *value)
 {
     gassert(websValid(wp));
     gassert(var && *var);
@@ -1196,12 +1196,12 @@ int websCompareVar(webs_t wp, char_t *var, char_t *value)
 /*
     Cancel the request timeout. Note may be called multiple times.
  */
-void websTimeoutCancel(webs_t wp)
+void websTimeoutCancel(Webs *wp)
 {
     gassert(websValid(wp));
 
     if (wp->timeout >= 0) {
-        gUnschedCallback(wp->timeout);
+        gunschedCallback(wp->timeout);
         wp->timeout = -1;
     }
 }
@@ -1211,7 +1211,7 @@ void websTimeoutCancel(webs_t wp)
     Output a HTTP response back to the browser. If redirect is set to a 
     URL, the browser will be sent to this location.
  */
-void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
+void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
 {
     gassert(websValid(wp));
 
@@ -1234,7 +1234,7 @@ void websResponse(webs_t wp, int code, char_t *message, char_t *redirect)
 /*
     Redirect the user to another webs page
  */
-void websRedirect(webs_t wp, char_t *url)
+void websRedirect(Webs *wp, char_t *url)
 {
     char_t  *msgbuf, *urlbuf, *redirectFmt;
 
@@ -1415,7 +1415,7 @@ char *websEscapeHtml(cchar *html)
 /*  
     Output an error message and cleanup
  */
-void websError(webs_t wp, int code, char_t *fmt, ...)
+void websError(Webs *wp, int code, char_t *fmt, ...)
 {
     va_list     args;
     char_t      *msg, *userMsg, *buf;
@@ -1453,7 +1453,7 @@ void websError(webs_t wp, int code, char_t *fmt, ...)
  */
 char_t *websErrorMsg(int code)
 {
-    websErrorType   *ep;
+    WebsError   *ep;
 
     for (ep = websErrors; ep->code; ep++) {
         if (code == ep->code) {
@@ -1468,7 +1468,7 @@ char_t *websErrorMsg(int code)
 /*
     Trace a response header
  */
-ssize websWriteHeader(webs_t wp, char_t *fmt, ...)
+ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
 {
     va_list      vargs;
     char_t      *buf;
@@ -1498,7 +1498,7 @@ ssize websWriteHeader(webs_t wp, char_t *fmt, ...)
 /*
     Write a set of headers. Does not write the trailing blank line so callers can add more headers
  */
-void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
+void websWriteHeaders(Webs *wp, int code, ssize nbytes, char_t *redirect)
 {
     char_t      *date;
 
@@ -1555,7 +1555,7 @@ void websWriteHeaders(webs_t wp, int code, ssize nbytes, char_t *redirect)
 /*
     Do formatted output to the browser. This is the public ASP and form write procedure.
  */
-ssize websWrite(webs_t wp, char_t *fmt, ...)
+ssize websWrite(Webs *wp, char_t *fmt, ...)
 {
     va_list      vargs;
     char_t      *buf;
@@ -1587,7 +1587,7 @@ ssize websWrite(webs_t wp, char_t *fmt, ...)
     char_t's processed.  It spins until nChars are flushed to the socket.  For non-blocking behavior, use
     websWriteDataNonBlock.
  */
-ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
+ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars)
 {
     char    *asciiBuf, *pBuf;
     ssize   len, done;
@@ -1643,7 +1643,7 @@ ssize websWriteBlock(webs_t wp, char_t *buf, ssize nChars)
     data, it will return the number of bytes flushed to the socket before it would have blocked.  This returns the
     number of chars processed or -1 if socketWrite fails.
  */
-ssize websWriteDataNonBlock(webs_t wp, char *buf, ssize nChars)
+ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars)
 {
     //  MOB - naming
     ssize   r;
@@ -1714,7 +1714,7 @@ void websDecodeUrl(char_t *decoded, char_t *token, ssize len)
 /*
     Output a log message in Common Log Format: See http://httpd.apache.org/docs/1.3/logs.html#common
  */
-static void logRequest(webs_t wp, int code)
+static void logRequest(Webs *wp, int code)
 {
     char_t      *buf, timeStr[28], zoneStr[6], dataStr[16];
     char        *abuf;
@@ -1772,25 +1772,25 @@ static void logRequest(webs_t wp, int code)
  */
 void websTimeout(void *arg, int id)
 {
-    webs_t      wp;
+    Webs        *wp;
     time_t      tm, delay;
 
-    wp = (webs_t) arg;
+    wp = (Webs*) arg;
     gassert(websValid(wp));
 
     tm = getTimeSinceMark(wp) * 1000;
     if (websDebug) {
-        gReschedCallback(id, (int) WEBS_TIMEOUT);
+        greschedCallback(id, (int) WEBS_TIMEOUT);
         return;
     } else if (tm >= WEBS_TIMEOUT) {
         websStats.timeouts++;
-        gUnschedCallback(id);
+        gunschedCallback(id);
         wp->timeout = -1;
         websDone(wp, 404);
     } else {
         delay = WEBS_TIMEOUT - tm;
         gassert(delay > 0);
-        gReschedCallback(id, (int) delay);
+        greschedCallback(id, (int) delay);
     }
 }
 
@@ -1798,7 +1798,7 @@ void websTimeout(void *arg, int id)
 /*
     Called when the request is done.
  */
-void websDone(webs_t wp, int code)
+void websDone(Webs *wp, int code)
 {
     gassert(websValid(wp));
 
@@ -1834,7 +1834,7 @@ void websDone(webs_t wp, int code)
             }
             socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
             websTimeoutCancel(wp);
-            wp->timeout = gSchedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+            wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
             return;
         }
     } else {
@@ -1849,15 +1849,15 @@ void websDone(webs_t wp, int code)
 
 int websAlloc(int sid)
 {
-    webs_t      wp;
+    Webs        *wp;
     int         wid;
 
     //  MOB - warning. This structue is not being zeroed or initialized.
-    if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(struct websRec))) < 0) {
+    if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(Webs))) < 0) {
         return -1;
     }
     wp = webs[wid];
-    memset(wp, 0, sizeof(websRec));
+    memset(wp, 0, sizeof(Webs));
     wp->wid = wid;
     wp->sid = sid;
     wp->state = WEBS_BEGIN;
@@ -1876,7 +1876,7 @@ int websAlloc(int sid)
 }
 
 
-void websFree(webs_t wp)
+void websFree(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1950,14 +1950,14 @@ int websGetPort()
 }
 
 
-ssize websGetRequestBytes(webs_t wp)
+ssize websGetRequestBytes(Webs *wp)
 {
     gassert(websValid(wp));
     return wp->numbytes;
 }
 
 
-char_t *websGetRequestDir(webs_t wp)
+char_t *websGetRequestDir(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1968,7 +1968,7 @@ char_t *websGetRequestDir(webs_t wp)
 }
 
 
-int websGetRequestFlags(webs_t wp)
+int websGetRequestFlags(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1976,7 +1976,7 @@ int websGetRequestFlags(webs_t wp)
 }
 
 
-char_t *websGetRequestIpaddr(webs_t wp)
+char_t *websGetRequestIpaddr(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1984,7 +1984,7 @@ char_t *websGetRequestIpaddr(webs_t wp)
 }
 
 
-char_t *websGetRequestLpath(webs_t wp)
+char_t *websGetRequestLpath(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1997,7 +1997,7 @@ char_t *websGetRequestLpath(webs_t wp)
 }
 
 
-char_t *websGetRequestPath(webs_t wp)
+char_t *websGetRequestPath(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -2008,28 +2008,28 @@ char_t *websGetRequestPath(webs_t wp)
 }
 
 
-char_t *websGetRequestPassword(webs_t wp)
+char_t *websGetRequestPassword(Webs *wp)
 {
     gassert(websValid(wp));
     return wp->password;
 }
 
 
-char_t *websGetRequestType(webs_t wp)
+char_t *websGetRequestType(Webs *wp)
 {
     gassert(websValid(wp));
     return wp->type;
 }
 
 
-char_t *websGetRequestUserName(webs_t wp)
+char_t *websGetRequestUserName(Webs *wp)
 {
     gassert(websValid(wp));
     return wp->userName;
 }
 
 
-ssize websGetRequestWritten(webs_t wp)
+ssize websGetRequestWritten(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -2051,12 +2051,12 @@ static int setLocalHost()
     intaddr.s_addr = (ulong) hostGetByName(host);
     cp = inet_ntoa(intaddr);
     //  MOB - OPT so don't copy if not unicode
-    gAscToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
     free(cp);
 #elif ECOS
     cp = inet_ntoa(eth0_bootp_data.bp_yiaddr);
     //  MOB - OPT so don't copy if not unicode
-    gAscToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 #else
 {
     struct hostent  *hp;
@@ -2067,7 +2067,7 @@ static int setLocalHost()
     memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
     cp = inet_ntoa(intaddr);
     //  MOB - OPT so don't copy if not unicode
-    gAscToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 }
 #endif
     websSetIpaddr(wbuf);
@@ -2098,7 +2098,7 @@ void websSetIpaddr(char_t *ipaddr)
 }
 
 
-void websSetRequestBytes(webs_t wp, ssize bytes)
+void websSetRequestBytes(Webs *wp, ssize bytes)
 {
     gassert(websValid(wp));
     gassert(bytes >= 0);
@@ -2106,7 +2106,7 @@ void websSetRequestBytes(webs_t wp, ssize bytes)
 }
 
 
-void websSetRequestLpath(webs_t wp, char_t *lpath)
+void websSetRequestLpath(Webs *wp, char_t *lpath)
 {
     gassert(websValid(wp));
     gassert(lpath && *lpath);
@@ -2122,7 +2122,7 @@ void websSetRequestLpath(webs_t wp, char_t *lpath)
 /*
     Update the URL path and the directory containing the web page
  */
-void websSetRequestPath(webs_t wp, char_t *dir, char_t *path)
+void websSetRequestPath(Webs *wp, char_t *dir, char_t *path)
 {
     char_t  *tmp;
 
@@ -2146,7 +2146,7 @@ void websSetRequestPath(webs_t wp, char_t *dir, char_t *path)
 }
 
 
-void websRewriteRequest(webs_t wp, char_t *url)
+void websRewriteRequest(Webs *wp, char_t *url)
 {
     gfree(wp->url);
     wp->url = gstrdup(url);
@@ -2159,7 +2159,7 @@ void websRewriteRequest(webs_t wp, char_t *url)
 /*
     Set the Write handler for this socket
  */
-void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp))
+void websSetRequestSocketHandler(Webs *wp, int mask, void (*fn)(Webs *wp))
 {
     gassert(websValid(wp));
     wp->writeSocket = fn;
@@ -2167,14 +2167,14 @@ void websSetRequestSocketHandler(webs_t wp, int mask, void (*fn)(webs_t wp))
 }
 
 
-void websSetRequestWritten(webs_t wp, ssize written)
+void websSetRequestWritten(Webs *wp, ssize written)
 {
     gassert(websValid(wp));
     wp->written = written;
 }
 
 
-int websValid(webs_t wp)
+int websValid(Webs *wp)
 {
     int     wid;
 
@@ -2190,7 +2190,7 @@ int websValid(webs_t wp)
 /*
     Build an ASCII time string.  If sbuf is NULL we use the current time, else we use the last modified time of sbuf;
  */
-char_t *websGetDateString(websStatType *sbuf)
+char_t *websGetDateString(WebsFileInfo *sbuf)
 {
     char_t  *cp, *r;
     time_t  now;
@@ -2213,7 +2213,7 @@ char_t *websGetDateString(websStatType *sbuf)
     Mark time. Set a timestamp so that, later, we can return the number of seconds since we made the mark. Note that the
     mark my not be a "real" time, but rather a relative marker.
  */
-void websSetTimeMark(webs_t wp)
+void websSetTimeMark(Webs *wp)
 {
     wp->timestamp = time(0);
 }
@@ -2222,7 +2222,7 @@ void websSetTimeMark(webs_t wp)
 /*
     Get the number of seconds since the last mark.
  */
-static time_t getTimeSinceMark(webs_t wp)
+static time_t getTimeSinceMark(Webs *wp)
 {
     return time(0) - wp->timestamp;
 }
@@ -2809,13 +2809,13 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
     ulen = gstrlen(url);
     /*
         We allocate enough to store separate hostname and port number fields.  As there are 3 strings in the one buffer,
-        we need room for 3 null chars.  We allocate MAX_PORT_LEN char_t's for the port number.  
+        we need room for 3 null chars.  We allocate WEBS_MAX_PORT_LEN char_t's for the port number.  
      */
-    len = ulen * 2 + MAX_PORT_LEN + 3;
+    len = ulen * 2 + WEBS_MAX_PORT_LEN + 3;
     if ((buf = galloc(len * sizeof(char_t))) == NULL) {
         return -1;
     }
-    portbuf = &buf[len - MAX_PORT_LEN - 1];
+    portbuf = &buf[len - WEBS_MAX_PORT_LEN - 1];
     hostbuf = &buf[ulen+1];
     websDecodeUrl(buf, url, ulen);
 
@@ -2823,7 +2823,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
      */
     url = buf;
-    gstritoa(websGetPort(), portbuf, MAX_PORT_LEN);
+    gstritoa(websGetPort(), portbuf, WEBS_MAX_PORT_LEN);
     port = portbuf;
     path = T("/");
     proto = T("http");
@@ -2854,7 +2854,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
             c = *cp;
             *cp = '\0';
             gstrncpy(hostbuf, host, ulen);
-            gstrncpy(portbuf, port, MAX_PORT_LEN);
+            gstrncpy(portbuf, port, WEBS_MAX_PORT_LEN);
             *cp = c;
             host = hostbuf;
             port = portbuf;
@@ -3003,7 +3003,7 @@ char_t *websNormalizeUriPath(char_t *pathArg)
 /*
     Open a web page. lpath is the local filename. path is the URL path name.
  */
-int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
+int websPageOpen(Webs *wp, char_t *lpath, char_t *path, int mode, int perm)
 {
     gassert(websValid(wp));
 #if BIT_ROM
@@ -3014,7 +3014,7 @@ int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 }
 
 
-void websPageClose(webs_t wp)
+void websPageClose(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -3032,12 +3032,12 @@ void websPageClose(webs_t wp)
 /*
     Stat a web page lpath is the local filename. path is the URL path name.
  */
-int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType* sbuf)
+int websPageStat(Webs *wp, char_t *lpath, char_t *path, WebsFileInfo *sbuf)
 {
 #if BIT_ROM
     return websRomPageStat(path, sbuf);
 #else
-    GStat s;
+    WebsStat    s;
 
     if (gstat(lpath, &s) < 0) {
         return -1;
@@ -3053,7 +3053,7 @@ int websPageStat(webs_t wp, char_t *lpath, char_t *path, websStatType* sbuf)
 int websPageIsDirectory(char_t *lpath)
 {
 #if BIT_ROM
-    websStatType    sbuf;
+    WebsFileInfo    sbuf;
 
     if (websRomPageStat(lpath, &sbuf) >= 0) {
         return(sbuf.isDir);
@@ -3061,7 +3061,7 @@ int websPageIsDirectory(char_t *lpath)
         return 0;
     }
 #else
-    GStat sbuf;
+    WebsStat    sbuf;
 
     if (gstat(lpath, &sbuf) >= 0) {
         return(sbuf.st_mode & S_IFDIR);
@@ -3075,7 +3075,7 @@ int websPageIsDirectory(char_t *lpath)
 /*
     Read a web page. Returns the number of _bytes_ read. len is the size of buf, in bytes.
  */
-ssize websPageReadData(webs_t wp, char *buf, ssize nBytes)
+ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 {
 
 #if BIT_ROM
@@ -3091,7 +3091,7 @@ ssize websPageReadData(webs_t wp, char *buf, ssize nBytes)
 /*
     Move file pointer offset bytes.
  */
-void websPageSeek(webs_t wp, EgFilePos offset)
+void websPageSeek(Webs *wp, EgFilePos offset)
 {
     gassert(websValid(wp));
 
@@ -3103,7 +3103,7 @@ void websPageSeek(webs_t wp, EgFilePos offset)
 }
 
 
-void websSetCookie(webs_t wp, char_t *name, char_t *value, char_t *path, char_t *cookieDomain, time_t lifespan, int flags)
+void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *cookieDomain, time_t lifespan, int flags)
 {
     time_t  when;
     char    *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
@@ -3161,7 +3161,7 @@ void websSetCookie(webs_t wp, char_t *name, char_t *value, char_t *path, char_t 
 
 
 #if BIT_SESSIONS
-static char *makeSessionID(webs_t wp)
+static char *makeSessionID(Webs *wp)
 {
     char        idBuf[64];
     static int  nextSession = 0;
@@ -3171,7 +3171,7 @@ static char *makeSessionID(webs_t wp)
 }
 
 
-WebsSession *websAllocSession(webs_t wp, char_t *id, time_t lifespan)
+WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan)
 {
     WebsSession     *sp;
 
@@ -3191,7 +3191,7 @@ WebsSession *websAllocSession(webs_t wp, char_t *id, time_t lifespan)
 }
 
 
-WebsSession *websGetSession(webs_t wp, int create)
+WebsSession *websGetSession(Webs *wp, int create)
 {
     sym_t   *sym;
     char_t  *id;
@@ -3221,7 +3221,7 @@ WebsSession *websGetSession(webs_t wp, int create)
 }
 
 
-char *websGetSessionID(webs_t wp)
+char *websGetSessionID(Webs *wp)
 {
     char_t  *cookies, *cookie;
     char_t  *cp, *value;
@@ -3264,7 +3264,7 @@ char *websGetSessionID(webs_t wp)
 }
 
 
-char_t *websGetSessionVar(webs_t wp, char_t *key, char_t *defaultValue)
+char_t *websGetSessionVar(Webs *wp, char_t *key, char_t *defaultValue)
 {
     WebsSession     *sp;
     sym_t           *sym;
@@ -3279,7 +3279,7 @@ char_t *websGetSessionVar(webs_t wp, char_t *key, char_t *defaultValue)
 }
 
 
-int websSetSessionVar(webs_t wp, char_t *key, char_t *value)
+int websSetSessionVar(Webs *wp, char_t *key, char_t *value)
 {
     WebsSession  *sp;
 

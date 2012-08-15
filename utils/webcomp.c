@@ -52,7 +52,7 @@ static void usage()
 
 static int compile(char *fileList, char *prefix)
 {
-    GStat           sbuf;
+    WebsStat        sbuf;
     FILE            *lp;
     time_t          now;
     char            buf[512], file[BIT_LIMIT_FILENAME], *cp, *sl;

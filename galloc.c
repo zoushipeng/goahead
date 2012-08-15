@@ -5,7 +5,7 @@
     fragmentation.  This allocator maintains block class queues for rapid allocation and minimal fragmentation. This
     allocator does not coalesce blocks. The storage space may be populated statically or via the traditional malloc
     mechanisms. Large blocks greater than the maximum class size may be allocated from the O/S or run-time system via
-    malloc. To permit the use of malloc, call gopen with flags set to G_USE_MALLOC (this is the default).  It is
+    malloc. To permit the use of malloc, call gopen with flags set to WEBS_USE_MALLOC (this is the default).  It is
     recommended that gopen be called first thing in the application.  If it is not, it will be called with default
     values on the first call to galloc(). Note that this code is not designed for multi-threading purposes and it
     depends on newly declared variables being initialized to zero.
@@ -29,13 +29,13 @@
 /*
     gQhead blocks are created as the original memory allocation is freed up. See gfree.
  */
-static gType    *gQhead[G_MAX_CLASS];   /* Per class block q head */
-static char     *gfreeBuf;              /* Pointer to free memory */
-static char     *gfreeNext;             /* Pointer to next free mem */
-static int      gfreeSize;              /* Size of free memory */
-static int      gfreeLeft;              /* Size of free left for use */
-static int      gFlags = G_USE_MALLOC;  /* Default to auto-malloc */
-static int      gopenCount = 0;         /* Num tasks using galloc */
+static WebsBlock    *gQhead[WEBS_MAX_CLASS];   /* Per class block q head */
+static char         *gfreeBuf;                  /* Pointer to free memory */
+static char         *gfreeNext;                 /* Pointer to next free mem */
+static int          gfreeSize;                  /* Size of free memory */
+static int          gfreeLeft;                  /* Size of free left for use */
+static int          gFlags = WEBS_USE_MALLOC;   /* Default to auto-malloc */
+static int          gopenCount = 0;             /* Num tasks using galloc */
 
 /*************************** Forward Declarations *****************************/
 
@@ -46,7 +46,7 @@ static int gallocGetSize(ssize size, int *q);
     Initialize the galloc module. gopen should be called the very first thing after the application starts and bclose
     should be called the last thing before exiting. If gopen is not called, it will be called on the first allocation
     with default values. "buf" points to memory to use of size "bufsize". If buf is NULL, memory is allocated using
-    malloc. flags may be set to G_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial buffer of
+    malloc. flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial buffer of
     size bufsize for use by the application.
  */
 int gopenAlloc(void *buf, int bufsize, int flags)
@@ -61,7 +61,7 @@ int gopenAlloc(void *buf, int bufsize, int flags)
     }
     if (buf == NULL) {
         if (bufsize == 0) {
-            bufsize = G_DEFAULT_MEM;
+            bufsize = WEBS_DEFAULT_MEM;
         }
         bufsize = ROUNDUP4(bufsize);
         if ((buf = malloc(bufsize)) == NULL) {
@@ -72,7 +72,7 @@ int gopenAlloc(void *buf, int bufsize, int flags)
             return -1;
         }
     } else {
-        gFlags |= G_USER_BUF;
+        gFlags |= WEBS_USER_BUF;
     }
     gfreeSize = gfreeLeft = bufsize;
     gfreeBuf = gfreeNext = buf;
@@ -83,7 +83,7 @@ int gopenAlloc(void *buf, int bufsize, int flags)
 
 void gcloseAlloc()
 {
-    if (--gopenCount <= 0 && !(gFlags & G_USER_BUF)) {
+    if (--gopenCount <= 0 && !(gFlags & WEBS_USER_BUF)) {
         free(gfreeBuf);
         gopenCount = 0;
     }
@@ -95,14 +95,14 @@ void gcloseAlloc()
  */
 void *galloc(ssize size)
 {
-    gType   *bp;
+    WebsBlock   *bp;
     int     q, memSize;
 
     /*
         Call gopen with default values if the application has not yet done so
      */
     if (gfreeBuf == NULL) {
-        if (gopenAlloc(NULL, G_DEFAULT_MEM, 0) < 0) {
+        if (gopenAlloc(NULL, WEBS_DEFAULT_MEM, 0) < 0) {
             return NULL;
         }
     }
@@ -111,13 +111,13 @@ void *galloc(ssize size)
     }
     memSize = gallocGetSize(size, &q);
 
-    if (q >= G_MAX_CLASS) {
+    if (q >= WEBS_MAX_CLASS) {
         /*
             Size if bigger than the maximum class. Malloc if use has been okayed
          */
-        if (gFlags & G_USE_MALLOC) {
+        if (gFlags & WEBS_USE_MALLOC) {
             memSize = ROUNDUP4(memSize);
-            bp = (gType*) malloc(memSize);
+            bp = (WebsBlock*) malloc(memSize);
             if (bp == NULL) {
                 traceRaw(T("B: malloc failed\n"));
                 return NULL;
@@ -129,15 +129,15 @@ void *galloc(ssize size)
         /*
             the u.size is the actual size allocated for data
          */
-        bp->u.size = memSize - sizeof(gType);
-        bp->flags = G_MALLOCED;
+        bp->u.size = memSize - sizeof(WebsBlock);
+        bp->flags = WEBS_MALLOCED;
 
     } else if ((bp = gQhead[q]) != NULL) {
         /*
             Take first block off the relevant q if non-empty
          */
         gQhead[q] = bp->u.next;
-        bp->u.size = memSize - sizeof(gType);
+        bp->u.size = memSize - sizeof(WebsBlock);
         bp->flags = 0;
 
     } else {
@@ -145,31 +145,31 @@ void *galloc(ssize size)
             /*
                 The q was empty, and the free list has spare memory so create a new block out of the primary free block
              */
-            bp = (gType*) gfreeNext;
+            bp = (WebsBlock*) gfreeNext;
             gfreeNext += memSize;
             gfreeLeft -= memSize;
-            bp->u.size = memSize - sizeof(gType);
+            bp->u.size = memSize - sizeof(WebsBlock);
             bp->flags = 0;
 
-        } else if (gFlags & G_USE_MALLOC) {
+        } else if (gFlags & WEBS_USE_MALLOC) {
             /*
                 Nothing left on the primary free list, so malloc a new block
              */
             memSize = ROUNDUP4(memSize);
-            if ((bp = (gType*) malloc(memSize)) == NULL) {
+            if ((bp = (WebsBlock*) malloc(memSize)) == NULL) {
                 traceRaw(T("B: malloc failed\n"));
                 return NULL;
             }
-            bp->u.size = memSize - sizeof(gType);
-            bp->flags = G_MALLOCED;
+            bp->u.size = memSize - sizeof(WebsBlock);
+            bp->flags = WEBS_MALLOCED;
 
         } else {
             traceRaw(T("B: malloc failed\n"));
             return NULL;
         }
     }
-    bp->flags |= G_INTEGRITY;
-    return (void*) ((char*) bp + sizeof(gType));
+    bp->flags |= WEBS_INTEGRITY;
+    return (void*) ((char*) bp + sizeof(WebsBlock));
 }
 
 
@@ -179,19 +179,19 @@ void *galloc(ssize size)
  */
 void gfree(void *mp)
 {
-    gType   *bp;
+    WebsBlock   *bp;
     int     q;
 
     if (mp == 0) {
         return;
     }
-    bp = (gType*) ((char*) mp - sizeof(gType));
-    gassert((bp->flags & G_INTEGRITY_MASK) == G_INTEGRITY);
-    if ((bp->flags & G_INTEGRITY_MASK) != G_INTEGRITY) {
+    bp = (WebsBlock*) ((char*) mp - sizeof(WebsBlock));
+    gassert((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
+    if ((bp->flags & WEBS_INTEGRITY_MASK) != WEBS_INTEGRITY) {
         return;
     }
     gallocGetSize(bp->u.size, &q);
-    if (bp->flags & G_MALLOCED) {
+    if (bp->flags & WEBS_MALLOCED) {
         free(bp);
         return;
     }
@@ -200,7 +200,7 @@ void gfree(void *mp)
      */
     bp->u.next = gQhead[q];
     gQhead[q] = bp;
-    bp->flags = G_FILL_WORD;
+    bp->flags = WEBS_FILL_WORD;
 }
 
 
@@ -251,14 +251,14 @@ char_t *gstrdup(char_t *s)
  */
 void *grealloc(void *mp, ssize newsize)
 {
-    gType   *bp;
+    WebsBlock   *bp;
     void    *newbuf;
 
     if (mp == NULL) {
         return galloc(newsize);
     }
-    bp = (gType*) ((char*) mp - sizeof(gType));
-    gassert((bp->flags & G_INTEGRITY_MASK) == G_INTEGRITY);
+    bp = (WebsBlock*) ((char*) mp - sizeof(WebsBlock));
+    gassert((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
 
     /*
         If the allocated memory already has enough room just return the previously allocated address.
@@ -283,11 +283,11 @@ static int gallocGetSize(ssize size, int *q)
 {
     int mask;
 
-    mask = (size == 0) ? 0 : (size-1) >> G_SHIFT;
+    mask = (size == 0) ? 0 : (size-1) >> WEBS_SHIFT;
     for (*q = 0; mask; mask >>= 1) {
         *q = *q + 1;
     }
-    return ((1 << (G_SHIFT + *q)) + sizeof(gType));
+    return ((1 << (WEBS_SHIFT + *q)) + sizeof(WebsBlock));
 }
 
 

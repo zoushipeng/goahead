@@ -126,7 +126,7 @@ void sslClose()
 }
 
 
-int sslAccept(webs_t wp) 
+int sslAccept(Webs *wp) 
 {
 	socket_t	*sptr;
 	SSL			*ssl;
@@ -171,13 +171,13 @@ int sslAccept(webs_t wp)
 }
     
 
-ssize sslRead(webs_t wp, char *buf, ssize len)
+ssize sslRead(Webs *wp, char *buf, ssize len)
 {
     return (ssize) BIO_read(wp->bio, buf, (int) len);
 }
 
 
-void sslFlush(webs_t wp)
+void sslFlush(Webs *wp)
 {
     gassert(wp);
 
@@ -188,7 +188,7 @@ void sslFlush(webs_t wp)
 }
 
 
-ssize sslWrite(webs_t wp, char *buf, ssize len)
+ssize sslWrite(Webs *wp, char *buf, ssize len)
 {
     gassert(wp);
     gassert(buf);
@@ -345,7 +345,7 @@ static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength)
 }
 
 
-void sslFree(webs_t wp)
+void sslFree(Webs *wp)
 {
     /* 
         Re-use sessions

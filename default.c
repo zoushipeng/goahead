@@ -17,7 +17,7 @@ static char_t   *websDefaultDir;            /* Default Web page directory */
 
 #define MAX_URL_DEPTH           8   /* Max directory depth of websDefaultDir */
 
-static void websDefaultWriteEvent(webs_t wp);
+static void websDefaultWriteEvent(Webs *wp);
 
 /*********************************** Code *************************************/
 /*
@@ -25,9 +25,9 @@ static void websDefaultWriteEvent(webs_t wp);
     Server Pages. As the handler is the last handler to run, it always indicates that it has handled the URL by
     returning 1. 
  */
-int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
+int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
-    websStatType    sbuf;
+    WebsFileInfo    info;
     char_t          *lpath, *tmp, *date;
     ssize           nchars;
     int             code;
@@ -38,12 +38,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
     gassert(query);
 
     lpath = websGetRequestLpath(wp);
-#if UNUSED
-    nchars = gstrlen(lpath) - 1;
-    if (lpath[nchars] == '/' || lpath[nchars] == '\\') {
-        lpath[nchars] = '\0';
-    }
-#endif
 
     /*
         If the file is a directory, redirect using the nominated default page
@@ -66,7 +60,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
         websError(wp, 404, T("Cannot open URL"));
         return 1;
     } 
-    if (websPageStat(wp, lpath, path, &sbuf) < 0) {
+    if (websPageStat(wp, lpath, path, &info) < 0) {
         websError(wp, 400, T("Cannot stat page for URL"));
         return 1;
     }
@@ -78,13 +72,13 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
      */
     code = 200;
 #if BIT_IF_MODIFIED
-    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_JS) && sbuf.mtime <= wp->since) {
+    if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_JS) && info.mtime <= wp->since) {
         code = 304;
     }
 #endif
-    websWriteHeaders(wp, code, (wp->flags & WEBS_JS) ? -1 : sbuf.size, 0);
+    websWriteHeaders(wp, code, (wp->flags & WEBS_JS) ? -1 : info.size, 0);
     if (!(wp->flags & WEBS_JS)) {
-        if ((date = websGetDateString(&sbuf)) != NULL) {
+        if ((date = websGetDateString(&info)) != NULL) {
             websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
             gfree(date);
         }
@@ -121,7 +115,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, ch
 /*
     Do output back to the browser in the background. This is a socket write handler.
  */
-static void websDefaultWriteEvent(webs_t wp)
+static void websDefaultWriteEvent(Webs *wp)
 {
     char    *buf;
     ssize   len, wrote, written, bytes;
@@ -239,7 +233,7 @@ void websSetDefaultDir(char_t *dir)
 }
 
 
-int websDefaultHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
+int websDefaultHomePageHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, 
         char_t *path, char_t *query)
 {
     //  MOB gmatch

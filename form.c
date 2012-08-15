@@ -20,7 +20,7 @@ static sym_fd_t formSymtab = -1;            /* Symbol table for form handlers */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
+int websFormHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
 {
     sym_t       *sp;
     char_t      formBuf[BIT_LIMIT_FILENAME];
@@ -67,7 +67,7 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_
 /*
     Define a form function in the "form" map space.
  */
-int websFormDefine(char_t *name, void (*fn)(webs_t wp, char_t *path, char_t *query))
+int websFormDefine(char_t *name, void (*fn)(Webs *wp, char_t *path, char_t *query))
 {
     gassert(name && *name);
     gassert(fn);
@@ -98,7 +98,7 @@ void websFormClose()
 /*
     Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
  */
-void websHeader(webs_t wp)
+void websHeader(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -108,7 +108,7 @@ void websHeader(webs_t wp)
 }
 
 
-void websFooter(webs_t wp)
+void websFooter(Webs *wp)
 {
     gassert(websValid(wp));
     websWrite(wp, T("</html>\n"));

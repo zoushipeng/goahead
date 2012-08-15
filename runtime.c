@@ -134,7 +134,7 @@ static void timerProc(int schedid)
 /*
     Schedule an event in delay milliseconds time. We will use 1 second granularity for webServer.
  */
-int gSchedCallback(int delay, GSchedProc *proc, void *arg)
+int gschedCallback(int delay, WebsCallback *proc, void *arg)
 {
     sched_t *s;
     int     schedid;
@@ -155,10 +155,7 @@ int gSchedCallback(int delay, GSchedProc *proc, void *arg)
 }
 
 
-/*
-    Reschedule to a new delay.
- */
-void gReschedCallback(int schedid, int delay)
+void greschedCallback(int schedid, int delay)
 {
     sched_t *s;
 
@@ -169,7 +166,7 @@ void gReschedCallback(int schedid, int delay)
 }
 
 
-void gUnschedCallback(int schedid)
+void gunschedCallback(int schedid)
 {
     sched_t *s;
 
@@ -181,10 +178,7 @@ void gUnschedCallback(int schedid)
 }
 
 
-/*
-    Take tasks off the queue in a round robin fashion.
- */
-void gSchedProcess()
+void grunCallbacks()
 {
     sched_t     *s;
     int         schedid;
@@ -680,7 +674,7 @@ static void put_ulong(strbuf_t *buf, ulong value, int base, int upper, char_t *p
     Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
     returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
  */
-char_t *gAscToUni(char_t *ubuf, char *str, ssize nBytes)
+char_t *guni(char_t *ubuf, char *str, ssize nBytes)
 {
 #if UNICODE
     if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char_t), ubuf, nBytes / sizeof(char_t)) < 0) {
@@ -697,7 +691,7 @@ char_t *gAscToUni(char_t *ubuf, char *str, ssize nBytes)
     Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
     returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
  */
-char *gUniToAsc(char *buf, char_t *ustr, ssize nBytes)
+char *gasc(char *buf, char_t *ustr, ssize nBytes)
 {
 #if UNICODE
     if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL, NULL) < 0) {
@@ -724,7 +718,7 @@ char_t *gallocAscToUni(char *cp, ssize alen)
     if ((unip = galloc(ulen)) == NULL) {
         return NULL;
     }
-    gAscToUni(unip, cp, ulen);
+    guni(unip, cp, ulen);
     unip[alen] = 0;
     return unip;
 }
@@ -742,7 +736,7 @@ char *gallocUniToAsc(char_t *unip, ssize ulen)
     if ((cp = galloc(ulen+1)) == NULL) {
         return NULL;
     }
-    gUniToAsc(cp, unip, ulen);
+    gasc(cp, unip, ulen);
     cp[ulen] = '\0';
     return cp;
 }
@@ -752,7 +746,7 @@ char *gallocUniToAsc(char_t *unip, ssize ulen)
     Convert a hex string to an integer. The end of the string or a non-hex character will indicate the end of the hex
     specification.  
  */
-uint hextoi(char_t *hexstring)
+uint ghextoi(char_t *hexstring)
 {
     char_t      *h;
     uint        c, v;
@@ -785,7 +779,7 @@ uint gstrtoi(char_t *s)
 {
     if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
         s += 2;
-        return hextoi(s);
+        return ghextoi(s);
     }
     return gatoi(s);
 }
@@ -864,7 +858,7 @@ void error(char_t *fmt, ...)
 }
 
 
-void gassertError(G_ARGS_DEC, char_t *fmt, ...)
+void gassertError(WEBS_ARGS_DEC, char_t *fmt, ...)
 {
     va_list     args;
     char_t      *fmtBuf, *buf;
@@ -872,7 +866,7 @@ void gassertError(G_ARGS_DEC, char_t *fmt, ...)
     va_start(args, fmt);
     gfmtValloc(&fmtBuf, BIT_LIMIT_STRING, fmt, args);
 
-    gfmtAlloc(&buf, BIT_LIMIT_STRING, T("Assertion %s, failed at %s %d\n"), fmtBuf, G_ARGS); 
+    gfmtAlloc(&buf, BIT_LIMIT_STRING, T("Assertion %s, failed at %s %d\n"), fmtBuf, WEBS_ARGS); 
     va_end(args);
     gfree(fmtBuf);
     if (traceHandler) {
@@ -1668,11 +1662,11 @@ static int  getBinBlockSize(int size)
 {
     int q;
 
-    size = size >> G_SHIFT;
+    size = size >> WEBS_SHIFT;
     for (q = 0; size; size >>= 1) {
         q++;
     }
-    return (1 << (G_SHIFT + q));
+    return (1 << (WEBS_SHIFT + q));
 }
 
 
@@ -2225,7 +2219,7 @@ char_t *gtok(char_t *str, char_t *delim, char_t **last)
     then the args will be extracted, back-quotes removed and argv will be set to point to all the args.
     NOTE: this routine does not allocate.
  */
-int egParseArgs(char *args, char **argv, int maxArgc)
+int gparseArgs(char *args, char **argv, int maxArgc)
 {
     char    *dest, *src, *start;
     int     quote, argc;

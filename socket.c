@@ -68,7 +68,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 {
     socket_t                *sp;
     struct sockaddr_storage addr;
-    GSockLenArg            addrlen;
+    WebsSockLenArg          addrlen;
     int                     family, protocol, sid, rc;
 
     if (port > SOCKET_PORT_MAX) {
@@ -228,7 +228,7 @@ static void socketAccept(socket_t *sp)
         Accept the connection and prevent inheriting by children (F_SETFD)
      */
     len = sizeof(struct sockaddr_in);
-    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (GSockLenArg*) &len)) < 0) {
+    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (WebsSockLenArg*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -1392,7 +1392,7 @@ int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, GSockLenArg *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -1453,7 +1453,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 }
 #else
 
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, GSockLenArg *addrlen)
+int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct sockaddr_in  sa;
 

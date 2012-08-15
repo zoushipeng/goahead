@@ -45,7 +45,7 @@ void websRomClose()
 }
 
 
-int websRomPageOpen(webs_t wp, char_t *path, int mode, int perm)
+int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm)
 {
     websRomPageIndexType    *wip;
     sym_t                   *sp;
@@ -67,7 +67,7 @@ void websRomPageClose(int fd)
 }
 
 
-int websRomPageStat(char_t *path, websStatType *sbuf)
+int websRomPageStat(char_t *path, WebsFileInfo *sbuf)
 {
     websRomPageIndexType    *wip;
     sym_t                   *sp;
@@ -79,7 +79,7 @@ int websRomPageStat(char_t *path, websStatType *sbuf)
     }
     wip = (websRomPageIndexType*) sp->content.value.integer;
 
-    memset(sbuf, 0, sizeof(websStatType));
+    memset(sbuf, 0, sizeof(WebsFileInfo));
     sbuf->size = wip->size;
     if (wip->page == NULL) {
         sbuf->isDir = 1;
@@ -88,7 +88,7 @@ int websRomPageStat(char_t *path, websStatType *sbuf)
 }
 
 
-int websRomPageReadData(webs_t wp, char *buf, int nBytes)
+int websRomPageReadData(Webs *wp, char *buf, int nBytes)
 {
     websRomPageIndexType    *wip;
     int                     len;
@@ -106,7 +106,7 @@ int websRomPageReadData(webs_t wp, char *buf, int nBytes)
 }
 
 
-long websRomPageSeek(webs_t wp, EgFilePos offset, int origin)
+long websRomPageSeek(Webs *wp, EgFilePos offset, int origin)
 {
     websRomPageIndexType    *wip;
     EgFilePos               pos;
