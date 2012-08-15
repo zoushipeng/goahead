@@ -1553,7 +1553,7 @@ void websWriteHeaders(Webs *wp, int code, ssize nbytes, char_t *redirect)
 
 
 /*
-    Do formatted output to the browser. This is the public ASP and form write procedure.
+    Do formatted output to the browser. This is the public Javascript and form write procedure.
  */
 ssize websWrite(Webs *wp, char_t *fmt, ...)
 {

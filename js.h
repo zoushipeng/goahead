@@ -23,7 +23,7 @@
 #define EJ_MAX_RECURSE      100     /* Sanity for maximum recursion */
 
 /*
-    Ejscript Lexical analyser tokens
+    Javascript Lexical analyser tokens
  */
 #define TOK_ERR             -1      /* Any error */
 #define TOK_LPAREN          1       /* ( */
@@ -130,7 +130,7 @@ typedef struct ejEval {
 } ejinput_t;
 
 /*
-    Per Ejscript session structure
+    Per Javascript session structure
  */
 typedef struct ej {
     ejinput_t   *input;                         /* Input evaluation block */
@@ -182,16 +182,17 @@ extern void     ejLexPutbackToken(ej_t* ep, int tid, char_t *string);
 extern sym_fd_t ejGetVariableTable(int eid);
 extern sym_fd_t ejGetFunctionTable(int eid);
 
+#if UNUSED
 extern int      ejEmfOpen(int eid);
 extern void     ejEmfClose(int eid);
-
-extern int ejEmfDbRead(int eid, void *handle, int argc, char_t **argv);
-extern int ejEmfDbReadKeyed(int eid, void *handle, int argc, char_t **argv);
-extern int ejEmfDbTableGetNrow(int eid, void *handle, int argc, char_t **argv);
-extern int ejEmfDbDeleteRow(int eid, void *handle, int argc, char_t **argv);
-extern int ejEmfTrace(int eid, void *handle, int argc, char_t **argv);
-extern int ejEmfDbWrite(int eid, void *handle, int argc, char_t **argv);
-extern int ejEmfDbCollectTable(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfDbRead(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfDbReadKeyed(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfDbTableGetNrow(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfDbDeleteRow(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfTrace(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfDbWrite(int eid, void *handle, int argc, char_t **argv);
+extern int      ejEmfDbCollectTable(int eid, void *handle, int argc, char_t **argv);
+#endif
 
 extern int      ejArgs(int argc, char_t **argv, char_t *fmt, ...);
 extern void     ejSetResult(int eid, char_t *s);

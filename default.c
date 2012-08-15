@@ -1,5 +1,5 @@
 /*
-    default.c -- Default URL handler. Includes support for ASP.
+    default.c -- Default URL handler. Includes support for Javascript.
   
     This module provides default URL handling and Active Server Page support.  
  */
@@ -68,10 +68,11 @@ int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, cha
 
     /*
         If the page has not been modified since the user last received it and it is not dynamically generated each time
-        (ASP), then optimize request by sending a 304 Use local copy response.
+        (Javascript), then optimize request by sending a 304 Use local copy response.
      */
     code = 200;
 #if BIT_IF_MODIFIED
+    //  MOB - should check for forms here too
     if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_JS) && info.mtime <= wp->since) {
         code = 304;
     }
@@ -94,10 +95,10 @@ int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, cha
     }
 #if BIT_JAVASCRIPT
     /*
-        Evaluate ASP requests
+        Evaluate Javascript requests
      */
     if (wp->flags & WEBS_JS) {
-        if (websAspRequest(wp, lpath) < 0) {
+        if (websJsRequest(wp, lpath) < 0) {
             return 1;
         }
         websDone(wp, 200);
@@ -129,7 +130,7 @@ static void websDefaultWriteEvent(Webs *wp)
     written = websGetRequestWritten(wp);
 
     /*
-        We only do this for non-ASP documents
+        We only do this for non-Javascript documents
      */
     if (!(flags & WEBS_JS)) {
         bytes = websGetRequestBytes(wp);

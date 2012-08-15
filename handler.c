@@ -29,7 +29,7 @@ int websUrlHandlerOpen()
     if (++urlHandlerOpenCount == 1) {
         websUrlHandler = NULL;
         websUrlHandlerMax = 0;
-        websAspOpen();
+        websJsOpen();
     }
     return 0;
 }
@@ -40,7 +40,7 @@ void websUrlHandlerClose()
     WebsHandler     *sp;
 
     if (--urlHandlerOpenCount <= 0) {
-        websAspClose();
+        websJsClose();
         for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
             sp++) {
             gfree(sp->urlPrefix);

@@ -1733,10 +1733,6 @@ extern ssize websGetRequestWritten(Webs *wp);
 extern char_t *websGetVar(Webs *wp, char_t *var, char_t *def);
 extern int websCompareVar(Webs *wp, char_t *var, char_t *value);
 extern void websHeader(Webs *wp);
-extern void websJsClose();
-extern int websJsDefine(char_t *name, int (*fn)(int ejid, Webs *wp, int argc, char_t **argv));
-extern int websJsOpen();
-extern int websJsRequest(Webs *wp, char_t *lpath);
 extern int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
 extern char *websMD5(char_t *s);
 extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
@@ -1795,7 +1791,11 @@ extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
 extern int websValid(Webs *wp);
 
 #if BIT_JAVASCRIPT
-extern int websAspWrite(int ejid, Webs *wp, int argc, char_t **argv);
+extern void websJsClose();
+extern int websJsDefine(char_t *name, int (*fn)(int ejid, Webs *wp, int argc, char_t **argv));
+extern int websJsOpen();
+extern int websJsRequest(Webs *wp, char_t *lpath);
+extern int websJsWrite(int ejid, Webs *wp, int argc, char_t **argv);
 #endif
 
 /*************************************** SSL ***********************************/
@@ -1825,34 +1825,6 @@ extern void sslWriteClosureAlert(Webs *wp);
 extern void sslFlush(Webs *wp);
 
 #endif /* BIT_PACK_SSL */
-
-/************************************** Sessions *******************************/
-
-#if BIT_SESSIONS
-
-struct User;
-
-typedef struct WebsSession {
-    char        *id;                    /**< Session ID key */
-    struct User *user;                  /**< User reference */
-    time_t      lifespan;               /**< Session inactivity timeout (msecs) */
-    sym_fd_t    cache;                  /**< Cache of session variables */
-} WebsSession;
-
-/*
-    Flags for httpSetCookie
- */
-#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
-#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
-
-extern void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
-
-extern WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan);
-extern WebsSession *websGetSession(Webs *wp, int create);
-extern char_t *websGetSessionVar(Webs *wp, char_t *name, char_t *defaultValue);
-extern int websSetSessionVar(Webs *wp, char_t *name, char_t *value);
-extern char *websGetSessionID(Webs *wp);
-#endif
 
 /*************************************** Auth **********************************/
 #if BIT_AUTH
@@ -1918,6 +1890,32 @@ extern bool websVerifyRoute(Webs *wp);
 extern int websVerifyUser(char_t *name, char_t *password);
 
 #endif /* BIT_AUTH */
+
+/************************************** Sessions *******************************/
+
+#if BIT_SESSIONS
+
+typedef struct WebsSession {
+    char            *id;                    /**< Session ID key */
+    WebsUser        *user;                  /**< User reference */
+    time_t          lifespan;               /**< Session inactivity timeout (msecs) */
+    sym_fd_t        cache;                  /**< Cache of session variables */
+} WebsSession;
+
+/*
+    Flags for httpSetCookie
+ */
+#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
+#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
+
+extern void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
+
+extern WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan);
+extern WebsSession *websGetSession(Webs *wp, int create);
+extern char_t *websGetSessionVar(Webs *wp, char_t *name, char_t *defaultValue);
+extern int websSetSessionVar(Webs *wp, char_t *name, char_t *value);
+extern char *websGetSessionID(Webs *wp);
+#endif
 
 /************************************ Legacy **********************************/
 

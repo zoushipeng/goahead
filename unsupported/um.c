@@ -131,11 +131,11 @@ static bool_t   checkName(char_t *name);
 static void     cryptPassword(char_t *textString);
 
 #if BIT_USER_MANAGEMENT_GUI
-static int      aspGenerateUserList(int eid, Webs *wp, int argc, char_t **argv);
-static int      aspGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv);
-static int      aspGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv);
-static int      aspGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv);
-static int      aspGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv);
+static int      jsGenerateUserList(int eid, Webs *wp, int argc, char_t **argv);
+static int      jsGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv);
+static int      jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv);
+static int      jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv);
+static int      jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv);
 static void     formAddUser(Webs *wp, char_t *path, char_t *query);
 static void     formDeleteUser(Webs *wp, char_t *path, char_t *query);
 static void     formDisplayUser(Webs *wp, char_t *path, char_t *query);
@@ -1159,11 +1159,11 @@ static void cryptPassword(char_t *textString)
 #if BIT_USER_MANAGEMENT_GUI
 void formDefineUserMgmt(void)
 {
-    websAspDefine(T("MakeGroupList"), aspGenerateGroupList);
-    websAspDefine(T("MakeUserList"), aspGenerateUserList);
-    websAspDefine(T("MakeAccessLimitList"), aspGenerateAccessLimitList);
-    websAspDefine(T("MakeAccessMethodList"), aspGenerateAccessMethodList);
-    websAspDefine(T("MakePrivilegeList"), aspGeneratePrivilegeList);
+    websJsDefine(T("MakeGroupList"), jsGenerateGroupList);
+    websJsDefine(T("MakeUserList"), jsGenerateUserList);
+    websJsDefine(T("MakeAccessLimitList"), jsGenerateAccessLimitList);
+    websJsDefine(T("MakeAccessMethodList"), jsGenerateAccessMethodList);
+    websJsDefine(T("MakePrivilegeList"), jsGeneratePrivilegeList);
 
     websFormDefine(T("AddUser"), formAddUser);
     websFormDefine(T("DeleteUser"), formDeleteUser);
@@ -1312,7 +1312,7 @@ static void formDisplayUser(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static int aspGenerateUserList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateUserList(int eid, Webs *wp, int argc, char_t **argv)
 {
     char_t  *userid;
     ssize   nBytes, nBytesSent;
@@ -1438,7 +1438,7 @@ static void formDeleteGroup(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static int aspGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv)
 {
     char_t  *group;
     ssize   nBytesSent, nBytes;
@@ -1546,7 +1546,7 @@ static void formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static int aspGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv)
 {
     char_t  *url;
     ssize   nBytesSent, nBytes;
@@ -1568,7 +1568,7 @@ static int aspGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv
 }
 
 
-static int aspGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv)
 {
     ssize     nBytes;
 
@@ -1583,7 +1583,7 @@ static int aspGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **arg
 }
 
 
-static int aspGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv)
 {
     ssize     nBytes;
 

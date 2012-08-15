@@ -113,8 +113,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
 #endif
 
 #if BIT_JAVASCRIPT
-    websAspDefine(T("aspTest"), aspTest);
-    websAspDefine(T("bigTest"), bigTest);
+    websJsDefine(T("aspTest"), aspTest);
+    websJsDefine(T("bigTest"), bigTest);
 #endif
     websFormDefine(T("test"), formTest);
 #if BIT_SESSIONS && BIT_AUTH

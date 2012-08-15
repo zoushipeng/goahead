@@ -232,7 +232,7 @@ char_t *ejEvalBlock(int eid, char_t *script, char_t **emsg)
 
 
 /*
-    Parse and evaluate a Ejscript. The caller may provide a symbol table to use for variables and function definitions.
+    Parse and evaluate Javascript. The caller may provide a symbol table to use for variables and function definitions.
     Return char_t pointer on success otherwise NULL pointer is returned.
  */
 char_t *ejEval(int eid, char_t *script, char_t **emsg)
@@ -313,7 +313,7 @@ char_t *ejEval(int eid, char_t *script, char_t **emsg)
 
 
 /*
-    Recursive descent parser for Ejscript
+    Recursive descent parser for Javascript
  */
 static int parse(ej_t *ep, int state, int flags)
 {
@@ -1387,7 +1387,7 @@ void *ejGetGlobalFunction(int eid, char_t *name)
 
 
 /*
-    Utility routine to crack Ejscript arguments. Return the number of args
+    Utility routine to crack Javascript arguments. Return the number of args
     seen. This routine only supports %s and %d type args.
   
     Typical usage:
@@ -1633,7 +1633,7 @@ static void freeFunc(ejfunc_t *func)
 
 
 /*
-    Get Ejscript pointer
+    Get Javascript engine pointer
  */
 static ej_t *ejPtr(int eid)
 {
@@ -1699,7 +1699,7 @@ int ejLexOpenScript(ej_t* ep, char_t *script)
         return -1;
     }
     /*
-        Put the Ejscript into a ring queue for easy parsing
+        Put the Javascript into a ring queue for easy parsing
      */
     ringqPutStr(&ip->script, script);
 

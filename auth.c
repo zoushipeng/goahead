@@ -71,7 +71,7 @@ int websOpenAuth(char_t *path)
         return loadAuth(path);
     }
 #if BIT_JAVASCRIPT
-    websAspDefine(T("can"), aspCan);
+    websJsDefine(T("can"), aspCan);
 #endif
     return 0;
 }

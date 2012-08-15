@@ -12,7 +12,7 @@
 #if BIT_JAVASCRIPT
 /********************************** Locals ************************************/
 
-static sym_fd_t websAspFunctions = -1;  /* Symbol table of functions */
+static sym_fd_t websJsFunctions = -1;  /* Symbol table of functions */
 static int      aspOpenCount = 0;       /* count of apps using this module */
 
 /***************************** Forward Declarations ***************************/
@@ -25,28 +25,28 @@ static char_t   *skipWhite(char_t *s);
     Create script spaces and commands
  */
 
-int websAspOpen()
+int websJsOpen()
 {
     if (++aspOpenCount == 1) {
         /*
-            Create the table for ASP functions
+            Create the table for functions
          */
-        websAspFunctions = symOpen(WEBS_SYM_INIT * 2);
+        websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
 
         /*
-            Create standard ASP commands
+            Create standard commands
          */
-        websAspDefine(T("write"), websAspWrite);
+        websJsDefine(T("write"), websJsWrite);
     }
     return 0;
 }
 
-void websAspClose()
+void websJsClose()
 {
     if (--aspOpenCount <= 0) {
-        if (websAspFunctions != -1) {
-            symClose(websAspFunctions);
-            websAspFunctions = -1;
+        if (websJsFunctions != -1) {
+            symClose(websJsFunctions);
+            websJsFunctions = -1;
         }
     }
 }
@@ -67,10 +67,10 @@ int websEval(char_t *cmd, char_t **result, void* chan)
 
 
 /*
-    Process ASP requests and expand all scripting commands. We read the entire ASP page into memory and then process. If
-    you have really big documents, it is better to make them plain HTML files rather than ASPs.
+    Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
+    you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
  */
-int websAspRequest(Webs *wp, char_t *lpath)
+int websJsRequest(Webs *wp, char_t *lpath)
 {
     WebsFileInfo    sbuf;
     char            *rbuf;
@@ -90,9 +90,9 @@ int websAspRequest(Webs *wp, char_t *lpath)
     path = websGetRequestPath(wp);
 
     /*
-        Create Ejscript instance in case it is needed
+        Create Javascript instance in case it is needed
      */
-    if ((ejid = ejOpenEngine(wp->cgiVars, websAspFunctions)) < 0) {
+    if ((ejid = ejOpenEngine(wp->cgiVars, websJsFunctions)) < 0) {
         websError(wp, 200, T("Can't create JavaScript engine"));
         goto done;
     }
@@ -104,7 +104,7 @@ int websAspRequest(Webs *wp, char_t *lpath)
     }
 
     /*
-        Create a buffer to hold the ASP file in-memory
+        Create a buffer to hold the web page in-memory
      */
     len = sbuf.size * sizeof(char);
     if ((rbuf = galloc(len + 1)) == NULL) {
@@ -181,11 +181,11 @@ int websAspRequest(Webs *wp, char_t *lpath)
                      */
                     if (websValid(wp)) {
                         if (result) {
-                            websWrite(wp, T("<h2><b>ASP Error: %s</b></h2>\n"), result);
+                            websWrite(wp, T("<h2><b>Javascript Error: %s</b></h2>\n"), result);
                             websWrite(wp, T("<pre>%s</pre>"), nextp);
                             gfree(result);
                         } else {
-                            websWrite(wp, T("<h2><b>ASP Error</b></h2>\n%s\n"), nextp);
+                            websWrite(wp, T("<h2><b>Javascript Error</b></h2>\n%s\n"), nextp);
                         }
                         websWrite(wp, T("</body></html>\n"));
                         rc = 0;
@@ -225,20 +225,20 @@ done:
 
 
 /*
-    Define an ASP Ejscript function. Bind an ASP name to a C procedure.
+    Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-int websAspDefine(char_t *name, 
+int websJsDefine(char_t *name, 
     int (*fn)(int ejid, Webs *wp, int argc, char_t **argv))
 {
-    return ejSetGlobalFunctionDirect(websAspFunctions, name, 
+    return ejSetGlobalFunctionDirect(websJsFunctions, name, 
         (int (*)(int, void*, int, char_t**)) fn);
 }
 
 
 /*
-    Asp write command. This implemements <% write("text"); %> command
+    Javascript write command. This implemements <% write("text"); %> command
  */
-int websAspWrite(int ejid, Webs *wp, int argc, char_t **argv)
+int websJsWrite(int ejid, Webs *wp, int argc, char_t **argv)
 {
     int     i;
 
@@ -296,8 +296,8 @@ static char_t *skipWhite(char_t *s)
 }
 
 #else
-int websAspOpen() { return 0; };
-void websAspClose() {}
+int websJsOpen() { return 0; };
+void websJsClose() {}
 #endif /* BIT_JAVASCRIPT */
 
 /*
