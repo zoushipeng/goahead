@@ -1,5 +1,5 @@
 /* 
-    js.h -- Mini JavaScript header
+    js.h -- JavaScript header
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -13,14 +13,13 @@
 
 #if BIT_JAVASCRIPT
 /********************************** Defines ***********************************/
-//  MOB - consider JS prefix instead of EJ
 /*
     Constants
  */
-#define EJ_INC              110     /* Growth for tags/tokens */
-#define EJ_SCRIPT_INC       1023    /* Growth for ej scripts */
-#define EJ_OFFSET           1       /* hAlloc doesn't like 0 entries */
-#define EJ_MAX_RECURSE      100     /* Sanity for maximum recursion */
+#define JS_INC              110     /* Growth for tags/tokens */
+#define JS_SCRIPT_INC       1023    /* Growth for ej scripts */
+#define JS_OFFSET           1       /* hAlloc doesn't like 0 entries */
+#define JS_MAX_RECURSE      100     /* Sanity for maximum recursion */
 
 /*
     Javascript Lexical analyser tokens
@@ -100,7 +99,7 @@
 #define STATE_BEGIN             STATE_STMT
 
 /*
-    Flags. Used in ej_t and as parameter to parse()
+    Flags. Used in WebsJs and as parameter to parse()
  */
 #define FLAGS_EXE               0x1             /* Execute statements */
 #define FLAGS_VARIABLES         0x2             /* Allocated variables store */
@@ -132,7 +131,7 @@ typedef struct ejEval {
 /*
     Per Javascript session structure
  */
-typedef struct ej {
+typedef struct WebsJs {
     ejinput_t   *input;                         /* Input evaluation block */
     sym_fd_t    functions;                      /* Symbol table for functions */
     sym_fd_t    *variables;                     /* hAlloc list of variables */
@@ -145,7 +144,8 @@ typedef struct ej {
     int         eid;                            /* Halloc handle */
     int         flags;                          /* Flags */
     void        *userHandle;                    /* User defined handle */
-} ej_t;
+} WebsJs;
+
 
 /******************************** Prototypes **********************************/
 
@@ -161,38 +161,26 @@ extern int      ejRemoveGlobalFunction(int eid, char_t *name);
 extern void     *ejGetGlobalFunction(int eid, char_t *name);
 extern int      ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, 
                     int (*fn)(int eid, void *handle, int argc, char_t **argv));
-extern void     ejError(ej_t* ep, char_t* fmt, ...);
-extern void     ejSetUserHandle(int eid, void* handle);
+extern void     ejError(WebsJs *ep, char_t *fmt, ...);
+extern void     ejSetUserHandle(int eid, void *handle);
 extern void     *ejGetUserHandle(int eid);
 extern int      ejGetLineNumber(int eid);
 extern char_t   *ejGetResult(int eid);
 extern void     ejSetLocalVar(int eid, char_t *var, char_t *value);
 extern void     ejSetGlobalVar(int eid, char_t *var, char_t *value);
 
-extern int      ejLexOpen(ej_t* ep);
-extern void     ejLexClose(ej_t* ep);
-extern int      ejLexOpenScript(ej_t* ep, char_t *script);
-extern void     ejLexCloseScript(ej_t* ep);
-extern void     ejLexSaveInputState(ej_t* ep, ejinput_t* state);
-extern void     ejLexFreeInputState(ej_t* ep, ejinput_t* state);
-extern void     ejLexRestoreInputState(ej_t* ep, ejinput_t* state);
-extern int      ejLexGetToken(ej_t* ep, int state);
-extern void     ejLexPutbackToken(ej_t* ep, int tid, char_t *string);
+extern int      ejLexOpen(WebsJs *ep);
+extern void     ejLexClose(WebsJs *ep);
+extern int      ejLexOpenScript(WebsJs *ep, char_t *script);
+extern void     ejLexCloseScript(WebsJs *ep);
+extern void     ejLexSaveInputState(WebsJs *ep, ejinput_t *state);
+extern void     ejLexFreeInputState(WebsJs *ep, ejinput_t *state);
+extern void     ejLexRestoreInputState(WebsJs *ep, ejinput_t *state);
+extern int      ejLexGetToken(WebsJs *ep, int state);
+extern void     ejLexPutbackToken(WebsJs *ep, int tid, char_t *string);
 
 extern sym_fd_t ejGetVariableTable(int eid);
 extern sym_fd_t ejGetFunctionTable(int eid);
-
-#if UNUSED
-extern int      ejEmfOpen(int eid);
-extern void     ejEmfClose(int eid);
-extern int      ejEmfDbRead(int eid, void *handle, int argc, char_t **argv);
-extern int      ejEmfDbReadKeyed(int eid, void *handle, int argc, char_t **argv);
-extern int      ejEmfDbTableGetNrow(int eid, void *handle, int argc, char_t **argv);
-extern int      ejEmfDbDeleteRow(int eid, void *handle, int argc, char_t **argv);
-extern int      ejEmfTrace(int eid, void *handle, int argc, char_t **argv);
-extern int      ejEmfDbWrite(int eid, void *handle, int argc, char_t **argv);
-extern int      ejEmfDbCollectTable(int eid, void *handle, int argc, char_t **argv);
-#endif
 
 extern int      ejArgs(int argc, char_t **argv, char_t *fmt, ...);
 extern void     ejSetResult(int eid, char_t *s);
@@ -202,6 +190,43 @@ extern int      ejSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, vo
 extern void     ejSetVar(int eid, char_t *var, char_t *value);
 extern int      ejGetVar(int eid, char_t *var, char_t **value);
 extern char_t   *ejEval(int eid, char_t *script, char_t **emsg);
+
+#if BIT_LEGACY
+    typedef WebsJs ej_t;
+    #define ejOpenBlock jsOpenBlock
+    #define ejCloseBlock jsCloseBlock
+    #define ejEvalBlock jsEvalBlock
+    #define ejRemoveGlobalFunction jsRemoveGlobalFunction
+    #define ejGetGlobalFunction jsGetGlobalFunction
+    #define ejSetGlobalFunctionDirect jsSetGlobalFunctionDirect
+    #define ejError jsError
+    #define ejSetUserHandle jsSetUserHandle
+    #define ejGetUserHandle jsGetUserHandle
+    #define ejGetLineNumber jsGetLineNumber
+    #define ejGetResult jsGetResult
+    #define ejSetLocalVar jsSetLocalVar
+    #define ejSetGlobalVar jsSetGlobalVar
+    #define ejLexOpen jsLexOpen
+    #define ejLexClose jsLexClose
+    #define ejLexOpenScript jsLexOpenScript
+    #define ejLexCloseScript jsLexCloseScript
+    #define ejLexSaveInputState jsLexSaveInputState
+    #define ejLexFreeInputState jsLexFreeInputState
+    #define ejLexRestoreInputState jsLexRestoreInputState
+    #define ejLexGetToken jsLexGetToken
+    #define ejLexPutbackToken jsLexPutbackToken
+    #define ejGetVariableTable jsGetVariableTable
+    #define ejGetFunctionTable jsGetFunctionTable
+    #define ejArgs jsArgs
+    #define ejSetResult jsSetResult
+    #define ejOpenEngine jsOpenEngine
+    #define ejCloseEngine jsCloseEngine
+    #define ejSetGlobalFunction jsSetGlobalFunction
+    #define ejSetVar jsSetVar
+    #define ejGetVar jsGetVar
+    #define ejEval jsEval
+
+#endif
 
 #endif /* BIT_JAVASCRIPT */
 #endif /* _h_JS */
