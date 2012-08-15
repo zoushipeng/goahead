@@ -3171,11 +3171,11 @@ static char *makeSessionID(webs_t wp)
 }
 
 
-Session *websAllocSession(webs_t wp, char_t *id, time_t lifespan)
+WebsSession *websAllocSession(webs_t wp, char_t *id, time_t lifespan)
 {
-    Session     *sp;
+    WebsSession     *sp;
 
-    if ((sp = galloc(sizeof(Session))) == 0) {
+    if ((sp = galloc(sizeof(WebsSession))) == 0) {
         return 0;
     }
     sp->lifespan = lifespan;
@@ -3191,7 +3191,7 @@ Session *websAllocSession(webs_t wp, char_t *id, time_t lifespan)
 }
 
 
-Session *websGetSession(webs_t wp, int create)
+WebsSession *websGetSession(webs_t wp, int create)
 {
     sym_t   *sym;
     char_t  *id;
@@ -3210,11 +3210,11 @@ Session *websGetSession(webs_t wp, int create)
             if ((sym = symEnter(sessions, wp->session->id, valueSymbol(wp->session), 0)) == 0) {
                 return 0;
             }
-            wp->session = (Session*) sym->content.value.symbol;
+            wp->session = (WebsSession*) sym->content.value.symbol;
             //  MOB - is wp->ssl the right thing?
             websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, wp->ssl ? 1 : 0);
         } else {
-            wp->session = (Session*) sym->content.value.symbol;
+            wp->session = (WebsSession*) sym->content.value.symbol;
         }
     }
     return wp->session;
@@ -3266,8 +3266,8 @@ char *websGetSessionID(webs_t wp)
 
 char_t *websGetSessionVar(webs_t wp, char_t *key, char_t *defaultValue)
 {
-    Session     *sp;
-    sym_t       *sym;
+    WebsSession     *sp;
+    sym_t           *sym;
 
     if ((sp = websGetSession(wp, 0)) != 0) {
         if ((sym = symLookup(sp->cache, key)) == 0) {
@@ -3281,7 +3281,7 @@ char_t *websGetSessionVar(webs_t wp, char_t *key, char_t *defaultValue)
 
 int websSetSessionVar(webs_t wp, char_t *key, char_t *value)
 {
-    Session  *sp;
+    WebsSession  *sp;
 
     gassert(key && *key);
 
@@ -3297,14 +3297,14 @@ int websSetSessionVar(webs_t wp, char_t *key, char_t *value)
 
 static void pruneCache()
 {
+    WebsSession     *sp;
     time_t          when;
     sym_t           *sym; 
-    Session         *sp;
 
     //  MOB - should limit size of session cache
     when = time(0);
     for (sym = symFirst(sessions); sym; sym = symNext(sessions, sym)) {
-        sp = (Session*) sym->content.value.symbol;
+        sp = (WebsSession*) sym->content.value.symbol;
         if (sp->lifespan <= when) {
             symDelete(sessions, sp->id);
             //  MOB - must make sure that no request is active using sp!!!

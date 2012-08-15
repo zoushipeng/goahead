@@ -19,7 +19,7 @@
 
 static sym_fd_t users = -1;
 static sym_fd_t roles = -1;
-static Route **routes = 0;
+static WebsRoute **routes = 0;
 static int routeCount = 0;
 static int routeMax = 0;
 static char_t *secret;
@@ -33,7 +33,7 @@ static char_t websRealm[BIT_LIMIT_PASSWORD] = T("Acme Inc");
 static char *addString(char_t *field, char_t *word);
 static int aspCan(int ejid, webs_t wp, int argc, char_t **argv);
 static void computeAllCapabilities();
-static void computeCapabilities(User *user);
+static void computeCapabilities(WebsUser *user);
 static int decodeBasicDetails(webs_t wp);
 static char_t *findString(char_t *field, char_t *word);
 static int loadAuth(char_t *path);
@@ -100,7 +100,7 @@ static void growRoutes()
     if (routeCount >= routeMax) {
         routeMax += 16;
         //  RC
-        routes = grealloc(routes, sizeof(Route*) * routeMax);
+        routes = grealloc(routes, sizeof(WebsRoute*) * routeMax);
     }
 }
 
@@ -186,14 +186,14 @@ int websSave(char_t *path)
 
 int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
 {
-    User    *up;
+    WebsUser    *up;
 
     if (symLookup(users, name)) {
         error(T("User %s already exists"), name);
         /* Already exists */
         return -1;
     }
-    if ((up = galloc(sizeof(User))) == 0) {
+    if ((up = galloc(sizeof(WebsUser))) == 0) {
         return 0;
     }
     up->name = gstrdup(name);
@@ -216,13 +216,13 @@ int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
 #if UNUSED
 int websSetPassword(char_t *name, char_t *password) 
 {
-    sym_t   *sym;
-    User    *up;
+    WebsUser    *up;
+    sym_t       *sym;
 
     if ((sym = symLookup(users, name)) == 0) {
         return -1;
     }
-    up = (User*) sym->content.value.symbol;
+    up = (WebsUser*) sym->content.value.symbol;
     gassert(up);
     //  MOB - MD5
     up->password = gstrdup(password);
@@ -233,8 +233,8 @@ int websSetPassword(char_t *name, char_t *password)
 
 bool websFormLogin(webs_t wp, char_t *userName, char_t *password)
 {
-    User    *up;
-    sym_t   *sym;
+    WebsUser    *up;
+    sym_t       *sym;
 
     gfree(wp->userName);
     wp->userName = gstrdup(userName);
@@ -244,7 +244,7 @@ bool websFormLogin(webs_t wp, char_t *userName, char_t *password)
         trace(2, T("websFormLogin: Unknown user %s\n"), userName);
         return 0;
     }
-    up = (User*) sym->content.value.symbol;
+    up = (WebsUser*) sym->content.value.symbol;
 #if BIT_SESSION
 {
     Session     *sp;
@@ -267,13 +267,13 @@ bool websFormLogin(webs_t wp, char_t *userName, char_t *password)
 
 int websEnableUser(char_t *name, int enable) 
 {
-    sym_t   *sym;
-    User    *user;
+    WebsUser    *user;
+    sym_t       *sym;
 
     if ((sym = symLookup(users, name)) == 0) {
         return -1;
     }
-    user = (User*) sym->content.value.symbol;
+    user = (WebsUser*) sym->content.value.symbol;
     user->enable = enable;
     return 0;
 }
@@ -288,13 +288,13 @@ int websRemoveUser(char_t *name)
 
 int websAddUserRole(char_t *name, char_t *role) 
 {
-    sym_t   *sym;
-    User    *user;
+    WebsUser    *user;
+    sym_t       *sym;
 
     if ((sym = symLookup(users, name)) == 0) {
         return -1;
     }
-    user = (User*) sym->content.value.symbol;
+    user = (WebsUser*) sym->content.value.symbol;
     if (findString(user->roles, role)) {
         return 0;
     }
@@ -307,12 +307,12 @@ int websAddUserRole(char_t *name, char_t *role)
 /*
     Update the user->capabilities string. This is a unique set of capabilities
  */
-static void computeCapabilities(User *user)
+static void computeCapabilities(WebsUser *user)
 {
+    WebsRole    *rp;
     ringq_t     buf;
     sym_fd_t    capabilities;
     sym_t       *sym;
-    Role        *rp;
     char_t      *role, *capability, *rcaps, *uroles, *utok, *ctok;
 
     if ((capabilities = symOpen(G_SMALL_HASH)) == 0) {
@@ -328,7 +328,7 @@ static void computeCapabilities(User *user)
             }
             continue;
         }
-        rp = (Role*) sym->content.value.symbol;
+        rp = (WebsRole*) sym->content.value.symbol;
         rcaps = gstrdup(rp->capabilities);
         for (capability = gtok(rcaps, T(" "), &ctok); capability; capability = gtok(NULL, T(" "), &ctok)) {
             if (symLookup(capabilities, capability)) {
@@ -357,11 +357,11 @@ static void computeCapabilities(User *user)
 
 static void computeAllCapabilities()
 {
-    sym_t   *sym;
-    User    *up;
+    WebsUser    *up;
+    sym_t       *sym;
 
     for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
-        up = (User*) sym->content.value.symbol;
+        up = (WebsUser*) sym->content.value.symbol;
         computeCapabilities(up);
     }
 }
@@ -371,26 +371,26 @@ static void computeAllCapabilities()
 //  MOB - must recompute capabilities
 int websRemoveUserRole(char_t *name, char_t *role) 
 {
-    sym_t   *sym;
-    User    *up;
+    WebsUser    *up;
+    sym_t       *sym;
 
     if ((sym = symLookup(users, name)) == 0) {
         return -1;
     }
-    up = (User*) sym->content.value.symbol;
+    up = (WebsUser*) sym->content.value.symbol;
     return removeString(up->roles, role);
 }
 
 
 bool websUserHasCapability(char_t *name, char_t *capability) 
 {
-    sym_t   *sym;
-    User    *up;
+    WebsUser    *up;
+    sym_t       *sym;
 
     if ((sym = symLookup(users, name)) == 0) {
         return -1;
     }
-    up = (User*) sym->content.value.symbol;
+    up = (WebsUser*) sym->content.value.symbol;
     if (findString(up->capabilities, capability)) {
         return 0;
     }
@@ -403,14 +403,14 @@ bool websUserHasCapability(char_t *name, char_t *capability)
  */
 static void expandCapabilities(ringq_t *buf, char_t *str)
 {
-    Role        *rp;
+    WebsRole    *rp;
     sym_t       *sym;
     char_t      *word, *tok;
 
     str = gstrdup(str);
     for (word = gtok(str, T(" "), &tok); word; word = gtok(NULL, T(" "), &tok)) {
         if ((sym = symLookup(roles, word)) != 0) {
-            rp = (Role*) sym->content.value.symbol;
+            rp = (WebsRole*) sym->content.value.symbol;
             expandCapabilities(buf, rp->capabilities);
         } else {
             ringqPutc(buf, ' ');
@@ -422,7 +422,7 @@ static void expandCapabilities(ringq_t *buf, char_t *str)
 
 int websAddRole(char_t *name, char_t *capabilities)
 {
-    Role        *rp;
+    WebsRole    *rp;
     ringq_t     buf;
 
     if (symLookup(roles, name)) {
@@ -430,7 +430,7 @@ int websAddRole(char_t *name, char_t *capabilities)
         /* Already exists */
         return -1;
     }
-    if ((rp = galloc(sizeof(Role))) == 0) {
+    if ((rp = galloc(sizeof(WebsRole))) == 0) {
         return 0;
     }
     ringqOpen(&buf, 80, -1);
@@ -457,13 +457,13 @@ int websRemoveRole(char_t *name)
 
 int websAddRoleCapability(char_t *name, char_t *capability) 
 {
-    Role    *rp;
-    sym_t   *sym;
+    WebsRole    *rp;
+    sym_t       *sym;
 
     if ((sym = symLookup(roles, name)) == 0) {
         return -1;
     }
-    rp = (Role*) sym->content.value.symbol;
+    rp = (WebsRole*) sym->content.value.symbol;
     if (findString(rp->capabilities, capability)) {
         return 0;
     }
@@ -474,21 +474,21 @@ int websAddRoleCapability(char_t *name, char_t *capability)
 
 int websRemoveRoleCapability(char_t *name, char_t *capability) 
 {
-    sym_t   *sym;
-    Role    *rp;
+    WebsRole    *rp;
+    sym_t       *sym;
 
     if ((sym = symLookup(roles, name)) == 0) {
         return -1;
     }
-    rp = (Role*) sym->content.value.symbol;
+    rp = (WebsRole*) sym->content.value.symbol;
     return removeString(rp->capabilities, capability);
 }
 
 
 int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, WebsLogin login, WebsVerify verify)
 {
-    Route   *rp;
-    int     i;
+    WebsRoute   *rp;
+    int         i;
 
     for (i = 0; i < routeCount; i++) {
         rp = routes[i];
@@ -498,7 +498,7 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *login
             return -1;
         }
     }
-    if ((rp = galloc(sizeof(Route))) == 0) {
+    if ((rp = galloc(sizeof(WebsUser))) == 0) {
         return 0;
     }
     rp->realm = gstrdup(realm);
@@ -522,8 +522,8 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *login
 
 static int lookupRoute(char_t *uri) 
 {
-    Route   *rp;
-    int     i;
+    WebsRoute    *rp;
+    int         i;
 
     for (i = 0; i < routeCount; i++) {
         rp = routes[i];
@@ -660,10 +660,10 @@ static bool verifyFormPassword(webs_t wp)
 
 bool websVerifyRoute(webs_t wp)
 {
-    sym_t   *sym;
-    Route   *rp;
-    ssize   plen, len;
-    int     i;
+    WebsRoute   *rp;
+    sym_t       *sym;
+    ssize       plen, len;
+    int         i;
 
     plen = glen(wp->path);
     for (i = 0; i < routeCount; i++) {
@@ -705,7 +705,7 @@ bool websVerifyRoute(webs_t wp)
             (rp->login)(wp, WEBS_BAD_USERNAME);
             return 0;
         }
-        wp->user = (User*) sym->content.value.symbol;
+        wp->user = (WebsUser*) sym->content.value.symbol;
         if (!(rp->verify)(wp)) {
             (rp->login)(wp, WEBS_BAD_PASSWORD);
             return 0;
@@ -729,7 +729,7 @@ bool websCan(webs_t wp, char_t *capabilities)
             trace(2, T("Can't find user %s\n"), wp->userName);
             return 0;
         }
-        wp->user = (User*) sym->content.value.symbol;
+        wp->user = (WebsUser*) sym->content.value.symbol;
     }
     //  MOB - not implemented using multiple capabilities
     return findString(wp->user->capabilities, capabilities) ? 1 : 0;

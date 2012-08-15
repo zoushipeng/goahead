@@ -1515,12 +1515,11 @@ extern void gSchedProcess();
 
 /* Forward declare */
 #if BIT_AUTH
-struct User;
-struct Route;
+struct WebsUser;
+struct WebsRoute;
 #endif
-
 #if BIT_SESSIONS
-struct Session;
+struct WebsSession;
 #endif
 
 /* 
@@ -1568,11 +1567,11 @@ typedef struct websRec {
     ssize           written;            /* Bytes actually transferred */
     void            (*writeSocket)(struct websRec *wp);
 #if BIT_SESSIONS
-    struct Session  *session;           /* Session record */
+    struct WebsSession *session;        /* Session record */
 #endif
 #if BIT_AUTH
-    struct User     *user;              /* User auth record */
-    struct Route    *route;             /* Route for authorization */
+    struct WebsUser *user;              /* User auth record */
+    struct WebsRoute *route;            /* Route for authorization */
 #if BIT_DIGEST_AUTH
     char_t          *realm;             /* Realm field supplied in auth header */
     char_t          *nonce;             /* opaque-to-client string sent by server */
@@ -1670,7 +1669,7 @@ typedef struct {
 extern websRomPageIndexType websRomPageIndex[];
 extern websMimeType     websMimeList[];     /* List of mime types */
 extern sym_fd_t         websMime;           /* Set of mime types */
-extern webs_t           *webs;              /* Session list head */
+extern webs_t           *webs;              /* Connections */
 extern int              websMax;            /* List size */
 extern char_t           websHost[64];       /* Name of this host */
 extern char_t           websIpaddr[64];     /* IP address of this host */
@@ -1837,12 +1836,12 @@ extern void sslFlush(webs_t wp);
 
 struct User;
 
-typedef struct Session {
+typedef struct WebsSession {
     char        *id;                    /**< Session ID key */
     struct User *user;                  /**< User reference */
     time_t      lifespan;               /**< Session inactivity timeout (msecs) */
     sym_fd_t    cache;                  /**< Cache of session variables */
-} Session;
+} WebsSession;
 
 /*
     Flags for httpSetCookie
@@ -1852,8 +1851,8 @@ typedef struct Session {
 
 extern void websSetCookie(webs_t wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
 
-extern Session *websAllocSession(webs_t wp, char_t *id, time_t lifespan);
-extern Session *websGetSession(webs_t wp, int create);
+extern WebsSession *websAllocSession(webs_t wp, char_t *id, time_t lifespan);
+extern WebsSession *websGetSession(webs_t wp, int create);
 extern char_t *websGetSessionVar(webs_t wp, char_t *name, char_t *defaultValue);
 extern int websSetSessionVar(webs_t wp, char_t *name, char_t *value);
 extern char *websGetSessionID(webs_t wp);
@@ -1866,21 +1865,21 @@ extern char *websGetSessionID(webs_t wp);
 typedef void (*WebsLogin)(webs_t wp, int why);
 typedef bool (*WebsVerify)(webs_t wp);
 
-typedef struct User {
+typedef struct WebsUser {
     char_t  *name;
     char_t  *realm;
     char_t  *password;
     int     enable;
     char_t  *roles;
     char_t  *capabilities;
-} User;
+} WebsUser;
 
-typedef struct Role {
+typedef struct WebsRole {
     int     enable;
     char_t  *capabilities;
-} Role;
+} WebsRole;
 
-typedef struct Route {
+typedef struct WebsRoute {
     char        *prefix;
     char        *realm;
     ssize       prefixLen;
@@ -1892,7 +1891,7 @@ typedef struct Route {
     WebsVerify  verify;
     char_t      *loginUri;
     char_t      *capabilities;
-} Route;
+} WebsRoute;
 
 /*
     Login reason codes
