@@ -20,5 +20,11 @@ uri: 1: Acme Inc: none: /form/login:
 uri: 1: Acme Inc: digest: /auth/digest/: manage
 uri: 1: Acme Inc: basic: /auth/basic/: manage
 uri: 1: Acme Inc: form: /auth/form/: manage: /form/login
-uri: 1: Acme Inc: form: /admin: SECURE manage: /form/login
-uri: 1: Acme Inc: form: /: user: /form/login
+
+# uri: 1: Acme Inc: form: /admin: SECURE manage: /form/login
+# uri: 1: Acme Inc: form: /: user: /form/login
+
+#
+#   Catch-all route without authentication for all URIs
+#
+uri: 1: none: none: /: : 

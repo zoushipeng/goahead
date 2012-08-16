@@ -44,8 +44,8 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char_t  *argp, *home, *ipAddrPort, *ip, *documents;
-    int     port, sslPort, argind;
+    char_t  *argp, *home, *documents, *endpoint, addr[32];
+    int     argind;
 
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
@@ -77,20 +77,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
-    ip = NULL;
-    port = BIT_HTTP_PORT;
-    sslPort = BIT_SSL_PORT;
     documents = BIT_DOCUMENTS;
     if (argc > argind) {
-        if (argc > (argind + 2)) usage();
-        ipAddrPort = gstrdup(argv[argind++]);
-        socketParseAddress(ipAddrPort, &ip, &port, 80);
-        if (argc > argind) {
-            documents = argv[argind++];
-        }
+        documents = argv[argind++];
     }
     initPlatform();
-    if (websOpen("auth.txt") < 0) {
+    if (websOpen(documents, "auth.txt") < 0) {
         error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
@@ -98,9 +90,26 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websSSLSetKeyFile("server.key");
     websSSLSetCertFile("server.crt");
 #endif
-    if (websOpenServer(ip, port, sslPort, documents) < 0) {
-        error(T("Can't open GoAhead server. Exiting."));
-        return -1;
+    if (argind < argc) {
+        while (argind < argc) {
+            endpoint = argv[argind++];
+            if (websListen(endpoint) < 0) {
+                return -1;
+            }
+        }
+    } else {
+        if (BIT_HTTP_PORT > 0) {
+            gfmtStatic(addr, sizeof(addr), "http://:%d", BIT_HTTP_PORT);
+            if (websListen(addr) < 0) {
+                return -1;
+            }
+        }
+        if (BIT_SSL_PORT > 0) {
+            gfmtStatic(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
+            if (websListen(addr) < 0) {
+                return -1;
+            }
+        }
     }
     websUrlHandlerDefine(T("/form"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
@@ -236,28 +245,29 @@ static void formTest(Webs *wp, char_t *path, char_t *query)
  */
 static void loginTest(Webs *wp, char_t *path, char_t *query)
 {
-	char_t	*username, *password, *msg, *referrer;
+	char_t	*username, *password, *msg;
 
     msg = 0;
     if (gcaselessmatch(wp->method, "POST")) {
         username = websGetVar(wp, T("username"), NULL);
         password = websGetVar(wp, T("password"), NULL);
         if (websFormLogin(wp, username, password)) {
-            referrer = websGetSessionVar(wp, T("referrer"), NULL);
-            if (referrer) {
-                websRedirect(wp, referrer);
-            } else {
-                websHeader(wp);
-                websWrite(wp, T("<body><p>Logged in</p></body>\n"));
-                websFooter(wp);
-                websDone(wp, 200);
-            }
+            websSetSessionVar(wp, T("userid"), websGetSessionID(wp));
+            websHeader(wp);
+            websWrite(wp, T("<body><p>Logged in</p></body>\n"));
+            websFooter(wp);
+            websDone(wp, 200);
             return;
         } else {
             msg = "Bad user credentials";
         }
+    } else {
+        if (websGetSessionVar(wp, "userid", NULL)) {
+            msg = "Logged in";
+        } else {
+            msg = "Please Login";
+        }
     }
-    websSetSessionVar(wp, T("referrer"), websGetVar(wp, T("referrer"), NULL));
     websHeader(wp);
     websWrite(wp, T("<body>\n"));
     if (msg) {

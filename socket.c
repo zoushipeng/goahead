@@ -1569,22 +1569,20 @@ static int ipv6(char_t *ip)
 
 
 /*  
-    Parse ipAddrPort and return the IP address and port components. Handles ipv4 and ipv6 addresses. 
+    Parse address and return the IP address and port components. Handles ipv4 and ipv6 addresses. 
     If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
     If a ":*" port specifier is used, *pport is set to -1;
-    When an ipAddrPort
-    contains an ipv6 port it should be written as
+    When an address contains an ipv6 port it should be written as
 
         aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii
     or
         [aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii]:port
 
     If supplied an IPv6 address, the backets are stripped in the returned IP address.
-    This routine skips any "protocol://" prefix.
 
     Caller must free *pip
  */
-int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int defaultPort)
+int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, int defaultPort)
 {
     char_t    *ip, *cp;
 
@@ -1592,26 +1590,27 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
     if (defaultPort < 0) {
         defaultPort = 80;
     }
-    if ((cp = strstr(ipAddrPort, "://")) != 0) {
-        ipAddrPort = &cp[3];
+    *secure = strncmp(address, "https", 5) == 0;
+    if ((cp = strstr(address, "://")) != 0) {
+        address = &cp[3];
     }
-    if (ipv6(ipAddrPort)) {
+    if (ipv6(address)) {
         /*  
             IPv6. If port is present, it will follow a closing bracket ']'
          */
-        if ((cp = strchr(ipAddrPort, ']')) != 0) {
+        if ((cp = strchr(address, ']')) != 0) {
             cp++;
             if ((*cp) && (*cp == ':')) {
                 *pport = (*++cp == '*') ? -1 : atoi(cp);
 
                 /* Set ipAddr to ipv6 address without brackets */
-                ip = gstrdup(ipAddrPort + 1);
+                ip = gstrdup(address + 1);
                 cp = strchr(ip, ']');
                 *cp = '\0';
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
-                ip = gstrdup(ipAddrPort + 1);
+                ip = gstrdup(address + 1);
                 if ((cp = strchr(ip, ']')) != 0) {
                     *cp = '\0';
                 }
@@ -1623,7 +1622,7 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
             }
         } else {
             /* Handles a:b:c:d:e:f:g:h:i case (no port) */
-            ip = gstrdup(ipAddrPort);
+            ip = gstrdup(address);
 
             /* No port present, use callers default */
             *pport = defaultPort;
@@ -1633,7 +1632,7 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
         /*  
             ipv4 
          */
-        ip = gstrdup(ipAddrPort);
+        ip = gstrdup(address);
         if ((cp = strchr(ip, ':')) != 0) {
             *cp++ = '\0';
             if (*cp == '*') {
@@ -1641,7 +1640,7 @@ int socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int default
             } else {
                 *pport = atoi(cp);
             }
-            if (*ip == '*') {
+            if (*ip == '*' || *ip == '\0') {
                 ip = 0;
             }
             

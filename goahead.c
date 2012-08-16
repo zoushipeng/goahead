@@ -1,7 +1,7 @@
 /*
     goahead.c -- Main program for GoAhead
 
-    Usage: goahead [options] [IPaddress][:port] [documents]
+    Usage: goahead [options] [documents] [IP][:port] ...
         Options:
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
@@ -39,8 +39,8 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char_t  *argp, *home, *ipAddrPort, *ip, *documents;
-    int     port, sslPort, argind;
+    char_t  *argp, *home, *documents, *endpoint, addr[32];
+    int     argind;
 
 #if WINDOWS
     if (windowsInit() < 0) {
@@ -77,26 +77,46 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
+#if UNUSED
     ip = NULL;
     port = BIT_HTTP_PORT;
     sslPort = BIT_SSL_PORT;
+#endif
     documents = BIT_DOCUMENTS;
     if (argc > argind) {
-        if (argc > (argind + 2)) usage();
-        ipAddrPort = gstrdup(argv[argind++]);
-        socketParseAddress(ipAddrPort, &ip, &port, 80);
-        if (argc > argind) {
-            documents = argv[argind++];
-        }
+        documents = argv[argind++];
     }
     initPlatform();
-    if (websOpen(0) < 0) {
+    if (websOpen(documents, NULL) < 0) {
         error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
+#if UNUSED
     if (websOpenServer(ip, port, sslPort, documents) < 0) {
         error(T("Can't open GoAhead server. Exiting."));
         return -1;
+    }
+#endif
+    if (argind < argc) {
+        while (argind < argc) {
+            endpoint = argv[argind++];
+            if (websListen(endpoint) < 0) {
+                return -1;
+            }
+        }
+    } else {
+        if (BIT_HTTP_PORT > 0) {
+            gfmtStatic(addr, sizeof(addr), "http://:%d", BIT_HTTP_PORT);
+            if (websListen(addr) < 0) {
+                return -1;
+            }
+        }
+        if (BIT_SSL_PORT > 0) {
+            gfmtStatic(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
+            if (websListen(addr) < 0) {
+                return -1;
+            }
+        }
     }
     websUrlHandlerDefine(T("/forms"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);

@@ -1081,7 +1081,8 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 
 /************************************ Tunables ********************************/
 
-#define G_SMALL_HASH          31          /* General small hash size */
+#define WEBS_MAX_LISTEN     8           /* Maximum number of listen endpoints */
+#define WEBS_SMALL_HASH     31          /* General small hash size */
 
 /************************************* Error **********************************/
 
@@ -1414,7 +1415,7 @@ extern ssize    socketInputBuffered(int sid);
 extern bool     socketIsV6(int sid);
 extern int      socketOpen();
 extern int      socketListen(char *host, int port, socketAccept_t accept, int flags);
-extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int defaultPort);
+extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int *secure, int defaultPort);
 extern void     socketProcess(int hid);
 extern ssize    socketRead(int sid, char *buf, ssize len);
 extern int      socketReady(int hid);
@@ -1467,7 +1468,7 @@ extern void grunCallbacks();
 #define WEBS_MAX_PORT_LEN       10          /* Max digits in port number */
 #define WEBS_SYM_INIT           64          /* Hash size for form table */
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
-#define WEBS_SESSION_PRUNE      60          /* Prune sessions every minute */
+#define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
 #define WEBS_SESSION            "-goahead-session-"
 
 /* 
@@ -1659,17 +1660,18 @@ typedef struct WebsRomIndex {
 /*
     Globals
  */
+extern int              websDebug;          /* Run in debug mode */
+#if UNUSED
 extern WebsRomIndex     websRomPageIndex[];
 extern WebsMime         websMimeList[];     /* List of mime types */
 extern sym_fd_t         websMime;           /* Set of mime types */
 extern Webs             **webs;             /* Connections */
 extern int              websMax;            /* List size */
 extern char_t           websHost[64];       /* Name of this host */
-extern char_t           websIpaddr[64];     /* IP address of this host */
+extern char_t           websIpAddr[64];     /* IP address of this host */
 extern char_t           *websHostUrl;       /* URL for this host */
-extern char_t           *websIpaddrUrl;     /* URL for this host */
-extern int              websPort;           /* Port number */
-extern int              websDebug;          /* Run in debug mode */
+extern char_t           *websIpAddrUrl;     /* URL for this host */
+#endif
 
 /**
     Decode base 64 blocks up to a NULL or equals
@@ -1686,8 +1688,10 @@ extern int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *dir, int arg, cha
 extern void websCgiCleanup();
 extern int websCheckCgiProc(int handle);
 extern void websClose();
-extern void websCloseListen();
+extern void websCloseListen(int sock);
+#if UNUSED
 extern void websCloseServer();
+#endif
 extern char_t *websDecode64(char_t *string);
 extern char_t *websDecode64Block(char_t *s, ssize *len, int flags);
 extern void websDecodeUrl(char_t *token, char_t *decoded, ssize len);
@@ -1713,15 +1717,14 @@ extern char_t *websGetDateString(WebsFileInfo *sbuf);
 extern char_t *websGetDefaultDir();
 extern char_t *websGetDefaultPage();
 extern char_t *websGetHostUrl();
-extern char_t *websGetIpaddrUrl();
+extern char_t *websGetIpAddrUrl();
 extern char_t *websGetPassword();
-extern int websGetPort();
 extern char_t *websGetPublishDir(char_t *path, char_t **urlPrefix);
 extern char_t *websGetRealm();
 extern ssize websGetRequestBytes(Webs *wp);
 extern char_t *websGetRequestDir(Webs *wp);
 extern int websGetRequestFlags(Webs *wp);
-extern char_t *websGetRequestIpaddr(Webs *wp);
+extern char_t *websGetRequestIpAddr(Webs *wp);
 extern char_t *websGetRequestLpath(Webs *wp);
 extern char_t *websGetRequestPath(Webs *wp);
 extern char_t *websGetRequestPassword(Webs *wp);
@@ -1734,9 +1737,11 @@ extern int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char
 extern char *websMD5(char_t *s);
 extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
 extern char_t *websNormalizeUriPath(char_t *path);
-extern int websOpen();
-extern int websOpenListen(char *ip, int port, int sslPort);
+extern int websOpen(char_t *documents, char_t *authPath);
+extern int websListen(char *endpoint);
+#if UNUSED
 extern int websOpenServer(char *ip, int port, int sslPort, char_t *documents);
+#endif
 extern void websPageClose(Webs *wp);
 extern int websPageIsDirectory(char_t *lpath);
 extern int websPageOpen(Webs *wp, char_t *lpath, char_t *path, int mode, int perm);
@@ -1759,7 +1764,7 @@ extern void websSetDefaultDir(char_t *dir);
 extern void websSetDefaultPage(char_t *page);
 extern void websSetEnv(Webs *wp);
 extern void websSetHost(char_t *host);
-extern void websSetIpaddr(char_t *ipaddr);
+extern void websSetIpAddr(char_t *ipaddr);
 extern void websSetRequestBytes(Webs *wp, ssize bytes);
 extern void websSetRequestLpath(Webs *wp, char_t *lpath);
 extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
@@ -1881,7 +1886,7 @@ extern int websRemoveRoleCapability(char_t *role, char_t *capability);
 extern int websRemoveRoute(char_t *uri);
 extern int websRemoveUser(char_t *name);
 extern int websRemoveUserRole(char_t *name, char_t *role);
-extern int websSetPassword(char_t *name, char_t *password);
+extern int websSaveAuth(char_t *path);
 extern bool websUserHasCapability(char_t *name, char_t *capability);
 extern bool websVerifyRoute(Webs *wp);
 extern int websVerifyUser(char_t *name, char_t *password);
@@ -1896,6 +1901,7 @@ typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
     WebsUser        *user;                  /**< User reference */
     time_t          lifespan;               /**< Session inactivity timeout (msecs) */
+    time_t          expires;                /**< When the session expires */
     sym_fd_t        cache;                  /**< Cache of session variables */
 } WebsSession;
 

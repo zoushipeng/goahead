@@ -6,20 +6,18 @@ require ejs.unix
 let config      = Config.OS + '-' + Config.CPU + '-' + 'debug'
 let bit         = Path('../' + config + '/inc/bit.h').readString()
 const HOST      = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "127.0.0.1"
+const HOSTV6    = '[::1]'
 const HTTP      = "http://"  + HOST   + ":" + bit.replace(/.*BIT_HTTP_PORT *([0-9]+).*/ms, "$1")
 const SSL       = "https://" + HOST   + ":" + bit.replace(/.*BIT_SSL_PORT *([0-9]+).*/ms, "$1")
-// const HOSTV6    = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "[::1]"
-// const IPV6      = "http://"  + HOSTV6 + ":" + bit.replace(/.*Listen *\[::\]:([0-9]+).*/ms, "$1")
+const HTTPV6      = HTTP.replace(HOST, '[::1]:9090')
 const PIDFILE   = ".pidfile"
 
+let listen = [ HTTP, SSL, HTTPV6 ]
 shareUri("http", HTTP)
 shareUri("ssl", SSL)
-
-/*
 if (test.hostOs != "VXWORKS") {
-    shareUri("ipv6", IPV6)
+    shareUri("httpv6", HTTPV6)
 }
-*/
 
 let service
 if (test.hostOs == "VXWORKS") {
@@ -47,7 +45,7 @@ if (test.hostOs == "VXWORKS") {
         throw 'Appweb is located outside of the build tree:\ngoahead: ' + path + '\nPATH: ' + 
             App.getenv('PATH').split(App.SearchSeparator)
     }
-    service = path + " --log trace.txt:4 " + HTTP + " web"
+    service = path + " --log trace.txt:4 web " + listen.join(' ')
 }
 
 if (test.phase == "init") {
@@ -60,8 +58,8 @@ if (test.phase == "init") {
         rm(find(".", "*.tdat"))
         cleanDir("web/tmp")
     }
-    stdout.write("connecting to web server .. ")
     startService(service, {address: HTTP})
+    stdout.write("connecting to web server .. ")
 } else {
     stopService()
 }

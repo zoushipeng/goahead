@@ -60,15 +60,15 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--debug [::]:4113 web"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "--log stdout:4 --debug 127.0.0.1:8080 web"
+            argument = "--debug web 8080 https://:4443 http://[::]:9090"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--debug 127.0.0.1:8080 demo"
+            argument = "--log stdout:4 --debug web 8080"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = ""
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

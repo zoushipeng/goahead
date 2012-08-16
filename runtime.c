@@ -668,22 +668,20 @@ void valueFree(value_t* v)
 
 
 #if BIT_DEBUG_LOG
-/*
-    Error message that doesn't need user attention. Customize this code
-    to direct error messages to wherever the developer wishes
- */
 void error(char_t *fmt, ...)
 {
     va_list     args;
-    char_t      *buf;
+    char_t      *buf, *tbuf;
 
-    va_start(args, fmt);
-    gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
-    va_end(args);
     if (traceHandler) {
-        traceHandler(-1, buf);
+        va_start(args, fmt);
+        gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
+        va_end(args);
+        gfmtAlloc(&tbuf, BIT_LIMIT_STRING, "%s\n", buf);
+        gfree(buf);
+        traceHandler(-1, tbuf);
+        gfree(tbuf);
     }
-    gfree(buf);
 }
 
 

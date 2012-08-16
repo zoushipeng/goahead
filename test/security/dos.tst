@@ -15,13 +15,13 @@ if (Config.OS != 'windows') {
     //  Try to crash with DOS attack
     for (i in 2000) {
         let s = new Socket
-    try {
-        s.connect(HTTP.address)
-    } catch (e) {
-        print("ERROR", i)
-        print(e)
-        throw e
-    }
+        try {
+            s.connect(HTTP.address)
+        } catch (e) {
+            print("ERROR", i)
+            print(e)
+            throw e
+        }
         let written = s.write("Any Text")
         assert(written == 8)
         s.close()

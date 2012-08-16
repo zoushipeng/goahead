@@ -78,10 +78,10 @@ int websOpenAuth(char_t *path)
 {
     char    sbuf[64];
     
-    if ((users = symOpen(G_SMALL_HASH)) < 0) {
+    if ((users = symOpen(WEBS_SMALL_HASH)) < 0) {
         return -1;
     }
-    if ((roles = symOpen(G_SMALL_HASH)) < 0) {
+    if ((roles = symOpen(WEBS_SMALL_HASH)) < 0) {
         return -1;
     }
     gfmtStatic(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
@@ -124,9 +124,12 @@ static int loadAuth(char_t *path)
 {
     WebsLogin   login;
     WebsVerify  verify;
+    WebsRoute   *rp;
     FILE        *fp;
     char        buf[512], *name, *enabled, *type, *password, *uri, *capabilities, *roles, *line, *kind, *loginUri, *realm;
-
+    int         i;
+    
+    //  MOB - don't use fopen for ROM
     if ((fp = fopen(path, "rt")) == 0) {
         return -1;
     }
@@ -181,12 +184,25 @@ static int loadAuth(char_t *path)
         }
     }
     fclose(fp);
+
+    /*
+        Ensure there is a route for "/", if not, create it.
+     */
+    for (i = 0, rp = 0; i < routeCount; i++) {
+        rp = routes[i];
+        if (strcmp(rp->prefix, "/") == 0) {
+            break;
+        }
+    }
+    if (i >= routeCount) {
+        websAddRoute(0, "/", NULL, NULL, NULL, NULL);
+    }
     computeAllCapabilities();
     return 0;
 }
 
 
-int websSave(char_t *path)
+int websSaveAuth(char_t *path)
 {
     //  MOB TODO
     return 0;
@@ -251,7 +267,7 @@ bool websFormLogin(Webs *wp, char_t *userName, char_t *password)
 {
     Session     *sp;
     if ((sp = websGetSession(wp, 1)) == 0) {
-        error(T("Can't get session\n"));
+        error(T("Can't get session"));
         return 0;
     }
     sp->user = up;
@@ -322,7 +338,7 @@ static void computeCapabilities(WebsUser *user)
     sym_t       *sym;
     char_t      *role, *capability, *rcaps, *uroles, *utok, *ctok;
 
-    if ((capabilities = symOpen(G_SMALL_HASH)) == 0) {
+    if ((capabilities = symOpen(WEBS_SMALL_HASH)) == 0) {
         return;
     }
     uroles = gstrdup(user->roles);
@@ -358,7 +374,7 @@ static void computeCapabilities(WebsUser *user)
     ringqAddNull(&buf);
     user->capabilities = gstrdup((char*) buf.servp);
     symClose(capabilities);
-    trace(4, "User \"%s\" in realm \"%s\" has capabilities:%s\n", user->name, user->realm, user->capabilities);
+    trace(5, "User \"%s\" in realm \"%s\" has capabilities:%s\n", user->name, user->realm, user->capabilities);
 }
 
 
@@ -451,7 +467,7 @@ int websAddRole(char_t *name, char_t *capabilities)
     if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
         return -1;
     }
-    trace(4, T("Role \"%s\" has capabilities:%s\n"), name, rp->capabilities);
+    trace(5, T("Role \"%s\" has capabilities:%s\n"), name, rp->capabilities);
     return 0;
 }
 
@@ -524,7 +540,7 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *login
             return -1;
         }
     }
-    if ((rp = galloc(sizeof(WebsUser))) == 0) {
+    if ((rp = galloc(sizeof(WebsRoute))) == 0) {
         return 0;
     }
     rp->realm = gstrdup(realm);
@@ -541,7 +557,7 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *login
     rp->enable = 1;
     growRoutes();
     routes[routeCount++] = rp;
-    trace(4, T("Route \"%s\" in realm \%s\" requires capabilities: %s\n"), uri, realm, capabilities);
+    trace(5, T("Route \"%s\" in realm \%s\" requires capabilities:%s\n"), uri, realm, rp->capabilities);
     return 0;
 }
 
@@ -711,7 +727,7 @@ bool websVerifyRoute(Webs *wp)
     int         i;
 
     plen = glen(wp->path);
-    for (i = 0; i < routeCount; i++) {
+    for (i = 0, rp = 0; i < routeCount; i++) {
         rp = routes[i];
         if (plen < rp->prefixLen) continue;
         len = min(rp->prefixLen, plen);
@@ -719,6 +735,10 @@ bool websVerifyRoute(Webs *wp)
             wp->route = rp;
             break;
         }
+    }
+    if (wp->route == 0) {
+        websError(wp, 500, T("Can't find suitable route for request."));
+        return 0;
     }
     if (rp->secure && !(wp->flags & WEBS_SECURE)) {
         websStats.access++;
@@ -730,7 +750,6 @@ bool websVerifyRoute(Webs *wp)
         return 1;
     }
     if (wp->authDetails) {
-        //  MOB - need a hook for this
         if (gcaselessmatch(wp->authType, T("basic"))) {
             decodeBasicDetails(wp);
 #if BIT_DIGEST_AUTH
@@ -739,7 +758,6 @@ bool websVerifyRoute(Webs *wp)
 #endif
         }
     }
-    //  MOB - is user always null at this point?
     if (!wp->user) {
         if (!wp->userName || !*wp->userName) {
             websStats.access++;

@@ -1,41 +1,35 @@
 /*
     http.c -- GoAhead HTTP engine
 
+    This module implements an embedded HTTP/1.1 web server. It supports
+    loadable URL handlers that define the nature of URL processing performed.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/******************************** Description *********************************/
-
-/*
- *  This module implements an embedded HTTP/1.1 web server. It supports
- *  loadable URL handlers that define the nature of URL processing performed.
  */
 
 /********************************* Includes ***********************************/
 
 #include    "goahead.h"
 
-/********************************** Defines ***********************************/
+/*********************************** Globals **********************************/
 
-#define kLt '<'
-#define kLessThan T("&lt;")
-#define kGt '>'
-#define kGreaterThan T("&gt;")
+WebsStats   websStats;                  /* Web access stats */
+int         websDebug;                  /* Run in debug mode and defeat timeouts */
 
-/******************************** Global Data *********************************/
+/************************************ Locals **********************************/
 
-WebsStats       websStats;              /* Web access stats */
-Webs            **webs;                 /* Open connection list head */
-sym_fd_t        websMime;               /* Set of mime types */
-int             websMax;                /* List size */
-int             websPort;               /* Listen port for server */
-int             websDebug;              /* Run in debug mode and defeat timeouts */
+static int          listens[WEBS_MAX_LISTEN];   /* Listen endpoints */;
+static int          listenMax;
 
-//  MOB - should allocate
-char_t          websHost[64];           /* Host name for the server */
-char_t          websIpaddr[64];         /* IP address for the server */
-char_t          *websHostUrl = NULL;    /* URL to access server */
-char_t          *websIpaddrUrl = NULL;  /* URL to access server */
+//  MOB - remove webs prefix
+static Webs         **webs;                     /* Open connection list head */
+static sym_fd_t     websMime;                   /* Set of mime types */
+static int          websMax;                    /* List size */
+
+static char_t       websHost[64];               /* Host name for the server */
+static char_t       websIpAddr[64];             /* IP address for the server */
+static char_t       *websHostUrl = NULL;        /* URL to access server */
+static char_t       *websIpAddrUrl = NULL;      /* URL to access server */
 
 /*
     htmExt is declared in this way to avoid a Linux and Solaris segmentation
@@ -68,12 +62,11 @@ static uchar charMatch[256] = {
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c 
 };
 
-/*********************************** Locals ***********************************/
 /*
     Addd entries to the MimeList as required for your content
     MOB - compare with appweb
  */
-WebsMime websMimeList[] = {
+static WebsMime websMimeList[] = {
     { T("application/java"), T(".class") },
     { T("application/java"), T(".jar") },
     { T("text/html"), T(".asp") },
@@ -167,8 +160,7 @@ WebsMime websMimeList[] = {
 /*
     Standard HTTP error codes
  */
-
-WebsError websErrors[] = {
+static WebsError websErrors[] = {
     { 200, T("OK") },
     { 204, T("No Content") },
     { 301, T("Redirect") },
@@ -191,9 +183,8 @@ static char_t   accessLog[64] = T("access.log");    /* Log filename */
 static int      accessFd;                           /* Log file handle */
 #endif
 
-static int      websOpenCount;                      /* count of apps using this module */
+#if BIT_PACK_SSL && UNUSED
 static int      websListenSock;                     /* Listen socket */
-#if BIT_PACK_SSL
 static int      sslListenSock;                      /* SSL Listen socket */
 #endif
 
@@ -224,9 +215,13 @@ static time_t   dateParse(time_t tip, char_t *cmd);
 
 /*********************************** Code *************************************/
 
-int websOpen(char_t *authPath)
+int websOpen(char_t *documents, char_t *authPath)
 {
-    //  MOB - move into an osdepOpen() platformOpen
+    WebsMime    *mt;
+
+    webs = NULL;
+    websMax = 0;
+
 #if WINDOWS || VXWORKS
     rand();
 #else
@@ -243,15 +238,41 @@ int websOpen(char_t *authPath)
     }
 #endif 
 #if BIT_SESSIONS
-    if ((sessions = symOpen(G_SMALL_HASH)) < 0) {
+    if ((sessions = symOpen(WEBS_SMALL_HASH)) < 0) {
         return -1;
     }
     if (!websDebug) {
         pruneId = gschedCallback(WEBS_SESSION_PRUNE, pruneCache, 0);
     }
 #endif
+    if (documents) {
+        websSetDefaultDir(documents);
+    }
 #if BIT_AUTH
     if (websOpenAuth(authPath) < 0) {
+        return -1;
+    }
+#endif
+#if BIT_ROM
+    websRomOpen();
+#endif
+    /*
+        Create a mime type lookup table for quickly determining the content type
+     */
+    websMime = symOpen(WEBS_SYM_INIT * 4);
+    gassert(websMime >= 0);
+    for (mt = websMimeList; mt->type; mt++) {
+        symEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
+    }
+    if (websUrlHandlerOpen() < 0) {
+        return -1;
+    }
+    websFormOpen();
+    websDefaultOpen();
+
+#if BIT_ACCESS_LOG
+    if ((accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
+        error(T("Can't open access log %s"), accessLog);
         return -1;
     }
 #endif
@@ -261,6 +282,9 @@ int websOpen(char_t *authPath)
 
 void websClose() 
 {
+    Webs    *wp;
+    int     i;
+
 #if BIT_AUTH
     websCloseAuth();
 #endif
@@ -274,77 +298,28 @@ void websClose()
         sessions = -1;
     }
 #endif
-#if BIT_PACK_SSL
-    websSSLClose();
-#endif
-    websCloseServer();
-    socketClose();
-    traceClose();
-}
-
-
-int websOpenServer(char_t *ip, int port, int sslPort, char_t *documents)
-{
-    WebsMime    *mt;
-
-    gassert(port > 0);
-
-    if (++websOpenCount != 1) {
-        return websPort;
+    for (i = 0; i < listenMax; i++) {
+        socketCloseConnection(listens[i]);
+        listens[i] = -1;
     }
-    webs = NULL;
-    websMax = 0;
-    if (documents) {
-        websSetDefaultDir(documents);
+    for (i = listenMax; i >= 0; i--) {
+        socketCloseConnection(listens[i]);
     }
-    websDefaultOpen();
-#if BIT_ROM
-    websRomOpen();
-#endif
-    /*
-        Create a mime type lookup table for quickly determining the content type
-     */
-    websMime = symOpen(WEBS_SYM_INIT * 4);
-    gassert(websMime >= 0);
-    for (mt = websMimeList; mt->type; mt++) {
-        symEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
-    }
-    /*
-        Open the URL handler module. The caller should create the required URL handlers after calling this function.
-     */
-    if (websUrlHandlerOpen() < 0) {
-        return -1;
-    }
-    websFormOpen();
-
-#if BIT_ACCESS_LOG
-    accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666);
-    gassert(accessFd >= 0);
-#endif
-    trace(0, T("Started HTTP service on %s:%d from %s\n"), ip ? ip : "*", port, documents);
-    trace(0, T("Started HTTPS service on %s:%d from %s\n"), ip ? ip : "*", sslPort, documents);
-    return websOpenListen(ip, port, sslPort);
-}
-
-
-void websCloseServer()
-{
-    Webs    *wp;
-    int     wid;
-
-    if (--websOpenCount > 0) {
-        return;
-    }
-    websCloseListen();
-
-    for (wid = websMax; webs && wid >= 0; wid--) {
-        if ((wp = webs[wid]) == NULL) {
+    listenMax = 0;
+    for (i = websMax; webs && i >= 0; i--) {
+        if ((wp = webs[i]) == NULL) {
             continue;
         }
         socketCloseConnection(wp->sid);
         websFree(wp);
     }
+    gfree(websHostUrl);
+    gfree(websIpAddrUrl);
+    websIpAddrUrl = websHostUrl = NULL;
 
+#if BIT_PACK_SSL
+    websSSLClose();
+#endif
 #if BIT_ACCESS_LOG
     if (accessFd >= 0) {
         close(accessFd);
@@ -358,66 +333,65 @@ void websCloseServer()
     symClose(websMime);
     websFormClose();
     websUrlHandlerClose();
+    socketClose();
+    traceClose();
 }
 
 
-int websOpenListen(char_t *ip, int port, int sslPort)
+int websListen(char_t *endpoint)
 {
-    if ((websListenSock = socketListen(ip, port, websAccept, 0)) < 0) {
-        error(T("Couldn't open a socket on port %d"), port);
+    socket_t    *sp;
+    char_t      *ip;
+    int         port, secure, sid;
+
+    if (listenMax >= WEBS_MAX_LISTEN) {
+        error(T("Too many listen endpoints"));
         return -1;
-    } 
-    /*
-        Determine the full URL address to access the home page for this web server
-     */
-    websPort = port;
-    gfree(websHostUrl);
-    gfree(websIpaddrUrl);
-    websIpaddrUrl = websHostUrl = NULL;
-    if (port == 80) {
-        websHostUrl = gstrdup(websHost);
-        websIpaddrUrl = gstrdup(websIpaddr);
-    } else {
-        gfmtAlloc(&websHostUrl, BIT_LIMIT_URL + 80, T("%s:%d"), websHost, port);
-        gfmtAlloc(&websIpaddrUrl, BIT_LIMIT_URL + 80, T("%s:%d"), websIpaddr, port);
     }
+    socketParseAddress(endpoint, &ip, &port, &secure, 80);
+    if ((sid = socketListen(ip, port, websAccept, 0)) < 0) {
+        error(T("Unable to open socket on port %d."), port);
+        return -1;
+    }
+    sp = socketPtr(sid);
+    sp->secure = secure;
+    listens[listenMax++] = sid;
+    trace(0, T("Started %s service on %s:%d\n"), secure ? "HTTPS" : "HTTP", ip ? ip : "*", port);
+    gfree(ip);
 
-#if BIT_PACK_SSL
-    {
-        socket_t    *sptr;
-
-        if ((sslListenSock = socketListen(ip, sslPort, websAccept, 0)) < 0) {
-            trace(0, T("Unable to open SSL socket on port %d.\n"), port);
-            return -1;
+    if (!websHostUrl) {
+        if (port == 80) {
+            websHostUrl = gstrdup(ip ? ip : websIpAddr);
+        } else {
+            gfmtAlloc(&websHostUrl, BIT_LIMIT_URL, T("%s:%d"), ip ? ip : websIpAddr, port);
         }
-        sptr = socketPtr(sslListenSock);
-        sptr->secure = 1;
     }
-#endif
-    return 0;
+    if (!websIpAddrUrl) {
+        if (port == 80) {
+            websIpAddrUrl = gstrdup(websIpAddr);
+        } else {
+            gfmtAlloc(&websIpAddrUrl, BIT_LIMIT_URL, T("%s:%d"), websIpAddr, port);
+        }
+    }
+    return sid;
 }
 
 
-//  MOB- naming
-int websSSLIsOpen()
+void websCloseListen(int sid)
 {
-#if BIT_PACK_SSL
-    return (sslListenSock != -1);
-#else
-    return 0;
-#endif
-}
+    int     i;
 
-
-void websCloseListen()
-{
-    if (websListenSock >= 0) {
-        socketCloseConnection(websListenSock);
-        websListenSock = -1;
+    if (sid >= 0) {
+        socketCloseConnection(sid);
+        for (i = 0; i < listenMax; i++) {
+            if (listens[i] == sid) {
+                for (; i < listenMax; i++) {
+                    listens[i] = listens[i+1];
+                }
+                break;
+            }
+        }
     }
-    gfree(websHostUrl);
-    gfree(websIpaddrUrl);
-    websIpaddrUrl = websHostUrl = NULL;
 }
 
 
@@ -463,7 +437,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
         operations only for local access 
      */
-    if (gstrcmp(wp->ipaddr, T("127.0.0.1")) == 0 || gstrcmp(wp->ipaddr, websIpaddr) == 0 || 
+    if (gstrcmp(wp->ipaddr, T("127.0.0.1")) == 0 || gstrcmp(wp->ipaddr, websIpAddr) == 0 || 
             gstrcmp(wp->ipaddr, websHost) == 0) {
         wp->flags |= WEBS_LOCAL_REQUEST;
     }
@@ -1074,8 +1048,8 @@ void websSetEnv(Webs *wp)
     websSetVar(wp, T("REMOTE_HOST"), wp->ipaddr);
     websSetVar(wp, T("REMOTE_ADDR"), wp->ipaddr);
     websSetVar(wp, T("PATH_INFO"), wp->path);
-    //  MOB - IPV6
-    gstritoa(websPort, portBuf, sizeof(portBuf));
+    //  MOB - TEST - 
+    gstritoa(wp->port, portBuf, sizeof(portBuf));
     websSetVar(wp, T("SERVER_PORT"), portBuf);
     websSetVar(wp, T("SERVER_ADDR"), wp->ifaddr);
     gfmtAlloc(&value, BIT_LIMIT_FILENAME, T("GoAhead/%s"), BIT_VERSION);
@@ -1308,6 +1282,11 @@ static int charCount(const char_t* str, char_t ch)
 }
 
 
+#define kLt '<'
+#define kLessThan T("&lt;")
+#define kGt '>'
+#define kGreaterThan T("&gt;")
+
 static char_t* websSafeUrl(const char_t* url)
 {
     //  MOB refactor code style, and review
@@ -1360,6 +1339,9 @@ char *websEscapeHtml(cchar *html)
     char    *result, *op;
     int     len;
 
+    if (!html) {
+        return gstrdup("");
+    }
     for (len = 1, ip = html; *ip; ip++, len++) {
         if (charMatch[(int) (uchar) *ip] & WEBS_ENCODE_HTML) {
             len += 5;
@@ -1932,21 +1914,15 @@ char_t *websGetHost()
 }
 
 
-char_t *websGetIpaddrUrl()
+char_t *websGetIpAddrUrl()
 {
-    return websIpaddrUrl;
+    return websIpAddrUrl;
 }
 
 
 char_t *websGetHostUrl()
 {
     return websHostUrl;
-}
-
-
-int websGetPort()
-{
-    return websPort;
 }
 
 
@@ -1976,7 +1952,7 @@ int websGetRequestFlags(Webs *wp)
 }
 
 
-char_t *websGetRequestIpaddr(Webs *wp)
+char_t *websGetRequestIpAddr(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -2070,7 +2046,7 @@ static int setLocalHost()
     guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 }
 #endif
-    websSetIpaddr(wbuf);
+    websSetIpAddr(wbuf);
     websSetHost(wbuf);
     return 0;
 }
@@ -2091,10 +2067,10 @@ void websSetHostUrl(char_t *url)
 }
 
 
-void websSetIpaddr(char_t *ipaddr)
+void websSetIpAddr(char_t *ipaddr)
 {
     gassert(ipaddr && *ipaddr);
-    gstrncpy(websIpaddr, ipaddr, TSZ(websIpaddr));
+    gstrncpy(websIpAddr, ipaddr, TSZ(websIpAddr));
 }
 
 
@@ -2815,6 +2791,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
     if ((buf = galloc(len * sizeof(char_t))) == NULL) {
         return -1;
     }
+    memset(buf, 0, len * sizeof(char_t));
     portbuf = &buf[len - WEBS_MAX_PORT_LEN - 1];
     hostbuf = &buf[ulen+1];
     websDecodeUrl(buf, url, ulen);
@@ -2823,7 +2800,9 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
      */
     url = buf;
+#if UNUSED
     gstritoa(websGetPort(), portbuf, WEBS_MAX_PORT_LEN);
+#endif
     port = portbuf;
     path = T("/");
     proto = T("http");
@@ -3179,6 +3158,7 @@ WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan)
         return 0;
     }
     sp->lifespan = lifespan;
+    sp->expires = time(0) + lifespan;
     if (id == 0) {
         id = makeSessionID(wp);
     }
@@ -3191,6 +3171,13 @@ WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan)
 }
 
 
+static void freeSession(WebsSession *sp)
+{
+    gfree(sp->id);
+    gfree(sp);
+}
+
+
 WebsSession *websGetSession(Webs *wp, int create)
 {
     sym_t   *sym;
@@ -3199,6 +3186,9 @@ WebsSession *websGetSession(Webs *wp, int create)
     if (!wp->session) {
         id = websGetSessionID(wp);
         if ((sym = symLookup(sessions, id)) == 0) {
+            if (!create) {
+                return 0;
+            }
             if (sessionCount > BIT_LIMIT_SESSION_COUNT) {
                 error(T("Too many sessions %d/%d"), sessionCount, BIT_LIMIT_SESSION_COUNT);
                 return 0;
@@ -3216,6 +3206,9 @@ WebsSession *websGetSession(Webs *wp, int create)
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
         }
+    }
+    if (wp->session) {
+        wp->session->expires = time(0) + wp->session->lifespan;
     }
     return wp->session;
 }
@@ -3258,6 +3251,7 @@ char *websGetSessionID(Webs *wp)
             return 0;
         }
         strncpy(cp, value, len);
+        cp[len] = '\0';
         return cp;
     }
     return 0;
@@ -3269,7 +3263,7 @@ char_t *websGetSessionVar(Webs *wp, char_t *key, char_t *defaultValue)
     WebsSession     *sp;
     sym_t           *sym;
 
-    if ((sp = websGetSession(wp, 0)) != 0) {
+    if ((sp = websGetSession(wp, 1)) != 0) {
         if ((sym = symLookup(sp->cache, key)) == 0) {
             return defaultValue;
         }
@@ -3299,18 +3293,22 @@ static void pruneCache()
 {
     WebsSession     *sp;
     time_t          when;
-    sym_t           *sym; 
+    sym_t           *sym, *next;
 
     //  MOB - should limit size of session cache
     when = time(0);
-    for (sym = symFirst(sessions); sym; sym = symNext(sessions, sym)) {
+    for (sym = symFirst(sessions); sym; sym = next) {
+        next = symNext(sessions, sym);
         sp = (WebsSession*) sym->content.value.symbol;
-        if (sp->lifespan <= when) {
+        if (sp->expires <= when) {
             symDelete(sessions, sp->id);
             //  MOB - must make sure that no request is active using sp!!!
+            //  Do we need acquire / release
             sessionCount--;
+            freeSession(sp);
         }
     }
+    greschedCallback(pruneId, WEBS_SESSION_PRUNE);
 }
 #endif /* BIT_SESSIONS */
 
