@@ -740,11 +740,13 @@ bool websVerifyRoute(Webs *wp)
         websError(wp, 500, T("Can't find suitable route for request."));
         return 0;
     }
+#if BIT_PACK_SSL
     if (rp->secure && !(wp->flags & WEBS_SECURE)) {
         websStats.access++;
         websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
+#endif
     if (gmatch(rp->capabilities, " ")) {
         /* URI does not require any capabilities, return success */
         return 1;
