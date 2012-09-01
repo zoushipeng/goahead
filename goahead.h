@@ -1832,6 +1832,13 @@ extern void sslFlush(Webs *wp);
 #if BIT_AUTH
 #define WEBS_MAX_WORD     32
 
+/*
+    WebsLogin (why) reason codes
+ */
+#define WEBS_LOGIN_REQUIRED   1
+#define WEBS_BAD_PASSWORD     2
+#define WEBS_BAD_USERNAME     3
+
 typedef void (*WebsLogin)(Webs *wp, int why);
 typedef bool (*WebsVerify)(Webs *wp);
 
@@ -1841,12 +1848,14 @@ typedef struct WebsUser {
     char_t  *password;
     int     enable;
     char_t  *roles;
-    char_t  *capabilities;
+    //  MOB - rename abilities
+    char_t  *abilities;
 } WebsUser;
 
 typedef struct WebsRole {
     int     enable;
-    char_t  *capabilities;
+    //  MOB - rename abilities
+    char_t  *abilities;
 } WebsRole;
 
 typedef struct WebsRoute {
@@ -1860,39 +1869,38 @@ typedef struct WebsRoute {
     WebsLogin   login;
     WebsVerify  verify;
     char_t      *loginUri;
-    char_t      *capabilities;
+    //  MOB - rename abilities
+    char_t      *abilities;
 } WebsRoute;
 
-/*
-    Login reason codes
- */
-#define WEBS_LOGIN_REQUIRED   1
-#define WEBS_BAD_PASSWORD     2
-#define WEBS_BAD_USERNAME     3
-
-extern int websAddRole(char_t *role, char_t *capabilities);
-extern int websAddRoleCapability(char_t *role, char_t *capability);
-extern int websAddRoute(char_t *realm, char_t *name, char_t *capabilities, char_t *loginUri, WebsLogin login, 
+extern int websAddRole(char_t *role, char_t *abilities);
+//  MOB - should this be abilities
+extern int websAddRoleCapability(char_t *role, char_t *ability);
+extern int websAddRoute(char_t *realm, char_t *name, char_t *abilities, char_t *loginUri, WebsLogin login, 
                 WebsVerify verify);
 extern int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles);
 extern int websAddUserRole(char_t *name, char_t *role);
-extern bool websCan(Webs *wp, char_t *capability);
+
+//  MOB -should this be plural
+//  MOB - rename websCanUser
+extern bool websCan(Webs *wp, char_t *ability);
 extern void websCloseAuth();
 extern int websEnableUser(char_t *name, int enable);
 extern bool websFormLogin(Webs *wp, char_t *userName, char_t *password);
 extern int websOpenAuth(char_t *path);
 extern int websRemoveRole(char_t *role);
-extern int websRemoveRoleCapability(char_t *role, char_t *capability);
+
+//  MOB - rename Ability
+extern int websRemoveRoleCapability(char_t *role, char_t *ability);
 extern int websRemoveRoute(char_t *uri);
 extern int websRemoveUser(char_t *name);
 extern int websRemoveUserRole(char_t *name, char_t *role);
 extern int websSaveAuth(char_t *path);
-extern bool websUserHasCapability(char_t *name, char_t *capability);
+extern bool websUserHasCapability(char_t *name, char_t *ability);
 extern bool websVerifyRoute(Webs *wp);
 extern int websVerifyUser(char_t *name, char_t *password);
 
 #endif /* BIT_AUTH */
-
 /************************************** Sessions *******************************/
 
 #if BIT_SESSIONS

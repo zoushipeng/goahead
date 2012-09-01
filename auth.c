@@ -1,16 +1,16 @@
 /*
     auth.c -- Authorization Management
 
-    This modules supports a user/role/capability based authorization scheme.
+    This modules supports a user/role/ability based authorization scheme.
 
-    In this scheme Users have passwords and can have multiple roles. A role is associated with the capabilit to do
-    things like "admin" or "user" or "support". A role may have capabilities (which are typically verbs) like "add",
+    In this scheme Users have passwords and can have multiple roles. A role is associated with the ability to do
+    things like "admin" or "user" or "support". A role may have abilities (which are typically verbs) like "add",
     "shutdown". 
 
     When the web server starts up, it loads an authentication text file that specifies the Users, Roles and Routes.
-    Routes specify the required capabilities to access URLs by specifying the URL prefix. Once logged in, the user's
-    capabilies are tested against the route capabilites. When the web server receivess a request, the set of Routes is
-    consulted to select the best route. If the routes requires capabilities, the user must be logged in and
+    Routes specify the required abilities to access URLs by specifying the URL prefix. Once logged in, the user's
+    abilities are tested against the route abilities. When the web server receivess a request, the set of Routes is
+    consulted to select the best route. If the routes requires abilities, the user must be logged in and
     authenticated. 
 
     Three authentication backend protocols are supported:
@@ -20,11 +20,11 @@
 
     The user, role and route information is loaded form a text file that uses the schema (see test/auth.txt)
         user: enable: realm: name: password: role [role...]
-        role: enable: name: capability [capability...]
-        uri: enable: realm: type: uri: method: capability [capability...]
+        role: enable: name: ability [ability...]
+        uri: enable: realm: type: uri: method: ability [ability...]
 
     Note:
-        - The psudo capability SECURE can be used to require TLS communications
+        - The psudo ability SECURE can be used to require TLS communications
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
 */
@@ -47,8 +47,8 @@ static char_t *secret;
 
 static char *addString(char_t *field, char_t *word);
 static void basicLogin(Webs *wp, int why);
-static void computeAllCapabilities();
-static void computeCapabilities(WebsUser *user);
+static void computeAllAbilities();
+static void computeAbilities(WebsUser *user);
 static int decodeBasicDetails(Webs *wp);
 static char_t *findString(char_t *field, char_t *word);
 static void formLogin(Webs *wp, int why);
@@ -126,7 +126,7 @@ static int loadAuth(char_t *path)
     WebsVerify  verify;
     WebsRoute   *rp;
     FILE        *fp;
-    char        buf[512], *name, *enabled, *type, *password, *uri, *capabilities, *roles, *line, *kind, *loginUri, *realm;
+    char        buf[512], *name, *enabled, *type, *password, *uri, *abilities, *roles, *line, *kind, *loginUri, *realm;
     int         i;
     
     //  MOB - don't use fopen for ROM
@@ -152,15 +152,15 @@ static int loadAuth(char_t *path)
             }
         } else if (gmatch(kind, "role")) {
             name = strtok(NULL, " \t:");
-            capabilities = strtok(NULL, "\r\n");
-            if (websAddRole(name, capabilities) < 0) {
+            abilities = strtok(NULL, "\r\n");
+            if (websAddRole(name, abilities) < 0) {
                 return -1;
             }
         } else if (gmatch(kind, "uri")) {
             realm = trimSpace(strtok(NULL, ":"));
             type = strtok(NULL, " \t:");
             uri = strtok(NULL, " \t:");
-            capabilities = strtok(NULL, " \t:\r\n");
+            abilities = strtok(NULL, " \t:\r\n");
             if (gmatch(type, "basic")) {
                 login = basicLogin;
                 verify = verifyBasicPassword;
@@ -178,7 +178,7 @@ static int loadAuth(char_t *path)
                 verify = 0;
                 loginUri = 0;
             }
-            if (websAddRoute(realm, uri, capabilities, loginUri, login, verify) < 0) {
+            if (websAddRoute(realm, uri, abilities, loginUri, login, verify) < 0) {
                 return -1;
             }
         }
@@ -197,7 +197,7 @@ static int loadAuth(char_t *path)
     if (i >= routeCount) {
         websAddRoute(0, "/", NULL, NULL, NULL, NULL);
     }
-    computeAllCapabilities();
+    computeAllAbilities();
     return 0;
 }
 
@@ -229,8 +229,10 @@ int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
     }
     up->realm = gstrdup(realm);
     up->password = gstrdup(password);
-    up->capabilities = 0;
+    up->abilities = 0;
     up->enable = 1;
+
+    //  MOB - key needs to be realm:name
     if (symEnter(users, name, valueSymbol(up), 0) == 0) {
         return -1;
     }
@@ -244,7 +246,7 @@ static void freeUser(WebsUser *up)
     gfree(up->realm);
     gfree(up->password);
     gfree(up->roles);
-    gfree(up->capabilities);
+    gfree(up->abilities);
     gfree(up);
 }
 
@@ -276,7 +278,6 @@ bool websFormLogin(Webs *wp, char_t *userName, char_t *password)
     wp->user = up;
     if (!verifyFormPassword(wp)) {
         trace(2, T("Form password does not match\n"));
-        // (up->login)(wp, WEBS_BAD_PASSWORD);
         return 0;
     }
     return 1;
@@ -322,43 +323,43 @@ int websAddUserRole(char_t *name, char_t *role)
         return 0;
     }
     user->roles = addString(user->roles, role);
-    computeCapabilities(user);
+    computeAbilities(user);
     return 0;
 }
 
 
 /*
-    Update the user->capabilities string. This is a unique set of capabilities
+    Update the user->abilities string. This is a unique set of abilities
  */
-static void computeCapabilities(WebsUser *user)
+static void computeAbilities(WebsUser *user)
 {
     WebsRole    *rp;
     ringq_t     buf;
-    sym_fd_t    capabilities;
+    sym_fd_t    abilities;
     sym_t       *sym;
-    char_t      *role, *capability, *rcaps, *uroles, *utok, *ctok;
+    char_t      *role, *ability, *rcaps, *uroles, *utok, *ctok;
 
-    if ((capabilities = symOpen(WEBS_SMALL_HASH)) == 0) {
+    if ((abilities = symOpen(WEBS_SMALL_HASH)) == 0) {
         return;
     }
     uroles = gstrdup(user->roles);
     for (role = gtok(uroles, T(" "), &utok); role; role = gtok(NULL, T(" "), &utok)) {
         if ((sym = symLookup(roles, role)) == 0) {
-            /* Role not found: Interpret the role as a capability */
-            if (symEnter(capabilities, role, valueInteger(0), 0) == 0) {
-                error(T("Can't add capability"));
+            /* Role not found: Interpret the role as a ability */
+            if (symEnter(abilities, role, valueInteger(0), 0) == 0) {
+                error(T("Can't add ability"));
                 break;
             }
             continue;
         }
         rp = (WebsRole*) sym->content.value.symbol;
-        rcaps = gstrdup(rp->capabilities);
-        for (capability = gtok(rcaps, T(" "), &ctok); capability; capability = gtok(NULL, T(" "), &ctok)) {
-            if (symLookup(capabilities, capability)) {
+        rcaps = gstrdup(rp->abilities);
+        for (ability = gtok(rcaps, T(" "), &ctok); ability; ability = gtok(NULL, T(" "), &ctok)) {
+            if (symLookup(abilities, ability)) {
                 continue;
             }
-            if (symEnter(capabilities, capability, valueInteger(0), 0) == 0) {
-                error(T("Can't add capability"));
+            if (symEnter(abilities, ability, valueInteger(0), 0) == 0) {
+                error(T("Can't add ability"));
                 break;
             }
         }
@@ -367,25 +368,25 @@ static void computeCapabilities(WebsUser *user)
     gfree(uroles);
     ringqOpen(&buf, 80, -1);
     ringqPutc(&buf, ' ');
-    for (sym = symFirst(capabilities); sym; sym = symNext(capabilities, sym)) {
+    for (sym = symFirst(abilities); sym; sym = symNext(abilities, sym)) {
         ringqPutStr(&buf, sym->name.value.string);
         ringqPutc(&buf, ' ');
     }
     ringqAddNull(&buf);
-    user->capabilities = gstrdup((char*) buf.servp);
-    symClose(capabilities);
-    trace(5, "User \"%s\" in realm \"%s\" has capabilities:%s\n", user->name, user->realm, user->capabilities);
+    user->abilities = gstrdup((char*) buf.servp);
+    symClose(abilities);
+    trace(5, "User \"%s\" in realm \"%s\" has abilities:%s\n", user->name, user->realm, user->abilities);
 }
 
 
-static void computeAllCapabilities()
+static void computeAllAbilities()
 {
     WebsUser    *up;
     sym_t       *sym;
 
     for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
         up = (WebsUser*) sym->content.value.symbol;
-        computeCapabilities(up);
+        computeAbilities(up);
     }
 }
 
@@ -401,13 +402,13 @@ int websRemoveUserRole(char_t *name, char_t *role)
     }
     up = (WebsUser*) sym->content.value.symbol;
     if ((rc = removeString(up->roles, role)) == 0) {
-        computeCapabilities(up);
+        computeAbilities(up);
     }
     return rc;
 }
 
 
-bool websUserHasCapability(char_t *name, char_t *capability) 
+bool websUserHasAbility(char_t *name, char_t *ability) 
 {
     WebsUser    *up;
     sym_t       *sym;
@@ -416,7 +417,7 @@ bool websUserHasCapability(char_t *name, char_t *capability)
         return -1;
     }
     up = (WebsUser*) sym->content.value.symbol;
-    if (findString(up->capabilities, capability)) {
+    if (findString(up->abilities, ability)) {
         return 0;
     }
     return -1;
@@ -424,9 +425,9 @@ bool websUserHasCapability(char_t *name, char_t *capability)
 
 
 /*
-    Expand any capabilites that are roles
+    Expand any abilities that are roles
  */
-static void expandCapabilities(ringq_t *buf, char_t *str)
+static void expandAbilities(ringq_t *buf, char_t *str)
 {
     WebsRole    *rp;
     sym_t       *sym;
@@ -436,7 +437,7 @@ static void expandCapabilities(ringq_t *buf, char_t *str)
     for (word = gtok(str, T(" "), &tok); word; word = gtok(NULL, T(" "), &tok)) {
         if ((sym = symLookup(roles, word)) != 0) {
             rp = (WebsRole*) sym->content.value.symbol;
-            expandCapabilities(buf, rp->capabilities);
+            expandAbilities(buf, rp->abilities);
         } else {
             ringqPutc(buf, ' ');
             ringqPutStr(buf, word);
@@ -445,7 +446,7 @@ static void expandCapabilities(ringq_t *buf, char_t *str)
 }
 
 
-int websAddRole(char_t *name, char_t *capabilities)
+int websAddRole(char_t *name, char_t *abilities)
 {
     WebsRole    *rp;
     ringq_t     buf;
@@ -459,28 +460,28 @@ int websAddRole(char_t *name, char_t *capabilities)
         return 0;
     }
     ringqOpen(&buf, 80, -1);
-    expandCapabilities(&buf, capabilities);
+    expandAbilities(&buf, abilities);
     ringqPutc(&buf, ' ');
     ringqAddNull(&buf);
-    rp->capabilities = gstrdup((char*) buf.servp);
+    rp->abilities = gstrdup((char*) buf.servp);
     rp->enable = 1;
     if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
         return -1;
     }
-    trace(5, T("Role \"%s\" has capabilities:%s\n"), name, rp->capabilities);
+    trace(5, T("Role \"%s\" has abilities:%s\n"), name, rp->abilities);
     return 0;
 }
 
 
 static void freeRole(WebsRole *rp)
 {
-    gfree(rp->capabilities);
+    gfree(rp->abilities);
     gfree(rp);
 }
 
 
 /*
-    Remove a role. Does not recompute capabilities for users that use this role
+    Remove a role. Does not recompute abilities for users that use this role
  */
 int websRemoveRole(char_t *name) 
 {
@@ -494,7 +495,7 @@ int websRemoveRole(char_t *name)
 }
 
 
-int websAddRoleCapability(char_t *name, char_t *capability) 
+int websAddRoleAbility(char_t *name, char_t *ability) 
 {
     WebsRole    *rp;
     sym_t       *sym;
@@ -503,18 +504,18 @@ int websAddRoleCapability(char_t *name, char_t *capability)
         return -1;
     }
     rp = (WebsRole*) sym->content.value.symbol;
-    if (findString(rp->capabilities, capability)) {
+    if (findString(rp->abilities, ability)) {
         return 0;
     }
-    rp->capabilities = addString(rp->capabilities, capability);
+    rp->abilities = addString(rp->abilities, ability);
     return 0;
 }
 
 
 /*
-    Remove a role capability. Does not recompute users capabilities that use this role
+    Remove a role ability. Does not recompute users abilities that use this role
  */
-int websRemoveRoleCapability(char_t *name, char_t *capability) 
+int websRemoveRoleAbility(char_t *name, char_t *ability) 
 {
     WebsRole    *rp;
     sym_t       *sym;
@@ -523,11 +524,11 @@ int websRemoveRoleCapability(char_t *name, char_t *capability)
         return -1;
     }
     rp = (WebsRole*) sym->content.value.symbol;
-    return removeString(rp->capabilities, capability);
+    return removeString(rp->abilities, ability);
 }
 
 
-int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *loginUri, WebsLogin login, WebsVerify verify)
+int websAddRoute(char_t *realm, char_t *uri, char_t *abilities, char_t *loginUri, WebsLogin login, WebsVerify verify)
 {
     WebsRoute   *rp;
     int         i;
@@ -548,16 +549,16 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *capabilities, char_t *login
     rp->prefixLen = glen(uri);
     rp->loginUri = gstrdup(loginUri);
 #if BIT_PACK_SSL
-    rp->secure = (capabilities && strstr(capabilities, "SECURE")) ? 1 : 0;
+    rp->secure = (abilities && strstr(abilities, "SECURE")) ? 1 : 0;
 #endif
     /* Always have a leading and trailing space to make matching quicker */
-    gfmtAlloc(&rp->capabilities, -1, " %s", capabilities ? capabilities : "");
+    gfmtAlloc(&rp->abilities, -1, " %s", abilities ? abilities : "");
     rp->login = login;
     rp->verify = verify;
     rp->enable = 1;
     growRoutes();
     routes[routeCount++] = rp;
-    trace(5, T("Route \"%s\" in realm \%s\" requires capabilities:%s\n"), uri, realm, rp->capabilities);
+    trace(5, T("Route \"%s\" in realm \%s\" requires abilities:%s\n"), uri, realm, rp->abilities);
     return 0;
 }
 
@@ -592,7 +593,7 @@ static void freeRoute(WebsRoute *rp)
     gfree(rp->prefix);
     gfree(rp->realm);
     gfree(rp->loginUri);
-    gfree(rp->capabilities);
+    gfree(rp->abilities);
     gfree(rp);
 }
 
@@ -745,8 +746,8 @@ bool websVerifyRoute(Webs *wp)
         websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
-    if (gmatch(rp->capabilities, " ")) {
-        /* URI does not require any capabilities, return success */
+    if (gmatch(rp->abilities, " ")) {
+        /* URI does not require any abilities, return success */
         return 1;
     }
     if (wp->authDetails) {
@@ -775,11 +776,12 @@ bool websVerifyRoute(Webs *wp)
         }
     }
     gassert(wp->user);
-    return websCan(wp, rp->capabilities);
+    return websCan(wp, rp->abilities);
 }
 
 
-bool websCan(Webs *wp, char_t *capabilities) 
+//  MOB -rename abilities
+bool websCan(Webs *wp, char_t *abilities) 
 {
     sym_t   *sym;
 
@@ -793,8 +795,8 @@ bool websCan(Webs *wp, char_t *capabilities)
         }
         wp->user = (WebsUser*) sym->content.value.symbol;
     }
-    //  MOB - not implemented using multiple capabilities
-    return findString(wp->user->capabilities, capabilities) ? 1 : 0;
+    //  MOB - not implemented using multiple abilities
+    return findString(wp->user->abilities, abilities) ? 1 : 0;
 }
 
 
@@ -1080,6 +1082,7 @@ static char *addString(char_t *field, char_t *word)
 }
 
 
+//  MOB - bugged
 static int removeString(char_t *field, char_t *word)
 {
     char_t  *old, *cp;
@@ -1089,6 +1092,7 @@ static int removeString(char_t *field, char_t *word)
     }
     old = field;
     cp[-1] = '\0';
+//  MOB - bugged this does not return a new string
     gfmtAlloc(&field, -1, "%s%s ", field, &cp[strlen(word)]);
     gfree(old);
     return 0;

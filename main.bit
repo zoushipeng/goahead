@@ -66,6 +66,7 @@ Bit.load({
 
         /*
             Build with HTTP Digest Authentication support
+            MOB - rename digest
          */
         digestAuth: true,
 

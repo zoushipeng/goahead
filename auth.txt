@@ -3,8 +3,8 @@
 #
 #   Schema
 #       user: enable: realm: name: password: role [role...]
-#       role: enable: name: capability [capability...]
-#       uri: enable: realm: type: uri: method: capability [capability...]
+#       role: enable: name: ability [ability...]
+#       uri: enable: realm: type: uri: method: ability [ability...]
 
 #
 #   Catch-all route without authentication for all URIs
