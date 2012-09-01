@@ -1227,11 +1227,9 @@ void websRedirect(Webs *wp, char_t *url)
         }
         redirectFmt = T("http://%s/%s");
 
-#if BIT_PACK_SSL
         if (wp->flags & WEBS_SECURE) {
             redirectFmt = T("https://%s/%s");
         }
-#endif
         gfmtAlloc(&urlbuf, BIT_LIMIT_URL + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
         url = urlbuf;
     }

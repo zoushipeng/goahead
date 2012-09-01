@@ -1389,9 +1389,7 @@ typedef struct {
     int             selectEvents;           /* Events being selected */
     int             saveMask;               /* saved Mask for socketFlush */
     int             error;                  /* Last error */
-#if BIT_PACK_SSL
     int             secure;                 /* Socket is using SSL */
-#endif
 } socket_t;
 
 extern socket_t     **socketList;           /* List of open sockets */
@@ -1802,7 +1800,6 @@ extern int websJsWrite(int ejid, Webs *wp, int argc, char_t **argv);
 
 /*************************************** SSL ***********************************/
 #if BIT_PACK_SSL
-
 extern int websSSLOpen();
 extern int websSSLIsOpen();
 extern void websSSLClose();
@@ -1825,7 +1822,6 @@ extern ssize sslRead(Webs *wp, char *buf, ssize len);
 extern ssize sslWrite(Webs *wp, char *buf, ssize len);
 extern void sslWriteClosureAlert(Webs *wp);
 extern void sslFlush(Webs *wp);
-
 #endif /* BIT_PACK_SSL */
 
 /*************************************** Auth **********************************/
@@ -1863,13 +1859,10 @@ typedef struct WebsRoute {
     char        *realm;
     ssize       prefixLen;
     int         enable;
-#if BIT_PACK_SSL
     int         secure;
-#endif
     WebsLogin   login;
     WebsVerify  verify;
     char_t      *loginUri;
-    //  MOB - rename abilities
     char_t      *abilities;
 } WebsRoute;
 

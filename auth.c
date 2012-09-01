@@ -548,9 +548,8 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *abilities, char_t *loginUri
     rp->prefix = gstrdup(uri);
     rp->prefixLen = glen(uri);
     rp->loginUri = gstrdup(loginUri);
-#if BIT_PACK_SSL
     rp->secure = (abilities && strstr(abilities, "SECURE")) ? 1 : 0;
-#endif
+
     /* Always have a leading and trailing space to make matching quicker */
     gfmtAlloc(&rp->abilities, -1, " %s", abilities ? abilities : "");
     rp->login = login;
@@ -741,13 +740,11 @@ bool websVerifyRoute(Webs *wp)
         websError(wp, 500, T("Can't find suitable route for request."));
         return 0;
     }
-#if BIT_PACK_SSL
     if (rp->secure && !(wp->flags & WEBS_SECURE)) {
         websStats.access++;
         websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
-#endif
     if (gmatch(rp->abilities, " ")) {
         /* URI does not require any abilities, return success */
         return 1;
