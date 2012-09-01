@@ -398,7 +398,6 @@ void websCloseListen(int sid)
 int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
     Webs        *wp;
-    socket_t    *lp;
     int         wid, len;
     char        *cp;
     struct sockaddr_in ifAddr;
@@ -416,7 +415,6 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     wp = webs[wid];
     gassert(wp);
     wp->listenSid = listenSid;
-    lp = socketPtr(listenSid);
 
     guni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
 
@@ -445,10 +443,13 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Arrange for socketEvent to be called when read data is available
      */
 #if BIT_PACK_SSL
+{
+    socket_t *lp = socketPtr(listenSid);
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
     }
     socketCreateHandler(sid, SOCKET_READABLE, (lp->secure) ? websSSLSocketEvent : socketEvent, wp);
+}
 #else
     socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
 #endif
@@ -3178,8 +3179,9 @@ static void freeSession(WebsSession *sp)
 
 WebsSession *websGetSession(Webs *wp, int create)
 {
-    sym_t   *sym;
-    char_t  *id;
+    socket_t    *sp;
+    sym_t       *sym;
+    char_t      *id;
     
     if (!wp->session) {
         id = websGetSessionID(wp);
@@ -3199,8 +3201,8 @@ WebsSession *websGetSession(Webs *wp, int create)
                 return 0;
             }
             wp->session = (WebsSession*) sym->content.value.symbol;
-            //  MOB - is wp->ssl the right thing?
-            websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, wp->ssl ? 1 : 0);
+            sp = socketPtr(wp->sid);
+            websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, sp->secure ? 1 : 0);
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
         }
