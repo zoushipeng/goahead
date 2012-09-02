@@ -10,7 +10,6 @@
 #define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
 #define BIT_ACCESS_LOG 0
 #define BIT_AUTH 1
-#define BIT_AUTH_REALM "Acme Inc"
 #define BIT_BUILD_NUMBER "0"
 #define BIT_CA_FILE ""
 #define BIT_CA_PATH ""

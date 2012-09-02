@@ -117,10 +117,6 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websUrlHandlerDefine(T("/"), 0, 0, websDefaultHomePageHandler, 0); 
     websUrlHandlerDefine(T(""), 0, 0, websDefaultHandler, WEBS_HANDLER_LAST); 
 
-#if BIT_USER_MANAGEMENT_GUI
-    formDefineUserMgmt();
-#endif
-
 #if BIT_JAVASCRIPT
     websJsDefine(T("aspTest"), aspTest);
     websJsDefine(T("bigTest"), bigTest);
@@ -131,10 +127,6 @@ MAIN(goahead, int argc, char **argv, char **envp)
 #endif
 
     websServiceEvents(&finished);
-
-#if BIT_USER_MANAGEMENT
-    umClose();
-#endif
     websClose();
     return 0;
 }

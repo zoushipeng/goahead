@@ -77,25 +77,18 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
-#if UNUSED
-    ip = NULL;
-    port = BIT_HTTP_PORT;
-    sslPort = BIT_SSL_PORT;
-#endif
     documents = BIT_DOCUMENTS;
     if (argc > argind) {
         documents = argv[argind++];
     }
     initPlatform();
-    if (websOpen(documents, NULL) < 0) {
+    if (websOpen(documents, "auth.txt") < 0) {
         error(T("Can't initialize Goahead server. Exiting."));
         return -1;
     }
-#if UNUSED
-    if (websOpenServer(ip, port, sslPort, documents) < 0) {
-        error(T("Can't open GoAhead server. Exiting."));
-        return -1;
-    }
+#if BIT_PACK_SSL
+    websSSLSetKeyFile("server.key");
+    websSSLSetCertFile("server.crt");
 #endif
     if (argind < argc) {
         while (argind < argc) {
