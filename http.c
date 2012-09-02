@@ -341,7 +341,7 @@ void websClose()
 int websListen(char_t *endpoint)
 {
     socket_t    *sp;
-    char_t      *ip;
+    char_t      *ip, *ipver;
     int         port, secure, sid;
 
     if (listenMax >= WEBS_MAX_LISTEN) {
@@ -356,7 +356,12 @@ int websListen(char_t *endpoint)
     sp = socketPtr(sid);
     sp->secure = secure;
     listens[listenMax++] = sid;
-    trace(0, T("Started %s service on %s:%d\n"), secure ? "HTTPS" : "HTTP", ip ? ip : "*", port);
+    ipver = (ip && strchr(ip, ':')) ? "IPv6" : "IPv4";
+    if (ip && !gmatch(ip, "::")) {
+        trace(0, T("Started %s service on %s:%d, using %s\n"), secure ? "HTTPS" : "HTTP", ip, port, ipver);
+    } else {
+        trace(0, T("Started %s service on *:%d, using %s\n"), secure ? "HTTPS" : "HTTP", port, ipver);
+    }
     gfree(ip);
 
     if (!websHostUrl) {

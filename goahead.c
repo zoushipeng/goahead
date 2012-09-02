@@ -104,6 +104,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 return -1;
             }
         }
+        if (BIT_HTTP_V6_PORT > 0) {
+            gfmtStatic(addr, sizeof(addr), "http://[::]:%d", BIT_HTTP_V6_PORT);
+            if (websListen(addr) < 0) {
+                return -1;
+            }
+        } 
         if (BIT_SSL_PORT > 0) {
             gfmtStatic(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
             if (websListen(addr) < 0) {

@@ -8,7 +8,7 @@ const HOST      = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "127.0.0.1"
 const HOSTV6    = '[::1]'
 const HTTP      = "http://"  + HOST   + ":" + App.config.bit_http_port
 const SSL       = "https://" + HOST   + ":" + App.config.bit_ssl_port
-const HTTPV6    = "https://[::1]:" + App.config.bit_ssl_port
+const HTTPV6    = "http://[::]:" + App.config.bit_http_v6_port
 const PIDFILE   = ".pidfile"
 
 let listen = [ HTTP, SSL, HTTPV6 ]
@@ -57,6 +57,7 @@ if (test.phase == "init") {
         rm(find(".", "*.tdat"))
         cleanDir("web/tmp")
     }
+    // print("CMD", service)
     startService(service, {address: HTTP})
     stdout.write("connecting to web server .. ")
 } else {

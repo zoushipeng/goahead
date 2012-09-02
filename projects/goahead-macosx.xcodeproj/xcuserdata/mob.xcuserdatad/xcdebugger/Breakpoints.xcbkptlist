@@ -147,11 +147,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../http.c"
-         timestampString = "366760782.75202"
+         timestampString = "368320662.522774"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "3600"
-         endingLineNumber = "3600">
+         startingLineNumber = "3605"
+         endingLineNumber = "3605">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
@@ -223,11 +223,24 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../goahead.c"
-         timestampString = "368256270.814199"
+         timestampString = "368320032.98039"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "50"
-         endingLineNumber = "50"
+         startingLineNumber = "93"
+         endingLineNumber = "93"
+         landmarkName = "MAIN()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../test/test.c"
+         timestampString = "368320537.997775"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "110"
+         endingLineNumber = "110"
          landmarkName = "MAIN()"
          landmarkType = "7">
       </FileBreakpoint>
