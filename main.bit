@@ -80,6 +80,11 @@ Bit.load({
          */
         httpPort: 8080,
 
+        /*  
+            IPv6 port to listen on (for test only)
+         */
+        ipv6Port: 9090,
+
         /*
             Build with support for javascript web templates
          */

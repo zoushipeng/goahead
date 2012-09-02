@@ -135,7 +135,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
 static void usage() {
     //  MOB - replace
     fprintf(stderr, "\n%s Usage:\n\n"
-        "  %s [options] [IPaddress][:port] [documents]\n\n"
+        "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
