@@ -216,19 +216,21 @@ void socketCloseConnection(int sid)
  */
 static void socketAccept(socket_t *sp)
 {
-    struct sockaddr_in  addr;
-    socket_t            *nsp;
-    size_t              len;
-    char                *ip;
-    int                 newSock, nid;
+    struct sockaddr_storage addrStorage;
+    struct sockaddr         *addr;
+    socket_t                *nsp;
+    size_t                  len;
+    char                    ipbuf[1024];
+    int                     port, newSock, nid;
 
     gassert(sp);
 
     /*
         Accept the connection and prevent inheriting by children (F_SETFD)
      */
-    len = sizeof(struct sockaddr_in);
-    if ((newSock = accept(sp->sock, (struct sockaddr*) &addr, (WebsSockLenArg*) &len)) < 0) {
+    len = sizeof(addrStorage);
+    addr = (struct sockaddr*) &addrStorage;
+    if ((newSock = accept(sp->sock, addr, (WebsSockLenArg*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -252,8 +254,8 @@ static void socketAccept(socket_t *sp)
         Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
      */
     if (sp->accept != NULL) {
-        ip = inet_ntoa(addr.sin_addr);
-        if ((sp->accept)(nid, ip, ntohs(addr.sin_port), sp->sid) < 0) {
+        socketAddress(addr, (int) len, ipbuf, sizeof(ipbuf), &port);
+        if ((sp->accept)(nid, ipbuf, port, sp->sid) < 0) {
             socketFree(nid);
         }
 #if VXWORKS
@@ -1497,7 +1499,6 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 #endif
 
 
-#if UNUSED && KEEP
 /*  
     Return a numerical IP address and port for the given socket info
  */
@@ -1541,7 +1542,6 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
 #endif
     return 0;
 }
-#endif
 
 
 /*
