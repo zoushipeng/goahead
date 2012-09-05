@@ -139,7 +139,7 @@ int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t 
     n++;
     gfmtAlloc(envp + n, BIT_LIMIT_FILENAME, T("%s=%s/%s"),T("SCRIPT_NAME"), BIT_CGI_BIN, cgiName);
     n++;
-    gfmtAlloc(envp + n, BIT_LIMIT_FILENAME, T("%s=%s"),T("REMOTE_USER"), wp->userName);
+    gfmtAlloc(envp + n, BIT_LIMIT_FILENAME, T("%s=%s"),T("REMOTE_USER"), wp->username);
     n++;
     gfmtAlloc(envp + n, BIT_LIMIT_FILENAME, T("%s=%s"),T("AUTH_TYPE"), wp->authType);
     n++;

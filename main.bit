@@ -108,16 +108,19 @@ Bit.load({
         /*
             Sandbox limits and allocation sizes
          */
-        limitBuffer:        1024,   /* Default general buffer size */
-        limitFilename:      256,    /* Maximum filename size */
-        limitString:        4096,   /* Default string size */
-        limitSocketBuffer:  512,    /* Default socket buffer size */
-        limitHeader:        2048,   /* Maximum HTTP single header size */
-        limitHeaders:       8192,   /* Maximum HTTP header size */
-        limitUrl:           2048,   /* Maximum URL size */
-        limitPassword:      32,     /* Maximum password size */
-        limitSessionLife:   1800,   /* Session lifespan in secons */
-        limitSessionCount:  120,    /* Maximum number of sessions to support */
+        limitBody:            8192,   /* Maximum POST|PUT body size */
+        limitBuffer:          1024,   /* Default general buffer size */
+        limitFilename:        256,    /* Maximum filename size */
+        limitHeader:          2048,   /* Maximum HTTP single header size */
+        limitHeaders:         4096,   /* Maximum HTTP header size */
+        limitNumHeaders:        64,   /* Maximum number of headers */
+        limitPassword:          32,   /* Maximum password size */
+        limitResponseBuffer:  8192,   /* Maximum output buffer */
+        limitSessionLife:     1800,   /* Session lifespan in secons */
+        limitSessionCount:     120,   /* Maximum number of sessions to support */
+        limitString:          4096,   /* Default string size */
+        limitSocketBuffer:    1024,   /* Default socket buffer size */
+        limitUrl:             2048,   /* Maximum URL size */
 
         /*
             Server SSL key

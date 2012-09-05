@@ -16,7 +16,6 @@ for (i in 100) {
 
 //  Vary up the query length based on the depth
 
-
 for (iter in depth) {
     let query = ""
     for (i in 5 * (iter + 3)) {
@@ -26,15 +25,11 @@ for (iter in depth) {
 
     // Test /index.html
     http.get(HTTP + "/index.html?" + query)
-    assert(http.status == 200)
-    assert(http.response.contains("Hello /index.html"))
-
-    if (App.config.bit_ejscript) {
-        //  Test /index.ejs
-        http.get(HTTP + "/index.ejs?" + query)
+    if (query.length < 2000) {
         assert(http.status == 200)
-        assert(http.response.contains("Hello /index.ejs"))
+        assert(http.response.contains("Hello /index.html"))
+    } else {
+        assert(http.status == 413)
     }
-    //  TODO - esp, cgi, php
 }
 http.close()

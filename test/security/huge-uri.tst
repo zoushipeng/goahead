@@ -28,7 +28,7 @@ try {
 /* Server should just close the connection without a response */
 response = new ByteArray
 while ((n = s.read(response, -1)) > 0) { response.reset() }
-assert(response.toString() == '')
+assert(response.toString().contains('413 Request too large'))
 s.close()
 
 //  Check server still up

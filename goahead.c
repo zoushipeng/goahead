@@ -210,9 +210,6 @@ static int windowsInit()
     hSysMenu = GetSystemMenu(hwnd, FALSE);
     if (hSysMenu != NULL) {
         AppendMenu(hSysMenu, MF_SEPARATOR, 0, NULL);
-#if UNUSED
-        AppendMenu(hSysMenu, MF_STRING, IDM_ABOUTBOX, T("About WebServer"));
-#endif
     }
     ShowWindow(hwnd, SW_SHOWNORMAL);
     UpdateWindow(hwnd);
@@ -226,11 +223,6 @@ static void windowsClose()
 
     inst = egGetInst();
     UnregisterClass(BIT_PRODUCT, inst);
-#if UNUSED
-    if (hwndAbout) {
-        DestroyWindow(hwndAbout);
-    }
-#endif
 }
 
 
@@ -246,16 +238,6 @@ static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
             return 0;
 
         case WM_SYSCOMMAND:
-#if UNUSED
-            if (wp == IDM_ABOUTBOX) {
-                if (!hwndAbout) {
-                    createAboutBox((HINSTANCE) egGetInst(), hwnd);
-                }
-                if (hwndAbout) {
-                    ShowWindow(hwndAbout, SW_SHOWNORMAL);
-                }
-            }
-#endif
             break;
     }
     return DefWindowProc(hwnd, msg, wp, lp);
@@ -291,297 +273,16 @@ static long CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 
     switch (msg) {
         case WM_CREATE:
-#if UNUSED
-            hwndAbout = hwndDlg;
-#endif
             break;
 
         case WM_DESTROY:
-#if UNUSED
-            hwndAbout = NULL;
-#endif
             break;
 
         case WM_COMMAND:
-#if UNUSED
-            if (wp == IDOK) {
-                EndDialog(hwndDlg, 0);
-                PostMessage(hwndDlg, WM_CLOSE, 0, 0);
-            }
-#endif
             break;
-
-#if UNUSED
-        case WM_INITDIALOG:
-            /*
-                Set the version and build date values
-             */
-            hwnd = GetDlgItem(hwndDlg, IDC_VERSION);
-            if (hwnd) {
-                SetWindowText(hwnd, BIT_VERSION);
-            }
-            hwnd = GetDlgItem(hwndDlg, IDC_BUILDDATE);
-            if (hwnd) {
-                SetWindowText(hwnd, __DATE__);
-            }
-            SetWindowText(hwndDlg, T("GoAhead WebServer"));
-            centerWindowOnDisplay(hwndDlg);
-            hwndAbout = hwndDlg;
-            lResult = FALSE;
-            break;
-#endif
     }
     return lResult;
 }
-
-
-#if UNUSED
-/*
-    Registers the About Box class
- */
-static int registerAboutBox(HINSTANCE hInstance)
-{
-    WNDCLASS  wc;
-
-    wc.style = 0;
-    wc.lpfnWndProc = (WNDPROC)websAboutProc;
-
-    wc.cbClsExtra = 0;
-    wc.cbWndExtra = 0;
-    wc.hInstance = hInstance;
-    wc.hIcon = NULL;
-    wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = GetStockObject(LTGRAY_BRUSH);
-    wc.lpszMenuName = NULL;
-    wc.lpszClassName = IDS_ABOUTBOX;
-    if (!RegisterClass(&wc)) {
-        return 0;
-    }
-    return 1;
-}
-#endif
-
-
-#if UNUSED
-/*
-     Helper routine.  Takes second parameter as Ansi string, copies it to first parameter as wide character (16-bits /
-     char) string, and returns integer number of wide characters (words) in string (including the trailing wide char
-     NULL).
- */
-//  MOB - refactor
-static int nCopyAnsiToWideChar(LPWORD lpWCStr, LPSTR lpAnsiIn)
-{
-    int cchAnsi = lstrlen(lpAnsiIn);
-    return MultiByteToWideChar(GetACP(), MB_PRECOMPOSED, lpAnsiIn, cchAnsi, lpWCStr, cchAnsi) + 1;
-}
-
-
-/*
-    Creates an About Box Window
-    MOB - get rid of about box. Not worth all this
- */
-static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
-{
-    WORD    *p, *pdlgtemplate;
-    int     nchar;
-    DWORD   lStyle;
-    HWND    hwndReturn;
-
-    /* 
-        Allocate some memory to play with  
-     */
-    pdlgtemplate = p = (PWORD) LocalAlloc(LPTR, 1000);
-
-    /*
-        Start to fill in the dlgtemplate information.  addressing by WORDs 
-     */
-    lStyle = WS_DLGFRAME | WS_POPUP | WS_VISIBLE | WS_CLIPCHILDREN | DS_SETFONT;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;          /* LOWORD (lExtendedStyle) */
-    *p++ = 0;          /* HIWORD (lExtendedStyle) */
-    *p++ = 7;          /* Number Of Items   */
-    *p++ = 210;        /* x */
-    *p++ = 10;         /* y */
-    *p++ = 200;        /* cx */
-    *p++ = 100;        /* cy */
-    *p++ = 0;          /* Menu */
-    *p++ = 0;          /* Class */
-
-    /* 
-        Copy the title of the dialog 
-     */
-    nchar = nCopyAnsiToWideChar(p, BIT_TITLE);
-    p += nchar;
-
-    /*  
-        Font information because of DS_SETFONT
-     */
-    *p++ = 11;     /* point size */
-    nchar = nCopyAnsiToWideChar(p, T("Arial Bold"));
-    p += nchar;
-    p = ALIGN(p);
-
-    /*
-        Now start with the first item (Product Identifier)
-     */
-    lStyle = SS_CENTER | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;           /* LOWORD (lExtendedStyle) */
-    *p++ = 0;           /* HIWORD (lExtendedStyle) */
-    *p++ = 10;          /* x */
-    *p++ = 10;          /* y  */
-    *p++ = 180;         /* cx */
-    *p++ = 15;          /* cy */
-    *p++ = 1;           /* ID */
-
-    /*
-        Fill in class i.d., this time by name
-     */
-    nchar = nCopyAnsiToWideChar(p, TEXT("STATIC"));
-    p += nchar;
-
-    /*
-        Copy the text of the first item
-     */
-    nchar = nCopyAnsiToWideChar(p, TEXT("GoAhead WebServer ") BIT_VERSION);
-    p += nchar;
-    *p++ = 0;  
-    p = ALIGN(p);
-
-/*
- *  Next, the Copyright Notice.
- */
-    lStyle = SS_CENTER | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;           /* LOWORD (lExtendedStyle) */
-    *p++ = 0;           /* HIWORD (lExtendedStyle) */
-    *p++ = 10;          /* x */
-    *p++ = 30;          /* y  */
-    *p++ = 180;         /* cx */
-    *p++ = 15;          /* cy */
-    *p++ = 1;           /* ID */
-
-    /*
-        Fill in class i.d. by name
-     */
-    nchar = nCopyAnsiToWideChar(p, TEXT("STATIC"));
-    p += nchar;
-
-    /*
-        Copy the text of the item
-     */
-    nchar = nCopyAnsiToWideChar(p, EMBEDTHIS_GOAHEAD_COPYRIGHT);
-    p += nchar;
-    *p++ = 0;  
-    p = ALIGN(p);
-
-    /*
-        Add third item ("Version:")
-     */
-    lStyle = SS_RIGHT | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;          
-    *p++ = 0;
-    *p++ = 28;
-    *p++ = 50;
-    *p++ = 70;
-    *p++ = 10;
-    *p++ = 1;
-    nchar = nCopyAnsiToWideChar(p, T("STATIC"));
-    p += nchar;
-    nchar = nCopyAnsiToWideChar(p, T("Version:"));
-    p += nchar;
-    *p++ = 0;
-    p = ALIGN(p);
-
-    /*
-        Add fourth Item (IDC_VERSION)
-     */
-    lStyle = SS_LEFT | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;          
-    *p++ = 0;
-    *p++ = 102;
-    *p++ = 50;
-    *p++ = 70;
-    *p++ = 10;
-    *p++ = IDC_VERSION;
-    nchar = nCopyAnsiToWideChar(p, T("STATIC"));
-    p += nchar;
-    nchar = nCopyAnsiToWideChar(p, T("version"));
-    p += nchar;
-    *p++ = 0;
-    p = ALIGN(p);
-
-    /*
-        Add fifth item ("Build Date:")
-     */
-    lStyle = SS_RIGHT | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;          
-    *p++ = 0;
-    *p++ = 28;
-    *p++ = 65;
-    *p++ = 70;
-    *p++ = 10;
-    *p++ = 1;
-    nchar = nCopyAnsiToWideChar(p, T("STATIC"));
-    p += nchar;
-    nchar = nCopyAnsiToWideChar(p, T("Build Date:"));
-    p += nchar;
-    *p++ = 0;
-    p = ALIGN(p);
-
-    /*
-        Add sixth item (IDC_BUILDDATE)
-     */
-    lStyle = SS_LEFT | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;          
-    *p++ = 0;
-    *p++ = 102;
-    *p++ = 65;
-    *p++ = 70;
-    *p++ = 10;
-    *p++ = IDC_BUILDDATE;
-    nchar = nCopyAnsiToWideChar(p, T("STATIC"));
-    p += nchar;
-    nchar = nCopyAnsiToWideChar(p, T("Build Date"));
-    p += nchar;
-    *p++ = 0;
-    p = ALIGN(p);
-
-    /*
-        Add seventh item (IDOK)
-     */
-    lStyle = BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP;
-    *p++ = LOWORD(lStyle);
-    *p++ = HIWORD(lStyle);
-    *p++ = 0;          
-    *p++ = 0;
-    *p++ = 80;
-    *p++ = 80;
-    *p++ = 40;
-    *p++ = 10;
-    *p++ = IDOK;
-    nchar = nCopyAnsiToWideChar(p, T("BUTTON"));
-    p += nchar;
-    nchar = nCopyAnsiToWideChar(p, T("OK"));
-    p += nchar;
-    *p++ = 0;
-
-    hwndReturn = CreateDialogIndirect(hInstance, (LPDLGTEMPLATE) pdlgtemplate, hwnd, (DLGPROC) websAboutProc);
-    LocalFree(LocalHandle(pdlgtemplate));
-    return 0;
-}
-#endif
 
 #endif
 

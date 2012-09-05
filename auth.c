@@ -64,7 +64,7 @@ static bool verifyBasicPassword(Webs *wp);
 static bool verifyFormPassword(Webs *wp);
 
 #if BIT_DIGEST_AUTH
-static char_t *calcDigest(Webs *wp, char_t *userName, char_t *password);
+static char_t *calcDigest(Webs *wp, char_t *username, char_t *password);
 static char_t *createDigestNonce(Webs *wp);
 static int decodeDigestDetails(Webs *wp);
 static void digestLogin(Webs *wp, int why);
@@ -251,17 +251,17 @@ static void freeUser(WebsUser *up)
 }
 
 
-bool websFormLogin(Webs *wp, char_t *userName, char_t *password)
+bool websFormLogin(Webs *wp, char_t *username, char_t *password)
 {
     WebsUser    *up;
     sym_t       *sym;
 
-    gfree(wp->userName);
-    wp->userName = gstrdup(userName);
+    gfree(wp->username);
+    wp->username = gstrdup(username);
     wp->password = gstrdup(password);
 
-    if ((sym = symLookup(users, userName)) == 0) {
-        trace(2, T("websFormLogin: Unknown user %s\n"), userName);
+    if ((sym = symLookup(users, username)) == 0) {
+        trace(2, T("websFormLogin: Unknown user %s\n"), username);
         return 0;
     }
     up = (WebsUser*) sym->content.value.symbol;
@@ -284,6 +284,7 @@ bool websFormLogin(Webs *wp, char_t *userName, char_t *password)
 }
 
 
+//  MOB - get rid if enable/disable
 int websEnableUser(char_t *name, int enable) 
 {
     WebsUser    *user;
@@ -695,7 +696,7 @@ static bool verifyBasicPassword(Webs *wp)
         return 0;
     }
     gassert(wp->route);
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->route->realm, wp->password);
+    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, wp->route->realm, wp->password);
     password = websMD5(passbuf);
     rc = gmatch(wp->user->password, password);
     gfree(password);
@@ -711,7 +712,7 @@ static bool verifyFormPassword(Webs *wp)
     if (!wp->user || !wp->route) {
         return 0;
     }
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->userName, wp->route->realm, wp->password);
+    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, wp->route->realm, wp->password);
     password = websMD5(passbuf);
     rc = gmatch(password, wp->user->password);
     gfree(password);
@@ -759,12 +760,12 @@ bool websVerifyRoute(Webs *wp)
         }
     }
     if (!wp->user) {
-        if (!wp->userName || !*wp->userName) {
+        if (!wp->username || !*wp->username) {
             websStats.access++;
             (rp->login)(wp, WEBS_LOGIN_REQUIRED);
             return 0;
         }
-        if ((sym = symLookup(users, wp->userName)) == 0) {
+        if ((sym = symLookup(users, wp->username)) == 0) {
             (rp->login)(wp, WEBS_BAD_USERNAME);
             return 0;
         }
@@ -785,11 +786,11 @@ bool websCan(Webs *wp, char_t *abilities)
     sym_t   *sym;
 
     if (!wp->user) {
-        if (!wp->userName) {
+        if (!wp->username) {
             return 0;
         }
-        if ((sym = symLookup(users, wp->userName)) == 0) {
-            trace(2, T("Can't find user %s\n"), wp->userName);
+        if ((sym = symLookup(users, wp->username)) == 0) {
+            trace(2, T("Can't find user %s\n"), wp->username);
             return 0;
         }
         wp->user = (WebsUser*) sym->content.value.symbol;
@@ -837,10 +838,10 @@ static int decodeBasicDetails(Webs *wp)
         *cp++ = '\0';
     }
     if (cp) {
-        wp->userName = gstrdup(userAuth);
+        wp->username = gstrdup(userAuth);
         wp->password = gstrdup(cp);
     } else {
-        wp->userName = gstrdup(T(""));
+        wp->username = gstrdup(T(""));
         wp->password = gstrdup(T(""));
     }
     gfree(userAuth);
@@ -960,7 +961,7 @@ static int decodeDigestDetails(Webs *wp)
             if (gcaselesscmp(key, "uri") == 0) {
                 wp->digestUri = gstrdup(value);
             } else if (gcaselesscmp(key, "username") == 0 || gcaselesscmp(key, "user") == 0) {
-                wp->userName = gstrdup(value);
+                wp->username = gstrdup(value);
             }
             break;
 
@@ -978,7 +979,7 @@ static int decodeDigestDetails(Webs *wp)
             }
         }
     }
-    if (wp->userName == 0 || wp->realm == 0 || wp->nonce == 0 || wp->route == 0 || wp->password == 0) {
+    if (wp->username == 0 || wp->realm == 0 || wp->nonce == 0 || wp->route == 0 || wp->password == 0) {
         return -1;
     }
     if (wp->qop && (wp->cnonce == 0 || wp->nc == 0)) {
@@ -1024,19 +1025,19 @@ static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time
 /*
    Get a Digest value using the MD5 algorithm -- See RFC 2617 to understand this code.
 */
-static char_t *calcDigest(Webs *wp, char_t *userName, char_t *password)
+static char_t *calcDigest(Webs *wp, char_t *username, char_t *password)
 {
     char_t  a1Buf[256], a2Buf[256], digestBuf[256];
     char_t  *ha1, *ha2, *method, *result;
 
     /*
-        Compute HA1. If userName == 0, then the password is already expected to be in the HA1 format 
-        (MD5(userName:realm:password).
+        Compute HA1. If username == 0, then the password is already expected to be in the HA1 format 
+        (MD5(username:realm:password).
      */
-    if (userName == 0) {
+    if (username == 0) {
         ha1 = gstrdup(password);
     } else {
-        gfmtStatic(a1Buf, sizeof(a1Buf), "%s:%s:%s", userName, wp->realm, password);
+        gfmtStatic(a1Buf, sizeof(a1Buf), "%s:%s:%s", username, wp->realm, password);
         ha1 = websMD5(a1Buf);
     }
 

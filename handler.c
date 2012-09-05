@@ -205,9 +205,9 @@ static int websPublishHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int s
 
 /*
     See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
-    one accepts the request.  Return true if a handler was invoked, else return FALSE.
+    one accepts the request.
  */
-int websUrlHandlerRequest(Webs *wp)
+void websHandleRequest(Webs *wp)
 {
     WebsHandler   *sp;
     int           i, first;
@@ -219,38 +219,34 @@ int websUrlHandlerRequest(Webs *wp)
         pipelined HTTP/1.1 request if using Keep Alive.
      */
     socketDeleteHandler(wp->sid);
-    wp->state = WEBS_PROCESSING;
     websStats.handlerHits++;
 
     if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
         websError(wp, 400, T("Bad request"));
-        return 0;
+        return;
     }
 #if BIT_AUTH
     if (!websVerifyRoute(wp)) {
         gassert(wp->code);
         websStats.access++;
-        return 1;
+        return;
     }
 #endif
+    websSetEnv(wp);
+
     /*
         We loop over each handler in order till one accepts the request.  The security handler will handle the request
         if access is NOT allowed.  
      */
-    first = 1;
     for (i = 0; i < websUrlHandlerMax; i++) {
         sp = &websUrlHandler[i];
         if (sp->handler && gstrncmp(sp->urlPrefix, wp->path, sp->len) == 0) {
-            if (first) {
-                websSetEnv(wp);
-                first = 0;
-            }
             if ((*sp->handler)(wp, sp->urlPrefix, sp->webDir, sp->arg, wp->url, wp->path, wp->query)) {
-                return 1;
+                return;
             }
             if (!websValid(wp)) {
                 trace(0, T("handler %s called websDone, but didn't return 1\n"), sp->urlPrefix);
-                return 1;
+                return;
             }
         }
     }
@@ -260,7 +256,6 @@ int websUrlHandlerRequest(Webs *wp)
     if (i >= websUrlHandlerMax) {
         websError(wp, 200, T("No handler for this URL"));
     }
-    return 0;
 }
 
 
