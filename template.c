@@ -56,7 +56,7 @@ int websEval(char_t *cmd, char_t **result, void* chan)
 {
     int     jsid;
 
-    jsid = (int) chan;
+    jsid = PTOI(chan);
     if (jsEval(jsid, cmd, result)) {
         return 0;
     } else {
@@ -173,8 +173,7 @@ int websJsRequest(Webs *wp, char_t *lpath)
             }
             if (*nextp) {
                 result = NULL;
-                rc = websEval(nextp, &result, (void *) jsid);
-                if (rc < 0) {
+                if ((rc = websEval(nextp, &result, ITOP(jsid))) < 0) {
                     /*
                          On an error, discard all output accumulated so far and store the error in the result buffer. Be
                          careful if the user has called websError() already.
