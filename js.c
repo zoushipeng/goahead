@@ -1347,7 +1347,7 @@ int jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, 
  */
 int jsSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
-    if (symEnter(functions, name, valueInteger((long) fn), 0) == NULL) {
+    if (symEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
     }
     return 0;

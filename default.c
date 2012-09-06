@@ -77,7 +77,8 @@ int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, cha
         code = 304;
     }
 #endif
-    websWriteHeaders(wp, code, (wp->flags & WEBS_JS) ? -1 : info.size, 0);
+    /* WARNING: windows needs cast of -1 */
+    websWriteHeaders(wp, code, (wp->flags & WEBS_JS) ? (ssize) -1 : info.size, 0);
     if (!(wp->flags & WEBS_JS)) {
         if ((date = websGetDateString(&info)) != NULL) {
             websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
