@@ -257,9 +257,6 @@ static void socketAccept(socket_t *sp)
         if ((sp->accept)(nid, ipbuf, port, sp->sid) < 0) {
             socketFree(nid);
         }
-#if VXWORKS
-        free(ip);
-#endif
     }
 }
 

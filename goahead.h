@@ -714,7 +714,7 @@ extern "C" {
     #endif
 #endif
 
-#if BIT_UNIX_LIKE
+#if BIT_UNIX_LIKE || VXWORKS
     #define closesocket(x) close(x)
 #endif
 
