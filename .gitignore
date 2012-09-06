@@ -40,3 +40,4 @@ macosx-*
 access.log
 cgitest
 windows-*.bit
+*-x86.bit

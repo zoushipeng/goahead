@@ -1379,6 +1379,7 @@ static ssize bufferOutput(Webs *wp, char *buf, ssize size)
     ssize       sofar, thisWrite, len, room;
 
     op = &wp->output;
+    sofar = 0;
     while (size > 0) {
         len = ringqLen(op);
         room = op->buflen - len;
