@@ -768,7 +768,7 @@ static bool parseHeaders(Webs *wp)
         if ((cvalue = getToken(wp, "\r\n")) == NULL) {
             cvalue = "";
         }
-        if (!ckey || !value) {
+        if (!ckey || !cvalue) {
             websError(wp, 400 | WEBS_CLOSE, "Bad header format");
             return 0;
         }

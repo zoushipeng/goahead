@@ -2226,6 +2226,8 @@ int gparseArgs(char *args, char **argv, int maxArgc)
     return argc;
 }
 
+
+#if UNUSED
 #if VXWORKS
 
 /*
@@ -2258,7 +2260,6 @@ static char_t *getAbsolutePath(char_t *path)
 }
 
 
-#if UNUSED
 int vxchdir(char_t *dirname)
 {
     char_t  *path;

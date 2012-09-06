@@ -129,6 +129,8 @@ static int loadAuth(char_t *path)
     char        buf[512], *name, *enabled, *type, *password, *uri, *abilities, *roles, *line, *kind, *loginUri, *realm;
     int         i;
     
+    loginUri = 0;
+
     //  MOB - don't use fopen for ROM
     if ((fp = fopen(path, "rt")) == 0) {
         return -1;
@@ -176,7 +178,6 @@ static int loadAuth(char_t *path)
             } else {
                 login = 0;
                 verify = 0;
-                loginUri = 0;
             }
             if (websAddRoute(realm, uri, abilities, loginUri, login, verify) < 0) {
                 return -1;
