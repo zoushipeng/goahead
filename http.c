@@ -1625,6 +1625,7 @@ void websDone(Webs *wp, int code)
 {
     gassert(websValid(wp));
 
+    websFlush(wp);
     wp->code = code & ~WEBS_CLOSE;
     socketDeleteHandler(wp->sid);
 #if BIT_ACCESS_LOG
@@ -1666,7 +1667,6 @@ void websDone(Webs *wp, int code)
     }
     websTimeoutCancel(wp);
     socketSetBlock(wp->sid, 1);
-    websFlush(wp);
     socketCloseConnection(wp->sid);
     websFree(wp);
 }
