@@ -242,7 +242,7 @@ int websOpen(char_t *documents, char_t *authPath)
         return -1;
     }
     if (!websDebug) {
-        pruneId = gschedCallback(WEBS_SESSION_PRUNE, pruneCache, 0);
+        pruneId = gschedCallback(WEBS_SESSION_PRUNE, (WebsCallback*) pruneCache, 0);
     }
 #endif
     if (documents) {
@@ -400,12 +400,14 @@ void websCloseListen(int sid)
 }
 
 
+/*
+    Accept a new connection from ipaddr:port 
+ */
 int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
     Webs        *wp;
+    struct sockaddr_storage ifAddr;
     int         wid, len;
-    char        *cp;
-    struct sockaddr_in ifAddr;
 
     gassert(ipaddr && *ipaddr);
     gassert(sid >= 0);
@@ -426,14 +428,18 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Get the ip address of the interface that accept the connection.
      */
-    len = sizeof(struct sockaddr_in);
+    len = sizeof(ifAddr);
     if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (WebsSockLenArg*) &len) < 0) {
+        error("Can't get sockname");
         return -1;
     }
+    socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
+#if UNUSED
     cp = inet_ntoa(ifAddr.sin_addr);
     gstrncpy(wp->ifaddr, cp, gstrlen(cp));
 #if VXWORKS
     free(cp);
+#endif
 #endif
 
     /*
