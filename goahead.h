@@ -387,20 +387,6 @@
 #include    <openssl/dh.h>
 #endif
 
-#if BIT_FEATURE_MATRIXSSL && UNUSED
-/*
-   Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
-   So must include matrixsslApi.h first and then workaround.
- */
- #include    "matrixsslApi.h"
-
-#define     HAS_INT32 1
-#define     HAS_UINT32 1
-#define     HAS_INT64 1
-#define     HAS_UINT64 1
-#define     MAX_WRITE_MSEC 500
-#endif
-
 /************************************** Defines *******************************/
 #ifdef __cplusplus
 extern "C" {
@@ -728,6 +714,10 @@ extern "C" {
     #endif
 #endif
 
+#if BIT_UNIX_LIKE || VXWORKS
+    #define closesocket(x) close(x)
+#endif
+
 #ifndef SOCKET_ERROR
     #define SOCKET_ERROR -1
 #endif
@@ -761,6 +751,7 @@ extern "C" {
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
  */
+//  MOB - rename
 typedef int64 EgFilePos;
 typedef int64 EgDateTime;
 
@@ -1081,8 +1072,8 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 
 /************************************ Tunables ********************************/
 
-#define WEBS_MAX_LISTEN     8           /* Maximum number of listen endpoints */
-#define WEBS_SMALL_HASH     31          /* General small hash size */
+#define WEBS_MAX_LISTEN     8           /**< Maximum number of listen endpoints */
+#define WEBS_SMALL_HASH     31          /**< General small hash size */
 
 /************************************* Error **********************************/
 
@@ -1213,10 +1204,10 @@ extern void valueFree(value_t *v);
  */
 
 typedef struct {
-    uchar   *buf;               /* Holding buffer for data */
-    uchar   *servp;             /* Pointer to start of data */
-    uchar   *endp;              /* Pointer to end of data */
-    uchar   *endbuf;            /* Pointer to end of buffer */
+    char    *buf;               /* Holding buffer for data */
+    char    *servp;             /* Pointer to start of data */
+    char    *endp;              /* Pointer to end of data */
+    char    *endbuf;            /* Pointer to end of buffer */
     ssize   buflen;             /* Length of ring queue */
     ssize   maxsize;            /* Maximum size */
     int     increment;          /* Growth increment */
@@ -1229,6 +1220,7 @@ extern int ringqPutc(ringq_t *rq, char_t c);
 extern int ringqInsertc(ringq_t *rq, char_t c);
 extern ssize ringqPutStr(ringq_t *rq, char_t *str);
 extern int ringqGetc(ringq_t *rq);
+extern int ringqGrow(ringq_t *rq);
 
 #if UNICODE || DOXYGEN
     extern int ringqPutcA(ringq_t *rq, char c);
@@ -1242,13 +1234,14 @@ extern int ringqGetc(ringq_t *rq);
     #define ringqGetcA ringqGetc
 #endif /* UNICODE */
 
-extern ssize ringqPutBlk(ringq_t *rq, uchar *buf, ssize len);
+extern ssize ringqPutBlk(ringq_t *rq, char *buf, ssize len);
 extern ssize ringqPutBlkMax(ringq_t *rq);
 extern void ringqPutBlkAdj(ringq_t *rq, ssize size);
-extern ssize ringqGetBlk(ringq_t *rq, uchar *buf, ssize len);
+extern ssize ringqGetBlk(ringq_t *rq, char *buf, ssize len);
 extern ssize ringqGetBlkMax(ringq_t *rq);
 extern void ringqGetBlkAdj(ringq_t *rq, ssize size);
 extern void ringqFlush(ringq_t *rq);
+extern void ringqCompact(ringq_t *rq);
 extern void ringqAddNull(ringq_t *rq);
 
 /******************************* Malloc Replacement ***************************/
@@ -1340,13 +1333,12 @@ extern sym_t    *symNext(sym_fd_t sd, sym_t *last);
 #define SOCKET_EOF              0x1     /* Seen end of file */
 #define SOCKET_CONNECTING       0x2     /* Connect in progress */
 #define SOCKET_PENDING          0x4     /* Message pending on this socket */
-#define SOCKET_FLUSHING         0x8     /* Background flushing */
+#define SOCKET_RESERVICE        0x8     /* Socket needs re-servicing */
 #define SOCKET_ASYNC            0x10    /* Use async connect */
 #define SOCKET_BLOCK            0x20    /* Use blocking I/O */
 #define SOCKET_LISTENING        0x40    /* Socket is server listener */
 #define SOCKET_CLOSING          0x80    /* Socket is closing */
 #define SOCKET_CONNRESET        0x100   /* Socket connection was reset */
-#define SOCKET_OWN_BUFFERS      0x200   /* Not using inBuf/outBuf ringq */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
 
@@ -1371,8 +1363,6 @@ typedef void    (*socketHandler_t)(int sid, int mask, void* data);
 typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, int listenSid);
 
 typedef struct {
-    ringq_t         inBuf;                  /* Input ring queue */
-    ringq_t         outBuf;                 /* Output ring queue */
     ringq_t         lineBuf;                /* Line ring queue */
     socketAccept_t  accept;                 /* Accept handler */
     socketHandler_t handler;                /* User I/O handler */
@@ -1401,22 +1391,17 @@ extern void     socketCloseConnection(int sid);
 extern int      socketConnect(char *host, int port, int flags);
 extern void     socketCreateHandler(int sid, int mask, socketHandler_t handler, void *arg);
 extern void     socketDeleteHandler(int sid);
+extern void     socketReservice(int sid);
 extern int      socketEof(int sid);
-extern ssize    socketCanWrite(int sid);
-extern void     socketSetBufferSize(int sid, int in, int line, int out);
-extern int      socketFlush(int sid);
-extern ssize    socketGets(int sid, char_t **buf);
 extern int      socketGetPort(int sid);
 extern int      socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
                     WebsSockLenArg *addrlen);
-extern ssize    socketInputBuffered(int sid);
 extern bool     socketIsV6(int sid);
 extern int      socketOpen();
 extern int      socketListen(char *host, int port, socketAccept_t accept, int flags);
 extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int *secure, int defaultPort);
-extern void     socketProcess(int hid);
+extern void     socketProcess();
 extern ssize    socketRead(int sid, char *buf, ssize len);
-extern int      socketReady(int hid);
 extern ssize    socketWrite(int sid, char *buf, ssize len);
 extern ssize    socketWriteString(int sid, char_t *buf);
 extern int      socketSelect(int hid, int timeout);
@@ -1470,7 +1455,7 @@ extern void grunCallbacks();
 #define WEBS_SESSION            "-goahead-session-"
 
 /* 
-    Request flags
+    Request flags (MOB - reorder)
  */
 #define WEBS_LOCAL_PAGE         0x1         /* Request for local webs page */ 
 #define WEBS_KEEP_ALIVE         0x2         /* HTTP/1.1 keep alive */
@@ -1481,9 +1466,9 @@ extern void grunCallbacks();
 #define WEBS_HOME_PAGE          0x80        /* Request for the home page */ 
 #define WEBS_JS                 0x100       /* Javscript request */ 
 #define WEBS_HEAD_REQUEST       0x200       /* Head request */
-#define WEBS_CLEN               0x400       /* Request had a content length */
-#define WEBS_FORM               0x800       /* Request is a form */
-#define WEBS_POST_DATA          0x2000      /* Already appended post data */
+#define WEBS_FORM               0x800       /* Request is a form (url encoded data) */
+#define WEBS_DELETE_REQUEST     0x1000      /* Delete method */
+#define WEBS_PUT_REQUEST        0x2000      /* Put method */
 #define WEBS_CGI_REQUEST        0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
 #define WEBS_BASIC_AUTH         0x10000     /* Basic authentication request */
@@ -1491,6 +1476,7 @@ extern void grunCallbacks();
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
+#define WEBS_GET_REQUEST        0x200000    /* Get Request */
 
 /*
     URL handler flags
@@ -1502,12 +1488,16 @@ extern void grunCallbacks();
     Read handler flags and state
  */
 #define WEBS_BEGIN          0x1         /* Beginning state */
-#define WEBS_HEADER         0x2         /* Ready to read first line */
-#define WEBS_POST           0x4         /* POST without content */
-#define WEBS_POST_CLEN      0x8         /* Ready to read content for POST */
-#define WEBS_PROCESSING     0x10        /* Processing request */
+#define WEBS_CONTENT        0x2         /* Ready for body data */
+#define WEBS_RUNNING        0x4         /* Processing request */
+
 #define WEBS_KEEP_TIMEOUT   15000       /* Keep-alive timeout (15 secs) */
 #define WEBS_TIMEOUT        60000       /* General request timeout (60) */
+
+/*
+    WebsDone flags
+ */
+#define WEBS_CLOSE          0x20000
 
 /* Forward declare */
 #if BIT_AUTH
@@ -1522,7 +1512,8 @@ struct WebsSession;
     Per socket connection webs structure
  */
 typedef struct Webs {
-    ringq_t         header;             /* Header dynamic string */
+    ringq_t         input;              /* Request input buffer */
+    ringq_t         output;             /* Output buffer */
     time_t          since;              /* Parsed if-modified-since time */
     sym_fd_t        cgiVars;            /* CGI standard variables */
     sym_fd_t        cgiQuery;           /* CGI decoded query string */
@@ -1542,7 +1533,7 @@ typedef struct Webs {
     char_t          *decodedQuery;      /* Decoded request query */
     char_t          *method;            /* HTTP request method */
     char_t          *password;          /* Authorization password */
-    char_t          *userName;          /* Authorization username */
+    char_t          *username;          /* Authorization username */
     char_t          *cookie;            /* Request cookie string */
     char_t          *responseCookie;    /* Outgoing cookie */
     char_t          *authResponse;      /* Outgoing auth header */
@@ -1556,12 +1547,14 @@ typedef struct Webs {
     int             flags;              /* Current flags -- see above */
     int             code;               /* Response status code */
     int             clen;               /* Content length */
+    int             remainingContent;   /* Content length */
     int             wid;                /* Index into webs */
     char_t          *cgiStdin;          /* filename for CGI stdin */
+    int             cgiFd;              /* CGI stdin */
     int             docfd;              /* Document file descriptor */
     ssize           numbytes;           /* Bytes to transfer to browser */
     ssize           written;            /* Bytes actually transferred */
-    void            (*writeSocket)(struct Webs *wp);
+    void            (*writable)(struct Webs *wp);
 #if BIT_SESSIONS
     struct WebsSession *session;        /* Session record */
 #endif
@@ -1659,17 +1652,6 @@ typedef struct WebsRomIndex {
     Globals
  */
 extern int              websDebug;          /* Run in debug mode */
-#if UNUSED
-extern WebsRomIndex     websRomPageIndex[];
-extern WebsMime         websMimeList[];     /* List of mime types */
-extern sym_fd_t         websMime;           /* Set of mime types */
-extern Webs             **webs;             /* Connections */
-extern int              websMax;            /* List size */
-extern char_t           websHost[64];       /* Name of this host */
-extern char_t           websIpAddr[64];     /* IP address of this host */
-extern char_t           *websHostUrl;       /* URL for this host */
-extern char_t           *websIpAddrUrl;     /* URL for this host */
-#endif
 
 /**
     Decode base 64 blocks up to a NULL or equals
@@ -1687,9 +1669,6 @@ extern void websCgiCleanup();
 extern int websCheckCgiProc(int handle);
 extern void websClose();
 extern void websCloseListen(int sock);
-#if UNUSED
-extern void websCloseServer();
-#endif
 extern char_t *websDecode64(char_t *string);
 extern char_t *websDecode64Block(char_t *s, ssize *len, int flags);
 extern void websDecodeUrl(char_t *token, char_t *decoded, ssize len);
@@ -1737,9 +1716,6 @@ extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
 extern char_t *websNormalizeUriPath(char_t *path);
 extern int websOpen(char_t *documents, char_t *authPath);
 extern int websListen(char *endpoint);
-#if UNUSED
-extern int websOpenServer(char *ip, int port, int sslPort, char_t *documents);
-#endif
 extern void websPageClose(Webs *wp);
 extern int websPageIsDirectory(char_t *lpath);
 extern int websPageOpen(Webs *wp, char_t *lpath, char_t *path, int mode, int perm);
@@ -1747,7 +1723,6 @@ extern ssize websPageReadData(Webs *wp, char *buf, ssize nBytes);
 extern void websPageSeek(Webs *wp, EgFilePos offset);
 extern int websPageStat(Webs *wp, char_t *lpath, char_t *path, WebsFileInfo *sbuf);
 extern int websPublish(char_t *urlPrefix, char_t *path);
-extern void websReadEvent(Webs *wp);
 extern void websRedirect(Webs *wp, char_t *url);
 extern void websResponse(Webs *wp, int code, char_t *msg, char_t *redirect);
 extern void websRewriteRequest(Webs *wp, char_t *url);
@@ -1766,7 +1741,10 @@ extern void websSetIpAddr(char_t *ipaddr);
 extern void websSetRequestBytes(Webs *wp, ssize bytes);
 extern void websSetRequestLpath(Webs *wp, char_t *lpath);
 extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
+#if UNUSED
 extern void websSetRequestSocketHandler(Webs *wp, int mask, void (*fn)(Webs *wp));
+#endif
+//  MOB - do all these APIs exist?
 extern char_t *websGetRequestUserName(Webs *wp);
 extern void websServiceEvents(int *finished);
 extern void websSetRequestWritten(Webs *wp, ssize written);
@@ -1780,10 +1758,10 @@ extern int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int 
 extern void websUrlHandlerClose();
 extern int websUrlHandlerDelete(int (*fn)(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query));
 extern int websUrlHandlerOpen();
-extern int websUrlHandlerRequest(Webs *wp);
+extern void websHandleRequest(Webs *wp);
 extern int websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, char_t **proto, char_t **tag, char_t **ext);
 extern char_t *websUrlType(char_t *webs, char_t *buf, int charCnt);
-extern void websWriteHeaders(Webs *wp, int code, ssize nbytes, char_t *redirect);
+extern void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect);
 extern ssize websWriteHeader(Webs *wp, char_t *fmt, ...);
 extern ssize websWrite(Webs *wp, char_t *fmt, ...);
 extern ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars);
@@ -1879,7 +1857,7 @@ extern int websAddUserRole(char_t *name, char_t *role);
 extern bool websCan(Webs *wp, char_t *ability);
 extern void websCloseAuth();
 extern int websEnableUser(char_t *name, int enable);
-extern bool websFormLogin(Webs *wp, char_t *userName, char_t *password);
+extern bool websFormLogin(Webs *wp, char_t *username, char_t *password);
 extern int websOpenAuth(char_t *path);
 extern int websRemoveRole(char_t *role);
 

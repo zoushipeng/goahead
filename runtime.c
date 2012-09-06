@@ -95,7 +95,6 @@ static sym_t *hash(SymTab *tp, char_t *name);
 static void put_char(FmtBuf *buf, char_t c);
 static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
 static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f);
-static int ringqGrow(ringq_t *rq);
 
 #if BIT_DEBUG_LOG
 static void defaultTraceHandler(int level, char_t *buf);
@@ -1067,7 +1066,6 @@ void ringqClose(ringq_t *rq)
     if (rq == NULL) {
         return;
     }
-
     ringqFlush(rq);
     gfree((char*) rq->buf);
     rq->buf = NULL;
@@ -1108,7 +1106,7 @@ int ringqGetc(ringq_t *rq)
 
     cp = (char_t*) rq->servp;
     c = *cp++;
-    rq->servp = (uchar *) cp;
+    rq->servp = cp;
     if (rq->servp >= rq->endbuf) {
         rq->servp = rq->buf;
     }
@@ -1133,7 +1131,7 @@ int ringqPutc(ringq_t *rq, char_t c)
 
     cp = (char_t*) rq->endp;
     *cp++ = (char_t) c;
-    rq->endp = (uchar *) cp;
+    rq->endp = cp;
     if (rq->endp >= rq->endbuf) {
         rq->endp = rq->buf;
     }
@@ -1159,7 +1157,7 @@ int ringqInsertc(ringq_t *rq, char_t c)
     }
     cp = (char_t*) rq->servp;
     *--cp = (char_t) c;
-    rq->servp = (uchar *) cp;
+    rq->servp = cp;
     return 0;
 }
 
@@ -1175,7 +1173,7 @@ ssize ringqPutStr(ringq_t *rq, char_t *str)
     gassert(str);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
 
-    rc = ringqPutBlk(rq, (uchar*) str, gstrlen(str) * sizeof(char_t));
+    rc = ringqPutBlk(rq, str, gstrlen(str) * sizeof(char_t));
     *((char_t*) rq->endp) = (char_t) '\0';
     return rc;
 }
@@ -1188,6 +1186,7 @@ void ringqAddNull(ringq_t *rq)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(rq->endp < rq->endbuf);
 
     *((char_t*) rq->endp) = (char_t) '\0';
 }
@@ -1265,7 +1264,7 @@ int ringqPutStrA(ringq_t *rq, char *str)
     gassert(str);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
 
-    rc = ringqPutBlk(rq, (uchar*) str, strlen(str));
+    rc = ringqPutBlk(rq, str, strlen(str));
     rq->endp[0] = '\0';
     return rc;
 }
@@ -1275,7 +1274,7 @@ int ringqPutStrA(ringq_t *rq, char *str)
 /*
     Add a block of data to the ringq. Return the number of bytes added. Grow the q as required.
  */
-ssize ringqPutBlk(ringq_t *rq, uchar *buf, ssize size)
+ssize ringqPutBlk(ringq_t *rq, char *buf, ssize size)
 {
     ssize   this, bytes_put;
 
@@ -1313,7 +1312,7 @@ ssize ringqPutBlk(ringq_t *rq, uchar *buf, ssize size)
 /*
     Get a block of data from the ringq. Return the number of bytes returned.
  */
-ssize ringqGetBlk(ringq_t *rq, uchar *buf, ssize size)
+ssize ringqGetBlk(ringq_t *rq, char *buf, ssize size)
 {
     ssize   this, bytes_read;
 
@@ -1436,10 +1435,31 @@ void ringqFlush(ringq_t *rq)
     gassert(rq);
     gassert(rq->servp);
 
-    rq->servp = rq->buf;
-    rq->endp = rq->buf;
-    if (rq->servp) {
-        *rq->servp = '\0';
+    if (rq->buf) {
+        rq->servp = rq->buf;
+        rq->endp = rq->buf;
+        if (rq->servp) {
+            *rq->servp = '\0';
+        }
+    }
+}
+
+
+void ringqCompact(ringq_t *rq)
+{
+    ssize   len;
+    
+    if (rq->buf) {
+        if (rq->servp < rq->endp && rq->servp > rq->buf) {
+            ringqAddNull(rq);
+            len = ringqLen(rq) + 1;
+            memmove(rq->buf, rq->servp, len);
+            rq->endp -= rq->servp - rq->buf;
+            rq->servp = rq->buf;
+        } else {
+            rq->servp = rq->endp = rq->buf;
+            *rq->servp = '\0';
+        }
     }
 }
 
@@ -1448,9 +1468,9 @@ void ringqFlush(ringq_t *rq)
     Grow the buffer. Return true if the buffer can be grown. Grow using the increment size specified when opening the
     ringq. Don't grow beyond the maximum possible size.
  */
-static int ringqGrow(ringq_t *rq)
+int ringqGrow(ringq_t *rq)
 {
-    uchar   *newbuf;
+    char    *newbuf;
     ssize   len;
 
     gassert(rq);
@@ -2206,6 +2226,8 @@ int gparseArgs(char *args, char **argv, int maxArgc)
     return argc;
 }
 
+
+#if UNUSED
 #if VXWORKS
 
 /*
@@ -2238,7 +2260,6 @@ static char_t *getAbsolutePath(char_t *path)
 }
 
 
-#if UNUSED
 int vxchdir(char_t *dirname)
 {
     char_t  *path;

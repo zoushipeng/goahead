@@ -19,12 +19,12 @@
 #define     OCTAL   8
 #define     HEX     16
 
-static Js  **jsHandles;    /* List of js handles */
-static int     jsMax = -1;     /* Maximum size of  */
+static Js       **jsHandles;    /* List of js handles */
+static int      jsMax = -1;     /* Maximum size of  */
 
 /****************************** Forward Declarations **************************/
 
-static Js   *jsPtr(int eid);
+static Js       *jsPtr(int eid);
 static void     clearString(char_t **ptr);
 static void     setString(char_t **ptr, char_t *s);
 static void     appendString(char_t **ptr, char_t *s);

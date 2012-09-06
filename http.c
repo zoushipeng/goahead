@@ -171,6 +171,7 @@ static WebsError websErrors[] = {
     { 403, T("Forbidden") },
     { 404, T("Not Found") },
     { 405, T("Access Denied") },
+    { 413, T("Request too large") },
     { 500, T("Internal Server Error") },
     { 501, T("Not Implemented") },
     { 503, T("Service Unavailable") },
@@ -183,11 +184,6 @@ static char_t   accessLog[64] = T("access.log");    /* Log filename */
 static int      accessFd;                           /* Log file handle */
 #endif
 
-#if BIT_PACK_SSL && UNUSED
-static int      websListenSock;                     /* Listen socket */
-static int      sslListenSock;                      /* SSL Listen socket */
-#endif
-
 #if BIT_SESSIONS
 static sym_fd_t sessions = -1;
 static int      sessionCount = 0;
@@ -196,12 +192,20 @@ static int      pruneId;                            /* Callback ID */
 
 /**************************** Forward Declarations ****************************/
 
-static int      setLocalHost();
-static int      getInput(Webs *wp, char_t **ptext, ssize *nbytes);
 static time_t   getTimeSinceMark(Webs *wp);
-static int      parseFirstLine(Webs *wp, char_t *text);
-static void     parseHeaders(Webs *wp);
+static char     *getToken(Webs *wp, char *delim);
+static bool     parseFirstLine(Webs *wp);
+static bool     parseHeaders(Webs *wp);
+static bool     processContent(Webs *wp);
+extern bool     parseIncoming(Webs *wp);
+extern bool     processParsed(Webs *wp);
+static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void* data);
+
+//  MOB - rename
+static ssize websFlush(Webs *wp); 
+static void websReadEvent(Webs *wp);
+static void websPump(Webs *wp);
 
 #if BIT_SESSIONS
 static void     pruneCache();
@@ -492,10 +496,32 @@ static void socketEvent(int sid, int mask, void *iwp)
         websReadEvent(wp);
     } 
     if (mask & SOCKET_WRITABLE) {
-        if (websValid(wp) && wp->writeSocket) {
-            (*wp->writeSocket)(wp);
+        if (websValid(wp) && wp->writable) {
+            (*wp->writable)(wp);
         }
     } 
+}
+
+//MOB is this used
+static bool websEof(Webs *wp)
+{
+#if BIT_PACK_SSL
+    if (wp->flags & WEBS_SECURE) {
+        return websSSLEof(wp);
+    }
+#endif
+    return socketEof(wp->sid);
+}
+
+
+static ssize websRead(Webs *wp, char *buf, ssize len)
+{
+#if BIT_PACK_SSL
+    if (wp->flags & WEBS_SECURE) {
+        return websSSLRead(wp, buf, len);
+    }
+#endif
+    return socketRead(wp->sid, buf, len);
 }
 
 
@@ -503,335 +529,100 @@ static void socketEvent(int sid, int mask, void *iwp)
     The webs read handler. This is the primary read event loop. It uses a state machine to track progress while parsing
     the HTTP request.  Note: we never block as the socket is always in non-blocking mode.
  */
-void websReadEvent(Webs *wp)
+static void websReadEvent(Webs *wp)
 {
-    char_t  *text;
-    ssize   len, nbytes, size;
-    int     rc, done, fd;
+    ringq_t     *ip;
+    ssize       nbytes, size, len;
 
     gassert(wp);
     gassert(websValid(wp));
 
-    text = NULL;
-    fd = -1;
     websSetTimeMark(wp);
+    ip = &wp->input;
 
-    /*
-        Read as many lines as possible. socketGets is called to read the header and socketRead is called to read posted
-        data.  
-     */
-    for (done = 0; !done; ) {
-        gfree(text);
-        text = NULL;
-        /*
-             Get more input into "text". Returns 0, if more data is needed to continue, -1 if finished with the request,
-             or 1 if all required data is available for current state.
+    while (websValid(wp)) {
+        /* 
+            Add one to clen for for a trailing null. Makes parsing much easier 
          */
-        while ((rc = getInput(wp, &text, &nbytes)) == 0) { }
-        if (rc < 0) {
-            break;
+        size = (!wp->clen || wp->clen > BIT_LIMIT_SOCKET_BUFFER) ? BIT_LIMIT_SOCKET_BUFFER : wp->clen + 1;
+        if ((ip->buflen - ringqLen(ip)) < size) {
+            ringqGrow(ip);
         }
-        /*
-            This is the state machine for the web server. 
-         */
-        switch(wp->state) {
-        case WEBS_BEGIN:
-            /*
-                Parse the first line of the Http header
-             */
-            if (parseFirstLine(wp, text) < 0) {
-                done++;
+        nbytes = websRead(wp, (char*) ip->endp, size - 1);
+        if (nbytes > 0) {
+            ip->endp += nbytes;
+            ringqAddNull(ip);
+        }
+        for (len = ringqLen(ip); len > 0; len = ringqLen(ip)) {
+            websPump(wp);
+            if (!websValid(wp)) {
+                return;
+            }
+            if (ringqLen(ip) == len) {
                 break;
             }
-            wp->state = WEBS_HEADER;
-            break;
-        
-        case WEBS_HEADER:
-            /*
-                Store more of the HTTP header. As we are doing line reads, we need to separate the lines with '\n'
-             */
-            if (ringqLen(&wp->header) > 0) {
-                ringqPutStr(&wp->header, T("\n"));
-            }
-            ringqPutStr(&wp->header, text);
-            break;
-
-        //  MOB - refactor POST_CLEN into POST
-        case WEBS_POST_CLEN:
-            /*
-                POST request with content specified by a content length.  
-                If this is a CGI request, write the data to the cgi stdin.
-             */
-#if BIT_CGI
-            if (wp->flags & WEBS_CGI_REQUEST) {
-                if (fd == -1) {
-                    fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
-                }
-                gwrite(fd, text, nbytes);
-            } else 
-#endif
-            if (wp->query) {
-                if (wp->query[0] && !(wp->flags & WEBS_POST_DATA)) {
-                    /*
-                        Special case where the POST request also had query data specified in the URL, ie.
-                        url?query_data. In this case the URL query data is separated by a '&' from the posted query
-                        data.
-                     */
-                    len = gstrlen(wp->query);
-                    if (text) {
-                        size = (len + gstrlen(text) + 2) * sizeof(char_t);
-                        wp->query = grealloc(wp->query, size);
-                        wp->query[len++] = '&';
-                        strcpy(&wp->query[len], text);
-                    }
-
-                } else {
-                    /*
-                        The existing query data came from the POST request so just append it.
-                     */
-                    if (text != NULL) {
-                        len = gstrlen(wp->query);
-                        size = (len +  gstrlen(text) + 1) * sizeof(char_t);
-                        wp->query = grealloc(wp->query, size);
-                        gstrcpy(&wp->query[len], text);
-                    }
-                }
-
+        }
+        if (nbytes < 0) {
+            if (wp->state == WEBS_BEGIN) {
+                /* EOF or error */
+                wp->flags &= ~WEBS_KEEP_ALIVE;
+                websDone(wp, 0);
             } else {
-                wp->query = gstrdup(text);
+                /* Request still active. Wait till complete or timer expires */
             }
-            /*
-                Calculate how much more post data is to be read.
-             */
-            wp->flags |= WEBS_POST_DATA;
-            wp->clen -= nbytes;
-            if (wp->clen > 0) {
-                if (nbytes > 0) {
-                    break;
-                }
-                done++;
-                break;
-            }
-            /*
-                No more data so process the request, (but be sure to close the input file first!).
-             */
-            if (fd != -1) {
-                gclose (fd);
-                fd = -1;
-            }
-            websUrlHandlerRequest(wp);
-            done++;
             break;
-
-        case WEBS_POST:
-            /*
-                POST without content-length specification. If this is a CGI request, write the data to the cgi stdin.
-                socketGets was used to get the data and it strips \n's so add them back in here.
-             */
-#if BIT_CGI
-            if (wp->flags & WEBS_CGI_REQUEST) {
-                if (fd == -1) {
-                    fd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666);
-                }
-                gwrite(fd, text, nbytes);
-                gwrite(fd, T("\n"), sizeof(char_t));
-            } else
-#endif
-            if (wp->query && *wp->query && !(wp->flags & WEBS_POST_DATA)) {
-                len = gstrlen(wp->query);
-                size = (len + gstrlen(text) + 2) * sizeof(char_t);
-                wp->query = grealloc(wp->query, size);
-                if (wp->query) {
-                    wp->query[len++] = '&';
-                    gstrcpy(&wp->query[len], text);
-                }
-
-            } else {
-                wp->query = gstrdup(text);
-            }
-            wp->flags |= WEBS_POST_DATA;
-            done++;
-            break;
-
-        default:
-            websError(wp, 404, T("Bad state"));
-            done++;
+        } else if (nbytes == 0 || wp->state != WEBS_CONTENT) {
             break;
         }
     }
-    if (fd != -1) {
-        fd = gclose (fd);
-    }
-    gfree(text);
 }
 
 
-/*
-    Get input from the browser. Return TRUE (!0) if the request has been handled. Return -1 on errors or if the request
-    has been processed, 1 if input read, and 0 to instruct the caller to call again for more input.
-  
-    Note: socketRead will Return the number of bytes read if successful. This may be less than the requested "bufsize"
-    and may be zero. It returns -1 for errors. It returns 0 for EOF. Otherwise it returns the number of bytes read.
-    Since this may be zero, callers should use socketEof() to distinguish between this and EOF.
- */
-static int getInput(Webs *wp, char_t **ptext, ssize *pnbytes) 
+static void websPump(Webs *wp)
 {
-    char_t  *text;
-    char    buf[BIT_LIMIT_SOCKET_BUFFER + 1];
-    ssize   nbytes, len;
+    bool    canProceed;
 
-    gassert(websValid(wp));
-    gassert(ptext);
-    gassert(pnbytes);
+    for (canProceed = 1; canProceed; ) {
+        switch (wp->state) {
+        case WEBS_BEGIN:
+            canProceed = parseIncoming(wp);
+            break;
+        case WEBS_CONTENT:
+            canProceed = processContent(wp);
+            break;
+        case WEBS_RUNNING:
+            websHandleRequest(wp);
+            return;
+        }
+    }
+}
 
-    *ptext = text = NULL;
-    *pnbytes = 0;
 
+bool parseIncoming(Webs *wp)
+{
+    ringq_t     *ip;
+    char_t      *end;
+
+    ip = &wp->input;
+    while (*ip->servp == '\r' || *ip->servp == '\n') {
+        ringqGetc(ip);
+    }
+    if ((end = gstrstr((char*) wp->input.servp, "\r\n\r\n")) == 0) {
+        if (ringqLen(&wp->input) >= BIT_LIMIT_HEADER) {
+            websError(wp, 413, T("Header too large"));
+        }
+        return 0;
+    }
     /*
-        If this request is a POST with a content length, we know the number of bytes to read so we use socketRead().
+        Parse the first line of the Http header
      */
-    if (wp->state == WEBS_POST_CLEN) {
-        len = (wp->clen > BIT_LIMIT_SOCKET_BUFFER) ? BIT_LIMIT_SOCKET_BUFFER : wp->clen;
-    } else {
-        len = 0;
+    if (!parseFirstLine(wp)) {
+        return 0;
     }
-    if (len > 0) {
-
-#if BIT_PACK_SSL
-        //  MOB - have wrapper. Call websRead()
-        if (wp->flags & WEBS_SECURE) {
-            nbytes = websSSLRead(wp, buf, len);
-        } else {
-            nbytes = socketRead(wp->sid, buf, len);
-        }
-#else
-        nbytes = socketRead(wp->sid, buf, len);
-#endif
-        if (nbytes < 0) {                       /* Error or EOF */
-            websDone(wp, 0);
-            return -1;
-
-        }  else if (nbytes == 0) {              /* No data available */
-            return -1;
-
-        } else {                                /* Valid data */
-            /*
-                Convert to UNICODE if necessary.  First be sure the string is NULL terminated.
-             */
-            buf[nbytes] = '\0';
-            if ((text = gallocAscToUni(buf, nbytes)) == NULL) {
-                websError(wp, 503, T("Insufficient memory"));
-                return -1;
-            }
-        }
-
-    } else {
-#if BIT_PACK_SSL
-        if (wp->flags & WEBS_SECURE) {
-            nbytes = websSSLGets(wp, &text);
-        } else {
-            nbytes = socketGets(wp->sid, &text);
-        }
-#else
-        nbytes = socketGets(wp->sid, &text);
-#endif
-
-        if (nbytes < 0) {
-            int eof;
-            /*
-                Error, EOF or incomplete
-             */
-#if BIT_PACK_SSL
-            if (wp->flags & WEBS_SECURE) {
-                /*
-                    If state is WEBS_BEGIN and the request is secure, a -1 will usually indicate SSL negotiation
-                 */
-                if (wp->state == WEBS_BEGIN) {
-                    eof = 1;
-                } else {
-                    eof = websSSLEof(wp);
-                }
-            } else {
-                eof = socketEof(wp->sid);
-            }
-#else
-            eof = socketEof(wp->sid);
-#endif
-
-            if (eof) {
-                /*
-                    If this is a post request without content length, process the request as we now have all the data.
-                    Otherwise just close the connection.
-                 */
-                if (wp->state == WEBS_POST) {
-                    websUrlHandlerRequest(wp);
-                } else {
-                    websDone(wp, 0);
-                    return -1;
-                }
-            } else if (wp->state == WEBS_HEADER) {
-                /*
-                 If state is WEBS_HEADER and the ringq is empty, then this is a simple request with no additional header
-                 fields to process and no empty line terminator. NOTE: this fix for earlier versions of browsers is
-                 troublesome because if we don't receive the entire header in the first pass this code assumes we were
-                 only expecting a one line header, which is not necessarily the case. So we weren't processing the whole
-                 header and weren't fufilling requests properly.
-                 */
-                return -1;
-            } else {
-                /*
-                    If an error occurred and it wasn't an eof, close the connection
-                    MOB - 
-                 */
-                websDone(wp, 0);
-                return -1;
-            }
-
-        } else if (nbytes == 0) {
-            if (wp->state == WEBS_HEADER) {
-                /*
-                    Valid empty line, now finished with header
-                 */
-                trace(2, T("\n"));
-                parseHeaders(wp);
-                if (wp->flags & WEBS_POST_REQUEST) {
-                    if (wp->flags & WEBS_CLEN) {
-                        wp->state = WEBS_POST_CLEN;
-                        if (wp->clen > 0) {
-                            /* Need to get more data */
-                            return 0;
-                        }
-                    } else {
-                        wp->state = WEBS_POST;
-                        if (!(wp->flags & WEBS_HTTP11)) {
-                            return 0;
-                        }
-                        /* HTTP/1.1 without a content length */
-                    }
-                }
-                /*
-                    We've read the header so go and handle the request
-                 */
-                websUrlHandlerRequest(wp);
-            }
-            return -1;
-        }
+    if (!parseHeaders(wp)) {
+        return 0;
     }
-    gassert(text);
-    gassert(nbytes > 0);
-    *ptext = text;
-    *pnbytes = nbytes;
-
-    /*
-        Trace the request 
-     */
-    if (wp->state <= WEBS_HEADER) {
-        if (wp->state == WEBS_BEGIN) {
-            trace(2, T("<<< Request\n%s\n"), text);
-        } else {
-            trace(2, T("%s\n"), text);
-        }
-    }
+    wp->state = wp->clen ? WEBS_CONTENT : WEBS_RUNNING;
     return 1;
 }
 
@@ -839,42 +630,59 @@ static int getInput(Webs *wp, char_t **ptext, ssize *pnbytes)
 /*
     Parse the first line of a HTTP request
  */
-static int parseFirstLine(Webs *wp, char_t *text)
+static bool parseFirstLine(Webs *wp)
 {
-    char_t  *op, *proto, *protoVer, *url, *host, *query, *path, *port, *ext;
-    char_t  *buf;
+    char_t  *op, *proto, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
     int     testPort;
 
     gassert(websValid(wp));
-    gassert(text && *text);
 
     /*
         Determine the request type: GET, HEAD or POST
      */
-    op = gstrtok(text, T(" \t"));
+    op = getToken(wp, 0);
     if (op == NULL || *op == '\0') {
-        websError(wp, 400, T("Bad HTTP request"));
-        return -1;
+        websError(wp, 400 | WEBS_CLOSE, T("Bad HTTP request"));
+        return 0;
     }
-    if (gstrcmp(op, T("GET")) != 0) {
-        if (gstrcmp(op, T("POST")) == 0) {
-            wp->flags |= WEBS_POST_REQUEST;
-        } else if (gstrcmp(op, T("HEAD")) == 0) {
-            wp->flags |= WEBS_HEAD_REQUEST;
-        } else {
-            websError(wp, 400, T("Bad request type"));
-            return -1;
+    switch (op[0]) {
+    case 'D':
+        if (gstrcmp(op, "DELETE") == 0) {
+            wp->flags |= WEBS_DELETE_REQUEST;
         }
+        break;
+    case 'G':
+        if (gstrcmp(op, "GET") == 0) {
+            wp->flags |= WEBS_GET_REQUEST;
+        }
+        break;
+    case 'H':
+        if (gstrcmp(op, "HEAD") == 0) {
+            wp->flags |= WEBS_HEAD_REQUEST;
+        }
+        break;
+    case 'P':
+        if (gstrcmp(op, "POST") == 0) {
+            wp->flags |= WEBS_POST_REQUEST;
+        } else if (gstrcmp(op, "PUT") == 0) {
+            wp->flags |= WEBS_PUT_REQUEST;
+        }
+        break;
+
+    default:
+        websError(wp, 400 | WEBS_CLOSE, T("Bad request type"));
+        return 0;
     }
     wp->method = gstrdup(op);
     websSetVar(wp, T("REQUEST_METHOD"), wp->method);
 
-    url = gstrtok(NULL, T(" \t\n"));
+    url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
-        websError(wp, 400, T("Bad HTTP request"));
-        return -1;
+        websError(wp, 400 | WEBS_CLOSE, T("Bad HTTP request"));
+        return 0;
     }
-    protoVer = gstrtok(NULL, T(" \t\n"));
+    protoVer = getToken(wp, "\r\n");
+    trace(2, T("<<< Request\n%s %s %s\n"), wp->method, url, protoVer);
 
     /*
         Parse the URL and store all the various URL components. websUrlParse returns an allocated buffer in buf which we
@@ -883,12 +691,13 @@ static int parseFirstLine(Webs *wp, char_t *text)
      */
     host = path = port = proto = query = ext = NULL;
     if (websUrlParse(url, &buf, &host, &path, &port, &query, &proto, NULL, &ext) < 0) {
-        websError(wp, 400, T("Bad URL format"));
-        return -1;
+        websError(wp, 400 | WEBS_CLOSE, T("Bad URL format"));
+        return 0;
     }
     if ((wp->path = websNormalizeUriPath(path)) == 0) {
-        websError(wp, 400, T("Bad URL format"));
-        return -1;
+        websError(wp, 400 | WEBS_CLOSE, T("Bad URL format"));
+        gfree(buf);
+        return 0;
     }
     wp->url = gstrdup(url);
     wp->dir = gstrdup( websGetDefaultDir());
@@ -899,6 +708,11 @@ static int parseFirstLine(Webs *wp, char_t *text)
         wp->flags |= WEBS_CGI_REQUEST;
         if (wp->flags & WEBS_POST_REQUEST) {
             wp->cgiStdin = websGetCgiCommName();
+            if ((wp->cgiFd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
+                websError(wp, 400 | WEBS_CLOSE, T("Can't open CGI file"));
+                gfree(buf);
+                return 0;
+            }
         }
     }
 #endif
@@ -908,6 +722,13 @@ static int parseFirstLine(Webs *wp, char_t *text)
     wp->protoVersion = gstrdup(protoVer);
     if (gmatch(protoVer, "HTTP/1.1")) {
         wp->flags |= WEBS_KEEP_ALIVE | WEBS_HTTP11;
+    } else {
+        wp->flags &= ~(WEBS_HTTP11);
+#if UNUSED
+        if (wp->flags & (WEBS_POST_REQUEST | WEBS_PUT_REQUEST)) {
+            wp->clen = MAXINT;
+        }
+#endif
     }
     if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
         wp->port = testPort;
@@ -919,20 +740,22 @@ static int parseFirstLine(Webs *wp, char_t *text)
     }
     gfree(buf);
     websUrlType(url, wp->type, TSZ(wp->type));
-    ringqFlush(&wp->header);
-    return 0;
+    return 1;
 }
 
 
 /*
     Parse a full request
  */
-static void parseHeaders(Webs *wp)
+static bool parseHeaders(Webs *wp)
 {
-    char_t  *upperKey, *cp, *lp, *key, *value, *tok;
+    char        *ckey, *cvalue;
+    char_t      *upperKey, *cp, *key, *value, *tok;
+    int         count;
 
     gassert(websValid(wp));
 
+    trace(2, T("%s"), wp->input.servp);
     websSetVar(wp, T("HTTP_AUTHORIZATION"), T(""));
 
     /* 
@@ -940,16 +763,26 @@ static void parseHeaders(Webs *wp)
         We rewrite the header as we go for non-local requests.  NOTE: this
         modifies the header string directly and tokenizes each line with '\0'.
     */
-    for (lp = (char_t*) wp->header.servp; lp && *lp; ) {
-        cp = lp;
-        if ((lp = gstrchr(lp, '\n')) != NULL) {
-            lp++;
+    for (count = 0; wp->input.servp[0] != '\r'; count++) {
+        if (count >= BIT_LIMIT_NUM_HEADERS) {
+            websError(wp, 400 | WEBS_CLOSE, "Too many headers");
+            return 0;
         }
-        if ((key = gstrtok(cp, T(": \t\n"))) == NULL) {
+        if ((ckey = getToken(wp, ":")) == NULL) {
             continue;
         }
-        if ((value = gstrtok(NULL, T("\n"))) == NULL) {
-            value = T("");
+        if ((cvalue = getToken(wp, "\r\n")) == NULL) {
+            cvalue = "";
+        }
+        if (!ckey || !cvalue) {
+            websError(wp, 400 | WEBS_CLOSE, "Bad header format");
+            return 0;
+        }
+        key = gallocAscToUni(ckey, strlen(ckey));
+        value = gallocAscToUni(cvalue, strlen(cvalue));
+        if (!key || !value) {
+            websError(wp, 503 | WEBS_CLOSE, T("Insufficient memory"));
+            return 0;
         }
         while (gisspace(*value)) {
             value++;
@@ -982,20 +815,29 @@ static void parseHeaders(Webs *wp)
 
         } else if (gstrcmp(key, T("content-length")) == 0) {
             wp->clen = gatoi(value);
+            if (wp->clen > BIT_LIMIT_BODY) {
+                websError(wp, 413 | WEBS_CLOSE, T("Too big"));
+                return 0;
+            }
             if (wp->clen > 0) {
-                wp->flags |= WEBS_CLEN;         
                 websSetVar(wp, T("CONTENT_LENGTH"), value);
             } else {
                 wp->clen = 0;
             }
+
         } else if (gstrcmp(key, T("content-type")) == 0) {
             websSetVar(wp, T("CONTENT_TYPE"), value);
+            if (strstr(value, "application/x-www-form-urlencoded")) {
+                wp->flags |= WEBS_FORM;
+            }
 
 #if BIT_KEEP_ALIVE
         } else if (gstrcmp(key, T("connection")) == 0) {
             gstrlower(value);
             if (gstrcmp(value, T("keep-alive")) == 0) {
                 wp->flags |= WEBS_KEEP_ALIVE;
+            } else if (gstrcmp(value, T("close")) == 0) {
+                wp->flags &= ~WEBS_KEEP_ALIVE;
             }
 #endif
         } else if (gstrcmp(key, T("cookie")) == 0) {
@@ -1020,6 +862,29 @@ static void parseHeaders(Webs *wp)
 #endif /* WEBS_IF_MODIFIED_SUPPORT */
         }
     }
+    wp->input.servp += 2;
+    wp->remainingContent = wp->clen;
+    return 1;
+}
+
+
+static bool processContent(Webs *wp)
+{
+    ssize   nbytes;
+
+    nbytes = ringqLen(&wp->input);
+#if BIT_CGI
+    if (wp->flags & WEBS_CGI_REQUEST) {
+        gwrite(wp->cgiFd, wp->input.servp, nbytes);
+        ringqFlush(&wp->input);
+    }
+#endif
+    wp->remainingContent -= nbytes;
+    if (wp->remainingContent <= 0 || (!(wp->flags & WEBS_HTTP11) && websEof(wp))) {
+        wp->state = WEBS_RUNNING;
+        return 0;
+    }
+    return 1;
 }
 
 
@@ -1032,11 +897,44 @@ void websServiceEvents(int *finished)
     gassert(finished);
     *finished = 0;
     while (!*finished) {
-        if (socketReady(-1) || socketSelect(-1, 1000)) {
-            socketProcess(-1);
+        if (socketSelect(-1, 3600 * 1000)) {
+            socketProcess();
         }
         websCgiCleanup();
         grunCallbacks();
+    }
+}
+
+
+/*
+    NOTE: the vars variable is modified
+ */
+static void addFormVars(Webs *wp, char *vars)
+{
+    char_t  *keyword, *value, *prior, *valNew;
+
+    keyword = gstrtok(vars, T("&"));
+    while (keyword != NULL) {
+        if ((value = gstrchr(keyword, '=')) != NULL) {
+            *value++ = '\0';
+            websDecodeUrl(keyword, keyword, gstrlen(keyword));
+            websDecodeUrl(value, value, gstrlen(value));
+        } else {
+            value = T("");
+        }
+        if (*keyword) {
+            /*
+                If keyword has already been set, append the new value to what has been stored.
+             */
+            if ((prior = websGetVar(wp, keyword, NULL)) != 0) {
+                gfmtAlloc(&valNew, 256, T("%s %s"), prior, value);
+                websSetVar(wp, keyword, valNew);
+                gfree(valNew);
+            } else {
+                websSetVar(wp, keyword, value);
+            }
+        }
+        keyword = gstrtok(NULL, T("&"));
     }
 }
 
@@ -1048,7 +946,7 @@ void websServiceEvents(int *finished)
 void websSetEnv(Webs *wp)
 {
     char_t  portBuf[8];
-    char_t  *keyword, *value, *valCheck, *valNew;
+    char_t  *value;
 
     gassert(websValid(wp));
 
@@ -1073,29 +971,14 @@ void websSetEnv(Webs *wp)
         Decode and create an environment query variable for each query keyword. We split into pairs at each '&', then
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
      */
-    wp->decodedQuery = gstrdup(wp->query);
-    keyword = gstrtok(wp->decodedQuery, T("&"));
-    while (keyword != NULL) {
-        if ((value = gstrchr(keyword, '=')) != NULL) {
-            *value++ = '\0';
-            websDecodeUrl(keyword, keyword, gstrlen(keyword));
-            websDecodeUrl(value, value, gstrlen(value));
-        } else {
-            value = T("");
+    if (wp->query && *wp->query) {
+        wp->decodedQuery = gstrdup(wp->query);
+        addFormVars(wp, wp->decodedQuery);
+    }
+    if (wp->clen && ringqLen(&wp->input) > 0) {
+        if (wp->flags & WEBS_FORM) {
+            addFormVars(wp, wp->input.servp);
         }
-        if (*keyword) {
-            /*
-                If keyword has already been set, append the new value to what has been stored.
-             */
-            if ((valCheck = websGetVar(wp, keyword, NULL)) != 0) {
-                gfmtAlloc(&valNew, 256, T("%s %s"), valCheck, value);
-                websSetVar(wp, keyword, valNew);
-                gfree(valNew);
-            } else {
-                websSetVar(wp, keyword, value);
-            }
-        }
-        keyword = gstrtok(NULL, T("&"));
     }
 }
 
@@ -1201,11 +1084,6 @@ void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
 {
     gassert(websValid(wp));
 
-    /*
-        IE3.0 needs no Keep Alive for some return codes.
-        MOB - OPT REMOVE
-     */
-    wp->flags &= ~WEBS_KEEP_ALIVE;
     if ((wp->flags & WEBS_HEAD_REQUEST) == 0 && message && *message) {
         websWriteHeaders(wp, code, glen(message) + 2, redirect);
         websWriteHeader(wp, T("\r\n"));
@@ -1260,85 +1138,6 @@ void websRedirect(Webs *wp, char_t *url)
     gfree(urlbuf);
 }
 
-
-#if UNUSED
-/*
-   websSafeUrl -- utility function to clean up URLs that will be printed by the websError() function, below. To prevent
-   problems with the 'cross-site scripting exploit', where attackers request an URL containing embedded JavaScript code,
-   we replace all '<' and '>' characters with HTML entities so that the user's browser will not interpret the URL as
-   JavaScript.
- */
-static int charCount(const char_t* str, char_t ch)
-{
-   int count = 0;
-   char_t* p = (char_t*) str;
-   
-    if (NULL == str) {
-        return 0;
-    }
-
-    while (1) {
-        p = gstrchr(p, ch);
-        if (NULL == p) {
-            break;
-        }
-        /*
-            increment the count, and begin looking at the next character
-        */
-        ++count;
-        ++p;
-    }
-    return count;
-}
-
-
-#define kLt '<'
-#define kLessThan T("&lt;")
-#define kGt '>'
-#define kGreaterThan T("&gt;")
-
-static char_t* websSafeUrl(const char_t* url)
-{
-    //  MOB refactor code style, and review
-    int ltCount = charCount(url, kLt);
-    int gtCount = charCount(url, kGt);
-    ssize safeLen = 0;
-    char_t* safeUrl = NULL;
-    char_t* src = NULL;
-    char_t* dest = NULL;
-
-    if (NULL != url) {
-        safeLen = gstrlen(url);
-        if (ltCount == 0 && gtCount == 0) {
-            safeUrl = gstrdup((char_t*) url);
-        } else {
-            safeLen += (ltCount * 4);
-            safeLen += (gtCount * 4);
-
-            safeUrl = galloc(safeLen);
-            if (safeUrl != NULL) {
-                src = (char_t*) url;
-                dest = safeUrl;
-                while (*src) {
-                    if (*src == kLt) {
-                        gstrcpy(dest, kLessThan);
-                        dest += gstrlen(kLessThan);
-                    } else if (*src == kGt) {
-                        gstrcpy(dest, kGreaterThan);
-                        dest += gstrlen(kGreaterThan);
-                    } else {
-                        *dest++ = *src;
-                    }
-                    ++src;
-                }
-                /* don't forget to terminate the string...*/
-                *dest = '\0';
-            }
-        }
-    }
-    return safeUrl;
-}
-#endif
 
 /*  
     Escape HTML to escape defined characters (prevent cross-site scripting)
@@ -1416,8 +1215,14 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     gassert(websValid(wp));
     gassert(fmt);
 
-    websStats.errors++;
-
+    if (code & WEBS_CLOSE) {
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+        code &= ~WEBS_CLOSE;
+    }
+    if (wp->remainingContent && code != 200 && code != 301 && code != 302 && code != 401) {
+        /* Close connection so we don't have to consume remaining content */
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+    }
     encoded = websEscapeHtml(wp->url);
     gfree(wp->url);
     wp->url = encoded;
@@ -1425,6 +1230,7 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     va_start(args, fmt);
     gfmtValloc(&userMsg, BIT_LIMIT_BUFFER, fmt, args);
     va_end(args);
+    error(T("%s"), userMsg);
 
     encoded = websEscapeHtml(userMsg);
     gfree(userMsg);
@@ -1437,6 +1243,7 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     websResponse(wp, code, buf, NULL);
     gfree(buf);
     gfree(userMsg);
+    websStats.errors++;
 }
 
 
@@ -1452,8 +1259,7 @@ char_t *websErrorMsg(int code)
             return ep->msg;
         }
     }
-    gassert(0);
-    return T("");
+    return websErrorMsg(500);
 }
 
 
@@ -1490,7 +1296,7 @@ ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
 /*
     Write a set of headers. Does not write the trailing blank line so callers can add more headers
  */
-void websWriteHeaders(Webs *wp, int code, ssize nbytes, char_t *redirect)
+void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
 {
     char_t      *date;
 
@@ -1514,7 +1320,7 @@ void websWriteHeaders(Webs *wp, int code, ssize nbytes, char_t *redirect)
         if (wp->authResponse) {
             websWriteHeader(wp, T("WWW-Authenticate: %s\r\n"), wp->authResponse);
         }
-        if (nbytes < 0) {
+        if (contentLength < 0) {
             wp->flags &= ~WEBS_KEEP_ALIVE;
         }
         if (wp->flags & WEBS_KEEP_ALIVE) {
@@ -1522,13 +1328,14 @@ void websWriteHeaders(Webs *wp, int code, ssize nbytes, char_t *redirect)
         } else {
             websWriteHeader(wp, T("Connection: close\r\n"));   
         }
-        if (wp->flags & (WEBS_JS | WEBS_CGI_REQUEST | WEBS_FORM)) {
+        if (wp->flags & (WEBS_JS | WEBS_CGI_REQUEST)) {
+            //  MOB - should be set in handlers and not here
             websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
         }
         if (wp->flags & WEBS_HEAD_REQUEST) {
-            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) nbytes);                                           
-        } else if (nbytes >= 0) {                                                                                    
-            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) nbytes);                                           
+            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
+        } else if (contentLength >= 0) {                                                                                    
+            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
             websSetRequestBytes(wp, bytes);                                                                    
         }  
         if (redirect) {
@@ -1572,93 +1379,124 @@ ssize websWrite(Webs *wp, char_t *fmt, ...)
 }
 
 
-/*
-    Write a block of data of length "nChars" to the user's browser. Public write block procedure.  If unicode is turned
-    on this function expects buf to be a unicode string and it converts it to ASCII before writing.  See
-    websWriteDataNonBlock to always write binary or ASCII data with no unicode conversion.  This returns the number of
-    char_t's processed.  It spins until nChars are flushed to the socket.  For non-blocking behavior, use
-    websWriteDataNonBlock.
- */
-ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars)
+static ssize bufferOutput(Webs *wp, char *buf, ssize size) 
 {
-    char    *asciiBuf, *pBuf;
-    ssize   len, done;
+    ringq_t     *op;
+    ssize       sofar, thisWrite, len, room;
 
-    gassert(wp);
-    gassert(websValid(wp));
-    gassert(buf);
-    gassert(nChars >= 0);
-
-    done = len = 0;
-
-    /*
-        gallocUniToAsc will convert Unicode to strings to Ascii.  If Unicode is
-        not turned on then gallocUniToAsc will not do the conversion.
-     */
-    pBuf = asciiBuf = gallocUniToAsc(buf, nChars);
-
-    while (nChars > 0) {  
-#if BIT_PACK_SSL
-        if (wp->flags & WEBS_SECURE) {
-            if ((len = websSSLWrite(wp, pBuf, nChars)) < 0) {
-                gfree(asciiBuf);
-                return -1;
+    op = &wp->output;
+    sofar = 0;
+    while (size > 0) {
+        len = ringqLen(op);
+        room = op->buflen - len;
+        if (len > 0 && room < size) {
+            if (websFlush(wp) > 0) {
+                continue;
             }
-            websSSLFlush(wp);
-        } else {
-            //  MOB - refactor duplicate
-            if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
-                gfree(asciiBuf);
-                return -1;
+            if (op->buflen < op->maxsize) {
+                ringqGrow(op);
+                continue;
             }
-            socketFlush(wp->sid);
         }
-#else
-        if ((len = socketWrite(wp->sid, pBuf, nChars)) < 0) {
-            gfree(asciiBuf);
-            return -1;
+        if (room == 0) {
+            break;
         }
-        socketFlush(wp->sid);
-#endif
-        nChars -= len;
-        pBuf += len;
-        done += len;
+        thisWrite = min(room, size);
+        ringqPutBlk(op, buf, thisWrite);
+        size -= thisWrite;
+        buf += thisWrite;
+        sofar += thisWrite;
     }
-    gfree(asciiBuf);
-    return done;
+    return sofar;
 }
 
 
 /*
-    Write a block of data of length "nChars" to the user's browser. Same as websWriteBlock except that it expects
-    straight ASCII or binary and does no unicode conversion before writing the data.  If the socket cannot hold all the
-    data, it will return the number of bytes flushed to the socket before it would have blocked.  This returns the
-    number of chars processed or -1 if socketWrite fails.
+    Write a block of data of length "size" to the user's browser. Public write block procedure.  If unicode 
+    is turned on this function expects buf to be a unicode string and it converts it to ASCII before writing. See
+    websWriteDataNonBlock to always write binary or ASCII data with no unicode conversion.  This returns the number of
+    char_t's processed.  It spins until all the data is absorbed.
  */
-ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars)
+//  MOB - review API websWriteUni()
+ssize websWriteBlock(Webs *wp, char_t *buf, ssize size)
 {
-    //  MOB - naming
-    ssize   r;
+    char    *asciiBuf, *cp;
+    ssize   len, written;
 
     gassert(wp);
     gassert(websValid(wp));
     gassert(buf);
-    gassert(nChars >= 0);
+    gassert(size >= 0);
+
+    written = len = 0;
+    cp = asciiBuf = gallocUniToAsc(buf, size);
+
+    //  MOB - WARNING: spins
+    while (size > 0) {  
+        if ((len = bufferOutput(wp, cp, size)) < 0) {
+            gfree(asciiBuf);
+            return -1;
+        }
+        size -= len;
+        cp += len;
+        written += len;
+    }
+    gfree(asciiBuf);
+    return written;
+}
+
+
+static ssize writeToSocket(Webs *wp, char *buf, ssize size)
+{
+    ssize   written;
 
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
-        r = websSSLWrite(wp, buf, nChars);
+        if ((written = websSSLWrite(wp, buf, size)) < 0) {
+            return -1;
+        }
         websSSLFlush(wp);
-    } else {
-        //  MOB - refactor duplicate
-        r = socketWrite(wp->sid, buf, nChars);
-        socketFlush(wp->sid);
-    }
-#else
-    r = socketWrite(wp->sid, buf, nChars);
-    socketFlush(wp->sid);
+    } else 
 #endif
-    return r;
+    if ((written = socketWrite(wp->sid, buf, size)) < 0) {
+        return -1;
+    }
+    return written;
+}
+
+
+static ssize websFlush(Webs *wp) 
+{
+    ringq_t     *op;
+    ssize       written, size;
+
+    op = &wp->output;
+    size = ringqLen(&wp->output);
+    written = 0;
+
+    if (size > 0 && ((written = writeToSocket(wp, (char*) op->servp, size))) > 0) {
+        ringqGetBlkAdj(op, written);
+        ringqCompact(op);
+    }
+    return written;
+}
+
+
+/*
+    Write a block of data of length "size" to the user's browser. Same as websWriteBlock except that it expects
+    straight ASCII or binary and does no unicode conversion before writing the data.  If the socket cannot hold all the
+    data, it will return the number of bytes flushed to the socket before it would have blocked.  This returns the
+    number of chars processed or -1 if socketWrite fails.
+ */
+//  MOB - review API
+ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize size)
+{
+    ssize   written;
+    
+    if ((written = websFlush(wp)) < 0) {
+        return written;
+    }
+    return writeToSocket(wp, buf, size);
 }
 
 
@@ -1745,7 +1583,7 @@ static void logRequest(Webs *wp, int code)
     gfmtAlloc(&buf, BIT_LIMIT_URL + 80, 
         T("%s - %s [%s %s] \"%s %s %s\" %d %s\n"), 
         wp->ipaddr,
-        wp->userName == NULL ? "-" : wp->userName,
+        wp->username == NULL ? "-" : wp->username,
         timeStr, zoneStr,
         wp->flags & WEBS_POST_REQUEST ? "POST" : (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"), wp->path,
         wp->protoVersion, code, dataStr);
@@ -1788,17 +1626,15 @@ void websTimeout(void *arg, int id)
 
 
 /*
-    Called when the request is done.
+    Called when the request is complete.
  */
 void websDone(Webs *wp, int code)
 {
     gassert(websValid(wp));
 
-    wp->code = code;
+    websFlush(wp);
+    wp->code = code & ~WEBS_CLOSE;
     socketDeleteHandler(wp->sid);
-    if (code != 200) {
-        wp->flags &= ~WEBS_KEEP_ALIVE;
-    }
 #if BIT_ACCESS_LOG
     logRequest(wp, code);
 #endif
@@ -1814,27 +1650,31 @@ void websDone(Webs *wp, int code)
         return;
     }
 #endif
-    /*
-        If using Keep Alive (HTTP/1.1) we keep the socket open for a period while waiting for another request on the socket. 
-     */
-    if (wp->flags & WEBS_KEEP_ALIVE) {
-        if (socketFlush(wp->sid) == 0) {
-            wp->state = WEBS_BEGIN;
-            wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
-            if (wp->header.buf) {
-                ringqFlush(&wp->header);
-            }
-            socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-            websTimeoutCancel(wp);
-            wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
-            return;
-        }
-    } else {
-        websTimeoutCancel(wp);
-        socketSetBlock(wp->sid, 1);
-        socketFlush(wp->sid);
-        socketCloseConnection(wp->sid);
+#if BIT_CGI
+    if (wp->cgiFd > 0) {
+        gclose(wp->cgiFd);
     }
+#endif
+    if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
+        websFlush(wp);
+        wp->state = WEBS_BEGIN;
+        wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
+        if (wp->clen) {
+            ringqGetBlkAdj(&wp->input, wp->clen);
+        }
+        wp->clen = 0;
+        ringqCompact(&wp->input);
+        socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
+        if (ringqLen(&wp->input)) {
+            socketReservice(wp->sid);
+        }
+        websTimeoutCancel(wp);
+        wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+        return;
+    }
+    websTimeoutCancel(wp);
+    socketSetBlock(wp->sid, 1);
+    socketCloseConnection(wp->sid);
     websFree(wp);
 }
 
@@ -1857,13 +1697,15 @@ int websAlloc(int sid)
     wp->timeout = -1;
     wp->session = 0;
     gassert(wp->flags == 0);
-    ringqOpen(&wp->header, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS);
+    ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
+    ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
 
     /*
         Create storage for the CGI variables. We supply the symbol tables for both the CGI variables and for the global
         functions. The function table is common to all webs instances (ie. all browsers)
      */
     wp->cgiVars = symOpen(WEBS_SYM_INIT);
+    wp->cgiFd = 0;
     return wid;
 }
 
@@ -1881,7 +1723,7 @@ void websFree(Webs *wp)
     gfree(wp->decodedQuery);
     gfree(wp->authType);
     gfree(wp->password);
-    gfree(wp->userName);
+    gfree(wp->username);
     gfree(wp->cookie);
     gfree(wp->responseCookie);
     gfree(wp->userAgent);
@@ -1909,9 +1751,8 @@ void websFree(Webs *wp)
 #endif
     symClose(wp->cgiVars);
 
-    if (wp->header.buf) {
-        ringqClose(&wp->header);
-    }
+    ringqClose(&wp->input);
+    ringqClose(&wp->output);
     websMax = gfreeHandle((void***) &webs, wp->wid);
     gfree(wp);
     gassert(websMax >= 0);
@@ -2011,7 +1852,7 @@ char_t *websGetRequestType(Webs *wp)
 char_t *websGetRequestUserName(Webs *wp)
 {
     gassert(websValid(wp));
-    return wp->userName;
+    return wp->username;
 }
 
 
@@ -2139,17 +1980,6 @@ void websRewriteRequest(Webs *wp, char_t *url)
     websSetRequestPath(wp, NULL, wp->url);
     gfree(wp->lpath);
     gfmtAlloc(&wp->lpath, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
-}
-
-
-/*
-    Set the Write handler for this socket
- */
-void websSetRequestSocketHandler(Webs *wp, int mask, void (*fn)(Webs *wp))
-{
-    gassert(websValid(wp));
-    wp->writeSocket = fn;
-    socketCreateHandler(wp->sid, SOCKET_WRITABLE, socketEvent, wp);
 }
 
 
@@ -2810,9 +2640,6 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
      */
     url = buf;
-#if UNUSED
-    gstritoa(websGetPort(), portbuf, WEBS_MAX_PORT_LEN);
-#endif
     port = portbuf;
     path = T("/");
     proto = T("http");
@@ -3236,7 +3063,7 @@ char *websGetSessionID(Webs *wp)
         return wp->session->id;
     }
     cookies = wp->cookie;
-    for (cookie = cookies; cookie && (value = strstr(cookie, WEBS_SESSION)) != 0; cookie = value) {
+    for (cookie = cookies; cookie && (value = gstrstr(cookie, WEBS_SESSION)) != 0; cookie = value) {
         value += strlen(WEBS_SESSION);
         while (isspace((uchar) *value) || *value == '=') {
             value++;
@@ -3297,6 +3124,40 @@ int websSetSessionVar(Webs *wp, char_t *key, char_t *value)
         return -1;
     }
     return 0;
+}
+
+
+/*
+    Get the next token from the input ringq. This eats leading spaces and tabs.
+ */
+static char *getToken(Webs *wp, char *delim)
+{
+    ringq_t     *buf;
+    char        *token, *nextToken, *endToken;
+
+    gassert(wp);
+    buf = &wp->input;
+    nextToken = (char*) buf->endp;
+
+    for (token = (char*) buf->servp; (*token == ' ' || *token == '\t') && token < (char*) buf->endp; token++) {}
+
+    if (delim == 0) {
+        delim = " \t";
+        if ((endToken = strpbrk(token, delim)) != 0) {
+            nextToken = endToken + strspn(endToken, delim);
+            *endToken = '\0';
+        }
+    } else {
+        if ((endToken = strstr(token, delim)) != 0) {
+            *endToken = '\0';
+            /* Only eat one occurence of the delimiter */
+            nextToken = endToken + strlen(delim);
+        } else {
+            nextToken = buf->endp;
+        }
+    }
+    buf->servp = nextToken;
+    return token;
 }
 
 

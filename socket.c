@@ -19,8 +19,7 @@ int         socketOpenCount = 0;    /* Number of task using sockets */
 
 static int ipv6(char_t *ip);
 static void socketAccept(socket_t *sp);
-static int  socketDoEvent(socket_t *sp);
-static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode);
+static void socketDoEvent(socket_t *sp);
 
 /*********************************** Code *************************************/
 
@@ -259,45 +258,7 @@ static void socketAccept(socket_t *sp)
         if ((sp->accept)(nid, ipbuf, port, sp->sid) < 0) {
             socketFree(nid);
         }
-#if VXWORKS
-        free(ip);
-#endif
     }
-}
-
-
-/*
-    Get more from the socket and return in buf. Returns 0 for EOF, -1 for errors and otherwise the number of bytes read.  
- */
-ssize socketGetInput(int sid, char *buf, ssize toRead, int *errCode)
-{
-    socket_t            *sp;
-    ssize               bytesRead;
-
-    gassert(buf);
-    gassert(errCode);
-
-    *errCode = 0;
-
-    if ((sp = socketPtr(sid)) == NULL) {
-        return -1;
-    }
-
-    /*
-        If we have previously seen an EOF condition, then just return
-     */
-    if (sp->flags & SOCKET_EOF) {
-        return 0;
-    }
-    if ((bytesRead = recv(sp->sock, buf, toRead, 0)) < 0) {
-        *errCode = socketGetError();
-        if (*errCode == ECONNRESET) {
-            sp->flags |= SOCKET_CONNRESET;
-            return 0;
-        }
-        return -1;
-    }
-    return bytesRead;
 }
 
 
@@ -337,47 +298,25 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 }
 
 
+#if UNUSED
 /*
-    Return 1 if there is a socket with an event ready to process,
+    Return true if there is a socket with an event ready to process,
  */
-int socketReady(int sid)
+int socketReady()
 {
     socket_t    *sp;
-    int         all;
+    int         sid;
 
-    all = 0;
-    if (sid < 0) {
-        sid = 0;
-        all = 1;
-    }
-    for (; sid < socketMax; sid++) {
-        if ((sp = socketList[sid]) == NULL) {
-            if (! all) {
-                break;
-            } else {
-                continue;
+    for (sid = 0; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) != 0) {
+            if (sp->currentEvents & sp->handlerMask || sp->flags & SOCKET_RESERVICE) {
+                return 1;
             }
-        } 
-        if (sp->flags & SOCKET_CONNRESET) {
-            socketCloseConnection(sid);
-            return 0;
-        }
-        if (sp->currentEvents & sp->handlerMask) {
-            return 1;
-        }
-        /*
-            If there is input data, also call select to test for new events
-         */
-        if (sp->handlerMask & SOCKET_READABLE && socketInputBuffered(sid) > 0) {
-            socketSelect(sid, 0);
-            return 1;
-        }
-        if (! all) {
-            break;
         }
     }
     return 0;
 }
+#endif
 
 
 /*
@@ -422,10 +361,6 @@ int socketSelect(int sid, int timeout)
         if (sp->handlerMask & SOCKET_READABLE) {
             FD_SET(sp->sock, &readFds);
             nEvents++;
-            if (socketInputBuffered(sid) > 0) {
-                tv.tv_sec = 0;
-                tv.tv_usec = 0;
-            }
         }
         if (sp->handlerMask & SOCKET_WRITABLE) {
             FD_SET(sp->sock, &writeFds);
@@ -459,8 +394,7 @@ int socketSelect(int sid, int timeout)
         if ((sp = socketList[sid]) == NULL) {
             continue;
         }
-
-        if (FD_ISSET(sp->sock, &readFds) || socketInputBuffered(sid) > 0) {
+        if (FD_ISSET(sp->sock, &readFds) || sp->flags & SOCKET_RESERVICE) {
             sp->currentEvents |= SOCKET_READABLE;
         }
         if (FD_ISSET(sp->sock, &writeFds)) {
@@ -533,7 +467,7 @@ int socketSelect(int sid, int timeout)
         if (sp->handlerMask & SOCKET_READABLE) {
             readFds[index] |= bit;
             nEvents++;
-            if (socketInputBuffered(sid) > 0) {
+            if (sp->flags & SOCKET_RESERVICE) {
                 tv.tv_sec = 0;
                 tv.tv_usec = 0;
             }
@@ -571,8 +505,9 @@ int socketSelect(int sid, int timeout)
             index = sp->sock / (NBBY * sizeof(fd_mask));
             bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
 
-            if (readFds[index] & bit || socketInputBuffered(sid) > 0) {
+            if (readFds[index] & bit || sp->flags & SOCKET_RESERVICE) {
                 sp->currentEvents |= SOCKET_READABLE;
+                sp->flags &= ~SOCKET_RESERVICE;
             }
             if (writeFds[index] & bit) {
                 sp->currentEvents |= SOCKET_WRITABLE;
@@ -593,38 +528,24 @@ int socketSelect(int sid, int timeout)
 #endif /* WINDOWS || CE */
 
 
-void socketProcess(int sid)
+void socketProcess()
 {
     socket_t    *sp;
-    int         all;
+    int         sid;
 
-    all = 0;
-    if (sid < 0) {
-        all = 1;
-        sid = 0;
-    }
-    for (; sid < socketMax; sid++) {
-        if ((sp = socketList[sid]) == NULL) {
-            if (! all) {
-                break;
-            } else {
-                continue;
+    for (sid = 0; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) != NULL) {
+            if (sp->currentEvents & sp->handlerMask /* || sp->flags & SOCKET_RESERVICE */) {
+                socketDoEvent(sp);
             }
-        }
-        if (socketReady(sid)) {
-            socketDoEvent(sp);
-        }
-        if (! all) {
-            break;
         }
     }
 }
 
 
-static int socketDoEvent(socket_t *sp)
+static void socketDoEvent(socket_t *sp)
 {
-    ringq_t     *rq;
-    int         sid;
+    int     sid;
 
     gassert(sp);
 
@@ -633,30 +554,12 @@ static int socketDoEvent(socket_t *sp)
         if (sp->flags & SOCKET_LISTENING) { 
             socketAccept(sp);
             sp->currentEvents = 0;
-            return 1;
+            return;
         } 
-
-    } else {
-        /*
-             If there is still read data in the buffers, trigger the read handler
-             NOTE: this may busy spin if the read handler doesn't read the data
-         */
-        if (sp->handlerMask & SOCKET_READABLE && socketInputBuffered(sid) > 0) {
-            sp->currentEvents |= SOCKET_READABLE;
-        }
-    }
-    /*
-        If now writable and flushing in the background, continue flushing
-     */
-    if (sp->currentEvents & SOCKET_WRITABLE) {
-        if (sp->flags & SOCKET_FLUSHING) {
-            rq = &sp->outBuf;
-            if (ringqLen(rq) > 0) {
-                socketFlush(sp->sid);
-            } else {
-                sp->flags &= ~SOCKET_FLUSHING;
-            }
-        }
+#if UNUSED
+    } else if (sp->handlerMask & SOCKET_READABLE && sp->flags & SOCKET_RESERVICE) {
+        sp->currentEvents |= SOCKET_READABLE;
+#endif
     }
 
     /*
@@ -672,7 +575,6 @@ static int socketDoEvent(socket_t *sp)
             sp->currentEvents = 0;
         }
     }
-    return 1;
 }
 
 
@@ -736,90 +638,37 @@ int socketSetBlock(int sid, int on)
 
 
 /*
-    Return true if a readable socket has buffered data. - not public
- */
-int socketDontBlock()
-{
-    socket_t    *sp;
-    int         i;
-
-    for (i = 0; i < socketMax; i++) {
-        if ((sp = socketList[i]) == NULL || (sp->handlerMask & SOCKET_READABLE) == 0) {
-            continue;
-        }
-        if (socketInputBuffered(i) > 0) {
-            return 1;
-        }
-    }
-    return 0;
-}
-
-
-/*
-    Return true if a particular socket buffered data. - not public
- */
-ssize socketSockBuffered(int sock)
-{
-    socket_t    *sp;
-    int         i;
-
-    for (i = 0; i < socketMax; i++) {
-        if ((sp = socketList[i]) == NULL || sp->sock != sock) {
-            continue;
-        }
-        return socketInputBuffered(i);
-    }
-    return 0;
-}
-
-
-/*
     Write to a socket. Absorb as much data as the socket can buffer. Block if the socket is in blocking mode. Returns -1
     on error, otherwise the number of bytes written.
  */
 ssize socketWrite(int sid, char *buf, ssize bufsize)
 {
     socket_t    *sp;
-    ringq_t     *rq;
-    ssize       len, bytesWritten, room;
-
-    gassert(buf);
-    gassert(bufsize >= 0);
+    ssize       len, written, sofar;
+    int         errCode;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
     }
-    /*
-        Loop adding as much data to the output ringq as we can absorb. Initiate a flush when the ringq is too full and
-        continue. Block in socketFlush if the socket is in blocking mode.
-     */
-    rq = &sp->outBuf;
-    for (bytesWritten = 0; bufsize > 0; ) {
-        if ((room = ringqPutBlkMax(rq)) == 0) {
-            if (socketFlush(sid) < 0) {
-                return -1;
-            }
-            if ((room = ringqPutBlkMax(rq)) == 0) {
-                if (sp->flags & SOCKET_BLOCK) {
-#if BIT_WIN_LIKE
-                    int errCode;
-                    if (!socketWaitForEvent(sp, /* UNUSED FD_WRITE | */ SOCKET_WRITABLE, &errCode)) {
-                        return -1;
-                    }
-#endif
-                    continue;
-                }
-                break;
-            }
-            continue;
-        }
-        len = min(room, bufsize);
-        ringqPutBlk(rq, (uchar *) buf, len);
-        bytesWritten += len;
-        bufsize -= len;
-        buf += len;
+    if (sp->flags & SOCKET_EOF) {
+        return -1;
     }
-    return bytesWritten;
+    len = bufsize;
+    sofar = 0;
+    while (len > 0) {
+        if ((written = send(sp->sock, buf, len, 0)) < 0) {
+            errCode = socketGetError();
+            if (errCode == EINTR) {
+                continue;
+            } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
+                return sofar;
+            }
+            return -errCode;
+        }
+        len -= written;
+        sofar += written;
+    }
+    return sofar;
 }
 
 
@@ -845,16 +694,13 @@ ssize socketWriteString(int sid, char_t *buf)
 
 /*
     Read from a socket. Return the number of bytes read if successful. This may be less than the requested "bufsize" and
-    may be zero. Return -1 for errors or EOF. Distinguish between error and EOF via socketEof().
- 
-    Note: this ignores the line buffer, so a previous socketGets which read a partial line may cause a subsequent
-    socketRead to miss some data. This routine may block if the socket is in blocking mode.
+    may be zero. This routine may block if the socket is in blocking mode.
+    Return -1 for errors or EOF. Distinguish between error and EOF via socketEof().
  */
 ssize socketRead(int sid, char *buf, ssize bufsize)
 {
     socket_t    *sp;
-    ringq_t     *rq;
-    ssize       len, room, bytesRead;
+    ssize       bytes;
     int         errCode;
 
     gassert(buf);
@@ -866,209 +712,26 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
     if (sp->flags & SOCKET_EOF) {
         return -1;
     }
-    rq = &sp->inBuf;
-    for (bytesRead = 0; bufsize > 0; ) {
-        len = min(ringqLen(rq), bufsize);
-        if (len <= 0) {
-            /*
-                If blocking mode and already have data, exit now or it may block forever.
-             */
-            if ((sp->flags & SOCKET_BLOCK) && (bytesRead > 0)) {
-                break;
-            }
-            /*
-                This flush is critical for readers of datagram packets. If the buffer is not big enough to read the
-                whole datagram in one hit, the recvfrom call will fail. 
-             */
-            ringqFlush(rq);
-            room = ringqPutBlkMax(rq);
-            len = socketGetInput(sid, (char *) rq->endp, room, &errCode);
-            if (len < 0) {
-                if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
-                    if ((sp->flags & SOCKET_BLOCK) && (bytesRead == 0)) {
-                        continue;
-                    }
-                    if (bytesRead > 0) {
-                        return bytesRead;
-                    }
-                }
-                return -1;
-
-            } else if (len == 0) {
-                /*
-                    If bytesRead is 0, this is EOF since socketRead should never be called unless there is data yet to
-                    be read. Set the flag. Then pass back the number of bytes read.
-                 */
-                if (bytesRead == 0) {
-                    sp->flags |= SOCKET_EOF;
-                    bytesRead = -1;
-                }
-                return bytesRead;
-            }
-            ringqPutBlkAdj(rq, len);
-            len = min(len, bufsize);
-        }
-        memcpy(&buf[bytesRead], rq->servp, len);
-        ringqGetBlkAdj(rq, len);
-        bufsize -= len;
-        bytesRead += len;
-    }
-    return bytesRead;
-}
-
-
-/*
-    Get a string from a socket. This returns data in *buf in a malloced string after trimming the '\n'. If there is zero
-    bytes returned, *buf will be set to NULL. If doing non-blocking I/O, it returns -1 for error, EOF or when no
-    complete line yet read. If doing blocking I/O, it will block until an entire line is read. If a partial line is read
-    socketInputBuffered or socketEof can be used to distinguish between EOF and partial line still buffered. This
-    routine eats and ignores carriage returns.
- */
-ssize socketGets(int sid, char_t **buf)
-{
-    socket_t    *sp;
-    ringq_t     *lq;
-    char        c;
-    ssize       rc, len;
-
-    gassert(buf);
-    *buf = NULL;
-    if ((sp = socketPtr(sid)) == NULL) {
-        return -1;
-    }
-    lq = &sp->lineBuf;
-
-    while (1) {
-        if ((rc = socketRead(sid, &c, 1)) < 0) {
-            if (sp->flags & SOCKET_EOF && ringqLen(lq) > 0) {
-                c = '\n';
-            } else {
-                return rc;
-            }
-        }
-        if (rc == 0) {
-            return -1;
-        }
-        /* 
-            Validate length of request.  Ignore long strings without newlines to safeguard against long URL attacks.
-         */
-        if (ringqLen(lq) > BIT_LIMIT_HEADER) {
-            c = '\n';
-        }
-        /*
-            If a newline is seen, return the data excluding the new line to the caller. If carriage return is seen, just
-            eat it.  
-         */
-        if (c == '\n') {
-            len = ringqLen(lq);
-            if (len > 0) {
-                *buf = gallocAscToUni((char *)lq->servp, len);
-            } else {
-                *buf = NULL;
-            }
-            ringqFlush(lq);
-            return len;
-
-        } else if (c == '\r') {
-            continue;
-        }
-        ringqPutcA(lq, c);
-    }
-    return 0;
-}
-
-
-/*
-    Flush the socket. Block if the socket is in blocking mode.  This will return -1 on errors and 0 if successful.
- */
-int socketFlush(int sid)
-{
-    socket_t    *sp;
-    ringq_t     *rq;
-    ssize       len, bytesWritten;
-    int         errCode;
-
-    if ((sp = socketPtr(sid)) == NULL) {
-        return -1;
-    }
-    rq = &sp->outBuf;
-
-    /*
-        Set the background flushing flag which socketEventProc will check to continue the flush.
-     */
-    if (! (sp->flags & SOCKET_BLOCK)) {
-        sp->flags |= SOCKET_FLUSHING;
-    }
-
-    /*
-        Break from loop if not blocking after initiating output. If we are blocking we wait for a write event.
-     */
-    while (ringqLen(rq) > 0) {
-        len = ringqGetBlkMax(&sp->outBuf);
-        bytesWritten = socketDoOutput(sp, (char*) rq->servp, len, &errCode);
-        if (bytesWritten < 0) {
-            if (errCode == EINTR) {
-                continue;
-            } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
-#if BIT_WIN_LIKE
-                if (sp->flags & SOCKET_BLOCK) {
-                    int errCode;
-                    if (! socketWaitForEvent(sp, /* UNUSED FD_WRITE | */ SOCKET_WRITABLE, &errCode)) {
-                        return -1;
-                    }
-                    continue;
-                } 
+    if ((bytes = recv(sp->sock, buf, bufsize, 0)) < 0) {
+        errCode = socketGetError();
+        if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
+            bytes = 0;
+#if UNUSED
+        } else if (errCode == ECONNRESET) {
+            sp->flags |= SOCKET_CONNRESET;
+            bytes = -1;
 #endif
-                /*
-                    Ensure we get a writable event when the socket can absorb more data (non-blocking only.) Store the
-                    user's mask if we haven't done it already.
-                 */
-                if (sp->saveMask < 0 ) {
-                    sp->saveMask = sp->handlerMask;
-                    socketRegisterInterest(sp, 
-                    sp->handlerMask | SOCKET_WRITABLE);
-                }
-                return 0;
-            }
-            return -1;
+        } else {
+            /* Conn reset or Some other error */
+            sp->flags |= SOCKET_EOF;
+            bytes = -errCode;
         }
-        ringqGetBlkAdj(rq, bytesWritten);
-    }
-    /*
-        If the buffer is empty, reset the ringq pointers to point to the start of the buffer. This is essential to
-        ensure that datagrams get written in one single I/O operation.  
-     */
-    if (ringqLen(rq) == 0) {
-        ringqFlush(rq);
-    }
-    /*
-        Restore the users mask if it was saved by the non-blocking code above. Note: saveMask = -1 if empty.
-        socketRegisterInterest will set handlerMask 
-     */
-    if (sp->saveMask >= 0) {
-        socketRegisterInterest(sp, sp->saveMask);
-        sp->saveMask = -1;
-    }
-    sp->flags &= ~SOCKET_FLUSHING;
-    return 0;
-}
 
-
-/*
-    Return the count of input characters buffered. We look at both the line
-    buffer and the input (raw) buffer. Return -1 on error or EOF.
- */
-ssize socketInputBuffered(int sid)
-{
-    socket_t    *sp;
-
-    if ((sp = socketPtr(sid)) == NULL) {
-        return -1;
+    } else if (bytes == 0) {
+        sp->flags |= SOCKET_EOF;
+        bytes = -1;
     }
-    if (socketEof(sid)) {
-        return -1;
-    }
-    return ringqLen(&sp->inBuf);
+    return bytes;
 }
 
 
@@ -1086,42 +749,14 @@ int socketEof(int sid)
 }
 
 
-/*
-    Return the number of bytes the socket can absorb without blocking
- */
-ssize socketCanWrite(int sid)
-{
-    socket_t    *sp;
-
-    if ((sp = socketPtr(sid)) == NULL) {
-        return -1;
-    }
-    return sp->outBuf.buflen - ringqLen(&sp->outBuf) - 1;
-}
-
-
-void socketSetBufferSize(int sid, int in, int line, int out)
+void socketReservice(int sid)
 {
     socket_t    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
     }
-    if (in >= 0) {
-        ringqClose(&sp->inBuf);
-        in++;
-        ringqOpen(&sp->inBuf, in, in);
-    }
-    if (line >= 0) {
-        ringqClose(&sp->lineBuf);
-        line++;
-        ringqOpen(&sp->lineBuf, line, line);
-    }
-    if (out >= 0) {
-        ringqClose(&sp->outBuf);
-        out++;
-        ringqOpen(&sp->outBuf, out, out);
-    }
+    sp->flags |= SOCKET_RESERVICE;
 }
 
 
@@ -1155,46 +790,6 @@ void socketDeleteHandler(int sid)
 
 
 /*
-    Socket output procedure. Return -1 on errors otherwise return the number of bytes written.
- */
-static ssize socketDoOutput(socket_t *sp, char *buf, ssize toWrite, int *errCode)
-{
-    ssize   bytes;
-
-    gassert(sp);
-    gassert(buf);
-    gassert(toWrite > 0);
-    gassert(errCode);
-
-    *errCode = 0;
-
-#if BIT_WIN_LIKE
-    if ((sp->flags & SOCKET_ASYNC) && !socketWaitForEvent(sp, SOCKET_WRITABLE, errCode)) {
-        return -1;
-    }
-#endif
-    if ((bytes = send(sp->sock, buf, toWrite, 0)) < 0) {
-        *errCode = socketGetError();
-#if BIT_WIN_LIKE
-        sp->currentEvents &= ~SOCKET_WRITABLE;       //  MOB ~FD_WRITE;
-#endif
-        return -1;
-    } else if (bytes == 0 && bytes != toWrite) {
-        *errCode = EWOULDBLOCK;
-#if BIT_WIN_LIKE
-        sp->currentEvents &= ~SOCKET_WRITABLE;       //  MOB ~FD_WRITE;
-#endif
-        return -1;
-    }
-
-    /*
-        Ensure we get to write some more data real soon if the socket can absorb more data
-     */
-    return bytes;
-}
-
-
-/*
     Allocate a new socket structure
  */
 int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
@@ -1214,20 +809,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
     if (ip) {
         sp->ip = gstrdup(ip);
     }
-
-    /*
-        Preserve only specified flags from the callers open
-     */
-    sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING | SOCKET_OWN_BUFFERS);
-
-    if (!(flags & SOCKET_OWN_BUFFERS)) { 
-        ringqOpen(&sp->inBuf, BIT_LIMIT_SOCKET_BUFFER + 1, BIT_LIMIT_SOCKET_BUFFER + 1);
-        ringqOpen(&sp->outBuf, BIT_LIMIT_SOCKET_BUFFER + 1, BIT_LIMIT_SOCKET_BUFFER + 1);
-    } else {
-        memset(&sp->inBuf, 0x0, sizeof(ringq_t));
-        memset(&sp->outBuf, 0x0, sizeof(ringq_t));
-    }
-    ringqOpen(&sp->lineBuf, BIT_LIMIT_SOCKET_BUFFER, -1);
+    sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING);
     return sid;
 }
 
@@ -1256,17 +838,8 @@ void socketFree(int sid)
         if (shutdown(sp->sock, 1) >= 0) {
             recv(sp->sock, buf, sizeof(buf), 0);
         }
-#if BIT_WIN_LIKE
         closesocket(sp->sock);
-#else
-        close(sp->sock);
-#endif
     }
-    if (!(sp->flags & SOCKET_OWN_BUFFERS)) { 
-        ringqClose(&sp->inBuf);
-        ringqClose(&sp->outBuf);
-    }
-    ringqClose(&sp->lineBuf);
     gfree(sp->ip);
     gfree(sp);
     socketMax = gfreeHandle((void***) &socketList, sid);

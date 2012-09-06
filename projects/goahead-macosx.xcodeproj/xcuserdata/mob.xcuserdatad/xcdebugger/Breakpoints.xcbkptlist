@@ -147,37 +147,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../http.c"
-         timestampString = "368320662.522774"
+         timestampString = "368560787.099604"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "3605"
-         endingLineNumber = "3605">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../auth.c"
-         timestampString = "366825162.141684"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "582"
-         endingLineNumber = "582"
-         landmarkName = "lookupRoute()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../auth.c"
-         timestampString = "366825162.141684"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "294"
-         endingLineNumber = "294"
-         landmarkName = "websEnableUser()"
-         landmarkType = "7">
+         startingLineNumber = "3615"
+         endingLineNumber = "3615">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
@@ -235,13 +209,26 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../socket.c"
-         timestampString = "368429527.57966"
+         filePath = "../runtime.c"
+         timestampString = "368478867.039004"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "255"
-         endingLineNumber = "255"
-         landmarkName = "socketAccept()"
+         startingLineNumber = "692"
+         endingLineNumber = "692"
+         landmarkName = "gassertError()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../template.c"
+         timestampString = "368608798.794502"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "206"
+         endingLineNumber = "206"
+         landmarkName = "websJsRequest()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

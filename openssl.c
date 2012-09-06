@@ -166,7 +166,6 @@ int sslAccept(Webs *wp)
 	BIO_push(bio, bioSSL);
 	wp->bio = bio;
 	wp->ssl = ssl;
-    websReadEvent(wp);
     return (int) ret;
 }
     

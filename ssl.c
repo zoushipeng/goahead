@@ -31,6 +31,7 @@ ssize websSSLRead(Webs *wp, char_t *buf, ssize len)
 }
 
 
+#if UNUSED
 /*
     Perform a gets of the SSL socket, returning an allocated string
 
@@ -101,6 +102,7 @@ ssize websSSLGets(Webs *wp, char_t **buf)
     }
     return 0;
 }
+#endif
 
 
 /*
@@ -172,8 +174,8 @@ void websSSLSocketEvent(int sid, int mask, void *iwp)
         websSSLReadEvent(wp);
     }
     if (mask & SOCKET_WRITABLE) {
-        if (wp->writeSocket) {
-            (*wp->writeSocket)(wp);
+        if (wp->writable) {
+            (*wp->writable)(wp);
         }
     }
 }

@@ -105,10 +105,13 @@ int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, cha
         return 1;
     }
 #endif
+#if UNUSED
     /*
         Return the data via background write
      */
     websSetRequestSocketHandler(wp, SOCKET_WRITABLE, websDefaultWriteEvent);
+#endif
+    websDefaultWriteEvent(wp);
     return 1;
 }
 
@@ -118,9 +121,10 @@ int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, cha
  */
 static void websDefaultWriteEvent(Webs *wp)
 {
-    char    *buf;
-    ssize   len, wrote, written, bytes;
-    int     flags;
+    socket_t    *sp;
+    char        *buf;
+    ssize       len, wrote, written, bytes;
+    int         flags;
 
     gassert(websValid(wp));
 
@@ -166,6 +170,11 @@ static void websDefaultWriteEvent(Webs *wp)
     websSetRequestWritten(wp, written);
     if (wrote < 0 || written >= bytes) {
         websDone(wp, 200);
+    } else {
+        //  MOB - wrap in websRegisterInterest(wp, SOCKET_WRITABLE, websDefaultWriteEvent);
+        sp = socketPtr(wp->sid);
+        socketRegisterInterest(sp, sp->handlerMask | SOCKET_WRITABLE);
+        wp->writable = websDefaultWriteEvent;
     }
 }
 

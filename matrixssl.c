@@ -484,6 +484,7 @@ static int waitForWriteEvent(int fd, int msec)
  */
 static void setSocketNonblock(SOCKET sock)
 {
+    //  MOB - should have general routine for this
 #if WINDOWS
     int     block = 1;
     ioctlsocket(sock, FIONBIO, &block);
