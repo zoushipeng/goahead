@@ -300,6 +300,7 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 }
 
 
+#if UNUSED
 /*
     Return true if there is a socket with an event ready to process,
  */
@@ -317,6 +318,7 @@ int socketReady()
     }
     return 0;
 }
+#endif
 
 
 /*
@@ -394,8 +396,7 @@ int socketSelect(int sid, int timeout)
         if ((sp = socketList[sid]) == NULL) {
             continue;
         }
-
-        if (FD_ISSET(sp->sock, &readFds) || sp->flags & SOCKET_RECALL) {
+        if (FD_ISSET(sp->sock, &readFds) || sp->flags & SOCKET_RESERVICE) {
             sp->currentEvents |= SOCKET_READABLE;
         }
         if (FD_ISSET(sp->sock, &writeFds)) {
@@ -508,6 +509,7 @@ int socketSelect(int sid, int timeout)
 
             if (readFds[index] & bit || sp->flags & SOCKET_RESERVICE) {
                 sp->currentEvents |= SOCKET_READABLE;
+                sp->flags &= ~SOCKET_RESERVICE;
             }
             if (writeFds[index] & bit) {
                 sp->currentEvents |= SOCKET_WRITABLE;
@@ -535,7 +537,7 @@ void socketProcess()
 
     for (sid = 0; sid < socketMax; sid++) {
         if ((sp = socketList[sid]) != NULL) {
-            if (sp->currentEvents & sp->handlerMask || sp->flags & SOCKET_RESERVICE) {
+            if (sp->currentEvents & sp->handlerMask /* || sp->flags & SOCKET_RESERVICE */) {
                 socketDoEvent(sp);
             }
         }
@@ -550,20 +552,16 @@ static void socketDoEvent(socket_t *sp)
     gassert(sp);
 
     sid = sp->sid;
-#if UNUSED
-    if (sp->flags & SOCKET_CONNRESET) {
-        socketCloseConnection(sid);
-        return;
-    }
-#endif
     if (sp->currentEvents & SOCKET_READABLE) {
         if (sp->flags & SOCKET_LISTENING) { 
             socketAccept(sp);
             sp->currentEvents = 0;
             return;
         } 
+#if UNUSED
     } else if (sp->handlerMask & SOCKET_READABLE && sp->flags & SOCKET_RESERVICE) {
         sp->currentEvents |= SOCKET_READABLE;
+#endif
     }
 
     /*

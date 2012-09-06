@@ -1401,7 +1401,6 @@ extern int      socketListen(char *host, int port, socketAccept_t accept, int fl
 extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int *secure, int defaultPort);
 extern void     socketProcess();
 extern ssize    socketRead(int sid, char *buf, ssize len);
-extern int      socketReady();
 extern ssize    socketWrite(int sid, char *buf, ssize len);
 extern ssize    socketWriteString(int sid, char_t *buf);
 extern int      socketSelect(int hid, int timeout);

@@ -210,7 +210,7 @@ static int websPublishHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int s
 void websHandleRequest(Webs *wp)
 {
     WebsHandler   *sp;
-    int           i, first;
+    int           i;
 
     gassert(websValid(wp));
 

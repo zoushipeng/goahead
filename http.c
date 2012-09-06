@@ -891,7 +891,7 @@ void websServiceEvents(int *finished)
     gassert(finished);
     *finished = 0;
     while (!*finished) {
-        if (socketReady() || socketSelect(-1, 3600 * 1000)) {
+        if (socketSelect(-1, 3600 * 1000)) {
             socketProcess();
         }
         websCgiCleanup();
