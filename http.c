@@ -872,7 +872,9 @@ static bool processContent(Webs *wp)
 {
     ssize   nbytes;
 
-    nbytes = ringqLen(&wp->input);
+    if ((nbytes = ringqLen(&wp->input)) == 0) {
+        return 0;
+    }
 #if BIT_CGI
     if (wp->flags & WEBS_CGI_REQUEST) {
         gwrite(wp->cgiFd, wp->input.servp, nbytes);

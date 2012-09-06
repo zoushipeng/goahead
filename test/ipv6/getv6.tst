@@ -21,5 +21,5 @@ assert(http.response.endsWith("</html>\n"))
 assert(http.response.endsWith("</html>\n"))
 
 //  Test Get with a body. Yes this is valid Http, although unusual.
-http.get(HTTPV6 + "/index.html", {name: "John", address: "700 Park Ave"})
+http.get(HTTPV6 + "/index.html", 'name=John&address=700+Park+Ave')
 assert(http.status == 200)
