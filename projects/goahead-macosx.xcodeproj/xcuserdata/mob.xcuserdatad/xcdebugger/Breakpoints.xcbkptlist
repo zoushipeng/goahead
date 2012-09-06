@@ -240,9 +240,7 @@
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "869"
-         endingLineNumber = "869"
-         landmarkName = "processContent()"
-         landmarkType = "7">
+         endingLineNumber = "869">
       </FileBreakpoint>
    </FileBreakpoints>
 </Bucket>
