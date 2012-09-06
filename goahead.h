@@ -751,6 +751,7 @@ extern "C" {
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
  */
+//  MOB - rename
 typedef int64 EgFilePos;
 typedef int64 EgDateTime;
 

@@ -28,7 +28,7 @@ static void usage();
 #if WINDOWS
 static void windowsClose();
 static int windowsInit();
-static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
+static LRESULT CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
 #endif
 
 #if BIT_UNIX_LIKE
@@ -229,7 +229,7 @@ static void windowsClose()
 /*
     Main menu window message handler.
  */
-static long CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
+static LRESULT CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp)
 {
     switch (msg) {
         case WM_DESTROY:
@@ -265,9 +265,9 @@ WPARAM checkWindowsMsgLoop()
 /*
     Windows message handler for the About Box
  */
-static long CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
+static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 {
-    long    lResult;
+    LRESULT    lResult;
 
     lResult = DefWindowProc(hwndDlg, msg, wp, lp);
 

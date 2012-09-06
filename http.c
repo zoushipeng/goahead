@@ -246,7 +246,7 @@ int websOpen(char_t *documents, char_t *authPath)
         return -1;
     }
     if (!websDebug) {
-        pruneId = gschedCallback(WEBS_SESSION_PRUNE, pruneCache, 0);
+        pruneId = gschedCallback(WEBS_SESSION_PRUNE, (WebsCallback*) pruneCache, 0);
     }
 #endif
     if (documents) {

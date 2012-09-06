@@ -558,7 +558,7 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *abilities, char_t *loginUri
     rp->enable = 1;
     growRoutes();
     routes[routeCount++] = rp;
-    trace(5, T("Route \"%s\" in realm \%s\" requires abilities:%s\n"), uri, realm, rp->abilities);
+    trace(5, T("Route \"%s\" in realm \"%s\" requires abilities:%s\n"), uri, realm, rp->abilities);
     return 0;
 }
 

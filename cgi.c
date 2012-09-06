@@ -25,7 +25,7 @@ typedef struct {                /* Struct for CGI tasks which have completed */
     char_t  **argp;             /* Pointer to buf containing argv tokens */
     char_t  **envp;             /* Pointer to array of environment strings */
     int     handle;             /* Process handle of the task */
-    long    fplacemark;         /* Seek location for CGI output file */
+    off_t   fplacemark;       /* Seek location for CGI output file */
 } cgiRec;
 
 static cgiRec   **cgiList;      /* galloc chain list of wp's to be closed */
@@ -209,8 +209,8 @@ void websCgiGatherOutput (cgiRec *cgip)
 {
     Webs     *wp;
     WebsStat sbuf;
-    ssize    nRead;
     char_t   cgiBuf[BIT_LIMIT_FILENAME];
+    ssize    nRead;
     int      fdout;
 
     if ((gstat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
@@ -226,7 +226,7 @@ void websCgiGatherOutput (cgiRec *cgip)
             glseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nRead = gread(fdout, cgiBuf, BIT_LIMIT_FILENAME)) > 0) {
                 websWriteBlock(wp, cgiBuf, nRead);
-                cgip->fplacemark += nRead;
+                cgip->fplacemark += (off_t) nRead;
             }
             gclose(fdout);
         }
@@ -731,10 +731,10 @@ int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *std
     SECURITY_ATTRIBUTES security;
     PROCESS_INFORMATION procinfo;       /*  Information about created proc   */
     DWORD               dwCreateFlags;
-    char_t              *cmdLine;
-    char_t              **pArgs;
+    char_t              *cmdLine, **pArgs;
     BOOL                bReturn;
-    int                 i, nLen;
+    ssize               nLen;
+    int                 i;
     uchar               *pEnvData;
 
     /*
