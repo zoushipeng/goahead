@@ -502,6 +502,8 @@ static void socketEvent(int sid, int mask, void *iwp)
     } 
 }
 
+
+#if UNUSED
 //MOB is this used
 static bool websEof(Webs *wp)
 {
@@ -512,6 +514,7 @@ static bool websEof(Webs *wp)
 #endif
     return socketEof(wp->sid);
 }
+#endif
 
 
 static ssize websRead(Webs *wp, char *buf, ssize len)
@@ -878,13 +881,12 @@ static bool processContent(Webs *wp)
 #if BIT_CGI
     if (wp->flags & WEBS_CGI_REQUEST) {
         gwrite(wp->cgiFd, wp->input.servp, nbytes);
-        ringqFlush(&wp->input);
+        ringqGetBlkAdj(&wp->input, nbytes);
     }
 #endif
     wp->remainingContent -= nbytes;
-    if (wp->remainingContent <= 0 || (!(wp->flags & WEBS_HTTP11) && websEof(wp))) {
+    if (wp->remainingContent <= 0) {
         wp->state = WEBS_RUNNING;
-        return 0;
     }
     return 1;
 }
