@@ -1,3 +1,0 @@
-if (!App.config.uris.httpv6) {
-    test.skip("Run only if IPv6 supported")
-}

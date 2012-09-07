@@ -120,7 +120,7 @@ Bit.load({
         limitSessionCount:     120,   /* Maximum number of sessions to support */
         limitString:          4096,   /* Default string size */
         limitSocketBuffer:    1024,   /* Default socket buffer size */
-        limitUrl:             2048,   /* Maximum URL size */
+        limitUri:             2048,   /* Maximum URI size */
 
         /*
             Server SSL key

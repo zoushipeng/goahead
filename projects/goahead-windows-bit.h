@@ -44,7 +44,7 @@
 #define BIT_LIMIT_SESSION_LIFE 1800
 #define BIT_LIMIT_SOCKET_BUFFER 1024
 #define BIT_LIMIT_STRING 4096
-#define BIT_LIMIT_URL 2048
+#define BIT_LIMIT_URI 2048
 #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
 #define BIT_PACKS "bits/packs"

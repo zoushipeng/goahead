@@ -1248,7 +1248,7 @@ static int evalFunction(Js *ep)
         jsError(ep, T("Undefined procedure %s"), ep->func->fname);
         return -1;
     }
-    fn = (int (*)(int, void*, int, char_t**)) sp->content.value.integer;
+    fn = (int (*)(int, void*, int, char_t**)) sp->content.value.symbol;
     if (fn == NULL) {
         jsError(ep, T("Undefined procedure %s"), ep->func->fname);
         return -1;
@@ -1347,7 +1347,7 @@ int jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, 
  */
 int jsSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
-    if (symEnter(functions, name, valueInteger((long) fn), 0) == NULL) {
+    if (symEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
     }
     return 0;
@@ -1379,7 +1379,7 @@ void *jsGetGlobalFunction(int eid, char_t *name)
     }
 
     if ((sp = symLookup(ep->functions, name)) != NULL) {
-        fn = (int (*)(int, void*, int, char_t**)) sp->content.value.integer;
+        fn = (int (*)(int, void*, int, char_t**)) sp->content.value.symbol;
         return (void*) fn;
     }
     return NULL;

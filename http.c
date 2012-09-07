@@ -372,14 +372,14 @@ int websListen(char_t *endpoint)
         if (port == 80) {
             websHostUrl = gstrdup(ip ? ip : websIpAddr);
         } else {
-            gfmtAlloc(&websHostUrl, BIT_LIMIT_URL, T("%s:%d"), ip ? ip : websIpAddr, port);
+            gfmtAlloc(&websHostUrl, BIT_LIMIT_URI, T("%s:%d"), ip ? ip : websIpAddr, port);
         }
     }
     if (!websIpAddrUrl) {
         if (port == 80) {
             websIpAddrUrl = gstrdup(websIpAddr);
         } else {
-            gfmtAlloc(&websIpAddrUrl, BIT_LIMIT_URL, T("%s:%d"), websIpAddr, port);
+            gfmtAlloc(&websIpAddrUrl, BIT_LIMIT_URI, T("%s:%d"), websIpAddr, port);
         }
     }
     return sid;
@@ -404,12 +404,14 @@ void websCloseListen(int sid)
 }
 
 
+/*
+    Accept a new connection from ipaddr:port 
+ */
 int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
     Webs        *wp;
+    struct sockaddr_storage ifAddr;
     int         wid, len;
-    char        *cp;
-    struct sockaddr_in ifAddr;
 
     gassert(ipaddr && *ipaddr);
     gassert(sid >= 0);
@@ -430,15 +432,12 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Get the ip address of the interface that accept the connection.
      */
-    len = sizeof(struct sockaddr_in);
+    len = sizeof(ifAddr);
     if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (WebsSockLenArg*) &len) < 0) {
+        error("Can't get sockname");
         return -1;
     }
-    cp = inet_ntoa(ifAddr.sin_addr);
-    gstrncpy(wp->ifaddr, cp, gstrlen(cp));
-#if VXWORKS
-    free(cp);
-#endif
+    socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
 
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
@@ -496,6 +495,8 @@ static void socketEvent(int sid, int mask, void *iwp)
     } 
 }
 
+
+#if UNUSED
 //MOB is this used
 static bool websEof(Webs *wp)
 {
@@ -506,6 +507,7 @@ static bool websEof(Webs *wp)
 #endif
     return socketEof(wp->sid);
 }
+#endif
 
 
 static ssize websRead(Webs *wp, char *buf, ssize len)
@@ -673,6 +675,10 @@ static bool parseFirstLine(Webs *wp)
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
         websError(wp, 400 | WEBS_CLOSE, T("Bad HTTP request"));
+        return 0;
+    }
+    if (strlen(url) > BIT_LIMIT_URI) {
+        websError(wp, 400 | WEBS_CLOSE, T("URI too big"));
         return 0;
     }
     protoVer = getToken(wp, "\r\n");
@@ -866,17 +872,18 @@ static bool processContent(Webs *wp)
 {
     ssize   nbytes;
 
-    nbytes = ringqLen(&wp->input);
+    if ((nbytes = ringqLen(&wp->input)) == 0) {
+        return 0;
+    }
 #if BIT_CGI
     if (wp->flags & WEBS_CGI_REQUEST) {
         gwrite(wp->cgiFd, wp->input.servp, nbytes);
-        ringqFlush(&wp->input);
+        ringqGetBlkAdj(&wp->input, nbytes);
     }
 #endif
     wp->remainingContent -= nbytes;
-    if (wp->remainingContent <= 0 || (!(wp->flags & WEBS_HTTP11) && websEof(wp))) {
+    if (wp->remainingContent <= 0) {
         wp->state = WEBS_RUNNING;
-        return 0;
     }
     return 1;
 }
@@ -1114,14 +1121,14 @@ void websRedirect(Webs *wp, char_t *url)
         if (wp->flags & WEBS_SECURE) {
             redirectFmt = T("https://%s/%s");
         }
-        gfmtAlloc(&urlbuf, BIT_LIMIT_URL + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
+        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
         url = urlbuf;
     }
 
     /*
         Add human readable message for completeness. Should not be required.
      */
-    gfmtAlloc(&msgbuf, BIT_LIMIT_URL + 80, 
+    gfmtAlloc(&msgbuf, BIT_LIMIT_URI + 80, 
         T("<html><head></head><body>\r\n\
         This document has moved to a new <a href=\"%s\">location</a>.\r\n\
         Please update your documents to reflect the new location.\r\n\
@@ -1269,7 +1276,7 @@ ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
     gassert(websValid(wp));
     va_start(vargs, fmt);
     if (gfmtValloc(&buf, BIT_LIMIT_BUFFER, fmt, vargs) >= BIT_LIMIT_BUFFER) {
-        trace(0, T("websWrite lost data, buffer overflow\n"));
+        error(T("websWrite lost data, buffer overflow"));
     }
     va_end(vargs);
     gassert(buf);
@@ -1361,7 +1368,7 @@ ssize websWrite(Webs *wp, char_t *fmt, ...)
     buf = NULL;
     rc = 0;
     if (gfmtValloc(&buf, BIT_LIMIT_BUFFER, fmt, vargs) >= BIT_LIMIT_BUFFER) {
-        trace(0, T("websWrite lost data, buffer overflow\n"));
+        error(T("websWrite lost data, buffer overflow\n"));
     }
     va_end(vargs);
     gassert(buf);
@@ -1574,7 +1581,7 @@ static void logRequest(Webs *wp, int code)
         dataStr[0] = '-'; dataStr[1] = '\0';
     }
     buf = NULL;
-    gfmtAlloc(&buf, BIT_LIMIT_URL + 80, 
+    gfmtAlloc(&buf, BIT_LIMIT_URI + 80, 
         T("%s - %s [%s %s] \"%s %s %s\" %d %s\n"), 
         wp->ipaddr,
         wp->username == NULL ? "-" : wp->username,
@@ -1664,12 +1671,14 @@ void websDone(Webs *wp, int code)
         }
         websTimeoutCancel(wp);
         wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+        trace(5, "Keep connection alive\n");
         return;
     }
     websTimeoutCancel(wp);
     socketSetBlock(wp->sid, 1);
     socketCloseConnection(wp->sid);
     websFree(wp);
+    trace(5, "Close connection\n");
 }
 
 

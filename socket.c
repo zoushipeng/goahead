@@ -253,6 +253,7 @@ static void socketAccept(socket_t *sp)
         Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
      */
     if (sp->accept != NULL) {
+        /* Get the remote client address */
         socketAddress(addr, (int) len, ipbuf, sizeof(ipbuf), &port);
         if ((sp->accept)(nid, ipbuf, port, sp->sid) < 0) {
             socketFree(nid);
@@ -1097,7 +1098,9 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
     if (getnameinfo(addr, addrlen, ip, ipLen, service, sizeof(service), NI_NUMERICHOST | NI_NUMERICSERV | NI_NOFQDN)) {
         return -1;
     }
-    *port = atoi(service);
+    if (port) {
+        *port = atoi(service);
+    }
 
 #else
     struct sockaddr_in  *sa;

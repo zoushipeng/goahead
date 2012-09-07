@@ -1520,8 +1520,8 @@ typedef struct Webs {
     sym_fd_t        cgiQuery;           /* CGI decoded query string */
     time_t          timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
-    char_t          ipaddr[32];         /* Connecting ipaddress */
-    char_t          ifaddr[32];         /* Local interface ipaddress */
+    char_t          ipaddr[64];         /* Connecting ipaddress */
+    char_t          ifaddr[64];         /* Local interface ipaddress */
     char_t          type[64];           /* Mime type */
     char_t          *authType;          /* Authorization type (Basic/DAA) */
     char_t          *authDetails;       /* Http header auth details */

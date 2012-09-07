@@ -1,5 +1,5 @@
 /*
-    Very large URI test (3MB)
+    Very large URI test
  */ 
 const HTTP: Uri = App.config.uris.http || "127.0.0.1:8080"
 
@@ -27,8 +27,11 @@ try {
 
 /* Server should just close the connection without a response */
 response = new ByteArray
-while ((n = s.read(response, -1)) > 0) { response.reset() }
-assert(response.toString().contains('413 Request too large'))
+while ((n = s.read(response, -1)) > 0) { }
+if (response.length > 0) {
+    /* May not get a response if the write above fails. Then we get a conn reset */
+    assert(response.toString().contains('413 Request too large'))
+}
 s.close()
 
 //  Check server still up
