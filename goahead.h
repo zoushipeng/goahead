@@ -772,7 +772,6 @@ typedef int64 EgDateTime;
         extern STATUS access(char *path, int mode);
         struct sockaddr_storage { char pad[1024]; };
     #endif
-    extern int vxchdir(char_t *dirname);
 #endif /* VXWORKS */
 
 #if ECOS
@@ -1012,7 +1011,11 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
 
 #if !LINUX
     extern char_t *basename(char_t *name);
-#endif /* !LINUX */
+#endif
+
+#if VXWORKS
+    extern int vxchdir(char_t *dirname);
+#endif
 
 /************************************* Main ***********************************/
 
