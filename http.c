@@ -2910,7 +2910,7 @@ ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 /*
     Move file pointer offset bytes.
  */
-void websPageSeek(Webs *wp, EgFilePos offset)
+void websPageSeek(Webs *wp, WebsFilePos offset)
 {
     gassert(websValid(wp));
 

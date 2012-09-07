@@ -751,9 +751,8 @@ extern "C" {
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
  */
-//  MOB - rename
-typedef int64 EgFilePos;
-typedef int64 EgDateTime;
+typedef int64 WebsFilePos;
+typedef int64 WebsDateTime;
 
 #if VXWORKS
     typedef int WebsSockLenArg;
@@ -1645,12 +1644,15 @@ typedef struct WebsRomIndex {
     char_t          *path;                  /* Web page URL path */
     uchar           *page;                  /* Web page data */
     int             size;                   /* Size of web page in bytes */
-    int             pos;                    /* Current read position */
+    WebsFilePos     pos;                    /* Current read position */
 } WebsRomIndex;
 
 /*
     Globals
  */
+#if BIT_ROM
+    extern WebsRomIndex websRomPageIndex[];
+#endif
 extern int              websDebug;          /* Run in debug mode */
 
 /**
@@ -1720,7 +1722,7 @@ extern void websPageClose(Webs *wp);
 extern int websPageIsDirectory(char_t *lpath);
 extern int websPageOpen(Webs *wp, char_t *lpath, char_t *path, int mode, int perm);
 extern ssize websPageReadData(Webs *wp, char *buf, ssize nBytes);
-extern void websPageSeek(Webs *wp, EgFilePos offset);
+extern void websPageSeek(Webs *wp, WebsFilePos offset);
 extern int websPageStat(Webs *wp, char_t *lpath, char_t *path, WebsFileInfo *sbuf);
 extern int websPublish(char_t *urlPrefix, char_t *path);
 extern void websRedirect(Webs *wp, char_t *url);
@@ -1732,7 +1734,7 @@ extern int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm);
 extern void websRomPageClose(int fd);
 extern ssize websRomPageReadData(Webs *wp, char *buf, ssize len);
 extern int websRomPageStat(char_t *path, WebsFileInfo *sbuf);
-extern long websRomPageSeek(Webs *wp, EgFilePos offset, int origin);
+extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
 extern void websSetDefaultDir(char_t *dir);
 extern void websSetDefaultPage(char_t *page);
 extern void websSetEnv(Webs *wp);
@@ -1951,8 +1953,9 @@ extern char *websGetSessionID(Webs *wp);
     typedef WebsError websErrorType;
     typedef WebsMime websMimeType;
     typedef WebsFileInfo websStatType;
+#if BIT_ROM
     typedef WebsRomIndex websRomPageIndexType;
-
+#endif
 #endif
 
 #ifdef __cplusplus

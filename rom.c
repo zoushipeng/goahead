@@ -22,22 +22,23 @@ sym_fd_t    romTab;                     /* Symbol table for web pages */
 
 int websRomOpen()
 {
-    websRomPageIndexType    *wip;
-    int                     nchars;
-    char_t                  name[BIT_LIMIT_FILENAME];
+    WebsRomIndex    *wip;
+    char_t          name[BIT_LIMIT_FILENAME];
+    ssize           len;
 
     romTab = symOpen(WEBS_SYM_INIT);
     for (wip = websRomPageIndex; wip->path; wip++) {
         gstrncpy(name, wip->path, BIT_LIMIT_FILENAME);
-        nchars = gstrlen(name) - 1;
-        if (nchars > 0 &&
-            (name[nchars] == '/' || name[nchars] == '\\')) {
-            name[nchars] = '\0';
+        len = gstrlen(name) - 1;
+        if (len > 0 &&
+            (name[len] == '/' || name[len] == '\\')) {
+            name[len] = '\0';
         }
         symEnter(romTab, name, valueInteger((int) wip), 0);
     }
     return 0;
 }
+
 
 void websRomClose()
 {
@@ -47,8 +48,8 @@ void websRomClose()
 
 int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm)
 {
-    websRomPageIndexType    *wip;
-    sym_t                   *sp;
+    WebsRomIndex    *wip;
+    sym_t           *sp;
 
     gassert(websValid(wp));
     gassert(path && *path);
@@ -56,9 +57,10 @@ int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm)
     if ((sp = symLookup(romTab, path)) == NULL) {
         return -1;
     }
-    wip = (websRomPageIndexType*) sp->content.value.integer;
+    wip = (WebsRomIndex*) sp->content.value.integer;
     wip->pos = 0;
-    return (wp->docfd = wip - websRomPageIndex);
+    wp->docfd = (int) (wip - websRomPageIndex);
+    return wp->docfd;
 }
 
 
@@ -69,7 +71,7 @@ void websRomPageClose(int fd)
 
 int websRomPageStat(char_t *path, WebsFileInfo *sbuf)
 {
-    websRomPageIndexType    *wip;
+    WebsRomIndex    *wip;
     sym_t                   *sp;
 
     gassert(path && *path);
@@ -77,7 +79,7 @@ int websRomPageStat(char_t *path, WebsFileInfo *sbuf)
     if ((sp = symLookup(romTab, path)) == NULL) {
         return -1;
     }
-    wip = (websRomPageIndexType*) sp->content.value.integer;
+    wip = (WebsRomIndex*) sp->content.value.integer;
 
     memset(sbuf, 0, sizeof(WebsFileInfo));
     sbuf->size = wip->size;
@@ -88,10 +90,10 @@ int websRomPageStat(char_t *path, WebsFileInfo *sbuf)
 }
 
 
-int websRomPageReadData(Webs *wp, char *buf, int nBytes)
+ssize websRomPageReadData(Webs *wp, char *buf, ssize size)
 {
-    websRomPageIndexType    *wip;
-    int                     len;
+    WebsRomIndex    *wip;
+    ssize           len;
 
     gassert(websValid(wp));
     gassert(buf);
@@ -99,17 +101,17 @@ int websRomPageReadData(Webs *wp, char *buf, int nBytes)
 
     wip = &websRomPageIndex[wp->docfd];
 
-    len = min(wip->size - wip->pos, nBytes);
+    len = min(wip->size - wip->pos, size);
     memcpy(buf, &wip->page[wip->pos], len);
     wip->pos += len;
     return len;
 }
 
 
-long websRomPageSeek(Webs *wp, EgFilePos offset, int origin)
+long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin)
 {
-    websRomPageIndexType    *wip;
-    EgFilePos               pos;
+    WebsRomIndex    *wip;
+    WebsFilePos     pos;
 
     gassert(websValid(wp));
     gassert(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
