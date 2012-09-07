@@ -2227,9 +2227,7 @@ int gparseArgs(char *args, char **argv, int maxArgc)
 }
 
 
-#if UNUSED
 #if VXWORKS
-
 /*
     Get absolute path.  In VxWorks, functions like chdir, ioctl for mkdir and ioctl for rmdir, require an absolute path.
     This function will take the path argument and convert it to an absolute path.  It is the caller's responsibility to
@@ -2270,7 +2268,6 @@ int vxchdir(char_t *dirname)
     gfree(path);
     return rc;
 }
-#endif
 #endif
 
 #if ECOS

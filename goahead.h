@@ -1010,7 +1010,11 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
 
 #if !LINUX
     extern char_t *basename(char_t *name);
-#endif /* !LINUX */
+#endif
+
+#if VXWORKS
+    extern int vxchdir(char_t *dirname);
+#endif
 
 /************************************* Main ***********************************/
 
