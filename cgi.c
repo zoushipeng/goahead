@@ -35,7 +35,7 @@ static int      cgiMax;         /* Size of galloc list */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t* query)
+int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
     cgiRec      *cgip;
     sym_t       *s;
@@ -44,15 +44,15 @@ int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t 
     int         n, envpsize, argpsize, pHandle, cid;
 
     gassert(websValid(wp));
-    gassert(url && *url);
-    gassert(path && *path == '/');
 
+#if UNUSED
     websStats.cgiHits++;
+#endif
 
     /*
         Extract the form name and then build the full path name.  The form name will follow the first '/' in path.
      */
-    gstrncpy(cgiBuf, path, TSZ(cgiBuf));
+    gstrncpy(cgiBuf, wp->path, TSZ(cgiBuf));
     if ((cgiName = gstrchr(&cgiBuf[1], '/')) == NULL) {
         websError(wp, 200, T("Missing CGI name"));
         return 1;
@@ -61,7 +61,7 @@ int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t 
     if ((cp = gstrchr(cgiName, '/')) != NULL) {
         *cp = '\0';
     }
-    gfmtAlloc(&cgiPath, BIT_LIMIT_FILENAME, T("%s/%s/%s"), websGetDefaultDir(), BIT_CGI_BIN, cgiName);
+    gfmtAlloc(&cgiPath, BIT_LIMIT_FILENAME, T("%s/%s/%s"), websGetDocuments(), BIT_CGI_BIN, cgiName);
 #if !VXWORKS
     /*
         See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
@@ -111,9 +111,10 @@ int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t 
     argp = galloc(argpsize * sizeof(char_t *));
     *argp = cgiPath;
     n = 1;
-    if (gstrchr(query, '=') == NULL) {
-        websDecodeUrl(query, query, gstrlen(query));
-        for (cp = gstrtok(query, T(" ")); cp != NULL; ) {
+    //  MOB - should this modify the original query?
+    if (gstrchr(wp->query, '=') == NULL) {
+        websDecodeUrl(wp->query, wp->query, gstrlen(wp->query));
+        for (cp = gstrtok(wp->query, T(" ")); cp != NULL; ) {
             *(argp+n) = cp;
             n++;
             if (n >= argpsize) {
@@ -127,7 +128,7 @@ int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t 
 
     /*
         Add all CGI variables to the environment strings to be passed to the spawned CGI process.  This includes a few
-        we don't already have in the symbol table, plus all those that are in the cgiVars symbol table.  envp will point
+        we don't already have in the symbol table, plus all those that are in the vars symbol table.  envp will point
         to a galloc'd array of pointers.  Each pointer will point to a galloc'd string containing the keyword value pair
         in the form keyword=value.  Since we don't know ahead of time how many environment strings there will be the for
         loop includes logic to grow the array size via grealloc.
@@ -143,7 +144,7 @@ int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t 
     n++;
     gfmtAlloc(envp + n, BIT_LIMIT_FILENAME, T("%s=%s"),T("AUTH_TYPE"), wp->authType);
     n++;
-    for (s = symFirst(wp->cgiVars); s != NULL; s = symNext(wp->cgiVars, s)) {
+    for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
         if (s->content.valid && s->content.type == string &&
             gstrcmp(s->name.value.string, T("REMOTE_HOST")) != 0 &&
             gstrcmp(s->name.value.string, T("HTTP_AUTHORIZATION")) != 0) {
@@ -222,6 +223,7 @@ void websCgiGatherOutput (cgiRec *cgip)
             wp = cgip->wp;
             if (cgip->fplacemark == 0) {
                 websWriteHeader(wp, T("HTTP/1.0 200 OK\r\n"));
+                websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
             }
             glseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nRead = gread(fdout, cgiBuf, BIT_LIMIT_FILENAME)) > 0) {

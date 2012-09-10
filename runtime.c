@@ -2167,6 +2167,31 @@ char_t *gtok(char_t *str, char_t *delim, char_t **last)
 }
 
 
+char *gtrim(char *str, cchar *set, int where)
+{
+    char    *s;
+    ssize   len, i;
+
+    if (str == 0 || set == 0) {
+        return 0;
+    }
+    if (where & WEBS_TRIM_START) {
+        i = strspn(str, set);
+    } else {
+        i = 0;
+    }
+    s = (char*) &str[i];
+    if (where & WEBS_TRIM_END) {
+        len = strlen(s);
+        while (len > 0 && strspn(&s[len - 1], set) > 0) {
+            s[len - 1] = '\0';
+            len--;
+        }
+    }
+    return s;
+}
+
+
 /*
     Parse the args and return the count of args. If argv is NULL, the args are parsed read-only. If argv is set,
     then the args will be extracted, back-quotes removed and argv will be set to point to all the args.

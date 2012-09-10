@@ -2,11 +2,11 @@
 #   auth.txt - Authorization data
 #
 #   Schema
-#       user: enable: realm: name: password: role [role...]
-#       role: enable: name: ability [ability...]
-#       uri: enable: realm: type: uri: method: ability [ability...]
+#       user: realm: name: password: role [role...]
+#       role: name: ability [ability...]
+#       uri: realm: type: uri: method: ability [ability...]
 
 #
 #   Catch-all route without authentication for all URIs
 #
-uri: 1: none: none: /: : 
+uri: none: none: /: : 

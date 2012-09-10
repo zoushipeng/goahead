@@ -40,17 +40,20 @@ static void sigHandler(int signo);
 MAIN(goahead, int argc, char **argv, char **envp)
 {
     char_t  *argp, *home, *documents, *endpoint, addr[32];
-    int     argind;
+    int     argind, background;
 
 #if WINDOWS
     if (windowsInit() < 0) {
         return 0;
     }
 #endif
+    background = 0;
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
         if (*argp != '-') {
             break;
+        } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {
+            background = 1;
         } else if (gmatch(argp, "--debug")) {
             websDebug = 1;
         } else if (gmatch(argp, "--home")) {
@@ -119,12 +122,21 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
     websUrlHandlerDefine(T("/forms"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
-    websUrlHandlerDefine(T("/"), 0, 0, websDefaultHomePageHandler, 0); 
-    websUrlHandlerDefine(T(""), 0, 0, websDefaultHandler, WEBS_HANDLER_LAST); 
+#if BIT_JAVASCRIPT
+    websUrlHandlerDefine(T("/"), 0, 0, websJsHandler, 0);
+#endif
+    websUrlHandlerDefine(T("/"), 0, 0, websHomePageHandler, 0); 
+    websUrlHandlerDefine(T(""), 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
 
     /*
         Service events till terminated
      */
+    if (background) {
+        if (daemon(0, 0) < 0) {
+            error("Can't run as daemon");
+            return -1;
+        }
+    }
     websServiceEvents(&finished);
     websClose();
 #if WINDOWS
@@ -139,6 +151,7 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [IPaddress][:port] [documents]\n\n"
         "  Options:\n"
+        "    --background           # Run as a daemon in the background\n"
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
@@ -274,10 +287,8 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
     switch (msg) {
         case WM_CREATE:
             break;
-
         case WM_DESTROY:
             break;
-
         case WM_COMMAND:
             break;
     }

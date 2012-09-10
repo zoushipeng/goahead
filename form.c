@@ -20,7 +20,7 @@ static sym_fd_t formSymtab = -1;            /* Symbol table for form handlers */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websFormHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
+int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
     sym_t       *sp;
     char_t      formBuf[BIT_LIMIT_FILENAME];
@@ -28,15 +28,15 @@ int websFormHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
     int         (*fn)(void *sock, char_t *path, char_t *args);
 
     gassert(websValid(wp));
-    gassert(url && *url);
-    gassert(path && *path == '/');
 
+#if UNUSED
     websStats.formHits++;
+#endif
 
     /*
         Extract the form name
      */
-    gstrncpy(formBuf, path, TSZ(formBuf));
+    gstrncpy(formBuf, wp->path, TSZ(formBuf));
     if ((formName = gstrchr(&formBuf[1], '/')) == NULL) {
         websError(wp, 200, T("Missing form name"));
         return 1;
@@ -57,7 +57,7 @@ int websFormHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
         fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.symbol;
         gassert(fn);
         if (fn) {
-            (*fn)((void*) wp, formName, query);
+            (*fn)((void*) wp, formName, wp->query);
         }
     }
     return 1;
@@ -66,6 +66,7 @@ int websFormHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t
 
 /*
     Define a form function in the "form" map space.
+    MOB - should have typedef for form define
  */
 int websFormDefine(char_t *name, void (*fn)(Webs *wp, char_t *path, char_t *query))
 {

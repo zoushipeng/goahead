@@ -13,7 +13,9 @@
 
 /*********************************** Globals **********************************/
 
+#if UNUSED
 WebsStats   websStats;                  /* Web access stats */
+#endif
 int         websDebug;                  /* Run in debug mode and defeat timeouts */
 
 /************************************ Locals **********************************/
@@ -65,6 +67,7 @@ static uchar charMatch[256] = {
 /*
     Addd entries to the MimeList as required for your content
     MOB - compare with appweb
+    MOB - should remove "." from list
  */
 static WebsMime websMimeList[] = {
     { T("application/java"), T(".class") },
@@ -149,7 +152,9 @@ static WebsMime websMimeList[] = {
     { T("text/richtext"), T(".rtx") },
     { T("text/tab-separated-values"), T(".tsv") },
     { T("text/x-setext"), T(".etx") },
-    { T("video/mpeg"), T(".mpeg mpg mpe") },
+    { T("video/mpeg"), T(".mpeg") },
+    { T("video/mpeg"), T(".mpg") },
+    { T("video/mpeg"), T(".mpe") },
     { T("video/quicktime"), T(".qt") },
     { T("video/quicktime"), T(".mov") },
     { T("video/x-msvideo"), T(".avi") },
@@ -250,7 +255,7 @@ int websOpen(char_t *documents, char_t *authPath)
     }
 #endif
     if (documents) {
-        websSetDefaultDir(documents);
+        websSetDocuments(documents);
     }
 #if BIT_AUTH
     if (websOpenAuth(authPath) < 0) {
@@ -272,7 +277,7 @@ int websOpen(char_t *documents, char_t *authPath)
         return -1;
     }
     websFormOpen();
-    websDefaultOpen();
+    websFileOpen();
 
 #if BIT_ACCESS_LOG
     if ((accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
@@ -333,7 +338,7 @@ void websClose()
 #if BIT_ROM
     websRomClose();
 #endif
-    websDefaultClose();
+    websFileClose();
     symClose(websMime);
     websFormClose();
     websUrlHandlerClose();
@@ -619,6 +624,39 @@ bool parseIncoming(Webs *wp)
         return 0;
     }
     wp->state = wp->clen ? WEBS_CONTENT : WEBS_RUNNING;
+
+#if BIT_CGI
+    if (gstrstr(wp->path, BIT_CGI_BIN) != NULL) {
+        wp->flags |= WEBS_CGI_REQUEST;
+        if (wp->flags & WEBS_POST_REQUEST) {
+            wp->cgiStdin = websGetCgiCommName();
+            if ((wp->cgifd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
+                websError(wp, 400 | WEBS_CLOSE, T("Can't open CGI file"));
+                return 1;
+            }
+        }
+    }
+#endif
+#if BIT_UPLOAD
+    if (wp->flags & WEBS_UPLOAD) {
+        websProcessUploadData(wp);
+    }
+#endif
+    if (wp->flags & WEBS_PUT_REQUEST) {
+        WebsStat sbuf;
+        int mode, exists;
+        exists = gstat(wp->filename, &sbuf) == 0;
+        mode = O_BINARY | O_WRONLY;
+        if (!exists) {
+            mode |= O_CREAT | O_TRUNC;
+        }  
+        wp->code = (exists && sbuf.st_mode & S_IFDIR) ? 204 : 201;
+        //  MOB - can we merge docfd and infd?
+        if ((wp->infd = open(wp->filename, mode, 0644)) < 0) {
+            websError(wp, 500, "Can't create the put URI");
+            return 1;
+        }
+    }
     return 1;
 }
 
@@ -700,22 +738,13 @@ static bool parseFirstLine(Webs *wp)
         return 0;
     }
     wp->url = gstrdup(url);
-    wp->dir = gstrdup( websGetDefaultDir());
-    gfmtAlloc(&wp->lpath, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
+    wp->ext = gstrdup(ext);
+    wp->dir = gstrdup(websGetDocuments());
+    /*
+        Get a default filename
+     */
+    gfmtAlloc(&wp->filename, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
 
-#if BIT_CGI
-    if (gstrstr(url, BIT_CGI_BIN) != NULL) {
-        wp->flags |= WEBS_CGI_REQUEST;
-        if (wp->flags & WEBS_POST_REQUEST) {
-            wp->cgiStdin = websGetCgiCommName();
-            if ((wp->cgiFd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
-                websError(wp, 400 | WEBS_CLOSE, T("Can't open CGI file"));
-                gfree(buf);
-                return 0;
-            }
-        }
-    }
-#endif
     wp->query = gstrdup(query);
     wp->host = gstrdup(host);
     wp->protocol = gstrdup(proto);
@@ -735,9 +764,11 @@ static bool parseFirstLine(Webs *wp)
     } else {
         wp->port = gatoi(port);
     }
+#if UNUSED
     if (gstrcmp(ext, T(".asp")) == 0) {
         wp->flags |= WEBS_JS;
     }
+#endif
     gfree(buf);
     websUrlType(url, wp->type, TSZ(wp->type));
     return 1;
@@ -813,6 +844,15 @@ static bool parseHeaders(Webs *wp)
             gtok(wp->authType, " \t", &tok);
             wp->authDetails = gstrdup(tok);
 
+#if BIT_KEEP_ALIVE
+        } else if (gstrcmp(key, T("connection")) == 0) {
+            gstrlower(value);
+            if (gstrcmp(value, T("keep-alive")) == 0) {
+                wp->flags |= WEBS_KEEP_ALIVE;
+            } else if (gstrcmp(value, T("close")) == 0) {
+                wp->flags &= ~WEBS_KEEP_ALIVE;
+            }
+#endif
         } else if (gstrcmp(key, T("content-length")) == 0) {
             wp->clen = gatoi(value);
             if (wp->clen > BIT_LIMIT_BODY) {
@@ -826,20 +866,16 @@ static bool parseHeaders(Webs *wp)
             }
 
         } else if (gstrcmp(key, T("content-type")) == 0) {
+            wp->contentType = gstrdup(value);
             websSetVar(wp, T("CONTENT_TYPE"), value);
-            if (strstr(value, "application/x-www-form-urlencoded")) {
-                wp->flags |= WEBS_FORM;
+            if (wp->flags & (WEBS_POST_REQUEST | WEBS_PUT_REQUEST)) {
+                if (strstr(value, "application/x-www-form-urlencoded")) {
+                    wp->flags |= WEBS_FORM;
+                } else if (strstr(value, "multipart/form-data")) {
+                    wp->flags |= WEBS_UPLOAD;
+                }
             }
 
-#if BIT_KEEP_ALIVE
-        } else if (gstrcmp(key, T("connection")) == 0) {
-            gstrlower(value);
-            if (gstrcmp(value, T("keep-alive")) == 0) {
-                wp->flags |= WEBS_KEEP_ALIVE;
-            } else if (gstrcmp(value, T("close")) == 0) {
-                wp->flags &= ~WEBS_KEEP_ALIVE;
-            }
-#endif
         } else if (gstrcmp(key, T("cookie")) == 0) {
             wp->flags |= WEBS_COOKIE;
             wp->cookie = gstrdup(value);
@@ -875,12 +911,21 @@ static bool processContent(Webs *wp)
     if ((nbytes = ringqLen(&wp->input)) == 0) {
         return 0;
     }
+    //  MOB - change these routines to processCgiContent, processUploadContent(wp)
 #if BIT_CGI
-    if (wp->flags & WEBS_CGI_REQUEST) {
-        gwrite(wp->cgiFd, wp->input.servp, nbytes);
+    if (wp->cgifd >= 0) {
+        if (gwrite(wp->cgifd, wp->input.servp, nbytes) != nbytes) {
+            websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
+            return 1;
+        }
         ringqGetBlkAdj(&wp->input, nbytes);
     }
 #endif
+    //  MOB - should this be a different
+    if (write(wp->infd, wp->input.servp, nbytes) != nbytes) {
+        websError(wp, WEBS_CLOSE | 500, "Can't write to file");
+        return 1;
+    }
     wp->remainingContent -= nbytes;
     if (wp->remainingContent <= 0) {
         wp->state = WEBS_RUNNING;
@@ -1002,7 +1047,7 @@ void websSetVar(Webs *wp, char_t *var, char_t *value)
     } else {
         v = valueString(T(""), VALUE_ALLOCATE);
     }
-    symEnter(wp->cgiVars, var, v, 0);
+    symEnter(wp->vars, var, v, 0);
 }
 
 
@@ -1018,7 +1063,7 @@ int websTestVar(Webs *wp, char_t *var)
     if (var == NULL || *var == '\0') {
         return 0;
     }
-    if ((sp = symLookup(wp->cgiVars, var)) == NULL) {
+    if ((sp = symLookup(wp->vars, var)) == NULL) {
         return 0;
     }
     return 1;
@@ -1036,7 +1081,7 @@ char_t *websGetVar(Webs *wp, char_t *var, char_t *defaultGetValue)
     gassert(websValid(wp));
     gassert(var && *var);
  
-    if ((sp = symLookup(wp->cgiVars, var)) != NULL) {
+    if ((sp = symLookup(wp->vars, var)) != NULL) {
         gassert(sp->content.type == string);
         if (sp->content.value.string) {
             return sp->content.value.string;
@@ -1106,7 +1151,9 @@ void websRedirect(Webs *wp, char_t *url)
     gassert(websValid(wp));
     gassert(url);
 
+#if UNUSED
     websStats.redirects++;
+#endif
     msgbuf = urlbuf = NULL;
 
     /*
@@ -1244,7 +1291,9 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     websResponse(wp, code, buf, NULL);
     gfree(buf);
     gfree(userMsg);
+#if UNUSED
     websStats.errors++;
+#endif
 }
 
 
@@ -1329,10 +1378,12 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
         } else {
             websWriteHeader(wp, T("Connection: close\r\n"));   
         }
+#if UNUSED
         if (wp->flags & (WEBS_JS | WEBS_CGI_REQUEST)) {
             //  MOB - should be set in handlers and not here
             websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
         }
+#endif
         if (wp->flags & WEBS_HEAD_REQUEST) {
             websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
         } else if (contentLength >= 0) {                                                                                    
@@ -1512,6 +1563,9 @@ void websDecodeUrl(char_t *decoded, char_t *token, ssize len)
     gassert(decoded);
     gassert(token);
 
+    if (len < 0) {
+        len = gstrlen(token);
+    }
     op = decoded;
     for (ip = token; *ip && len > 0; ip++, op++) {
         if (*ip == '+') {
@@ -1614,7 +1668,9 @@ void websTimeout(void *arg, int id)
         greschedCallback(id, (int) WEBS_TIMEOUT);
         return;
     } else if (tm >= WEBS_TIMEOUT) {
+#if UNUSED
         websStats.timeouts++;
+#endif
         gunschedCallback(id);
         wp->timeout = -1;
         websDone(wp, 404);
@@ -1652,8 +1708,8 @@ void websDone(Webs *wp, int code)
     }
 #endif
 #if BIT_CGI
-    if (wp->cgiFd > 0) {
-        gclose(wp->cgiFd);
+    if (wp->cgifd >= 0) {
+        gclose(wp->cgifd);
     }
 #endif
     if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
@@ -1697,19 +1753,18 @@ int websAlloc(int sid)
     wp->sid = sid;
     wp->state = WEBS_BEGIN;
     wp->docfd = -1;
+    wp->infd = -1;
     wp->timeout = -1;
     wp->session = 0;
+#if BIT_CGI
+    wp->cgifd = -1;
+#endif
+    return wid;
     gassert(wp->flags == 0);
     ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
     ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
+    wp->vars = symOpen(WEBS_SYM_INIT);
 
-    /*
-        Create storage for the CGI variables. We supply the symbol tables for both the CGI variables and for the global
-        functions. The function table is common to all webs instances (ie. all browsers)
-     */
-    wp->cgiVars = symOpen(WEBS_SYM_INIT);
-    wp->cgiFd = 0;
-    return wid;
 }
 
 
@@ -1721,7 +1776,7 @@ void websFree(Webs *wp)
     gfree(wp->path);
     gfree(wp->url);
     gfree(wp->host);
-    gfree(wp->lpath);
+    gfree(wp->filename);
     gfree(wp->query);
     gfree(wp->decodedQuery);
     gfree(wp->authType);
@@ -1733,9 +1788,12 @@ void websFree(Webs *wp)
     gfree(wp->dir);
     gfree(wp->protocol);
     gfree(wp->protoVersion);
-    gfree(wp->cgiStdin);
     gfree(wp->method);
-
+    gfree(wp->contentType);
+    symClose(wp->vars);
+#if BIT_CGI
+    gfree(wp->cgiStdin);
+#endif
 #if BIT_AUTH
     gfree(wp->authDetails);
     gfree(wp->realm);
@@ -1752,8 +1810,11 @@ void websFree(Webs *wp)
 #if BIT_PACK_SSL
     websSSLFree(wp);
 #endif
-    symClose(wp->cgiVars);
-
+#if BIT_UPLOAD
+    if (wp->files) {
+        websFreeUpload(wp);
+    }
+#endif
     ringqClose(&wp->input);
     ringqClose(&wp->output);
     websMax = gfreeHandle((void***) &webs, wp->wid);
@@ -1814,7 +1875,7 @@ char_t *websGetRequestIpAddr(Webs *wp)
 }
 
 
-char_t *websGetRequestLpath(Webs *wp)
+char_t *websGetRequestFilename(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1822,7 +1883,7 @@ char_t *websGetRequestLpath(Webs *wp)
 #if BIT_ROM
     return wp->path;
 #else
-    return wp->lpath;
+    return wp->filename;
 #endif
 }
 
@@ -1936,17 +1997,19 @@ void websSetRequestBytes(Webs *wp, ssize bytes)
 }
 
 
-void websSetRequestLpath(Webs *wp, char_t *lpath)
+#if UNUSED
+void websSetRequestFilename(Webs *wp, char_t *filename)
 {
     gassert(websValid(wp));
-    gassert(lpath && *lpath);
+    gassert(filename && *filename);
 
-    if (wp->lpath) {
-        gfree(wp->lpath);
+    if (wp->filename) {
+        gfree(wp->filename);
     }
-    wp->lpath = gstrdup(lpath);
-    websSetVar(wp, T("PATH_TRANSLATED"), wp->lpath);
+    wp->filename = gstrdup(filename);
+    websSetVar(wp, T("PATH_TRANSLATED"), wp->filename);
 }
+#endif
 
 
 /*
@@ -1981,8 +2044,8 @@ void websRewriteRequest(Webs *wp, char_t *url)
     gfree(wp->url);
     wp->url = gstrdup(url);
     websSetRequestPath(wp, NULL, wp->url);
-    gfree(wp->lpath);
-    gfmtAlloc(&wp->lpath, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
+    gfree(wp->filename);
+    gfmtAlloc(&wp->filename, BIT_LIMIT_FILENAME, "%s%s", wp->dir, wp->path);
 }
 
 
@@ -2603,6 +2666,7 @@ char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
     if ((sp = symLookup(websMime, ext)) != NULL) {
         gstrncpy(buf, sp->content.value.string, charCnt);
     } else {
+        //  MOB - don't return this if no mime type found
         gstrcpy(buf, T("text/plain"));
     }
     gfree(parsebuf);
@@ -2712,6 +2776,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
             ssize ok = (cp[length + glen] == '\0');
             if (ok) {
                 cp[length] = '\0';
+                //  MOB - skip "."
 #if BIT_WIN_LIKE
                 gstrlower(cp);            
                 //  MOB - don't map extension case. Those who test should use caseless test
@@ -2820,15 +2885,16 @@ char_t *websNormalizeUriPath(char_t *pathArg)
 
 
 /*
-    Open a web page. lpath is the local filename. path is the URL path name.
+    Open a web page. filename is the local filename. path is the URL path name.
+
  */
-int websPageOpen(Webs *wp, char_t *lpath, char_t *path, int mode, int perm)
+int websPageOpen(Webs *wp, char_t *filename, char_t *path, int mode, int perm)
 {
     gassert(websValid(wp));
 #if BIT_ROM
     return websRomPageOpen(wp, path, mode, perm);
 #else
-    return (wp->docfd = gopen(lpath, mode, perm));
+    return (wp->docfd = gopen(filename, mode, perm));
 #endif
 }
 
@@ -2849,16 +2915,16 @@ void websPageClose(Webs *wp)
 
 
 /*
-    Stat a web page lpath is the local filename. path is the URL path name.
+    Stat a web page filename is the local filename. path is the URL path name.
  */
-int websPageStat(Webs *wp, char_t *lpath, char_t *path, WebsFileInfo *sbuf)
+int websPageStat(Webs *wp, char_t *filename, char_t *path, WebsFileInfo *sbuf)
 {
 #if BIT_ROM
     return websRomPageStat(path, sbuf);
 #else
     WebsStat    s;
 
-    if (gstat(lpath, &s) < 0) {
+    if (gstat(filename, &s) < 0) {
         return -1;
     }
     sbuf->size = (ssize) s.st_size;
@@ -2869,12 +2935,12 @@ int websPageStat(Webs *wp, char_t *lpath, char_t *path, WebsFileInfo *sbuf)
 }
 
 
-int websPageIsDirectory(char_t *lpath)
+int websPageIsDirectory(char_t *filename)
 {
 #if BIT_ROM
     WebsFileInfo    sbuf;
 
-    if (websRomPageStat(lpath, &sbuf) >= 0) {
+    if (websRomPageStat(filename, &sbuf) >= 0) {
         return(sbuf.isDir);
     } else {
         return 0;
@@ -2882,7 +2948,7 @@ int websPageIsDirectory(char_t *lpath)
 #else
     WebsStat    sbuf;
 
-    if (gstat(lpath, &sbuf) >= 0) {
+    if (gstat(filename, &sbuf) >= 0) {
         return(sbuf.st_mode & S_IFDIR);
     } else {
         return 0;

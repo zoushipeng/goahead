@@ -1109,6 +1109,56 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 extern void error(char_t *fmt, ...);
 extern void trace(int lev, char_t *fmt, ...);
 
+/*********************************** HTTP Codes *******************************/
+/*
+    Standard HTTP/1.1 status codes
+ */
+#define HTTP_CODE_CONTINUE                  100     /**< Continue with request, only partial content transmitted */
+#define HTTP_CODE_OK                        200     /**< The request completed successfully */
+#define HTTP_CODE_CREATED                   201     /**< The request has completed and a new resource was created */
+#define HTTP_CODE_ACCEPTED                  202     /**< The request has been accepted and processing is continuing */
+#define HTTP_CODE_NOT_AUTHORITATIVE         203     /**< The request has completed but content may be from another source */
+#define HTTP_CODE_NO_CONTENT                204     /**< The request has completed and there is no response to send */
+#define HTTP_CODE_RESET                     205     /**< The request has completed with no content. Client must reset view */
+#define HTTP_CODE_PARTIAL                   206     /**< The request has completed and is returning partial content */
+#define HTTP_CODE_MOVED_PERMANENTLY         301     /**< The requested URI has moved permanently to a new location */
+#define HTTP_CODE_MOVED_TEMPORARILY         302     /**< The URI has moved temporarily to a new location */
+#define HTTP_CODE_SEE_OTHER                 303     /**< The requested URI can be found at another URI location */
+#define HTTP_CODE_NOT_MODIFIED              304     /**< The requested resource has changed since the last request */
+#define HTTP_CODE_USE_PROXY                 305     /**< The requested resource must be accessed via the location proxy */
+#define HTTP_CODE_TEMPORARY_REDIRECT        307     /**< The request should be repeated at another URI location */
+#define HTTP_CODE_BAD_REQUEST               400     /**< The request is malformed */
+#define HTTP_CODE_UNAUTHORIZED              401     /**< Authentication for the request has failed */
+#define HTTP_CODE_PAYMENT_REQUIRED          402     /**< Reserved for future use */
+#define HTTP_CODE_FORBIDDEN                 403     /**< The request was legal, but the server refuses to process */
+#define HTTP_CODE_NOT_FOUND                 404     /**< The requested resource was not found */
+#define HTTP_CODE_BAD_METHOD                405     /**< The request HTTP method was not supported by the resource */
+#define HTTP_CODE_NOT_ACCEPTABLE            406     /**< The requested resource cannot generate the required content */
+#define HTTP_CODE_REQUEST_TIMEOUT           408     /**< The server timed out waiting for the request to complete */
+#define HTTP_CODE_CONFLICT                  409     /**< The request had a conflict in the request headers and URI */
+#define HTTP_CODE_GONE                      410     /**< The requested resource is no longer available*/
+#define HTTP_CODE_LENGTH_REQUIRED           411     /**< The request did not specify a required content length*/
+#define HTTP_CODE_PRECOND_FAILED            412     /**< The server cannot satisfy one of the request preconditions */
+#define HTTP_CODE_REQUEST_TOO_LARGE         413     /**< The request is too large for the server to process */
+#define HTTP_CODE_REQUEST_URL_TOO_LARGE     414     /**< The request URI is too long for the server to process */
+#define HTTP_CODE_UNSUPPORTED_MEDIA_TYPE    415     /**< The request media type is not supported by the server or resource */
+#define HTTP_CODE_RANGE_NOT_SATISFIABLE     416     /**< The request content range does not exist for the resource */
+#define HTTP_CODE_EXPECTATION_FAILED        417     /**< The server cannot satisfy the Expect header requirements */
+#define HTTP_CODE_NO_RESPONSE               444     /**< The connection was closed with no response to the client */
+#define HTTP_CODE_INTERNAL_SERVER_ERROR     500     /**< Server processing or configuration error. No response generated */
+#define HTTP_CODE_NOT_IMPLEMENTED           501     /**< The server does not recognize the request or method */
+#define HTTP_CODE_BAD_GATEWAY               502     /**< The server cannot act as a gateway for the given request */
+#define HTTP_CODE_SERVICE_UNAVAILABLE       503     /**< The server is currently unavailable or overloaded */
+#define HTTP_CODE_GATEWAY_TIMEOUT           504     /**< The server gateway timed out waiting for the upstream server */
+#define HTTP_CODE_BAD_VERSION               505     /**< The server does not support the HTTP protocol version */
+#define HTTP_CODE_INSUFFICIENT_STORAGE      507     /**< The server has insufficient storage to complete the request */
+
+/*
+    Proprietary HTTP status codes
+ */
+#define HTTP_CODE_START_LOCAL_ERRORS        550
+#define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
+
 /************************************* Value **********************************/
 /*
     These values are not prefixed so as to aid code readability
@@ -1421,6 +1471,15 @@ extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 
 /*********************************** Runtime **********************************/
 
+/*
+    String trim flags
+ */
+#define WEBS_TRIM_START  0x1             /**< Flag for #strim to trim from the start of the string */
+#define WEBS_TRIM_END    0x2             /**< Flag for #strim to trim from the end of the string */
+#define WEBS_TRIM_BOTH   0x3             /**< Flag for #strim to trim from both the start and the end of the string */
+
+extern char *gtrim(char *str, cchar *set, int where);
+
 extern int gallocHandle(void ***map);
 extern int gallocEntry(void ***list, int *max, int size);
 extern int gfreeHandle(void ***map, int handle);
@@ -1449,22 +1508,36 @@ extern void gunschedCallback(int id);
 extern void greschedCallback(int id, int delay);
 extern void grunCallbacks();
 
+/********************************** Upload ************************************/
+#if BIT_UPLOAD
+
+typedef struct WebsUploadFile {
+    char    *filename;              /**< Local (temp) name of the file */
+    char    *clientFilename;        /**< Client side name of the file */
+    char    *contentType;           /**< Content type */
+    ssize   size;                   /**< Uploaded file size */
+} WebsUploadFile;
+
+#endif
 /********************************** Defines ***********************************/
 
 #define WEBS_MAX_PORT_LEN       10          /* Max digits in port number */
 #define WEBS_SYM_INIT           64          /* Hash size for form table */
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
-#define WEBS_SESSION            "-goahead-session-"
 
 /* 
     Request flags (MOB - reorder)
  */
+//  MOB - is this used
 #define WEBS_LOCAL_PAGE         0x1         /* Request for local webs page */ 
 #define WEBS_KEEP_ALIVE         0x2         /* HTTP/1.1 keep alive */
 #define WEBS_COOKIE             0x8         /* Cookie supplied in request */
 #define WEBS_IF_MODIFIED        0x10        /* If-modified-since in request */
+
+//  MOB  - remove REQUEST suffix
 #define WEBS_POST_REQUEST       0x20        /* Post request operation */
+//  MOB - is this used?
 #define WEBS_LOCAL_REQUEST      0x40        /* Request from this system */
 #define WEBS_HOME_PAGE          0x80        /* Request for the home page */ 
 #define WEBS_JS                 0x100       /* Javscript request */ 
@@ -1480,6 +1553,7 @@ extern void grunCallbacks();
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
 #define WEBS_GET_REQUEST        0x200000    /* Get Request */
+#define WEBS_UPLOAD             0x400000    /* Multipart-mime file upload */
 
 /*
     URL handler flags
@@ -1518,8 +1592,10 @@ typedef struct Webs {
     ringq_t         input;              /* Request input buffer */
     ringq_t         output;             /* Output buffer */
     time_t          since;              /* Parsed if-modified-since time */
-    sym_fd_t        cgiVars;            /* CGI standard variables */
+    sym_fd_t        vars;               /* CGI standard variables */
+#if UNUSED
     sym_fd_t        cgiQuery;           /* CGI decoded query string */
+#endif
     time_t          timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
     char_t          ipaddr[64];         /* Connecting ipaddress */
@@ -1527,11 +1603,13 @@ typedef struct Webs {
     char_t          type[64];           /* Mime type */
     char_t          *authType;          /* Authorization type (Basic/DAA) */
     char_t          *authDetails;       /* Http header auth details */
+    char_t          *contentType;       /* Body content type */
     char_t          *dir;               /* Directory containing the page */
     char_t          *path;              /* Path name without query */
+    char_t          *ext;               /* Path extension */
     char_t          *url;               /* Full request url */
     char_t          *host;              /* Requested host */
-    char_t          *lpath;             /* Document path name */
+    char_t          *filename;          /* Document path name */
     char_t          *query;             /* Request query */
     char_t          *decodedQuery;      /* Decoded request query */
     char_t          *method;            /* HTTP request method */
@@ -1552,9 +1630,11 @@ typedef struct Webs {
     int             clen;               /* Content length */
     int             remainingContent;   /* Content length */
     int             wid;                /* Index into webs */
-    char_t          *cgiStdin;          /* filename for CGI stdin */
-    int             cgiFd;              /* CGI stdin */
-    int             docfd;              /* Document file descriptor */
+    char_t          *cgiStdin;          /* Filename for CGI program input */
+    int             cgifd;              /* File handle for CGI program input */
+    char_t          *inputFile;         /* File name to write input body data */
+    int             infd;               /* File handle to write input data */
+    int             docfd;              /* File descriptor for document being served */
     ssize           numbytes;           /* Bytes to transfer to browser */
     ssize           written;            /* Bytes actually transferred */
     void            (*writable)(struct Webs *wp);
@@ -1574,6 +1654,19 @@ typedef struct Webs {
     char_t          *qop;               /* quality operator */
 #endif
 #endif
+#if BIT_UPLOAD
+    int             ufd;                /* Upload file handle */
+    sym_fd_t        files;              /* Uploaded files */
+    char            *boundary;          /* Mime boundary */
+    ssize           boundaryLen;        /* Boundary length */
+    int             uploadState;        /* Current file upload state */
+
+    WebsUploadFile  *currentFile;       /* Current file context */
+    int             *uploadFd;          /* Current upload file handle */
+    char            *clientFilename;    /* Current file filename */
+    char            *tmpPath;           /* Current temp filename for upload data */
+    char            *id;                /* Current name keyword value */
+#endif
 #if BIT_PACK_OPENSSL
     SSL             *ssl;
     BIO             *bio;
@@ -1582,19 +1675,22 @@ typedef struct Webs {
 #endif
 } Webs;
 
+
+typedef int (*WebsHandlerProc)(Webs *wp, char_t *prefix, char_t *dir, int arg);
+
 /*
     URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.
  */ 
 typedef struct WebsHandler {
-    int     (*handler)(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, 
-            char_t *query);                 /* Callback URL handler function */
-    char_t  *webDir;                        /* Web directory if required */
-    char_t  *urlPrefix;                     /* URL leading prefix */
-    ssize   len;                            /* Length of urlPrefix for speed */
-    int     arg;                            /* Argument to provide to handler */
-    int     flags;                          /* Flags */
+    WebsHandlerProc handler;
+    char_t          *dir;                   /**< Web directory if required */
+    char_t          *prefix;                /**< URL leading prefix */
+    ssize           len;                    /**< Length of prefix for speed */
+    int             arg;                    /**< Argument to provide to handler */
+    int             flags;                  /**< Flags */
 } WebsHandler;
 
+#if UNUSED
 /* 
     Webs statistics
     MOB - remove these?
@@ -1615,6 +1711,7 @@ typedef struct WebsStats {
 } WebsStats;
 
 extern WebsStats websStats;                 /* Web access stats */
+#endif
 
 /* 
     Error code list
@@ -1636,7 +1733,7 @@ typedef struct WebsMime {
     File information structure.
  */
 typedef struct WebsFileInfo {
-    unsigned long   size;                   /* File length */
+    ulong           size;                   /* File length */
     int             isDir;                  /* Set if directory */
     time_t          mtime;                  /* Modified time */
 } WebsFileInfo;
@@ -1670,7 +1767,7 @@ extern char_t *websCalcNonce(Webs *wp);
 extern char_t *websCalcOpaque(Webs *wp);
 extern char_t *websCalcDigest(Webs *wp);
 extern char_t *websCalcUrlDigest(Webs *wp);
-extern int websCgiHandler(Webs *wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 extern void websCgiCleanup();
 extern int websCheckCgiProc(int handle);
 extern void websClose();
@@ -1678,10 +1775,10 @@ extern void websCloseListen(int sock);
 extern char_t *websDecode64(char_t *string);
 extern char_t *websDecode64Block(char_t *s, ssize *len, int flags);
 extern void websDecodeUrl(char_t *token, char_t *decoded, ssize len);
-extern void websDefaultOpen();
-extern void websDefaultClose();
-extern int websDefaultHandler(Webs *wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
-extern int websDefaultHomePageHandler(Webs *wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern void websFileOpen();
+extern void websFileClose();
+extern int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
+extern int websHomePageHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 extern void websDone(Webs *wp, int code);
 extern char_t *websEncode64(char_t *string);
 extern char_t *websEncode64Block(char_t *s, ssize len);
@@ -1692,23 +1789,25 @@ extern int websEval(char_t *cmd, char_t **rslt, void *chan);
 extern void websFooter(Webs *wp);
 extern void websFormClose();
 extern int websFormDefine(char_t *name, void (*fn)(Webs *wp, char_t *path, char_t *query));
-extern int websFormHandler(Webs *wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
+extern int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 extern void websFormOpen();
 extern void websFree(Webs *wp);
 extern char_t *websGetCgiCommName();
 extern char_t *websGetDateString(WebsFileInfo *sbuf);
-extern char_t *websGetDefaultDir();
-extern char_t *websGetDefaultPage();
+extern char_t *websGetDocuments();
+extern char_t *websGetIndex();
+extern void websSetDocuments(char_t *dir);
+extern void websSetIndex(char_t *page);
 extern char_t *websGetHostUrl();
 extern char_t *websGetIpAddrUrl();
 extern char_t *websGetPassword();
-extern char_t *websGetPublishDir(char_t *path, char_t **urlPrefix);
+extern char_t *websGetPublishDir(char_t *path, char_t **prefix);
 extern char_t *websGetRealm();
 extern ssize websGetRequestBytes(Webs *wp);
 extern char_t *websGetRequestDir(Webs *wp);
 extern int websGetRequestFlags(Webs *wp);
 extern char_t *websGetRequestIpAddr(Webs *wp);
-extern char_t *websGetRequestLpath(Webs *wp);
+extern char_t *websGetRequestFilename(Webs *wp);
 extern char_t *websGetRequestPath(Webs *wp);
 extern char_t *websGetRequestPassword(Webs *wp);
 extern char_t *websGetRequestType(Webs *wp);
@@ -1723,12 +1822,12 @@ extern char_t *websNormalizeUriPath(char_t *path);
 extern int websOpen(char_t *documents, char_t *authPath);
 extern int websListen(char *endpoint);
 extern void websPageClose(Webs *wp);
-extern int websPageIsDirectory(char_t *lpath);
-extern int websPageOpen(Webs *wp, char_t *lpath, char_t *path, int mode, int perm);
+extern int websPageIsDirectory(char_t *filename);
+extern int websPageOpen(Webs *wp, char_t *filename, char_t *path, int mode, int perm);
 extern ssize websPageReadData(Webs *wp, char *buf, ssize nBytes);
 extern void websPageSeek(Webs *wp, WebsFilePos offset);
-extern int websPageStat(Webs *wp, char_t *lpath, char_t *path, WebsFileInfo *sbuf);
-extern int websPublish(char_t *urlPrefix, char_t *path);
+extern int websPageStat(Webs *wp, char_t *filename, char_t *path, WebsFileInfo *sbuf);
+extern int websPublish(char_t *prefix, char_t *path);
 extern void websRedirect(Webs *wp, char_t *url);
 extern void websResponse(Webs *wp, int code, char_t *msg, char_t *redirect);
 extern void websRewriteRequest(Webs *wp, char_t *url);
@@ -1739,13 +1838,11 @@ extern void websRomPageClose(int fd);
 extern ssize websRomPageReadData(Webs *wp, char *buf, ssize len);
 extern int websRomPageStat(char_t *path, WebsFileInfo *sbuf);
 extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
-extern void websSetDefaultDir(char_t *dir);
-extern void websSetDefaultPage(char_t *page);
 extern void websSetEnv(Webs *wp);
 extern void websSetHost(char_t *host);
 extern void websSetIpAddr(char_t *ipaddr);
 extern void websSetRequestBytes(Webs *wp, ssize bytes);
-extern void websSetRequestLpath(Webs *wp, char_t *lpath);
+extern void websSetRequestFilename(Webs *wp, char_t *filename);
 extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
 #if UNUSED
 extern void websSetRequestSocketHandler(Webs *wp, int mask, void (*fn)(Webs *wp));
@@ -1756,13 +1853,12 @@ extern void websServiceEvents(int *finished);
 extern void websSetRequestWritten(Webs *wp, ssize written);
 extern void websSetTimeMark(Webs *wp);
 extern void websSetVar(Webs *wp, char_t *var, char_t *value);
-extern int websSolutionHandler(Webs *wp, char_t *urlPrefix, char_t *dir, int arg, char_t *url, char_t *path, char_t *query);
 extern int websTestVar(Webs *wp, char_t *var);
 extern void websTimeout(void *arg, int id);
 extern void websTimeoutCancel(Webs *wp);
-extern int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, int (*fn)(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query), int flags);
+extern int websUrlHandlerDefine(char_t *prefix, char_t *dir, int arg, WebsHandlerProc handler, int flags);
 extern void websUrlHandlerClose();
-extern int websUrlHandlerDelete(int (*fn)(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query));
+extern int websUrlHandlerDelete(WebsHandlerProc handler);
 extern int websUrlHandlerOpen();
 extern void websHandleRequest(Webs *wp);
 extern int websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, char_t **proto, char_t **tag, char_t **ext);
@@ -1774,12 +1870,18 @@ extern ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars);
 extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
 extern int websValid(Webs *wp);
 
+#if BIT_UPLOAD
+extern void websProcessUploadData(Webs *wp);
+extern void websFreeUpload(Webs *wp);
+#endif
+
 #if BIT_JAVASCRIPT
 extern void websJsClose();
 extern int websJsDefine(char_t *name, int (*fn)(int ejid, Webs *wp, int argc, char_t **argv));
 extern int websJsOpen();
-extern int websJsRequest(Webs *wp, char_t *lpath);
+extern int websJsRequest(Webs *wp, char_t *filename);
 extern int websJsWrite(int ejid, Webs *wp, int argc, char_t **argv);
+extern int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 #endif
 
 /*************************************** SSL ***********************************/
@@ -1819,6 +1921,10 @@ extern void sslFlush(Webs *wp);
 #define WEBS_BAD_PASSWORD     2
 #define WEBS_BAD_USERNAME     3
 
+#define WEBS_SESSION            "-goahead-session-"
+#define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
+#define WEBS_SESSION_AUTHVER    "_:VERSION:_"       /**< Auth version number */
+
 typedef void (*WebsLogin)(Webs *wp, int why);
 typedef bool (*WebsVerify)(Webs *wp);
 
@@ -1826,14 +1932,12 @@ typedef struct WebsUser {
     char_t  *name;
     char_t  *realm;
     char_t  *password;
-    int     enable;
     char_t  *roles;
     //  MOB - rename abilities
     char_t  *abilities;
 } WebsUser;
 
 typedef struct WebsRole {
-    int     enable;
     //  MOB - rename abilities
     char_t  *abilities;
 } WebsRole;
@@ -1842,7 +1946,6 @@ typedef struct WebsRoute {
     char        *prefix;
     char        *realm;
     ssize       prefixLen;
-    int         enable;
     int         secure;
     WebsLogin   login;
     WebsVerify  verify;
@@ -1860,9 +1963,8 @@ extern int websAddUserRole(char_t *name, char_t *role);
 
 //  MOB -should this be plural
 //  MOB - rename websCanUser
-extern bool websCan(Webs *wp, char_t *ability);
+extern bool websCanUser(Webs *wp, char_t *ability);
 extern void websCloseAuth();
-extern int websEnableUser(char_t *name, int enable);
 extern bool websFormLogin(Webs *wp, char_t *username, char_t *password);
 extern int websOpenAuth(char_t *path);
 extern int websRemoveRole(char_t *role);
@@ -1947,6 +2049,13 @@ extern char *websGetSessionID(Webs *wp);
     #define websAspDefine websJsDefine
     #define websAspOpen websJsOpen
     #define websAspRequest websJsRequest
+
+    #define websGetDefaultDir websGetDocuments
+    #define websGetDefaultPage websGetIndex
+    #define websSetDefaultDir websSetDocuments
+    #define websSetDefaultPage websGetIndex
+    #define websSetRequestLpath websSetRequestFilename
+    #define websGetRequestLpath websGetRequestFilename
 
     typedef Webs WebsRec;
     typedef Webs websType;

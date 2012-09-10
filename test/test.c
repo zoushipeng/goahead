@@ -26,7 +26,7 @@ static int finished = 0;
 static void initPlatform();
 static void usage();
 
-static int aliasTest(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
+static int aliasTest(Webs *wp, char_t *prefix, char_t *dir, int arg);
 #if BIT_JAVASCRIPT
 static int aspTest(int eid, Webs *wp, int argc, char_t **argv);
 static int bigTest(int eid, Webs *wp, int argc, char_t **argv);
@@ -120,8 +120,11 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websUrlHandlerDefine(T("/form"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
     websUrlHandlerDefine(T("/alias/"), 0, 0, aliasTest, 0);
-    websUrlHandlerDefine(T("/"), 0, 0, websDefaultHomePageHandler, 0); 
-    websUrlHandlerDefine(T(""), 0, 0, websDefaultHandler, WEBS_HANDLER_LAST); 
+#if BIT_JAVASCRIPT
+    websUrlHandlerDefine(T("/"), 0, 0, websJsHandler, 0);
+#endif
+    websUrlHandlerDefine(T("/"), 0, 0, websHomePageHandler, 0); 
+    websUrlHandlerDefine(T(""), 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
 
 #if BIT_JAVASCRIPT
     websJsDefine(T("aspTest"), aspTest);
@@ -178,9 +181,9 @@ static void sigHandler(int signo)
 /*
     Rewrite /alias => /alias/atest.html
  */
-static int aliasTest(Webs *wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query)
+static int aliasTest(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
-    if (gmatch(urlPrefix, "/alias/")) {
+    if (gmatch(prefix, "/alias/")) {
         websRewriteRequest(wp, "/alias/atest.html");
     }
     return 0;

@@ -19,9 +19,9 @@
         Web form authentication which uses a web page form to login (insecure unless over TLS)
 
     The user, role and route information is loaded form a text file that uses the schema (see test/auth.txt)
-        user: enable: realm: name: password: role [role...]
-        role: enable: name: ability [ability...]
-        uri: enable: realm: type: uri: method: ability [ability...]
+        user: realm: name: password: role [role...]
+        role: name: ability [ability...]
+        uri: realm: type: uri: method: ability [ability...]
 
     Note:
         - The psudo ability SECURE can be used to require TLS communications
@@ -126,7 +126,7 @@ static int loadAuth(char_t *path)
     WebsVerify  verify;
     WebsRoute   *rp;
     FILE        *fp;
-    char        buf[512], *name, *enabled, *type, *password, *uri, *abilities, *roles, *line, *kind, *loginUri, *realm;
+    char        buf[512], *name, *type, *password, *uri, *abilities, *roles, *line, *kind, *loginUri, *realm;
     int         i;
     
     loginUri = 0;
@@ -142,8 +142,6 @@ static int loadAuth(char_t *path)
         if (kind == 0 || *kind == '\0' || *kind == '#') {
             continue;
         }
-        enabled = strtok(NULL, " \t:");
-        if (*enabled != '1') continue;
         if (gmatch(kind, "user")) {
             realm = trimSpace(strtok(NULL, ":"));
             name = strtok(NULL, " \t:");
@@ -231,7 +229,6 @@ int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
     up->realm = gstrdup(realm);
     up->password = gstrdup(password);
     up->abilities = 0;
-    up->enable = 1;
 
     //  MOB - key needs to be realm:name
     if (symEnter(users, name, valueSymbol(up), 0) == 0) {
@@ -282,21 +279,6 @@ bool websFormLogin(Webs *wp, char_t *username, char_t *password)
         return 0;
     }
     return 1;
-}
-
-
-//  MOB - get rid if enable/disable
-int websEnableUser(char_t *name, int enable) 
-{
-    WebsUser    *user;
-    sym_t       *sym;
-
-    if ((sym = symLookup(users, name)) == 0) {
-        return -1;
-    }
-    user = (WebsUser*) sym->content.value.symbol;
-    user->enable = enable;
-    return 0;
 }
 
 
@@ -466,7 +448,6 @@ int websAddRole(char_t *name, char_t *abilities)
     ringqPutc(&buf, ' ');
     ringqAddNull(&buf);
     rp->abilities = gstrdup((char*) buf.servp);
-    rp->enable = 1;
     if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
         return -1;
     }
@@ -550,13 +531,14 @@ int websAddRoute(char_t *realm, char_t *uri, char_t *abilities, char_t *loginUri
     rp->prefix = gstrdup(uri);
     rp->prefixLen = glen(uri);
     rp->loginUri = gstrdup(loginUri);
+
+    //  MOB - do we need to remove SECURE?
     rp->secure = (abilities && strstr(abilities, "SECURE")) ? 1 : 0;
 
     /* Always have a leading and trailing space to make matching quicker */
     gfmtAlloc(&rp->abilities, -1, " %s", abilities ? abilities : "");
     rp->login = login;
     rp->verify = verify;
-    rp->enable = 1;
     growRoutes();
     routes[routeCount++] = rp;
     trace(5, T("Route \"%s\" in realm \"%s\" requires abilities:%s\n"), uri, realm, rp->abilities);
@@ -724,9 +706,10 @@ static bool verifyFormPassword(Webs *wp)
 bool websVerifyRoute(Webs *wp)
 {
     WebsRoute   *rp;
+    WebsSession *session;
     sym_t       *sym;
     ssize       plen, len;
-    int         i;
+    int         i, cached;
 
     plen = glen(wp->path);
     for (i = 0, rp = 0; i < routeCount; i++) {
@@ -743,46 +726,81 @@ bool websVerifyRoute(Webs *wp)
         return 0;
     }
     if (rp->secure && !(wp->flags & WEBS_SECURE)) {
+#if UNUSED
         websStats.access++;
+#endif
         websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
+    if (!rp->realm) {
+        return 1;
+    }
+#if UNUSED
     if (gmatch(rp->abilities, " ")) {
         /* URI does not require any abilities, return success */
         return 1;
     }
-    if (wp->authDetails) {
-        if (gcaselessmatch(wp->authType, T("basic"))) {
-            decodeBasicDetails(wp);
-#if BIT_DIGEST_AUTH
-        } else if (gcaselessmatch(wp->authType, T("digest"))) {
-            decodeDigestDetails(wp);
 #endif
+    cached = 0;
+    if (wp->cookie && (session = websGetSession(wp, 0)) != 0) {
+        /*
+            Retrieve authentication state from the session storage. Faster than re-authenticating.
+         */
+        if ((wp->username = (char*) websGetSessionVar(wp, WEBS_SESSION_USERNAME, 0)) != 0) {
+#if UNUSED
+            version = httpGetSessionVar(wp, WEBS_SESSION_AUTHVER, 0);
+            if (stoi(version) == auth->version) {
+            }
+#endif
+            trace(5, "Using cached authentication data for user %s", wp->username);
+            cached = 1;
         }
     }
-    if (!wp->user) {
-        if (!wp->username || !*wp->username) {
-            websStats.access++;
-            (rp->login)(wp, WEBS_LOGIN_REQUIRED);
-            return 0;
+    if (!cached) {
+        if (wp->authDetails) {
+            //  MOB - make callback?
+            if (gcaselessmatch(wp->authType, T("basic"))) {
+                decodeBasicDetails(wp);
+#if BIT_DIGEST_AUTH
+            } else if (gcaselessmatch(wp->authType, T("digest"))) {
+                decodeDigestDetails(wp);
+#endif
+            }
         }
-        if ((sym = symLookup(users, wp->username)) == 0) {
-            (rp->login)(wp, WEBS_BAD_USERNAME);
-            return 0;
-        }
-        wp->user = (WebsUser*) sym->content.value.symbol;
-        if (!(rp->verify)(wp)) {
-            (rp->login)(wp, WEBS_BAD_PASSWORD);
-            return 0;
+        if (!wp->user) {
+            if (!wp->username || !*wp->username) {
+#if UNUSED
+                websStats.access++;
+#endif
+                (rp->login)(wp, WEBS_LOGIN_REQUIRED);
+                return 0;
+            }
+            if ((sym = symLookup(users, wp->username)) == 0) {
+                (rp->login)(wp, WEBS_BAD_USERNAME);
+                return 0;
+            }
+            wp->user = (WebsUser*) sym->content.value.symbol;
+            if (!(rp->verify)(wp)) {
+                (rp->login)(wp, WEBS_BAD_PASSWORD);
+                return 0;
+            }
+            /*
+                Store authentication state and user in session storage                                         
+            */                                                                                                
+            if ((session = websGetSession(wp, 1)) != 0) {                                                    
+#if UNUSED
+                websSetSessionVar(wp, WEBS_SESSION_AUTHVER, itos(auth->version));                            
+#endif
+                websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
+            }  
         }
     }
     gassert(wp->user);
-    return websCan(wp, rp->abilities);
+    return websCanUser(wp, rp->abilities);
 }
 
 
-//  MOB -rename abilities
-bool websCan(Webs *wp, char_t *abilities) 
+bool websCanUser(Webs *wp, char_t *abilities) 
 {
     sym_t   *sym;
 
@@ -803,7 +821,7 @@ bool websCan(Webs *wp, char_t *abilities)
 
 static int jsCan(int jsid, Webs *wp, int argc, char_t **argv)
 {
-    if (websCan(wp, argv[0])) {
+    if (websCanUser(wp, argv[0])) {
         //  MOB - how to set return 
         return 0;
     }

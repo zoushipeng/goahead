@@ -22,9 +22,35 @@ static char_t   *skipWhite(char_t *s);
 
 /************************************* Code ***********************************/
 /*
+    Process template JS request
+ */
+int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+{
+    char_t          *filename;
+
+    gassert(websValid(wp));
+
+    if (gstrcmp(wp->ext, T(".asp")) != 0) {
+        return 0;
+    }
+    /*
+        Evaluate Javascript requests
+     */
+    if (wp->flags & WEBS_JS) {
+        filename = websGetRequestFilename(wp);
+        if (websJsRequest(wp, filename) < 0) {
+            return 1;
+        }
+        websDone(wp, 200);
+        return 1;
+    }
+    return 1;
+}
+
+
+/*
     Create script spaces and commands
  */
-
 int websJsOpen()
 {
     if (++aspOpenCount == 1) {
@@ -70,7 +96,7 @@ int websEval(char_t *cmd, char_t **result, void* chan)
     Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
  */
-int websJsRequest(Webs *wp, char_t *lpath)
+int websJsRequest(Webs *wp, char_t *filename)
 {
     WebsFileInfo    sbuf;
     char            *rbuf;
@@ -80,7 +106,7 @@ int websJsRequest(Webs *wp, char_t *lpath)
     int             rc, jsid;
 
     gassert(websValid(wp));
-    gassert(lpath && *lpath);
+    gassert(filename && *filename);
 
     rc = -1;
     buf = NULL;
@@ -92,14 +118,14 @@ int websJsRequest(Webs *wp, char_t *lpath)
     /*
         Create Javascript instance in case it is needed
      */
-    if ((jsid = jsOpenEngine(wp->cgiVars, websJsFunctions)) < 0) {
+    if ((jsid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
         websError(wp, 200, T("Can't create JavaScript engine"));
         goto done;
     }
     jsSetUserHandle(jsid, wp);
 
-    if (websPageStat(wp, lpath, path, &sbuf) < 0) {
-        websError(wp, 404, T("Can't stat %s"), lpath);
+    if (websPageStat(wp, filename, path, &sbuf) < 0) {
+        websError(wp, 404, T("Can't stat %s"), filename);
         goto done;
     }
 
@@ -114,7 +140,7 @@ int websJsRequest(Webs *wp, char_t *lpath)
     rbuf[len] = '\0';
 
     if (websPageReadData(wp, rbuf, len) != len) {
-        websError(wp, 200, T("Cant read %s"), lpath);
+        websError(wp, 200, T("Cant read %s"), filename);
         goto done;
     }
     websPageClose(wp);
@@ -126,6 +152,10 @@ int websJsRequest(Webs *wp, char_t *lpath)
         websError(wp, 200, T("Can't get memory"));
         goto done;
     }
+
+    websWriteHeaders(wp, 200, (ssize) -1, 0);
+    websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
+    websWriteHeader(wp, T("\r\n"));
 
     /*
         Scan for the next "<%"
@@ -194,7 +224,7 @@ int websJsRequest(Webs *wp, char_t *lpath)
             }
 
         } else {
-            websError(wp, 200, T("Unterminated script in %s: \n"), lpath);
+            websError(wp, 200, T("Unterminated script in %s: \n"), filename);
             rc = -1;
             goto done;
         }
@@ -295,7 +325,8 @@ static char_t *skipWhite(char_t *s)
 }
 
 #else
-int websJsOpen() { return 0; };
+int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg) { return 0; }
+int websJsOpen() { return 0; }
 void websJsClose() {}
 #endif /* BIT_JAVASCRIPT */
 

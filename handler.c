@@ -19,13 +19,13 @@ static int          urlHandlerOpenCount = 0;    /* count of apps */
 /**************************** Forward Declarations ****************************/
 
 static int      websUrlHandlerSort(const void *p1, const void *p2);
-static int      websPublishHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, 
-                    int sid, char_t *url, char_t *path, char_t *query);
+static int      websPublishHandler(Webs *wp, char_t *prefix, char_t *dir, int sid);
 
 /*********************************** Code *************************************/
 
 int websUrlHandlerOpen()
 {
+    //  MOB - is this needed?
     if (++urlHandlerOpenCount == 1) {
         websUrlHandler = NULL;
         websUrlHandlerMax = 0;
@@ -43,9 +43,9 @@ void websUrlHandlerClose()
         websJsClose();
         for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
             sp++) {
-            gfree(sp->urlPrefix);
-            if (sp->webDir) {
-                gfree(sp->webDir);
+            gfree(sp->prefix);
+            if (sp->dir) {
+                gfree(sp->dir);
             }
         }
         gfree(websUrlHandler);
@@ -55,19 +55,17 @@ void websUrlHandlerClose()
 
 
 /*
-    Define a new URL handler. urlPrefix is the URL prefix to match. webDir is an optional root directory path for a web
+    Define a new URL handler. prefix is the URL prefix to match. dir is an optional root directory path for a web
     directory. arg is an optional arg to pass to the URL handler. flags defines the matching order. Valid flags include
     WEBS_HANDLER_LAST, WEBS_HANDLER_FIRST. If multiple users specify last or first, their order is defined
-    alphabetically by the urlPrefix.
+    alphabetically by the prefix.
  */
-int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg, 
-        int (*handler)(Webs *wp, char_t *urlPrefix, char_t *webdir, int arg, 
-        char_t *url, char_t *path, char_t *query), int flags)
+int websUrlHandlerDefine(char_t *prefix, char_t *dir, int arg, WebsHandlerProc handler, int flags)
 {
     WebsHandler *sp;
     int         len;
 
-    gassert(urlPrefix);
+    gassert(prefix);
     gassert(handler);
 
     /*
@@ -80,12 +78,12 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     sp = &websUrlHandler[websUrlHandlerMax++];
     memset(sp, 0, sizeof(WebsHandler));
 
-    sp->urlPrefix = gstrdup(urlPrefix);
-    sp->len = gstrlen(sp->urlPrefix);
-    if (webDir) {
-        sp->webDir = gstrdup(webDir);
+    sp->prefix = gstrdup(prefix);
+    sp->len = gstrlen(sp->prefix);
+    if (dir) {
+        sp->dir = gstrdup(dir);
     } else {
-        sp->webDir = gstrdup(T(""));
+        sp->dir = gstrdup(T(""));
     }
     sp->handler = handler;
     sp->arg = arg;
@@ -102,8 +100,7 @@ int websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, int arg,
     Delete an existing URL handler. We don't reclaim the space of the old handler, just NULL the entry. Return -1 if
     handler is not found.  
  */
-int websUrlHandlerDelete(int (*handler)(Webs *wp, char_t *urlPrefix, 
-    char_t *webDir, int arg, char_t *url, char_t *path, char_t *query))
+int websUrlHandlerDelete(WebsHandlerProc handler)
 {
     WebsHandler *sp;
     int         i;
@@ -139,7 +136,7 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
     if ((s2->flags & WEBS_HANDLER_FIRST) || (s1->flags & WEBS_HANDLER_LAST)) {
         return 1;
     }
-    if ((rc = gstrcmp(s1->urlPrefix, s2->urlPrefix)) == 0) {
+    if ((rc = gstrcmp(s1->prefix, s2->prefix)) == 0) {
         if (s1->len < s2->len) {
             return 1;
         } else if (s1->len > s2->len) {
@@ -153,30 +150,30 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
 /*
     Publish a new web directory (Use the default URL handler)
  */
-int websPublish(char_t *urlPrefix, char_t *path)
+int websPublish(char_t *prefix, char_t *dir)
 {
-    return websUrlHandlerDefine(urlPrefix, path, 0, websPublishHandler, 0);
+    return websUrlHandlerDefine(prefix, dir, 0, websPublishHandler, 0);
 }
 
 
 /*
     Return the directory for a given prefix. Ignore empty prefixes
  */
-char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
+char_t *websGetPublishDir(char_t *path, char_t **prefix)
 {
     WebsHandler  *sp;
     int          i;
 
     for (i = 0; i < websUrlHandlerMax; i++) {
         sp = &websUrlHandler[i];
-        if (sp->urlPrefix[0] == '\0') {
+        if (sp->prefix[0] == '\0') {
             continue;
         }
-        if (sp->handler && gstrncmp(sp->urlPrefix, path, sp->len) == 0) {
-            if (urlPrefix) {
-                *urlPrefix = sp->urlPrefix;
+        if (sp->handler && gstrncmp(sp->prefix, path, sp->len) == 0) {
+            if (prefix) {
+                *prefix = sp->prefix;
             }
-            return sp->webDir;
+            return sp->dir;
         }
     }
     return NULL;
@@ -186,19 +183,17 @@ char_t *websGetPublishDir(char_t *path, char_t **urlPrefix)
 /*
     Publish URL handler. We just patch the web page Directory and let the default handler do the rest.
  */
-static int websPublishHandler(Webs *wp, char_t *urlPrefix, char_t *webDir, int sid, char_t *url, char_t *path, 
-        char_t *query)
+static int websPublishHandler(Webs *wp, char_t *prefix, char_t *dir, int sid)
 {
     ssize   len;
 
     gassert(websValid(wp));
-    gassert(path);
 
     /*
-        Trim the urlPrefix off the path and set the webdirectory. Add one to step over the trailing '/'
+        Trim the prefix off the path and set the webdirectory. Add one to step over the trailing '/'
      */
-    len = gstrlen(urlPrefix) + 1;
-    websSetRequestPath(wp, webDir, &path[len]);
+    len = gstrlen(prefix) + 1;
+    websSetRequestPath(wp, dir, &wp->path[len]);
     return 0;
 }
 
@@ -219,7 +214,9 @@ void websHandleRequest(Webs *wp)
         pipelined HTTP/1.1 request if using Keep Alive.
      */
     socketDeleteHandler(wp->sid);
+#if UNUSED
     websStats.handlerHits++;
+#endif
 
     if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
         websError(wp, 400, T("Bad request"));
@@ -228,7 +225,9 @@ void websHandleRequest(Webs *wp)
 #if BIT_AUTH
     if (!websVerifyRoute(wp)) {
         gassert(wp->code);
+#if UNUSED
         websStats.access++;
+#endif
         return;
     }
 #endif
@@ -240,12 +239,12 @@ void websHandleRequest(Webs *wp)
      */
     for (i = 0; i < websUrlHandlerMax; i++) {
         sp = &websUrlHandler[i];
-        if (sp->handler && gstrncmp(sp->urlPrefix, wp->path, sp->len) == 0) {
-            if ((*sp->handler)(wp, sp->urlPrefix, sp->webDir, sp->arg, wp->url, wp->path, wp->query)) {
+        if (sp->handler && gstrncmp(sp->prefix, wp->path, sp->len) == 0) {
+            if ((*sp->handler)(wp, sp->prefix, sp->dir, sp->arg)) {
                 return;
             }
             if (!websValid(wp)) {
-                trace(0, T("handler %s called websDone, but didn't return 1\n"), sp->urlPrefix);
+                trace(0, T("handler %s called websDone, but didn't return 1\n"), sp->prefix);
                 return;
             }
         }

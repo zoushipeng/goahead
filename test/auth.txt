@@ -2,29 +2,30 @@
 #   auth.txt - Authorization data
 #
 #   Schema
-#       user: enable: realm: name: password: role [role...]
-#       role: enable: name: ability [ability...]
-#       uri: enable: realm: type: uri: method: ability [ability...]
+#       user: realm: name: password: role [role...]
+#       role: name: ability [ability...]
+#       uri: realm: type: uri: method: ability [ability...]: [loginUri]
 #
 
-role: 1: person: breathe
-role: 1: user: person view
-role: 1: administrator: user manage
+role: person: breathe
+role: user: person view
+role: administrator: user manage
 
-user: 1: Acme Inc: julie: 3d0b6fdc86ba02fc00c687428d91c406: user
-user: 1: Acme Inc: peter: 484c20a75cf5d95778b1401f681c40dd: user
-user: 1: Acme Inc: mary: 4616cd3f285887e8890fbac9df1919ba: user 
-user: 1: Acme Inc: joshua: 3cc654d84f2b4361fe45a0c92e3f0e0b: user administrator purchase
+user: example.com: julie: 9d8873a123eb506e7f8e84d1f2a26916: user
+user: example.com: peter: 7cdba57892649fd95a540683fdf8fba6: user
+user: example.com: mary: 5b90553bea8ba3686f4239d62801f0f3: user 
+user: example.com: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: user administrator purchase
 
-uri: 1: Acme Inc: none: /form/login:
-uri: 1: Acme Inc: digest: /auth/digest/: manage
-uri: 1: Acme Inc: basic: /auth/basic/: manage
-uri: 1: Acme Inc: form: /auth/form/: manage: /form/login
+uri: example.com: none: /form/login:
+uri: example.com: digest: /auth/digest/: manage
+uri: example.com: basic: /auth/basic/: manage
+uri: example.com: form: /auth/form/: manage: /form/login
 
-# uri: 1: Acme Inc: form: /admin: SECURE manage: /form/login
-# uri: 1: Acme Inc: form: /: user: /form/login
+# uri: example.com: form: /user-content/: PUT DELETE
+# uri: example.com: form: /admin: SECURE
+# uri: example.com: form: /: user: /form/login
 
 #
 #   Catch-all route without authentication for all URIs
 #
-uri: 1: none: none: /: : 
+uri: none: none: /: : 
