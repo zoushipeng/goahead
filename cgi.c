@@ -38,7 +38,7 @@ static int      cgiMax;         /* Size of galloc list */
 int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
     cgiRec      *cgip;
-    sym_t       *s;
+    WebsKey       *s;
     char_t      cgiBuf[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
     char_t      *cp, *cgiName, *cgiPath, **argp, **envp, **ep;
     int         n, envpsize, argpsize, pHandle, cid;

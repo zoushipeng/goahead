@@ -32,8 +32,11 @@ static int aspTest(int eid, Webs *wp, int argc, char_t **argv);
 static int bigTest(int eid, Webs *wp, int argc, char_t **argv);
 #endif
 static void formTest(Webs *wp, char_t *path, char_t *query);
+
+#if UNUSED
 #if BIT_SESSIONS && BIT_AUTH
 static void loginTest(Webs *wp, char_t *path, char_t *query);
+#endif
 #endif
 
 #if BIT_UNIX_LIKE
@@ -117,7 +120,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     }
-    websUrlHandlerDefine(T("/form"), 0, 0, websFormHandler, 0);
+    websUrlHandlerDefine(T("/form/"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
     websUrlHandlerDefine(T("/alias/"), 0, 0, aliasTest, 0);
 #if BIT_JAVASCRIPT
@@ -131,8 +134,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websJsDefine(T("bigTest"), bigTest);
 #endif
     websFormDefine(T("test"), formTest);
+#if UNUSED
 #if BIT_SESSIONS && BIT_AUTH
     websFormDefine(T("login"), loginTest);
+#endif
 #endif
 
     websServiceEvents(&finished);
@@ -240,7 +245,7 @@ static void formTest(Webs *wp, char_t *path, char_t *query)
 }
 
 
-#if BIT_SESSIONS && BIT_AUTH
+#if BIT_SESSIONS && BIT_AUTH && UNUSED
 /*
     Implement /form/login
  */
@@ -282,6 +287,7 @@ static void loginTest(Webs *wp, char_t *path, char_t *query)
 	websFooter(wp);
 	websDone(wp, 200);
 }
+#endif
 #endif
 
 /*

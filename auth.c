@@ -21,7 +21,7 @@
     The user, role and route information is loaded form a text file that uses the schema (see test/auth.txt)
         user: realm: name: password: role [role...]
         role: name: ability [ability...]
-        uri: realm: type: uri: method: ability [ability...]
+        uri: realm: type: uri: method: ability [ability...]: redirect
 
     Note:
         - The psudo ability SECURE can be used to require TLS communications
@@ -39,40 +39,136 @@
 static WebsRoute **routes = 0;
 static int routeCount = 0;
 static int routeMax = 0;
-static sym_fd_t users = -1;
-static sym_fd_t roles = -1;
+static WebsHash users = -1;
+static WebsHash roles = -1;
 static char_t *secret;
+static int autoLogin = BIT_AUTO_LOGIN;
 
 /********************************** Forwards **********************************/
 
-static char *addString(char_t *field, char_t *word);
-static void basicLogin(Webs *wp, int why);
-static void computeAllAbilities();
-static void computeAbilities(WebsUser *user);
+static int addRole(char_t *name, char_t *abilities);
+static void basicLogin(Webs *wp);
+static void computeAllUserAbilities();
+static void computeAbilities(WebsHash abilities, char *role);
+static void computeUserAbilities(WebsUser *user);
 static int decodeBasicDetails(Webs *wp);
-static char_t *findString(char_t *field, char_t *word);
-static void formLogin(Webs *wp, int why);
 static void freeRole(WebsRole *rp);
-static void freeRoute(WebsRoute *rp);
+static void freeRoute(WebsRoute *route);
 static void freeUser(WebsUser *up);
 static void growRoutes();
 static int jsCan(int jsid, Webs *wp, int argc, char_t **argv);
 static int loadAuth(char_t *path);
-static int removeString(char_t *field, char_t *word);
-static char_t *trimSpace(char_t *s);
+static void logoutServiceProc(Webs *wp);
+static void loginServiceProc(Webs *wp);
+static int lookupRoute(char_t *uri);
+static void postLogin(Webs *wp);
 static bool verifyBasicPassword(Webs *wp);
-static bool verifyFormPassword(Webs *wp);
+static bool verifyPostPassword(Webs *wp);
 
 #if BIT_DIGEST_AUTH
 static char_t *calcDigest(Webs *wp, char_t *username, char_t *password);
 static char_t *createDigestNonce(Webs *wp);
 static int decodeDigestDetails(Webs *wp);
-static void digestLogin(Webs *wp, int why);
+static void digestLogin(Webs *wp);
 static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time_t *when);
 static bool verifyDigestPassword(Webs *wp);
 #endif
 
 /************************************ Code ************************************/
+
+WebsRoute *websSelectRoute(Webs *wp)
+{
+    WebsRoute   *route;
+    ssize       plen, len;
+    int         i;
+
+    plen = glen(wp->path);
+    for (i = 0, route = 0; i < routeCount; i++) {
+        route = routes[i];
+        if (plen < route->prefixLen) continue;
+        len = min(route->prefixLen, plen);
+        if (strncmp(wp->path, route->prefix, len) == 0) {
+            if ((route->flags & WEBS_ROUTE_SECURE) && !(wp->flags & WEBS_SECURE)) {
+                websError(wp, 405, T("Access Denied. Secure access is required."));
+                return 0;
+            }
+            if (wp->flags & (WEBS_PUT | WEBS_DELETE) && !(route->flags & WEBS_ROUTE_PUTDEL)) {
+                continue;
+            }
+            return wp->route = route;
+        }
+    }
+    return 0;
+}
+
+
+bool websVerifyRoute(Webs *wp)
+{
+    WebsRoute       *route;
+    WebsSession     *session;
+    char            *version, value[64];
+    int             cached;
+
+    if ((route = websSelectRoute(wp)) == 0) {
+        if (wp->flags & (WEBS_PUT | WEBS_DELETE)) {
+            websError(wp, 500, T("Can't find route support PUT|DELETE method."));
+        } else {
+            websError(wp, 500, T("Can't find suitable route for request."));
+        }
+        return 0;
+    }
+    if (!route->authType || autoLogin) {
+        /* Authentication not required */
+        return 1;
+    }
+    cached = 0;
+    if (wp->cookie && (session = websGetSession(wp, 0)) != 0) {
+        /*
+            Retrieve authentication state from the session storage. Faster than re-authenticating.
+         */
+        if ((wp->username = (char*) websGetSessionVar(wp, WEBS_SESSION_USERNAME, 0)) != 0) {
+            version = websGetSessionVar(wp, WEBS_SESSION_ROUTEVER, 0);
+            if (gatoi(version) == route->version) {
+                trace(5, "Using cached authentication data for user %s", wp->username);
+                cached = 1;
+            }
+        }
+    }
+    if (!cached) {
+        if (wp->authType && !gmatch(wp->authType, route->authType)) {
+            websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
+            return 0;
+        }
+        if (wp->authDetails) {
+            if (gcaselessmatch(wp->authType, T("basic"))) {
+                decodeBasicDetails(wp);
+#if BIT_DIGEST_AUTH
+            } else if (gcaselessmatch(wp->authType, T("digest"))) {
+                decodeDigestDetails(wp);
+#endif
+            }
+        }
+        if (!wp->username || !*wp->username) {
+            (route->login)(wp);
+            return 0;
+        }
+        if (!(route->verify)(wp)) {
+            (route->login)(wp);
+            return 0;
+        }
+        /*
+            Store authentication state and user in session storage                                         
+        */                                                                                                
+        if ((session = websGetSession(wp, 1)) != 0) {                                                    
+            gstritoa(route->version, value, sizeof(value));
+            websSetSessionVar(wp, WEBS_SESSION_ROUTEVER, value);
+            websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
+        }
+    }
+    gassert(wp->user);
+    return websCanUser(wp, route->abilities);
+}
+
 
 int websOpenAuth(char_t *path) 
 {
@@ -86,19 +182,21 @@ int websOpenAuth(char_t *path)
     }
     gfmtStatic(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
     secret = websMD5(sbuf);
-    if (path) {
-        return loadAuth(path);
-    }
 #if BIT_JAVASCRIPT
     websJsDefine(T("can"), jsCan);
 #endif
+    websFormDefine("login", loginServiceProc);
+    websFormDefine("logout", logoutServiceProc);
+    if (path) {
+        return loadAuth(path);
+    }
     return 0;
 }
 
 
 void websCloseAuth() 
 {
-    sym_t       *sym;
+    WebsKey       *sym;
     int         i;
 
     gfree(secret);
@@ -124,12 +222,12 @@ static int loadAuth(char_t *path)
 {
     WebsLogin   login;
     WebsVerify  verify;
-    WebsRoute   *rp;
+    WebsRoute   *route;
     FILE        *fp;
-    char        buf[512], *name, *type, *password, *uri, *abilities, *roles, *line, *kind, *loginUri, *realm;
+    char        buf[512], *name, *type, *password, *uri, *abilities, *roles, *line, *kind, *redirect, *realm;
     int         i;
     
-    loginUri = 0;
+    redirect = 0;
 
     //  MOB - don't use fopen for ROM
     if ((fp = fopen(path, "rt")) == 0) {
@@ -143,7 +241,7 @@ static int loadAuth(char_t *path)
             continue;
         }
         if (gmatch(kind, "user")) {
-            realm = trimSpace(strtok(NULL, ":"));
+            realm = gtrim(strtok(NULL, ":"), " \t", WEBS_TRIM_BOTH);
             name = strtok(NULL, " \t:");
             password = strtok(NULL, " \t:");
             roles = strtok(NULL, "\r\n");
@@ -153,14 +251,17 @@ static int loadAuth(char_t *path)
         } else if (gmatch(kind, "role")) {
             name = strtok(NULL, " \t:");
             abilities = strtok(NULL, "\r\n");
-            if (websAddRole(name, abilities) < 0) {
+            if (addRole(name, abilities) < 0) {
                 return -1;
             }
         } else if (gmatch(kind, "uri")) {
-            realm = trimSpace(strtok(NULL, ":"));
+            realm = gtrim(strtok(NULL, ":"), " \t", WEBS_TRIM_BOTH);
             type = strtok(NULL, " \t:");
-            uri = strtok(NULL, " \t:");
+            uri = strtok(NULL, " \t:\r\n");
             abilities = strtok(NULL, " \t:\r\n");
+            redirect = strtok(NULL, " \t:\r\n");
+            login = 0;
+            verify = 0;
             if (gmatch(type, "basic")) {
                 login = basicLogin;
                 verify = verifyBasicPassword;
@@ -169,34 +270,41 @@ static int loadAuth(char_t *path)
                 login = digestLogin;
                 verify = verifyDigestPassword;
 #endif
-            } else if (gmatch(type, "form")) {
-                login = formLogin;
-                verify = verifyFormPassword;
-                loginUri = strtok(NULL, " \t\r\n");
+            } else if (gmatch(type, "post")) {
+                if (lookupRoute("/form/login") < 0) {
+                    if ((route = websAddRoute(0, realm, "/form/login", 0, redirect, 0, verifyPostPassword)) == 0) {
+                        return -1;
+                    }
+                    route->loggedInPage = gstrdup(uri);
+                }
+                if (lookupRoute("/form/logout") < 0 &&
+                        !websAddRoute(0, realm, "/form/logout", 0, redirect, 0, verifyPostPassword)) {
+                    return -1;
+                }
+                login = postLogin;
+                verify = verifyPostPassword;
             } else {
-                login = 0;
-                verify = 0;
+                type = 0;
             }
-            if (websAddRoute(realm, uri, abilities, loginUri, login, verify) < 0) {
+            if (websAddRoute(type, realm, uri, abilities, redirect, login, verify) < 0) {
                 return -1;
             }
         }
     }
     fclose(fp);
-
     /*
         Ensure there is a route for "/", if not, create it.
      */
-    for (i = 0, rp = 0; i < routeCount; i++) {
-        rp = routes[i];
-        if (strcmp(rp->prefix, "/") == 0) {
+    for (i = 0, route = 0; i < routeCount; i++) {
+        route = routes[i];
+        if (strcmp(route->prefix, "/") == 0) {
             break;
         }
     }
     if (i >= routeCount) {
-        websAddRoute(0, "/", NULL, NULL, NULL, NULL);
+        websAddRoute(0, 0, "/", NULL, NULL, NULL, NULL);
     }
-    computeAllAbilities();
+    computeAllUserAbilities();
     return 0;
 }
 
@@ -208,19 +316,20 @@ int websSaveAuth(char_t *path)
 }
 
 
-int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
+int websAddUser(char_t *realm, char_t *username, char_t *password, char_t *roles)
 {
     WebsUser    *up;
+    char        ubuf[WEBS_USIZE];
 
-    if (symLookup(users, name)) {
-        error(T("User %s already exists"), name);
+    if (websLookupUser(realm, username)) {
+        error(T("User %s already exists for this realm: %s"), username, realm);
         /* Already exists */
         return -1;
     }
     if ((up = galloc(sizeof(WebsUser))) == 0) {
         return 0;
     }
-    up->name = gstrdup(name);
+    up->name = gstrdup(username);
     if (roles) {
         gfmtAlloc(&up->roles, -1, " %s ", roles);
     } else {
@@ -228,212 +337,132 @@ int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles)
     }
     up->realm = gstrdup(realm);
     up->password = gstrdup(password);
-    up->abilities = 0;
-
-    //  MOB - key needs to be realm:name
-    if (symEnter(users, name, valueSymbol(up), 0) == 0) {
+    gfmtStatic(ubuf, sizeof(ubuf), "%s:%s", realm, username);
+    if (symEnter(users, ubuf, valueSymbol(up), 0) == 0) {
         return -1;
     }
     return 0;
+}
+
+
+int websRemoveUser(char *realm, char_t *username) 
+{
+    char    ubuf[WEBS_USIZE];
+
+    gfmtStatic(ubuf, sizeof(ubuf), "%s:%s", realm, username);
+    return symDelete(users, ubuf);
 }
 
 
 static void freeUser(WebsUser *up)
 {
+    symClose(up->abilities);
     gfree(up->name);
     gfree(up->realm);
     gfree(up->password);
     gfree(up->roles);
-    gfree(up->abilities);
     gfree(up);
 }
 
 
-bool websFormLogin(Webs *wp, char_t *username, char_t *password)
-{
-    WebsUser    *up;
-    sym_t       *sym;
-
-    gfree(wp->username);
-    wp->username = gstrdup(username);
-    wp->password = gstrdup(password);
-
-    if ((sym = symLookup(users, username)) == 0) {
-        trace(2, T("websFormLogin: Unknown user %s\n"), username);
-        return 0;
-    }
-    up = (WebsUser*) sym->content.value.symbol;
-#if BIT_SESSION
-{
-    Session     *sp;
-    if ((sp = websGetSession(wp, 1)) == 0) {
-        error(T("Can't get session"));
-        return 0;
-    }
-    sp->user = up;
-}
-#endif
-    wp->user = up;
-    if (!verifyFormPassword(wp)) {
-        trace(2, T("Form password does not match\n"));
-        return 0;
-    }
-    return 1;
-}
-
-
-int websRemoveUser(char_t *name) 
-{
-    sym_t   *sym;
-
-    if ((sym = symLookup(users, name)) == 0) {
-        return -1;
-    }
-    gfree(sym->content.value.symbol);
-    return symDelete(users, name);
-}
-
-
-int websAddUserRole(char_t *name, char_t *role) 
+int websSetUserRoles(char *realm, char_t *username, char_t *roles)
 {
     WebsUser    *user;
-    sym_t       *sym;
 
-    if ((sym = symLookup(users, name)) == 0) {
+    if ((user = websLookupUser(realm, username)) == 0) {
         return -1;
     }
-    user = (WebsUser*) sym->content.value.symbol;
-    if (findString(user->roles, role)) {
-        return 0;
-    }
-    user->roles = addString(user->roles, role);
-    computeAbilities(user);
+    gfree(user->roles);
+    user->roles = gstrdup(roles);
+    computeUserAbilities(user);
     return 0;
 }
 
 
-/*
-    Update the user->abilities string. This is a unique set of abilities
- */
-static void computeAbilities(WebsUser *user)
+WebsUser *websLookupUser(char *realm, char *username)
 {
-    WebsRole    *rp;
-    ringq_t     buf;
-    sym_fd_t    abilities;
-    sym_t       *sym;
-    char_t      *role, *ability, *rcaps, *uroles, *utok, *ctok;
+    WebsKey     *key;
+    char        ubuf[WEBS_USIZE];
 
-    if ((abilities = symOpen(WEBS_SMALL_HASH)) == 0) {
-        return;
-    }
-    uroles = gstrdup(user->roles);
-    for (role = gtok(uroles, T(" "), &utok); role; role = gtok(NULL, T(" "), &utok)) {
-        if ((sym = symLookup(roles, role)) == 0) {
-            /* Role not found: Interpret the role as a ability */
-            if (symEnter(abilities, role, valueInteger(0), 0) == 0) {
-                error(T("Can't add ability"));
-                break;
-            }
-            continue;
-        }
-        rp = (WebsRole*) sym->content.value.symbol;
-        rcaps = gstrdup(rp->abilities);
-        for (ability = gtok(rcaps, T(" "), &ctok); ability; ability = gtok(NULL, T(" "), &ctok)) {
-            if (symLookup(abilities, ability)) {
-                continue;
-            }
-            if (symEnter(abilities, ability, valueInteger(0), 0) == 0) {
-                error(T("Can't add ability"));
-                break;
-            }
-        }
-        gfree(rcaps);
-    }
-    gfree(uroles);
-    ringqOpen(&buf, 80, -1);
-    ringqPutc(&buf, ' ');
-    for (sym = symFirst(abilities); sym; sym = symNext(abilities, sym)) {
-        ringqPutStr(&buf, sym->name.value.string);
-        ringqPutc(&buf, ' ');
-    }
-    ringqAddNull(&buf);
-    user->abilities = gstrdup((char*) buf.servp);
-    symClose(abilities);
-    trace(5, "User \"%s\" in realm \"%s\" has abilities:%s\n", user->name, user->realm, user->abilities);
-}
-
-
-static void computeAllAbilities()
-{
-    WebsUser    *up;
-    sym_t       *sym;
-
-    for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
-        up = (WebsUser*) sym->content.value.symbol;
-        computeAbilities(up);
-    }
-}
-
-
-int websRemoveUserRole(char_t *name, char_t *role) 
-{
-    WebsUser    *up;
-    sym_t       *sym;
-    int         rc;
-
-    if ((sym = symLookup(users, name)) == 0) {
-        return -1;
-    }
-    up = (WebsUser*) sym->content.value.symbol;
-    if ((rc = removeString(up->roles, role)) == 0) {
-        computeAbilities(up);
-    }
-    return rc;
-}
-
-
-bool websUserHasAbility(char_t *name, char_t *ability) 
-{
-    WebsUser    *up;
-    sym_t       *sym;
-
-    if ((sym = symLookup(users, name)) == 0) {
-        return -1;
-    }
-    up = (WebsUser*) sym->content.value.symbol;
-    if (findString(up->abilities, ability)) {
+    gfmtStatic(ubuf, sizeof(ubuf), "%s:%s", realm, username);
+    if ((key = symLookup(users, ubuf)) == 0) {
         return 0;
     }
-    return -1;
+    return (WebsUser*) key->content.value.symbol;
 }
 
 
-/*
-    Expand any abilities that are roles
- */
-static void expandAbilities(ringq_t *buf, char_t *str)
+static void computeAbilities(WebsHash abilities, char *role)
 {
     WebsRole    *rp;
-    sym_t       *sym;
-    char_t      *word, *tok;
+    WebsKey     *key;
 
-    str = gstrdup(str);
-    for (word = gtok(str, T(" "), &tok); word; word = gtok(NULL, T(" "), &tok)) {
-        if ((sym = symLookup(roles, word)) != 0) {
-            rp = (WebsRole*) sym->content.value.symbol;
-            expandAbilities(buf, rp->abilities);
-        } else {
-            ringqPutc(buf, ' ');
-            ringqPutStr(buf, word);
+    if ((key = symLookup(roles, role)) != 0) {
+        rp = (WebsRole*) key->content.value.symbol;
+        for (key = symFirst(rp->abilities); key; key = symNext(rp->abilities, key)) {
+            if (!symLookup(abilities, key->name.value.string)) {
+                symEnter(abilities, key->name.value.string, valueInteger(0), 0);
+            }
         }
+    } else {
+        symEnter(abilities, role, valueInteger(0), 0);
     }
 }
 
 
-int websAddRole(char_t *name, char_t *abilities)
+static void computeUserAbilities(WebsUser *user)
+{
+    char        *ability, *roles, *tok;
+
+    if ((user->abilities = symOpen(WEBS_SMALL_HASH)) == 0) {
+        return;
+    }
+    roles = gstrdup(user->roles);
+    for (ability = gtok(roles, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+        computeAbilities(user->abilities, ability);
+    }
+#if BIT_DEBUG
+    {
+        WebsKey *key;
+        trace(2, "User \"%s\" has abilities: ", user->name);
+        for (key = symFirst(user->abilities); key; key = symNext(user->abilities, key)) {
+            trace(2, "%s ", key->name.value.string);
+            ability = key->name.value.string;
+        }
+        trace(2, "\n");
+    }
+#endif
+    gfree(roles);
+}
+
+
+static void computeAllUserAbilities()
+{
+    WebsUser    *user;
+    WebsKey     *sym;
+
+    for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
+        user = (WebsUser*) sym->content.value.symbol;
+        computeUserAbilities(user);
+    }
+}
+
+
+bool websUserHasAbility(Webs *wp, char_t *ability) 
+{
+    WebsUser    *user;
+
+    if ((user = websLookupUser(wp->route->realm, wp->username)) == 0) {
+        return -1;
+    }
+    return symLookup(user->abilities, ability) ? 1 : 0; 
+}
+
+
+static int addRole(char_t *name, char_t *abilities)
 {
     WebsRole    *rp;
-    ringq_t     buf;
+    char        *ability, *tok;
 
     if (symLookup(roles, name)) {
         error(T("Role %s already exists"), name);
@@ -441,24 +470,31 @@ int websAddRole(char_t *name, char_t *abilities)
         return -1;
     }
     if ((rp = galloc(sizeof(WebsRole))) == 0) {
-        return 0;
-    }
-    ringqOpen(&buf, 80, -1);
-    expandAbilities(&buf, abilities);
-    ringqPutc(&buf, ' ');
-    ringqAddNull(&buf);
-    rp->abilities = gstrdup((char*) buf.servp);
-    if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
         return -1;
     }
-    trace(5, T("Role \"%s\" has abilities:%s\n"), name, rp->abilities);
+    if ((rp->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
+        return -1;
+    }
+    trace(5, T("Role \"%s\" has abilities:%s\n"), name, abilities);
+    abilities = gstrdup(abilities);
+    for (ability = gtok(abilities, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+        if (symEnter(rp->abilities, ability, valueInteger(0), 0) == 0) {
+            gfree(abilities);
+            return -1;
+        }
+    }
+    if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
+        gfree(abilities);
+        return -1;
+    }
+    gfree(abilities);
     return 0;
 }
 
 
 static void freeRole(WebsRole *rp)
 {
-    gfree(rp->abilities);
+    symClose(rp->abilities);
     gfree(rp);
 }
 
@@ -468,81 +504,73 @@ static void freeRole(WebsRole *rp)
  */
 int websRemoveRole(char_t *name) 
 {
-    sym_t   *sym;
+    WebsRole    *rp;
+    WebsKey       *sym;
 
     if ((sym = symLookup(roles, name)) == 0) {
         return -1;
     }
-    gfree(sym->content.value.symbol);
+    rp = sym->content.value.symbol;
+    symClose(rp->abilities);
+    gfree(rp);
     return symDelete(roles, name);
 }
 
 
-int websAddRoleAbility(char_t *name, char_t *ability) 
+WebsRoute *websAddRoute(char_t *type, char_t *realm, char_t *uri, char_t *abilities, char_t *loginPage,
+        WebsLogin login, WebsVerify verify)
 {
-    WebsRole    *rp;
-    sym_t       *sym;
-
-    if ((sym = symLookup(roles, name)) == 0) {
-        return -1;
-    }
-    rp = (WebsRole*) sym->content.value.symbol;
-    if (findString(rp->abilities, ability)) {
-        return 0;
-    }
-    rp->abilities = addString(rp->abilities, ability);
-    return 0;
-}
-
-
-/*
-    Remove a role ability. Does not recompute users abilities that use this role
- */
-int websRemoveRoleAbility(char_t *name, char_t *ability) 
-{
-    WebsRole    *rp;
-    sym_t       *sym;
-
-    if ((sym = symLookup(roles, name)) == 0) {
-        return -1;
-    }
-    rp = (WebsRole*) sym->content.value.symbol;
-    return removeString(rp->abilities, ability);
-}
-
-
-int websAddRoute(char_t *realm, char_t *uri, char_t *abilities, char_t *loginUri, WebsLogin login, WebsVerify verify)
-{
-    WebsRoute   *rp;
+    WebsRoute   *route;
+    char        *ability, *tok;
     int         i;
 
-    for (i = 0; i < routeCount; i++) {
-        rp = routes[i];
-        if (gmatch(rp->prefix, uri)) {
-            error(T("URI %s already exists"), uri);
-            /* Already exists */
-            return -1;
-        }
-    }
-    if ((rp = galloc(sizeof(WebsRoute))) == 0) {
+    if (lookupRoute(uri) >= 0) {
+        error(T("URI %s already exists"), uri);
         return 0;
     }
-    rp->realm = gstrdup(realm);
-    rp->prefix = gstrdup(uri);
-    rp->prefixLen = glen(uri);
-    rp->loginUri = gstrdup(loginUri);
+    if ((route = galloc(sizeof(WebsRoute))) == 0) {
+        return 0;
+    }
+    memset(route, 0, sizeof(WebsRoute));
+    route->prefix = gstrdup(uri);
+    route->prefixLen = glen(uri);
+    route->realm = gstrdup(realm);
+    if (loginPage) {
+        route->loginPage = gstrdup(loginPage);
+    }
+    
+    //  MOB - remove
+    trace(2, T("Route \"%s\", auth \"%s\", loginPage %s,  in realm \"%s\", abilities: %s\n"),
+          uri, type ? type : "none", loginPage, realm ? realm : "", abilities ? abilities : "none");
 
-    //  MOB - do we need to remove SECURE?
-    rp->secure = (abilities && strstr(abilities, "SECURE")) ? 1 : 0;
-
-    /* Always have a leading and trailing space to make matching quicker */
-    gfmtAlloc(&rp->abilities, -1, " %s", abilities ? abilities : "");
-    rp->login = login;
-    rp->verify = verify;
+    if (type) {
+        route->authType = gstrdup(type);
+        route->login = login;
+        route->verify = verify;
+        if ((route->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
+            return 0;
+        }
+        abilities = gstrdup(abilities);
+        for (ability = gtok(abilities, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+            if (strcmp(ability, "SECURE") == 0) {
+                route->flags |= WEBS_ROUTE_SECURE;
+            } else if (strcmp(ability, "PUTDEL") == 0) {
+                route->flags |= WEBS_ROUTE_PUTDEL;
+            } else if (strcmp(ability, "none") == 0) {
+                continue;
+            } else {
+                if (symEnter(route->abilities, ability, valueInteger(0), 0) == 0) {
+                    gfree(abilities);
+                    return 0;
+                }
+            }
+        }
+        gfree(abilities);
+    }
+    route->version = routeCount;
     growRoutes();
-    routes[routeCount++] = rp;
-    trace(5, T("Route \"%s\" in realm \"%s\" requires abilities:%s\n"), uri, realm, rp->abilities);
-    return 0;
+    routes[routeCount++] = route;
+    return route;
 }
 
 
@@ -558,12 +586,12 @@ static void growRoutes()
 
 static int lookupRoute(char_t *uri) 
 {
-    WebsRoute    *rp;
+    WebsRoute   *route;
     int         i;
 
     for (i = 0; i < routeCount; i++) {
-        rp = routes[i];
-        if (gmatch(rp->prefix, uri)) {
+        route = routes[i];
+        if (gmatch(route->prefix, uri)) {
             return i;
         }
     }
@@ -571,13 +599,14 @@ static int lookupRoute(char_t *uri)
 }
 
 
-static void freeRoute(WebsRoute *rp)
+static void freeRoute(WebsRoute *route)
 {
-    gfree(rp->prefix);
-    gfree(rp->realm);
-    gfree(rp->loginUri);
-    gfree(rp->abilities);
-    gfree(rp);
+    symClose(route->abilities);
+    gfree(route->prefix);
+    gfree(route->realm);
+    gfree(route->loginPage);
+    gfree(route->loggedInPage);
+    gfree(route);
 }
 
 
@@ -585,7 +614,7 @@ int websRemoveRoute(char_t *uri)
 {
     int         i;
 
-    if ((i = lookupRoute(uri)) == 0) {
+    if ((i = lookupRoute(uri)) < 0) {
         return -1;
     }
     freeRoute(routes[i]);
@@ -597,7 +626,56 @@ int websRemoveRoute(char_t *uri)
 }
 
 
-static void basicLogin(Webs *wp, int why)
+bool websLoginUser(Webs *wp, char_t *username, char_t *password)
+{
+    WebsUser    *user;
+    char        value[64];
+
+    gfree(wp->username);
+    wp->username = gstrdup(username);
+    gfree(wp->password);
+    wp->password = gstrdup(password);
+
+    if (!verifyPostPassword(wp)) {
+        trace(2, T("Password does not match\n"));
+        return 0;
+    }
+    gstritoa(wp->route->version, value, sizeof(value));
+    websSetSessionVar(wp, WEBS_SESSION_ROUTEVER, value);
+    websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
+    return 1;
+}
+
+
+/*
+    Internal login service routine for Post-based auth
+ */
+static void loginServiceProc(Webs *wp)
+{
+    WebsRoute   *route;
+    char        *referrer, *uri;
+
+    route = wp->route;
+    if (websLoginUser(wp, websGetVar(wp, "username", 0), websGetVar(wp, "password", 0))) {
+        if ((referrer = websGetSessionVar(wp, "referrer", 0)) != 0) {
+            websRedirect(wp, referrer);
+        } else {
+            websRedirect(wp, route->loggedInPage);
+        }
+    } else {
+        websRedirect(wp, route->loginPage);
+    }
+}
+
+
+static void logoutServiceProc(Webs *wp)
+{
+    websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
+    websRedirect(wp, wp->route->loginPage);
+}
+
+
+static void basicLogin(Webs *wp)
 {
     gassert(wp->route);
     gfree(wp->authResponse);
@@ -606,14 +684,14 @@ static void basicLogin(Webs *wp, int why)
 }
 
 
-static void formLogin(Webs *wp, int why)
+static void postLogin(Webs *wp)
 {
-    websRedirect(wp, wp->route->loginUri);
+    websRedirect(wp, wp->route->loginPage);
 }
 
 
 #if BIT_DIGEST_AUTH
-static void digestLogin(Webs *wp, int why)
+static void digestLogin(Webs *wp)
 {
     char_t  *nonce, *opaque;
 
@@ -631,10 +709,11 @@ static void digestLogin(Webs *wp, int why)
 
 static bool verifyDigestPassword(Webs *wp)
 {
-    char_t  *digest, *secret, *realm;
-    time_t  when;
+    char_t      *digest, *secret, *realm;
+    time_t      when;
 
-    if (!wp->user || !wp->route) {
+    if ((wp->user = websLookupUser(wp->route->realm, wp->username)) == 0) {
+        trace(5, "verifyUser: Unknown user \"%s\" for realm %s", wp->username, wp->route->realm);
         return 0;
     }
     /*
@@ -675,7 +754,8 @@ static bool verifyBasicPassword(Webs *wp)
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     bool    rc;
     
-    if (!wp->user || !wp->route) {
+    if ((wp->user = websLookupUser(wp->route->realm, wp->username)) == 0) {
+        trace(5, "verifyUser: Unknown user \"%s\" for realm %s", wp->username, wp->route->realm);
         return 0;
     }
     gassert(wp->route);
@@ -687,162 +767,83 @@ static bool verifyBasicPassword(Webs *wp)
 }
 
 
-static bool verifyFormPassword(Webs *wp)
+static bool verifyPostPassword(Webs *wp)
 {
     char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
     int     rc;
 
-    if (!wp->user || !wp->route) {
+    if ((wp->user = websLookupUser(wp->route->realm, wp->username)) == 0) {
+        trace(2, "verifyUser: Unknown user \"%s\" for realm %\ns", wp->username, wp->route->realm);
         return 0;
     }
     gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, wp->route->realm, wp->password);
     password = websMD5(passbuf);
-    rc = gmatch(password, wp->user->password);
+    if ((rc = gmatch(password, wp->user->password)) != 0) {
+        trace(2, T("Password does not match\n"));
+    }
     gfree(password);
     return rc;
 }
 
 
-bool websVerifyRoute(Webs *wp)
+bool websCanUser(Webs *wp, WebsHash abilities) 
 {
-    WebsRoute   *rp;
-    WebsSession *session;
-    sym_t       *sym;
-    ssize       plen, len;
-    int         i, cached;
-
-    plen = glen(wp->path);
-    for (i = 0, rp = 0; i < routeCount; i++) {
-        rp = routes[i];
-        if (plen < rp->prefixLen) continue;
-        len = min(rp->prefixLen, plen);
-        if (strncmp(wp->path, rp->prefix, len) == 0) {
-            wp->route = rp;
-            break;
-        }
-    }
-    if (wp->route == 0) {
-        websError(wp, 500, T("Can't find suitable route for request."));
-        return 0;
-    }
-    if (rp->secure && !(wp->flags & WEBS_SECURE)) {
-#if UNUSED
-        websStats.access++;
-#endif
-        websError(wp, 405, T("Access Denied. Secure access is required."));
-        return 0;
-    }
-    if (!rp->realm) {
-        return 1;
-    }
-#if UNUSED
-    if (gmatch(rp->abilities, " ")) {
-        /* URI does not require any abilities, return success */
-        return 1;
-    }
-#endif
-    cached = 0;
-    if (wp->cookie && (session = websGetSession(wp, 0)) != 0) {
-        /*
-            Retrieve authentication state from the session storage. Faster than re-authenticating.
-         */
-        if ((wp->username = (char*) websGetSessionVar(wp, WEBS_SESSION_USERNAME, 0)) != 0) {
-#if UNUSED
-            version = httpGetSessionVar(wp, WEBS_SESSION_AUTHVER, 0);
-            if (stoi(version) == auth->version) {
-            }
-#endif
-            trace(5, "Using cached authentication data for user %s", wp->username);
-            cached = 1;
-        }
-    }
-    if (!cached) {
-        if (wp->authDetails) {
-            //  MOB - make callback?
-            if (gcaselessmatch(wp->authType, T("basic"))) {
-                decodeBasicDetails(wp);
-#if BIT_DIGEST_AUTH
-            } else if (gcaselessmatch(wp->authType, T("digest"))) {
-                decodeDigestDetails(wp);
-#endif
-            }
-        }
-        if (!wp->user) {
-            if (!wp->username || !*wp->username) {
-#if UNUSED
-                websStats.access++;
-#endif
-                (rp->login)(wp, WEBS_LOGIN_REQUIRED);
-                return 0;
-            }
-            if ((sym = symLookup(users, wp->username)) == 0) {
-                (rp->login)(wp, WEBS_BAD_USERNAME);
-                return 0;
-            }
-            wp->user = (WebsUser*) sym->content.value.symbol;
-            if (!(rp->verify)(wp)) {
-                (rp->login)(wp, WEBS_BAD_PASSWORD);
-                return 0;
-            }
-            /*
-                Store authentication state and user in session storage                                         
-            */                                                                                                
-            if ((session = websGetSession(wp, 1)) != 0) {                                                    
-#if UNUSED
-                websSetSessionVar(wp, WEBS_SESSION_AUTHVER, itos(auth->version));                            
-#endif
-                websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
-            }  
-        }
-    }
-    gassert(wp->user);
-    return websCanUser(wp, rp->abilities);
-}
-
-
-bool websCanUser(Webs *wp, char_t *abilities) 
-{
-    sym_t   *sym;
+    WebsKey     *key;
+    char        *ability;
 
     if (!wp->user) {
         if (!wp->username) {
             return 0;
         }
-        if ((sym = symLookup(users, wp->username)) == 0) {
+        if ((wp->user = websLookupUser(wp->route->realm, wp->username)) == 0) {
             trace(2, T("Can't find user %s\n"), wp->username);
             return 0;
         }
-        wp->user = (WebsUser*) sym->content.value.symbol;
     }
-    //  MOB - not implemented using multiple abilities
-    return findString(wp->user->abilities, abilities) ? 1 : 0;
+    for (key = symFirst(abilities); key; key = symNext(abilities, key)) {
+        ability = key->name.value.string;
+        if (symLookup(wp->user->abilities, ability) == 0) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+bool websCanUserString(Webs *wp, char *abilities) 
+{
+    WebsUser    *user;
+    char        *ability, *tok;
+
+    if (!wp->user) {
+        if (!wp->username) {
+            return 0;
+        }
+        if ((user = websLookupUser(wp->route->realm, wp->username)) == 0) {
+            trace(2, T("Can't find user %s\n"), wp->username);
+            return 0;
+        }
+    }
+    abilities = gstrdup(abilities);
+    for (ability = gtok(abilities, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+        if (symLookup(wp->user->abilities, ability) == 0) {
+            gfree(abilities);
+            return 0;
+        }
+    }
+    gfree(abilities);
+    return 1;
 }
 
 
 static int jsCan(int jsid, Webs *wp, int argc, char_t **argv)
 {
-    if (websCanUser(wp, argv[0])) {
+    if (websCanUserString(wp, argv[0])) {
         //  MOB - how to set return 
         return 0;
     }
     return 1;
 } 
-
-
-static char_t *findString(char_t *field, char_t *word)
-{
-    char_t  str[WEBS_MAX_WORD], *cp;
-
-    if (!field) {
-        return 0;
-    }
-    str[0] = ' ';
-    gstrncpy(&str[1], str, sizeof(str) - 1);
-    if ((cp = strstr(field, word)) != 0) {
-        return &cp[1];
-    }
-    return 0;
-}
 
 
 static int decodeBasicDetails(Webs *wp)
@@ -1086,51 +1087,6 @@ static char_t *calcDigest(Webs *wp, char_t *username, char_t *password)
 }
 #endif /* BIT_DIGEST_AUTH */
 
-
-/*
-    The field always has a leading and trailing space
- */
-static char *addString(char_t *field, char_t *word)
-{
-    char_t  *old;
-
-    old = field;
-    gfmtAlloc(&field, -1, "%s%s ", old, word);
-    gfree(old);
-    return field;
-}
-
-
-//  MOB - bugged
-static int removeString(char_t *field, char_t *word)
-{
-    char_t  *old, *cp;
-
-    if ((cp = findString(field, word)) == 0) {
-        return -1;
-    }
-    old = field;
-    cp[-1] = '\0';
-//  MOB - bugged this does not return a new string
-    gfmtAlloc(&field, -1, "%s%s ", field, &cp[strlen(word)]);
-    gfree(old);
-    return 0;
-}
-
-
-static char_t *trimSpace(char_t *s)
-{
-    char_t  *end;
-    
-    while (*s && isspace((int) *s)) {
-        s++;
-    }
-    for (end = &s[strlen(s) - 1]; end > s && isspace((int) *end); ) {
-        end--;
-    }
-    end[1] = '\0';
-    return s;
-}
 
 #endif /* BIT_AUTH */
 

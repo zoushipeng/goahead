@@ -62,7 +62,7 @@ enum flag {
 typedef struct SymTab {                 /* Symbol table descriptor */
     int     inuse;                      /* Is this entry in use */
     int     hash_size;                  /* Size of the table below */
-    sym_t   **hash_table;               /* Allocated at run time */
+    WebsKey   **hash_table;               /* Allocated at run time */
 } SymTab;
 
 #if WINDOWS
@@ -91,7 +91,7 @@ static int calcPrime(int size);
 static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize msize);
 static int getBinBlockSize(int size);
 static int hashIndex(SymTab *tp, char_t *name);
-static sym_t *hash(SymTab *tp, char_t *name);
+static WebsKey *hash(SymTab *tp, char_t *name);
 static void put_char(FmtBuf *buf, char_t c);
 static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
 static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f);
@@ -1516,9 +1516,9 @@ static int  getBinBlockSize(int size)
 }
 
 
-sym_fd_t symOpen(int hash_size)
+WebsHash symOpen(int hash_size)
 {
-    sym_fd_t    sd;
+    WebsHash    sd;
     SymTab      *tp;
 
     gassert(hash_size > 2);
@@ -1548,10 +1548,9 @@ sym_fd_t symOpen(int hash_size)
         Now create the hash table for fast indexing.
      */
     tp->hash_size = calcPrime(hash_size);
-    tp->hash_table = (sym_t**) galloc(tp->hash_size * sizeof(sym_t*));
+    tp->hash_table = (WebsKey**) galloc(tp->hash_size * sizeof(WebsKey*));
     gassert(tp->hash_table);
-    memset(tp->hash_table, 0, tp->hash_size * sizeof(sym_t*));
-
+    memset(tp->hash_table, 0, tp->hash_size * sizeof(WebsKey*));
     return sd;
 }
 
@@ -1560,10 +1559,10 @@ sym_fd_t symOpen(int hash_size)
     Close this symbol table. Call a cleanup function to allow the caller to free resources associated with each symbol
     table entry.  
  */
-void symClose(sym_fd_t sd)
+void symClose(WebsHash sd)
 {
     SymTab      *tp;
-    sym_t       *sp, *forw;
+    WebsKey       *sp, *forw;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -1592,10 +1591,10 @@ void symClose(sym_fd_t sd)
     Return the first symbol in the hashtable if there is one. This call is used as the first step in traversing the
     table. A call to symFirst should be followed by calls to symNext to get all the rest of the entries.
  */
-sym_t *symFirst(sym_fd_t sd)
+WebsKey *symFirst(WebsHash sd)
 {
     SymTab      *tp;
-    sym_t       *sp;
+    WebsKey       *sp;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -1617,10 +1616,10 @@ sym_t *symFirst(sym_fd_t sd)
 /*
     Return the next symbol in the hashtable if there is one. See symFirst.
  */
-sym_t *symNext(sym_fd_t sd, sym_t *last)
+WebsKey *symNext(WebsHash sd, WebsKey *last)
 {
     SymTab      *tp;
-    sym_t       *sp;
+    WebsKey       *sp;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -1647,10 +1646,10 @@ sym_t *symNext(sym_fd_t sd, sym_t *last)
 /*
     Lookup a symbol and return a pointer to the symbol entry. If not present then return a NULL.
  */
-sym_t *symLookup(sym_fd_t sd, char_t *name)
+WebsKey *symLookup(WebsHash sd, char_t *name)
 {
     SymTab      *tp;
-    sym_t       *sp;
+    WebsKey       *sp;
     char_t      *cp;
 
     gassert(0 <= sd && sd < symMax);
@@ -1678,10 +1677,10 @@ sym_t *symLookup(sym_fd_t sd, char_t *name)
     a copy of "name" here so it can be a volatile variable. The value "v" is just a copy of the passed in value, so it
     MUST be persistent.
  */
-sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
+WebsKey *symEnter(WebsHash sd, char_t *name, value_t v, int arg)
 {
     SymTab      *tp;
-    sym_t       *sp, *last;
+    WebsKey       *sp, *last;
     char_t      *cp;
     int         hindex;
 
@@ -1721,13 +1720,13 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         /*
             Not found so allocate and append to the daisy-chain
          */
-        sp = (sym_t*) galloc(sizeof(sym_t));
+        sp = (WebsKey*) galloc(sizeof(WebsKey));
         if (sp == NULL) {
             return NULL;
         }
         sp->name = valueString(name, VALUE_ALLOCATE);
         sp->content = v;
-        sp->forw = (sym_t*) NULL;
+        sp->forw = (WebsKey*) NULL;
         sp->arg = arg;
         sp->bucket = hindex;
         last->forw = sp;
@@ -1736,7 +1735,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         /*
             Daisy chain is empty so we need to start the chain
          */
-        sp = (sym_t*) galloc(sizeof(sym_t));
+        sp = (WebsKey*) galloc(sizeof(WebsKey));
         if (sp == NULL) {
             return NULL;
         }
@@ -1745,7 +1744,7 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
         gassert(hindex == hashIndex(tp, name));
         tp->hash_table[hashIndex(tp, name)] = sp;
 
-        sp->forw = (sym_t*) NULL;
+        sp->forw = (WebsKey*) NULL;
         sp->content = v;
         sp->arg = arg;
         sp->name = valueString(name, VALUE_ALLOCATE);
@@ -1758,10 +1757,10 @@ sym_t *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg)
 /*
     Delete a symbol from a table
  */
-int symDelete(sym_fd_t sd, char_t *name)
+int symDelete(WebsHash sd, char_t *name)
 {
     SymTab      *tp;
-    sym_t       *sp, *last;
+    WebsKey       *sp, *last;
     char_t      *cp;
     int         hindex;
 
@@ -1785,7 +1784,7 @@ int symDelete(sym_fd_t sd, char_t *name)
             last = sp;
         }
     }
-    if (sp == (sym_t*) NULL) {              /* Not Found */
+    if (sp == (WebsKey*) NULL) {              /* Not Found */
         return -1;
     }
     /*
@@ -1807,7 +1806,7 @@ int symDelete(sym_fd_t sd, char_t *name)
     Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
     the hash table itself) 
  */
-static sym_t *hash(SymTab *tp, char_t *name)
+static WebsKey *hash(SymTab *tp, char_t *name)
 {
     gassert(tp);
 

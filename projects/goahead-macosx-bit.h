@@ -10,6 +10,7 @@
 #define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
 #define BIT_ACCESS_LOG 0
 #define BIT_AUTH 1
+#define BIT_AUTO_LOGIN 0
 #define BIT_BUILD_NUMBER "0"
 #define BIT_CA_FILE ""
 #define BIT_CA_PATH ""
@@ -50,6 +51,7 @@
 #define BIT_LIMIT_SESSION_LIFE 1800
 #define BIT_LIMIT_SOCKET_BUFFER 1024
 #define BIT_LIMIT_STRING 4096
+#define BIT_LIMIT_UPLOAD 2048000
 #define BIT_LIMIT_URI 2048
 #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
@@ -62,6 +64,8 @@
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"
 #define BIT_TRACE "stdout:2"
+#define BIT_UPLOAD 1
+#define BIT_UPLOAD_DIR "/tmp"
 #define BIT_VERSION "3.0.0"
 #define BIT_WARN64TO32 1
 #define BIT_WARN_UNUSED 1

@@ -39,7 +39,7 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/crypt.obj -Fd${CONFIG}/obj/crypt.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc crypt.c
 
-"${CC}" -c -Fo${CONFIG}/obj/default.obj -Fd${CONFIG}/obj/default.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc default.c
+"${CC}" -c -Fo${CONFIG}/obj/file.obj -Fd${CONFIG}/obj/file.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc file.c
 
 "${CC}" -c -Fo${CONFIG}/obj/form.obj -Fd${CONFIG}/obj/form.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc form.c
 
@@ -69,11 +69,13 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/template.obj -Fd${CONFIG}/obj/template.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc template.c
 
-"${LD}" -out:${CONFIG}/bin/goahead.exe -entry:WinMainCRTStartup -subsystem:Windows ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/default.obj ${CONFIG}/obj/form.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/goahead.obj ${CONFIG}/obj/handler.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/ssl.obj ${CONFIG}/obj/template.obj ${LIBS}
+"${CC}" -c -Fo${CONFIG}/obj/upload.obj -Fd${CONFIG}/obj/upload.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc upload.c
+
+"${LD}" -out:${CONFIG}/bin/goahead.exe -entry:WinMainCRTStartup -subsystem:Windows ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/form.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/goahead.obj ${CONFIG}/obj/handler.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/ssl.obj ${CONFIG}/obj/template.obj ${CONFIG}/obj/upload.obj ${LIBS}
 
 "${CC}" -c -Fo${CONFIG}/obj/test.obj -Fd${CONFIG}/obj/test.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-"${LD}" -out:${CONFIG}/bin/goahead-test.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/default.obj ${CONFIG}/obj/form.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/handler.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/ssl.obj ${CONFIG}/obj/template.obj ${CONFIG}/obj/test.obj ${LIBS}
+"${LD}" -out:${CONFIG}/bin/goahead-test.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/form.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/handler.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/ssl.obj ${CONFIG}/obj/template.obj ${CONFIG}/obj/upload.obj ${CONFIG}/obj/test.obj ${LIBS}
 
 "${CC}" -c -Fo${CONFIG}/obj/webcomp.obj -Fd${CONFIG}/obj/webcomp.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 

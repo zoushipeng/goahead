@@ -16,7 +16,7 @@
 #if BIT_ROM
 /******************************** Local Data **********************************/
 
-sym_fd_t    romTab;                     /* Symbol table for web pages */
+WebsHash    romTab;                     /* Symbol table for web pages */
 
 /*********************************** Code *************************************/
 
@@ -49,7 +49,7 @@ void websRomClose()
 int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm)
 {
     WebsRomIndex    *wip;
-    sym_t           *sp;
+    WebsKey           *sp;
 
     gassert(websValid(wp));
     gassert(path && *path);
@@ -72,7 +72,7 @@ void websRomPageClose(int fd)
 int websRomPageStat(char_t *path, WebsFileInfo *sbuf)
 {
     WebsRomIndex    *wip;
-    sym_t                   *sp;
+    WebsKey                   *sp;
 
     gassert(path && *path);
 

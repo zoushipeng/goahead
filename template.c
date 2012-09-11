@@ -12,7 +12,7 @@
 #if BIT_JAVASCRIPT
 /********************************** Locals ************************************/
 
-static sym_fd_t websJsFunctions = -1;  /* Symbol table of functions */
+static WebsHash websJsFunctions = -1;  /* Symbol table of functions */
 static int      aspOpenCount = 0;       /* count of apps using this module */
 
 /***************************** Forward Declarations ***************************/

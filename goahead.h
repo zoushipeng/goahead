@@ -1198,7 +1198,6 @@ typedef struct {
         char_t  *errmsg;
         void    *symbol;
     } value;
-
     vtype_t     type;
     uint        valid       : 8;
     uint        allocated   : 8;        /* String was allocated */
@@ -1360,24 +1359,24 @@ extern char *gallocUniToAsc(char_t *unip, ssize ulen);
 /*
     The symbol table record for each symbol entry
  */
-typedef struct sym_t {
-    struct sym_t    *forw;                  /* Pointer to next hash list */
+typedef struct WebsKey {
+    struct WebsKey  *forw;                  /* Pointer to next hash list */
     value_t         name;                   /* Name of symbol */
     value_t         content;                /* Value of symbol */
     int             arg;                    /* Parameter value */
     int             bucket;                 /* Bucket index */
-} sym_t;
+} WebsKey;
 
-typedef int sym_fd_t;                       /* Returned by symOpen */
+typedef int WebsHash;                       /* Returned by symOpen */
 
-extern sym_fd_t symOpen(int hash_size);
-extern void     symClose(sym_fd_t sd);
-extern sym_t    *symLookup(sym_fd_t sd, char_t *name);
-extern sym_t    *symEnter(sym_fd_t sd, char_t *name, value_t v, int arg);
-extern int      symDelete(sym_fd_t sd, char_t *name);
-extern void     symWalk(sym_fd_t sd, void (*fn)(sym_t *symp));
-extern sym_t    *symFirst(sym_fd_t sd);
-extern sym_t    *symNext(sym_fd_t sd, sym_t *last);
+extern WebsHash symOpen(int hash_size);
+extern void     symClose(WebsHash sd);
+extern WebsKey  *symLookup(WebsHash sd, char_t *name);
+extern WebsKey  *symEnter(WebsHash sd, char_t *name, value_t v, int arg);
+extern int      symDelete(WebsHash sd, char_t *name);
+extern void     symWalk(WebsHash sd, void (*fn)(WebsKey *symp));
+extern WebsKey  *symFirst(WebsHash sd);
+extern WebsKey  *symNext(WebsHash sd, WebsKey *last);
 
 /************************************ Socket **********************************/
 /*
@@ -1536,23 +1535,23 @@ typedef struct WebsUploadFile {
 #define WEBS_IF_MODIFIED        0x10        /* If-modified-since in request */
 
 //  MOB  - remove REQUEST suffix
-#define WEBS_POST_REQUEST       0x20        /* Post request operation */
+#define WEBS_POST               0x20        /* Post request operation */
 //  MOB - is this used?
-#define WEBS_LOCAL_REQUEST      0x40        /* Request from this system */
+#define WEBS_LOCAL              0x40        /* Request from this system */
 #define WEBS_HOME_PAGE          0x80        /* Request for the home page */ 
 #define WEBS_JS                 0x100       /* Javscript request */ 
-#define WEBS_HEAD_REQUEST       0x200       /* Head request */
+#define WEBS_HEAD               0x200       /* Head request */
 #define WEBS_FORM               0x800       /* Request is a form (url encoded data) */
-#define WEBS_DELETE_REQUEST     0x1000      /* Delete method */
-#define WEBS_PUT_REQUEST        0x2000      /* Put method */
-#define WEBS_CGI_REQUEST        0x4000      /* cgi-bin request */
+#define WEBS_DELETE             0x1000      /* Delete method */
+#define WEBS_PUT                0x2000      /* Put method */
+#define WEBS_CGI                0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
 #define WEBS_BASIC_AUTH         0x10000     /* Basic authentication request */
 #define WEBS_DIGEST_AUTH        0x20000     /* Digest authentication request */
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
-#define WEBS_GET_REQUEST        0x200000    /* Get Request */
+#define WEBS_GET                0x200000    /* Get Request */
 #define WEBS_UPLOAD             0x400000    /* Multipart-mime file upload */
 
 /*
@@ -1592,9 +1591,9 @@ typedef struct Webs {
     ringq_t         input;              /* Request input buffer */
     ringq_t         output;             /* Output buffer */
     time_t          since;              /* Parsed if-modified-since time */
-    sym_fd_t        vars;               /* CGI standard variables */
+    WebsHash        vars;               /* CGI standard variables */
 #if UNUSED
-    sym_fd_t        cgiQuery;           /* CGI decoded query string */
+    WebsHash        cgiQuery;           /* CGI decoded query string */
 #endif
     time_t          timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
@@ -1656,7 +1655,7 @@ typedef struct Webs {
 #endif
 #if BIT_UPLOAD
     int             ufd;                /* Upload file handle */
-    sym_fd_t        files;              /* Uploaded files */
+    WebsHash        files;              /* Uploaded files */
     char            *boundary;          /* Mime boundary */
     ssize           boundaryLen;        /* Boundary length */
     int             uploadState;        /* Current file upload state */
@@ -1677,6 +1676,8 @@ typedef struct Webs {
 
 
 typedef int (*WebsHandlerProc)(Webs *wp, char_t *prefix, char_t *dir, int arg);
+typedef int (*WebsFormProc)(Webs *wp, char_t *path, char_t *query);
+
 
 /*
     URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.
@@ -1788,7 +1789,7 @@ extern char_t *websErrorMsg(int code);
 extern int websEval(char_t *cmd, char_t **rslt, void *chan);
 extern void websFooter(Webs *wp);
 extern void websFormClose();
-extern int websFormDefine(char_t *name, void (*fn)(Webs *wp, char_t *path, char_t *query));
+extern int websFormDefine(char_t *name, void *proc);
 extern int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 extern void websFormOpen();
 extern void websFree(Webs *wp);
@@ -1841,10 +1842,10 @@ extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
 extern void websSetEnv(Webs *wp);
 extern void websSetHost(char_t *host);
 extern void websSetIpAddr(char_t *ipaddr);
-extern void websSetRequestBytes(Webs *wp, ssize bytes);
 extern void websSetRequestFilename(Webs *wp, char_t *filename);
 extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
 #if UNUSED
+extern void websSetRequestBytes(Webs *wp, ssize bytes);
 extern void websSetRequestSocketHandler(Webs *wp, int mask, void (*fn)(Webs *wp));
 #endif
 //  MOB - do all these APIs exist?
@@ -1912,20 +1913,22 @@ extern void sslFlush(Webs *wp);
 
 /*************************************** Auth **********************************/
 #if BIT_AUTH
-#define WEBS_MAX_WORD     32
+#define WEBS_USIZE          128              /* Size of realm:username */
 
+#if UNUSED
 /*
     WebsLogin (why) reason codes
  */
 #define WEBS_LOGIN_REQUIRED   1
 #define WEBS_BAD_PASSWORD     2
 #define WEBS_BAD_USERNAME     3
+#endif
 
 #define WEBS_SESSION            "-goahead-session-"
 #define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
-#define WEBS_SESSION_AUTHVER    "_:VERSION:_"       /**< Auth version number */
+#define WEBS_SESSION_ROUTEVER   "_:VERSION:_"       /**< Route version number */
 
-typedef void (*WebsLogin)(Webs *wp, int why);
+typedef void (*WebsLogin)(Webs *wp);
 typedef bool (*WebsVerify)(Webs *wp);
 
 typedef struct WebsUser {
@@ -1933,51 +1936,58 @@ typedef struct WebsUser {
     char_t  *realm;
     char_t  *password;
     char_t  *roles;
-    //  MOB - rename abilities
-    char_t  *abilities;
+    WebsHash  abilities;
 } WebsUser;
 
 typedef struct WebsRole {
-    //  MOB - rename abilities
-    char_t  *abilities;
+    WebsHash  abilities;
 } WebsRole;
+
+/*
+    Route flags
+ */
+#define WEBS_ROUTE_SECURE   0x1         /* Route must use TLS */
+#define WEBS_ROUTE_PUTDEL   0x2         /* Route supports PUT, DELETE methods */
 
 typedef struct WebsRoute {
     char        *prefix;
     char        *realm;
     ssize       prefixLen;
-    int         secure;
     WebsLogin   login;
     WebsVerify  verify;
-    char_t      *loginUri;
-    char_t      *abilities;
+    WebsHash    abilities;
+    char_t      *loginPage;
+    char_t      *loggedInPage;
+    char_t      *authType;
+    int         flags;
+    int         version;
 } WebsRoute;
 
 extern int websAddRole(char_t *role, char_t *abilities);
 //  MOB - should this be abilities
 extern int websAddRoleCapability(char_t *role, char_t *ability);
-extern int websAddRoute(char_t *realm, char_t *name, char_t *abilities, char_t *loginUri, WebsLogin login, 
-                WebsVerify verify);
-extern int websAddUser(char_t *realm, char_t *name, char_t *password, char_t *roles);
-extern int websAddUserRole(char_t *name, char_t *role);
+extern WebsRoute *websAddRoute(char_t *type, char_t *realm, char_t *name, char_t *abilities, char_t *redirect, 
+        WebsLogin login, WebsVerify verify);
+extern int websAddUser(char_t *realm, char_t *username, char_t *password, char_t *roles);
+extern int websSetUserRoles(char *realm, char_t *username, char_t *roles);
 
-//  MOB -should this be plural
-//  MOB - rename websCanUser
-extern bool websCanUser(Webs *wp, char_t *ability);
+extern bool websCanUser(Webs *wp, WebsHash ability);
+extern bool websCanUserString(Webs *wp, char *ability);
 extern void websCloseAuth();
-extern bool websFormLogin(Webs *wp, char_t *username, char_t *password);
+extern bool websLoginUser(Webs *wp, char_t *username, char_t *password);
 extern int websOpenAuth(char_t *path);
 extern int websRemoveRole(char_t *role);
 
 //  MOB - rename Ability
 extern int websRemoveRoleCapability(char_t *role, char_t *ability);
 extern int websRemoveRoute(char_t *uri);
-extern int websRemoveUser(char_t *name);
+extern int websRemoveUser(char *realm, char_t *name);
 extern int websRemoveUserRole(char_t *name, char_t *role);
 extern int websSaveAuth(char_t *path);
 extern bool websUserHasCapability(char_t *name, char_t *ability);
 extern bool websVerifyRoute(Webs *wp);
 extern int websVerifyUser(char_t *name, char_t *password);
+extern WebsUser *websLookupUser(char *realm, char *username);;
 
 #endif /* BIT_AUTH */
 /************************************** Sessions *******************************/
@@ -1986,10 +1996,12 @@ extern int websVerifyUser(char_t *name, char_t *password);
 
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
+#if UNUSED
     WebsUser        *user;                  /**< User reference */
+#endif
     time_t          lifespan;               /**< Session inactivity timeout (msecs) */
     time_t          expires;                /**< When the session expires */
-    sym_fd_t        cache;                  /**< Cache of session variables */
+    WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
 
 /*
@@ -2003,6 +2015,7 @@ extern void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, c
 extern WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan);
 extern WebsSession *websGetSession(Webs *wp, int create);
 extern char_t *websGetSessionVar(Webs *wp, char_t *name, char_t *defaultValue);
+extern void websRemoveSessionVar(Webs *wp, char_t *name);
 extern int websSetSessionVar(Webs *wp, char_t *name, char_t *value);
 extern char *websGetSessionID(Webs *wp);
 #endif
@@ -2060,6 +2073,8 @@ extern char *websGetSessionID(Webs *wp);
     typedef Webs WebsRec;
     typedef Webs websType;
     typedef Webs *webs_t;
+    typedef WebsHash sym_fd_t;
+    typedef WebsKey WebsKey;
 
     typedef WebsHandler websUrlHandlerType;
     typedef WebsStats websStatsType;

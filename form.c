@@ -14,7 +14,7 @@
 
 /************************************ Locals **********************************/
 
-static sym_fd_t formSymtab = -1;            /* Symbol table for form handlers */
+static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 
 /************************************* Code ***********************************/
 /*
@@ -22,16 +22,12 @@ static sym_fd_t formSymtab = -1;            /* Symbol table for form handlers */
  */
 int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
-    sym_t       *sp;
-    char_t      formBuf[BIT_LIMIT_FILENAME];
-    char_t      *cp, *formName;
-    int         (*fn)(void *sock, char_t *path, char_t *args);
+    WebsKey         *sp;
+    char_t          formBuf[BIT_LIMIT_FILENAME];
+    char_t          *cp, *formName;
+    WebsFormProc    fn;
 
     gassert(websValid(wp));
-
-#if UNUSED
-    websStats.formHits++;
-#endif
 
     /*
         Extract the form name
@@ -54,7 +50,7 @@ int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
         websError(wp, 404, T("Form %s is not defined"), formName);
     } else {
         //  MOB - should be a typedef
-        fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.symbol;
+        fn = (WebsFormProc) sp->content.value.symbol;
         gassert(fn);
         if (fn) {
             (*fn)((void*) wp, formName, wp->query);
@@ -66,9 +62,8 @@ int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 
 /*
     Define a form function in the "form" map space.
-    MOB - should have typedef for form define
  */
-int websFormDefine(char_t *name, void (*fn)(Webs *wp, char_t *path, char_t *query))
+int websFormDefine(char_t *name, void *fn)
 {
     gassert(name && *name);
     gassert(fn);
@@ -76,7 +71,7 @@ int websFormDefine(char_t *name, void (*fn)(Webs *wp, char_t *path, char_t *quer
     if (fn == NULL) {
         return -1;
     }
-    symEnter(formSymtab, name, valueSymbol((void*) fn), 0);
+    symEnter(formSymtab, name, valueSymbol(fn), 0);
     return 0;
 }
 

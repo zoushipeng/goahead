@@ -2,9 +2,9 @@
 #   auth.txt - Authorization data
 #
 #   Schema
-#       user: realm: name: password: role [role...]
-#       role: name: ability [ability...]
-#       uri: realm: type: uri: method: ability [ability...]: [loginUri]
+#       user: realm: name: password: roles...
+#       role: name: abilities...
+#       uri: realm: type: uri: method: abilities... : [pass-redirect: fail-redirect]
 #
 
 role: person: breathe
@@ -16,16 +16,25 @@ user: example.com: peter: 7cdba57892649fd95a540683fdf8fba6: user
 user: example.com: mary: 5b90553bea8ba3686f4239d62801f0f3: user 
 user: example.com: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: user administrator purchase
 
-uri: example.com: none: /form/login:
 uri: example.com: digest: /auth/digest/: manage
 uri: example.com: basic: /auth/basic/: manage
-uri: example.com: form: /auth/form/: manage: /form/login
 
-# uri: example.com: form: /user-content/: PUT DELETE
-# uri: example.com: form: /admin: SECURE
-# uri: example.com: form: /: user: /form/login
+uri: example.com: none: /auth/post/login.html: none: /auth/post/index.html
+uri: example.com: post: /auth/post/: manage: /auth/post/login.html
+
+# uri: example.com: post: /admin/put: SECURE PUTDEL
 
 #
 #   Catch-all route without authentication for all URIs
 #
 uri: none: none: /: : 
+
+
+
+Routes:
+
+    /               post        /login.html
+    /login.html     none        -------
+    /form/login     none        pass: /,  fail: /login.html
+    /form/logout    none        /login.html
+    

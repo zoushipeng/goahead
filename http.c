@@ -13,9 +13,6 @@
 
 /*********************************** Globals **********************************/
 
-#if UNUSED
-WebsStats   websStats;                  /* Web access stats */
-#endif
 int         websDebug;                  /* Run in debug mode and defeat timeouts */
 
 /************************************ Locals **********************************/
@@ -25,7 +22,7 @@ static int          listenMax;
 
 //  MOB - remove webs prefix
 static Webs         **webs;                     /* Open connection list head */
-static sym_fd_t     websMime;                   /* Set of mime types */
+static WebsHash     websMime;                   /* Set of mime types */
 static int          websMax;                    /* List size */
 
 static char_t       websHost[64];               /* Host name for the server */
@@ -190,7 +187,7 @@ static int      accessFd;                           /* Log file handle */
 #endif
 
 #if BIT_SESSIONS
-static sym_fd_t sessions = -1;
+static WebsHash sessions = -1;
 static int      sessionCount = 0;
 static int      pruneId;                            /* Callback ID */
 #endif
@@ -257,6 +254,9 @@ int websOpen(char_t *documents, char_t *authPath)
     if (documents) {
         websSetDocuments(documents);
     }
+    websFormOpen();
+    websJsOpen();
+
 #if BIT_AUTH
     if (websOpenAuth(authPath) < 0) {
         return -1;
@@ -265,6 +265,8 @@ int websOpen(char_t *documents, char_t *authPath)
 #if BIT_ROM
     websRomOpen();
 #endif
+    websFileOpen();
+
     /*
         Create a mime type lookup table for quickly determining the content type
      */
@@ -276,8 +278,6 @@ int websOpen(char_t *documents, char_t *authPath)
     if (websUrlHandlerOpen() < 0) {
         return -1;
     }
-    websFormOpen();
-    websFileOpen();
 
 #if BIT_ACCESS_LOG
     if ((accessFd = gopen(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
@@ -294,6 +294,7 @@ void websClose()
     Webs    *wp;
     int     i;
 
+    websJsClose();
 #if BIT_AUTH
     websCloseAuth();
 #endif
@@ -450,7 +451,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
      */
     if (gstrcmp(wp->ipaddr, T("127.0.0.1")) == 0 || gstrcmp(wp->ipaddr, websIpAddr) == 0 || 
             gstrcmp(wp->ipaddr, websHost) == 0) {
-        wp->flags |= WEBS_LOCAL_REQUEST;
+        wp->flags |= WEBS_LOCAL;
     }
     /*
         Arrange for socketEvent to be called when read data is available
@@ -627,8 +628,8 @@ bool parseIncoming(Webs *wp)
 
 #if BIT_CGI
     if (gstrstr(wp->path, BIT_CGI_BIN) != NULL) {
-        wp->flags |= WEBS_CGI_REQUEST;
-        if (wp->flags & WEBS_POST_REQUEST) {
+        wp->flags |= WEBS_CGI;
+        if (wp->flags & WEBS_POST) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
                 websError(wp, 400 | WEBS_CLOSE, T("Can't open CGI file"));
@@ -642,7 +643,7 @@ bool parseIncoming(Webs *wp)
         websProcessUploadData(wp);
     }
 #endif
-    if (wp->flags & WEBS_PUT_REQUEST) {
+    if (wp->flags & WEBS_PUT) {
         WebsStat sbuf;
         int mode, exists;
         exists = gstat(wp->filename, &sbuf) == 0;
@@ -682,24 +683,24 @@ static bool parseFirstLine(Webs *wp)
     switch (op[0]) {
     case 'D':
         if (gstrcmp(op, "DELETE") == 0) {
-            wp->flags |= WEBS_DELETE_REQUEST;
+            wp->flags |= WEBS_DELETE;
         }
         break;
     case 'G':
         if (gstrcmp(op, "GET") == 0) {
-            wp->flags |= WEBS_GET_REQUEST;
+            wp->flags |= WEBS_GET;
         }
         break;
     case 'H':
         if (gstrcmp(op, "HEAD") == 0) {
-            wp->flags |= WEBS_HEAD_REQUEST;
+            wp->flags |= WEBS_HEAD;
         }
         break;
     case 'P':
         if (gstrcmp(op, "POST") == 0) {
-            wp->flags |= WEBS_POST_REQUEST;
+            wp->flags |= WEBS_POST;
         } else if (gstrcmp(op, "PUT") == 0) {
-            wp->flags |= WEBS_PUT_REQUEST;
+            wp->flags |= WEBS_PUT;
         }
         break;
 
@@ -754,7 +755,7 @@ static bool parseFirstLine(Webs *wp)
     } else {
         wp->flags &= ~(WEBS_HTTP11);
 #if UNUSED
-        if (wp->flags & (WEBS_POST_REQUEST | WEBS_PUT_REQUEST)) {
+        if (wp->flags & (WEBS_POST| WEBS_PUT)) {
             wp->clen = MAXINT;
         }
 #endif
@@ -868,7 +869,7 @@ static bool parseHeaders(Webs *wp)
         } else if (gstrcmp(key, T("content-type")) == 0) {
             wp->contentType = gstrdup(value);
             websSetVar(wp, T("CONTENT_TYPE"), value);
-            if (wp->flags & (WEBS_POST_REQUEST | WEBS_PUT_REQUEST)) {
+            if (wp->flags & (WEBS_POST| WEBS_PUT)) {
                 if (strstr(value, "application/x-www-form-urlencoded")) {
                     wp->flags |= WEBS_FORM;
                 } else if (strstr(value, "multipart/form-data")) {
@@ -921,10 +922,12 @@ static bool processContent(Webs *wp)
         ringqGetBlkAdj(&wp->input, nbytes);
     }
 #endif
-    //  MOB - should this be a different
-    if (write(wp->infd, wp->input.servp, nbytes) != nbytes) {
-        websError(wp, WEBS_CLOSE | 500, "Can't write to file");
-        return 1;
+    if (wp->infd >= 0) {
+        //  MOB - should this be a different
+        if (write(wp->infd, wp->input.servp, nbytes) != nbytes) {
+            websError(wp, WEBS_CLOSE | 500, "Can't write to file");
+            return 1;
+        }
     }
     wp->remainingContent -= nbytes;
     if (wp->remainingContent <= 0) {
@@ -1056,7 +1059,7 @@ void websSetVar(Webs *wp, char_t *var, char_t *value)
  */
 int websTestVar(Webs *wp, char_t *var)
 {
-    sym_t       *sp;
+    WebsKey       *sp;
 
     gassert(websValid(wp));
 
@@ -1076,7 +1079,7 @@ int websTestVar(Webs *wp, char_t *var)
  */
 char_t *websGetVar(Webs *wp, char_t *var, char_t *defaultGetValue)
 {
-    sym_t   *sp;
+    WebsKey   *sp;
 
     gassert(websValid(wp));
     gassert(var && *var);
@@ -1130,7 +1133,7 @@ void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
 {
     gassert(websValid(wp));
 
-    if ((wp->flags & WEBS_HEAD_REQUEST) == 0 && message && *message) {
+    if ((wp->flags & WEBS_HEAD) == 0 && message && *message) {
         websWriteHeaders(wp, code, glen(message) + 2, redirect);
         websWriteHeader(wp, T("\r\n"));
         websWrite(wp, T("%s\r\n"), message);
@@ -1146,41 +1149,35 @@ void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
  */
 void websRedirect(Webs *wp, char_t *url)
 {
-    char_t  *msgbuf, *urlbuf, *redirectFmt;
+    char_t  *msgbuf, *urlbuf, *scheme, *host;
+    bool    secure;
 
     gassert(websValid(wp));
     gassert(url);
 
-#if UNUSED
-    websStats.redirects++;
-#endif
     msgbuf = urlbuf = NULL;
-
-    /*
-        Some browsers require a http://host qualified URL for redirection
-     */
-    if (gstrstr(url, T("http://")) == NULL) {
-        if (*url == '/') {
-            url++;
-        }
-        redirectFmt = T("http://%s/%s");
-
-        if (wp->flags & WEBS_SECURE) {
-            redirectFmt = T("https://%s/%s");
-        }
-        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, redirectFmt, websGetVar(wp, T("HTTP_HOST"), websHostUrl), url);
-        url = urlbuf;
+    secure = strstr(url, "https://") || (wp->flags & WEBS_SECURE);
+    host = websGetVar(wp, T("HTTP_HOST"), websHostUrl);
+    scheme = secure ? "https" : "http";
+    if (*url == '/') {
+        url++;
     }
-
-    /*
-        Add human readable message for completeness. Should not be required.
-     */
+#if FUTURE
+    if (gstrstr(url, T("https:///"))) {
+        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, host, &url[9]);
+        url = urlbuf;
+    } else if (gstrstr(url, T("http://"))) {
+        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, host, &url[8]);
+        url = urlbuf;
+    } else {
+#endif
+    gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, host, url);
+    url = urlbuf;
     gfmtAlloc(&msgbuf, BIT_LIMIT_URI + 80, 
         T("<html><head></head><body>\r\n\
         This document has moved to a new <a href=\"%s\">location</a>.\r\n\
         Please update your documents to reflect the new location.\r\n\
         </body></html>\r\n"), url);
-
     websResponse(wp, 302, msgbuf, url);
     gfree(msgbuf);
     gfree(urlbuf);
@@ -1379,16 +1376,16 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
             websWriteHeader(wp, T("Connection: close\r\n"));   
         }
 #if UNUSED
-        if (wp->flags & (WEBS_JS | WEBS_CGI_REQUEST)) {
+        if (wp->flags & (WEBS_JS | WEBS_CGI)) {
             //  MOB - should be set in handlers and not here
             websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
         }
 #endif
-        if (wp->flags & WEBS_HEAD_REQUEST) {
+        if (wp->flags & WEBS_HEAD) {
             websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
         } else if (contentLength >= 0) {                                                                                    
             websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
-            websSetRequestBytes(wp, bytes);                                                                    
+            wp->numbytes = bytes;
         }  
         if (redirect) {
             websWriteHeader(wp, T("Location: %s\r\n"), redirect);
@@ -1640,7 +1637,7 @@ static void logRequest(Webs *wp, int code)
         wp->ipaddr,
         wp->username == NULL ? "-" : wp->username,
         timeStr, zoneStr,
-        wp->flags & WEBS_POST_REQUEST ? "POST" : (wp->flags & WEBS_HEAD_REQUEST ? "HEAD" : "GET"), wp->path,
+        wp->flags & WEBS_POST? "POST" : (wp->flags & WEBS_HEAD? "HEAD" : "GET"), wp->path,
         wp->protoVersion, code, dataStr);
     len = gstrlen(buf);
     abuf = gallocUniToAsc(buf, len+1);
@@ -1727,6 +1724,8 @@ void websDone(Webs *wp, int code)
         }
         websTimeoutCancel(wp);
         wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+        symClose(wp->vars);
+        wp->vars = symOpen(WEBS_SYM_INIT);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -1759,12 +1758,11 @@ int websAlloc(int sid)
 #if BIT_CGI
     wp->cgifd = -1;
 #endif
-    return wid;
     gassert(wp->flags == 0);
     ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
     ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
     wp->vars = symOpen(WEBS_SYM_INIT);
-
+    return wid;
 }
 
 
@@ -1967,6 +1965,7 @@ static int setLocalHost()
 }
 
 
+//  MOB - review if all these APIs are needed
 void websSetHost(char_t *host)
 {
     gstrncpy(websHost, host, TSZ(websHost));
@@ -1989,12 +1988,14 @@ void websSetIpAddr(char_t *ipaddr)
 }
 
 
+#if UNUSED
 void websSetRequestBytes(Webs *wp, ssize bytes)
 {
     gassert(websValid(wp));
     gassert(bytes >= 0);
     wp->numbytes = bytes;
 }
+#endif
 
 
 #if UNUSED
@@ -2644,7 +2645,7 @@ static time_t dateParse(time_t tip, char_t *cmd)
  */
 char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
 {
-    sym_t   *sp;
+    WebsKey   *sp;
     char_t  *ext, *parsebuf;
 
     gassert(url && *url);
@@ -3069,7 +3070,9 @@ WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan)
         id = makeSessionID(wp);
     }
     sp->id = gstrdup(id);
+#if UNUSED
     sp->user = 0;
+#endif
     if ((sp->cache = symOpen(WEBS_SESSION_HASH)) == 0) {
         return 0;
     }
@@ -3087,7 +3090,7 @@ static void freeSession(WebsSession *sp)
 WebsSession *websGetSession(Webs *wp, int create)
 {
     socket_t    *sp;
-    sym_t       *sym;
+    WebsKey       *sym;
     char_t      *id;
     
     if (!wp->session) {
@@ -3168,7 +3171,7 @@ char *websGetSessionID(Webs *wp)
 char_t *websGetSessionVar(Webs *wp, char_t *key, char_t *defaultValue)
 {
     WebsSession     *sp;
-    sym_t           *sym;
+    WebsKey         *sym;
 
     if ((sp = websGetSession(wp, 1)) != 0) {
         if ((sym = symLookup(sp->cache, key)) == 0) {
@@ -3177,6 +3180,16 @@ char_t *websGetSessionVar(Webs *wp, char_t *key, char_t *defaultValue)
         return (char_t*) sym->content.value.symbol;
     }
     return 0;
+}
+
+
+void websRemoveSessionVar(Webs *wp, char_t *key)
+{
+    WebsSession     *sp;
+
+    if ((sp = websGetSession(wp, 1)) != 0) {
+        symDelete(sp->cache, key);
+    }
 }
 
 
@@ -3189,7 +3202,7 @@ int websSetSessionVar(Webs *wp, char_t *key, char_t *value)
     if ((sp = websGetSession(wp, 1)) == 0) {
         return 0;
     }
-    if (symEnter(sp->cache, key, valueSymbol(value), 0) == 0) {
+    if (symEnter(sp->cache, key, valueString(value, VALUE_ALLOCATE), 0) == 0) {
         return -1;
     }
     return 0;
@@ -3234,7 +3247,7 @@ static void pruneCache()
 {
     WebsSession     *sp;
     time_t          when;
-    sym_t           *sym, *next;
+    WebsKey           *sym, *next;
 
     //  MOB - should limit size of session cache
     when = time(0);

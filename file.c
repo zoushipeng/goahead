@@ -33,14 +33,14 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
     //  MOB - need some route protection for this. What about abilities "delete"
 
 #if !BIT_ROM
-    if (wp->flags & WEBS_DELETE_REQUEST) {
+    if (wp->flags & WEBS_DELETE) {
         if (unlink(wp->filename) < 0) {
             websError(wp, 404, "Can't delete the URI");
         } else {
             /* No content */
             websResponse(wp, 204, 0, 0);
         }
-    } else if (wp->flags & WEBS_PUT_REQUEST) {
+    } else if (wp->flags & WEBS_PUT) {
         /* Code is already set for us by processContent() */
         websResponse(wp, wp->code, 0, 0);
 
@@ -74,10 +74,6 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
             websError(wp, 400, T("Cannot stat page for URL"));
             return 1;
         }
-#if UNUSED
-        websStats.localHits++;
-#endif
-
         code = 200;
 #if BIT_IF_MODIFIED
         //  MOB - should check for forms here too
@@ -85,7 +81,6 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
             code = 304;
         }
 #endif
-        /* WARNING: windows needs cast of -1 */
         websWriteHeaders(wp, code, info.size, 0);
         if ((date = websGetDateString(&info)) != NULL) {
             websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
@@ -96,7 +91,7 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
         /*
             All done if the browser did a HEAD request
          */
-        if (wp->flags & WEBS_HEAD_REQUEST) {
+        if (wp->flags & WEBS_HEAD) {
             websDone(wp, 200);
             return 1;
         }
@@ -113,47 +108,34 @@ static void writeEvent(Webs *wp)
 {
     socket_t    *sp;
     char        *buf;
-    ssize       len, wrote, written, bytes;
+    ssize       len, wrote;
     int         flags;
 
     gassert(websValid(wp));
 
     flags = websGetRequestFlags(wp);
     websSetTimeMark(wp);
-    wrote = bytes = 0;
-    written = websGetRequestWritten(wp);
 
-    bytes = websGetRequestBytes(wp);
     /*
         Note: websWriteDataNonBlock may return less than we wanted. It will return -1 on a socket error
      */
     if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
         websError(wp, 200, T("Can't get memory"));
-    } else {
-        while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
-            if ((wrote = websWriteDataNonBlock(wp, buf, len)) < 0) {
-                break;
-            }
-            written += wrote;
-            if (wrote != len) {
-                websPageSeek(wp, - (len - wrote));
-                break;
-            }
-        }
-        /*
-            Safety: If we are at EOF, we must be done
-         */
-        if (len == 0) {
-            gassert(written >= bytes);
-            written = bytes;
-        }
-        gfree(buf);
+        return;
     }
-    /*
-        We're done if an error, or all bytes output
-     */
-    websSetRequestWritten(wp, written);
-    if (wrote < 0 || written >= bytes) {
+    wrote = 0;
+    while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
+        if ((wrote = websWriteDataNonBlock(wp, buf, len)) < 0) {
+            break;
+        }
+        wp->written += wrote;
+        if (wrote != len) {
+            websPageSeek(wp, - (len - wrote));
+            break;
+        }
+    }
+    gfree(buf);
+    if (wrote <= 0 || wp->written >= wp->numbytes) {
         websDone(wp, 200);
     } else {
         //  MOB - wrap in websRegisterInterest(wp, SOCKET_WRITABLE, writeEvent);

@@ -2,11 +2,20 @@
 #   auth.txt - Authorization data
 #
 #   Schema
-#       user: realm: name: password: role [role...]
-#       role: name: ability [ability...]
-#       uri: realm: type: uri: method: ability [ability...]
+#       user: realm: name: password: roles...
+#       role: name: abilities.
+#       uri: realm: type: uri: method: abilities... : redirect
 
 #
 #   Catch-all route without authentication for all URIs
 #
 uri: none: none: /: : 
+
+#   
+#   Example to use form-based authentication:
+#
+#       uri: example.com: none: /auth/post/login.html: : referrer:/auth/post/index.html
+#       uri: example.com: none: /form/login: : referrer:/auth/post/index.html
+#       uri: example.com: form: /: view: /auth/post/login.html
+
+

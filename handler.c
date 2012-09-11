@@ -14,7 +14,6 @@
 
 static WebsHandler  *websUrlHandler;            /* URL handler list */
 static int          websUrlHandlerMax;          /* Number of entries */
-static int          urlHandlerOpenCount = 0;    /* count of apps */
 
 /**************************** Forward Declarations ****************************/
 
@@ -25,12 +24,9 @@ static int      websPublishHandler(Webs *wp, char_t *prefix, char_t *dir, int si
 
 int websUrlHandlerOpen()
 {
-    //  MOB - is this needed?
-    if (++urlHandlerOpenCount == 1) {
-        websUrlHandler = NULL;
-        websUrlHandlerMax = 0;
-        websJsOpen();
-    }
+    websUrlHandler = NULL;
+    websUrlHandlerMax = 0;
+    websJsOpen();
     return 0;
 }
 
@@ -39,18 +35,15 @@ void websUrlHandlerClose()
 {
     WebsHandler     *sp;
 
-    if (--urlHandlerOpenCount <= 0) {
-        websJsClose();
-        for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
-            sp++) {
-            gfree(sp->prefix);
-            if (sp->dir) {
-                gfree(sp->dir);
-            }
+    for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
+        sp++) {
+        gfree(sp->prefix);
+        if (sp->dir) {
+            gfree(sp->dir);
         }
-        gfree(websUrlHandler);
-        websUrlHandlerMax = 0;
     }
+    gfree(websUrlHandler);
+    websUrlHandlerMax = 0;
 }
 
 
@@ -214,9 +207,6 @@ void websHandleRequest(Webs *wp)
         pipelined HTTP/1.1 request if using Keep Alive.
      */
     socketDeleteHandler(wp->sid);
-#if UNUSED
-    websStats.handlerHits++;
-#endif
 
     if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
         websError(wp, 400, T("Bad request"));
@@ -225,9 +215,6 @@ void websHandleRequest(Webs *wp)
 #if BIT_AUTH
     if (!websVerifyRoute(wp)) {
         gassert(wp->code);
-#if UNUSED
-        websStats.access++;
-#endif
         return;
     }
 #endif

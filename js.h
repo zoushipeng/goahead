@@ -133,8 +133,8 @@ typedef struct JsInput {
  */
 typedef struct Js {
     JsInput     *input;                         /* Input evaluation block */
-    sym_fd_t    functions;                      /* Symbol table for functions */
-    sym_fd_t    *variables;                     /* hAlloc list of variables */
+    WebsHash    functions;                      /* Symbol table for functions */
+    WebsHash    *variables;                     /* hAlloc list of variables */
     int         variableMax;                    /* Number of entries */
     JsFun       *func;                          /* Current function */
     char_t      *result;                        /* Current expression result */
@@ -158,7 +158,7 @@ extern char_t   *jsEvalFile(int eid, char_t *path, char_t **emsg);
 
 extern int      jsRemoveGlobalFunction(int eid, char_t *name);
 extern void     *jsGetGlobalFunction(int eid, char_t *name);
-extern int      jsSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, 
+extern int      jsSetGlobalFunctionDirect(WebsHash functions, char_t *name, 
                     int (*fn)(int eid, void *handle, int argc, char_t **argv));
 extern void     jsError(Js *ep, char_t *fmt, ...);
 extern void     jsSetUserHandle(int eid, void *handle);
@@ -178,12 +178,12 @@ extern void     jsLexRestoreInputState(Js *ep, JsInput *state);
 extern int      jsLexGetToken(Js *ep, int state);
 extern void     jsLexPutbackToken(Js *ep, int tid, char_t *string);
 
-extern sym_fd_t jsGetVariableTable(int eid);
-extern sym_fd_t jsGetFunctionTable(int eid);
+extern WebsHash jsGetVariableTable(int eid);
+extern WebsHash jsGetFunctionTable(int eid);
 
 extern int      jsArgs(int argc, char_t **argv, char_t *fmt, ...);
 extern void     jsSetResult(int eid, char_t *s);
-extern int      jsOpenEngine(sym_fd_t variables, sym_fd_t functions);
+extern int      jsOpenEngine(WebsHash variables, WebsHash functions);
 extern void     jsCloseEngine(int eid);
 extern int      jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
 extern void     jsSetVar(int eid, char_t *var, char_t *value);

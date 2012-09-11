@@ -51,7 +51,7 @@ clean:
 	-if exist $(CONFIG)\obj\auth.obj del /Q $(CONFIG)\obj\auth.obj
 	-if exist $(CONFIG)\obj\cgi.obj del /Q $(CONFIG)\obj\cgi.obj
 	-if exist $(CONFIG)\obj\crypt.obj del /Q $(CONFIG)\obj\crypt.obj
-	-if exist $(CONFIG)\obj\default.obj del /Q $(CONFIG)\obj\default.obj
+	-if exist $(CONFIG)\obj\file.obj del /Q $(CONFIG)\obj\file.obj
 	-if exist $(CONFIG)\obj\form.obj del /Q $(CONFIG)\obj\form.obj
 	-if exist $(CONFIG)\obj\galloc.obj del /Q $(CONFIG)\obj\galloc.obj
 	-if exist $(CONFIG)\obj\goahead.obj del /Q $(CONFIG)\obj\goahead.obj
@@ -66,6 +66,7 @@ clean:
 	-if exist $(CONFIG)\obj\socket.obj del /Q $(CONFIG)\obj\socket.obj
 	-if exist $(CONFIG)\obj\ssl.obj del /Q $(CONFIG)\obj\ssl.obj
 	-if exist $(CONFIG)\obj\template.obj del /Q $(CONFIG)\obj\template.obj
+	-if exist $(CONFIG)\obj\upload.obj del /Q $(CONFIG)\obj\upload.obj
 	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
@@ -93,10 +94,10 @@ $(CONFIG)\obj\crypt.obj: \
         $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc crypt.c
 
-$(CONFIG)\obj\default.obj: \
-        default.c \
+$(CONFIG)\obj\file.obj: \
+        file.c \
         $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\default.obj -Fd$(CONFIG)\obj\default.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc default.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc file.c
 
 $(CONFIG)\obj\form.obj: \
         form.c \
@@ -168,13 +169,18 @@ $(CONFIG)\obj\template.obj: \
         $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\template.obj -Fd$(CONFIG)\obj\template.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc template.c
 
+$(CONFIG)\obj\upload.obj: \
+        upload.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc upload.c
+
 $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\inc\goahead.h \
         $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\auth.obj \
         $(CONFIG)\obj\cgi.obj \
         $(CONFIG)\obj\crypt.obj \
-        $(CONFIG)\obj\default.obj \
+        $(CONFIG)\obj\file.obj \
         $(CONFIG)\obj\form.obj \
         $(CONFIG)\obj\galloc.obj \
         $(CONFIG)\obj\goahead.obj \
@@ -188,8 +194,9 @@ $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\obj\runtime.obj \
         $(CONFIG)\obj\socket.obj \
         $(CONFIG)\obj\ssl.obj \
-        $(CONFIG)\obj\template.obj
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(LIBS)
+        $(CONFIG)\obj\template.obj \
+        $(CONFIG)\obj\upload.obj
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\upload.obj $(LIBS)
 
 $(CONFIG)\obj\test.obj: \
         test\test.c \
@@ -202,7 +209,7 @@ $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\obj\auth.obj \
         $(CONFIG)\obj\cgi.obj \
         $(CONFIG)\obj\crypt.obj \
-        $(CONFIG)\obj\default.obj \
+        $(CONFIG)\obj\file.obj \
         $(CONFIG)\obj\form.obj \
         $(CONFIG)\obj\galloc.obj \
         $(CONFIG)\obj\handler.obj \
@@ -216,8 +223,9 @@ $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\obj\socket.obj \
         $(CONFIG)\obj\ssl.obj \
         $(CONFIG)\obj\template.obj \
+        $(CONFIG)\obj\upload.obj \
         $(CONFIG)\obj\test.obj
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\default.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\test.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\form.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\handler.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\ssl.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\test.obj $(LIBS)
 
 $(CONFIG)\obj\webcomp.obj: \
         utils\webcomp.c \

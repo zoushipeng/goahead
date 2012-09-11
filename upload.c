@@ -13,18 +13,18 @@
 /*
     Upload states
  */
-#define HTTP_UPLOAD_REQUEST_HEADER    1   /* Request header */
-#define HTTP_UPLOAD_BOUNDARY          2   /* Boundary divider */
-#define HTTP_UPLOAD_CONTENT_HEADER    3   /* Content part header */
-#define HTTP_UPLOAD_CONTENT_DATA      4   /* Content encoded data */
-#define HTTP_UPLOAD_CONTENT_END       5   /* End of multipart message */
+#define UPLOAD_REQUEST_HEADER    1   /* Request header */
+#define UPLOAD_BOUNDARY          2   /* Boundary divider */
+#define UPLOAD_CONTENT_HEADER    3   /* Content part header */
+#define UPLOAD_CONTENT_DATA      4   /* Content encoded data */
+#define UPLOAD_CONTENT_END       5   /* End of multipart message */
 
 static char *uploadDir;
 
 /*********************************** Forwards *********************************/
 
 static void defineUploadVars(Webs *wp);
-static char *getBoundary(Webs *wp, void *buf, ssize bufLen);
+static char *getBoundary(Webs *wp, char *buf, ssize bufLen);
 static int processContentBoundary(Webs *wp, char *line);
 static int processContentData(Webs *wp);
 static int processUploadHeader(Webs *wp, char *line);
@@ -42,7 +42,7 @@ int websUploadHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
     if (!(wp->flags & WEBS_UPLOAD)) {
         return 0;
     }
-    wp->uploadState = HTTP_UPLOAD_BOUNDARY;
+    wp->uploadState = UPLOAD_BOUNDARY;
     if ((boundary = strstr(wp->contentType, "boundary=")) != 0) {
         boundary += 9;
         gfmtAlloc(&wp->boundary, -1, "--%s", boundary);
@@ -67,13 +67,17 @@ static void freeUploadFile(WebsUploadFile *up)
 
 void websFreeUpload(Webs *wp)
 {
-    sym_t           *s;
+    WebsKey           *s;
 
     if (wp->currentFile) {
         gfree(wp->currentFile);
     }
     for (s = symFirst(wp->files); s != NULL; s = symNext(wp->files, s)) {
         freeUploadFile(s->content.value.symbol);
+    }
+    if (wp->ufd >= 0) {
+        gclose(wp->ufd);
+        wp->ufd = -1;
     }
 }
 
@@ -85,7 +89,7 @@ void websProcessUploadData(Webs *wp)
     int     done, rc;
     
     for (done = 0, line = 0; !done; ) {
-        if  (wp->uploadState == HTTP_UPLOAD_BOUNDARY || wp->uploadState == HTTP_UPLOAD_CONTENT_HEADER) {
+        if  (wp->uploadState == UPLOAD_BOUNDARY || wp->uploadState == UPLOAD_CONTENT_HEADER) {
             /*
                 Parse the next input line
              */
@@ -103,19 +107,19 @@ void websProcessUploadData(Webs *wp)
             }
         }
         switch (wp->uploadState) {
-        case HTTP_UPLOAD_BOUNDARY:
+        case UPLOAD_BOUNDARY:
             if (processContentBoundary(wp, line) < 0) {
                 done++;
             }
             break;
 
-        case HTTP_UPLOAD_CONTENT_HEADER:
+        case UPLOAD_CONTENT_HEADER:
             if (processUploadHeader(wp, line) < 0) {
                 done++;
             }
             break;
 
-        case HTTP_UPLOAD_CONTENT_DATA:
+        case UPLOAD_CONTENT_DATA:
             if ((rc = processContentData(wp)) < 0) {
                 done++;
             }
@@ -125,7 +129,7 @@ void websProcessUploadData(Webs *wp)
             }
             break;
 
-        case HTTP_UPLOAD_CONTENT_END:
+        case UPLOAD_CONTENT_END:
             done++;
             break;
         }
@@ -144,9 +148,9 @@ static int processContentBoundary(Webs *wp, char *line)
         return -1;
     }
     if (line[wp->boundaryLen] && strcmp(&line[wp->boundaryLen], "--") == 0) {
-        wp->uploadState = HTTP_UPLOAD_CONTENT_END;
+        wp->uploadState = UPLOAD_CONTENT_END;
     } else {
-        wp->uploadState = HTTP_UPLOAD_CONTENT_HEADER;
+        wp->uploadState = UPLOAD_CONTENT_HEADER;
     }
     return 0;
 }
@@ -158,7 +162,7 @@ static int processUploadHeader(Webs *wp, char *line)
     char            *key, *headerTok, *rest, *nextPair, *value;
 
     if (line[0] == '\0') {
-        wp->uploadState = HTTP_UPLOAD_CONTENT_DATA;
+        wp->uploadState = UPLOAD_CONTENT_DATA;
         return 0;
     }
     trace(7, "Header line: %s", line);
@@ -282,12 +286,6 @@ static int writeToFile(Webs *wp, char *data, ssize len)
 }
 
 
-/*  
-    Process the content data.
-    Returns < 0 on error
-            == 0 when more data is needed
-            == 1 when data successfully written
- */
 static int processContentData(Webs *wp)
 {
     WebsUploadFile  *file;
@@ -315,7 +313,8 @@ static int processContentData(Webs *wp)
                 return -1;
             }
             ringqGetBlkAdj(content, dataLen);
-            return 0;       /* Get more data */
+            /* Get more data */
+            return 0;
         }
     }
     data = content->servp;
@@ -345,11 +344,8 @@ static int processContentData(Webs *wp)
              */
             data[dataLen] = '\0'; 
             trace(5, "uploadFilter: form[%s] = %s", wp->id, data);
-#if MOB
             websDecodeUrl(wp->id, wp->id, -1);
             websDecodeUrl(data, data, -1);
-#endif
-            //  MOB not right
             websSetVar(wp, wp->id, data);
         }
     }
@@ -361,7 +357,7 @@ static int processContentData(Webs *wp)
         wp->ufd = -1;
         wp->clientFilename = 0;
     }
-    wp->uploadState = HTTP_UPLOAD_BOUNDARY;
+    wp->uploadState = UPLOAD_BOUNDARY;
     return 1;
 }
 
@@ -369,16 +365,15 @@ static int processContentData(Webs *wp)
 /*  
     Find the boundary signature in memory. Returns pointer to the first match.
  */ 
-static char *getBoundary(Webs *wp, void *buf, ssize bufLen)
+static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 {
     char    *cp, *endp;
     char    first;
 
     gassert(buf);
 
-    first = *((char*) wp->boundary);
-    cp = (char*) buf;
-
+    first = *wp->boundary;
+    cp = buf;
     if (bufLen < wp->boundaryLen) {
         return 0;
     }

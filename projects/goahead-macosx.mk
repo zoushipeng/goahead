@@ -39,7 +39,7 @@ clean:
 	rm -rf $(CONFIG)/obj/auth.o
 	rm -rf $(CONFIG)/obj/cgi.o
 	rm -rf $(CONFIG)/obj/crypt.o
-	rm -rf $(CONFIG)/obj/default.o
+	rm -rf $(CONFIG)/obj/file.o
 	rm -rf $(CONFIG)/obj/form.o
 	rm -rf $(CONFIG)/obj/galloc.o
 	rm -rf $(CONFIG)/obj/goahead.o
@@ -54,6 +54,7 @@ clean:
 	rm -rf $(CONFIG)/obj/socket.o
 	rm -rf $(CONFIG)/obj/ssl.o
 	rm -rf $(CONFIG)/obj/template.o
+	rm -rf $(CONFIG)/obj/upload.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/webcomp.o
 	rm -rf $(CONFIG)/obj/cgitest.o
@@ -87,11 +88,11 @@ $(CONFIG)/obj/crypt.o: \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include crypt.c
 
-$(CONFIG)/obj/default.o: \
-        default.c \
+$(CONFIG)/obj/file.o: \
+        file.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/default.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include default.c
+	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include file.c
 
 $(CONFIG)/obj/form.o: \
         form.c \
@@ -178,13 +179,19 @@ $(CONFIG)/obj/template.o: \
         $(CONFIG)/inc/js.h
 	$(CC) -c -o $(CONFIG)/obj/template.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include template.c
 
+$(CONFIG)/obj/upload.o: \
+        upload.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include upload.c
+
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/auth.o \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
-        $(CONFIG)/obj/default.o \
+        $(CONFIG)/obj/file.o \
         $(CONFIG)/obj/form.o \
         $(CONFIG)/obj/galloc.o \
         $(CONFIG)/obj/goahead.o \
@@ -198,8 +205,9 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
         $(CONFIG)/obj/ssl.o \
-        $(CONFIG)/obj/template.o
-	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(LIBS) -lssl -lcrypto
+        $(CONFIG)/obj/template.o \
+        $(CONFIG)/obj/upload.o
+	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/form.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(LIBS) -lssl -lcrypto
 
 $(CONFIG)/obj/test.o: \
         test/test.c \
@@ -214,7 +222,7 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/obj/auth.o \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
-        $(CONFIG)/obj/default.o \
+        $(CONFIG)/obj/file.o \
         $(CONFIG)/obj/form.o \
         $(CONFIG)/obj/galloc.o \
         $(CONFIG)/obj/handler.o \
@@ -228,8 +236,9 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/obj/socket.o \
         $(CONFIG)/obj/ssl.o \
         $(CONFIG)/obj/template.o \
+        $(CONFIG)/obj/upload.o \
         $(CONFIG)/obj/test.o
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/default.o $(CONFIG)/obj/form.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/test.o $(LIBS) -lssl -lcrypto
+	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/form.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/test.o $(LIBS) -lssl -lcrypto
 
 $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \

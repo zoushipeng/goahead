@@ -48,7 +48,7 @@ static int      charConvert(Js *ep, int base, int maxDig);
 
 /************************************* Code ***********************************/
 
-int jsOpenEngine(sym_fd_t variables, sym_fd_t functions)
+int jsOpenEngine(WebsHash variables, WebsHash functions)
 {
     Js  *ep;
     int     eid, vid;
@@ -1241,7 +1241,7 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
  */
 static int evalFunction(Js *ep)
 {
-    sym_t   *sp;
+    WebsKey   *sp;
     int     (*fn)(int eid, void *handle, int argc, char_t **argv);
 
     if ((sp = symLookup(ep->functions, ep->func->fname)) == NULL) {
@@ -1345,7 +1345,7 @@ int jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, 
 /*
     Define a function directly into the function symbol table.
  */
-int jsSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
+int jsSetGlobalFunctionDirect(WebsHash functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
 {
     if (symEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
@@ -1371,7 +1371,7 @@ int jsRemoveGlobalFunction(int eid, char_t *name)
 void *jsGetGlobalFunction(int eid, char_t *name)
 {
     Js  *ep;
-    sym_t   *sp;
+    WebsKey   *sp;
     int     (*fn)(int eid, void *handle, int argc, char_t **argv);
 
     if ((ep = jsPtr(eid)) == NULL) {
@@ -1568,7 +1568,7 @@ void jsSetGlobalVar(int eid, char_t *var, char_t *value)
 int jsGetVar(int eid, char_t *var, char_t **value)
 {
     Js      *ep;
-    sym_t       *sp;
+    WebsKey       *sp;
     int         i;
 
     gassert(var && *var);
@@ -1591,7 +1591,7 @@ int jsGetVar(int eid, char_t *var, char_t **value)
 }
 
 
-sym_fd_t jsGetVariableTable(int eid)
+WebsHash jsGetVariableTable(int eid)
 {
     Js    *ep;
 
@@ -1602,7 +1602,7 @@ sym_fd_t jsGetVariableTable(int eid)
 }
 
 
-sym_fd_t jsGetFunctionTable(int eid)
+WebsHash jsGetFunctionTable(int eid)
 {
     Js    *ep;
 

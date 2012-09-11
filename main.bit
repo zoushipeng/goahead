@@ -39,6 +39,11 @@ Bit.load({
         auth: true,
 
         /*
+            Automatically login. Useful for debugging.
+         */
+        autoLogin: false,
+
+        /*
             Directory for use when validating client certificates
          */
         caPath: "",

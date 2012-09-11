@@ -120,7 +120,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     }
-    websUrlHandlerDefine(T("/forms"), 0, 0, websFormHandler, 0);
+    websUrlHandlerDefine(T("/form/"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
 #if BIT_JAVASCRIPT
     websUrlHandlerDefine(T("/"), 0, 0, websJsHandler, 0);
