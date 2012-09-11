@@ -94,6 +94,7 @@ void websFormClose()
 /*
     Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
  */
+//  MOB - should be renamed websFormHeaders
 void websHeader(Webs *wp)
 {
     gassert(websValid(wp));

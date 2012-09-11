@@ -45,10 +45,6 @@ int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 
     gassert(websValid(wp));
 
-#if UNUSED
-    websStats.cgiHits++;
-#endif
-
     /*
         Extract the form name and then build the full path name.  The form name will follow the first '/' in path.
      */
@@ -127,10 +123,10 @@ int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
     *(argp+n) = NULL;
 
     /*
-        Add all CGI variables to the environment strings to be passed to the spawned CGI process.  This includes a few
-        we don't already have in the symbol table, plus all those that are in the vars symbol table.  envp will point
-        to a galloc'd array of pointers.  Each pointer will point to a galloc'd string containing the keyword value pair
-        in the form keyword=value.  Since we don't know ahead of time how many environment strings there will be the for
+        Add all CGI variables to the environment strings to be passed to the spawned CGI process. This includes a few
+        we don't already have in the symbol table, plus all those that are in the vars symbol table. envp will point
+        to a galloc'd array of pointers. Each pointer will point to a galloc'd string containing the keyword value pair
+        in the form keyword=value. Since we don't know ahead of time how many environment strings there will be the for
         loop includes logic to grow the array size via grealloc.
      */
     envpsize = 64;

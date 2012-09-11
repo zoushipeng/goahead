@@ -61,13 +61,10 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
             gfree(tmp);
             return 1;
         }
-        /*
-            Open the document. Stat for later use.
-         */
         if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
             websError(wp, 404, T("Cannot open URL"));
             return 1;
-        } 
+        }
         //  MOB - confusion with filename and path
         //  MOB - should we be using just lower stat?
         if (websPageStat(wp, wp->filename, wp->path, &info) < 0) {
@@ -76,8 +73,7 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
         }
         code = 200;
 #if BIT_IF_MODIFIED
-        //  MOB - should check for forms here too
-        if (wp->flags & WEBS_IF_MODIFIED && !(wp->flags & WEBS_JS) && info.mtime <= wp->since) {
+        if (wp->flags & WEBS_IF_MODIFIED && info.mtime <= wp->since) {
             code = 304;
         }
 #endif

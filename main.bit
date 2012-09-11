@@ -139,6 +139,11 @@ Bit.load({
         password: "",
 
         /*
+            Authentication realm
+         */
+        realm: "example.com",
+
+        /*
             Replace malloc with a non-fragmenting allocator
          */
         replaceMalloc: false,

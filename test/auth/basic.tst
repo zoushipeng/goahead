@@ -7,7 +7,7 @@ const HTTP = App.config.uris.http || "127.0.0.1:8080"
 let http: Http = new Http
 
 if (App.config.bit_auth) {
-    //  Access to basic/basic.html accepts by any valid user
+    //  Access to basic/basic.html only accepts an authenticated user. This should fail with 401.
     http.get(HTTP + "/auth/basic/basic.html")
     assert(http.status == 401)
 

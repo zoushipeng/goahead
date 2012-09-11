@@ -201,6 +201,7 @@ static bool     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 extern bool     parseIncoming(Webs *wp);
 extern bool     processParsed(Webs *wp);
+static void     reuseConn(Webs *wp);
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void* data);
 
@@ -754,22 +755,12 @@ static bool parseFirstLine(Webs *wp)
         wp->flags |= WEBS_KEEP_ALIVE | WEBS_HTTP11;
     } else {
         wp->flags &= ~(WEBS_HTTP11);
-#if UNUSED
-        if (wp->flags & (WEBS_POST| WEBS_PUT)) {
-            wp->clen = MAXINT;
-        }
-#endif
     }
     if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
         wp->port = testPort;
     } else {
         wp->port = gatoi(port);
     }
-#if UNUSED
-    if (gstrcmp(ext, T(".asp")) == 0) {
-        wp->flags |= WEBS_JS;
-    }
-#endif
     gfree(buf);
     websUrlType(url, wp->type, TSZ(wp->type));
     return 1;
@@ -1288,9 +1279,6 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     websResponse(wp, code, buf, NULL);
     gfree(buf);
     gfree(userMsg);
-#if UNUSED
-    websStats.errors++;
-#endif
 }
 
 
@@ -1375,12 +1363,6 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
         } else {
             websWriteHeader(wp, T("Connection: close\r\n"));   
         }
-#if UNUSED
-        if (wp->flags & (WEBS_JS | WEBS_CGI)) {
-            //  MOB - should be set in handlers and not here
-            websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
-        }
-#endif
         if (wp->flags & WEBS_HEAD) {
             websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
         } else if (contentLength >= 0) {                                                                                    
@@ -1665,9 +1647,6 @@ void websTimeout(void *arg, int id)
         greschedCallback(id, (int) WEBS_TIMEOUT);
         return;
     } else if (tm >= WEBS_TIMEOUT) {
-#if UNUSED
-        websStats.timeouts++;
-#endif
         gunschedCallback(id);
         wp->timeout = -1;
         websDone(wp, 404);
@@ -1711,21 +1690,10 @@ void websDone(Webs *wp, int code)
 #endif
     if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
         websFlush(wp);
-        wp->state = WEBS_BEGIN;
-        wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
-        if (wp->clen) {
-            ringqGetBlkAdj(&wp->input, wp->clen);
-        }
-        wp->clen = 0;
-        ringqCompact(&wp->input);
+        reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        if (ringqLen(&wp->input)) {
-            socketReservice(wp->sid);
-        }
         websTimeoutCancel(wp);
         wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
-        symClose(wp->vars);
-        wp->vars = symOpen(WEBS_SYM_INIT);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -1772,6 +1740,7 @@ void websFree(Webs *wp)
 
     //  MOB - OPT reduce allocations
     gfree(wp->path);
+    gfree(wp->ext);
     gfree(wp->url);
     gfree(wp->host);
     gfree(wp->filename);
@@ -1788,6 +1757,7 @@ void websFree(Webs *wp)
     gfree(wp->protoVersion);
     gfree(wp->method);
     gfree(wp->contentType);
+    gfree(wp->inputFile);
     symClose(wp->vars);
 #if BIT_CGI
     gfree(wp->cgiStdin);
@@ -1796,7 +1766,6 @@ void websFree(Webs *wp)
     gfree(wp->authDetails);
     gfree(wp->realm);
 #if BIT_DIGEST_AUTH
-    //  MOB - is URI just for AUTH?
     gfree(wp->digestUri);
     gfree(wp->opaque);
     gfree(wp->nonce);
@@ -1818,6 +1787,99 @@ void websFree(Webs *wp)
     websMax = gfreeHandle((void***) &webs, wp->wid);
     gfree(wp);
     gassert(websMax >= 0);
+}
+
+
+static void reuseConn(Webs *wp)
+{
+    gassert(websValid(wp));
+
+    wp->state = WEBS_BEGIN;
+    wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
+    if (wp->clen) {
+        ringqGetBlkAdj(&wp->input, wp->clen);
+    }
+    wp->clen = 0;
+
+    ringqCompact(&wp->input);
+    if (ringqLen(&wp->input)) {
+        socketReservice(wp->sid);
+    }
+    wp->vars = symOpen(WEBS_SYM_INIT);
+
+    gfree(wp->path);
+    wp->path = 0;
+    gfree(wp->ext);
+    wp->ext = 0;
+    gfree(wp->url);
+    wp->url = 0;
+    gfree(wp->host);
+    wp->host = 0;
+    gfree(wp->filename);
+    wp->filename = 0;
+    gfree(wp->query);
+    wp->query = 0;
+    gfree(wp->decodedQuery);
+    wp->decodedQuery = 0;
+    gfree(wp->authType);
+    wp->authType = 0;
+    gfree(wp->password);
+    wp->password = 0;
+    gfree(wp->username);
+    wp->username = 0;
+    gfree(wp->cookie);
+    wp->cookie = 0;
+    gfree(wp->responseCookie);
+    wp->responseCookie = 0;
+    gfree(wp->userAgent);
+    wp->userAgent = 0;
+    gfree(wp->dir);
+    wp->dir = 0;
+    gfree(wp->protocol);
+    wp->protocol = 0;
+    gfree(wp->protoVersion);
+    wp->protoVersion = 0;
+    gfree(wp->method);
+    wp->method = 0;
+    gfree(wp->contentType);
+    wp->contentType = 0;
+    gfree(wp->inputFile);
+    wp->inputFile = 0;
+#if BIT_CGI
+    gfree(wp->cgiStdin);
+    wp->cgiStdin = 0;
+#endif
+#if BIT_AUTH
+    gfree(wp->authDetails);
+    wp->authDetails = 0;
+    gfree(wp->realm);
+    wp->realm = 0;
+#if BIT_DIGEST_AUTH
+    gfree(wp->digestUri);
+    wp->digestUri = 0;
+    gfree(wp->opaque);
+    wp->opaque = 0;
+    gfree(wp->nonce);
+    wp->nonce = 0;
+    gfree(wp->nc);
+    wp->nc = 0;
+    gfree(wp->cnonce);
+    wp->cnonce = 0;
+    gfree(wp->qop);
+    wp->qop = 0;
+#endif
+#endif
+#if BIT_PACK_SSL
+    websSSLFree(wp);
+#endif
+#if BIT_UPLOAD
+    if (wp->files) {
+        websFreeUpload(wp);
+    }
+#endif
+    wp->docfd = -1;
+    wp->infd = -1;
+    wp->cgifd = -1;
 }
 
 
@@ -1988,17 +2050,7 @@ void websSetIpAddr(char_t *ipaddr)
 }
 
 
-#if UNUSED
-void websSetRequestBytes(Webs *wp, ssize bytes)
-{
-    gassert(websValid(wp));
-    gassert(bytes >= 0);
-    wp->numbytes = bytes;
-}
-#endif
-
-
-#if UNUSED
+#if UNUSED && KEEP
 void websSetRequestFilename(Webs *wp, char_t *filename)
 {
     gassert(websValid(wp));
@@ -3070,9 +3122,6 @@ WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan)
         id = makeSessionID(wp);
     }
     sp->id = gstrdup(id);
-#if UNUSED
-    sp->user = 0;
-#endif
     if ((sp->cache = symOpen(WEBS_SESSION_HASH)) == 0) {
         return 0;
     }

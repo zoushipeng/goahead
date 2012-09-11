@@ -1592,9 +1592,6 @@ typedef struct Webs {
     ringq_t         output;             /* Output buffer */
     time_t          since;              /* Parsed if-modified-since time */
     WebsHash        vars;               /* CGI standard variables */
-#if UNUSED
-    WebsHash        cgiQuery;           /* CGI decoded query string */
-#endif
     time_t          timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
     char_t          ipaddr[64];         /* Connecting ipaddress */
@@ -1690,29 +1687,6 @@ typedef struct WebsHandler {
     int             arg;                    /**< Argument to provide to handler */
     int             flags;                  /**< Flags */
 } WebsHandler;
-
-#if UNUSED
-/* 
-    Webs statistics
-    MOB - remove these?
- */
-typedef struct WebsStats {
-    long            errors;                 /* General errors */
-    long            redirects;
-    long            net_requests;
-    long            activeNetRequests;
-    long            activeBrowserRequests;
-    long            timeouts;
-    long            access;                 /* Access violations */
-    long            localHits;
-    long            remoteHits;
-    long            formHits;
-    long            cgiHits;
-    long            handlerHits;
-} WebsStats;
-
-extern WebsStats websStats;                 /* Web access stats */
-#endif
 
 /* 
     Error code list
@@ -1844,10 +1818,6 @@ extern void websSetHost(char_t *host);
 extern void websSetIpAddr(char_t *ipaddr);
 extern void websSetRequestFilename(Webs *wp, char_t *filename);
 extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
-#if UNUSED
-extern void websSetRequestBytes(Webs *wp, ssize bytes);
-extern void websSetRequestSocketHandler(Webs *wp, int mask, void (*fn)(Webs *wp));
-#endif
 //  MOB - do all these APIs exist?
 extern char_t *websGetRequestUserName(Webs *wp);
 extern void websServiceEvents(int *finished);
@@ -1915,25 +1885,14 @@ extern void sslFlush(Webs *wp);
 #if BIT_AUTH
 #define WEBS_USIZE          128              /* Size of realm:username */
 
-#if UNUSED
-/*
-    WebsLogin (why) reason codes
- */
-#define WEBS_LOGIN_REQUIRED   1
-#define WEBS_BAD_PASSWORD     2
-#define WEBS_BAD_USERNAME     3
-#endif
-
 #define WEBS_SESSION            "-goahead-session-"
 #define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
-#define WEBS_SESSION_ROUTEVER   "_:VERSION:_"       /**< Route version number */
 
 typedef void (*WebsLogin)(Webs *wp);
 typedef bool (*WebsVerify)(Webs *wp);
 
 typedef struct WebsUser {
     char_t  *name;
-    char_t  *realm;
     char_t  *password;
     char_t  *roles;
     WebsHash  abilities;
@@ -1951,7 +1910,6 @@ typedef struct WebsRole {
 
 typedef struct WebsRoute {
     char        *prefix;
-    char        *realm;
     ssize       prefixLen;
     WebsLogin   login;
     WebsVerify  verify;
@@ -1960,16 +1918,16 @@ typedef struct WebsRoute {
     char_t      *loggedInPage;
     char_t      *authType;
     int         flags;
-    int         version;
 } WebsRoute;
 
+//  MOB - review all these
 extern int websAddRole(char_t *role, char_t *abilities);
 //  MOB - should this be abilities
 extern int websAddRoleCapability(char_t *role, char_t *ability);
-extern WebsRoute *websAddRoute(char_t *type, char_t *realm, char_t *name, char_t *abilities, char_t *redirect, 
+extern WebsRoute *websAddRoute(char_t *type, char_t *name, char_t *abilities, char_t *redirect, 
         WebsLogin login, WebsVerify verify);
-extern int websAddUser(char_t *realm, char_t *username, char_t *password, char_t *roles);
-extern int websSetUserRoles(char *realm, char_t *username, char_t *roles);
+extern int websAddUser(char_t *username, char_t *password, char_t *roles);
+extern int websSetUserRoles(char_t *username, char_t *roles);
 
 extern bool websCanUser(Webs *wp, WebsHash ability);
 extern bool websCanUserString(Webs *wp, char *ability);
@@ -1981,13 +1939,13 @@ extern int websRemoveRole(char_t *role);
 //  MOB - rename Ability
 extern int websRemoveRoleCapability(char_t *role, char_t *ability);
 extern int websRemoveRoute(char_t *uri);
-extern int websRemoveUser(char *realm, char_t *name);
+extern int websRemoveUser(char_t *name);
 extern int websRemoveUserRole(char_t *name, char_t *role);
 extern int websSaveAuth(char_t *path);
 extern bool websUserHasCapability(char_t *name, char_t *ability);
 extern bool websVerifyRoute(Webs *wp);
 extern int websVerifyUser(char_t *name, char_t *password);
-extern WebsUser *websLookupUser(char *realm, char *username);;
+extern WebsUser *websLookupUser(char *username);;
 
 #endif /* BIT_AUTH */
 /************************************** Sessions *******************************/
@@ -1996,9 +1954,6 @@ extern WebsUser *websLookupUser(char *realm, char *username);;
 
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
-#if UNUSED
-    WebsUser        *user;                  /**< User reference */
-#endif
     time_t          lifespan;               /**< Session inactivity timeout (msecs) */
     time_t          expires;                /**< When the session expires */
     WebsHash        cache;                  /**< Cache of session variables */

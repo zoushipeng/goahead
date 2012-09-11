@@ -13,7 +13,6 @@
 /********************************** Locals ************************************/
 
 static WebsHash websJsFunctions = -1;  /* Symbol table of functions */
-static int      aspOpenCount = 0;       /* count of apps using this module */
 
 /***************************** Forward Declarations ***************************/
 
@@ -33,17 +32,10 @@ int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
     if (gstrcmp(wp->ext, T(".asp")) != 0) {
         return 0;
     }
-    /*
-        Evaluate Javascript requests
-     */
-    if (wp->flags & WEBS_JS) {
-        filename = websGetRequestFilename(wp);
-        if (websJsRequest(wp, filename) < 0) {
-            return 1;
-        }
-        websDone(wp, 200);
+    if (websJsRequest(wp, wp->filename) < 0) {
         return 1;
     }
+    websDone(wp, 200);
     return 1;
 }
 
@@ -53,27 +45,16 @@ int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
  */
 int websJsOpen()
 {
-    if (++aspOpenCount == 1) {
-        /*
-            Create the table for functions
-         */
-        websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
-
-        /*
-            Create standard commands
-         */
-        websJsDefine(T("write"), websJsWrite);
-    }
+    websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
+    websJsDefine(T("write"), websJsWrite);
     return 0;
 }
 
 void websJsClose()
 {
-    if (--aspOpenCount <= 0) {
-        if (websJsFunctions != -1) {
-            symClose(websJsFunctions);
-            websJsFunctions = -1;
-        }
+    if (websJsFunctions != -1) {
+        symClose(websJsFunctions);
+        websJsFunctions = -1;
     }
 }
 
@@ -111,7 +92,6 @@ int websJsRequest(Webs *wp, char_t *filename)
     rc = -1;
     buf = NULL;
     rbuf = NULL;
-    wp->flags |= WEBS_HEADER_DONE;
     wp->flags &= ~WEBS_KEEP_ALIVE;
     path = websGetRequestPath(wp);
 
@@ -128,7 +108,10 @@ int websJsRequest(Webs *wp, char_t *filename)
         websError(wp, 404, T("Can't stat %s"), filename);
         goto done;
     }
-
+    if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
+        websError(wp, 404, T("Cannot open URL"));
+        return 1;
+    }
     /*
         Create a buffer to hold the web page in-memory
      */

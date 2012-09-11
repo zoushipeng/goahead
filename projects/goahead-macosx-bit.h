@@ -58,6 +58,7 @@
 #define BIT_PACKS "bits/packs"
 #define BIT_PASSWORD ""
 #define BIT_PRODUCT "goahead"
+#define BIT_REALM "example.com"
 #define BIT_REPLACE_MALLOC 0
 #define BIT_REQUIRED "compiler,link"
 #define BIT_SESSIONS 1

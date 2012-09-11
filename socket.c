@@ -298,27 +298,6 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 }
 
 
-#if UNUSED
-/*
-    Return true if there is a socket with an event ready to process,
- */
-int socketReady()
-{
-    socket_t    *sp;
-    int         sid;
-
-    for (sid = 0; sid < socketMax; sid++) {
-        if ((sp = socketList[sid]) != 0) {
-            if (sp->currentEvents & sp->handlerMask || sp->flags & SOCKET_RESERVICE) {
-                return 1;
-            }
-        }
-    }
-    return 0;
-}
-#endif
-
-
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
@@ -556,12 +535,7 @@ static void socketDoEvent(socket_t *sp)
             sp->currentEvents = 0;
             return;
         } 
-#if UNUSED
-    } else if (sp->handlerMask & SOCKET_READABLE && sp->flags & SOCKET_RESERVICE) {
-        sp->currentEvents |= SOCKET_READABLE;
-#endif
     }
-
     /*
         Now invoke the users socket handler. NOTE: the handler may delete the
         socket, so we must be very careful after calling the handler.
@@ -716,11 +690,6 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
         errCode = socketGetError();
         if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
             bytes = 0;
-#if UNUSED
-        } else if (errCode == ECONNRESET) {
-            sp->flags |= SOCKET_CONNRESET;
-            bytes = -1;
-#endif
         } else {
             /* Conn reset or Some other error */
             sp->flags |= SOCKET_EOF;

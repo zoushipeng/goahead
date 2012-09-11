@@ -5,10 +5,10 @@
 const HTTP = App.config.uris.http || "127.0.0.1:8080"
 let http: Http = new Http
 
-//  GET /form/login
-http.get(HTTP + "/form/login")
+//  GET
+http.get(HTTP + "/form/sessionTest")
 assert(http.status == 200)
-assert(http.response.contains("Please Login"))
+assert(http.response.contains("Number (null)"))
 let cookie = http.header("Set-Cookie")
 if (cookie) {
     cookie = cookie.match(/(-goahead-session-=.*);/)[1]
@@ -16,22 +16,19 @@ if (cookie) {
 assert(cookie && cookie.contains("-goahead-session-="))
 http.close()
 
-
-//  POST /form/login
+//  POST
 http.setCookie(cookie)
-http.form(HTTP + "/form/login", { 
-    username: "joshua", 
-    password: "pass1", 
-})
+http.form(HTTP + "/form/sessionTest", {number: "42"})
 assert(http.status == 200)
-assert(http.response.contains("Logged in"))
-assert(!http.sessionCookie)
+assert(http.response.contains("Number 42"))
+assert(!http.header("Set-Cookie"))
 http.close()
 
 
-//  GET /form/login
+//  GET - should now get number from session
 http.setCookie(cookie)
-http.get(HTTP + "/form/login")
+http.get(HTTP + "/form/sessionTest")
 assert(http.status == 200)
-assert(http.response.contains("Logged in"))
+assert(http.response.contains("Number 42"))
+assert(!http.header("Set-Cookie"))
 http.close()

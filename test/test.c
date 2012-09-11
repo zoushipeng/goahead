@@ -33,10 +33,8 @@ static int bigTest(int eid, Webs *wp, int argc, char_t **argv);
 #endif
 static void formTest(Webs *wp, char_t *path, char_t *query);
 
-#if UNUSED
-#if BIT_SESSIONS && BIT_AUTH
-static void loginTest(Webs *wp, char_t *path, char_t *query);
-#endif
+#if BIT_SESSIONS
+static void sessionTest(Webs *wp, char_t *path, char_t *query);
 #endif
 
 #if BIT_UNIX_LIKE
@@ -134,12 +132,9 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websJsDefine(T("bigTest"), bigTest);
 #endif
     websFormDefine(T("test"), formTest);
-#if UNUSED
-#if BIT_SESSIONS && BIT_AUTH
-    websFormDefine(T("login"), loginTest);
+#if BIT_SESSIONS
+    websFormDefine(T("sessionTest"), sessionTest);
 #endif
-#endif
-
     websServiceEvents(&finished);
     websClose();
     return 0;
@@ -245,49 +240,25 @@ static void formTest(Webs *wp, char_t *path, char_t *query)
 }
 
 
-#if BIT_SESSIONS && BIT_AUTH && UNUSED
+#if BIT_SESSIONS
 /*
-    Implement /form/login
+    Implement /form/sessionTest
  */
-static void loginTest(Webs *wp, char_t *path, char_t *query)
+static void sessionTest(Webs *wp, char_t *path, char_t *query)
 {
-	char_t	*username, *password, *msg;
+	char_t	*number;
 
-    msg = 0;
     if (gcaselessmatch(wp->method, "POST")) {
-        username = websGetVar(wp, T("username"), NULL);
-        password = websGetVar(wp, T("password"), NULL);
-        if (websFormLogin(wp, username, password)) {
-            websSetSessionVar(wp, T("userid"), websGetSessionID(wp));
-            websHeader(wp);
-            websWrite(wp, T("<body><p>Logged in</p></body>\n"));
-            websFooter(wp);
-            websDone(wp, 200);
-            return;
-        } else {
-            msg = "Bad user credentials";
-        }
+        number = websGetVar(wp, T("number"), 0);
+        websSetSessionVar(wp, "number", number);
     } else {
-        if (websGetSessionVar(wp, "userid", NULL)) {
-            msg = "Logged in";
-        } else {
-            msg = "Please Login";
-        }
+        number = websGetSessionVar(wp, "number", 0);
     }
     websHeader(wp);
-    websWrite(wp, T("<body>\n"));
-    if (msg) {
-        websWrite(wp, T("<p>%s</p>\n"), msg);
-    }
-    websWrite(wp, T("<form action='/form/login' method='POST'><table>\n"));
-    websWrite(wp, T("<tr><td>User name</td><td><input name='username' type='text' value=''</td></tr>\n"));
-    websWrite(wp, T("<tr><td>Password</td><td><input name='password' type='password' value=''</td></tr>\n"));
-    websWrite(wp, T("<tr><td><input name='commit' type='submit' value='OK'></td><td></td></tr>\n"));
-    websWrite(wp, T("</table></form>\n"));
-	websFooter(wp);
-	websDone(wp, 200);
+    websWrite(wp, T("<body><p>Number %s</p></body>\n"), number);
+    websFooter(wp);
+    websDone(wp, 200);
 }
-#endif
 #endif
 
 /*
