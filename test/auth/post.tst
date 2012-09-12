@@ -39,7 +39,7 @@ if (App.config.bit_auth) {
     //  Now log out. Will be redirected to the login page.
     http.reset()
     http.setCookie(cookie)
-    http.get(HTTP + "/form/logout")
+    http.post(HTTP + "/form/logout")
     assert(http.status == 302)
     let location = http.header('location')
     assert(Uri(location).path == '/auth/post/login.html')

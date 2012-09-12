@@ -256,10 +256,17 @@ int websOpen(char_t *documents, char_t *authPath)
         websSetDocuments(documents);
     }
     websFormOpen();
+#if BIT_JAVASCRIPT
     websJsOpen();
+#endif
 
 #if BIT_AUTH
-    if (websOpenAuth(authPath) < 0) {
+    if (websOpenAuth() < 0) {
+        return -1;
+    }
+#endif
+#if BIT_ROUTE
+    if (websOpenRoute(authPath) < 0) {
         return -1;
     }
 #endif
@@ -295,7 +302,12 @@ void websClose()
     Webs    *wp;
     int     i;
 
+#if BIT_JAVASCRIPT
     websJsClose();
+#endif
+#if BIT_ROUTE
+    websCloseRoute();
+#endif
 #if BIT_AUTH
     websCloseAuth();
 #endif
@@ -740,7 +752,7 @@ static bool parseFirstLine(Webs *wp)
         return 0;
     }
     wp->url = gstrdup(url);
-    wp->ext = gstrdup(ext);
+    wp->ext = gstrdup(gstrlower(ext));
     wp->dir = gstrdup(websGetDocuments());
     /*
         Get a default filename
@@ -762,7 +774,9 @@ static bool parseFirstLine(Webs *wp)
         wp->port = gatoi(port);
     }
     gfree(buf);
+#if UNUSED
     websUrlType(url, wp->type, TSZ(wp->type));
+#endif
     return 1;
 }
 
@@ -1333,6 +1347,7 @@ ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
  */
 void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
 {
+    WebsKey     *key;
     char_t      *date;
 
     gassert(websValid(wp));
@@ -1371,8 +1386,8 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
         }  
         if (redirect) {
             websWriteHeader(wp, T("Location: %s\r\n"), redirect);
-        } else if (wp->type) {
-            websWriteHeader(wp, T("Content-type: %s\r\n"), wp->type);
+        } else if ((key = symLookup(websMime, wp->ext)) != 0) {
+            websWriteHeader(wp, T("Content-type: %s\r\n"), key->content.value.string);
         }
         if (wp->responseCookie) {
             websWriteHeader(wp, T("Set-Cookie: %s\r\n"), wp->responseCookie);
@@ -1722,7 +1737,9 @@ int websAlloc(int sid)
     wp->docfd = -1;
     wp->infd = -1;
     wp->timeout = -1;
+#if BIT_SESSION
     wp->session = 0;
+#endif
 #if BIT_CGI
     wp->cgifd = -1;
 #endif
@@ -1765,7 +1782,7 @@ void websFree(Webs *wp)
 #if BIT_AUTH
     gfree(wp->authDetails);
     gfree(wp->realm);
-#if BIT_DIGEST_AUTH
+#if BIT_DIGEST
     gfree(wp->digestUri);
     gfree(wp->opaque);
     gfree(wp->nonce);
@@ -1854,7 +1871,7 @@ static void reuseConn(Webs *wp)
     wp->authDetails = 0;
     gfree(wp->realm);
     wp->realm = 0;
-#if BIT_DIGEST_AUTH
+#if BIT_DIGEST
     gfree(wp->digestUri);
     wp->digestUri = 0;
     gfree(wp->opaque);
@@ -1948,6 +1965,7 @@ char_t *websGetRequestFilename(Webs *wp)
 }
 
 
+//  MOB DEPRECATE - #define to wp->path
 char_t *websGetRequestPath(Webs *wp)
 {
     gassert(websValid(wp));
@@ -1959,6 +1977,7 @@ char_t *websGetRequestPath(Webs *wp)
 }
 
 
+//  MOB DEPRECATE - #define to wp->path
 char_t *websGetRequestPassword(Webs *wp)
 {
     gassert(websValid(wp));
@@ -1966,11 +1985,15 @@ char_t *websGetRequestPassword(Webs *wp)
 }
 
 
+#if UNUSED
+//  MOB DEPRECATE - #define to wp->path
+/* This is the type of request based on the filename exension */
 char_t *websGetRequestType(Webs *wp)
 {
     gassert(websValid(wp));
     return wp->type;
 }
+#endif
 
 
 char_t *websGetRequestUserName(Webs *wp)
@@ -1983,7 +2006,6 @@ char_t *websGetRequestUserName(Webs *wp)
 ssize websGetRequestWritten(Webs *wp)
 {
     gassert(websValid(wp));
-
     return wp->written;
 }
 
@@ -2692,42 +2714,6 @@ static time_t dateParse(time_t tip, char_t *cmd)
 
 
 /*
-    Return the mime type for the given URL given a URL. The caller supplies the buffer to hold the result.
-    charCnt is the number of characters the buffer will hold, ascii or UNICODE.
- */
-char_t *websUrlType(char_t *url, char_t *buf, int charCnt)
-{
-    WebsKey   *sp;
-    char_t  *ext, *parsebuf;
-
-    gassert(url && *url);
-    gassert(buf && charCnt > 0);
-
-    if (url == NULL || *url == '\0') {
-        gstrcpy(buf, T("text/plain"));
-        return buf;
-    }
-    if (websUrlParse(url, &parsebuf, NULL, NULL, NULL, NULL, NULL, NULL, &ext) < 0) {
-        gstrcpy(buf, T("text/plain"));
-        return buf;
-    }
-    gstrlower(ext);
-
-    /*
-        Lookup the mime type symbol table to find the relevant content type
-     */
-    if ((sp = symLookup(websMime, ext)) != NULL) {
-        gstrncpy(buf, sp->content.value.string, charCnt);
-    } else {
-        //  MOB - don't return this if no mime type found
-        gstrcpy(buf, T("text/plain"));
-    }
-    gfree(parsebuf);
-    return buf;
-}
-
-
-/*
     Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller. NOTE: tag
     is not yet fully supported.  
  */
@@ -3098,6 +3084,37 @@ void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *
 }
 
 
+static char *getToken(Webs *wp, char *delim)
+{
+    ringq_t     *buf;
+    char        *token, *nextToken, *endToken;
+
+    gassert(wp);
+    buf = &wp->input;
+    nextToken = (char*) buf->endp;
+
+    for (token = (char*) buf->servp; (*token == ' ' || *token == '\t') && token < (char*) buf->endp; token++) {}
+
+    if (delim == 0) {
+        delim = " \t";
+        if ((endToken = strpbrk(token, delim)) != 0) {
+            nextToken = endToken + strspn(endToken, delim);
+            *endToken = '\0';
+        }
+    } else {
+        if ((endToken = strstr(token, delim)) != 0) {
+            *endToken = '\0';
+            /* Only eat one occurence of the delimiter */
+            nextToken = endToken + strlen(delim);
+        } else {
+            nextToken = buf->endp;
+        }
+    }
+    buf->servp = nextToken;
+    return token;
+}
+
+
 #if BIT_SESSIONS
 static char *makeSessionID(Webs *wp)
 {
@@ -3261,37 +3278,6 @@ int websSetSessionVar(Webs *wp, char_t *key, char_t *value)
 /*
     Get the next token from the input ringq. This eats leading spaces and tabs.
  */
-static char *getToken(Webs *wp, char *delim)
-{
-    ringq_t     *buf;
-    char        *token, *nextToken, *endToken;
-
-    gassert(wp);
-    buf = &wp->input;
-    nextToken = (char*) buf->endp;
-
-    for (token = (char*) buf->servp; (*token == ' ' || *token == '\t') && token < (char*) buf->endp; token++) {}
-
-    if (delim == 0) {
-        delim = " \t";
-        if ((endToken = strpbrk(token, delim)) != 0) {
-            nextToken = endToken + strspn(endToken, delim);
-            *endToken = '\0';
-        }
-    } else {
-        if ((endToken = strstr(token, delim)) != 0) {
-            *endToken = '\0';
-            /* Only eat one occurence of the delimiter */
-            nextToken = endToken + strlen(delim);
-        } else {
-            nextToken = buf->endp;
-        }
-    }
-    buf->servp = nextToken;
-    return token;
-}
-
-
 static void pruneCache()
 {
     WebsSession     *sp;

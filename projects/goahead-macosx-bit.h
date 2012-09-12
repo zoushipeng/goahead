@@ -20,7 +20,7 @@
 #define BIT_COMPANY "Embedthis"
 #define BIT_DEBUG_LOG 1
 #define BIT_DEPTH 1
-#define BIT_DIGEST_AUTH 1
+#define BIT_DIGEST 1
 #define BIT_DOCUMENTS "web"
 #define BIT_HAS_DOUBLE_BRACES 1
 #define BIT_HAS_DYN_LOAD 1
@@ -61,11 +61,12 @@
 #define BIT_REALM "example.com"
 #define BIT_REPLACE_MALLOC 0
 #define BIT_REQUIRED "compiler,link"
+#define BIT_ROUTE 1
 #define BIT_SESSIONS 1
 #define BIT_SSL_PORT 4443
 #define BIT_TITLE "Embedthis GoAhead"
 #define BIT_TRACE "stdout:2"
-#define BIT_UPLOAD 1
+#define BIT_UPLOAD 0
 #define BIT_UPLOAD_DIR "/tmp"
 #define BIT_VERSION "3.0.0"
 #define BIT_WARN64TO32 1

@@ -25,8 +25,6 @@ static char_t   *skipWhite(char_t *s);
  */
 int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
-    char_t          *filename;
-
     gassert(websValid(wp));
 
     if (gstrcmp(wp->ext, T(".asp")) != 0) {
@@ -49,6 +47,7 @@ int websJsOpen()
     websJsDefine(T("write"), websJsWrite);
     return 0;
 }
+
 
 void websJsClose()
 {
@@ -81,7 +80,7 @@ int websJsRequest(Webs *wp, char_t *filename)
 {
     WebsFileInfo    sbuf;
     char            *rbuf;
-    char_t          *token, *lang, *result, *path, *ep, *cp, *buf, *nextp;
+    char_t          *token, *lang, *result, *ep, *cp, *buf, *nextp;
     char_t          *last;
     ssize           len;
     int             rc, jsid;
@@ -93,7 +92,6 @@ int websJsRequest(Webs *wp, char_t *filename)
     buf = NULL;
     rbuf = NULL;
     wp->flags &= ~WEBS_KEEP_ALIVE;
-    path = websGetRequestPath(wp);
 
     /*
         Create Javascript instance in case it is needed
@@ -104,7 +102,7 @@ int websJsRequest(Webs *wp, char_t *filename)
     }
     jsSetUserHandle(jsid, wp);
 
-    if (websPageStat(wp, filename, path, &sbuf) < 0) {
+    if (websPageStat(wp, filename, wp->path, &sbuf) < 0) {
         websError(wp, 404, T("Can't stat %s"), filename);
         goto done;
     }

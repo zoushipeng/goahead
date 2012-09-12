@@ -85,8 +85,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
         documents = argv[argind++];
     }
     initPlatform();
-    if (websOpen(documents, "auth.txt") < 0) {
-        error(T("Can't initialize Goahead server. Exiting."));
+    if (websOpen(documents, "route.txt") < 0) {
+        error(T("Can't initialize server. Exiting."));
         return -1;
     }
 #if BIT_PACK_SSL

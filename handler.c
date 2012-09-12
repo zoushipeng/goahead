@@ -26,7 +26,6 @@ int websUrlHandlerOpen()
 {
     websUrlHandler = NULL;
     websUrlHandlerMax = 0;
-    websJsOpen();
     return 0;
 }
 
@@ -35,8 +34,7 @@ void websUrlHandlerClose()
 {
     WebsHandler     *sp;
 
-    for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax];
-        sp++) {
+    for (sp = websUrlHandler; sp < &websUrlHandler[websUrlHandlerMax]; sp++) {
         gfree(sp->prefix);
         if (sp->dir) {
             gfree(sp->dir);
@@ -212,8 +210,14 @@ void websHandleRequest(Webs *wp)
         websError(wp, 400, T("Bad request"));
         return;
     }
+#if BIT_ROUTE
+    if (!websRouteRequest(wp)) {
+        gassert(wp->code);
+        return;
+    }
+#endif
 #if BIT_AUTH
-    if (!websVerifyRoute(wp)) {
+    if (!websAuthenticate(wp)) {
         gassert(wp->code);
         return;
     }

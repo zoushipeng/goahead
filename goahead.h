@@ -28,6 +28,20 @@
     #define BIT_ROM 0
 #endif
 
+/*
+    Resolve feature dependencies
+ */
+#if BIT_DIGEST
+    #undef BIT_AUTH
+    #define BIT_AUTH 1
+#endif
+#if BIT_AUTH
+    #if !BIT_ROUTE
+        #undef BIT_ROUTE
+        #define BIT_ROUTE 1
+    #endif
+#endif
+
 /********************************* CPU Families *******************************/
 /*
     CPU Architectures
@@ -1547,7 +1561,7 @@ typedef struct WebsUploadFile {
 #define WEBS_CGI                0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
 #define WEBS_BASIC_AUTH         0x10000     /* Basic authentication request */
-#define WEBS_DIGEST_AUTH        0x20000     /* Digest authentication request */
+#define WEBS_DIGEST             0x20000     /* Digest authentication request */
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
@@ -1571,14 +1585,30 @@ typedef struct WebsUploadFile {
 #define WEBS_TIMEOUT        60000       /* General request timeout (60) */
 
 /*
+    Session names
+ */
+#if BIT_SESSIONS
+#define WEBS_SESSION            "-goahead-session-"
+#define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
+#endif
+
+/*
+    Flags for httpSetCookie
+ */
+#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
+#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
+
+/*
     WebsDone flags
  */
 #define WEBS_CLOSE          0x20000
 
 /* Forward declare */
+#if BIT_ROUTE
+struct WebsRoute;
+#endif
 #if BIT_AUTH
 struct WebsUser;
-struct WebsRoute;
 #endif
 #if BIT_SESSIONS
 struct WebsSession;
@@ -1596,12 +1626,17 @@ typedef struct Webs {
     int             timeout;            /* Timeout handle */
     char_t          ipaddr[64];         /* Connecting ipaddress */
     char_t          ifaddr[64];         /* Local interface ipaddress */
+#if UNUSED
     char_t          type[64];           /* Mime type */
+#endif
+    //  MOB OPT - which of these should be allocated strings and which should be static
     char_t          *authType;          /* Authorization type (Basic/DAA) */
     char_t          *authDetails;       /* Http header auth details */
+    //  MOB OPT static
     char_t          *contentType;       /* Body content type */
     char_t          *dir;               /* Directory containing the page */
     char_t          *path;              /* Path name without query */
+    //  MOB OPT static
     char_t          *ext;               /* Path extension */
     char_t          *url;               /* Full request url */
     char_t          *host;              /* Requested host */
@@ -1609,14 +1644,19 @@ typedef struct Webs {
     char_t          *query;             /* Request query */
     char_t          *decodedQuery;      /* Decoded request query */
     char_t          *method;            /* HTTP request method */
+    //  MOB OPT static
     char_t          *password;          /* Authorization password */
+    //  MOB OPT static
     char_t          *username;          /* Authorization username */
     char_t          *cookie;            /* Request cookie string */
     char_t          *responseCookie;    /* Outgoing cookie */
     char_t          *authResponse;      /* Outgoing auth header */
     char_t          *userAgent;         /* User agent (browser) */
+    //  MOB OPT static
     char_t          *protocol;          /* Protocol (normally HTTP) */
+    //  MOB OPT static
     char_t          *protoVersion;      /* Protocol version */
+
     int             sid;                /* Socket id (handler) */
     int             listenSid;          /* Listen Socket id */
     int             port;               /* Request port number */
@@ -1637,11 +1677,13 @@ typedef struct Webs {
 #if BIT_SESSIONS
     struct WebsSession *session;        /* Session record */
 #endif
+#if BIT_ROUTE
+    struct WebsRoute *route;            /* Request route */
+#endif
 #if BIT_AUTH
     struct WebsUser *user;              /* User auth record */
-    struct WebsRoute *route;            /* Route for authorization */
-#if BIT_DIGEST_AUTH
     char_t          *realm;             /* Realm field supplied in auth header */
+#if BIT_DIGEST
     char_t          *nonce;             /* opaque-to-client string sent by server */
     char_t          *digestUri;         /* URI found in digest header */
     char_t          *opaque;            /* opaque value passed from server */
@@ -1653,6 +1695,7 @@ typedef struct Webs {
 #if BIT_UPLOAD
     int             ufd;                /* Upload file handle */
     WebsHash        files;              /* Uploaded files */
+    //  MOB OPT static
     char            *boundary;          /* Mime boundary */
     ssize           boundaryLen;        /* Boundary length */
     int             uploadState;        /* Current file upload state */
@@ -1785,7 +1828,9 @@ extern char_t *websGetRequestIpAddr(Webs *wp);
 extern char_t *websGetRequestFilename(Webs *wp);
 extern char_t *websGetRequestPath(Webs *wp);
 extern char_t *websGetRequestPassword(Webs *wp);
+#if UNUSED
 extern char_t *websGetRequestType(Webs *wp);
+#endif
 extern ssize websGetRequestWritten(Webs *wp);
 extern char_t *websGetVar(Webs *wp, char_t *var, char_t *def);
 extern int websCompareVar(Webs *wp, char_t *var, char_t *value);
@@ -1821,6 +1866,7 @@ extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
 //  MOB - do all these APIs exist?
 extern char_t *websGetRequestUserName(Webs *wp);
 extern void websServiceEvents(int *finished);
+extern void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
 extern void websSetRequestWritten(Webs *wp, ssize written);
 extern void websSetTimeMark(Webs *wp);
 extern void websSetVar(Webs *wp, char_t *var, char_t *value);
@@ -1833,7 +1879,9 @@ extern int websUrlHandlerDelete(WebsHandlerProc handler);
 extern int websUrlHandlerOpen();
 extern void websHandleRequest(Webs *wp);
 extern int websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, char_t **proto, char_t **tag, char_t **ext);
+#if UNUSED
 extern char_t *websUrlType(char_t *webs, char_t *buf, int charCnt);
+#endif
 extern void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect);
 extern ssize websWriteHeader(Webs *wp, char_t *fmt, ...);
 extern ssize websWrite(Webs *wp, char_t *fmt, ...);
@@ -1881,32 +1929,16 @@ extern void sslWriteClosureAlert(Webs *wp);
 extern void sslFlush(Webs *wp);
 #endif /* BIT_PACK_SSL */
 
-/*************************************** Auth **********************************/
-#if BIT_AUTH
-#define WEBS_USIZE          128              /* Size of realm:username */
-
-#define WEBS_SESSION            "-goahead-session-"
-#define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
-
-typedef void (*WebsLogin)(Webs *wp);
-typedef bool (*WebsVerify)(Webs *wp);
-
-typedef struct WebsUser {
-    char_t  *name;
-    char_t  *password;
-    char_t  *roles;
-    WebsHash  abilities;
-} WebsUser;
-
-typedef struct WebsRole {
-    WebsHash  abilities;
-} WebsRole;
-
+/*************************************** Route *********************************/
+#if BIT_ROUTE
 /*
     Route flags
  */
 #define WEBS_ROUTE_SECURE   0x1         /* Route must use TLS */
 #define WEBS_ROUTE_PUTDEL   0x2         /* Route supports PUT, DELETE methods */
+
+typedef void (*WebsLogin)(Webs *wp);
+typedef bool (*WebsVerify)(Webs *wp);
 
 typedef struct WebsRoute {
     char        *prefix;
@@ -1920,32 +1952,56 @@ typedef struct WebsRoute {
     int         flags;
 } WebsRoute;
 
-//  MOB - review all these
-extern int websAddRole(char_t *role, char_t *abilities);
-//  MOB - should this be abilities
-extern int websAddRoleCapability(char_t *role, char_t *ability);
+extern void websCloseRoute();
+extern int websOpenRoute(char_t *path);
 extern WebsRoute *websAddRoute(char_t *type, char_t *name, char_t *abilities, char_t *redirect, 
         WebsLogin login, WebsVerify verify);
-extern int websAddUser(char_t *username, char_t *password, char_t *roles);
-extern int websSetUserRoles(char_t *username, char_t *roles);
+extern int websRemoveRoute(char_t *uri);
+extern bool websRouteRequest(Webs *wp);
+#endif
 
+/*************************************** Auth **********************************/
+#if BIT_AUTH
+#define WEBS_USIZE          128              /* Size of realm:username */
+
+typedef struct WebsUser {
+    char_t  *name;
+    char_t  *password;
+    char_t  *roles;
+    WebsHash  abilities;
+} WebsUser;
+
+typedef struct WebsRole {
+    WebsHash  abilities;
+} WebsRole;
+
+extern int websAddUser(char_t *username, char_t *password, char_t *roles);
+extern int websRemoveUser(char_t *name);
+extern int websSetUserRoles(char_t *username, char_t *roles);
+extern WebsUser *websLookupUser(char *username);
 extern bool websCanUser(Webs *wp, WebsHash ability);
 extern bool websCanUserString(Webs *wp, char *ability);
-extern void websCloseAuth();
-extern bool websLoginUser(Webs *wp, char_t *username, char_t *password);
-extern int websOpenAuth(char_t *path);
+extern int websAddRole(char_t *role, char_t *abilities);
 extern int websRemoveRole(char_t *role);
 
-//  MOB - rename Ability
-extern int websRemoveRoleCapability(char_t *role, char_t *ability);
-extern int websRemoveRoute(char_t *uri);
-extern int websRemoveUser(char_t *name);
-extern int websRemoveUserRole(char_t *name, char_t *role);
-extern int websSaveAuth(char_t *path);
-extern bool websUserHasCapability(char_t *name, char_t *ability);
-extern bool websVerifyRoute(Webs *wp);
-extern int websVerifyUser(char_t *name, char_t *password);
-extern WebsUser *websLookupUser(char *username);;
+extern bool websLoginUser(Webs *wp, char_t *username, char_t *password);
+extern bool websAuthenticate(Webs *wp);
+
+extern void websCloseAuth();
+extern int websOpenAuth();
+extern void websComputeAllUserAbilities();
+
+extern void websBasicLogin(Webs *wp);
+extern int websDecodeBasicDetails(Webs *wp);
+extern bool websVerifyBasicPassword(Webs *wp);
+extern void websPostLogin(Webs *wp);
+extern bool websVerifyPostPassword(Webs *wp);
+
+#if BIT_DIGEST
+extern void websDigestLogin(Webs *wp);
+extern int websDecodeDigestDetails(Webs *wp);
+extern bool websVerifyDigestPassword(Webs *wp);
+#endif
 
 #endif /* BIT_AUTH */
 /************************************** Sessions *******************************/
@@ -1959,13 +2015,6 @@ typedef struct WebsSession {
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
 
-/*
-    Flags for httpSetCookie
- */
-#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
-#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
-
-extern void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
 
 extern WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan);
 extern WebsSession *websGetSession(Webs *wp, int create);

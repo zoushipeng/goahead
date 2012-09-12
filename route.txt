@@ -1,0 +1,37 @@
+#
+#   route.txt - Route and authorization configuration
+#
+#   Schema
+#       user: name: password: roles...
+#       role: name: abilities.
+#       uri: type: uri: method: abilities... : redirect
+
+#
+#   Basic and digest authentication required for these directories
+#   Require the "manage" ability which only "joshua" has
+#
+#   uri: basic: /auth/basic/: manage
+#   uri: digest: /auth/digest/: manage
+
+#
+#   Post-based (web-form) authentication
+#   The login form is /auth/post/login.html. The page to display when logged-in is: /auth/post/index.html
+#   Everything else under /auth/post is secured and requires the "manage" ability
+#
+#   uri: none: /auth/post/login.html: none: /auth/post/index.html
+#   uri: post: /auth/post/: manage: /auth/post/login.html
+
+#
+#   Support PUT, DELETE methods for the /put directory
+#
+#   uri: post: /admin/put: SECURE PUTDEL
+
+#
+#   Require TLS to access anything under /secure
+#
+#   uri: post: /secure: SECURE 
+
+#
+#   Catch-all route without authentication for all other URIs
+#
+uri: none: none: /: :
