@@ -105,11 +105,8 @@ static void writeEvent(Webs *wp)
     socket_t    *sp;
     char        *buf;
     ssize       len, wrote;
-    int         flags;
 
     gassert(websValid(wp));
-
-    flags = websGetRequestFlags(wp);
     websSetTimeMark(wp);
 
     /*
