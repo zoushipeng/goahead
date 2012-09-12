@@ -29,6 +29,11 @@
 			<key>orderHint</key>
 			<integer>2</integer>
 		</dict>
+		<key>libgo.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>7</integer>
+		</dict>
 		<key>webcomp 2.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -58,6 +63,11 @@
 			<true/>
 		</dict>
 		<key>9FC45C179FC48C4D0000000C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000000D</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -92,6 +102,11 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>9FC45C179FC48C4D00000042</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9FC45C179FC48C4D00000043</key>
 		<dict>
 			<key>primary</key>
@@ -108,6 +123,26 @@
 			<true/>
 		</dict>
 		<key>9FC45C179FC48C4D00000049</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000004A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000004C</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000004E</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D00000050</key>
 		<dict>
 			<key>primary</key>
 			<true/>

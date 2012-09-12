@@ -175,27 +175,33 @@ Bit.load({
     },
 
     targets: {
+        libgo: {
+            type: 'lib',
+            sources: [ '*.c' ],
+            headers: [ '*.h' ],
+            exclude: /goahead\.c/,
+            depends: [ 'openssl', 'matrixssl' ],
+        },
+
         /*
-            Target for the goahead web server executable
+            Target for the goahead executable
          */
         goahead: {
             type: 'exe',
             rule: 'gui',
             depends: [ ],
-            sources: [ '*.c' ],
-            headers: [ '*.h' ],
-            depends: [ 'openssl', 'matrixssl' ],
-            _resources: [ 'goahead.rc' ],
+            sources: [ 'goahead.c' ],
+            depends: [ 'libgo' ],
         },
 
+        /*
+            Target for unit tests. Includes ASP and form callbacks
+         */
         'goahead-test': {
             enable: bit.settings.profile != 'release',
             type: 'exe',
-            depends: [ ],
-            headers: [ '*.h' ],
-            sources: [ '*.c', 'test/test.c' ],
-            exclude: /goahead\.c/,
-            depends: [ 'openssl', 'matrixssl' ],
+            sources: [ 'test/test.c' ],
+            depends: [ 'libgo' ],
         },
 
         /*

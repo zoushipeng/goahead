@@ -45,7 +45,6 @@ int sslOpen()
 {
     RandBuf             randBuf;
     char_t              *caFile, *caPath;
-	const SSL_METHOD	*meth;
 
 	trace(7, T("Initializing SSL\n")); 
 
@@ -66,8 +65,7 @@ int sslOpen()
 	SSL_load_error_strings();
 	SSLeay_add_ssl_algorithms();
 
-	meth = SSLv23_server_method();
-	if ((sslctx = SSL_CTX_new(meth)) == 0) {
+	if ((sslctx = SSL_CTX_new(SSLv23_server_method())) == 0) {
 		error(T("Unable to create SSL context")); 
 		return -1;
 	}

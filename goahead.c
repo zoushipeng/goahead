@@ -147,7 +147,6 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
 
 static void usage() {
-    //  MOB - replace
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [IPaddress][:port] [documents]\n\n"
         "  Options:\n"

@@ -41,3 +41,5 @@ access.log
 cgitest
 windows-*.bit
 *-x86.bit
+projects/.libgo.guid
+libgo.xcscheme
