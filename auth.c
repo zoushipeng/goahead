@@ -25,6 +25,10 @@
 
 #include    "goahead.h"
 
+#if BIT_HAS_PAM && BIT_PAM
+ #include    <security/pam_appl.h>
+#endif
+
 #if BIT_AUTH
 /*********************************** Locals ***********************************/
 
@@ -33,11 +37,24 @@ static WebsHash roles = -1;
 static char_t *secret;
 static int autoLogin = BIT_AUTO_LOGIN;
 
+#if BIT_HAS_PAM && BIT_PAM
+typedef struct {
+    char    *name;
+    char    *password;
+} UserInfo;
+
+#if MACOSX
+    typedef int Gid;
+#else
+    typedef gid_t Gid;
+#endif
+#endif
+
 /********************************** Forwards **********************************/
 
 static void computeAbilities(WebsHash abilities, char *role);
 static void computeUserAbilities(WebsUser *user);
-static int decodeBasicDetails(Webs *wp);
+static WebsUser *createUser(char_t *username, char_t *password, char_t *roles);
 static void freeRole(WebsRole *rp);
 static void freeUser(WebsUser *up);
 static void logoutServiceProc(Webs *wp);
@@ -49,8 +66,11 @@ static int jsCan(int jsid, Webs *wp, int argc, char_t **argv);
 #if BIT_DIGEST
 static char_t *calcDigest(Webs *wp, char_t *username, char_t *password);
 static char_t *createDigestNonce(Webs *wp);
-static int decodeDigestDetails(Webs *wp);
 static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time_t *when);
+#endif
+
+#if BIT_HAS_PAM && BIT_PAM
+static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data);
 #endif
 
 /************************************ Code ************************************/
@@ -85,20 +105,16 @@ bool websAuthenticate(Webs *wp)
             return 0;
         }
         if (wp->authDetails) {
-            if (gcaselessmatch(wp->authType, T("basic"))) {
-                decodeBasicDetails(wp);
-#if BIT_DIGEST
-            } else if (gcaselessmatch(wp->authType, T("digest"))) {
-                decodeDigestDetails(wp);
-#endif
+            if (!(route->parseAuth)(wp)) {
+                return 0;
             }
         }
         if (!wp->username || !*wp->username) {
-            (route->login)(wp);
+            (route->askLogin)(wp);
             return 0;
         }
         if (!(route->verify)(wp)) {
-            (route->login)(wp);
+            (route->askLogin)(wp);
             return 0;
         }
 #if BIT_SESSIONS
@@ -111,7 +127,11 @@ bool websAuthenticate(Webs *wp)
 #endif
     }
     gassert(wp->user);
-    return websCanUser(wp, route->abilities);
+    if (!websCanUser(wp, route->abilities)) {
+        websError(wp, HTTP_CODE_FORBIDDEN, "Access denied. User does not have the required capabilities.");
+        return 0;
+    }
+    return 1;
 }
 
 
@@ -153,26 +173,37 @@ void websCloseAuth()
 }
 
 
+static WebsUser *createUser(char_t *username, char_t *password, char_t *roles)
+{
+    WebsUser    *user;
+
+    if ((user = galloc(sizeof(WebsUser))) == 0) {
+        return 0;
+    }
+    user->name = gstrdup(username);
+    if (roles) {
+        gfmtAlloc(&user->roles, -1, " %s ", roles);
+    } else {
+        user->roles = gstrdup(T(" "));
+    }
+    user->password = gstrdup(password);
+    return user;
+}
+
+
 int websAddUser(char_t *username, char_t *password, char_t *roles)
 {
-    WebsUser    *up;
+    WebsUser    *user;
 
     if (websLookupUser(username)) {
         error(T("User %s already exists"), username);
         /* Already exists */
         return -1;
     }
-    if ((up = galloc(sizeof(WebsUser))) == 0) {
+    if ((user = createUser(username, password, roles)) == 0) {
         return 0;
     }
-    up->name = gstrdup(username);
-    if (roles) {
-        gfmtAlloc(&up->roles, -1, " %s ", roles);
-    } else {
-        up->roles = gstrdup(T(" "));
-    }
-    up->password = gstrdup(password);
-    if (symEnter(users, username, valueSymbol(up), 0) == 0) {
+    if (symEnter(users, username, valueSymbol(user), 0) == 0) {
         return -1;
     }
     return 0;
@@ -399,12 +430,16 @@ int websRemoveRole(char_t *name)
 
 bool websLoginUser(Webs *wp, char_t *username, char_t *password)
 {
+    gassert(wp->route);
+    if (!wp->route || !wp->route->verify) {
+        return 0;
+    }
     gfree(wp->username);
     wp->username = gstrdup(username);
     gfree(wp->password);
     wp->password = gstrdup(password);
 
-    if (!websVerifyPostPassword(wp)) {
+    if (!(wp->route->verify)(wp)) {
         trace(2, T("Password does not match\n"));
         return 0;
     }
@@ -427,6 +462,8 @@ static void loginServiceProc(Webs *wp)
         return;
     }
     route = wp->route;
+    gassert(route);
+    
     if (websLoginUser(wp, websGetVar(wp, "username", 0), websGetVar(wp, "password", 0))) {
 #if BIT_SESSIONS
         char *referrer;
@@ -484,86 +521,38 @@ void websDigestLogin(Webs *wp)
     gfree(nonce);
     websError(wp, 401, T("Access Denied. User not logged in."));
 }
+#endif
 
 
-bool websVerifyDigestPassword(Webs *wp)
+bool websVerifyUser(Webs *wp)
 {
-    char_t      *digest, *secret, *realm;
-    time_t      when;
+    char_t      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
+    bool        success;
 
-    if ((wp->user = websLookupUser(wp->username)) == 0) {
-        trace(5, "verifyUser: Unknown user \"%s\"", wp->username);
-        return 0;
+    if (!wp->encoded) {
+        gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
+        gfree(wp->password);
+        wp->password = websMD5(passbuf);
+        wp->encoded = 1;
     }
-    /*
-        Validate the nonce value - prevents replay attacks
-     */
-    when = 0; secret = 0; realm = 0;
-    parseDigestNonce(wp->nonce, &secret, &realm, &when);
-
-    if (!gmatch(secret, secret)) {
-        trace(2, T("Access denied: Nonce mismatch\n"));
-        return 0;
-    } else if (!gmatch(realm, BIT_REALM)) {
-        trace(2, T("Access denied: Realm mismatch\n"));
-        return 0;
-    } else if (!gmatch(wp->qop, "auth")) {
-        trace(2, T("Access denied: Bad qop\n"));
-        return 0;
-    } else if ((when + (5 * 60)) < time(0)) {
-        trace(2, T("Access denied: Nonce is stale\n"));
+    if (!wp->user && (wp->user = websLookupUser(wp->username)) == 0) {
+        trace(5, "verifyUser: Unknown user \"%s\"", wp->username);
         return 0;
     }
     /*
         Verify the password
      */
-    digest = calcDigest(wp, 0, wp->user->password);
-    if (gmatch(wp->password, digest) == 0) {
-        trace(2, T("Access denied: Password does not match\n"));
-        return 0;
+    if (wp->digest) {
+        success = gmatch(wp->password, wp->digest);
+    } else {
+        success = gmatch(wp->password, wp->user->password);
     }
-    gfree(digest);
-    return 1;
-}
-#endif
-
-
-bool websVerifyBasicPassword(Webs *wp)
-{
-    char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
-    bool    rc;
-    
-    if ((wp->user = websLookupUser(wp->username)) == 0) {
-        trace(5, "verifyUser: Unknown user \"%s\"", wp->username);
-        return 0;
+    if (success) {
+        trace(5, "User \"%s\" authenticated", wp->username);
+    } else {
+        trace(5, "Password for user \"%s\" failed to authenticate", wp->username);
     }
-    gassert(wp->route);
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
-    password = websMD5(passbuf);
-    if ((rc = gmatch(wp->user->password, password)) == 0) {
-        trace(2, T("Access denied: Password does not match\n"));        
-    }
-    gfree(password);
-    return rc;
-}
-
-
-bool websVerifyPostPassword(Webs *wp)
-{
-    char_t  passbuf[BIT_LIMIT_PASSWORD * 3 + 3], *password;
-    int     rc;
-
-    if ((wp->user = websLookupUser(wp->username)) == 0) {
-        trace(2, "verifyUser: Unknown user \"%s\"", wp->username);
-        return 0;
-    }
-    gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
-    password = websMD5(passbuf);
-    if ((rc = gmatch(password, wp->user->password)) == 0) {
-        trace(2, T("Access denied: Password does not match\n"));
-    }
-    gfree(password);
-    return rc;
+    return success;
 }
 
 
@@ -579,7 +568,7 @@ static int jsCan(int jsid, Webs *wp, int argc, char_t **argv)
 #endif
 
 
-static int decodeBasicDetails(Webs *wp)
+bool websParseBasicDetails(Webs *wp)
 {
     char    *cp, *userAuth;
 
@@ -593,21 +582,22 @@ static int decodeBasicDetails(Webs *wp)
     if (cp) {
         wp->username = gstrdup(userAuth);
         wp->password = gstrdup(cp);
+        wp->encoded = 0;
     } else {
         wp->username = gstrdup(T(""));
         wp->password = gstrdup(T(""));
     }
     gfree(userAuth);
-    wp->flags |= WEBS_BASIC_AUTH;
-    return 0;
+    return 1;
 }
 
 
 #if BIT_DIGEST
-static int decodeDigestDetails(Webs *wp)
+bool websParseDigestDetails(Webs *wp)
 {
-    char        *value, *tok, *key, *dp, *sp;
-    int         seenComma;
+    time_t  when;
+    char    *value, *tok, *key, *dp, *sp, *secret, *realm;
+    int     seenComma;
 
     key = gstrdup(wp->authDetails);
 
@@ -700,8 +690,9 @@ static int decodeDigestDetails(Webs *wp)
             if (gcaselesscmp(key, "realm") == 0) {
                 wp->realm = gstrdup(value);
             } else if (gcaselesscmp(key, "response") == 0) {
-                /* Store the response digest in the password field */
+                /* Store the response digest in the password field. This is MD5(user:realm:password) */
                 wp->password = gstrdup(value);
+                wp->encoded = 1;
             }
             break;
 
@@ -733,16 +724,40 @@ static int decodeDigestDetails(Webs *wp)
         }
     }
     if (wp->username == 0 || wp->realm == 0 || wp->nonce == 0 || wp->route == 0 || wp->password == 0) {
-        return -1;
+        return 0;
     }
     if (wp->qop && (wp->cnonce == 0 || wp->nc == 0)) {
-        return -1;
+        return 0;
     }
     if (wp->qop == 0) {
         wp->qop = gstrdup("");
     }
-    wp->flags |= WEBS_DIGEST;
-    return 0;
+    /*
+        Validate the nonce value - prevents replay attacks
+     */
+    when = 0; secret = 0; realm = 0;
+    parseDigestNonce(wp->nonce, &secret, &realm, &when);
+    if (!gmatch(secret, secret)) {
+        trace(2, T("Access denied: Nonce mismatch\n"));
+        return 0;
+    } else if (!gmatch(realm, BIT_REALM)) {
+        trace(2, T("Access denied: Realm mismatch\n"));
+        return 0;
+    } else if (!gmatch(wp->qop, "auth")) {
+        trace(2, T("Access denied: Bad qop\n"));
+        return 0;
+    } else if ((when + (5 * 60)) < time(0)) {
+        trace(2, T("Access denied: Nonce is stale\n"));
+        return 0;
+    }
+    if (!wp->user) {
+        if ((wp->user = websLookupUser(wp->username)) == 0) {
+            trace(2, T("Access denied: user is unknown\n"));
+            return 0;
+        }
+    }
+    wp->digest = calcDigest(wp, 0, wp->user->password);
+    return 1;
 }
 
 
@@ -819,6 +834,104 @@ static char_t *calcDigest(Webs *wp, char_t *username, char_t *password)
     return result;
 }
 #endif /* BIT_DIGEST */
+
+
+#if BIT_HAS_PAM && BIT_PAM
+bool websVerifyPamUser(Webs *wp)
+{
+    ringq_t             abilities;
+    pam_handle_t        *pamh;
+    UserInfo            info;
+    struct pam_conv     conv = { pamChat, &info };
+    struct group        *gp;
+    int                 res, i;
+   
+    gassert(wp->username);
+    gassert(wp->password);
+    gassert(!wp->encoded);
+
+    info.name = (char*) wp->username;
+    info.password = (char*) wp->password;
+    pamh = NULL;
+    if ((res = pam_start("login", info.name, &conv, &pamh)) != PAM_SUCCESS) {
+        return 0;
+    }
+    if ((res = pam_authenticate(pamh, PAM_DISALLOW_NULL_AUTHTOK)) != PAM_SUCCESS) {
+        pam_end(pamh, PAM_SUCCESS);
+        trace(5, "httpPamVerifyUser failed to verify %s", wp->username);
+        return 0;
+    }
+    pam_end(pamh, PAM_SUCCESS);
+    trace(5, "httpPamVerifyUser verified %s", wp->username);
+
+    if (!wp->user) {
+        wp->user = websLookupUser(wp->username);
+    }
+    if (!wp->user) {
+        Gid     groups[32];
+        int     ngroups;
+        /* 
+            Create a temporary user with a abilities set to the groups 
+         */
+        ngroups = sizeof(groups) / sizeof(Gid);
+        if ((i = getgrouplist(wp->username, 99999, groups, &ngroups)) >= 0) {
+            ringqOpen(&abilities, 128, -1);
+            for (i = 0; i < ngroups; i++) {
+                if ((gp = getgrgid(groups[i])) != 0) {
+                    ringqPutStr(&abilities, gp->gr_name);
+                    ringqPutc(&abilities, ' ');
+                }
+            }
+            ringqAddNull(&abilities);
+            trace(5, "Create temp user \"%s\" with abilities: %s", wp->username, abilities.servp);
+            wp->user = createUser(wp->username, 0, abilities.servp);
+        }
+    }
+    return 1;
+}
+
+/*  
+    Callback invoked by the pam_authenticate function
+ */
+static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data) 
+{
+    UserInfo                *info;
+    struct pam_response     *reply;
+    int                     i;
+    
+    i = 0;
+    reply = 0;
+    info = (UserInfo*) data;
+
+    if (resp == 0 || msg == 0 || info == 0) {
+        return PAM_CONV_ERR;
+    }
+    if ((reply = calloc(msgCount, sizeof(struct pam_response))) == 0) {
+        return PAM_CONV_ERR;
+    }
+    for (i = 0; i < msgCount; i++) {
+        reply[i].resp_retcode = 0;
+        reply[i].resp = 0;
+        
+        switch (msg[i]->msg_style) {
+        case PAM_PROMPT_ECHO_ON:
+            reply[i].resp = strdup(info->name);
+            break;
+
+        case PAM_PROMPT_ECHO_OFF:
+            /* Retrieve the user password and pass onto pam */
+            reply[i].resp = strdup(info->password);
+            break;
+
+        default:
+            free(reply);
+            return PAM_CONV_ERR;
+        }
+    }
+    *resp = reply;
+    return PAM_SUCCESS;
+}
+#endif /* BIT_HAS_PAM */
 
 #endif /* BIT_AUTH */
 

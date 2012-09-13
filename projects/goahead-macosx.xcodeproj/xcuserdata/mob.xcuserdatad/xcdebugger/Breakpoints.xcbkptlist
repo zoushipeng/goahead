@@ -190,9 +190,7 @@
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "176"
-         endingLineNumber = "176"
-         landmarkName = "sslRead()"
-         landmarkType = "7">
+         endingLineNumber = "176">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
@@ -269,7 +267,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "163"
          endingLineNumber = "163"
-         landmarkName = "websAddUser()"
+         landmarkName = "websCloseAuth()"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -277,12 +275,38 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../auth.c"
-         timestampString = "369025064.014469"
+         timestampString = "369260940.168863"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "646"
-         endingLineNumber = "646"
-         landmarkName = "decodeDigestDetails()"
+         startingLineNumber = "652"
+         endingLineNumber = "652"
+         landmarkName = "websParseDigestDetails()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../auth.c"
+         timestampString = "369260940.168863"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "876"
+         endingLineNumber = "876"
+         landmarkName = "websVerifyPamUser()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../auth.c"
+         timestampString = "369260940.168863"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "867"
+         endingLineNumber = "867"
+         landmarkName = "websVerifyPamUser()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

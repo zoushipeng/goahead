@@ -1764,8 +1764,6 @@ void websFree(Webs *wp)
     gfree(wp->query);
     gfree(wp->decodedQuery);
     gfree(wp->authType);
-    gfree(wp->password);
-    gfree(wp->username);
     gfree(wp->cookie);
     gfree(wp->responseCookie);
     gfree(wp->userAgent);
@@ -1780,10 +1778,13 @@ void websFree(Webs *wp)
     gfree(wp->cgiStdin);
 #endif
 #if BIT_AUTH
+    gfree(wp->password);
+    gfree(wp->username);
     gfree(wp->authDetails);
     gfree(wp->realm);
-#if BIT_DIGEST
+    gfree(wp->digest);
     gfree(wp->digestUri);
+#if BIT_DIGEST
     gfree(wp->opaque);
     gfree(wp->nonce);
     gfree(wp->nc);
@@ -1838,12 +1839,6 @@ static void reuseConn(Webs *wp)
     wp->query = 0;
     gfree(wp->decodedQuery);
     wp->decodedQuery = 0;
-    gfree(wp->authType);
-    wp->authType = 0;
-    gfree(wp->password);
-    wp->password = 0;
-    gfree(wp->username);
-    wp->username = 0;
     gfree(wp->cookie);
     wp->cookie = 0;
     gfree(wp->responseCookie);
@@ -1867,10 +1862,19 @@ static void reuseConn(Webs *wp)
     wp->cgiStdin = 0;
 #endif
 #if BIT_AUTH
+    gfree(wp->authType);
+    wp->authType = 0;
+    gfree(wp->password);
+    wp->password = 0;
+    gfree(wp->digest);
+    wp->digest = 0;
+    gfree(wp->username);
+    wp->username = 0;
     gfree(wp->authDetails);
     wp->authDetails = 0;
     gfree(wp->realm);
     wp->realm = 0;
+    wp->encoded = 0;
 #if BIT_DIGEST
     gfree(wp->digestUri);
     wp->digestUri = 0;
@@ -1977,7 +1981,7 @@ char_t *websGetRequestPath(Webs *wp)
 }
 
 
-//  MOB DEPRECATE - #define to wp->path
+//  MOB DEPRECATE 
 char_t *websGetRequestPassword(Webs *wp)
 {
     gassert(websValid(wp));

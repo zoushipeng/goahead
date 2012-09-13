@@ -74,7 +74,8 @@ bool websRouteRequest(Webs *wp)
 }
 
 
-WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *loginPage, WebsLogin login, WebsVerify verify)
+WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *loginPage, 
+        WebsAskLogin askLogin, WebsParseAuth parseAuth, WebsVerify verify)
 {
     WebsRoute   *route;
     char        *ability, *tok;
@@ -92,10 +93,12 @@ WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *lo
     if (loginPage) {
         route->loginPage = gstrdup(loginPage);
     }
+    route->askLogin = askLogin;
+    route->parseAuth = parseAuth;
+    route->verify = verify;
+
     if (type) {
         route->authType = gstrdup(type);
-        route->login = login;
-        route->verify = verify;
         if ((route->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
             return 0;
         }
@@ -192,12 +195,13 @@ void websCloseRoute()
 
 static int loadRouteConfig(char_t *path)
 {
-    WebsLogin   login;
-    WebsVerify  verify;
-    WebsRoute   *route;
-    FILE        *fp;
-    char        buf[512], *type, *uri, *abilities, *line, *kind, *redirect;
-    int         i;
+    WebsParseAuth parseAuth;
+    WebsAskLogin  askLogin;
+    WebsVerify    verify;
+    WebsRoute     *route;
+    FILE          *fp;
+    char          buf[512], *type, *uri, *abilities, *line, *kind, *redirect;
+    int           i;
     
     redirect = 0;
 
@@ -218,35 +222,38 @@ static int loadRouteConfig(char_t *path)
             uri = strtok(NULL, " \t:\r\n");
             abilities = strtok(NULL, " \t:\r\n");
             redirect = strtok(NULL, " \t:\r\n");
-            login = 0;
-            verify = 0;
+            askLogin = 0;
+            parseAuth = 0;
+#if BIT_PAM
+            verify = websVerifyPamUser;
+#else
+            verify = websVerifyUser;
+#endif
 #if BIT_AUTH
             if (gmatch(type, "basic")) {
-                login = websBasicLogin;
-                verify = websVerifyBasicPassword;
+                askLogin = websBasicLogin;
+                parseAuth = websParseBasicDetails;
 #if BIT_DIGEST
             } else if (gmatch(type, "digest")) {
-                login = websDigestLogin;
-                verify = websVerifyDigestPassword;
+                askLogin = websDigestLogin;
+                parseAuth = websParseDigestDetails;
 #endif
             } else if (gmatch(type, "post")) {
                 if (lookupRoute("/form/login") < 0) {
-                    if ((route = websAddRoute(0, "/form/login", 0, redirect, 0, websVerifyPostPassword)) == 0) {
+                    if ((route = websAddRoute(0, "/form/login", 0, redirect, 0, 0, verify)) == 0) {
                         return -1;
                     }
                     route->loggedInPage = gstrdup(uri);
                 }
-                if (lookupRoute("/form/logout") < 0 &&
-                        !websAddRoute(0, "/form/logout", 0, redirect, 0, websVerifyPostPassword)) {
+                if (lookupRoute("/form/logout") < 0 && !websAddRoute(0, "/form/logout", 0, redirect, 0, 0, verify)) {
                     return -1;
                 }
-                login = websPostLogin;
-                verify = websVerifyPostPassword;
+                askLogin = websPostLogin;
             } else {
                 type = 0;
             }
 #endif
-            if (websAddRoute(type, uri, abilities, redirect, login, verify) < 0) {
+            if (websAddRoute(type, uri, abilities, redirect, askLogin, parseAuth, verify) < 0) {
                 return -1;
             }
 #if BIT_AUTH
@@ -277,7 +284,7 @@ static int loadRouteConfig(char_t *path)
         }
     }
     if (i >= routeCount) {
-        websAddRoute(0, 0, "/", NULL, NULL, NULL);
+        websAddRoute(0, 0, "/", 0, 0, 0, 0);
     }
 #if BIT_AUTH
     websComputeAllUserAbilities();

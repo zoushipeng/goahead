@@ -132,6 +132,11 @@ Bit.load({
         key: "",
 
         /*
+            Use PAM (Plugable Authentication Module) to store passwords
+         */
+        pam: false,
+
+        /*
             Server authentication password (decoded)
          */
         password: "",
@@ -180,6 +185,13 @@ Bit.load({
             headers: [ '*.h' ],
             exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
+            scripts: {
+                prebuild: "
+                    if (bit.settings.hasPam && bit.settings.pam) {
+                        bit.target.libraries.push('pam')
+                    }                                                                                      
+                ",  
+            }
         },
 
         /*

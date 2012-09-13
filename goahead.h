@@ -273,6 +273,7 @@
     #include    <netdb.h>
     #include    <time.h>
     #include    <fcntl.h>
+    #include    <grp.h>
     #include    <errno.h>
     #include    <sys/wait.h>
 #endif /* LINUX */
@@ -309,6 +310,7 @@
     #include    <netdb.h>
     #include    <fcntl.h>
     #include    <errno.h>
+    #include    <grp.h>
     #include    <time.h>
     #include    <stdbool.h>
     #include    <sys/wait.h>
@@ -1560,8 +1562,10 @@ typedef struct WebsUploadFile {
 #define WEBS_PUT                0x2000      /* Put method */
 #define WEBS_CGI                0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
+#if UNUSED
 #define WEBS_BASIC_AUTH         0x10000     /* Basic authentication request */
 #define WEBS_DIGEST             0x20000     /* Digest authentication request */
+#endif
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
@@ -1644,10 +1648,6 @@ typedef struct Webs {
     char_t          *query;             /* Request query */
     char_t          *decodedQuery;      /* Decoded request query */
     char_t          *method;            /* HTTP request method */
-    //  MOB OPT static
-    char_t          *password;          /* Authorization password */
-    //  MOB OPT static
-    char_t          *username;          /* Authorization username */
     char_t          *cookie;            /* Request cookie string */
     char_t          *responseCookie;    /* Outgoing cookie */
     char_t          *authResponse;      /* Outgoing auth header */
@@ -1683,6 +1683,12 @@ typedef struct Webs {
 #if BIT_AUTH
     struct WebsUser *user;              /* User auth record */
     char_t          *realm;             /* Realm field supplied in auth header */
+    //  MOB OPT static
+    char_t          *password;          /* Authorization password */
+    char_t          *digest;            /* Password digest */
+    //  MOB OPT static
+    char_t          *username;          /* Authorization username */
+    int             encoded;            /* True if the password is MD5(username:realm:password) */
 #if BIT_DIGEST
     char_t          *nonce;             /* opaque-to-client string sent by server */
     char_t          *digestUri;         /* URI found in digest header */
@@ -1936,25 +1942,27 @@ extern void sslFlush(Webs *wp);
 #define WEBS_ROUTE_SECURE   0x1         /* Route must use TLS */
 #define WEBS_ROUTE_PUTDEL   0x2         /* Route supports PUT, DELETE methods */
 
-typedef void (*WebsLogin)(Webs *wp);
+typedef void (*WebsAskLogin)(Webs *wp);
 typedef bool (*WebsVerify)(Webs *wp);
+typedef bool (*WebsParseAuth)(Webs *wp);
 
 typedef struct WebsRoute {
-    char        *prefix;
-    ssize       prefixLen;
-    WebsLogin   login;
-    WebsVerify  verify;
-    WebsHash    abilities;
-    char_t      *loginPage;
-    char_t      *loggedInPage;
-    char_t      *authType;
-    int         flags;
+    char           *prefix;
+    ssize          prefixLen;
+    WebsAskLogin   askLogin;
+    WebsParseAuth  parseAuth;              /* Basic or Digest */
+    WebsVerify     verify;                 /* Pam or internal */
+    WebsHash       abilities;
+    char_t         *loginPage;
+    char_t         *loggedInPage;
+    char_t         *authType;
+    int            flags;
 } WebsRoute;
 
 extern void websCloseRoute();
 extern int websOpenRoute(char_t *path);
 extern WebsRoute *websAddRoute(char_t *type, char_t *name, char_t *abilities, char_t *redirect, 
-        WebsLogin login, WebsVerify verify);
+        WebsAskLogin login, WebsParseAuth parseAuth, WebsVerify verify);
 extern int websRemoveRoute(char_t *uri);
 extern bool websRouteRequest(Webs *wp);
 #endif
@@ -1991,15 +1999,17 @@ extern int websOpenAuth();
 extern void websComputeAllUserAbilities();
 
 extern void websBasicLogin(Webs *wp);
-extern int websDecodeBasicDetails(Webs *wp);
-extern bool websVerifyBasicPassword(Webs *wp);
+extern bool websParseBasicDetails(Webs *wp);
 extern void websPostLogin(Webs *wp);
-extern bool websVerifyPostPassword(Webs *wp);
+extern bool websVerifyUser(Webs *wp);
+
+#if BIT_HAS_PAM && BIT_PAM
+extern bool websVerifyPamUser(Webs *wp);
+#endif
 
 #if BIT_DIGEST
 extern void websDigestLogin(Webs *wp);
-extern int websDecodeDigestDetails(Webs *wp);
-extern bool websVerifyDigestPassword(Webs *wp);
+extern bool websParseDigestDetails(Webs *wp);
 #endif
 
 #endif /* BIT_AUTH */
