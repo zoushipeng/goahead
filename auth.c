@@ -126,7 +126,6 @@ bool websAuthenticate(Webs *wp)
         }
 #endif
     }
-    gassert(wp->user);
     if (!websCanUser(wp, route->abilities)) {
         websError(wp, HTTP_CODE_FORBIDDEN, "Access denied. User does not have the required capabilities.");
         return 0;
@@ -884,7 +883,9 @@ bool websVerifyPamUser(Webs *wp)
             }
             ringqAddNull(&abilities);
             trace(5, "Create temp user \"%s\" with abilities: %s", wp->username, abilities.servp);
-            wp->user = createUser(wp->username, 0, abilities.servp);
+            if ((wp->user = websAddUser(wp->username, 0, abilities.servp)) == 0) {
+                return 0;
+            }
         }
     }
     return 1;
