@@ -1718,7 +1718,6 @@ typedef struct Webs {
 typedef int (*WebsHandlerProc)(Webs *wp, char_t *prefix, char_t *dir, int arg);
 typedef int (*WebsFormProc)(Webs *wp, char_t *path, char_t *query);
 
-
 /*
     URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.
  */ 
@@ -2042,13 +2041,16 @@ extern char *websGetSessionID(Webs *wp);
     #define ascToUni guni
     #define uniToAsc gasc
 
-    #define bopen gcloseAlloc
+    #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
+    #define B_L 0
+
     #define bopen gopenAlloc
+    #define bclose gcloseAlloc
     #define bstrdupNoBalloc gstrdupNoAlloc
     #define bstrdupANoBalloc gstrdupANoAlloc
     #define balloc galloc
-    #define bfree(p) gfree
-    #define bfreeSafe(p) gfree(p)
+    #define bfree(loc, p) gfree(p)
+    #define bfreeSafe(loc, p) gfree(p)
     #define brealloc grealloc
     #define bstrdup gstrdup
     #define bstrdupA gstrdupA
@@ -2081,7 +2083,9 @@ extern char *websGetSessionID(Webs *wp);
     typedef WebsKey WebsKey;
 
     typedef WebsHandler websUrlHandlerType;
+#if UNUSED
     typedef WebsStats websStatsType;
+#endif
     typedef WebsError websErrorType;
     typedef WebsMime websMimeType;
     typedef WebsFileInfo websStatType;

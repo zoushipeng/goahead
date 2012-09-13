@@ -25,8 +25,7 @@ Bit.load({
         /*
             Packs to disable when using --without all
          */
-        _minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
-        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'matrixssl' ],
+        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
 
         /*
             Log for request access logging

@@ -203,6 +203,7 @@ static int loadRouteConfig(char_t *path)
 
     //  MOB - don't use fopen for ROM
     if ((fp = fopen(path, "rt")) == 0) {
+        error("Can't open route config file %s", path);
         return -1;
     }
     buf[sizeof(buf) - 1] = '\0';
