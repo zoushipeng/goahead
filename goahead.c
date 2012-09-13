@@ -113,12 +113,14 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 return -1;
             }
         } 
+#if BIT_SSL
         if (BIT_SSL_PORT > 0) {
             gfmtStatic(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
             if (websListen(addr) < 0) {
                 return -1;
             }
         }
+#endif
     }
     websUrlHandlerDefine(T("/form/"), 0, 0, websFormHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
