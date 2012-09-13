@@ -100,7 +100,7 @@ bool websAuthenticate(Webs *wp)
     }
 #endif
     if (!cached) {
-        if (wp->authType && !gcaselessmatch(wp->authType, route->authType)) {
+        if (wp->authType && !gmatch(wp->authType, route->authType)) {
             websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
             return 0;
         }
@@ -479,13 +479,19 @@ static void loginServiceProc(Webs *wp)
 
 static void logoutServiceProc(Webs *wp)
 {
+#if FUTURE
     if (!(wp->flags & WEBS_POST)) {
         websError(wp, 401, T("Logout must be invoked with a post request."));
         return;
     }
+#endif
 #if BIT_SESSIONS
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
 #endif
+    if (gmatch(wp->authType, "basic") || gmatch(wp->authType, "digest")) {
+        websError(wp, 401, T("Logged out."));
+        return;
+    }
     websRedirect(wp, wp->route->loginPage);
 }
 

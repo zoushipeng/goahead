@@ -230,6 +230,9 @@ static int loadRouteConfig(char_t *path)
             verify = websVerifyUser;
 #endif
 #if BIT_AUTH
+            if (!redirect) {
+                redirect = "/";
+            }
             if (gmatch(type, "basic")) {
                 askLogin = websBasicLogin;
                 parseAuth = websParseBasicDetails;
