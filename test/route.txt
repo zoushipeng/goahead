@@ -11,6 +11,11 @@ role: person: breathe
 role: user: person view
 role: administrator: user manage
 
+#
+#   Map PAM group to abilities
+#
+role: admin: user manage
+
 user: julie: 9d8873a123eb506e7f8e84d1f2a26916: user
 user: peter: 7cdba57892649fd95a540683fdf8fba6: user
 user: mary: 5b90553bea8ba3686f4239d62801f0f3: user 

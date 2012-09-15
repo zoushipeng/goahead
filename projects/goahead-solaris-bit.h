@@ -151,7 +151,7 @@
     #define BIT_PACKS "bits/packs"
 #endif
 #ifndef BIT_PAM
-    #define BIT_PAM 0
+    #define BIT_PAM 1
 #endif
 #ifndef BIT_PASSWORD
     #define BIT_PASSWORD ""

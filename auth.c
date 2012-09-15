@@ -190,22 +190,22 @@ static WebsUser *createUser(char_t *username, char_t *password, char_t *roles)
 }
 
 
-int websAddUser(char_t *username, char_t *password, char_t *roles)
+WebsUser *websAddUser(char_t *username, char_t *password, char_t *roles)
 {
     WebsUser    *user;
 
     if (websLookupUser(username)) {
         error(T("User %s already exists"), username);
         /* Already exists */
-        return -1;
+        return 0;
     }
     if ((user = createUser(username, password, roles)) == 0) {
         return 0;
     }
     if (symEnter(users, username, valueSymbol(user), 0) == 0) {
-        return -1;
+        return 0;
     }
-    return 0;
+    return user;
 }
 
 

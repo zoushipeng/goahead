@@ -1983,7 +1983,7 @@ typedef struct WebsRole {
     WebsHash  abilities;
 } WebsRole;
 
-extern int websAddUser(char_t *username, char_t *password, char_t *roles);
+extern WebsUser *websAddUser(char_t *username, char_t *password, char_t *roles);
 extern int websRemoveUser(char_t *name);
 extern int websSetUserRoles(char_t *username, char_t *roles);
 extern WebsUser *websLookupUser(char *username);

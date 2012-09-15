@@ -264,7 +264,7 @@ static int loadRouteConfig(char_t *path)
             char *name = strtok(NULL, " \t:");
             char *password = strtok(NULL, " \t:");
             char *roles = strtok(NULL, "\r\n");
-            if (websAddUser(name, password, roles) < 0) {
+            if (websAddUser(name, password, roles) == 0) {
                 return -1;
             }
         } else if (gmatch(kind, "role")) {
