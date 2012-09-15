@@ -1663,8 +1663,8 @@ typedef struct Webs {
     int             state;              /* Current state */
     int             flags;              /* Current flags -- see above */
     int             code;               /* Response status code */
-    int             clen;               /* Content length */
-    int             remainingContent;   /* Content length */
+    ssize           clen;               /* Content length */
+    ssize           remainingContent;   /* Content length */
     int             wid;                /* Index into webs */
     char_t          *cgiStdin;          /* Filename for CGI program input */
     int             cgifd;              /* File handle for CGI program input */

@@ -85,7 +85,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;
     }
-    if ((sp->sock = socket(family, SOCK_STREAM, protocol)) < 0) {
+    if ((sp->sock = (int) socket(family, SOCK_STREAM, protocol)) < 0) {
         socketFree(sid);
         return -1;
     }
@@ -229,7 +229,7 @@ static void socketAccept(socket_t *sp)
      */
     len = sizeof(addrStorage);
     addr = (struct sockaddr*) &addrStorage;
-    if ((newSock = accept(sp->sock, addr, (WebsSockLenArg*) &len)) < 0) {
+    if ((newSock = (int) accept(sp->sock, addr, (WebsSockLenArg*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -630,7 +630,7 @@ ssize socketWrite(int sid, char *buf, ssize bufsize)
     len = bufsize;
     sofar = 0;
     while (len > 0) {
-        if ((written = send(sp->sock, buf, len, 0)) < 0) {
+        if ((written = send(sp->sock, buf, (int) len, 0)) < 0) {
             errCode = socketGetError();
             if (errCode == EINTR) {
                 continue;
@@ -686,7 +686,7 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
     if (sp->flags & SOCKET_EOF) {
         return -1;
     }
-    if ((bytes = recv(sp->sock, buf, bufsize, 0)) < 0) {
+    if ((bytes = recv(sp->sock, buf, (int) bufsize, 0)) < 0) {
         errCode = socketGetError();
         if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
             bytes = 0;

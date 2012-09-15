@@ -920,7 +920,7 @@ static bool processContent(Webs *wp)
     //  MOB - change these routines to processCgiContent, processUploadContent(wp)
 #if BIT_CGI
     if (wp->cgifd >= 0) {
-        if (gwrite(wp->cgifd, wp->input.servp, nbytes) != nbytes) {
+        if (gwrite(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
             websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
             return 1;
         }
@@ -929,7 +929,7 @@ static bool processContent(Webs *wp)
 #endif
     if (wp->infd >= 0) {
         //  MOB - should this be a different
-        if (write(wp->infd, wp->input.servp, nbytes) != nbytes) {
+        if (write(wp->infd, wp->input.servp, (int) nbytes) != nbytes) {
             websError(wp, WEBS_CLOSE | 500, "Can't write to file");
             return 1;
         }
@@ -3011,7 +3011,7 @@ ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
     return websRomPageReadData(wp, buf, nBytes);
 #else
     gassert(websValid(wp));
-    return read(wp->docfd, buf, nBytes);
+    return read(wp->docfd, buf, (int) nBytes);
 #endif
 }
 
