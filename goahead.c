@@ -55,7 +55,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {
             background = 1;
         } else if (gmatch(argp, "--debug")) {
-            websDebug = 1;
+            websSetDebug(1);
         } else if (gmatch(argp, "--home")) {
             if (argind >= argc) usage();
             home = argv[++argind];

@@ -53,7 +53,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         if (*argp != '-') {
             break;
         } else if (gmatch(argp, "--debug")) {
-            websDebug = 1;
+            websSetDebug(1);
         } else if (gmatch(argp, "--home")) {
             if (argind >= argc) usage();
             home = argv[++argind];

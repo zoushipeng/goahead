@@ -1777,7 +1777,6 @@ typedef struct WebsRomIndex {
 #if BIT_ROM
     extern WebsRomIndex websRomPageIndex[];
 #endif
-extern int              websDebug;          /* Run in debug mode */
 
 /**
     Decode base 64 blocks up to a NULL or equals
@@ -1893,6 +1892,8 @@ extern ssize websWrite(Webs *wp, char_t *fmt, ...);
 extern ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars);
 extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
 extern int websValid(Webs *wp);
+extern int websGetDebug();
+extern void websSetDebug(int on);
 
 #if BIT_UPLOAD
 extern void websProcessUploadData(Webs *wp);

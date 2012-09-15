@@ -13,7 +13,7 @@
 
 /*********************************** Globals **********************************/
 
-int         websDebug;                  /* Run in debug mode and defeat timeouts */
+static int  websDebug;                  /* Run in debug mode and defeat timeouts */
 
 /************************************ Locals **********************************/
 
@@ -3116,6 +3116,18 @@ static char *getToken(Webs *wp, char *delim)
     }
     buf->servp = nextToken;
     return token;
+}
+
+
+int websGetDebug() 
+{
+    return websDebug;
+}
+
+
+void websSetDebug(int on) 
+{
+    websDebug = on;
 }
 
 

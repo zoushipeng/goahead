@@ -202,7 +202,7 @@ Bit.load({
             rule: 'gui',
             depends: [ ],
             sources: [ 'goahead.c' ],
-            depends: [ 'libgo' ],
+            depends: [ 'libgo', 'openssl', 'matrixssl' ],
         },
 
         /*
@@ -212,7 +212,7 @@ Bit.load({
             enable: bit.settings.profile != 'release',
             type: 'exe',
             sources: [ 'test/test.c' ],
-            depends: [ 'libgo' ],
+            depends: [ 'libgo', 'openssl', 'matrixssl' ],
         },
 
         /*
