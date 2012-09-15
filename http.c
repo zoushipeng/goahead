@@ -846,9 +846,10 @@ static bool parseHeaders(Webs *wp)
             wp->userAgent = gstrdup(value);
 
         } else if (gcaselesscmp(key, T("authorization")) == 0) {
-            wp->authType = gstrlower(gstrdup(value));
+            wp->authType = gstrdup(value);
             gtok(wp->authType, " \t", &tok);
             wp->authDetails = gstrdup(tok);
+            gstrlower(wp->authType);
 
 #if BIT_KEEP_ALIVE
         } else if (gstrcmp(key, T("connection")) == 0) {

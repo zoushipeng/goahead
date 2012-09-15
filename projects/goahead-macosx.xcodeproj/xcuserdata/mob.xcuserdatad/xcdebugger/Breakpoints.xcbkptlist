@@ -147,11 +147,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../http.c"
-         timestampString = "369010294.408214"
+         timestampString = "369378143.473497"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "3622"
-         endingLineNumber = "3622"
+         startingLineNumber = "3623"
+         endingLineNumber = "3623"
          landmarkName = "websRedirect()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -236,11 +236,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../http.c"
-         timestampString = "369006033.442268"
+         timestampString = "369378143.473497"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "918"
-         endingLineNumber = "918"
+         startingLineNumber = "919"
+         endingLineNumber = "919"
          landmarkName = "processContent()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -249,11 +249,11 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../http.c"
-         timestampString = "369006033.442268"
+         timestampString = "369378143.473497"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "927"
-         endingLineNumber = "927"
+         startingLineNumber = "928"
+         endingLineNumber = "928"
          landmarkName = "processContent()"
          landmarkType = "7">
       </FileBreakpoint>
@@ -268,19 +268,6 @@
          startingLineNumber = "163"
          endingLineNumber = "163"
          landmarkName = "websCloseAuth()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../auth.c"
-         timestampString = "369260940.168863"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "652"
-         endingLineNumber = "652"
-         landmarkName = "websParseDigestDetails()"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -307,19 +294,6 @@
          startingLineNumber = "867"
          endingLineNumber = "867"
          landmarkName = "websVerifyPamUser()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../auth.c"
-         timestampString = "369267936.012115"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "83"
-         endingLineNumber = "83"
-         landmarkName = "websAuthenticate()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

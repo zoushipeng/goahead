@@ -892,6 +892,7 @@ bool websVerifyPamUser(Webs *wp)
             if ((wp->user = websAddUser(wp->username, 0, abilities.servp)) == 0) {
                 return 0;
             }
+            computeUserAbilities(wp->user);
         }
     }
     return 1;
