@@ -1792,13 +1792,13 @@ void websFree(Webs *wp)
     gfree(wp->authDetails);
     gfree(wp->realm);
     gfree(wp->digest);
-    gfree(wp->digestUri);
 #if BIT_DIGEST
     gfree(wp->opaque);
     gfree(wp->nonce);
     gfree(wp->nc);
     gfree(wp->cnonce);
     gfree(wp->qop);
+    gfree(wp->digestUri);
 #endif
 #endif
 #if BIT_PACK_SSL
