@@ -71,4 +71,3 @@ rebuild:
 
 version:
 	@bit -q version
-
