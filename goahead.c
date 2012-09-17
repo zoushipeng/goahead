@@ -130,6 +130,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websUrlHandlerDefine(T("/"), 0, 0, websHomePageHandler, 0); 
     websUrlHandlerDefine(T(""), 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
 
+#if BIT_UNIX_LIKE
     /*
         Service events till terminated
      */
@@ -139,6 +140,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             return -1;
         }
     }
+#endif
     websServiceEvents(&finished);
     websClose();
 #if WINDOWS
@@ -152,7 +154,7 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [IPaddress][:port] [documents]\n\n"
         "  Options:\n"
-        "    --background           # Run as a daemon in the background\n"
+        "    --background           # Run as a Unix daemon\n"
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
