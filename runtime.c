@@ -94,7 +94,7 @@ static int hashIndex(SymTab *tp, char_t *name);
 static WebsKey *hash(SymTab *tp, char_t *name);
 static void put_char(FmtBuf *buf, char_t c);
 static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
-static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f);
+static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, ssize width, int prec, enum flag f);
 
 #if BIT_DEBUG_LOG
 static void defaultTraceHandler(int level, char_t *buf);
@@ -355,7 +355,7 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
             put_char(&buf, c);
         } else {
             enum flag f = flag_none;
-            int width = 0;
+            ssize width = 0;
             int prec = -1;
             for ( ; c != '\0'; c = *fmt++) {
                 if (c == '-') { 
@@ -472,10 +472,10 @@ static ssize dsnprintf(char_t **s, ssize size, char_t *fmt, va_list arg, ssize m
                     *value = (short) buf.count;
                 } else if (f & flag_long) {
                     long *value = va_arg(arg, long*);
-                    *value = buf.count;
+                    *value = (int) buf.count;
                 } else {
                     ssize *value = va_arg(arg, ssize*);
-                    *value = buf.count;
+                    *value = (int) buf.count;
                 }
             } else {
                 put_char(&buf, c);
@@ -567,7 +567,7 @@ static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec,
 /*
     Add a long to a string buffer
  */
-static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, int width, int prec, enum flag f) 
+static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, ssize width, int prec, enum flag f) 
 {
     ulong       x, x2;
     int         len, zeros, i;
@@ -691,11 +691,11 @@ void error(char_t *fmt, ...)
         long        errorType;
         ulong       exists;
         char        buf[BIT_LIMIT_STRING], logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
-        int         type;
+        int         type, i;
         static int  once = 0;
 
-        scopy(buf, sizeof(buf), message);
-        cp = &buf[slen(buf) - 1];
+        strncpy(buf, sizeof(buf) - 1, message);
+        cp = &buf[glen(buf) - 1];
         while (*cp == '\n' && cp > buf) {
             *cp-- = '\0';
         }
@@ -714,12 +714,12 @@ void error(char_t *fmt, ...)
                     ERROR_SUCCESS) {
                 value = "%SystemRoot%\\System32\\netmsg.dll";
                 if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
-                        (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
+                        (uchar*) value, (int) glen(value) + 1) != ERROR_SUCCESS) {
                     RegCloseKey(hkey);
                     return;
                 }
                 errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-                if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != i
+                if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
                         ERROR_SUCCESS) {
                     RegCloseKey(hkey);
                     return;
@@ -851,7 +851,7 @@ static void defaultTraceHandler(int level, char_t *buf)
         len = gstrlen(buf);
         //  MOB OPT
         abuf = gallocUniToAsc(buf, len + 1);
-        write(traceFd, abuf, len);
+        write(traceFd, abuf, (int) len);
         gfree(abuf);
     }
 }
