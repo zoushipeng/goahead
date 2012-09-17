@@ -694,7 +694,7 @@ void error(char_t *fmt, ...)
         int         type, i;
         static int  once = 0;
 
-        strncpy(buf, sizeof(buf) - 1, message);
+        strncpy(buf, message, sizeof(buf) - 1);
         cp = &buf[glen(buf) - 1];
         while (*cp == '\n' && cp > buf) {
             *cp-- = '\0';
