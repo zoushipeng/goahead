@@ -672,15 +672,69 @@ void error(char_t *fmt, ...)
     va_list     args;
     char_t      *buf, *tbuf;
 
-    if (traceHandler) {
-        va_start(args, fmt);
-        gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
-        va_end(args);
-        gfmtAlloc(&tbuf, BIT_LIMIT_STRING, "%s\n", buf);
-        gfree(buf);
-        traceHandler(-1, tbuf);
-        gfree(tbuf);
+    if (!traceHandler) {
+        return;
     }
+    va_start(args, fmt);
+    gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
+    va_end(args);
+    gfmtAlloc(&tbuf, BIT_LIMIT_STRING, "%s\n", buf);
+    gfree(buf);
+    traceHandler(-1, tbuf);
+    gfree(tbuf);
+
+#if BIT_UNIX_LIKE
+    syslog(LOG_ERR, "%s", tbuf);
+#elif BIT_WIN_LIKE
+    {
+        HKEY        hkey;
+        void        *event;
+        long        errorType;
+        ulong       exists;
+        char        buf[BIT_LIMIT_STRING], logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
+        int         type;
+        static int  once = 0;
+
+        scopy(buf, sizeof(buf), tbuf);
+        cp = &buf[slen(buf) - 1];
+        while (*cp == '\n' && cp > buf) {
+            *cp-- = '\0';
+        }
+        type = EVENTLOG_ERROR_TYPE;
+        lines[0] = buf;
+        lines[1] = 0;
+        lines[2] = lines[3] = lines[4] = lines[5] = 0;
+        lines[6] = lines[7] = lines[8] = 0;
+
+        if (once == 0) {
+            /*  Initialize the registry */
+            once = 1;
+            hkey = 0;
+
+            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, logName, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &exists) ==
+                    ERROR_SUCCESS) {
+                value = "%SystemRoot%\\System32\\netmsg.dll";
+                if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+                        (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
+                    RegCloseKey(hkey);
+                    return;
+                }
+                errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
+                if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != i
+                        ERROR_SUCCESS) {
+                    RegCloseKey(hkey);
+                    return;
+                }
+                RegCloseKey(hkey);
+            }
+        }
+        event = RegisterEventSource(0, BIT_PRODUCT);
+        if (event) {
+            ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
+            DeregisterEventSource(event);
+        }
+    }
+#endif
 }
 
 

@@ -229,6 +229,11 @@ int websOpen(char_t *documents, char_t *authPath)
     webs = NULL;
     websMax = 0;
 
+#if SOLARIS
+    openlog(BIT_PRODUCT, LOG_CONS, LOG_LOCAL0);
+#elif BIT_UNIX_LIKE
+    openlog(BIT_PRODUCT, LOG_CONS | LOG_PERROR, LOG_LOCAL0);
+#endif
 #if WINDOWS || VXWORKS
     rand();
 #else
@@ -358,6 +363,9 @@ void websClose()
     websUrlHandlerClose();
     socketClose();
     traceClose();
+#if BIT_UNIX_LIKE
+    closelog();
+#endif
 }
 
 

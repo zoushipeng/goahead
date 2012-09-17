@@ -254,6 +254,7 @@
     #include    "netinet/in.h"
     #include    "arpa/inet.h"
     #include    "netdb.h"
+    #include    <syslog.h>
 #endif /* SCOV5 || AIX || HUPX */
 
 #if LINUX
@@ -276,6 +277,7 @@
     #include    <grp.h>
     #include    <errno.h>
     #include    <sys/wait.h>
+    #include    <syslog.h>
 #endif /* LINUX */
 
 #if LYNX
@@ -293,6 +295,7 @@
     #include    <time.h>
     #include    <fcntl.h>
     #include    <errno.h>
+    #include    <syslog.h>
 #endif /* LYNX */
 
 #if MACOSX
@@ -314,10 +317,12 @@
     #include    <time.h>
     #include    <stdbool.h>
     #include    <sys/wait.h>
+    #include    <syslog.h>
 #endif /* MACOSX */
 
 #if UW
     #include    <stdio.h>
+    #include    <syslog.h>
 #endif /* UW */
 
 #if VXWORKS
@@ -359,6 +364,7 @@
     #include    <fcntl.h>
     #include    <errno.h>
     #include    <dirent.h>
+    #include    <syslog.h>
 #endif /* SOLARIS */
 
 #if QNX
@@ -1058,7 +1064,7 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
         APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, LPWSTR command, int junk2) { \
             char *largv[BIT_MAX_ARGC]; \
             extern int main(); \
-            char *mcommand[VALUE_MAX_STRING]; \
+            char *mcommand[BIT_LIMIT_STRING]; \
             int largc; \
             wtom(mcommand, sizeof(dest), command, -1);
             largc = gparseArgs(mcommand, &largv[1], BIT_MAX_ARGC - 1); \
