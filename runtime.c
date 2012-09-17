@@ -670,7 +670,7 @@ void valueFree(value_t* v)
 void error(char_t *fmt, ...)
 {
     va_list     args;
-    char_t      *buf, *tbuf;
+    char_t      *buf, *message;
 
     if (!traceHandler) {
         return;
@@ -678,13 +678,12 @@ void error(char_t *fmt, ...)
     va_start(args, fmt);
     gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
     va_end(args);
-    gfmtAlloc(&tbuf, BIT_LIMIT_STRING, "%s\n", buf);
+    gfmtAlloc(&message, BIT_LIMIT_STRING, "%s\n", buf);
     gfree(buf);
-    traceHandler(-1, tbuf);
-    gfree(tbuf);
+    traceHandler(-1, message);
 
 #if BIT_UNIX_LIKE
-    syslog(LOG_ERR, "%s", tbuf);
+    syslog(LOG_ERR, "%s", message);
 #elif BIT_WIN_LIKE
     {
         HKEY        hkey;
@@ -695,7 +694,7 @@ void error(char_t *fmt, ...)
         int         type;
         static int  once = 0;
 
-        scopy(buf, sizeof(buf), tbuf);
+        scopy(buf, sizeof(buf), message);
         cp = &buf[slen(buf) - 1];
         while (*cp == '\n' && cp > buf) {
             *cp-- = '\0';
@@ -735,6 +734,7 @@ void error(char_t *fmt, ...)
         }
     }
 #endif
+    gfree(message);
 }
 
 
