@@ -221,7 +221,7 @@ static int loadRouteConfig(char_t *path)
             type = strtok(NULL, " \t:");
             uri = strtok(NULL, " \t:\r\n");
             abilities = strtok(NULL, " \t:\r\n");
-            redirect = strtok(NULL, " \t:\r\n");
+            redirect = strtok(NULL, " \t\r\n");
             askLogin = 0;
             parseAuth = 0;
 #if BIT_PAM

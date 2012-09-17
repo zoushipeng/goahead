@@ -2112,6 +2112,23 @@ ssize glen(char_t *s)
 }
 
 
+
+ssize gcopy(char *dest, ssize destMax, char *src)
+{
+    ssize      len;
+
+    gassert(src);
+    gassert(dest);
+    gassert(0 < dest && destMax < MAXINT);
+
+    len = glen(src);
+    if (destMax <= len) {
+        return -1;
+    }
+    strcpy(dest, src);
+    return len;
+}
+
 /*
     Return the length of a string limited by a given length
  */

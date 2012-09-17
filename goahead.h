@@ -1413,6 +1413,7 @@ extern WebsKey  *symNext(WebsHash sd, WebsKey *last);
 #define SOCKET_LISTENING        0x40    /* Socket is server listener */
 #define SOCKET_CLOSING          0x80    /* Socket is closing */
 #define SOCKET_CONNRESET        0x100   /* Socket connection was reset */
+#define SOCKET_TRACED           0x200   /* Trace TLS connections */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
 
@@ -1512,6 +1513,7 @@ extern ssize gfmtStatic(char_t *s, ssize n, char_t *fmt, ...);
 extern ssize gfmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg);
 extern uint ghextoi(char_t *hexstring);
 extern ssize glen(char_t *s1);
+extern ssize gcopy(char *dest, ssize destMax, char *src);
 extern bool gmatch(char_t *s1, char_t *s2);
 extern int gopen(char_t *path, int oflag, int mode);
 extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
@@ -1577,6 +1579,7 @@ typedef struct WebsUploadFile {
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
 #define WEBS_GET                0x200000    /* Get Request */
 #define WEBS_UPLOAD             0x400000    /* Multipart-mime file upload */
+#define WEBS_ACCEPTED           0x800000    /* TLS connection accepted */
 
 /*
     URL handler flags
@@ -1900,6 +1903,7 @@ extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
 extern int websValid(Webs *wp);
 extern int websGetDebug();
 extern void websSetDebug(int on);
+extern void websReadEvent(Webs *wp);
 
 #if BIT_UPLOAD
 extern void websProcessUploadData(Webs *wp);
@@ -1920,21 +1924,25 @@ extern int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 extern int websSSLOpen();
 extern int websSSLIsOpen();
 extern void websSSLClose();
-extern int websSSLAccept(Webs *wp, char_t *buf, ssize len);
 extern ssize websSSLWrite(Webs *wp, char_t *buf, ssize len);
-extern ssize websSSLGets(Webs *wp, char_t **buf);
-extern ssize websSSLRead(Webs *wp, char_t *buf, ssize len);
 extern int  websSSLEof(Webs *wp);
 extern void websSSLFree(Webs *wp);
 extern void websSSLFlush(Webs *wp);
 extern int websSSLSetKeyFile(char_t *keyFile);
 extern int websSSLSetCertFile(char_t *certFile);
+int websSSLUpgrade(Webs *wp);
+extern ssize websSSLRead(Webs *wp, char_t *buf, ssize len);
+#if UNUSED
+extern int websSSLAccept(Webs *wp, char_t *buf, ssize len);
+extern ssize websSSLGets(Webs *wp, char_t **buf);
 extern void websSSLSocketEvent(int sid, int mask, void *iwp);
+#endif
 
 extern int sslOpen();
 extern void sslClose();
 extern int sslAccept(Webs *wp);
 extern void sslFree(Webs *wp);
+extern int sslUpgrade(Webs *wp);
 extern ssize sslRead(Webs *wp, char *buf, ssize len);
 extern ssize sslWrite(Webs *wp, char *buf, ssize len);
 extern void sslWriteClosureAlert(Webs *wp);

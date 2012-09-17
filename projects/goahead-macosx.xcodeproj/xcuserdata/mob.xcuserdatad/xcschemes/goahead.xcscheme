@@ -15,8 +15,8 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "9FC45C179FC48C4D00000043"
-               BuildableName = "goahead-test"
-               BlueprintName = "goahead-test"
+               BuildableName = "libgo.dylib"
+               BlueprintName = "libgo"
                ReferencedContainer = "container:goahead-macosx.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000041"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
             BuildableName = "goahead"
             BlueprintName = "goahead"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -52,7 +52,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000041"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
             BuildableName = "goahead"
             BlueprintName = "goahead"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -85,8 +85,8 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "9FC45C179FC48C4D00000043"
-            BuildableName = "goahead-test"
-            BlueprintName = "goahead-test"
+            BuildableName = "libgo.dylib"
+            BlueprintName = "libgo"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

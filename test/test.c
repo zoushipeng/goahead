@@ -45,8 +45,10 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char_t  *argp, *home, *documents, *endpoint, addr[32];
+    char_t  *argp, *home, *documents, *endpoint, addr[32], *route;
     int     argind;
+
+    route = "route.txt";
 
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
@@ -69,6 +71,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (gmatch(argp, "--verbose") || gmatch(argp, "-v")) {
             traceSetPath("stdout:4");
 #endif
+        } else if (gmatch(argp, "--route") || gmatch(argp, "-r")) {
+            route = argv[++argind];
 
         } else if (gmatch(argp, "--version") || gmatch(argp, "-V")) {
             //  MOB - replace
@@ -83,7 +87,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         documents = argv[argind++];
     }
     initPlatform();
-    if (websOpen(documents, "route.txt") < 0) {
+    if (websOpen(documents, route) < 0) {
         error(T("Can't initialize server. Exiting."));
         return -1;
     }
@@ -151,6 +155,7 @@ static void usage() {
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
+        "    --route routeFile      # Route configuration file\n"
         "    --verbose              # Same as --log stderr:2\n"
         "    --version              # Output version information\n\n",
         BIT_TITLE, BIT_PRODUCT);

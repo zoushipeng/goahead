@@ -28,7 +28,7 @@ static int setCerts(SSL_CTX *ctx, char *certFile, char *keyFile);
 #endif
 
 static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
-static int verifyCallback(int ok, X509_STORE_CTX *ctx);
+static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 
 static int sslVerifyDepth = 0;
 static int sslVerifyError = X509_V_OK;
@@ -69,9 +69,6 @@ int sslOpen()
 		error(T("Unable to create SSL context")); 
 		return -1;
 	}
-	SSL_CTX_set_quiet_shutdown(sslctx, 1);
-	SSL_CTX_set_options(sslctx, 0);
-	SSL_CTX_sess_set_cache_size(sslctx, 128);
 
     /*
       	Set the certificate verification locations
@@ -103,14 +100,46 @@ int sslOpen()
 	}
 #endif
 	SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
-	SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyCallback);
 
+#if VERIFY_CLIENT
+    if (verifyPeer) {
+        SSL_CTX_set_verify(context, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
+#if FUTURE && KEEP
+        SSL_CTX_set_verify_depth(context, VERIFY_DEPTH);
+#endif
+    } else {
+        SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
+    }
+#else
+    SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
+#endif
     /*
       	Set the certificate authority list for the client
      */
     if (BIT_CA_FILE && *BIT_CA_FILE) {
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_CA_FILE));
     }
+
+#if UNUSED
+	SSL_CTX_set_quiet_shutdown(sslctx, 1);
+#endif
+	SSL_CTX_set_options(sslctx, SSL_OP_ALL);
+	SSL_CTX_sess_set_cache_size(sslctx, 128);
+#ifdef SSL_OP_NO_TICKET
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
+#endif
+#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION                                                       
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+#endif                                                                                                     
+    SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY);
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
+
+#if FUTURE && KEEP
+    /* 
+        Ensure we generate a new private key for each connection
+     */
+    SSL_CTX_set_options(context, SSL_OP_SINGLE_DH_USE);
+#endif
     return 0;
 }
 
@@ -124,6 +153,27 @@ void sslClose()
 }
 
 
+int sslUpgrade(Webs *wp)
+{
+    socket_t        *sptr;
+
+    gassert(wp);
+
+	sptr = socketPtr(wp->sid);
+    if ((wp->ssl = SSL_new(sslctx)) == 0) {
+        return -1;
+    }
+    if ((wp->bio = BIO_new_socket(sptr->sock, BIO_NOCLOSE)) == 0) {
+        return -1;
+    }
+    SSL_set_bio(wp->ssl, wp->bio, wp->bio);
+    SSL_set_accept_state(wp->ssl);
+    SSL_set_app_data(wp->ssl, (void*) wp);
+    return 0;
+}
+
+
+#if UNUSED
 int sslAccept(Webs *wp) 
 {
 	socket_t	*sptr;
@@ -166,34 +216,131 @@ int sslAccept(Webs *wp)
 	wp->ssl = ssl;
     return (int) ret;
 }
+#endif
     
 
 ssize sslRead(Webs *wp, char *buf, ssize len)
 {
-    return (ssize) BIO_read(wp->bio, buf, (int) len);
+    socket_t        *sp;
+    X509_NAME       *xSubject;
+    X509            *cert;
+    char            subject[260], issuer[260], peer[260], ebuf[BIT_LIMIT_STRING];
+    ulong           serror;
+    int             rc, error, retries, i;
+
+    /*  
+        Limit retries on WANT_READ. If non-blocking and no data, then this can spin forever.
+     */
+    sp = socketPtr(wp->sid);
+    retries = 5;
+    for (i = 0; i < retries; i++) {
+        rc = SSL_read(wp->ssl, buf, (int) len);
+        if (rc < 0) {
+            error = SSL_get_error(wp->ssl, rc);
+            if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_CONNECT || error == SSL_ERROR_WANT_ACCEPT) {
+                continue;
+            }
+            serror = ERR_get_error();
+            ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
+            trace(5, "SSL_read %s", ebuf);
+        }
+        break;
+    }
+#if UNUSED
+    if (rc > 0 && !(sp->flags & SOCKET_TRACED)) {
+        cert = SSL_get_peer_certificate(wp->ssl);
+        if (cert == 0) {
+            trace(4, "OpenSSL: client supplied no certificate");
+        } else {
+            xSubject = X509_get_subject_name(cert);
+            X509_NAME_oneline(xSubject, subject, sizeof(subject) -1);
+            X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
+            X509_NAME_get_text_by_NID(xSubject, NID_commonName, peer, sizeof(peer) - 1);
+            trace(4, "OpenSSL Subject %s", subject);
+            trace(4, "OpenSSL Issuer: %s", issuer);
+            trace(4, "OpenSSL Peer: %s", peer);
+            X509_free(cert);
+        }
+        sp->flags |= SOCKET_TRACED;
+    }
+#endif
+    if (rc <= 0) {
+        error = SSL_get_error(wp->ssl, rc);
+        if (error == SSL_ERROR_WANT_READ) {
+            rc = 0;
+        } else if (error == SSL_ERROR_WANT_WRITE) {
+            sleep(0);
+            rc = 0;
+        } else if (error == SSL_ERROR_ZERO_RETURN) {
+            sp->flags |= SOCKET_EOF;
+            rc = -1;
+        } else if (error == SSL_ERROR_SYSCALL) {
+            sp->flags |= SOCKET_EOF;
+            rc = -1;
+        } else if (error != SSL_ERROR_ZERO_RETURN) {
+            /* SSL_ERROR_SSL */
+            serror = ERR_get_error();
+            ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
+            trace(4, "OpenSSL: connection with protocol error: %s", ebuf);
+            rc = -1;
+            sp->flags |= SOCKET_EOF;
+        }
+    } else if (SSL_pending(wp->ssl) > 0) {
+        sp->flags |= SOCKET_PENDING;
+        socketReservice(wp->sid);
+    }
+    return rc;
 }
 
 
 void sslFlush(Webs *wp)
 {
+#if UNUSED
     gassert(wp);
 
     if (!wp || !wp->bio) {
         return;
     }
     (void) BIO_flush(wp->bio);
+#endif
 }
 
 
 ssize sslWrite(Webs *wp, char *buf, ssize len)
 {
-    gassert(wp);
-    gassert(buf);
+    ssize   totalWritten;
+    int     rc;
 
-    if (!wp || !wp->bio) {
+    if (wp->bio == 0 || wp->ssl == 0 || len <= 0) {
+        gassert(0);
         return -1;
     }
-    return (ssize) BIO_write(wp->bio, buf, (int) len);
+    totalWritten = 0;
+    ERR_clear_error();
+
+    do {
+        rc = SSL_write(wp->ssl, buf, (int) len);
+        trace(7, "OpenSSL: written %d, requested len %d", rc, len);
+        if (rc <= 0) {
+            rc = SSL_get_error(wp->ssl, rc);
+            if (rc == SSL_ERROR_WANT_WRITE) {
+                sleep(0);
+                continue;
+            } else if (rc == SSL_ERROR_WANT_READ) {
+                //  AUTO-RETRY should stop this
+                gassert(0);
+                return -1;
+            } else {
+                return -1;
+            }
+        }
+        totalWritten += rc;
+        buf = (void*) ((char*) buf + rc);
+        len -= rc;
+        trace(7, "OpenSSL: write: len %d, written %d, total %d, error %d", len, rc, totalWritten, 
+            SSL_get_error(wp->ssl, rc));
+    } while (len > 0);
+    return totalWritten;
 }
 
 
@@ -280,6 +427,7 @@ int websSSLSetKeyFile(char_t *keyFile)
 		return -1;
 	}
 #if UNUSED
+    //  MOB - re-enable
     /*
         Confirm that the certificate and the private key jive.
      */
@@ -292,6 +440,7 @@ int websSSLSetKeyFile(char_t *keyFile)
 
 
 
+#if UNUSED
 //  MOB - compare with MPR
 static int verifyCallback(int ok, X509_STORE_CTX *ctx)
 {
@@ -328,6 +477,84 @@ static int verifyCallback(int ok, X509_STORE_CTX *ctx)
 		break;
 	}
 	return ok;
+}
+#endif
+
+
+static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
+{
+    X509            *cert;
+    Webs            *wp;
+    SSL             *handle;
+    char            subject[260], issuer[260], peer[260];
+    int             error, depth;
+    
+    subject[0] = issuer[0] = '\0';
+
+    handle = (SSL*) X509_STORE_CTX_get_app_data(xContext);
+    wp = (Webs*) SSL_get_app_data(handle);
+
+    cert = X509_STORE_CTX_get_current_cert(xContext);
+    depth = X509_STORE_CTX_get_error_depth(xContext);
+    error = X509_STORE_CTX_get_error(xContext);
+
+    ok = 1;
+    if (X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) - 1) < 0) {
+        ok = 0;
+    }
+    if (X509_NAME_oneline(X509_get_issuer_name(xContext->current_cert), issuer, sizeof(issuer) - 1) < 0) {
+        ok = 0;
+    }
+    if (X509_NAME_get_text_by_NID(X509_get_subject_name(xContext->current_cert), NID_commonName, peer, 
+            sizeof(peer) - 1) < 0) {
+        ok = 0;
+    }
+#if FUTURE && KEEP
+    if (ok && ssl->verifyDepth < depth) {
+        if (error == 0) {
+            error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
+        }
+    }
+#endif
+    switch (error) {
+    case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
+        /* Normal self signed certificate */
+    case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
+    case X509_V_ERR_CERT_UNTRUSTED:
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+#if FUTURE && KEEP
+        if (ssl->verifyIssuer) {
+            /* Issuer can't be verified */
+            ok = 0;
+        }
+#endif
+        break;
+
+    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
+    case X509_V_ERR_CERT_HAS_EXPIRED:
+    case X509_V_ERR_CERT_NOT_YET_VALID:
+    case X509_V_ERR_CERT_REJECTED:
+    case X509_V_ERR_CERT_SIGNATURE_FAILURE:
+    case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+    case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+    case X509_V_ERR_INVALID_CA:
+    default:
+        ok = 0;
+        break;
+    }
+    if (ok) {
+        trace(3, "OpenSSL: Certificate verified: subject %s", subject);
+        trace(4, "OpenSSL: Issuer: %s", issuer);
+        trace(4, "OpenSSL: Peer: %s", peer);
+    } else {
+        trace(1, "OpenSSL: Certification failed: subject %s (more trace at level 4)", subject);
+        trace(4, "OpenSSL: Issuer: %s", issuer);
+        trace(4, "OpenSSL: Peer: %s", peer);
+        trace(4, "OpenSSL: Error: %d: %s", error, X509_verify_cert_error_string(error));
+    }
+    return ok;
 }
 
 

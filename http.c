@@ -207,7 +207,6 @@ static void     socketEvent(int sid, int mask, void* data);
 
 //  MOB - rename
 static ssize websFlush(Webs *wp); 
-static void websReadEvent(Webs *wp);
 static void websPump(Webs *wp);
 
 #if BIT_SESSIONS
@@ -482,12 +481,17 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     socket_t *lp = socketPtr(listenSid);
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
+        if (websSSLUpgrade(wp) < 0) {
+            error("Can't upgrade to TLS");
+            return -1;
+        }
     }
-    socketCreateHandler(sid, SOCKET_READABLE, (lp->secure) ? websSSLSocketEvent : socketEvent, wp);
-}
-#else
-    socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
 #endif
+#if UNUSED
+    socketCreateHandler(sid, SOCKET_READABLE, /* (lp->secure) ? websSSLSocketEvent : */ socketEvent, wp);
+#endif
+}
+    socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
 
     /*
         Arrange for a timeout to kill hung requests
@@ -552,7 +556,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
     The webs read handler. This is the primary read event loop. It uses a state machine to track progress while parsing
     the HTTP request.  Note: we never block as the socket is always in non-blocking mode.
  */
-static void websReadEvent(Webs *wp)
+void websReadEvent(Webs *wp)
 {
     ringq_t     *ip;
     ssize       nbytes, size, len;
@@ -1163,7 +1167,8 @@ void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
  */
 void websRedirect(Webs *wp, char_t *url)
 {
-    char_t  *msgbuf, *urlbuf, *scheme, *host;
+    char_t  *msgbuf, *urlbuf, *scheme, *host, *port;
+    char    hostbuf[BIT_LIMIT_STRING];
     bool    secure;
 
     gassert(websValid(wp));
@@ -1171,21 +1176,33 @@ void websRedirect(Webs *wp, char_t *url)
 
     msgbuf = urlbuf = NULL;
     secure = strstr(url, "https://") || (wp->flags & WEBS_SECURE);
-    host = websGetVar(wp, T("HTTP_HOST"), websHostUrl);
+    if ((host = websGetVar(wp, T("HTTP_HOST"), websHostUrl)) != 0) {
+        gcopy(hostbuf, sizeof(hostbuf), host);
+        if ((port = strchr(hostbuf, ':')) != 0) {
+            *port++ = '\0';
+        }
+    }
     scheme = secure ? "https" : "http";
     if (*url == '/') {
         url++;
     }
-#if FUTURE
     if (gstrstr(url, T("https:///"))) {
-        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, host, &url[9]);
+        if (BIT_SSL_PORT != 443) {
+            gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s:%d/%s", scheme, hostbuf, BIT_SSL_PORT, &url[9]);
+        } else {
+            gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, &url[9]);
+        }
         url = urlbuf;
     } else if (gstrstr(url, T("http://"))) {
-        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, host, &url[8]);
+        if (BIT_HTTP_PORT != 80) {
+            gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s:%d/%s", scheme, hostbuf, BIT_HTTP_PORT, &url[8]);
+        } else {
+            gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, &url[8]);
+        }
         url = urlbuf;
     } else {
-#endif
-    gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, host, url);
+        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, url);
+    }
     url = urlbuf;
     gfmtAlloc(&msgbuf, BIT_LIMIT_URI + 80, 
         T("<html><head></head><body>\r\n\

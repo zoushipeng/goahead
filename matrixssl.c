@@ -7,7 +7,7 @@
 
 #include    "bit.h"
 
-#if BIT_FEATURE_MATRIXSSL
+#if BIT_PACK_MATRIXSSL && UNUSED
 /*
     Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable. 
     So must include matrixsslApi.h first and then workaround. 

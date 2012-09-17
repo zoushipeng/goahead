@@ -10,6 +10,7 @@
 #if BIT_PACK_SSL
 /******************************************************************************/
 
+//  MOB - can we just remove this file and rely on matrixssl, openssl, mocana
 int websSSLOpen()
 {
     if (sslOpen() < 0) {
@@ -25,16 +26,23 @@ void websSSLClose()
 }
 
 
+int websSSLUpgrade(Webs *wp)
+{
+    return sslUpgrade(wp);
+}
+
+
 ssize websSSLRead(Webs *wp, char_t *buf, ssize len)
 {
     return sslRead(wp, buf, len);
 }
 
 
+#if UNUSED
 /*
       Handler for SSL Read Events
  */
-static int websSSLReadEvent(Webs *wp)
+static void sslReadEvent(Webs *wp)
 {
 #if MOB
     socket_t    *sp;
@@ -69,15 +77,22 @@ static int websSSLReadEvent(Webs *wp)
         websTimeoutCancel(wp);
         socketCloseConnection(wp->sid);
         websFree(wp);
-        return -1;
+        return;
     }
     if (resume == 0) {
         (wp->wsp)->sslConn = sslConn;
     }
     websReadEvent(wp);
-    return 0;
 #else
-    return sslAccept(wp);
+    if (wp->flags & WEBS_ACCEPTED) {
+        websReadEvent(wp);
+    } else {
+        if (sslAccept(wp) < 0) {
+            websError(wp, 400 | WEBS_CLOSE, T("Accept error"));
+            return;
+        }
+        wp->flags |= WEBS_ACCEPTED;
+    }
 #endif
 }
 
@@ -97,7 +112,7 @@ void websSSLSocketEvent(int sid, int mask, void *iwp)
         return;
     }
     if (mask & SOCKET_READABLE) {
-        websSSLReadEvent(wp);
+        sslReadEvent(wp);
     }
     if (mask & SOCKET_WRITABLE) {
         if (wp->writable) {
@@ -105,6 +120,7 @@ void websSSLSocketEvent(int sid, int mask, void *iwp)
         }
     }
 }
+#endif
 
 
 ssize websSSLWrite(Webs *wp, char_t *buf, ssize len)
