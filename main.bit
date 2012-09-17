@@ -134,7 +134,7 @@ Bit.load({
         /*
             Use PAM (Plugable Authentication Module) to store passwords
          */
-        pam: true,
+        pam: false,
 
         /*
             Server authentication password (decoded)
