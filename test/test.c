@@ -111,7 +111,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 return -1;
             }
         }
-#if BIT_SSL
+#if BIT_PACK_SSL
         if (BIT_SSL_PORT > 0) {
             gfmtStatic(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
             if (websListen(addr) < 0) {
