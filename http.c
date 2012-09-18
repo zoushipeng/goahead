@@ -13,6 +13,7 @@
 
 /*********************************** Globals **********************************/
 
+static int  websBackground;             /* Run as a daemon */
 static int  websDebug;                  /* Run in debug mode and defeat timeouts */
 
 /************************************ Locals **********************************/
@@ -164,15 +165,21 @@ static WebsMime websMimeList[] = {
  */
 static WebsError websErrors[] = {
     { 200, T("OK") },
+    { 201, T("Created") },
     { 204, T("No Content") },
+    { 205, T("Reset Content") },
+    { 206, T("Partial Content") },
     { 301, T("Redirect") },
     { 302, T("Redirect") },
     { 304, T("Not Modified") },
     { 400, T("Bad Request") },
     { 401, T("Unauthorized") },
+    { 402, T("Payment required") },
     { 403, T("Forbidden") },
     { 404, T("Not Found") },
     { 405, T("Access Denied") },
+    { 406, T("Not Acceptable") },
+    { 408, T("Request Timeout") },
     { 413, T("Request too large") },
     { 500, T("Internal Server Error") },
     { 501, T("Not Implemented") },
@@ -186,11 +193,9 @@ static char_t   accessLog[64] = T("access.log");    /* Log filename */
 static int      accessFd;                           /* Log file handle */
 #endif
 
-#if BIT_SESSIONS
 static WebsHash sessions = -1;
 static int      sessionCount = 0;
 static int      pruneId;                            /* Callback ID */
-#endif
 
 /**************************** Forward Declarations ****************************/
 
@@ -209,15 +214,11 @@ static void     socketEvent(int sid, int mask, void* data);
 static ssize websFlush(Webs *wp); 
 static void websPump(Webs *wp);
 
-#if BIT_SESSIONS
 static void     pruneCache();
-#endif
 #if BIT_ACCESS_LOG
 static void     logRequest(Webs *wp, int code);
 #endif
-#if BIT_IF_MODIFIED
 static time_t   dateParse(time_t tip, char_t *cmd);
-#endif
 
 /*********************************** Code *************************************/
 
@@ -229,9 +230,9 @@ int websOpen(char_t *documents, char_t *authPath)
     websMax = 0;
 
 #if SOLARIS
-    openlog(BIT_PRODUCT, LOG_CONS, LOG_LOCAL0);
+    openlog(BIT_PRODUCT, LOG_LOCAL0);
 #elif BIT_UNIX_LIKE
-    openlog(BIT_PRODUCT, LOG_CONS | LOG_PERROR, LOG_LOCAL0);
+    openlog(BIT_PRODUCT, 0, LOG_LOCAL0);
 #endif
 #if WINDOWS || VXWORKS
     rand();
@@ -244,18 +245,16 @@ int websOpen(char_t *documents, char_t *authPath)
         return -1;
     }
 #if BIT_PACK_SSL
-    if (websSSLOpen() < 0) {
+    if (sslOpen() < 0) {
         return -1;
     }
 #endif 
-#if BIT_SESSIONS
     if ((sessions = symOpen(WEBS_SMALL_HASH)) < 0) {
         return -1;
     }
     if (!websDebug) {
         pruneId = gschedCallback(WEBS_SESSION_PRUNE, (WebsCallback*) pruneCache, 0);
     }
-#endif
     if (documents) {
         websSetDocuments(documents);
     }
@@ -264,16 +263,12 @@ int websOpen(char_t *documents, char_t *authPath)
     websJsOpen();
 #endif
 
-#if BIT_AUTH
     if (websOpenAuth() < 0) {
         return -1;
     }
-#endif
-#if BIT_ROUTE
     if (websOpenRoute(authPath) < 0) {
         return -1;
     }
-#endif
 #if BIT_ROM
     websRomOpen();
 #endif
@@ -309,13 +304,8 @@ void websClose()
 #if BIT_JAVASCRIPT
     websJsClose();
 #endif
-#if BIT_ROUTE
     websCloseRoute();
-#endif
-#if BIT_AUTH
     websCloseAuth();
-#endif
-#if BIT_SESSIONS
     if (pruneId >= 0) {
         gunschedCallback(pruneId);
         pruneId = -1;
@@ -324,7 +314,6 @@ void websClose()
         symClose(sessions);
         sessions = -1;
     }
-#endif
     for (i = 0; i < listenMax; i++) {
         socketCloseConnection(listens[i]);
         listens[i] = -1;
@@ -345,7 +334,7 @@ void websClose()
     websIpAddrUrl = websHostUrl = NULL;
 
 #if BIT_PACK_SSL
-    websSSLClose();
+    sslClose();
 #endif
 #if BIT_ACCESS_LOG
     if (accessFd >= 0) {
@@ -371,7 +360,7 @@ void websClose()
 int websListen(char_t *endpoint)
 {
     socket_t    *sp;
-    char_t      *ip, *ipver;
+    char_t      *ip, *ipaddr;
     int         port, secure, sid;
 
     if (listenMax >= WEBS_MAX_LISTEN) {
@@ -386,12 +375,12 @@ int websListen(char_t *endpoint)
     sp = socketPtr(sid);
     sp->secure = secure;
     listens[listenMax++] = sid;
-    ipver = (ip && strchr(ip, ':')) ? "IPv6" : "IPv4";
-    if (ip && !gmatch(ip, "::")) {
-        trace(0, T("Started %s service on %s:%d, using %s\n"), secure ? "HTTPS" : "HTTP", ip, port, ipver);
+    if (ip) {
+        ipaddr = gmatch(ip, "::") ? "[::]" : ip;
     } else {
-        trace(0, T("Started %s service on *:%d, using %s\n"), secure ? "HTTPS" : "HTTP", port, ipver);
+        ipaddr = "*";
     }
+    trace(0, T("Started %s://%s:%d\n"), secure ? "https" : "http", ipaddr, port);
     gfree(ip);
 
     if (!websHostUrl) {
@@ -481,14 +470,11 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     socket_t *lp = socketPtr(listenSid);
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
-        if (websSSLUpgrade(wp) < 0) {
+        if (sslUpgrade(wp) < 0) {
             error("Can't upgrade to TLS");
             return -1;
         }
     }
-#endif
-#if UNUSED
-    socketCreateHandler(sid, SOCKET_READABLE, /* (lp->secure) ? websSSLSocketEvent : */ socketEvent, wp);
 #endif
 }
     socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
@@ -497,7 +483,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Arrange for a timeout to kill hung requests
      */
     wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
-    trace(8, T("accept request\n"));
+    trace(5, T("accept connection\n"));
     return 0;
 }
 
@@ -527,25 +513,11 @@ static void socketEvent(int sid, int mask, void *iwp)
 }
 
 
-#if UNUSED
-//MOB is this used
-static bool websEof(Webs *wp)
-{
-#if BIT_PACK_SSL
-    if (wp->flags & WEBS_SECURE) {
-        return websSSLEof(wp);
-    }
-#endif
-    return socketEof(wp->sid);
-}
-#endif
-
-
 static ssize websRead(Webs *wp, char *buf, ssize len)
 {
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
-        return websSSLRead(wp, buf, len);
+        return sslRead(wp, buf, len);
     }
 #endif
     return socketRead(wp->sid, buf, len);
@@ -658,7 +630,7 @@ bool parseIncoming(Webs *wp)
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = gopen(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
                 websError(wp, 400 | WEBS_CLOSE, T("Can't open CGI file"));
-                return 1;
+                return 0;
             }
         }
     }
@@ -680,7 +652,7 @@ bool parseIncoming(Webs *wp)
         //  MOB - can we merge docfd and infd?
         if ((wp->infd = open(wp->filename, mode, 0644)) < 0) {
             websError(wp, 500, "Can't create the put URI");
-            return 1;
+            return 0;
         }
     }
     return 1;
@@ -733,7 +705,7 @@ static bool parseFirstLine(Webs *wp)
         websError(wp, 400 | WEBS_CLOSE, T("Bad request type"));
         return 0;
     }
-    wp->method = gstrdup(op);
+    wp->method = gstrupper(gstrdup(op));
     websSetVar(wp, T("REQUEST_METHOD"), wp->method);
 
     url = getToken(wp, 0);
@@ -746,7 +718,11 @@ static bool parseFirstLine(Webs *wp)
         return 0;
     }
     protoVer = getToken(wp, "\r\n");
-    trace(2, T("<<< Request\n%s %s %s\n"), wp->method, url, protoVer);
+
+#if BIT_DEBUG
+    trace(3, T("<<< Request\n"));
+#endif
+    trace(2, T("%s %s %s\n"), wp->method, url, protoVer);
 
     /*
         Parse the URL and store all the various URL components. websUrlParse returns an allocated buffer in buf which we
@@ -804,7 +780,7 @@ static bool parseHeaders(Webs *wp)
 
     gassert(websValid(wp));
 
-    trace(2, T("%s"), wp->input.servp);
+    trace(3, T("%s"), wp->input.servp);
     websSetVar(wp, T("HTTP_AUTHORIZATION"), T(""));
 
     /* 
@@ -863,7 +839,6 @@ static bool parseHeaders(Webs *wp)
             wp->authDetails = gstrdup(tok);
             gstrlower(wp->authType);
 
-#if BIT_KEEP_ALIVE
         } else if (gstrcmp(key, T("connection")) == 0) {
             gstrlower(value);
             if (gstrcmp(value, T("keep-alive")) == 0) {
@@ -871,7 +846,7 @@ static bool parseHeaders(Webs *wp)
             } else if (gstrcmp(value, T("close")) == 0) {
                 wp->flags &= ~WEBS_KEEP_ALIVE;
             }
-#endif
+
         } else if (gstrcmp(key, T("content-length")) == 0) {
             wp->clen = gatoi(value);
             if (wp->clen > BIT_LIMIT_BODY) {
@@ -899,7 +874,6 @@ static bool parseHeaders(Webs *wp)
             wp->flags |= WEBS_COOKIE;
             wp->cookie = gstrdup(value);
 
-#if BIT_IF_MODIFIED
         } else if (gstrcmp(key, T("if-modified-since")) == 0) {
             char_t *cmd;
             time_t tip = 0;
@@ -914,7 +888,6 @@ static bool parseHeaders(Webs *wp)
                 wp->flags |= WEBS_IF_MODIFIED;
             }
             gfree(cmd);
-#endif /* WEBS_IF_MODIFIED_SUPPORT */
         }
     }
     wp->input.servp += 2;
@@ -1156,7 +1129,8 @@ void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
         websWriteHeader(wp, T("\r\n"));
         websWrite(wp, T("%s\r\n"), message);
     } else {
-        websWriteHeaders(wp, code, -1, redirect);
+        websWriteHeaders(wp, code, 0, redirect);
+        websWriteHeader(wp, T("\r\n"));
     }
     websDone(wp, code);
 }
@@ -1167,43 +1141,53 @@ void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
  */
 void websRedirect(Webs *wp, char_t *url)
 {
-    char_t  *msgbuf, *urlbuf, *scheme, *host, *port;
+    char_t  *msgbuf, *urlbuf, *scheme, *host, *pstr;
     char    hostbuf[BIT_LIMIT_STRING];
-    bool    secure;
+    bool    secure, fullyQualified;
+    int     port;
 
     gassert(websValid(wp));
     gassert(url);
 
     msgbuf = urlbuf = NULL;
+    fullyQualified = strstr(url, "https://") || strstr(url, "https://");
     secure = strstr(url, "https://") || (wp->flags & WEBS_SECURE);
+    scheme = secure ? "https" : "http";
+    port = secure ? 443 : 80;
+
     if ((host = websGetVar(wp, T("HTTP_HOST"), websHostUrl)) != 0) {
         gcopy(hostbuf, sizeof(hostbuf), host);
-        if ((port = strchr(hostbuf, ':')) != 0) {
-            *port++ = '\0';
+        if ((pstr = strchr(hostbuf, ':')) != 0) {
+            *pstr++ = '\0';
+            port = atoi(pstr);
         }
     }
-    scheme = secure ? "https" : "http";
     if (*url == '/') {
         url++;
     }
     if (gstrstr(url, T("https:///"))) {
+        /* Short-hand for redirect to https */
         if (BIT_SSL_PORT != 443) {
             gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s:%d/%s", scheme, hostbuf, BIT_SSL_PORT, &url[9]);
         } else {
             gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, &url[9]);
         }
         url = urlbuf;
-    } else if (gstrstr(url, T("http://"))) {
+    } else if (gstrstr(url, T("http:///"))) {
         if (BIT_HTTP_PORT != 80) {
             gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s:%d/%s", scheme, hostbuf, BIT_HTTP_PORT, &url[8]);
         } else {
             gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, &url[8]);
         }
         url = urlbuf;
-    } else {
-        gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, url);
+    } else if (!fullyQualified) {
+        if (port != 80) {
+            gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s:%d/%s", scheme, hostbuf, port, url);
+        } else {
+            gfmtAlloc(&urlbuf, BIT_LIMIT_URI + 80, "%s://%s/%s", scheme, hostbuf, url);        
+        }
+        url = urlbuf;
     }
-    url = urlbuf;
     gfmtAlloc(&msgbuf, BIT_LIMIT_URI + 80, 
         T("<html><head></head><body>\r\n\
         This document has moved to a new <a href=\"%s\">location</a>.\r\n\
@@ -1288,9 +1272,12 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     char_t      *msg, *userMsg, *buf;
     char_t      *encoded;
 
-    gassert(websValid(wp));
     gassert(fmt);
 
+    if (!websValid(wp) || wp->state == WEBS_BEGIN) {
+        websDone(wp, 500);
+        return;
+    }
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
         code &= ~WEBS_CLOSE;
@@ -1358,9 +1345,9 @@ ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
     if (buf) {
         if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
             wp->flags |= WEBS_RESPONSE_TRACED;
-            trace(2, T(">>> Response\n"));
+            trace(3, T(">>> Response\n"));
         }
-        trace(2, T("%s"), buf);
+        trace(3, T("%s"), buf);
         rc = websWriteBlock(wp, buf, gstrlen(buf));
         gfree(buf);
     }
@@ -1524,10 +1511,10 @@ static ssize writeToSocket(Webs *wp, char *buf, ssize size)
 
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
-        if ((written = websSSLWrite(wp, buf, size)) < 0) {
+        if ((written = sslWrite(wp, buf, size)) < 0) {
             return -1;
         }
-        websSSLFlush(wp);
+        sslFlush(wp);
     } else 
 #endif
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
@@ -1713,20 +1700,24 @@ void websDone(Webs *wp, int code)
     logRequest(wp, code);
 #endif
     websPageClose(wp);
-
+#if BIT_CGI
+    if (wp->cgifd >= 0) {
+        gclose(wp->cgifd);
+        wp->cgifd = 0;
+    }
+#endif
+    if (wp->infd >= 0) {
+        gclose(wp->infd);
+        wp->infd = 0;
+    }
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         websTimeoutCancel(wp);
-        websSSLFlush(wp);
+        sslFlush(wp);
         //  MOB - why close connection. Why not keep-alive?
         socketCloseConnection(wp->sid);
         websFree(wp);
         return;
-    }
-#endif
-#if BIT_CGI
-    if (wp->cgifd >= 0) {
-        gclose(wp->cgifd);
     }
 #endif
     if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
@@ -1803,7 +1794,6 @@ void websFree(Webs *wp)
 #if BIT_CGI
     gfree(wp->cgiStdin);
 #endif
-#if BIT_AUTH
     gfree(wp->password);
     gfree(wp->username);
     gfree(wp->authDetails);
@@ -1817,9 +1807,8 @@ void websFree(Webs *wp)
     gfree(wp->qop);
     gfree(wp->digestUri);
 #endif
-#endif
 #if BIT_PACK_SSL
-    websSSLFree(wp);
+    sslFree(wp);
 #endif
 #if BIT_UPLOAD
     if (wp->files) {
@@ -1887,7 +1876,6 @@ static void reuseConn(Webs *wp)
     gfree(wp->cgiStdin);
     wp->cgiStdin = 0;
 #endif
-#if BIT_AUTH
     gfree(wp->authType);
     wp->authType = 0;
     gfree(wp->password);
@@ -1915,9 +1903,8 @@ static void reuseConn(Webs *wp)
     gfree(wp->qop);
     wp->qop = 0;
 #endif
-#endif
 #if BIT_PACK_SSL
-    websSSLFree(wp);
+    sslFree(wp);
 #endif
 #if BIT_UPLOAD
     if (wp->files) {
@@ -2161,7 +2148,7 @@ void websSetRequestWritten(Webs *wp, ssize written)
 }
 
 
-int websValid(Webs *wp)
+bool websValid(Webs *wp)
 {
     int     wid;
 
@@ -2171,6 +2158,12 @@ int websValid(Webs *wp)
         }
     }
     return 0;
+}
+
+
+bool websComplete(Webs *wp) 
+{
+    return !websValid(wp) || wp->state == WEBS_BEGIN;
 }
 
 
@@ -2215,7 +2208,6 @@ static time_t getTimeSinceMark(Webs *wp)
 }
 
 
-#if BIT_IF_MODIFIED
 //  MOB - move all into a date.c
 /*  
     These functions are intended to closely mirror the syntax for HTTP-date 
@@ -2740,8 +2732,6 @@ static time_t dateParse(time_t tip, char_t *cmd)
     return parsedValue;
 }
 
-#endif /* WEBS_IF_MODIFIED_SUPPORT */
-
 
 /*
     Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller. NOTE: tag
@@ -3145,6 +3135,18 @@ static char *getToken(Webs *wp, char *delim)
 }
 
 
+int websGetBackground() 
+{
+    return websBackground;
+}
+
+
+void websSetBackground(int on) 
+{
+    websBackground = on;
+}
+
+
 int websGetDebug() 
 {
     return websDebug;
@@ -3157,7 +3159,6 @@ void websSetDebug(int on)
 }
 
 
-#if BIT_SESSIONS
 static char *makeSessionID(Webs *wp)
 {
     char        idBuf[64];
@@ -3341,7 +3342,6 @@ static void pruneCache()
     }
     greschedCallback(pruneId, WEBS_SESSION_PRUNE);
 }
-#endif /* BIT_SESSIONS */
 
 /*
     @copy   default

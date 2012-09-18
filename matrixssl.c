@@ -7,7 +7,7 @@
 
 #include    "bit.h"
 
-#if BIT_PACK_MATRIXSSL && UNUSED
+#if BIT_PACK_MATRIXSSL && !BIT_PACK_OPENSSL && UNUSED
 /*
     Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable. 
     So must include matrixsslApi.h first and then workaround. 
@@ -36,7 +36,7 @@ typedef struct {
     char                *pt;        /* app data start */
     char                *currPt;    /* app data current location */
     int                 ptBytes;    /* plaintext bytes remaining */
-    SOCKET              fd;
+    int                 fd;
     int                 ptReqBytes;
     int                 sendBlocked;
 } sslConn_t;
@@ -48,7 +48,9 @@ static sslKeys_t    *sslKeys = NULL;
     Socket layer API for the MatrixSSL library.  
 */
 static int waitForWriteEvent(int fd, int msec);
+#if UNUSED
 static void setSocketNonblock(SOCKET sock);
+#endif
 
 /************************************ Code ************************************/
 

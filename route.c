@@ -16,7 +16,6 @@
 
 #include    "goahead.h"
 
-#if BIT_ROUTE
 /*********************************** Locals ***********************************/
 
 static WebsRoute **routes = 0;
@@ -44,6 +43,7 @@ WebsRoute *websSelectRoute(Webs *wp)
         if (plen < route->prefixLen) continue;
         len = min(route->prefixLen, plen);
         if (strncmp(wp->path, route->prefix, len) == 0) {
+#if UNUSED
             if ((route->flags & WEBS_ROUTE_SECURE) && !(wp->flags & WEBS_SECURE)) {
                 websError(wp, 405, T("Access Denied. Secure access is required."));
                 return 0;
@@ -51,8 +51,14 @@ WebsRoute *websSelectRoute(Webs *wp)
             if (wp->flags & (WEBS_PUT | WEBS_DELETE) && !(route->flags & WEBS_ROUTE_PUTDEL)) {
                 continue;
             }
-            return wp->route = route;
+#endif
+            return route;
         }
+    }
+    if (wp->flags & (WEBS_PUT | WEBS_DELETE)) {
+        websError(wp, 500, T("Can't find route support PUT|DELETE method."));
+    } else {
+        websError(wp, 500, T("Can't find suitable route for request."));
     }
     return 0;
 }
@@ -60,16 +66,101 @@ WebsRoute *websSelectRoute(Webs *wp)
 
 bool websRouteRequest(Webs *wp)
 {
-    WebsRoute       *route;
+    return (wp->route = websSelectRoute(wp)) != 0;
+}
 
-    if ((route = websSelectRoute(wp)) == 0) {
-        if (wp->flags & (WEBS_PUT | WEBS_DELETE)) {
-            websError(wp, 500, T("Can't find route support PUT|DELETE method."));
-        } else {
-            websError(wp, 500, T("Can't find suitable route for request."));
+
+static bool can(Webs *wp, char *ability)
+{
+    if (wp->user && symLookup(wp->user->abilities, ability)) {
+        return 1;
+    }
+    if (gmatch(ability, "SECURE")) {
+        if (wp->flags & WEBS_SECURE) {
+            return 1;
         }
+        /* Secure is a special ability and is always mandatory if specified */
+        websError(wp, 405, T("Access Denied. Secure access is required."));
         return 0;
     }
+    if (gmatch(ability, wp->method)) {
+        return 1;
+    }
+    return 0;
+}
+
+
+bool websCan(Webs *wp, WebsHash abilities) 
+{
+    WebsKey     *key;
+    char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
+
+    if (!wp->user && wp->authType) {
+        if (!wp->username) {
+            websError(wp, 401, T("Access Denied. User not logged in."));
+            return 0;
+        }
+        if ((wp->user = websLookupUser(wp->username)) == 0) {
+            websError(wp, 401, T("Access Denied. Unknown user."));
+            return 0;
+        }
+    }
+    if (abilities >= 0) {
+        gassert(abilities);
+        for (key = symFirst(abilities); key; key = symNext(abilities, key)) {
+            ability = key->name.value.string;
+            if ((cp = strchr(ability, '|')) != 0) {
+                /*
+                    Examine a set of alternative abilities. Need only one to match
+                 */ 
+                start = ability;
+                do {
+                    gncopy(abuf, sizeof(abuf), start, cp - start);
+                    if (can(wp, abuf)) {
+                        break;
+                    }
+                    if (websComplete(wp)) {
+                        return 0;
+                    }
+                    start = &cp[1];
+                } while ((cp = strchr(start, '|')) != 0);
+                if (!cp) {
+                    websError(wp, 401, T("Access Denied. Insufficient capabilities."));
+                    return 0;
+                }
+            } else if (!can(wp, ability)) {
+                websError(wp, 401, T("Access Denied. Insufficient capabilities."));
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+
+//  MOB fix
+bool websCanString(Webs *wp, char *abilities) 
+{
+    WebsUser    *user;
+    char        *ability, *tok;
+
+    if (!wp->user) {
+        if (!wp->username) {
+            return 0;
+        }
+        if ((user = websLookupUser(wp->username)) == 0) {
+            trace(2, T("Can't find user %s\n"), wp->username);
+            return 0;
+        }
+    }
+    abilities = gstrdup(abilities);
+    for (ability = gtok(abilities, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+        if (symLookup(wp->user->abilities, ability) == 0) {
+            gfree(abilities);
+            return 0;
+        }
+    }
+    gfree(abilities);
     return 1;
 }
 
@@ -88,6 +179,7 @@ WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *lo
         return 0;
     }
     memset(route, 0, sizeof(WebsRoute));
+    route->abilities = -1;
     route->prefix = gstrdup(uri);
     route->prefixLen = glen(uri);
     if (loginPage) {
@@ -99,16 +191,23 @@ WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *lo
 
     if (type) {
         route->authType = gstrdup(type);
+    }
+    if (abilities && *abilities) {
         if ((route->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
             return 0;
         }
         abilities = gstrdup(abilities);
-        for (ability = gtok(abilities, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+        for (ability = gtok(abilities, T(" \t,|"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+#if UNUSED
             if (strcmp(ability, "SECURE") == 0) {
                 route->flags |= WEBS_ROUTE_SECURE;
-            } else if (strcmp(ability, "PUTDEL") == 0) {
+            } else if (strcmp(ability, "PUT") == 0) {
                 route->flags |= WEBS_ROUTE_PUTDEL;
-            } else if (strcmp(ability, "none") == 0) {
+            } else if (strcmp(ability, "DELETE") == 0) {
+                route->flags |= WEBS_ROUTE_PUTDEL;
+            } else 
+#endif
+            if (strcmp(ability, "none") == 0) {
                 continue;
             } else {
                 if (symEnter(route->abilities, ability, valueInteger(0), 0) == 0) {
@@ -220,7 +319,7 @@ static int loadRouteConfig(char_t *path)
         if (gmatch(kind, "uri")) {
             type = strtok(NULL, " \t:");
             uri = strtok(NULL, " \t:\r\n");
-            abilities = strtok(NULL, " \t:\r\n");
+            abilities = strtok(NULL, ":\r\n");
             redirect = strtok(NULL, " \t\r\n");
             askLogin = 0;
             parseAuth = 0;
@@ -229,7 +328,6 @@ static int loadRouteConfig(char_t *path)
 #else
             verify = websVerifyUser;
 #endif
-#if BIT_AUTH
             if (!redirect) {
                 redirect = "/";
             }
@@ -248,18 +346,17 @@ static int loadRouteConfig(char_t *path)
                     }
                     route->loggedInPage = gstrdup(uri);
                 }
-                if (lookupRoute("/form/logout") < 0 && !websAddRoute(0, "/form/logout", 0, redirect, 0, 0, verify)) {
+                if (lookupRoute("/form/logout") < 0 && 
+                        !websAddRoute(0, "/form/logout", "POST", redirect, 0, 0, verify)) {
                     return -1;
                 }
                 askLogin = websPostLogin;
             } else {
                 type = 0;
             }
-#endif
             if (websAddRoute(type, uri, abilities, redirect, askLogin, parseAuth, verify) < 0) {
                 return -1;
             }
-#if BIT_AUTH
         } else if (gmatch(kind, "user")) {
             char *name = strtok(NULL, " \t:");
             char *password = strtok(NULL, " \t:");
@@ -273,7 +370,6 @@ static int loadRouteConfig(char_t *path)
             if (websAddRole(name, abilities) < 0) {
                 return -1;
             }
-#endif
         }
     }
     fclose(fp);
@@ -289,9 +385,7 @@ static int loadRouteConfig(char_t *path)
     if (i >= routeCount) {
         websAddRoute(0, 0, "/", 0, 0, 0, 0);
     }
-#if BIT_AUTH
     websComputeAllUserAbilities();
-#endif
     return 0;
 }
 
@@ -302,7 +396,6 @@ int websSaveRoute(char_t *path)
     return 0;
 }
 
-#endif /* BIT_ROUTE */
 
 /*
     @copy   default

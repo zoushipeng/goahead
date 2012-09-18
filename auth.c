@@ -29,7 +29,6 @@
  #include    <security/pam_appl.h>
 #endif
 
-#if BIT_AUTH
 /*********************************** Locals ***********************************/
 
 static WebsHash users = -1;
@@ -52,7 +51,7 @@ typedef struct {
 
 /********************************** Forwards **********************************/
 
-static void computeAbilities(WebsHash abilities, char *role);
+static void computeAbilities(WebsHash abilities, char *role, int depth);
 static void computeUserAbilities(WebsUser *user);
 static WebsUser *createUser(char_t *username, char_t *password, char_t *roles);
 static void freeRole(WebsRole *rp);
@@ -87,7 +86,6 @@ bool websAuthenticate(Webs *wp)
         return 1;
     }
     cached = 0;
-#if BIT_SESSIONS
     if (wp->cookie && websGetSession(wp, 0) != 0) {
         char    *username;
         /*
@@ -98,7 +96,6 @@ bool websAuthenticate(Webs *wp)
             wp->username = gstrdup(username);
         }
     }
-#endif
     if (!cached) {
         if (wp->authType && !gmatch(wp->authType, route->authType)) {
             websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
@@ -117,18 +114,12 @@ bool websAuthenticate(Webs *wp)
             (route->askLogin)(wp);
             return 0;
         }
-#if BIT_SESSIONS
         /*
             Store authentication state and user in session storage                                         
-        */                                                                                                
+         */                                                                                                
         if (websGetSession(wp, 1) != 0) {                                                    
             websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
         }
-#endif
-    }
-    if (!websCanUser(wp, route->abilities)) {
-        websError(wp, HTTP_CODE_FORBIDDEN, "Access denied. User does not have the required capabilities.");
-        return 0;
     }
     return 1;
 }
@@ -250,17 +241,24 @@ WebsUser *websLookupUser(char *username)
 }
 
 
-static void computeAbilities(WebsHash abilities, char *role)
+static void computeAbilities(WebsHash abilities, char *role, int depth)
 {
     WebsRole    *rp;
     WebsKey     *key;
 
+    if (depth > 20) {
+        error("Recursive ability definition for %s", role);
+        return;
+    }
     if ((key = symLookup(roles, role)) != 0) {
         rp = (WebsRole*) key->content.value.symbol;
         for (key = symFirst(rp->abilities); key; key = symNext(rp->abilities, key)) {
+            computeAbilities(abilities, key->name.value.string, ++depth);
+#if UNUSED
             if (!symLookup(abilities, key->name.value.string)) {
                 symEnter(abilities, key->name.value.string, valueInteger(0), 0);
             }
+#endif
         }
     } else {
         symEnter(abilities, role, valueInteger(0), 0);
@@ -276,18 +274,18 @@ static void computeUserAbilities(WebsUser *user)
         return;
     }
     roles = gstrdup(user->roles);
-    for (ability = gtok(roles, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
-        computeAbilities(user->abilities, ability);
+    for (ability = gtok(roles, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+        computeAbilities(user->abilities, ability, 0);
     }
 #if BIT_DEBUG
     {
         WebsKey *key;
-        trace(2, "User \"%s\" has abilities: ", user->name);
+        trace(5, "User \"%s\" has abilities: ", user->name);
         for (key = symFirst(user->abilities); key; key = symNext(user->abilities, key)) {
-            trace(2, "%s ", key->name.value.string);
+            trace(5, "%s ", key->name.value.string);
             ability = key->name.value.string;
         }
-        trace(2, "\n");
+        trace(5, "\n");
     }
 #endif
     gfree(roles);
@@ -306,10 +304,11 @@ void websComputeAllUserAbilities()
 }
 
 
+#if UNUSED
 bool websCanUser(Webs *wp, WebsHash abilities) 
 {
     WebsKey     *key;
-    char        *ability;
+    char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
 
     if (!wp->user) {
         if (!wp->username) {
@@ -322,7 +321,22 @@ bool websCanUser(Webs *wp, WebsHash abilities)
     }
     for (key = symFirst(abilities); key; key = symNext(abilities, key)) {
         ability = key->name.value.string;
-        if (symLookup(wp->user->abilities, ability) == 0) {
+        if ((cp = strchr(ability, '|')) != 0) {
+            /*
+                Examine a set of alternative abilities. Need only one to match
+             */ 
+            start = ability;
+            do {
+                gncopy(abuf, sizeof(abuf), start, cp - start);
+                if (symLookup(wp->user->abilities, abuf) != 0) {
+                    break;
+                }
+                start = &cp[1];
+            } while ((cp = strchr(start, '|')) != 0);
+            if (!cp) {
+                return 0;
+            }
+        } else if (symLookup(wp->user->abilities, ability) == 0) {
             return 0;
         }
     }
@@ -330,7 +344,7 @@ bool websCanUser(Webs *wp, WebsHash abilities)
 }
 
 
-bool websCanUserString(Webs *wp, char *abilities) 
+bool websCanString(Webs *wp, char *abilities) 
 {
     WebsUser    *user;
     char        *ability, *tok;
@@ -345,7 +359,7 @@ bool websCanUserString(Webs *wp, char *abilities)
         }
     }
     abilities = gstrdup(abilities);
-    for (ability = gtok(abilities, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+    for (ability = gtok(abilities, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
         if (symLookup(wp->user->abilities, ability) == 0) {
             gfree(abilities);
             return 0;
@@ -354,6 +368,7 @@ bool websCanUserString(Webs *wp, char *abilities)
     gfree(abilities);
     return 1;
 }
+#endif
 
 
 #if UNUSED
@@ -387,7 +402,7 @@ int websAddRole(char_t *name, char_t *abilities)
     }
     trace(5, T("Role \"%s\" has abilities:%s\n"), name, abilities);
     abilities = gstrdup(abilities);
-    for (ability = gtok(abilities, T(" "), &tok); ability; ability = gtok(NULL, T(" "), &tok)) {
+    for (ability = gtok(abilities, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
         if (symEnter(rp->abilities, ability, valueInteger(0), 0) == 0) {
             gfree(abilities);
             return -1;
@@ -442,9 +457,7 @@ bool websLoginUser(Webs *wp, char_t *username, char_t *password)
         trace(2, T("Password does not match\n"));
         return 0;
     }
-#if BIT_SESSIONS
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
-#endif
     return 1;
 }
 
@@ -464,13 +477,12 @@ static void loginServiceProc(Webs *wp)
     gassert(route);
     
     if (websLoginUser(wp, websGetVar(wp, "username", 0), websGetVar(wp, "password", 0))) {
-#if BIT_SESSIONS
         char *referrer;
         if ((referrer = websGetSessionVar(wp, "referrer", 0)) != 0) {
             websRedirect(wp, referrer);
-        } else
-#endif
+        } else {
             websRedirect(wp, route->loggedInPage);
+        }
     } else {
         websRedirect(wp, route->loginPage);
     }
@@ -485,9 +497,7 @@ static void logoutServiceProc(Webs *wp)
         return;
     }
 #endif
-#if BIT_SESSIONS
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
-#endif
     if (gmatch(wp->authType, "basic") || gmatch(wp->authType, "digest")) {
         websError(wp, 401, T("Logged out."));
         return;
@@ -564,7 +574,7 @@ bool websVerifyUser(Webs *wp)
 #if BIT_JAVASCRIPT
 static int jsCan(int jsid, Webs *wp, int argc, char_t **argv)
 {
-    if (websCanUserString(wp, argv[0])) {
+    if (websCanString(wp, argv[0])) {
         //  MOB - how to set return 
         return 0;
     }
@@ -898,6 +908,7 @@ bool websVerifyPamUser(Webs *wp)
     return 1;
 }
 
+
 /*  
     Callback invoked by the pam_authenticate function
  */
@@ -940,8 +951,6 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     return PAM_SUCCESS;
 }
 #endif /* BIT_HAS_PAM */
-
-#endif /* BIT_AUTH */
 
 /*
     @copy   default

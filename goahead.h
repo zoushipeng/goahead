@@ -28,20 +28,6 @@
     #define BIT_ROM 0
 #endif
 
-/*
-    Resolve feature dependencies
- */
-#if BIT_DIGEST
-    #undef BIT_AUTH
-    #define BIT_AUTH 1
-#endif
-#if BIT_AUTH
-    #if !BIT_ROUTE
-        #undef BIT_ROUTE
-        #define BIT_ROUTE 1
-    #endif
-#endif
-
 /********************************* CPU Families *******************************/
 /*
     CPU Architectures
@@ -407,7 +393,23 @@
 #include    <openssl/rand.h>
 #include    <openssl/err.h>
 #include    <openssl/dh.h>
+
+#elif BIT_PACK_MATRIXSSL
+/*
+    Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
+   So must include matrixsslApi.h first and then workaround.
+*/
+#if WIN32
+    #include   <winsock2.h>
+    #include   <windows.h>
 #endif
+    #include    "matrixsslApi.h"
+
+    #define     HAS_INT32 1
+    #define     HAS_UINT32 1
+    #define     HAS_INT64 1
+    #define     HAS_UINT64 1
+#endif /* BIT_PACK_MATRIXSSL */
 
 /************************************** Defines *******************************/
 #ifdef __cplusplus
@@ -1106,27 +1108,20 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_ARGS_DEC          char_t *file, int line
 #define WEBS_ARGS              file, line
 
-#if BIT_DEBUG && BIT_DEBUG_LOG
+#if BIT_DEBUG
     #define gassert(C)     if (C) ; else gassertError(WEBS_L, T("%s"), T(#C))
     extern void gassertError(WEBS_ARGS_DEC, char_t *fmt, ...);
 #else
     #define gassert(C)     if (1) ; else
 #endif
 
-#if BIT_DEBUG_LOG
-    #define LOG trace
-    extern void traceRaw(char_t *buf);
-    extern int traceOpen();
-    extern void traceClose();
-    typedef void (*WebsTraceHandler)(int level, char_t *msg);
-    extern WebsTraceHandler traceSetHandler(WebsTraceHandler handler);
-    extern void traceSetPath(char_t *path);
-#else
-    #define TRACE if (0) trace
-    #define ERROR if (0) error
-    #define traceOpen() 
-    #define traceClose()
-#endif
+#define LOG trace
+extern void traceRaw(char_t *buf);
+extern int traceOpen();
+extern void traceClose();
+typedef void (*WebsTraceHandler)(int level, char_t *msg);
+extern WebsTraceHandler traceSetHandler(WebsTraceHandler handler);
+extern void traceSetPath(char_t *path);
 
 extern void error(char_t *fmt, ...);
 extern void trace(int lev, char_t *fmt, ...);
@@ -1514,6 +1509,7 @@ extern ssize gfmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg);
 extern uint ghextoi(char_t *hexstring);
 extern ssize glen(char_t *s1);
 extern ssize gcopy(char *dest, ssize destMax, char *src);
+extern ssize gncopy(char *dest, ssize destMax, char *src, ssize count);
 extern bool gmatch(char_t *s1, char_t *s2);
 extern int gopen(char_t *path, int oflag, int mode);
 extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
@@ -1570,10 +1566,6 @@ typedef struct WebsUploadFile {
 #define WEBS_PUT                0x2000      /* Put method */
 #define WEBS_CGI                0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
-#if UNUSED
-#define WEBS_BASIC_AUTH         0x10000     /* Basic authentication request */
-#define WEBS_DIGEST             0x20000     /* Digest authentication request */
-#endif
 #define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
@@ -1600,10 +1592,8 @@ typedef struct WebsUploadFile {
 /*
     Session names
  */
-#if BIT_SESSIONS
 #define WEBS_SESSION            "-goahead-session-"
 #define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
-#endif
 
 /*
     Flags for httpSetCookie
@@ -1617,15 +1607,9 @@ typedef struct WebsUploadFile {
 #define WEBS_CLOSE          0x20000
 
 /* Forward declare */
-#if BIT_ROUTE
 struct WebsRoute;
-#endif
-#if BIT_AUTH
 struct WebsUser;
-#endif
-#if BIT_SESSIONS
 struct WebsSession;
-#endif
 
 /* 
     Per socket connection webs structure
@@ -1683,13 +1667,8 @@ typedef struct Webs {
     ssize           numbytes;           /* Bytes to transfer to browser */
     ssize           written;            /* Bytes actually transferred */
     void            (*writable)(struct Webs *wp);
-#if BIT_SESSIONS
     struct WebsSession *session;        /* Session record */
-#endif
-#if BIT_ROUTE
     struct WebsRoute *route;            /* Request route */
-#endif
-#if BIT_AUTH
     struct WebsUser *user;              /* User auth record */
     char_t          *realm;             /* Realm field supplied in auth header */
     //  MOB OPT static
@@ -1705,7 +1684,6 @@ typedef struct Webs {
     char_t          *nc;                /* nonce count */
     char_t          *cnonce;            /* check nonce */
     char_t          *qop;               /* quality operator */
-#endif
 #endif
 #if BIT_UPLOAD
     int             ufd;                /* Upload file handle */
@@ -1900,7 +1878,10 @@ extern ssize websWriteHeader(Webs *wp, char_t *fmt, ...);
 extern ssize websWrite(Webs *wp, char_t *fmt, ...);
 extern ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars);
 extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
-extern int websValid(Webs *wp);
+extern bool websValid(Webs *wp);
+extern bool websComplete(Webs *wp);
+extern int websGetBackground();
+extern void websSetBackground(int on);
 extern int websGetDebug();
 extern void websSetDebug(int on);
 extern void websReadEvent(Webs *wp);
@@ -1921,6 +1902,7 @@ extern int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 
 /*************************************** SSL ***********************************/
 #if BIT_PACK_SSL
+#if UNUSED
 extern int websSSLOpen();
 extern int websSSLIsOpen();
 extern void websSSLClose();
@@ -1928,14 +1910,13 @@ extern ssize websSSLWrite(Webs *wp, char_t *buf, ssize len);
 extern int  websSSLEof(Webs *wp);
 extern void websSSLFree(Webs *wp);
 extern void websSSLFlush(Webs *wp);
-extern int websSSLSetKeyFile(char_t *keyFile);
-extern int websSSLSetCertFile(char_t *certFile);
 int websSSLUpgrade(Webs *wp);
 extern ssize websSSLRead(Webs *wp, char_t *buf, ssize len);
 #if UNUSED
 extern int websSSLAccept(Webs *wp, char_t *buf, ssize len);
 extern ssize websSSLGets(Webs *wp, char_t **buf);
 extern void websSSLSocketEvent(int sid, int mask, void *iwp);
+#endif
 #endif
 
 extern int sslOpen();
@@ -1947,15 +1928,18 @@ extern ssize sslRead(Webs *wp, char *buf, ssize len);
 extern ssize sslWrite(Webs *wp, char *buf, ssize len);
 extern void sslWriteClosureAlert(Webs *wp);
 extern void sslFlush(Webs *wp);
+extern int sslSetKeyFile(char_t *keyFile);
+extern int sslSetCertFile(char_t *certFile);
 #endif /* BIT_PACK_SSL */
 
 /*************************************** Route *********************************/
-#if BIT_ROUTE
+#if UNUSED
 /*
     Route flags
  */
 #define WEBS_ROUTE_SECURE   0x1         /* Route must use TLS */
 #define WEBS_ROUTE_PUTDEL   0x2         /* Route supports PUT, DELETE methods */
+#endif
 
 typedef void (*WebsAskLogin)(Webs *wp);
 typedef bool (*WebsVerify)(Webs *wp);
@@ -1980,10 +1964,8 @@ extern WebsRoute *websAddRoute(char_t *type, char_t *name, char_t *abilities, ch
         WebsAskLogin login, WebsParseAuth parseAuth, WebsVerify verify);
 extern int websRemoveRoute(char_t *uri);
 extern bool websRouteRequest(Webs *wp);
-#endif
 
 /*************************************** Auth **********************************/
-#if BIT_AUTH
 #define WEBS_USIZE          128              /* Size of realm:username */
 
 typedef struct WebsUser {
@@ -2001,8 +1983,8 @@ extern WebsUser *websAddUser(char_t *username, char_t *password, char_t *roles);
 extern int websRemoveUser(char_t *name);
 extern int websSetUserRoles(char_t *username, char_t *roles);
 extern WebsUser *websLookupUser(char *username);
-extern bool websCanUser(Webs *wp, WebsHash ability);
-extern bool websCanUserString(Webs *wp, char *ability);
+extern bool websCan(Webs *wp, WebsHash ability);
+extern bool websCanString(Webs *wp, char *ability);
 extern int websAddRole(char_t *role, char_t *abilities);
 extern int websRemoveRole(char_t *role);
 
@@ -2027,10 +2009,7 @@ extern void websDigestLogin(Webs *wp);
 extern bool websParseDigestDetails(Webs *wp);
 #endif
 
-#endif /* BIT_AUTH */
 /************************************** Sessions *******************************/
-
-#if BIT_SESSIONS
 
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
@@ -2039,14 +2018,12 @@ typedef struct WebsSession {
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
 
-
 extern WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan);
 extern WebsSession *websGetSession(Webs *wp, int create);
 extern char_t *websGetSessionVar(Webs *wp, char_t *name, char_t *defaultValue);
 extern void websRemoveSessionVar(Webs *wp, char_t *name);
 extern int websSetSessionVar(Webs *wp, char_t *name, char_t *value);
 extern char *websGetSessionID(Webs *wp);
-#endif
 
 /************************************ Legacy **********************************/
 

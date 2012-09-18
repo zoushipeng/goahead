@@ -28,7 +28,7 @@
     #define BIT_CA_PATH ""
 #endif
 #ifndef BIT_CERTIFICATE
-    #define BIT_CERTIFICATE ""
+    #define BIT_CERTIFICATE "server.crt"
 #endif
 #ifndef BIT_CGI
     #define BIT_CGI 1
@@ -97,7 +97,7 @@
     #define BIT_KEEP_ALIVE 1
 #endif
 #ifndef BIT_KEY
-    #define BIT_KEY ""
+    #define BIT_KEY "server.key.pem"
 #endif
 #ifndef BIT_LEGACY
     #define BIT_LEGACY 0
@@ -155,9 +155,6 @@
 #endif
 #ifndef BIT_PAM
     #define BIT_PAM 0
-#endif
-#ifndef BIT_PASSWORD
-    #define BIT_PASSWORD ""
 #endif
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"

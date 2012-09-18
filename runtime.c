@@ -65,8 +65,10 @@ typedef struct SymTab {                 /* Symbol table descriptor */
     WebsKey   **hash_table;               /* Allocated at run time */
 } SymTab;
 
-#if WINDOWS
+#if BIT_WIN_LIKE
 static HINSTANCE appInstance;
+#define LOG_ERR 0
+static void syslog(int priority, cchar *fmt, ...);
 #endif
 
 /************************************* Locals *********************************/
@@ -76,12 +78,9 @@ static int          callbackMax;
 
 static SymTab       **sym;              /* List of symbol tables */
 static int          symMax;             /* One past the max symbol table */
-
-#if BIT_DEBUG_LOG
-static char_t   *tracePath;
-static int      traceFd;                        /* Log file handle */
-static int      traceLevel;
-#endif
+static char_t       *tracePath;
+static int          traceFd;                        /* Log file handle */
+static int          traceLevel;
 
 char* embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
 
@@ -95,11 +94,8 @@ static WebsKey *hash(SymTab *tp, char_t *name);
 static void put_char(FmtBuf *buf, char_t c);
 static void put_string(FmtBuf *buf, char_t *s, ssize len, ssize width, int prec, enum flag f);
 static void put_ulong(FmtBuf *buf, ulong value, int base, int upper, char_t *prefix, ssize width, int prec, enum flag f);
-
-#if BIT_DEBUG_LOG
 static void defaultTraceHandler(int level, char_t *buf);
 static WebsTraceHandler traceHandler = defaultTraceHandler;
-#endif
 
 /************************************* Code ***********************************/
 /*
@@ -214,7 +210,7 @@ char_t *dirname(char_t *buf, char_t *name, ssize bufsize)
     gassert(buf);
     gassert(bufsize > 0);
 
-#if WINDOWS
+#if BIT_WIN_LIKE
     if ((cp = gstrrchr(name, '/')) == NULL && (cp = gstrrchr(name, '\\')) == NULL)
 #else
     if ((cp = gstrrchr(name, '/')) == NULL)
@@ -666,7 +662,6 @@ void valueFree(value_t* v)
 }
 
 
-#if BIT_DEBUG_LOG
 void error(char_t *fmt, ...)
 {
     va_list     args;
@@ -681,59 +676,9 @@ void error(char_t *fmt, ...)
     gfmtAlloc(&message, BIT_LIMIT_STRING, "%s\n", buf);
     gfree(buf);
     traceHandler(-1, message);
-
-#if BIT_UNIX_LIKE
-    syslog(LOG_ERR, "%s", message);
-#elif BIT_WIN_LIKE
-    {
-        HKEY        hkey;
-        void        *event;
-        long        errorType;
-        ulong       exists;
-        char        buf[BIT_LIMIT_STRING], logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
-        int         type, i;
-        static int  once = 0;
-
-        strncpy(buf, message, sizeof(buf) - 1);
-        cp = &buf[glen(buf) - 1];
-        while (*cp == '\n' && cp > buf) {
-            *cp-- = '\0';
-        }
-        type = EVENTLOG_ERROR_TYPE;
-        lines[0] = buf;
-        lines[1] = 0;
-        lines[2] = lines[3] = lines[4] = lines[5] = 0;
-        lines[6] = lines[7] = lines[8] = 0;
-
-        if (once == 0) {
-            /*  Initialize the registry */
-            once = 1;
-            hkey = 0;
-
-            if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, logName, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &exists) ==
-                    ERROR_SUCCESS) {
-                value = "%SystemRoot%\\System32\\netmsg.dll";
-                if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
-                        (uchar*) value, (int) glen(value) + 1) != ERROR_SUCCESS) {
-                    RegCloseKey(hkey);
-                    return;
-                }
-                errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-                if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
-                        ERROR_SUCCESS) {
-                    RegCloseKey(hkey);
-                    return;
-                }
-                RegCloseKey(hkey);
-            }
-        }
-        event = RegisterEventSource(0, BIT_PRODUCT);
-        if (event) {
-            ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
-            DeregisterEventSource(event);
-        }
+    if (websGetBackground()) {
+        syslog(LOG_ERR, "%s", message);
     }
-#endif
     gfree(message);
 }
 
@@ -855,11 +800,6 @@ static void defaultTraceHandler(int level, char_t *buf)
         gfree(abuf);
     }
 }
-
-#else /* !BIT_DEBUG_LOG */
-void error(char_t *fmt, ...) { }
-void trace(int level, char_t *fmt, ...) { }
-#endif /* BIT_DEBUG_LOG */
 
 
 /*
@@ -1322,8 +1262,8 @@ int ringqPutStrA(ringq_t *rq, char *str)
     rq->endp[0] = '\0';
     return rc;
 }
+#endif
 
-#endif /* UNICODE */
 
 /*
     Add a block of data to the ringq. Return the number of bytes added. Grow the q as required.
@@ -2129,6 +2069,38 @@ ssize gcopy(char *dest, ssize destMax, char *src)
     return len;
 }
 
+
+/*
+    This routine copies at most "count" characters from a string. It ensures the result is always null terminated and 
+    the buffer does not overflow. Returns -1 if the buffer is too small.
+ */
+ssize gncopy(char *dest, ssize destMax, char *src, ssize count)
+{
+    ssize      len;
+
+    gassert(dest);
+    gassert(src);
+    gassert(src != dest);
+    gassert(0 <= count && count < MAXINT);
+    gassert(0 < destMax && destMax < MAXINT);
+
+    //  OPT need snlen(src, count);
+    len = glen(src);
+    len = min(len, count);
+    if (destMax <= len) {
+        return -1;
+    }
+    if (len > 0) {
+        memcpy(dest, src, len);
+        dest[len] = '\0';
+    } else {
+        *dest = '\0';
+        len = 0;
+    } 
+    return len;
+}
+
+
 /*
     Return the length of a string limited by a given length
  */
@@ -2379,7 +2351,8 @@ int recv(int s, void *buf, size_t len, int flags)
 #endif
 
 
-#if WINDOWS
+#if BIT_WIN_LIKE
+//  MOB - use webs prefix
 void egSetInst(HINSTANCE inst)
 {
     appInstance = inst;
@@ -2389,6 +2362,61 @@ void egSetInst(HINSTANCE inst)
 HINSTANCE egGetInst()
 {
     return appInstance;
+}
+
+
+static void syslog(int priority, cchar *fmt, ...)
+{
+    va_args     args;
+    HKEY        hkey;
+    void        *event;
+    long        errorType;
+    ulong       exists;
+    char        buf[BIT_LIMIT_STRING], logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
+    int         type, i;
+    static int  once = 0;
+
+    va_start(args, fmt);
+    gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
+    va_end(args);
+
+    cp = &buf[glen(buf) - 1];
+    while (*cp == '\n' && cp > buf) {
+        *cp-- = '\0';
+    }
+    type = EVENTLOG_ERROR_TYPE;
+    lines[0] = buf;
+    lines[1] = 0;
+    lines[2] = lines[3] = lines[4] = lines[5] = 0;
+    lines[6] = lines[7] = lines[8] = 0;
+
+    if (once == 0) {
+        /*  Initialize the registry */
+        once = 1;
+        hkey = 0;
+
+        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, logName, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &exists) ==
+                ERROR_SUCCESS) {
+            value = "%SystemRoot%\\System32\\netmsg.dll";
+            if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+                    (uchar*) value, (int) glen(value) + 1) != ERROR_SUCCESS) {
+                RegCloseKey(hkey);
+                return;
+            }
+            errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
+            if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
+                    ERROR_SUCCESS) {
+                RegCloseKey(hkey);
+                return;
+            }
+            RegCloseKey(hkey);
+        }
+    }
+    event = RegisterEventSource(0, BIT_PRODUCT);
+    if (event) {
+        ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
+        DeregisterEventSource(event);
+    }
 }
 #endif
 

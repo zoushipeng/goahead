@@ -25,8 +25,6 @@
 #
 #	export DFLAGS += -DBIT_PAM=1		# To enable PAUM authorization
 #	export DFLAGS += -DBIT_DIGEST=0		# To disable digest authorization
-#	export DFLAGS += -DBIT_AUTH=0		# To disable authorization
-#	export DFLAGS += -DBIT_SESSIONS=0	# To disable session state management
 #	export DFLAGS += -DBIT_CGI=0		# To disable CGI request support
 #	export DFLAGS += -DBIT_JAVASCRIPT=0	# To disable JavaScript
 #	export DFLAGS += -DBIT_UPLOAD=0		# To disable file upload support

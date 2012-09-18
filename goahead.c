@@ -40,14 +40,13 @@ static void sigHandler(int signo);
 MAIN(goahead, int argc, char **argv, char **envp)
 {
     char_t  *argp, *home, *documents, *endpoint, addr[32], *route;
-    int     argind, background;
+    int     argind;
 
 #if WINDOWS
     if (windowsInit() < 0) {
         return 0;
     }
 #endif
-    background = 0;
     route = "route.txt";
 
     for (argind = 1; argind < argc; argind++) {
@@ -55,7 +54,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         if (*argp != '-') {
             break;
         } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {
-            background = 1;
+            websSetBackground(1);
         } else if (gmatch(argp, "--debug")) {
             websSetDebug(1);
         } else if (gmatch(argp, "--home")) {
@@ -94,8 +93,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
         return -1;
     }
 #if BIT_PACK_SSL
-    websSSLSetKeyFile("server.key");
-    websSSLSetCertFile("server.crt");
+    sslSetKeyFile(BIT_KEY);
+    sslSetCertFile(BIT_CERTIFICATE);
 #endif
     if (argind < argc) {
         while (argind < argc) {
@@ -138,7 +137,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     /*
         Service events till terminated
      */
-    if (background) {
+    if (websGetBackground()) {
         if (daemon(0, 0) < 0) {
             error("Can't run as daemon");
             return -1;

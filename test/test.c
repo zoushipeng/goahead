@@ -32,10 +32,7 @@ static int aspTest(int eid, Webs *wp, int argc, char_t **argv);
 static int bigTest(int eid, Webs *wp, int argc, char_t **argv);
 #endif
 static void formTest(Webs *wp, char_t *path, char_t *query);
-
-#if BIT_SESSIONS
 static void sessionTest(Webs *wp, char_t *path, char_t *query);
-#endif
 
 #if BIT_UNIX_LIKE
 static void sigHandler(int signo);
@@ -54,6 +51,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
         argp = argv[argind];
         if (*argp != '-') {
             break;
+        } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {                                   
+            websSetBackground(1);
         } else if (gmatch(argp, "--debug")) {
             websSetDebug(1);
         } else if (gmatch(argp, "--home")) {
@@ -92,8 +91,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
         return -1;
     }
 #if BIT_PACK_SSL
-    websSSLSetKeyFile("server.key");
-    websSSLSetCertFile("server.crt");
+    sslSetKeyFile(BIT_KEY);
+    sslSetCertFile(BIT_CERTIFICATE);
 #endif
     if (argind < argc) {
         while (argind < argc) {
@@ -138,8 +137,17 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websJsDefine(T("bigTest"), bigTest);
 #endif
     websFormDefine(T("test"), formTest);
-#if BIT_SESSIONS
     websFormDefine(T("sessionTest"), sessionTest);
+#if BIT_UNIX_LIKE
+    /*
+        Service events till terminated
+    */
+    if (websGetBackground()) {
+        if (daemon(0, 0) < 0) {
+            error("Can't run as daemon");
+            return -1;
+        }
+    }
 #endif
     websServiceEvents(&finished);
     websClose();
@@ -247,7 +255,6 @@ static void formTest(Webs *wp, char_t *path, char_t *query)
 }
 
 
-#if BIT_SESSIONS
 /*
     Implement /form/sessionTest
  */
@@ -266,7 +273,6 @@ static void sessionTest(Webs *wp, char_t *path, char_t *query)
     websFooter(wp);
     websDone(wp, 200);
 }
-#endif
 
 /*
     @copy   default

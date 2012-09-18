@@ -210,18 +210,18 @@ void websHandleRequest(Webs *wp)
         websError(wp, 400, T("Bad request"));
         return;
     }
-#if BIT_ROUTE
     if (!websRouteRequest(wp)) {
         gassert(wp->code);
         return;
     }
-#endif
-#if BIT_AUTH
     if (!websAuthenticate(wp)) {
         gassert(wp->code);
         return;
     }
-#endif
+    if (!websCan(wp, wp->route->abilities)) {
+        gassert(websComplete(wp));
+        return;
+    }
     websSetEnv(wp);
 
     /*

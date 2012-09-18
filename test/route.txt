@@ -6,10 +6,13 @@
 #       role: name: abilities...
 #       uri: type: uri: method: abilities... : redirect
 #
+#   Abilities are a set of required abilities that the user or request must possess.
+#   Abilities are comma separated tokens, where tokens are single words or multiple words separated by "|".
+#
 
 role: person: breathe
-role: user: person view
-role: administrator: user manage
+role: user: person, view
+role: administrator: user, manage
 
 #
 #   Map PAM group to abilities
@@ -19,7 +22,7 @@ role: admin: user manage
 user: julie: 9d8873a123eb506e7f8e84d1f2a26916: user
 user: peter: 7cdba57892649fd95a540683fdf8fba6: user
 user: mary: 5b90553bea8ba3686f4239d62801f0f3: user 
-user: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: administrator purchase
+user: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: administrator, purchase
 
 #
 #   Basic and digest authentication required for these directories
@@ -39,15 +42,21 @@ uri: post: /auth/post/: manage: /auth/post/login.html
 #
 #   Support PUT, DELETE methods for the /put directory
 #
-uri: post: /admin/put: SECURE PUTDEL
+uri: none: /put/: PUT|DELETE
 
 #
 #   Require TLS to access anything under /secure
 #
-uri: post: /secure: SECURE
+uri: none: /secure/: SECURE
+
+#
+#   To test post auth with redirection over ssl
+#
+#   uri: none: /admin/login.html: none: /index.html
+#   uri: post: /: manage: https:///admin/login.html
+
 
 #
 #   Catch-all route without authentication for all other URIs
 #
-uri: none: none: /: : 
-
+uri: none: /

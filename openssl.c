@@ -30,9 +30,10 @@ static int setCerts(SSL_CTX *ctx, char *certFile, char *keyFile);
 static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
 static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 
+#if UNUSED
 static int sslVerifyDepth = 0;
 static int sslVerifyError = X509_V_OK;
-
+#endif
 
 typedef struct RandBuf {
     time_t      now;
@@ -78,24 +79,24 @@ int sslOpen()
     if (caFile || caPath) {
         if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
             error(T("Unable to set cert verification locations"));
-            websSSLClose();
+            sslClose();
             return -1;
         }
     }
     /*
       	Set the certificate and key files for the SSL context
      */
-    if (*BIT_KEY && websSSLSetKeyFile(BIT_KEY) < 0) {
-		websSSLClose();
+    if (*BIT_KEY && sslSetKeyFile(BIT_KEY) < 0) {
+		sslClose();
 		return -1;
     }
-    if (*BIT_CERTIFICATE && websSSLSetCertFile(BIT_CERTIFICATE) < 0) {
-		websSSLClose();
+    if (*BIT_CERTIFICATE && sslSetCertFile(BIT_CERTIFICATE) < 0) {
+		sslClose();
 		return -1;
     }
 #if UNUSED
 	if (setCerts(sslctx, BIT_CERTIFICATE, BIT_KEY) != 0) {
-		websSSLClose();
+		sslClose();
 		return -1;
 	}
 #endif
@@ -222,9 +223,12 @@ int sslAccept(Webs *wp)
 ssize sslRead(Webs *wp, char *buf, ssize len)
 {
     socket_t        *sp;
+#if UNUSED
     X509_NAME       *xSubject;
     X509            *cert;
-    char            subject[260], issuer[260], peer[260], ebuf[BIT_LIMIT_STRING];
+    char            subject[260], issuer[260], peer[260];
+#endif
+    char            ebuf[BIT_LIMIT_STRING];
     ulong           serror;
     int             rc, error, retries, i;
 
@@ -383,7 +387,7 @@ static int setCerts(SSL_CTX *ctx, char *cert, char *key)
 /*
     Set certificate file for SSL context
  */
-int websSSLSetCertFile(char_t *certFile)
+int sslSetCertFile(char_t *certFile)
 {
 	gassert (sslctx);
 	gassert (certFile);
@@ -411,7 +415,7 @@ int websSSLSetCertFile(char_t *certFile)
 /*
   	Set key file for SSL context
  */
-int websSSLSetKeyFile(char_t *keyFile)
+int sslSetKeyFile(char_t *keyFile)
 {
 	gassert (sslctx);
 	gassert (keyFile);
