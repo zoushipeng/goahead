@@ -17,7 +17,7 @@
 
 /*********************************** Defines **********************************/
 
-typedef struct {                /* Struct for CGI tasks which have completed */
+typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     Webs    *wp;                /* Connection object */
     char_t  *stdIn;             /* File desc. for task's temp input fd */
     char_t  *stdOut;            /* File desc. for task's temp output fd */
@@ -26,9 +26,9 @@ typedef struct {                /* Struct for CGI tasks which have completed */
     char_t  **envp;             /* Pointer to array of environment strings */
     int     handle;             /* Process handle of the task */
     off_t   fplacemark;       /* Seek location for CGI output file */
-} cgiRec;
+} Cgi;
 
-static cgiRec   **cgiList;      /* galloc chain list of wp's to be closed */
+static Cgi      **cgiList;      /* galloc chain list of wp's to be closed */
 static int      cgiMax;         /* Size of galloc list */
 
 /************************************* Code ***********************************/
@@ -37,8 +37,8 @@ static int      cgiMax;         /* Size of galloc list */
  */
 int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
-    cgiRec      *cgip;
-    WebsKey       *s;
+    Cgi         *cgip;
+    WebsKey     *s;
     char_t      cgiBuf[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
     char_t      *cp, *cgiName, *cgiPath, **argp, **envp, **ep;
     int         n, envpsize, argpsize, pHandle, cid;
@@ -179,7 +179,7 @@ int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
          */
-        cid = gallocEntry((void***) &cgiList, &cgiMax, sizeof(cgiRec));
+        cid = gallocEntry((void***) &cgiList, &cgiMax, sizeof(Cgi));
         cgip = cgiList[cid];
         cgip->handle = pHandle;
         cgip->stdIn = stdIn;
@@ -199,10 +199,24 @@ int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 }
 
 
+int websProcessCgiData(Webs *wp)
+{
+    ssize   nbytes;
+
+    nbytes = ringqLen(&wp->input);
+    if (gwrite(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
+        websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
+        return -1;
+    }
+    ringqGetBlkAdj(&wp->input, nbytes);
+    return 0;
+}
+
+
 /*
     Any entry in the cgiList need to be checked to see if it has
  */
-void websCgiGatherOutput (cgiRec *cgip)
+void websCgiGatherOutput (Cgi *cgip)
 {
     Webs     *wp;
     WebsStat sbuf;
@@ -238,7 +252,7 @@ void websCgiGatherOutput (cgiRec *cgip)
 void websCgiCleanup()
 {
     Webs    *wp;
-    cgiRec  *cgip;
+    Cgi     *cgip;
     char_t  **ep;
     int     cid, nTries;
 

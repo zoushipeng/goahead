@@ -21,17 +21,17 @@
 #   Redirect to "/index.html" when logged in.
 #
 #   uri: none: /login.html: none: /index.html
-#   uri: post: /: manage: https:///login.html
+#   uri: form: /: manage: https:///login.html
 
 #
 #   Support PUT or DELETE methods (only) for the /put directory
 #
-#   uri: post: /admin/put: PUT|DELETE
+#   uri: form: /admin/put: PUT|DELETE
 
 #
 #   Require TLS to access anything under /secure
 #
-#   uri: post: /secure: SECURE 
+#   uri: none: /secure: SECURE 
 
 #
 #   Catch-all route without authentication for all other URIs

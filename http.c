@@ -258,7 +258,8 @@ int websOpen(char_t *documents, char_t *authPath)
     if (documents) {
         websSetDocuments(documents);
     }
-    websFormOpen();
+    websUploadOpen();
+    websProcOpen();
 #if BIT_JAVASCRIPT
     websJsOpen();
 #endif
@@ -347,7 +348,7 @@ void websClose()
 #endif
     websFileClose();
     symClose(websMime);
-    websFormClose();
+    websProcClose();
     websUrlHandlerClose();
     socketClose();
     traceClose();
@@ -635,11 +636,6 @@ bool parseIncoming(Webs *wp)
         }
     }
 #endif
-#if BIT_UPLOAD
-    if (wp->flags & WEBS_UPLOAD) {
-        websProcessUploadData(wp);
-    }
-#endif
     if (wp->flags & WEBS_PUT) {
         WebsStat sbuf;
         int mode, exists;
@@ -649,8 +645,8 @@ bool parseIncoming(Webs *wp)
             mode |= O_CREAT | O_TRUNC;
         }  
         wp->code = (exists && sbuf.st_mode & S_IFDIR) ? 204 : 201;
-        //  MOB - can we merge docfd and infd?
-        if ((wp->infd = open(wp->filename, mode, 0644)) < 0) {
+        //  MOB - can we merge docfd and putfd?
+        if ((wp->putfd = open(wp->filename, mode, 0644)) < 0) {
             websError(wp, 500, "Can't create the put URI");
             return 0;
         }
@@ -900,28 +896,25 @@ static bool processContent(Webs *wp)
     if ((nbytes = ringqLen(&wp->input)) == 0) {
         return 0;
     }
-    //  MOB - change these routines to processCgiContent, processUploadContent(wp)
 #if BIT_CGI
-    if (wp->cgifd >= 0) {
-        if (gwrite(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
-            websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
-            return 1;
-        }
-        ringqGetBlkAdj(&wp->input, nbytes);
+    if (wp->cgifd >= 0 && websProcessCgiData(wp) < 0) {
+        return 0;
     }
 #endif
-    if (wp->infd >= 0) {
-        //  MOB - should this be a different
-        if (write(wp->infd, wp->input.servp, (int) nbytes) != nbytes) {
-            websError(wp, WEBS_CLOSE | 500, "Can't write to file");
-            return 1;
-        }
+#if BIT_UPLOAD
+    if ((wp->flags & WEBS_UPLOAD) && websProcessUploadData(wp) < 0) {
+        return 0;
     }
-    wp->remainingContent -= nbytes;
+#endif
+    if (wp->putfd >= 0 && websProcessPutData(wp) < 0) {
+        return 0;
+    }
+    wp->remainingContent -= (nbytes - ringqLen(&wp->input));
     if (wp->remainingContent <= 0) {
         wp->state = WEBS_RUNNING;
+        return 1;
     }
-    return 1;
+    return 0;
 }
 
 
@@ -1364,6 +1357,7 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
 
     if (!(wp->flags & WEBS_HEADER_DONE)) {
         wp->flags |= WEBS_HEADER_DONE;
+        wp->code = code;
         websWriteHeader(wp, T("HTTP/1.0 %d %s\r\n"), code, websErrorMsg(code));
         /*
             The Embedthis Open Source license does not permit modification to the Server header
@@ -1690,21 +1684,23 @@ void websDone(Webs *wp, int code)
     gassert(websValid(wp));
 
     websFlush(wp);
-    wp->code = code & ~WEBS_CLOSE;
+    if (wp->code == 0) {
+        wp->code = code & ~WEBS_CLOSE;
+    }
     socketDeleteHandler(wp->sid);
 #if BIT_ACCESS_LOG
-    logRequest(wp, code);
+    logRequest(wp, wp->code);
 #endif
     websPageClose(wp);
 #if BIT_CGI
     if (wp->cgifd >= 0) {
         gclose(wp->cgifd);
-        wp->cgifd = 0;
+        wp->cgifd = -1;
     }
 #endif
-    if (wp->infd >= 0) {
-        gclose(wp->infd);
-        wp->infd = 0;
+    if (wp->putfd >= 0) {
+        gclose(wp->putfd);
+        wp->putfd = -1;
     }
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
@@ -1716,7 +1712,6 @@ void websDone(Webs *wp, int code)
     }
 #endif
     if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
-        websFlush(wp);
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
         websTimeoutCancel(wp);
@@ -1732,34 +1727,119 @@ void websDone(Webs *wp, int code)
 }
 
 
+static void initWebs(Webs *wp, int wid, int sid, int flags, ringq_t *input)
+{
+    memset(wp, 0, sizeof(Webs));
+    wp->state = flags;
+    wp->wid = wid;
+    wp->sid = sid;
+    wp->docfd = -1;
+    wp->putfd = -1;
+    wp->timeout = -1;
+#if BIT_CGI
+    wp->cgifd = -1;
+#endif
+#if BIT_UPLOAD
+    wp->upfd = -1;
+#endif
+    wp->vars = symOpen(WEBS_SYM_INIT);
+    ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
+    if (input) {
+        wp->input = *input;
+    } else {
+        ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
+    }
+}
+
+
+static void termWebs(Webs *wp, int keepAlive)
+{
+    //  MOB - OPT reduce allocations
+    gfree(wp->authDetails);
+    gfree(wp->authResponse);
+    gfree(wp->authType);
+    gfree(wp->contentType);
+    gfree(wp->cookie);
+    gfree(wp->decodedQuery);
+    gfree(wp->digest);
+    gfree(wp->dir);
+    gfree(wp->ext);
+    gfree(wp->filename);
+    gfree(wp->host);
+    gfree(wp->inputFile);
+    gfree(wp->method);
+    gfree(wp->password);
+    gfree(wp->path);
+    gfree(wp->protoVersion);
+    gfree(wp->protocol);
+    gfree(wp->query);
+    gfree(wp->realm);
+    gfree(wp->responseCookie);
+    gfree(wp->url);
+    gfree(wp->userAgent);
+    gfree(wp->username);
+#if BIT_CGI
+    gfree(wp->cgiStdin);
+#endif
+#if BIT_DIGEST
+    gfree(wp->cnonce);
+    gfree(wp->digestUri);
+    gfree(wp->opaque);
+    gfree(wp->nc);
+    gfree(wp->nonce);
+    gfree(wp->qop);
+#endif
+    symClose(wp->vars);
+#if BIT_PACK_SSL
+    sslFree(wp);
+#endif
+#if BIT_UPLOAD
+    if (wp->files) {
+        websFreeUpload(wp);
+    }
+#endif
+    ringqClose(&wp->output);
+    if (!keepAlive) {
+        ringqClose(&wp->input);
+    }
+}
+
+
 int websAlloc(int sid)
 {
-    Webs        *wp;
-    int         wid;
+    Webs    *wp;
+    int     wid;
 
-    //  MOB - warning. This structue is not being zeroed or initialized.
     if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(Webs))) < 0) {
         return -1;
     }
     wp = webs[wid];
-    memset(wp, 0, sizeof(Webs));
-    wp->wid = wid;
+    initWebs(wp, wid, sid, WEBS_BEGIN, 0);
     wp->sid = sid;
-    wp->state = WEBS_BEGIN;
-    wp->docfd = -1;
-    wp->infd = -1;
-    wp->timeout = -1;
-#if BIT_SESSION
-    wp->session = 0;
-#endif
-#if BIT_CGI
-    wp->cgifd = -1;
-#endif
-    gassert(wp->flags == 0);
-    ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
-    ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
-    wp->vars = symOpen(WEBS_SYM_INIT);
     return wid;
+}
+
+
+static void reuseConn(Webs *wp)
+{
+    ringq_t     input;
+    int         flags, sid, wid;
+
+    gassert(websValid(wp));
+
+    flags = wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
+    sid = wp->sid;
+    wid = wp->wid;
+    if (wp->clen) {
+        ringqGetBlkAdj(&wp->input, wp->clen);
+    }
+    ringqCompact(&wp->input);
+    if (ringqLen(&wp->input)) {
+        socketReservice(wp->sid);
+    }
+    input = wp->input;
+    termWebs(wp, 1);
+    initWebs(wp, wid, sid, flags, &input);
 }
 
 
@@ -1767,148 +1847,10 @@ void websFree(Webs *wp)
 {
     gassert(websValid(wp));
 
-    //  MOB - OPT reduce allocations
-    gfree(wp->path);
-    gfree(wp->ext);
-    gfree(wp->url);
-    gfree(wp->host);
-    gfree(wp->filename);
-    gfree(wp->query);
-    gfree(wp->decodedQuery);
-    gfree(wp->authType);
-    gfree(wp->cookie);
-    gfree(wp->responseCookie);
-    gfree(wp->userAgent);
-    gfree(wp->dir);
-    gfree(wp->protocol);
-    gfree(wp->protoVersion);
-    gfree(wp->method);
-    gfree(wp->contentType);
-    gfree(wp->inputFile);
-    symClose(wp->vars);
-#if BIT_CGI
-    gfree(wp->cgiStdin);
-#endif
-    gfree(wp->password);
-    gfree(wp->username);
-    gfree(wp->authDetails);
-    gfree(wp->realm);
-    gfree(wp->digest);
-#if BIT_DIGEST
-    gfree(wp->opaque);
-    gfree(wp->nonce);
-    gfree(wp->nc);
-    gfree(wp->cnonce);
-    gfree(wp->qop);
-    gfree(wp->digestUri);
-#endif
-#if BIT_PACK_SSL
-    sslFree(wp);
-#endif
-#if BIT_UPLOAD
-    if (wp->files) {
-        websFreeUpload(wp);
-    }
-#endif
-    ringqClose(&wp->input);
-    ringqClose(&wp->output);
+    termWebs(wp, 0);
     websMax = gfreeHandle((void***) &webs, wp->wid);
     gfree(wp);
     gassert(websMax >= 0);
-}
-
-
-static void reuseConn(Webs *wp)
-{
-    gassert(websValid(wp));
-
-    wp->state = WEBS_BEGIN;
-    wp->flags &= (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
-    if (wp->clen) {
-        ringqGetBlkAdj(&wp->input, wp->clen);
-    }
-    wp->clen = 0;
-
-    ringqCompact(&wp->input);
-    if (ringqLen(&wp->input)) {
-        socketReservice(wp->sid);
-    }
-    wp->vars = symOpen(WEBS_SYM_INIT);
-
-    gfree(wp->path);
-    wp->path = 0;
-    gfree(wp->ext);
-    wp->ext = 0;
-    gfree(wp->url);
-    wp->url = 0;
-    gfree(wp->host);
-    wp->host = 0;
-    gfree(wp->filename);
-    wp->filename = 0;
-    gfree(wp->query);
-    wp->query = 0;
-    gfree(wp->decodedQuery);
-    wp->decodedQuery = 0;
-    gfree(wp->cookie);
-    wp->cookie = 0;
-    gfree(wp->responseCookie);
-    wp->responseCookie = 0;
-    gfree(wp->userAgent);
-    wp->userAgent = 0;
-    gfree(wp->dir);
-    wp->dir = 0;
-    gfree(wp->protocol);
-    wp->protocol = 0;
-    gfree(wp->protoVersion);
-    wp->protoVersion = 0;
-    gfree(wp->method);
-    wp->method = 0;
-    gfree(wp->contentType);
-    wp->contentType = 0;
-    gfree(wp->inputFile);
-    wp->inputFile = 0;
-#if BIT_CGI
-    gfree(wp->cgiStdin);
-    wp->cgiStdin = 0;
-#endif
-    gfree(wp->authType);
-    wp->authType = 0;
-    gfree(wp->password);
-    wp->password = 0;
-    gfree(wp->digest);
-    wp->digest = 0;
-    gfree(wp->username);
-    wp->username = 0;
-    gfree(wp->authDetails);
-    wp->authDetails = 0;
-    gfree(wp->realm);
-    wp->realm = 0;
-    wp->encoded = 0;
-#if BIT_DIGEST
-    gfree(wp->digestUri);
-    wp->digestUri = 0;
-    gfree(wp->opaque);
-    wp->opaque = 0;
-    gfree(wp->nonce);
-    wp->nonce = 0;
-    gfree(wp->nc);
-    wp->nc = 0;
-    gfree(wp->cnonce);
-    wp->cnonce = 0;
-    gfree(wp->qop);
-    wp->qop = 0;
-#endif
-#if BIT_PACK_SSL
-    sslFree(wp);
-#endif
-#if BIT_UPLOAD
-    if (wp->files) {
-        websFreeUpload(wp);
-    }
-#endif
-    wp->docfd = -1;
-    wp->infd = -1;
-    wp->cgifd = -1;
 }
 
 

@@ -53,10 +53,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
         argp = argv[argind];
         if (*argp != '-') {
             break;
+
         } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {
             websSetBackground(1);
+
         } else if (gmatch(argp, "--debug")) {
             websSetDebug(1);
+
         } else if (gmatch(argp, "--home")) {
             if (argind >= argc) usage();
             home = argv[++argind];
@@ -64,21 +67,20 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 error(T("Can't change directory to %s"), home);
                 exit(-1);
             }
-#if BIT_DEBUG_LOG
         } else if (gmatch(argp, "--log") || gmatch(argp, "-l")) {
             if (argind >= argc) usage();
             traceSetPath(argv[++argind]);
 
         } else if (gmatch(argp, "--verbose") || gmatch(argp, "-v")) {
             traceSetPath("stdout:4");
-#endif
+
         } else if (gmatch(argp, "--route") || gmatch(argp, "-r")) {
             route = argv[++argind];
 
         } else if (gmatch(argp, "--version") || gmatch(argp, "-V")) {
-            //  MOB - replace
             printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
+
         } else {
             usage();
         }
@@ -121,7 +123,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
 #endif
     }
-    websUrlHandlerDefine(T("/form/"), 0, 0, websFormHandler, 0);
+    websUrlHandlerDefine(T("/proc/"), 0, 0, websProcHandler, 0);
+#if BIT_LEGACY
+    websUrlHandlerDefine(T("/goform/"), 0, 0, websProcHandler, 0);
+#endif
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
 #if BIT_JAVASCRIPT
     websUrlHandlerDefine(T("/"), 0, 0, websJsHandler, 0);
@@ -198,7 +203,7 @@ static int windowsInit()
     HMENU       hSysMenu;
     HWND        hwnd;
 
-    inst = egGetInst();
+    inst = websGetInst();
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
@@ -237,7 +242,7 @@ static void windowsClose()
 {
     HINSTANCE   inst;
 
-    inst = egGetInst();
+    inst = websGetInst();
     UnregisterClass(BIT_PRODUCT, inst);
 }
 

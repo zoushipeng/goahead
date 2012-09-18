@@ -140,8 +140,8 @@ int websOpenAuth()
 #if BIT_JAVASCRIPT
     websJsDefine(T("can"), jsCan);
 #endif
-    websFormDefine("login", loginServiceProc);
-    websFormDefine("logout", logoutServiceProc);
+    websProcDefine("login", loginServiceProc);
+    websProcDefine("logout", logoutServiceProc);
     return 0;
 }
 
@@ -378,7 +378,7 @@ bool websLoginUser(Webs *wp, char_t *username, char_t *password)
 
 
 /*
-    Internal login service routine for Post-based auth
+    Internal login service routine for Form-based auth
  */
 static void loginServiceProc(Webs *wp)
 {
@@ -424,7 +424,7 @@ void websBasicLogin(Webs *wp)
 }
 
 
-void websPostLogin(Webs *wp)
+void websFormLogin(Webs *wp)
 {
     websRedirect(wp, wp->route->loginPage);
 }

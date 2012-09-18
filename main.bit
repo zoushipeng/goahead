@@ -135,7 +135,7 @@ Bit.load({
         /*
             Upload configuration
          */
-        upload: false,
+        upload: true,
         uploadDir: "/tmp",
     },
 

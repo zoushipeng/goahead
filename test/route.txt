@@ -33,11 +33,11 @@ uri: digest: /auth/digest/: manage
 
 #
 #   Post-based (web-form) authentication
-#   The login form is /auth/post/login.html. The page to display when logged-in is: /auth/post/index.html
-#   Everything else under /auth/post is secured and requires the "manage" ability 
+#   The login form is /auth/form/login.html. The page to display when logged-in is: /auth/form/index.html
+#   Everything else under /auth/form is secured and requires the "manage" ability 
 #
-uri: none: /auth/post/login.html: none: /auth/post/index.html
-uri: post: /auth/post/: manage: /auth/post/login.html
+uri: none: /auth/form/login.html: none: /auth/form/index.html
+uri: form: /auth/form/: manage: /auth/form/login.html
 
 #
 #   Support PUT, DELETE methods for the /put directory
@@ -50,11 +50,10 @@ uri: none: /put/: PUT|DELETE
 uri: none: /secure/: SECURE
 
 #
-#   To test post auth with redirection over ssl
+#   To test form auth with redirection over ssl
 #
 #   uri: none: /admin/login.html: none: /index.html
-#   uri: post: /: manage: https:///admin/login.html
-
+#   uri: form: /: manage: https:///admin/login.html
 
 #
 #   Catch-all route without authentication for all other URIs

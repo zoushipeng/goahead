@@ -320,7 +320,7 @@ static int loadRouteConfig(char_t *path)
                 askLogin = websDigestLogin;
                 parseAuth = websParseDigestDetails;
 #endif
-            } else if (gmatch(type, "post")) {
+            } else if (gmatch(type, "form")) {
                 if (lookupRoute("/form/login") < 0) {
                     if ((route = websAddRoute(0, "/form/login", 0, redirect, 0, 0, verify)) == 0) {
                         return -1;
@@ -331,7 +331,7 @@ static int loadRouteConfig(char_t *path)
                         !websAddRoute(0, "/form/logout", "POST", redirect, 0, 0, verify)) {
                     return -1;
                 }
-                askLogin = websPostLogin;
+                askLogin = websFormLogin;
             } else {
                 type = 0;
             }

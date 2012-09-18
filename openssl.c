@@ -302,12 +302,6 @@ static int sslSetKeyFile(char_t *keyFile)
         }
 		return -1;
 	}
-    /*
-        Confirm that the certificate and the private key jive.
-     */
-	if (!SSL_CTX_check_private_key(sslctx)) {
-		return -1;
-	}
 	return 0;
 }
 

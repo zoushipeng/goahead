@@ -97,6 +97,20 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 }
 
 
+int websProcessPutData(Webs *wp)
+{
+    ssize   nbytes;
+
+    gassert(wp->putfd >= 0);
+    nbytes = ringqLen(&wp->input);
+    if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
+        websError(wp, WEBS_CLOSE | 500, "Can't write to file");
+        return -1;
+    }
+    return 0;
+}
+
+
 /*
     Do output back to the browser in the background. This is a socket write handler.
  */

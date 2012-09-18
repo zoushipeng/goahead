@@ -1093,8 +1093,8 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
 extern int gparseArgs(char *args, char **argv, int maxArgc);
 
 #if WINDOWS
-    extern void egSetInst(HINSTANCE inst);
-    extern HINSTANCE egGetInst();
+    extern void websSetInst(HINSTANCE inst);
+    extern HINSTANCE websGetInst();
 #endif
 
 /************************************ Tunables ********************************/
@@ -1537,6 +1537,7 @@ typedef struct WebsUploadFile {
     ssize   size;                   /**< Uploaded file size */
 } WebsUploadFile;
 
+extern void websUploadOpen();
 #endif
 /********************************** Defines ***********************************/
 
@@ -1554,7 +1555,6 @@ typedef struct WebsUploadFile {
 #define WEBS_COOKIE             0x8         /* Cookie supplied in request */
 #define WEBS_IF_MODIFIED        0x10        /* If-modified-since in request */
 
-//  MOB  - remove REQUEST suffix
 #define WEBS_POST               0x20        /* Post request operation */
 //  MOB - is this used?
 #define WEBS_LOCAL              0x40        /* Request from this system */
@@ -1623,29 +1623,32 @@ typedef struct Webs {
     int             timeout;            /* Timeout handle */
     char_t          ipaddr[64];         /* Connecting ipaddress */
     char_t          ifaddr[64];         /* Local interface ipaddress */
+
     //  MOB OPT - which of these should be allocated strings and which should be static
-    char_t          *authType;          /* Authorization type (Basic/DAA) */
+
     char_t          *authDetails;       /* Http header auth details */
-    //  MOB OPT static
-    char_t          *contentType;       /* Body content type */
-    char_t          *dir;               /* Directory containing the page */
-    char_t          *path;              /* Path name without query */
-    //  MOB OPT static
-    char_t          *ext;               /* Path extension */
-    char_t          *url;               /* Full request url */
-    char_t          *host;              /* Requested host */
-    char_t          *filename;          /* Document path name */
-    char_t          *query;             /* Request query */
-    char_t          *decodedQuery;      /* Decoded request query */
-    char_t          *method;            /* HTTP request method */
-    char_t          *cookie;            /* Request cookie string */
-    char_t          *responseCookie;    /* Outgoing cookie */
     char_t          *authResponse;      /* Outgoing auth header */
-    char_t          *userAgent;         /* User agent (browser) */
-    //  MOB OPT static
-    char_t          *protocol;          /* Protocol (normally HTTP) */
-    //  MOB OPT static
+    char_t          *authType;          /* Authorization type (Basic/DAA) */
+    char_t          *contentType;       /* Body content type */
+    char_t          *cookie;            /* Request cookie string */
+    char_t          *decodedQuery;      /* Decoded request query */
+    char_t          *digest;            /* Password digest */
+    char_t          *dir;               /* Directory containing the page */
+    char_t          *ext;               /* Path extension */
+    char_t          *filename;          /* Document path name */
+    char_t          *host;              /* Requested host */
+    char_t          *inputFile;         /* File name to write input body data */
+    char_t          *method;            /* HTTP request method */
+    char_t          *password;          /* Authorization password */
+    char_t          *path;              /* Path name without query */
     char_t          *protoVersion;      /* Protocol version */
+    char_t          *protocol;          /* Protocol (normally HTTP) */
+    char_t          *query;             /* Request query */
+    char_t          *realm;             /* Realm field supplied in auth header */
+    char_t          *responseCookie;    /* Outgoing cookie */
+    char_t          *url;               /* Full request url */
+    char_t          *userAgent;         /* User agent (browser) */
+    char_t          *username;          /* Authorization username */
 
     int             sid;                /* Socket id (handler) */
     int             listenSid;          /* Listen Socket id */
@@ -1656,45 +1659,38 @@ typedef struct Webs {
     ssize           clen;               /* Content length */
     ssize           remainingContent;   /* Content length */
     int             wid;                /* Index into webs */
+#if BIT_CGI
     char_t          *cgiStdin;          /* Filename for CGI program input */
     int             cgifd;              /* File handle for CGI program input */
-    char_t          *inputFile;         /* File name to write input body data */
-    int             infd;               /* File handle to write input data */
+#endif
+    int             putfd;              /* File handle to write PUT data */
     int             docfd;              /* File descriptor for document being served */
     ssize           numbytes;           /* Bytes to transfer to browser */
     ssize           written;            /* Bytes actually transferred */
     void            (*writable)(struct Webs *wp);
+
     struct WebsSession *session;        /* Session record */
     struct WebsRoute *route;            /* Request route */
     struct WebsUser *user;              /* User auth record */
-    char_t          *realm;             /* Realm field supplied in auth header */
-    //  MOB OPT static
-    char_t          *password;          /* Authorization password */
-    char_t          *digest;            /* Password digest */
-    //  MOB OPT static
-    char_t          *username;          /* Authorization username */
     int             encoded;            /* True if the password is MD5(username:realm:password) */
 #if BIT_DIGEST
-    char_t          *nonce;             /* opaque-to-client string sent by server */
-    char_t          *digestUri;         /* URI found in digest header */
-    char_t          *opaque;            /* opaque value passed from server */
-    char_t          *nc;                /* nonce count */
     char_t          *cnonce;            /* check nonce */
+    char_t          *digestUri;         /* URI found in digest header */
+    char_t          *nonce;             /* opaque-to-client string sent by server */
+    char_t          *nc;                /* nonce count */
+    char_t          *opaque;            /* opaque value passed from server */
     char_t          *qop;               /* quality operator */
 #endif
 #if BIT_UPLOAD
-    int             ufd;                /* Upload file handle */
+    int             upfd;               /* Upload file handle */
     WebsHash        files;              /* Uploaded files */
-    //  MOB OPT static
-    char            *boundary;          /* Mime boundary */
+    char            *boundary;          /* Mime boundary (static) */
     ssize           boundaryLen;        /* Boundary length */
     int             uploadState;        /* Current file upload state */
-
     WebsUploadFile  *currentFile;       /* Current file context */
-    int             *uploadFd;          /* Current upload file handle */
     char            *clientFilename;    /* Current file filename */
-    char            *tmpPath;           /* Current temp filename for upload data */
-    char            *id;                /* Current name keyword value */
+    char            *uploadTmp;         /* Current temp filename for upload data */
+    char            *uploadVar;         /* Current upload form variable name */
 #endif
 #if BIT_PACK_OPENSSL
     SSL             *ssl;               /* SSL state */
@@ -1706,7 +1702,7 @@ typedef struct Webs {
 
 
 typedef int (*WebsHandlerProc)(Webs *wp, char_t *prefix, char_t *dir, int arg);
-typedef int (*WebsFormProc)(Webs *wp, char_t *path, char_t *query);
+typedef int (*WebsProc)(Webs *wp, char_t *path, char_t *query);
 
 /*
     URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.
@@ -1792,11 +1788,10 @@ extern char *websEscapeHtml(cchar *html);
 extern void websError(Webs *wp, int code, char_t *msg, ...);
 extern char_t *websErrorMsg(int code);
 extern int websEval(char_t *cmd, char_t **rslt, void *chan);
-extern void websFooter(Webs *wp);
-extern void websFormClose();
-extern int websFormDefine(char_t *name, void *proc);
-extern int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
-extern void websFormOpen();
+extern void websProcClose();
+extern int websProcDefine(char_t *name, void *proc);
+extern int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
+extern void websProcOpen();
 extern void websFree(Webs *wp);
 extern char_t *websGetCgiCommName();
 extern char_t *websGetDateString(WebsFileInfo *sbuf);
@@ -1819,7 +1814,6 @@ extern char_t *websGetRequestPassword(Webs *wp);
 extern ssize websGetRequestWritten(Webs *wp);
 extern char_t *websGetVar(Webs *wp, char_t *var, char_t *def);
 extern int websCompareVar(Webs *wp, char_t *var, char_t *value);
-extern void websHeader(Webs *wp);
 extern int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
 extern char *websMD5(char_t *s);
 extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
@@ -1878,9 +1872,13 @@ extern void websSetDebug(int on);
 extern void websReadEvent(Webs *wp);
 
 #if BIT_UPLOAD
-extern void websProcessUploadData(Webs *wp);
+extern int websProcessUploadData(Webs *wp);
 extern void websFreeUpload(Webs *wp);
 #endif
+#if BIT_CGI
+extern int websProcessCgiData(Webs *wp);
+#endif
+extern int websProcessPutData(Webs *wp);
 
 #if BIT_JAVASCRIPT
 extern void websJsClose();
@@ -1892,6 +1890,7 @@ extern int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 #endif
 
 /*************************************** SSL ***********************************/
+
 #if BIT_PACK_SSL
 extern int sslOpen();
 extern void sslClose();
@@ -1962,7 +1961,7 @@ extern void websComputeAllUserAbilities();
 
 extern void websBasicLogin(Webs *wp);
 extern bool websParseBasicDetails(Webs *wp);
-extern void websPostLogin(Webs *wp);
+extern void websFormLogin(Webs *wp);
 extern bool websVerifyUser(Webs *wp);
 
 #if BIT_HAS_PAM && BIT_PAM
@@ -2042,12 +2041,14 @@ extern char *websGetSessionID(Webs *wp);
     #define websSetDefaultPage websGetIndex
     #define websSetRequestLpath websSetRequestFilename
     #define websGetRequestLpath websGetRequestFilename
+    #define websFormDefine websProcDefine
 
     typedef Webs WebsRec;
     typedef Webs websType;
     typedef Webs *webs_t;
     typedef WebsHash sym_fd_t;
     typedef WebsKey WebsKey;
+    typedef WebsFormProc WebsProc;
 
     typedef WebsHandler websUrlHandlerType;
     typedef WebsError websErrorType;
@@ -2056,6 +2057,8 @@ extern char *websGetSessionID(Webs *wp);
 #if BIT_ROM
     typedef WebsRomIndex websRomPageIndexType;
 #endif
+    extern void websHeader(Webs *wp);
+    extern void websFooter(Webs *wp);
 #endif
 
 #ifdef __cplusplus

@@ -2352,14 +2352,13 @@ int recv(int s, void *buf, size_t len, int flags)
 
 
 #if BIT_WIN_LIKE
-//  MOB - use webs prefix
-void egSetInst(HINSTANCE inst)
+void websSetInst(HINSTANCE inst)
 {
     appInstance = inst;
 }
 
 
-HINSTANCE egGetInst()
+HINSTANCE websGetInst()
 {
     return appInstance;
 }

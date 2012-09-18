@@ -31,8 +31,10 @@ static int aliasTest(Webs *wp, char_t *prefix, char_t *dir, int arg);
 static int aspTest(int eid, Webs *wp, int argc, char_t **argv);
 static int bigTest(int eid, Webs *wp, int argc, char_t **argv);
 #endif
-static void formTest(Webs *wp, char_t *path, char_t *query);
+static void procTest(Webs *wp, char_t *path, char_t *query);
 static void sessionTest(Webs *wp, char_t *path, char_t *query);
+static void showTest(Webs *wp, char_t *path, char_t *query);
+static void uploadTest(Webs *wp, char_t *path, char_t *query);
 
 #if BIT_UNIX_LIKE
 static void sigHandler(int signo);
@@ -51,10 +53,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
         argp = argv[argind];
         if (*argp != '-') {
             break;
+
         } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {                                   
             websSetBackground(1);
+
         } else if (gmatch(argp, "--debug")) {
             websSetDebug(1);
+
         } else if (gmatch(argp, "--home")) {
             if (argind >= argc) usage();
             home = argv[++argind];
@@ -62,21 +67,20 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 error(T("Can't change directory to %s"), home);
                 exit(-1);
             }
-#if BIT_DEBUG_LOG
         } else if (gmatch(argp, "--log") || gmatch(argp, "-l")) {
             if (argind >= argc) usage();
             traceSetPath(argv[++argind]);
 
         } else if (gmatch(argp, "--verbose") || gmatch(argp, "-v")) {
             traceSetPath("stdout:4");
-#endif
+
         } else if (gmatch(argp, "--route") || gmatch(argp, "-r")) {
             route = argv[++argind];
 
         } else if (gmatch(argp, "--version") || gmatch(argp, "-V")) {
-            //  MOB - replace
             printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
+
         } else {
             usage();
         }
@@ -119,7 +123,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
 #endif
     }
-    websUrlHandlerDefine(T("/form/"), 0, 0, websFormHandler, 0);
+    websUrlHandlerDefine(T("/proc/"), 0, 0, websProcHandler, 0);
     websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
     websUrlHandlerDefine(T("/alias/"), 0, 0, aliasTest, 0);
 #if BIT_JAVASCRIPT
@@ -132,8 +136,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websJsDefine(T("aspTest"), aspTest);
     websJsDefine(T("bigTest"), bigTest);
 #endif
-    websFormDefine(T("test"), formTest);
-    websFormDefine(T("sessionTest"), sessionTest);
+    websProcDefine(T("test"), procTest);
+    websProcDefine(T("sessionTest"), sessionTest);
+    websProcDefine(T("showTest"), showTest);
+    websProcDefine(T("uploadTest"), uploadTest);
 #if BIT_UNIX_LIKE
     /*
         Service events till terminated
@@ -224,11 +230,13 @@ static int bigTest(int eid, Webs *wp, int argc, char_t **argv)
 {
     int     i;
 
-	websHeader(wp);
+    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeader(wp, T("\r\n"));
+    websWrite(wp, T("<html>\n"));
     for (i = 0; i < 800; i++) {
         websWrite(wp, " Line: %05d %s", i, "aaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccccccccccccccccddddddd<br/>\r\n");
     }
-	websFooter(wp);
+    websWrite(wp, T("</html>\n"));
     websDone(wp, 200);
     return 0;
 }
@@ -236,24 +244,21 @@ static int bigTest(int eid, Webs *wp, int argc, char_t **argv)
 
 
 /*
-    Implement /form/formTest. Parse the form variables: name, address and echo back.
+    Implement /proc/procTest. Parse the form variables: name, address and echo back.
  */
-static void formTest(Webs *wp, char_t *path, char_t *query)
+static void procTest(Webs *wp, char_t *path, char_t *query)
 {
 	char_t	*name, *address;
 
 	name = websGetVar(wp, T("name"), NULL);
 	address = websGetVar(wp, T("address"), NULL);
-	websHeader(wp);
-	websWrite(wp, T("<body><h2>name: %s, address: %s</h2>\n"), name, address);
-	websFooter(wp);
+    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeader(wp, T("\r\n"));
+	websWrite(wp, T("<html><body><h2>name: %s, address: %s</h2></body></html>\n"), name, address);
 	websDone(wp, 200);
 }
 
 
-/*
-    Implement /form/sessionTest
- */
 static void sessionTest(Webs *wp, char_t *path, char_t *query)
 {
 	char_t	*number;
@@ -264,9 +269,39 @@ static void sessionTest(Webs *wp, char_t *path, char_t *query)
     } else {
         number = websGetSessionVar(wp, "number", 0);
     }
-    websHeader(wp);
-    websWrite(wp, T("<body><p>Number %s</p></body>\n"), number);
-    websFooter(wp);
+    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeader(wp, T("\r\n"));
+    websWrite(wp, T("<html><body><p>Number %s</p></body></html>\n"), number);
+    websDone(wp, 200);
+}
+
+
+static void showTest(Webs *wp, char_t *path, char_t *query)
+{
+    WebsKey     *s;
+
+    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeader(wp, T("\r\n"));
+    websWrite(wp, T("<html><body><pre>\n"));
+    for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
+        websWrite(wp, "%s=%s\n", s->name.value.string, s->content.value.string);
+    }
+    websWrite(wp, T("</pre></body></html>\n"));
+    websDone(wp, 200);
+}
+
+
+static void uploadTest(Webs *wp, char_t *path, char_t *query)
+{
+    WebsKey     *s;
+
+    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeader(wp, T("Content-Type: text/plain\r\n\r\n"));
+    if (gcaselessmatch(wp->method, "POST")) {
+        for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
+            websWrite(wp, "%s=%s\r\n", s->name.value.string, s->content.value.string);
+        }
+    }
     websDone(wp, 200);
 }
 

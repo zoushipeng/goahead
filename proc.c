@@ -1,8 +1,8 @@
 /*
-    form.c -- Form processing (in-memory CGI) for the GoAhead Web server
+    proc.c -- Proc handler.
 
-    This module implements the /goform handler. It emulates CGI processing but performs this in-process and not as an
-    external process. This enables a very high performance implementation with easy parsing and decoding of query
+    This module implements the /proc handler. It is a simple binding of URIs to C procedures.
+    This enables a very high performance implementation with easy parsing and decoding of query
     strings and posted data.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -20,12 +20,12 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
-    WebsKey         *sp;
-    char_t          formBuf[BIT_LIMIT_FILENAME];
-    char_t          *cp, *formName;
-    WebsFormProc    fn;
+    WebsKey     *sp;
+    char_t      formBuf[BIT_LIMIT_FILENAME];
+    char_t      *cp, *formName;
+    WebsProc    fn;
 
     gassert(websValid(wp));
 
@@ -47,10 +47,10 @@ int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
      */
     sp = symLookup(formSymtab, formName);
     if (sp == NULL) {
-        websError(wp, 404, T("Form %s is not defined"), formName);
+        websError(wp, 404, T("Proc %s is not defined"), formName);
     } else {
         //  MOB - should be a typedef
-        fn = (WebsFormProc) sp->content.value.symbol;
+        fn = (WebsProc) sp->content.value.symbol;
         gassert(fn);
         if (fn) {
             (*fn)((void*) wp, formName, wp->query);
@@ -61,9 +61,9 @@ int websFormHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 
 
 /*
-    Define a form function in the "form" map space.
+    Define a procedure function in the "proc" map space.
  */
-int websFormDefine(char_t *name, void *fn)
+int websProcDefine(char_t *name, void *fn)
 {
     gassert(name && *name);
     gassert(fn);
@@ -76,13 +76,13 @@ int websFormDefine(char_t *name, void *fn)
 }
 
 
-void websFormOpen()
+void websProcOpen()
 {
     formSymtab = symOpen(WEBS_SYM_INIT);
 }
 
 
-void websFormClose()
+void websProcClose()
 {
     if (formSymtab != -1) {
         symClose(formSymtab);
@@ -91,10 +91,10 @@ void websFormClose()
 }
 
 
+#if BIT_LEGACY
 /*
     Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
  */
-//  MOB - should be renamed websFormHeaders
 void websHeader(Webs *wp)
 {
     gassert(websValid(wp));
@@ -110,6 +110,7 @@ void websFooter(Webs *wp)
     gassert(websValid(wp));
     websWrite(wp, T("</html>\n"));
 }
+#endif
 
 /*
     @copy   default
