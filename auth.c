@@ -254,11 +254,6 @@ static void computeAbilities(WebsHash abilities, char *role, int depth)
         rp = (WebsRole*) key->content.value.symbol;
         for (key = symFirst(rp->abilities); key; key = symNext(rp->abilities, key)) {
             computeAbilities(abilities, key->name.value.string, ++depth);
-#if UNUSED
-            if (!symLookup(abilities, key->name.value.string)) {
-                symEnter(abilities, key->name.value.string, valueInteger(0), 0);
-            }
-#endif
         }
     } else {
         symEnter(abilities, role, valueInteger(0), 0);
@@ -304,86 +299,6 @@ void websComputeAllUserAbilities()
 }
 
 
-#if UNUSED
-bool websCanUser(Webs *wp, WebsHash abilities) 
-{
-    WebsKey     *key;
-    char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
-
-    if (!wp->user) {
-        if (!wp->username) {
-            return 0;
-        }
-        if ((wp->user = websLookupUser(wp->username)) == 0) {
-            trace(2, T("Can't find user %s\n"), wp->username);
-            return 0;
-        }
-    }
-    for (key = symFirst(abilities); key; key = symNext(abilities, key)) {
-        ability = key->name.value.string;
-        if ((cp = strchr(ability, '|')) != 0) {
-            /*
-                Examine a set of alternative abilities. Need only one to match
-             */ 
-            start = ability;
-            do {
-                gncopy(abuf, sizeof(abuf), start, cp - start);
-                if (symLookup(wp->user->abilities, abuf) != 0) {
-                    break;
-                }
-                start = &cp[1];
-            } while ((cp = strchr(start, '|')) != 0);
-            if (!cp) {
-                return 0;
-            }
-        } else if (symLookup(wp->user->abilities, ability) == 0) {
-            return 0;
-        }
-    }
-    return 1;
-}
-
-
-bool websCanString(Webs *wp, char *abilities) 
-{
-    WebsUser    *user;
-    char        *ability, *tok;
-
-    if (!wp->user) {
-        if (!wp->username) {
-            return 0;
-        }
-        if ((user = websLookupUser(wp->username)) == 0) {
-            trace(2, T("Can't find user %s\n"), wp->username);
-            return 0;
-        }
-    }
-    abilities = gstrdup(abilities);
-    for (ability = gtok(abilities, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
-        if (symLookup(wp->user->abilities, ability) == 0) {
-            gfree(abilities);
-            return 0;
-        }
-    }
-    gfree(abilities);
-    return 1;
-}
-#endif
-
-
-#if UNUSED
-bool websUserHasAbility(Webs *wp, char_t *ability) 
-{
-    WebsUser    *user;
-
-    if ((user = websLookupUser(wp->username)) == 0) {
-        return -1;
-    }
-    return symLookup(user->abilities, ability) ? 1 : 0; 
-}
-#endif
-
-
 int websAddRole(char_t *name, char_t *abilities)
 {
     WebsRole    *rp;
@@ -425,7 +340,7 @@ static void freeRole(WebsRole *rp)
 
 
 /*
-    Remove a role. Does not recompute abilities for users that use this role
+    Does not recompute abilities for users that use this role
  */
 int websRemoveRole(char_t *name) 
 {
@@ -491,12 +406,6 @@ static void loginServiceProc(Webs *wp)
 
 static void logoutServiceProc(Webs *wp)
 {
-#if FUTURE
-    if (!(wp->flags & WEBS_POST)) {
-        websError(wp, 401, T("Logout must be invoked with a post request."));
-        return;
-    }
-#endif
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
     if (gmatch(wp->authType, "basic") || gmatch(wp->authType, "digest")) {
         websError(wp, 401, T("Logged out."));
@@ -519,24 +428,6 @@ void websPostLogin(Webs *wp)
 {
     websRedirect(wp, wp->route->loginPage);
 }
-
-
-#if BIT_DIGEST
-void websDigestLogin(Webs *wp)
-{
-    char_t  *nonce, *opaque;
-
-    gassert(wp->route);
-    nonce = createDigestNonce(wp);
-    /* Opaque is unused. Set to anything */
-    opaque = T("5ccc069c403ebaf9f0171e9517f40e41");
-    gfmtAlloc(&wp->authResponse, -1,
-        "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
-        BIT_REALM, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
-    gfree(nonce);
-    websError(wp, 401, T("Access Denied. User not logged in."));
-}
-#endif
 
 
 bool websVerifyUser(Webs *wp)
@@ -608,6 +499,22 @@ bool websParseBasicDetails(Webs *wp)
 
 
 #if BIT_DIGEST
+void websDigestLogin(Webs *wp)
+{
+    char_t  *nonce, *opaque;
+
+    gassert(wp->route);
+    nonce = createDigestNonce(wp);
+    /* Opaque is unused. Set to anything */
+    opaque = T("5ccc069c403ebaf9f0171e9517f40e41");
+    gfmtAlloc(&wp->authResponse, -1,
+        "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
+        BIT_REALM, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
+    gfree(nonce);
+    websError(wp, 401, T("Access Denied. User not logged in."));
+}
+
+
 bool websParseDigestDetails(Webs *wp)
 {
     time_t  when;

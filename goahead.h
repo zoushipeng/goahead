@@ -1471,8 +1471,8 @@ extern int      socketOpen();
 extern int      socketListen(char *host, int port, socketAccept_t accept, int flags);
 extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int *secure, int defaultPort);
 extern void     socketProcess();
-extern ssize    socketRead(int sid, char *buf, ssize len);
-extern ssize    socketWrite(int sid, char *buf, ssize len);
+extern ssize    socketRead(int sid, void *buf, ssize len);
+extern ssize    socketWrite(int sid, void *buf, ssize len);
 extern ssize    socketWriteString(int sid, char_t *buf);
 extern int      socketSelect(int hid, int timeout);
 extern int      socketGetHandle(int sid);
@@ -1623,9 +1623,6 @@ typedef struct Webs {
     int             timeout;            /* Timeout handle */
     char_t          ipaddr[64];         /* Connecting ipaddress */
     char_t          ifaddr[64];         /* Local interface ipaddress */
-#if UNUSED
-    char_t          type[64];           /* Mime type */
-#endif
     //  MOB OPT - which of these should be allocated strings and which should be static
     char_t          *authType;          /* Authorization type (Basic/DAA) */
     char_t          *authDetails;       /* Http header auth details */
@@ -1700,10 +1697,10 @@ typedef struct Webs {
     char            *id;                /* Current name keyword value */
 #endif
 #if BIT_PACK_OPENSSL
-    SSL             *ssl;
-    BIO             *bio;
+    SSL             *ssl;               /* SSL state */
+    BIO             *bio;               /* Buffer for I/O - not used in actual I/O */
 #elif BIT_PACK_MATRIXSSL
-    sslConn_t       *sslConn;
+    void            *ms;                /* MatrixSSL state */
 #endif
 } Webs;
 
@@ -1819,9 +1816,6 @@ extern char_t *websGetRequestIpAddr(Webs *wp);
 extern char_t *websGetRequestFilename(Webs *wp);
 extern char_t *websGetRequestPath(Webs *wp);
 extern char_t *websGetRequestPassword(Webs *wp);
-#if UNUSED
-extern char_t *websGetRequestType(Webs *wp);
-#endif
 extern ssize websGetRequestWritten(Webs *wp);
 extern char_t *websGetVar(Webs *wp, char_t *var, char_t *def);
 extern int websCompareVar(Webs *wp, char_t *var, char_t *value);
@@ -1870,9 +1864,6 @@ extern int websUrlHandlerDelete(WebsHandlerProc handler);
 extern int websUrlHandlerOpen();
 extern void websHandleRequest(Webs *wp);
 extern int websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, char_t **proto, char_t **tag, char_t **ext);
-#if UNUSED
-extern char_t *websUrlType(char_t *webs, char_t *buf, int charCnt);
-#endif
 extern void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect);
 extern ssize websWriteHeader(Webs *wp, char_t *fmt, ...);
 extern ssize websWrite(Webs *wp, char_t *fmt, ...);
@@ -1902,44 +1893,18 @@ extern int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
 
 /*************************************** SSL ***********************************/
 #if BIT_PACK_SSL
-#if UNUSED
-extern int websSSLOpen();
-extern int websSSLIsOpen();
-extern void websSSLClose();
-extern ssize websSSLWrite(Webs *wp, char_t *buf, ssize len);
-extern int  websSSLEof(Webs *wp);
-extern void websSSLFree(Webs *wp);
-extern void websSSLFlush(Webs *wp);
-int websSSLUpgrade(Webs *wp);
-extern ssize websSSLRead(Webs *wp, char_t *buf, ssize len);
-#if UNUSED
-extern int websSSLAccept(Webs *wp, char_t *buf, ssize len);
-extern ssize websSSLGets(Webs *wp, char_t **buf);
-extern void websSSLSocketEvent(int sid, int mask, void *iwp);
-#endif
-#endif
-
 extern int sslOpen();
 extern void sslClose();
 extern int sslAccept(Webs *wp);
 extern void sslFree(Webs *wp);
 extern int sslUpgrade(Webs *wp);
-extern ssize sslRead(Webs *wp, char *buf, ssize len);
-extern ssize sslWrite(Webs *wp, char *buf, ssize len);
+extern ssize sslRead(Webs *wp, void *buf, ssize len);
+extern ssize sslWrite(Webs *wp, void *buf, ssize len);
 extern void sslWriteClosureAlert(Webs *wp);
-extern void sslFlush(Webs *wp);
-extern int sslSetKeyFile(char_t *keyFile);
-extern int sslSetCertFile(char_t *certFile);
+extern ssize sslFlush(Webs *wp);
 #endif /* BIT_PACK_SSL */
 
 /*************************************** Route *********************************/
-#if UNUSED
-/*
-    Route flags
- */
-#define WEBS_ROUTE_SECURE   0x1         /* Route must use TLS */
-#define WEBS_ROUTE_PUTDEL   0x2         /* Route supports PUT, DELETE methods */
-#endif
 
 typedef void (*WebsAskLogin)(Webs *wp);
 typedef bool (*WebsVerify)(Webs *wp);
@@ -2085,9 +2050,6 @@ extern char *websGetSessionID(Webs *wp);
     typedef WebsKey WebsKey;
 
     typedef WebsHandler websUrlHandlerType;
-#if UNUSED
-    typedef WebsStats websStatsType;
-#endif
     typedef WebsError websErrorType;
     typedef WebsMime websMimeType;
     typedef WebsFileInfo websStatType;

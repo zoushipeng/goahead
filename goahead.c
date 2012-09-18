@@ -92,10 +92,6 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error(T("Can't initialize server. Exiting."));
         return -1;
     }
-#if BIT_PACK_SSL
-    sslSetKeyFile(BIT_KEY);
-    sslSetCertFile(BIT_CERTIFICATE);
-#endif
     if (argind < argc) {
         while (argind < argc) {
             endpoint = argv[argind++];

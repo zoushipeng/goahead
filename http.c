@@ -762,9 +762,6 @@ static bool parseFirstLine(Webs *wp)
         wp->port = gatoi(port);
     }
     gfree(buf);
-#if UNUSED
-    websUrlType(url, wp->type, TSZ(wp->type));
-#endif
     return 1;
 }
 
@@ -1514,7 +1511,6 @@ static ssize writeToSocket(Webs *wp, char *buf, ssize size)
         if ((written = sslWrite(wp, buf, size)) < 0) {
             return -1;
         }
-        sslFlush(wp);
     } else 
 #endif
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
@@ -1713,7 +1709,6 @@ void websDone(Webs *wp, int code)
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         websTimeoutCancel(wp);
-        sslFlush(wp);
         //  MOB - why close connection. Why not keep-alive?
         socketCloseConnection(wp->sid);
         websFree(wp);
@@ -2000,17 +1995,6 @@ char_t *websGetRequestPassword(Webs *wp)
     gassert(websValid(wp));
     return wp->password;
 }
-
-
-#if UNUSED
-//  MOB DEPRECATE - #define to wp->path
-/* This is the type of request based on the filename exension */
-char_t *websGetRequestType(Webs *wp)
-{
-    gassert(websValid(wp));
-    return wp->type;
-}
-#endif
 
 
 char_t *websGetRequestUserName(Webs *wp)

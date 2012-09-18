@@ -553,7 +553,7 @@ static void socketDoEvent(socket_t *sp)
 
 
 /*
-    Set the socket blocking mode
+    Set the socket blocking mode. Return the previous mode.
  */
 int socketSetBlock(int sid, int on)
 {
@@ -615,7 +615,7 @@ int socketSetBlock(int sid, int on)
     Write to a socket. Absorb as much data as the socket can buffer. Block if the socket is in blocking mode. Returns -1
     on error, otherwise the number of bytes written.
  */
-ssize socketWrite(int sid, char *buf, ssize bufsize)
+ssize socketWrite(int sid, void *buf, ssize bufsize)
 {
     socket_t    *sp;
     ssize       len, written, sofar;
@@ -648,6 +648,7 @@ ssize socketWrite(int sid, char *buf, ssize bufsize)
 
 /*
     Write a string to a socket
+    MOB - change UNICODE api. Should never take unicode
  */
 ssize socketWriteString(int sid, char_t *buf)
 {
@@ -671,7 +672,7 @@ ssize socketWriteString(int sid, char_t *buf)
     may be zero. This routine may block if the socket is in blocking mode.
     Return -1 for errors or EOF. Distinguish between error and EOF via socketEof().
  */
-ssize socketRead(int sid, char *buf, ssize bufsize)
+ssize socketRead(int sid, void *buf, ssize bufsize)
 {
     socket_t    *sp;
     ssize       bytes;

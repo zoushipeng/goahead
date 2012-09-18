@@ -43,15 +43,6 @@ WebsRoute *websSelectRoute(Webs *wp)
         if (plen < route->prefixLen) continue;
         len = min(route->prefixLen, plen);
         if (strncmp(wp->path, route->prefix, len) == 0) {
-#if UNUSED
-            if ((route->flags & WEBS_ROUTE_SECURE) && !(wp->flags & WEBS_SECURE)) {
-                websError(wp, 405, T("Access Denied. Secure access is required."));
-                return 0;
-            }
-            if (wp->flags & (WEBS_PUT | WEBS_DELETE) && !(route->flags & WEBS_ROUTE_PUTDEL)) {
-                continue;
-            }
-#endif
             return route;
         }
     }
@@ -198,22 +189,12 @@ WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *lo
         }
         abilities = gstrdup(abilities);
         for (ability = gtok(abilities, T(" \t,|"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
-#if UNUSED
-            if (strcmp(ability, "SECURE") == 0) {
-                route->flags |= WEBS_ROUTE_SECURE;
-            } else if (strcmp(ability, "PUT") == 0) {
-                route->flags |= WEBS_ROUTE_PUTDEL;
-            } else if (strcmp(ability, "DELETE") == 0) {
-                route->flags |= WEBS_ROUTE_PUTDEL;
-            } else 
-#endif
             if (strcmp(ability, "none") == 0) {
                 continue;
-            } else {
-                if (symEnter(route->abilities, ability, valueInteger(0), 0) == 0) {
-                    gfree(abilities);
-                    return 0;
-                }
+            }
+            if (symEnter(route->abilities, ability, valueInteger(0), 0) == 0) {
+                gfree(abilities);
+                return 0;
             }
         }
         gfree(abilities);

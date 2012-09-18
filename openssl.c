@@ -12,33 +12,19 @@
 /************************************* Defines ********************************/
 
 
-#if UNUSED
-#if BIT_PACK_OPENSSL
-    #define SSLC_add_all_algorithms()	SSLeay_add_all_algorithms()
-#else
-    extern void SSLC_add_all_algorithms(void);
-#endif
-#endif
-
-extern RSA *RSA_new(void);
 static SSL_CTX *sslctx = NULL;
-
-#if UNUSED
-static int setCerts(SSL_CTX *ctx, char *certFile, char *keyFile);
-#endif
-
-static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
-static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
-
-#if UNUSED
-static int sslVerifyDepth = 0;
-static int sslVerifyError = X509_V_OK;
-#endif
 
 typedef struct RandBuf {
     time_t      now;
     int         pid;
 } RandBuf;
+
+/************************************ Forwards ********************************/
+
+static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
+static int sslSetCertFile(char_t *certFile);
+static int sslSetKeyFile(char_t *keyFile);
+static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 
 /************************************** Code **********************************/
 
@@ -72,7 +58,7 @@ int sslOpen()
 	}
 
     /*
-      	Set the certificate verification locations
+      	Set the client certificate verification locations
      */
     caFile = *BIT_CA_FILE ? BIT_CA_FILE : 0;
     caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
@@ -84,7 +70,7 @@ int sslOpen()
         }
     }
     /*
-      	Set the certificate and key files for the SSL context
+      	Set the server certificate and key files
      */
     if (*BIT_KEY && sslSetKeyFile(BIT_KEY) < 0) {
 		sslClose();
@@ -94,12 +80,6 @@ int sslOpen()
 		sslClose();
 		return -1;
     }
-#if UNUSED
-	if (setCerts(sslctx, BIT_CERTIFICATE, BIT_KEY) != 0) {
-		sslClose();
-		return -1;
-	}
-#endif
 	SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
 
 #if VERIFY_CLIENT
@@ -121,9 +101,6 @@ int sslOpen()
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_CA_FILE));
     }
 
-#if UNUSED
-	SSL_CTX_set_quiet_shutdown(sslctx, 1);
-#endif
 	SSL_CTX_set_options(sslctx, SSL_OP_ALL);
 	SSL_CTX_sess_set_cache_size(sslctx, 128);
 #ifdef SSL_OP_NO_TICKET
@@ -172,62 +149,24 @@ int sslUpgrade(Webs *wp)
     SSL_set_app_data(wp->ssl, (void*) wp);
     return 0;
 }
-
-
-#if UNUSED
-int sslAccept(Webs *wp) 
-{
-	socket_t	*sptr;
-	SSL			*ssl;
-	BIO			*bio, *bioSSL, *bioSock;
-    long        ret;
-	int			sock;
-
-	gassert (wp);
-	gassert(websValid(wp));
-
-	sptr = socketPtr(wp->sid);
-	gassert(sptr);
-	sock = sptr->sock;
-
-    /*
-      	Create a new BIO and SSL session for this web request
-     */
-	bio = BIO_new(BIO_f_buffer());
-	gassert(bio);
-
-	if (!BIO_set_write_buffer_size(bio, 128)) {
-		return -1;
-	}
-	if ((ssl = (SSL*) SSL_new(sslctx)) == 0) {
-		return -1;
-	}
-	SSL_set_session(ssl, NULL);
-	if ((bioSSL = BIO_new(BIO_f_ssl())) == 0) {
-        return -1;
-    }
-	if ((bioSock = BIO_new_socket(sock, BIO_NOCLOSE)) == 0) {
-        return -1;
-    }
-	SSL_set_bio(ssl, bioSock, bioSock);
-	SSL_set_accept_state(ssl);
-	ret = BIO_set_ssl(bioSSL, ssl, BIO_CLOSE);
-	BIO_push(bio, bioSSL);
-	wp->bio = bio;
-	wp->ssl = ssl;
-    return (int) ret;
-}
-#endif
     
 
-ssize sslRead(Webs *wp, char *buf, ssize len)
+void sslFree(Webs *wp)
+{
+    /* 
+        Re-use sessions
+     */
+	if (wp->ssl != NULL) {
+		SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+	}
+	if (wp->bio != NULL) {
+		BIO_free_all(wp->bio);
+	}
+}
+
+ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     socket_t        *sp;
-#if UNUSED
-    X509_NAME       *xSubject;
-    X509            *cert;
-    char            subject[260], issuer[260], peer[260];
-#endif
     char            ebuf[BIT_LIMIT_STRING];
     ulong           serror;
     int             rc, error, retries, i;
@@ -250,24 +189,6 @@ ssize sslRead(Webs *wp, char *buf, ssize len)
         }
         break;
     }
-#if UNUSED
-    if (rc > 0 && !(sp->flags & SOCKET_TRACED)) {
-        cert = SSL_get_peer_certificate(wp->ssl);
-        if (cert == 0) {
-            trace(4, "OpenSSL: client supplied no certificate");
-        } else {
-            xSubject = X509_get_subject_name(cert);
-            X509_NAME_oneline(xSubject, subject, sizeof(subject) -1);
-            X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) -1);
-            X509_NAME_get_text_by_NID(xSubject, NID_commonName, peer, sizeof(peer) - 1);
-            trace(4, "OpenSSL Subject %s", subject);
-            trace(4, "OpenSSL Issuer: %s", issuer);
-            trace(4, "OpenSSL Peer: %s", peer);
-            X509_free(cert);
-        }
-        sp->flags |= SOCKET_TRACED;
-    }
-#endif
     if (rc <= 0) {
         error = SSL_get_error(wp->ssl, rc);
         if (error == SSL_ERROR_WANT_READ) {
@@ -297,20 +218,7 @@ ssize sslRead(Webs *wp, char *buf, ssize len)
 }
 
 
-void sslFlush(Webs *wp)
-{
-#if UNUSED
-    gassert(wp);
-
-    if (!wp || !wp->bio) {
-        return;
-    }
-    (void) BIO_flush(wp->bio);
-#endif
-}
-
-
-ssize sslWrite(Webs *wp, char *buf, ssize len)
+ssize sslWrite(Webs *wp, void *buf, ssize len)
 {
     ssize   totalWritten;
     int     rc;
@@ -348,46 +256,10 @@ ssize sslWrite(Webs *wp, char *buf, ssize len)
 }
 
 
-#if UNUSED
-/*
-  	Set the SSL certificate and key for the SSL context
- */
-static int setCerts(SSL_CTX *ctx, char *cert, char *key)
-{
-	gassert (ctx);
-	gassert (cert);
-
-    if (key == NULL) {
-        key = cert;
-    }
-	if (cert && SSL_CTX_use_certificate_chain_file(ctx, cert) <= 0) {
-        if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_ASN1) <= 0) {
-            error(T("Unable to set certificate file: %s"), cert); 
-            return -1;
-        }
-    }
-    if (key && SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
-        if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0) {
-            error(T("Unable to set private key file: %s"), key); 
-            return -1;
-        }
-        /*		
-            Now we know that a key and cert have been set against the SSL context 
-         */
-		if (!SSL_CTX_check_private_key(ctx)) {
-			error(T("Check of private key file <%s> FAILED"), key); 
-			return -1;
-		}
-	}
-	return 0;
-}
-#endif
-
-
 /*
     Set certificate file for SSL context
  */
-int sslSetCertFile(char_t *certFile)
+static int sslSetCertFile(char_t *certFile)
 {
 	gassert (sslctx);
 	gassert (certFile);
@@ -415,7 +287,7 @@ int sslSetCertFile(char_t *certFile)
 /*
   	Set key file for SSL context
  */
-int sslSetKeyFile(char_t *keyFile)
+static int sslSetKeyFile(char_t *keyFile)
 {
 	gassert (sslctx);
 	gassert (keyFile);
@@ -430,59 +302,14 @@ int sslSetKeyFile(char_t *keyFile)
         }
 		return -1;
 	}
-#if UNUSED
-    //  MOB - re-enable
     /*
         Confirm that the certificate and the private key jive.
      */
 	if (!SSL_CTX_check_private_key(sslctx)) {
 		return -1;
 	}
-#endif
 	return 0;
 }
-
-
-
-#if UNUSED
-//  MOB - compare with MPR
-static int verifyCallback(int ok, X509_STORE_CTX *ctx)
-{
-	char	buf[256];
-	X509	*errCert;
-	int		err;
-	int		depth;
-
-	errCert =	X509_STORE_CTX_get_current_cert(ctx);
-	err =		X509_STORE_CTX_get_error(ctx);
-	depth =		X509_STORE_CTX_get_error_depth(ctx);
-
-	X509_NAME_oneline(X509_get_subject_name(errCert), buf, 256);
-
-	if (!ok) {
-		if (sslVerifyDepth >= depth)	{
-			ok = 1;
-			sslVerifyError = X509_V_OK;
-		} else {
-			ok=0;
-			sslVerifyError = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-		}
-	}
-
-	switch (err)	{
-	case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-		X509_NAME_oneline(X509_get_issuer_name(ctx->current_cert), buf, 256);
-		break;
-
-	case X509_V_ERR_CERT_NOT_YET_VALID:
-	case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-	case X509_V_ERR_CERT_HAS_EXPIRED:
-	case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-		break;
-	}
-	return ok;
-}
-#endif
 
 
 static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
@@ -572,19 +399,6 @@ static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength)
 	return rsaTemp;
 }
 
-
-void sslFree(Webs *wp)
-{
-    /* 
-        Re-use sessions
-     */
-	if (wp->ssl != NULL) {
-		SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-	}
-	if (wp->bio != NULL) {
-		BIO_free_all(wp->bio);
-	}
-}
 
 #endif
 
