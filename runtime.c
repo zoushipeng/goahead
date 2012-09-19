@@ -669,8 +669,10 @@ static void defaultTraceHandler(int level, char_t *buf)
 
     if (traceFd >= 0) {
         //  MOB OPT
-        len = gfmtStatic(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, level & WEBS_LOG_MASK);
-        write(traceFd, prefix, (int) len);
+        if (!(level & WEBS_LOG_RAW)) {
+            len = gfmtStatic(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, level & WEBS_LOG_MASK);
+            write(traceFd, prefix, (int) len);
+        }
         len = gstrlen(buf);
         //  MOB OPT
         abuf = gallocUniToAsc(buf, len + 1);

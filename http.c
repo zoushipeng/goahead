@@ -1733,7 +1733,8 @@ void websDone(Webs *wp, int code)
 static void initWebs(Webs *wp, int wid, int sid, int flags, ringq_t *input)
 {
     memset(wp, 0, sizeof(Webs));
-    wp->state = flags;
+    wp->flags = flags;
+    wp->state = WEBS_BEGIN;
     wp->wid = wid;
     wp->sid = sid;
     wp->docfd = -1;
@@ -1817,7 +1818,7 @@ int websAlloc(int sid)
         return -1;
     }
     wp = webs[wid];
-    initWebs(wp, wid, sid, WEBS_BEGIN, 0);
+    initWebs(wp, wid, sid, 0, 0);
     wp->sid = sid;
     return wid;
 }
