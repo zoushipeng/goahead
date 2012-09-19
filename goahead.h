@@ -163,6 +163,27 @@
     #define BIT_WORDSIZE 32
 #endif
 
+/*
+    Foundational types
+ */
+#ifndef BIT_CHAR_LEN
+    #define BIT_CHAR_LEN 1
+    #define UNICODE 0
+    typedef short wchar;
+#elif BIT_CHAR_LEN == 4
+    typedef int32 wchar;
+    #define T(s) L ## s
+    #define UNICODE 1
+#elif BIT_CHAR_LEN == 2
+    typedef short wchar;
+    #define T(s) L ## s
+    #define UNICODE 1
+#else
+    typedef char wchar;
+    #define T(s) s
+    #define UNICODE 0
+#endif
+
 /********************************* O/S Includes *******************************/
 /*
     Out-of-order definitions and includes. Order really matters in this section
@@ -853,16 +874,18 @@ typedef int64 WebsDateTime;
     typedef ushort char_t;
     typedef ushort uchar_t;
 
+#if UNUSED
     /*
         To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
      */
     #define T(x)      __TXT(x)
     #define __TXT(s)  L ## s
+#endif
 
     /*
-        Text size of buffer macro. A buffer bytes will hold (size / char size) characters. 
+        Size of a buffer in characters
      */
-    #define TSZ(x) (sizeof(x) / sizeof(char_t))
+    #define TSZ(x) (sizeof(x) / sizeof(wchar))
 
     #define gaccess     _waccess
     #define gasctime    _wasctime
@@ -940,6 +963,7 @@ typedef int64 WebsDateTime;
     
 #else /* !UNICODE */
 
+    //  MOB REVIEW
     #define T(s)        s
     #define TSZ(x)      (sizeof(x))
     typedef char        char_t;
@@ -2005,6 +2029,10 @@ extern char *websGetSessionID(Webs *wp);
 /************************************ Legacy **********************************/
 
 #if BIT_LEGACY
+//  MOB ORDER
+    typedef wchar char_t;
+    typedef unsigned wchar uchar_t;
+
     #define a_assert gassert
     typedef WebsStat gstat_t;
     #define emfSchedProc WebsCallback
