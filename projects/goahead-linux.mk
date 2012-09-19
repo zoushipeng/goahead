@@ -24,6 +24,7 @@ CFLAGS          += $(CFLAGS-$(PROFILE))
 LDFLAGS         += $(LDFLAGS-$(PROFILE))
 
 all: prep \
+        $(CONFIG)/bin/libgo.so \
         $(CONFIG)/bin/goahead \
         $(CONFIG)/bin/goahead-test \
         $(CONFIG)/bin/webcomp \
@@ -41,6 +42,7 @@ prep:
 	fi; true
 
 clean:
+	rm -rf $(CONFIG)/bin/libgo.so
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
 	rm -rf $(CONFIG)/bin/webcomp
@@ -49,22 +51,21 @@ clean:
 	rm -rf $(CONFIG)/obj/cgi.o
 	rm -rf $(CONFIG)/obj/crypt.o
 	rm -rf $(CONFIG)/obj/file.o
-	rm -rf $(CONFIG)/obj/form.o
 	rm -rf $(CONFIG)/obj/galloc.o
-	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/handler.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/matrixssl.o
 	rm -rf $(CONFIG)/obj/openssl.o
+	rm -rf $(CONFIG)/obj/proc.o
 	rm -rf $(CONFIG)/obj/rom-documents.o
 	rm -rf $(CONFIG)/obj/rom.o
 	rm -rf $(CONFIG)/obj/route.o
 	rm -rf $(CONFIG)/obj/runtime.o
 	rm -rf $(CONFIG)/obj/socket.o
-	rm -rf $(CONFIG)/obj/ssl.o
 	rm -rf $(CONFIG)/obj/template.o
 	rm -rf $(CONFIG)/obj/upload.o
+	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/webcomp.o
 	rm -rf $(CONFIG)/obj/cgitest.o
@@ -100,20 +101,10 @@ $(CONFIG)/obj/file.o: \
         $(CONFIG)/inc/bit.h
 	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc file.c
 
-$(CONFIG)/obj/form.o: \
-        form.c \
-        $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/form.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc form.c
-
 $(CONFIG)/obj/galloc.o: \
         galloc.c \
         $(CONFIG)/inc/bit.h
 	$(CC) -c -o $(CONFIG)/obj/galloc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc galloc.c
-
-$(CONFIG)/obj/goahead.o: \
-        goahead.c \
-        $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
 
 $(CONFIG)/obj/handler.o: \
         handler.c \
@@ -140,6 +131,11 @@ $(CONFIG)/obj/openssl.o: \
         $(CONFIG)/inc/bit.h
 	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc openssl.c
 
+$(CONFIG)/obj/proc.o: \
+        proc.c \
+        $(CONFIG)/inc/bit.h
+	$(CC) -c -o $(CONFIG)/obj/proc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc proc.c
+
 $(CONFIG)/obj/rom-documents.o: \
         rom-documents.c \
         $(CONFIG)/inc/bit.h
@@ -165,11 +161,6 @@ $(CONFIG)/obj/socket.o: \
         $(CONFIG)/inc/bit.h
 	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc socket.c
 
-$(CONFIG)/obj/ssl.o: \
-        ssl.c \
-        $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/ssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc ssl.c
-
 $(CONFIG)/obj/template.o: \
         template.c \
         $(CONFIG)/inc/bit.h
@@ -180,6 +171,34 @@ $(CONFIG)/obj/upload.o: \
         $(CONFIG)/inc/bit.h
 	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc upload.c
 
+$(CONFIG)/bin/libgo.so:  \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
+        $(CONFIG)/obj/auth.o \
+        $(CONFIG)/obj/cgi.o \
+        $(CONFIG)/obj/crypt.o \
+        $(CONFIG)/obj/file.o \
+        $(CONFIG)/obj/galloc.o \
+        $(CONFIG)/obj/handler.o \
+        $(CONFIG)/obj/http.o \
+        $(CONFIG)/obj/js.o \
+        $(CONFIG)/obj/matrixssl.o \
+        $(CONFIG)/obj/openssl.o \
+        $(CONFIG)/obj/proc.o \
+        $(CONFIG)/obj/rom-documents.o \
+        $(CONFIG)/obj/rom.o \
+        $(CONFIG)/obj/route.o \
+        $(CONFIG)/obj/runtime.o \
+        $(CONFIG)/obj/socket.o \
+        $(CONFIG)/obj/template.o \
+        $(CONFIG)/obj/upload.o
+	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/proc.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(LIBS)
+
+$(CONFIG)/obj/goahead.o: \
+        goahead.c \
+        $(CONFIG)/inc/bit.h
+	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
+
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
@@ -187,7 +206,6 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
         $(CONFIG)/obj/file.o \
-        $(CONFIG)/obj/form.o \
         $(CONFIG)/obj/galloc.o \
         $(CONFIG)/obj/goahead.o \
         $(CONFIG)/obj/handler.o \
@@ -195,15 +213,15 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/matrixssl.o \
         $(CONFIG)/obj/openssl.o \
+        $(CONFIG)/obj/proc.o \
         $(CONFIG)/obj/rom-documents.o \
         $(CONFIG)/obj/rom.o \
         $(CONFIG)/obj/route.o \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
-        $(CONFIG)/obj/ssl.o \
         $(CONFIG)/obj/template.o \
         $(CONFIG)/obj/upload.o
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/form.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(LIBS) $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/proc.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/test.o: \
         test/test.c \
@@ -217,23 +235,22 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
         $(CONFIG)/obj/file.o \
-        $(CONFIG)/obj/form.o \
         $(CONFIG)/obj/galloc.o \
         $(CONFIG)/obj/handler.o \
         $(CONFIG)/obj/http.o \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/matrixssl.o \
         $(CONFIG)/obj/openssl.o \
+        $(CONFIG)/obj/proc.o \
         $(CONFIG)/obj/rom-documents.o \
         $(CONFIG)/obj/rom.o \
         $(CONFIG)/obj/route.o \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
-        $(CONFIG)/obj/ssl.o \
         $(CONFIG)/obj/template.o \
         $(CONFIG)/obj/upload.o \
         $(CONFIG)/obj/test.o
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/form.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/ssl.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/test.o $(LIBS) $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/handler.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/proc.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/test.o $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \

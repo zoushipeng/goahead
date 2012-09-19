@@ -6,11 +6,11 @@
  */
 
 /* Settings */
+#ifndef BIT__MINIMAL
+    #define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
+#endif
 #ifndef BIT_ACCESS_LOG
     #define BIT_ACCESS_LOG 0
-#endif
-#ifndef BIT_AUTH
-    #define BIT_AUTH 1
 #endif
 #ifndef BIT_AUTO_LOGIN
     #define BIT_AUTO_LOGIN 0
@@ -25,7 +25,7 @@
     #define BIT_CA_PATH ""
 #endif
 #ifndef BIT_CERTIFICATE
-    #define BIT_CERTIFICATE ""
+    #define BIT_CERTIFICATE "server.crt"
 #endif
 #ifndef BIT_CGI
     #define BIT_CGI 1
@@ -36,14 +36,8 @@
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
 #endif
-#ifndef BIT_DEBUG_LOG
-    #define BIT_DEBUG_LOG 1
-#endif
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
-#endif
-#ifndef BIT_DIGEST
-    #define BIT_DIGEST 1
 #endif
 #ifndef BIT_DOCUMENTS
     #define BIT_DOCUMENTS "web"
@@ -84,17 +78,11 @@
 #ifndef BIT_HTTP_V6_PORT
     #define BIT_HTTP_V6_PORT 9090
 #endif
-#ifndef BIT_IF_MODIFIED
-    #define BIT_IF_MODIFIED 1
-#endif
 #ifndef BIT_JAVASCRIPT
     #define BIT_JAVASCRIPT 1
 #endif
-#ifndef BIT_KEEP_ALIVE
-    #define BIT_KEEP_ALIVE 1
-#endif
 #ifndef BIT_KEY
-    #define BIT_KEY ""
+    #define BIT_KEY "server.key.pem"
 #endif
 #ifndef BIT_LEGACY
     #define BIT_LEGACY 0
@@ -142,7 +130,7 @@
     #define BIT_LIMIT_URI 2048
 #endif
 #ifndef BIT_MINIMAL
-    #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
+    #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #endif
 #ifndef BIT_OPTIONAL
     #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
@@ -152,9 +140,6 @@
 #endif
 #ifndef BIT_PAM
     #define BIT_PAM 0
-#endif
-#ifndef BIT_PASSWORD
-    #define BIT_PASSWORD ""
 #endif
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"
@@ -168,12 +153,6 @@
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "compiler,link"
 #endif
-#ifndef BIT_ROUTE
-    #define BIT_ROUTE 1
-#endif
-#ifndef BIT_SESSIONS
-    #define BIT_SESSIONS 1
-#endif
 #ifndef BIT_SSL_PORT
     #define BIT_SSL_PORT 4443
 #endif
@@ -184,7 +163,7 @@
     #define BIT_TRACE "stdout:2"
 #endif
 #ifndef BIT_UPLOAD
-    #define BIT_UPLOAD 0
+    #define BIT_UPLOAD 1
 #endif
 #ifndef BIT_UPLOAD_DIR
     #define BIT_UPLOAD_DIR "/tmp"
