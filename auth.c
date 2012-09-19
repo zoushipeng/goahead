@@ -76,8 +76,9 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
 
 bool websAuthenticate(Webs *wp)
 {
-    WebsRoute       *route;
-    int             cached;
+    WebsRoute   *route;
+    char        *username;
+    int         cached;
 
     route = wp->route;
 
@@ -87,7 +88,6 @@ bool websAuthenticate(Webs *wp)
     }
     cached = 0;
     if (wp->cookie && websGetSession(wp, 0) != 0) {
-        char    *username;
         /*
             Retrieve authentication state from the session storage. Faster than re-authenticating.
          */

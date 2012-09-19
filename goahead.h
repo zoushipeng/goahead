@@ -1093,7 +1093,7 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
             extern int main(); \
             char *mcommand[BIT_LIMIT_STRING]; \
             int largc; \
-            wtom(mcommand, sizeof(dest), command, -1);
+            wtom(mcommand, sizeof(dest), command, -1); \
             largc = gparseArgs(mcommand, &largv[1], BIT_MAX_ARGC - 1); \
             largv[0] = #name; \
             gsetAppInstance(inst); \
