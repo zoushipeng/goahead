@@ -791,6 +791,7 @@ extern "C" {
     #define lseek   _lseek
     #define unlink  _unlink
     #define stat    _stat
+    extern void sleep(int secs);
 #endif
 
 /**

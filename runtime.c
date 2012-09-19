@@ -2374,7 +2374,7 @@ HINSTANCE websGetInst()
 
 static void syslog(int priority, cchar *fmt, ...)
 {
-    va_args     args;
+    va_list     args;
     HKEY        hkey;
     void        *event;
     long        errorType;
@@ -2451,6 +2451,13 @@ char_t *basename(char_t *name)
     } else {
         return ++cp;
     }
+}
+#endif
+
+#if BIT_WIN_LIKE
+void sleep(int secs)
+{
+    Sleep(secs / 1000);
 }
 #endif
 
