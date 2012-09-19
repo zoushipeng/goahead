@@ -27,7 +27,7 @@ int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 {
     gassert(websValid(wp));
 
-    if (gstrcmp(wp->ext, T(".asp")) != 0) {
+    if (gmatch(wp->ext, T(".asp"))) {
         return 0;
     }
     if (websJsRequest(wp, wp->filename) < 0) {

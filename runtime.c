@@ -266,7 +266,7 @@ ssize gfmtStatic(char_t *s, ssize n, char_t *fmt, ...)
 
     gassert(s);
     gassert(fmt);
-    gassert(n <= 256);
+    gassert(n <= BIT_LIMIT_STRING);
 
     if (n <= 0) {
         return -1;
@@ -662,20 +662,39 @@ void valueFree(value_t* v)
 }
 
 
+static void defaultTraceHandler(int level, char_t *buf)
+{
+    char    *abuf, prefix[BIT_LIMIT_STRING];
+    ssize   len;
+
+    if (traceFd >= 0) {
+        //  MOB OPT
+        len = gfmtStatic(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, level & WEBS_LOG_MASK);
+        write(traceFd, prefix, (int) len);
+        len = gstrlen(buf);
+        //  MOB OPT
+        abuf = gallocUniToAsc(buf, len + 1);
+        write(traceFd, abuf, (int) len);
+        gfree(abuf);
+        if (level & WEBS_LOG_NEWLINE) {
+            write(traceFd, "\n", 1);
+        }
+    }
+}
+
+
 void error(char_t *fmt, ...)
 {
     va_list     args;
-    char_t      *buf, *message;
+    char_t      *message;
 
     if (!traceHandler) {
         return;
     }
     va_start(args, fmt);
-    gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
+    gfmtValloc(&message, BIT_LIMIT_STRING, fmt, args);
     va_end(args);
-    gfmtAlloc(&message, BIT_LIMIT_STRING, "%s\n", buf);
-    gfree(buf);
-    traceHandler(-1, message);
+    traceHandler(WEBS_LOG_NEWLINE, message);
     if (websGetBackground()) {
         syslog(LOG_ERR, "%s", message);
     }
@@ -686,18 +705,18 @@ void error(char_t *fmt, ...)
 void gassertError(WEBS_ARGS_DEC, char_t *fmt, ...)
 {
     va_list     args;
-    char_t      *fmtBuf, *buf;
+    char_t      *fmtBuf, *message;
 
     va_start(args, fmt);
     gfmtValloc(&fmtBuf, BIT_LIMIT_STRING, fmt, args);
 
-    gfmtAlloc(&buf, BIT_LIMIT_STRING, T("Assertion %s, failed at %s %d\n"), fmtBuf, WEBS_ARGS); 
+    gfmtAlloc(&message, BIT_LIMIT_STRING, T("Assertion %s, failed at %s %d\n"), fmtBuf, WEBS_ARGS); 
     va_end(args);
     gfree(fmtBuf);
     if (traceHandler) {
-        traceHandler(-1, buf);
+        traceHandler(-1, message);
     }
-    gfree(buf);
+    gfree(message);
 }
 
 
@@ -707,29 +726,31 @@ void gassertError(WEBS_ARGS_DEC, char_t *fmt, ...)
 void trace(int level, char_t *fmt, ...)
 {
     va_list     args;
-    char_t      *buf;
+    char_t      *message;
 
-    if (level <= traceLevel) {    
+    if ((level & WEBS_LOG_MASK) <= traceLevel) {    
         va_start(args, fmt);
-        gfmtValloc(&buf, BIT_LIMIT_STRING, fmt, args);
+        gfmtValloc(&message, BIT_LIMIT_STRING, fmt, args);
         if (traceHandler) {
-            traceHandler(level, buf);
+            traceHandler(level, message);
         }
-        gfree(buf);
+        gfree(message);
         va_end(args);
     }
 }
 
 
+#if UNUSED
 /*
     Trace log. Customize this function to log trace output
  */
 void traceRaw(char_t *buf)
 {
     if (traceHandler) {
-        traceHandler(0, buf);
+        traceHandler(WEBS_LOG_RAW, buf);
     }
 }
+#endif
 
 
 /*
@@ -783,21 +804,6 @@ void traceSetPath(char_t *path)
     if ((lp = strchr(tracePath, ':')) != 0) {
         *lp++ = '\0';
         traceLevel = atoi(lp);
-    }
-}
-
-
-static void defaultTraceHandler(int level, char_t *buf)
-{
-    char    *abuf;
-    ssize   len;
-
-    if (traceFd >= 0) {
-        len = gstrlen(buf);
-        //  MOB OPT
-        abuf = gallocUniToAsc(buf, len + 1);
-        write(traceFd, abuf, (int) len);
-        gfree(abuf);
     }
 }
 

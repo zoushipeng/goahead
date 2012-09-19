@@ -1108,6 +1108,13 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_ARGS_DEC          char_t *file, int line
 #define WEBS_ARGS              file, line
 
+/*
+    Log level flags
+ */
+#define WEBS_LOG_RAW        0x1000
+#define WEBS_LOG_NEWLINE    0x2000
+#define WEBS_LOG_MASK       0xF
+
 #if BIT_DEBUG
     #define gassert(C)     if (C) ; else gassertError(WEBS_L, T("%s"), T(#C))
     extern void gassertError(WEBS_ARGS_DEC, char_t *fmt, ...);
@@ -1116,7 +1123,9 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 #endif
 
 #define LOG trace
+#if UNUSED
 extern void traceRaw(char_t *buf);
+#endif
 extern int traceOpen();
 extern void traceClose();
 typedef void (*WebsTraceHandler)(int level, char_t *msg);
@@ -1527,6 +1536,12 @@ extern void gunschedCallback(int id);
 extern void greschedCallback(int id, int delay);
 extern void grunCallbacks();
 
+/* Forward declare */
+struct WebsRoute;
+struct WebsUser;
+struct WebsSession;
+struct Webs;
+
 /********************************** Upload ************************************/
 #if BIT_UPLOAD
 
@@ -1538,6 +1553,8 @@ typedef struct WebsUploadFile {
 } WebsUploadFile;
 
 extern void websUploadOpen();
+extern WebsHash websGetUpload(struct Webs *wp);
+extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #endif
 /********************************** Defines ***********************************/
 
@@ -1606,11 +1623,6 @@ extern void websUploadOpen();
  */
 #define WEBS_CLOSE          0x20000
 
-/* Forward declare */
-struct WebsRoute;
-struct WebsUser;
-struct WebsSession;
-
 /* 
     Per socket connection webs structure
  */
@@ -1657,7 +1669,8 @@ typedef struct Webs {
     int             flags;              /* Current flags -- see above */
     int             code;               /* Response status code */
     ssize           clen;               /* Content length */
-    ssize           remainingContent;   /* Content length */
+    ssize           remainingContent;   /* Remaining content length to read */
+    ssize           buffered;           /* Content buffered in input */
     int             wid;                /* Index into webs */
 #if BIT_CGI
     char_t          *cgiStdin;          /* Filename for CGI program input */

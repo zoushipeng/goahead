@@ -283,7 +283,7 @@ static void showTest(Webs *wp, char_t *path, char_t *query)
     websWriteHeaders(wp, 200, -1, 0);
     websWriteHeader(wp, T("\r\n"));
     websWrite(wp, T("<html><body><pre>\n"));
-    for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
+    for (s = symFirst(wp->vars); s; s = symNext(wp->vars, s)) {
         websWrite(wp, "%s=%s\n", s->name.value.string, s->content.value.string);
     }
     websWrite(wp, T("</pre></body></html>\n"));
@@ -293,12 +293,22 @@ static void showTest(Webs *wp, char_t *path, char_t *query)
 
 static void uploadTest(Webs *wp, char_t *path, char_t *query)
 {
-    WebsKey     *s;
+    WebsKey         *s;
+    WebsUploadFile  *up;
 
     websWriteHeaders(wp, 200, -1, 0);
     websWriteHeader(wp, T("Content-Type: text/plain\r\n\r\n"));
     if (gcaselessmatch(wp->method, "POST")) {
-        for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
+        for (s = symFirst(wp->files); s; s = symNext(wp->files, s)) {
+            up = s->content.value.symbol;
+            websWrite(wp, "FILE: %s\r\n", s->name.value.string);
+            websWrite(wp, "FILENAME=%s\r\n", up->filename);
+            websWrite(wp, "CLIENT=%s\r\n", up->clientFilename);
+            websWrite(wp, "TYPE=%s\r\n", up->contentType);
+            websWrite(wp, "SIZE=%d\r\n", up->size);
+        }
+        websWrite(wp, "\r\nVARS:\r\n");
+        for (s = symFirst(wp->vars); s; s = symNext(wp->vars, s)) {
             websWrite(wp, "%s=%s\r\n", s->name.value.string, s->content.value.string);
         }
     }

@@ -31,13 +31,6 @@ static char_t       websIpAddr[64];             /* IP address for the server */
 static char_t       *websHostUrl = NULL;        /* URL to access server */
 static char_t       *websIpAddrUrl = NULL;      /* URL to access server */
 
-/*
-    htmExt is declared in this way to avoid a Linux and Solaris segmentation
-    fault when a constant string is passed to gstrlower which could change its
-    argument.
- */
-static char_t  htmExt[] = T(".htm");
-
 #define WEBS_ENCODE_HTML    0x1         /* Bit setting in charMatch[] */
 
 /*
@@ -609,7 +602,7 @@ bool parseIncoming(Webs *wp)
     }
     if ((end = gstrstr((char*) wp->input.servp, "\r\n\r\n")) == 0) {
         if (ringqLen(&wp->input) >= BIT_LIMIT_HEADER) {
-            websError(wp, 413, T("Header too large"));
+            websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, T("Header too large"));
         }
         return 0;
     }
@@ -716,9 +709,9 @@ static bool parseFirstLine(Webs *wp)
     protoVer = getToken(wp, "\r\n");
 
 #if BIT_DEBUG
-    trace(3, T("<<< Request\n"));
+    trace(3 | WEBS_LOG_RAW, T("<<< Request\n"));
 #endif
-    trace(2, T("%s %s %s\n"), wp->method, url, protoVer);
+    trace(2 | WEBS_LOG_RAW, T("%s %s %s\n"), wp->method, url, protoVer);
 
     /*
         Parse the URL and store all the various URL components. websUrlParse returns an allocated buffer in buf which we
@@ -736,7 +729,9 @@ static bool parseFirstLine(Webs *wp)
         return 0;
     }
     wp->url = gstrdup(url);
-    wp->ext = gstrdup(gstrlower(ext));
+    if (ext) {
+        wp->ext = gstrdup(gstrlower(ext));
+    }
     wp->dir = gstrdup(websGetDocuments());
     /*
         Get a default filename
@@ -773,7 +768,7 @@ static bool parseHeaders(Webs *wp)
 
     gassert(websValid(wp));
 
-    trace(3, T("%s"), wp->input.servp);
+    trace(3 | WEBS_LOG_RAW, T("%s"), wp->input.servp);
     websSetVar(wp, T("HTTP_AUTHORIZATION"), T(""));
 
     /* 
@@ -881,6 +876,10 @@ static bool parseHeaders(Webs *wp)
                 wp->flags |= WEBS_IF_MODIFIED;
             }
             gfree(cmd);
+
+        } else if (gstrcmp(key, T("transfer-encoding")) == 0) {
+            websError(wp, HTTP_CODE_UNSUPPORTED_MEDIA_TYPE | WEBS_CLOSE, T("Transfer chunk encoding not supported"));
+            return 0;
         }
     }
     wp->input.servp += 2;
@@ -896,6 +895,7 @@ static bool processContent(Webs *wp)
     if ((nbytes = ringqLen(&wp->input)) == 0) {
         return 0;
     }
+    wp->remainingContent -= (nbytes - wp->buffered);
 #if BIT_CGI
     if (wp->cgifd >= 0 && websProcessCgiData(wp) < 0) {
         return 0;
@@ -909,7 +909,9 @@ static bool processContent(Webs *wp)
     if (wp->putfd >= 0 && websProcessPutData(wp) < 0) {
         return 0;
     }
-    wp->remainingContent -= (nbytes - ringqLen(&wp->input));
+    wp->buffered = ringqLen(&wp->input);
+
+    gassert(wp->remainingContent >= 0);
     if (wp->remainingContent <= 0) {
         wp->state = WEBS_RUNNING;
         return 1;
@@ -1264,14 +1266,15 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
 
     gassert(fmt);
 
-    if (!websValid(wp) || wp->state == WEBS_BEGIN) {
-        websDone(wp, 500);
-        return;
-    }
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
-        code &= ~WEBS_CLOSE;
     }
+    if (!websValid(wp) /* MOB - need to emit errors || wp->state == WEBS_BEGIN */) {
+        websDone(wp, code);
+        return;
+    }
+    code &= ~WEBS_CLOSE;
+
     if (wp->remainingContent && code != 200 && code != 301 && code != 302 && code != 401) {
         /* Close connection so we don't have to consume remaining content */
         wp->flags &= ~WEBS_KEEP_ALIVE;
@@ -1335,9 +1338,9 @@ ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
     if (buf) {
         if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
             wp->flags |= WEBS_RESPONSE_TRACED;
-            trace(3, T(">>> Response\n"));
+            trace(3 | WEBS_LOG_RAW, T(">>> Response\n"));
         }
-        trace(3, T("%s"), buf);
+        trace(3 | WEBS_LOG_RAW, T("%s"), buf);
         rc = websWriteBlock(wp, buf, gstrlen(buf));
         gfree(buf);
     }
@@ -1391,11 +1394,11 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
         if (redirect) {
             websWriteHeader(wp, T("Location: %s\r\n"), redirect);
         } else if ((key = symLookup(websMime, wp->ext)) != 0) {
-            websWriteHeader(wp, T("Content-type: %s\r\n"), key->content.value.string);
+            websWriteHeader(wp, T("Content-Type: %s\r\n"), key->content.value.string);
         }
         if (wp->responseCookie) {
             websWriteHeader(wp, T("Set-Cookie: %s\r\n"), wp->responseCookie);
-            websWriteHeader(wp, T("Cache-control: %s\r\n"), "no-cache=\"set-cookie\"");
+            websWriteHeader(wp, T("Cache-Control: %s\r\n"), "no-cache=\"set-cookie\"");
         }
     }
 }
@@ -2697,7 +2700,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath, cha
     proto = T("http");
     host = T("localhost");
     query = T("");
-    ext = htmExt;
+    ext = 0;
     tag = T("");
 
     if (gstrncmp(url, T("http://"), 7) == 0) {

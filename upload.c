@@ -84,7 +84,7 @@ void websFreeUpload(Webs *wp)
     WebsUploadFile  *up;
     WebsKey         *s;
 
-    for (s = symFirst(wp->files); s != NULL; s = symNext(wp->files, s)) {
+    for (s = symFirst(wp->files); s; s = symNext(wp->files, s)) {
         up = s->content.value.symbol;
         freeUploadFile(up);
         if (up == wp->currentFile) {
@@ -252,6 +252,7 @@ static int processUploadHeader(Webs *wp, char *line)
                     Create the files[id]
                  */
                 file = wp->currentFile = galloc(sizeof(WebsUploadFile));
+                memset(file, 0, sizeof(WebsUploadFile));
                 file->clientFilename = gstrdup(wp->clientFilename);
                 file->filename = gstrdup(wp->uploadTmp);
             }
@@ -297,7 +298,7 @@ static int writeToFile(Webs *wp, char *data, ssize len)
     file = wp->currentFile;
 
     if ((file->size + len) > BIT_LIMIT_UPLOAD) {
-        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %,Ld", BIT_LIMIT_UPLOAD);
+        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %d", (int) BIT_LIMIT_UPLOAD);
         return -1;
     }
     if (len > 0) {
@@ -421,6 +422,27 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 }
 
 
+
+WebsUploadFile *websLookupUpload(Webs *wp, char *key)
+{
+    WebsKey     *sp;
+
+    if (wp->files) {
+        if ((sp = symLookup(wp->files, key)) == 0) {
+            return 0;
+        }
+        return sp->content.value.symbol;
+    }
+    return 0;
+}
+
+
+WebsHash websGetUpload(Webs *wp)
+{
+    return wp->files;
+}
+
+
 void websUploadOpen()
 {
     uploadDir = BIT_UPLOAD_DIR;
@@ -431,7 +453,7 @@ void websUploadOpen()
         uploadDir = "/tmp";
 #endif
     }
-    trace(2, "Upload directory is %s", uploadDir);
+    trace(4, "Upload directory is %s\n", uploadDir);
 }
 
 #endif
