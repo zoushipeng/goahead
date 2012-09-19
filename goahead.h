@@ -175,14 +175,17 @@
     #define T(s) L ## s
     #define UNICODE 1
 #elif BIT_CHAR_LEN == 2
-    typedef short wchar;
-    #define T(s) L ## s
+    typedef unsigned short wchar;
+    //MOB #define T(s) L ## s
+    #define T(s) s
     #define UNICODE 1
 #else
     typedef char wchar;
     #define T(s) s
     #define UNICODE 0
 #endif
+    typedef char char_t;
+    typedef unsigned char uchar_t;
 
 /********************************* O/S Includes *******************************/
 /*
@@ -872,16 +875,16 @@ typedef int64 WebsDateTime;
     #if !BIT_WIN_LIKE
         #error "Unicode only supported on Windows or Windows CE"
     #endif
+#if UNUSED
     typedef ushort char_t;
     typedef ushort uchar_t;
-
-#if UNUSED
     /*
         To convert strings to UNICODE. We have a level of indirection so things like T(__FILE__) will expand properly.
      */
     #define T(x)      __TXT(x)
     #define __TXT(s)  L ## s
 #endif
+
 
     /*
         Size of a buffer in characters
@@ -1086,20 +1089,6 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
             return innerMain(largc, largv, NULL); \
         } \
         static int innerMain(_argc, _argv, _envp)
-#elif BIT_WIN_LIKE && UNICODE
-    #define MAIN(name, _argc, _argv, _envp)  \
-        APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, LPWSTR command, int junk2) { \
-            char *largv[BIT_MAX_ARGC]; \
-            extern int main(); \
-            char *mcommand[BIT_LIMIT_STRING]; \
-            int largc; \
-            wtom(mcommand, sizeof(dest), command, -1); \
-            largc = gparseArgs(mcommand, &largv[1], BIT_MAX_ARGC - 1); \
-            largv[0] = #name; \
-            gsetAppInstance(inst); \
-            main(largc, largv, NULL); \
-        } \
-        int main(argc, argv, _envp)
 #elif BIT_WIN_LIKE
     #define MAIN(name, _argc, _argv, _envp)  \
         APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *command, int junk2) { \
@@ -1405,6 +1394,10 @@ extern int  gopenAlloc(void *buf, int bufsize, int flags);
 
 extern char_t *gallocAscToUni(char  *cp, ssize alen);
 extern char *gallocUniToAsc(char_t *unip, ssize ulen);
+
+//  MOB
+extern ssize mtow(wchar *dest, ssize count, cchar *src, ssize len);
+extern ssize wtom(char *dest, ssize count, wchar *src, ssize len);
 
 /******************************* Symbol Table *********************************/
 /*
