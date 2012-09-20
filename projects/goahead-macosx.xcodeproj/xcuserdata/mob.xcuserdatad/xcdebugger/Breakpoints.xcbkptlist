@@ -329,9 +329,7 @@
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "1862"
-         endingLineNumber = "1862"
-         landmarkName = "websGetHost()"
-         landmarkType = "7">
+         endingLineNumber = "1862">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
@@ -420,9 +418,7 @@
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "1160"
-         endingLineNumber = "1160"
-         landmarkName = "websRedirect()"
-         landmarkType = "7">
+         endingLineNumber = "1160">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
@@ -434,7 +430,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "1689"
          endingLineNumber = "1689"
-         landmarkName = "websDone()"
+         landmarkName = "websFlush()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

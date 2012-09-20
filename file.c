@@ -124,7 +124,7 @@ static void writeEvent(Webs *wp)
     websSetTimeMark(wp);
 
     /*
-        Note: websWriteDataNonBlock may return less than we wanted. It will return -1 on a socket error
+        Note: websWriteRaw may return less than we wanted. It will return -1 on a socket error.
      */
     if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
         websError(wp, 200, T("Can't get memory"));
@@ -132,7 +132,7 @@ static void writeEvent(Webs *wp)
     }
     wrote = 0;
     while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
-        if ((wrote = websWriteDataNonBlock(wp, buf, len)) < 0) {
+        if ((wrote = websWriteRaw(wp, buf, len)) < 0) {
             break;
         }
         wp->written += wrote;

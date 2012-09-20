@@ -203,9 +203,7 @@ static void     reuseConn(Webs *wp);
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void* data);
 
-//  MOB - rename
-static ssize websFlush(Webs *wp); 
-static void websPump(Webs *wp);
+static void     websPump(Webs *wp);
 
 static void     pruneCache();
 #if BIT_ACCESS_LOG
@@ -351,6 +349,190 @@ void websClose()
 }
 
 
+static void initWebs(Webs *wp, int wid, int sid, int flags, ringq_t *input)
+{
+    memset(wp, 0, sizeof(Webs));
+    wp->flags = flags;
+    wp->state = WEBS_BEGIN;
+    wp->wid = wid;
+    wp->sid = sid;
+    wp->docfd = -1;
+    wp->putfd = -1;
+    wp->timeout = -1;
+    wp->txlen = -1;
+    wp->rxlen = -1;
+#if BIT_CGI
+    wp->cgifd = -1;
+#endif
+#if BIT_UPLOAD
+    wp->upfd = -1;
+#endif
+    wp->vars = symOpen(WEBS_SYM_INIT);
+    ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
+    if (input) {
+        wp->input = *input;
+    } else {
+        ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
+    }
+}
+
+
+static void termWebs(Webs *wp, int keepAlive)
+{
+    //  MOB - OPT reduce allocations
+    gfree(wp->authDetails);
+    gfree(wp->authResponse);
+    gfree(wp->authType);
+    gfree(wp->contentType);
+    gfree(wp->cookie);
+    gfree(wp->decodedQuery);
+    gfree(wp->digest);
+    gfree(wp->dir);
+    gfree(wp->ext);
+    gfree(wp->filename);
+    gfree(wp->host);
+    gfree(wp->inputFile);
+    gfree(wp->method);
+    gfree(wp->password);
+    gfree(wp->path);
+    gfree(wp->protoVersion);
+    gfree(wp->protocol);
+    gfree(wp->query);
+    gfree(wp->realm);
+    gfree(wp->responseCookie);
+    gfree(wp->url);
+    gfree(wp->userAgent);
+    gfree(wp->username);
+#if BIT_CGI
+    gfree(wp->cgiStdin);
+#endif
+#if BIT_DIGEST
+    gfree(wp->cnonce);
+    gfree(wp->digestUri);
+    gfree(wp->opaque);
+    gfree(wp->nc);
+    gfree(wp->nonce);
+    gfree(wp->qop);
+#endif
+    symClose(wp->vars);
+#if BIT_PACK_SSL
+    sslFree(wp);
+#endif
+#if BIT_UPLOAD
+    if (wp->files) {
+        websFreeUpload(wp);
+    }
+#endif
+    ringqClose(&wp->output);
+    if (!keepAlive) {
+        ringqClose(&wp->input);
+    }
+}
+
+
+int websAlloc(int sid)
+{
+    Webs    *wp;
+    int     wid;
+
+    if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(Webs))) < 0) {
+        return -1;
+    }
+    wp = webs[wid];
+    initWebs(wp, wid, sid, 0, 0);
+    wp->sid = sid;
+    return wid;
+}
+
+
+static void reuseConn(Webs *wp)
+{
+    ringq_t     input;
+    int         flags, sid, wid;
+
+    gassert(websValid(wp));
+
+    flags = wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
+    sid = wp->sid;
+    wid = wp->wid;
+    if (wp->rxlen) {
+        ringqGetBlkAdj(&wp->input, wp->rxlen);
+    }
+    ringqCompact(&wp->input);
+    if (ringqLen(&wp->input)) {
+        socketReservice(wp->sid);
+    }
+    input = wp->input;
+    termWebs(wp, 1);
+    initWebs(wp, wid, sid, flags, &input);
+}
+
+
+void websFree(Webs *wp)
+{
+    gassert(websValid(wp));
+
+    termWebs(wp, 0);
+    websMax = gfreeHandle((void***) &webs, wp->wid);
+    gfree(wp);
+    gassert(websMax >= 0);
+}
+
+
+/*
+    Called when the request is complete.
+ */
+void websDone(Webs *wp, int code)
+{
+    gassert(websValid(wp));
+
+    websFlush(wp, 1);
+    if (wp->code == 0) {
+        wp->code = code & ~WEBS_CLOSE;
+    }
+    if (!wp->flags & WEBS_RESPONSE_TRACED) {
+        trace(3 | WEBS_LOG_RAW, T("Request complete: code %d"), code);
+    }
+    socketDeleteHandler(wp->sid);
+#if BIT_ACCESS_LOG
+    logRequest(wp, wp->code);
+#endif
+    websPageClose(wp);
+#if BIT_CGI
+    if (wp->cgifd >= 0) {
+        gclose(wp->cgifd);
+        wp->cgifd = -1;
+    }
+#endif
+    if (wp->putfd >= 0) {
+        gclose(wp->putfd);
+        wp->putfd = -1;
+    }
+#if BIT_PACK_SSL
+    if (wp->flags & WEBS_SECURE) {
+        websTimeoutCancel(wp);
+        //  MOB - why close connection. Why not keep-alive?
+        socketCloseConnection(wp->sid);
+        websFree(wp);
+        return;
+    }
+#endif
+    if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
+        reuseConn(wp);
+        socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
+        websTimeoutCancel(wp);
+        wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+        trace(5, "Keep connection alive\n");
+        return;
+    }
+    websTimeoutCancel(wp);
+    socketSetBlock(wp->sid, 1);
+    socketCloseConnection(wp->sid);
+    websFree(wp);
+    trace(5, "Close connection\n");
+}
+
+
 int websListen(char_t *endpoint)
 {
     socket_t    *sp;
@@ -436,7 +618,12 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     gassert(wp);
     wp->listenSid = listenSid;
 
+#if UNUSED
+    //  MOB - remove
     guni(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr), strlen(ipaddr) + 1));
+#else
+    strncpy(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr) - 1, strlen(ipaddr)));
+#endif
 
     /*
         Get the ip address of the interface that accept the connection.
@@ -535,9 +722,9 @@ void websReadEvent(Webs *wp)
 
     while (websValid(wp)) {
         /* 
-            Add one to clen for for a trailing null. Makes parsing much easier 
+            Add one to rxlen for for a trailing null. Makes parsing much easier 
          */
-        size = (!wp->clen || wp->clen > BIT_LIMIT_SOCKET_BUFFER) ? BIT_LIMIT_SOCKET_BUFFER : wp->clen + 1;
+        size = (!wp->rxlen || wp->rxlen > BIT_LIMIT_SOCKET_BUFFER) ? BIT_LIMIT_SOCKET_BUFFER : wp->rxlen + 1;
         if ((ip->buflen - ringqLen(ip)) < size) {
             ringqGrow(ip);
         }
@@ -615,7 +802,7 @@ bool parseIncoming(Webs *wp)
     if (!parseHeaders(wp)) {
         return 0;
     }
-    wp->state = wp->clen ? WEBS_CONTENT : WEBS_RUNNING;
+    wp->state = wp->rxlen ? WEBS_CONTENT : WEBS_RUNNING;
 
 #if BIT_CGI
     if (gstrstr(wp->path, BIT_CGI_BIN) != NULL) {
@@ -836,15 +1023,14 @@ static bool parseHeaders(Webs *wp)
             }
 
         } else if (gstrcmp(key, T("content-length")) == 0) {
-            wp->clen = gatoi(value);
-            if (wp->clen > BIT_LIMIT_BODY) {
+            wp->rxlen = gatoi(value);
+            if (wp->rxlen > BIT_LIMIT_BODY) {
                 websError(wp, 413 | WEBS_CLOSE, T("Too big"));
                 return 0;
             }
-            if (wp->clen > 0) {
+            if (wp->rxlen > 0 && !gmatch(wp->method, "HEAD")) {
                 websSetVar(wp, T("CONTENT_LENGTH"), value);
-            } else {
-                wp->clen = 0;
+                wp->remainingContent = wp->rxlen;
             }
 
         } else if (gstrcmp(key, T("content-type")) == 0) {
@@ -878,12 +1064,14 @@ static bool parseHeaders(Webs *wp)
             gfree(cmd);
 
         } else if (gstrcmp(key, T("transfer-encoding")) == 0) {
-            websError(wp, HTTP_CODE_UNSUPPORTED_MEDIA_TYPE | WEBS_CLOSE, T("Transfer chunk encoding not supported"));
-            return 0;
+            if (gcaselesscmp(value, "chunked") == 0) {
+                wp->flags |= WEBS_RX_CHUNKED;
+                wp->rxChunkState = WEBS_CHUNK_START;
+                wp->remainingContent = MAXINT;
+            }
         }
     }
     wp->input.servp += 2;
-    wp->remainingContent = wp->clen;
     return 1;
 }
 
@@ -1007,7 +1195,7 @@ void websSetEnv(Webs *wp)
         wp->decodedQuery = gstrdup(wp->query);
         addFormVars(wp, wp->decodedQuery);
     }
-    if (wp->clen && ringqLen(&wp->input) > 0) {
+    if (wp->rxlen && ringqLen(&wp->input) > 0) {
         if (wp->flags & WEBS_FORM) {
             addFormVars(wp, wp->input.servp);
         }
@@ -1109,8 +1297,7 @@ void websTimeoutCancel(Webs *wp)
 
 
 /*
-    Output a HTTP response back to the browser. If redirect is set to a 
-    URL, the browser will be sent to this location.
+    Output a HTTP response back to the browser. If redirect is set to a URL, the browser will be sent to this location.
  */
 void websResponse(Webs *wp, int code, char_t *message, char_t *redirect)
 {
@@ -1269,7 +1456,7 @@ void websError(Webs *wp, int code, char_t *fmt, ...)
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
-    if (!websValid(wp) /* MOB - need to emit errors || wp->state == WEBS_BEGIN */) {
+    if (!websValid(wp)) {
         websDone(wp, code);
         return;
     }
@@ -1349,9 +1536,9 @@ ssize websWriteHeader(Webs *wp, char_t *fmt, ...)
 
 
 /*
-    Write a set of headers. Does not write the trailing blank line so callers can add more headers
+    Write a set of headers. Does not write the trailing blank line so callers can add more headers.
  */
-void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
+void websWriteHeaders(Webs *wp, int code, ssize length, char_t *redirect)
 {
     WebsKey     *key;
     char_t      *date;
@@ -1363,7 +1550,7 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
         wp->code = code;
         websWriteHeader(wp, T("HTTP/1.0 %d %s\r\n"), code, websErrorMsg(code));
         /*
-            The Embedthis Open Source license does not permit modification to the Server header
+            The Embedthis Open Source license does not permit modification of the Server header
          */
         websWriteHeader(wp, T("Server: GoAhead/%s\r\n"), BIT_VERSION);
 
@@ -1371,13 +1558,19 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
             websWriteHeader(wp, T("Date: %s\r\n"), date);
             gfree(date);
         }
-        /*
-            If authentication is required, send the auth header info
-         */
         if (wp->authResponse) {
             websWriteHeader(wp, T("WWW-Authenticate: %s\r\n"), wp->authResponse);
         }
-        if (contentLength < 0) {
+        wp->txlen = length;
+        if (wp->flags & WEBS_HEAD) {
+            //  MOB use %Ld. Search for (int) everywhere
+            websWriteHeader(wp, T("Content-Length: %d\r\n"), (int) length);                                           
+        } else if (length >= 0) {                                                                                    
+            websWriteHeader(wp, T("Content-Length: %d\r\n"), (int) length);                                           
+            wp->numbytes = bytes;
+        }
+        if (length < 0) {
+// MOB - don't need to do this 
             wp->flags &= ~WEBS_KEEP_ALIVE;
         }
         if (wp->flags & WEBS_KEEP_ALIVE) {
@@ -1385,12 +1578,6 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
         } else {
             websWriteHeader(wp, T("Connection: close\r\n"));   
         }
-        if (wp->flags & WEBS_HEAD) {
-            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
-        } else if (contentLength >= 0) {                                                                                    
-            websWriteHeader(wp, T("Content-length: %d\r\n"), (int) contentLength);                                           
-            wp->numbytes = bytes;
-        }  
         if (redirect) {
             websWriteHeader(wp, T("Location: %s\r\n"), redirect);
         } else if ((key = symLookup(websMime, wp->ext)) != 0) {
@@ -1401,6 +1588,12 @@ void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect)
             websWriteHeader(wp, T("Cache-Control: %s\r\n"), "no-cache=\"set-cookie\"");
         }
     }
+}
+
+
+void websSetTxLength(Webs *wp, ssize length)
+{
+    wp->txlen = length;
 }
 
 
@@ -1443,7 +1636,7 @@ static ssize bufferOutput(Webs *wp, char *buf, ssize size)
         len = ringqLen(op);
         room = op->buflen - len;
         if (len > 0 && room < size) {
-            if (websFlush(wp) > 0) {
+            if (websFlush(wp, 0) > 0) {
                 continue;
             }
             if (op->buflen < op->maxsize) {
@@ -1461,41 +1654,6 @@ static ssize bufferOutput(Webs *wp, char *buf, ssize size)
         sofar += thisWrite;
     }
     return sofar;
-}
-
-
-/*
-    Write a block of data of length "size" to the user's browser. Public write block procedure.  If unicode 
-    is turned on this function expects buf to be a unicode string and it converts it to ASCII before writing. See
-    websWriteDataNonBlock to always write binary or ASCII data with no unicode conversion.  This returns the number of
-    char_t's processed.  It spins until all the data is absorbed.
- */
-//  MOB - review API websWriteUni()
-ssize websWriteBlock(Webs *wp, char_t *buf, ssize size)
-{
-    char    *asciiBuf, *cp;
-    ssize   len, written;
-
-    gassert(wp);
-    gassert(websValid(wp));
-    gassert(buf);
-    gassert(size >= 0);
-
-    written = len = 0;
-    cp = asciiBuf = gallocUniToAsc(buf, size);
-
-    //  MOB - WARNING: spins
-    while (size > 0) {  
-        if ((len = bufferOutput(wp, cp, size)) < 0) {
-            gfree(asciiBuf);
-            return -1;
-        }
-        size -= len;
-        cp += len;
-        written += len;
-    }
-    gfree(asciiBuf);
-    return written;
 }
 
 
@@ -1517,35 +1675,114 @@ static ssize writeToSocket(Webs *wp, char *buf, ssize size)
 }
 
 
-static ssize websFlush(Webs *wp) 
+/*
+    Write some output using transfer chunk encoding if required
+ */
+static ssize writeChunked(Webs *wp, char *buf, ssize size)
+{
+    ssize   written;
+
+    written = 0;
+    if (wp->txlen > 0) {
+        /* Know the content length, no need for chunking */
+        return writeToSocket(wp, buf, size);
+    }
+    while (1) {
+        switch (wp->txChunkState) {
+        case WEBS_CHUNK_START:
+            wp->txChunkBuflen = gfmtStatic(wp->txChunkBuf, sizeof(wp->txChunkBuf), "\r\n%x\r\n", size);
+            wp->txChunkBufp = wp->txChunkBuf;
+            wp->txChunkLen = size;
+            wp->txChunkState = WEBS_CHUNK_HEADER;
+            break;
+        case WEBS_CHUNK_HEADER:
+            if ((written = writeToSocket(wp, wp->txChunkBufp, wp->txChunkBuflen)) >= 0) {
+                wp->txChunkBufp += written;
+                wp->txChunkBuflen -= written;
+                if (wp->txChunkBuflen <= 0) {
+                    wp->txChunkState = WEBS_CHUNK_DATA;
+                } else {
+                    return 0;
+                }
+            }
+            break;
+        case WEBS_CHUNK_DATA:
+            if ((written = writeToSocket(wp, buf, wp->txChunkLen)) < 0) {
+                return -1;
+            }
+            wp->txChunkLen -= written;
+            if (wp->txChunkLen <= 0) {
+                wp->txChunkState = WEBS_CHUNK_START;
+            }
+        }
+    }
+}
+
+
+ssize websFlush(Webs *wp, int final)
 {
     ringq_t     *op;
     ssize       written, size;
 
     op = &wp->output;
     size = ringqLen(&wp->output);
-    written = 0;
-
-    if (size > 0 && ((written = writeToSocket(wp, (char*) op->servp, size))) > 0) {
-        ringqGetBlkAdj(op, written);
-        ringqCompact(op);
+    if (size > 0 || final) {
+        if ((written = writeChunked(wp, op->servp, size)) < 0) {
+            return -1;
+        } else {
+            ringqGetBlkAdj(op, written);
+            ringqCompact(op);
+        }
+    } else {
+        written = 0;
     }
     return written;
 }
 
 
 /*
-    Write a block of data of length "size" to the user's browser. Same as websWriteBlock except that it expects
-    straight ASCII or binary and does no unicode conversion before writing the data.  If the socket cannot hold all the
-    data, it will return the number of bytes flushed to the socket before it would have blocked.  This returns the
-    number of chars processed or -1 if socketWrite fails.
+    Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
  */
-//  MOB - review API
-ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize size)
+ssize websWriteBlock(Webs *wp, char_t *buf, ssize size)
+{
+    ssize   len, written;
+
+    gassert(wp);
+    gassert(websValid(wp));
+    gassert(buf);
+    gassert(size >= 0);
+
+    written = len = 0;
+    while (size > 0) {  
+        if ((len = bufferOutput(wp, buf, size)) < 0) {
+            return -1;
+        }
+        size -= len;
+        buf += len;
+        written += len;
+    }
+    return written;
+}
+
+
+/*
+    Write a block of data of length "size" to the user's browser. Unbuffered write.
+    WARNING: If data is buffered, this will do a blocking flush first. To avoid this, call websFlush() manually
+    and check the results.
+ */
+ssize websWriteRaw(Webs *wp, char *buf, ssize size)
 {
     ssize   written;
+    int     prior;
     
-    if ((written = websFlush(wp)) < 0) {
+    /*
+        Flush any buffered data to ensure data remains in sequence. 
+        WARNING: Must do this blocking to ensure all data is written.
+     */
+    prior = socketSetBlock(wp->sid, 1);
+    written = websFlush(wp, 0);
+    socketSetBlock(wp->sid, prior);
+    if (written < 0) {
         return written;
     }
     return writeToSocket(wp, buf, size);
@@ -1679,185 +1916,6 @@ void websTimeout(void *arg, int id)
 }
 
 
-/*
-    Called when the request is complete.
- */
-void websDone(Webs *wp, int code)
-{
-    gassert(websValid(wp));
-
-    websFlush(wp);
-    if (wp->code == 0) {
-        wp->code = code & ~WEBS_CLOSE;
-    }
-    socketDeleteHandler(wp->sid);
-#if BIT_ACCESS_LOG
-    logRequest(wp, wp->code);
-#endif
-    websPageClose(wp);
-#if BIT_CGI
-    if (wp->cgifd >= 0) {
-        gclose(wp->cgifd);
-        wp->cgifd = -1;
-    }
-#endif
-    if (wp->putfd >= 0) {
-        gclose(wp->putfd);
-        wp->putfd = -1;
-    }
-#if BIT_PACK_SSL
-    if (wp->flags & WEBS_SECURE) {
-        websTimeoutCancel(wp);
-        //  MOB - why close connection. Why not keep-alive?
-        socketCloseConnection(wp->sid);
-        websFree(wp);
-        return;
-    }
-#endif
-    if (wp->flags & WEBS_KEEP_ALIVE && wp->remainingContent == 0) {
-        reuseConn(wp);
-        socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        websTimeoutCancel(wp);
-        wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
-        trace(5, "Keep connection alive\n");
-        return;
-    }
-    websTimeoutCancel(wp);
-    socketSetBlock(wp->sid, 1);
-    socketCloseConnection(wp->sid);
-    websFree(wp);
-    trace(5, "Close connection\n");
-}
-
-
-static void initWebs(Webs *wp, int wid, int sid, int flags, ringq_t *input)
-{
-    memset(wp, 0, sizeof(Webs));
-    wp->flags = flags;
-    wp->state = WEBS_BEGIN;
-    wp->wid = wid;
-    wp->sid = sid;
-    wp->docfd = -1;
-    wp->putfd = -1;
-    wp->timeout = -1;
-#if BIT_CGI
-    wp->cgifd = -1;
-#endif
-#if BIT_UPLOAD
-    wp->upfd = -1;
-#endif
-    wp->vars = symOpen(WEBS_SYM_INIT);
-    ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
-    if (input) {
-        wp->input = *input;
-    } else {
-        ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
-    }
-}
-
-
-static void termWebs(Webs *wp, int keepAlive)
-{
-    //  MOB - OPT reduce allocations
-    gfree(wp->authDetails);
-    gfree(wp->authResponse);
-    gfree(wp->authType);
-    gfree(wp->contentType);
-    gfree(wp->cookie);
-    gfree(wp->decodedQuery);
-    gfree(wp->digest);
-    gfree(wp->dir);
-    gfree(wp->ext);
-    gfree(wp->filename);
-    gfree(wp->host);
-    gfree(wp->inputFile);
-    gfree(wp->method);
-    gfree(wp->password);
-    gfree(wp->path);
-    gfree(wp->protoVersion);
-    gfree(wp->protocol);
-    gfree(wp->query);
-    gfree(wp->realm);
-    gfree(wp->responseCookie);
-    gfree(wp->url);
-    gfree(wp->userAgent);
-    gfree(wp->username);
-#if BIT_CGI
-    gfree(wp->cgiStdin);
-#endif
-#if BIT_DIGEST
-    gfree(wp->cnonce);
-    gfree(wp->digestUri);
-    gfree(wp->opaque);
-    gfree(wp->nc);
-    gfree(wp->nonce);
-    gfree(wp->qop);
-#endif
-    symClose(wp->vars);
-#if BIT_PACK_SSL
-    sslFree(wp);
-#endif
-#if BIT_UPLOAD
-    if (wp->files) {
-        websFreeUpload(wp);
-    }
-#endif
-    ringqClose(&wp->output);
-    if (!keepAlive) {
-        ringqClose(&wp->input);
-    }
-}
-
-
-int websAlloc(int sid)
-{
-    Webs    *wp;
-    int     wid;
-
-    if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(Webs))) < 0) {
-        return -1;
-    }
-    wp = webs[wid];
-    initWebs(wp, wid, sid, 0, 0);
-    wp->sid = sid;
-    return wid;
-}
-
-
-static void reuseConn(Webs *wp)
-{
-    ringq_t     input;
-    int         flags, sid, wid;
-
-    gassert(websValid(wp));
-
-    flags = wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
-    sid = wp->sid;
-    wid = wp->wid;
-    if (wp->clen) {
-        ringqGetBlkAdj(&wp->input, wp->clen);
-    }
-    ringqCompact(&wp->input);
-    if (ringqLen(&wp->input)) {
-        socketReservice(wp->sid);
-    }
-    input = wp->input;
-    termWebs(wp, 1);
-    initWebs(wp, wid, sid, flags, &input);
-}
-
-
-void websFree(Webs *wp)
-{
-    gassert(websValid(wp));
-
-    termWebs(wp, 0);
-    websMax = gfreeHandle((void***) &webs, wp->wid);
-    gfree(wp);
-    gassert(websMax >= 0);
-}
-
-
 char_t *websGetHost()
 {
     return websHost;
@@ -1960,8 +2018,7 @@ ssize websGetRequestWritten(Webs *wp)
 static int setLocalHost()
 {
     struct in_addr  intaddr;
-    char            host[128], *cp;
-    char_t          wbuf[128];
+    char            host[128], *ipaddr;
 
     if (gethostname(host, sizeof(host)) < 0) {
         error(T("Can't get hostname"));
@@ -1969,14 +2026,18 @@ static int setLocalHost()
     }
 #if VXWORKS
     intaddr.s_addr = (ulong) hostGetByName(host);
-    cp = inet_ntoa(intaddr);
-    //  MOB - OPT so don't copy if not unicode
-    guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
-    free(cp);
+    ipaddr = inet_ntoa(intaddr);
+    //  MOB - REMOVE
+    // guni(wbuf, ipaddr, min(strlen(ipaddr) + 1, sizeof(wbuf)));
+    websSetIpAddr(ipaddr);
+    websSetHost(ipaddr);
+    free(ipaddr);
 #elif ECOS
-    cp = inet_ntoa(eth0_bootp_data.bp_yiaddr);
-    //  MOB - OPT so don't copy if not unicode
-    guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    ipaddr = inet_ntoa(eth0_bootp_data.bp_yiaddr);
+    websSetIpAddr(ipaddr);
+    websSetHost(ipaddr);
+    //  MOB - REMOVE
+    // guni(wbuf, ipaddr, min(strlen(ipaddr) + 1, sizeof(wbuf)));
 #else
 {
     struct hostent  *hp;
@@ -1985,13 +2046,13 @@ static int setLocalHost()
         return -1;
     }
     memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
-    cp = inet_ntoa(intaddr);
-    //  MOB - OPT so don't copy if not unicode
-    guni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
+    ipaddr = inet_ntoa(intaddr);
+    websSetIpAddr(ipaddr);
+    websSetHost(ipaddr);
+    //  MOB - REMOVE
+    // guni(wbuf, ipaddr, min(strlen(ipaddr) + 1, sizeof(wbuf)));
 }
 #endif
-    websSetIpAddr(wbuf);
-    websSetHost(wbuf);
     return 0;
 }
 
