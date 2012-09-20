@@ -33,7 +33,7 @@
 
 static WebsHash users = -1;
 static WebsHash roles = -1;
-static char_t *secret;
+static char *secret;
 static int autoLogin = BIT_AUTO_LOGIN;
 
 #if BIT_HAS_PAM && BIT_PAM
@@ -53,19 +53,19 @@ typedef struct {
 
 static void computeAbilities(WebsHash abilities, char *role, int depth);
 static void computeUserAbilities(WebsUser *user);
-static WebsUser *createUser(char_t *username, char_t *password, char_t *roles);
+static WebsUser *createUser(char *username, char *password, char *roles);
 static void freeRole(WebsRole *rp);
 static void freeUser(WebsUser *up);
 static void logoutServiceProc(Webs *wp);
 static void loginServiceProc(Webs *wp);
 
 #if BIT_JAVASCRIPT
-static int jsCan(int jsid, Webs *wp, int argc, char_t **argv);
+static int jsCan(int jsid, Webs *wp, int argc, char **argv);
 #endif
 #if BIT_DIGEST
-static char_t *calcDigest(Webs *wp, char_t *username, char_t *password);
-static char_t *createDigestNonce(Webs *wp);
-static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time_t *when);
+static char *calcDigest(Webs *wp, char *username, char *password);
+static char *createDigestNonce(Webs *wp);
+static int parseDigestNonce(char *nonce, char **secret, char **realm, time_t *when);
 #endif
 
 #if BIT_HAS_PAM && BIT_PAM
@@ -93,11 +93,11 @@ bool websAuthenticate(Webs *wp)
          */
         if ((username = (char*) websGetSessionVar(wp, WEBS_SESSION_USERNAME, 0)) != 0) {
             cached = 1;
-            wp->username = gstrdup(username);
+            wp->username = strdup(username);
         }
     }
     if (!cached) {
-        if (wp->authType && !gmatch(wp->authType, route->authType)) {
+        if (wp->authType && !smatch(wp->authType, route->authType)) {
             websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
             return 0;
         }
@@ -135,10 +135,10 @@ int websOpenAuth()
     if ((roles = symOpen(WEBS_SMALL_HASH)) < 0) {
         return -1;
     }
-    gfmtStatic(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
+    fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
     secret = websMD5(sbuf);
 #if BIT_JAVASCRIPT
-    websJsDefine(T("can"), jsCan);
+    websJsDefine("can", jsCan);
 #endif
     websProcDefine("login", loginServiceProc);
     websProcDefine("logout", logoutServiceProc);
@@ -163,30 +163,30 @@ void websCloseAuth()
 }
 
 
-static WebsUser *createUser(char_t *username, char_t *password, char_t *roles)
+static WebsUser *createUser(char *username, char *password, char *roles)
 {
     WebsUser    *user;
 
     if ((user = galloc(sizeof(WebsUser))) == 0) {
         return 0;
     }
-    user->name = gstrdup(username);
+    user->name = strdup(username);
     if (roles) {
-        gfmtAlloc(&user->roles, -1, " %s ", roles);
+        user->roles = sfmt(" %s ", roles);
     } else {
-        user->roles = gstrdup(T(" "));
+        user->roles = strdup(" ");
     }
-    user->password = gstrdup(password);
+    user->password = strdup(password);
     return user;
 }
 
 
-WebsUser *websAddUser(char_t *username, char_t *password, char_t *roles)
+WebsUser *websAddUser(char *username, char *password, char *roles)
 {
     WebsUser    *user;
 
     if (websLookupUser(username)) {
-        error(T("User %s already exists"), username);
+        error("User %s already exists", username);
         /* Already exists */
         return 0;
     }
@@ -200,7 +200,7 @@ WebsUser *websAddUser(char_t *username, char_t *password, char_t *roles)
 }
 
 
-int websRemoveUser(char_t *username) 
+int websRemoveUser(char *username) 
 {
     return symDelete(users, username);
 }
@@ -216,7 +216,7 @@ static void freeUser(WebsUser *up)
 }
 
 
-int websSetUserRoles(char_t *username, char_t *roles)
+int websSetUserRoles(char *username, char *roles)
 {
     WebsUser    *user;
 
@@ -224,7 +224,7 @@ int websSetUserRoles(char_t *username, char_t *roles)
         return -1;
     }
     gfree(user->roles);
-    user->roles = gstrdup(roles);
+    user->roles = strdup(roles);
     computeUserAbilities(user);
     return 0;
 }
@@ -268,8 +268,8 @@ static void computeUserAbilities(WebsUser *user)
     if ((user->abilities = symOpen(WEBS_SMALL_HASH)) == 0) {
         return;
     }
-    roles = gstrdup(user->roles);
-    for (ability = gtok(roles, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+    roles = strdup(user->roles);
+    for (ability = stok(roles, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         computeAbilities(user->abilities, ability, 0);
     }
 #if BIT_DEBUG
@@ -299,13 +299,13 @@ void websComputeAllUserAbilities()
 }
 
 
-int websAddRole(char_t *name, char_t *abilities)
+int websAddRole(char *name, char *abilities)
 {
     WebsRole    *rp;
     char        *ability, *tok;
 
     if (symLookup(roles, name)) {
-        error(T("Role %s already exists"), name);
+        error("Role %s already exists", name);
         /* Already exists */
         return -1;
     }
@@ -315,9 +315,9 @@ int websAddRole(char_t *name, char_t *abilities)
     if ((rp->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
         return -1;
     }
-    trace(5, T("Role \"%s\" has abilities:%s\n"), name, abilities);
-    abilities = gstrdup(abilities);
-    for (ability = gtok(abilities, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+    trace(5, "Role \"%s\" has abilities:%s\n", name, abilities);
+    abilities = strdup(abilities);
+    for (ability = stok(abilities, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         if (symEnter(rp->abilities, ability, valueInteger(0), 0) == 0) {
             gfree(abilities);
             return -1;
@@ -342,7 +342,7 @@ static void freeRole(WebsRole *rp)
 /*
     Does not recompute abilities for users that use this role
  */
-int websRemoveRole(char_t *name) 
+int websRemoveRole(char *name) 
 {
     WebsRole    *rp;
     WebsKey       *sym;
@@ -357,19 +357,19 @@ int websRemoveRole(char_t *name)
 }
 
 
-bool websLoginUser(Webs *wp, char_t *username, char_t *password)
+bool websLoginUser(Webs *wp, char *username, char *password)
 {
     gassert(wp->route);
     if (!wp->route || !wp->route->verify) {
         return 0;
     }
     gfree(wp->username);
-    wp->username = gstrdup(username);
+    wp->username = strdup(username);
     gfree(wp->password);
-    wp->password = gstrdup(password);
+    wp->password = strdup(password);
 
     if (!(wp->route->verify)(wp)) {
-        trace(2, T("Password does not match\n"));
+        trace(2, "Password does not match\n");
         return 0;
     }
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
@@ -385,7 +385,7 @@ static void loginServiceProc(Webs *wp)
     WebsRoute   *route;
 
     if (!(wp->flags & WEBS_POST)) {
-        websError(wp, 401, T("Login must be invoked with a post request."));
+        websError(wp, 401, "Login must be invoked with a post request.");
         return;
     }
     route = wp->route;
@@ -407,8 +407,8 @@ static void loginServiceProc(Webs *wp)
 static void logoutServiceProc(Webs *wp)
 {
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
-    if (gmatch(wp->authType, "basic") || gmatch(wp->authType, "digest")) {
-        websError(wp, 401, T("Logged out."));
+    if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
+        websError(wp, 401, "Logged out.");
         return;
     }
     websRedirect(wp, wp->route->loginPage);
@@ -419,8 +419,8 @@ void websBasicLogin(Webs *wp)
 {
     gassert(wp->route);
     gfree(wp->authResponse);
-    gfmtAlloc(&wp->authResponse, -1, T("Basic realm=\"%s\""), BIT_REALM);
-    websError(wp, 401, T("Access Denied. User not logged in."));
+    wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_REALM);
+    websError(wp, 401, "Access Denied. User not logged in.");
 }
 
 
@@ -432,11 +432,11 @@ void websFormLogin(Webs *wp)
 
 bool websVerifyUser(Webs *wp)
 {
-    char_t      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
+    char      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
     bool        success;
 
     if (!wp->encoded) {
-        gfmtStatic(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
+        fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
         gfree(wp->password);
         wp->password = websMD5(passbuf);
         wp->encoded = 1;
@@ -449,9 +449,9 @@ bool websVerifyUser(Webs *wp)
         Verify the password
      */
     if (wp->digest) {
-        success = gmatch(wp->password, wp->digest);
+        success = smatch(wp->password, wp->digest);
     } else {
-        success = gmatch(wp->password, wp->user->password);
+        success = smatch(wp->password, wp->user->password);
     }
     if (success) {
         trace(5, "User \"%s\" authenticated", wp->username);
@@ -463,7 +463,7 @@ bool websVerifyUser(Webs *wp)
 
 
 #if BIT_JAVASCRIPT
-static int jsCan(int jsid, Webs *wp, int argc, char_t **argv)
+static int jsCan(int jsid, Webs *wp, int argc, char **argv)
 {
     if (websCanString(wp, argv[0])) {
         //  MOB - how to set return 
@@ -482,16 +482,16 @@ bool websParseBasicDetails(Webs *wp)
         Split userAuth into userid and password
      */
     userAuth = websDecode64(wp->authDetails);
-    if ((cp = gstrchr(userAuth, ':')) != NULL) {
+    if ((cp = strchr(userAuth, ':')) != NULL) {
         *cp++ = '\0';
     }
     if (cp) {
-        wp->username = gstrdup(userAuth);
-        wp->password = gstrdup(cp);
+        wp->username = strdup(userAuth);
+        wp->password = strdup(cp);
         wp->encoded = 0;
     } else {
-        wp->username = gstrdup(T(""));
-        wp->password = gstrdup(T(""));
+        wp->username = strdup("");
+        wp->password = strdup("");
     }
     gfree(userAuth);
     return 1;
@@ -501,17 +501,17 @@ bool websParseBasicDetails(Webs *wp)
 #if BIT_DIGEST
 void websDigestLogin(Webs *wp)
 {
-    char_t  *nonce, *opaque;
+    char  *nonce, *opaque;
 
     gassert(wp->route);
     nonce = createDigestNonce(wp);
     /* Opaque is unused. Set to anything */
-    opaque = T("5ccc069c403ebaf9f0171e9517f40e41");
-    gfmtAlloc(&wp->authResponse, -1,
+    opaque = "5ccc069c403ebaf9f0171e9517f40e41";
+    wp->authResponse = sfmt(
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
-        BIT_REALM, websGetHostUrl(), T("auth"), nonce, opaque, T("MD5"), T("FALSE"));
+        BIT_REALM, websGetHostUrl(), "auth", nonce, opaque, "MD5", "FALSE");
     gfree(nonce);
-    websError(wp, 401, T("Access Denied. User not logged in."));
+    websError(wp, 401, "Access Denied. User not logged in.");
 }
 
 
@@ -521,7 +521,7 @@ bool websParseDigestDetails(Webs *wp)
     char    *value, *tok, *key, *dp, *sp, *secret, *realm;
     int     seenComma;
 
-    key = gstrdup(wp->authDetails);
+    key = strdup(wp->authDetails);
 
     while (*key) {
         while (*key && isspace((uchar) *key)) {
@@ -569,65 +569,65 @@ bool websParseDigestDetails(Webs *wp)
          */
         switch (tolower((uchar) *key)) {
         case 'a':
-            if (gcaselesscmp(key, "algorithm") == 0) {
+            if (scaselesscmp(key, "algorithm") == 0) {
                 break;
-            } else if (gcaselesscmp(key, "auth-param") == 0) {
+            } else if (scaselesscmp(key, "auth-param") == 0) {
                 break;
             }
             break;
 
         case 'c':
-            if (gcaselesscmp(key, "cnonce") == 0) {
-                wp->cnonce = gstrdup(value);
+            if (scaselesscmp(key, "cnonce") == 0) {
+                wp->cnonce = strdup(value);
             }
             break;
 
         case 'd':
-            if (gcaselesscmp(key, "domain") == 0) {
+            if (scaselesscmp(key, "domain") == 0) {
                 break;
             }
             break;
 
         case 'n':
-            if (gcaselesscmp(key, "nc") == 0) {
-                wp->nc = gstrdup(value);
-            } else if (gcaselesscmp(key, "nonce") == 0) {
-                wp->nonce = gstrdup(value);
+            if (scaselesscmp(key, "nc") == 0) {
+                wp->nc = strdup(value);
+            } else if (scaselesscmp(key, "nonce") == 0) {
+                wp->nonce = strdup(value);
             }
             break;
 
         case 'o':
-            if (gcaselesscmp(key, "opaque") == 0) {
-                wp->opaque = gstrdup(value);
+            if (scaselesscmp(key, "opaque") == 0) {
+                wp->opaque = strdup(value);
             }
             break;
 
         case 'q':
-            if (gcaselesscmp(key, "qop") == 0) {
-                wp->qop = gstrdup(value);
+            if (scaselesscmp(key, "qop") == 0) {
+                wp->qop = strdup(value);
             }
             break;
 
         case 'r':
-            if (gcaselesscmp(key, "realm") == 0) {
-                wp->realm = gstrdup(value);
-            } else if (gcaselesscmp(key, "response") == 0) {
+            if (scaselesscmp(key, "realm") == 0) {
+                wp->realm = strdup(value);
+            } else if (scaselesscmp(key, "response") == 0) {
                 /* Store the response digest in the password field. This is MD5(user:realm:password) */
-                wp->password = gstrdup(value);
+                wp->password = strdup(value);
                 wp->encoded = 1;
             }
             break;
 
         case 's':
-            if (gcaselesscmp(key, "stale") == 0) {
+            if (scaselesscmp(key, "stale") == 0) {
                 break;
             }
         
         case 'u':
-            if (gcaselesscmp(key, "uri") == 0) {
-                wp->digestUri = gstrdup(value);
-            } else if (gcaselesscmp(key, "username") == 0 || gcaselesscmp(key, "user") == 0) {
-                wp->username = gstrdup(value);
+            if (scaselesscmp(key, "uri") == 0) {
+                wp->digestUri = strdup(value);
+            } else if (scaselesscmp(key, "username") == 0 || scaselesscmp(key, "user") == 0) {
+                wp->username = strdup(value);
             }
             break;
 
@@ -652,29 +652,29 @@ bool websParseDigestDetails(Webs *wp)
         return 0;
     }
     if (wp->qop == 0) {
-        wp->qop = gstrdup("");
+        wp->qop = strdup("");
     }
     /*
         Validate the nonce value - prevents replay attacks
      */
     when = 0; secret = 0; realm = 0;
     parseDigestNonce(wp->nonce, &secret, &realm, &when);
-    if (!gmatch(secret, secret)) {
-        trace(2, T("Access denied: Nonce mismatch\n"));
+    if (!smatch(secret, secret)) {
+        trace(2, "Access denied: Nonce mismatch\n");
         return 0;
-    } else if (!gmatch(realm, BIT_REALM)) {
-        trace(2, T("Access denied: Realm mismatch\n"));
+    } else if (!smatch(realm, BIT_REALM)) {
+        trace(2, "Access denied: Realm mismatch\n");
         return 0;
-    } else if (!gmatch(wp->qop, "auth")) {
-        trace(2, T("Access denied: Bad qop\n"));
+    } else if (!smatch(wp->qop, "auth")) {
+        trace(2, "Access denied: Bad qop\n");
         return 0;
     } else if ((when + (5 * 60)) < time(0)) {
-        trace(2, T("Access denied: Nonce is stale\n"));
+        trace(2, "Access denied: Nonce is stale\n");
         return 0;
     }
     if (!wp->user) {
         if ((wp->user = websLookupUser(wp->username)) == 0) {
-            trace(2, T("Access denied: user is unknown\n"));
+            trace(2, "Access denied: user is unknown\n");
             return 0;
         }
     }
@@ -686,27 +686,27 @@ bool websParseDigestDetails(Webs *wp)
 /*
     Create a nonce value for digest authentication (RFC 2617)
  */
-static char_t *createDigestNonce(Webs *wp)
+static char *createDigestNonce(Webs *wp)
 {
-    char_t       nonce[256];
+    char       nonce[256];
     static int64 next = 0;
 
     gassert(wp->route);
-    gfmtStatic(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_REALM, time(0), next++);
+    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_REALM, time(0), next++);
     return websEncode64(nonce);
 }
 
 
-static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time_t *when)
+static int parseDigestNonce(char *nonce, char **secret, char **realm, time_t *when)
 {
-    char_t    *tok, *decoded, *whenStr;                                                                      
+    char    *tok, *decoded, *whenStr;                                                                      
                                                                                                            
     if ((decoded = websDecode64(nonce)) == 0) {                                                             
         return -1;
     }                                                                                                      
-    *secret = gtok(decoded, ":", &tok);
-    *realm = gtok(NULL, ":", &tok);
-    whenStr = gtok(NULL, ":", &tok);
+    *secret = stok(decoded, ":", &tok);
+    *realm = stok(NULL, ":", &tok);
+    whenStr = stok(NULL, ":", &tok);
     *when = ghextoi(whenStr);
     return 0;
 }
@@ -715,40 +715,40 @@ static int parseDigestNonce(char_t *nonce, char_t **secret, char_t **realm, time
 /*
    Get a Digest value using the MD5 algorithm -- See RFC 2617 to understand this code.
 */
-static char_t *calcDigest(Webs *wp, char_t *username, char_t *password)
+static char *calcDigest(Webs *wp, char *username, char *password)
 {
-    char_t  a1Buf[256], a2Buf[256], digestBuf[256];
-    char_t  *ha1, *ha2, *method, *result;
+    char  a1Buf[256], a2Buf[256], digestBuf[256];
+    char  *ha1, *ha2, *method, *result;
 
     /*
         Compute HA1. If username == 0, then the password is already expected to be in the HA1 format 
         (MD5(username:realm:password).
      */
     if (username == 0) {
-        ha1 = gstrdup(password);
+        ha1 = strdup(password);
     } else {
-        gfmtStatic(a1Buf, sizeof(a1Buf), "%s:%s:%s", username, wp->realm, password);
+        fmt(a1Buf, sizeof(a1Buf), "%s:%s:%s", username, wp->realm, password);
         ha1 = websMD5(a1Buf);
     }
 
     /*
         HA2
      */ 
-    method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
-    gfmtStatic(a2Buf, sizeof(a2Buf), "%s:%s", method, wp->digestUri);
+    method = websGetVar(wp, "REQUEST_METHOD", NULL);
+    fmt(a2Buf, sizeof(a2Buf), "%s:%s", method, wp->digestUri);
     ha2 = websMD5(a2Buf);
 
     /*
         H(HA1:nonce:HA2)
      */
-    if (gcmp(wp->qop, "auth") == 0) {
-        gfmtStatic(digestBuf, sizeof(digestBuf), "%s:%s:%s:%s:%s:%s", ha1, wp->nonce, wp->nc, wp->cnonce, wp->qop, ha2);
+    if (scmp(wp->qop, "auth") == 0) {
+        fmt(digestBuf, sizeof(digestBuf), "%s:%s:%s:%s:%s:%s", ha1, wp->nonce, wp->nc, wp->cnonce, wp->qop, ha2);
 
-    } else if (gcmp(wp->qop, "auth-int") == 0) {
-        gfmtStatic(digestBuf, sizeof(digestBuf), "%s:%s:%s:%s:%s:%s", ha1, wp->nonce, wp->nc, wp->cnonce, wp->qop, ha2);
+    } else if (scmp(wp->qop, "auth-int") == 0) {
+        fmt(digestBuf, sizeof(digestBuf), "%s:%s:%s:%s:%s:%s", ha1, wp->nonce, wp->nc, wp->cnonce, wp->qop, ha2);
 
     } else {
-        gfmtStatic(digestBuf, sizeof(digestBuf), "%s:%s:%s", ha1, wp->nonce, ha2);
+        fmt(digestBuf, sizeof(digestBuf), "%s:%s:%s", ha1, wp->nonce, ha2);
     }
     result = websMD5(digestBuf);
     gfree(ha1);

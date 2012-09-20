@@ -24,10 +24,10 @@ static int routeMax = 0;
 
 /********************************** Forwards **********************************/
 
-static int lookupRoute(char_t *uri);
+static int lookupRoute(char *uri);
 static void growRoutes();
 static void freeRoute(WebsRoute *route);
-static int loadRouteConfig(char_t *path);
+static int loadRouteConfig(char *path);
 
 /************************************ Code ************************************/
 
@@ -37,7 +37,7 @@ WebsRoute *websSelectRoute(Webs *wp)
     ssize       plen, len;
     int         i;
 
-    plen = glen(wp->path);
+    plen = slen(wp->path);
     for (i = 0, route = 0; i < routeCount; i++) {
         route = routes[i];
         if (plen < route->prefixLen) continue;
@@ -47,9 +47,9 @@ WebsRoute *websSelectRoute(Webs *wp)
         }
     }
     if (wp->flags & (WEBS_PUT | WEBS_DELETE)) {
-        websError(wp, 500, T("Can't find route support PUT|DELETE method."));
+        websError(wp, 500, "Can't find route support PUT|DELETE method.");
     } else {
-        websError(wp, 500, T("Can't find suitable route for request."));
+        websError(wp, 500, "Can't find suitable route for request.");
     }
     return 0;
 }
@@ -66,15 +66,15 @@ static bool can(Webs *wp, char *ability)
     if (wp->user && symLookup(wp->user->abilities, ability)) {
         return 1;
     }
-    if (gmatch(ability, "SECURE")) {
+    if (smatch(ability, "SECURE")) {
         if (wp->flags & WEBS_SECURE) {
             return 1;
         }
         /* Secure is a special ability and is always mandatory if specified */
-        websError(wp, 405, T("Access Denied. Secure access is required."));
+        websError(wp, 405, "Access Denied. Secure access is required.");
         return 0;
     }
-    if (gmatch(ability, wp->method)) {
+    if (smatch(ability, wp->method)) {
         return 1;
     }
     return 0;
@@ -86,17 +86,22 @@ bool websCan(Webs *wp, WebsHash abilities)
     WebsKey     *key;
     char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
 
-    if (!wp->user && wp->authType) {
-        if (!wp->username) {
-            websError(wp, 401, T("Access Denied. User not logged in."));
-            return 0;
-        }
-        if ((wp->user = websLookupUser(wp->username)) == 0) {
-            websError(wp, 401, T("Access Denied. Unknown user."));
-            return 0;
+    if (!wp->user) {
+        if (wp->authType) {
+            if (!wp->username) {
+                websError(wp, 401, "Access Denied. User not logged in.");
+                return 0;
+            }
+            if ((wp->user = websLookupUser(wp->username)) == 0) {
+                websError(wp, 401, "Access Denied. Unknown user.");
+                return 0;
+            }
         }
     }
     if (abilities >= 0) {
+        if (!wp->user && wp->username) {
+            wp->user = websLookupUser(wp->username);
+        }
         gassert(abilities);
         for (key = symFirst(abilities); key; key = symNext(abilities, key)) {
             ability = key->name.value.string;
@@ -106,7 +111,7 @@ bool websCan(Webs *wp, WebsHash abilities)
                  */ 
                 start = ability;
                 do {
-                    gncopy(abuf, sizeof(abuf), start, cp - start);
+                    sncopy(abuf, sizeof(abuf), start, cp - start);
                     if (can(wp, abuf)) {
                         break;
                     }
@@ -116,11 +121,11 @@ bool websCan(Webs *wp, WebsHash abilities)
                     start = &cp[1];
                 } while ((cp = strchr(start, '|')) != 0);
                 if (!cp) {
-                    websError(wp, 401, T("Access Denied. Insufficient capabilities."));
+                    websError(wp, 401, "Access Denied. Insufficient capabilities.");
                     return 0;
                 }
             } else if (!can(wp, ability)) {
-                websError(wp, 401, T("Access Denied. Insufficient capabilities."));
+                websError(wp, 401, "Access Denied. Insufficient capabilities.");
                 return 0;
             }
         }
@@ -140,12 +145,12 @@ bool websCanString(Webs *wp, char *abilities)
             return 0;
         }
         if ((user = websLookupUser(wp->username)) == 0) {
-            trace(2, T("Can't find user %s\n"), wp->username);
+            trace(2, "Can't find user %s\n", wp->username);
             return 0;
         }
     }
-    abilities = gstrdup(abilities);
-    for (ability = gtok(abilities, T(" \t,"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+    abilities = strdup(abilities);
+    for (ability = stok(abilities, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         if (symLookup(wp->user->abilities, ability) == 0) {
             gfree(abilities);
             return 0;
@@ -156,14 +161,14 @@ bool websCanString(Webs *wp, char *abilities)
 }
 
 
-WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *loginPage, 
+WebsRoute *websAddRoute(char *type, char *uri, char *abilities, char *loginPage, 
         WebsAskLogin askLogin, WebsParseAuth parseAuth, WebsVerify verify)
 {
     WebsRoute   *route;
     char        *ability, *tok;
 
     if (lookupRoute(uri) >= 0) {
-        error(T("URI %s already exists"), uri);
+        error("URI %s already exists", uri);
         return 0;
     }
     if ((route = galloc(sizeof(WebsRoute))) == 0) {
@@ -171,24 +176,24 @@ WebsRoute *websAddRoute(char_t *type, char_t *uri, char_t *abilities, char_t *lo
     }
     memset(route, 0, sizeof(WebsRoute));
     route->abilities = -1;
-    route->prefix = gstrdup(uri);
-    route->prefixLen = glen(uri);
+    route->prefix = strdup(uri);
+    route->prefixLen = slen(uri);
     if (loginPage) {
-        route->loginPage = gstrdup(loginPage);
+        route->loginPage = strdup(loginPage);
     }
     route->askLogin = askLogin;
     route->parseAuth = parseAuth;
     route->verify = verify;
 
     if (type) {
-        route->authType = gstrdup(type);
+        route->authType = strdup(type);
     }
     if (abilities && *abilities) {
         if ((route->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
             return 0;
         }
-        abilities = gstrdup(abilities);
-        for (ability = gtok(abilities, T(" \t,|"), &tok); ability; ability = gtok(NULL, T(" \t,"), &tok)) {
+        abilities = strdup(abilities);
+        for (ability = stok(abilities, " \t,|", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
             if (strcmp(ability, "none") == 0) {
                 continue;
             }
@@ -215,14 +220,14 @@ static void growRoutes()
 }
 
 
-static int lookupRoute(char_t *uri) 
+static int lookupRoute(char *uri) 
 {
     WebsRoute   *route;
     int         i;
 
     for (i = 0; i < routeCount; i++) {
         route = routes[i];
-        if (gmatch(route->prefix, uri)) {
+        if (smatch(route->prefix, uri)) {
             return i;
         }
     }
@@ -240,7 +245,7 @@ static void freeRoute(WebsRoute *route)
 }
 
 
-int websRemoveRoute(char_t *uri) 
+int websRemoveRoute(char *uri) 
 {
     int         i;
 
@@ -256,7 +261,7 @@ int websRemoveRoute(char_t *uri)
 }
 
 
-int websOpenRoute(char_t *path) 
+int websOpenRoute(char *path) 
 {
     if (path) {
         return loadRouteConfig(path);
@@ -273,7 +278,7 @@ void websCloseRoute()
 }
 
 
-static int loadRouteConfig(char_t *path)
+static int loadRouteConfig(char *path)
 {
     WebsParseAuth parseAuth;
     WebsAskLogin  askLogin;
@@ -297,7 +302,7 @@ static int loadRouteConfig(char_t *path)
         if (kind == 0 || *kind == '\0' || *kind == '#') {
             continue;
         }
-        if (gmatch(kind, "uri")) {
+        if (smatch(kind, "uri")) {
             type = strtok(NULL, " \t:");
             uri = strtok(NULL, " \t:\r\n");
             abilities = strtok(NULL, ":\r\n");
@@ -312,23 +317,23 @@ static int loadRouteConfig(char_t *path)
             if (!redirect) {
                 redirect = "/";
             }
-            if (gmatch(type, "basic")) {
+            if (smatch(type, "basic")) {
                 askLogin = websBasicLogin;
                 parseAuth = websParseBasicDetails;
 #if BIT_DIGEST
-            } else if (gmatch(type, "digest")) {
+            } else if (smatch(type, "digest")) {
                 askLogin = websDigestLogin;
                 parseAuth = websParseDigestDetails;
 #endif
-            } else if (gmatch(type, "form")) {
-                if (lookupRoute("/form/login") < 0) {
-                    if ((route = websAddRoute(0, "/form/login", 0, redirect, 0, 0, verify)) == 0) {
+            } else if (smatch(type, "form")) {
+                if (lookupRoute("/proc/login") < 0) {
+                    if ((route = websAddRoute(0, "/proc/login", 0, redirect, 0, 0, verify)) == 0) {
                         return -1;
                     }
-                    route->loggedInPage = gstrdup(uri);
+                    route->loggedInPage = strdup(uri);
                 }
-                if (lookupRoute("/form/logout") < 0 && 
-                        !websAddRoute(0, "/form/logout", "POST", redirect, 0, 0, verify)) {
+                if (lookupRoute("/proc/logout") < 0 && 
+                        !websAddRoute(0, "/proc/logout", "POST", redirect, 0, 0, verify)) {
                     return -1;
                 }
                 askLogin = websFormLogin;
@@ -338,14 +343,14 @@ static int loadRouteConfig(char_t *path)
             if (websAddRoute(type, uri, abilities, redirect, askLogin, parseAuth, verify) < 0) {
                 return -1;
             }
-        } else if (gmatch(kind, "user")) {
+        } else if (smatch(kind, "user")) {
             char *name = strtok(NULL, " \t:");
             char *password = strtok(NULL, " \t:");
             char *roles = strtok(NULL, "\r\n");
             if (websAddUser(name, password, roles) == 0) {
                 return -1;
             }
-        } else if (gmatch(kind, "role")) {
+        } else if (smatch(kind, "role")) {
             char *name = strtok(NULL, " \t:");
             abilities = strtok(NULL, "\r\n");
             if (websAddRole(name, abilities) < 0) {
@@ -371,7 +376,7 @@ static int loadRouteConfig(char_t *path)
 }
 
 
-int websSaveRoute(char_t *path)
+int websSaveRoute(char *path)
 {
     //  MOB TODO
     return 0;

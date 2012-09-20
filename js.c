@@ -25,17 +25,17 @@ static int      jsMax = -1;     /* Maximum size of  */
 /****************************** Forward Declarations **************************/
 
 static Js       *jsPtr(int eid);
-static void     clearString(char_t **ptr);
-static void     setString(char_t **ptr, char_t *s);
-static void     appendString(char_t **ptr, char_t *s);
+static void     clearString(char **ptr);
+static void     setString(char **ptr, char *s);
+static void     appendString(char **ptr, char *s);
 static int      parse(Js *ep, int state, int flags);
 static int      parseStmt(Js *ep, int state, int flags);
 static int      parseDeclaration(Js *ep, int state, int flags);
 static int      parseCond(Js *ep, int state, int flags);
 static int      parseExpr(Js *ep, int state, int flags);
 static int      parseFunctionArgs(Js *ep, int state, int flags);
-static int      evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs);
-static int      evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs);
+static int      evalExpr(Js *ep, char *lhs, int rel, char *rhs);
+static int      evalCond(Js *ep, char *lhs, int rel, char *rhs);
 static int      evalFunction(Js *ep);
 static void     freeFunc(JsFun *func);
 static void     jsRemoveNewlines(Js *ep, int state);
@@ -87,7 +87,7 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
     /*
         Define standard constants
      */
-    jsSetGlobalVar(ep->eid, T("null"), NULL);
+    jsSetGlobalVar(ep->eid, "null", NULL);
     return ep->eid;
 }
 
@@ -123,12 +123,11 @@ void jsCloseEngine(int eid)
 
 
 #if !ECOS && UNUSED
-char_t *jsEvalFile(int eid, char_t *path, char_t **emsg)
+char *jsEvalFile(int eid, char *path, char **emsg)
 {
     WebsStat    sbuf;
     Js          *ep;
-    char_t      *script, *rs;
-    char        *fileBuf;
+    char      *script, *rs;
     int         fd;
 
     gassert(path && *path);
@@ -139,35 +138,28 @@ char_t *jsEvalFile(int eid, char_t *path, char_t **emsg)
     if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
-    if ((fd = gopen(path, O_RDONLY | O_BINARY, 0666)) < 0) {
-        jsError(ep, T("Bad handle %d"), eid);
+    if ((fd = open(path, O_RDONLY | O_BINARY, 0666)) < 0) {
+        jsError(ep, "Bad handle %d", eid);
         return NULL;
     }
-    if (gstat(path, &sbuf) < 0) {
-        gclose(fd);
-        jsError(ep, T("Cant stat %s"), path);
+    if (stat(path, &sbuf) < 0) {
+        close(fd);
+        jsError(ep, "Cant stat %s", path);
         return NULL;
     }
-    if ((fileBuf = galloc(sbuf.st_size + 1)) == NULL) {
-        gclose(fd);
-        jsError(ep, T("Cant malloc %d"), sbuf.st_size);
+    if ((script = galloc(sbuf.st_size + 1)) == NULL) {
+        close(fd);
+        jsError(ep, "Cant malloc %d", sbuf.st_size);
         return NULL;
     }
-    if (gread(fd, fileBuf, sbuf.st_size) != (int)sbuf.st_size) {
-        gclose(fd);
-        gfree(fileBuf);
-        jsError(ep, T("Error reading %s"), path);
+    if (read(fd, script, sbuf.st_size) != (int)sbuf.st_size) {
+        close(fd);
+        gfree(script);
+        jsError(ep, "Error reading %s", path);
         return NULL;
     }
-    fileBuf[sbuf.st_size] = '\0';
-    gclose(fd);
-
-    if ((script = gallocAscToUni(fileBuf, sbuf.st_size)) == NULL) {
-        gfree(fileBuf);
-        jsError(ep, T("Cant malloc %d"), sbuf.st_size + 1);
-        return NULL;
-    }
-    gfree(fileBuf);
+    script[sbuf.st_size] = '\0';
+    close(fd);
     rs = jsEvalBlock(eid, script, emsg);
     gfree(script);
     return rs;
@@ -217,9 +209,9 @@ int jsCloseBlock(int eid, int vid)
     Create a new variable scope block and evaluate a script. All variables
     created during this context will be automatically deleted when complete.
  */
-char_t *jsEvalBlock(int eid, char_t *script, char_t **emsg)
+char *jsEvalBlock(int eid, char *script, char **emsg)
 {
-    char_t* returnVal;
+    char* returnVal;
     int     vid;
 
     gassert(script);
@@ -233,9 +225,9 @@ char_t *jsEvalBlock(int eid, char_t *script, char_t **emsg)
 
 /*
     Parse and evaluate Javascript. The caller may provide a symbol table to use for variables and function definitions.
-    Return char_t pointer on success otherwise NULL pointer is returned.
+    Return char pointer on success otherwise NULL pointer is returned.
  */
-char_t *jsEval(int eid, char_t *script, char_t **emsg)
+char *jsEval(int eid, char *script, char **emsg)
 {
     Js      *ep;
     JsInput *oldBlock;
@@ -252,7 +244,7 @@ char_t *jsEval(int eid, char_t *script, char_t **emsg)
     if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
-    setString(&ep->result, T(""));
+    setString(&ep->result, "");
 
     /*
         Allocate a new evaluation block, and save the old one
@@ -279,7 +271,7 @@ char_t *jsEval(int eid, char_t *script, char_t **emsg)
         if (endlessLoopTest == ep->input->script.servp) {
             if (loopCounter++ > 10) {
                 state = STATE_ERR;
-                jsError(ep, T("Syntax error"));
+                jsError(ep, "Syntax error");
             }
         } else {
             endlessLoopTest = ep->input->script.servp;
@@ -293,7 +285,7 @@ char_t *jsEval(int eid, char_t *script, char_t **emsg)
         Return any error string to the user
      */
     if (state == STATE_ERR && emsg) {
-        *emsg = gstrdup(ep->error);
+        *emsg = strdup(ep->error);
     }
 
     /*
@@ -375,7 +367,7 @@ static int parse(Js *ep, int state, int flags)
     }
 
     if (state == STATE_ERR && ep->error == NULL) {
-        jsError(ep, T("Syntax error"));
+        jsError(ep, "Syntax error");
     }
     return state;
 }
@@ -389,7 +381,7 @@ static int parseStmt(Js *ep, int state, int flags)
     JsFun       func;
     JsFun       *saveFunc;
     JsInput     condScript, endScript, bodyScript, incrScript;
-    char_t      *value, *identifier;
+    char      *value, *identifier;
     int         done, expectSemi, thenFlags, elseFlags, tid, cond, forFlags;
     int         jsVarType;
 
@@ -471,11 +463,11 @@ static int parseStmt(Js *ep, int state, int flags)
                 if (flags & FLAGS_EXE) {
                     jsVarType = jsGetVar(ep->eid, identifier, &value);
                     if (jsVarType < 0) {
-                        jsError(ep, T("Undefined variable %s\n"), identifier);
+                        jsError(ep, "Undefined variable %s\n", identifier);
                         goto error;
                     }
                     setString(&ep->result, value);
-                    if (evalExpr(ep, value, (int) *ep->token, T("1")) < 0) {
+                    if (evalExpr(ep, value, (int) *ep->token, "1") < 0) {
                         state = STATE_ERR;
                         break;
                     }
@@ -494,7 +486,7 @@ static int parseStmt(Js *ep, int state, int flags)
                 value = NULL;
                 if (state == STATE_DEC) {
                     if (jsGetVar(ep->eid, identifier, &value) > 0) {
-                        jsError(ep, T("Variable already declared"),
+                        jsError(ep, "Variable already declared",
                             identifier);
                         clearString(&identifier);
                         goto error;
@@ -503,7 +495,7 @@ static int parseStmt(Js *ep, int state, int flags)
                 } else {
                     if ( flags & FLAGS_EXE ) {
                         if (jsGetVar(ep->eid, identifier, &value) < 0) {
-                            jsError(ep, T("Undefined variable %s\n"),
+                            jsError(ep, "Undefined variable %s\n",
                                 identifier);
                             clearString(&identifier);
                             goto error;
@@ -543,7 +535,7 @@ static int parseStmt(Js *ep, int state, int flags)
             setString(&func.fname, ep->token);
             ep->func = &func;
 
-            setString(&ep->result, T(""));
+            setString(&ep->result, "");
             if (jsLexGetToken(ep, state) != TOK_LPAREN) {
                 freeFunc(&func);
                 goto error;
@@ -906,7 +898,7 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
         }
         if (state == STATE_RELEXP_DONE) {
             aid = gallocHandle((void***) &ep->func->args);
-            ep->func->args[aid] = gstrdup(ep->result);
+            ep->func->args[aid] = strdup(ep->result);
             ep->func->nArgs++;
         }
         /*
@@ -930,12 +922,12 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
  */
 static int parseCond(Js *ep, int state, int flags)
 {
-    char_t  *lhs, *rhs;
+    char  *lhs, *rhs;
     int     tid, operator;
 
     gassert(ep);
 
-    setString(&ep->result, T(""));
+    setString(&ep->result, "");
     rhs = lhs = NULL;
     operator = 0;
 
@@ -990,12 +982,12 @@ static int parseCond(Js *ep, int state, int flags)
  */
 static int parseExpr(Js *ep, int state, int flags)
 {
-    char_t  *lhs, *rhs;
+    char  *lhs, *rhs;
     int     rel, tid;
 
     gassert(ep);
 
-    setString(&ep->result, T(""));
+    setString(&ep->result, "");
     rhs = lhs = NULL;
     rel = 0;
     tid = 0;
@@ -1059,9 +1051,9 @@ static int parseExpr(Js *ep, int state, int flags)
 /*
     Evaluate a condition. Implements &&, ||, !
  */
-static int evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs)
+static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
 {
-    char_t  buf[16];
+    char  buf[16];
     int     l, r, lval;
 
     gassert(lhs);
@@ -1069,9 +1061,9 @@ static int evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs)
     gassert(rel > 0);
 
     lval = 0;
-    if (gisdigit((int)*lhs) && gisdigit((int)*rhs)) {
-        l = gatoi(lhs);
-        r = gatoi(rhs);
+    if (isdigit((int)*lhs) && isdigit((int)*rhs)) {
+        l = atoi(lhs);
+        r = atoi(rhs);
         switch (rel) {
         case COND_AND:
             lval = l && r;
@@ -1080,17 +1072,17 @@ static int evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs)
             lval = l || r;
             break;
         default:
-            jsError(ep, T("Bad operator %d"), rel);
+            jsError(ep, "Bad operator %d", rel);
             return -1;
         }
     } else {
-        if (!gisdigit((int)*lhs)) {
-            jsError(ep, T("Conditional must be numeric"), lhs);
+        if (!isdigit((int)*lhs)) {
+            jsError(ep, "Conditional must be numeric", lhs);
         } else {
-            jsError(ep, T("Conditional must be numeric"), rhs);
+            jsError(ep, "Conditional must be numeric", rhs);
         }
     }
-    gstritoa(lval, buf, sizeof(buf));
+    itosbuf(buf, sizeof(buf), lval, 10);
     setString(&ep->result, buf);
     return 0;
 }
@@ -1099,9 +1091,9 @@ static int evalCond(Js *ep, char_t *lhs, int rel, char_t *rhs)
 /*
     Evaluate an operation
  */
-static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
+static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
 {
-    char_t  *cp, buf[16];
+    char  *cp, buf[16];
     int     numeric, l, r, lval;
 
     gassert(lhs);
@@ -1113,7 +1105,7 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
      */
     numeric = 1;
     for (cp = lhs; *cp; cp++) {
-        if (!gisdigit((int)*cp)) {
+        if (!isdigit((int)*cp)) {
             numeric = 0;
             break;
         }
@@ -1121,16 +1113,15 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
 
     if (numeric) {
         for (cp = rhs; *cp; cp++) {
-            if (!gisdigit((int)*cp)) {
+            if (!isdigit((int)*cp)) {
                 numeric = 0;
                 break;
             }
         }
     }
-
     if (numeric) {
-        l = gatoi(lhs);
-        r = gatoi(rhs);
+        l = atoi(lhs);
+        r = atoi(rhs);
         switch (rel) {
         case EXPR_PLUS:
             lval = l + r;
@@ -1189,7 +1180,7 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
             lval = (r == 0) ? 1 : 0;
             break;
         default:
-            jsError(ep, T("Bad operator %d"), rel);
+            jsError(ep, "Bad operator %d", rel);
             return -1;
         }
 
@@ -1201,22 +1192,22 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
             appendString(&ep->result, rhs);
             return 0;
         case EXPR_LESS:
-            lval = gstrcmp(lhs, rhs) < 0;
+            lval = strcmp(lhs, rhs) < 0;
             break;
         case EXPR_LESSEQ:
-            lval = gstrcmp(lhs, rhs) <= 0;
+            lval = strcmp(lhs, rhs) <= 0;
             break;
         case EXPR_GREATER:
-            lval = gstrcmp(lhs, rhs) > 0;
+            lval = strcmp(lhs, rhs) > 0;
             break;
         case EXPR_GREATEREQ:
-            lval = gstrcmp(lhs, rhs) >= 0;
+            lval = strcmp(lhs, rhs) >= 0;
             break;
         case EXPR_EQ:
-            lval = gstrcmp(lhs, rhs) == 0;
+            lval = strcmp(lhs, rhs) == 0;
             break;
         case EXPR_NOTEQ:
-            lval = gstrcmp(lhs, rhs) != 0;
+            lval = strcmp(lhs, rhs) != 0;
             break;
         case EXPR_INC:
         case EXPR_DEC:
@@ -1226,11 +1217,11 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
         case EXPR_LSHIFT:
         case EXPR_RSHIFT:
         default:
-            jsError(ep, T("Bad operator"));
+            jsError(ep, "Bad operator");
             return -1;
         }
     }
-    gstritoa(lval, buf, sizeof(buf));
+    itosbuf(buf, sizeof(buf), lval, 10);
     setString(&ep->result, buf);
     return 0;
 }
@@ -1242,15 +1233,15 @@ static int evalExpr(Js *ep, char_t *lhs, int rel, char_t *rhs)
 static int evalFunction(Js *ep)
 {
     WebsKey   *sp;
-    int     (*fn)(int eid, void *handle, int argc, char_t **argv);
+    int     (*fn)(int eid, void *handle, int argc, char **argv);
 
     if ((sp = symLookup(ep->functions, ep->func->fname)) == NULL) {
-        jsError(ep, T("Undefined procedure %s"), ep->func->fname);
+        jsError(ep, "Undefined procedure %s", ep->func->fname);
         return -1;
     }
-    fn = (int (*)(int, void*, int, char_t**)) sp->content.value.symbol;
+    fn = (int (*)(int, void*, int, char**)) sp->content.value.symbol;
     if (fn == NULL) {
-        jsError(ep, T("Undefined procedure %s"), ep->func->fname);
+        jsError(ep, "Undefined procedure %s", ep->func->fname);
         return -1;
     }
     return (*fn)(ep->eid, ep->userHandle, ep->func->nArgs, ep->func->args);
@@ -1260,23 +1251,22 @@ static int evalFunction(Js *ep)
 /*
     Output a parse js_error message
  */
-void jsError(Js *ep, char_t* fmt, ...)
+void jsError(Js *ep, char* fmt, ...)
 {
     va_list     args;
     JsInput     *ip;
-    char_t      *errbuf, *msgbuf;
+    char      *errbuf, *msgbuf;
 
     gassert(ep);
     gassert(fmt);
     ip = ep->input;
 
     va_start(args, fmt);
-    msgbuf = NULL;
-    gfmtValloc(&msgbuf, BIT_LIMIT_STRING, fmt, args);
+    msgbuf = sfmtv(fmt, args);
     va_end(args);
 
     if (ep && ip) {
-        gfmtAlloc(&errbuf, BIT_LIMIT_STRING, T("%s\n At line %d, line => \n\n%s\n"), msgbuf, ip->lineNumber, ip->line);
+        errbuf = sfmt("%s\n At line %d, line => \n\n%s\n", msgbuf, ip->lineNumber, ip->line);
         gfree(ep->error);
         ep->error = errbuf;
     }
@@ -1284,7 +1274,7 @@ void jsError(Js *ep, char_t* fmt, ...)
 }
 
 
-static void clearString(char_t **ptr)
+static void clearString(char **ptr)
 {
     gassert(ptr);
 
@@ -1295,35 +1285,35 @@ static void clearString(char_t **ptr)
 }
 
 
-static void setString(char_t **ptr, char_t *s)
+static void setString(char **ptr, char *s)
 {
     gassert(ptr);
 
     if (*ptr) {
         gfree(*ptr);
     }
-    *ptr = gstrdup(s);
+    *ptr = sclone(s);
 }
 
 
-static void appendString(char_t **ptr, char_t *s)
+static void appendString(char **ptr, char *s)
 {
     ssize   len, oldlen, size;
 
     gassert(ptr);
 
     if (*ptr) {
-        len = gstrlen(s);
-        oldlen = gstrlen(*ptr);
-        size = (len + oldlen + 1) * sizeof(char_t);
+        len = strlen(s);
+        oldlen = strlen(*ptr);
+        size = (len + oldlen + 1) * sizeof(char);
         *ptr = grealloc(*ptr, size);
 #if WINDOWS
         strcpy_s(&(*ptr)[oldlen], size - oldlen, s);
 #else
-        gstrcpy(&(*ptr)[oldlen], s);
+        strcpy(&(*ptr)[oldlen], s);
 #endif
     } else {
-        *ptr = gstrdup(s);
+        *ptr = strdup(s);
     }
 }
 
@@ -1331,7 +1321,7 @@ static void appendString(char_t **ptr, char_t *s)
 /*
     Define a function
  */
-int jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
+int jsSetGlobalFunction(int eid, char *name, int (*fn)(int eid, void *handle, int argc, char **argv))
 {
     Js    *ep;
 
@@ -1345,7 +1335,7 @@ int jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, 
 /*
     Define a function directly into the function symbol table.
  */
-int jsSetGlobalFunctionDirect(WebsHash functions, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv))
+int jsSetGlobalFunctionDirect(WebsHash functions, char *name, int (*fn)(int eid, void *handle, int argc, char **argv))
 {
     if (symEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
@@ -1357,7 +1347,7 @@ int jsSetGlobalFunctionDirect(WebsHash functions, char_t *name, int (*fn)(int ei
 /*
     Remove ("undefine") a function
  */
-int jsRemoveGlobalFunction(int eid, char_t *name)
+int jsRemoveGlobalFunction(int eid, char *name)
 {
     Js    *ep;
 
@@ -1368,18 +1358,18 @@ int jsRemoveGlobalFunction(int eid, char_t *name)
 }
 
 
-void *jsGetGlobalFunction(int eid, char_t *name)
+void *jsGetGlobalFunction(int eid, char *name)
 {
     Js  *ep;
     WebsKey   *sp;
-    int     (*fn)(int eid, void *handle, int argc, char_t **argv);
+    int     (*fn)(int eid, void *handle, int argc, char **argv);
 
     if ((ep = jsPtr(eid)) == NULL) {
         return NULL;
     }
 
     if ((sp = symLookup(ep->functions, name)) != NULL) {
-        fn = (int (*)(int, void*, int, char_t**)) sp->content.value.symbol;
+        fn = (int (*)(int, void*, int, char**)) sp->content.value.symbol;
         return (void*) fn;
     }
     return NULL;
@@ -1397,10 +1387,10 @@ void *jsGetGlobalFunction(int eid, char_t *name)
             return -1;
         }
  */
-int jsArgs(int argc, char_t **argv, char_t *fmt, ...)
+int jsArgs(int argc, char **argv, char *fmt, ...)
 {
     va_list vargs;
-    char_t  *cp, **sp;
+    char  *cp, **sp;
     int     *ip;
     int     argn;
 
@@ -1416,11 +1406,11 @@ int jsArgs(int argc, char_t **argv, char_t *fmt, ...)
         switch (*cp) {
         case 'd':
             ip = va_arg(vargs, int*);
-            *ip = gatoi(argv[argn]);
+            *ip = atoi(argv[argn]);
             break;
 
         case 's':
-            sp = va_arg(vargs, char_t**);
+            sp = va_arg(vargs, char**);
             *sp = argv[argn];
             break;
 
@@ -1471,7 +1461,7 @@ int jsGetLineNumber(int eid)
 }
 
 
-void jsSetResult(int eid, char_t *s)
+void jsSetResult(int eid, char *s)
 {
     Js    *ep;
 
@@ -1482,7 +1472,7 @@ void jsSetResult(int eid, char_t *s)
 }
 
 
-char_t *jsGetResult(int eid)
+char *jsGetResult(int eid)
 {
     Js    *ep;
 
@@ -1496,7 +1486,7 @@ char_t *jsGetResult(int eid)
     Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
     top-most variable frame.  
  */
-void jsSetVar(int eid, char_t *var, char_t *value)
+void jsSetVar(int eid, char *var, char *value)
 {
     Js      *ep;
     value_t     v;
@@ -1519,7 +1509,7 @@ void jsSetVar(int eid, char_t *var, char_t *value)
     Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the top-most variable frame.  
  */
-void jsSetLocalVar(int eid, char_t *var, char_t *value)
+void jsSetLocalVar(int eid, char *var, char *value)
 {
     Js      *ep;
     value_t     v;
@@ -1543,7 +1533,7 @@ void jsSetLocalVar(int eid, char_t *var, char_t *value)
     Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the global variable frame.  
  */
-void jsSetGlobalVar(int eid, char_t *var, char_t *value)
+void jsSetGlobalVar(int eid, char *var, char *value)
 {
     Js      *ep;
     value_t     v;
@@ -1565,7 +1555,7 @@ void jsSetGlobalVar(int eid, char_t *var, char_t *value)
 /*
     Get a variable
  */
-int jsGetVar(int eid, char_t *var, char_t **value)
+int jsGetVar(int eid, char *var, char **value)
 {
     Js      *ep;
     WebsKey       *sp;
@@ -1639,7 +1629,7 @@ static Js *jsPtr(int eid)
     gassert(0 <= eid && eid < jsMax);
 
     if (eid < 0 || eid >= jsMax || jsHandles[eid] == NULL) {
-        jsError(NULL, T("Bad handle %d"), eid);
+        jsError(NULL, "Bad handle %d", eid);
         return NULL;
     }
     return jsHandles[eid];
@@ -1671,7 +1661,7 @@ void jsLexClose(Js *ep)
 }
 
 
-int jsLexOpenScript(Js *ep, char_t *script)
+int jsLexOpenScript(Js *ep, char *script)
 {
     JsInput     *ip;
 
@@ -1747,7 +1737,7 @@ void jsLexSaveInputState(Js *ep, JsInput *state)
 
     *state = *ip;
     if (ip->putBackToken) {
-        state->putBackToken = gstrdup(ip->putBackToken);
+        state->putBackToken = strdup(ip->putBackToken);
     }
 }
 
@@ -1768,7 +1758,7 @@ void jsLexRestoreInputState(Js *ep, JsInput *state)
         gfree(ip->putBackToken);
     }
     if (state->putBackToken) {
-        ip->putBackToken = gstrdup(state->putBackToken);
+        ip->putBackToken = strdup(state->putBackToken);
     }
 }
 
@@ -1802,14 +1792,14 @@ static int getLexicalToken(Js *ep, int state)
     tokq = &ip->tokbuf;
     ep->tid = -1;
     tid = -1;
-    ep->token = T("");
+    ep->token = "";
     ringqFlush(tokq);
 
     if (ip->putBackTokenId > 0) {
         ringqPutStr(tokq, ip->putBackToken);
         tid = ip->putBackTokenId;
         ip->putBackTokenId = 0;
-        ep->token = (char_t*) tokq->servp;
+        ep->token = (char*) tokq->servp;
         return tid;
     }
     if ((c = inputGetc(ep)) < 0) {
@@ -1850,7 +1840,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '+':
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c != '+' ) {
@@ -1863,7 +1853,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '-':
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c != '-' ) {
@@ -1887,7 +1877,7 @@ static int getLexicalToken(Js *ep, int state)
                 Handle the division operator and comments
              */
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c != '*' && c != '/') {
@@ -1901,7 +1891,7 @@ static int getLexicalToken(Js *ep, int state)
              */
             while (1) {
                 if ((c = inputGetc(ep)) < 0) {
-                    jsError(ep, T("Syntax Error"));
+                    jsError(ep, "Syntax Error");
                     return TOK_ERR;
                 }
                 if (c == '\n' && style == '/') {
@@ -1929,7 +1919,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '<':                                   /* < and <= */
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c == '<') {
@@ -1945,7 +1935,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '>':                                   /* > and >= */
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c == '>') {
@@ -1961,7 +1951,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '=':                                   /* "==" */
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c == '=') {
@@ -1973,7 +1963,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '!':                                   /* "!=" or "!"*/
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             if (c == '=') {
@@ -1994,7 +1984,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '|':                                   /* "||" */
             if ((c = inputGetc(ep)) < 0 || c != '|') {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             tokenAddChar(ep, COND_OR);
@@ -2002,7 +1992,7 @@ static int getLexicalToken(Js *ep, int state)
 
         case '&':                                   /* "&&" */
             if ((c = inputGetc(ep)) < 0 || c != '&') {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
             tokenAddChar(ep, COND_AND);
@@ -2012,7 +2002,7 @@ static int getLexicalToken(Js *ep, int state)
         case '\'':
             quote = c;
             if ((c = inputGetc(ep)) < 0) {
-                jsError(ep, T("Syntax Error"));
+                jsError(ep, "Syntax Error");
                 return TOK_ERR;
             }
 
@@ -2023,7 +2013,7 @@ static int getLexicalToken(Js *ep, int state)
                 if (c == '\\') {
                     c = inputGetc(ep);
 
-                    if (gisdigit(c)) {
+                    if (isdigit(c)) {
                         /*
                             octal support, \101 maps to 65 = 'A'. put first char back so converter will work properly.
                          */
@@ -2061,7 +2051,7 @@ static int getLexicalToken(Js *ep, int state)
                         case '\\':
                             break;
                         default:
-                            jsError(ep, T("Invalid Escape Sequence"));
+                            jsError(ep, "Invalid Escape Sequence");
                             return TOK_ERR;
                         }
                     }
@@ -2074,7 +2064,7 @@ static int getLexicalToken(Js *ep, int state)
                     }
                 }
                 if ((c = inputGetc(ep)) < 0) {
-                    jsError(ep, T("Unmatched Quote"));
+                    jsError(ep, "Unmatched Quote");
                     return TOK_ERR;
                 }
             }
@@ -2088,7 +2078,7 @@ static int getLexicalToken(Js *ep, int state)
                 }
                 if ((c = inputGetc(ep)) < 0)
                     break;
-            } while (gisdigit(c));
+            } while (isdigit(c));
             inputPutback(ep, c);
             return TOK_LITERAL;
 
@@ -2107,29 +2097,29 @@ static int getLexicalToken(Js *ep, int state)
                 if ((c = inputGetc(ep)) < 0) {
                     break;
                 }
-                if (!gisalnum(c) && c != '$' && c != '_' &&
+                if (!isalnum(c) && c != '$' && c != '_' &&
                     c != '\\') {
                     break;
                 }
             }
-            if (! gisalpha(*tokq->servp) && *tokq->servp != '$' && 
+            if (! isalpha(*tokq->servp) && *tokq->servp != '$' && 
                     *tokq->servp != '_') {
-                jsError(ep, T("Invalid identifier %s"), tokq->servp);
+                jsError(ep, "Invalid identifier %s", tokq->servp);
                 return TOK_ERR;
             }
             /*
                 Check for reserved words (only "if", "else", "var", "for" and "return" at the moment)
              */
             if (state == STATE_STMT) {
-                if (gstrcmp(ep->token, T("if")) == 0) {
+                if (strcmp(ep->token, "if") == 0) {
                     return TOK_IF;
-                } else if (gstrcmp(ep->token, T("else")) == 0) {
+                } else if (strcmp(ep->token, "else") == 0) {
                     return TOK_ELSE;
-                } else if (gstrcmp(ep->token, T("var")) == 0) {
+                } else if (strcmp(ep->token, "var") == 0) {
                     return TOK_VAR;
-                } else if (gstrcmp(ep->token, T("for")) == 0) {
+                } else if (strcmp(ep->token, "for") == 0) {
                     return TOK_FOR;
-                } else if (gstrcmp(ep->token, T("return")) == 0) {
+                } else if (strcmp(ep->token, "return") == 0) {
                     if ((c == ';') || (c == '(')) {
                         inputPutback(ep, c);
                     }
@@ -2157,7 +2147,7 @@ static int getLexicalToken(Js *ep, int state)
 }
 
 
-void jsLexPutbackToken(Js *ep, int tid, char_t *string)
+void jsLexPutbackToken(Js *ep, int tid, char *string)
 {
     JsInput *ip;
 
@@ -2169,7 +2159,7 @@ void jsLexPutbackToken(Js *ep, int tid, char_t *string)
         gfree(ip->putBackToken);
     }
     ip->putBackTokenId = tid;
-    ip->putBackToken = gstrdup(string);
+    ip->putBackToken = strdup(string);
 }
 
 
@@ -2181,12 +2171,12 @@ static int tokenAddChar(Js *ep, int c)
     ip = ep->input;
     gassert(ip);
 
-    if (ringqPutc(&ip->tokbuf, (char_t) c) < 0) {
-        jsError(ep, T("Token too big"));
+    if (ringqPutc(&ip->tokbuf, (char) c) < 0) {
+        jsError(ep, "Token too big");
         return -1;
     }
-    * ((char_t*) ip->tokbuf.endp) = '\0';
-    ep->token = (char_t*) ip->tokbuf.servp;
+    * ((char*) ip->tokbuf.endp) = '\0';
+    ep->token = (char*) ip->tokbuf.servp;
 
     return 0;
 }
@@ -2211,7 +2201,7 @@ static int inputGetc(Js *ep)
     } else {
         if ((ip->lineColumn + 2) >= ip->lineLength) {
             ip->lineLength += JS_INC;
-            ip->line = grealloc(ip->line, ip->lineLength * sizeof(char_t));
+            ip->line = grealloc(ip->line, ip->lineLength * sizeof(char));
         }
         ip->line[ip->lineColumn++] = c;
         ip->line[ip->lineColumn] = '\0';
@@ -2227,7 +2217,7 @@ static void inputPutback(Js *ep, int c)
     gassert(ep);
 
     ip = ep->input;
-    ringqInsertc(&ip->script, (char_t) c);
+    ringqInsertc(&ip->script, (char) c);
     /* Fix by Fred Sauer, 2002/12/23 */
     if (ip->lineColumn > 0) {
         ip->lineColumn-- ;
@@ -2252,7 +2242,7 @@ static int charConvert(Js *ep, int base, int maxDig)
             Initialize to out of range value
          */
         convChar = base;
-        if (gisdigit(c)) {
+        if (isdigit(c)) {
             convChar = c - '0';
         } else if (c >= 'a' && c <= 'f') {
             convChar = c - 'a' + 10;

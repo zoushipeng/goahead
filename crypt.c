@@ -139,7 +139,7 @@ static void update(MD5CONTEXT *context, uchar *input, uint inputLen);
     Decode a null terminated string and returns a null terminated string.
     Stops decoding at the end of string or '='
  */
-char_t *websDecode64(char_t *s)
+char *websDecode64(char *s)
 {
     return websDecode64Block(s, NULL, WEBS_DECODE_TOKEQ);
 }
@@ -149,15 +149,15 @@ char_t *websDecode64(char_t *s)
     Decode a null terminated string and return a block with length.
     Stops decoding at the end of the block or '=' if WEBS_DECODE_TOKEQ is specified.
  */
-char_t *websDecode64Block(char_t *s, ssize *len, int flags)
+char *websDecode64Block(char *s, ssize *len, int flags)
 {
     uint    bitBuf;
-    char_t  *buffer, *bp;
-    char_t  *end;
+    char  *buffer, *bp;
+    char  *end;
     ssize   size;
     int     c, i, j, shift;
 
-    size = gstrlen(s);
+    size = strlen(s);
     if ((buffer = galloc(size + 1)) == 0) {
         return NULL;
     }
@@ -189,16 +189,16 @@ char_t *websDecode64Block(char_t *s, ssize *len, int flags)
 }
 
 
-char *websMD5(char_t *s)
+char *websMD5(char *s)
 {
-    return websMD5binary(s, gstrlen(s), NULL);
+    return websMD5binary(s, strlen(s), NULL);
 }
 
 
 /*
     Return the MD5 hash of a block. Returns allocated string. A prefix for the result can be supplied.
  */
-char *websMD5binary(char_t *buf, ssize length, char_t *prefix)
+char *websMD5binary(char *buf, ssize length, char *prefix)
 {
     MD5CONTEXT      context;
     uchar           hash[CRYPT_HASH_SIZE];
@@ -209,7 +209,7 @@ char *websMD5binary(char_t *buf, ssize length, char_t *prefix)
     int             i;
 
     if (length < 0) {
-        length = gstrlen(buf);
+        length = strlen(buf);
     }
     initMD5(&context);
     update(&context, (uchar*) buf, (uint) length);
@@ -220,7 +220,7 @@ char *websMD5binary(char_t *buf, ssize length, char_t *prefix)
         *r++ = hex[hash[i] & 0xF];
     }
     *r = '\0';
-    len = (prefix) ? gstrlen(prefix) : 0;
+    len = (prefix) ? strlen(prefix) : 0;
     str = galloc(sizeof(result) + len);
     if (str) {
         if (prefix) {
@@ -425,9 +425,9 @@ static void decode(uint *output, uchar *input, uint len)
     Encode a null terminated string.
     Returns a null terminated block
  */
-char_t *websEncode64(char_t *s)
+char *websEncode64(char *s)
 {
-    return websEncode64Block(s, glen(s));
+    return websEncode64Block(s, slen(s));
 }
 
 
@@ -435,7 +435,7 @@ char_t *websEncode64(char_t *s)
     Encode a block of a given length
     Returns a null terminated block
  */
-char_t *websEncode64Block(char_t *s, ssize len)
+char *websEncode64Block(char *s, ssize len)
 {
     uint    shiftbuf;
     char    *buffer, *bp;

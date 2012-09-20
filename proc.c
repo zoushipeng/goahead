@@ -20,11 +20,11 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+int websProcHandler(Webs *wp, char *prefix, char *dir, int arg)
 {
     WebsKey     *sp;
-    char_t      formBuf[BIT_LIMIT_FILENAME];
-    char_t      *cp, *formName;
+    char      formBuf[BIT_LIMIT_FILENAME];
+    char      *cp, *formName;
     WebsProc    fn;
 
     gassert(websValid(wp));
@@ -32,13 +32,13 @@ int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
     /*
         Extract the form name
      */
-    gstrncpy(formBuf, wp->path, TSZ(formBuf));
-    if ((formName = gstrchr(&formBuf[1], '/')) == NULL) {
-        websError(wp, 200, T("Missing form name"));
+    strncpy(formBuf, wp->path, TSZ(formBuf));
+    if ((formName = strchr(&formBuf[1], '/')) == NULL) {
+        websError(wp, 200, "Missing form name");
         return 1;
     }
     formName++;
-    if ((cp = gstrchr(formName, '/')) != NULL) {
+    if ((cp = strchr(formName, '/')) != NULL) {
         *cp = '\0';
     }
 
@@ -47,7 +47,7 @@ int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
      */
     sp = symLookup(formSymtab, formName);
     if (sp == NULL) {
-        websError(wp, 404, T("Proc %s is not defined"), formName);
+        websError(wp, 404, "Proc %s is not defined", formName);
     } else {
         //  MOB - should be a typedef
         fn = (WebsProc) sp->content.value.symbol;
@@ -63,7 +63,7 @@ int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 /*
     Define a procedure function in the "proc" map space.
  */
-int websProcDefine(char_t *name, void *fn)
+int websProcDefine(char *name, void *fn)
 {
     gassert(name && *name);
     gassert(fn);
@@ -100,15 +100,15 @@ void websHeader(Webs *wp)
     gassert(websValid(wp));
 
     websWriteHeaders(wp, 200, -1, 0);
-    websWriteHeader(wp, T("\r\n"));
-    websWrite(wp, T("<html>\n"));
+    websWriteEndHeaders(wp);
+    websWrite(wp, "<html>\n");
 }
 
 
 void websFooter(Webs *wp)
 {
     gassert(websValid(wp));
-    websWrite(wp, T("</html>\n"));
+    websWrite(wp, "</html>\n");
 }
 #endif
 

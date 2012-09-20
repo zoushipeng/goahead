@@ -22,8 +22,8 @@ typedef struct RandBuf {
 /************************************ Forwards ********************************/
 
 static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
-static int sslSetCertFile(char_t *certFile);
-static int sslSetKeyFile(char_t *keyFile);
+static int sslSetCertFile(char *certFile);
+static int sslSetKeyFile(char *keyFile);
 static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 
 /************************************** Code **********************************/
@@ -31,17 +31,17 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 int sslOpen()
 {
     RandBuf             randBuf;
-    char_t              *caFile, *caPath;
+    char              *caFile, *caPath;
 
-	trace(7, T("Initializing SSL\n")); 
+	trace(7, "Initializing SSL\n"); 
 
     randBuf.now = time(0);
     randBuf.pid = getpid();
     RAND_seed((void*) &randBuf, sizeof(randBuf));
 #if BIT_UNIX_LIKE
-    trace(6, T("OpenSsl: Before calling RAND_load_file\n"));
+    trace(6, "OpenSsl: Before calling RAND_load_file\n");
     RAND_load_file("/dev/urandom", 256);
-    trace(6, T("OpenSsl: After calling RAND_load_file\n"));
+    trace(6, "OpenSsl: After calling RAND_load_file\n");
 #endif
 
     CRYPTO_malloc_init(); 
@@ -53,7 +53,7 @@ int sslOpen()
 	SSLeay_add_ssl_algorithms();
 
 	if ((sslctx = SSL_CTX_new(SSLv23_server_method())) == 0) {
-		error(T("Unable to create SSL context")); 
+		error("Unable to create SSL context"); 
 		return -1;
 	}
 
@@ -64,7 +64,7 @@ int sslOpen()
     caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
     if (caFile || caPath) {
         if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
-            error(T("Unable to set cert verification locations"));
+            error("Unable to set cert verification locations");
             sslClose();
             return -1;
         }
@@ -259,7 +259,7 @@ ssize sslWrite(Webs *wp, void *buf, ssize len)
 /*
     Set certificate file for SSL context
  */
-static int sslSetCertFile(char_t *certFile)
+static int sslSetCertFile(char *certFile)
 {
 	gassert (sslctx);
 	gassert (certFile);
@@ -269,7 +269,7 @@ static int sslSetCertFile(char_t *certFile)
 	}
 	if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
-            error(T("Unable to set certificate file: %s"), certFile); 
+            error("Unable to set certificate file: %s", certFile); 
             return -1;
         }
 		return -1;
@@ -287,7 +287,7 @@ static int sslSetCertFile(char_t *certFile)
 /*
   	Set key file for SSL context
  */
-static int sslSetKeyFile(char_t *keyFile)
+static int sslSetKeyFile(char *keyFile)
 {
 	gassert (sslctx);
 	gassert (keyFile);
@@ -297,7 +297,7 @@ static int sslSetKeyFile(char_t *keyFile)
 	}
 	if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
-            error(T("Unable to set private key file: %s"), keyFile); 
+            error("Unable to set private key file: %s", keyFile); 
             return -1;
         }
 		return -1;

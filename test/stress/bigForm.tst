@@ -13,5 +13,5 @@ for (i in 100) {
 
 http.form(HTTP + "/proc/test", form)
 assert(http.status == 200)
-assert(http.response.contains("name: ("))
+assert(http.response.contains("name: null"))
 http.close()

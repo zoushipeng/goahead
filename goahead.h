@@ -164,29 +164,26 @@
 #endif
 
 /*
-    Foundational types
+    Unicode 
  */
 #ifndef BIT_CHAR_LEN
     #define BIT_CHAR_LEN 1
 #endif
 #if BIT_CHAR_LEN == 4
     typedef int wchar;
-    #define T(s) L ## s
+    #define TT(s) L ## s
     #define UNICODE 1
 #elif BIT_CHAR_LEN == 2
     typedef short wchar;
-    #define T(s) L ## s
+    #define TT(s) L ## s
     #define UNICODE 1
 #else
     typedef char wchar;
-    #define T(s) s
+    #define TT(s) s
     #define UNICODE 0
 #endif
     #define TSZ(b) (sizeof(b) / sizeof(wchar))
-
-    //MOB REMOVE
-    typedef char char_t;
-    typedef unsigned char uchar_t;
+    #define T(s) s
 
 /********************************* O/S Includes *******************************/
 /*
@@ -816,6 +813,7 @@ typedef int64 WebsDateTime;
 
 #if VXWORKS
     #define fcntl(a, b, c)
+    #define chdir vxchdir
     #if _WRS_VXWORKS_MAJOR < 6
         #define NI_MAXHOST 128
         extern STATUS access(char *path, int mode);
@@ -866,10 +864,9 @@ typedef int64 WebsDateTime;
 /*
     Copyright. The software license requires that this not be modified or removed.
  */
-#define EMBEDTHIS_GOAHEAD_COPYRIGHT T(\
+#define EMBEDTHIS_GOAHEAD_COPYRIGHT \
     "Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved." \
-    "Copyright (c) GoAhead Software Inc., 2012. All Rights Reserved." \
-    )
+    "Copyright (c) GoAhead Software Inc., 2012. All Rights Reserved."
 
 /************************************ Unicode *********************************/
 #if UNICODE && UNUSED
@@ -952,19 +949,7 @@ typedef int64 WebsDateTime;
     
 #else /* !UNICODE */
 
-    #if VXWORKS
-        #define gchdir      vxchdir
-        #define gmkdir      vxmkdir
-        #define grmdir      vxrmdir
-    #elif BIT_UNIX_LIKE
-        #define gchdir      chdir
-        #define gmkdir(s)   mkdir(s,0755)
-        #define grmdir      rmdir
-    #else
-        #define gchdir      chdir
-        #define gmkdir      mkdir
-        #define grmdir      rmdir
-    #endif
+#if UNUSED
     #define gaccess     access
     #define gasctime    asctime
     #define gatoi       atoi
@@ -1027,12 +1012,12 @@ typedef int64 WebsDateTime;
     #define gunlink     unlink
     #define gvsprintf   vsprintf
     #define gwrite      write
-    typedef struct stat WebsStat;
+#endif
 #endif /* !UNICODE */
 
 #if UNUSED
-extern char_t *guni(char_t *ubuf, char *str, ssize nBytes);
-extern char *gasc(char *buf, char_t *ustr, ssize nBytes);
+extern char *guni(char *ubuf, char *str, ssize nBytes);
+extern char *gasc(char *buf, char *ustr, ssize nBytes);
 
 #if CE
 extern int gwriteUniToAsc(int fid, void *buf, ssize len);
@@ -1041,12 +1026,18 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
 #endif
 
 #if !LINUX
-    extern char_t *basename(char_t *name);
+    extern char *basename(char *name);
 #endif
 
 #if VXWORKS
-    extern int vxchdir(char_t *dirname);
+    extern int vxchdir(char *dirname);
 #endif
+
+#if UNUSED && KEEP
+extern ssize strnlen(char *s, ssize n);
+#endif
+
+typedef struct stat WebsStat;
 
 /************************************* Main ***********************************/
 
@@ -1098,8 +1089,8 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 
 /************************************* Error **********************************/
 
-#define WEBS_L                 T(__FILE__), __LINE__
-#define WEBS_ARGS_DEC          char_t *file, int line
+#define WEBS_L                 __FILE__, __LINE__
+#define WEBS_ARGS_DEC          char *file, int line
 #define WEBS_ARGS              file, line
 
 /*
@@ -1110,24 +1101,24 @@ extern int gparseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_LOG_MASK       0xF
 
 #if BIT_DEBUG
-    #define gassert(C)     if (C) ; else gassertError(WEBS_L, T("%s"), T(#C))
-    extern void gassertError(WEBS_ARGS_DEC, char_t *fmt, ...);
+    #define gassert(C)     if (C) ; else gassertError(WEBS_L, "%s", #C)
+    extern void gassertError(WEBS_ARGS_DEC, char *fmt, ...);
 #else
     #define gassert(C)     if (1) ; else
 #endif
 
 #define LOG trace
 #if UNUSED
-extern void traceRaw(char_t *buf);
+extern void traceRaw(char *buf);
 #endif
 extern int traceOpen();
 extern void traceClose();
-typedef void (*WebsTraceHandler)(int level, char_t *msg);
+typedef void (*WebsTraceHandler)(int level, char *msg);
 extern WebsTraceHandler traceSetHandler(WebsTraceHandler handler);
-extern void traceSetPath(char_t *path);
+extern void traceSetPath(char *path);
 
-extern void error(char_t *fmt, ...);
-extern void trace(int lev, char_t *fmt, ...);
+extern void error(char *fmt, ...);
+extern void trace(int lev, char *fmt, ...);
 
 /*********************************** HTTP Codes *******************************/
 /*
@@ -1213,9 +1204,9 @@ typedef struct {
 #if BIT_FLOAT
         double  floating;
 #endif
-        char_t  *string;
+        char  *string;
         char    *bytes;
-        char_t  *errmsg;
+        char  *errmsg;
         void    *symbol;
     } value;
     vtype_t     type;
@@ -1232,9 +1223,9 @@ typedef struct {
 #define VALUE_INVALID       { {0}, undefined, 0 }
 
 extern value_t valueInteger(long value);
-extern value_t valueString(char_t *value, int flags);
+extern value_t valueString(char *value, int flags);
 extern value_t valueSymbol(void *value);
-extern value_t valueErrmsg(char_t *value);
+extern value_t valueErrmsg(char *value);
 extern void valueFree(value_t *v);
 
 /************************************* Ringq **********************************/
@@ -1288,9 +1279,9 @@ typedef struct {
 extern int ringqOpen(ringq_t *rq, int increment, int maxsize);
 extern void ringqClose(ringq_t *rq);
 extern ssize ringqLen(ringq_t *rq);
-extern int ringqPutc(ringq_t *rq, char_t c);
-extern int ringqInsertc(ringq_t *rq, char_t c);
-extern ssize ringqPutStr(ringq_t *rq, char_t *str);
+extern int ringqPutc(ringq_t *rq, char c);
+extern int ringqInsertc(ringq_t *rq, char c);
+extern ssize ringqPutStr(ringq_t *rq, char *str);
 extern int ringqGetc(ringq_t *rq);
 extern int ringqGrow(ringq_t *rq);
 
@@ -1350,7 +1341,7 @@ extern void gcloseAlloc();
 extern int  gopenAlloc(void *buf, int bufsize, int flags);
 
 #if !BIT_REPLACE_MALLOC
-    extern char_t *gstrdupNoAlloc(char_t *s);
+    extern char *gstrdupNoAlloc(char *s);
     extern char *gstrdupANoAlloc(char *s);
     #define galloc(num) malloc(num)
     #define gfree(p) if (p) { free(p); } else
@@ -1369,15 +1360,19 @@ extern int  gopenAlloc(void *buf, int bufsize, int flags);
     extern void *galloc(ssize size);
     extern void gfree(void *mp);
     extern void *grealloc(void *buf, ssize newsize);
-    extern char_t *gstrdup(char_t *s);
+    extern char *gstrdup(char *s);
 #endif /* BIT_REPLACE_MALLOC */
 
-extern char_t *gallocAscToUni(char  *cp, ssize alen);
-extern char *gallocUniToAsc(char_t *unip, ssize ulen);
+#if UNUSED
+extern char *gallocAscToUni(char  *cp, ssize alen);
+extern char *gallocUniToAsc(char *unip, ssize ulen);
+#endif
 
-//  MOB
-extern ssize mtow(wchar *dest, ssize count, cchar *src, ssize len);
+extern ssize mtow(wchar *dest, ssize count, char *src, ssize len);
 extern ssize wtom(char *dest, ssize count, wchar *src, ssize len);
+
+extern wchar *amtow(char *src, ssize *len);
+extern char  *awtom(wchar *src, ssize *len);
 
 /******************************* Symbol Table *********************************/
 /*
@@ -1395,9 +1390,9 @@ typedef int WebsHash;                       /* Returned by symOpen */
 
 extern WebsHash symOpen(int hash_size);
 extern void     symClose(WebsHash sd);
-extern WebsKey  *symLookup(WebsHash sd, char_t *name);
-extern WebsKey  *symEnter(WebsHash sd, char_t *name, value_t v, int arg);
-extern int      symDelete(WebsHash sd, char_t *name);
+extern WebsKey  *symLookup(WebsHash sd, char *name);
+extern WebsKey  *symEnter(WebsHash sd, char *name, value_t v, int arg);
+extern int      symDelete(WebsHash sd, char *name);
 extern void     symWalk(WebsHash sd, void (*fn)(WebsKey *symp));
 extern WebsKey  *symFirst(WebsHash sd);
 extern WebsKey  *symNext(WebsHash sd, WebsKey *last);
@@ -1462,7 +1457,7 @@ typedef struct {
 extern socket_t     **socketList;           /* List of open sockets */
 
 extern int      socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port);
-extern bool     socketAddressIsV6(char_t *ip);
+extern bool     socketAddressIsV6(char *ip);
 extern void     socketClose();
 extern void     socketCloseConnection(int sid);
 extern int      socketConnect(char *host, int port, int flags);
@@ -1471,16 +1466,16 @@ extern void     socketDeleteHandler(int sid);
 extern void     socketReservice(int sid);
 extern int      socketEof(int sid);
 extern int      socketGetPort(int sid);
-extern int      socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
+extern int      socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
                     WebsSockLenArg *addrlen);
 extern bool     socketIsV6(int sid);
 extern int      socketOpen();
 extern int      socketListen(char *host, int port, socketAccept_t accept, int flags);
-extern int      socketParseAddress(char_t *ipAddrPort, char_t **pip, int *pport, int *secure, int defaultPort);
+extern int      socketParseAddress(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
 extern void     socketProcess();
 extern ssize    socketRead(int sid, void *buf, ssize len);
 extern ssize    socketWrite(int sid, void *buf, ssize len);
-extern ssize    socketWriteString(int sid, char_t *buf);
+extern ssize    socketWriteString(int sid, char *buf);
 extern int      socketSelect(int hid, int timeout);
 extern int      socketGetHandle(int sid);
 extern int      socketSetBlock(int sid, int flags);
@@ -1494,7 +1489,6 @@ extern void     socketRegisterInterest(socket_t *sp, int handlerMask);
 extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 
 /*********************************** Runtime **********************************/
-
 /*
     String trim flags
  */
@@ -1502,31 +1496,33 @@ extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 #define WEBS_TRIM_END    0x2             /**< Flag for #strim to trim from the end of the string */
 #define WEBS_TRIM_BOTH   0x3             /**< Flag for #strim to trim from both the start and the end of the string */
 
-extern char *gtrim(char *str, cchar *set, int where);
-
 extern int gallocHandle(void ***map);
 extern int gallocEntry(void ***list, int *max, int size);
 extern int gfreeHandle(void ***map, int handle);
-extern int gcaselesscmp(char_t *s1, char_t *s2);
-extern bool gcaselessmatch(char_t *s1, char_t *s2);
-extern int gcmp(char_t *s1, char_t *s2);
-extern ssize gfmtAlloc(char_t **s, ssize n, char_t *fmt, ...);
-extern ssize gfmtStatic(char_t *s, ssize n, char_t *fmt, ...);
-extern ssize gfmtValloc(char_t **s, ssize n, char_t *fmt, va_list arg);
-extern uint ghextoi(char_t *hexstring);
-extern ssize glen(char_t *s1);
-extern ssize gcopy(char *dest, ssize destMax, char *src);
-extern ssize gncopy(char *dest, ssize destMax, char *src, ssize count);
-extern bool gmatch(char_t *s1, char_t *s2);
-extern int gopen(char_t *path, int oflag, int mode);
-extern int gncaselesscmp(char_t *s1, char_t *s2, ssize n);
-extern int gncmp(char_t *s1, char_t *s2, ssize n);
-extern char_t *gstrlower(char_t *string);
-extern ssize gstrnlen(char_t *s, ssize n);
-extern char_t *gstrupper(char_t *string);
-extern char_t *gstritoa(int n, char_t *string, int width);
-extern uint gstrtoi(char_t *s);
-extern char_t *gtok(char_t *str, char_t *delim, char_t **last);
+
+extern char *sfmt(char *format, ...);
+extern char *sfmtv(char *format, va_list arg);
+extern char *fmt(char *s, ssize n, char *format, ...);
+
+//  MOB
+extern uint ghextoi(char *hexstring);
+
+extern char *sclone(char *s);
+extern ssize slen(char *s1);
+extern bool smatch(char *s1, char *s2);
+extern ssize scopy(char *dest, ssize destMax, char *src);
+extern ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
+extern int scaselesscmp(char *s1, char *s2);
+extern bool scaselessmatch(char *s1, char *s2);
+extern int scmp(char *s1, char *s2);
+extern int sncaselesscmp(char *s1, char *s2, ssize n);
+extern int sncmp(char *s1, char *s2, ssize n);
+extern char *stok(char *str, char *delim, char **last);
+extern char *slower(char *string);
+extern char *supper(char *string);
+extern char *strim(char *str, cchar *set, int where);
+
+extern char *itosbuf(char *buf, ssize size, int64 value, int radix);
 
 typedef void (WebsCallback)(void *data, int id);
 extern int gschedCallback(int delay, WebsCallback *proc, void *arg);
@@ -1581,7 +1577,7 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_PUT                0x2000      /* Put method */
 #define WEBS_CGI                0x4000      /* cgi-bin request */
 #define WEBS_SECURE             0x8000      /* connection uses SSL */
-#define WEBS_HEADER_DONE        0x40000     /* Already output the HTTP header */
+#define WEBS_HEADERS_DONE       0x40000     /* Already output the HTTP header */
 #define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
 #define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
 #define WEBS_GET                0x200000    /* Get Request */
@@ -1642,55 +1638,56 @@ typedef struct Webs {
     WebsHash        vars;               /* CGI standard variables */
     time_t          timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
-    char_t          ipaddr[64];         /* Connecting ipaddress */
-    char_t          ifaddr[64];         /* Local interface ipaddress */
+    char          ipaddr[64];         /* Connecting ipaddress */
+    char          ifaddr[64];         /* Local interface ipaddress */
 
-    char            txChunkBuf[16];
-    char            *txChunkBufp;
-    ssize           txChunkBuflen;
+    char            txChunkPrefix[16];
+    char            *txChunkPrefixNext;
+    ssize           txChunkPrefixLen;
     ssize           txChunkLen;
     int             txChunkState;
 
     //  MOB OPT - which of these should be allocated strings and which should be static
 
-    char_t          *authDetails;       /* Http header auth details */
-    char_t          *authResponse;      /* Outgoing auth header */
-    char_t          *authType;          /* Authorization type (Basic/DAA) */
-    char_t          *contentType;       /* Body content type */
-    char_t          *cookie;            /* Request cookie string */
-    char_t          *decodedQuery;      /* Decoded request query */
-    char_t          *digest;            /* Password digest */
-    char_t          *dir;               /* Directory containing the page */
-    char_t          *ext;               /* Path extension */
-    char_t          *filename;          /* Document path name */
-    char_t          *host;              /* Requested host */
-    char_t          *inputFile;         /* File name to write input body data */
-    char_t          *method;            /* HTTP request method */
-    char_t          *password;          /* Authorization password */
-    char_t          *path;              /* Path name without query */
-    char_t          *protoVersion;      /* Protocol version */
-    char_t          *protocol;          /* Protocol (normally HTTP) */
-    char_t          *query;             /* Request query */
-    char_t          *realm;             /* Realm field supplied in auth header */
-    char_t          *responseCookie;    /* Outgoing cookie */
-    char_t          *url;               /* Full request url */
-    char_t          *userAgent;         /* User agent (browser) */
-    char_t          *username;          /* Authorization username */
+    char          *authDetails;       /* Http header auth details */
+    char          *authResponse;      /* Outgoing auth header */
+    char          *authType;          /* Authorization type (Basic/DAA) */
+    char          *contentType;       /* Body content type */
+    char          *cookie;            /* Request cookie string */
+    char          *decodedQuery;      /* Decoded request query */
+    char          *digest;            /* Password digest */
+    char          *dir;               /* Directory containing the page */
+    char          *ext;               /* Path extension */
+    char          *filename;          /* Document path name */
+    char          *host;              /* Requested host */
+    char          *inputFile;         /* File name to write input body data */
+    char          *method;            /* HTTP request method */
+    char          *password;          /* Authorization password */
+    char          *path;              /* Path name without query */
+    char          *protoVersion;      /* Protocol version */
+    char          *protocol;          /* Protocol (normally HTTP) */
+    char          *query;             /* Request query */
+    char          *realm;             /* Realm field supplied in auth header */
+    char          *responseCookie;    /* Outgoing cookie */
+    char          *url;               /* Full request url */
+    char          *userAgent;         /* User agent (browser) */
+    char          *username;          /* Authorization username */
 
     int             sid;                /* Socket id (handler) */
     int             listenSid;          /* Listen Socket id */
     int             port;               /* Request port number */
     int             state;              /* Current state */
     int             flags;              /* Current flags -- see above */
-    int             rxChunkState;       /* Rx chunk encoding state */
     int             code;               /* Response status code */
-    ssize           rxlen;              /* Rx content length */
-    ssize           remainingContent;   /* Remaining content length to read */
-    ssize           buffered;           /* Content buffered in input */
-    ssize           txlen;              /* Tx content length */
+    ssize           rxBuffered;         /* Content buffered in input */
+    int             rxChunkState;       /* Rx chunk encoding state */
+    ssize           rxConsumed;         /* Content consumed from input buffer */
+    ssize           rxLen;              /* Rx content length */
+    ssize           rxRemaining;        /* Remaining content to read */
+    ssize           txLen;              /* Tx content length */
     int             wid;                /* Index into webs */
 #if BIT_CGI
-    char_t          *cgiStdin;          /* Filename for CGI program input */
+    char          *cgiStdin;          /* Filename for CGI program input */
     int             cgifd;              /* File handle for CGI program input */
 #endif
     int             putfd;              /* File handle to write PUT data */
@@ -1704,12 +1701,12 @@ typedef struct Webs {
     struct WebsUser *user;              /* User auth record */
     int             encoded;            /* True if the password is MD5(username:realm:password) */
 #if BIT_DIGEST
-    char_t          *cnonce;            /* check nonce */
-    char_t          *digestUri;         /* URI found in digest header */
-    char_t          *nonce;             /* opaque-to-client string sent by server */
-    char_t          *nc;                /* nonce count */
-    char_t          *opaque;            /* opaque value passed from server */
-    char_t          *qop;               /* quality operator */
+    char          *cnonce;            /* check nonce */
+    char          *digestUri;         /* URI found in digest header */
+    char          *nonce;             /* opaque-to-client string sent by server */
+    char          *nc;                /* nonce count */
+    char          *opaque;            /* opaque value passed from server */
+    char          *qop;               /* quality operator */
 #endif
 #if BIT_UPLOAD
     int             upfd;               /* Upload file handle */
@@ -1731,16 +1728,16 @@ typedef struct Webs {
 } Webs;
 
 
-typedef int (*WebsHandlerProc)(Webs *wp, char_t *prefix, char_t *dir, int arg);
-typedef int (*WebsProc)(Webs *wp, char_t *path, char_t *query);
+typedef int (*WebsHandlerProc)(Webs *wp, char *prefix, char *dir, int arg);
+typedef int (*WebsProc)(Webs *wp, char *path, char *query);
 
 /*
     URL handler structure. Stores the leading URL path and the handler function to call when the URL path is seen.
  */ 
 typedef struct WebsHandler {
     WebsHandlerProc handler;
-    char_t          *dir;                   /**< Web directory if required */
-    char_t          *prefix;                /**< URL leading prefix */
+    char          *dir;                   /**< Web directory if required */
+    char          *prefix;                /**< URL leading prefix */
     ssize           len;                    /**< Length of prefix for speed */
     int             arg;                    /**< Argument to provide to handler */
     int             flags;                  /**< Flags */
@@ -1751,15 +1748,15 @@ typedef struct WebsHandler {
  */
 typedef struct WebsError {
     int     code;                           /* HTTP error code */
-    char_t  *msg;                           /* HTTP error message */
+    char  *msg;                           /* HTTP error message */
 } WebsError;
 
 /* 
     Mime type list
  */
 typedef struct WebsMime {
-    char_t  *type;                          /* Mime type */
-    char_t  *ext;                           /* File extension */
+    char  *type;                          /* Mime type */
+    char  *ext;                           /* File extension */
 } WebsMime;
 
 /*
@@ -1775,7 +1772,7 @@ typedef struct WebsFileInfo {
     Compiled Rom Page Index
  */
 typedef struct WebsRomIndex {
-    char_t          *path;                  /* Web page URL path */
+    char          *path;                  /* Web page URL path */
     uchar           *page;                  /* Web page data */
     int             size;                   /* Size of web page in bytes */
     WebsFilePos     pos;                    /* Current read position */
@@ -1795,103 +1792,104 @@ typedef struct WebsRomIndex {
 
 extern int websAccept(int sid, char *ipaddr, int port, int listenSid);
 extern int websAlloc(int sid);
-extern char_t *websCalcNonce(Webs *wp);
-extern char_t *websCalcOpaque(Webs *wp);
-extern char_t *websCalcDigest(Webs *wp);
-extern char_t *websCalcUrlDigest(Webs *wp);
-extern int websCgiHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
+extern char *websCalcNonce(Webs *wp);
+extern char *websCalcOpaque(Webs *wp);
+extern char *websCalcDigest(Webs *wp);
+extern char *websCalcUrlDigest(Webs *wp);
+extern int websCgiHandler(Webs *wp, char *prefix, char *dir, int arg);
 extern void websCgiCleanup();
 extern int websCheckCgiProc(int handle);
 extern void websClose();
 extern void websCloseListen(int sock);
-extern char_t *websDecode64(char_t *string);
-extern char_t *websDecode64Block(char_t *s, ssize *len, int flags);
-extern void websDecodeUrl(char_t *token, char_t *decoded, ssize len);
+extern char *websDecode64(char *string);
+extern char *websDecode64Block(char *s, ssize *len, int flags);
+extern void websDecodeUrl(char *token, char *decoded, ssize len);
 extern void websFileOpen();
 extern void websFileClose();
-extern int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
-extern int websHomePageHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
+extern int websFileHandler(Webs *wp, char *prefix, char *dir, int arg);
+extern int websHomePageHandler(Webs *wp, char *prefix, char *dir, int arg);
 extern void websDone(Webs *wp, int code);
-extern char_t *websEncode64(char_t *string);
-extern char_t *websEncode64Block(char_t *s, ssize len);
+extern char *websEncode64(char *string);
+extern char *websEncode64Block(char *s, ssize len);
 extern char *websEscapeHtml(cchar *html);
-extern void websError(Webs *wp, int code, char_t *msg, ...);
-extern char_t *websErrorMsg(int code);
-extern int websEval(char_t *cmd, char_t **rslt, void *chan);
+extern void websError(Webs *wp, int code, char *msg, ...);
+extern char *websErrorMsg(int code);
+extern int websEval(char *cmd, char **rslt, void *chan);
 extern void websProcClose();
-extern int websProcDefine(char_t *name, void *proc);
-extern int websProcHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
+extern int websProcDefine(char *name, void *proc);
+extern int websProcHandler(Webs *wp, char *prefix, char *dir, int arg);
 extern void websProcOpen();
 extern void websFree(Webs *wp);
-extern char_t *websGetCgiCommName();
-extern char_t *websGetDateString(WebsFileInfo *sbuf);
-extern char_t *websGetDocuments();
-extern char_t *websGetIndex();
-extern void websSetDocuments(char_t *dir);
-extern void websSetIndex(char_t *page);
-extern char_t *websGetHostUrl();
-extern char_t *websGetIpAddrUrl();
-extern char_t *websGetPassword();
-extern char_t *websGetPublishDir(char_t *path, char_t **prefix);
-extern char_t *websGetRealm();
+extern char *websGetCgiCommName();
+extern char *websGetDateString(WebsFileInfo *sbuf);
+extern char *websGetDocuments();
+extern char *websGetIndex();
+extern void websSetDocuments(char *dir);
+extern void websSetIndex(char *page);
+extern char *websGetHostUrl();
+extern char *websGetIpAddrUrl();
+extern char *websGetPassword();
+extern char *websGetPublishDir(char *path, char **prefix);
+extern char *websGetRealm();
 extern ssize websGetRequestBytes(Webs *wp);
-extern char_t *websGetRequestDir(Webs *wp);
+extern char *websGetRequestDir(Webs *wp);
 extern int websGetRequestFlags(Webs *wp);
-extern char_t *websGetRequestIpAddr(Webs *wp);
-extern char_t *websGetRequestFilename(Webs *wp);
-extern char_t *websGetRequestPath(Webs *wp);
-extern char_t *websGetRequestPassword(Webs *wp);
+extern char *websGetRequestIpAddr(Webs *wp);
+extern char *websGetRequestFilename(Webs *wp);
+extern char *websGetRequestPath(Webs *wp);
+extern char *websGetRequestPassword(Webs *wp);
 extern ssize websGetRequestWritten(Webs *wp);
-extern char_t *websGetVar(Webs *wp, char_t *var, char_t *def);
-extern int websCompareVar(Webs *wp, char_t *var, char_t *value);
-extern int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, char_t *stdIn, char_t *stdOut);
-extern char *websMD5(char_t *s);
-extern char *websMD5binary(char_t *buf, ssize length, char_t *prefix);
-extern char_t *websNormalizeUriPath(char_t *path);
-extern int websOpen(char_t *documents, char_t *authPath);
+extern char *websGetVar(Webs *wp, char *var, char *def);
+extern int websCompareVar(Webs *wp, char *var, char *value);
+extern int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
+extern char *websMD5(char *s);
+extern char *websMD5binary(char *buf, ssize length, char *prefix);
+extern char *websNormalizeUriPath(char *path);
+extern int websOpen(char *documents, char *authPath);
 extern int websListen(char *endpoint);
 extern void websPageClose(Webs *wp);
-extern int websPageIsDirectory(char_t *filename);
-extern int websPageOpen(Webs *wp, char_t *filename, char_t *path, int mode, int perm);
+extern int websPageIsDirectory(char *filename);
+extern int websPageOpen(Webs *wp, char *filename, char *path, int mode, int perm);
 extern ssize websPageReadData(Webs *wp, char *buf, ssize nBytes);
 extern void websPageSeek(Webs *wp, WebsFilePos offset);
-extern int websPageStat(Webs *wp, char_t *filename, char_t *path, WebsFileInfo *sbuf);
-extern int websPublish(char_t *prefix, char_t *path);
-extern void websRedirect(Webs *wp, char_t *url);
-extern void websResponse(Webs *wp, int code, char_t *msg, char_t *redirect);
-extern void websRewriteRequest(Webs *wp, char_t *url);
+extern int websPageStat(Webs *wp, char *filename, char *path, WebsFileInfo *sbuf);
+extern int websPublish(char *prefix, char *path);
+extern void websRedirect(Webs *wp, char *url);
+extern void websResponse(Webs *wp, int code, char *msg, char *redirect);
+extern void websRewriteRequest(Webs *wp, char *url);
 extern int websRomOpen();
 extern void websRomClose();
-extern int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm);
+extern int websRomPageOpen(Webs *wp, char *path, int mode, int perm);
 extern void websRomPageClose(int fd);
 extern ssize websRomPageReadData(Webs *wp, char *buf, ssize len);
-extern int websRomPageStat(char_t *path, WebsFileInfo *sbuf);
+extern int websRomPageStat(char *path, WebsFileInfo *sbuf);
 extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
 extern void websSetEnv(Webs *wp);
-extern void websSetHost(char_t *host);
-extern void websSetIpAddr(char_t *ipaddr);
-extern void websSetRequestFilename(Webs *wp, char_t *filename);
-extern void websSetRequestPath(Webs *wp, char_t *dir, char_t *path);
+extern void websSetHost(char *host);
+extern void websSetIpAddr(char *ipaddr);
+extern void websSetRequestFilename(Webs *wp, char *filename);
+extern void websSetRequestPath(Webs *wp, char *dir, char *path);
 //  MOB - do all these APIs exist?
-extern char_t *websGetRequestUserName(Webs *wp);
+extern char *websGetRequestUserName(Webs *wp);
 extern void websServiceEvents(int *finished);
-extern void websSetCookie(Webs *wp, char_t *name, char_t *value, char_t *path, char_t *domain, time_t lifespan, int flags);
+extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, time_t lifespan, int flags);
 extern void websSetRequestWritten(Webs *wp, ssize written);
 extern void websSetTimeMark(Webs *wp);
-extern void websSetVar(Webs *wp, char_t *var, char_t *value);
-extern int websTestVar(Webs *wp, char_t *var);
+extern void websSetVar(Webs *wp, char *var, char *value);
+extern int websTestVar(Webs *wp, char *var);
 extern void websTimeout(void *arg, int id);
 extern void websTimeoutCancel(Webs *wp);
-extern int websUrlHandlerDefine(char_t *prefix, char_t *dir, int arg, WebsHandlerProc handler, int flags);
+extern int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsHandlerProc handler, int flags);
 extern void websUrlHandlerClose();
 extern int websUrlHandlerDelete(WebsHandlerProc handler);
 extern int websUrlHandlerOpen();
 extern void websHandleRequest(Webs *wp);
-extern int websUrlParse(char_t *url, char_t **buf, char_t **host, char_t **path, char_t **port, char_t **query, char_t **proto, char_t **tag, char_t **ext);
-extern void websWriteHeaders(Webs *wp, int code, ssize contentLength, char_t *redirect);
-extern ssize websWriteHeader(Webs *wp, char_t *fmt, ...);
-extern ssize websWrite(Webs *wp, char_t *fmt, ...);
-extern ssize websWriteBlock(Webs *wp, char_t *buf, ssize nChars);
+extern int websUrlParse(char *url, char **buf, char **host, char **path, char **port, char **query, char **proto, char **tag, char **ext);
+extern void websWriteHeaders(Webs *wp, int code, ssize contentLength, char *redirect);
+extern void websWriteEndHeaders(Webs *wp);
+extern ssize websWriteHeader(Webs *wp, char *fmt, ...);
+extern ssize websWrite(Webs *wp, char *fmt, ...);
+extern ssize websWriteBlock(Webs *wp, char *buf, ssize nChars);
 extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
 extern ssize websWriteRaw(Webs *wp, char *buf, ssize size) ;
 extern bool websValid(Webs *wp);
@@ -1915,11 +1913,11 @@ extern int websProcessPutData(Webs *wp);
 
 #if BIT_JAVASCRIPT
 extern void websJsClose();
-extern int websJsDefine(char_t *name, int (*fn)(int ejid, Webs *wp, int argc, char_t **argv));
+extern int websJsDefine(char *name, int (*fn)(int ejid, Webs *wp, int argc, char **argv));
 extern int websJsOpen();
-extern int websJsRequest(Webs *wp, char_t *filename);
-extern int websJsWrite(int ejid, Webs *wp, int argc, char_t **argv);
-extern int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg);
+extern int websJsRequest(Webs *wp, char *filename);
+extern int websJsWrite(int ejid, Webs *wp, int argc, char **argv);
+extern int websJsHandler(Webs *wp, char *prefix, char *dir, int arg);
 #endif
 
 /*************************************** SSL ***********************************/
@@ -1949,26 +1947,26 @@ typedef struct WebsRoute {
     WebsParseAuth  parseAuth;              /* Basic or Digest */
     WebsVerify     verify;                 /* Pam or internal */
     WebsHash       abilities;
-    char_t         *loginPage;
-    char_t         *loggedInPage;
-    char_t         *authType;
+    char         *loginPage;
+    char         *loggedInPage;
+    char         *authType;
     int            flags;
 } WebsRoute;
 
 extern void websCloseRoute();
-extern int websOpenRoute(char_t *path);
-extern WebsRoute *websAddRoute(char_t *type, char_t *name, char_t *abilities, char_t *redirect, 
+extern int websOpenRoute(char *path);
+extern WebsRoute *websAddRoute(char *type, char *name, char *abilities, char *redirect, 
         WebsAskLogin login, WebsParseAuth parseAuth, WebsVerify verify);
-extern int websRemoveRoute(char_t *uri);
+extern int websRemoveRoute(char *uri);
 extern bool websRouteRequest(Webs *wp);
 
 /*************************************** Auth **********************************/
 #define WEBS_USIZE          128              /* Size of realm:username */
 
 typedef struct WebsUser {
-    char_t  *name;
-    char_t  *password;
-    char_t  *roles;
+    char  *name;
+    char  *password;
+    char  *roles;
     WebsHash  abilities;
 } WebsUser;
 
@@ -1976,16 +1974,16 @@ typedef struct WebsRole {
     WebsHash  abilities;
 } WebsRole;
 
-extern WebsUser *websAddUser(char_t *username, char_t *password, char_t *roles);
-extern int websRemoveUser(char_t *name);
-extern int websSetUserRoles(char_t *username, char_t *roles);
+extern WebsUser *websAddUser(char *username, char *password, char *roles);
+extern int websRemoveUser(char *name);
+extern int websSetUserRoles(char *username, char *roles);
 extern WebsUser *websLookupUser(char *username);
 extern bool websCan(Webs *wp, WebsHash ability);
 extern bool websCanString(Webs *wp, char *ability);
-extern int websAddRole(char_t *role, char_t *abilities);
-extern int websRemoveRole(char_t *role);
+extern int websAddRole(char *role, char *abilities);
+extern int websRemoveRole(char *role);
 
-extern bool websLoginUser(Webs *wp, char_t *username, char_t *password);
+extern bool websLoginUser(Webs *wp, char *username, char *password);
 extern bool websAuthenticate(Webs *wp);
 
 extern void websCloseAuth();
@@ -2015,88 +2013,140 @@ typedef struct WebsSession {
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
 
-extern WebsSession *websAllocSession(Webs *wp, char_t *id, time_t lifespan);
+extern WebsSession *websAllocSession(Webs *wp, char *id, time_t lifespan);
 extern WebsSession *websGetSession(Webs *wp, int create);
-extern char_t *websGetSessionVar(Webs *wp, char_t *name, char_t *defaultValue);
-extern void websRemoveSessionVar(Webs *wp, char_t *name);
-extern int websSetSessionVar(Webs *wp, char_t *name, char_t *value);
+extern char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
+extern void websRemoveSessionVar(Webs *wp, char *name);
+extern int websSetSessionVar(Webs *wp, char *name, char *value);
 extern char *websGetSessionID(Webs *wp);
 
 /************************************ Legacy **********************************/
-
+/*
+    Legacy mappings for pre GoAhead 3.X applications
+ */
 #if BIT_LEGACY
-//  MOB ORDER
-    typedef wchar char_t;
-    typedef unsigned wchar uchar_t;
-
+    #define B_L 0
+    #define WEBS_ASP WEBS_JS
+    #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
     #define a_assert gassert
-    typedef WebsStat gstat_t;
-    #define emfSchedProc WebsCallback
-    #define emfSchedCallback gschedCallback
-    #define emfUnschedCallback gunschedCallback
+    #define balloc galloc
+    #define bclose gcloseAlloc
+    #define bfree(loc, p) gfree(p)
+    #define bfreeSafe(loc, p) gfree(p)
+    #define bopen gopenAlloc
+    #define brealloc grealloc
+    #define bstrdup strdup
     #define emfReschedCallback greschedCallback
+    #define emfSchedCallback gschedCallback
+    #define emfSchedProc WebsCallback
     #define emfSchedProcess grunCallbacks
-
+    #define emfUnschedCallback gunschedCallback
+    #define fmtAlloc sfmt
+    #define fmtStatic fmt
+    #define fmtValloc fmtv
+    #define gaccess     access
+    #define gasctime    asctime
+    #define gatoi       atoi
+    #define gchmod      chmod
+    #define gclose      close
+    #define gclosedir   closedir
+    #define gcreat      creat
+    #define gctime      ctime
+    #define gexecvp     execvp
+    #define gfgets      fgets
+    #define gfindclose  _findclose
+    #define gfinddata_t _finddata_t
+    #define gfindfirst  _findfirst
+    #define gfindnext   _findnext
+    #define gfopen      fopen
+    #define gfprintf    fprintf
+    #define gfputs      fputs
+    #define gfscanf     fscanf
+    #define ggetcwd     getcwd
+    #define ggetenv     getenv
+    #define ggets       gets
+    #define gisalnum    isalnum
+    #define gisalpha    isalpha
+    #define gisdigit    isdigit
+    #define gislower    islower
+    #define gisspace    isspace
+    #define gisupper    isupper
+    #define gisxdigit   isxdigit
+    #define gloadModule loadModule
+    #define glseek      lseek
+    #define gopendir    opendir
+    #define gprintf     printf
+    #define gread       read
+    #define greaddir    readdir
+    #define gremove     remove
+    #define grename     rename
+    #define gsprintf    sprintf
+    #define gsscanf     sscanf
+    #define gstat       stat
+    #define gstrcat     strcat
+    #define gstrchr     strchr
+    #define gstrcmp     strcmp
+    #define gstrcpy     strcpy
+    #define gstrcspn    strcspn
+    #define gstricmp    strcmpci
+    #define gstritoa    stritoa
+    #define gstrlen     strlen
+    #define gstrlower   strlower
+    #define gstrncat    strncat
+    #define gstrncmp    strncmp
+    #define gstrncpy    strncpy
+    #define gstrnlen    strnlen
+    #define gstrnset    strnset
+    #define gstrrchr    strrchr
+    #define gstrspn     strspn
+    #define gstrstr     strstr
+    #define gstrtok     strtok
+    #define gstrtol     strtol
+    #define gstrupper   strupper
+    #define gtempnam    tempnam
+    #define gtmpnam     tmpnam
+    #define gtolower    tolower
+    #define gtoupper    toupper
+    #define gunlink     unlink
+    #define gvsprintf   vsprintf
+    #define gwrite      write
     #define hAlloc gAlloc
     #define hAllocEntry gAllocEntry
     #define hFree gFree
-
-    #define ascToUni guni
-    #define uniToAsc gasc
-
-    #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
-    #define B_L 0
-
-    #define bopen gopenAlloc
-    #define bclose gcloseAlloc
-    #define bstrdupNoBalloc gstrdupNoAlloc
-    #define bstrdupANoBalloc gstrdupANoAlloc
-    #define balloc galloc
-    #define bfree(loc, p) gfree(p)
-    #define bfreeSafe(loc, p) gfree(p)
-    #define brealloc grealloc
-    #define bstrdup gstrdup
-    #define bstrdupA gstrdupA
-
+    #define stritoa gstritoa
     #define strlower gstrlower
     #define strupper gstrupper
-    #define stritoa gstritoa
-    #define WEBS_ASP WEBS_JS
-
-    #define fmtValloc gfmtValloc
-    #define fmtAlloc gfmtAlloc
-    #define fmtStatic gfmtStatic
-
     #define websAspClose websJsClose
     #define websAspDefine websJsDefine
     #define websAspOpen websJsOpen
     #define websAspRequest websJsRequest
-
+    #define websFormDefine websProcDefine
     #define websGetDefaultDir websGetDocuments
     #define websGetDefaultPage websGetIndex
+    #define websGetRequestLpath websGetRequestFilename
     #define websSetDefaultDir websSetDocuments
     #define websSetDefaultPage websGetIndex
     #define websSetRequestLpath websSetRequestFilename
-    #define websGetRequestLpath websGetRequestFilename
-    #define websFormDefine websProcDefine
     #define websWriteDataNonBlock websWriteRaw
 
+    extern void websFooter(Webs *wp);
+    extern void websHeader(Webs *wp);
+    typedef Webs *webs_t;
     typedef Webs WebsRec;
     typedef Webs websType;
-    typedef Webs *webs_t;
+    typedef WebsError websErrorType;
+    typedef WebsFileInfo websStatType;
+    typedef WebsFormProc WebsProc;
+    typedef WebsHandler websUrlHandlerType;
     typedef WebsHash sym_fd_t;
     typedef WebsKey WebsKey;
-    typedef WebsFormProc WebsProc;
-
-    typedef WebsHandler websUrlHandlerType;
-    typedef WebsError websErrorType;
     typedef WebsMime websMimeType;
-    typedef WebsFileInfo websStatType;
+    typedef WebsStat gstat_t;
+    typedef struct stat WebsStat;
+
 #if BIT_ROM
     typedef WebsRomIndex websRomPageIndexType;
 #endif
-    extern void websHeader(Webs *wp);
-    extern void websFooter(Webs *wp);
 #endif
 
 #ifdef __cplusplus

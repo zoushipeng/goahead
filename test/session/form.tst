@@ -8,7 +8,7 @@ let http: Http = new Http
 //  GET
 http.get(HTTP + "/proc/sessionTest")
 assert(http.status == 200)
-assert(http.response.contains("Number (null)"))
+assert(http.response.contains("Number null"))
 let cookie = http.header("Set-Cookie")
 if (cookie) {
     cookie = cookie.match(/(-goahead-session-=.*);/)[1]

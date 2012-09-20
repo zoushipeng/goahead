@@ -34,12 +34,12 @@ int sslOpen()
         return -1;
     }
     if (matrixSslNewKeys(&sslKeys) < 0) {
-        trace(0, T("Failed to allocate keys in sslOpen\n"));
+        trace(0, "Failed to allocate keys in sslOpen\n");
         return -1;
     }
     password = 0;
     if (matrixSslLoadRsaKeys(sslKeys, BIT_CERTIFICATE, BIT_KEY, password,  NULL) < 0) {
-        error(0, T("Failed to read certificate %s or key file\n"), BIT_CERTIFICATE);
+        error(0, "Failed to read certificate %s or key file\n", BIT_CERTIFICATE);
         return -1;
     }
     return 0;

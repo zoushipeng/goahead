@@ -10,8 +10,8 @@
 
 /*********************************** Locals ***********************************/
 
-static char_t   *websIndex;                 /* Default page name */
-static char_t   *websDocuments;            /* Default Web page directory */
+static char   *websIndex;                 /* Default page name */
+static char   *websDocuments;            /* Default Web page directory */
 
 /**************************** Forward Declarations ****************************/
 
@@ -21,10 +21,10 @@ static void writeEvent(Webs *wp);
 /*
     Process a URL request for static file documents. 
  */
-int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
 {
     WebsFileInfo    info;
-    char_t          *tmp, *date;
+    char          *tmp, *date;
     ssize           nchars;
     int             code;
 
@@ -51,24 +51,26 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
             If the file is a directory, redirect using the nominated default page
          */
         if (websPageIsDirectory(wp->filename)) {
-            nchars = gstrlen(wp->path);
+            nchars = strlen(wp->path);
             if (wp->path[nchars - 1] == '/' || wp->path[nchars - 1] == '\\') {
                 wp->path[--nchars] = '\0';
             }
-            nchars += gstrlen(websIndex) + 2;
-            gfmtAlloc(&tmp, nchars, T("%s/%s"), wp->path, websIndex);
+#if UNUSED
+            nchars += strlen(websIndex) + 2;
+#endif
+            tmp = sfmt("%s/%s", wp->path, websIndex);
             websRedirect(wp, tmp);
             gfree(tmp);
             return 1;
         }
         if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
-            websError(wp, 404, T("Cannot open URL"));
+            websError(wp, 404, "Cannot open URL");
             return 1;
         }
         //  MOB - confusion with filename and path
         //  MOB - should we be using just lower stat?
         if (websPageStat(wp, wp->filename, wp->path, &info) < 0) {
-            websError(wp, 400, T("Cannot stat page for URL"));
+            websError(wp, 400, "Cannot stat page for URL");
             return 1;
         }
         code = 200;
@@ -79,10 +81,10 @@ int websFileHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 #endif
         websWriteHeaders(wp, code, info.size, 0);
         if ((date = websGetDateString(&info)) != NULL) {
-            websWriteHeader(wp, T("Last-modified: %s\r\n"), date);
+            websWriteHeader(wp, "Last-modified: %s\r\n", date);
             gfree(date);
         }
-        websWriteHeader(wp, T("\r\n"));
+        websWriteEndHeaders(wp);
 
         /*
             All done if the browser did a HEAD request
@@ -127,7 +129,7 @@ static void writeEvent(Webs *wp)
         Note: websWriteRaw may return less than we wanted. It will return -1 on a socket error.
      */
     if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
-        websError(wp, 200, T("Can't get memory"));
+        websError(wp, 200, "Can't get memory");
         return;
     }
     wrote = 0;
@@ -160,7 +162,7 @@ static void writeEvent(Webs *wp)
 void websFileOpen()
 {
     //  MOB - should not be unicode
-    websIndex = gstrdup(T("index.html"));
+    websIndex = strdup("index.html");
 }
 
 
@@ -176,13 +178,13 @@ void websFileClose()
 /*
     Get the default page for URL requests ending in "/"
  */
-char_t *websGetIndex()
+char *websGetIndex()
 {
     return websIndex;
 }
 
 
-char_t *websGetDocuments()
+char *websGetDocuments()
 {
     return websDocuments;
 }
@@ -191,35 +193,33 @@ char_t *websGetDocuments()
 /*
     Set the default page for URL requests ending in "/"
  */
-void websSetIndex(char_t *page)
+void websSetIndex(char *page)
 {
     gassert(page && *page);
 
     if (websIndex) {
         gfree(websIndex);
     }
-    websIndex = gstrdup(page);
+    websIndex = strdup(page);
 }
 
 
 /*
     Set the default web directory
  */
-void websSetDocuments(char_t *dir)
+void websSetDocuments(char *dir)
 {
     gassert(dir && *dir);
     if (websDocuments) {
         gfree(websDocuments);
     }
-    websDocuments = gstrdup(dir);
+    websDocuments = strdup(dir);
 }
 
 
-int websHomePageHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+int websHomePageHandler(Webs *wp, char *prefix, char *dir, int arg)
 {
-    //  MOB gmatch
-    //  MOB - could groutines apply T() to args)
-    if (*wp->url == '\0' || gstrcmp(wp->url, T("/")) == 0) {
+    if (*wp->url == '\0' || smatch(wp->url, "/")) {
         websRedirect(wp, "index.html");
         return 1;
     }

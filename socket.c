@@ -17,7 +17,7 @@ int         socketOpenCount = 0;    /* Number of task using sockets */
 
 /***************************** Forward Declarations ***************************/
 
-static int ipv6(char_t *ip);
+static int ipv6(char *ip);
 static void socketAccept(socket_t *sp);
 static void socketDoEvent(socket_t *sp);
 
@@ -98,7 +98,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
 
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
-        error(T("Can't bind to address %s:%d, errno %d"), ip ? ip : "*", port, errno);
+        error("Can't bind to address %s:%d, errno %d", ip ? ip : "*", port, errno);
         socketFree(sid);
         return -1;
     }
@@ -650,13 +650,13 @@ ssize socketWrite(int sid, void *buf, ssize bufsize)
     Write a string to a socket
     MOB - change UNICODE api. Should never take unicode
  */
-ssize socketWriteString(int sid, char_t *buf)
+ssize socketWriteString(int sid, char *buf)
 {
- #if UNICODE
+ #if UNICODE && UNUSED
     char    *byteBuf;
     ssize   r, len;
  
-    len = gstrlen(buf);
+    len = strlen(buf);
     byteBuf = gallocUniToAsc(buf, len);
     r = socketWrite(sid, byteBuf, len);
     gfree(byteBuf);
@@ -777,7 +777,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
     sp->fileHandle = -1;
     sp->saveMask = -1;
     if (ip) {
-        sp->ip = gstrdup(ip);
+        sp->ip = strdup(ip);
     }
     sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING);
     return sid;
@@ -790,7 +790,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
 void socketFree(int sid)
 {
     socket_t    *sp;
-    char_t      buf[256];
+    char      buf[256];
     int         i;
 
     if ((sp = socketPtr(sid)) == NULL) {
@@ -938,7 +938,7 @@ int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -962,7 +962,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
     } else {
         hints.ai_family = AF_UNSPEC;
     }
-    gstritoa(port, portBuf, sizeof(portBuf));
+    itosbuf(portBuf, sizeof(portBuf), port, 10);
 
     /*  
         Try to sleuth the address to avoid duplicate address lookups. Then try IPv4 first then IPv6.
@@ -999,7 +999,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 }
 #else
 
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct sockaddr_in  sa;
 
@@ -1082,7 +1082,7 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
     uchar   *cp;
     sa = (struct sockaddr_in*) addr;
     cp = (uchar*) &sa->sin_addr;
-    gfmtStatic(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
+    fmt(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
 #endif
     *port = ntohs(sa->sin_port);
 #endif
@@ -1093,9 +1093,9 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
 /*
     Looks like an IPv6 address if it has 2 or more colons
  */
-static int ipv6(char_t *ip)
+static int ipv6(char *ip)
 {
-    char_t  *cp;
+    char  *cp;
     int     colons;
 
     if (ip == 0 || *ip == 0) {
@@ -1128,9 +1128,9 @@ static int ipv6(char_t *ip)
 
     Caller must free *pip
  */
-int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, int defaultPort)
+int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)
 {
-    char_t    *ip, *cp;
+    char    *ip, *cp;
 
     ip = 0;
     if (defaultPort < 0) {
@@ -1150,13 +1150,13 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
                 *pport = (*++cp == '*') ? -1 : atoi(cp);
 
                 /* Set ipAddr to ipv6 address without brackets */
-                ip = gstrdup(address + 1);
+                ip = strdup(address + 1);
                 cp = strchr(ip, ']');
                 *cp = '\0';
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
-                ip = gstrdup(address + 1);
+                ip = strdup(address + 1);
                 if ((cp = strchr(ip, ']')) != 0) {
                     *cp = '\0';
                 }
@@ -1168,7 +1168,7 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
             }
         } else {
             /* Handles a:b:c:d:e:f:g:h:i case (no port) */
-            ip = gstrdup(address);
+            ip = strdup(address);
 
             /* No port present, use callers default */
             *pport = defaultPort;
@@ -1178,7 +1178,7 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
         /*  
             ipv4 
          */
-        ip = gstrdup(address);
+        ip = strdup(address);
         if ((cp = strchr(ip, ':')) != 0) {
             *cp++ = '\0';
             if (*cp == '*') {
@@ -1221,7 +1221,7 @@ bool socketIsV6(int sid)
 }
 
 
-bool socketAddressIsV6(char_t *ip)
+bool socketAddressIsV6(char *ip)
 {
     return ip && ipv6(ip);
 }

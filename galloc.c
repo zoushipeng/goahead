@@ -119,11 +119,11 @@ void *galloc(ssize size)
             memSize = ROUNDUP4(memSize);
             bp = (WebsBlock*) malloc(memSize);
             if (bp == NULL) {
-                traceRaw(T("B: malloc failed\n"));
+                traceRaw("B: malloc failed\n");
                 return NULL;
             }
         } else {
-            traceRaw(T("B: malloc failed\n"));
+            traceRaw("B: malloc failed\n");
             return NULL;
         }
         /*
@@ -157,14 +157,14 @@ void *galloc(ssize size)
              */
             memSize = ROUNDUP4(memSize);
             if ((bp = (WebsBlock*) malloc(memSize)) == NULL) {
-                traceRaw(T("B: malloc failed\n"));
+                traceRaw("B: malloc failed\n");
                 return NULL;
             }
             bp->u.size = memSize - sizeof(WebsBlock);
             bp->flags = WEBS_MALLOCED;
 
         } else {
-            traceRaw(T("B: malloc failed\n"));
+            traceRaw("B: malloc failed\n");
             return NULL;
         }
     }
@@ -208,7 +208,7 @@ void gfree(void *mp)
 /*
     Duplicate a string, allow NULL pointers and then dup an empty string.
  */
-char *gstrdupA(char *s)
+char *strdupA(char *s)
 {
     char    *cp;
     int     len;
@@ -226,20 +226,20 @@ char *gstrdupA(char *s)
 #endif /* UNICODE */
 
 /*
-    Duplicate an ascii string, allow NULL pointers and then dup an empty string. If UNICODE, gstrdup above works with
+    Duplicate an ascii string, allow NULL pointers and then dup an empty string. If UNICODE, strdup above works with
     wide chars, so we need this routine *  for ascii strings. 
  */
-char_t *gstrdup(char_t *s)
+char *strdup(char *s)
 {
-    char_t  *cp;
+    char  *cp;
     ssize   len;
 
     if (s == NULL) {
-        s = T("");
+        s = "";
     }
-    len = gstrlen(s) + 1;
-    if ((cp = galloc(len * sizeof(char_t))) != NULL) {
-        gstrncpy(cp, s, len * sizeof(char_t));
+    len = strlen(s) + 1;
+    if ((cp = galloc(len * sizeof(char))) != NULL) {
+        strncpy(cp, s, len * sizeof(char));
     }
     return cp;
 }
@@ -298,32 +298,6 @@ static int gallocGetSize(ssize size, int *q)
  */
 int gopenAlloc(void *buf, int bufsize, int flags) { return 0; }
 void gcloseAlloc() { }
-
-char_t *gstrdupNoAlloc(char_t *s)
-{
-#if UNICODE
-    if (s) {
-        return wcsdup(s);
-    } else {
-        return wcsdup(T(""));
-    }
-#else
-    return gstrdupANoAlloc(s);
-#endif
-}
-
-
-char *gstrdupANoAlloc(char *s)
-{
-    char*   buf;
-
-    if (s == NULL) {
-        s = "";
-    }
-    buf = malloc(strlen(s)+1);
-    strcpy(buf, s);
-    return buf;
-}
 
 #endif /* BIT_REPLACE_MALLOC */
 

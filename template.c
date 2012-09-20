@@ -16,18 +16,18 @@ static WebsHash websJsFunctions = -1;  /* Symbol table of functions */
 
 /***************************** Forward Declarations ***************************/
 
-static char_t   *strtokcmp(char_t *s1, char_t *s2);
-static char_t   *skipWhite(char_t *s);
+static char   *strtokcmp(char *s1, char *s2);
+static char   *skipWhite(char *s);
 
 /************************************* Code ***********************************/
 /*
     Process template JS request
  */
-int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+int websJsHandler(Webs *wp, char *prefix, char *dir, int arg)
 {
     gassert(websValid(wp));
 
-    if (!gmatch(wp->ext, T(".asp"))) {
+    if (!smatch(wp->ext, ".asp")) {
         return 0;
     }
     if (websJsRequest(wp, wp->filename) < 0) {
@@ -44,7 +44,7 @@ int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
 int websJsOpen()
 {
     websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
-    websJsDefine(T("write"), websJsWrite);
+    websJsDefine("write", websJsWrite);
     return 0;
 }
 
@@ -58,7 +58,7 @@ void websJsClose()
 }
 
 
-int websEval(char_t *cmd, char_t **result, void* chan)
+int websEval(char *cmd, char **result, void* chan)
 {
     int     jsid;
 
@@ -76,12 +76,11 @@ int websEval(char_t *cmd, char_t **result, void* chan)
     Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
  */
-int websJsRequest(Webs *wp, char_t *filename)
+int websJsRequest(Webs *wp, char *filename)
 {
     WebsFileInfo    sbuf;
-    char            *rbuf;
-    char_t          *token, *lang, *result, *ep, *cp, *buf, *nextp;
-    char_t          *last;
+    char          *token, *lang, *result, *ep, *cp, *buf, *nextp;
+    char          *last;
     ssize           len;
     int             rc, jsid;
 
@@ -90,70 +89,71 @@ int websJsRequest(Webs *wp, char_t *filename)
 
     rc = -1;
     buf = NULL;
-    rbuf = NULL;
     wp->flags &= ~WEBS_KEEP_ALIVE;
 
     /*
         Create Javascript instance in case it is needed
      */
     if ((jsid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
-        websError(wp, 200, T("Can't create JavaScript engine"));
+        websError(wp, 200, "Can't create JavaScript engine");
         goto done;
     }
     jsSetUserHandle(jsid, wp);
 
     if (websPageStat(wp, filename, wp->path, &sbuf) < 0) {
-        websError(wp, 404, T("Can't stat %s"), filename);
+        websError(wp, 404, "Can't stat %s", filename);
         goto done;
     }
     if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
-        websError(wp, 404, T("Cannot open URL"));
+        websError(wp, 404, "Cannot open URL");
         return 1;
     }
     /*
         Create a buffer to hold the web page in-memory
      */
     len = sbuf.size * sizeof(char);
-    if ((rbuf = galloc(len + 1)) == NULL) {
-        websError(wp, 200, T("Can't get memory"));
+    if ((buf = galloc(len + 1)) == NULL) {
+        websError(wp, 200, "Can't get memory");
         goto done;
     }
-    rbuf[len] = '\0';
+    buf[len] = '\0';
 
-    if (websPageReadData(wp, rbuf, len) != len) {
-        websError(wp, 200, T("Cant read %s"), filename);
+    if (websPageReadData(wp, buf, len) != len) {
+        websError(wp, 200, "Cant read %s", filename);
         goto done;
     }
     websPageClose(wp);
 
+#if UNUSED
     /*
         Convert to UNICODE if necessary.
      */
     if ((buf = gallocAscToUni(rbuf, len)) == NULL) {
-        websError(wp, 200, T("Can't get memory"));
+        websError(wp, 200, "Can't get memory");
         goto done;
     }
+#endif
 
     websWriteHeaders(wp, 200, (ssize) -1, 0);
-    websWriteHeader(wp, T("Pragma: no-cache\r\nCache-Control: no-cache\r\n"));
-    websWriteHeader(wp, T("\r\n"));
+    websWriteHeader(wp, "Pragma: no-cache\r\nCache-Control: no-cache\r\n");
+    websWriteEndHeaders(wp);
 
     /*
         Scan for the next "<%"
      */
     last = buf;
     rc = 0;
-    while (rc == 0 && *last && ((nextp = gstrstr(last, T("<%"))) != NULL)) {
+    while (rc == 0 && *last && ((nextp = strstr(last, "<%")) != NULL)) {
         websWriteBlock(wp, last, (nextp - last));
         nextp = skipWhite(nextp + 2);
 
         /*
             Decode the language
          */
-        token = T("language");
+        token = "language";
 
         if ((lang = strtokcmp(nextp, token)) != NULL) {
-            if ((cp = strtokcmp(lang, T("=javascript"))) != NULL) {
+            if ((cp = strtokcmp(lang, "=javascript")) != NULL) {
                 /* Ignore */;
             } else {
                 cp = nextp;
@@ -164,7 +164,7 @@ int websJsRequest(Webs *wp, char_t *filename)
         /*
             Find tailing bracket and then evaluate the script
          */
-        if ((ep = gstrstr(nextp, T("%>"))) != NULL) {
+        if ((ep = strstr(nextp, "%>")) != NULL) {
 
             *ep = '\0';
             last = ep + 2;
@@ -191,13 +191,13 @@ int websJsRequest(Webs *wp, char_t *filename)
                      */
                     if (websValid(wp)) {
                         if (result) {
-                            websWrite(wp, T("<h2><b>Javascript Error: %s</b></h2>\n"), result);
-                            websWrite(wp, T("<pre>%s</pre>"), nextp);
+                            websWrite(wp, "<h2><b>Javascript Error: %s</b></h2>\n", result);
+                            websWrite(wp, "<pre>%s</pre>", nextp);
                             gfree(result);
                         } else {
-                            websWrite(wp, T("<h2><b>Javascript Error</b></h2>\n%s\n"), nextp);
+                            websWrite(wp, "<h2><b>Javascript Error</b></h2>\n%s\n", nextp);
                         }
-                        websWrite(wp, T("</body></html>\n"));
+                        websWrite(wp, "</body></html>\n");
                         rc = 0;
                     }
                     goto done;
@@ -205,7 +205,7 @@ int websJsRequest(Webs *wp, char_t *filename)
             }
 
         } else {
-            websError(wp, 200, T("Unterminated script in %s: \n"), filename);
+            websError(wp, 200, "Unterminated script in %s: \n", filename);
             rc = -1;
             goto done;
         }
@@ -214,7 +214,7 @@ int websJsRequest(Webs *wp, char_t *filename)
         Output any trailing HTML page text
      */
     if (last && *last && rc == 0) {
-        websWriteBlock(wp, last, gstrlen(last));
+        websWriteBlock(wp, last, strlen(last));
     }
     rc = 0;
 
@@ -229,7 +229,6 @@ done:
         }
     }
     gfree(buf);
-    gfree(rbuf);
     return rc;
 }
 
@@ -237,18 +236,18 @@ done:
 /*
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-int websJsDefine(char_t *name, 
-    int (*fn)(int jsid, Webs *wp, int argc, char_t **argv))
+int websJsDefine(char *name, 
+    int (*fn)(int jsid, Webs *wp, int argc, char **argv))
 {
     return jsSetGlobalFunctionDirect(websJsFunctions, name, 
-        (int (*)(int, void*, int, char_t**)) fn);
+        (int (*)(int, void*, int, char**)) fn);
 }
 
 
 /*
     Javascript write command. This implemements <% write("text"); %> command
  */
-int websJsWrite(int jsid, Webs *wp, int argc, char_t **argv)
+int websJsWrite(int jsid, Webs *wp, int argc, char **argv)
 {
     int     i;
 
@@ -256,11 +255,11 @@ int websJsWrite(int jsid, Webs *wp, int argc, char_t **argv)
     
     for (i = 0; i < argc; ) {
         gassert(argv);
-        if (websWriteBlock(wp, argv[i], gstrlen(argv[i])) < 0) {
+        if (websWriteBlock(wp, argv[i], strlen(argv[i])) < 0) {
             return -1;
         }
         if (++i < argc) {
-            if (websWriteBlock(wp, T(" "), 2) < 0) {
+            if (websWriteBlock(wp, " ", 2) < 0) {
                 return -1;
             }
         }
@@ -272,13 +271,13 @@ int websJsWrite(int jsid, Webs *wp, int argc, char_t **argv)
 /*
     Find s2 in s1. We skip leading white space in s1.  Return a pointer to the location in s1 after s2 ends.
  */
-static char_t *strtokcmp(char_t *s1, char_t *s2)
+static char *strtokcmp(char *s1, char *s2)
 {
     ssize     len;
 
     s1 = skipWhite(s1);
-    len = gstrlen(s2);
-    for (len = gstrlen(s2); len > 0 && (tolower(*s1) == tolower(*s2)); len--) {
+    len = strlen(s2);
+    for (len = strlen(s2); len > 0 && (tolower(*s1) == tolower(*s2)); len--) {
         if (*s2 == '\0') {
             return s1;
         }
@@ -292,21 +291,21 @@ static char_t *strtokcmp(char_t *s1, char_t *s2)
 }
 
 
-static char_t *skipWhite(char_t *s) 
+static char *skipWhite(char *s) 
 {
     gassert(s);
 
     if (s == NULL) {
         return s;
     }
-    while (*s && gisspace(*s)) {
+    while (*s && isspace(*s)) {
         s++;
     }
     return s;
 }
 
 #else
-int websJsHandler(Webs *wp, char_t *prefix, char_t *dir, int arg) { return 0; }
+int websJsHandler(Webs *wp, char *prefix, char *dir, int arg) { return 0; }
 int websJsOpen() { return 0; }
 void websJsClose() {}
 #endif /* BIT_JAVASCRIPT */

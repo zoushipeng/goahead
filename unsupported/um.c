@@ -53,7 +53,7 @@
  */
 #define NUMBER_OF_USER_COLUMNS  5
 
-static char_t *userColumnNames[NUMBER_OF_USER_COLUMNS] = {
+static char *userColumnNames[NUMBER_OF_USER_COLUMNS] = {
         UM_NAME, UM_PASS, UM_GROUP, UM_PROT, UM_DISABLE
 };
 
@@ -75,7 +75,7 @@ static dbTable_t userTable = {
  */
 #define NUMBER_OF_GROUP_COLUMNS 5
 
-static char_t *groupColumnNames[NUMBER_OF_GROUP_COLUMNS] = {
+static char *groupColumnNames[NUMBER_OF_GROUP_COLUMNS] = {
         UM_NAME, UM_PRIVILEGE, UM_METHOD, UM_PROT, UM_DISABLE
 };
 
@@ -97,7 +97,7 @@ static dbTable_t groupTable = {
  */
 #define NUMBER_OF_ACCESS_COLUMNS    4
 
-static char_t *accessColumnNames[NUMBER_OF_ACCESS_COLUMNS] = {
+static char *accessColumnNames[NUMBER_OF_ACCESS_COLUMNS] = {
     UM_NAME, UM_METHOD, UM_SECURE, UM_GROUP
 };
 
@@ -123,31 +123,31 @@ static int udb = -1;
     User database
     MOB - rename
  */
-static char_t *umDbName = NULL;
+static char *umDbName = NULL;
 
 /********************************** Forwards **********************************/
 
-static bool_t   checkName(char_t *name);
-static void     cryptPassword(char_t *textString);
+static bool_t   checkName(char *name);
+static void     cryptPassword(char *textString);
 
 #if BIT_USER_MANAGEMENT_GUI
-static int      jsGenerateUserList(int eid, Webs *wp, int argc, char_t **argv);
-static int      jsGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv);
-static int      jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv);
-static int      jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv);
-static int      jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv);
-static void     formAddUser(Webs *wp, char_t *path, char_t *query);
-static void     formDeleteUser(Webs *wp, char_t *path, char_t *query);
-static void     formDisplayUser(Webs *wp, char_t *path, char_t *query);
-static void     formAddGroup(Webs *wp, char_t *path, char_t *query);
-static void     formDeleteGroup(Webs *wp, char_t *path, char_t *query);
-static void     formAddAccessLimit(Webs *wp, char_t *path, char_t *query);
-static void     formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query);
+static int      jsGenerateUserList(int eid, Webs *wp, int argc, char **argv);
+static int      jsGenerateGroupList(int eid, Webs *wp, int argc, char **argv);
+static int      jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char **argv);
+static int      jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char **argv);
+static int      jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char **argv);
+static void     formAddUser(Webs *wp, char *path, char *query);
+static void     formDeleteUser(Webs *wp, char *path, char *query);
+static void     formDisplayUser(Webs *wp, char *path, char *query);
+static void     formAddGroup(Webs *wp, char *path, char *query);
+static void     formDeleteGroup(Webs *wp, char *path, char *query);
+static void     formAddAccessLimit(Webs *wp, char *path, char *query);
+static void     formDeleteAccessLimit(Webs *wp, char *path, char *query);
 #endif
 
 /*********************************** Code *************************************/
 
-int umOpen(char_t *path)
+int umOpen(char *path)
 {
     if ((udb = dbOpen(UM_USER_TABLENAME, NULL, NULL, 0)) < 0) {
         return -1;
@@ -155,7 +155,7 @@ int umOpen(char_t *path)
     dbRegisterDBSchema(&userTable);
     dbRegisterDBSchema(&groupTable);
     dbRegisterDBSchema(&accessTable);
-    umDbName = gstrdup(path ? path : UM_TXT_FILENAME);
+    umDbName = strdup(path ? path : UM_TXT_FILENAME);
 #if UNUSED
     dbZero(udb);
 #endif
@@ -184,9 +184,9 @@ int umSave()
 /*
     Return a pointer to the first non-blank key value in the given column for the given table.
  */
-static char_t *umGetFirstRowData(char_t *tableName, char_t *columnName)
+static char *umGetFirstRowData(char *tableName, char *columnName)
 {
-    char_t  *columnData;
+    char  *columnData;
     int     row;
     int     check;
 
@@ -210,9 +210,9 @@ static char_t *umGetFirstRowData(char_t *tableName, char_t *columnName)
 /*
     Return a pointer to the first non-blank key value following the given one.
  */
-static char_t *umGetNextRowData(char_t *tableName, char_t *columnName, char_t *keyLast)
+static char *umGetNextRowData(char *tableName, char *columnName, char *keyLast)
 {
-    char_t  *key;
+    char  *key;
     int     row;
     int     check;
 
@@ -227,18 +227,18 @@ static char_t *umGetNextRowData(char_t *tableName, char_t *columnName, char_t *k
     key = NULL;
 
     while ((((check = dbReadStr(udb, tableName, columnName, row++, &key)) == 0) || (check == DB_ERR_ROW_DELETED)) &&
-        ((key == NULL) || (gstrcmp(key, keyLast) != 0))) { }
+        ((key == NULL) || (strcmp(key, keyLast) != 0))) { }
     /*
         If the last key value was not found, return NULL
      */
-    if (!key || gstrcmp(key, keyLast) != 0) {
+    if (!key || strcmp(key, keyLast) != 0) {
         return NULL;
     }
     /*
         Move through table until we retrieve the next row with a non-null key
      */
     while (((check = dbReadStr(udb, tableName, columnName, row++, &key)) == 0) || (check == DB_ERR_ROW_DELETED)) {
-        if (key && *key && (gstrcmp(key, keyLast) != 0)) {
+        if (key && *key && (strcmp(key, keyLast) != 0)) {
             return key;
         }
     }
@@ -250,10 +250,10 @@ static char_t *umGetNextRowData(char_t *tableName, char_t *columnName, char_t *k
 /*
     Adds a user to the "users" table
  */
-int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t disabled)
+int umAddUser(char *user, char *pass, char *group, bool_t prot, bool_t disabled)
 {
     int     row;
-    char_t  *password;
+    char  *password;
 
     gassert(user && *user);
     gassert(pass && *pass);
@@ -288,7 +288,7 @@ int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t dis
     if (dbWriteStr(udb, UM_USER_TABLENAME, UM_NAME, row, user) != 0) {
         return UM_ERR_GENERAL;
     }
-    password = gstrdup(pass);
+    password = strdup(pass);
     cryptPassword(password);
     dbWriteStr(udb, UM_USER_TABLENAME, UM_PASS, row, password);
     gfree(password);
@@ -300,7 +300,7 @@ int umAddUser(char_t *user, char_t *pass, char_t *group, bool_t prot, bool_t dis
 }
 
 
-int umDeleteUser(char_t *user)
+int umDeleteUser(char *user)
 {
     int row;
 
@@ -323,7 +323,7 @@ int umDeleteUser(char_t *user)
 /*
     Returns the user ID of the first user found in the "users" table
  */
-char_t *umGetFirstUser()
+char *umGetFirstUser()
 {
     return umGetFirstRowData(UM_USER_TABLENAME, UM_NAME);
 }
@@ -332,13 +332,13 @@ char_t *umGetFirstUser()
 /*
     Returns the next user found in the "users" table after the given user.
  */
-char_t *umGetNextUser(char_t *userLast)
+char *umGetNextUser(char *userLast)
 {
     return umGetNextRowData(UM_USER_TABLENAME, UM_NAME, userLast);
 }
 
 
-bool_t umUserExists(char_t *user)
+bool_t umUserExists(char *user)
 {
     gassert(user && *user);
     return dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0) >= 0;
@@ -348,9 +348,9 @@ bool_t umUserExists(char_t *user)
 /*
     Returns a decrypted copy of the user password
  */
-char_t *umGetUserPassword(char_t *user)
+char *umGetUserPassword(char *user)
 {
-    char_t  *password, *pass;
+    char  *password, *pass;
     int     row;
 
     gassert(user && *user);
@@ -362,7 +362,7 @@ char_t *umGetUserPassword(char_t *user)
         /*
             Decrypt password. This returns a copy of the password, which must be deleted at some time in the future.
          */
-        password = gstrdup(pass);
+        password = strdup(pass);
         cryptPassword(password);
     }
     return password;
@@ -372,9 +372,9 @@ char_t *umGetUserPassword(char_t *user)
 /*
     Updates the user password in the user "table" after encrypting the given password
  */
-int umSetUserPassword(char_t *user, char_t *pass)
+int umSetUserPassword(char *user, char *pass)
 {
-    char_t  *password;
+    char  *password;
     int     row, rc;
 
     gassert(user && *user);
@@ -387,7 +387,7 @@ int umSetUserPassword(char_t *user, char_t *pass)
     if ((row = dbSearchStr(udb, UM_USER_TABLENAME, UM_NAME, user, 0)) < 0) {
         return UM_ERR_NOT_FOUND;
     }
-    password = gstrdup(pass);
+    password = strdup(pass);
     cryptPassword(password);
     rc = dbWriteStr(udb, UM_USER_TABLENAME, UM_PASS, row, password);
     gfree(password);
@@ -395,9 +395,9 @@ int umSetUserPassword(char_t *user, char_t *pass)
 }
 
 
-char_t *umGetUserGroup(char_t *user)
+char *umGetUserGroup(char *user)
 {
-    char_t  *group;
+    char  *group;
     int     row;
 
     gassert(user && *user);
@@ -416,7 +416,7 @@ char_t *umGetUserGroup(char_t *user)
 /*
     Set the name of the user group for the user
  */
-int umSetUserGroup(char_t *user, char_t *group)
+int umSetUserGroup(char *user, char *group)
 {
     int row;
 
@@ -437,7 +437,7 @@ int umSetUserGroup(char_t *user, char_t *group)
 /*
     Returns if the user is enabled. Returns FALSE if the user is not found.
  */
-bool_t  umGetUserEnabled(char_t *user)
+bool_t  umGetUserEnabled(char *user)
 {
     int disabled, row;
 
@@ -454,7 +454,7 @@ bool_t  umGetUserEnabled(char_t *user)
 }
 
 
-int umSetUserEnabled(char_t *user, bool_t enabled)
+int umSetUserEnabled(char *user, bool_t enabled)
 {
     int row;
 
@@ -474,7 +474,7 @@ int umSetUserEnabled(char_t *user, bool_t enabled)
 /*
     Determine deletability of user
  */
-bool_t umGetUserProtected(char_t *user)
+bool_t umGetUserProtected(char *user)
 {
     int protect, row;
 
@@ -494,7 +494,7 @@ bool_t umGetUserProtected(char_t *user)
 /*
     Sets the delete protection for the user
  */
-int umSetUserProtected(char_t *user, bool_t protect)
+int umSetUserProtected(char *user, bool_t protect)
 {
     int row;
 
@@ -511,7 +511,7 @@ int umSetUserProtected(char_t *user, bool_t protect)
 }
 
 
-int umAddGroup(char_t *group, short priv, accessMeth_t am, bool_t prot, bool_t disabled)
+int umAddGroup(char *group, short priv, accessMeth_t am, bool_t prot, bool_t disabled)
 {
     int row;
 
@@ -547,7 +547,7 @@ int umAddGroup(char_t *group, short priv, accessMeth_t am, bool_t prot, bool_t d
 }
 
 
-int umDeleteGroup(char_t *group)
+int umDeleteGroup(char *group)
 {
     int row;
 
@@ -576,7 +576,7 @@ int umDeleteGroup(char_t *group)
 }
 
 
-bool_t umGroupExists(char_t *group)
+bool_t umGroupExists(char *group)
 {
     gassert(group && *group);
     return dbSearchStr(udb, UM_GROUP_TABLENAME, UM_NAME, group, 0) >= 0;
@@ -586,7 +586,7 @@ bool_t umGroupExists(char_t *group)
 /*
     Returns TRUE if the group is referenced by a user or by an access limit.
  */
-bool_t umGetGroupInUse(char_t *group)
+bool_t umGetGroupInUse(char *group)
 {
     gassert(group && *group);
 
@@ -609,7 +609,7 @@ bool_t umGetGroupInUse(char_t *group)
 /*
     Return a pointer to the first non-blank group name
  */
-char_t *umGetFirstGroup()
+char *umGetFirstGroup()
 {
     return umGetFirstRowData(UM_GROUP_TABLENAME, UM_NAME);
 }
@@ -618,7 +618,7 @@ char_t *umGetFirstGroup()
 /*
     Return a pointer to the first non-blank group name following the given group name
  */
-char_t *umGetNextGroup(char_t *groupLast)
+char *umGetNextGroup(char *groupLast)
 {
     return umGetNextRowData(UM_GROUP_TABLENAME, UM_NAME, groupLast);
 }
@@ -627,7 +627,7 @@ char_t *umGetNextGroup(char_t *groupLast)
 /*
     Returns the default access method to use for a given group
  */
-accessMeth_t umGetGroupAccessMethod(char_t *group)
+accessMeth_t umGetGroupAccessMethod(char *group)
 {
     int am, row;
 
@@ -645,7 +645,7 @@ accessMeth_t umGetGroupAccessMethod(char_t *group)
 /*
     Set the default access method to use for a given group
  */
-int umSetGroupAccessMethod(char_t *group, accessMeth_t am)
+int umSetGroupAccessMethod(char *group, accessMeth_t am)
 {
     int row;
 
@@ -662,7 +662,7 @@ int umSetGroupAccessMethod(char_t *group, accessMeth_t am)
 /*
     Returns the privilege mask for a given group
  */
-short umGetGroupPrivilege(char_t *group)
+short umGetGroupPrivilege(char *group)
 {
     int privilege, row;
 
@@ -679,7 +679,7 @@ short umGetGroupPrivilege(char_t *group)
 /*
     Set the privilege mask for a given group
  */
-int umSetGroupPrivilege(char_t *group, short privilege)
+int umSetGroupPrivilege(char *group, short privilege)
 {
     int row;
 
@@ -697,7 +697,7 @@ int umSetGroupPrivilege(char_t *group, short privilege)
 /*
     Returns the enabled setting for a given group. Returns FALSE if group is not found.
  */
-bool_t umGetGroupEnabled(char_t *group)
+bool_t umGetGroupEnabled(char *group)
 {
     int disabled, row;
 
@@ -715,7 +715,7 @@ bool_t umGetGroupEnabled(char_t *group)
 /*
     Sets the enabled setting for a given group.
  */
-int umSetGroupEnabled(char_t *group, bool_t enabled)
+int umSetGroupEnabled(char *group, bool_t enabled)
 {
     int row;
 
@@ -733,7 +733,7 @@ int umSetGroupEnabled(char_t *group, bool_t enabled)
 /*
     Returns the protected setting for a given group. Returns FALSE if user is not found
  */
-bool_t umGetGroupProtected(char_t *group)
+bool_t umGetGroupProtected(char *group)
 {
     int protect, row;
 
@@ -751,7 +751,7 @@ bool_t umGetGroupProtected(char_t *group)
 /*
     Sets the protected setting for a given group
  */
-int umSetGroupProtected(char_t *group, bool_t protect)
+int umSetGroupProtected(char *group, bool_t protect)
 {
     int row;
 
@@ -769,7 +769,7 @@ int umSetGroupProtected(char_t *group, bool_t protect)
 /*
     Add an access limit to the "access" table
  */
-int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group)
+int umAddAccessLimit(char *url, accessMeth_t am, short secure, char *group)
 {
     int row;
 
@@ -805,7 +805,7 @@ int umAddAccessLimit(char_t *url, accessMeth_t am, short secure, char_t *group)
 }
 
 
-int umDeleteAccessLimit(char_t *url)
+int umDeleteAccessLimit(char *url)
 {
     int row;
 
@@ -824,7 +824,7 @@ int umDeleteAccessLimit(char_t *url)
 /*
     Return a pointer to the first non-blank access limit
  */
-char_t *umGetFirstAccessLimit()
+char *umGetFirstAccessLimit()
 {
     return umGetFirstRowData(UM_ACCESS_TABLENAME, UM_NAME);
 }
@@ -833,7 +833,7 @@ char_t *umGetFirstAccessLimit()
 /*
     Return a pointer to the first non-blank access limit following the given one
  */
-char_t *umGetNextAccessLimit(char_t *urlLast)
+char *umGetNextAccessLimit(char *urlLast)
 {
     return umGetNextRowData(UM_ACCESS_TABLENAME, UM_NAME, urlLast);
 }
@@ -842,7 +842,7 @@ char_t *umGetNextAccessLimit(char_t *urlLast)
 /*
     umAccessLimitExists() returns TRUE if this access limit exists
  */
-bool_t  umAccessLimitExists(char_t *url)
+bool_t  umAccessLimitExists(char *url)
 {
     gassert(url && *url);
     return dbSearchStr(udb, UM_ACCESS_TABLENAME, UM_NAME, url, 0) >= 0;
@@ -852,7 +852,7 @@ bool_t  umAccessLimitExists(char_t *url)
 /*
     Returns the Access Method for the URL
  */
-accessMeth_t umGetAccessLimitMethod(char_t *url)
+accessMeth_t umGetAccessLimitMethod(char *url)
 {
     int am, row;
 
@@ -868,7 +868,7 @@ accessMeth_t umGetAccessLimitMethod(char_t *url)
 /*
     Set Access Method for Access Limit
  */
-int umSetAccessLimitMethod(char_t *url, accessMeth_t am)
+int umSetAccessLimitMethod(char *url, accessMeth_t am)
 {
     int row;
 
@@ -885,7 +885,7 @@ int umSetAccessLimitMethod(char_t *url, accessMeth_t am)
 /*
     Returns secure switch for access limit
  */
-short umGetAccessLimitSecure(char_t *url)
+short umGetAccessLimitSecure(char *url)
 {
     int secure, row;
 
@@ -903,7 +903,7 @@ short umGetAccessLimitSecure(char_t *url)
 /*
     Sets the secure flag for the URL
  */
-int umSetAccessLimitSecure(char_t *url, short secure)
+int umSetAccessLimitSecure(char *url, short secure)
 {
     int row;
 
@@ -921,9 +921,9 @@ int umSetAccessLimitSecure(char_t *url, short secure)
 /*
     Returns the user group of the access limit
  */
-char_t *umGetAccessLimitGroup(char_t *url)
+char *umGetAccessLimitGroup(char *url)
 {
-    char_t  *group;
+    char  *group;
     int     row;
 
     gassert(url && *url);
@@ -939,7 +939,7 @@ char_t *umGetAccessLimitGroup(char_t *url)
 /*
     Sets the user group for the access limit.
  */
-int umSetAccessLimitGroup(char_t *url, char_t *group)
+int umSetAccessLimitGroup(char *url, char *group)
 {
     int row;
 
@@ -957,23 +957,23 @@ int umSetAccessLimitGroup(char_t *url, char_t *group)
     Returns the access limit to use for a given URL, by checking for URLs up the directory tree.  Creates a new string
     that must be deleted.  
  */
-char_t *umGetAccessLimit(char_t *url)
+char *umGetAccessLimit(char *url)
 {
-    char_t  *urlRet, *urlCheck, *lastChar;
+    char  *urlRet, *urlCheck, *lastChar;
     ssize   len;
     
     gassert(url && *url);
     urlRet = NULL;
-    urlCheck = gstrdup(url);
+    urlCheck = strdup(url);
     gassert(urlCheck);
-    len = gstrlen(urlCheck);
+    len = strlen(urlCheck);
 
     /*
         Scan back through URL to see if there is a "parent" access limit
      */
     while (len && !urlRet) {
         if (umAccessLimitExists(urlCheck)) {
-            urlRet = gstrdup(urlCheck);
+            urlRet = strdup(urlCheck);
         } else {
             /*
                 Trim the end portion of the URL to the previous directory marker
@@ -991,7 +991,7 @@ char_t *umGetAccessLimit(char_t *url)
                 *lastChar = 0;
                 lastChar--;
             }
-            len = gstrlen(urlCheck);
+            len = strlen(urlCheck);
         }
     }
     gfree (urlCheck);
@@ -1003,10 +1003,10 @@ char_t *umGetAccessLimit(char_t *url)
 /*
     Returns the access method to use for a given URL
  */
-accessMeth_t umGetAccessMethodForURL(char_t *url)
+accessMeth_t umGetAccessMethodForURL(char *url)
 {
     accessMeth_t    amRet;
-    char_t          *urlHavingLimit, *group;
+    char          *urlHavingLimit, *group;
     
     urlHavingLimit = umGetAccessLimit(url);
     if (urlHavingLimit) {
@@ -1028,10 +1028,10 @@ accessMeth_t umGetAccessMethodForURL(char_t *url)
 /*
     Returns TRUE if user can access URL
  */
-bool_t umUserCanAccessURL(char_t *user, char_t *url)
+bool_t umUserCanAccessURL(char *user, char *url)
 {
     accessMeth_t    amURL;
-    char_t          *group, *usergroup, *urlHavingLimit;
+    char          *group, *usergroup, *urlHavingLimit;
     short           priv;
     
     gassert(user && *user);
@@ -1091,7 +1091,7 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
         If Access Limit has a group specified, then the user must be a member of that group
      */
     if (group && *group) {
-        if (usergroup && (gstrcmp(group, usergroup) != 0)) {
+        if (usergroup && (strcmp(group, usergroup) != 0)) {
             return 0;
         }
     } 
@@ -1106,13 +1106,13 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
 /*
     Returns TRUE if given name has only valid chars
  */
-static bool_t checkName(char_t *name)
+static bool_t checkName(char *name)
 {
     gassert(name && *name);
 
     if (name && *name) {
         while (*name) {
-            if (gisspace(*name)) {
+            if (isspace(*name)) {
                 return 0;
             }
             name++;
@@ -1126,9 +1126,9 @@ static bool_t checkName(char_t *name)
 /*
     Encrypt/Decrypt a text string
  */
-static void cryptPassword(char_t *textString)
+static void cryptPassword(char *textString)
 {
-    char_t  c, *salt;
+    char  c, *salt;
 
     gassert(textString);
 
@@ -1138,7 +1138,7 @@ static void cryptPassword(char_t *textString)
         /*
             Do not produce encrypted text with embedded linefeeds or tabs. Simply use existing character.
          */
-        if (c && !gisspace(c)) {
+        if (c && !isspace(c)) {
             *textString = c;
         }
         /*
@@ -1180,9 +1180,9 @@ void formDefineUserMgmt(void)
 }
 
 
-static void formAddUser(Webs *wp, char_t *path, char_t *query)
+static void formAddUser(Webs *wp, char *path, char *query)
 {
-    char_t  *userid, *pass1, *pass2, *group, *enabled, *ok;
+    char  *userid, *pass1, *pass2, *group, *enabled, *ok;
     bool_t bDisable;
     int nCheck;
 
@@ -1198,19 +1198,19 @@ static void formAddUser(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Add User Cancelled"));
-    } else if (gstrcmp(pass1, pass2) != 0) {
+    } else if (strcmp(pass1, pass2) != 0) {
         websWrite(wp, T("Confirmation Password did not match."));
     } else {
-        if (enabled && *enabled && (gstrcmp(enabled, T("on")) == 0)) {
+        if (enabled && *enabled && (strcmp(enabled, T("on")) == 0)) {
             bDisable = 0;
         } else {
             bDisable = 1;
         }
         nCheck = umAddUser(userid, pass1, group, 0, bDisable);
         if (nCheck != 0) {
-            char_t * strError;
+            char * strError;
 
             switch (nCheck) {
             case UM_ERR_DUPLICATE:
@@ -1247,9 +1247,9 @@ static void formAddUser(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static void formDeleteUser(Webs *wp, char_t *path, char_t *query)
+static void formDeleteUser(Webs *wp, char *path, char *query)
 {
-    char_t  *userid, *ok;
+    char  *userid, *ok;
 
     gassert(wp);
 
@@ -1259,7 +1259,7 @@ static void formDeleteUser(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Delete User Cancelled"));
     } else if (umUserExists(userid) == 0) {
         websWrite(wp, T("ERROR: User \"%s\" not found"), userid);
@@ -1279,9 +1279,9 @@ static void formDeleteUser(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static void formDisplayUser(Webs *wp, char_t *path, char_t *query)
+static void formDisplayUser(Webs *wp, char *path, char *query)
 {
-    char_t  *userid, *ok, *temp;
+    char  *userid, *ok, *temp;
     bool_t  enabled;
 
     gassert(wp);
@@ -1292,7 +1292,7 @@ static void formDisplayUser(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, T("<body>"));
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Display User Cancelled"));
     } else if (umUserExists(userid) == 0) {
         websWrite(wp, T("ERROR: User <b>%s</b> not found.\n"), userid);
@@ -1312,9 +1312,9 @@ static void formDisplayUser(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static int jsGenerateUserList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateUserList(int eid, Webs *wp, int argc, char **argv)
 {
-    char_t  *userid;
+    char  *userid;
     ssize   nBytes, nBytesSent;
     int     row;
 
@@ -1335,9 +1335,9 @@ static int jsGenerateUserList(int eid, Webs *wp, int argc, char_t **argv)
 }
 
 
-static void formAddGroup(Webs *wp, char_t *path, char_t *query)
+static void formAddGroup(Webs *wp, char *path, char *query)
 {
-    char_t          *group, *enabled, *privilege, *method, *ok, *pChar;
+    char          *group, *enabled, *privilege, *method, *ok, *pChar;
     int             nCheck;
     short           priv;
     accessMeth_t    am;
@@ -1354,7 +1354,7 @@ static void formAddGroup(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Add Group Cancelled."));
     } else if ((group == NULL) || (*group == 0)) {
         websWrite(wp, T("No Group Name was entered."));
@@ -1369,21 +1369,21 @@ static void formAddGroup(Webs *wp, char_t *path, char_t *query)
             for (pChar = privilege; *pChar; pChar++) {
                 if (*pChar == ' ') {
                     *pChar = '\0';
-                    priv |= gatoi(privilege);
+                    priv |= atoi(privilege);
                     *pChar = ' ';
                     privilege = pChar + 1;
                 }
             }
-            priv |= gatoi(privilege);
+            priv |= atoi(privilege);
         } else {
             priv = 0;
         }
         if (method && *method) {
-            am = (accessMeth_t) gatoi(method);
+            am = (accessMeth_t) atoi(method);
         } else {
             am = AM_FULL;
         }
-        if (enabled && *enabled && (gstrcmp(enabled, T("on")) == 0)) {
+        if (enabled && *enabled && (strcmp(enabled, T("on")) == 0)) {
             bDisable = 0;
         } else {
             bDisable = 1;
@@ -1404,9 +1404,9 @@ static void formAddGroup(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static void formDeleteGroup(Webs *wp, char_t *path, char_t *query)
+static void formDeleteGroup(Webs *wp, char *path, char *query)
 {
-    char_t  *group, *ok;
+    char  *group, *ok;
 
     gassert(wp);
 
@@ -1416,7 +1416,7 @@ static void formDeleteGroup(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Delete Group Cancelled."));
     } else if ((group == NULL) || (*group == '\0')) {
         websWrite(wp, T("ERROR: No group was selected."));
@@ -1438,9 +1438,9 @@ static void formDeleteGroup(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static int jsGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateGroupList(int eid, Webs *wp, int argc, char **argv)
 {
-    char_t  *group;
+    char  *group;
     ssize   nBytesSent, nBytes;
     int     row;
 
@@ -1466,9 +1466,9 @@ static int jsGenerateGroupList(int eid, Webs *wp, int argc, char_t **argv)
 }
 
 
-static void formAddAccessLimit(Webs *wp, char_t *path, char_t *query)
+static void formAddAccessLimit(Webs *wp, char *path, char *query)
 {
-    char_t          *url, *method, *group, *secure, *ok;
+    char          *url, *method, *group, *secure, *ok;
     accessMeth_t    am;
     int             nCheck;
     //  MOB - change type
@@ -1485,7 +1485,7 @@ static void formAddAccessLimit(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Add Access Limit Cancelled."));
     } else if ((url == NULL) || (*url == 0)) {
         websWrite(wp, T("ERROR:  No URL was entered."));
@@ -1493,12 +1493,12 @@ static void formAddAccessLimit(Webs *wp, char_t *path, char_t *query)
         websWrite(wp, T("ERROR:  An Access Limit for [%s] already exists."), url);
     } else {
         if (method && *method) {
-            am = (accessMeth_t) gatoi(method);
+            am = (accessMeth_t) atoi(method);
         } else {
             am = AM_FULL;
         }
         if (secure && *secure) {
-            nSecure = (short) gatoi(secure);
+            nSecure = (short) atoi(secure);
         } else {
             nSecure = 0;
         }
@@ -1518,9 +1518,9 @@ static void formAddAccessLimit(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static void formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query)
+static void formDeleteAccessLimit(Webs *wp, char *path, char *query)
 {
-    char_t  *url, *ok;
+    char  *url, *ok;
 
     gassert(wp);
 
@@ -1530,7 +1530,7 @@ static void formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query)
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Delete Access Limit Cancelled"));
     } else if (umDeleteAccessLimit(url) != 0) {
         websWrite(wp, T("ERROR: Unable to delete Access Limit for [%s]"), url);
@@ -1546,9 +1546,9 @@ static void formDeleteAccessLimit(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static int jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char **argv)
 {
-    char_t  *url;
+    char  *url;
     ssize   nBytesSent, nBytes;
     int     row;
 
@@ -1568,7 +1568,7 @@ static int jsGenerateAccessLimitList(int eid, Webs *wp, int argc, char_t **argv)
 }
 
 
-static int jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char **argv)
 {
     ssize     nBytes;
 
@@ -1583,7 +1583,7 @@ static int jsGenerateAccessMethodList(int eid, Webs *wp, int argc, char_t **argv
 }
 
 
-static int jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv)
+static int jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char **argv)
 {
     ssize     nBytes;
 
@@ -1599,16 +1599,16 @@ static int jsGeneratePrivilegeList(int eid, Webs *wp, int argc, char_t **argv)
 
 
 #if UNUSED
-static void formSaveUserManagement(Webs *wp, char_t *path, char_t *query)
+static void formSaveUserManagement(Webs *wp, char *path, char *query)
 {
-    char_t  *ok;
+    char  *ok;
 
     gassert(wp);
     ok = websGetVar(wp, T("ok"), T("")); 
     websHeader(wp);
     websWrite(wp, MSG_START);
 
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Save Cancelled."));
 //  MOB
     } else if (umSave() != 0) {
@@ -1622,15 +1622,15 @@ static void formSaveUserManagement(Webs *wp, char_t *path, char_t *query)
 }
 
 
-static void formLoadUserManagement(Webs *wp, char_t *path, char_t *query)
+static void formLoadUserManagement(Webs *wp, char *path, char *query)
 {
-    char_t  *ok;
+    char  *ok;
 
     gassert(wp);
     ok = websGetVar(wp, T("ok"), T("")); 
     websHeader(wp);
     websWrite(wp, MSG_START);
-    if (gcaselesscmp(ok, T("ok")) != 0) {
+    if (scaselesscmp(ok, T("ok")) != 0) {
         websWrite(wp, T("Load Cancelled."));
     } else if (umRestore(NULL) != 0) {
         websWrite(wp, T("ERROR: Unable to load user configuration."));
