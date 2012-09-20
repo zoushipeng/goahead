@@ -342,8 +342,8 @@ char *dirname(char *buf, char *name, ssize bufsize)
  */
 char *sfmt(char *format, ...)
 {
-    va_list ap;
-    char    *result;
+    va_list     ap;
+    char        *result;
 
     gassert(format);
 
@@ -359,8 +359,8 @@ char *sfmt(char *format, ...)
  */
 char *fmt(char *buf, ssize bufsize, char *format, ...)
 {
-    va_list ap;
-    char    *result;
+    va_list     ap;
+    char        *result;
 
     gassert(buf);
     gassert(format);
@@ -2925,6 +2925,25 @@ void sleep(int secs)
 }
 #endif
 
+
+#if BIT_LEGACY
+int fmtValloc(char **sp, int n, char *format, va_list args)
+{
+    *sp = sfmtv(format, args);
+    return (int) slen(*sp);
+}
+
+
+int fmtAlloc(char **sp, int n, char *format, ...)
+{
+    va_list     args;
+
+    va_start(args, format);
+    *sp = sfmtv(format, args);
+    va_end(args);
+    return (int) slen(*sp);
+}
+#endif
 
 /*
     @copy   default

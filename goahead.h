@@ -2041,9 +2041,7 @@ extern char *websGetSessionID(Webs *wp);
     #define emfSchedProc WebsCallback
     #define emfSchedProcess grunCallbacks
     #define emfUnschedCallback gunschedCallback
-    #define fmtAlloc sfmt
     #define fmtStatic fmt
-    #define fmtValloc fmtv
     #define gaccess     access
     #define gasctime    asctime
     #define gatoi       atoi
@@ -2129,21 +2127,22 @@ extern char *websGetSessionID(Webs *wp);
     #define websSetRequestLpath websSetRequestFilename
     #define websWriteDataNonBlock websWriteRaw
 
-    extern void websFooter(Webs *wp);
-    extern void websHeader(Webs *wp);
     typedef Webs *webs_t;
     typedef Webs WebsRec;
     typedef Webs websType;
     typedef WebsError websErrorType;
     typedef WebsFileInfo websStatType;
-    typedef WebsFormProc WebsProc;
+    typedef WebsProc WebsFormProc;
     typedef WebsHandler websUrlHandlerType;
     typedef WebsHash sym_fd_t;
-    typedef WebsKey WebsKey;
+    typedef WebsKey sym_t;
     typedef WebsMime websMimeType;
     typedef WebsStat gstat_t;
-    typedef struct stat WebsStat;
 
+    extern void websFooter(Webs *wp);
+    extern void websHeader(Webs *wp);
+    extern int fmtValloc(char **s, int n, char *fmt, va_list arg);
+    extern int fmtAlloc(char **s, int n, char *fmt, ...);
 #if BIT_ROM
     typedef WebsRomIndex websRomPageIndexType;
 #endif
