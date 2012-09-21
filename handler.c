@@ -17,10 +17,75 @@ static int          websUrlHandlerMax;          /* Number of entries */
 
 /**************************** Forward Declarations ****************************/
 
-static int      websUrlHandlerSort(const void *p1, const void *p2);
-static int      websPublishHandler(Webs *wp, char_t *prefix, char_t *dir, int sid);
+static bool optionsTrace(Webs *wp);
+static int  publishHandler(Webs *wp, char *prefix, char *dir, int sid);
+static int  sortHandlers(const void *p1, const void *p2);
 
 /*********************************** Code *************************************/
+
+/*
+    See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
+    one accepts the request.
+ */
+void websHandleRequest(Webs *wp)
+{
+    WebsHandler   *sp;
+    int           i;
+
+    gassert(websValid(wp));
+
+    /*
+        Delete the socket handler as we don't want to start reading any data on the connection as it may be for the next
+        pipelined HTTP/1.1 request if using Keep Alive.
+     */
+    socketDeleteHandler(wp->sid);
+
+    if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
+        websError(wp, 400, "Bad request");
+        return;
+    }
+    if (!websRouteRequest(wp)) {
+        gassert(wp->code);
+        return;
+    }
+    if (!websAuthenticate(wp)) {
+        return;
+    }
+    if (!websCan(wp, wp->route->abilities)) {
+        gassert(websComplete(wp));
+        return;
+    }
+    websSetEnv(wp);
+
+    if (*wp->method == 'O' || *wp->method == 'T') {
+        if (optionsTrace(wp)) {
+            return;
+        }
+    }
+    /*
+        We loop over each handler in order till one accepts the request.  The security handler will handle the request
+        if access is NOT allowed.  
+     */
+    for (i = 0; i < websUrlHandlerMax; i++) {
+        sp = &websUrlHandler[i];
+        if (sp->handler && strncmp(sp->prefix, wp->path, sp->len) == 0) {
+            if ((*sp->handler)(wp, sp->prefix, sp->dir, sp->arg)) {
+                return;
+            }
+            if (!websValid(wp)) {
+                trace(0, "handler %s called websDone, but didn't return 1\n", sp->prefix);
+                return;
+            }
+        }
+    }
+    /*
+        If no handler processed the request, then return an error. Note: It is the handlers responsibility to call websDone
+     */
+    if (i >= websUrlHandlerMax) {
+        websError(wp, 200, "No handler for this URL");
+    }
+}
+
 
 int websUrlHandlerOpen()
 {
@@ -51,7 +116,7 @@ void websUrlHandlerClose()
     WEBS_HANDLER_LAST, WEBS_HANDLER_FIRST. If multiple users specify last or first, their order is defined
     alphabetically by the prefix.
  */
-int websUrlHandlerDefine(char_t *prefix, char_t *dir, int arg, WebsHandlerProc handler, int flags)
+int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsHandlerProc handler, int flags)
 {
     WebsHandler *sp;
     int         len;
@@ -69,12 +134,12 @@ int websUrlHandlerDefine(char_t *prefix, char_t *dir, int arg, WebsHandlerProc h
     sp = &websUrlHandler[websUrlHandlerMax++];
     memset(sp, 0, sizeof(WebsHandler));
 
-    sp->prefix = gstrdup(prefix);
-    sp->len = gstrlen(sp->prefix);
+    sp->prefix = strdup(prefix);
+    sp->len = strlen(sp->prefix);
     if (dir) {
-        sp->dir = gstrdup(dir);
+        sp->dir = strdup(dir);
     } else {
-        sp->dir = gstrdup(T(""));
+        sp->dir = strdup("");
     }
     sp->handler = handler;
     sp->arg = arg;
@@ -82,7 +147,7 @@ int websUrlHandlerDefine(char_t *prefix, char_t *dir, int arg, WebsHandlerProc h
     /*
         Sort in decreasing URL length order observing the flags for first and last
      */
-    qsort(websUrlHandler, websUrlHandlerMax, sizeof(WebsHandler), websUrlHandlerSort);
+    qsort(websUrlHandler, websUrlHandlerMax, sizeof(WebsHandler), sortHandlers);
     return 0;
 }
 
@@ -110,7 +175,7 @@ int websUrlHandlerDelete(WebsHandlerProc handler)
 /*
     Sort in decreasing URL length order observing the flags for first and last
  */
-static int websUrlHandlerSort(const void *p1, const void *p2)
+static int sortHandlers(const void *p1, const void *p2)
 {
     WebsHandler     *s1, *s2;
     int             rc;
@@ -127,7 +192,7 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
     if ((s2->flags & WEBS_HANDLER_FIRST) || (s1->flags & WEBS_HANDLER_LAST)) {
         return 1;
     }
-    if ((rc = gstrcmp(s1->prefix, s2->prefix)) == 0) {
+    if ((rc = strcmp(s1->prefix, s2->prefix)) == 0) {
         if (s1->len < s2->len) {
             return 1;
         } else if (s1->len > s2->len) {
@@ -141,16 +206,16 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
 /*
     Publish a new web directory (Use the default URL handler)
  */
-int websPublish(char_t *prefix, char_t *dir)
+int websPublish(char *prefix, char *dir)
 {
-    return websUrlHandlerDefine(prefix, dir, 0, websPublishHandler, 0);
+    return websUrlHandlerDefine(prefix, dir, 0, publishHandler, 0);
 }
 
 
 /*
     Return the directory for a given prefix. Ignore empty prefixes
  */
-char_t *websGetPublishDir(char_t *path, char_t **prefix)
+char *websGetPublishDir(char *path, char **prefix)
 {
     WebsHandler  *sp;
     int          i;
@@ -160,7 +225,7 @@ char_t *websGetPublishDir(char_t *path, char_t **prefix)
         if (sp->prefix[0] == '\0') {
             continue;
         }
-        if (sp->handler && gstrncmp(sp->prefix, path, sp->len) == 0) {
+        if (sp->handler && strncmp(sp->prefix, path, sp->len) == 0) {
             if (prefix) {
                 *prefix = sp->prefix;
             }
@@ -174,7 +239,7 @@ char_t *websGetPublishDir(char_t *path, char_t **prefix)
 /*
     Publish URL handler. We just patch the web page Directory and let the default handler do the rest.
  */
-static int websPublishHandler(Webs *wp, char_t *prefix, char_t *dir, int sid)
+static int publishHandler(Webs *wp, char *prefix, char *dir, int sid)
 {
     ssize   len;
 
@@ -183,69 +248,33 @@ static int websPublishHandler(Webs *wp, char_t *prefix, char_t *dir, int sid)
     /*
         Trim the prefix off the path and set the webdirectory. Add one to step over the trailing '/'
      */
-    len = gstrlen(prefix) + 1;
+    len = strlen(prefix) + 1;
     websSetRequestPath(wp, dir, &wp->path[len]);
     return 0;
 }
 
 
-/*
-    See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
-    one accepts the request.
- */
-void websHandleRequest(Webs *wp)
+static bool optionsTrace(Webs *wp)
 {
-    WebsHandler   *sp;
-    int           i;
+    if (smatch(wp->method, "OPTIONS")) {
+        websWriteHeaders(wp, HTTP_CODE_OK, 0, 0);
+        websWriteHeader(wp, "Allow: DELETE,GET,HEAD,OPTIONS,POST,PUT%s\r\n", BIT_TRACE_METHOD ? ",TRACE" : "");
+        websWriteEndHeaders(wp);
+        websDone(wp, HTTP_CODE_OK);
+        return 1;
 
-    gassert(websValid(wp));
-
-    /*
-        Delete the socket handler as we don't want to start reading any data on the connection as it may be for the next
-        pipelined HTTP/1.1 request if using Keep Alive.
-     */
-    socketDeleteHandler(wp->sid);
-
-    if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
-        websError(wp, 400, T("Bad request"));
-        return;
-    }
-#if BIT_ROUTE
-    if (!websRouteRequest(wp)) {
-        gassert(wp->code);
-        return;
-    }
+    } else if (smatch(wp->method, "TRACE")) {
+#if BIT_TRACE_METHOD
+        websWriteHeaders(wp, HTTP_CODE_OK, -1, 0);
+        websWriteEndHeaders(wp);
+        websWrite(wp, "%s %s %s\r\n", wp->method, wp->url, wp->protoVersion);
+        websDone(wp, HTTP_CODE_OK);
+#else
+        websResponse(wp, HTTP_CODE_NOT_ACCEPTABLE, "Unsupported method", 0);
 #endif
-#if BIT_AUTH
-    if (!websAuthenticate(wp)) {
-        gassert(wp->code);
-        return;
+        return 1;
     }
-#endif
-    websSetEnv(wp);
-
-    /*
-        We loop over each handler in order till one accepts the request.  The security handler will handle the request
-        if access is NOT allowed.  
-     */
-    for (i = 0; i < websUrlHandlerMax; i++) {
-        sp = &websUrlHandler[i];
-        if (sp->handler && gstrncmp(sp->prefix, wp->path, sp->len) == 0) {
-            if ((*sp->handler)(wp, sp->prefix, sp->dir, sp->arg)) {
-                return;
-            }
-            if (!websValid(wp)) {
-                trace(0, T("handler %s called websDone, but didn't return 1\n"), sp->prefix);
-                return;
-            }
-        }
-    }
-    /*
-        If no handler processed the request, then return an error. Note: It is the handlers responsibility to call websDone
-     */
-    if (i >= websUrlHandlerMax) {
-        websError(wp, 200, T("No handler for this URL"));
-    }
+    return 0;
 }
 
 

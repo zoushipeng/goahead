@@ -39,43 +39,48 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char_t  *argp, *home, *documents, *endpoint, addr[32];
-    int     argind, background;
+    char  *argp, *home, *documents, *endpoint, addr[32], *route;
+    int     argind;
 
 #if WINDOWS
     if (windowsInit() < 0) {
         return 0;
     }
 #endif
-    background = 0;
+    route = "route.txt";
+
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
         if (*argp != '-') {
             break;
-        } else if (gmatch(argp, "--background") || gmatch(argp, "-b")) {
-            background = 1;
-        } else if (gmatch(argp, "--debug")) {
+
+        } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
+            websSetBackground(1);
+
+        } else if (smatch(argp, "--debug")) {
             websSetDebug(1);
-        } else if (gmatch(argp, "--home")) {
+
+        } else if (smatch(argp, "--home")) {
             if (argind >= argc) usage();
             home = argv[++argind];
             if (chdir(home) < 0) {
-                error(T("Can't change directory to %s"), home);
+                error("Can't change directory to %s", home);
                 exit(-1);
             }
-#if BIT_DEBUG_LOG
-        } else if (gmatch(argp, "--log") || gmatch(argp, "-l")) {
+        } else if (smatch(argp, "--log") || smatch(argp, "-l")) {
             if (argind >= argc) usage();
             traceSetPath(argv[++argind]);
 
-        } else if (gmatch(argp, "--verbose") || gmatch(argp, "-v")) {
+        } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
             traceSetPath("stdout:4");
-#endif
 
-        } else if (gmatch(argp, "--version") || gmatch(argp, "-V")) {
-            //  MOB - replace
+        } else if (smatch(argp, "--route") || smatch(argp, "-r")) {
+            route = argv[++argind];
+
+        } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
+
         } else {
             usage();
         }
@@ -85,14 +90,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
         documents = argv[argind++];
     }
     initPlatform();
-    if (websOpen(documents, "route.txt") < 0) {
-        error(T("Can't initialize server. Exiting."));
+    if (websOpen(documents, route) < 0) {
+        error("Can't initialize server. Exiting.");
         return -1;
     }
-#if BIT_PACK_SSL
-    websSSLSetKeyFile("server.key");
-    websSSLSetCertFile("server.crt");
-#endif
     if (argind < argc) {
         while (argind < argc) {
             endpoint = argv[argind++];
@@ -102,39 +103,42 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
     } else {
         if (BIT_HTTP_PORT > 0) {
-            gfmtStatic(addr, sizeof(addr), "http://:%d", BIT_HTTP_PORT);
+            fmt(addr, sizeof(addr), "http://:%d", BIT_HTTP_PORT);
             if (websListen(addr) < 0) {
                 return -1;
             }
         }
         if (BIT_HTTP_V6_PORT > 0) {
-            gfmtStatic(addr, sizeof(addr), "http://[::]:%d", BIT_HTTP_V6_PORT);
+            fmt(addr, sizeof(addr), "http://[::]:%d", BIT_HTTP_V6_PORT);
             if (websListen(addr) < 0) {
                 return -1;
             }
         } 
 #if BIT_PACK_SSL
         if (BIT_SSL_PORT > 0) {
-            gfmtStatic(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
+            fmt(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
             if (websListen(addr) < 0) {
                 return -1;
             }
         }
 #endif
     }
-    websUrlHandlerDefine(T("/form/"), 0, 0, websFormHandler, 0);
-    websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
-#if BIT_JAVASCRIPT
-    websUrlHandlerDefine(T("/"), 0, 0, websJsHandler, 0);
+    websUrlHandlerDefine("/proc/", 0, 0, websProcHandler, 0);
+#if BIT_LEGACY
+    websUrlHandlerDefine("/goform/", 0, 0, websProcHandler, 0);
 #endif
-    websUrlHandlerDefine(T("/"), 0, 0, websHomePageHandler, 0); 
-    websUrlHandlerDefine(T(""), 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
+    websUrlHandlerDefine("/cgi-bin", 0, 0, websCgiHandler, 0);
+#if BIT_JAVASCRIPT
+    websUrlHandlerDefine("/", 0, 0, websJsHandler, 0);
+#endif
+    websUrlHandlerDefine("/", 0, 0, websHomePageHandler, 0); 
+    websUrlHandlerDefine("", 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
 
 #if BIT_UNIX_LIKE
     /*
         Service events till terminated
      */
-    if (background) {
+    if (websGetBackground()) {
         if (daemon(0, 0) < 0) {
             error("Can't run as daemon");
             return -1;
@@ -158,6 +162,7 @@ static void usage() {
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
+        "    --route routeFile      # Route configuration file\n"
         "    --verbose              # Same as --log stderr:2\n"
         "    --version              # Output version information\n\n",
         BIT_TITLE, BIT_PRODUCT);
@@ -198,7 +203,7 @@ static int windowsInit()
     HMENU       hSysMenu;
     HWND        hwnd;
 
-    inst = egGetInst();
+    inst = websGetInst();
     wc.style         = CS_HREDRAW | CS_VREDRAW;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
     wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
@@ -237,7 +242,7 @@ static void windowsClose()
 {
     HINSTANCE   inst;
 
-    inst = egGetInst();
+    inst = websGetInst();
     UnregisterClass(BIT_PRODUCT, inst);
 }
 

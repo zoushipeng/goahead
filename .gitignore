@@ -43,3 +43,5 @@ windows-*.bit
 *-x86.bit
 projects/.libgo.guid
 libgo.xcscheme
+*.cxscheme
+*.xcscheme

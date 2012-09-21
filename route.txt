@@ -5,33 +5,35 @@
 #       user: name: password: roles...
 #       role: name: abilities.
 #       uri: type: uri: method: abilities... : redirect
+#
+#   Abilities are a set of required abilities that the user or request must possess.
+#   Abilities are comma separated tokens, where tokens are single words or multiple words separated by "|".
 
 #
-#   Basic and digest authentication required for these directories
-#   Require the "manage" ability which only "joshua" has
+#   Sample basic or digest authentication for user "joshua" 
 #
+#   user: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: manage
 #   uri: basic: /auth/basic/: manage
 #   uri: digest: /auth/digest/: manage
 
 #
-#   Post-based (web-form) authentication
-#   The login form is /auth/post/login.html. The page to display when logged-in is: /auth/post/index.html
-#   Everything else under /auth/post is secured and requires the "manage" ability
+#   Post-based (web-form) authentication with a login page of "/login.html" over TLS. 
+#   Redirect to "/index.html" when logged in.
 #
-#   uri: none: /auth/post/login.html: none: /auth/post/index.html
-#   uri: post: /auth/post/: manage: /auth/post/login.html
+#   uri: none: /login.html: none: /index.html
+#   uri: form: /: manage: https:///login.html
 
 #
-#   Support PUT, DELETE methods for the /put directory
+#   Support PUT or DELETE methods (only) for the /put directory
 #
-#   uri: post: /admin/put: SECURE PUTDEL
+#   uri: form: /admin/put: PUT|DELETE
 
 #
 #   Require TLS to access anything under /secure
 #
-#   uri: post: /secure: SECURE 
+#   uri: none: /secure: SECURE 
 
 #
 #   Catch-all route without authentication for all other URIs
 #
-uri: none: none: /: :
+uri: none: /

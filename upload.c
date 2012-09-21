@@ -25,6 +25,7 @@ static char *uploadDir;
 
 static void defineUploadVars(Webs *wp);
 static char *getBoundary(Webs *wp, char *buf, ssize bufLen);
+static int initUpload(Webs *wp);
 static int processContentBoundary(Webs *wp, char *line);
 static int processContentData(Webs *wp);
 static int processUploadHeader(Webs *wp, char *line);
@@ -33,59 +34,78 @@ static int processUploadHeader(Webs *wp, char *line);
 /*
     The upload handler functions as a filter. It never actually handles a request
  */
-int websUploadHandler(Webs *wp, char_t *prefix, char_t *dir, int arg)
+int websUploadHandler(Webs *wp, char *prefix, char *dir, int arg)
 {
-    char    *boundary;
-
     gassert(websValid(wp));
 
     if (!(wp->flags & WEBS_UPLOAD)) {
         return 0;
     }
-    wp->uploadState = UPLOAD_BOUNDARY;
-    if ((boundary = strstr(wp->contentType, "boundary=")) != 0) {
-        boundary += 9;
-        gfmtAlloc(&wp->boundary, -1, "--%s", boundary);
-        wp->boundaryLen = strlen(wp->boundary);
+    return initUpload(wp);
+}
+
+
+static int initUpload(Webs *wp)
+{
+    char    *boundary;
+    
+    if (wp->uploadState == 0) {
+        wp->uploadState = UPLOAD_BOUNDARY;
+        if ((boundary = strstr(wp->contentType, "boundary=")) != 0) {
+            boundary += 9;
+            wp->boundary = sfmt("--%s", boundary);
+            wp->boundaryLen = strlen(wp->boundary);
+        }
+        if (wp->boundaryLen == 0 || *wp->boundary == '\0') {
+            websError(wp, HTTP_CODE_BAD_REQUEST, "Bad boundary");
+            return -1;
+        }
+        websSetVar(wp, "UPLOAD_DIR", uploadDir);
+        wp->files = symOpen(11);
     }
-    if (wp->boundaryLen == 0 || *wp->boundary == '\0') {
-        websError(wp, HTTP_CODE_BAD_REQUEST, "Bad boundary");
-        return -1;
-    }
-    websSetVar(wp, "UPLOAD_DIR", uploadDir);
     return 0;
 }
 
 
 static void freeUploadFile(WebsUploadFile *up)
 {
-    gfree(up->filename);
+    if (up->filename) {
+        unlink(up->filename);
+        gfree(up->filename);
+    }
     gfree(up->clientFilename);
     gfree(up->contentType);
+    gfree(up);
 }
 
 
 void websFreeUpload(Webs *wp)
 {
-    WebsKey           *s;
+    WebsUploadFile  *up;
+    WebsKey         *s;
 
+    for (s = symFirst(wp->files); s; s = symNext(wp->files, s)) {
+        up = s->content.value.symbol;
+        freeUploadFile(up);
+        if (up == wp->currentFile) {
+            wp->currentFile = 0;
+        }
+    }
     if (wp->currentFile) {
-        gfree(wp->currentFile);
+        freeUploadFile(wp->currentFile);
+        wp->currentFile = 0;
     }
-    for (s = symFirst(wp->files); s != NULL; s = symNext(wp->files, s)) {
-        freeUploadFile(s->content.value.symbol);
-    }
-    if (wp->ufd >= 0) {
-        gclose(wp->ufd);
-        wp->ufd = -1;
+    if (wp->upfd >= 0) {
+        close(wp->upfd);
+        wp->upfd = -1;
     }
 }
 
 
-void websProcessUploadData(Webs *wp) 
+int websProcessUploadData(Webs *wp) 
 {
     char    *line, *nextTok;
-    ssize   len;
+    ssize   len, nbytes;
     int     done, rc;
     
     for (done = 0, line = 0; !done; ) {
@@ -94,19 +114,26 @@ void websProcessUploadData(Webs *wp)
                 Parse the next input line
              */
             line = wp->input.servp;
-            gtok(line, "\n", &nextTok);
+            stok(line, "\n", &nextTok);
             if (nextTok == 0) {
                 /* Incomplete line */
                 /* done++; */
                 break; 
             }
-            ringqGetBlkAdj(&wp->input, (int) (nextTok - line));
+            nbytes = nextTok - line;
+            websConsumeInput(wp, nbytes);
             len = strlen(line);
             if (line[len - 1] == '\r') {
                 line[len - 1] = '\0';
             }
         }
         switch (wp->uploadState) {
+        case 0:
+            if (initUpload(wp) < 0) {
+                done++;
+            }
+            break;
+
         case UPLOAD_BOUNDARY:
             if (processContentBoundary(wp, line) < 0) {
                 done++;
@@ -134,7 +161,11 @@ void websProcessUploadData(Webs *wp)
             break;
         }
     }
+    if (!websValid(wp)) {
+        return -1;
+    }
     ringqCompact(&wp->input);
+    return 0;
 }
 
 
@@ -168,10 +199,9 @@ static int processUploadHeader(Webs *wp, char *line)
     trace(7, "Header line: %s", line);
 
     headerTok = line;
-    gtok(line, ": ", &rest);
+    stok(line, ": ", &rest);
 
-    if (gcaselesscmp(headerTok, "Content-Disposition") == 0) {
-
+    if (scaselesscmp(headerTok, "Content-Disposition") == 0) {
         /*  
             The content disposition header describes either a form variable or an uploaded file.
         
@@ -186,56 +216,57 @@ static int processUploadHeader(Webs *wp, char *line)
             ---boundary
          */
         key = rest;
-        wp->id = wp->clientFilename = 0;
-        while (key && gtok(key, ";\r\n", &nextPair)) {
+        wp->uploadVar = wp->clientFilename = 0;
+        while (key && stok(key, ";\r\n", &nextPair)) {
 
-            key = gtrim(key, " ", WEBS_TRIM_BOTH);
-            gtok(key, "= ", &value);
-            value = gtrim(value, "\"", WEBS_TRIM_BOTH);
+            key = strim(key, " ", WEBS_TRIM_BOTH);
+            stok(key, "= ", &value);
+            value = strim(value, "\"", WEBS_TRIM_BOTH);
 
-            if (gcaselesscmp(key, "form-data") == 0) {
+            if (scaselesscmp(key, "form-data") == 0) {
                 /* Nothing to do */
 
-            } else if (gcaselesscmp(key, "name") == 0) {
-                wp->id = gstrdup(value);
+            } else if (scaselesscmp(key, "name") == 0) {
+                wp->uploadVar = strdup(value);
 
-            } else if (gcaselesscmp(key, "filename") == 0) {
-                if (wp->id == 0) {
+            } else if (scaselesscmp(key, "filename") == 0) {
+                if (wp->uploadVar == 0) {
                     websError(wp, HTTP_CODE_BAD_REQUEST, "Bad upload state. Missing name field");
                     return -1;
                 }
-                wp->clientFilename = gstrdup(value);
+                wp->clientFilename = strdup(value);
                 /*  
                     Create the file to hold the uploaded data
                  */
-                if ((wp->tmpPath = tempnam(uploadDir, "tmp")) == 0) {
+                if ((wp->uploadTmp = tempnam(uploadDir, "tmp")) == 0) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, 
-                        "Can't create upload temp file %s. Check upload temp dir %s", wp->tmpPath, uploadDir);
+                        "Can't create upload temp file %s. Check upload temp dir %s", wp->uploadTmp, uploadDir);
                     return -1;
                 }
-                trace(5, "File upload of: %s stored as %s", wp->clientFilename, wp->tmpPath);
+                trace(5, "File upload of: %s stored as %s", wp->clientFilename, wp->uploadTmp);
 
-                if ((wp->ufd = gopen(wp->tmpPath, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0600)) < 0) {
-                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't open upload temp file %s", wp->tmpPath);
+                if ((wp->upfd = open(wp->uploadTmp, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0600)) < 0) {
+                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't open upload temp file %s", wp->uploadTmp);
                     return -1;
                 }
                 /*  
                     Create the files[id]
                  */
                 file = wp->currentFile = galloc(sizeof(WebsUploadFile));
-                file->clientFilename = gstrdup(wp->clientFilename);
-                file->filename = gstrdup(wp->tmpPath);
+                memset(file, 0, sizeof(WebsUploadFile));
+                file->clientFilename = strdup(wp->clientFilename);
+                file->filename = strdup(wp->uploadTmp);
             }
             key = nextPair;
         }
 
-    } else if (gcaselesscmp(headerTok, "Content-Type") == 0) {
+    } else if (scaselesscmp(headerTok, "Content-Type") == 0) {
         if (wp->clientFilename) {
-            trace(5, "Set files[%s][CONTENT_TYPE] = %s", wp->id, rest);
-            wp->currentFile->contentType = gstrdup(rest);
+            trace(5, "Set files[%s][CONTENT_TYPE] = %s", wp->uploadVar, rest);
+            wp->currentFile->contentType = strdup(rest);
         }
     }
-    return 1;
+    return 0;
 }
 
 
@@ -245,17 +276,17 @@ static void defineUploadVars(Webs *wp)
     char            key[64], value[64];
 
     file = wp->currentFile;
-    gfmtStatic(key, sizeof(key), "FILE_CLIENT_FILENAME_%s", wp->id);
+    fmt(key, sizeof(key), "FILE_CLIENT_FILENAME_%s", wp->uploadVar);
     websSetVar(wp, key, file->clientFilename);
 
-    gfmtStatic(key, sizeof(key), "FILE_CONTENT_TYPE_%s", wp->id);
+    fmt(key, sizeof(key), "FILE_CONTENT_TYPE_%s", wp->uploadVar);
     websSetVar(wp, key, file->contentType);
 
-    gfmtStatic(key, sizeof(key), "FILE_FILENAME_%s", wp->id);
+    fmt(key, sizeof(key), "FILE_FILENAME_%s", wp->uploadVar);
     websSetVar(wp, key, file->filename);
 
-    gfmtStatic(key, sizeof(key), "FILE_SIZE_%s", wp->id);
-    gstritoa((int) file->size, value, sizeof(value));
+    fmt(key, sizeof(key), "FILE_SIZE_%s", wp->uploadVar);
+    itosbuf(value, sizeof(value), file->size, 10);
     websSetVar(wp, key, value);
 }
 
@@ -268,19 +299,19 @@ static int writeToFile(Webs *wp, char *data, ssize len)
     file = wp->currentFile;
 
     if ((file->size + len) > BIT_LIMIT_UPLOAD) {
-        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %,Ld", BIT_LIMIT_UPLOAD);
+        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %d", (int) BIT_LIMIT_UPLOAD);
         return -1;
     }
     if (len > 0) {
         /*  
             File upload. Write the file data.
          */
-        if ((rc = gwrite(wp->ufd, data, len)) != len) {
-            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't write to upload temp file %s, rc %d", wp->tmpPath, rc);
+        if ((rc = write(wp->upfd, data, len)) != len) {
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't write to upload temp file %s, rc %d", wp->uploadTmp, rc);
             return -1;
         }
         file->size += len;
-        trace(7, "uploadFilter: Wrote %d bytes to %s", len, wp->tmpPath);
+        trace(7, "uploadFilter: Wrote %d bytes to %s", len, wp->uploadTmp);
     }
     return 0;
 }
@@ -289,8 +320,8 @@ static int writeToFile(Webs *wp, char *data, ssize len)
 static int processContentData(Webs *wp)
 {
     WebsUploadFile  *file;
-    ringq_t         *content;
-    ssize           size, dataLen;
+    WebsBuf         *content;
+    ssize           size, nbytes;
     char            *data, *bp;
 
     content = &wp->input;
@@ -308,57 +339,57 @@ static int processContentData(Webs *wp)
                 No signature found yet. probably more data to come. Must handle split boundaries.
              */
             data = content->servp;
-            dataLen = ((int) (content->endp - data)) - (wp->boundaryLen - 1);
-            if (dataLen > 0 && writeToFile(wp, content->servp, dataLen) < 0) {
+            nbytes = ((int) (content->endp - data)) - (wp->boundaryLen - 1);
+            if (nbytes > 0 && writeToFile(wp, content->servp, nbytes) < 0) {
                 return -1;
             }
-            ringqGetBlkAdj(content, dataLen);
+            websConsumeInput(wp, nbytes);
             /* Get more data */
             return 0;
         }
     }
     data = content->servp;
-    dataLen = (bp) ? (bp - data) : ringqLen(content);
+    nbytes = (bp) ? (bp - data) : ringqLen(content);
 
-    if (dataLen > 0) {
-        ringqGetBlkAdj(content, dataLen);
+    if (nbytes > 0) {
+        websConsumeInput(wp, nbytes);
         /*  
             This is the CRLF before the boundary
          */
-        if (dataLen >= 2 && data[dataLen - 2] == '\r' && data[dataLen - 1] == '\n') {
-            dataLen -= 2;
+        if (nbytes >= 2 && data[nbytes - 2] == '\r' && data[nbytes - 1] == '\n') {
+            nbytes -= 2;
         }
         if (wp->clientFilename) {
             /*  
                 Write the last bit of file data and add to the list of files and define environment variables
              */
-            if (writeToFile(wp, data, dataLen) < 0) {
+            if (writeToFile(wp, data, nbytes) < 0) {
                 return -1;
             }
-            symEnter(wp->files, wp->id, valueSymbol(file), 0);
+            symEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
             defineUploadVars(wp);
 
         } else {
             /*  
                 Normal string form data variables
              */
-            data[dataLen] = '\0'; 
-            trace(5, "uploadFilter: form[%s] = %s", wp->id, data);
-            websDecodeUrl(wp->id, wp->id, -1);
+            data[nbytes] = '\0'; 
+            trace(5, "uploadFilter: form[%s] = %s", wp->uploadVar, data);
+            websDecodeUrl(wp->uploadVar, wp->uploadVar, -1);
             websDecodeUrl(data, data, -1);
-            websSetVar(wp, wp->id, data);
+            websSetVar(wp, wp->uploadVar, data);
         }
     }
     if (wp->clientFilename) {
         /*  
             Now have all the data (we've seen the boundary)
          */
-        gclose(wp->ufd);
-        wp->ufd = -1;
+        close(wp->upfd);
+        wp->upfd = -1;
         wp->clientFilename = 0;
     }
     wp->uploadState = UPLOAD_BOUNDARY;
-    return 1;
+    return 0;
 }
 
 
@@ -392,6 +423,27 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 }
 
 
+
+WebsUploadFile *websLookupUpload(Webs *wp, char *key)
+{
+    WebsKey     *sp;
+
+    if (wp->files) {
+        if ((sp = symLookup(wp->files, key)) == 0) {
+            return 0;
+        }
+        return sp->content.value.symbol;
+    }
+    return 0;
+}
+
+
+WebsHash websGetUpload(Webs *wp)
+{
+    return wp->files;
+}
+
+
 void websUploadOpen()
 {
     uploadDir = BIT_UPLOAD_DIR;
@@ -402,7 +454,7 @@ void websUploadOpen()
         uploadDir = "/tmp";
 #endif
     }
-    trace(2, "Upload directory is %s", uploadDir);
+    trace(4, "Upload directory is %s\n", uploadDir);
 }
 
 #endif

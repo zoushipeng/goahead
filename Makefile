@@ -1,9 +1,9 @@
 #
 #   Makefile - Makefile for Embedthis GoAhead
 #
-#   You can use this Makefile and build via "make" with a pre-selected configuration. Alternatively,
+#   You can use this Makefile and build via "make" with a default configuration. Alternatively,
 #	you can build using the "bit" tool for for a fully configurable build. If you wish to 
-#	cross-compile, you should use "bit".
+#	cross-compile, you should use "bit". Bit is part of Ejscript available at: http://ejscript.org
 #
 #   Modify compiler and linker default definitions here:
 #
@@ -23,13 +23,12 @@
 #
 #	Useful definitions:
 #
-#	export DFLAGS += -DBIT_PAM=1		# To enable PAM authorization
+#	export DFLAGS += -DBIT_PAM=1		# To enable PAM-based authorization
 #	export DFLAGS += -DBIT_DIGEST=0		# To disable digest authorization
-#	export DFLAGS += -DBIT_AUTH=0		# To disable authorization
-#	export DFLAGS += -DBIT_SESSIONS=0	# To disable session state management
 #	export DFLAGS += -DBIT_CGI=0		# To disable CGI request support
 #	export DFLAGS += -DBIT_JAVASCRIPT=0	# To disable JavaScript
 #	export DFLAGS += -DBIT_UPLOAD=0		# To disable file upload support
+#	export DFLAGS += -DBIT_SSL=0		# To disable SSL
 #
 
 NAME    := goahead
@@ -47,6 +46,9 @@ endif
     EXT := nmake
 endif
 
+#
+#	Chain to per-O/S makefiles under projects
+#
 all compile:
 	$(MAKE) -f projects/$(NAME)-$(OS).$(EXT) $@
 

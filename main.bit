@@ -25,17 +25,13 @@ Bit.load({
         /*
             Packs to disable when using --without all
          */
-        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
+        _minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'ssl', 'matrixssl', 'openssl' ],
+        minimal: ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'matrixssl' ],
 
         /*
             Log for request access logging
          */
         accessLog: false,
-
-        /*
-            Build with user authentication support. If enabled, you must enable route support also.
-         */
-        auth: true,
 
         /*
             Automatically login. Useful for debugging.
@@ -55,23 +51,13 @@ Bit.load({
         /*
             Server certificate file for SSL
          */
-        certificate: "",
+        certificate: "server.crt",
 
         /*
             Build with CGI support and directory for CGI programs.
          */
         cgi: true,
         cgiBin: "cgi-bin",
-
-        /*
-            Build with debug and error logging support
-         */
-        debugLog: true,
-
-        /*
-            Build with HTTP Digest Authentication support. Requires auth support.
-         */
-        digest: true,
 
         /*
             Directory containing web documents to serve
@@ -92,16 +78,6 @@ Bit.load({
             Build with support for javascript web templates
          */
         javascript: true,
-
-        /*
-            Build with for Http Keep-Alive support
-         */
-        keepAlive: true,
-
-        /*
-            Build with Http If-Modified header support
-         */
-        ifModified: true,
 
         /*
             Define legacy APIs for compatibility with old GoAhead web server applications
@@ -129,17 +105,12 @@ Bit.load({
         /*
             Server SSL key
          */
-        key: "",
+        key: "server.key.pem",
 
         /*
             Use PAM (Plugable Authentication Module) to store passwords
          */
         pam: false,
-
-        /*
-            Server authentication password (decoded)
-         */
-        password: "",
 
         /*
             Authentication realm
@@ -152,16 +123,6 @@ Bit.load({
         replaceMalloc: false,
 
         /*
-            Build with request routing (required if using authentication)
-         */
-        route: true,
-
-        /*
-            Build with session state storage. Needed if using form-based authentication.
-         */
-        sessions: true,
-
-        /*
             SSL port to listen on
          */
         sslPort: 4443,
@@ -172,9 +133,14 @@ Bit.load({
         trace: "stdout:2",
 
         /*
-            Upload configuration
+            Enable the trace method. This should be disabled for security
          */
-        upload: false,
+        traceMethod: false,
+
+        /*
+            Upload file support
+         */
+        upload: true,
         uploadDir: "/tmp",
     },
 

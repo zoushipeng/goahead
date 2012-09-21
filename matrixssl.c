@@ -5,65 +5,41 @@
  */
 /************************************ Includes ********************************/
 
-#include    "bit.h"
-
-#if BIT_FEATURE_MATRIXSSL
-/*
-    Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable. 
-    So must include matrixsslApi.h first and then workaround. 
- */
-#if WINDOWS
- #include   <winsock2.h>
- #include   <windows.h>
-#endif
- #include    "matrixsslApi.h"
-
-#define     HAS_INT32 1
-#define     HAS_UINT32 1
-#define     HAS_INT64 1
-#define     HAS_UINT64 1
-
 #include    "goahead.h"
 
-#define MAX_WRITE_MSEC  500 /* Fail if we block more than X millisec on write */
+#if BIT_PACK_MATRIXSSL && !BIT_PACK_OPENSSL
+/************************************ Defines *********************************/
 
 /*
-    Connection structure
-    //  MOB - this is MatrixSSL only
+    MatrixSSL per-socket state
  */
-typedef struct {
-    ssl_t               *ssl;
-    char                *pt;        /* app data start */
-    char                *currPt;    /* app data current location */
-    int                 ptBytes;    /* plaintext bytes remaining */
-    SOCKET              fd;
-    int                 ptReqBytes;
-    int                 sendBlocked;
-} sslConn_t;
+typedef struct Ms {
+    int     fd;
+    ssl_t   *handle;
+    char    *outbuf;        /* Pending output data */
+    ssize   outlen;         /* Length of outbuf */
+    ssize   written;        /* Number of unencoded bytes written */
+    int     more;           /* MatrixSSL stack has buffered data */
+} Ms;
 
-static sslKeys_t    *sslKeys = NULL;
-
-/********************************** Forwards **********************************/
-/*
-    Socket layer API for the MatrixSSL library.  
-*/
-static int waitForWriteEvent(int fd, int msec);
-static void setSocketNonblock(SOCKET sock);
+static sslKeys_t *sslKeys = NULL;
 
 /************************************ Code ************************************/
 
 int sslOpen()
 {
+    char    *password;
+
     if (matrixSslOpen() < 0) {
         return -1;
     }
     if (matrixSslNewKeys(&sslKeys) < 0) {
-        trace(0, T("Failed to allocate keys in sslOpen\n"));
+        trace(0, "Failed to allocate keys in sslOpen\n");
         return -1;
     }
-    if (matrixSslLoadRsaKeys(sslKeys, BIT_CERTIFICATE, BIT_KEY, NULL /* privPass */,  NULL /* trustedCAFile */) < 0) {
-        trace(0, T("Failed to read certificate %s in sslOpen\n"), BIT_CERTIFICATE);
-        trace(0, T("SSL support is disabled\n"));
+    password = 0;
+    if (matrixSslLoadRsaKeys(sslKeys, BIT_CERTIFICATE, BIT_KEY, password,  NULL) < 0) {
+        error(0, "Failed to read certificate %s or key file\n", BIT_CERTIFICATE);
         return -1;
     }
     return 0;
@@ -72,430 +48,259 @@ int sslOpen()
 
 void sslClose()
 {
-    matrixSslDeleteKeys(sslKeys);
+    if (sslKeys) {
+        matrixSslDeleteKeys(sslKeys);
+        sslKeys = 0;
+    }
     matrixSslClose();
 }
 
 
 void sslFree(Webs *wp)
 {
-    sslWriteClosureAlert(wp->sslConn);                                                                
-    //  MOB - inline here
-    sslFreeConnection(&wp->sslConn);   
+    Ms          *ms;
+    WebsSocket    *sp;
+    uchar       *buf;
+    int         len;
+    
+    if ((sp = socketPtr(wp->sid)) == 0) {
+        return;
+    }
+    if (!sp->flags & SOCKET_EOF && wp->ms) {
+        ms = wp->ms;
+        /*
+            Flush data. Append a closure alert to any buffered output data, and try to send it.
+            Don't bother retrying or blocking, we're just closing anyway.
+        */
+        matrixSslEncodeClosureAlert(ms->handle);
+        if ((len = matrixSslGetOutdata(ms->handle, &buf)) > 0) {
+            sslWrite(wp, buf, len);
+        }
+        if (ms->handle) {
+            matrixSslDeleteSession(ms->handle);
+        }
+    }
+    wp->ms = 0;
 }
 
 
-/*
-    Server side.  Accept an incomming SSL connection request.
-    'conn' will be filled in with information about the accepted ssl connection
-
-    return -1 on error, 0 on success, or WOULD_BLOCK for non-blocking sockets
-*/
-int sslAccept(sslConn_t **conn, SOCKET fd, sslKeys_t *keys, int32 resume, 
-        int32 (*certValidator)(ssl_t *, psX509Cert_t *, int32))
+int sslUpgrade(Webs *wp)
 {
-    sslConn_t       *cp;
-    int             rc;
+    Ms      *ms;
+    ssl_t   *handle;
     
-    if (resume == 0) {
-        /*
-            Associate a new ssl session with this socket.  The session represents the state of the ssl protocol over
-            this socket.  Session caching is handled automatically by this api.  
-         */
-        cp = galloc(sizeof(sslConn_t));
-        memset(cp, 0x0, sizeof(sslConn_t));
-        cp->fd = fd;
-        if (matrixSslNewServerSession(&cp->ssl, keys, certValidator) < 0) {
-            sslFreeConnection(&cp);
-            return -1;
-        }
-        //  MOB - is the socket already non-blocking. If so, remove this routine
-        setSocketNonblock(fd);
-    } else {
-        cp = *conn;
-    }
-    /*
-        This call will perform the SSL handshake
-     */
-    rc = sslRead(cp, NULL, 0);
-    if (rc < 0) {
+    if (matrixSslNewServerSession(&handle, sslKeys, NULL) < 0) {
         return -1;
     }
-    *conn = cp;
+    if ((ms = galloc(sizeof(Ms))) == 0) {
+        return -1;
+    }
+    memset(ms, 0x0, sizeof(Ms));
+    ms->handle = handle;
+    wp->ms = ms;
     return 0;
 }
-    
 
-/*
-    Primary MatrixSSL read function that transparently handles SSL handshakes and the subsequent incoming application
-    data records.
-    
-    A NULL inbuf parameter is an indication that this is a call to perform a new SSL handshake with an incoming client
-    and no out data is expected
-    
-    Params:
-        inbuf   allocated storage for plaintext data to be copied to
-        inlen   length of inbuf
-    
-    Return codes:
-        -1  EOF or internal failure.  caller should free sess and close socket
-        0   success status.  no data is being returned to the caller
-        >0  success status.  number of plaintext bytes written to inbuf
- 
-    Note that unlike a standard "socket read", a read of an SSL record can produce data that must be written, for
-    example, a response to a handshake message that must be sent before any more data is read. Also, data can be read
-    from the network such as an SSL alert, that produces no data to pass back to caller.
- 
-    Because webs doesn't have the concept of a read forcing a write, we do the write here, inline. If we are
-    non-blocking, this presents an issue because we can't block indefinitely on a send, and we also can't indicate that
-    the send be done later. The workaround below uses select() to implement a "timed send", which will fail and indicate
-    the connection be closed if not complete within a time threshold. 
- 
-    This situation is extremely unlikely in normal operation, since the only records that must be sent as a result of a
-    recv are handshake messages, and TCP buffers would not typically be full enough at that point to result in an
-    EWOULDBLOCK on send. Conceivably, it could occur on a client initiated SSl re-handshake that is sent by a
-    slow-reading client to a server with full TCP buffers. A non-malicious client in this situation would read
-    immediately after a re-handshake request and fail anyway because a buffered appdata record would be read.
-*/
-int sslRead(sslConn_t *cp, char *inbuf, int inlen)
-{   
-    uchar   *buf;
-    int     rc, len, transferred;
+
+static ssize blockingWrite(Webs *wp, void *buf, ssize len)
+{
+    ssize   written, bytes;
+    int     prior;
+
+    prior = socketSetBlock(wp->sid, 1);
+    for (written = 0; len > 0; ) {
+        if ((bytes = socketWrite(wp->sid, buf, len)) < 0) {
+            socketSetBlock(wp->sid, prior);
+            return bytes;
+        }
+        buf += bytes;
+        len -= bytes;
+        written += bytes;
+    }
+    socketSetBlock(wp->sid, prior);
+    return written;
+}
+
+
+static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int *readMore)
+{
+    Ms      *ms;
+    uchar   *data, *obuf;
+    ssize   toWrite, written, copied, sofar;
+    uint32  dlen;
+    int     rc;
+
+    ms = (Ms*) wp->ms;
+    *readMore = 0;
+    sofar = 0;
 
     /*
-        Always first look to see if any plaintext application data is waiting We have two levels of buffer here, one for
-        decoded data and one for partial, still encoded SSL records. The partial SSL records are stored transparently in
-        MatrixSSL, but the plaintext is stored in 'cp'.
+        Process the received data. If there is application data, it is returned in data/dlen
      */
-    if (inbuf != NULL && inlen > 0 && cp->ptBytes > 0 && cp->pt) {
-        if (cp->ptBytes < inlen) {
-            inlen = cp->ptBytes;
-        }
-        memcpy(inbuf, cp->currPt, inlen);
-        cp->currPt += inlen;
-        cp->ptBytes -= inlen;
-        /* Free buffer as we go if empty */
-        if (cp->ptBytes == 0) {
-            gfree(cp->pt);
-            cp->pt = cp->currPt = NULL;
-        }
-        return inlen;
-    }
-    /*
-        If there is outgoing data buffered, just try to write it here before doing our read on the socket. Because the
-        read could produce data to be written, this will ensure we have as much room as possible in that case for the
-        written record. Note that there may be data here to send because of a previous sslWrite that got EWOULDBLOCK.
-    */
-WRITE_MORE:
-    if ((len = matrixSslGetOutdata(cp->ssl, &buf)) > 0) {
-        transferred = send(cp->fd, buf, len, MSG_NOSIGNAL);
-        if (transferred <= 0) {
-            if (socketGetError() != EWOULDBLOCK) {
-                return -1;
-            }
-            if (waitForWriteEvent(cp->fd, MAX_WRITE_MSEC) == 0) {
-                goto WRITE_MORE;
-            }
-            return -1;
-        } else {
-            /* Indicate that we've written > 0 bytes of data */
-            if ((rc = matrixSslSentData(cp->ssl, transferred)) < 0) {
-                return -1;
-            }
-            if (rc == MATRIXSSL_REQUEST_CLOSE) {
-                return -1;
-            } else if (rc == MATRIXSSL_HANDSHAKE_COMPLETE) {
-                /* If called via sslAccept (NULL buf), then we can just leave */
-                return 0;
-            }
-            /* Try to send again if more data to send */
-            if (rc == MATRIXSSL_REQUEST_SEND || transferred < len) {
-                goto WRITE_MORE;
-            }
-        }
-    } else if (len < 0) {
-        return -1;
-    }
+    rc = matrixSslReceivedData(ms->handle, (int) nbytes, &data, &dlen);
 
-READ_MORE:
-    /* Get the ssl buffer and how much data it can accept */
-    /* Note 0 is a return failure, unlike with matrixSslGetOutdata */
-    if ((len = matrixSslGetReadbuf(cp->ssl, &buf)) <= 0) {
-        return -1;
-    }
-    if ((transferred = recv(cp->fd, buf, len, MSG_NOSIGNAL)) < 0) {
-        /* Support non-blocking sockets if turned on */
-        if (socketGetError() == EWOULDBLOCK) {
-                return 0;
-        }
-        trace(1, T("RECV error: %d\n"), socketGetError());
-        return -1;
-    }
-    if (transferred == 0) {
-        /* If EOF, remote socket closed. This is semi-normal closure. */    
-        trace(4, T("Closing connection %d on EOF\n"), cp->fd);
-        return -1;
-    }
-    /*
-        Notify SSL state machine that we've received more data into the ssl buffer retreived with matrixSslGetReadbuf.
-     */
-    if ((rc = matrixSslReceivedData(cp->ssl, transferred, &buf, 
-            (uint32*)&len)) < 0) {
-        return -1;
-    }
+    while (1) {
+        switch (rc) {
+        case PS_SUCCESS:
+            return sofar;
 
-PROCESS_MORE:       
-    switch (rc) {
         case MATRIXSSL_REQUEST_SEND:
-            /* There is a handshake response we must send */
-            goto WRITE_MORE;
+            toWrite = matrixSslGetOutdata(ms->handle, &obuf);
+            if ((written = blockingWrite(wp, obuf, toWrite)) < 0) {
+                error("MatrixSSL: Error in process");
+                return -1;
+            }
+            matrixSslSentData(ms->handle, (int) written);
+            *readMore = 1;
+            return 0;
+
         case MATRIXSSL_REQUEST_RECV:
-            goto READ_MORE;
+            /* Partial read. More read data required */
+            *readMore = 1;
+            ms->more = 1;
+            return 0;
+
         case MATRIXSSL_HANDSHAKE_COMPLETE:
-            /* Session resumption handshake */
-            goto READ_MORE;
+            *readMore = 0;
+            return 0;
+
         case MATRIXSSL_RECEIVED_ALERT:
-            /* Any fatal alert will simply cause a read error and exit */
-            if (*buf == SSL_ALERT_LEVEL_FATAL) {
-                trace(1, T("Fatal alert: %d, closing connection.\n"), *(buf + 1));
+            gassert(dlen == 2);
+            if (data[0] == SSL_ALERT_LEVEL_FATAL) {
                 return -1;
+            } else if (data[1] == SSL_ALERT_CLOSE_NOTIFY) {
+                //  ignore - graceful close
+                return 0;
+            } else {
+                //  ignore
             }
-            /* Closure alert is normal (and best) way to close */
-            if (*(buf + 1) == SSL_ALERT_CLOSE_NOTIFY) {
-                return -1;
-            }
-            /* Eating warning alerts */
-            trace(4, T("Warning alert: %d\n"), *(buf + 1));
-            if ((rc = matrixSslProcessedData(cp->ssl, &buf, (uint32*)&len)) == 0) {
-                /* Possible there was plaintext before the alert */
-                if (inbuf != NULL && inlen > 0 && cp->ptBytes > 0 && cp->pt) {
-                    if (cp->ptBytes < inlen) {
-                        inlen = cp->ptBytes;
-                    }
-                    memcpy(inbuf, cp->currPt, inlen);
-                    cp->currPt += inlen;
-                    cp->ptBytes -= inlen;
-                    /* Free buffer as we go if empty */
-                    if (cp->ptBytes == 0) {
-                        gfree(cp->pt);
-                        cp->pt = cp->currPt = NULL;
-                    }
-                    return inlen;
-                } else {
-                    return 0;
-                }
-            }
-            goto PROCESS_MORE;
+            rc = matrixSslProcessedData(ms->handle, &data, &dlen);
+            break;
 
         case MATRIXSSL_APP_DATA:
-            if (cp->ptBytes == 0) {
-                /*
-                    Catching here means this is new app data just grabbed off the wire. 
-                 */
-                cp->ptBytes = len;
-                cp->pt = galloc(len);
-                memcpy(cp->pt, buf, len);
-                cp->currPt = cp->pt;
-            } else {
-                /*
-                    Multi-record.  This case should only ever be possible if no data has already been read out of the
-                    'pt' cache so it is fine to assume an unprocessed buffer.
-                */
-                psAssert(cp->pt == cp->currPt);
-                cp->pt = grealloc(cp->pt, cp->ptBytes + len);
-                memcpy(cp->pt + cp->ptBytes, buf, len);
-                cp->currPt = cp->pt;
-                cp->ptBytes += len;
+            copied = min((ssize) dlen, size);
+            memcpy(buf, data, copied);
+            buf += copied;
+            size -= copied;
+            data += copied;
+            dlen = dlen - (int) copied;
+            sofar += copied;
+            ms->more = ((ssize) dlen > size) ? 1 : 0;
+            if (!ms->more) {
+                /* The MatrixSSL buffer has been consumed, see if we can get more data */
+                rc = matrixSslProcessedData(ms->handle, &data, &dlen);
+                break;
             }
-            if ((rc = matrixSslProcessedData(cp->ssl, &buf, (uint32*)&len)) < 0) {
-                return -1;
-            }
-            /* Check for multi-record app data*/
-            if (rc > 0) {
-                goto PROCESS_MORE;
-            }
-            /*
-                Otherwise pass back how much the caller wants to read (if any)
-             */
-            if (inbuf != 0 && inlen > 0) {
-                if (cp->ptBytes < inlen) {
-                    inlen = cp->ptBytes;
-                }
-                memcpy(inbuf, cp->currPt, inlen);
-                cp->currPt += inlen;
-                cp->ptBytes -= inlen;
-                return inlen; /* Just a breakpoint holder */
-            }
-            return 0; /* Have it stored, but caller didn't want any data */
+            return sofar;
+
         default:
             return -1;
+        }
     }
-    return 0; /* really can never hit this */
 }
 
 
 /*
-    sslWrite encodes 'data' as a single SSL record.
-
-    Return codes:
-        -1  Internal failure. caller should free sess and close socket
-        0   WOULDBLOCK. caller should call back with same input later
-        > 0 success status.  number of plaintext bytes encoded and sent
- 
-    In order for non-blocking sockets to work transparently to the upper layers in webs, we manage the buffering of
-    outgoing data and fudge the number of bytes sent until the entire SSL record is sent.
- 
-    This is because the encoded SSL record will be longer than 'len' with the SSL header prepended and the MAC and
-    padding appended. There is no easy way to indicate to the caller if only a partial record was sent via the webs
-    socket API.
-
-    For example, if the caller specifies one byte of 'data' ('len' == 1), the SSL record could be 33 bytes long. If the
-    socket send is able to write 10 bytes of data, how would we indicate this to the caller, which expects only 1 byte,
-    0 bytes or a negative error code as a result of this call?
- 
-    The solution here is to always return 0 from this function, until we have flushed out all the bytes in the SSL
-    record (33 in this example), and when the record has all been sent, return the originally requested length, which is
-    1 in this example.
- 
-    This assumes that on a 0 return, the caller will wait for a writable event on the socket and re-call this api with
-    the same 'data' and 'len' as previously sent. Essentially a 0 return means "retry the same sslWrite call later".
-*/
-int sslWrite(sslConn_t *cp, char *data, int len)
+    Return number of bytes read. Return -1 on errors and EOF.
+ */
+static ssize innerRead(Webs *wp, char *buf, ssize size)
 {
-    uchar   *buf; 
-    int     rc, transferred, ctLen;
+    Ms          *ms;
+    uchar       *mbuf;
+    ssize       nbytes;
+    int         msize, readMore;
 
-    /*
-        If sendBlocked is set, then the previous time into sslWrite with this cp could not send all the requested data,
-        and zero was returned to the caller.  In this case, the data has already been encoded into the SSL outdata
-        buffer, and we don't need to re-encode it here.  This assumes that the caller is sending the same 'len' and
-        contents of 'data' as they did last time.
-     */
-    if (!cp->sendBlocked) {
-        if (matrixSslGetWritebuf(cp->ssl, &buf, len) < len) { 
-            /* SSL buffer must hold requested plaintext + SSL overhead */
+    ms = (Ms*) wp->ms;
+    do {
+        if ((msize = matrixSslGetReadbuf(ms->handle, &mbuf)) < 0) {
             return -1;
         }
-        memcpy((char *)buf, data, len); 
-        if (matrixSslEncodeWritebuf(cp->ssl, len) < 0) { 
-            return -1; 
+        readMore = 0;
+        if ((nbytes = socketRead(wp->sid, mbuf, msize)) > 0) {
+            if ((nbytes = processIncoming(wp, buf, size, nbytes, &readMore)) > 0) {
+                return nbytes;
+            }
         }
-    } else {
-        /*
-            Not all previously encoded data could be sent without blocking and 0 bytes was previously returned to caller
-            as sent. Ensure caller is retrying with same len (and presumably the same data).
-         */
-        if (len != cp->ptReqBytes) {
-            gassert(len != cp->ptReqBytes);
-            return -1;
-        }
+    } while (readMore);
+    return 0;
+}
+
+
+/*
+    Return number of bytes read. Return -1 on errors and EOF.
+ */
+ssize sslRead(Webs *wp, void *buf, ssize len)
+{
+    Ms      *ms;
+    ssize   bytes;
+
+    if (len <= 0) {
+        return -1;
     }
-WRITE_MORE:
+    bytes = innerRead(wp, buf, len);
+    ms = (Ms*) wp->ms;
+    if (ms->more) {
+        wp->flags |= SOCKET_PENDING;
+        socketReservice(wp->sid);
+    }
+    return bytes;
+}
+
+
+/*
+    Non-blocking write data. Return the number of bytes written or -1 on errors.
+    Returns zero if part of the data was written.
+
+    Encode caller's data buffer into an SSL record and write to socket. The encoded data will always be 
+    bigger than the incoming data because of the record header (5 bytes) and MAC (16 bytes MD5 / 20 bytes SHA1)
+    This would be fine if we were using blocking sockets, but non-blocking presents an interesting problem.  Example:
+
+        A 100 byte input record is encoded to a 125 byte SSL record
+        We can send 124 bytes without blocking, leaving one buffered byte
+        We can't return 124 to the caller because it's more than they requested
+        We can't return 100 to the caller because they would assume all data
+        has been written, and we wouldn't get re-called to send the last byte
+
+    We handle the above case by returning 0 to the caller if the entire encoded record could not be sent. Returning 
+    0 will prompt us to select this socket for write events, and we'll be called again when the socket is writable.  
+    We'll use this mechanism to flush the remaining encoded data, ignoring the bytes sent in, as they have already 
+    been encoded.  When it is completely flushed, we return the originally requested length, and resume normal 
+    processing.
+ */
+ssize sslWrite(Webs *wp, void *buf, ssize len)
+{
+    Ms      *ms;
+    uchar   *obuf;
+    ssize   encoded, nbytes, written;
+
+    ms = (Ms*) wp->ms;
+    while (len > 0 || ms->outlen > 0) {
+        if ((encoded = matrixSslGetOutdata(ms->handle, &obuf)) <= 0) {
+            if (ms->outlen <= 0) {
+                ms->outbuf = (char*) buf;
+                ms->outlen = len;
+                ms->written = 0;
+                len = 0;
+            }
+            nbytes = min(ms->outlen, SSL_MAX_PLAINTEXT_LEN);
+            if ((encoded = matrixSslEncodeToOutdata(ms->handle, (uchar*) buf, (int) nbytes)) < 0) {
+                return encoded;
+            }
+            ms->outbuf += nbytes;
+            ms->outlen -= nbytes;
+            ms->written += nbytes;
+        }
+        if ((written = socketWrite(wp->sid, obuf, encoded)) < 0) {
+            return written;
+        } else if (written == 0) {
+            break;
+        }
+        matrixSslSentData(ms->handle, (int) written);
+    }
     /*
-        There is a small chance that we are here with sendBlocked set, and yet there is no buffered outdata to send.
-        This happens because a send can also happen in sslRead, and that could have flushed the outgoing buffer in
-        addition to a handshake message reply.
+        Only signify all the data has been written if MatrixSSL has absorbed all the data
      */
-    ctLen = matrixSslGetOutdata(cp->ssl, &buf);
-    if (ctLen > 0) {
-        transferred = send(cp->fd, buf, ctLen, MSG_NOSIGNAL); 
-        if (transferred <= 0) {
-            if (socketGetError() != EWOULDBLOCK) {
-                return -1;
-            }
-            if (!cp->sendBlocked) {
-                cp->sendBlocked = 1;
-                cp->ptReqBytes = len;
-            }
-            return 0;
-        }
-        /* Update the SSL buffer that we've written > 0 bytes of data */ 
-        if ((rc = matrixSslSentData(cp->ssl, transferred)) < 0) { 
-            return -1; 
-        }
-        /* There is more data in the SSL buffer to send */
-        if (rc == MATRIXSSL_REQUEST_SEND) {
-            goto WRITE_MORE;
-        }
-    }
-    cp->sendBlocked = 0;
-    cp->ptReqBytes = 0;
-    return len; 
-}
-
-
-void sslWriteClosureAlert(sslConn_t *cp)
-{
-    uchar   *buf;
-    int     len;
-    
-    if (cp != NULL) {
-        if (matrixSslEncodeClosureAlert(cp->ssl) >= 0) {
-            if ((len = matrixSslGetOutdata(cp->ssl, &buf)) > 0) {
-                /* Non-blocking hail-mary alert */
-                setSocketNonblock(cp->fd);
-                if ((len = send(cp->fd, buf, len, MSG_DONTWAIT)) > 0) {
-                    matrixSslSentData(cp->ssl, len);
-                }
-            }
-        }
-    }
-}
-
-
-/*
-    Close a seesion that was opened with sslAccept or sslConnect and free the insock and outsock buffers
-*/
-void sslFreeConnection(sslConn_t **cpp)
-{
-    sslConn_t   *conn;
-
-    conn = *cpp;
-    matrixSslDeleteSession(conn->ssl);
-    conn->ssl = NULL;
-    gfree(conn->pt);
-    gfree(conn);
-    *cpp = NULL;
-}
-
-
-/*
-    Wait up to 'msec' time for write room to be available for 'fd' returns 0 if a subsequent write will succeed, -1 if
-    it will fail 
- */
-static int waitForWriteEvent(int fd, int msec)
-{
-    struct timeval  tv;
-    fd_set          writeFds;
-    
-    FD_ZERO(&writeFds);
-    FD_SET(fd, &writeFds);
-    tv.tv_sec = msec / 1000;
-    tv.tv_usec = (msec % 1000) * 1000;
-    if (select(fd + 1, NULL, &writeFds, NULL, &tv) > 0 && FD_ISSET(fd, &writeFds)) {
-        return 0;
-    }
-    return -1;
-}
-
-
-/*
-    Turn off socket blocking mode.
- */
-static void setSocketNonblock(SOCKET sock)
-{
-    //  MOB - should have general routine for this
-#if WINDOWS
-    int     block = 1;
-    ioctlsocket(sock, FIONBIO, &block);
-#elif LINUX
-    fcntl(sock, F_SETFL, fcntl(sock, F_GETFL) | O_NONBLOCK);
-#endif
-#if MACOSX
-    /* Prevent SIGPIPE when writing to closed socket on OS X */
-    int     onoff = 1;
-    setsockopt(sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&onoff, sizeof(onoff));
-#endif
+    return ms->outlen == 0 ? ms->written : 0;
 }
 
 #endif /* BIT_PACK_MATRIXSSL */

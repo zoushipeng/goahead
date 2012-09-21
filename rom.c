@@ -23,13 +23,13 @@ WebsHash    romTab;                     /* Symbol table for web pages */
 int websRomOpen()
 {
     WebsRomIndex    *wip;
-    char_t          name[BIT_LIMIT_FILENAME];
+    char          name[BIT_LIMIT_FILENAME];
     ssize           len;
 
     romTab = symOpen(WEBS_SYM_INIT);
     for (wip = websRomPageIndex; wip->path; wip++) {
-        gstrncpy(name, wip->path, BIT_LIMIT_FILENAME);
-        len = gstrlen(name) - 1;
+        strncpy(name, wip->path, BIT_LIMIT_FILENAME);
+        len = strlen(name) - 1;
         if (len > 0 &&
             (name[len] == '/' || name[len] == '\\')) {
             name[len] = '\0';
@@ -46,7 +46,7 @@ void websRomClose()
 }
 
 
-int websRomPageOpen(Webs *wp, char_t *path, int mode, int perm)
+int websRomPageOpen(Webs *wp, char *path, int mode, int perm)
 {
     WebsRomIndex    *wip;
     WebsKey           *sp;
@@ -69,7 +69,7 @@ void websRomPageClose(int fd)
 }
 
 
-int websRomPageStat(char_t *path, WebsFileInfo *sbuf)
+int websRomPageStat(char *path, WebsFileInfo *sbuf)
 {
     WebsRomIndex    *wip;
     WebsKey                   *sp;

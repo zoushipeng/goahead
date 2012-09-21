@@ -18,7 +18,6 @@ assert(response.toString().contains('200 OK'))
 assert(response.toString().contains('Hello /index'))
 s.close()
 
-
 //  white space after method
 s = new Socket
 s.connect(HTTP.address)

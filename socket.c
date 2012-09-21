@@ -10,16 +10,16 @@
 
 /************************************ Locals **********************************/
 
-socket_t    **socketList;           /* List of open sockets */
+WebsSocket    **socketList;           /* List of open sockets */
 int         socketMax;              /* Maximum size of socket */
 int         socketHighestFd = -1;   /* Highest socket fd opened */
 int         socketOpenCount = 0;    /* Number of task using sockets */
 
 /***************************** Forward Declarations ***************************/
 
-static int ipv6(char_t *ip);
-static void socketAccept(socket_t *sp);
-static void socketDoEvent(socket_t *sp);
+static int ipv6(char *ip);
+static void socketAccept(WebsSocket *sp);
+static void socketDoEvent(WebsSocket *sp);
 
 /*********************************** Code *************************************/
 
@@ -65,7 +65,7 @@ void socketClose()
 
 int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 {
-    socket_t                *sp;
+    WebsSocket                *sp;
     struct sockaddr_storage addr;
     WebsSockLenArg          addrlen;
     int                     family, protocol, sid, rc;
@@ -98,7 +98,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
 
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
-        error(T("Can't bind to address %s:%d, errno %d"), ip ? ip : "*", port, errno);
+        error("Can't bind to address %s:%d, errno %d", ip ? ip : "*", port, errno);
         socketFree(sid);
         return -1;
     }
@@ -116,7 +116,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 #if UNUSED && KEEP
 int socketConnect(char *ip, int port, int flags)
 {
-    socket_t                *sp;
+    WebsSocket                *sp;
     struct sockaddr_storage addr;
     socklen_t               addrlen;
     int                     family, protocol, sid, rc;
@@ -201,7 +201,7 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 
 void socketCloseConnection(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -213,11 +213,11 @@ void socketCloseConnection(int sid)
 /*
     Accept a connection. Called as a callback on incoming connection.
  */
-static void socketAccept(socket_t *sp)
+static void socketAccept(WebsSocket *sp)
 {
     struct sockaddr_storage addrStorage;
     struct sockaddr         *addr;
-    socket_t                *nsp;
+    WebsSocket                *nsp;
     size_t                  len;
     char                    ipbuf[1024];
     int                     port, newSock, nid;
@@ -262,7 +262,7 @@ static void socketAccept(socket_t *sp)
 }
 
 
-void socketRegisterInterest(socket_t *sp, int handlerMask)
+void socketRegisterInterest(WebsSocket *sp, int handlerMask)
 {
     gassert(sp);
     sp->handlerMask = handlerMask;
@@ -272,7 +272,7 @@ void socketRegisterInterest(socket_t *sp, int handlerMask)
 /*
     Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception
  */
-int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
+int socketWaitForEvent(WebsSocket *sp, int handlerMask, int *errCode)
 {
     int mask;
 
@@ -306,7 +306,7 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 int socketSelect(int sid, int timeout)
 {
     struct timeval  tv;
-    socket_t        *sp;
+    WebsSocket        *sp;
     fd_set          readFds, writeFds, exceptFds;
     int             nEvents;
     int             all, socketHighestFd;   /* Highest socket fd opened */
@@ -393,7 +393,7 @@ int socketSelect(int sid, int timeout)
 
 int socketSelect(int sid, int timeout)
 {
-    socket_t        *sp;
+    WebsSocket        *sp;
     struct timeval  tv;
     fd_mask         *readFds, *writeFds, *exceptFds;
     int             all, len, nwords, index, bit, nEvents;
@@ -509,7 +509,7 @@ int socketSelect(int sid, int timeout)
 
 void socketProcess()
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     int         sid;
 
     for (sid = 0; sid < socketMax; sid++) {
@@ -522,7 +522,7 @@ void socketProcess()
 }
 
 
-static void socketDoEvent(socket_t *sp)
+static void socketDoEvent(WebsSocket *sp)
 {
     int     sid;
 
@@ -553,11 +553,11 @@ static void socketDoEvent(socket_t *sp)
 
 
 /*
-    Set the socket blocking mode
+    Set the socket blocking mode. Return the previous mode.
  */
 int socketSetBlock(int sid, int on)
 {
-    socket_t        *sp;
+    WebsSocket        *sp;
     int             oldBlock;
 
     if ((sp = socketPtr(sid)) == NULL) {
@@ -615,9 +615,9 @@ int socketSetBlock(int sid, int on)
     Write to a socket. Absorb as much data as the socket can buffer. Block if the socket is in blocking mode. Returns -1
     on error, otherwise the number of bytes written.
  */
-ssize socketWrite(int sid, char *buf, ssize bufsize)
+ssize socketWrite(int sid, void *buf, ssize bufsize)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     ssize       len, written, sofar;
     int         errCode;
 
@@ -648,14 +648,15 @@ ssize socketWrite(int sid, char *buf, ssize bufsize)
 
 /*
     Write a string to a socket
+    MOB - change UNICODE api. Should never take unicode
  */
-ssize socketWriteString(int sid, char_t *buf)
+ssize socketWriteString(int sid, char *buf)
 {
- #if UNICODE
+ #if UNICODE && UNUSED
     char    *byteBuf;
     ssize   r, len;
  
-    len = gstrlen(buf);
+    len = strlen(buf);
     byteBuf = gallocUniToAsc(buf, len);
     r = socketWrite(sid, byteBuf, len);
     gfree(byteBuf);
@@ -671,9 +672,9 @@ ssize socketWriteString(int sid, char_t *buf)
     may be zero. This routine may block if the socket is in blocking mode.
     Return -1 for errors or EOF. Distinguish between error and EOF via socketEof().
  */
-ssize socketRead(int sid, char *buf, ssize bufsize)
+ssize socketRead(int sid, void *buf, ssize bufsize)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     ssize       bytes;
     int         errCode;
 
@@ -709,7 +710,7 @@ ssize socketRead(int sid, char *buf, ssize bufsize)
  */
 int socketEof(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -720,7 +721,7 @@ int socketEof(int sid)
 
 void socketReservice(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -735,7 +736,7 @@ void socketReservice(int sid)
  */
 void socketCreateHandler(int sid, int handlerMask, socketHandler_t handler, void* data)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -748,7 +749,7 @@ void socketCreateHandler(int sid, int handlerMask, socketHandler_t handler, void
 
 void socketDeleteHandler(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -763,10 +764,10 @@ void socketDeleteHandler(int sid)
  */
 int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     int         sid;
 
-    if ((sid = gallocEntry((void***) &socketList, &socketMax, sizeof(socket_t))) < 0) {
+    if ((sid = gallocEntry((void***) &socketList, &socketMax, sizeof(WebsSocket))) < 0) {
         return -1;
     }
     sp = socketList[sid];
@@ -776,7 +777,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
     sp->fileHandle = -1;
     sp->saveMask = -1;
     if (ip) {
-        sp->ip = gstrdup(ip);
+        sp->ip = strdup(ip);
     }
     sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING);
     return sid;
@@ -788,8 +789,8 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
  */
 void socketFree(int sid)
 {
-    socket_t    *sp;
-    char_t      buf[256];
+    WebsSocket    *sp;
+    char      buf[256];
     int         i;
 
     if ((sp = socketPtr(sid)) == NULL) {
@@ -829,7 +830,7 @@ void socketFree(int sid)
 /*
     Validate a socket handle
  */
-socket_t *socketPtr(int sid)
+WebsSocket *socketPtr(int sid)
 {
     if (sid < 0 || sid >= socketMax || socketList[sid] == NULL) {
         gassert(NULL);
@@ -872,7 +873,7 @@ int socketGetError()
  */
 int socketGetHandle(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -886,7 +887,7 @@ int socketGetHandle(int sid)
  */
 int socketGetBlock(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         gassert(0);
@@ -898,7 +899,7 @@ int socketGetBlock(int sid)
 
 int socketGetMode(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         gassert(0);
@@ -910,7 +911,7 @@ int socketGetMode(int sid)
 
 void socketSetMode(int sid, int mode)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         gassert(0);
@@ -922,7 +923,7 @@ void socketSetMode(int sid, int mode)
 
 int socketGetPort(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -937,7 +938,7 @@ int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -961,7 +962,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
     } else {
         hints.ai_family = AF_UNSPEC;
     }
-    gstritoa(port, portBuf, sizeof(portBuf));
+    itosbuf(portBuf, sizeof(portBuf), port, 10);
 
     /*  
         Try to sleuth the address to avoid duplicate address lookups. Then try IPv4 first then IPv6.
@@ -998,7 +999,7 @@ int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr
 }
 #else
 
-int socketInfo(char_t *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct sockaddr_in  sa;
 
@@ -1081,7 +1082,7 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
     uchar   *cp;
     sa = (struct sockaddr_in*) addr;
     cp = (uchar*) &sa->sin_addr;
-    gfmtStatic(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
+    fmt(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
 #endif
     *port = ntohs(sa->sin_port);
 #endif
@@ -1092,9 +1093,9 @@ int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *
 /*
     Looks like an IPv6 address if it has 2 or more colons
  */
-static int ipv6(char_t *ip)
+static int ipv6(char *ip)
 {
-    char_t  *cp;
+    char  *cp;
     int     colons;
 
     if (ip == 0 || *ip == 0) {
@@ -1127,9 +1128,9 @@ static int ipv6(char_t *ip)
 
     Caller must free *pip
  */
-int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, int defaultPort)
+int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)
 {
-    char_t    *ip, *cp;
+    char    *ip, *cp;
 
     ip = 0;
     if (defaultPort < 0) {
@@ -1149,13 +1150,13 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
                 *pport = (*++cp == '*') ? -1 : atoi(cp);
 
                 /* Set ipAddr to ipv6 address without brackets */
-                ip = gstrdup(address + 1);
+                ip = strdup(address + 1);
                 cp = strchr(ip, ']');
                 *cp = '\0';
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
-                ip = gstrdup(address + 1);
+                ip = strdup(address + 1);
                 if ((cp = strchr(ip, ']')) != 0) {
                     *cp = '\0';
                 }
@@ -1167,7 +1168,7 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
             }
         } else {
             /* Handles a:b:c:d:e:f:g:h:i case (no port) */
-            ip = gstrdup(address);
+            ip = strdup(address);
 
             /* No port present, use callers default */
             *pport = defaultPort;
@@ -1177,7 +1178,7 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
         /*  
             ipv4 
          */
-        ip = gstrdup(address);
+        ip = strdup(address);
         if ((cp = strchr(ip, ':')) != 0) {
             *cp++ = '\0';
             if (*cp == '*') {
@@ -1211,7 +1212,7 @@ int socketParseAddress(char_t *address, char_t **pip, int *pport, int *secure, i
 
 bool socketIsV6(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return 0;
@@ -1220,7 +1221,7 @@ bool socketIsV6(int sid)
 }
 
 
-bool socketAddressIsV6(char_t *ip)
+bool socketAddressIsV6(char *ip)
 {
     return ip && ipv6(ip);
 }

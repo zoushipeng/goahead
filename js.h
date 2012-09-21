@@ -108,8 +108,8 @@
     Function call structure
  */
 typedef struct JsFun {
-    char_t      *fname;                         /* Function name */
-    char_t      **args;                         /* Args for function (halloc) */
+    char      *fname;                         /* Function name */
+    char      **args;                         /* Args for function (halloc) */
     int         nArgs;                          /* Number of args */
 } JsFun;
 
@@ -117,11 +117,11 @@ typedef struct JsFun {
     Evaluation block structure
  */
 typedef struct JsInput {
-    ringq_t     tokbuf;                         /* Current token */
-    ringq_t     script;                         /* Input script for parsing */
-    char_t      *putBackToken;                  /* Putback token string */
+    WebsBuf     tokbuf;                         /* Current token */
+    WebsBuf     script;                         /* Input script for parsing */
+    char      *putBackToken;                  /* Putback token string */
     int         putBackTokenId;                 /* Putback token ID */
-    char_t      *line;                          /* Current line */
+    char      *line;                          /* Current line */
     int         lineLength;                     /* Current line length */
     int         lineNumber;                     /* Parse line number */
     int         lineColumn;                     /* Column in line */
@@ -137,9 +137,9 @@ typedef struct Js {
     WebsHash    *variables;                     /* hAlloc list of variables */
     int         variableMax;                    /* Number of entries */
     JsFun       *func;                          /* Current function */
-    char_t      *result;                        /* Current expression result */
-    char_t      *error;                         /* Error message */
-    char_t      *token;                         /* Pointer to token string */
+    char      *result;                        /* Current expression result */
+    char      *error;                         /* Error message */
+    char      *token;                         /* Pointer to token string */
     int         tid;                            /* Current token id */
     int         eid;                            /* Halloc handle */
     int         flags;                          /* Flags */
@@ -150,45 +150,45 @@ typedef struct Js {
 
 extern int      jsOpenBlock(int eid);
 extern int      jsCloseBlock(int eid, int vid);
-extern char_t   *jsEvalBlock(int eid, char_t *script, char_t **emsg);
+extern char   *jsEvalBlock(int eid, char *script, char **emsg);
 
 #if !ECOS && UNUSED && KEEP
-extern char_t   *jsEvalFile(int eid, char_t *path, char_t **emsg);
+extern char   *jsEvalFile(int eid, char *path, char **emsg);
 #endif
 
-extern int      jsRemoveGlobalFunction(int eid, char_t *name);
-extern void     *jsGetGlobalFunction(int eid, char_t *name);
-extern int      jsSetGlobalFunctionDirect(WebsHash functions, char_t *name, 
-                    int (*fn)(int eid, void *handle, int argc, char_t **argv));
-extern void     jsError(Js *ep, char_t *fmt, ...);
+extern int      jsRemoveGlobalFunction(int eid, char *name);
+extern void     *jsGetGlobalFunction(int eid, char *name);
+extern int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, 
+                    int (*fn)(int eid, void *handle, int argc, char **argv));
+extern void     jsError(Js *ep, char *fmt, ...);
 extern void     jsSetUserHandle(int eid, void *handle);
 extern void     *jsGetUserHandle(int eid);
 extern int      jsGetLineNumber(int eid);
-extern char_t   *jsGetResult(int eid);
-extern void     jsSetLocalVar(int eid, char_t *var, char_t *value);
-extern void     jsSetGlobalVar(int eid, char_t *var, char_t *value);
+extern char   *jsGetResult(int eid);
+extern void     jsSetLocalVar(int eid, char *var, char *value);
+extern void     jsSetGlobalVar(int eid, char *var, char *value);
 
 extern int      jsLexOpen(Js *ep);
 extern void     jsLexClose(Js *ep);
-extern int      jsLexOpenScript(Js *ep, char_t *script);
+extern int      jsLexOpenScript(Js *ep, char *script);
 extern void     jsLexCloseScript(Js *ep);
 extern void     jsLexSaveInputState(Js *ep, JsInput *state);
 extern void     jsLexFreeInputState(Js *ep, JsInput *state);
 extern void     jsLexRestoreInputState(Js *ep, JsInput *state);
 extern int      jsLexGetToken(Js *ep, int state);
-extern void     jsLexPutbackToken(Js *ep, int tid, char_t *string);
+extern void     jsLexPutbackToken(Js *ep, int tid, char *string);
 
 extern WebsHash jsGetVariableTable(int eid);
 extern WebsHash jsGetFunctionTable(int eid);
 
-extern int      jsArgs(int argc, char_t **argv, char_t *fmt, ...);
-extern void     jsSetResult(int eid, char_t *s);
+extern int      jsArgs(int argc, char **argv, char *fmt, ...);
+extern void     jsSetResult(int eid, char *s);
 extern int      jsOpenEngine(WebsHash variables, WebsHash functions);
 extern void     jsCloseEngine(int eid);
-extern int      jsSetGlobalFunction(int eid, char_t *name, int (*fn)(int eid, void *handle, int argc, char_t **argv));
-extern void     jsSetVar(int eid, char_t *var, char_t *value);
-extern int      jsGetVar(int eid, char_t *var, char_t **value);
-extern char_t   *jsEval(int eid, char_t *script, char_t **emsg);
+extern int      jsSetGlobalFunction(int eid, char *name, int (*fn)(int eid, void *handle, int argc, char **argv));
+extern void     jsSetVar(int eid, char *var, char *value);
+extern int      jsGetVar(int eid, char *var, char **value);
+extern char   *jsEval(int eid, char *script, char **emsg);
 
 #if BIT_LEGACY
     typedef Js ej_t;

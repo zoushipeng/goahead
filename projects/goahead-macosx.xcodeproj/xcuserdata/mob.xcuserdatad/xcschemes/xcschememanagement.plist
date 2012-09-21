@@ -14,6 +14,11 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
+		<key>cgitest 2.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>8</integer>
+		</dict>
 		<key>cgitest.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
@@ -128,6 +133,11 @@
 			<true/>
 		</dict>
 		<key>9FC45C179FC48C4D0000004A</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000004B</key>
 		<dict>
 			<key>primary</key>
 			<true/>

@@ -8,7 +8,7 @@ const HUGE= "../web/huge.txt"
 var SIZE = 5 * 1024 * 1024 * 1024
 let http: Http = new Http
 
-if (test.depth >= 6) {
+if (test.depth >= 5) {
     /*
         Create test file
      */
