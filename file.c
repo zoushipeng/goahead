@@ -107,6 +107,7 @@ int websProcessPutData(Webs *wp)
         websError(wp, WEBS_CLOSE | 500, "Can't write to file");
         return -1;
     }
+    websConsumeInput(wp, nbytes);
     return 0;
 }
 
@@ -116,7 +117,7 @@ int websProcessPutData(Webs *wp)
  */
 static void writeEvent(Webs *wp)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     char        *buf;
     ssize       len, wrote;
 

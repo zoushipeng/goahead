@@ -1489,7 +1489,7 @@ char *jsGetResult(int eid)
 void jsSetVar(int eid, char *var, char *value)
 {
     Js      *ep;
-    value_t     v;
+    WebsValue     v;
 
     gassert(var && *var);
 
@@ -1512,7 +1512,7 @@ void jsSetVar(int eid, char *var, char *value)
 void jsSetLocalVar(int eid, char *var, char *value)
 {
     Js      *ep;
-    value_t     v;
+    WebsValue     v;
 
     gassert(var && *var);
 
@@ -1536,7 +1536,7 @@ void jsSetLocalVar(int eid, char *var, char *value)
 void jsSetGlobalVar(int eid, char *var, char *value)
 {
     Js      *ep;
-    value_t     v;
+    WebsValue     v;
 
     gassert(var && *var);
 
@@ -1781,7 +1781,7 @@ int jsLexGetToken(Js *ep, int state)
 
 static int getLexicalToken(Js *ep, int state)
 {
-    ringq_t     *tokq;
+    WebsBuf     *tokq;
     JsInput     *ip;
     int         done, tid, c, quote, style;
 

@@ -121,8 +121,7 @@ int websProcessUploadData(Webs *wp)
                 break; 
             }
             nbytes = nextTok - line;
-            ringqGetBlkAdj(&wp->input, nbytes);
-            wp->rxConsumed += nbytes;
+            websConsumeInput(wp, nbytes);
             len = strlen(line);
             if (line[len - 1] == '\r') {
                 line[len - 1] = '\0';
@@ -321,8 +320,8 @@ static int writeToFile(Webs *wp, char *data, ssize len)
 static int processContentData(Webs *wp)
 {
     WebsUploadFile  *file;
-    ringq_t         *content;
-    ssize           size, dataLen;
+    WebsBuf         *content;
+    ssize           size, nbytes;
     char            *data, *bp;
 
     content = &wp->input;
@@ -340,31 +339,31 @@ static int processContentData(Webs *wp)
                 No signature found yet. probably more data to come. Must handle split boundaries.
              */
             data = content->servp;
-            dataLen = ((int) (content->endp - data)) - (wp->boundaryLen - 1);
-            if (dataLen > 0 && writeToFile(wp, content->servp, dataLen) < 0) {
+            nbytes = ((int) (content->endp - data)) - (wp->boundaryLen - 1);
+            if (nbytes > 0 && writeToFile(wp, content->servp, nbytes) < 0) {
                 return -1;
             }
-            ringqGetBlkAdj(content, dataLen);
+            websConsumeInput(wp, nbytes);
             /* Get more data */
             return 0;
         }
     }
     data = content->servp;
-    dataLen = (bp) ? (bp - data) : ringqLen(content);
+    nbytes = (bp) ? (bp - data) : ringqLen(content);
 
-    if (dataLen > 0) {
-        ringqGetBlkAdj(content, dataLen);
+    if (nbytes > 0) {
+        websConsumeInput(wp, nbytes);
         /*  
             This is the CRLF before the boundary
          */
-        if (dataLen >= 2 && data[dataLen - 2] == '\r' && data[dataLen - 1] == '\n') {
-            dataLen -= 2;
+        if (nbytes >= 2 && data[nbytes - 2] == '\r' && data[nbytes - 1] == '\n') {
+            nbytes -= 2;
         }
         if (wp->clientFilename) {
             /*  
                 Write the last bit of file data and add to the list of files and define environment variables
              */
-            if (writeToFile(wp, data, dataLen) < 0) {
+            if (writeToFile(wp, data, nbytes) < 0) {
                 return -1;
             }
             symEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
@@ -374,7 +373,7 @@ static int processContentData(Webs *wp)
             /*  
                 Normal string form data variables
              */
-            data[dataLen] = '\0'; 
+            data[nbytes] = '\0'; 
             trace(5, "uploadFilter: form[%s] = %s", wp->uploadVar, data);
             websDecodeUrl(wp->uploadVar, wp->uploadVar, -1);
             websDecodeUrl(data, data, -1);

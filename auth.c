@@ -761,7 +761,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 #if BIT_HAS_PAM && BIT_PAM
 bool websVerifyPamUser(Webs *wp)
 {
-    ringq_t             abilities;
+    WebsBuf             abilities;
     pam_handle_t        *pamh;
     UserInfo            info;
     struct pam_conv     conv = { pamChat, &info };

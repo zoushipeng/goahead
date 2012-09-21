@@ -946,9 +946,9 @@ int print(cchar *fmt, ...)
 }
 
 
-value_t valueInteger(long value)
+WebsValue valueInteger(long value)
 {
-    value_t v;
+    WebsValue v;
 
     memset(&v, 0x0, sizeof(v));
     v.valid = 1;
@@ -958,9 +958,9 @@ value_t valueInteger(long value)
 }
 
 
-value_t valueSymbol(void *value)
+WebsValue valueSymbol(void *value)
 {
-    value_t v;
+    WebsValue v;
 
     memset(&v, 0x0, sizeof(v));
     v.valid = 1;
@@ -970,9 +970,9 @@ value_t valueSymbol(void *value)
 }
 
 
-value_t valueString(char* value, int flags)
+WebsValue valueString(char* value, int flags)
 {
-    value_t v;
+    WebsValue v;
 
     memset(&v, 0x0, sizeof(v));
     v.valid = 1;
@@ -988,7 +988,7 @@ value_t valueString(char* value, int flags)
 }
 
 
-void valueFree(value_t* v)
+void valueFree(WebsValue* v)
 {
     if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
         gfree(v->value.string);
@@ -1358,7 +1358,7 @@ int gallocEntry(void ***list, int *max, int size)
     data being added. "maxsize" is an upper limit (sanity level) beyond which the q must not grow. Set maxsize to -1 to
     imply no upper limit. The buffer for the ringq is always *  dynamically allocated. Set maxsize
  */
-int ringqOpen(ringq_t *rq, int initSize, int maxsize)
+int ringqOpen(WebsBuf *rq, int initSize, int maxsize)
 {
     int increment;
 
@@ -1383,7 +1383,7 @@ int ringqOpen(ringq_t *rq, int initSize, int maxsize)
 /*
     Delete a ringq and free the ringq buffer.
  */
-void ringqClose(ringq_t *rq)
+void ringqClose(WebsBuf *rq)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1401,7 +1401,7 @@ void ringqClose(ringq_t *rq)
     Return the length of the data in the ringq. Users must fill the queue to a high water mark of at most one less than
     the queue size.  
  */
-ssize ringqLen(ringq_t *rq)
+ssize ringqLen(WebsBuf *rq)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1417,7 +1417,7 @@ ssize ringqLen(ringq_t *rq)
 /*
     Get a byte from the queue
  */
-int ringqGetc(ringq_t *rq)
+int ringqGetc(WebsBuf *rq)
 {
     char  c;
     char* cp;
@@ -1443,14 +1443,14 @@ int ringqGetc(ringq_t *rq)
     Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the q as
     required.  
  */
-int ringqPutc(ringq_t *rq, char c)
+int ringqPutc(WebsBuf *rq, char c)
 {
     char *cp;
 
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
 
-    if ((ringqPutBlkMax(rq) < (int) sizeof(char)) && !ringqGrow(rq)) {
+    if ((ringqPutBlkMax(rq) < (int) sizeof(char)) && !ringqGrow(rq, 0)) {
         return -1;
     }
 
@@ -1467,14 +1467,14 @@ int ringqPutc(ringq_t *rq, char c)
 /*
     Insert a wide character at the front of the queue
  */
-int ringqInsertc(ringq_t *rq, char c)
+int ringqInsertc(WebsBuf *rq, char c)
 {
     char *cp;
 
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
 
-    if (ringqPutBlkMax(rq) < (int) sizeof(char) && !ringqGrow(rq)) {
+    if (ringqPutBlkMax(rq) < (int) sizeof(char) && !ringqGrow(rq, 0)) {
         return -1;
     }
     if (rq->servp <= rq->buf) {
@@ -1490,7 +1490,7 @@ int ringqInsertc(ringq_t *rq, char c)
 /*
     Add a string to the queue. Add a trailing null (maybe two nulls)
  */
-ssize ringqPutStr(ringq_t *rq, char *str)
+ssize ringqPutStr(WebsBuf *rq, char *str)
 {
     ssize   rc;
 
@@ -1507,7 +1507,7 @@ ssize ringqPutStr(ringq_t *rq, char *str)
 /*
     Add a null terminator. This does NOT increase the size of the queue
  */
-void ringqAddNull(ringq_t *rq)
+void ringqAddNull(WebsBuf *rq)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1521,7 +1521,7 @@ void ringqAddNull(ringq_t *rq)
 /*
     Get a byte from the queue
  */
-int ringqGetcA(ringq_t *rq)
+int ringqGetcA(WebsBuf *rq)
 {
     uchar   c;
 
@@ -1543,7 +1543,7 @@ int ringqGetcA(ringq_t *rq)
 /*
     Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. Grow the q as required.
  */
-int ringqPutcA(ringq_t *rq, char c)
+int ringqPutcA(WebsBuf *rq, char c)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1562,7 +1562,7 @@ int ringqPutcA(ringq_t *rq, char c)
 /*
     Insert a byte at the front of the queue
  */
-int ringqInsertcA(ringq_t *rq, char c)
+int ringqInsertcA(WebsBuf *rq, char c)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1581,7 +1581,7 @@ int ringqInsertcA(ringq_t *rq, char c)
 /*
     Add a string to the queue. Add a trailing null (not really in the q). ie. beyond the last valid byte.
  */
-int ringqPutStrA(ringq_t *rq, char *str)
+int ringqPutStrA(WebsBuf *rq, char *str)
 {
     int     rc;
 
@@ -1599,7 +1599,7 @@ int ringqPutStrA(ringq_t *rq, char *str)
 /*
     Add a block of data to the ringq. Return the number of bytes added. Grow the q as required.
  */
-ssize ringqPutBlk(ringq_t *rq, char *buf, ssize size)
+ssize ringqPutBlk(WebsBuf *rq, char *buf, ssize size)
 {
     ssize   this, bytes_put;
 
@@ -1615,7 +1615,7 @@ ssize ringqPutBlk(ringq_t *rq, char *buf, ssize size)
     while (size > 0) {
         this = min(ringqPutBlkMax(rq), size);
         if (this <= 0) {
-            if (! ringqGrow(rq)) {
+            if (! ringqGrow(rq, 0)) {
                 break;
             }
             this = min(ringqPutBlkMax(rq), size);
@@ -1637,7 +1637,7 @@ ssize ringqPutBlk(ringq_t *rq, char *buf, ssize size)
 /*
     Get a block of data from the ringq. Return the number of bytes returned.
  */
-ssize ringqGetBlk(ringq_t *rq, char *buf, ssize size)
+ssize ringqGetBlk(WebsBuf *rq, char *buf, ssize size)
 {
     ssize   this, bytes_read;
 
@@ -1674,7 +1674,7 @@ ssize ringqGetBlk(ringq_t *rq, char *buf, ssize size)
     Return the maximum number of bytes the ring q can accept via a single block copy. Useful if the user is doing their
     own data insertion.  
  */
-ssize ringqPutBlkMax(ringq_t *rq)
+ssize ringqPutBlkMax(WebsBuf *rq)
 {
     ssize   space, in_a_line;
 
@@ -1692,7 +1692,7 @@ ssize ringqPutBlkMax(ringq_t *rq)
     Return the maximum number of bytes the ring q can provide via a single block copy. Useful if the user is doing their
     own data retrieval.  
  */
-ssize ringqGetBlkMax(ringq_t *rq)
+ssize ringqGetBlkMax(WebsBuf *rq)
 {
     ssize   len, in_a_line;
 
@@ -1709,7 +1709,7 @@ ssize ringqGetBlkMax(ringq_t *rq)
 /*
     Adjust the endp pointer after the user has copied data into the queue.
  */
-void ringqPutBlkAdj(ringq_t *rq, ssize size)
+void ringqPutBlkAdj(WebsBuf *rq, ssize size)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1732,7 +1732,7 @@ void ringqPutBlkAdj(ringq_t *rq, ssize size)
 /*
     Adjust the servp pointer after the user has copied data from the queue.
  */
-void ringqGetBlkAdj(ringq_t *rq, ssize size)
+void ringqGetBlkAdj(WebsBuf *rq, ssize size)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1755,7 +1755,7 @@ void ringqGetBlkAdj(ringq_t *rq, ssize size)
 /*
     Flush all data in a ring q. Reset the pointers.
  */
-void ringqFlush(ringq_t *rq)
+void ringqFlush(WebsBuf *rq)
 {
     gassert(rq);
     gassert(rq->servp);
@@ -1770,7 +1770,7 @@ void ringqFlush(ringq_t *rq)
 }
 
 
-void ringqCompact(ringq_t *rq)
+void ringqCompact(WebsBuf *rq)
 {
     ssize   len;
     
@@ -1790,37 +1790,51 @@ void ringqCompact(ringq_t *rq)
 
 
 /*
+    Reset pointers if empty
+ */
+void ringqReset(WebsBuf *rq)
+{
+    if (rq->buf && rq->servp == rq->endp && rq->servp > rq->buf) {
+        rq->servp = rq->endp = rq->buf;
+        *rq->servp = '\0';
+    }
+}
+
+
+/*
     Grow the buffer. Return true if the buffer can be grown. Grow using the increment size specified when opening the
     ringq. Don't grow beyond the maximum possible size.
  */
-int ringqGrow(ringq_t *rq)
+int ringqGrow(WebsBuf *rq, ssize room)
 {
     char    *newbuf;
     ssize   len;
 
     gassert(rq);
 
-    if (rq->maxsize >= 0 && rq->buflen >= rq->maxsize) {
-        return 0;
+    if (room == 0) {
+        if (rq->maxsize >= 0 && rq->buflen >= rq->maxsize) {
+            return 0;
+        }
+        room = rq->increment;
+        /*
+            Double the increment so the next grow will line up with galloc'ed memory
+         */
+        rq->increment = getBinBlockSize(2 * rq->increment);
     }
     len = ringqLen(rq);
-    if ((newbuf = galloc(rq->buflen + rq->increment)) == NULL) {
+    if ((newbuf = galloc(rq->buflen + room)) == NULL) {
         return 0;
     }
     ringqGetBlk(rq, newbuf, ringqLen(rq));
     gfree((char*) rq->buf);
 
-    rq->buflen += rq->increment;
+    rq->buflen += room;
     rq->endp = newbuf;
     rq->servp = newbuf;
     rq->buf = newbuf;
     rq->endbuf = &rq->buf[rq->buflen];
     ringqPutBlk(rq, newbuf, len);
-
-    /*
-        Double the increment so the next grow will line up with galloc'ed memory
-     */
-    rq->increment = getBinBlockSize(2 * rq->increment);
     return 1;
 }
 
@@ -2002,7 +2016,7 @@ WebsKey *symLookup(WebsHash sd, char *name)
     a copy of "name" here so it can be a volatile variable. The value "v" is just a copy of the passed in value, so it
     MUST be persistent.
  */
-WebsKey *symEnter(WebsHash sd, char *name, value_t v, int arg)
+WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
 {
     SymTab      *tp;
     WebsKey       *sp, *last;

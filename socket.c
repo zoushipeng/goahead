@@ -10,7 +10,7 @@
 
 /************************************ Locals **********************************/
 
-socket_t    **socketList;           /* List of open sockets */
+WebsSocket    **socketList;           /* List of open sockets */
 int         socketMax;              /* Maximum size of socket */
 int         socketHighestFd = -1;   /* Highest socket fd opened */
 int         socketOpenCount = 0;    /* Number of task using sockets */
@@ -18,8 +18,8 @@ int         socketOpenCount = 0;    /* Number of task using sockets */
 /***************************** Forward Declarations ***************************/
 
 static int ipv6(char *ip);
-static void socketAccept(socket_t *sp);
-static void socketDoEvent(socket_t *sp);
+static void socketAccept(WebsSocket *sp);
+static void socketDoEvent(WebsSocket *sp);
 
 /*********************************** Code *************************************/
 
@@ -65,7 +65,7 @@ void socketClose()
 
 int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 {
-    socket_t                *sp;
+    WebsSocket                *sp;
     struct sockaddr_storage addr;
     WebsSockLenArg          addrlen;
     int                     family, protocol, sid, rc;
@@ -116,7 +116,7 @@ int socketListen(char *ip, int port, socketAccept_t accept, int flags)
 #if UNUSED && KEEP
 int socketConnect(char *ip, int port, int flags)
 {
-    socket_t                *sp;
+    WebsSocket                *sp;
     struct sockaddr_storage addr;
     socklen_t               addrlen;
     int                     family, protocol, sid, rc;
@@ -201,7 +201,7 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 
 void socketCloseConnection(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -213,11 +213,11 @@ void socketCloseConnection(int sid)
 /*
     Accept a connection. Called as a callback on incoming connection.
  */
-static void socketAccept(socket_t *sp)
+static void socketAccept(WebsSocket *sp)
 {
     struct sockaddr_storage addrStorage;
     struct sockaddr         *addr;
-    socket_t                *nsp;
+    WebsSocket                *nsp;
     size_t                  len;
     char                    ipbuf[1024];
     int                     port, newSock, nid;
@@ -262,7 +262,7 @@ static void socketAccept(socket_t *sp)
 }
 
 
-void socketRegisterInterest(socket_t *sp, int handlerMask)
+void socketRegisterInterest(WebsSocket *sp, int handlerMask)
 {
     gassert(sp);
     sp->handlerMask = handlerMask;
@@ -272,7 +272,7 @@ void socketRegisterInterest(socket_t *sp, int handlerMask)
 /*
     Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception
  */
-int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
+int socketWaitForEvent(WebsSocket *sp, int handlerMask, int *errCode)
 {
     int mask;
 
@@ -306,7 +306,7 @@ int socketWaitForEvent(socket_t *sp, int handlerMask, int *errCode)
 int socketSelect(int sid, int timeout)
 {
     struct timeval  tv;
-    socket_t        *sp;
+    WebsSocket        *sp;
     fd_set          readFds, writeFds, exceptFds;
     int             nEvents;
     int             all, socketHighestFd;   /* Highest socket fd opened */
@@ -393,7 +393,7 @@ int socketSelect(int sid, int timeout)
 
 int socketSelect(int sid, int timeout)
 {
-    socket_t        *sp;
+    WebsSocket        *sp;
     struct timeval  tv;
     fd_mask         *readFds, *writeFds, *exceptFds;
     int             all, len, nwords, index, bit, nEvents;
@@ -509,7 +509,7 @@ int socketSelect(int sid, int timeout)
 
 void socketProcess()
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     int         sid;
 
     for (sid = 0; sid < socketMax; sid++) {
@@ -522,7 +522,7 @@ void socketProcess()
 }
 
 
-static void socketDoEvent(socket_t *sp)
+static void socketDoEvent(WebsSocket *sp)
 {
     int     sid;
 
@@ -557,7 +557,7 @@ static void socketDoEvent(socket_t *sp)
  */
 int socketSetBlock(int sid, int on)
 {
-    socket_t        *sp;
+    WebsSocket        *sp;
     int             oldBlock;
 
     if ((sp = socketPtr(sid)) == NULL) {
@@ -617,7 +617,7 @@ int socketSetBlock(int sid, int on)
  */
 ssize socketWrite(int sid, void *buf, ssize bufsize)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     ssize       len, written, sofar;
     int         errCode;
 
@@ -674,7 +674,7 @@ ssize socketWriteString(int sid, char *buf)
  */
 ssize socketRead(int sid, void *buf, ssize bufsize)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     ssize       bytes;
     int         errCode;
 
@@ -710,7 +710,7 @@ ssize socketRead(int sid, void *buf, ssize bufsize)
  */
 int socketEof(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -721,7 +721,7 @@ int socketEof(int sid)
 
 void socketReservice(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -736,7 +736,7 @@ void socketReservice(int sid)
  */
 void socketCreateHandler(int sid, int handlerMask, socketHandler_t handler, void* data)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -749,7 +749,7 @@ void socketCreateHandler(int sid, int handlerMask, socketHandler_t handler, void
 
 void socketDeleteHandler(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return;
@@ -764,10 +764,10 @@ void socketDeleteHandler(int sid)
  */
 int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     int         sid;
 
-    if ((sid = gallocEntry((void***) &socketList, &socketMax, sizeof(socket_t))) < 0) {
+    if ((sid = gallocEntry((void***) &socketList, &socketMax, sizeof(WebsSocket))) < 0) {
         return -1;
     }
     sp = socketList[sid];
@@ -789,7 +789,7 @@ int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
  */
 void socketFree(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
     char      buf[256];
     int         i;
 
@@ -830,7 +830,7 @@ void socketFree(int sid)
 /*
     Validate a socket handle
  */
-socket_t *socketPtr(int sid)
+WebsSocket *socketPtr(int sid)
 {
     if (sid < 0 || sid >= socketMax || socketList[sid] == NULL) {
         gassert(NULL);
@@ -873,7 +873,7 @@ int socketGetError()
  */
 int socketGetHandle(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -887,7 +887,7 @@ int socketGetHandle(int sid)
  */
 int socketGetBlock(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         gassert(0);
@@ -899,7 +899,7 @@ int socketGetBlock(int sid)
 
 int socketGetMode(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         gassert(0);
@@ -911,7 +911,7 @@ int socketGetMode(int sid)
 
 void socketSetMode(int sid, int mode)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         gassert(0);
@@ -923,7 +923,7 @@ void socketSetMode(int sid, int mode)
 
 int socketGetPort(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -1212,7 +1212,7 @@ int socketParseAddress(char *address, char **pip, int *pport, int *secure, int d
 
 bool socketIsV6(int sid)
 {
-    socket_t    *sp;
+    WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
         return 0;

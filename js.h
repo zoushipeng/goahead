@@ -117,8 +117,8 @@ typedef struct JsFun {
     Evaluation block structure
  */
 typedef struct JsInput {
-    ringq_t     tokbuf;                         /* Current token */
-    ringq_t     script;                         /* Input script for parsing */
+    WebsBuf     tokbuf;                         /* Current token */
+    WebsBuf     script;                         /* Input script for parsing */
     char      *putBackToken;                  /* Putback token string */
     int         putBackTokenId;                 /* Putback token ID */
     char      *line;                          /* Current line */

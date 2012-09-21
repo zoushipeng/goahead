@@ -59,7 +59,7 @@ void sslClose()
 void sslFree(Webs *wp)
 {
     Ms          *ms;
-    socket_t    *sp;
+    WebsSocket    *sp;
     uchar       *buf;
     int         len;
     

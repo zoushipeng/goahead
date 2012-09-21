@@ -1170,7 +1170,7 @@ extern void trace(int lev, char *fmt, ...);
 #define HTTP_CODE_START_LOCAL_ERRORS        550
 #define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
 
-/************************************* Value **********************************/
+/************************************* WebsValue ******************************/
 /*
     These values are not prefixed so as to aid code readability
  */
@@ -1204,15 +1204,15 @@ typedef struct {
 #if BIT_FLOAT
         double  floating;
 #endif
-        char  *string;
+        char    *string;
         char    *bytes;
-        char  *errmsg;
+        char    *errmsg;
         void    *symbol;
     } value;
     vtype_t     type;
     uint        valid       : 8;
     uint        allocated   : 8;        /* String was allocated */
-} value_t;
+} WebsValue;
 
 #define value_numeric(t)    (t >= byteint && t <= big)
 #define value_str(t)        (t >= string && t <= bytes)
@@ -1222,15 +1222,15 @@ typedef struct {
 #define VALUE_VALID         { {0}, integer, 1 }
 #define VALUE_INVALID       { {0}, undefined, 0 }
 
-extern value_t valueInteger(long value);
-extern value_t valueString(char *value, int flags);
-extern value_t valueSymbol(void *value);
-extern value_t valueErrmsg(char *value);
-extern void valueFree(value_t *v);
+extern WebsValue valueInteger(long value);
+extern WebsValue valueString(char *value, int flags);
+extern WebsValue valueSymbol(void *value);
+extern WebsValue valueErrmsg(char *value);
+extern void valueFree(WebsValue *v);
 
 /************************************* Ringq **********************************/
 /*
-    A ring queue allows maximum utilization of memory for data storage and is
+    A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is
     ideal for input/output buffering. This module provides a highly effecient
     implementation and a vehicle for dynamic strings.
   
@@ -1239,30 +1239,30 @@ extern void valueFree(value_t *v);
   
     This module follows the open/close model.
   
-    Operation of a ringq where rq is a pointer to a ringq :
+    Operation of a WebsBuf where bp is a pointer to a WebsBuf :
   
-        rq->buflen contains the size of the buffer.
-        rq->buf will point to the start of the buffer.
-        rq->servp will point to the first (un-consumed) data byte.
-        rq->endp will point to the next free location to which new data is added
-        rq->endbuf will point to one past the end of the buffer.
+        bp->buflen contains the size of the buffer.
+        bp->buf will point to the start of the buffer.
+        bp->servp will point to the first (un-consumed) data byte.
+        bp->endp will point to the next free location to which new data is added
+        bp->endbuf will point to one past the end of the buffer.
   
-    Eg. If the ringq contains the data "abcdef", it might look like :
+    Eg. If the WebsBuf contains the data "abcdef", it might look like :
   
     +-------------------------------------------------------------------+
     |   |   |   |   |   |   |   | a | b | c | d | e | f |   |   |   |   |
     +-------------------------------------------------------------------+
       ^                           ^                       ^               ^
       |                           |                       |               |
-    rq->buf                    rq->servp               rq->endp      rq->enduf
+    bp->buf                    bp->servp               bp->endp      bp->enduf
        
     The queue is empty when servp == endp.  This means that the queue will hold
-    at most rq->buflen -1 bytes.  It is the fillers responsibility to ensure
-    the ringq is never filled such that servp == endp.
+    at most bp->buflen -1 bytes.  It is the fillers responsibility to ensure
+    the WebsBuf is never filled such that servp == endp.
   
     It is the fillers responsibility to "wrap" the endp back to point to
-    rq->buf when the pointer steps past the end. Correspondingly it is the
-    consumers responsibility to "wrap" the servp when it steps to rq->endbuf.
+    bp->buf when the pointer steps past the end. Correspondingly it is the
+    consumers responsibility to "wrap" the servp when it steps to bp->endbuf.
     The ringqPutc and ringqGetc routines will do this automatically.
  */
 
@@ -1274,38 +1274,45 @@ typedef struct {
     ssize   buflen;             /* Length of ring queue */
     ssize   maxsize;            /* Maximum size */
     int     increment;          /* Growth increment */
-} ringq_t;
+} WebsBuf;
 
-extern int ringqOpen(ringq_t *rq, int increment, int maxsize);
-extern void ringqClose(ringq_t *rq);
-extern ssize ringqLen(ringq_t *rq);
-extern int ringqPutc(ringq_t *rq, char c);
-extern int ringqInsertc(ringq_t *rq, char c);
-extern ssize ringqPutStr(ringq_t *rq, char *str);
-extern int ringqGetc(ringq_t *rq);
-extern int ringqGrow(ringq_t *rq);
+extern int ringqOpen(WebsBuf *bp, int increment, int maxsize);
+extern void ringqClose(WebsBuf *bp);
+extern ssize ringqLen(WebsBuf *bp);
+extern int ringqPutc(WebsBuf *bp, char c);
+extern int ringqInsertc(WebsBuf *bp, char c);
+extern ssize ringqPutStr(WebsBuf *bp, char *str);
+extern int ringqGetc(WebsBuf *bp);
+extern int ringqGrow(WebsBuf *bp, ssize room);
 
+#if UNUSED
 #if UNICODE || DOXYGEN
-    extern int ringqPutcA(ringq_t *rq, char c);
-    extern int ringqInsertcA(ringq_t *rq, char c);
-    extern int ringqPutStrA(ringq_t *rq, char *str);
-    extern int ringqGetcA(ringq_t *rq);
+    extern int ringqPutcA(WebsBuf *bp, char c);
+    extern int ringqInsertcA(WebsBuf *bp, char c);
+    extern int ringqPutStrA(WebsBuf *bp, char *str);
+    extern int ringqGetcA(WebsBuf *bp);
 #else
     #define ringqPutcA ringqPutc
     #define ringqInsertcA ringqInsertc
     #define ringqPutStrA ringqPutStr
     #define ringqGetcA ringqGetc
 #endif /* UNICODE */
+#endif
 
-extern ssize ringqPutBlk(ringq_t *rq, char *buf, ssize len);
-extern ssize ringqPutBlkMax(ringq_t *rq);
-extern void ringqPutBlkAdj(ringq_t *rq, ssize size);
-extern ssize ringqGetBlk(ringq_t *rq, char *buf, ssize len);
-extern ssize ringqGetBlkMax(ringq_t *rq);
-extern void ringqGetBlkAdj(ringq_t *rq, ssize size);
-extern void ringqFlush(ringq_t *rq);
-extern void ringqCompact(ringq_t *rq);
-extern void ringqAddNull(ringq_t *rq);
+extern ssize ringqPutBlk(WebsBuf *bp, char *buf, ssize len);
+extern ssize ringqPutBlkMax(WebsBuf *bp);
+//  MOB rename ringqAdjustBufEnd
+extern void ringqPutBlkAdj(WebsBuf *bp, ssize size);
+extern ssize ringqGetBlk(WebsBuf *bp, char *buf, ssize len);
+extern ssize ringqGetBlkMax(WebsBuf *bp);
+
+//  MOB rename ringqAdjustBufStart
+
+extern void ringqGetBlkAdj(WebsBuf *bp, ssize size);
+extern void ringqFlush(WebsBuf *bp);
+extern void ringqCompact(WebsBuf *bp);
+extern void ringqReset(WebsBuf *bp);
+extern void ringqAddNull(WebsBuf *bp);
 
 /******************************* Malloc Replacement ***************************/
 /*
@@ -1351,12 +1358,14 @@ extern int  gopenAlloc(void *buf, int bufsize, int flags);
     #define gstrdup(s) gstrdupNoAlloc(s)
 
 #else /* BIT_REPLACE_MALLOC */
+#if UNUSED
     #if UNICODE
         extern char *gstrdupA(char *s);
         #define gstrdupA(p) gstrdupA(p)
     #else
         #define gstrdupA gstrdup
     #endif
+#endif
     extern void *galloc(ssize size);
     extern void gfree(void *mp);
     extern void *grealloc(void *buf, ssize newsize);
@@ -1380,8 +1389,8 @@ extern char  *awtom(wchar *src, ssize *len);
  */
 typedef struct WebsKey {
     struct WebsKey  *forw;                  /* Pointer to next hash list */
-    value_t         name;                   /* Name of symbol */
-    value_t         content;                /* Value of symbol */
+    WebsValue       name;                   /* Name of symbol */
+    WebsValue       content;                /* Value of symbol */
     int             arg;                    /* Parameter value */
     int             bucket;                 /* Bucket index */
 } WebsKey;
@@ -1391,7 +1400,7 @@ typedef int WebsHash;                       /* Returned by symOpen */
 extern WebsHash symOpen(int hash_size);
 extern void     symClose(WebsHash sd);
 extern WebsKey  *symLookup(WebsHash sd, char *name);
-extern WebsKey  *symEnter(WebsHash sd, char *name, value_t v, int arg);
+extern WebsKey  *symEnter(WebsHash sd, char *name, WebsValue v, int arg);
 extern int      symDelete(WebsHash sd, char *name);
 extern void     symWalk(WebsHash sd, void (*fn)(WebsKey *symp));
 extern WebsKey  *symFirst(WebsHash sd);
@@ -1434,8 +1443,8 @@ extern WebsKey  *symNext(WebsHash sd, WebsKey *last);
 typedef void    (*socketHandler_t)(int sid, int mask, void* data);
 typedef int     (*socketAccept_t)(int sid, char *ipaddr, int port, int listenSid);
 
-typedef struct {
-    ringq_t         lineBuf;                /* Line ring queue */
+typedef struct WebsSocket {
+    WebsBuf         lineBuf;                /* Line ring queue */
     socketAccept_t  accept;                 /* Accept handler */
     socketHandler_t handler;                /* User I/O handler */
     char            *ip;                    /* Server listen address or remote client address */
@@ -1452,9 +1461,9 @@ typedef struct {
     int             saveMask;               /* saved Mask for socketFlush */
     int             error;                  /* Last error */
     int             secure;                 /* Socket is using SSL */
-} socket_t;
+} WebsSocket;
 
-extern socket_t     **socketList;           /* List of open sockets */
+extern WebsSocket **socketList;             /* List of open sockets */
 
 extern int      socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port);
 extern bool     socketAddressIsV6(char *ip);
@@ -1483,9 +1492,9 @@ extern int      socketGetBlock(int sid);
 extern int      socketAlloc(char *host, int port, socketAccept_t accept, int flags);
 extern void     socketFree(int sid);
 extern int      socketGetError();
-extern socket_t *socketPtr(int sid);
-extern int      socketWaitForEvent(socket_t *sp, int events, int *errCode);
-extern void     socketRegisterInterest(socket_t *sp, int handlerMask);
+extern WebsSocket *socketPtr(int sid);
+extern int      socketWaitForEvent(WebsSocket *sp, int events, int *errCode);
+extern void     socketRegisterInterest(WebsSocket *sp, int handlerMask);
 extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 
 /*********************************** Runtime **********************************/
@@ -1504,7 +1513,7 @@ extern char *sfmt(char *format, ...);
 extern char *sfmtv(char *format, va_list arg);
 extern char *fmt(char *s, ssize n, char *format, ...);
 
-//  MOB
+//  MOB rename ahtoi
 extern uint ghextoi(char *hexstring);
 
 extern char *sclone(char *s);
@@ -1575,7 +1584,9 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_HTTP11             0x10        /* Request is using HTTP/1.1 */
 #define WEBS_KEEP_ALIVE         0x20        /* HTTP/1.1 keep alive */
 #define WEBS_RESPONSE_TRACED    0x40        /* Started tracing the response */
+#if UNUSED
 #define WEBS_RX_CHUNKED         0x80        /* Rx Body is using transfer chunking */
+#endif
 #define WEBS_SECURE             0x100       /* Connection uses SSL */
 #define WEBS_UPLOAD             0x200       /* Multipart-mime file upload */
 
@@ -1586,7 +1597,6 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_CHUNK_START      1             /**< Start of a new chunk */
 #define WEBS_CHUNK_HEADER     2             /**< Preparing tx chunk header */
 #define WEBS_CHUNK_DATA       3             /**< Start of chunk data */
-#define WEBS_CHUNK_EOF        4             /**< End of last chunk */
 
 /*
     URL handler flags
@@ -1626,46 +1636,55 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
  */
 typedef struct Webs {
     //  MOB - sort members
-    ringq_t         input;              /* Request input buffer */
-    ringq_t         output;             /* Output buffer */
+    WebsBuf         input;              /* Request input buffer */
+    WebsBuf         output;             /* Output buffer */
     time_t          since;              /* Parsed if-modified-since time */
     WebsHash        vars;               /* CGI standard variables */
     time_t          timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
-    char          ipaddr[64];         /* Connecting ipaddress */
-    char          ifaddr[64];         /* Local interface ipaddress */
+    char            ipaddr[64];         /* Connecting ipaddress */
+    char            ifaddr[64];         /* Local interface ipaddress */
 
+    //  MOB - simplify names?
     char            txChunkPrefix[16];
     char            *txChunkPrefixNext;
     ssize           txChunkPrefixLen;
     ssize           txChunkLen;
     int             txChunkState;
 
+    int             rxChunkState;       /* Rx chunk encoding state */
+    int             rxFiltered;
+#if UNUSED
+    char            *rxChunkServp;      /* Pointer into input.buf for the next chunk data */
+#endif
+    ssize           lastRead;           /* Number of bytes last read from the socket */
+    bool            eof;                /* If at the end of the request content */
+
     //  MOB OPT - which of these should be allocated strings and which should be static
 
-    char          *authDetails;       /* Http header auth details */
-    char          *authResponse;      /* Outgoing auth header */
-    char          *authType;          /* Authorization type (Basic/DAA) */
-    char          *contentType;       /* Body content type */
-    char          *cookie;            /* Request cookie string */
-    char          *decodedQuery;      /* Decoded request query */
-    char          *digest;            /* Password digest */
-    char          *dir;               /* Directory containing the page */
-    char          *ext;               /* Path extension */
-    char          *filename;          /* Document path name */
-    char          *host;              /* Requested host */
-    char          *inputFile;         /* File name to write input body data */
-    char          *method;            /* HTTP request method */
-    char          *password;          /* Authorization password */
-    char          *path;              /* Path name without query */
-    char          *protoVersion;      /* Protocol version */
-    char          *protocol;          /* Protocol (normally HTTP) */
-    char          *query;             /* Request query */
-    char          *realm;             /* Realm field supplied in auth header */
-    char          *responseCookie;    /* Outgoing cookie */
-    char          *url;               /* Full request url */
-    char          *userAgent;         /* User agent (browser) */
-    char          *username;          /* Authorization username */
+    char            *authDetails;       /* Http header auth details */
+    char            *authResponse;      /* Outgoing auth header */
+    char            *authType;          /* Authorization type (Basic/DAA) */
+    char            *contentType;       /* Body content type */
+    char            *cookie;            /* Request cookie string */
+    char            *decodedQuery;      /* Decoded request query */
+    char            *digest;            /* Password digest */
+    char            *dir;               /* Directory containing the page */
+    char            *ext;               /* Path extension */
+    char            *filename;          /* Document path name */
+    char            *host;              /* Requested host */
+    char            *inputFile;         /* File name to write input body data */
+    char            *method;            /* HTTP request method */
+    char            *password;          /* Authorization password */
+    char            *path;              /* Path name without query */
+    char            *protoVersion;      /* Protocol version */
+    char            *protocol;          /* Protocol (normally HTTP) */
+    char            *query;             /* Request query */
+    char            *realm;             /* Realm field supplied in auth header */
+    char            *responseCookie;    /* Outgoing cookie */
+    char            *url;               /* Full request url */
+    char            *userAgent;         /* User agent (browser) */
+    char            *username;          /* Authorization username */
 
     int             sid;                /* Socket id (handler) */
     int             listenSid;          /* Listen Socket id */
@@ -1673,15 +1692,13 @@ typedef struct Webs {
     int             state;              /* Current state */
     int             flags;              /* Current flags -- see above */
     int             code;               /* Response status code */
-    ssize           rxBuffered;         /* Content buffered in input */
-    int             rxChunkState;       /* Rx chunk encoding state */
     ssize           rxConsumed;         /* Content consumed from input buffer */
     ssize           rxLen;              /* Rx content length */
-    ssize           rxRemaining;        /* Remaining content to read */
-    ssize           txLen;              /* Tx content length */
+    ssize           rxRemaining;        /* Remaining content to read from client */
+    ssize           txLen;              /* Tx content length header value */
     int             wid;                /* Index into webs */
 #if BIT_CGI
-    char          *cgiStdin;          /* Filename for CGI program input */
+    char            *cgiStdin;          /* Filename for CGI program input */
     int             cgifd;              /* File handle for CGI program input */
 #endif
     int             putfd;              /* File handle to write PUT data */
@@ -1695,12 +1712,12 @@ typedef struct Webs {
     struct WebsUser *user;              /* User auth record */
     int             encoded;            /* True if the password is MD5(username:realm:password) */
 #if BIT_DIGEST
-    char          *cnonce;            /* check nonce */
-    char          *digestUri;         /* URI found in digest header */
-    char          *nonce;             /* opaque-to-client string sent by server */
-    char          *nc;                /* nonce count */
-    char          *opaque;            /* opaque value passed from server */
-    char          *qop;               /* quality operator */
+    char            *cnonce;            /* check nonce */
+    char            *digestUri;         /* URI found in digest header */
+    char            *nonce;             /* opaque-to-client string sent by server */
+    char            *nc;                /* nonce count */
+    char            *opaque;            /* opaque value passed from server */
+    char            *qop;               /* quality operator */
 #endif
 #if BIT_UPLOAD
     int             upfd;               /* Upload file handle */
@@ -1730,8 +1747,8 @@ typedef int (*WebsProc)(Webs *wp, char *path, char *query);
  */ 
 typedef struct WebsHandler {
     WebsHandlerProc handler;
-    char          *dir;                   /**< Web directory if required */
-    char          *prefix;                /**< URL leading prefix */
+    char            *dir;                   /**< Web directory if required */
+    char            *prefix;                /**< URL leading prefix */
     ssize           len;                    /**< Length of prefix for speed */
     int             arg;                    /**< Argument to provide to handler */
     int             flags;                  /**< Flags */
@@ -1742,15 +1759,15 @@ typedef struct WebsHandler {
  */
 typedef struct WebsError {
     int     code;                           /* HTTP error code */
-    char  *msg;                           /* HTTP error message */
+    char    *msg;                           /* HTTP error message */
 } WebsError;
 
 /* 
     Mime type list
  */
 typedef struct WebsMime {
-    char  *type;                          /* Mime type */
-    char  *ext;                           /* File extension */
+    char    *type;                          /* Mime type */
+    char    *ext;                           /* File extension */
 } WebsMime;
 
 /*
@@ -1766,7 +1783,7 @@ typedef struct WebsFileInfo {
     Compiled Rom Page Index
  */
 typedef struct WebsRomIndex {
-    char          *path;                  /* Web page URL path */
+    char            *path;                  /* Web page URL path */
     uchar           *page;                  /* Web page data */
     int             size;                   /* Size of web page in bytes */
     WebsFilePos     pos;                    /* Current read position */
@@ -1784,6 +1801,7 @@ typedef struct WebsRomIndex {
  */
 #define WEBS_DECODE_TOKEQ 1
 
+//  MOB sort
 extern int websAccept(int sid, char *ipaddr, int port, int listenSid);
 extern int websAlloc(int sid);
 extern char *websCalcNonce(Webs *wp);
@@ -1904,6 +1922,8 @@ extern void websFreeUpload(Webs *wp);
 extern int websProcessCgiData(Webs *wp);
 #endif
 extern int websProcessPutData(Webs *wp);
+extern void websConsumeInput(Webs *wp, ssize nbytes);
+
 
 #if BIT_JAVASCRIPT
 extern void websJsClose();
@@ -1941,9 +1961,9 @@ typedef struct WebsRoute {
     WebsParseAuth  parseAuth;              /* Basic or Digest */
     WebsVerify     verify;                 /* Pam or internal */
     WebsHash       abilities;
-    char         *loginPage;
-    char         *loggedInPage;
-    char         *authType;
+    char           *loginPage;
+    char           *loggedInPage;
+    char           *authType;
     int            flags;
 } WebsRoute;
 
@@ -1958,10 +1978,10 @@ extern bool websRouteRequest(Webs *wp);
 #define WEBS_USIZE          128              /* Size of realm:username */
 
 typedef struct WebsUser {
-    char  *name;
-    char  *password;
-    char  *roles;
-    WebsHash  abilities;
+    char    *name;
+    char    *password;
+    char    *roles;
+    WebsHash abilities;
 } WebsUser;
 
 typedef struct WebsRole {
@@ -2124,6 +2144,7 @@ extern char *websGetSessionID(Webs *wp);
     typedef Webs *webs_t;
     typedef Webs WebsRec;
     typedef Webs websType;
+    typedef WebsBuf WebsBuf;
     typedef WebsError websErrorType;
     typedef WebsFileInfo websStatType;
     typedef WebsProc WebsFormProc;
@@ -2131,7 +2152,9 @@ extern char *websGetSessionID(Webs *wp);
     typedef WebsHash sym_fd_t;
     typedef WebsKey sym_t;
     typedef WebsMime websMimeType;
+    typedef WebsSocket socket_t;
     typedef WebsStat gstat_t;
+    typedef WebsValue value_t;
 
     extern void websFooter(Webs *wp);
     extern void websHeader(Webs *wp);

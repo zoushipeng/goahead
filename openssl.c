@@ -133,7 +133,7 @@ void sslClose()
 
 int sslUpgrade(Webs *wp)
 {
-    socket_t        *sptr;
+    WebsSocket        *sptr;
 
     gassert(wp);
 
@@ -166,7 +166,7 @@ void sslFree(Webs *wp)
 
 ssize sslRead(Webs *wp, void *buf, ssize len)
 {
-    socket_t        *sp;
+    WebsSocket        *sp;
     char            ebuf[BIT_LIMIT_STRING];
     ulong           serror;
     int             rc, error, retries, i;

@@ -203,8 +203,7 @@ int websProcessCgiData(Webs *wp)
         websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
         return -1;
     }
-    ringqGetBlkAdj(&wp->input, nbytes);
-    wp->rxConsumed += nbytes;
+    websConsumeInput(wp, nbytes);
     return 0;
 }
 

@@ -138,7 +138,7 @@ Bit.load({
         traceMethod: false,
 
         /*
-            Upload configuration
+            Upload file support
          */
         upload: true,
         uploadDir: "/tmp",
