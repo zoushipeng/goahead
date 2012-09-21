@@ -23,7 +23,7 @@
 #
 #	Useful definitions:
 #
-#	export DFLAGS += -DBIT_PAM=1		# To enable PAUM authorization
+#	export DFLAGS += -DBIT_PAM=1		# To enable PAM authorization
 #	export DFLAGS += -DBIT_DIGEST=0		# To disable digest authorization
 #	export DFLAGS += -DBIT_AUTH=0		# To disable authorization
 #	export DFLAGS += -DBIT_SESSIONS=0	# To disable session state management
