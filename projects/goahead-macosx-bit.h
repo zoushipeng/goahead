@@ -162,6 +162,9 @@
 #ifndef BIT_TRACE
     #define BIT_TRACE "stdout:2"
 #endif
+#ifndef BIT_TRACE_METHOD
+    #define BIT_TRACE_METHOD 0
+#endif
 #ifndef BIT_UPLOAD
     #define BIT_UPLOAD 1
 #endif

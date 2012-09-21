@@ -9,28 +9,25 @@ let http: Http = new Http
 http.connect("GeT", HTTP + "/index.html")
 assert(http.status == 200)
 
-    //  Put a file
-    data = Path("test.dat").readString()
-    http.put(HTTP + "/tmp/test.dat", data)
-    assert(http.status == 201 || http.status == 204)
+//  Put a file
+data = Path("test.dat").readString()
+http.put(HTTP + "/tmp/test.dat", data)
+assert(http.status == 201 || http.status == 204)
 
-    //  Delete
-    http.connect("DELETE", HTTP + "/tmp/test.dat")
-    if (http.status != 204) {
-        print("STATUS IS " + http.status)
-    }
-    assert(http.status == 204)
+//  Delete
+http.connect("DELETE", HTTP + "/tmp/test.dat")
+if (http.status != 204) {
+    print("STATUS IS " + http.status)
+}
+assert(http.status == 204)
 
-/* MOB NOT YET SUPPORTED
-    //  Options
-    http.connect("OPTIONS", HTTP + "/index.html")
-    assert(http.header("Allow") == "OPTIONS,GET,HEAD,POST,PUT,DELETE")
+//  Options
+http.connect("OPTIONS", HTTP + "/index.html")
+assert(http.header("Allow") == "DELETE,GET,HEAD,OPTIONS,POST,PUT")
 
-    //  Trace - should be disabled
-    http.connect("TRACE", HTTP + "/index.html")
-    assert(http.status == 406)
-
-*/
+//  Trace - should be disabled
+http.connect("TRACE", HTTP + "/index.html")
+assert(http.status == 406)
 
 //  Post
 http.post(HTTP + "/index.html", "Some data")

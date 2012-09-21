@@ -244,7 +244,7 @@ int websOpen(char *documents, char *authPath)
         return -1;
     }
     if (!websDebug) {
-        pruneId = gschedCallback(WEBS_SESSION_PRUNE, (WebsCallback*) pruneCache, 0);
+        pruneId = websStartEvent(WEBS_SESSION_PRUNE, (WebsEventProc) pruneCache, 0);
     }
     if (documents) {
         websSetDocuments(documents);
@@ -301,7 +301,7 @@ void websClose()
     websCloseRoute();
     websCloseAuth();
     if (pruneId >= 0) {
-        gunschedCallback(pruneId);
+        websStopEvent(pruneId);
         pruneId = -1;
     }
     if (sessions >= 0) {
@@ -523,7 +523,7 @@ void websDone(Webs *wp, int code)
         websTimeoutCancel(wp);
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+        wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void *) wp);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -630,6 +630,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
     socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
 
+#if UNUSED
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
         operations only for local access 
@@ -638,6 +639,8 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
             strcmp(wp->ipaddr, websHost) == 0) {
         wp->flags |= WEBS_LOCAL;
     }
+#endif
+
     /*
         Arrange for socketEvent to be called when read data is available
      */
@@ -658,7 +661,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = gschedCallback(WEBS_TIMEOUT, websTimeout, (void *) wp);
+    wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void *) wp);
     trace(5, "accept connection\n");
     return 0;
 }
@@ -807,9 +810,11 @@ bool parseIncoming(Webs *wp)
     wp->state = wp->rxLen > 0 ? WEBS_CONTENT : WEBS_RUNNING;
 
 #if BIT_CGI
-    if (strstr(wp->path, BIT_CGI_BIN) != NULL) {
+    if (strstr(wp->path, BIT_CGI_BIN) != 0) {
+#if UNUSED
         wp->flags |= WEBS_CGI;
-        if (wp->flags & WEBS_POST) {
+#endif
+        if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
                 websError(wp, 400 | WEBS_CLOSE, "Can't open CGI file");
@@ -818,7 +823,7 @@ bool parseIncoming(Webs *wp)
         }
     }
 #endif
-    if (wp->flags & WEBS_PUT) {
+    if (smatch(wp->method, "PUT")) {
         WebsStat sbuf;
         int mode, exists;
         exists = stat(wp->filename, &sbuf) == 0;
@@ -853,34 +858,6 @@ static bool parseFirstLine(Webs *wp)
     op = getToken(wp, 0);
     if (op == NULL || *op == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 0;
-    }
-    switch (op[0]) {
-    case 'D':
-        if (strcmp(op, "DELETE") == 0) {
-            wp->flags |= WEBS_DELETE;
-        }
-        break;
-    case 'G':
-        if (strcmp(op, "GET") == 0) {
-            wp->flags |= WEBS_GET;
-        }
-        break;
-    case 'H':
-        if (strcmp(op, "HEAD") == 0) {
-            wp->flags |= WEBS_HEAD;
-        }
-        break;
-    case 'P':
-        if (strcmp(op, "POST") == 0) {
-            wp->flags |= WEBS_POST;
-        } else if (strcmp(op, "PUT") == 0) {
-            wp->flags |= WEBS_PUT;
-        }
-        break;
-
-    default:
-        websError(wp, 400 | WEBS_CLOSE, "Bad request type");
         return 0;
     }
     wp->method = supper(strdup(op));
@@ -1035,12 +1012,10 @@ static bool parseHeaders(Webs *wp)
         } else if (strcmp(key, "content-type") == 0) {
             wp->contentType = strdup(value);
             websSetVar(wp, "CONTENT_TYPE", value);
-            if (wp->flags & (WEBS_POST| WEBS_PUT)) {
-                if (strstr(value, "application/x-www-form-urlencoded")) {
-                    wp->flags |= WEBS_FORM;
-                } else if (strstr(value, "multipart/form-data")) {
-                    wp->flags |= WEBS_UPLOAD;
-                }
+            if (strstr(value, "application/x-www-form-urlencoded")) {
+                wp->flags |= WEBS_FORM;
+            } else if (strstr(value, "multipart/form-data")) {
+                wp->flags |= WEBS_UPLOAD;
             }
 
         } else if (strcmp(key, "cookie") == 0) {
@@ -1056,9 +1031,7 @@ static bool parseHeaders(Webs *wp)
             }
             cmd = sfmt("%s", value);
 
-            if ((wp->since = dateParse(tip, cmd)) != 0) {
-                wp->flags |= WEBS_IF_MODIFIED;
-            }
+            wp->since = dateParse(tip, cmd);
             gfree(cmd);
 
         } else if (strcmp(key, "transfer-encoding") == 0) {
@@ -1119,7 +1092,7 @@ void websServiceEvents(int *finished)
             socketProcess();
         }
         websCgiCleanup();
-        grunCallbacks();
+        websRunEvents();
     }
 }
 
@@ -1289,7 +1262,7 @@ void websTimeoutCancel(Webs *wp)
     gassert(websValid(wp));
 
     if (wp->timeout >= 0) {
-        gunschedCallback(wp->timeout);
+        websStopEvent(wp->timeout);
         wp->timeout = -1;
     }
 }
@@ -1304,7 +1277,7 @@ void websResponse(Webs *wp, int code, char *message, char *redirect)
     
     gassert(websValid(wp));
 
-    if ((wp->flags & WEBS_HEAD) == 0 && message && *message) {
+    if (smatch(wp->method, "HEAD") && message && *message) {
         len = slen(message);
         websWriteHeaders(wp, code, len + 2, redirect);
         websWriteEndHeaders(wp);
@@ -1565,11 +1538,10 @@ void websWriteHeaders(Webs *wp, int code, ssize length, char *redirect)
         if (wp->authResponse) {
             websWriteHeader(wp, "WWW-Authenticate: %s\r\n", wp->authResponse);
         }
-        if (wp->flags & WEBS_HEAD) {
-            //  MOB use %Ld. Search for (int) everywhere
-            websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
+        if (smatch(wp->method, "HEAD")) {
+            websWriteHeader(wp, "Content-Length: %Ld\r\n", length);                                           
         } else if (length >= 0) {                                                                                    
-            websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
+            websWriteHeader(wp, "Content-Length: %Ld\r\n", length);                                           
             wp->numbytes = bytes;
         }
         wp->txLen = length;
@@ -1893,26 +1865,23 @@ static void logRequest(Webs *wp, int code)
     timeStr[sizeof(timeStr) - 1] = '\0';
 #if WINDOWS
     dwRet = GetTimeZoneInformation(&tzi);
-    fmt(zoneStr, sizeof(zoneStr), "%+03d00", -(int)(tzi.Bias/60));
+    fmt(zoneStr, sizeof(zoneStr), "%+03d00", -(int) (tzi.Bias/60));
 #elif !VXWORKS
-    fmt(zoneStr, sizeof(zoneStr), "%+03d00", (int)(localt.tm_gmtoff/3600));
+    fmt(zoneStr, sizeof(zoneStr), "%+03d00", (int) (localt.tm_gmtoff/3600));
 #else
     zoneStr[0] = '\0';
 #endif
     zoneStr[sizeof(zoneStr) - 1] = '\0';
     if (wp->written != 0) {
-        fmt(dataStr, sizeof(dataStr), "%d", (int) wp->written);
+        fmt(dataStr, sizeof(dataStr), "%Ld", wp->written);
         dataStr[sizeof(dataStr) - 1] = '\0';
     } else {
         dataStr[0] = '-'; dataStr[1] = '\0';
     }
     buf = NULL;
     buf = sfmt("%s - %s [%s %s] \"%s %s %s\" %d %s\n", 
-        wp->ipaddr,
-        wp->username == NULL ? "-" : wp->username,
-        timeStr, zoneStr,
-        wp->flags & WEBS_POST? "POST" : (wp->flags & WEBS_HEAD? "HEAD" : "GET"), wp->path,
-        wp->protoVersion, code, dataStr);
+        wp->ipaddr, wp->username == NULL ? "-" : wp->username,
+        timeStr, zoneStr, wp->method, wp->path, wp->protoVersion, code, dataStr);
     len = strlen(buf);
     abuf = gallocUniToAsc(buf, len+1);
     write(accessFd, abuf, len);
@@ -1936,16 +1905,14 @@ void websTimeout(void *arg, int id)
 
     tm = getTimeSinceMark(wp) * 1000;
     if (websDebug) {
-        greschedCallback(id, (int) WEBS_TIMEOUT);
+        websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
     } else if (tm >= WEBS_TIMEOUT) {
-        gunschedCallback(id);
-        wp->timeout = -1;
-        websDone(wp, 404);
+        websDone(wp, 404 | WEBS_CLOSE);
     } else {
         delay = WEBS_TIMEOUT - tm;
         gassert(delay > 0);
-        greschedCallback(id, (int) delay);
+        websRestartEvent(id, (int) delay);
     }
 }
 
@@ -3359,7 +3326,7 @@ static void pruneCache()
             freeSession(sp);
         }
     }
-    greschedCallback(pruneId, WEBS_SESSION_PRUNE);
+    websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
 }
 
 /*

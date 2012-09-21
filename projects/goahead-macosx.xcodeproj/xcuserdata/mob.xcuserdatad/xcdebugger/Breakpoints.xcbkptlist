@@ -285,7 +285,7 @@
          endingColumnNumber = "9223372036854775807"
          startingLineNumber = "1914"
          endingLineNumber = "1914"
-         landmarkName = "logRequest()"
+         landmarkName = "websTimeout()"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -312,6 +312,32 @@
          startingLineNumber = "192"
          endingLineNumber = "192"
          landmarkName = "websJsRequest()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../handler.c"
+         timestampString = "369937706.971078"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "259"
+         endingLineNumber = "259"
+         landmarkName = "optionsTrace()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../handler.c"
+         timestampString = "369937785.199636"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "268"
+         endingLineNumber = "268"
+         landmarkName = "optionsTrace()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

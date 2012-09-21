@@ -33,14 +33,14 @@ int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
     //  MOB - need some route protection for this. What about abilities "delete"
 
 #if !BIT_ROM
-    if (wp->flags & WEBS_DELETE) {
+    if (smatch(wp->method, "DELETE")) {
         if (unlink(wp->filename) < 0) {
             websError(wp, 404, "Can't delete the URI");
         } else {
             /* No content */
             websResponse(wp, 204, 0, 0);
         }
-    } else if (wp->flags & WEBS_PUT) {
+    } else if (smatch(wp->method, "PUT")) {
         /* Code is already set for us by processContent() */
         websResponse(wp, wp->code, 0, 0);
 
@@ -74,11 +74,9 @@ int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
             return 1;
         }
         code = 200;
-#if BIT_IF_MODIFIED
-        if (wp->flags & WEBS_IF_MODIFIED && info.mtime <= wp->since) {
+        if (info.mtime <= wp->since) {
             code = 304;
         }
-#endif
         websWriteHeaders(wp, code, info.size, 0);
         if ((date = websGetDateString(&info)) != NULL) {
             websWriteHeader(wp, "Last-modified: %s\r\n", date);
@@ -89,7 +87,7 @@ int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
         /*
             All done if the browser did a HEAD request
          */
-        if (wp->flags & WEBS_HEAD) {
+        if (smatch(wp->method, "HEAD")) {
             websDone(wp, 200);
             return 1;
         }

@@ -17,10 +17,75 @@ static int          websUrlHandlerMax;          /* Number of entries */
 
 /**************************** Forward Declarations ****************************/
 
-static int      websUrlHandlerSort(const void *p1, const void *p2);
-static int      websPublishHandler(Webs *wp, char *prefix, char *dir, int sid);
+static bool optionsTrace(Webs *wp);
+static int  publishHandler(Webs *wp, char *prefix, char *dir, int sid);
+static int  sortHandlers(const void *p1, const void *p2);
 
 /*********************************** Code *************************************/
+
+/*
+    See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
+    one accepts the request.
+ */
+void websHandleRequest(Webs *wp)
+{
+    WebsHandler   *sp;
+    int           i;
+
+    gassert(websValid(wp));
+
+    /*
+        Delete the socket handler as we don't want to start reading any data on the connection as it may be for the next
+        pipelined HTTP/1.1 request if using Keep Alive.
+     */
+    socketDeleteHandler(wp->sid);
+
+    if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
+        websError(wp, 400, "Bad request");
+        return;
+    }
+    if (!websRouteRequest(wp)) {
+        gassert(wp->code);
+        return;
+    }
+    if (!websAuthenticate(wp)) {
+        return;
+    }
+    if (!websCan(wp, wp->route->abilities)) {
+        gassert(websComplete(wp));
+        return;
+    }
+    websSetEnv(wp);
+
+    if (*wp->method == 'O' || *wp->method == 'T') {
+        if (optionsTrace(wp)) {
+            return;
+        }
+    }
+    /*
+        We loop over each handler in order till one accepts the request.  The security handler will handle the request
+        if access is NOT allowed.  
+     */
+    for (i = 0; i < websUrlHandlerMax; i++) {
+        sp = &websUrlHandler[i];
+        if (sp->handler && strncmp(sp->prefix, wp->path, sp->len) == 0) {
+            if ((*sp->handler)(wp, sp->prefix, sp->dir, sp->arg)) {
+                return;
+            }
+            if (!websValid(wp)) {
+                trace(0, "handler %s called websDone, but didn't return 1\n", sp->prefix);
+                return;
+            }
+        }
+    }
+    /*
+        If no handler processed the request, then return an error. Note: It is the handlers responsibility to call websDone
+     */
+    if (i >= websUrlHandlerMax) {
+        websError(wp, 200, "No handler for this URL");
+    }
+}
+
 
 int websUrlHandlerOpen()
 {
@@ -82,7 +147,7 @@ int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsHandlerProc handl
     /*
         Sort in decreasing URL length order observing the flags for first and last
      */
-    qsort(websUrlHandler, websUrlHandlerMax, sizeof(WebsHandler), websUrlHandlerSort);
+    qsort(websUrlHandler, websUrlHandlerMax, sizeof(WebsHandler), sortHandlers);
     return 0;
 }
 
@@ -110,7 +175,7 @@ int websUrlHandlerDelete(WebsHandlerProc handler)
 /*
     Sort in decreasing URL length order observing the flags for first and last
  */
-static int websUrlHandlerSort(const void *p1, const void *p2)
+static int sortHandlers(const void *p1, const void *p2)
 {
     WebsHandler     *s1, *s2;
     int             rc;
@@ -143,7 +208,7 @@ static int websUrlHandlerSort(const void *p1, const void *p2)
  */
 int websPublish(char *prefix, char *dir)
 {
-    return websUrlHandlerDefine(prefix, dir, 0, websPublishHandler, 0);
+    return websUrlHandlerDefine(prefix, dir, 0, publishHandler, 0);
 }
 
 
@@ -174,7 +239,7 @@ char *websGetPublishDir(char *path, char **prefix)
 /*
     Publish URL handler. We just patch the web page Directory and let the default handler do the rest.
  */
-static int websPublishHandler(Webs *wp, char *prefix, char *dir, int sid)
+static int publishHandler(Webs *wp, char *prefix, char *dir, int sid)
 {
     ssize   len;
 
@@ -189,62 +254,27 @@ static int websPublishHandler(Webs *wp, char *prefix, char *dir, int sid)
 }
 
 
-/*
-    See if any valid handlers are defined for this request. If so, call them and continue calling valid handlers until
-    one accepts the request.
- */
-void websHandleRequest(Webs *wp)
+static bool optionsTrace(Webs *wp)
 {
-    WebsHandler   *sp;
-    int           i;
+    if (smatch(wp->method, "OPTIONS")) {
+        websWriteHeaders(wp, HTTP_CODE_OK, 0, 0);
+        websWriteHeader(wp, "Allow: DELETE,GET,HEAD,OPTIONS,POST,PUT%s\r\n", BIT_TRACE_METHOD ? ",TRACE" : "");
+        websWriteEndHeaders(wp);
+        websDone(wp, HTTP_CODE_OK);
+        return 1;
 
-    gassert(websValid(wp));
-
-    /*
-        Delete the socket handler as we don't want to start reading any data on the connection as it may be for the next
-        pipelined HTTP/1.1 request if using Keep Alive.
-     */
-    socketDeleteHandler(wp->sid);
-
-    if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
-        websError(wp, 400, "Bad request");
-        return;
+    } else if (smatch(wp->method, "TRACE")) {
+#if BIT_TRACE_METHOD
+        websWriteHeaders(wp, HTTP_CODE_OK, -1, 0);
+        websWriteEndHeaders(wp);
+        websWrite(wp, "%s %s %s\r\n", wp->method, wp->url, wp->protoVersion);
+        websDone(wp, HTTP_CODE_OK);
+#else
+        websResponse(wp, HTTP_CODE_NOT_ACCEPTABLE, "Unsupported method", 0);
+#endif
+        return 1;
     }
-    if (!websRouteRequest(wp)) {
-        gassert(wp->code);
-        return;
-    }
-    if (!websAuthenticate(wp)) {
-        return;
-    }
-    if (!websCan(wp, wp->route->abilities)) {
-        gassert(websComplete(wp));
-        return;
-    }
-    websSetEnv(wp);
-
-    /*
-        We loop over each handler in order till one accepts the request.  The security handler will handle the request
-        if access is NOT allowed.  
-     */
-    for (i = 0; i < websUrlHandlerMax; i++) {
-        sp = &websUrlHandler[i];
-        if (sp->handler && strncmp(sp->prefix, wp->path, sp->len) == 0) {
-            if ((*sp->handler)(wp, sp->prefix, sp->dir, sp->arg)) {
-                return;
-            }
-            if (!websValid(wp)) {
-                trace(0, "handler %s called websDone, but didn't return 1\n", sp->prefix);
-                return;
-            }
-        }
-    }
-    /*
-        If no handler processed the request, then return an error. Note: It is the handlers responsibility to call websDone
-     */
-    if (i >= websUrlHandlerMax) {
-        websError(wp, 200, "No handler for this URL");
-    }
+    return 0;
 }
 
 

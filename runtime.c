@@ -202,7 +202,7 @@ static void outFloat(Format *fmt, char specChar, double value);
 /*
     This function is called when a scheduled process time has come.
  */
-static void callbackProc(int id)
+static void callEvent(int id)
 {
     Callback    *cp;
 
@@ -217,7 +217,7 @@ static void callbackProc(int id)
 /*
     Schedule an event in delay milliseconds time. We will use 1 second granularity for webServer.
  */
-int gschedCallback(int delay, WebsCallback *proc, void *arg)
+int websStartEvent(int delay, WebsEventProc proc, void *arg)
 {
     Callback    *s;
     int         id;
@@ -238,7 +238,7 @@ int gschedCallback(int delay, WebsCallback *proc, void *arg)
 }
 
 
-void greschedCallback(int id, int delay)
+void websRestartEvent(int id, int delay)
 {
     Callback    *s;
 
@@ -249,7 +249,7 @@ void greschedCallback(int id, int delay)
 }
 
 
-void gunschedCallback(int id)
+void websStopEvent(int id)
 {
     Callback    *s;
 
@@ -261,7 +261,7 @@ void gunschedCallback(int id)
 }
 
 
-void grunCallbacks()
+void websRunEvents()
 {
     Callback    *s;
     int         id;
@@ -283,7 +283,7 @@ void grunCallbacks()
     id = next;
     for (;;) {
         if ((s = callbacks[id]) != NULL && (int)s->at <= (int)time(0)) {
-            callbackProc(id);
+            callEvent(id);
             next = id + 1;
             return;
         }

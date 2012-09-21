@@ -1524,11 +1524,19 @@ extern char *strim(char *str, cchar *set, int where);
 
 extern char *itosbuf(char *buf, ssize size, int64 value, int radix);
 
+typedef void (*WebsEventProc)(void *data, int id);
+extern int websStartEvent(int delay, WebsEventProc proc, void *arg);
+extern void websStopEvent(int id);
+extern void websRestartEvent(int id, int delay);
+extern void websRunEvents();
+
+#if UNUSED
 typedef void (WebsCallback)(void *data, int id);
 extern int gschedCallback(int delay, WebsCallback *proc, void *arg);
 extern void gunschedCallback(int id);
 extern void greschedCallback(int id, int delay);
 extern void grunCallbacks();
+#endif
 
 /* Forward declare */
 struct WebsRoute;
@@ -1558,32 +1566,18 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
 
 /* 
-    Request flags (MOB - reorder)
+    Request flags
  */
-//  MOB - is this used
-#define WEBS_LOCAL_PAGE         0x1         /* Request for local webs page */ 
-#define WEBS_KEEP_ALIVE         0x2         /* HTTP/1.1 keep alive */
-#define WEBS_COOKIE             0x8         /* Cookie supplied in request */
-#define WEBS_IF_MODIFIED        0x10        /* If-modified-since in request */
-
-#define WEBS_POST               0x20        /* Post request operation */
-//  MOB - is this used?
-#define WEBS_LOCAL              0x40        /* Request from this system */
-#define WEBS_HOME_PAGE          0x80        /* Request for the home page */ 
-#define WEBS_JS                 0x100       /* Javscript request */ 
-#define WEBS_HEAD               0x200       /* Head request */
-#define WEBS_FORM               0x800       /* Request is a form (url encoded data) */
-#define WEBS_DELETE             0x1000      /* Delete method */
-#define WEBS_PUT                0x2000      /* Put method */
-#define WEBS_CGI                0x4000      /* cgi-bin request */
-#define WEBS_SECURE             0x8000      /* connection uses SSL */
-#define WEBS_HEADERS_DONE       0x40000     /* Already output the HTTP header */
-#define WEBS_HTTP11             0x80000     /* Request is using HTTP/1.1 */
-#define WEBS_RESPONSE_TRACED    0x100000    /* Started tracing the response */
-#define WEBS_GET                0x200000    /* Get Request */
-#define WEBS_UPLOAD             0x400000    /* Multipart-mime file upload */
-#define WEBS_ACCEPTED           0x800000    /* TLS connection accepted */
-#define WEBS_RX_CHUNKED         0x1000000   /* Rx Body is using transfer chunking */
+#define WEBS_ACCEPTED           0x1         /* TLS connection accepted */
+#define WEBS_COOKIE             0x2         /* Cookie supplied in request */
+#define WEBS_FORM               0x4         /* Request is a form (url encoded data) */
+#define WEBS_HEADERS_DONE       0x8         /* Already output the HTTP header */
+#define WEBS_HTTP11             0x10        /* Request is using HTTP/1.1 */
+#define WEBS_KEEP_ALIVE         0x20        /* HTTP/1.1 keep alive */
+#define WEBS_RESPONSE_TRACED    0x40        /* Started tracing the response */
+#define WEBS_RX_CHUNKED         0x80        /* Rx Body is using transfer chunking */
+#define WEBS_SECURE             0x100       /* Connection uses SSL */
+#define WEBS_UPLOAD             0x200       /* Multipart-mime file upload */
 
 /*
     Incoming chunk encoding states. Used for tx and rx chunking.
@@ -2036,11 +2030,11 @@ extern char *websGetSessionID(Webs *wp);
     #define bopen gopenAlloc
     #define brealloc grealloc
     #define bstrdup strdup
-    #define emfReschedCallback greschedCallback
-    #define emfSchedCallback gschedCallback
-    #define emfSchedProc WebsCallback
-    #define emfSchedProcess grunCallbacks
-    #define emfUnschedCallback gunschedCallback
+    #define emfReschedCallback websRestartEvent
+    #define emfSchedCallback websStartEVent
+    #define emfSchedProc WebsEventProc
+    #define emfSchedProcess websRunEvents
+    #define emfUnschedCallback websStopEvent
     #define fmtStatic fmt
     #define gaccess     access
     #define gasctime    asctime

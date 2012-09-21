@@ -384,7 +384,7 @@ static void loginServiceProc(Webs *wp)
 {
     WebsRoute   *route;
 
-    if (!(wp->flags & WEBS_POST)) {
+    if (!smatch(wp->method, "POST")) {
         websError(wp, 401, "Login must be invoked with a post request.");
         return;
     }

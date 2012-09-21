@@ -46,11 +46,7 @@ WebsRoute *websSelectRoute(Webs *wp)
             return route;
         }
     }
-    if (wp->flags & (WEBS_PUT | WEBS_DELETE)) {
-        websError(wp, 500, "Can't find route support PUT|DELETE method.");
-    } else {
-        websError(wp, 500, "Can't find suitable route for request.");
-    }
+    websError(wp, 500, "Can't find suitable route for request.");
     return 0;
 }
 

@@ -133,6 +133,11 @@ Bit.load({
         trace: "stdout:2",
 
         /*
+            Enable the trace method. This should be disabled for security
+         */
+        traceMethod: false,
+
+        /*
             Upload configuration
          */
         upload: true,
