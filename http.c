@@ -494,7 +494,7 @@ void websDone(Webs *wp, int code)
     if (wp->rxConsumed < wp->rxLen) {
         ringqGetBlkAdj(&wp->input, wp->rxLen - wp->rxConsumed);
     }
-    if (!wp->flags & WEBS_RESPONSE_TRACED) {
+    if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
         trace(3 | WEBS_LOG_RAW, "Request complete: code %d", code);
     }
     socketDeleteHandler(wp->sid);
@@ -1666,9 +1666,9 @@ void websWriteHeaders(Webs *wp, int code, ssize length, char *redirect)
             websWriteHeader(wp, "WWW-Authenticate: %s\r\n", wp->authResponse);
         }
         if (smatch(wp->method, "HEAD")) {
-            websWriteHeader(wp, "Content-Length: %Ld\r\n", length);                                           
+            websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
         } else if (length >= 0) {                                                                                    
-            websWriteHeader(wp, "Content-Length: %Ld\r\n", length);                                           
+            websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
             wp->numbytes = bytes;
         }
         wp->txLen = length;
