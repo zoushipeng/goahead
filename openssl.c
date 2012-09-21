@@ -309,18 +309,19 @@ static int sslSetKeyFile(char *keyFile)
 static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
 {
     X509            *cert;
-    Webs            *wp;
-    SSL             *handle;
     char            subject[260], issuer[260], peer[260];
-    int             error, depth;
+    int             error;
     
     subject[0] = issuer[0] = '\0';
 
+#if UNUSED
+    SSL             *handle;
     handle = (SSL*) X509_STORE_CTX_get_app_data(xContext);
     wp = (Webs*) SSL_get_app_data(handle);
+    depth = X509_STORE_CTX_get_error_depth(xContext);
+#endif
 
     cert = X509_STORE_CTX_get_current_cert(xContext);
-    depth = X509_STORE_CTX_get_error_depth(xContext);
     error = X509_STORE_CTX_get_error(xContext);
 
     ok = 1;
