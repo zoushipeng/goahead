@@ -2224,8 +2224,8 @@ int gopen(char *path, int oflags, int mode)
         fd = _wopen(path, oflags, mode);
     #else
         if (_sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600) != 0) {
-			fd = -1;
-		}
+            fd = -1;
+        }
     #endif
 #else
     fd = open(path, oflags, mode);

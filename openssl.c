@@ -30,10 +30,10 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 
 int sslOpen()
 {
-    RandBuf             randBuf;
-    char              *caFile, *caPath;
+    RandBuf     randBuf;
+    char        *caFile, *caPath;
 
-	trace(7, "Initializing SSL\n"); 
+    trace(7, "Initializing SSL\n"); 
 
     randBuf.now = time(0);
     randBuf.pid = getpid();
@@ -48,17 +48,17 @@ int sslOpen()
 #if !BIT_WIN_LIKE
     OpenSSL_add_all_algorithms();
 #endif
-	SSL_library_init();
-	SSL_load_error_strings();
-	SSLeay_add_ssl_algorithms();
+    SSL_library_init();
+    SSL_load_error_strings();
+    SSLeay_add_ssl_algorithms();
 
-	if ((sslctx = SSL_CTX_new(SSLv23_server_method())) == 0) {
-		error("Unable to create SSL context"); 
-		return -1;
-	}
+    if ((sslctx = SSL_CTX_new(SSLv23_server_method())) == 0) {
+        error("Unable to create SSL context"); 
+        return -1;
+    }
 
     /*
-      	Set the client certificate verification locations
+          Set the client certificate verification locations
      */
     caFile = *BIT_CA_FILE ? BIT_CA_FILE : 0;
     caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
@@ -70,17 +70,17 @@ int sslOpen()
         }
     }
     /*
-      	Set the server certificate and key files
+          Set the server certificate and key files
      */
     if (*BIT_KEY && sslSetKeyFile(BIT_KEY) < 0) {
-		sslClose();
-		return -1;
+        sslClose();
+        return -1;
     }
     if (*BIT_CERTIFICATE && sslSetCertFile(BIT_CERTIFICATE) < 0) {
-		sslClose();
-		return -1;
+        sslClose();
+        return -1;
     }
-	SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
+    SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
 
 #if VERIFY_CLIENT
     if (verifyPeer) {
@@ -95,14 +95,14 @@ int sslOpen()
     SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
 #endif
     /*
-      	Set the certificate authority list for the client
+          Set the certificate authority list for the client
      */
     if (BIT_CA_FILE && *BIT_CA_FILE) {
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_CA_FILE));
     }
 
-	SSL_CTX_set_options(sslctx, SSL_OP_ALL);
-	SSL_CTX_sess_set_cache_size(sslctx, 128);
+    SSL_CTX_set_options(sslctx, SSL_OP_ALL);
+    SSL_CTX_sess_set_cache_size(sslctx, 128);
 #ifdef SSL_OP_NO_TICKET
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
 #endif
@@ -124,10 +124,10 @@ int sslOpen()
 
 void sslClose()
 {
-	if (sslctx != NULL) {
-		SSL_CTX_free(sslctx);
-		sslctx = NULL;
-	}
+    if (sslctx != NULL) {
+        SSL_CTX_free(sslctx);
+        sslctx = NULL;
+    }
 }
 
 
@@ -137,7 +137,7 @@ int sslUpgrade(Webs *wp)
 
     gassert(wp);
 
-	sptr = socketPtr(wp->sid);
+    sptr = socketPtr(wp->sid);
     if ((wp->ssl = SSL_new(sslctx)) == 0) {
         return -1;
     }
@@ -156,12 +156,12 @@ void sslFree(Webs *wp)
     /* 
         Re-use sessions
      */
-	if (wp->ssl != NULL) {
-		SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-	}
-	if (wp->bio != NULL) {
-		BIO_free_all(wp->bio);
-	}
+    if (wp->ssl != NULL) {
+        SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
+    }
+    if (wp->bio != NULL) {
+        BIO_free_all(wp->bio);
+    }
 }
 
 ssize sslRead(Webs *wp, void *buf, ssize len)
@@ -261,48 +261,48 @@ ssize sslWrite(Webs *wp, void *buf, ssize len)
  */
 static int sslSetCertFile(char *certFile)
 {
-	gassert (sslctx);
-	gassert (certFile);
+    gassert (sslctx);
+    gassert (certFile);
 
-	if (sslctx == NULL) {
-		return -1;
-	}
-	if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
+    if (sslctx == NULL) {
+        return -1;
+    }
+    if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
             error("Unable to set certificate file: %s", certFile); 
             return -1;
         }
-		return -1;
-	}
-    /*		
-      	Confirm that the certificate and the private key jive.
+        return -1;
+    }
+    /*        
+          Confirm that the certificate and the private key jive.
      */
-	if (!SSL_CTX_check_private_key(sslctx)) {
-		return -1;
-	}
-	return 0;
+    if (!SSL_CTX_check_private_key(sslctx)) {
+        return -1;
+    }
+    return 0;
 }
 
 
 /*
-  	Set key file for SSL context
+      Set key file for SSL context
  */
 static int sslSetKeyFile(char *keyFile)
 {
-	gassert (sslctx);
-	gassert (keyFile);
+    gassert (sslctx);
+    gassert (keyFile);
 
-	if (sslctx == NULL) {
-		return -1;
-	}
-	if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
+    if (sslctx == NULL) {
+        return -1;
+    }
+    if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
             error("Unable to set private key file: %s", keyFile); 
             return -1;
         }
-		return -1;
-	}
-	return 0;
+        return -1;
+    }
+    return 0;
 }
 
 
@@ -386,12 +386,12 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
 
 static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength)
 {
-	static RSA *rsaTemp = NULL;
+    static RSA *rsaTemp = NULL;
 
-	if (rsaTemp == NULL) {
-		rsaTemp = RSA_generate_key(keyLength, RSA_F4, NULL, NULL);
-	}
-	return rsaTemp;
+    if (rsaTemp == NULL) {
+        rsaTemp = RSA_generate_key(keyLength, RSA_F4, NULL, NULL);
+    }
+    return rsaTemp;
 }
 
 

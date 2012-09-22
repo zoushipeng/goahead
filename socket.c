@@ -591,7 +591,7 @@ int socketSetBlock(int sid, int on)
 #if BIT_WIN_LIKE
         ulong flag = !on;
         int rc = ioctlsocket(sp->sock, FIONBIO, &flag);
-		rc = rc;
+        rc = rc;
 #elif ECOS
         int on = 1;
         ioctl(sp->sock, FIONBIO, &on);
