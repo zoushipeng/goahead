@@ -328,8 +328,9 @@ static int loadRouteConfig(char *path)
                     }
                     route->loggedInPage = strdup(uri);
                 }
+                //  MOB - change back to POST
                 if (lookupRoute("/proc/logout") < 0 && 
-                        !websAddRoute(0, "/proc/logout", "POST", redirect, 0, 0, verify)) {
+                        !websAddRoute(0, "/proc/logout", "GET", redirect, 0, 0, verify)) {
                     return -1;
                 }
                 askLogin = websFormLogin;

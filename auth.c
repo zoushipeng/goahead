@@ -174,9 +174,9 @@ static WebsUser *createUser(char *username, char *password, char *roles)
     if (roles) {
         user->roles = sfmt(" %s ", roles);
     } else {
-        user->roles = strdup(" ");
+        user->roles = sclone(" ");
     }
-    user->password = strdup(password);
+    user->password = sclone(password);
     return user;
 }
 

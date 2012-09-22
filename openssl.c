@@ -296,7 +296,7 @@ static int sslSetKeyFile(char *keyFile)
         return -1;
     }
     if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
-        if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
+        if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_ASN1) <= 0) {
             error("Unable to set private key file: %s", keyFile); 
             return -1;
         }
