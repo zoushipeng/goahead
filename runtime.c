@@ -2825,6 +2825,16 @@ int vxchdir(char *dirname)
     gfree(path);
     return rc;
 }
+
+
+char *tempnam(cchar *dir, cchar *pfx)
+{
+    static int count = 0;
+    if (!pfx) {
+        pfx = "tmp";
+    }
+    return sfmt("%s-%d.tmp", pfx, count++);
+}
 #endif
 
 #if ECOS

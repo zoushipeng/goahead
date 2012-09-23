@@ -387,6 +387,8 @@ static int processContentData(Webs *wp)
         close(wp->upfd);
         wp->upfd = -1;
         wp->clientFilename = 0;
+        gfree(wp->uploadTmp);
+        wp->uploadTmp = 0;
     }
     wp->uploadState = UPLOAD_BOUNDARY;
     return 0;

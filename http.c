@@ -405,6 +405,7 @@ static void termWebs(Webs *wp, int keepAlive)
     gfree(wp->realm);
     gfree(wp->responseCookie);
     gfree(wp->url);
+    gfree(wp->uploadTmp);
     gfree(wp->userAgent);
     gfree(wp->username);
 #if BIT_CGI

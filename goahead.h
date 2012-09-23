@@ -1030,6 +1030,7 @@ extern int greadAscToUni(int fid, void **buf, ssize len);
 
 #if VXWORKS
     extern int vxchdir(char *dirname);
+    extern char *tempnam(cchar *dir, cchar *pfx);
 #endif
 
 #if UNUSED && KEEP
