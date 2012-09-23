@@ -1729,7 +1729,7 @@ ssize websWrite(Webs *wp, char *fmt, ...)
     buf = NULL;
     rc = 0;
     if ((buf = sfmtv(fmt, vargs)) == 0) {
-        error("websWrite lost data, buffer overflow\n");
+        error("websWrite lost data, buffer overflow");
     }
     va_end(vargs);
     gassert(buf);
