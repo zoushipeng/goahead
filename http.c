@@ -1405,7 +1405,7 @@ void websResponse(Webs *wp, int code, char *message, char *redirect)
     
     gassert(websValid(wp));
 
-    if (smatch(wp->method, "HEAD") && message && *message) {
+    if (!smatch(wp->method, "HEAD") && message && *message) {
         len = slen(message);
         websWriteHeaders(wp, code, len + 2, redirect);
         websWriteEndHeaders(wp);
