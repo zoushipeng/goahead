@@ -656,8 +656,8 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
             return -1;
         }
     }
-#endif
 }
+#endif
     socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
 
     /*
