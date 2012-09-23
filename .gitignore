@@ -45,3 +45,6 @@ projects/.libgo.guid
 libgo.xcscheme
 *.cxscheme
 *.xcscheme
+moc*
+mob.tst
+mob.txt

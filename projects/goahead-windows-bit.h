@@ -6,9 +6,6 @@
  */
 
 /* Settings */
-#ifndef BIT__MINIMAL
-    #define BIT__MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,ssl,matrixssl,openssl"
-#endif
 #ifndef BIT_ACCESS_LOG
     #define BIT_ACCESS_LOG 0
 #endif
@@ -111,9 +108,6 @@
 #ifndef BIT_LIMIT_URI
     #define BIT_LIMIT_URI 2048
 #endif
-#ifndef BIT_MINIMAL
-    #define BIT_MINIMAL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
-#endif
 #ifndef BIT_OPTIONAL
     #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
 #endif
@@ -155,6 +149,12 @@
 #endif
 #ifndef BIT_VERSION
     #define BIT_VERSION "3.0.0"
+#endif
+#ifndef BIT_WITHOUT_ALL
+    #define BIT_WITHOUT_ALL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl,openssl,ssl"
+#endif
+#ifndef BIT_WITHOUT_OWN
+    #define BIT_WITHOUT_OWN "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #endif
 
 /* Prefixes */
