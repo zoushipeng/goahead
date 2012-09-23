@@ -1031,9 +1031,11 @@ void error(char *fmt, ...)
     message = sfmtv(fmt, args);
     va_end(args);
     traceHandler(WEBS_LOG_NEWLINE, message);
+#if BIT_WIN_LIKE || BIT_UNIX_LIKE
     if (websGetBackground()) {
         syslog(LOG_ERR, "%s", message);
     }
+#endif
     gfree(message);
 }
 
@@ -2908,10 +2910,6 @@ static void syslog(int priority, cchar *fmt, ...)
     }
     gfree(buf);
 }
-#endif
-
-#if VXWORKS
-    static void syslog(int priority, cchar *fmt, ...) {}
 #endif
 
 /*
