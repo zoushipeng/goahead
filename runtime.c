@@ -158,9 +158,11 @@ typedef struct SymTab {                 /* Symbol table descriptor */
     WebsKey   **hash_table;               /* Allocated at run time */
 } SymTab;
 
+#ifndef LOG_ERR
+    #define LOG_ERR 0
+#endif
 #if BIT_WIN_LIKE
     static HINSTANCE appInstance;
-#define LOG_ERR 0
     static void syslog(int priority, cchar *fmt, ...);
 #endif
 
@@ -2906,6 +2908,10 @@ static void syslog(int priority, cchar *fmt, ...)
     }
     gfree(buf);
 }
+#endif
+
+#if VXWORKS
+    static void syslog(int priority, cchar *fmt, ...) {}
 #endif
 
 /*
