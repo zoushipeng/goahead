@@ -2857,7 +2857,7 @@ static void syslog(int priority, cchar *fmt, ...)
     void        *event;
     long        errorType;
     ulong       exists;
-    char        buf[BIT_LIMIT_STRING], logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
+    char        *buf, logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
     int         type, i;
     static int  once = 0;
 
@@ -2886,12 +2886,14 @@ static void syslog(int priority, cchar *fmt, ...)
             if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
                     (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
                 RegCloseKey(hkey);
+                gfree(buf);
                 return;
             }
             errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
             if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
                     ERROR_SUCCESS) {
                 RegCloseKey(hkey);
+                gfree(buf);
                 return;
             }
             RegCloseKey(hkey);
@@ -2902,6 +2904,7 @@ static void syslog(int priority, cchar *fmt, ...)
         ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
         DeregisterEventSource(event);
     }
+    gfree(buf);
 }
 #endif
 
