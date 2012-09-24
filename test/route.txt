@@ -2,9 +2,9 @@
 #   route.txt - Route and authorization configuration
 #
 #   Schema
-#       user name=NAME password=PASSWORD roles
+#       user name=NAME password=PASSWORD roles=ROLES
 #       role name=NAME abilities=ABILITIES
-#       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=REDIRECT \
+#       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=STATUS@URI \
 #           extensions=EXTENSIONS abilities=ABILITIES 
 #
 #   Abilities are a set of required abilities that the user or request must possess.
@@ -18,8 +18,8 @@
 #
 #   Form based login pattern
 #       route uri=/login.html
-#       route uri=/proc/login methods=GET|POST handler=proc redirect=200@/ redirect=401@/login.html
-#       route uri=/proc/logout handler=proc redirect=200@/login.html
+#       route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/login.html
+#       route uri=/proc/logout methods=POST handler=proc redirect=200@/login.html
 #       route uri=/ auth=form handler=continue redirect=401@/login.html
 #
 
@@ -56,8 +56,8 @@ route uri=/auth/digest/ auth=digest abilities=manage
 #   Everything else under /auth/form is secured and requires the "manage" ability 
 #
 route uri=/auth/form/login.html redirect=/auth/form/index.html
-route uri=/proc/login methods=GET|POST handler=proc redirect=200@/auth/form/index.html redirect=401@/auth/form/login.html
-route uri=/proc/logout methods=GET|POST handler=proc redirect=200@/auth/form/login.html
+route uri=/proc/login methods=POST handler=proc redirect=200@/auth/form/index.html redirect=401@/auth/form/login.html
+route uri=/proc/logout methods=POST handler=proc redirect=200@/auth/form/login.html
 route uri=/auth/form/ auth=form handler=continue abilities=manage redirect=401@/auth/form/login.html
 
 #

@@ -106,11 +106,11 @@
     <ClCompile Include="..\..\file.c" />
     <ClCompile Include="..\..\galloc.c" />
     <ClCompile Include="..\..\goahead.c" />
-    <ClCompile Include="..\..\handler.c" />
     <ClCompile Include="..\..\http.c" />
     <ClCompile Include="..\..\js.c" />
     <ClCompile Include="..\..\matrixssl.c" />
     <ClCompile Include="..\..\openssl.c" />
+    <ClCompile Include="..\..\options.c" />
     <ClCompile Include="..\..\proc.c" />
     <ClCompile Include="..\..\rom-documents.c" />
     <ClCompile Include="..\..\rom.c" />

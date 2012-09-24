@@ -82,7 +82,7 @@
     #define BIT_KEY "server.key.pem"
 #endif
 #ifndef BIT_LEGACY
-    #define BIT_LEGACY 0
+    #define BIT_LEGACY 1
 #endif
 #ifndef BIT_LIMIT_BODY
     #define BIT_LIMIT_BODY 8192
@@ -115,13 +115,13 @@
     #define BIT_LIMIT_SESSION_LIFE 1800
 #endif
 #ifndef BIT_LIMIT_SOCKET_BUFFER
-    #define BIT_LIMIT_SOCKET_BUFFER 1024
+    #define BIT_LIMIT_SOCKET_BUFFER 4096
 #endif
 #ifndef BIT_LIMIT_STRING
     #define BIT_LIMIT_STRING 4096
 #endif
 #ifndef BIT_LIMIT_UPLOAD
-    #define BIT_LIMIT_UPLOAD 2048000
+    #define BIT_LIMIT_UPLOAD 20480000
 #endif
 #ifndef BIT_LIMIT_URI
     #define BIT_LIMIT_URI 2048
