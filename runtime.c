@@ -153,9 +153,9 @@ typedef struct Format {
 #define RINGQ_LEN(rq) ((rq->servp > rq->endp) ? (rq->buflen + (rq->endp - rq->servp)) : (rq->endp - rq->servp))
 
 typedef struct SymTab {                 /* Symbol table descriptor */
-    int     inuse;                      /* Is this entry in use */
-    int     hash_size;                  /* Size of the table below */
-    WebsKey   **hash_table;               /* Allocated at run time */
+    WebsKey     **hash_table;           /* Allocated at run time */
+    int         inuse;                  /* Is this entry in use */
+    int         size;                   /* Size of the table below */
 } SymTab;
 
 #ifndef LOG_ERR
@@ -1043,7 +1043,7 @@ void error(char *fmt, ...)
 void gassertError(WEBS_ARGS_DEC, char *fmt, ...)
 {
     va_list     args;
-    char      *fmtBuf, *message;
+    char        *fmtBuf, *message;
 
     va_start(args, fmt);
     fmtBuf = sfmtv(fmt, args);
@@ -1859,12 +1859,15 @@ static int  getBinBlockSize(int size)
 }
 
 
-WebsHash symOpen(int hash_size)
+WebsHash symOpen(int size)
 {
     WebsHash    sd;
     SymTab      *tp;
 
-    gassert(hash_size > 2);
+    if (size < 0) {
+        size = WEBS_SMALL_HASH;
+    }
+    gassert(size > 2);
 
     /*
         Create a new handle for this symbol table
@@ -1890,10 +1893,10 @@ WebsHash symOpen(int hash_size)
     /*
         Now create the hash table for fast indexing.
      */
-    tp->hash_size = calcPrime(hash_size);
-    tp->hash_table = (WebsKey**) galloc(tp->hash_size * sizeof(WebsKey*));
+    tp->size = calcPrime(size);
+    tp->hash_table = (WebsKey**) galloc(tp->size * sizeof(WebsKey*));
     gassert(tp->hash_table);
-    memset(tp->hash_table, 0, tp->hash_size * sizeof(WebsKey*));
+    memset(tp->hash_table, 0, tp->size * sizeof(WebsKey*));
     return sd;
 }
 
@@ -1908,6 +1911,9 @@ void symClose(WebsHash sd)
     WebsKey       *sp, *forw;
     int         i;
 
+    if (sd < 0) {
+        return;
+    }
     gassert(0 <= sd && sd < symMax);
     tp = sym[sd];
     gassert(tp);
@@ -1915,7 +1921,7 @@ void symClose(WebsHash sd)
     /*
         Free all symbols in the hash table, then the hash table itself.
      */
-    for (i = 0; i < tp->hash_size; i++) {
+    for (i = 0; i < tp->size; i++) {
         for (sp = tp->hash_table[i]; sp; sp = forw) {
             forw = sp->forw;
             valueFree(&sp->name);
@@ -1947,7 +1953,7 @@ WebsKey *symFirst(WebsHash sd)
     /*
         Find the first symbol in the hashtable and return a pointer to it.
      */
-    for (i = 0; i < tp->hash_size; i++) {
+    for (i = 0; i < tp->size; i++) {
         if ((sp = tp->hash_table[i]) != 0) {
             return sp;
         }
@@ -1977,7 +1983,7 @@ WebsKey *symNext(WebsHash sd, WebsKey *last)
     if (last->forw) {
         return last->forw;
     }
-    for (i = last->bucket + 1; i < tp->hash_size; i++) {
+    for (i = last->bucket + 1; i < tp->size; i++) {
         if ((sp = tp->hash_table[i]) != 0) {
             return sp;
         }
@@ -1996,7 +2002,7 @@ WebsKey *symLookup(WebsHash sd, char *name)
     char      *cp;
 
     gassert(0 <= sd && sd < symMax);
-    if ((tp = sym[sd]) == NULL) {
+    if (sd < 0 || (tp = sym[sd]) == NULL) {
         return NULL;
     }
     if (name == NULL || *name == '\0') {
@@ -2023,8 +2029,8 @@ WebsKey *symLookup(WebsHash sd, char *name)
 WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
 {
     SymTab      *tp;
-    WebsKey       *sp, *last;
-    char      *cp;
+    WebsKey     *sp, *last;
+    char        *cp;
     int         hindex;
 
     gassert(name);
@@ -2177,7 +2183,7 @@ static int hashIndex(SymTab *tp, char *name)
         sum += (((int) *name++) << i);
         i = (i + 7) % (BITS(int) - BITSPERBYTE);
     }
-    return sum % tp->hash_size;
+    return sum % tp->size;
 }
 
 
@@ -2698,7 +2704,7 @@ char *stok(char *str, char *delim, char **last)
 }
 
 
-char *strim(char *str, cchar *set, int where)
+char *strim(char *str, char *set, int where)
 {
     char    *s;
     ssize   len, i;

@@ -19,9 +19,9 @@ static void writeEvent(Webs *wp);
 
 /*********************************** Code *************************************/
 /*
-    Process a URL request for static file documents. 
+    Serve static files
  */
-int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
+static bool fileHandler(Webs *wp)
 {
     WebsFileInfo    info;
     char          *tmp, *date;
@@ -38,11 +38,11 @@ int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
             websError(wp, 404, "Can't delete the URI");
         } else {
             /* No content */
-            websResponse(wp, 204, 0, 0);
+            websResponse(wp, 204, 0);
         }
     } else if (smatch(wp->method, "PUT")) {
         /* Code is already set for us by processContent() */
-        websResponse(wp, wp->code, 0, 0);
+        websResponse(wp, wp->code, 0);
 
     } else 
 #endif /* !BIT_ROM */
@@ -55,9 +55,6 @@ int websFileHandler(Webs *wp, char *prefix, char *dir, int arg)
             if (wp->path[nchars - 1] == '/' || wp->path[nchars - 1] == '\\') {
                 wp->path[--nchars] = '\0';
             }
-#if UNUSED
-            nchars += strlen(websIndex) + 2;
-#endif
             tmp = sfmt("%s/%s", wp->path, websIndex);
             websRedirect(wp, tmp);
             gfree(tmp);
@@ -154,23 +151,19 @@ static void writeEvent(Webs *wp)
 }
 
 
-/* 
-    Initialize variables and data for the default URL handler module
- */
-
-void websFileOpen()
-{
-    //  MOB - should not be unicode
-    websIndex = strdup("index.html");
-}
-
-
-void websFileClose()
+static void fileClose()
 {
     gfree(websIndex);
     websIndex = NULL;
     gfree(websDocuments);
     websDocuments = NULL;
+}
+
+
+void websFileOpen()
+{
+    websIndex = strdup("index.html");
+    websDefineHandler("file", fileHandler, fileClose, 0);
 }
 
 
@@ -213,16 +206,6 @@ void websSetDocuments(char *dir)
         gfree(websDocuments);
     }
     websDocuments = strdup(dir);
-}
-
-
-int websHomePageHandler(Webs *wp, char *prefix, char *dir, int arg)
-{
-    if (*wp->url == '\0' || smatch(wp->url, "/")) {
-        websRedirect(wp, "index.html");
-        return 1;
-    }
-    return 0;
 }
 
 /*

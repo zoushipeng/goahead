@@ -24,7 +24,7 @@ http.reset()
 http.form(HTTP + "/proc/login", {username: "joshua", password: "pass1"})
 assert(http.status == 302)
 location = http.header('location')
-assert(Uri(location).path == '/auth/form/')
+assert(Uri(location).path == '/auth/form/index.html')
 let cookie = http.header("Set-Cookie")
 assert(cookie.match(/(-goahead-session-=.*);/)[1])
 

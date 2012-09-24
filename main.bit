@@ -82,7 +82,7 @@ Bit.load({
         /*
             Define legacy APIs for compatibility with old GoAhead web server applications
          */
-        legacy: false,
+        legacy: true,
 
         /*
             Sandbox limits and allocation sizes
@@ -98,9 +98,9 @@ Bit.load({
         limitSessionLife:     1800,    /* Session lifespan in secons */
         limitSessionCount:     120,    /* Maximum number of sessions to support */
         limitString:          4096,    /* Default string size */
-        limitSocketBuffer:    1024,    /* Default socket buffer size */
+        limitSocketBuffer:    4096,    /* Default socket buffer size */
         limitUri:             2048,    /* Maximum URI size */
-        limitUpload:          2048000, /* Maximum upload size */
+        limitUpload:      20480000,    /* Maximum upload size */
 
         /*
             Server SSL key

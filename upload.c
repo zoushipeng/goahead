@@ -34,7 +34,7 @@ static int processUploadHeader(Webs *wp, char *line);
 /*
     The upload handler functions as a filter. It never actually handles a request
  */
-int websUploadHandler(Webs *wp, char *prefix, char *dir, int arg)
+static bool uploadHandler(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -457,6 +457,7 @@ void websUploadOpen()
 #endif
     }
     trace(4, "Upload directory is %s\n", uploadDir);
+    websDefineHandler("upload", uploadHandler, 0, 0);
 }
 
 #endif

@@ -1,5 +1,5 @@
 /*
-    proc.c -- Proc handler.
+    proc.c -- Proc handler
 
     This module implements the /proc handler. It is a simple binding of URIs to C procedures.
     This enables a very high performance implementation with easy parsing and decoding of query
@@ -20,7 +20,7 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websProcHandler(Webs *wp, char *prefix, char *dir, int arg)
+static bool procHandler(Webs *wp)
 {
     WebsKey     *sp;
     char      formBuf[BIT_LIMIT_FILENAME];
@@ -41,7 +41,6 @@ int websProcHandler(Webs *wp, char *prefix, char *dir, int arg)
     if ((cp = strchr(formName, '/')) != NULL) {
         *cp = '\0';
     }
-
     /*
         Lookup the C form function first and then try tcl (no javascript support yet).
      */
@@ -61,7 +60,7 @@ int websProcHandler(Webs *wp, char *prefix, char *dir, int arg)
 
 
 /*
-    Define a procedure function in the "proc" map space.
+    Define a procedure function in the "proc" map space
  */
 int websProcDefine(char *name, void *fn)
 {
@@ -76,18 +75,19 @@ int websProcDefine(char *name, void *fn)
 }
 
 
-void websProcOpen()
-{
-    formSymtab = symOpen(WEBS_SYM_INIT);
-}
-
-
-void websProcClose()
+static void closeProc()
 {
     if (formSymtab != -1) {
         symClose(formSymtab);
         formSymtab = -1;
     }
+}
+
+
+void websProcOpen()
+{
+    formSymtab = symOpen(WEBS_SYM_INIT);
+    websDefineHandler("proc", procHandler, closeProc, 0);
 }
 
 

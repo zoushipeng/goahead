@@ -7,8 +7,9 @@ const HTTP = App.config.uris.http || "127.0.0.1:8080"
 let http: Http = new Http
 
 /*
-    aliasTest() mapps bad.html to atest.html
+    The old-alias route maps to /alias/atest.html
  */
-http.get(HTTP + "/alias/bad.html")
+http.get(HTTP + "/old-alias/")
+http.followRedirects = true
 assert(http.status == 200)
 assert(http.response.contains("alias/atest.html"))

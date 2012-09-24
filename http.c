@@ -242,7 +242,7 @@ int websOpen(char *documents, char *authPath)
         return -1;
     }
 #endif 
-    if ((sessions = symOpen(WEBS_SMALL_HASH)) < 0) {
+    if ((sessions = symOpen(-1)) < 0) {
         return -1;
     }
     if (!websDebug) {
@@ -251,23 +251,26 @@ int websOpen(char *documents, char *authPath)
     if (documents) {
         websSetDocuments(documents);
     }
+    if (websOpenRoute() < 0) {
+        return -1;
+    }
+    websCgiOpen();
     websUploadOpen();
+    websOptionsOpen();
     websProcOpen();
+    websFileOpen();
 #if BIT_JAVASCRIPT
     websJsOpen();
 #endif
-
     if (websOpenAuth() < 0) {
         return -1;
     }
-    if (websOpenRoute(authPath) < 0) {
+    if (websLoadRoutes(authPath) < 0) {
         return -1;
     }
 #if BIT_ROM
     websRomOpen();
 #endif
-    websFileOpen();
-
     /*
         Create a mime type lookup table for quickly determining the content type
      */
@@ -275,9 +278,6 @@ int websOpen(char *documents, char *authPath)
     gassert(websMime >= 0);
     for (mt = websMimeList; mt->type; mt++) {
         symEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
-    }
-    if (websUrlHandlerOpen() < 0) {
-        return -1;
     }
 
 #if BIT_ACCESS_LOG
@@ -297,9 +297,6 @@ void websClose()
     Webs    *wp;
     int     i;
 
-#if BIT_JAVASCRIPT
-    websJsClose();
-#endif
     websCloseRoute();
     websCloseAuth();
     if (pruneId >= 0) {
@@ -341,10 +338,7 @@ void websClose()
 #if BIT_ROM
     websRomClose();
 #endif
-    websFileClose();
     symClose(websMime);
-    websProcClose();
-    websUrlHandlerClose();
     socketClose();
     traceClose();
 #if BIT_UNIX_LIKE
@@ -400,7 +394,6 @@ static void termWebs(Webs *wp, int keepAlive)
     gfree(wp->password);
     gfree(wp->path);
     gfree(wp->protoVersion);
-    gfree(wp->protocol);
     gfree(wp->query);
     gfree(wp->realm);
     gfree(wp->responseCookie);
@@ -780,7 +773,7 @@ static void websPump(Webs *wp)
             canProceed = processContent(wp);
             break;
         case WEBS_RUNNING:
-            websHandleRequest(wp);
+            websRouteRequest(wp);
             return;
         }
     }
@@ -824,9 +817,6 @@ bool parseIncoming(Webs *wp)
 
 #if BIT_CGI
     if (strstr(wp->path, BIT_CGI_BIN) != 0) {
-#if UNUSED
-        wp->flags |= WEBS_CGI;
-#endif
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
@@ -860,7 +850,7 @@ bool parseIncoming(Webs *wp)
  */
 static bool parseFirstLine(Webs *wp)
 {
-    char  *op, *proto, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
+    char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
     int     testPort;
 
     gassert(websValid(wp));
@@ -892,8 +882,8 @@ static bool parseFirstLine(Webs *wp)
         must free. We support both proxied and non-proxied requests. Proxied requests will have http://host/ at the
         start of the URL. Non-proxied will just be local path names.
      */
-    host = path = port = proto = query = ext = NULL;
-    if (websUrlParse(url, &buf, &host, &path, &port, &query, &proto, NULL, &ext) < 0) {
+    host = path = port = query = ext = NULL;
+    if (websUrlParse(url, &buf, &host, &path, &port, &query, NULL, NULL, &ext) < 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
         return 0;
     }
@@ -914,7 +904,7 @@ static bool parseFirstLine(Webs *wp)
 
     wp->query = strdup(query);
     wp->host = strdup(host);
-    wp->protocol = strdup(proto);
+    wp->protocol = wp->flags & WEBS_SECURE ? "https" : "http";
     wp->protoVersion = strdup(protoVer);
     if (smatch(protoVer, "HTTP/1.1")) {
         wp->flags |= WEBS_KEEP_ALIVE | WEBS_HTTP11;
@@ -941,9 +931,6 @@ static bool parseHeaders(Webs *wp)
 
     gassert(websValid(wp));
 
-#if UNUSED
-    trace(3 | WEBS_LOG_RAW, "%s", wp->input.servp);
-#endif
     websSetVar(wp, "HTTP_AUTHORIZATION", "");
 
     /* 
@@ -1046,9 +1033,6 @@ static bool parseHeaders(Webs *wp)
 
         } else if (strcmp(key, "transfer-encoding") == 0) {
             if (scaselesscmp(value, "chunked") == 0) {
-#if UNUSED
-                wp->flags |= WEBS_RX_CHUNKED;
-#endif
                 wp->rxChunkState = WEBS_CHUNK_START;
                 wp->rxRemaining = MAXINT;
             }
@@ -1099,6 +1083,7 @@ static bool processContent(Webs *wp)
     ringqCompact(&wp->input);
     if (wp->eof) {
         wp->state = WEBS_RUNNING;
+        socketDeleteHandler(wp->sid);
         return 1;
     }
     return 0;
@@ -1183,17 +1168,19 @@ static bool filterChunkData(Webs *wp)
                 }
             }
             removeBoundary(wp, start, cp + 1);
+            wp->rxChunkSize = chunkSize;
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
                 wp->eof = 1;
                 return 1;
             }
+            trace(7, "chunkFilter: start incoming chunk of %d bytes", chunkSize);
             wp->rxChunkState = WEBS_CHUNK_DATA;
             /* Fall through */
 
         case WEBS_CHUNK_DATA:
-            if (chunkLen(wp) >= chunkSize) {
-                wp->rxFiltered += chunkSize;
+            if (chunkLen(wp) >= wp->rxChunkSize) {
+                wp->rxFiltered += wp->rxChunkSize;
                 wp->rxChunkState = WEBS_CHUNK_START;
             } else {
                 /* Need more data to complete the chunk */
@@ -1201,7 +1188,6 @@ static bool filterChunkData(Webs *wp)
             }
             break;
         }
-        trace(7, "chunkFilter: start incoming chunk of %d bytes", chunkSize);
     }
     return 1;
 }
@@ -1398,8 +1384,9 @@ void websTimeoutCancel(Webs *wp)
 
 /*
     Output a HTTP response back to the browser. If redirect is set to a URL, the browser will be sent to this location.
+    MOB - is redirect ever used?
  */
-void websResponse(Webs *wp, int code, char *message, char *redirect)
+void websResponse(Webs *wp, int code, char *message)
 {
     ssize   len;
     
@@ -1407,37 +1394,46 @@ void websResponse(Webs *wp, int code, char *message, char *redirect)
 
     if (!smatch(wp->method, "HEAD") && message && *message) {
         len = slen(message);
-        websWriteHeaders(wp, code, len + 2, redirect);
+        websWriteHeaders(wp, code, len + 2, 0);
         websWriteEndHeaders(wp);
         websWriteBlock(wp, message, len);
         websWriteBlock(wp, "\r\n", 2);
     } else {
-        websWriteHeaders(wp, code, 0, redirect);
+        websWriteHeaders(wp, code, 0, 0);
         websWriteEndHeaders(wp);
     }
     websDone(wp, code);
 }
 
 
+static char *makeUri(char *scheme, char *host, int port, char *path)
+{
+    if (port <= 0) {
+        port = smatch(scheme, "https") ? BIT_SSL_PORT : BIT_HTTP_PORT;
+    }
+    if (port == 80 || port == 443) {
+        return sfmt("%s://%s%s", scheme, host, path);
+    }
+    return sfmt("%s://%s:%d%s", scheme, host, port, path);
+}
+
+
 /*
     Redirect the user to another webs page
  */
-void websRedirect(Webs *wp, char *url)
+void websRedirect(Webs *wp, char *uri)
 {
-    char  *msgbuf, *urlbuf, *scheme, *host, *pstr;
+    char    *message, *location, *uribuf, *scheme, *host, *pstr;
     char    hostbuf[BIT_LIMIT_STRING];
     bool    secure, fullyQualified;
-    int     port;
+    ssize   len;
+    int     port, code;
 
     gassert(websValid(wp));
-    gassert(url);
+    gassert(uri);
+    message = location = uribuf = NULL;
 
-    msgbuf = urlbuf = NULL;
-    fullyQualified = strstr(url, "https://") || strstr(url, "https://");
-    secure = strstr(url, "https://") || (wp->flags & WEBS_SECURE);
-    scheme = secure ? "https" : "http";
-    port = secure ? 443 : 80;
-
+    port = 0;
     if ((host = websGetVar(wp, "HTTP_HOST", websHostUrl)) != 0) {
         scopy(hostbuf, sizeof(hostbuf), host);
         if ((pstr = strchr(hostbuf, ':')) != 0) {
@@ -1445,49 +1441,76 @@ void websRedirect(Webs *wp, char *url)
             port = atoi(pstr);
         }
     }
-    if (*url == '/') {
-        url++;
+    if (smatch(uri, "http://") || smatch(uri, "https://")) {
+        /* Protocol switch with existing Uri */
+        scheme = sncmp(uri, "https", 5) == 0 ? "https" : "http";
+        uri = location = makeUri(scheme, hostbuf, 0, wp->url);
     }
-    if (strstr(url, "https:///")) {
+    secure = strstr(uri, "https://") || (wp->flags & WEBS_SECURE);
+    if (port < 0) {
+        port = secure ? BIT_SSL_PORT : BIT_HTTP_PORT;
+    }
+    fullyQualified = strstr(uri, "http://") || strstr(uri, "https://");
+    scheme = secure ? "https" : "http";
+
+    if (strstr(uri, "https:///")) {
         /* Short-hand for redirect to https */
-        if (BIT_SSL_PORT != 443) {
-            urlbuf = sfmt("%s://%s:%d/%s", scheme, hostbuf, BIT_SSL_PORT, &url[9]);
-        } else {
-            urlbuf = sfmt("%s://%s/%s", scheme, hostbuf, &url[9]);
-        }
-        url = urlbuf;
-    } else if (strstr(url, "http:///")) {
-        if (BIT_HTTP_PORT != 80) {
-            urlbuf = sfmt("%s://%s:%d/%s", scheme, hostbuf, BIT_HTTP_PORT, &url[8]);
-        } else {
-            urlbuf = sfmt("%s://%s/%s", scheme, hostbuf, &url[8]);
-        }
-        url = urlbuf;
+        uri = location = makeUri(scheme, hostbuf, port, &uri[8]);
+
+    } else if (strstr(uri, "http:///")) {
+        uri = location = makeUri(scheme, hostbuf, port, &uri[7]);
+
     } else if (!fullyQualified) {
-        if (port != 80) {
-            urlbuf = sfmt("%s://%s:%d/%s", scheme, hostbuf, port, url);
-        } else {
-            urlbuf = sfmt("%s://%s/%s", scheme, hostbuf, url);        
-        }
-        url = urlbuf;
+        uri = location = makeUri(scheme, hostbuf, port, uri);
     }
-    msgbuf = sfmt("<html><head></head><body>\r\n\
+    message = sfmt("<html><head></head><body>\r\n\
         This document has moved to a new <a href=\"%s\">location</a>.\r\n\
         Please update your documents to reflect the new location.\r\n\
-        </body></html>\r\n", url);
-    websResponse(wp, 302, msgbuf, url);
-    gfree(msgbuf);
-    gfree(urlbuf);
+        </body></html>\r\n", uri);
+    len = slen(message);
+    code = 302;
+    websWriteHeaders(wp, code, len + 2, uri);
+    websWriteEndHeaders(wp);
+    websWriteBlock(wp, message, len);
+    websWriteBlock(wp, "\r\n", 2);
+    websDone(wp, code);
+
+    gfree(message);
+    gfree(location);
+    gfree(uribuf);
+}
+
+
+int websRedirectByStatus(Webs *wp, int status)
+{
+    WebsKey     *key;
+    char        code[16], *uri;
+
+    if (wp->route->redirects >= 0) {
+        itosbuf(code, sizeof(code), status, 10);
+        if ((key = symLookup(wp->route->redirects, code)) != 0) {
+            uri = key->content.value.string;
+        } else {
+            return -1;
+        }
+        websRedirect(wp, uri);
+    } else {
+        if (status == HTTP_CODE_UNAUTHORIZED) {
+            websError(wp, status, "Access Denied. User not logged in.");
+        } else {
+            websError(wp, status, 0);
+        }
+    }
+    return 0;
 }
 
 
 /*  
     Escape HTML to escape defined characters (prevent cross-site scripting)
  */
-char *websEscapeHtml(cchar *html)
+char *websEscapeHtml(char *html)
 {
-    cchar   *ip;
-    char    *result, *op;
+    char    *ip, *result, *op;
     int     len;
 
     if (!html) {
@@ -1573,19 +1596,23 @@ void websError(Webs *wp, int code, char *fmt, ...)
     gfree(wp->url);
     wp->url = encoded;
 
-    va_start(args, fmt);
-    userMsg = sfmtv(fmt, args);
-    va_end(args);
-    error("%s", userMsg);
+    if (fmt) {
+        va_start(args, fmt);
+        userMsg = sfmtv(fmt, args);
+        va_end(args);
+        error("%s", userMsg);
 
-    encoded = websEscapeHtml(userMsg);
-    gfree(userMsg);
-    userMsg = encoded;
+        encoded = websEscapeHtml(userMsg);
+        gfree(userMsg);
+        userMsg = encoded;
 
-    buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
-        <body><h2>Access Error: %s</h2>\r\n\
-        <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), userMsg);
-    websResponse(wp, code, buf, NULL);
+        buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
+            <body><h2>Access Error: %s</h2>\r\n\
+            <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), userMsg);
+    } else {
+        buf = 0;
+    }
+    websResponse(wp, code, buf);
     gfree(buf);
     gfree(userMsg);
 }
@@ -1640,7 +1667,7 @@ ssize websWriteHeader(Webs *wp, char *fmt, ...)
 /*
     Write a set of headers. Does not write the trailing blank line so callers can add more headers.
  */
-void websWriteHeaders(Webs *wp, int code, ssize length, char *redirect)
+void websWriteHeaders(Webs *wp, int code, ssize length, char *location)
 {
     WebsKey     *key;
     char        *date;
@@ -1681,8 +1708,8 @@ void websWriteHeaders(Webs *wp, int code, ssize length, char *redirect)
         } else {
             websWriteHeader(wp, "Connection: close\r\n");   
         }
-        if (redirect) {
-            websWriteHeader(wp, "Location: %s\r\n", redirect);
+        if (location) {
+            websWriteHeader(wp, "Location: %s\r\n", location);
         } else if ((key = symLookup(websMime, wp->ext)) != 0) {
             websWriteHeader(wp, "Content-Type: %s\r\n", key->content.value.string);
         }
@@ -3052,6 +3079,9 @@ char *websNormalizeUriPath(char *pathArg)
             }
         }
         *dp = '\0';
+    }
+    if ((path[0] != '/') || strchr(path, '\\')) {
+        return 0;
     }
     return path;
 }

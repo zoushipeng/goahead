@@ -107,11 +107,17 @@ bool websAuthenticate(Webs *wp)
             }
         }
         if (!wp->username || !*wp->username) {
-            (route->askLogin)(wp);
+            if (route->askLogin) {
+                (route->askLogin)(wp);
+            }
+            websRedirectByStatus(wp, HTTP_CODE_UNAUTHORIZED);
             return 0;
         }
         if (!(route->verify)(wp)) {
-            (route->askLogin)(wp);
+            if (route->askLogin) {
+                (route->askLogin)(wp);
+            }
+            websRedirectByStatus(wp, HTTP_CODE_UNAUTHORIZED);
             return 0;
         }
         /*
@@ -129,10 +135,10 @@ int websOpenAuth()
 {
     char    sbuf[64];
     
-    if ((users = symOpen(WEBS_SMALL_HASH)) < 0) {
+    if ((users = symOpen(-1)) < 0) {
         return -1;
     }
-    if ((roles = symOpen(WEBS_SMALL_HASH)) < 0) {
+    if ((roles = symOpen(-1)) < 0) {
         return -1;
     }
     fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
@@ -185,6 +191,10 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
 {
     WebsUser    *user;
 
+    if (!username) {
+        error("User is missing name");
+        return 0;
+    }
     if (websLookupUser(username)) {
         error("User %s already exists", username);
         /* Already exists */
@@ -265,7 +275,7 @@ static void computeUserAbilities(WebsUser *user)
 {
     char        *ability, *roles, *tok;
 
-    if ((user->abilities = symOpen(WEBS_SMALL_HASH)) == 0) {
+    if ((user->abilities = symOpen(-1)) == 0) {
         return;
     }
     roles = strdup(user->roles);
@@ -299,11 +309,14 @@ void websComputeAllUserAbilities()
 }
 
 
-int websAddRole(char *name, char *abilities)
+int websAddRole(char *name, WebsHash abilities)
 {
     WebsRole    *rp;
-    char        *ability, *tok;
 
+    if (!name) {
+        error("Role is missing name");
+        return -1;
+    }
     if (symLookup(roles, name)) {
         error("Role %s already exists", name);
         /* Already exists */
@@ -312,7 +325,8 @@ int websAddRole(char *name, char *abilities)
     if ((rp = galloc(sizeof(WebsRole))) == 0) {
         return -1;
     }
-    if ((rp->abilities = symOpen(WEBS_SMALL_HASH)) < 0) {
+#if UNUSED
+    if ((rp->abilities = symOpen(-1)) < 0) {
         return -1;
     }
     trace(5, "Role \"%s\" has abilities:%s\n", name, abilities);
@@ -323,11 +337,12 @@ int websAddRole(char *name, char *abilities)
             return -1;
         }
     }
+#else
+    rp->abilities = abilities;
+#endif
     if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
-        gfree(abilities);
         return -1;
     }
-    gfree(abilities);
     return 0;
 }
 
@@ -384,10 +399,6 @@ static void loginServiceProc(Webs *wp)
 {
     WebsRoute   *route;
 
-    if (!smatch(wp->method, "POST")) {
-        websError(wp, 401, "Login must be invoked with a post request.");
-        return;
-    }
     route = wp->route;
     gassert(route);
     
@@ -396,10 +407,13 @@ static void loginServiceProc(Webs *wp)
         if ((referrer = websGetSessionVar(wp, "referrer", 0)) != 0) {
             websRedirect(wp, referrer);
         } else {
-            websRedirect(wp, route->loggedInPage);
+            websRedirectByStatus(wp, HTTP_CODE_OK);
         }
     } else {
-        websRedirect(wp, route->loginPage);
+        if (route->askLogin) {
+            (route->askLogin)(wp);
+        }
+        websRedirectByStatus(wp, HTTP_CODE_UNAUTHORIZED);
     }
 }
 
@@ -411,7 +425,7 @@ static void logoutServiceProc(Webs *wp)
         websError(wp, 401, "Logged out.");
         return;
     }
-    websRedirect(wp, wp->route->loginPage);
+    websRedirectByStatus(wp, HTTP_CODE_OK);
 }
 
 
@@ -420,13 +434,11 @@ void websBasicLogin(Webs *wp)
     gassert(wp->route);
     gfree(wp->authResponse);
     wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_REALM);
-    websError(wp, 401, "Access Denied. User not logged in.");
 }
 
 
 void websFormLogin(Webs *wp)
 {
-    websRedirect(wp, wp->route->loginPage);
 }
 
 
@@ -511,7 +523,6 @@ void websDigestLogin(Webs *wp)
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
         BIT_REALM, websGetHostUrl(), "auth", nonce, opaque, "MD5", "FALSE");
     gfree(nonce);
-    websError(wp, 401, "Access Denied. User not logged in.");
 }
 
 

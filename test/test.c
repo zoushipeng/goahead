@@ -26,7 +26,7 @@ static int finished = 0;
 static void initPlatform();
 static void usage();
 
-static int aliasTest(Webs *wp, char *prefix, char *dir, int arg);
+static bool testHandler(Webs *wp);
 #if BIT_JAVASCRIPT
 static int aspTest(int eid, Webs *wp, int argc, char **argv);
 static int bigTest(int eid, Webs *wp, int argc, char **argv);
@@ -35,6 +35,9 @@ static void procTest(Webs *wp, char *path, char *query);
 static void sessionTest(Webs *wp, char *path, char *query);
 static void showTest(Webs *wp, char *path, char *query);
 static void uploadTest(Webs *wp, char *path, char *query);
+#if BIT_LEGACY
+static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
+#endif
 
 #if BIT_UNIX_LIKE
 static void sigHandler(int signo);
@@ -64,7 +67,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (argind >= argc) usage();
             home = argv[++argind];
             if (chdir(home) < 0) {
-                error(T("Can't change directory to %s"), home);
+                error("Can't change directory to %s", home);
                 exit(-1);
             }
         } else if (smatch(argp, "--log") || smatch(argp, "-l")) {
@@ -91,7 +94,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
     initPlatform();
     if (websOpen(documents, route) < 0) {
-        error(T("Can't initialize server. Exiting."));
+        error("Can't initialize server. Exiting.");
         return -1;
     }
     if (argind < argc) {
@@ -123,23 +126,21 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
 #endif
     }
-    websUrlHandlerDefine(T("/proc/"), 0, 0, websProcHandler, 0);
-    websUrlHandlerDefine(T("/cgi-bin"), 0, 0, websCgiHandler, 0);
-    websUrlHandlerDefine(T("/alias/"), 0, 0, aliasTest, 0);
-#if BIT_JAVASCRIPT
-    websUrlHandlerDefine(T("/"), 0, 0, websJsHandler, 0);
-#endif
-    websUrlHandlerDefine(T("/"), 0, 0, websHomePageHandler, 0); 
-    websUrlHandlerDefine(T(""), 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
 
-#if BIT_JAVASCRIPT
-    websJsDefine(T("aspTest"), aspTest);
-    websJsDefine(T("bigTest"), bigTest);
+    websDefineHandler("test", testHandler, 0, 0);
+    websAddRoute("/test", "test", 0);
+#if BIT_LEGACY
+    websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);
 #endif
-    websProcDefine(T("test"), procTest);
-    websProcDefine(T("sessionTest"), sessionTest);
-    websProcDefine(T("showTest"), showTest);
-    websProcDefine(T("uploadTest"), uploadTest);
+#if BIT_JAVASCRIPT
+    websJsDefine("aspTest", aspTest);
+    websJsDefine("bigTest", bigTest);
+#endif
+    websProcDefine("test", procTest);
+    websProcDefine("sessionTest", sessionTest);
+    websProcDefine("showTest", showTest);
+    websProcDefine("uploadTest", uploadTest);
+
 #if BIT_UNIX_LIKE
     /*
         Service events till terminated
@@ -196,12 +197,14 @@ static void sigHandler(int signo)
 
 
 /*
-    Rewrite /alias => /alias/atest.html
+    Simple handler and route test
+    Note: Accesses to "/" are normally remapped automatically to /index.html
  */
-static int aliasTest(Webs *wp, char *prefix, char *dir, int arg)
+static bool testHandler(Webs *wp)
 {
-    if (smatch(prefix, "/alias/")) {
-        websRewriteRequest(wp, "/alias/atest.html");
+    if (smatch(wp->path, "/")) {
+        websRewriteRequest(wp, "/home.html");
+        /* Fall through */
     }
     return 0;
 }
@@ -215,11 +218,11 @@ static int aspTest(int eid, Webs *wp, int argc, char **argv)
 {
 	char	*name, *address;
 
-	if (jsArgs(argc, argv, T("%s %s"), &name, &address) < 2) {
-		websError(wp, 400, T("Insufficient args\n"));
+	if (jsArgs(argc, argv, "%s %s", &name, &address) < 2) {
+		websError(wp, 400, "Insufficient args\n");
 		return -1;
 	}
-	return (int) websWrite(wp, T("Name: %s, Address %s"), name, address);
+	return (int) websWrite(wp, "Name: %s, Address %s", name, address);
 }
 
 
@@ -232,11 +235,11 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv)
 
     websWriteHeaders(wp, 200, -1, 0);
     websWriteEndHeaders(wp);
-    websWrite(wp, T("<html>\n"));
+    websWrite(wp, "<html>\n");
     for (i = 0; i < 800; i++) {
         websWrite(wp, " Line: %05d %s", i, "aaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccccccccccccccccddddddd<br/>\r\n");
     }
-    websWrite(wp, T("</html>\n"));
+    websWrite(wp, "</html>\n");
     websDone(wp, 200);
     return 0;
 }
@@ -250,11 +253,11 @@ static void procTest(Webs *wp, char *path, char *query)
 {
 	char	*name, *address;
 
-	name = websGetVar(wp, T("name"), NULL);
-	address = websGetVar(wp, T("address"), NULL);
+	name = websGetVar(wp, "name", NULL);
+	address = websGetVar(wp, "address", NULL);
     websWriteHeaders(wp, 200, -1, 0);
     websWriteEndHeaders(wp);
-	websWrite(wp, T("<html><body><h2>name: %s, address: %s</h2></body></html>\n"), name, address);
+	websWrite(wp, "<html><body><h2>name: %s, address: %s</h2></body></html>\n", name, address);
 	websDone(wp, 200);
 }
 
@@ -264,14 +267,14 @@ static void sessionTest(Webs *wp, char *path, char *query)
 	char	*number;
 
     if (scaselessmatch(wp->method, "POST")) {
-        number = websGetVar(wp, T("number"), 0);
+        number = websGetVar(wp, "number", 0);
         websSetSessionVar(wp, "number", number);
     } else {
         number = websGetSessionVar(wp, "number", 0);
     }
     websWriteHeaders(wp, 200, -1, 0);
     websWriteEndHeaders(wp);
-    websWrite(wp, T("<html><body><p>Number %s</p></body></html>\n"), number);
+    websWrite(wp, "<html><body><p>Number %s</p></body></html>\n", number);
     websDone(wp, 200);
 }
 
@@ -282,22 +285,25 @@ static void showTest(Webs *wp, char *path, char *query)
 
     websWriteHeaders(wp, 200, -1, 0);
     websWriteEndHeaders(wp);
-    websWrite(wp, T("<html><body><pre>\n"));
+    websWrite(wp, "<html><body><pre>\n");
     for (s = symFirst(wp->vars); s; s = symNext(wp->vars, s)) {
         websWrite(wp, "%s=%s\n", s->name.value.string, s->content.value.string);
     }
-    websWrite(wp, T("</pre></body></html>\n"));
+    websWrite(wp, "</pre></body></html>\n");
     websDone(wp, 200);
 }
 
 
+/*
+    Dump the file upload details. Don't actually do anything with the uploaded file.
+ */
 static void uploadTest(Webs *wp, char *path, char *query)
 {
     WebsKey         *s;
     WebsUploadFile  *up;
 
     websWriteHeaders(wp, 200, -1, 0);
-    websWriteHeader(wp, T("Content-Type: text/plain\r\n"));
+    websWriteHeader(wp, "Content-Type: text/plain\r\n");
     websWriteEndHeaders(wp);
     if (scaselessmatch(wp->method, "POST")) {
         for (s = symFirst(wp->files); s; s = symNext(wp->files, s)) {
@@ -315,6 +321,23 @@ static void uploadTest(Webs *wp, char *path, char *query)
     }
     websDone(wp, 200);
 }
+
+
+#if BIT_LEGACY
+/*
+    Legacy handler with old parameter sequence
+ */
+static int legacyTest(Webs *wp, char *prefix, char *dir, int flags)
+{
+    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeader(wp, "Content-Type: text/plain\r\n");
+    websWriteEndHeaders(wp);
+    websWrite(wp, "Hello Legacy World\n");
+    websDone(wp, 200);
+    return 1;
+}
+
+#endif
 
 /*
     @copy   default

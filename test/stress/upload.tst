@@ -6,7 +6,7 @@ const HTTP = App.config.uris.http || "127.0.0.1:8080"
 const TESTFILE = "upload-" + hashcode(self) + ".tdat"
 
 /* This test requires chunking support */
-if (false && App.config.bit_upload) {
+if (App.config.bit_upload) {
 
     let http: Http = new Http
 

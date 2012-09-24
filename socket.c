@@ -63,7 +63,7 @@ void socketClose()
 }
 
 
-int socketListen(char *ip, int port, socketAccept_t accept, int flags)
+int socketListen(char *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket                *sp;
     struct sockaddr_storage addr;
@@ -734,7 +734,7 @@ void socketReservice(int sid)
     Create a user handler for this socket. The handler called whenever there
     is an event of interest as defined by handlerMask (SOCKET_READABLE, ...)
  */
-void socketCreateHandler(int sid, int handlerMask, socketHandler_t handler, void* data)
+void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void* data)
 {
     WebsSocket    *sp;
 
@@ -762,7 +762,7 @@ void socketDeleteHandler(int sid)
 /*
     Allocate a new socket structure
  */
-int socketAlloc(char *ip, int port, socketAccept_t accept, int flags)
+int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket    *sp;
     int         sid;

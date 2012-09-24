@@ -123,17 +123,6 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
 #endif
     }
-    websUrlHandlerDefine("/proc/", 0, 0, websProcHandler, 0);
-#if BIT_LEGACY
-    websUrlHandlerDefine("/goform/", 0, 0, websProcHandler, 0);
-#endif
-    websUrlHandlerDefine("/cgi-bin", 0, 0, websCgiHandler, 0);
-#if BIT_JAVASCRIPT
-    websUrlHandlerDefine("/", 0, 0, websJsHandler, 0);
-#endif
-    websUrlHandlerDefine("/", 0, 0, websHomePageHandler, 0); 
-    websUrlHandlerDefine("", 0, 0, websFileHandler, WEBS_HANDLER_LAST); 
-
 #if BIT_UNIX_LIKE
     /*
         Service events till terminated

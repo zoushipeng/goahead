@@ -150,10 +150,10 @@ typedef struct Js {
 
 extern int      jsOpenBlock(int eid);
 extern int      jsCloseBlock(int eid, int vid);
-extern char   *jsEvalBlock(int eid, char *script, char **emsg);
+extern char     *jsEvalBlock(int eid, char *script, char **emsg);
 
 #if !ECOS && UNUSED && KEEP
-extern char   *jsEvalFile(int eid, char *path, char **emsg);
+extern char     *jsEvalFile(int eid, char *path, char **emsg);
 #endif
 
 extern int      jsRemoveGlobalFunction(int eid, char *name);
@@ -164,7 +164,7 @@ extern void     jsError(Js *ep, char *fmt, ...);
 extern void     jsSetUserHandle(int eid, void *handle);
 extern void     *jsGetUserHandle(int eid);
 extern int      jsGetLineNumber(int eid);
-extern char   *jsGetResult(int eid);
+extern char     *jsGetResult(int eid);
 extern void     jsSetLocalVar(int eid, char *var, char *value);
 extern void     jsSetGlobalVar(int eid, char *var, char *value);
 
@@ -188,7 +188,7 @@ extern void     jsCloseEngine(int eid);
 extern int      jsSetGlobalFunction(int eid, char *name, int (*fn)(int eid, void *handle, int argc, char **argv));
 extern void     jsSetVar(int eid, char *var, char *value);
 extern int      jsGetVar(int eid, char *var, char **value);
-extern char   *jsEval(int eid, char *script, char **emsg);
+extern char     *jsEval(int eid, char *script, char **emsg);
 
 #if BIT_LEGACY
     typedef Js ej_t;

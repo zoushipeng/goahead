@@ -2,38 +2,55 @@
 #   route.txt - Route and authorization configuration
 #
 #   Schema
-#       user: name: password: roles...
-#       role: name: abilities.
-#       uri: type: uri: method: abilities... : redirect
+#       user name=NAME password=PASSWORD roles=ROLES
+#       role name=NAME abilities=ABILITIES
+#       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=STATUS@URI \
+#           extensions=EXTENSIONS abilities=ABILITIES 
 #
-#   Abilities are a set of required abilities that the user or request must possess.
-#   Abilities are comma separated tokens, where tokens are single words or multiple words separated by "|".
-
+#   Routes may require authentication and that users possess certain abilities.
+#   The abilities, extensions, methods and redirect keywords use comma separated tokens to express a set of 
+#       required options, or use "|" separated tokens for a set of alternative options. This implements AND/OR.
+#   The protocol keyword may be set to http or https. The redirect status may be "*" to match all HTTP status codes.
+#   Multiple redirect fields are permissable
 #
-#   Sample basic or digest authentication for user "joshua" 
+#   Examples:
 #
-#   user: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: manage
-#   uri: basic: /auth/basic/: manage
-#   uri: digest: /auth/digest/: manage
-
-#
-#   Post-based (web-form) authentication with a login page of "/login.html" over TLS. 
-#   Redirect to "/index.html" when logged in.
-#
-#   uri: none: /login.html: none: /index.html
-#   uri: form: /: manage: https:///login.html
-
-#
-#   Support PUT or DELETE methods (only) for the /put directory
-#
-#   uri: form: /admin/put: PUT|DELETE
-
+#   Universally redirect http to https for secure communications
+#       route uri=/ protocol=http redirect=*@https handler=redirect
 #
 #   Require TLS to access anything under /secure
+#       route uri=/secure/ protocol=https
 #
-#   uri: none: /secure: SECURE 
+#   Define roles
+#       role name=manager abilities=view,edit,delete
+#
+#   Define a user
+#       user name=joshua password=2fd6e47ff9bb70c0465fd2f5c8e5305e roles=manager,purchaser
+#
+#   Form based login pattern
+#       route uri=/login.html redirect=/auth/form/index.html
+#       route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/login.html
+#       route uri=/proc/logout methods=POST handler=proc redirect=200@/login.html
+#       route uri=/ auth=form handler=continue redirect=401@/login.html
+#
+#   Sample basic or digest authentication for user "joshua" 
+#       route uri=/auth/basic/ auth=basic abilities=manage
+#       route uri=/auth/digest/ auth=digest abilities=manage
+#
+#   Eanable the PUT or DELETE methods (only) for the /put directory
+#       route uri=/put/ methods=PUT|DELETE
+#
+
+#
+#   Standard routes. Uncomment to enable if required.
+#
+#   route uri=/cgi-bin handler=cgi
+#   route uri=/proc handler=proc
+#   route uri=/ extensions=asp handler=js
+#   route uri=/ methods=OPTIONS|TRACE handler=options
 
 #
 #   Catch-all route without authentication for all other URIs
 #
-uri: none: /
+route uri=/
+

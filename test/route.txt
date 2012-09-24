@@ -2,60 +2,85 @@
 #   route.txt - Route and authorization configuration
 #
 #   Schema
-#       user: name: password: roles...
-#       role: name: abilities...
-#       uri: type: uri: method: abilities... : redirect
+#       user name=NAME password=PASSWORD roles
+#       role name=NAME abilities=ABILITIES
+#       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=REDIRECT \
+#           extensions=EXTENSIONS abilities=ABILITIES 
 #
 #   Abilities are a set of required abilities that the user or request must possess.
-#   Abilities are comma separated tokens, where tokens are single words or multiple words separated by "|".
+#   The abilities, extensions, methods and redirect keywords may use comma separated tokens to express a set of 
+#       required options, or use "|" separated tokens for a set of alternative options. This implements AND/OR.
+#   The protocol keyword may be set to http or https
+#   Multiple redirect fields are permissable
+#
+#   Redirect over TLS
+#       route uri=/ protocol=http redirect=https handler=redirect
+#
+#   Form based login pattern
+#       route uri=/login.html
+#       route uri=/proc/login methods=GET|POST handler=proc redirect=200@/ redirect=401@/login.html
+#       route uri=/proc/logout handler=proc redirect=200@/login.html
+#       route uri=/ auth=form handler=continue redirect=401@/login.html
 #
 
-role: person: breathe
-role: user: person, view
-role: administrator: user, manage
+#
+#   Named roles define a set of abilities
+#
+#   MOB - can you use "|" here
+role name=person abilities=breathe
+role name=user abilities=person,view
+role name=administrator abilities=user,manage
 
 #
 #   Map PAM group to abilities
 #
-role: admin: user manage
+role name=admin abilities=user,manage
 
-user: julie: 9d8873a123eb506e7f8e84d1f2a26916: user
-user: peter: 7cdba57892649fd95a540683fdf8fba6: user
-user: mary: 5b90553bea8ba3686f4239d62801f0f3: user 
-user: joshua: 2fd6e47ff9bb70c0465fd2f5c8e5305e: administrator, purchase
+user name=julie  password=9d8873a123eb506e7f8e84d1f2a26916 roles=user
+user name=peter  password=7cdba57892649fd95a540683fdf8fba6 roles=user
+user name=mary   password=5b90553bea8ba3686f4239d62801f0f3 roles=user 
+user name=joshua password=2fd6e47ff9bb70c0465fd2f5c8e5305e roles=administrator,purchase
+
+route uri=/old-alias/ redirect=/alias/atest.html handler=redirect
 
 #
 #   Basic and digest authentication required for these directories
 #   Require the "manage" ability which only "joshua" has
 #
-uri: basic: /auth/basic/: manage
-uri: digest: /auth/digest/: manage
+route uri=/auth/basic/  auth=basic abilities=manage
+route uri=/auth/digest/ auth=digest abilities=manage
 
 #
-#   Post-based (web-form) authentication
-#   The login form is /auth/form/login.html. The page to display when logged-in is: /auth/form/index.html
+#   Form-based authentication for content under /auth/form
+#   The login form is /auth/form/login.html. The page to display when logged-in is /auth/form/index.html
 #   Everything else under /auth/form is secured and requires the "manage" ability 
 #
-uri: none: /auth/form/login.html: none: /auth/form/index.html
-uri: form: /auth/form/: manage: /auth/form/login.html
+route uri=/auth/form/login.html redirect=/auth/form/index.html
+route uri=/proc/login methods=GET|POST handler=proc redirect=200@/auth/form/index.html redirect=401@/auth/form/login.html
+route uri=/proc/logout methods=GET|POST handler=proc redirect=200@/auth/form/login.html
+route uri=/auth/form/ auth=form handler=continue abilities=manage redirect=401@/auth/form/login.html
 
 #
-#   Support PUT, DELETE methods for the /put directory
+#   Standard routes
 #
-uri: none: /put/: PUT|DELETE
+route uri=/cgi-bin handler=cgi
+route uri=/proc handler=proc
+route uri=/ methods=OPTIONS|TRACE handler=options
+route uri=/ extensions=asp handler=js
+
+#
+#   Support PUT and DELETE methods only for the /put directory
+#
+route uri=/tmp/ methods=PUT|DELETE
 
 #
 #   Require TLS to access anything under /secure
 #
-uri: none: /secure/: SECURE
+route uri=/secure/ protocol=https
 
-#
-#   To test form auth with redirection over ssl
-#
-#   uri: none: /admin/login.html: none: /index.html
-#   uri: form: /: manage: https:///admin/login.html
 
 #
 #   Catch-all route without authentication for all other URIs
 #
-uri: none: /
+route uri=/
+

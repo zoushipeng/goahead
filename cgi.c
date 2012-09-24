@@ -35,7 +35,7 @@ static int      cgiMax;         /* Size of galloc list */
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-int websCgiHandler(Webs *wp, char *prefix, char *dir, int arg)
+static bool cgiHandler(Webs *wp)
 {
     Cgi         *cgip;
     WebsKey     *s;
@@ -191,6 +191,13 @@ int websCgiHandler(Webs *wp, char *prefix, char *dir, int arg)
      */
     chdir(cwd);
     return 1;
+}
+
+
+int websCgiOpen()
+{
+    websDefineHandler("cgi", cgiHandler, 0, 0);
+    return 0;
 }
 
 

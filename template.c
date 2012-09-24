@@ -23,7 +23,7 @@ static char   *skipWhite(char *s);
 /*
     Process template JS request
  */
-int websJsHandler(Webs *wp, char *prefix, char *dir, int arg)
+static bool jsHandler(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -38,23 +38,21 @@ int websJsHandler(Webs *wp, char *prefix, char *dir, int arg)
 }
 
 
-/*
-    Create script spaces and commands
- */
-int websJsOpen()
-{
-    websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
-    websJsDefine("write", websJsWrite);
-    return 0;
-}
-
-
-void websJsClose()
+static void closeJs()
 {
     if (websJsFunctions != -1) {
         symClose(websJsFunctions);
         websJsFunctions = -1;
     }
+}
+
+
+int websJsOpen()
+{
+    websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
+    websJsDefine("write", websJsWrite);
+    websDefineHandler("js", jsHandler, closeJs, 0);
+    return 0;
 }
 
 
@@ -123,17 +121,6 @@ int websJsRequest(Webs *wp, char *filename)
         goto done;
     }
     websPageClose(wp);
-
-#if UNUSED
-    /*
-        Convert to UNICODE if necessary.
-     */
-    if ((buf = gallocAscToUni(rbuf, len)) == NULL) {
-        websError(wp, 200, "Can't get memory");
-        goto done;
-    }
-#endif
-
     websWriteHeaders(wp, 200, (ssize) -1, 0);
     websWriteHeader(wp, "Pragma: no-cache\r\nCache-Control: no-cache\r\n");
     websWriteEndHeaders(wp);
@@ -305,9 +292,8 @@ static char *skipWhite(char *s)
 }
 
 #else
-int websJsHandler(Webs *wp, char *prefix, char *dir, int arg) { return 0; }
+int websJsHandler(Webs *wp) { return 0; }
 int websJsOpen() { return 0; }
-void websJsClose() {}
 #endif /* BIT_JAVASCRIPT */
 
 /*
