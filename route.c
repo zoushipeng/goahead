@@ -557,9 +557,6 @@ static bool continueHandler(Webs *wp)
 
 static bool redirectHandler(Webs *wp)
 {
-    WebsRoute   *route;
-
-    route = wp->route;
     return websRedirectByStatus(wp, 0) == 0;
 }
 
