@@ -140,7 +140,7 @@ Bit.load({
         /*
             Upload file support
          */
-        upload: true,
+        upload: false,
         uploadDir: "/tmp",
     },
 

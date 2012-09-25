@@ -255,10 +255,12 @@ int websOpen(char *documents, char *authPath)
         return -1;
     }
     websCgiOpen();
-    websUploadOpen();
     websOptionsOpen();
     websProcOpen();
     websFileOpen();
+#if BIT_UPLOAD
+    websUploadOpen();
+#endif
 #if BIT_JAVASCRIPT
     websJsOpen();
 #endif
@@ -398,9 +400,11 @@ static void termWebs(Webs *wp, int keepAlive)
     gfree(wp->realm);
     gfree(wp->responseCookie);
     gfree(wp->url);
-    gfree(wp->uploadTmp);
     gfree(wp->userAgent);
     gfree(wp->username);
+#if BIT_UPLOAD
+    gfree(wp->uploadTmp);
+#endif
 #if BIT_CGI
     gfree(wp->cgiStdin);
 #endif
@@ -1090,12 +1094,10 @@ static bool processContent(Webs *wp)
 }
 
 
-static ssize chunkLen(Webs *wp)
-{
-    return ringqLen(&wp->input) - wp->rxFiltered;
-}
-
-
+/*
+    Called by handlers and filters that consume input. Handlers may extract input data from the buffer and
+    so this routine adjusts rxFiltered to the chunk filter knows where the chunk data begins.
+ */
 void websConsumeInput(Webs *wp, ssize nbytes)
 {
     gassert(ringqLen(&wp->input) >= nbytes);
@@ -1110,32 +1112,23 @@ void websConsumeInput(Webs *wp, ssize nbytes)
 }
 
 
-static void removeBoundary(Webs *wp, char *start, char *end)
-{
-    ssize   len;
-
-    gassert(start <= end);
-    len = wp->input.endp - end;
-    memmove(start, end, len);
-    wp->input.endp -= (end - start);
-    wp->input.endp[0] = '\0';
-    gassert(wp->input.endp >= wp->input.servp);
-}
-
-
 static bool filterChunkData(Webs *wp)
 {
     ssize   chunkSize;
-    char    *start, *cp;
+    char    *start, *cp, *end;
+    ssize   len, chunkLen, added;
     int     bad;
 
+    added = 0;
     while (1) {
+        chunkLen = ringqLen(&wp->input) - wp->rxFiltered;
+
         switch (wp->rxChunkState) {
         case WEBS_CHUNK_START:
             /*  
                 Expect: "\r\nSIZE.*\r\n"
              */
-            if (chunkLen(wp) < 5) {
+            if (chunkLen < 5) {
                 return 0;
             }
             gassert(ringqLen(&wp->input) >= wp->rxFiltered);
@@ -1167,7 +1160,16 @@ static bool filterChunkData(Webs *wp)
                     return 0;
                 }
             }
-            removeBoundary(wp, start, cp + 1);
+            /*
+                Remove the chunk boundary and adjust endp.
+             */
+            end = cp + 1;
+            len = wp->input.endp - end;
+            memmove(start, end, len);
+            wp->input.endp -= (end - start);
+            wp->input.endp[0] = '\0';
+            gassert(wp->input.endp >= wp->input.servp);
+
             wp->rxChunkSize = chunkSize;
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
@@ -1176,12 +1178,16 @@ static bool filterChunkData(Webs *wp)
             }
             trace(7, "chunkFilter: start incoming chunk of %d bytes", chunkSize);
             wp->rxChunkState = WEBS_CHUNK_DATA;
-            /* Fall through */
+            break;
 
         case WEBS_CHUNK_DATA:
-            if (chunkLen(wp) >= wp->rxChunkSize) {
+            if (chunkLen >= wp->rxChunkSize) {
                 wp->rxFiltered += wp->rxChunkSize;
                 wp->rxChunkState = WEBS_CHUNK_START;
+                added += wp->rxChunkSize;
+            } else if (added > 0) {
+                /* Some data added so content consumers can get to work */
+                return 1;
             } else {
                 /* Need more data to complete the chunk */
                 return 0;

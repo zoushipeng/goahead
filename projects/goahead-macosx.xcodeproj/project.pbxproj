@@ -881,10 +881,24 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = libgo;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -893,6 +907,20 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = libgo;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
@@ -902,10 +930,24 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -914,6 +956,20 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
@@ -923,10 +979,24 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -935,6 +1005,20 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
@@ -944,10 +1028,24 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = webcomp;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -956,6 +1054,20 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = webcomp;
 
+				HEADER_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"../../packages-macosx-x64/openssl/openssl-1.0.1b",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
