@@ -621,7 +621,7 @@ ssize socketWrite(int sid, void *buf, ssize bufsize)
     ssize       len, written, sofar;
     int         errCode;
 
-    if ((sp = socketPtr(sid)) == NULL) {
+    if (buf == 0 || (sp = socketPtr(sid)) == NULL) {
         return -1;
     }
     if (sp->flags & SOCKET_EOF) {
@@ -648,22 +648,10 @@ ssize socketWrite(int sid, void *buf, ssize bufsize)
 
 /*
     Write a string to a socket
-    MOB - change UNICODE api. Should never take unicode
  */
 ssize socketWriteString(int sid, char *buf)
 {
- #if UNICODE && UNUSED
-    char    *byteBuf;
-    ssize   r, len;
- 
-    len = strlen(buf);
-    byteBuf = gallocUniToAsc(buf, len);
-    r = socketWrite(sid, byteBuf, len);
-    gfree(byteBuf);
-    return r;
- #else
-    return socketWrite(sid, buf, strlen(buf));
- #endif /* UNICODE */
+    return socketWrite(sid, buf, slen(buf));
 }
 
 

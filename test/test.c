@@ -306,6 +306,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
 {
     WebsKey         *s;
     WebsUploadFile  *up;
+    char            *upfile;
 
     websWriteHeaders(wp, 200, -1, 0);
     websWriteHeader(wp, "Content-Type: text/plain\r\n");
@@ -318,6 +319,9 @@ static void uploadTest(Webs *wp, char *path, char *query)
             websWrite(wp, "CLIENT=%s\r\n", up->clientFilename);
             websWrite(wp, "TYPE=%s\r\n", up->contentType);
             websWrite(wp, "SIZE=%d\r\n", up->size);
+            upfile = sfmt("%s/tmp/%s", websGetDocuments(), up->clientFilename);
+            rename(up->filename, upfile);
+            gfree(upfile);
         }
         websWrite(wp, "\r\nVARS:\r\n");
         for (s = symFirst(wp->vars); s; s = symNext(wp->vars, s)) {

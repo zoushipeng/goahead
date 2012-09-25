@@ -1263,7 +1263,7 @@ extern void valueFree(WebsValue *v);
     The ringqPutc and ringqGetc routines will do this automatically.
  */
 
-typedef struct {
+typedef struct WebsBuf {
     char    *buf;               /* Holding buffer for data */
     char    *servp;             /* Pointer to start of data */
     char    *endp;              /* Pointer to end of data */
@@ -1280,9 +1280,10 @@ extern int ringqPutc(WebsBuf *bp, char c);
 extern int ringqInsertc(WebsBuf *bp, char c);
 extern ssize ringqPutStr(WebsBuf *bp, char *str);
 extern int ringqGetc(WebsBuf *bp);
-extern int ringqGrow(WebsBuf *bp, ssize room);
+extern bool ringqGrow(WebsBuf *bp, ssize room);
 
 extern ssize ringqPutBlk(WebsBuf *bp, char *buf, ssize len);
+//  MOB rename ringqRoom
 extern ssize ringqPutBlkMax(WebsBuf *bp);
 //  MOB rename ringqAdjustBufEnd
 extern void ringqPutBlkAdj(WebsBuf *bp, ssize size);
@@ -1591,9 +1592,9 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
     Per socket connection webs structure
  */
 typedef struct Webs {
-    //  MOB - sort members
-    WebsBuf         input;              /* Request input buffer */
-    WebsBuf         output;             /* Output buffer */
+    WebsBuf         rxbuf;              /* Raw receive buffer */
+    WebsBuf         input;              /* Receive buffer after de-chunking */
+    WebsBuf         output;             /* Transmit data buffer */
     time_t          since;              /* Parsed if-modified-since time */
     WebsHash        vars;               /* CGI standard variables */
     time_t          timestamp;          /* Last transaction with browser */
@@ -1601,18 +1602,18 @@ typedef struct Webs {
     char            ipaddr[64];         /* Connecting ipaddress */
     char            ifaddr[64];         /* Local interface ipaddress */
 
+    int             rxChunkState;       /* Rx chunk encoding state */
+    ssize           rxChunkSize;        /* Rx chunk size */
+    char            *rxEndp;            /* Pointer to end of raw data in input beyond endp */
+    ssize           lastRead;           /* Number of bytes last read from the socket */
+    bool            eof;                /* If at the end of the request content */
+
     //  MOB - simplify names?
     char            txChunkPrefix[16];
     char            *txChunkPrefixNext;
     ssize           txChunkPrefixLen;
     ssize           txChunkLen;
     int             txChunkState;
-
-    int             rxChunkState;       /* Rx chunk encoding state */
-    ssize           rxChunkSize;        /* Rx chunk size */
-    int             rxFiltered;
-    ssize           lastRead;           /* Number of bytes last read from the socket */
-    bool            eof;                /* If at the end of the request content */
 
     //  MOB OPT - which of these should be allocated strings and which should be static
 
@@ -1646,7 +1647,6 @@ typedef struct Webs {
     int             state;              /* Current state */
     int             flags;              /* Current flags -- see above */
     int             code;               /* Response status code */
-    ssize           rxConsumed;         /* Content consumed from input buffer */
     ssize           rxLen;              /* Rx content length */
     ssize           rxRemaining;        /* Remaining content to read from client */
     ssize           txLen;              /* Tx content length header value */

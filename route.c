@@ -186,7 +186,7 @@ bool websCanString(Webs *wp, char *abilities)
             return 0;
         }
     }
-    abilities = strdup(abilities);
+    abilities = sclone(abilities);
     for (ability = stok(abilities, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         if (symLookup(wp->user->abilities, ability) == 0) {
             gfree(abilities);

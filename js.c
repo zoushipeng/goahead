@@ -8,19 +8,14 @@
 
 #include    "js.h"
 
-//  MOB - refactor. if required, should be in goahead.h
-#if CE
-    #include    "CE/wincompat.h"
-#endif
-
 #if BIT_JAVASCRIPT
 /********************************** Defines ***********************************/
 
 #define     OCTAL   8
 #define     HEX     16
 
-static Js       **jsHandles;    /* List of js handles */
-static int      jsMax = -1;     /* Maximum size of  */
+static Js   **jsHandles;    /* List of js handles */
+static int  jsMax = -1;     /* Maximum size of  */
 
 /****************************** Forward Declarations **************************/
 
@@ -285,7 +280,7 @@ char *jsEval(int eid, char *script, char **emsg)
         Return any error string to the user
      */
     if (state == STATE_ERR && emsg) {
-        *emsg = strdup(ep->error);
+        *emsg = sclone(ep->error);
     }
 
     /*
@@ -898,7 +893,7 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
         }
         if (state == STATE_RELEXP_DONE) {
             aid = gallocHandle(&ep->func->args);
-            ep->func->args[aid] = strdup(ep->result);
+            ep->func->args[aid] = sclone(ep->result);
             ep->func->nArgs++;
         }
         /*
@@ -1313,7 +1308,7 @@ static void appendString(char **ptr, char *s)
         strcpy(&(*ptr)[oldlen], s);
 #endif
     } else {
-        *ptr = strdup(s);
+        *ptr = sclone(s);
     }
 }
 
@@ -1737,7 +1732,7 @@ void jsLexSaveInputState(Js *ep, JsInput *state)
 
     *state = *ip;
     if (ip->putBackToken) {
-        state->putBackToken = strdup(ip->putBackToken);
+        state->putBackToken = sclone(ip->putBackToken);
     }
 }
 
@@ -1758,7 +1753,7 @@ void jsLexRestoreInputState(Js *ep, JsInput *state)
         gfree(ip->putBackToken);
     }
     if (state->putBackToken) {
-        ip->putBackToken = strdup(state->putBackToken);
+        ip->putBackToken = sclone(state->putBackToken);
     }
 }
 
@@ -2159,7 +2154,7 @@ void jsLexPutbackToken(Js *ep, int tid, char *string)
         gfree(ip->putBackToken);
     }
     ip->putBackTokenId = tid;
-    ip->putBackToken = strdup(string);
+    ip->putBackToken = sclone(string);
 }
 
 

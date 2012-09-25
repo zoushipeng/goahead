@@ -84,11 +84,8 @@
 #ifndef BIT_LEGACY
     #define BIT_LEGACY 1
 #endif
-#ifndef BIT_LIMIT_BODY
-    #define BIT_LIMIT_BODY 8192
-#endif
 #ifndef BIT_LIMIT_BUFFER
-    #define BIT_LIMIT_BUFFER 1024
+    #define BIT_LIMIT_BUFFER 8192
 #endif
 #ifndef BIT_LIMIT_FILENAME
     #define BIT_LIMIT_FILENAME 256
@@ -105,8 +102,8 @@
 #ifndef BIT_LIMIT_PASSWORD
     #define BIT_LIMIT_PASSWORD 32
 #endif
-#ifndef BIT_LIMIT_RESPONSE_BUFFER
-    #define BIT_LIMIT_RESPONSE_BUFFER 8192
+#ifndef BIT_LIMIT_RX_BODY
+    #define BIT_LIMIT_RX_BODY 16384
 #endif
 #ifndef BIT_LIMIT_SESSION_COUNT
     #define BIT_LIMIT_SESSION_COUNT 120
@@ -121,7 +118,7 @@
     #define BIT_LIMIT_STRING 4096
 #endif
 #ifndef BIT_LIMIT_UPLOAD
-    #define BIT_LIMIT_UPLOAD 20480000
+    #define BIT_LIMIT_UPLOAD 204800000
 #endif
 #ifndef BIT_LIMIT_URI
     #define BIT_LIMIT_URI 2048
@@ -154,7 +151,7 @@
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
 #ifndef BIT_TRACE
-    #define BIT_TRACE "stdout:2"
+    #define BIT_TRACE "stderr:0"
 #endif
 #ifndef BIT_TRACE_METHOD
     #define BIT_TRACE_METHOD 0
@@ -229,7 +226,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64 -without own -profile xcode -configure . -gen xcode"
+    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64 -without all -profile xcode -configure . -gen xcode"
 #endif
 #ifndef BIT_GOAHEAD_PRODUCT
     #define BIT_GOAHEAD_PRODUCT 1
@@ -278,13 +275,13 @@
     #define BIT_PACK_MATRIXSSL 0
 #endif
 #ifndef BIT_PACK_OPENSSL
-    #define BIT_PACK_OPENSSL 1
+    #define BIT_PACK_OPENSSL 0
 #endif
 #ifndef BIT_PACK_PMAKER
     #define BIT_PACK_PMAKER 0
 #endif
 #ifndef BIT_PACK_SSL
-    #define BIT_PACK_SSL 1
+    #define BIT_PACK_SSL 0
 #endif
 #ifndef BIT_PACK_UTEST
     #define BIT_PACK_UTEST 1

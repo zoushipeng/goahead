@@ -30,8 +30,6 @@ static bool fileHandler(Webs *wp)
 
     gassert(websValid(wp));
 
-    //  MOB - need some route protection for this. What about abilities "delete"
-
 #if !BIT_ROM
     if (smatch(wp->method, "DELETE")) {
         if (unlink(wp->filename) < 0) {
@@ -121,9 +119,9 @@ int websProcessPutData(Webs *wp)
  */
 static void writeEvent(Webs *wp)
 {
-    WebsSocket    *sp;
-    char        *buf;
-    ssize       len, wrote;
+    WebsSocket      *sp;
+    char            *buf;
+    ssize           len, wrote;
 
     gassert(websValid(wp));
     websSetTimeMark(wp);

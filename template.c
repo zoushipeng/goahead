@@ -87,11 +87,7 @@ int websJsRequest(Webs *wp, char *filename)
 
     rc = -1;
     buf = NULL;
-    wp->flags &= ~WEBS_KEEP_ALIVE;
 
-    /*
-        Create Javascript instance in case it is needed
-     */
     if ((jsid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
         websError(wp, 200, "Can't create JavaScript engine");
         goto done;
@@ -109,7 +105,7 @@ int websJsRequest(Webs *wp, char *filename)
     /*
         Create a buffer to hold the web page in-memory
      */
-    len = sbuf.size * sizeof(char);
+    len = sbuf.size;
     if ((buf = galloc(len + 1)) == NULL) {
         websError(wp, 200, "Can't get memory");
         goto done;
