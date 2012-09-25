@@ -48,3 +48,5 @@ libgo.xcscheme
 moc*
 mob.tst
 mob.txt
+*.tdat
+test/web/tmp
