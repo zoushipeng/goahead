@@ -32,16 +32,10 @@ if (App.config.bit_upload) {
     try {
         if (test.threads == 1) {
             size = Path(TESTFILE).size
-
-    print("SIZE", size)
             http.upload(HTTP + "/proc/uploadTest", { file: TESTFILE })
             assert(http.status == 200)
-    dump(http.response)
             http.close()
-
             let uploaded = Path("../web/tmp").join(Path(TESTFILE).basename)
-    print("SIZE", size)
-    print("UPSIZE ", uploaded.size)
             assert(uploaded.size == size)
             //  MOB - remove need for diff
             Cmd.sh("diff " + uploaded + " " + TESTFILE)

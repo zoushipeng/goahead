@@ -48,7 +48,6 @@ static bool procHandler(Webs *wp)
     if (sp == NULL) {
         websError(wp, 404, "Proc %s is not defined", formName);
     } else {
-        //  MOB - should be a typedef
         fn = (WebsProc) sp->content.value.symbol;
         gassert(fn);
         if (fn) {

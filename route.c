@@ -42,11 +42,16 @@ void websRouteRequest(Webs *wp)
     bool        safeMethod;
     int         i, count;
 
+    gassert(wp);
+    gassert(wp->path);
+
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
 
     plen = slen(wp->path);
     for (count = 0, i = 0; i < routeCount; i++) {
         route = routes[i];
+        gassert(route->prefix && route->prefixLen > 0);
+
         if (plen < route->prefixLen) continue;
         len = min(route->prefixLen, plen);
         trace(5, "Examine route %s\n", route->prefix);
@@ -85,6 +90,7 @@ void websRouteRequest(Webs *wp)
                 }
             } else
 #endif
+            gassert(route->handler);
             trace(5, "Route %s calls handler %s\n", route->prefix, route->handler->name);
             if ((*route->handler->service)(wp)) {                                        
                 return;
@@ -111,6 +117,8 @@ void websRouteRequest(Webs *wp)
 
 static bool can(Webs *wp, char *ability)
 {
+    gassert(wp);
+
     if (wp->user && symLookup(wp->user->abilities, ability)) {
         return 1;
     }
@@ -122,6 +130,8 @@ bool websCan(Webs *wp, WebsHash abilities)
 {
     WebsKey     *key;
     char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
+
+    gassert(wp);
 
     if (!wp->user) {
         if (wp->authType) {
@@ -186,7 +196,7 @@ bool websCanString(Webs *wp, char *abilities)
             return 0;
         }
     }
-    abilities = strdup(abilities);
+    abilities = sclone(abilities);
     for (ability = stok(abilities, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         if (symLookup(wp->user->abilities, ability) == 0) {
             gfree(abilities);
@@ -207,7 +217,11 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     WebsKey     *key;
 
     if (uri == 0 || *uri == '\0') {
-        error("Bad URI");
+        error("Route has bad URI");
+        return 0;
+    }
+    if (handler == 0) {
+        error("Route has no handler");
         return 0;
     }
     if ((route = galloc(sizeof(WebsRoute))) == 0) {
@@ -221,7 +235,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         handler = "file";
     }
     if ((key = symLookup(handlers, handler)) == 0) {
-        error("Can't find handler %s", handler);
+        error("Can't find route handler %s", handler);
         return 0;
     }
     route->handler = key->content.value.symbol;
@@ -271,8 +285,6 @@ int websSetRouteAuth(WebsRoute *route, char *auth)
         askLogin = websDigestLogin;
         parseAuth = websParseDigestDetails;
 #endif
-    } else if (smatch(auth, "form")) {
-        askLogin = websFormLogin;
     } else {
         auth = 0;
     }
@@ -360,8 +372,8 @@ int websOpenRoute(char *path)
 
 void websCloseRoute() 
 {
-    WebsKey     *key;
     WebsHandler *handler;
+    WebsKey     *key;
 
     if (handlers >= 0) {
         for (key = symFirst(handlers); key; key = symNext(handlers, key)) {

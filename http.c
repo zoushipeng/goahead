@@ -349,7 +349,7 @@ void websClose()
 }
 
 
-static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *input)
+static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *rxbuf)
 {
     memset(wp, 0, sizeof(Webs));
     wp->flags = flags;
@@ -368,12 +368,18 @@ static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *input)
     wp->upfd = -1;
 #endif
     wp->vars = symOpen(WEBS_SYM_INIT);
-    ringqOpen(&wp->output, BIT_LIMIT_RESPONSE_BUFFER, BIT_LIMIT_RESPONSE_BUFFER);
-    if (input) {
-        wp->input = *input;
+    /*
+        Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
+        a little more memory than required.
+     */
+    ringqOpen(&wp->output, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER + 1);
+    ringqOpen(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_RX_BODY + 1);
+    if (rxbuf) {
+        wp->rxbuf = *rxbuf;
     } else {
-        ringqOpen(&wp->input, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_BODY);
+        ringqOpen(&wp->rxbuf, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_RX_BODY);
     }
+    wp->rxbuf = wp->rxbuf;
 }
 
 
@@ -425,9 +431,10 @@ static void termWebs(Webs *wp, int keepAlive)
         websFreeUpload(wp);
     }
 #endif
+    ringqClose(&wp->input);
     ringqClose(&wp->output);
     if (!keepAlive) {
-        ringqClose(&wp->input);
+        ringqClose(&wp->rxbuf);
     }
 }
 
@@ -449,7 +456,7 @@ int websAlloc(int sid)
 
 static void reuseConn(Webs *wp)
 {
-    WebsBuf     input;
+    WebsBuf     rxbuf;
     int         flags, sid, wid;
 
     gassert(websValid(wp));
@@ -457,13 +464,13 @@ static void reuseConn(Webs *wp)
     flags = wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
     sid = wp->sid;
     wid = wp->wid;
-    ringqCompact(&wp->input);
-    if (ringqLen(&wp->input)) {
+    ringqCompact(&wp->rxbuf);
+    if (ringqLen(&wp->rxbuf)) {
         socketReservice(wp->sid);
     }
-    input = wp->input;
+    rxbuf = wp->rxbuf;
     termWebs(wp, 1);
-    initWebs(wp, wid, sid, flags, &input);
+    initWebs(wp, wid, sid, flags, &rxbuf);
 }
 
 
@@ -484,13 +491,9 @@ void websFree(Webs *wp)
 void websDone(Webs *wp, int code)
 {
     gassert(websValid(wp));
-
     websFlush(wp, 1);
     if (wp->code == 0) {
         wp->code = code & ~WEBS_CLOSE;
-    }
-    if (wp->rxConsumed < wp->rxLen) {
-        ringqGetBlkAdj(&wp->input, wp->rxLen - wp->rxConsumed);
     }
     if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
         trace(3 | WEBS_LOG_RAW, "Request complete: code %d", code);
@@ -713,46 +716,50 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
  */
 void websReadEvent(Webs *wp)
 {
-    WebsBuf     *ip;
-    ssize       nbytes, size, len;
+    WebsBuf     *rxbuf;
+    ssize       nbytes;
 
     gassert(wp);
     gassert(websValid(wp));
 
     websSetTimeMark(wp);
-    ip = &wp->input;
+    rxbuf = &wp->rxbuf;
 
     while (websValid(wp)) {
-        /* 
-            Make room for a trailing null. Makes parsing much easier.
-         */
-        size = (wp->rxLen < 0 || wp->rxLen > BIT_LIMIT_SOCKET_BUFFER) ? BIT_LIMIT_SOCKET_BUFFER : wp->rxLen + 1;
-        if ((ip->buflen - ringqLen(ip)) < size) {
-            ringqGrow(ip, size);
+        if (ringqPutBlkMax(rxbuf) < (BIT_LIMIT_SOCKET_BUFFER + 1)) {
+            if (!ringqGrow(rxbuf, BIT_LIMIT_SOCKET_BUFFER + 1)) {
+                error("Can't grow rxbuf");
+                websDone(wp, 500);
+                break;
+            }
         }
-        nbytes = websRead(wp, (char*) ip->endp, size);
-        if (nbytes > 0) {
-            ip->endp += nbytes;
+        if ((nbytes = websRead(wp, (char*) rxbuf->endp, BIT_LIMIT_SOCKET_BUFFER)) > 0) {
             wp->lastRead = nbytes;
-            ringqAddNull(ip);
+            ringqPutBlkAdj(rxbuf, nbytes);
+            ringqAddNull(rxbuf);
         }
-        for (len = ringqLen(ip); len > 0; len = ringqLen(ip)) {
+#if UNUSED
+        for (len = ringqLen(rxbuf); len > 0; len = ringqLen(rxbuf)) {
             websPump(wp);
             if (!websValid(wp)) {
                 return;
             }
-            if (ringqLen(ip) == len) {
+            if (ringqLen(rxbuf) == len) {
                 break;
             }
         }
-        if (nbytes < 0) {
+#else
+        websPump(wp);
+#endif
+        if (!websValid(wp)) {
+            break;
+        } else if (nbytes < 0) {
             if (wp->state < WEBS_RUNNING) {
                 /* EOF or error */
                 websTimeoutCancel(wp);
                 socketCloseConnection(wp->sid);
                 websFree(wp);
                 trace(5, "Close inactive connection\n");
-
             } else {
                 /* Request still running. Wait till complete or timer expires */
             }
@@ -786,15 +793,15 @@ static void websPump(Webs *wp)
 
 bool parseIncoming(Webs *wp)
 {
-    WebsBuf     *ip;
+    WebsBuf     *rxbuf;
     char        *end, c;
 
-    ip = &wp->input;
-    while (*ip->servp == '\r' || *ip->servp == '\n') {
-        ringqGetc(ip);
+    rxbuf = &wp->rxbuf;
+    while (*rxbuf->servp == '\r' || *rxbuf->servp == '\n') {
+        ringqGetc(rxbuf);
     }
-    if ((end = strstr((char*) wp->input.servp, "\r\n\r\n")) == 0) {
-        if (ringqLen(&wp->input) >= BIT_LIMIT_HEADER) {
+    if ((end = strstr((char*) wp->rxbuf.servp, "\r\n\r\n")) == 0) {
+        if (ringqLen(&wp->rxbuf) >= BIT_LIMIT_HEADER) {
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Header too large");
         }
         return 0;
@@ -805,7 +812,7 @@ bool parseIncoming(Webs *wp)
 #endif
     c = *end;
     *end = '\0';
-    trace(3 | WEBS_LOG_RAW, "%s\n", wp->input.servp);
+    trace(3 | WEBS_LOG_RAW, "%s\n", wp->rxbuf.servp);
     *end = c;
 
     /*
@@ -839,7 +846,6 @@ bool parseIncoming(Webs *wp)
             mode |= O_CREAT | O_TRUNC;
         }  
         wp->code = (exists && sbuf.st_mode & S_IFDIR) ? 204 : 201;
-        //  MOB - can we merge docfd and putfd?
         if ((wp->putfd = open(wp->filename, mode, 0644)) < 0) {
             websError(wp, 500, "Can't create the put URI");
             return 0;
@@ -942,7 +948,7 @@ static bool parseHeaders(Webs *wp)
         We rewrite the header as we go for non-local requests.  NOTE: this
         modifies the header string directly and tokenizes each line with '\0'.
     */
-    for (count = 0; wp->input.servp[0] != '\r'; count++) {
+    for (count = 0; wp->rxbuf.servp[0] != '\r'; count++) {
         if (count >= BIT_LIMIT_NUM_HEADERS) {
             websError(wp, 400 | WEBS_CLOSE, "Too many headers");
             return 0;
@@ -1001,7 +1007,7 @@ static bool parseHeaders(Webs *wp)
 
         } else if (strcmp(key, "content-length") == 0) {
             wp->rxLen = atoi(value);
-            if (wp->rxLen > BIT_LIMIT_BODY) {
+            if (wp->rxLen > BIT_LIMIT_RX_BODY) {
                 websError(wp, 413 | WEBS_CLOSE, "Too big");
                 return 0;
             }
@@ -1047,8 +1053,8 @@ static bool parseHeaders(Webs *wp)
             Step over "\r\n" after headers.
             Don't do this if chunked so chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
-        gassert(ringqLen(&wp->input) >= 2);
-        wp->input.servp += 2;
+        gassert(ringqLen(&wp->rxbuf) >= 2);
+        wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
     return 1;
@@ -1057,19 +1063,8 @@ static bool parseHeaders(Webs *wp)
 
 static bool processContent(Webs *wp)
 {
-    ssize   nbytes;
-
-    if (wp->rxChunkState) {
-        if (!filterChunkData(wp)) {
-            return 0;
-        }
-    } else {
-        nbytes = min(wp->rxRemaining, wp->lastRead);
-        wp->rxRemaining -= nbytes;
-        if (wp->rxRemaining <= 0) {
-            wp->eof = 1;
-        }
-        gassert(wp->rxRemaining >= 0);
+    if (!filterChunkData(wp)) {
+        return 0;
     }
 #if BIT_CGI
     if (wp->cgifd >= 0 && websProcessCgiData(wp) < 0) {
@@ -1084,7 +1079,6 @@ static bool processContent(Webs *wp)
     if (wp->putfd >= 0 && websProcessPutData(wp) < 0) {
         return 0;
     }
-    ringqCompact(&wp->input);
     if (wp->eof) {
         wp->state = WEBS_RUNNING;
         socketDeleteHandler(wp->sid);
@@ -1095,17 +1089,15 @@ static bool processContent(Webs *wp)
 
 
 /*
-    Called by handlers and filters that consume input. Handlers may extract input data from the buffer and
-    so this routine adjusts rxFiltered to the chunk filter knows where the chunk data begins.
+    Always called when data is consumed from the input buffer
  */
 void websConsumeInput(Webs *wp, ssize nbytes)
 {
     gassert(ringqLen(&wp->input) >= nbytes);
-    ringqGetBlkAdj(&wp->input, nbytes);
-    wp->rxConsumed += nbytes;
-    if (wp->rxChunkState) {
-        wp->rxFiltered -= nbytes;
+    if (nbytes <= 0) {
+        return;
     }
+    ringqGetBlkAdj(&wp->input, nbytes);
     if (ringqLen(&wp->input) == 0) {
         ringqReset(&wp->input);
     }
@@ -1114,27 +1106,40 @@ void websConsumeInput(Webs *wp, ssize nbytes)
 
 static bool filterChunkData(Webs *wp)
 {
-    ssize   chunkSize;
-    char    *start, *cp, *end;
-    ssize   len, chunkLen, added;
-    int     bad;
+    WebsBuf     *rxbuf;
+    ssize       chunkSize;
+    char        *start, *cp;
+    ssize       len, nbytes;
+    bool        added;
+    int         bad;
 
+    rxbuf = &wp->rxbuf;
     added = 0;
-    while (1) {
-        chunkLen = ringqLen(&wp->input) - wp->rxFiltered;
 
+    while (ringqLen(rxbuf) > 0) {
         switch (wp->rxChunkState) {
+        case WEBS_CHUNK_UNCHUNKED:
+            len = min(wp->rxRemaining, ringqLen(rxbuf));
+            ringqPutBlk(&wp->input, rxbuf->servp, len);
+            ringqGetBlkAdj(rxbuf, len);
+            ringqCompact(rxbuf);
+            wp->rxRemaining -= len;
+            if (wp->rxRemaining <= 0) {
+                wp->eof = 1;
+            }
+            gassert(wp->rxRemaining >= 0);
+            return 1;
+
         case WEBS_CHUNK_START:
             /*  
                 Expect: "\r\nSIZE.*\r\n"
              */
-            if (chunkLen < 5) {
+            if (ringqLen(rxbuf) < 5) {
                 return 0;
             }
-            gassert(ringqLen(&wp->input) >= wp->rxFiltered);
-            start = &wp->input.servp[wp->rxFiltered];
+            start = rxbuf->servp;
             bad = (start[0] != '\r' || start[1] != '\n');
-            for (cp = &start[2]; cp < wp->input.endp && *cp != '\n'; cp++) {}
+            for (cp = &start[2]; cp < rxbuf->endp && *cp != '\n'; cp++) {}
             if (*cp != '\n' && (cp - start) < 80) {
                 return 0;
             }
@@ -1149,8 +1154,9 @@ static bool filterChunkData(Webs *wp)
                 return 0;
             }
             if (chunkSize == 0) {
-                /* Last chunk. Consume the final "\r\n" */
-                if ((cp + 2) >= wp->input.endp) {
+                /* On the last chunk, consume the final "\r\n" */
+                if ((cp + 2) >= rxbuf->endp) {
+                    /* Insufficient data */
                     return 0;
                 }
                 cp += 2;
@@ -1160,16 +1166,7 @@ static bool filterChunkData(Webs *wp)
                     return 0;
                 }
             }
-            /*
-                Remove the chunk boundary and adjust endp.
-             */
-            end = cp + 1;
-            len = wp->input.endp - end;
-            memmove(start, end, len);
-            wp->input.endp -= (end - start);
-            wp->input.endp[0] = '\0';
-            gassert(wp->input.endp >= wp->input.servp);
-
+            ringqGetBlkAdj(rxbuf, cp - start + 1);
             wp->rxChunkSize = chunkSize;
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
@@ -1181,21 +1178,23 @@ static bool filterChunkData(Webs *wp)
             break;
 
         case WEBS_CHUNK_DATA:
-            if (chunkLen >= wp->rxChunkSize) {
-                wp->rxFiltered += wp->rxChunkSize;
+            len = min(ringqLen(rxbuf), wp->rxRemaining);
+            nbytes = min(ringqPutBlkMax(&wp->input), len);
+            nbytes = ringqPutBlk(&wp->input, rxbuf->servp, nbytes);
+            ringqGetBlkAdj(rxbuf, nbytes);
+            wp->rxRemaining -= nbytes;
+            if (wp->rxRemaining <= 0) {
                 wp->rxChunkState = WEBS_CHUNK_START;
-                added += wp->rxChunkSize;
-            } else if (added > 0) {
-                /* Some data added so content consumers can get to work */
-                return 1;
-            } else {
-                /* Need more data to complete the chunk */
-                return 0;
+                ringqCompact(rxbuf);
+            }
+            added = 1;
+            if (nbytes < len) {
+                return added;
             }
             break;
         }
     }
-    return 1;
+    return added;
 }
 
 
@@ -1285,11 +1284,10 @@ void websSetEnv(Webs *wp)
         wp->decodedQuery = strdup(wp->query);
         addFormVars(wp, wp->decodedQuery);
     }
-    if (wp->rxLen && ringqLen(&wp->input) > 0) {
+    if (wp->rxLen > 0 && ringqLen(&wp->input) > 0) {
         if (wp->flags & WEBS_FORM) {
             addFormVars(wp, wp->input.servp);
-            ringqGetBlkAdj(&wp->input, wp->rxLen);
-            wp->rxConsumed += wp->rxLen;
+            websConsumeInput(wp, wp->rxLen);
         }
     }
 }
@@ -1390,7 +1388,6 @@ void websTimeoutCancel(Webs *wp)
 
 /*
     Output a HTTP response back to the browser. If redirect is set to a URL, the browser will be sent to this location.
-    MOB - is redirect ever used?
  */
 void websResponse(Webs *wp, int code, char *message)
 {
@@ -1891,6 +1888,7 @@ ssize websFlush(Webs *wp, int final)
 {
     WebsBuf     *op;
     ssize       written, size;
+    int         prior;
 
     op = &wp->output;
     size = ringqLen(&wp->output);
@@ -1907,7 +1905,10 @@ ssize websFlush(Webs *wp, int final)
         Write chunk trailer
      */
     if (final && wp->txLen < 0) {
+        /* Must ensure that the trailer is fully written incase called from websDone */
+        prior = socketSetBlock(wp->sid, 1);
         writeChunked(wp, NULL, 0);
+        socketSetBlock(wp->sid, prior);
     }
     return written;
 }
@@ -2250,7 +2251,7 @@ void websSetRequestFilename(Webs *wp, char *filename)
     if (wp->filename) {
         gfree(wp->filename);
     }
-    wp->filename = strdup(filename);
+    wp->filename = sclone(filename);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
 }
 #endif
@@ -3265,7 +3266,7 @@ static char *getToken(Webs *wp, char *delim)
     char        *token, *nextToken, *endToken;
 
     gassert(wp);
-    buf = &wp->input;
+    buf = &wp->rxbuf;
     nextToken = (char*) buf->endp;
 
     for (token = (char*) buf->servp; (*token == ' ' || *token == '\t') && token < (char*) buf->endp; token++) {}
@@ -3473,9 +3474,6 @@ int websSetSessionVar(Webs *wp, char *key, char *value)
 }
 
 
-/*
-    Get the next token from the input ringq. This eats leading spaces and tabs.
- */
 static void pruneCache()
 {
     WebsSession     *sp;

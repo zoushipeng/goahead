@@ -107,7 +107,7 @@ static bool cgiHandler(Webs *wp)
     argp = galloc(argpsize * sizeof(char *));
     *argp = cgiPath;
     n = 1;
-    //  MOB - should this modify the original query?
+    //  MOB - should not modify the original query?
     if (strchr(wp->query, '=') == NULL) {
         websDecodeUrl(wp->query, wp->query, strlen(wp->query));
         for (cp = stok(wp->query, " ", &tok); cp != NULL; ) {

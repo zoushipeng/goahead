@@ -972,7 +972,7 @@ WebsValue valueSymbol(void *value)
 }
 
 
-WebsValue valueString(char* value, int flags)
+WebsValue valueString(char *value, int flags)
 {
     WebsValue v;
 
@@ -981,7 +981,7 @@ WebsValue valueString(char* value, int flags)
     v.type = string;
     if (flags & VALUE_ALLOCATE) {
         v.allocated = 1;
-        v.value.string = strdup(value);
+        v.value.string = sclone(value);
     } else {
         v.allocated = 0;
         v.value.string = value;
@@ -1006,7 +1006,6 @@ static void defaultTraceHandler(int level, char *buf)
     char    prefix[BIT_LIMIT_STRING];
 
     if (traceFd >= 0) {
-        //  MOB OPT
         if (!(level & WEBS_LOG_RAW)) {
             fmt(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, level & WEBS_LOG_MASK);
             write(traceFd, prefix, slen(prefix));
@@ -1429,8 +1428,7 @@ ssize ringqLen(WebsBuf *rq)
  */
 int ringqGetc(WebsBuf *rq)
 {
-    char  c;
-    char* cp;
+    char    c, *cp;
 
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
@@ -1463,7 +1461,6 @@ int ringqPutc(WebsBuf *rq, char c)
     if ((ringqPutBlkMax(rq) < (int) sizeof(char)) && !ringqGrow(rq, 0)) {
         return -1;
     }
-
     cp = (char*) rq->endp;
     *cp++ = (char) c;
     rq->endp = cp;
@@ -1521,8 +1518,11 @@ void ringqAddNull(WebsBuf *rq)
 {
     gassert(rq);
     gassert(rq->buflen == (rq->endbuf - rq->buf));
-    gassert(rq->endp < rq->endbuf);
 
+    if (ringqPutBlkMax(rq) < (int) sizeof(char)) {
+        ringqGrow(rq, 0);
+        return;
+    }
     *((char*) rq->endp) = (char) '\0';
 }
 
@@ -1682,7 +1682,8 @@ ssize ringqGetBlk(WebsBuf *rq, char *buf, ssize size)
 
 /*
     Return the maximum number of bytes the ring q can accept via a single block copy. Useful if the user is doing their
-    own data insertion.  
+    own data insertion. 
+    MOB - rename Room
  */
 ssize ringqPutBlkMax(WebsBuf *rq)
 {
@@ -1815,7 +1816,7 @@ void ringqReset(WebsBuf *rq)
     Grow the buffer. Return true if the buffer can be grown. Grow using the increment size specified when opening the
     ringq. Don't grow beyond the maximum possible size.
  */
-int ringqGrow(WebsBuf *rq, ssize room)
+bool ringqGrow(WebsBuf *rq, ssize room)
 {
     char    *newbuf;
     ssize   len;
@@ -1824,6 +1825,9 @@ int ringqGrow(WebsBuf *rq, ssize room)
 
     if (room == 0) {
         if (rq->maxsize >= 0 && rq->buflen >= rq->maxsize) {
+#if BLD_DEBUG
+            error("Can't grow ringq. Needed %d, max %d", room, rq->maxsize);
+#endif
             return 0;
         }
         room = rq->increment;
@@ -1914,7 +1918,7 @@ WebsHash symOpen(int size)
 void symClose(WebsHash sd)
 {
     SymTab      *tp;
-    WebsKey       *sp, *forw;
+    WebsKey     *sp, *forw;
     int         i;
 
     if (sd < 0) {
@@ -1949,7 +1953,7 @@ void symClose(WebsHash sd)
 WebsKey *symFirst(WebsHash sd)
 {
     SymTab      *tp;
-    WebsKey       *sp;
+    WebsKey     *sp;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -1974,7 +1978,7 @@ WebsKey *symFirst(WebsHash sd)
 WebsKey *symNext(WebsHash sd, WebsKey *last)
 {
     SymTab      *tp;
-    WebsKey       *sp;
+    WebsKey     *sp;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -2004,8 +2008,8 @@ WebsKey *symNext(WebsHash sd, WebsKey *last)
 WebsKey *symLookup(WebsHash sd, char *name)
 {
     SymTab      *tp;
-    WebsKey       *sp;
-    char      *cp;
+    WebsKey     *sp;
+    char        *cp;
 
     gassert(0 <= sd && sd < symMax);
     if (sd < 0 || (tp = sym[sd]) == NULL) {
@@ -2095,8 +2099,6 @@ WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
             return NULL;
         }
         tp->hash_table[hindex] = sp;
-        //  MOB - remove
-        gassert(hindex == hashIndex(tp, name));
         tp->hash_table[hashIndex(tp, name)] = sp;
 
         sp->forw = (WebsKey*) NULL;
@@ -2115,8 +2117,8 @@ WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
 int symDelete(WebsHash sd, char *name)
 {
     SymTab      *tp;
-    WebsKey       *sp, *last;
-    char      *cp;
+    WebsKey     *sp, *last;
+    char        *cp;
     int         hindex;
 
     gassert(name && *name);
@@ -2253,10 +2255,8 @@ int gopen(char *path, int oflags, int mode)
 #endif
     return fd;
 }
-#endif
 
 
-#if UNUSED
 /*
     Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
     returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
@@ -2487,7 +2487,7 @@ uint ghextoi(char *hexstring)
 
 char *sclone(char *s)
 {
-    char*   buf;
+    char    *buf;
 
     if (s == NULL) {
         s = "";
@@ -2818,9 +2818,8 @@ static char *getAbsolutePath(char *path)
         Determine if path is relative or absolute.  If relative, prepend the current working directory to the name.
         Otherwise, use it.  Note the getcwd call below must not be getcwd or else we go into an infinite loop
     */
-
     if (iosDevFind(path, &tail) != NULL && path != tail) {
-        return strdup(path);
+        return sclone(path);
     }
     dev = galloc(BIT_LIMIT_FILENAME);
     getcwd(dev, BIT_LIMIT_FILENAME);
