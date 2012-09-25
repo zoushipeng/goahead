@@ -34,7 +34,9 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv);
 static void procTest(Webs *wp, char *path, char *query);
 static void sessionTest(Webs *wp, char *path, char *query);
 static void showTest(Webs *wp, char *path, char *query);
+#if BIT_UPLOAD
 static void uploadTest(Webs *wp, char *path, char *query);
+#endif
 #if BIT_LEGACY
 static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
 #endif
@@ -139,7 +141,9 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websProcDefine("test", procTest);
     websProcDefine("sessionTest", sessionTest);
     websProcDefine("showTest", showTest);
+#if BIT_UPLOAD
     websProcDefine("uploadTest", uploadTest);
+#endif
 
 #if BIT_UNIX_LIKE
     /*
@@ -294,6 +298,7 @@ static void showTest(Webs *wp, char *path, char *query)
 }
 
 
+#if BIT_UPLOAD
 /*
     Dump the file upload details. Don't actually do anything with the uploaded file.
  */
@@ -321,6 +326,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
     }
     websDone(wp, 200);
 }
+#endif
 
 
 #if BIT_LEGACY
