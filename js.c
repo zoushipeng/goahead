@@ -53,7 +53,7 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
     Js  *ep;
     int     eid, vid;
 
-    if ((eid = gallocEntry((void***) &jsHandles, &jsMax, sizeof(Js))) < 0) {
+    if ((eid = gallocEntry(&jsHandles, &jsMax, sizeof(Js))) < 0) {
         return -1;
     }
     ep = jsHandles[eid];
@@ -63,8 +63,8 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
         Create a top level symbol table if one is not provided for variables and functions. Variables may create other
         symbol tables for block level declarations so we use galloc to manage a list of variable tables.
      */
-    if ((vid = gallocHandle((void***) &ep->variables)) < 0) {
-        jsMax = gfreeHandle((void***) &jsHandles, ep->eid);
+    if ((vid = gallocHandle(&ep->variables)) < 0) {
+        jsMax = gfreeHandle(&jsHandles, ep->eid);
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -112,12 +112,12 @@ void jsCloseEngine(int eid)
         if (ep->flags & FLAGS_VARIABLES) {
             symClose(ep->variables[i] - JS_OFFSET);
         }
-        ep->variableMax = gfreeHandle((void***) &ep->variables, i);
+        ep->variableMax = gfreeHandle(&ep->variables, i);
     }
     if (ep->flags & FLAGS_FUNCTIONS) {
         symClose(ep->functions);
     }
-    jsMax = gfreeHandle((void***) &jsHandles, ep->eid);
+    jsMax = gfreeHandle(&jsHandles, ep->eid);
     gfree(ep);
 }
 
@@ -179,7 +179,7 @@ int jsOpenBlock(int eid)
     if((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
-    if ((vid = gallocHandle((void***) &ep->variables)) < 0) {
+    if ((vid = gallocHandle(&ep->variables)) < 0) {
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -199,7 +199,7 @@ int jsCloseBlock(int eid, int vid)
         return -1;
     }
     symClose(ep->variables[vid] - JS_OFFSET);
-    ep->variableMax = gfreeHandle((void***) &ep->variables, vid);
+    ep->variableMax = gfreeHandle(&ep->variables, vid);
     return 0;
 
 }
@@ -897,7 +897,7 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
             return state;
         }
         if (state == STATE_RELEXP_DONE) {
-            aid = gallocHandle((void***) &ep->func->args);
+            aid = gallocHandle(&ep->func->args);
             ep->func->args[aid] = strdup(ep->result);
             ep->func->nArgs++;
         }
@@ -1612,7 +1612,7 @@ static void freeFunc(JsFun *func)
 
     for (i = func->nArgs - 1; i >= 0; i--) {
         gfree(func->args[i]);
-        func->nArgs = gfreeHandle((void***) &func->args, i);
+        func->nArgs = gfreeHandle(&func->args, i);
     }
     if (func->fname) {
         gfree(func->fname);

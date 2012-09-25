@@ -767,7 +767,7 @@ int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
     WebsSocket    *sp;
     int         sid;
 
-    if ((sid = gallocEntry((void***) &socketList, &socketMax, sizeof(WebsSocket))) < 0) {
+    if ((sid = gallocEntry(&socketList, &socketMax, sizeof(WebsSocket))) < 0) {
         return -1;
     }
     sp = socketList[sid];
@@ -812,7 +812,7 @@ void socketFree(int sid)
     }
     gfree(sp->ip);
     gfree(sp);
-    socketMax = gfreeHandle((void***) &socketList, sid);
+    socketMax = gfreeHandle(&socketList, sid);
 
     /*
         Calculate the new highest socket number

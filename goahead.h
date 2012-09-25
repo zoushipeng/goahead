@@ -1477,9 +1477,9 @@ extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
 #define WEBS_TRIM_END    0x2             /**< Flag for #strim to trim from the end of the string */
 #define WEBS_TRIM_BOTH   0x3             /**< Flag for #strim to trim from both the start and the end of the string */
 
-extern int gallocHandle(void ***map);
-extern int gallocEntry(void ***list, int *max, int size);
-extern int gfreeHandle(void ***map, int handle);
+extern int gallocHandle(void *map);
+extern int gallocEntry(void *list, int *max, int size);
+extern int gfreeHandle(void *map, int handle);
 
 extern char *sfmt(char *format, ...);
 extern char *sfmtv(char *format, va_list arg);
@@ -2084,8 +2084,8 @@ extern char *websGetSessionID(Webs *wp);
     #define gunlink     unlink
     #define gvsprintf   vsprintf
     #define gwrite      write
-    #define hAlloc gAlloc
-    #define hAllocEntry gAllocEntry
+    #define hAlloc galloc
+    #define hAllocEntry gallocEntry
     #define hFree gFree
     #define stritoa gstritoa
     #define strlower gstrlower

@@ -174,7 +174,7 @@ static bool cgiHandler(Webs *wp)
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
          */
-        cid = gallocEntry((void***) &cgiList, &cgiMax, sizeof(Cgi));
+        cid = gallocEntry(&cgiList, &cgiMax, sizeof(Cgi));
         cgip = cgiList[cid];
         cgip->handle = pHandle;
         cgip->stdIn = stdIn;
@@ -298,7 +298,7 @@ void websCgiCleanup()
                     Free all the memory buffers pointed to by cgip. The stdin file name (wp->cgiStdin) gets freed as
                     part of websFree().
                  */
-                cgiMax = gfreeHandle((void***) &cgiList, cid);
+                cgiMax = gfreeHandle(&cgiList, cid);
                 for (ep = cgip->envp; ep != NULL && *ep != NULL; ep++) {
                     gfree(*ep);
                 }

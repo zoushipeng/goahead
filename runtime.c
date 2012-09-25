@@ -224,7 +224,7 @@ int websStartEvent(int delay, WebsEventProc proc, void *arg)
     Callback    *s;
     int         id;
 
-    if ((id = gallocEntry((void***) &callbacks, &callbackMax, sizeof(Callback))) < 0) {
+    if ((id = gallocEntry(&callbacks, &callbackMax, sizeof(Callback))) < 0) {
         return -1;
     }
     s = callbacks[id];
@@ -259,7 +259,7 @@ void websStopEvent(int id)
         return;
     }
     gfree(s);
-    callbackMax = gfreeHandle((void***) &callbacks, id);
+    callbackMax = gfreeHandle(&callbacks, id);
 }
 
 
@@ -1236,23 +1236,25 @@ char *itosbuf(char *buf, ssize size, int64 value, int radix)
     Allocate a new file handle.  On the first call, the caller must set the handle map to be a pointer to a null
     pointer.  map points to the second element in the handle array.
  */
-int gallocHandle(void ***map)
+int gallocHandle(void *mapArg)
 {
+    void    ***map;
     ssize   *mp;
     int     handle, len, memsize, incr;
 
+    map = (void***) mapArg;
     gassert(map);
 
     if (*map == NULL) {
         incr = H_INCR;
-        memsize = (incr + H_OFFSET) * sizeof(void**);
+        memsize = (incr + H_OFFSET) * sizeof(void*);
         if ((mp = galloc(memsize)) == NULL) {
             return -1;
         }
         memset(mp, 0, memsize);
         mp[H_LEN] = incr;
         mp[H_USED] = 0;
-        *map = (void**) &mp[H_OFFSET];
+        *map = (void*) &mp[H_OFFSET];
     } else {
         mp = &((*(ssize**)map)[-H_OFFSET]);
     }
@@ -1276,11 +1278,11 @@ int gallocHandle(void ***map)
         No free handle so grow the handle list. Grow list in chunks of H_INCR.
      */
     len += H_INCR;
-    memsize = (len + H_OFFSET) * sizeof(void**);
+    memsize = (len + H_OFFSET) * sizeof(void*);
     if ((mp = grealloc(mp, memsize)) == NULL) {
         return -1;
     }
-    *map = (void**) &mp[H_OFFSET];
+    *map = (void*) &mp[H_OFFSET];
     mp[H_LEN] = len;
     memset(&mp[H_OFFSET + len - H_INCR], 0, sizeof(ssize*) * H_INCR);
     mp[H_USED]++;
@@ -1291,11 +1293,13 @@ int gallocHandle(void ***map)
 /*
     Free a handle. This function returns the value of the largest handle in use plus 1, to be saved as a max value.
  */
-int gfreeHandle(void ***map, int handle)
+int gfreeHandle(void *mapArg, int handle)
 {
+    void    ***map;
     ssize   *mp;
     int     len;
 
+    map = (void***) mapArg;
     gassert(map);
     mp = &((*(ssize**)map)[-H_OFFSET]);
     gassert(mp[H_LEN] >= H_INCR);
@@ -1330,15 +1334,17 @@ int gfreeHandle(void ***map, int handle)
 /*
     Allocate an entry in the halloc array
  */
-int gallocEntry(void ***list, int *max, int size)
+int gallocEntry(void *listArg, int *max, int size)
 {
-    char  *cp;
+    void    ***list;
+    char    *cp;
     int     id;
 
+    list = (void***) listArg;
     gassert(list);
     gassert(max);
 
-    if ((id = gallocHandle((void***) list)) < 0) {
+    if ((id = gallocHandle(list)) < 0) {
         return -1;
     }
     if (size > 0) {
@@ -1872,7 +1878,7 @@ WebsHash symOpen(int size)
     /*
         Create a new handle for this symbol table
      */
-    if ((sd = gallocHandle((void***) &sym)) < 0) {
+    if ((sd = gallocHandle(&sym)) < 0) {
         return -1;
     }
 
@@ -1880,7 +1886,7 @@ WebsHash symOpen(int size)
         Create a new symbol table structure and zero
      */
     if ((tp = (SymTab*) galloc(sizeof(SymTab))) == NULL) {
-        symMax = gfreeHandle((void***) &sym, sd);
+        symMax = gfreeHandle(&sym, sd);
         return -1;
     }
     memset(tp, 0, sizeof(SymTab));
@@ -1931,7 +1937,7 @@ void symClose(WebsHash sd)
         }
     }
     gfree((void*) tp->hash_table);
-    symMax = gfreeHandle((void***) &sym, sd);
+    symMax = gfreeHandle(&sym, sd);
     gfree((void*) tp);
 }
 
@@ -2359,6 +2365,8 @@ ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
         } else if (len >= destCount) {
             return -1;
         }
+    } else {
+        len = 0;
     }
     return len;
 }
@@ -2400,6 +2408,8 @@ ssize mtow(wchar *dest, ssize destCount, char *src, ssize count)
         } else if (len >= destCount) {
             return -1;
         }
+    } else {
+        len = 0;
     }
     return len;
 }
@@ -2833,7 +2843,7 @@ int vxchdir(char *dirname)
 }
 
 
-char *tempnam(cchar *dir, cchar *pfx)
+char *tempnam(char *dir, char *pfx)
 {
     static int count = 0;
     if (!pfx) {

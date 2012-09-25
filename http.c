@@ -201,7 +201,7 @@ extern bool     parseIncoming(Webs *wp);
 extern bool     processParsed(Webs *wp);
 static void     reuseConn(Webs *wp);
 static int      setLocalHost();
-static void     socketEvent(int sid, int mask, void* data);
+static void     socketEvent(int sid, int mask, void *data);
 
 static void     websPump(Webs *wp);
 
@@ -437,7 +437,7 @@ int websAlloc(int sid)
     Webs    *wp;
     int     wid;
 
-    if ((wid = gallocEntry((void***) &webs, &websMax, sizeof(Webs))) < 0) {
+    if ((wid = gallocEntry(&webs, &websMax, sizeof(Webs))) < 0) {
         return -1;
     }
     wp = webs[wid];
@@ -472,7 +472,7 @@ void websFree(Webs *wp)
     gassert(websValid(wp));
 
     termWebs(wp, 0);
-    websMax = gfreeHandle((void***) &webs, wp->wid);
+    websMax = gfreeHandle(&webs, wp->wid);
     gfree(wp);
     gassert(websMax >= 0);
 }
@@ -523,7 +523,7 @@ void websDone(Webs *wp, int code)
         websTimeoutCancel(wp);
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void *) wp);
+        wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -661,7 +661,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void *) wp);
+    wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
     trace(5, "accept connection\n");
     return 0;
 }
@@ -1618,12 +1618,12 @@ void websError(Webs *wp, int code, char *fmt, ...)
         buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
             <body><h2>Access Error: %s</h2>\r\n\
             <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), userMsg);
+        gfree(userMsg);
     } else {
         buf = 0;
     }
     websResponse(wp, code, buf);
     gfree(buf);
-    gfree(userMsg);
 }
 
 
@@ -1899,6 +1899,8 @@ ssize websFlush(Webs *wp, int final)
             return -1;
         }
         ringqGetBlkAdj(op, written);
+    } else {
+        written = 0;
     }
     ringqCompact(op);
     /*
