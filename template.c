@@ -87,7 +87,6 @@ int websJsRequest(Webs *wp, char *filename)
 
     rc = -1;
     buf = NULL;
-    wp->flags &= ~WEBS_KEEP_ALIVE;
 
     /*
         Create Javascript instance in case it is needed

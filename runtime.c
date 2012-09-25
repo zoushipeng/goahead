@@ -163,7 +163,7 @@ typedef struct SymTab {                 /* Symbol table descriptor */
 #endif
 #if BIT_WIN_LIKE
     static HINSTANCE appInstance;
-    static void syslog(int priority, cchar *fmt, ...);
+    static void syslog(int priority, char *fmt, ...);
 #endif
 
 /************************************* Locals *********************************/
@@ -1184,8 +1184,8 @@ char *supper(char *string)
     }
     s = string;
     while (*s) {
-        if (islower(*s)) {
-            *s = (char) toupper((int) *s);
+        if (islower((int) (uchar) *s)) {
+            *s = (char) toupper((int) (uchar) *s);
         }
         s++;
     }
@@ -2880,7 +2880,7 @@ HINSTANCE websGetInst()
 }
 
 
-static void syslog(int priority, cchar *fmt, ...)
+static void syslog(int priority, char *fmt, ...)
 {
     va_list     args;
     HKEY        hkey;
