@@ -130,7 +130,7 @@ Bit.load({
         /*
             Default location for debug log 
          */
-        trace: "stdout:2",
+        trace: "stderr:0",
 
         /*
             Enable the trace method. This should be disabled for security

@@ -61,7 +61,14 @@ static bool fileHandler(Webs *wp)
             return 1;
         }
         if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
-            websError(wp, 404, "Cannot open URL");
+#if BIT_DEBUG
+            /* Yes Veronica, the HTTP spec does misspell Referrer */
+            char    *ref;
+            if ((ref = websGetVar(wp, "HTTP_REFERER", 0)) != 0) {
+                trace(1, "From %s\n", ref);
+            }
+#endif
+            websError(wp, 404, "Cannot open: %s", wp->filename);
             return 1;
         }
         //  MOB - confusion with filename and path

@@ -403,6 +403,7 @@ static void loginServiceProc(Webs *wp)
     gassert(route);
     
     if (websLoginUser(wp, websGetVar(wp, "username", 0), websGetVar(wp, "password", 0))) {
+        /* If the application defines a referrer session var, redirect to that */
         char *referrer;
         if ((referrer = websGetSessionVar(wp, "referrer", 0)) != 0) {
             websRedirect(wp, referrer);

@@ -1427,18 +1427,18 @@ void websRedirect(Webs *wp, char *uri)
     char    hostbuf[BIT_LIMIT_STRING];
     bool    secure, fullyQualified;
     ssize   len;
-    int     port, code;
+    int     originalPort, port, code;
 
     gassert(websValid(wp));
     gassert(uri);
     message = location = uribuf = NULL;
 
-    port = 0;
+    originalPort = port = 0;
     if ((host = websGetVar(wp, "HTTP_HOST", websHostUrl)) != 0) {
         scopy(hostbuf, sizeof(hostbuf), host);
         if ((pstr = strchr(hostbuf, ':')) != 0) {
             *pstr++ = '\0';
-            port = atoi(pstr);
+            originalPort = atoi(pstr);
         }
     }
     if (smatch(uri, "http://") || smatch(uri, "https://")) {
@@ -1446,13 +1446,16 @@ void websRedirect(Webs *wp, char *uri)
         scheme = sncmp(uri, "https", 5) == 0 ? "https" : "http";
         uri = location = makeUri(scheme, hostbuf, 0, wp->url);
     }
-    secure = strstr(uri, "https://") || (wp->flags & WEBS_SECURE);
-    if (port < 0) {
+    secure = strstr(uri, "https://") != 0;
+    fullyQualified = strstr(uri, "http://") || strstr(uri, "https://");
+    if (!fullyQualified && wp->flags & WEBS_SECURE) {
+        secure = 1;
+        port = originalPort;
+    }
+    scheme = secure ? "https" : "http";
+    if (port <= 0) {
         port = secure ? BIT_SSL_PORT : BIT_HTTP_PORT;
     }
-    fullyQualified = strstr(uri, "http://") || strstr(uri, "https://");
-    scheme = secure ? "https" : "http";
-
     if (strstr(uri, "https:///")) {
         /* Short-hand for redirect to https */
         uri = location = makeUri(scheme, hostbuf, port, &uri[8]);

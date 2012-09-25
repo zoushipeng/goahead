@@ -103,7 +103,7 @@ int websJsRequest(Webs *wp, char *filename)
         goto done;
     }
     if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
-        websError(wp, 404, "Cannot open URL");
+        websError(wp, 404, "Cannot open URL: %s", wp->filename);
         return 1;
     }
     /*
