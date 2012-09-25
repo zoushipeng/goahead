@@ -82,7 +82,7 @@ bool websAuthenticate(Webs *wp)
 
     route = wp->route;
 
-    if (!route->authType || autoLogin) {
+    if (!route || !route->authType || autoLogin) {
         /* Authentication not required */
         return 1;
     }
@@ -421,11 +421,6 @@ void websBasicLogin(Webs *wp)
     gassert(wp->route);
     gfree(wp->authResponse);
     wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_REALM);
-}
-
-
-void websFormLogin(Webs *wp)
-{
 }
 
 

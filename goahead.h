@@ -1968,7 +1968,6 @@ extern void websComputeAllUserAbilities();
 
 extern void websBasicLogin(Webs *wp);
 extern bool websParseBasicDetails(Webs *wp);
-extern void websFormLogin(Webs *wp);
 extern bool websVerifyUser(Webs *wp);
 
 #if BIT_HAS_PAM && BIT_PAM

@@ -1918,7 +1918,7 @@ WebsHash symOpen(int size)
 void symClose(WebsHash sd)
 {
     SymTab      *tp;
-    WebsKey       *sp, *forw;
+    WebsKey     *sp, *forw;
     int         i;
 
     if (sd < 0) {
@@ -1953,7 +1953,7 @@ void symClose(WebsHash sd)
 WebsKey *symFirst(WebsHash sd)
 {
     SymTab      *tp;
-    WebsKey       *sp;
+    WebsKey     *sp;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -1978,7 +1978,7 @@ WebsKey *symFirst(WebsHash sd)
 WebsKey *symNext(WebsHash sd, WebsKey *last)
 {
     SymTab      *tp;
-    WebsKey       *sp;
+    WebsKey     *sp;
     int         i;
 
     gassert(0 <= sd && sd < symMax);
@@ -2008,8 +2008,8 @@ WebsKey *symNext(WebsHash sd, WebsKey *last)
 WebsKey *symLookup(WebsHash sd, char *name)
 {
     SymTab      *tp;
-    WebsKey       *sp;
-    char      *cp;
+    WebsKey     *sp;
+    char        *cp;
 
     gassert(0 <= sd && sd < symMax);
     if (sd < 0 || (tp = sym[sd]) == NULL) {
@@ -2117,8 +2117,8 @@ WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
 int symDelete(WebsHash sd, char *name)
 {
     SymTab      *tp;
-    WebsKey       *sp, *last;
-    char      *cp;
+    WebsKey     *sp, *last;
+    char        *cp;
     int         hindex;
 
     gassert(name && *name);
