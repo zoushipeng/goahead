@@ -1,0 +1,19 @@
+#
+#   auth.txt - Authorization data
+#
+#   Schema
+#       user name=NAME password=PASSWORD roles=ROLES
+#       role name=NAME abilities=ABILITIES
+#
+#   Routes may require authentication and that users possess certain abilities.
+#   The abilities, extensions, methods and redirect keywords use comma separated tokens to express a set of 
+#       required options, or use "|" separated tokens for a set of alternative options. This implements AND/OR.
+#
+#   Examples:
+#
+#   Define roles
+#       role name=manager abilities=view,edit,delete
+#
+#   Define a user
+#       user name=joshua password=2fd6e47ff9bb70c0465fd2f5c8e5305e roles=manager,purchaser
+#

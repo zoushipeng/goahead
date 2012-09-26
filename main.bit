@@ -203,9 +203,19 @@ Bit.load({
         /*
             Compiler for web pages into C code
          */
+        gopass: {
+            type: 'exe',
+            sources: [ '*.c', 'utils/gopass.c' ],
+            exclude: /goahead\.c/,
+            headers: [ '*.h' ],
+            depends: [ 'openssl', 'matrixssl' ],
+        },
+
+        /*
+            Compiler for web pages into C code
+         */
         webcomp: {
             type: 'exe',
-            depends: [ ],
             sources: [ 'utils/webcomp.c' ],
             headers: [ '*.h' ],
             depends: [ 'openssl', 'matrixssl' ],

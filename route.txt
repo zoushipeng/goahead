@@ -1,6 +1,8 @@
 #
 #   route.txt - Route and authorization configuration
 #
+#   User and role definitions are stored in auth.txt
+
 #   Schema
 #       user name=NAME password=PASSWORD roles=ROLES
 #       role name=NAME abilities=ABILITIES

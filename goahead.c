@@ -124,6 +124,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
 #endif
     }
+#if BIT_ROM && UNUSED
+    /*
+        If not using a route/auth config files, then manually create the routes like this:
+        If custom matching is required, use websSetRouteMatch. If authentication is required, use websSetRouteAuth.
+     */
+    websAddRoute("/", "file", 0);
+#endif
 #if BIT_UNIX_LIKE
     /*
         Service events till terminated

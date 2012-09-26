@@ -807,7 +807,7 @@ extern "C" {
     #define rmdir(a)    _rmdir(a)
     #define stat        _stat
     #define strdup      _strdup
-    #define tmpnam      _tmpnam
+    #define tempnam     _tempnam
     #define umask       _umask
     #define unlink      _unlink
     #define write       _write
@@ -942,7 +942,7 @@ typedef int64 WebsDateTime;
     #define gstrtok     wcstok
     #define gstrtol     wcstol
     #define gtempnam    _wtempnam
-    #define gtmpnam     _wtmpnam
+    #define gtempnam    _wtempnam
     #define gtolower    towlower
     #define gtoupper    towupper
     #define gunlink     _wunlink
@@ -1026,7 +1026,6 @@ typedef int64 WebsDateTime;
     #define gstrtok     strtok
     #define gstrtol     strtol
     #define gtempnam    tempnam
-    #define gtmpnam     tmpnam
     #define gtolower    tolower
     #define gtoupper    toupper
     #define gunlink     unlink
@@ -1953,7 +1952,7 @@ typedef struct WebsRoute {
 
 extern void websCloseRoute();
 extern int websOpenRoute();
-extern int websLoadRoutes(char *path);
+extern int websLoad(char *path);
 extern WebsRoute *websAddRoute(char *uri, char *handler, int pos);
 extern int websRemoveRoute(char *uri);
 extern int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
@@ -1983,17 +1982,21 @@ extern bool websCan(Webs *wp, WebsHash ability);
 extern bool websCanString(Webs *wp, char *ability);
 extern int websAddRole(char *role, WebsHash abilities);
 extern int websRemoveRole(char *role);
+extern int websWriteAuthFile(char *path);
 
 extern bool websLoginUser(Webs *wp, char *username, char *password);
 extern bool websAuthenticate(Webs *wp);
 
 extern void websCloseAuth();
-extern int websOpenAuth();
+extern int websOpenAuth(int minimal);
 extern void websComputeAllUserAbilities();
 
 extern void websBasicLogin(Webs *wp);
 extern bool websParseBasicDetails(Webs *wp);
 extern bool websVerifyUser(Webs *wp);
+
+extern WebsHash websGetUsers();
+extern WebsHash websGetRoles();
 
 #if BIT_HAS_PAM && BIT_PAM
 extern bool websVerifyPamUser(Webs *wp);
@@ -2102,7 +2105,6 @@ extern char *websGetSessionID(Webs *wp);
     #define gstrtol     strtol
     #define gstrupper   strupper
     #define gtempnam    tempnam
-    #define gtmpnam     tmpnam
     #define gtolower    tolower
     #define gtoupper    toupper
     #define gunlink     unlink

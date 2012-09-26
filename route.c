@@ -430,14 +430,16 @@ static void addOption(WebsHash *hash, char *keys, char *value)
 }
 
 
-int websLoadRoutes(char *path)
+/*
+    Load route and authentication configuration files
+ */
+int websLoad(char *path)
 {
     WebsRoute     *route;
     FILE          *fp;
     char          buf[512], *line, *kind, *next, *auth, *dir, *handler, *protocol, *uri, *option, *key, *value, *status;
     char          *name, *redirectUri, *password, *roles;
     WebsHash      abilities, extensions, methods, redirects;
-    int           i;
     
     if ((fp = fopen(path, "rt")) == 0) {
         error("Can't open route config file %s", path);
@@ -532,6 +534,8 @@ int websLoadRoutes(char *path)
         }
     }
     fclose(fp);
+
+#if UNUSED
     /*
         Ensure there is a route for "/", if not, create it.
      */
@@ -544,17 +548,11 @@ int websLoadRoutes(char *path)
     if (i >= routeCount) {
         websAddRoute("/", 0, -1);
     }
+#endif
     websComputeAllUserAbilities();
     return 0;
 }
 #endif
-
-
-int websSaveRoute(char *path)
-{
-    //  MOB TODO
-    return 0;
-}
 
 
 static bool continueHandler(Webs *wp)

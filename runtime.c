@@ -1372,6 +1372,13 @@ int ringqOpen(WebsBuf *rq, int initSize, int maxsize)
     int increment;
 
     gassert(rq);
+    
+    if (initSize <= 0) {
+        initSize = BIT_LIMIT_BUFFER;
+    }
+    if (maxsize <= 0) {
+        maxsize = initSize;
+    }
     gassert(initSize >= 0);
 
     increment = getBinBlockSize(initSize);

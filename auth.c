@@ -131,7 +131,7 @@ bool websAuthenticate(Webs *wp)
 }
 
 
-int websOpenAuth() 
+int websOpenAuth(int minimal)
 {
     char    sbuf[64];
     
@@ -141,31 +141,74 @@ int websOpenAuth()
     if ((roles = symOpen(-1)) < 0) {
         return -1;
     }
-    fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
-    secret = websMD5(sbuf);
+    if (!minimal) {
+        fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
+        secret = websMD5(sbuf);
 #if BIT_JAVASCRIPT && FUTURE
-    websJsDefine("can", jsCan);
+        websJsDefine("can", jsCan);
 #endif
-    websProcDefine("login", loginServiceProc);
-    websProcDefine("logout", logoutServiceProc);
+        websProcDefine("login", loginServiceProc);
+        websProcDefine("logout", logoutServiceProc);
+    }
     return 0;
 }
 
 
 void websCloseAuth() 
 {
-    WebsKey     *key;
+    WebsKey     *key, *next;
 
     gfree(secret);
-    for (key = symFirst(users); key; key = symNext(users, key)) {
+    for (key = symFirst(users); key; key = next) {
+        next = symNext(users, key);
         freeUser(key->content.value.symbol);
     }
     symClose(users);
-    for (key = symFirst(roles); key; key = symNext(roles, key)) {
+    for (key = symFirst(roles); key; key = next) {
+        key = symNext(roles, key);
         freeRole(key->content.value.symbol);
     }
     symClose(roles);
     users = roles = -1;
+}
+
+
+int websWriteAuthFile(char *path)
+{
+    FILE        *fp;
+    WebsKey     *kp, *ap;
+    WebsRole    *role;
+    WebsUser    *user;
+    char        *tempFile;
+
+    tempFile = tempnam(NULL, "tmp");
+    if ((fp = fopen(tempFile, "wt")) == 0) {
+        error("Can't open %s", tempFile);
+        return -1;
+    }
+    fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
+
+    for (kp = symFirst(roles); kp; kp = symNext(roles, kp)) {
+        role = kp->content.value.symbol;
+        fprintf(fp, "role name=%s abilities=", kp->name.value.string);
+        for (ap = symFirst(role->abilities); ap; ap = symNext(role->abilities, ap)) {
+            fprintf(fp, "%s,", ap->name.value.string);
+        }
+        fputc('\n', fp);
+    }
+    fputc('\n', fp);
+    for (kp = symFirst(users); kp; kp = symNext(users, kp)) {
+        user = kp->content.value.symbol;
+        fprintf(fp, "user name=%s password=%s roles=%s", user->name, user->password, user->roles);
+        fputc('\n', fp);
+    }
+    fclose(fp);
+    unlink(path);
+    if (rename(tempFile, path) < 0) {
+        error("Can't create new %s", path);
+        return -1;
+    }
+    return 0;
 }
 
 
@@ -177,12 +220,9 @@ static WebsUser *createUser(char *username, char *password, char *roles)
         return 0;
     }
     user->name = sclone(username);
-    if (roles) {
-        user->roles = sfmt(" %s ", roles);
-    } else {
-        user->roles = sclone(" ");
-    }
+    user->roles = sclone(roles);
     user->password = sclone(password);
+    user->abilities = -1;
     return user;
 }
 
@@ -212,6 +252,12 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
 
 int websRemoveUser(char *username) 
 {
+    //  MOB - must free memory
+    WebsKey     *key;
+    
+    if ((key = symLookup(users, username)) != 0) {
+        freeUser(key->content.value.symbol);
+    }
     return symDelete(users, username);
 }
 
@@ -355,6 +401,19 @@ int websRemoveRole(char *name)
     symClose(rp->abilities);
     gfree(rp);
     return symDelete(roles, name);
+}
+
+
+
+WebsHash websGetUsers()
+{
+    return users;
+}
+
+
+WebsHash websGetRoles()
+{
+    return roles;
 }
 
 

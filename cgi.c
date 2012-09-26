@@ -332,7 +332,7 @@ char *websGetCgiCommName()
     //  MOB
 #if 0  
     char  *pname1, *pname2;
-    pname1 = gtmpnam(NULL, "cgi");
+    pname1 = gtempnam(NULL, "cgi");
     pname2 = strdup(pname1);
     free(pname1);
     return pname2;
@@ -498,7 +498,7 @@ char *websGetCgiCommName()
 {
     char  *tname, buf[BIT_LIMIT_FILENAME];
 
-    tname = sfmt("%s/%s", getcwd(buf, BIT_LIMIT_FILENAME), tmpnam(NULL));
+    tname = sfmt("%s/%s", getcwd(buf, BIT_LIMIT_FILENAME), tempnam(NULL));
     return tname;
 }
 

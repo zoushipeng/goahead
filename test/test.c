@@ -3,6 +3,7 @@
 
     Usage: goahead-test [options] [IPaddress][:port] [documents]
         Options:
+        --auth authFile        # User and role configuration
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
         --route routeFile      # Route configuration file
@@ -48,17 +49,22 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char  *argp, *home, *documents, *endpoint, addr[32], *route;
+    char    *argp, *auth, *home, *documents, *endpoint, addr[32], *route;
     int     argind;
 
     route = "route.txt";
+    auth = "auth.txt";
 
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
         if (*argp != '-') {
             break;
 
-        } else if (smatch(argp, "--background") || smatch(argp, "-b")) {                                   
+        } else if (smatch(argp, "--auth") || smatch(argp, "-b")) {
+            if (argind >= argc) usage();
+            auth = argv[++argind];
+
+        } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
 
         } else if (smatch(argp, "--debug")) {
@@ -96,6 +102,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
     initPlatform();
     if (websOpen(documents, route) < 0) {
         error("Can't initialize server. Exiting.");
+        return -1;
+    }
+    if (websLoad(auth) < 0) {
+        error("Can't load %s", auth);
         return -1;
     }
     if (argind < argc) {
@@ -166,6 +176,7 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
+        "    --auth authFile        # User and role configuration\n"
         "    --background           # Run as a Unix daemon\n"
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"

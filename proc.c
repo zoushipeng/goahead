@@ -23,8 +23,8 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 static bool procHandler(Webs *wp)
 {
     WebsKey     *sp;
-    char      formBuf[BIT_LIMIT_FILENAME];
-    char      *cp, *formName;
+    char        formBuf[BIT_LIMIT_FILENAME];
+    char        *cp, *formName;
     WebsProc    fn;
 
     gassert(websValid(wp));

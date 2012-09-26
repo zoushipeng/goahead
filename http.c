@@ -213,7 +213,7 @@ static time_t   dateParse(time_t tip, char *cmd);
 
 /*********************************** Code *************************************/
 
-int websOpen(char *documents, char *authPath)
+int websOpen(char *documents, char *routeFile)
 {
     WebsMime    *mt;
 
@@ -264,14 +264,15 @@ int websOpen(char *documents, char *authPath)
 #if BIT_JAVASCRIPT
     websJsOpen();
 #endif
-    if (websOpenAuth() < 0) {
-        return -1;
-    }
-    if (websLoadRoutes(authPath) < 0) {
+    if (websOpenAuth(0) < 0) {
         return -1;
     }
 #if BIT_ROM
     websRomOpen();
+#else
+    if (websLoad(routeFile) < 0) {
+        return -1;
+    }
 #endif
     /*
         Create a mime type lookup table for quickly determining the content type
