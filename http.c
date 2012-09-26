@@ -1898,7 +1898,7 @@ ssize websFinalize(Webs *wp)
         wp->flags |= WEBS_FINALIZED;
         prior = socketSetBlock(wp->sid, 1);
         written = websFlush(wp);
-        if (wp->txLen < 0 && writeToSocket(wp, "\r\n0\r\n", 7) != 7) {
+        if (wp->txLen < 0 && writeToSocket(wp, "\r\n0\r\n\r\n", 7) != 7) {
             written = -1;
         }
         socketSetBlock(wp->sid, prior);
