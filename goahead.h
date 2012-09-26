@@ -783,6 +783,7 @@ extern "C" {
 #if WINDOWS
     #define getcwd  _getcwd
     #define tempnam _tempnam
+    #define access      _access
     #define open    _open
     #define close   _close
     #define read    _read
@@ -791,7 +792,27 @@ extern "C" {
     #define lseek   _lseek
     #define unlink  _unlink
     #define stat    _stat
+    #define chmod       _chmod
+    #define close       _close
+    #define fileno      _fileno
+    #define fstat       _fstat
+    #define getcwd      _getcwd
+    #define getpid      _getpid
+    #define gettimezone _gettimezone
+    #define lseek       _lseek
+    #define mkdir(a,b)  _mkdir(a)
+    #define open        _open
+    #define putenv      _putenv
+    #define read        _read
+    #define rmdir(a)    _rmdir(a)
+    #define stat        _stat
+    #define strdup      _strdup
+    #define tmpnam      _tmpnam
+    #define umask       _umask
+    #define unlink      _unlink
+    #define write       _write
     extern void sleep(int secs);
+    extern int _getpid();
 #endif
 
 /**
@@ -1549,9 +1570,10 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_HTTP11             0x10        /* Request is using HTTP/1.1 */
 #define WEBS_KEEP_ALIVE         0x20        /* HTTP/1.1 keep alive */
 #define WEBS_RESPONSE_TRACED    0x40        /* Started tracing the response */
-#define WEBS_SECURE             0x100       /* Connection uses SSL */
-#define WEBS_UPLOAD             0x200       /* Multipart-mime file upload */
-#define WEBS_REROUTE            0x400       /* Restart route matching */
+#define WEBS_SECURE             0x80        /* Connection uses SSL */
+#define WEBS_UPLOAD             0x100       /* Multipart-mime file upload */
+#define WEBS_REROUTE            0x200       /* Restart route matching */
+#define WEBS_FINALIZED          0x400       /* Output is finalized */
 
 /*
     Incoming chunk encoding states. Used for tx and rx chunking.
@@ -1868,7 +1890,8 @@ extern int websGetDebug();
 extern void websSetDebug(int on);
 extern void websReadEvent(Webs *wp);
 extern void websSetTxLength(Webs *wp, ssize length);
-extern ssize websFlush(Webs *wp, int final);
+extern ssize websFlush(Webs *wp);
+extern ssize websFinalize(Webs *wp);
 
 #if BIT_UPLOAD
 extern int websProcessUploadData(Webs *wp);

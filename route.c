@@ -220,10 +220,6 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         error("Route has bad URI");
         return 0;
     }
-    if (handler == 0) {
-        error("Route has no handler");
-        return 0;
-    }
     if ((route = galloc(sizeof(WebsRoute))) == 0) {
         return 0;
     }

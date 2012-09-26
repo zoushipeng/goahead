@@ -2887,7 +2887,7 @@ static void syslog(int priority, char *fmt, ...)
     long        errorType;
     ulong       exists;
     char        *buf, logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
-    int         type, i;
+    int         type;
     static int  once = 0;
 
     va_start(args, fmt);

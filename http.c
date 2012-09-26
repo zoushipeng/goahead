@@ -491,7 +491,7 @@ void websFree(Webs *wp)
 void websDone(Webs *wp, int code)
 {
     gassert(websValid(wp));
-    websFlush(wp, 1);
+    websFinalize(wp);
     if (wp->code == 0) {
         wp->code = code & ~WEBS_CLOSE;
     }
@@ -1735,7 +1735,7 @@ void websWriteEndHeaders(Webs *wp)
     if (wp->txLen >= 0) {
         websWriteHeader(wp, "\r\n");
     }
-    websFlush(wp, 0);
+    websFlush(wp);
     wp->flags |= WEBS_HEADERS_DONE;
 }
 
@@ -1785,7 +1785,7 @@ static ssize bufferOutput(Webs *wp, char *buf, ssize size)
         len = ringqLen(op);
         room = op->buflen - len;
         if (len > 0 && room < size) {
-            if (websFlush(wp, 0) > 0) {
+            if (websFlush(wp) > 0) {
                 continue;
             }
             if (op->buflen < op->maxsize) {
@@ -1831,6 +1831,8 @@ static ssize writeChunked(Webs *wp, char *buf, ssize size)
 {
     ssize   written;
 
+    gassert(size > 0);
+
     written = 0;
     if (wp->txLen > 0 || !(wp->flags & WEBS_HEADERS_DONE)) {
         if (size == 0) {
@@ -1843,11 +1845,7 @@ static ssize writeChunked(Webs *wp, char *buf, ssize size)
         switch (wp->txChunkState) {
         default:
         case WEBS_CHUNK_START:
-            if (size > 0) {
-                fmt(wp->txChunkPrefix, sizeof(wp->txChunkPrefix), "\r\n%x\r\n", size);
-            } else {
-                scopy(wp->txChunkPrefix, sizeof(wp->txChunkPrefix), "\r\n0\r\n\r\n");
-            }
+            fmt(wp->txChunkPrefix, sizeof(wp->txChunkPrefix), "\r\n%x\r\n", size);
             wp->txChunkPrefixLen = slen(wp->txChunkPrefix);
             wp->txChunkPrefixNext = wp->txChunkPrefix;
             wp->txChunkLen = size;
@@ -1869,12 +1867,14 @@ static ssize writeChunked(Webs *wp, char *buf, ssize size)
             break;
 
         case WEBS_CHUNK_DATA:
-            if ((written = writeToSocket(wp, buf, wp->txChunkLen)) < 0) {
-                return -1;
-            }
-            wp->txChunkLen -= written;
-            if (wp->txChunkLen <= 0) {
-                wp->txChunkState = WEBS_CHUNK_START;
+            if (wp->txChunkLen > 0) {
+                if ((written = writeToSocket(wp, buf, wp->txChunkLen)) < 0) {
+                    return -1;
+                }
+                wp->txChunkLen -= written;
+                if (wp->txChunkLen <= 0) {
+                    wp->txChunkState = WEBS_CHUNK_START;
+                }
             }
             if (wp->txChunkLen <= 0) {
                 return size;
@@ -1884,32 +1884,44 @@ static ssize writeChunked(Webs *wp, char *buf, ssize size)
 }
 
 
-ssize websFlush(Webs *wp, int final)
+/*
+    Finalize output. Flush tx data and write chunk trailer if required. 
+    After finalization, the client should have the full response.
+    WARNING: this blocks
+ */
+ssize websFinalize(Webs *wp)
+{
+    ssize       written;
+    int         prior;
+
+    if (!(wp->flags & WEBS_FINALIZED)) {
+        wp->flags |= WEBS_FINALIZED;
+        prior = socketSetBlock(wp->sid, 1);
+        written = websFlush(wp);
+        if (wp->txLen < 0 && writeToSocket(wp, "\r\n0\r\n", 7) != 7) {
+            written = -1;
+        }
+        socketSetBlock(wp->sid, prior);
+    } else written = 0;
+    return written;
+}
+
+
+/*
+    Flush buffered tx data and compact the txbuf
+ */
+ssize websFlush(Webs *wp)
 {
     WebsBuf     *op;
     ssize       written, size;
-    int         prior;
 
     op = &wp->output;
+    written = 0;
     size = ringqLen(&wp->output);
-    if (size > 0) {
-        if ((written = writeChunked(wp, op->servp, size)) < 0) {
-            return -1;
-        }
+    if (size > 0 && (written = writeChunked(wp, op->servp, size)) >= 0) {
         ringqGetBlkAdj(op, written);
-    } else {
-        written = 0;
     }
     ringqCompact(op);
-    /*
-        Write chunk trailer
-     */
-    if (final && wp->txLen < 0) {
-        /* Must ensure that the trailer is fully written incase called from websDone */
-        prior = socketSetBlock(wp->sid, 1);
-        writeChunked(wp, NULL, 0);
-        socketSetBlock(wp->sid, prior);
-    }
     return written;
 }
 
@@ -1954,7 +1966,7 @@ ssize websWriteRaw(Webs *wp, char *buf, ssize size)
         WARNING: Must do this blocking to ensure all data is written.
      */
     prior = socketSetBlock(wp->sid, 1);
-    written = websFlush(wp, 0);
+    written = websFlush(wp);
     socketSetBlock(wp->sid, prior);
     if (written < 0) {
         return written;
