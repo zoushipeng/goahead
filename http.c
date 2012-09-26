@@ -2213,7 +2213,6 @@ static int setLocalHost()
 }
 
 
-//  MOB - review if all these APIs are needed
 void websSetHost(char *host)
 {
     strncpy(websHost, host, TSZ(websHost));
