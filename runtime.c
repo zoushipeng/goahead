@@ -301,6 +301,7 @@ void websRunEvents()
     }
 }
 
+#if UNUSED
 /*
     Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
  */
@@ -337,6 +338,7 @@ char *dirname(char *buf, char *name, ssize bufsize)
     }
     return buf;
 }
+#endif
 
 
 /*
