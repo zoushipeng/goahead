@@ -10,7 +10,7 @@
 
 /*********************************** Locals ***********************************/
 /*
-    Constants for transform routine.
+    Constants for transform routine
  */
 #define S11 7
 #define S12 12

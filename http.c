@@ -633,7 +633,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
     socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
 
-#if UNUSED
+#if BIT_LEGACY
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
         operations only for local access 
@@ -738,19 +738,8 @@ void websReadEvent(Webs *wp)
             ringqPutBlkAdj(rxbuf, nbytes);
             ringqAddNull(rxbuf);
         }
-#if UNUSED
-        for (len = ringqLen(rxbuf); len > 0; len = ringqLen(rxbuf)) {
-            websPump(wp);
-            if (!websValid(wp)) {
-                return;
-            }
-            if (ringqLen(rxbuf) == len) {
-                break;
-            }
-        }
-#else
         websPump(wp);
-#endif
+
         if (!websValid(wp)) {
             break;
         } else if (nbytes < 0) {
@@ -2254,7 +2243,7 @@ void websSetIpAddr(char *ipaddr)
 }
 
 
-#if UNUSED && KEEP
+#if BIT_LEGACY
 void websSetRequestFilename(Webs *wp, char *filename)
 {
     gassert(websValid(wp));

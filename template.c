@@ -287,9 +287,6 @@ static char *skipWhite(char *s)
     return s;
 }
 
-#else
-int websJsHandler(Webs *wp) { return 0; }
-int websJsOpen() { return 0; }
 #endif /* BIT_JAVASCRIPT */
 
 /*

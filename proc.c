@@ -92,6 +92,8 @@ void websProcOpen()
 
 #if BIT_LEGACY
 /*
+    Don't use these routes. Use websWriteHeaders, websEndHeaders instead.
+
     Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
  */
 void websHeader(Webs *wp)

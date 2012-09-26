@@ -5,6 +5,7 @@
         Options:
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
+        --route routeFile      # Route configuration file
         --verbose              # Same as --log stderr:2
         --version              # Output version information
 
@@ -18,7 +19,6 @@
 
 /********************************* Defines ************************************/
 
-#define ALIGN(x) (((x) + 4 - 1) & ~(4 - 1))
 static int finished = 0;
 
 /********************************* Forwards ***********************************/
@@ -40,7 +40,6 @@ static void uploadTest(Webs *wp, char *path, char *query);
 #if BIT_LEGACY
 static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
 #endif
-
 #if BIT_UNIX_LIKE
 static void sigHandler(int signo);
 #endif
@@ -167,6 +166,7 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
+        "    --background           # Run as a Unix daemon\n"
         "    --debug                # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"

@@ -3,8 +3,10 @@
 
     Usage: goahead [options] [documents] [IP][:port] ...
         Options:
+        --background           # Run as a Unix daemon
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
+        --route routeFile      # Route configuration file
         --verbose              # Same as --log stderr:2
         --version              # Output version information
 
@@ -17,7 +19,6 @@
 
 /********************************* Defines ************************************/
 
-#define ALIGN(x) (((x) + 4 - 1) & ~(4 - 1))
 static int finished = 0;
 
 /********************************* Forwards ***********************************/
@@ -273,7 +274,7 @@ WPARAM checkWindowsMsgLoop()
 
 
 /*
-    Windows message handler for the About Box
+    Windows message handler
  */
 static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 {

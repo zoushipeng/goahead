@@ -1574,6 +1574,9 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_UPLOAD             0x100       /* Multipart-mime file upload */
 #define WEBS_REROUTE            0x200       /* Restart route matching */
 #define WEBS_FINALIZED          0x400       /* Output is finalized */
+#if BIT_LEGACY
+#define WEBS_LOCAL              0x10000     /* Request from local system */
+#endif
 
 /*
     Incoming chunk encoding states. Used for tx and rx chunking.
@@ -1858,7 +1861,6 @@ extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
 extern void websSetEnv(Webs *wp);
 extern void websSetHost(char *host);
 extern void websSetIpAddr(char *ipaddr);
-extern void websSetRequestFilename(Webs *wp, char *filename);
 extern void websSetRequestPath(Webs *wp, char *dir, char *path);
 //  MOB - do all these APIs exist?
 extern char *websGetRequestUserName(Webs *wp);
@@ -2148,6 +2150,7 @@ extern char *websGetSessionID(Webs *wp);
     extern void websHeader(Webs *wp);
     extern int websPublish(char *prefix, char *path);
     extern int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags);
+    extern void websSetRequestFilename(Webs *wp, char *filename);
 
 #if BIT_ROM
     typedef WebsRomIndex websRomPageIndexType;
