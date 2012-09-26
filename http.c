@@ -1130,6 +1130,7 @@ static bool filterChunkData(Webs *wp)
         case WEBS_CHUNK_UNCHUNKED:
             len = min(wp->rxRemaining, ringqLen(rxbuf));
             ringqPutBlk(&wp->input, rxbuf->servp, len);
+            ringqAddNull(&wp->input);
             ringqGetBlkAdj(rxbuf, len);
             ringqCompact(rxbuf);
             wp->rxRemaining -= len;
@@ -1190,6 +1191,7 @@ static bool filterChunkData(Webs *wp)
             len = min(ringqLen(rxbuf), wp->rxRemaining);
             nbytes = min(ringqPutBlkMax(&wp->input), len);
             nbytes = ringqPutBlk(&wp->input, rxbuf->servp, nbytes);
+            ringqAddNull(&wp->input);
             ringqGetBlkAdj(rxbuf, nbytes);
             wp->rxRemaining -= nbytes;
             if (wp->rxRemaining <= 0) {
