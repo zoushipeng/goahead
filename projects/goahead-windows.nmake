@@ -25,7 +25,6 @@ LIBPATHS = -libpath:$(CONFIG)\bin
 LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
 all: prep \
-        $(CONFIG)\bin\libgo.dll \
         $(CONFIG)\bin\goahead.exe \
         $(CONFIG)\bin\goahead-test.exe \
         $(CONFIG)\bin\webcomp.exe \
@@ -45,7 +44,6 @@ prep:
 	@if not exist $(CONFIG)\bin\libmpr.def xcopy /Y /S projects\goahead-windows\*.def $(CONFIG)\bin
 
 clean:
-	-if exist $(CONFIG)\bin\libgo.dll del /Q $(CONFIG)\bin\libgo.dll
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
 	-if exist $(CONFIG)\bin\webcomp.exe del /Q $(CONFIG)\bin\webcomp.exe
@@ -105,6 +103,11 @@ $(CONFIG)\obj\galloc.obj: \
         galloc.c \
         $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\galloc.obj -Fd$(CONFIG)\obj\galloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc galloc.c
+
+$(CONFIG)\obj\goahead.obj: \
+        goahead.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc goahead.c
 
 $(CONFIG)\obj\http.obj: \
         http.c \
@@ -170,34 +173,6 @@ $(CONFIG)\obj\upload.obj: \
         upload.c \
         $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc upload.c
-
-$(CONFIG)\bin\libgo.dll:  \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\auth.obj \
-        $(CONFIG)\obj\cgi.obj \
-        $(CONFIG)\obj\crypt.obj \
-        $(CONFIG)\obj\file.obj \
-        $(CONFIG)\obj\galloc.obj \
-        $(CONFIG)\obj\http.obj \
-        $(CONFIG)\obj\js.obj \
-        $(CONFIG)\obj\matrixssl.obj \
-        $(CONFIG)\obj\openssl.obj \
-        $(CONFIG)\obj\options.obj \
-        $(CONFIG)\obj\proc.obj \
-        $(CONFIG)\obj\rom-documents.obj \
-        $(CONFIG)\obj\rom.obj \
-        $(CONFIG)\obj\route.obj \
-        $(CONFIG)\obj\runtime.obj \
-        $(CONFIG)\obj\socket.obj \
-        $(CONFIG)\obj\template.obj \
-        $(CONFIG)\obj\upload.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) -def:$(CONFIG)\bin\libgo.def $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\proc.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\upload.obj $(LIBS)
-
-$(CONFIG)\obj\goahead.obj: \
-        goahead.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc goahead.c
 
 $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\inc\goahead.h \

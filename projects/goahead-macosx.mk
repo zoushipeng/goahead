@@ -24,7 +24,6 @@ CFLAGS          += $(CFLAGS-$(PROFILE))
 LDFLAGS         += $(LDFLAGS-$(PROFILE))
 
 all: prep \
-        $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/bin/goahead \
         $(CONFIG)/bin/goahead-test \
         $(CONFIG)/bin/webcomp \
@@ -42,7 +41,6 @@ prep:
 	fi; true
 
 clean:
-	rm -rf $(CONFIG)/bin/libgo.dylib
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
 	rm -rf $(CONFIG)/bin/webcomp
@@ -110,6 +108,12 @@ $(CONFIG)/obj/galloc.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/galloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc galloc.c
+
+$(CONFIG)/obj/goahead.o: \
+        goahead.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
 
 $(CONFIG)/obj/http.o: \
         http.c \
@@ -189,35 +193,6 @@ $(CONFIG)/obj/upload.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc upload.c
-
-$(CONFIG)/bin/libgo.dylib:  \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/auth.o \
-        $(CONFIG)/obj/cgi.o \
-        $(CONFIG)/obj/crypt.o \
-        $(CONFIG)/obj/file.o \
-        $(CONFIG)/obj/galloc.o \
-        $(CONFIG)/obj/http.o \
-        $(CONFIG)/obj/js.o \
-        $(CONFIG)/obj/matrixssl.o \
-        $(CONFIG)/obj/openssl.o \
-        $(CONFIG)/obj/options.o \
-        $(CONFIG)/obj/proc.o \
-        $(CONFIG)/obj/rom-documents.o \
-        $(CONFIG)/obj/rom.o \
-        $(CONFIG)/obj/route.o \
-        $(CONFIG)/obj/runtime.o \
-        $(CONFIG)/obj/socket.o \
-        $(CONFIG)/obj/template.o \
-        $(CONFIG)/obj/upload.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch x86_64 $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libgo.dylib $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/proc.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o $(LIBS)
-
-$(CONFIG)/obj/goahead.o: \
-        goahead.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
 
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/inc/goahead.h \

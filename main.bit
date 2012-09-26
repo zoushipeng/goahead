@@ -148,7 +148,7 @@ Bit.load({
             Library
          */
         libgo: {
-            type: 'lib',
+            type: 'disabled-lib',
             static: true,
             sources: [ '*.c' ],
             exclude: /goahead\.c/,
