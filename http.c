@@ -2014,8 +2014,7 @@ void websDecodeUrl(char *decoded, char *token, ssize len)
  */
 static void logRequest(Webs *wp, int code)
 {
-    char      *buf, timeStr[28], zoneStr[6], dataStr[16];
-    char        *abuf;
+    char        *buf, timeStr[28], zoneStr[6], dataStr[16];
     ssize       len;
     time_t      timer;
     struct tm   localt;
@@ -2052,10 +2051,8 @@ static void logRequest(Webs *wp, int code)
         wp->ipaddr, wp->username == NULL ? "-" : wp->username,
         timeStr, zoneStr, wp->method, wp->path, wp->protoVersion, code, dataStr);
     len = strlen(buf);
-    abuf = gallocUniToAsc(buf, len+1);
-    write(accessFd, abuf, len);
+    write(accessFd, buf, len);
     gfree(buf);
-    gfree(abuf);
 }
 #endif
 
