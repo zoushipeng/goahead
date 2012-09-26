@@ -42,6 +42,7 @@ cgitest
 windows-*.bit
 *-x86.bit
 projects/.libgo.guid
+*.guid
 libgo.xcscheme
 *.cxscheme
 *.xcscheme
