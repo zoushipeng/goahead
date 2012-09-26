@@ -780,21 +780,13 @@ extern "C" {
 #endif
 
 #if WINDOWS
-    #define getcwd  _getcwd
-    #define tempnam _tempnam
     #define access      _access
-    #define open    _open
-    #define close   _close
-    #define read    _read
-    #define write   _write
-    #define chdir   _chdir
-    #define lseek   _lseek
-    #define unlink  _unlink
-    #define stat    _stat
+    #define chdir       _chdir
     #define chmod       _chmod
     #define close       _close
     #define fileno      _fileno
     #define fstat       _fstat
+    #define getch       _getch
     #define getcwd      _getcwd
     #define getpid      _getpid
     #define gettimezone _gettimezone
@@ -812,6 +804,7 @@ extern "C" {
     #define write       _write
     extern void sleep(int secs);
     extern int _getpid();
+    extern int _getch();
 #endif
 
 /**
