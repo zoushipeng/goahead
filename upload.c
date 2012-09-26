@@ -306,7 +306,7 @@ static int writeToFile(Webs *wp, char *data, ssize len)
         /*  
             File upload. Write the file data.
          */
-        if ((rc = write(wp->upfd, data, len)) != len) {
+        if ((rc = write(wp->upfd, data, (int) len)) != len) {
             websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't write to upload temp file %s, rc %d", wp->uploadTmp, rc);
             return -1;
         }

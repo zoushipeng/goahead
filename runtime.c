@@ -1008,9 +1008,9 @@ static void defaultTraceHandler(int level, char *buf)
     if (traceFd >= 0) {
         if (!(level & WEBS_LOG_RAW)) {
             fmt(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, level & WEBS_LOG_MASK);
-            write(traceFd, prefix, slen(prefix));
+            write(traceFd, prefix, (int) slen(prefix));
         }
-        write(traceFd, buf, slen(buf));
+        write(traceFd, buf, (int) slen(buf));
         if (level & WEBS_LOG_NEWLINE) {
             write(traceFd, "\n", 1);
         }
