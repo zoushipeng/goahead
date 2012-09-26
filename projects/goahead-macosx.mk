@@ -52,6 +52,7 @@ clean:
 	rm -rf $(CONFIG)/obj/crypt.o
 	rm -rf $(CONFIG)/obj/file.o
 	rm -rf $(CONFIG)/obj/galloc.o
+	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/matrixssl.o
@@ -65,7 +66,6 @@ clean:
 	rm -rf $(CONFIG)/obj/socket.o
 	rm -rf $(CONFIG)/obj/template.o
 	rm -rf $(CONFIG)/obj/upload.o
-	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/gopass.o
 	rm -rf $(CONFIG)/obj/webcomp.o
