@@ -3,9 +3,12 @@
 #
 #   You can use this Makefile and build via "make" with a default configuration. Alternatively,
 #	you can build using the "bit" tool for for a fully configurable build. If you wish to 
-#	cross-compile, you should use "bit". Bit is part of Ejscript available at: http://ejscript.org
+#	cross-compile, you should use "bit". Bit is part of Ejscript available at: http://ejscript.org.
 #
-#   Modify compiler and linker default definitions here:
+#	This top level Makefile invokes per-platform makefiles under the projects directory.
+#	IDE project files are also available under projects for Windows and Mac OSX.
+#
+#   Modify compiler and linker default definitions here by exporting the appropriate flags.
 #
 #       export ARCH      = CPU architecture (x86, x64, ppc, ...)
 #       export OS        = Operating system (linux, macosx, windows, vxworks, ...)
@@ -19,9 +22,9 @@
 #       export LDFLAGS   = Add linker options
 #       export LIBPATHS  = Add linker library search directories. For example: -L/libraries
 #       export LIBS      = Add linker libraries. For example: -lpthreads
-
 #
-#	Useful definitions:
+#	Select required GoAhead features by setting the appropriate flag in DFLAGS. The default values
+#	are defined in the master projects/goahead-*-bit.h header file. 
 #
 #	export DFLAGS += -DBIT_PAM=1		# To enable PAM-based authorization
 #	export DFLAGS += -DBIT_DIGEST=0		# To disable digest authorization

@@ -1,7 +1,11 @@
 /*
     main.bit -- Main Bit file for GoAhead
 
-    This file contains the rules for targets to build and default settings for configuration
+    This file contains the rules for targets to build and default settings for configuration.
+    The Bit utility (http://ejscript.org) may be used to build GoAhead instead of make. Bit provides
+    for configured builds and generates projects files.
+
+    Alternatively, build using the "make" utility in which case this file is not used.
  */
 
 Bit.load({
