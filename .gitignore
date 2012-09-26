@@ -51,3 +51,5 @@ mob.tst
 mob.txt
 *.tdat
 test/web/tmp
+windows-*-vsdebug
+*.dmp

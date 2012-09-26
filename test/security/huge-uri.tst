@@ -27,7 +27,7 @@ try {
 
 /* Server should just close the connection without a response */
 response = new ByteArray
-while ((n = s.read(response, -1)) > 0) { }
+while ((n = s.read(response, -1)) != null) { }
 if (response.length > 0) {
     /* May not get a response if the write above fails. Then we get a conn reset */
     assert(response.toString().contains('413 Request too large'))

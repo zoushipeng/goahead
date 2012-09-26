@@ -18,7 +18,7 @@ assert(count == 3)
 App.sleep(DELAY)
 count += s.write(" /index.html HTTP/1.0\r\n\r\n")
 assert(count > 10)
-for (count = 0; (n = s.read(response, -1)) > 0; count += n) { }
+for (count = 0; (n = s.read(response, -1)) != null; count += n) { }
 assert(response.toString().contains('200 OK'))
 assert(response.toString().contains('Hello /index'))
 s.close()
@@ -32,7 +32,7 @@ assert(count == 3)
 App.sleep(DELAY)
 count += s.write(" /index.html HTTP/1.0\r\n\r\n")
 assert(count > 10)
-for (count = 0; (n = s.read(response, -1)) > 0; count += n) { }
+for (count = 0; (n = s.read(response, -1)) != null; count += n) { }
 assert(response.toString().contains('200 OK'))
 assert(response.toString().contains('Hello /index'))
 s.close()
@@ -47,7 +47,7 @@ count += s.write(" /index.html HTTP/1.0\r\n")
 App.sleep(DELAY)
 count += s.write("\r\n")
 assert(count > 10)
-for (count = 0; (n = s.read(response, -1)) > 0; count += n) { }
+for (count = 0; (n = s.read(response, -1)) != null; count += n) { }
 assert(response.toString().contains('200 OK'))
 assert(response.toString().contains('Hello /index'))
 s.close()
