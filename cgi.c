@@ -498,7 +498,7 @@ char *websGetCgiCommName()
 {
     char  *tname, buf[BIT_LIMIT_FILENAME];
 
-    tname = sfmt("%s/%s", getcwd(buf, BIT_LIMIT_FILENAME), tempnam(NULL));
+    tname = sfmt("%s/%s", getcwd(buf, BIT_LIMIT_FILENAME), tmpnam(NULL));
     return tname;
 }
 
