@@ -80,7 +80,9 @@ bool websAuthenticate(Webs *wp)
     char        *username;
     int         cached;
 
+    gassert(wp);
     route = wp->route;
+    gassert(route);
 
     if (!route || !route->authType || autoLogin) {
         /* Authentication not required */
@@ -135,6 +137,8 @@ int websOpenAuth(int minimal)
 {
     char    sbuf[64];
     
+    gassert(minimal == 0 || minimal == 1);
+
     if ((users = symOpen(-1)) < 0) {
         return -1;
     }
@@ -159,17 +163,22 @@ void websCloseAuth()
     WebsKey     *key, *next;
 
     gfree(secret);
-    for (key = symFirst(users); key; key = next) {
-        next = symNext(users, key);
-        freeUser(key->content.value.symbol);
+    if (users >= 0) {
+        for (key = symFirst(users); key; key = next) {
+            next = symNext(users, key);
+            freeUser(key->content.value.symbol);
+        }
+        symClose(users);
+        users = -1;
     }
-    symClose(users);
-    for (key = symFirst(roles); key; key = next) {
-        key = symNext(roles, key);
-        freeRole(key->content.value.symbol);
+    if (roles >= 0) {
+        for (key = symFirst(roles); key; key = next) {
+            key = symNext(roles, key);
+            freeRole(key->content.value.symbol);
+        }
+        symClose(roles);
+        roles = -1;
     }
-    symClose(roles);
-    users = roles = -1;
 }
 
 
@@ -181,6 +190,8 @@ int websWriteAuthFile(char *path)
     WebsUser    *user;
     char        *tempFile;
 
+    gassert(path && *path);
+
     tempFile = tempnam(NULL, "tmp");
     if ((fp = fopen(tempFile, "wt")) == 0) {
         error("Can't open %s", tempFile);
@@ -188,19 +199,23 @@ int websWriteAuthFile(char *path)
     }
     fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
 
-    for (kp = symFirst(roles); kp; kp = symNext(roles, kp)) {
-        role = kp->content.value.symbol;
-        fprintf(fp, "role name=%s abilities=", kp->name.value.string);
-        for (ap = symFirst(role->abilities); ap; ap = symNext(role->abilities, ap)) {
-            fprintf(fp, "%s,", ap->name.value.string);
+    if (roles >= 0) {
+        for (kp = symFirst(roles); kp; kp = symNext(roles, kp)) {
+            role = kp->content.value.symbol;
+            fprintf(fp, "role name=%s abilities=", kp->name.value.string);
+            for (ap = symFirst(role->abilities); ap; ap = symNext(role->abilities, ap)) {
+                fprintf(fp, "%s,", ap->name.value.string);
+            }
+            fputc('\n', fp);
         }
         fputc('\n', fp);
     }
-    fputc('\n', fp);
-    for (kp = symFirst(users); kp; kp = symNext(users, kp)) {
-        user = kp->content.value.symbol;
-        fprintf(fp, "user name=%s password=%s roles=%s", user->name, user->password, user->roles);
-        fputc('\n', fp);
+    if (users >= 0) {
+        for (kp = symFirst(users); kp; kp = symNext(users, kp)) {
+            user = kp->content.value.symbol;
+            fprintf(fp, "user name=%s password=%s roles=%s", user->name, user->password, user->roles);
+            fputc('\n', fp);
+        }
     }
     fclose(fp);
     unlink(path);
@@ -215,6 +230,9 @@ int websWriteAuthFile(char *path)
 static WebsUser *createUser(char *username, char *password, char *roles)
 {
     WebsUser    *user;
+
+    gassert(username && *username);
+    gassert(password && *password);
 
     if ((user = galloc(sizeof(WebsUser))) == 0) {
         return 0;
@@ -252,9 +270,9 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
 
 int websRemoveUser(char *username) 
 {
-    //  MOB - must free memory
     WebsKey     *key;
     
+    gassert(username && *username);
     if ((key = symLookup(users, username)) != 0) {
         freeUser(key->content.value.symbol);
     }
@@ -264,6 +282,7 @@ int websRemoveUser(char *username)
 
 static void freeUser(WebsUser *up)
 {
+    gassert(up);
     symClose(up->abilities);
     gfree(up->name);
     gfree(up->password);
@@ -276,6 +295,7 @@ int websSetUserRoles(char *username, char *roles)
 {
     WebsUser    *user;
 
+    gassert(username &&*username);
     if ((user = websLookupUser(username)) == 0) {
         return -1;
     }
@@ -290,6 +310,7 @@ WebsUser *websLookupUser(char *username)
 {
     WebsKey     *key;
 
+    gassert(username &&*username);
     if ((key = symLookup(users, username)) == 0) {
         return 0;
     }
@@ -302,25 +323,32 @@ static void computeAbilities(WebsHash abilities, char *role, int depth)
     WebsRole    *rp;
     WebsKey     *key;
 
+    gassert(abilities >= 0);
+    gassert(role && *role);
+    gassert(depth >= 0);
+
     if (depth > 20) {
         error("Recursive ability definition for %s", role);
         return;
     }
-    if ((key = symLookup(roles, role)) != 0) {
-        rp = (WebsRole*) key->content.value.symbol;
-        for (key = symFirst(rp->abilities); key; key = symNext(rp->abilities, key)) {
-            computeAbilities(abilities, key->name.value.string, ++depth);
+    if (roles >= 0) {
+        if ((key = symLookup(roles, role)) != 0) {
+            rp = (WebsRole*) key->content.value.symbol;
+            for (key = symFirst(rp->abilities); key; key = symNext(rp->abilities, key)) {
+                computeAbilities(abilities, key->name.value.string, ++depth);
+            }
+        } else {
+            symEnter(abilities, role, valueInteger(0), 0);
         }
-    } else {
-        symEnter(abilities, role, valueInteger(0), 0);
     }
 }
 
 
 static void computeUserAbilities(WebsUser *user)
 {
-    char        *ability, *roles, *tok;
+    char    *ability, *roles, *tok;
 
+    gassert(user);
     if ((user->abilities = symOpen(-1)) == 0) {
         return;
     }
@@ -348,9 +376,11 @@ void websComputeAllUserAbilities()
     WebsUser    *user;
     WebsKey     *sym;
 
-    for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
-        user = (WebsUser*) sym->content.value.symbol;
-        computeUserAbilities(user);
+    if (users) {
+        for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
+            user = (WebsUser*) sym->content.value.symbol;
+            computeUserAbilities(user);
+        }
     }
 }
 
@@ -381,6 +411,7 @@ int websAddRole(char *name, WebsHash abilities)
 
 static void freeRole(WebsRole *rp)
 {
+    gassert(rp);
     symClose(rp->abilities);
     gfree(rp);
 }
@@ -392,15 +423,19 @@ static void freeRole(WebsRole *rp)
 int websRemoveRole(char *name) 
 {
     WebsRole    *rp;
-    WebsKey       *sym;
+    WebsKey     *sym;
 
-    if ((sym = symLookup(roles, name)) == 0) {
-        return -1;
+    gassert(name && *name);
+    if (roles) {
+        if ((sym = symLookup(roles, name)) == 0) {
+            return -1;
+        }
+        rp = sym->content.value.symbol;
+        symClose(rp->abilities);
+        gfree(rp);
+        return symDelete(roles, name);
     }
-    rp = sym->content.value.symbol;
-    symClose(rp->abilities);
-    gfree(rp);
-    return symDelete(roles, name);
+    return -1;
 }
 
 
@@ -419,7 +454,11 @@ WebsHash websGetRoles()
 
 bool websLoginUser(Webs *wp, char *username, char *password)
 {
+    gassert(wp);
     gassert(wp->route);
+    gassert(username && *username);
+    gassert(password);
+
     if (!wp->route || !wp->route->verify) {
         return 0;
     }
@@ -444,6 +483,7 @@ static void loginServiceProc(Webs *wp)
 {
     WebsRoute   *route;
 
+    gassert(wp);
     route = wp->route;
     gassert(route);
     
@@ -466,6 +506,7 @@ static void loginServiceProc(Webs *wp)
 
 static void logoutServiceProc(Webs *wp)
 {
+    gassert(wp);
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
     if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
         websError(wp, 401, "Logged out.");
@@ -477,6 +518,7 @@ static void logoutServiceProc(Webs *wp)
 
 void websBasicLogin(Webs *wp)
 {
+    gassert(wp);
     gassert(wp->route);
     gfree(wp->authResponse);
     wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_REALM);
@@ -488,6 +530,7 @@ bool websVerifyUser(Webs *wp)
     char      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
     bool        success;
 
+    gassert(wp);
     if (!wp->encoded) {
         fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
         gfree(wp->password);
@@ -518,6 +561,9 @@ bool websVerifyUser(Webs *wp)
 #if BIT_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv)
 {
+    gassert(jsid >= 0);
+    gassert(wp);
+
     if (websCanString(wp, argv[0])) {
         //  FUTURE
         return 0;
@@ -531,6 +577,7 @@ bool websParseBasicDetails(Webs *wp)
 {
     char    *cp, *userAuth;
 
+    gassert(wp);
     /*
         Split userAuth into userid and password
      */
@@ -556,7 +603,9 @@ void websDigestLogin(Webs *wp)
 {
     char  *nonce, *opaque;
 
+    gassert(wp);
     gassert(wp->route);
+
     nonce = createDigestNonce(wp);
     /* Opaque is unused. Set to anything */
     opaque = "5ccc069c403ebaf9f0171e9517f40e41";
@@ -573,6 +622,7 @@ bool websParseDigestDetails(Webs *wp)
     char    *value, *tok, *key, *dp, *sp, *secret, *realm;
     int     seenComma;
 
+    gassert(wp);
     key = sclone(wp->authDetails);
 
     while (*key) {
@@ -740,9 +790,10 @@ bool websParseDigestDetails(Webs *wp)
  */
 static char *createDigestNonce(Webs *wp)
 {
-    char       nonce[256];
     static int64 next = 0;
+    char         nonce[256];
 
+    gassert(wp);
     gassert(wp->route);
     fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_REALM, time(0), next++);
     return websEncode64(nonce);
@@ -753,6 +804,11 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, time_t *wh
 {
     char    *tok, *decoded, *whenStr;                                                                      
                                                                                                            
+    gassert(nonce && *nonce);
+    gassert(secret);
+    gassert(realm);
+    gassert(when);
+
     if ((decoded = websDecode64(nonce)) == 0) {                                                             
         return -1;
     }                                                                                                      
@@ -771,6 +827,10 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 {
     char  a1Buf[256], a2Buf[256], digestBuf[256];
     char  *ha1, *ha2, *method, *result;
+
+    gassert(wp);
+    gassert(username && *username);
+    gassert(password);
 
     /*
         Compute HA1. If username == 0, then the password is already expected to be in the HA1 format 
@@ -820,7 +880,8 @@ bool websVerifyPamUser(Webs *wp)
     struct group        *gp;
     int                 res, i;
    
-    gassert(wp->username);
+    gassert(wp);
+    gassert(wp->username && wp->username);
     gassert(wp->password);
     gassert(!wp->encoded);
 

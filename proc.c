@@ -28,6 +28,7 @@ static bool procHandler(Webs *wp)
     WebsProc    fn;
 
     gassert(websValid(wp));
+    gassert(formSymtab >= 0);
 
     /*
         Extract the form name

@@ -44,6 +44,8 @@ void websRouteRequest(Webs *wp)
 
     gassert(wp);
     gassert(wp->path);
+    gassert(wp->method);
+    gassert(wp->protocol);
 
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
 
@@ -118,6 +120,7 @@ void websRouteRequest(Webs *wp)
 static bool can(Webs *wp, char *ability)
 {
     gassert(wp);
+    gassert(ability && *ability);
 
     if (wp->user && symLookup(wp->user->abilities, ability)) {
         return 1;
@@ -132,6 +135,7 @@ bool websCan(Webs *wp, WebsHash abilities)
     char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
 
     gassert(wp);
+    gassert(abilities >= 0);
 
     if (!wp->user) {
         if (wp->authType) {
@@ -183,7 +187,7 @@ bool websCan(Webs *wp, WebsHash abilities)
 }
 
 
-//  MOB fix
+#if UNUSED && KEEP
 bool websCanString(Webs *wp, char *abilities) 
 {
     WebsUser    *user;
@@ -208,6 +212,7 @@ bool websCanString(Webs *wp, char *abilities)
     gfree(abilities);
     return 1;
 }
+#endif
 
 
 /*
@@ -258,6 +263,8 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
 int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
         WebsHash abilities, WebsHash redirects)
 {
+    gassert(route);
+
     route->dir = dir ? dir : websGetDocuments();
     route->protocol = protocol ? sclone(protocol) : 0;
     route->abilities = abilities;
@@ -272,6 +279,9 @@ int websSetRouteAuth(WebsRoute *route, char *auth)
 {
     WebsParseAuth parseAuth;
     WebsAskLogin  askLogin;
+
+    gassert(route);
+    gassert(auth && *auth);
 
     askLogin = 0;
     parseAuth = 0;
@@ -297,8 +307,9 @@ static void growRoutes()
 {
     if (routeCount >= routeMax) {
         routeMax += 16;
-        //  RC
-        routes = grealloc(routes, sizeof(WebsRoute*) * routeMax);
+        if ((routes = grealloc(routes, sizeof(WebsRoute*) * routeMax)) == 0) {
+            error("Can't grow routes");
+        }
     }
 }
 
@@ -307,6 +318,8 @@ static int lookupRoute(char *uri)
 {
     WebsRoute   *route;
     int         i;
+
+    gassert(uri && *uri);
 
     for (i = 0; i < routeCount; i++) {
         route = routes[i];
@@ -320,6 +333,8 @@ static int lookupRoute(char *uri)
 
 static void freeRoute(WebsRoute *route)
 {
+    gassert(route);
+
     if (route->abilities >= 0) {
         symClose(route->abilities);
     }
@@ -344,6 +359,8 @@ static void freeRoute(WebsRoute *route)
 int websRemoveRoute(char *uri) 
 {
     int         i;
+
+    gassert(uri && *uri);
 
     if ((i = lookupRoute(uri)) < 0) {
         return -1;
@@ -396,6 +413,9 @@ int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose clos
 {
     WebsHandler     *handler;
 
+    gassert(name && *name);
+    gassert(service);
+
     if ((handler = galloc(sizeof(WebsHandler))) == 0) {
         return -1;
     }
@@ -443,6 +463,8 @@ int websLoad(char *path)
     char          *name, *redirectUri, *password, *roles;
     WebsHash      abilities, extensions, methods, redirects;
     
+    gassert(path && *path);
+
     if ((fp = fopen(path, "rt")) == 0) {
         error("Can't open route config file %s", path);
         return -1;
@@ -450,7 +472,6 @@ int websLoad(char *path)
     buf[sizeof(buf) - 1] = '\0';
     while ((line = fgets(buf, sizeof(buf) -1, fp)) != 0) {
         kind = stok(buf, " \t\r\n", &next);
-        // for (cp = kind; cp && isspace((uchar) *cp); cp++) { }
         if (kind == 0 || *kind == '\0' || *kind == '#') {
             continue;
         }
@@ -557,12 +578,18 @@ int websLoad(char *path)
 #endif
 
 
+/*
+    Handler to just continue matching other routes 
+ */
 static bool continueHandler(Webs *wp)
 {
     return 0;
 }
 
 
+/*
+    Handler to redirect to the default (code zero) URI
+ */
 static bool redirectHandler(Webs *wp)
 {
     return websRedirectByStatus(wp, 0) == 0;
@@ -576,6 +603,9 @@ int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc
     WebsRoute   *route;
     static int  legacyCount = 0;
     char        name[BIT_LIMIT_STRING];
+
+    gassert(prefix && *prefix);
+    gassert(handler);
 
     fmt(name, sizeof(name), "%s-%d", prefix, legacyCount);
     if (websDefineHandler(name, (WebsHandlerProc) handler, 0, WEBS_LEGACY_HANDLER) < 0) {

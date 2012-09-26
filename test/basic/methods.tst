@@ -5,6 +5,7 @@
 const HTTP = App.config.uris.http || "127.0.0.1:8080"
 let http: Http = new Http
 
+/*
 //  Test methods are caseless
 http.connect("GeT", HTTP + "/index.html")
 assert(http.status == 200)
@@ -28,9 +29,13 @@ assert(http.header("Allow") == "DELETE,GET,HEAD,OPTIONS,POST,PUT")
 //  Trace - should be disabled
 http.connect("TRACE", HTTP + "/index.html")
 assert(http.status == 406)
+*/
 
 //  Post
 http.post(HTTP + "/index.html", "Some data")
+assert(http.status == 200)
+
+http.get(HTTP + "/index.html")
 assert(http.status == 200)
 
 //  Head

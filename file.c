@@ -10,8 +10,8 @@
 
 /*********************************** Locals ***********************************/
 
-static char   *websIndex;                 /* Default page name */
-static char   *websDocuments;            /* Default Web page directory */
+static char   *websIndex;                   /* Default page name */
+static char   *websDocuments;               /* Default Web page directory */
 
 /**************************** Forward Declarations ****************************/
 
@@ -24,11 +24,13 @@ static void writeEvent(Webs *wp);
 static bool fileHandler(Webs *wp)
 {
     WebsFileInfo    info;
-    char          *tmp, *date;
+    char            *tmp, *date;
     ssize           nchars;
     int             code;
 
     gassert(websValid(wp));
+    gassert(wp->method);
+    gassert(wp->filename && wp->filename[0]);
 
 #if !BIT_ROM
     if (smatch(wp->method, "DELETE")) {
@@ -103,7 +105,10 @@ int websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
 
+    gassert(wp);
     gassert(wp->putfd >= 0);
+    gassert(wp->input.buf);
+
     nbytes = ringqLen(&wp->input);
     if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
         websError(wp, WEBS_CLOSE | 500, "Can't write to file");
@@ -123,7 +128,9 @@ static void writeEvent(Webs *wp)
     char            *buf;
     ssize           len, wrote;
 
+    gassert(wp);
     gassert(websValid(wp));
+
     websSetTimeMark(wp);
 
     /*
@@ -138,14 +145,13 @@ static void writeEvent(Webs *wp)
         if ((wrote = websWriteRaw(wp, buf, len)) < 0) {
             break;
         }
-        wp->written += wrote;
         if (wrote != len) {
             websPageSeek(wp, - (len - wrote));
             break;
         }
     }
     gfree(buf);
-    if (wrote <= 0) {
+    if (len <= 0) {
         websDone(wp, 200);
     } else {
         //  MOB - wrap in websRegisterInterest(wp, SOCKET_WRITABLE, writeEvent);

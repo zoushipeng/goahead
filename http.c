@@ -1809,6 +1809,7 @@ static ssize writeToSocket(Webs *wp, char *buf, ssize size)
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
         return -1;
     }
+    wp->written += written;
     return written;
 }
 
@@ -1954,13 +1955,14 @@ ssize websWriteRaw(Webs *wp, char *buf, ssize size)
         Flush any buffered data to ensure data remains in sequence. 
         WARNING: Must do this blocking to ensure all data is written.
      */
-    prior = socketSetBlock(wp->sid, 1);
-    written = websFlush(wp);
-    socketSetBlock(wp->sid, prior);
-    if (written < 0) {
-        return written;
+    if (ringqLen(&wp->output) > 0) {
+        prior = socketSetBlock(wp->sid, 1);
+        written = websFlush(wp);
+        socketSetBlock(wp->sid, prior);
+        if (written < 0) {
+            return written;
+        }
     }
-    wp->written += written;
     return writeToSocket(wp, buf, size);
 }
 

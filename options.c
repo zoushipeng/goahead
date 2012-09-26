@@ -12,6 +12,8 @@
 
 static bool optionsHandler(Webs *wp)
 {
+    gassert(wp);
+
     if (smatch(wp->method, "OPTIONS")) {
         websWriteHeaders(wp, HTTP_CODE_OK, 0, 0);
         websWriteHeader(wp, "Allow: DELETE,GET,HEAD,OPTIONS,POST,PUT%s\r\n", BIT_TRACE_METHOD ? ",TRACE" : "");
