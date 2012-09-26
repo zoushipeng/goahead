@@ -1139,7 +1139,7 @@ static bool filterChunkData(Webs *wp)
                 return 0;
             }
             chunkSize = ghextoi(&start[2]);
-            if (!isxdigit((int) start[2]) || chunkSize < 0) {
+            if (!isxdigit((uchar) start[2]) || chunkSize < 0) {
                 websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad chunk specification");
                 return 0;
             }
@@ -1970,7 +1970,7 @@ ssize websWriteRaw(Webs *wp, char *buf, ssize size)
  */
 void websDecodeUrl(char *decoded, char *token, ssize len)
 {
-    char  *ip,  *op;
+    char    *ip,  *op;
     int     num, i, c;
     
     gassert(decoded);
@@ -1983,13 +1983,13 @@ void websDecodeUrl(char *decoded, char *token, ssize len)
     for (ip = token; *ip && len > 0; ip++, op++) {
         if (*ip == '+') {
             *op = ' ';
-        } else if (*ip == '%' && isxdigit(ip[1]) && isxdigit(ip[2])) {
+        } else if (*ip == '%' && isxdigit((uchar) ip[1]) && isxdigit((uchar) ip[2])) {
             /*
                 Convert %nn to a single character
              */
             ip++;
             for (i = 0, num = 0; i < 2; i++, ip++) {
-                c = tolower(*ip);
+                c = tolower((uchar) *ip);
                 if (c >= 'a' && c <= 'f') {
                     num = (num * 16) + 10 + c - 'a';
                 } else {
@@ -2384,7 +2384,7 @@ static int parseNDIGIT(char *buf, int digits, int *index)
 
     returnValue = 0;
     for (tmpIndex = *index; tmpIndex < *index+digits; tmpIndex++) {
-        if (isdigit(buf[tmpIndex])) {
+        if (isdigit((uchar) buf[tmpIndex])) {
             returnValue = returnValue * 10 + (buf[tmpIndex] - '0');
         }
     }

@@ -1056,7 +1056,7 @@ static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
     gassert(rel > 0);
 
     lval = 0;
-    if (isdigit((int)*lhs) && isdigit((int)*rhs)) {
+    if (isdigit((uchar) *lhs) && isdigit((uchar) *rhs)) {
         l = atoi(lhs);
         r = atoi(rhs);
         switch (rel) {
@@ -1071,7 +1071,7 @@ static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
             return -1;
         }
     } else {
-        if (!isdigit((int)*lhs)) {
+        if (!isdigit((uchar) *lhs)) {
             jsError(ep, "Conditional must be numeric", lhs);
         } else {
             jsError(ep, "Conditional must be numeric", rhs);
@@ -1100,7 +1100,7 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
      */
     numeric = 1;
     for (cp = lhs; *cp; cp++) {
-        if (!isdigit((int)*cp)) {
+        if (!isdigit((uchar) *cp)) {
             numeric = 0;
             break;
         }
@@ -1108,7 +1108,7 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
 
     if (numeric) {
         for (cp = rhs; *cp; cp++) {
-            if (!isdigit((int)*cp)) {
+            if (!isdigit((uchar) *cp)) {
                 numeric = 0;
                 break;
             }
@@ -2008,7 +2008,7 @@ static int getLexicalToken(Js *ep, int state)
                 if (c == '\\') {
                     c = inputGetc(ep);
 
-                    if (isdigit(c)) {
+                    if (isdigit((uchar) c)) {
                         /*
                             octal support, \101 maps to 65 = 'A'. put first char back so converter will work properly.
                          */
@@ -2073,7 +2073,7 @@ static int getLexicalToken(Js *ep, int state)
                 }
                 if ((c = inputGetc(ep)) < 0)
                     break;
-            } while (isdigit(c));
+            } while (isdigit((uchar) c));
             inputPutback(ep, c);
             return TOK_LITERAL;
 
@@ -2237,7 +2237,7 @@ static int charConvert(Js *ep, int base, int maxDig)
             Initialize to out of range value
          */
         convChar = base;
-        if (isdigit(c)) {
+        if (isdigit((uchar) c)) {
             convChar = c - '0';
         } else if (c >= 'a' && c <= 'f') {
             convChar = c - 'a' + 10;

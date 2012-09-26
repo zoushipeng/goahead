@@ -1161,7 +1161,7 @@ char *slower(char *string)
     s = string;
     while (*s) {
         if (isupper(*s)) {
-            *s = (char) tolower((int) *s);
+            *s = (char) tolower((uchar) *s);
         }
         s++;
     }
@@ -1183,8 +1183,8 @@ char *supper(char *string)
     }
     s = string;
     while (*s) {
-        if (islower((int) (uchar) *s)) {
-            *s = (char) toupper((int) (uchar) *s);
+        if (islower((uchar) *s)) {
+            *s = (char) toupper((uchar) *s);
         }
         s++;
     }

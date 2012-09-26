@@ -260,7 +260,7 @@ static char *strtokcmp(char *s1, char *s2)
 
     s1 = skipWhite(s1);
     len = strlen(s2);
-    for (len = strlen(s2); len > 0 && (tolower(*s1) == tolower(*s2)); len--) {
+    for (len = strlen(s2); len > 0 && (tolower((uchar) *s1) == tolower((uchar) *s2)); len--) {
         if (*s2 == '\0') {
             return s1;
         }
