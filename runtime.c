@@ -2751,7 +2751,7 @@ char *strim(char *str, char *set, int where)
     then the args will be extracted, back-quotes removed and argv will be set to point to all the args.
     NOTE: this routine does not allocate.
  */
-int gparseArgs(char *args, char **argv, int maxArgc)
+int websParseArgs(char *args, char **argv, int maxArgc)
 {
     char    *dest, *src, *start;
     int     quote, argc;

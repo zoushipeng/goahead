@@ -1693,7 +1693,6 @@ void websWriteHeaders(Webs *wp, int code, ssize length, char *location)
             websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
         } else if (length >= 0) {                                                                                    
             websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
-            wp->numbytes = bytes;
         }
         wp->txLen = length;
         if (wp->txLen < 0) {
@@ -1961,6 +1960,7 @@ ssize websWriteRaw(Webs *wp, char *buf, ssize size)
     if (written < 0) {
         return written;
     }
+    wp->written += written;
     return writeToSocket(wp, buf, size);
 }
 
@@ -2104,13 +2104,7 @@ char *websGetHostUrl()
 }
 
 
-ssize websGetRequestBytes(Webs *wp)
-{
-    gassert(websValid(wp));
-    return wp->numbytes;
-}
-
-
+#if UNUSED
 char *websGetRequestDir(Webs *wp)
 {
     gassert(websValid(wp));
@@ -2183,6 +2177,7 @@ ssize websGetRequestWritten(Webs *wp)
     gassert(websValid(wp));
     return wp->written;
 }
+#endif /* UNUSED */
 
 
 static int setLocalHost()
@@ -2296,11 +2291,13 @@ void websRewriteRequest(Webs *wp, char *url)
 }
 
 
+#if UNUSED
 void websSetRequestWritten(Webs *wp, ssize written)
 {
     gassert(websValid(wp));
     wp->written = written;
 }
+#endif
 
 
 bool websValid(Webs *wp)
@@ -2316,10 +2313,12 @@ bool websValid(Webs *wp)
 }
 
 
+#if UNUSED
 bool websComplete(Webs *wp) 
 {
     return !websValid(wp) || wp->state == WEBS_BEGIN;
 }
+#endif
 
 
 /*

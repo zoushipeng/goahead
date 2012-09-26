@@ -108,8 +108,8 @@
     Function call structure
  */
 typedef struct JsFun {
-    char      *fname;                         /* Function name */
-    char      **args;                         /* Args for function (halloc) */
+    char        *fname;                         /* Function name */
+    char        **args;                         /* Args for function (halloc) */
     int         nArgs;                          /* Number of args */
 } JsFun;
 
@@ -119,9 +119,9 @@ typedef struct JsFun {
 typedef struct JsInput {
     WebsBuf     tokbuf;                         /* Current token */
     WebsBuf     script;                         /* Input script for parsing */
-    char      *putBackToken;                  /* Putback token string */
+    char        *putBackToken;                  /* Putback token string */
     int         putBackTokenId;                 /* Putback token ID */
-    char      *line;                          /* Current line */
+    char        *line;                          /* Current line */
     int         lineLength;                     /* Current line length */
     int         lineNumber;                     /* Parse line number */
     int         lineColumn;                     /* Column in line */
@@ -137,9 +137,9 @@ typedef struct Js {
     WebsHash    *variables;                     /* hAlloc list of variables */
     int         variableMax;                    /* Number of entries */
     JsFun       *func;                          /* Current function */
-    char      *result;                        /* Current expression result */
-    char      *error;                         /* Error message */
-    char      *token;                         /* Pointer to token string */
+    char        *result;                        /* Current expression result */
+    char        *error;                         /* Error message */
+    char        *token;                         /* Pointer to token string */
     int         tid;                            /* Current token id */
     int         eid;                            /* Halloc handle */
     int         flags;                          /* Flags */
@@ -227,7 +227,6 @@ extern char     *jsEval(int eid, char *script, char **emsg);
     #define ejSetVar jsSetVar
     #define ejGetVar jsGetVar
     #define ejEval jsEval
-
 #endif
 
 #endif /* BIT_JAVASCRIPT */

@@ -27,6 +27,7 @@ LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.l
 all: prep \
         $(CONFIG)\bin\goahead.exe \
         $(CONFIG)\bin\goahead-test.exe \
+        $(CONFIG)\bin\gopass.exe \
         $(CONFIG)\bin\webcomp.exe \
         test\cgi-bin\cgitest.exe
 
@@ -46,6 +47,7 @@ prep:
 clean:
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
+	-if exist $(CONFIG)\bin\gopass.exe del /Q $(CONFIG)\bin\gopass.exe
 	-if exist $(CONFIG)\bin\webcomp.exe del /Q $(CONFIG)\bin\webcomp.exe
 	-if exist test\cgi-bin\cgitest.exe del /Q test\cgi-bin\cgitest.exe
 	-if exist $(CONFIG)\obj\auth.obj del /Q $(CONFIG)\obj\auth.obj
@@ -68,6 +70,7 @@ clean:
 	-if exist $(CONFIG)\obj\upload.obj del /Q $(CONFIG)\obj\upload.obj
 	-if exist $(CONFIG)\obj\goahead.obj del /Q $(CONFIG)\obj\goahead.obj
 	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
+	-if exist $(CONFIG)\obj\gopass.obj del /Q $(CONFIG)\obj\gopass.obj
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
 
@@ -226,6 +229,35 @@ $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\obj\upload.obj \
         $(CONFIG)\obj\test.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\proc.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\test.obj $(LIBS)
+
+$(CONFIG)\obj\gopass.obj: \
+        utils\gopass.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc utils\gopass.c
+
+$(CONFIG)\bin\gopass.exe:  \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
+        $(CONFIG)\obj\auth.obj \
+        $(CONFIG)\obj\cgi.obj \
+        $(CONFIG)\obj\crypt.obj \
+        $(CONFIG)\obj\file.obj \
+        $(CONFIG)\obj\galloc.obj \
+        $(CONFIG)\obj\http.obj \
+        $(CONFIG)\obj\js.obj \
+        $(CONFIG)\obj\matrixssl.obj \
+        $(CONFIG)\obj\openssl.obj \
+        $(CONFIG)\obj\options.obj \
+        $(CONFIG)\obj\proc.obj \
+        $(CONFIG)\obj\rom-documents.obj \
+        $(CONFIG)\obj\rom.obj \
+        $(CONFIG)\obj\route.obj \
+        $(CONFIG)\obj\runtime.obj \
+        $(CONFIG)\obj\socket.obj \
+        $(CONFIG)\obj\template.obj \
+        $(CONFIG)\obj\upload.obj \
+        $(CONFIG)\obj\gopass.obj
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\proc.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\template.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\gopass.obj $(LIBS)
 
 $(CONFIG)\obj\webcomp.obj: \
         utils\webcomp.c \

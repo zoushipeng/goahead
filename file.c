@@ -145,7 +145,7 @@ static void writeEvent(Webs *wp)
         }
     }
     gfree(buf);
-    if (wrote <= 0 || wp->written >= wp->numbytes) {
+    if (wrote <= 0) {
         websDone(wp, 200);
     } else {
         //  MOB - wrap in websRegisterInterest(wp, SOCKET_WRITABLE, writeEvent);

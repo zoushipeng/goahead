@@ -77,6 +77,10 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 "${LD}" -out:${CONFIG}/bin/goahead-test.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/proc.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/template.obj ${CONFIG}/obj/upload.obj ${CONFIG}/obj/test.obj ${LIBS}
 
+"${CC}" -c -Fo${CONFIG}/obj/gopass.obj -Fd${CONFIG}/obj/gopass.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
+
+"${LD}" -out:${CONFIG}/bin/gopass.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/proc.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/template.obj ${CONFIG}/obj/upload.obj ${CONFIG}/obj/gopass.obj ${LIBS}
+
 "${CC}" -c -Fo${CONFIG}/obj/webcomp.obj -Fd${CONFIG}/obj/webcomp.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 
 "${LD}" -out:${CONFIG}/bin/webcomp.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/webcomp.obj ${LIBS}

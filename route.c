@@ -162,9 +162,11 @@ bool websCan(Webs *wp, WebsHash abilities)
                     if (can(wp, abuf)) {
                         break;
                     }
+#if UNUSED
                     if (websComplete(wp)) {
                         return 0;
                     }
+#endif
                     start = &cp[1];
                 } while ((cp = strchr(start, '|')) != 0);
                 if (!cp) {
