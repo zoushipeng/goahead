@@ -286,6 +286,7 @@
     #include    <errno.h>
     #include    <sys/wait.h>
     #include    <syslog.h>
+    #include    <libgen.h>
 #endif /* LINUX */
 
 #if LYNX
@@ -326,6 +327,7 @@
     #include    <stdbool.h>
     #include    <sys/wait.h>
     #include    <syslog.h>
+    #include    <libgen.h>
 #endif /* MACOSX */
 
 #if UW
