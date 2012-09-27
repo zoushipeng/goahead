@@ -20,12 +20,9 @@ static int  websDebug;                  /* Run in debug mode and defeat timeouts
 
 static int          listens[WEBS_MAX_LISTEN];   /* Listen endpoints */;
 static int          listenMax;
-
-//  MOB - remove webs prefix
 static Webs         **webs;                     /* Open connection list head */
 static WebsHash     websMime;                   /* Set of mime types */
 static int          websMax;                    /* List size */
-
 static char         websHost[64];               /* Host name for the server */
 static char         websIpAddr[64];             /* IP address for the server */
 static char         *websHostUrl = NULL;        /* URL to access server */
@@ -397,7 +394,6 @@ static void termWebs(Webs *wp, int keepAlive)
     gfree(wp->cookie);
     gfree(wp->decodedQuery);
     gfree(wp->digest);
-    gfree(wp->dir);
     gfree(wp->ext);
     gfree(wp->filename);
     gfree(wp->host);
@@ -408,6 +404,7 @@ static void termWebs(Webs *wp, int keepAlive)
     gfree(wp->protoVersion);
     gfree(wp->query);
     gfree(wp->realm);
+    gfree(wp->referrer);
     gfree(wp->responseCookie);
     gfree(wp->url);
     gfree(wp->userAgent);
@@ -878,7 +875,6 @@ static bool parseFirstLine(Webs *wp)
         return 0;
     }
     wp->method = supper(strdup(op));
-    websSetVar(wp, "REQUEST_METHOD", wp->method);
 
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
@@ -910,11 +906,8 @@ static bool parseFirstLine(Webs *wp)
     if (ext) {
         wp->ext = sclone(slower(ext));
     }
-    wp->dir = sclone(websGetDocuments());
-    /*
-        Get a default filename
-     */
-    wp->filename = sfmt("%s%s", wp->dir, wp->path);
+    //  MOB - these should be updated based on the route?
+    wp->filename = sfmt("%s%s", websGetDocuments(), wp->path);
 
     wp->query = sclone(query);
     wp->host = sclone(host);
@@ -944,8 +937,6 @@ static bool parseHeaders(Webs *wp)
     int     count;
 
     gassert(websValid(wp));
-
-    websSetVar(wp, "HTTP_AUTHORIZATION", "");
 
     /* 
         Parse the header and create the Http header keyword variables
@@ -1016,13 +1007,11 @@ static bool parseHeaders(Webs *wp)
                 return 0;
             }
             if (wp->rxLen > 0 && !smatch(wp->method, "HEAD")) {
-                websSetVar(wp, "CONTENT_LENGTH", value);
                 wp->rxRemaining = wp->rxLen;
             }
 
         } else if (strcmp(key, "content-type") == 0) {
-            wp->contentType = strdup(value);
-            websSetVar(wp, "CONTENT_TYPE", value);
+            wp->contentType = sclone(value);
             if (strstr(value, "application/x-www-form-urlencoded")) {
                 wp->flags |= WEBS_FORM;
             } else if (strstr(value, "multipart/form-data")) {
@@ -1032,6 +1021,10 @@ static bool parseHeaders(Webs *wp)
         } else if (strcmp(key, "cookie") == 0) {
             wp->flags |= WEBS_COOKIE;
             wp->cookie = strdup(value);
+
+        } else if (strcmp(key, "host") == 0) {
+            gfree(wp->host);
+            wp->host = sclone(value);
 
         } else if (strcmp(key, "if-modified-since") == 0) {
             char *cmd;
@@ -1044,6 +1037,12 @@ static bool parseHeaders(Webs *wp)
 
             wp->since = dateParse(tip, cmd);
             gfree(cmd);
+
+        /*
+            Yes Veronica, the HTTP spec does misspell Referrer
+         */
+        } else if (strcmp(key, "referer") == 0) {
+            wp->referrer = sclone(value);
 
         } else if (strcmp(key, "transfer-encoding") == 0) {
             if (scaselesscmp(value, "chunked") == 0) {
@@ -1266,32 +1265,46 @@ static void addFormVars(Webs *wp, char *vars)
 /*
     Set the variable (CGI) environment for this request. Create variables for all standard CGI variables. Also decode
     the query string and create a variable for each name=value pair.
-    MOB OPT - only do this for handlers that require
  */
 void websSetEnv(Webs *wp)
 {
-    char  portBuf[8];
-    char  *value;
+    char  numbuf[8], *value;
 
     gassert(wp);
     gassert(websValid(wp));
 
-    websSetVar(wp, "QUERY_STRING", wp->query);
+    websSetVar(wp, "AUTH_TYPE", wp->authType);
+    itosbuf(numbuf, sizeof(numbuf), wp->rxLen, 10);
+    websSetVar(wp, "CONTENT_LENGTH", numbuf);
+    websSetVar(wp, "CONTENT_TYPE", wp->contentType);
+    if (wp->route && wp->route->dir) {
+        websSetVar(wp, "DOCUMENT_ROOT", wp->route->dir);
+    }
     websSetVar(wp, "GATEWAY_INTERFACE", "CGI/1.1");
-    websSetVar(wp, "SERVER_HOST", websHost);
-    websSetVar(wp, "SERVER_NAME", websHost);
-    websSetVar(wp, "SERVER_URL", websHostUrl);
+    websSetVar(wp, "QUERY_STRING", wp->query);
+    websSetVar(wp, "PATH_INFO", wp->path);
+    websSetVar(wp, "PATH_TRANSLATED", wp->filename);
+    websSetVar(wp, "REMOTE_USER", wp->username);
     websSetVar(wp, "REMOTE_HOST", wp->ipaddr);
     websSetVar(wp, "REMOTE_ADDR", wp->ipaddr);
-    websSetVar(wp, "PATH_INFO", wp->path);
-    itosbuf(portBuf, sizeof(portBuf), wp->port, 10);
-    websSetVar(wp, "SERVER_PORT", portBuf);
+    websSetVar(wp, "REQUEST_METHOD", wp->method);
+    websSetVar(wp, "REQUEST_TRANSPORT", wp->protocol);
+    websSetVar(wp, "SCRIPT_FILENAME", wp->filename);
     websSetVar(wp, "SERVER_ADDR", wp->ifaddr);
+    websSetVar(wp, "SERVER_HOST", websHost);
+    websSetVar(wp, "SERVER_NAME", websHost);
+    itosbuf(numbuf, sizeof(numbuf), wp->port, 10);
+    websSetVar(wp, "SERVER_PORT", numbuf);
+    websSetVar(wp, "SERVER_PROTOCOL", wp->protoVersion);
+    websSetVar(wp, "SERVER_URL", websHostUrl);
     value = sfmt("GoAhead/%s", BIT_VERSION);
     websSetVar(wp, "SERVER_SOFTWARE", value);
     gfree(value);
-    websSetVar(wp, "SERVER_PROTOCOL", wp->protoVersion);
+}
 
+
+void websSetFormVars(Webs *wp)
+{
     /*
         Decode and create an environment query variable for each query keyword. We split into pairs at each '&', then
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
@@ -1456,7 +1469,7 @@ void websRedirect(Webs *wp, char *uri)
     message = location = uribuf = NULL;
 
     originalPort = port = 0;
-    if ((host = websGetVar(wp, "HTTP_HOST", websHostUrl)) != 0) {
+    if ((host = (wp->host ? wp->host : websHostUrl)) != 0) {
         scopy(hostbuf, sizeof(hostbuf), host);
         if ((pstr = strchr(hostbuf, ':')) != 0) {
             *pstr++ = '\0';
@@ -1966,6 +1979,31 @@ ssize websFlush(Webs *wp)
 
 
 /*
+    Accessors
+ */
+char *websGetCookie(Webs *wp) { return wp->cookie; }
+char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
+int  websGetEof(Webs *wp) { return wp->eof; }
+char *websGetExt(Webs *wp) { return wp->ext; }
+char *websGetFilename(Webs *wp) { return wp->filename; }
+char *websGetHost(Webs *wp) { return wp->host; }
+char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
+char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
+char *websGetMethod(Webs *wp) { return wp->method; }
+char *websGetPassword(Webs *wp) { return wp->password; }
+char *websGetPath(Webs *wp) { return wp->path; }
+int   websGetPort(Webs *wp) { return wp->port; }
+char *websGetProtocol(Webs *wp) { return wp->protocol; }
+char *websGetQuery(Webs *wp) { return wp->query; }
+char *websGetServer() { return websHost; } 
+char *websGetServerAddress() { return websIpAddr; } 
+char *websGetServerAddressUrl() { return websIpAddrUrl; } 
+char *websGetServerUrl() { return websHostUrl; }
+char *websGetUrl(Webs *wp) { return wp->url; }
+char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
+char *websGetUsername(Webs *wp) { return wp->username; }
+
+/*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
  */
 ssize websWriteBlock(Webs *wp, char *buf, ssize size)
@@ -2137,25 +2175,6 @@ void websTimeout(void *arg, int id)
     }
 }
 
-
-char *websGetHost()
-{
-    return websHost;
-}
-
-
-char *websGetIpAddrUrl()
-{
-    return websIpAddrUrl;
-}
-
-
-char *websGetHostUrl()
-{
-    return websHostUrl;
-}
-
-
 static int setLocalHost()
 {
     struct in_addr  intaddr;
@@ -2229,50 +2248,23 @@ void websSetRequestFilename(Webs *wp, char *filename)
 #endif
 
 
-/*
-    Update the URL path and the directory containing the web page
- */
-void websSetRequestPath(Webs *wp, char *dir, char *path)
+int websRewriteRequest(Webs *wp, char *url)
 {
-    char  *tmp;
+    char    *buf, *path;
 
-    gassert(websValid(wp));
-
-    if (dir) { 
-        tmp = wp->dir;
-        wp->dir = strdup(dir);
-        if (tmp) {
-            gfree(tmp);
-        }
-    }
-    if (path) {
-        tmp = wp->path;
-        wp->path = strdup(path);
-        websSetVar(wp, "PATH_INFO", wp->path);
-        if (tmp) {
-            gfree(tmp);
-        }
-    }
-}
-
-
-void websRewriteRequest(Webs *wp, char *url)
-{
     gfree(wp->url);
-    wp->url = strdup(url);
-    websSetRequestPath(wp, NULL, wp->url);
+    wp->url = sclone(url);
+    gfree(wp->path);
+    if (websUrlParse(url, &buf, NULL, &path, NULL, NULL, NULL, NULL, NULL) < 0) {
+        return -1;
+    }
+    wp->path = sclone(path);
     gfree(wp->filename);
-    wp->filename = sfmt("%s%s", wp->dir, wp->path);
+    wp->filename = 0;
+    wp->flags |= WEBS_REROUTE;
+    gfree(buf);
+    return 0;
 }
-
-
-#if UNUSED
-void websSetRequestWritten(Webs *wp, ssize written)
-{
-    gassert(websValid(wp));
-    wp->written = written;
-}
-#endif
 
 
 bool websValid(Webs *wp)
@@ -2286,14 +2278,6 @@ bool websValid(Webs *wp)
     }
     return 0;
 }
-
-
-#if UNUSED
-bool websComplete(Webs *wp) 
-{
-    return !websValid(wp) || wp->state == WEBS_BEGIN;
-}
-#endif
 
 
 /*
@@ -3191,7 +3175,7 @@ void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDo
         path = "/";
     }
     if (!cookieDomain) {
-        domain = sclone(websGetVar(wp, "HTTP_HOST", ""));
+        domain = sclone(wp->host);
         if ((cp = strchr(domain, ':')) != 0) {
             /* Strip port */
             *cp = '\0';
@@ -3310,7 +3294,6 @@ WebsSession *websAllocSession(Webs *wp, char *id, time_t lifespan)
     WebsSession     *sp;
 
     gassert(wp);
-    gassert(id && *id);
 
     if ((sp = galloc(sizeof(WebsSession))) == 0) {
         return 0;

@@ -40,6 +40,7 @@ void websRouteRequest(Webs *wp)
     WebsRoute   *route;
     ssize       plen, len;
     bool        safeMethod;
+    char        *documents;
     int         i, count;
 
     gassert(wp);
@@ -49,7 +50,9 @@ void websRouteRequest(Webs *wp)
 
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
 
+    documents = websGetDocuments();
     plen = slen(wp->path);
+
     for (count = 0, i = 0; i < routeCount; i++) {
         route = routes[i];
         gassert(route->prefix && route->prefixLen > 0);
@@ -84,7 +87,11 @@ void websRouteRequest(Webs *wp)
             if (route->abilities >= 0 && !websCan(wp, route->abilities)) {
                 return;
             }
-            websSetEnv(wp);
+            if (!wp->filename || route->dir) {
+                gfree(wp->filename);
+                wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
+            }
+            websSetFormVars(wp);
 #if BIT_LEGACY
             if (route->handler->flags & WEBS_LEGACY_HANDLER) {
                 if ((*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags)) {
@@ -265,7 +272,9 @@ int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash meth
 {
     gassert(route);
 
-    route->dir = dir ? dir : websGetDocuments();
+    if (dir) {
+        route->dir = sclone(dir);
+    }
     route->protocol = protocol ? sclone(protocol) : 0;
     route->abilities = abilities;
     route->extensions = extensions;

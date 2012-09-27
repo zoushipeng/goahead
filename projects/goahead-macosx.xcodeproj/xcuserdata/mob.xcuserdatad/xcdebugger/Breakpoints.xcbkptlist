@@ -33,32 +33,6 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../http.c"
-         timestampString = "370378019.359721"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "768"
-         endingLineNumber = "768"
-         landmarkName = "websPump()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../file.c"
-         timestampString = "370378060.721943"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "31"
-         endingLineNumber = "31"
-         landmarkName = "fileHandler()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
          filePath = "../file.c"
          timestampString = "370378086.962363"
          startingColumnNumber = "9223372036854775807"
@@ -79,19 +53,6 @@
          startingLineNumber = "148"
          endingLineNumber = "148"
          landmarkName = "writeEvent()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
-         filePath = "../http.c"
-         timestampString = "370378201.384392"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1963"
-         endingLineNumber = "1963"
-         landmarkName = "websWriteRaw()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

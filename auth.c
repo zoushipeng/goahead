@@ -487,7 +487,7 @@ static void loginServiceProc(Webs *wp)
     route = wp->route;
     gassert(route);
     
-    if (websLoginUser(wp, websGetVar(wp, "username", 0), websGetVar(wp, "password", 0))) {
+    if (websLoginUser(wp, websGetVar(wp, "username", ""), websGetVar(wp, "password", ""))) {
         /* If the application defines a referrer session var, redirect to that */
         char *referrer;
         if ((referrer = websGetSessionVar(wp, "referrer", 0)) != 0) {
@@ -611,7 +611,7 @@ void websDigestLogin(Webs *wp)
     opaque = "5ccc069c403ebaf9f0171e9517f40e41";
     wp->authResponse = sfmt(
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
-        BIT_REALM, websGetHostUrl(), "auth", nonce, opaque, "MD5", "FALSE");
+        BIT_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
     gfree(nonce);
 }
 
@@ -846,7 +846,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     /*
         HA2
      */ 
-    method = websGetVar(wp, "REQUEST_METHOD", NULL);
+    method = wp->method;
     fmt(a2Buf, sizeof(a2Buf), "%s:%s", method, wp->digestUri);
     ha2 = websMD5(a2Buf);
 

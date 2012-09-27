@@ -40,7 +40,7 @@ static bool cgiHandler(Webs *wp)
     Cgi         *cgip;
     WebsKey     *s;
     char        cgiBuf[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
-    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok;
+    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query;
     int         n, envpsize, argpsize, pHandle, cid;
 
     gassert(websValid(wp));
@@ -96,6 +96,7 @@ static bool cgiHandler(Webs *wp)
         chdir(cgiPath);
         *cp = '/';
     }
+
     /*
          Build command line arguments.  Only used if there is no non-encoded = character.  This is indicative of a ISINDEX
          query.  POST separators are & and others are +.  argp will point to a galloc'd array of pointers.  Each pointer
@@ -107,10 +108,10 @@ static bool cgiHandler(Webs *wp)
     argp = galloc(argpsize * sizeof(char *));
     *argp = cgiPath;
     n = 1;
-    //  MOB - should not modify the original query?
     if (strchr(wp->query, '=') == NULL) {
-        websDecodeUrl(wp->query, wp->query, strlen(wp->query));
-        for (cp = stok(wp->query, " ", &tok); cp != NULL; ) {
+        query = sclone(wp->query);
+        websDecodeUrl(query, query, strlen(query));
+        for (cp = stok(query, " ", &tok); cp != NULL; ) {
             *(argp+n) = cp;
             n++;
             if (n >= argpsize) {
@@ -134,8 +135,8 @@ static bool cgiHandler(Webs *wp)
     n = 0;
     envp[n++] = sfmt("%s=%s", "PATH_TRANSLATED", cgiPath);
     envp[n++] = sfmt("%s=%s/%s", "SCRIPT_NAME", BIT_CGI_BIN, cgiName);
-    envp[n++] = sfmt("%s=%s", "REMOTE_USER", wp->username);
-    envp[n++] = sfmt("%s=%s", "AUTH_TYPE", wp->authType);
+
+    websSetEnv(wp);
     for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
         if (s->content.valid && s->content.type == string &&
             strcmp(s->name.value.string, "REMOTE_HOST") != 0 &&
@@ -148,6 +149,7 @@ static bool cgiHandler(Webs *wp)
         }
     }
     *(envp+n) = NULL;
+
     /*
         Create temporary file name(s) for the child's stdin and stdout. For POST data the stdin temp file (and name)
         should already exist.  
@@ -170,6 +172,7 @@ static bool cgiHandler(Webs *wp)
         gfree(argp);
         gfree(envp);
         gfree(stdOut);
+        gfree(query);
     } else {
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
@@ -185,6 +188,7 @@ static bool cgiHandler(Webs *wp)
         cgip->wp = wp;
         cgip->fplacemark = 0;
         websTimeoutCancel(wp);
+        gfree(query);
     }
     /*
         Restore the current working directory after spawning child CGI

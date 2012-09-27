@@ -1482,7 +1482,6 @@ typedef struct Webs {
     char            *cookie;            /* Request cookie string */
     char            *decodedQuery;      /* Decoded request query */
     char            *digest;            /* Password digest */
-    char            *dir;               /* Directory containing the page */
     char            *ext;               /* Path extension */
     char            *filename;          /* Document path name */
     char            *host;              /* Requested host */
@@ -1494,6 +1493,7 @@ typedef struct Webs {
     char            *protocol;          /* Protocol scheme (normally http|https) */
     char            *query;             /* Request query */
     char            *realm;             /* Realm field supplied in auth header */
+    char            *referrer;          /* The referring page */
     char            *responseCookie;    /* Outgoing cookie */
     char            *url;               /* Full request url */
     char            *userAgent;         /* User agent (browser) */
@@ -1646,15 +1646,32 @@ extern ssize websFlush(Webs *wp);
 extern void websFree(Webs *wp);
 extern int websGetBackground();
 extern char *websGetCgiCommName();
+extern char *websGetCookie(Webs *wp);
 extern char *websGetDateString(WebsFileInfo *sbuf);
 extern int websGetDebug();
+extern char *websGetDir(Webs *wp);
 extern char *websGetDocuments();
+extern int  websGetEof(Webs *wp);
+extern char *websGetExt(Webs *wp);
+extern char *websGetFilename(Webs *wp);
+extern char *websGetHost(Webs *wp);
+extern char *websGetIfaddr(Webs *wp);
 extern char *websGetIndex();
-extern char *websGetRequestUserName(Webs *wp);
-extern char *websGetHostUrl();
 extern char *websGetIpAddrUrl();
-extern char *websGetPassword();
+extern char *websGetMethod(Webs *wp);
+extern char *websGetPassword(Webs *wp);
+extern char *websGetPath(Webs *wp);
+extern int   websGetPort(Webs *wp);
+extern char *websGetProtocol(Webs *wp);
 extern char *websGetRealm();
+extern char *websGetQuery(Webs *wp);
+extern char *websGetServer();
+extern char *websGetServerUrl();
+extern char *websGetServerAddress();
+extern char *websGetServerAddressUrl();
+extern char *websGetUrl(Webs *wp);
+extern char *websGetUserAgent(Webs *wp);
+extern char *websGetUsername(Webs *wp);
 extern char *websGetVar(Webs *wp, char *var, char *def);
 extern int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
 extern int websListen(char *endpoint);
@@ -1679,7 +1696,7 @@ extern void websRedirect(Webs *wp, char *url);
 extern int websRedirectHandler(Webs *wp);
 extern int websRedirectByStatus(Webs *wp, int status);
 extern void websResponse(Webs *wp, int code, char *msg);
-extern void websRewriteRequest(Webs *wp, char *url);
+extern int websRewriteRequest(Webs *wp, char *url);
 extern int websRomOpen();
 extern void websRomClose();
 extern int websRomPageOpen(Webs *wp, char *path, int mode, int perm);
@@ -1691,9 +1708,12 @@ extern void websServiceEvents(int *finished);
 extern void websSetBackground(int on);
 extern void websSetDebug(int on);
 extern void websSetEnv(Webs *wp);
+extern void websSetFormVars(Webs *wp);
 extern void websSetHost(char *host);
 extern void websSetIpAddr(char *ipaddr);
+#if UNUSED
 extern void websSetRequestPath(Webs *wp, char *dir, char *path);
+#endif
 extern void websSetDocuments(char *dir);
 extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, time_t lifespan, int flags);
 extern void websSetIndex(char *page);
