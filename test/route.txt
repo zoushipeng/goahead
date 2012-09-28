@@ -39,9 +39,9 @@ route uri=/auth/digest/ auth=digest abilities=manage
 #   The login form is /auth/form/login.html. The page to display when logged-in is /auth/form/index.html
 #   Everything else under /auth/form is secured and requires the "manage" ability 
 #
-route uri=/auth/form/login.html redirect=/auth/form/index.html
+route uri=/auth/form/login.html
 route uri=/proc/login methods=POST handler=proc redirect=200@/auth/form/index.html redirect=401@/auth/form/login.html
-route uri=/proc/logout methods=POST handler=proc redirect=200@/auth/form/login.html
+route uri=/proc/logout methods=GET|POST handler=proc redirect=200@/auth/form/login.html
 route uri=/auth/form/ auth=form handler=continue abilities=manage redirect=401@/auth/form/login.html
 
 #

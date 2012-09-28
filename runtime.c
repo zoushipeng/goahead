@@ -13,10 +13,10 @@
     This structure stores scheduled events.
  */
 typedef struct Callback {
-    void    (*routine)(void *arg, int id);
-    void    *arg;
-    time_t  at;
-    int     id;
+    void        (*routine)(void *arg, int id);
+    void        *arg;
+    WebsTime    at;
+    int         id;
 } Callback;
 
 
@@ -1864,7 +1864,7 @@ bool ringqGrow(WebsBuf *rq, ssize room)
 
 /*
     Find the smallest binary memory size that "size" will fit into.  This makes the ringq and ringqGrow routines much
-    more efficient.  The galloc routine likes powers of 2 minus 1.
+    more efficient. The galloc routine likes powers of 2 minus 1.
  */
 static int  getBinBlockSize(int size)
 {

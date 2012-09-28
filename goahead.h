@@ -1026,7 +1026,7 @@ extern void trace(int lev, char *fmt, ...);
 /*
     These values are not prefixed so as to aid code readability
  */
-typedef enum {
+typedef enum WebsType {
     undefined   = 0,
     byteint     = 1,
     shortint    = 2,
@@ -1041,9 +1041,11 @@ typedef enum {
     bytes       = 11,
     symbol      = 12,
     errmsg      = 13
-} vtype_t;
+} WebsType;
 
-typedef struct {
+typedef time_t WebsTime;
+
+typedef struct WebsValue {
     union {
         char    flag;
         char    byteint;
@@ -1061,7 +1063,7 @@ typedef struct {
         char    *errmsg;
         void    *symbol;
     } value;
-    vtype_t     type;
+    WebsType    type;
     uint        valid       : 8;
     uint        allocated   : 8;        /* String was allocated */
 } WebsValue;
@@ -1154,6 +1156,7 @@ extern void ringqReset(WebsBuf *bp);
 extern void ringqAddNull(WebsBuf *bp);
 
 /******************************* Malloc Replacement ***************************/
+#if BIT_REPLACE_MALLOC
 /*
     Block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 
  */
@@ -1183,10 +1186,16 @@ typedef struct WebsBlock {
 #define WEBS_USE_MALLOC        0x1             /* Okay to use malloc if required */
 #define WEBS_USER_BUF          0x2             /* User supplied buffer for mem */
 
-extern void gcloseAlloc();
-extern int  gopenAlloc(void *buf, int bufsize, int flags);
+    extern void gcloseAlloc();
+    extern int  gopenAlloc(void *buf, int bufsize, int flags);
+    extern void *galloc(ssize size);
+    extern void gfree(void *mp);
+    extern void *grealloc(void *buf, ssize newsize);
+    extern char *gstrdup(char *s);
 
-#if !BIT_REPLACE_MALLOC
+#else /* !BIT_REPLACE_MALLOC */
+
+    #define WEBS_SHIFT 4
     extern char *gstrdupNoAlloc(char *s);
     extern char *gstrdupANoAlloc(char *s);
     #define galloc(num) malloc(num)
@@ -1195,12 +1204,6 @@ extern int  gopenAlloc(void *buf, int bufsize, int flags);
     #define gstrdup(s) gstrdupNoAlloc(s)
     #define gstrdupA(s) gstrdupANoAlloc(s)
     #define gstrdup(s) gstrdupNoAlloc(s)
-
-#else /* BIT_REPLACE_MALLOC */
-    extern void *galloc(ssize size);
-    extern void gfree(void *mp);
-    extern void *grealloc(void *buf, ssize newsize);
-    extern char *gstrdup(char *s);
 #endif /* BIT_REPLACE_MALLOC */
 
 extern ssize mtow(wchar *dest, ssize count, char *src, ssize len);
@@ -1454,9 +1457,9 @@ typedef struct Webs {
     WebsBuf         rxbuf;              /* Raw receive buffer */
     WebsBuf         input;              /* Receive buffer after de-chunking */
     WebsBuf         output;             /* Transmit data buffer */
-    time_t          since;              /* Parsed if-modified-since time */
+    WebsTime        since;              /* Parsed if-modified-since time */
     WebsHash        vars;               /* CGI standard variables */
-    time_t          timestamp;          /* Last transaction with browser */
+    WebsTime        timestamp;          /* Last transaction with browser */
     int             timeout;            /* Timeout handle */
     char            ipaddr[64];         /* Connecting ipaddress */
     char            ifaddr[64];         /* Local interface ipaddress */
@@ -1587,7 +1590,7 @@ typedef struct WebsMime {
 typedef struct WebsFileInfo {
     ulong           size;                   /* File length */
     int             isDir;                  /* Set if directory */
-    time_t          mtime;                  /* Modified time */
+    WebsTime        mtime;                  /* Modified time */
 } WebsFileInfo;
 
 /*
@@ -1711,11 +1714,8 @@ extern void websSetEnv(Webs *wp);
 extern void websSetFormVars(Webs *wp);
 extern void websSetHost(char *host);
 extern void websSetIpAddr(char *ipaddr);
-#if UNUSED
-extern void websSetRequestPath(Webs *wp, char *dir, char *path);
-#endif
 extern void websSetDocuments(char *dir);
-extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, time_t lifespan, int flags);
+extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags);
 extern void websSetIndex(char *page);
 extern void websSetTimeMark(Webs *wp);
 extern void websSetTxLength(Webs *wp, ssize length);
@@ -1845,12 +1845,12 @@ extern bool websVerifyUser(Webs *wp);
 
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
-    time_t          lifespan;               /**< Session inactivity timeout (msecs) */
-    time_t          expires;                /**< When the session expires */
+    WebsTime        lifespan;               /**< Session inactivity timeout (msecs) */
+    WebsTime        expires;                /**< When the session expires */
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
 
-extern WebsSession *websAllocSession(Webs *wp, char *id, time_t lifespan);
+extern WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan);
 extern char *websGetSessionID(Webs *wp);
 extern WebsSession *websGetSession(Webs *wp, int create);
 extern char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
@@ -1986,6 +1986,7 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     typedef int (*WebsLegacyHandlerProc)(Webs *wp, char *prefix, char *dir, int flags);
     typedef SocketHandler socketHandler_t;
     typedef SocketAccept socketAccept_t;
+    typedef WebsType vtype_t;
     
     typedef WebsHash sym_fd_t;
     typedef WebsKey sym_t;

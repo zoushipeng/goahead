@@ -65,7 +65,7 @@ static int jsCan(int jsid, Webs *wp, int argc, char **argv);
 #if BIT_DIGEST
 static char *calcDigest(Webs *wp, char *username, char *password);
 static char *createDigestNonce(Webs *wp);
-static int parseDigestNonce(char *nonce, char **secret, char **realm, time_t *when);
+static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
 #endif
 
 #if BIT_HAS_PAM && BIT_PAM
@@ -618,9 +618,9 @@ void websDigestLogin(Webs *wp)
 
 bool websParseDigestDetails(Webs *wp)
 {
-    time_t  when;
-    char    *value, *tok, *key, *dp, *sp, *secret, *realm;
-    int     seenComma;
+    WebsTime    when;
+    char        *value, *tok, *key, *dp, *sp, *secret, *realm;
+    int         seenComma;
 
     gassert(wp);
     key = sclone(wp->authDetails);
@@ -800,7 +800,7 @@ static char *createDigestNonce(Webs *wp)
 }
 
 
-static int parseDigestNonce(char *nonce, char **secret, char **realm, time_t *when)
+static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when)
 {
     char    *tok, *decoded, *whenStr;                                                                      
                                                                                                            

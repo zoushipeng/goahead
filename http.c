@@ -189,7 +189,7 @@ static int      pruneId;                            /* Callback ID */
 /**************************** Forward Declarations ****************************/
 
 static bool     filterChunkData(Webs *wp);
-static time_t   getTimeSinceMark(Webs *wp);
+static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
 static bool     parseFirstLine(Webs *wp);
 static bool     parseHeaders(Webs *wp);
@@ -206,7 +206,7 @@ static void     pruneCache();
 #if BIT_ACCESS_LOG
 static void     logRequest(Webs *wp, int code);
 #endif
-static time_t   dateParse(time_t tip, char *cmd);
+static WebsTime dateParse(WebsTime tip, char *cmd);
 
 /*********************************** Code *************************************/
 
@@ -1027,8 +1027,8 @@ static bool parseHeaders(Webs *wp)
             wp->host = sclone(value);
 
         } else if (strcmp(key, "if-modified-since") == 0) {
-            char *cmd;
-            time_t tip = 0;
+            char     *cmd;
+            WebsTime tip = 0;
 
             if ((cp = strchr(value, ';')) != NULL) {
                 *cp = '\0';
@@ -1619,7 +1619,6 @@ void websError(Webs *wp, int code, char *fmt, ...)
     char        *encoded;
 
     gassert(wp);
-    gassert(fmt);
 
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
@@ -2108,7 +2107,7 @@ static void logRequest(Webs *wp, int code)
 {
     char        *buf, timeStr[28], zoneStr[6], dataStr[16];
     ssize       len;
-    time_t      timer;
+    WebsTime    timer;
     struct tm   localt;
 #if WINDOWS
     DWORD       dwRet;
@@ -2157,7 +2156,7 @@ static void logRequest(Webs *wp, int code)
 void websTimeout(void *arg, int id)
 {
     Webs        *wp;
-    time_t      tm, delay;
+    WebsTime    tm, delay;
 
     wp = (Webs*) arg;
     gassert(websValid(wp));
@@ -2285,8 +2284,8 @@ bool websValid(Webs *wp)
  */
 char *websGetDateString(WebsFileInfo *sbuf)
 {
-    char  *cp, *r;
-    time_t  now;
+    WebsTime    now;
+    char        *cp, *r;
 
     if (sbuf == NULL) {
         time(&now);
@@ -2315,7 +2314,7 @@ void websSetTimeMark(Webs *wp)
 /*
     Get the number of seconds since the last mark.
  */
-static time_t getTimeSinceMark(Webs *wp)
+static WebsTime getTimeSinceMark(Webs *wp)
 {
     return time(0) - wp->timestamp;
 }
@@ -2451,7 +2450,7 @@ static int parseYear(char *buf, int *index)
         returnValue = parseNDIGIT(buf, 2, &tmpIndex);
         if (returnValue >= 0) {
             /*
-                Assume that any year earlier than the start of the epoch for time_t (1970) specifies 20xx
+                Assume that any year earlier than the start of the epoch for WebsTime (1970) specifies 20xx
              */
             if (returnValue < 70) {
                 returnValue += 2000;
@@ -2610,7 +2609,7 @@ static int parseTime(char *buf, int *index)
 /*
     Return the equivalent of time() given a gregorian date
  */
-static time_t dateToTimet(int year, int month, int day) 
+static WebsTime dateToTimet(int year, int month, int day) 
 {
     long dayDifference;
 
@@ -2622,18 +2621,18 @@ static time_t dateToTimet(int year, int month, int day)
 /*
     Return the number of seconds between Jan 1, 1970 and the parsed date (corresponds to documentation for time() function)
  */
-static time_t parseDate1or2(char *buf, int *index) 
+static WebsTime parseDate1or2(char *buf, int *index) 
 {
     /*  
         Format of buf is either
-        2DIGIT SP month SP 4DIGIT
+            2DIGIT SP month SP 4DIGIT
         or
-        2DIGIT "-" month "-" 2DIGIT
+            2DIGIT "-" month "-" 2DIGIT
      */
-    int     dayValue, monthValue, yearValue, tmpIndex;
-    time_t  returnValue;
+    WebsTime    returnValue;
+    int         dayValue, monthValue, yearValue, tmpIndex;
 
-    returnValue = (time_t) -1;
+    returnValue = (WebsTime) -1;
     tmpIndex = *index;
 
     dayValue = monthValue = yearValue = -1;
@@ -2682,15 +2681,15 @@ static time_t parseDate1or2(char *buf, int *index)
 /*
     Return the number of seconds between Jan 1, 1970 and the parsed date
  */
-static time_t parseDate3Time(char *buf, int *index) 
+static WebsTime parseDate3Time(char *buf, int *index) 
 {
     /*
         Format of buf is month SP ( 2DIGIT | ( SP 1DIGIT ))
      */
-    int     dayValue, monthValue, yearValue, timeValue, tmpIndex;
-    time_t  returnValue;
+    WebsTime    returnValue;
+    int         dayValue, monthValue, yearValue, timeValue, tmpIndex;
 
-    returnValue = (time_t) -1;
+    returnValue = (WebsTime) -1;
     tmpIndex = *index;
 
     dayValue = monthValue = yearValue = timeValue = -1;
@@ -2802,12 +2801,12 @@ static int parseWeekday(char *buf, int *index)
 /*
         Parse the date and time string.
  */
-static time_t dateParse(time_t tip, char *cmd)
+static WebsTime dateParse(WebsTime tip, char *cmd)
 {
-    int index, tmpIndex, weekday, timeValue;
-    time_t parsedValue, dateValue;
+    WebsTime    parsedValue, dateValue;
+    int         index, tmpIndex, weekday, timeValue;
 
-    parsedValue = (time_t) 0;
+    parsedValue = (WebsTime) 0;
     index = timeValue = 0;
     weekday = parseWeekday(cmd, &index);
 
@@ -3163,10 +3162,10 @@ void websPageSeek(Webs *wp, WebsFilePos offset)
 }
 
 
-void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, time_t lifespan, int flags)
+void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, WebsTime lifespan, int flags)
 {
-    time_t  when;
-    char    *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
+    WebsTime    when;
+    char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
 
     gassert(wp);
     gassert(name && *name);
@@ -3289,7 +3288,7 @@ static char *makeSessionID(Webs *wp)
 }
 
 
-WebsSession *websAllocSession(Webs *wp, char *id, time_t lifespan)
+WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
 {
     WebsSession     *sp;
 
@@ -3456,8 +3455,8 @@ int websSetSessionVar(Webs *wp, char *key, char *value)
 static void pruneCache()
 {
     WebsSession     *sp;
-    time_t          when;
-    WebsKey           *sym, *next;
+    WebsTime        when;
+    WebsKey         *sym, *next;
 
     //  MOB - should limit size of session cache
     when = time(0);

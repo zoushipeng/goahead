@@ -11,7 +11,6 @@
 
 /************************************* Defines ********************************/
 
-
 static SSL_CTX *sslctx = NULL;
 
 typedef struct RandBuf {
