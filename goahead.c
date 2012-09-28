@@ -122,6 +122,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 return -1;
             }
         }
+        if (BIT_SSL_V6_PORT > 0) {
+            fmt(addr, sizeof(addr), "https://[::]:%d", BIT_SSL_V6_PORT);
+            if (websListen(addr) < 0) {
+                return -1;
+            }
+        }
 #endif
     }
 #if BIT_ROM && UNUSED

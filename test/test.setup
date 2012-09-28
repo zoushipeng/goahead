@@ -9,9 +9,10 @@ const HOSTV6    = '[::1]'
 const HTTP      = "http://"  + HOST   + ":" + App.config.bit_http_port
 const SSL       = "https://" + HOST   + ":" + App.config.bit_ssl_port
 const HTTPV6    = "http://[::]:" + App.config.bit_http_v6_port
+const SSLV6     = "https://" + HOST   + ":" + App.config.bit_ssl_v6_port
 const PIDFILE   = ".pidfile"
 
-let listen = [ HTTP, SSL, HTTPV6 ]
+let listen = [ HTTP, SSL, HTTPV6, SSLV6 ]
 shareUri("http", HTTP)
 shareUri("ssl", SSL)
 if (test.hostOs != "VXWORKS") {

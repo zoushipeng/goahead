@@ -2,7 +2,7 @@
     getv6.tst - IPv6 GET tests
  */
 
-const HTTPV6 = App.config.httpv6 || "[::1]:9090"
+const HTTPV6 = App.config.httpv6 || "[::1]:8090"
 let http: Http = new Http
 
 //  Basic get. Validate response code and contents

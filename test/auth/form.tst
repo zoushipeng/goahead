@@ -3,7 +3,6 @@
  */
 
 const HTTP = App.config.uris.http || "127.0.0.1:8080"
-// const HTTPS = App.config.uris.https || "127.0.0.1:9090"
 
 let http: Http = new Http
 
