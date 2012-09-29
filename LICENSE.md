@@ -8,7 +8,7 @@ non-open source programs. If you are unable to comply with the Embedthis Open So
 commercial license to use this software.  
 
 See the Embedthis GoAhead Open Source License at:
-    http://embedthis.com/products/goahead/goahead-license.pdf.
+    http://embedthis.com/products/goahead/goahead-license.pdf
 
 Commercial licenses for this software and support services are available from Embedthis Software at: 
     http://embedthis.com/licensing/index.html
