@@ -1640,7 +1640,11 @@ typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
 
 /*
     Socket control structure
-    @see
+    @see socketAddress socketAddressIsV6 socketClose socketCloseConnection socketCreateHandler
+    socketDeletehandler socketReservice socketEof socketGetPort socketInfo socketIsV6
+    socketOpen socketListen socketParseAddress socketProcess socketRead socketWrite socketWriteString
+    socketSelect socketGetHandle socketSetBlock socketGetBlock socketAlloc socketFree socketGetError
+    socketPtr socketWaitForEvent socketRegisterInterest
     @defgroup WebsSocket WebsSocket
  */
 typedef struct WebsSocket {
@@ -1691,6 +1695,17 @@ extern int socketAddress(struct sockaddr *addr, int addrlen, char *ipbuf, int ip
 extern bool socketAddressIsV6(char *ip);
 
 /**
+    Allocate a socket object
+    @param host String host IP address.
+    @param port Socket port
+    @param accept Optional SocketAccept accept callback function
+    @param flags Control flags
+    @return Socket ID handle to use with other APIs.
+    @ingroup WebsSocket
+ */
+extern int socketAlloc(char *host, int port, SocketAccept accept, int flags);
+
+/**
     Close the socket module
     @ingroup WebsSocket
  */
@@ -1725,30 +1740,170 @@ extern int socketConnect(char *host, int port, int flags);
  */
 extern void socketCreateHandler(int sid, int mask, SocketHandler handler, void *arg);
 
+/**
+    Delete a socket handler created via socketCreateHandler
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @ingroup WebsSocket
+ */
 extern void socketDeleteHandler(int sid);
-extern void socketReservice(int sid);
-extern int socketEof(int sid);
+
+/**
+    Determine if the socket is at end-of-file for input.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @return True if the address is at EOF
+    @ingroup WebsSocket
+ */
+extern bool socketEof(int sid);
+
+/**
+    Free (and close) the socket
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @ingroup WebsSocket
+ */
+extern void socketFree(int sid);
+
+/**
+    Get the current blocking mode
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @return True if the socket is in blocking mode.
+    @ingroup WebsSocket
+ */
+extern int socketGetBlock(int sid);
+
+/**
+    Get the error code for the last socket operation on this thread.
+    @return Integer error code. See errno or GetLastError() on windows.
+    @ingroup WebsSocket
+ */
+extern int socketGetError();
+
+/**
+    Get the underlying socket operating system socket/file handle
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @return The integer socket handle
+    @ingroup WebsSocket
+ */
+extern int socketGetHandle(int sid);
+
+/**
+    Get the IP port associated with this socket.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @return The TCP/IP port for this socket
+    @ingroup WebsSocket
+ */
 extern int socketGetPort(int sid);
+
+/**
+    Get a socket address structure for the specified IP:Port
+    @description This returns address details in *family, *protocol, *addr, and *addrlen.
+    @param ip IP address to parse
+    @param port TCP/IP port number
+    @param family Reference to an integer to hold the address family
+    @param protocol Reference to an integer to hold the address protocol
+    @param addr Reference to an integer to hold the address structure
+    @param addrlen Reference to an integer to hold the address structure length
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsSocket
+ */
 extern int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
-                    WebsSockLenArg *addrlen);
+    WebsSockLenArg *addrlen);
+
+/**
+    Determine if a socket is bound to an IPv6 address.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @return True if the socket is using IPv6.
+    @ingroup WebsSocket
+ */
 extern bool socketIsV6(int sid);
-extern int socketOpen();
+
+/**
+    Open a listening socket
+    @param host Host IP address on which to listen. Set to NULL to listen on all interfaces.
+    @param port TCP/IP port on which to listen
+    @param accept SocketAccept callback function to invoke to receive incoming connections.
+    @param flags Reserved
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsSocket
+ */
 extern int socketListen(char *host, int port, SocketAccept accept, int flags);
+
+/**
+    Open the socket module
+    @return Zerof if successful, otherwise -1.
+    @ingroup WebsSocket
+ */
+extern int socketOpen();
+
+/**
+    Parse an IP address into its constituent parts.
+    @description Parse the IP address and return the IP address and port components. Handles ipv4 and ipv6 addresses.
+    If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
+    If a ":*" port specifier is used, *pport is set to -1;
+    When an address contains an ipv6 port it should be written as
+        aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii
+    or
+        [aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii]:port
+    If supplied an IPv6 address, the backets are stripped in the returned IP address.
+    @param ipAddrPort IP address which may contain an optional ":port" component. 
+    @param pip Returns a reference to an allocated string containing the IP address portion. Caller must free.
+    @param pport Reference to an integer to hold the port component.
+    @param secure Reference to an integer to be set to true if the address is using SSL/TLS.
+    @param defaultPort Default port number to use if no port specifier is included in ipAddrPort.
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsSocket
+ */
 extern int socketParseAddress(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
+
+/**
+    Process pending socket I/O events.
+    @ingroup WebsSocket
+    @internal
+ */
 extern void socketProcess();
+
+/**
+    Read data from a socket
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @param buf Buffer to hold read data
+    @param len Size of the buffer
+    @return Count of bytes actually read. Returns -1 for errors and EOF. Distinguish between errors and EOF
+        via socketEof().
+    @ingroup WebsSocket
+ */
 extern ssize socketRead(int sid, void *buf, ssize len);
+
+/**
+    Register interest in socket I/OEvents
+    @param sp Socket object reference. Use socketPtr to obtain from a socket ID.
+    @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
+    @ingroup WebsSocket
+ */
+extern void socketRegisterInterest(WebsSocket *sp, int mask);
+
+/**
+    Request that the socket be reserviced.
+    @description This routine is useful when upper layers have unprocessed, buffered data for the socket.
+        This routine will cause the socket I/O callback handler to be invoked soon in the future.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @ingroup WebsSocket
+ */
+extern void socketReservice(int sid);
+
+/**
+    Wait for I/O on a socket
+    @description This call uses the mask of events of interest defined by socketRegisterInterest. It blocks the caller
+        until a suitable I/O event or timeout occurs.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @param timeout Timeout in milliseconds.
+    @return True if an I/O event occurs. Returns zero for a timeout.
+    @ingroup WebsSocket
+ */
+extern int socketSelect(int sid, int timeout);
+extern int socketSetBlock(int sid, int flags);
+extern int socketWaitForEvent(WebsSocket *sp, int events, int *errCode);
 extern ssize socketWrite(int sid, void *buf, ssize len);
 extern ssize socketWriteString(int sid, char *buf);
-extern int socketSelect(int hid, int timeout);
-extern int socketGetHandle(int sid);
-extern int socketSetBlock(int sid, int flags);
-extern int socketGetBlock(int sid);
-extern int socketAlloc(char *host, int port, SocketAccept accept, int flags);
-extern void socketFree(int sid);
-extern int socketGetError();
 extern WebsSocket *socketPtr(int sid);
-extern int socketWaitForEvent(WebsSocket *sp, int events, int *errCode);
-extern void socketRegisterInterest(WebsSocket *sp, int handlerMask);
 
 /*********************************** Runtime **********************************/
 /*

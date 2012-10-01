@@ -696,12 +696,12 @@ ssize socketRead(int sid, void *buf, ssize bufsize)
 /*
     Return true if EOF
  */
-int socketEof(int sid)
+bool socketEof(int sid)
 {
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        return -1;
+        return 1;
     }
     return sp->flags & SOCKET_EOF;
 }
@@ -816,7 +816,7 @@ void socketFree(int sid)
 
 
 /*
-    Validate a socket handle
+    Return the socket object reference
  */
 WebsSocket *socketPtr(int sid)
 {

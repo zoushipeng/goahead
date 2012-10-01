@@ -55,7 +55,7 @@
     #define BIT_HTTP_PORT 8080
 #endif
 #ifndef BIT_HTTP_V6_PORT
-    #define BIT_HTTP_V6_PORT 9090
+    #define BIT_HTTP_V6_PORT 8090
 #endif
 #ifndef BIT_JAVASCRIPT
     #define BIT_JAVASCRIPT 1
@@ -64,7 +64,7 @@
     #define BIT_KEY "server.key.pem"
 #endif
 #ifndef BIT_LEGACY
-    #define BIT_LEGACY 1
+    #define BIT_LEGACY 0
 #endif
 #ifndef BIT_LIMIT_BUFFER
     #define BIT_LIMIT_BUFFER 8192
@@ -124,10 +124,13 @@
     #define BIT_REPLACE_MALLOC 0
 #endif
 #ifndef BIT_REQUIRED
-    #define BIT_REQUIRED "winsdk,compiler,link,dumpbin,rc"
+    #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc"
 #endif
 #ifndef BIT_SSL_PORT
     #define BIT_SSL_PORT 4443
+#endif
+#ifndef BIT_SSL_V6_PORT
+    #define BIT_SSL_V6_PORT 4453
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis GoAhead"
@@ -240,6 +243,9 @@
 #endif
 #ifndef BIT_PACK_EJS
     #define BIT_PACK_EJS 0
+#endif
+#ifndef BIT_PACK_LIB
+    #define BIT_PACK_LIB 1
 #endif
 #ifndef BIT_PACK_LINK
     #define BIT_PACK_LINK 1

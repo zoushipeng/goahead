@@ -950,6 +950,13 @@
       <arglist>(char *ip)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>socketAlloc</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a743bfeacb5170e502480c2e9413f670f</anchor>
+      <arglist>(char *host, int port, SocketAccept accept, int flags)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>socketClose</name>
       <anchorfile>goahead_8h.html</anchorfile>
@@ -976,6 +983,125 @@
       <anchorfile>goahead_8h.html</anchorfile>
       <anchor>a860aa94cb98a3f2c67426695060dba0c</anchor>
       <arglist>(int sid, int mask, SocketHandler handler, void *arg)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketDeleteHandler</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a8844ac81357964309fd7e9f872ad1bd7</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>socketEof</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab7e5de92ef3adf4262ccf4e5faacf150</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketFree</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aff7039dc3fc07516017caf5a2b434dad</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketGetBlock</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a19ea155313fd58c2f9842185388e60f7</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketGetError</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aac33b37220f6cecae85f0f6eb6edd581</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketGetHandle</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a7562ec472720902c5bed391200192694</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketGetPort</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a41ef4201ad35371958671487b56689e3</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketInfo</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a8c0950c752de6ca9467c0f7868b98539</anchor>
+      <arglist>(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>socketIsV6</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a4f30ba4ad13456067e09eef36778caba</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketListen</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a03e8cf93038231f9e93af6c4d290405a</anchor>
+      <arglist>(char *host, int port, SocketAccept accept, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketOpen</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a937bf0404e034ded41a244a970ad9228</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketParseAddress</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a837c600ec63f157ab6249cd7539e0b24</anchor>
+      <arglist>(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketProcess</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a8a2ce01d9ac050fc1cd21861d8781da0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>socketRead</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a19822e9bedff6170ab41c053a9ee29f8</anchor>
+      <arglist>(int sid, void *buf, ssize len)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketRegisterInterest</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a7fd6eb3c97d27307012101aabfbb19f2</anchor>
+      <arglist>(WebsSocket *sp, int mask)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketReservice</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a84620d0cf38e9279f91e6c71364233ac</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketSelect</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa4d7c7dee5c5104c2f19b7b702ee8c4f</anchor>
+      <arglist>(int sid, int timeout)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
