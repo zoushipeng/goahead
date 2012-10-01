@@ -1,63 +1,50 @@
 <BODY><PRE>
-GOAHEAD(1)                        User Commands                       GOAHEAD(1)
+GOAHEAD(1)                       User Commands                      GOAHEAD(1)
 
 <B>NAME</B>
        goahead- Embedded HTTP Web Server
 
 <B>SYNOPSIS</B>
-       <B>goahead [options]</B>
-       <B>goahead [options] [IP][:port] [documentRoot]</B>
+       <B>goahead [options] [IP][:port] [documents]</B>
 
-       <B>goahead  </B>[<I>--config  configFile</I>] [<I>--chroot directory</I>] [<I>--debugger</I>] [<I>--exe</I>
-       <I>path</I>] [<I>--log logSpec</I>] [<I>--home directory</I>]  [<I>--threads  threads</I>]  [<I>--ver-</I>
-       <I>sion</I>] [<I>--verbose</I>]
+       <B>goahead  </B>[<I>--auth  authFile</I>]  [<I>--background</I>] [<I>--debugger</I>] [<I>--home direc-</I>
+       <I>tory</I>]  [<I>--log  logSpec</I>]  [<I>--route  routeFile</I>]  [<I>--version</I>]  [<I>--verbose</I>]
+       [IP][:port] [documents]
 
 <B>DESCRIPTION</B>
-       GoAhead  is  a  compact  embedded HTTP web server.  It is a fast, small-
-       footprint, multi-threaded, standards-based, portable  server  developed
-       for  use  by embedded devices and applications.  It can run as a stand-
-       alone web server or the GoAhead library can be embedded in applications.
+       GoAhead  is  popular,  simple  embedded HTTP web server.  It is a fast,
+       small-footprint,  single-threaded,  standards-based,  portable   server
+       developed  for use by embedded devices and applications.  It can run as
+       a stand-alone web server or the GoAhead  library  can  be  embedded  in
+       applications.
 
-       GoAhead supports HTTP/1.1, SSL, digest and basic authentication, virtual
-       hosting, ranged requests, chunked transfers, file upload  and  security
-       limits.  GoAhead has an Apache style configuration file and supports the
-       PHP and Ejscript web frameworks.
+       GoAhead  supports HTTP/1.1, SSL, digest, basic and web-form authentica-
+       tion, chunked transfers, file upload and sandbox security limits.
 
-       GoAhead normally reads the <B>goahead.conf  </B>file  for  configuration  direc-
-       tives.  However, if goahead is invoked with an IP address or port number
-       on the command line, GoAhead  will  not  read  the  configuration  file.
-       Rather it will listen for requests on the specified IP:PORT address. If
-       the PORT component is omitted, GoAhead will listen on port 80. If the IP
-       address  is  omitted  and a port is supplied, GoAhead will listen on all
-       network interfaces.
+       When goahead is built, it  is  configured  to  open  a  port  for  HTTP
+       requests  and  optionally  one  for SSL. However, if goahead is invoked
+       with an IP address or port number on the  command  line,  GoAhead  will
+       listen  on these ports instead.  If the PORT component is omitted, GoA-
+       head will listen on port 80. If the IP address is omitted and a port is
+       supplied, GoAhead will listen on all network interfaces.
 
 <B>OPTIONS</B>
-       <B>--config filename</B>
-              Define the name of the GoAhead configuration  file.  This  is  by
-              default <B>goahead</B>.
-
-       <B>--chroot directory</B>
-              Change  the  system  root  directory  for GoAhead. This creates a
-              chroot jail so that the GoAhead process cannot access  any  files
-              outside the given directory.
+       <B>--auth filename</B>
+              Define  the  name of the authentication configuration file. This
+              is by default <B>auth.txt</B>.  If GoAhead is built  with  PAM  support
+              (Unix  Pluggable Authentication Modules), then passwords will be
+              authenticated from the system password database.
 
        <B>--debugger</B>
-              Run GoAhead in debug mode and disable all timeouts. This disables
-              request and session timeouts.  The <B>-d </B>option  is  an  alias  for
-              --debug.
-
-       <B>--exe path</B>
-              Set  the  path  to  the goahead.exe executable image. This may be
-              required on VxWorks so that GoAhead can load  modules  which  are
-              located   at  "goahead.exe/../lib".  This  is  necessary  because
-              VxWorks cannot determine the path to  the  executable  image  at
-              runtime.
+              Run GoAhead in debug mode and disable all  timeouts.  This  dis-
+              ables  request  and session timeouts.  The <B>-d </B>option is an alias
+              for --debugger.
 
        <B>--log logSpec</B>
-              Name the GoAhead log file. This will override the ErrorLog direc-
-              tive in the  configuration  file.   When  the  maximum  size  is
-              exceeded,  the log file will be rotated to logName.old and a new
-              log file will be started. The <B>-l </B>option is an alias  for  --log.
+              Name the GoAhead log  file.  This  will  override  the  ErrorLog
+              directive  in  the configuration file.  When the maximum size is
+              exceeded, the log file will be rotated to logName.old and a  new
+              log  file  will be started. The <B>-l </B>option is an alias for --log.
               The syntax is:
 
               --log logName[:logLevel][.maxSize]
@@ -65,10 +52,11 @@ GOAHEAD(1)                        User Commands                       GOAHEAD(1)
        <B>--home directory</B>
               Define the server home directory for GoAhead.
 
-       <B>--threads numThreads</B>
-              Specify  the  maximum  number  of  threads to use for the goahead
-              thread pool. This overrides the ThreadLimit  configuration  file
-              directive.
+       <B>--route routeFile</B>
+              This option overrides the default route configuration file  name
+              of "route.txt". When GoAhead starts, it reads the route configu-
+              ration file to load URI routes. These routes define what actions
+              should be taken when various client requests are received.
 
        <B>--verbose</B>
               Shorthand  for  --log  stdout:4.  The  <B>-v </B>option is an alias for
@@ -77,12 +65,6 @@ GOAHEAD(1)                        User Commands                       GOAHEAD(1)
        <B>--version</B>
               Output the product version number.
 
-<B>FILES</B>
-       <B>/etc/goahead/goahead.conf</B>
-       <B>/var/www/goahead-default</B>
-       <B>/usr/lib/goahead</B>
-       <B>/var/log/goahead</B>
-
 <B>REPORTING BUGS</B>
        Report bugs to &ltdev@embedthis.com&gt.
 
@@ -90,7 +72,7 @@ GOAHEAD(1)                        User Commands                       GOAHEAD(1)
        Copyright (C) 2003-2012 Embedthis Software.
 
 <B>SEE ALSO</B>
-       http
+       gopass, webcomp
 
-goahead                            March 2012                         GOAHEAD(1)
+goahead                           March 2012                        GOAHEAD(1)
 </PRE></BODY>

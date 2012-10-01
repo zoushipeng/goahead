@@ -68,14 +68,14 @@ void websRouteRequest(Webs *wp)
             continue;
         }
         if (route->methods >= 0) {
-            if (!symLookup(route->methods, wp->method)) {
+            if (!hashLookup(route->methods, wp->method)) {
                 trace(5, "Route %s doesnt match method %s\n", route->prefix, wp->method);
                 continue;
             }
         } else if (!safeMethod) {
             continue;
         }
-        if (route->extensions >= 0 && (wp->ext == 0 || !symLookup(route->extensions, &wp->ext[1]))) {
+        if (route->extensions >= 0 && (wp->ext == 0 || !hashLookup(route->extensions, &wp->ext[1]))) {
             trace(5, "Route %s doesn match extension %s\n", route->prefix, wp->ext ? wp->ext : "");
             continue;
         }
@@ -129,7 +129,7 @@ static bool can(Webs *wp, char *ability)
     gassert(wp);
     gassert(ability && *ability);
 
-    if (wp->user && symLookup(wp->user->abilities, ability)) {
+    if (wp->user && hashLookup(wp->user->abilities, ability)) {
         return 1;
     }
     return 0;
@@ -161,7 +161,7 @@ bool websCan(Webs *wp, WebsHash abilities)
             wp->user = websLookupUser(wp->username);
         }
         gassert(abilities);
-        for (key = symFirst(abilities); key; key = symNext(abilities, key)) {
+        for (key = hashFirst(abilities); key; key = hashNext(abilities, key)) {
             ability = key->name.value.string;
             if ((cp = strchr(ability, '|')) != 0) {
                 /*
@@ -211,7 +211,7 @@ bool websCanString(Webs *wp, char *abilities)
     }
     abilities = sclone(abilities);
     for (ability = stok(abilities, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
-        if (symLookup(wp->user->abilities, ability) == 0) {
+        if (hashLookup(wp->user->abilities, ability) == 0) {
             gfree(abilities);
             return 0;
         }
@@ -244,7 +244,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     if (!handler) {
         handler = "file";
     }
-    if ((key = symLookup(handlers, handler)) == 0) {
+    if ((key = hashLookup(handlers, handler)) == 0) {
         error("Can't find route handler %s", handler);
         return 0;
     }
@@ -345,16 +345,16 @@ static void freeRoute(WebsRoute *route)
     gassert(route);
 
     if (route->abilities >= 0) {
-        symClose(route->abilities);
+        hashFree(route->abilities);
     }
     if (route->extensions >= 0) {
-        symClose(route->extensions);
+        hashFree(route->extensions);
     }
     if (route->methods >= 0) {
-        symClose(route->methods);
+        hashFree(route->methods);
     }
     if (route->redirects >= 0) {
-        symClose(route->redirects);
+        hashFree(route->redirects);
     }
     gfree(route->prefix);
     gfree(route->dir);
@@ -385,7 +385,7 @@ int websRemoveRoute(char *uri)
 
 int websOpenRoute(char *path) 
 {
-    if ((handlers = symOpen(-1)) < 0) {
+    if ((handlers = hashCreate(-1)) < 0) {
         return -1;
     }
     websDefineHandler("continue", continueHandler, 0, 0);
@@ -400,14 +400,14 @@ void websCloseRoute()
     WebsKey     *key;
 
     if (handlers >= 0) {
-        for (key = symFirst(handlers); key; key = symNext(handlers, key)) {
+        for (key = hashFirst(handlers); key; key = hashNext(handlers, key)) {
             handler = key->content.value.symbol;
             if (handler->close) {
                 (*handler->close)();
             }
             gfree(handler->name);
         }
-        symClose(handlers);
+        hashFree(handlers);
         handlers = -1;
     }
     if (routes) {
@@ -434,7 +434,7 @@ int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose clos
     handler->close = close;
     handler->flags = flags;
 
-    symEnter(handlers, name, valueSymbol(handler), 0);
+    hashEnter(handlers, name, valueSymbol(handler), 0);
     return 0;
 }
 
@@ -445,7 +445,7 @@ static void addOption(WebsHash *hash, char *keys, char *value)
     char    *sep, *key, *tok;
 
     if (*hash < 0) {
-        *hash = symOpen(-1);
+        *hash = hashCreate(-1);
     }
     sep = " \t,|";
     for (key = stok(keys, sep, &tok); key; key = stok(0, sep, &tok)) {
@@ -453,9 +453,9 @@ static void addOption(WebsHash *hash, char *keys, char *value)
             continue;
         }
         if (value == 0) {
-            symEnter(*hash, key, valueInteger(0), 0);
+            hashEnter(*hash, key, valueInteger(0), 0);
         } else {
-            symEnter(*hash, key, valueString(value, VALUE_ALLOCATE), 0);
+            hashEnter(*hash, key, valueString(value, VALUE_ALLOCATE), 0);
         }
     }
 }

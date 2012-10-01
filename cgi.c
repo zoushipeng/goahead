@@ -137,7 +137,7 @@ static bool cgiHandler(Webs *wp)
     envp[n++] = sfmt("%s=%s/%s", "SCRIPT_NAME", BIT_CGI_BIN, cgiName);
 
     websSetEnv(wp);
-    for (s = symFirst(wp->vars); s != NULL; s = symNext(wp->vars, s)) {
+    for (s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
         if (s->content.valid && s->content.type == string &&
             strcmp(s->name.value.string, "REMOTE_HOST") != 0 &&
             strcmp(s->name.value.string, "HTTP_AUTHORIZATION") != 0) {

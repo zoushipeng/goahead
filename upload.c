@@ -61,7 +61,7 @@ static int initUpload(Webs *wp)
             return -1;
         }
         websSetVar(wp, "UPLOAD_DIR", uploadDir);
-        wp->files = symOpen(11);
+        wp->files = hashCreate(11);
     }
     return 0;
 }
@@ -84,7 +84,7 @@ void websFreeUpload(Webs *wp)
     WebsUploadFile  *up;
     WebsKey         *s;
 
-    for (s = symFirst(wp->files); s; s = symNext(wp->files, s)) {
+    for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
         up = s->content.value.symbol;
         freeUploadFile(up);
         if (up == wp->currentFile) {
@@ -366,7 +366,7 @@ static int processContentData(Webs *wp)
             if (writeToFile(wp, data, nbytes) < 0) {
                 return -1;
             }
-            symEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
+            hashEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
             defineUploadVars(wp);
 
         } else {
@@ -431,7 +431,7 @@ WebsUploadFile *websLookupUpload(Webs *wp, char *key)
     WebsKey     *sp;
 
     if (wp->files) {
-        if ((sp = symLookup(wp->files, key)) == 0) {
+        if ((sp = hashLookup(wp->files, key)) == 0) {
             return 0;
         }
         return sp->content.value.symbol;

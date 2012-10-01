@@ -307,7 +307,7 @@ static void showTest(Webs *wp, char *path, char *query)
     websWriteHeaders(wp, 200, -1, 0);
     websWriteEndHeaders(wp);
     websWrite(wp, "<html><body><pre>\n");
-    for (s = symFirst(wp->vars); s; s = symNext(wp->vars, s)) {
+    for (s = hashFirst(wp->vars); s; s = hashNext(wp->vars, s)) {
         websWrite(wp, "%s=%s\n", s->name.value.string, s->content.value.string);
     }
     websWrite(wp, "</pre></body></html>\n");
@@ -329,7 +329,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
     websWriteHeader(wp, "Content-Type: text/plain\r\n");
     websWriteEndHeaders(wp);
     if (scaselessmatch(wp->method, "POST")) {
-        for (s = symFirst(wp->files); s; s = symNext(wp->files, s)) {
+        for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
             up = s->content.value.symbol;
             websWrite(wp, "FILE: %s\r\n", s->name.value.string);
             websWrite(wp, "FILENAME=%s\r\n", up->filename);
@@ -341,7 +341,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
             gfree(upfile);
         }
         websWrite(wp, "\r\nVARS:\r\n");
-        for (s = symFirst(wp->vars); s; s = symNext(wp->vars, s)) {
+        for (s = hashFirst(wp->vars); s; s = hashNext(wp->vars, s)) {
             websWrite(wp, "%s=%s\r\n", s->name.value.string, s->content.value.string);
         }
     }

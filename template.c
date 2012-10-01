@@ -41,7 +41,7 @@ static bool jsHandler(Webs *wp)
 static void closeJs()
 {
     if (websJsFunctions != -1) {
-        symClose(websJsFunctions);
+        hashFree(websJsFunctions);
         websJsFunctions = -1;
     }
 }
@@ -49,7 +49,7 @@ static void closeJs()
 
 int websJsOpen()
 {
-    websJsFunctions = symOpen(WEBS_SYM_INIT * 2);
+    websJsFunctions = hashCreate(WEBS_SYM_INIT * 2);
     websJsDefine("write", websJsWrite);
     websDefineHandler("js", jsHandler, closeJs, 0);
     return 0;

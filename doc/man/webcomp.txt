@@ -3,16 +3,16 @@ MAKEROM(1)                       User Commands                      MAKEROM(1)
 
 
 NAME
-       makerom - Compile files into C source code
+       webcomp - Compile files into C source code
 
 SYNOPSIS
-       makerom [options] files ... >output.c
+       webcomp [options] files ... >output.c
 
        [--files fileList] [--name structName] [--prefix prefix]
 
 DESCRIPTION
        To  enable files to be accessed on embedded systems without a file sys-
-       tem, the makerom command converts arbitrary files into C code that  can
+       tem, the webcomp command converts arbitrary files into C code that  can
        be  compiled and linked into a program. This is useful for applications
        that must execute completely from ROM and not  access  a  file  system.
        This  facility can also enhance security by preventing the modification
@@ -43,7 +43,7 @@ EXAMPLE
 
            find web -type f -print >fileList
 
-           makerom --files filelist >romFiles.c
+           webcomp --files filelist >romFiles.c
 
            cc -o romFiles.o romFiles.c
 

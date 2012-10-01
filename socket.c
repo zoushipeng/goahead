@@ -514,7 +514,7 @@ void socketProcess()
 
     for (sid = 0; sid < socketMax; sid++) {
         if ((sp = socketList[sid]) != NULL) {
-            if (sp->currentEvents & sp->handlerMask /* || sp->flags & SOCKET_RESERVICE */) {
+            if (sp->currentEvents & sp->handlerMask /* UNUSED || sp->flags & SOCKET_RESERVICE */) {
                 socketDoEvent(sp);
             }
         }

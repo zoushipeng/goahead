@@ -66,13 +66,13 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
         ep->variableMax = vid + 1;
     }
     if (variables == -1) {
-        ep->variables[vid] = symOpen(64) + JS_OFFSET;
+        ep->variables[vid] = hashCreate(64) + JS_OFFSET;
         ep->flags |= FLAGS_VARIABLES;
     } else {
         ep->variables[vid] = variables + JS_OFFSET;
     }
     if (functions == -1) {
-        ep->functions = symOpen(64);
+        ep->functions = hashCreate(64);
         ep->flags |= FLAGS_FUNCTIONS;
     } else {
         ep->functions = functions;
@@ -105,12 +105,12 @@ void jsCloseEngine(int eid)
 
     for (i = ep->variableMax - 1; i >= 0; i--) {
         if (ep->flags & FLAGS_VARIABLES) {
-            symClose(ep->variables[i] - JS_OFFSET);
+            hashFree(ep->variables[i] - JS_OFFSET);
         }
         ep->variableMax = gfreeHandle(&ep->variables, i);
     }
     if (ep->flags & FLAGS_FUNCTIONS) {
-        symClose(ep->functions);
+        hashFree(ep->functions);
     }
     jsMax = gfreeHandle(&jsHandles, ep->eid);
     gfree(ep);
@@ -180,7 +180,7 @@ int jsOpenBlock(int eid)
     if (vid >= ep->variableMax) {
         ep->variableMax = vid + 1;
     }
-    ep->variables[vid] = symOpen(64) + JS_OFFSET;
+    ep->variables[vid] = hashCreate(64) + JS_OFFSET;
     return vid;
 
 }
@@ -193,7 +193,7 @@ int jsCloseBlock(int eid, int vid)
     if((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
-    symClose(ep->variables[vid] - JS_OFFSET);
+    hashFree(ep->variables[vid] - JS_OFFSET);
     ep->variableMax = gfreeHandle(&ep->variables, vid);
     return 0;
 
@@ -1230,7 +1230,7 @@ static int evalFunction(Js *ep)
     WebsKey   *sp;
     int     (*fn)(int eid, void *handle, int argc, char **argv);
 
-    if ((sp = symLookup(ep->functions, ep->func->fname)) == NULL) {
+    if ((sp = hashLookup(ep->functions, ep->func->fname)) == NULL) {
         jsError(ep, "Undefined procedure %s", ep->func->fname);
         return -1;
     }
@@ -1332,7 +1332,7 @@ int jsSetGlobalFunction(int eid, char *name, int (*fn)(int eid, void *handle, in
  */
 int jsSetGlobalFunctionDirect(WebsHash functions, char *name, int (*fn)(int eid, void *handle, int argc, char **argv))
 {
-    if (symEnter(functions, name, valueSymbol(fn), 0) == NULL) {
+    if (hashEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
     }
     return 0;
@@ -1349,7 +1349,7 @@ int jsRemoveGlobalFunction(int eid, char *name)
     if ((ep = jsPtr(eid)) == NULL) {
         return -1;
     }
-    return symDelete(ep->functions, name);
+    return hashDelete(ep->functions, name);
 }
 
 
@@ -1363,7 +1363,7 @@ void *jsGetGlobalFunction(int eid, char *name)
         return NULL;
     }
 
-    if ((sp = symLookup(ep->functions, name)) != NULL) {
+    if ((sp = hashLookup(ep->functions, name)) != NULL) {
         fn = (int (*)(int, void*, int, char**)) sp->content.value.symbol;
         return (void*) fn;
     }
@@ -1496,7 +1496,7 @@ void jsSetVar(int eid, char *var, char *value)
     } else {
         v = valueString(value, VALUE_ALLOCATE);
     }
-    symEnter(ep->variables[ep->variableMax - 1] - JS_OFFSET, var, v, 0);
+    hashEnter(ep->variables[ep->variableMax - 1] - JS_OFFSET, var, v, 0);
 }
 
 
@@ -1520,7 +1520,7 @@ void jsSetLocalVar(int eid, char *var, char *value)
     } else {
         v = valueString(value, VALUE_ALLOCATE);
     }
-    symEnter(ep->variables[ep->variableMax - 1] - JS_OFFSET, var, v, 0);
+    hashEnter(ep->variables[ep->variableMax - 1] - JS_OFFSET, var, v, 0);
 }
 
 
@@ -1543,7 +1543,7 @@ void jsSetGlobalVar(int eid, char *var, char *value)
     } else {
         v = valueString(value, VALUE_ALLOCATE);
     }
-    symEnter(ep->variables[0] - JS_OFFSET, var, v, 0);
+    hashEnter(ep->variables[0] - JS_OFFSET, var, v, 0);
 }
 
 
@@ -1564,9 +1564,9 @@ int jsGetVar(int eid, char *var, char **value)
     }
 
     i = ep->variableMax - 1;
-    if ((sp = symLookup(ep->variables[i] - JS_OFFSET, var)) == NULL) {
+    if ((sp = hashLookup(ep->variables[i] - JS_OFFSET, var)) == NULL) {
         i = 0;
-        if ((sp = symLookup(ep->variables[0] - JS_OFFSET, var)) == NULL) {
+        if ((sp = hashLookup(ep->variables[0] - JS_OFFSET, var)) == NULL) {
             return -1;
         }
     }

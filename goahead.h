@@ -1502,9 +1502,13 @@ extern ssize wtom(char *dest, ssize count, wchar *src, ssize len);
 extern wchar *amtow(char *src, ssize *len);
 extern char  *awtom(wchar *src, ssize *len);
 
-/******************************* Symbol Table *********************************/
-/*
-    The symbol table record for each symbol entry
+/******************************* Hash Table *********************************/
+/**
+    Hash table entry structure.
+    @description The hash structure supports growable hash tables with high performance, collision resistant hashes.
+    Each hash entry has a descriptor entry. This is used to manage the hash table link chains.
+    @see hashCreate hashFree hashLookup hashEnter hashDelete hashWalk hashFirst hashNext
+    @defgroup WebsHash WebsHash
  */
 typedef struct WebsKey {
     struct WebsKey  *forw;                  /* Pointer to next hash list */
@@ -1514,107 +1518,237 @@ typedef struct WebsKey {
     int             bucket;                 /* Bucket index */
 } WebsKey;
 
-typedef int WebsHash;                       /* Returned by symOpen */
+/**
+    Hash table ID returned by hashCreate
+ */
+typedef int WebsHash;                       /* Returned by symCreate */
 
-extern WebsHash symOpen(int hash_size);
-extern void     symClose(WebsHash sd);
-extern WebsKey  *symLookup(WebsHash sd, char *name);
-extern WebsKey  *symEnter(WebsHash sd, char *name, WebsValue v, int arg);
-extern int      symDelete(WebsHash sd, char *name);
-extern void     symWalk(WebsHash sd, void (*fn)(WebsKey *symp));
-extern WebsKey  *symFirst(WebsHash sd);
-extern WebsKey  *symNext(WebsHash sd, WebsKey *last);
+/**
+    Create a hash table
+    @param size Minimum size of the hash index
+    @return Hash table ID
+    @ingroup WebsHash
+ */
+extern WebsHash hashCreate(int size);
+
+/**
+    Free a hash table
+    @param id Hash table id returned by hashCreate
+    @ingroup WebsHash
+ */
+extern void hashFree(WebsHash id);
+
+/**
+    Lookup a name in the hash table
+    @param id Hash table id returned by hashCreate
+    @param name Key name to search for 
+    @return Reference to the WebKey object storing the key and value
+    @ingroup WebsHash
+ */
+extern WebsKey *hashLookup(WebsHash id, char *name);
+
+/**
+    Enter a new key and value into the hash table
+    @param id Hash table id returned by hashCreate
+    @param name Key name to create
+    @param value Key value to enter
+    @param arg Optional extra argument to store with the value
+    @return Reference to the WebKey object storing the key and value
+    @ingroup WebsHash
+ */
+extern WebsKey *hashEnter(WebsHash id, char *name, WebsValue value, int arg);
+
+/**
+    Delete a key by name
+    @param id Hash table id returned by hashCreate
+    @param name Key name to delete
+    @return Zero if the delete was successful. Otherwise -1 if the key was not found.
+    @ingroup WebsHash
+ */
+extern int hashDelete(WebsHash id, char *name);
+
+/**
+    Start walking the hash keys by returning the first key entry in the hash
+    @param id Hash table id returned by hashCreate
+    @return Reference to the first WebKey object. Return null if there are no keys in the hash.
+    @ingroup WebsHash
+ */
+extern WebsKey *hashFirst(WebsHash id);
+
+/**
+    Continue walking the hash keys by returning the next key entry in the hash
+    @param id Hash table id returned by hashCreate
+    @param last Reference to a WebsKey to hold the current traversal key state.
+    @return Reference to the next WebKey object. Returns null if no more keys exist to be traversed.
+    @ingroup WebsHash
+ */
+extern WebsKey *hashNext(WebsHash id, WebsKey *last);
 
 /************************************ Socket **********************************/
 /*
     Socket flags 
  */
-#define SOCKET_EOF              0x1     /* Seen end of file */
-#define SOCKET_CONNECTING       0x2     /* Connect in progress */
-#define SOCKET_PENDING          0x4     /* Message pending on this socket */
-#define SOCKET_RESERVICE        0x8     /* Socket needs re-servicing */
-#define SOCKET_ASYNC            0x10    /* Use async connect */
-#define SOCKET_BLOCK            0x20    /* Use blocking I/O */
-#define SOCKET_LISTENING        0x40    /* Socket is server listener */
-#define SOCKET_CLOSING          0x80    /* Socket is closing */
-#define SOCKET_CONNRESET        0x100   /* Socket connection was reset */
-#define SOCKET_TRACED           0x200   /* Trace TLS connections */
+#define SOCKET_EOF              0x1     /**< Seen end of file */
+#define SOCKET_CONNECTING       0x2     /**< Connect in progress */
+#define SOCKET_PENDING          0x4     /**< Message pending on this socket */
+#define SOCKET_RESERVICE        0x8     /**< Socket needs re-servicing */
+#define SOCKET_ASYNC            0x10    /**< Use async connect */
+#define SOCKET_BLOCK            0x20    /**< Use blocking I/O */
+#define SOCKET_LISTENING        0x40    /**< Socket is server listener */
+#define SOCKET_CLOSING          0x80    /**< Socket is closing */
+#define SOCKET_CONNRESET        0x100   /**< Socket connection was reset */
+#define SOCKET_TRACED           0x200   /**< Trace TLS connections */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
 
 /*
     Socket error values
  */
-#define SOCKET_WOULDBLOCK       1       /* Socket would block on I/O */
-#define SOCKET_RESET            2       /* Socket has been reset */
-#define SOCKET_NETDOWN          3       /* Network is down */
-#define SOCKET_AGAIN            4       /* Issue the request again */
-#define SOCKET_INTR             5       /* Call was interrupted */
-#define SOCKET_INVAL            6       /* Invalid */
+#define SOCKET_WOULDBLOCK       1       /**< Socket would block on I/O */
+#define SOCKET_RESET            2       /**< Socket has been reset */
+#define SOCKET_NETDOWN          3       /**< Network is down */
+#define SOCKET_AGAIN            4       /**< Issue the request again */
+#define SOCKET_INTR             5       /**< Call was interrupted */
+#define SOCKET_INVAL            6       /**< Invalid */
 
 /*
     Handler event masks
  */
-#define SOCKET_READABLE         0x2     /* Make socket readable */ 
-#define SOCKET_WRITABLE         0x4     /* Make socket writable */
-#define SOCKET_EXCEPTION        0x8     /* Interested in exceptions */
+#define SOCKET_READABLE         0x2     /**< Make socket readable */ 
+#define SOCKET_WRITABLE         0x4     /**< Make socket writable */
+#define SOCKET_EXCEPTION        0x8     /**< Interested in exceptions */
 
-typedef void    (*SocketHandler)(int sid, int mask, void* data);
-typedef int     (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
+/**
+    Socket I/O callback
+    @param sid Socket ID handle returned from socketConnect or when a new socket is passed to a SocketAccept
+        callback..
+    @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
+    @param data Data argument to pass to the callback function.
+    @ingroup WebsSocket
+ */
+typedef void (*SocketHandler)(int sid, int mask, void *data);
 
+/**
+    Socket accept callback
+    @param sid Socket ID handle for the newly accepted socket
+    @param ipaddr IP address of the connecting client. 
+    @param port Port of the connecting client.
+    @param listenSid Socket ID for the listening socket
+    @ingroup WebsSocket
+ */
+typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
+
+/*
+    Socket control structure
+    @see
+    @defgroup WebsSocket WebsSocket
+ */
 typedef struct WebsSocket {
-    WebsBuf         lineBuf;                /* Line ring queue */
-    SocketAccept    accept;                 /* Accept handler */
-    SocketHandler   handler;                /* User I/O handler */
-    char            *ip;                    /* Server listen address or remote client address */
-    void            *handler_data;          /* User handler data */
-    int             handlerMask;            /* Handler events of interest */
-    int             sid;                    /* Index into socket[] */
-    int             port;                   /* Port to listen on */
-    int             flags;                  /* Current state flags */
-    int             sock;                   /* Actual socket handle */
-    int             fileHandle;             /* ID of the file handler */
-    int             interestEvents;         /* Mask of events to watch for */
-    int             currentEvents;          /* Mask of ready events (FD_xx) */
-    int             selectEvents;           /* Events being selected */
-    int             saveMask;               /* saved Mask for socketFlush */
-    int             error;                  /* Last error */
-    int             secure;                 /* Socket is using SSL */
+    WebsBuf         lineBuf;            /* Line ring queue */
+    SocketAccept    accept;             /* Accept handler */
+    SocketHandler   handler;            /* User I/O handler */
+    char            *ip;                /* Server listen address or remote client address */
+    void            *handler_data;      /* User handler data */
+    int             handlerMask;        /* Handler events of interest */
+    int             sid;                /* Index into socket[] */
+    int             port;               /* Port to listen on */
+    int             flags;              /* Current state flags */
+    int             sock;               /* Actual socket handle */
+    int             fileHandle;         /* ID of the file handler */
+    int             interestEvents;     /* Mask of events to watch for */
+    int             currentEvents;      /* Mask of ready events (FD_xx) */
+    int             selectEvents;       /* Events being selected */
+    int             saveMask;           /* saved Mask for socketFlush */
+    int             error;              /* Last error */
+    int             secure;             /* Socket is using SSL */
 } WebsSocket;
 
-extern WebsSocket **socketList;             /* List of open sockets */
 
-extern int      socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port);
-extern bool     socketAddressIsV6(char *ip);
-extern void     socketClose();
-extern void     socketCloseConnection(int sid);
-extern int      socketConnect(char *host, int port, int flags);
-extern void     socketCreateHandler(int sid, int mask, SocketHandler handler, void *arg);
-extern void     socketDeleteHandler(int sid);
-extern void     socketReservice(int sid);
-extern int      socketEof(int sid);
-extern int      socketGetPort(int sid);
-extern int      socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
+/**
+    List of open sockets
+    @ingroup WebsSocket
+ */
+extern WebsSocket **socketList;         /* List of open sockets */
+
+/**
+    Extract the numerical IP address and port for the given socket info
+    @param addr Reference to the socket address.
+    @param addrlen Length of the socket address
+    @param ipbuf Buffer to contain the parsed IP address
+    @param ipLen Size of ipbuf
+    @param port Reference to an integer to hold the parsed port.
+    @return Zero if successful. Otherwise -1 for parse errors.
+    @ingroup WebsSocket
+ */
+extern int socketAddress(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port);
+
+/**
+    Determine if an IP address is an IPv6 address.
+    @param ip String IP address.
+    @return True if the address is an IPv6 address.
+    @ingroup WebsSocket
+ */
+extern bool socketAddressIsV6(char *ip);
+
+/**
+    Close the socket module
+    @ingroup WebsSocket
+ */
+extern void socketClose();
+
+/**
+    Close a socket connection
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @ingroup WebsSocket
+ */
+extern void socketCloseConnection(int sid);
+
+/**
+    Connect to a server and create a new socket
+    @param host Host IP address.
+    @param port Port number to connect to
+    @param flags Set to SOCKET_BLOCK for blocking I/O. Otherwise non-blocking I/O is used.
+    @return True if the address is an IPv6 address.
+    @ingroup WebsSocket
+    @internal
+ */
+extern int socketConnect(char *host, int port, int flags);
+
+/**
+    Create a socket handler that will be invoked when I/O events occur.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
+    @param handler Socket handler function.
+    @param arg Arbitrary object reference to pass to the SocketHandler callback function.
+    @return True if the address is an IPv6 address.
+    @ingroup WebsSocket
+ */
+extern void socketCreateHandler(int sid, int mask, SocketHandler handler, void *arg);
+
+extern void socketDeleteHandler(int sid);
+extern void socketReservice(int sid);
+extern int socketEof(int sid);
+extern int socketGetPort(int sid);
+extern int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
                     WebsSockLenArg *addrlen);
-extern bool     socketIsV6(int sid);
-extern int      socketOpen();
-extern int      socketListen(char *host, int port, SocketAccept accept, int flags);
-extern int      socketParseAddress(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
-extern void     socketProcess();
-extern ssize    socketRead(int sid, void *buf, ssize len);
-extern ssize    socketWrite(int sid, void *buf, ssize len);
-extern ssize    socketWriteString(int sid, char *buf);
-extern int      socketSelect(int hid, int timeout);
-extern int      socketGetHandle(int sid);
-extern int      socketSetBlock(int sid, int flags);
-extern int      socketGetBlock(int sid);
-extern int      socketAlloc(char *host, int port, SocketAccept accept, int flags);
-extern void     socketFree(int sid);
-extern int      socketGetError();
+extern bool socketIsV6(int sid);
+extern int socketOpen();
+extern int socketListen(char *host, int port, SocketAccept accept, int flags);
+extern int socketParseAddress(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
+extern void socketProcess();
+extern ssize socketRead(int sid, void *buf, ssize len);
+extern ssize socketWrite(int sid, void *buf, ssize len);
+extern ssize socketWriteString(int sid, char *buf);
+extern int socketSelect(int hid, int timeout);
+extern int socketGetHandle(int sid);
+extern int socketSetBlock(int sid, int flags);
+extern int socketGetBlock(int sid);
+extern int socketAlloc(char *host, int port, SocketAccept accept, int flags);
+extern void socketFree(int sid);
+extern int socketGetError();
 extern WebsSocket *socketPtr(int sid);
-extern int      socketWaitForEvent(WebsSocket *sp, int events, int *errCode);
-extern void     socketRegisterInterest(WebsSocket *sp, int handlerMask);
-extern ssize    socketGetInput(int sid, char *buf, ssize toRead, int *errCode);
+extern int socketWaitForEvent(WebsSocket *sp, int events, int *errCode);
+extern void socketRegisterInterest(WebsSocket *sp, int handlerMask);
 
 /*********************************** Runtime **********************************/
 /*
@@ -2274,24 +2408,33 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define websSetRequestWritten(wp, nbytes)  if (1) { wp->written = nbytes; } else
     #define websWriteDataNonBlock websWriteRaw
 
-	#define ringqOpen bufCreate
-	#define ringqClose bufClose
-	#define ringqLen bufLen
-	#define ringqPutc bufPutc
-	#define ringqInsertc bufInsertc
-	#define ringqPutStr bufPutStr
-	#define ringqGetc bufGetc
-	#define ringqGrow bufGrow
-	#define ringqPutBlk bufPutBlk
-	#define ringqPutBlkMax bufRoom
-	#define ringqPutBlkAdj bufAdjustEnd
-	#define ringqGetBlk bufGetBlk
-	#define ringqGetBlkMax bufGetBlkMax
-	#define ringqGetBlkAdj bufAdjustSTart
-	#define ringqFlush bufFlush
-	#define ringqCompact bufCompact
-	#define ringqReset bufReset
-	#define ringqAddNull bufAddNull
+    #define ringqOpen bufCreate
+    #define ringqClose bufFree
+    #define ringqLen bufLen
+    #define ringqPutc bufPutc
+    #define ringqInsertc bufInsertc
+    #define ringqPutStr bufPutStr
+    #define ringqGetc bufGetc
+    #define ringqGrow bufGrow
+    #define ringqPutBlk bufPutBlk
+    #define ringqPutBlkMax bufRoom
+    #define ringqPutBlkAdj bufAdjustEnd
+    #define ringqGetBlk bufGetBlk
+    #define ringqGetBlkMax bufGetBlkMax
+    #define ringqGetBlkAdj bufAdjustSTart
+    #define ringqFlush bufFlush
+    #define ringqCompact bufCompact
+    #define ringqReset bufReset
+    #define ringqAddNull bufAddNull
+
+    #define symCreate hashCreate
+    #define symClose hashFree
+    #define symLookup hashLookup
+    #define symEnter hashEnter
+    #define symDelete hashDelete
+    #define symWalk hashWalk
+    #define symFirst hashFirst
+    #define symNext hashNext
 
     typedef Webs *webs_t;
     typedef Webs WebsRec;

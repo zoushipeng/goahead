@@ -26,7 +26,7 @@ int websRomOpen()
     char          name[BIT_LIMIT_FILENAME];
     ssize           len;
 
-    romTab = symOpen(WEBS_SYM_INIT);
+    romTab = hashCreate(WEBS_SYM_INIT);
     for (wip = websRomPageIndex; wip->path; wip++) {
         strncpy(name, wip->path, BIT_LIMIT_FILENAME);
         len = strlen(name) - 1;
@@ -34,7 +34,7 @@ int websRomOpen()
             (name[len] == '/' || name[len] == '\\')) {
             name[len] = '\0';
         }
-        symEnter(romTab, name, valueInteger((int) wip), 0);
+        hashEnter(romTab, name, valueInteger((int) wip), 0);
     }
     return 0;
 }
@@ -42,7 +42,7 @@ int websRomOpen()
 
 void websRomClose()
 {
-    symClose(romTab);
+    hashFree(romTab);
 }
 
 
@@ -54,7 +54,7 @@ int websRomPageOpen(Webs *wp, char *path, int mode, int perm)
     gassert(websValid(wp));
     gassert(path && *path);
 
-    if ((sp = symLookup(romTab, path)) == NULL) {
+    if ((sp = hashLookup(romTab, path)) == NULL) {
         return -1;
     }
     wip = (WebsRomIndex*) sp->content.value.integer;
@@ -76,7 +76,7 @@ int websRomPageStat(char *path, WebsFileInfo *sbuf)
 
     gassert(path && *path);
 
-    if ((sp = symLookup(romTab, path)) == NULL) {
+    if ((sp = hashLookup(romTab, path)) == NULL) {
         return -1;
     }
     wip = (WebsRomIndex*) sp->content.value.integer;

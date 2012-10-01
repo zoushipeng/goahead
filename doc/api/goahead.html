@@ -59,6 +59,9 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef">
 <td class="apiName"><a href="#group___webs_buf" class="nameRef">WebsBuf</a></td>
 <td class="apiBrief">A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering.</td></tr>
+<tr class="apiDef">
+<td class="apiName"><a href="#group___webs_hash" class="nameRef">WebsHash</a></td>
+<td class="apiBrief">Hash table entry structure.</td></tr>
 </table>
 <a name="Functions"></a><h1>Functions</h1>
   <table class="apiIndex" title="Functions">
@@ -81,6 +84,19 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1gaa1f359ca367a6f72ebaa4b4028732333" class="nameRef">bufReset</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Reset the buffer pointers to the start of the buffer if empty.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1ga2ffac4a06b33a774a59e0441bbf0a555" class="nameRef">bufRoom</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Determine the room available in the buffer.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1aa7733e30b2951f225e24dca1ed4632b2" class="nameRef">error</a>(char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the trace logging module.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___webs_hash" class="ref">WebsHash</a></td><td><a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="nameRef">hashCreate</a>(int size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a hash table.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="nameRef">hashDelete</a>(<a href="#group___webs_hash" class="ref">WebsHash</a> id, char *name)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Delete a key by name.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="nameRef">hashEnter</a>(<a href="#group___webs_hash" class="ref">WebsHash</a> id, char *name, <a href="#struct_webs_value" class="ref">WebsValue</a> value, int arg)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Enter a new key and value into the hash table.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="nameRef">hashFirst</a>(<a href="#group___webs_hash" class="ref">WebsHash</a> id)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start walking the hash keys by returning the first key entry in the hash.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="nameRef">hashFree</a>(<a href="#group___webs_hash" class="ref">WebsHash</a> id)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free a hash table.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="nameRef">hashLookup</a>(<a href="#group___webs_hash" class="ref">WebsHash</a> id, char *name)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Lookup a name in the hash table.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="nameRef">hashNext</a>(<a href="#group___webs_hash" class="ref">WebsHash</a> id, <a href="#struct_webs_key" class="ref">WebsKey</a> *last)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Continue walking the hash keys by returning the next key entry in the hash.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1ac14f3548201f71b558822b3c68153ebe" class="nameRef">socketAddress</a>(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Extract the numerical IP address and port for the given socket info.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#goahead_8h_1ab17617765c946113630985a5b5101d73" class="nameRef">socketAddressIsV6</a>(char *ip)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Determine if an IP address is an IPv6 address.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a494634a4e6b82e22f14fcf8ee7f16003" class="nameRef">socketClose</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the socket module.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a08b16008980854d2aa6d1ebf588724a7" class="nameRef">socketCloseConnection</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close a socket connection.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1a864d6957a721958fa113d9be97e2cc04" class="nameRef">socketConnect</a>(char *host, int port, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Connect to a server and create a new socket.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a860aa94cb98a3f2c67426695060dba0c" class="nameRef">socketCreateHandler</a>(int sid, int mask, <a href="#goahead_8h_1a657e287f5f61294f65c3092a0e0b5e18" class="ref">SocketHandler</a> handler, void *arg)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a socket handler that will be invoked when I/O events occur.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#goahead_8h_1a9169827ad693bc412f22a9b6802deb65" class="nameRef">strim</a>(char *str, char *set, int where)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Trim a string.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ac74782a3320b6cf7ae6ae14cb0cce791" class="nameRef">trace</a>(int level, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Emit trace a.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a338aab0253658a4b09ac15e3e57a21b0" class="nameRef">traceClose</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the trace logging module.</td></tr>
@@ -94,8 +110,11 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </table>
 <a name="Typedefs"></a><h1>Typedefs</h1>
 <table class="apiIndex" title="typedefs">
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ae933cccfa3a1515f056e16543e384790" class="nameRef">SocketAccept</a></td><td class="apiBrief">Socket accept callback.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a657e287f5f61294f65c3092a0e0b5e18" class="nameRef">SocketHandler</a></td><td class="apiBrief">Socket I/O callback.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a0143a9b28125b27c8caa8d1837819e27" class="nameRef">WebsDateTime</a></td><td class="apiBrief">Date and time storage with millisecond resolution.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ac24bb6883f09c6da59aa56c2ec03842e" class="nameRef">WebsFilePos</a></td><td class="apiBrief">Signed file offset data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="nameRef">WebsHash</a></td><td class="apiBrief">Hash table ID returned by hashCreate.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a3a874b92bbb07540254ed16567db3aa3" class="nameRef">WebsStat</a></td><td class="apiBrief">File status structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="nameRef">WebsTime</a></td><td class="apiBrief">System native time type.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb" class="nameRef">WebsTraceHandler</a></td><td class="apiBrief">Callback for emitting trace log output.</td></tr>
@@ -312,6 +331,82 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <td>#define</td><td><a href="#goahead_8h_1a368ec3a2d7da1dc0a43de55c829ae97b" class="nameRef">HTTP_CODE_USE_PROXY</a>&nbsp;&nbsp;&nbsp;305</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>The requested resource must be accessed via the location proxy.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a85ee14e72ab035c35530a02e9f6a1859" class="nameRef">SOCKET_AGAIN</a>&nbsp;&nbsp;&nbsp;4</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Issue the request again.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a6db72d1b78eff6c606633c46190078dc" class="nameRef">SOCKET_ASYNC</a>&nbsp;&nbsp;&nbsp;0x10</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Use async connect.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a15bfb9f8b3f96c54b4121ddc58018b08" class="nameRef">SOCKET_BLOCK</a>&nbsp;&nbsp;&nbsp;0x20</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Use blocking I/O.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a2e950af59def710c7fc0745860e2ed2a" class="nameRef">SOCKET_CLOSING</a>&nbsp;&nbsp;&nbsp;0x80</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Socket is closing.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a77b85be920c891600f978c675884fa7c" class="nameRef">SOCKET_CONNECTING</a>&nbsp;&nbsp;&nbsp;0x2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Connect in progress.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a46f9c219ce9e6e0198c95b091ae49d92" class="nameRef">SOCKET_CONNRESET</a>&nbsp;&nbsp;&nbsp;0x100</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Socket connection was reset.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1abefba48844b9ab23b89c3a7736ef0778" class="nameRef">SOCKET_EOF</a>&nbsp;&nbsp;&nbsp;0x1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Seen end of file.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a5b1aa2c0ae9c92a40413887ef6c51448" class="nameRef">SOCKET_EXCEPTION</a>&nbsp;&nbsp;&nbsp;0x8</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Interested in exceptions.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1acde08b14ccbd79f650c92bc209d6026b" class="nameRef">SOCKET_INTR</a>&nbsp;&nbsp;&nbsp;5</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Call was interrupted.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a9815fe10f80b45a92172de59bc8effb4" class="nameRef">SOCKET_INVAL</a>&nbsp;&nbsp;&nbsp;6</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Invalid.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ae817478fd76f7c8ab0e4cb4afd2fdbe7" class="nameRef">SOCKET_LISTENING</a>&nbsp;&nbsp;&nbsp;0x40</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Socket is server listener.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a4ca860e3aca64e92a0efb6dfa76c4bc5" class="nameRef">SOCKET_NETDOWN</a>&nbsp;&nbsp;&nbsp;3</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Network is down.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a86febd1301127144a2c9e42b8adcc339" class="nameRef">SOCKET_PENDING</a>&nbsp;&nbsp;&nbsp;0x4</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Message pending on this socket.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a8b56e2a409b2468f527d17c5e82cbea6" class="nameRef">SOCKET_READABLE</a>&nbsp;&nbsp;&nbsp;0x2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Make socket readable.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a2cd104f31be96aaa2d1d3a2386682430" class="nameRef">SOCKET_RESERVICE</a>&nbsp;&nbsp;&nbsp;0x8</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Socket needs re-servicing.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ab8aedcb785ff519c36d26ec43a8e95d7" class="nameRef">SOCKET_RESET</a>&nbsp;&nbsp;&nbsp;2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Socket has been reset.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a134b552c326be6389ccef43e33a285bb" class="nameRef">SOCKET_TRACED</a>&nbsp;&nbsp;&nbsp;0x200</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Trace TLS connections.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad82a8f322ed6b5db8563862d9dc78454" class="nameRef">SOCKET_WOULDBLOCK</a>&nbsp;&nbsp;&nbsp;1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Socket would block on I/O.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a200ee94b56ff93dfbe869aeebeb0f2ed" class="nameRef">SOCKET_WRITABLE</a>&nbsp;&nbsp;&nbsp;0x4</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Make socket writable.</td></tr>
 <tr class="apiDef">
 <td>#define</td><td><a href="#goahead_8h_1ad67de85ec9f1c5f73e756af3054bd78b" class="nameRef">VALUE_ALLOCATE</a>&nbsp;&nbsp;&nbsp;0x1</td>
 </tr>
@@ -747,6 +842,151 @@ The end pointer is not changed
     </dd></dl>
   </div>
 </div>
+<h1>WebsHash</h1>
+<a name="goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67"></a>
+<div class="api">
+  <div class="prototype">WebsHash</div>
+  <div class="apiDetail">
+<p>Hash table entry structure.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The hash structure supports growable hash tables with high performance, collision resistant hashes. Each hash entry has a descriptor entry. This is used to manage the hash table link chains.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+    <dl><dt>Fields:</dt><dd>
+    <table class="parameters" title="Parameters">
+    </table></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1ga38965650a2f6f2666e0120498594a135"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a>
+    hashCreate
+(int size)
+  </div>
+  <div class="apiDetail">
+<p>Create a hash table.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">size</td><td>Minimum size of the hash index.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Hash table ID.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    hashDelete
+(<a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a> id, char *name)
+  </div>
+  <div class="apiDetail">
+<p>Delete a key by name.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">id</td><td>Hash table id returned by hashCreate.</td>
+    <tr><td class="param">name</td><td>Key name to delete.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if the delete was successful. Otherwise -1 if the key was not found.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_key" class="ref">WebsKey</a> *
+    hashEnter
+(<a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a> id, char *name, <a href="#struct_webs_value" class="ref">WebsValue</a> value, int arg)
+  </div>
+  <div class="apiDetail">
+<p>Enter a new key and value into the hash table.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">id</td><td>Hash table id returned by hashCreate.</td>
+    <tr><td class="param">name</td><td>Key name to create.</td>
+    <tr><td class="param">value</td><td>Key value to enter.</td>
+    <tr><td class="param">arg</td><td>Optional extra argument to store with the value.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Reference to the WebKey object storing the key and value.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_key" class="ref">WebsKey</a> *
+    hashFirst
+(<a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a> id)
+  </div>
+  <div class="apiDetail">
+<p>Start walking the hash keys by returning the first key entry in the hash.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">id</td><td>Hash table id returned by hashCreate.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Reference to the first WebKey object. Return null if there are no keys in the hash.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    hashFree
+(<a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a> id)
+  </div>
+  <div class="apiDetail">
+<p>Free a hash table.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">id</td><td>Hash table id returned by hashCreate.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_key" class="ref">WebsKey</a> *
+    hashLookup
+(<a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a> id, char *name)
+  </div>
+  <div class="apiDetail">
+<p>Lookup a name in the hash table.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">id</td><td>Hash table id returned by hashCreate.</td>
+    <tr><td class="param">name</td><td>Key name to search for.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Reference to the WebKey object storing the key and value.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
+  </div>
+</div>
+<a name="group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_key" class="ref">WebsKey</a> *
+    hashNext
+(<a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="ref">WebsHash</a> id, <a href="#struct_webs_key" class="ref">WebsKey</a> *last)
+  </div>
+  <div class="apiDetail">
+<p>Continue walking the hash keys by returning the next key entry in the hash.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">id</td><td>Hash table id returned by hashCreate.</td>
+    <tr><td class="param">last</td><td>Reference to a WebsKey to hold the current traversal key state.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Reference to the next WebKey object. Returns null if no more keys exist to be traversed.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_hash_1ga38965650a2f6f2666e0120498594a135" class="ref">hashCreate</a>, <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a></dd></dl>
+  </div>
+</div>
 <h2>Functions</h2>
 <a name="goahead_8h_1aa7733e30b2951f225e24dca1ed4632b2"></a>
 <div class="api">
@@ -758,6 +998,105 @@ The end pointer is not changed
   <div class="apiDetail">
 <p>Open the trace logging module.</p>
     <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1ac14f3548201f71b558822b3c68153ebe"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    socketAddress
+(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port)
+  </div>
+  <div class="apiDetail">
+<p>Extract the numerical IP address and port for the given socket info.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">addr</td><td>Reference to the socket address.</td>
+    <tr><td class="param">addrlen</td><td>Length of the socket address.</td>
+    <tr><td class="param">ipbuf</td><td>Buffer to contain the parsed IP address.</td>
+    <tr><td class="param">ipLen</td><td>Size of ipbuf.</td>
+    <tr><td class="param">port</td><td>Reference to an integer to hold the parsed port.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful. Otherwise -1 for parse errors.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1ab17617765c946113630985a5b5101d73"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
+    socketAddressIsV6
+(char *ip)
+  </div>
+  <div class="apiDetail">
+<p>Determine if an IP address is an IPv6 address.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">ip</td><td>String IP address.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the address is an IPv6 address.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a494634a4e6b82e22f14fcf8ee7f16003"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    socketClose
+()
+  </div>
+  <div class="apiDetail">
+<p>Close the socket module.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a08b16008980854d2aa6d1ebf588724a7"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    socketCloseConnection
+(int sid)
+  </div>
+  <div class="apiDetail">
+<p>Close a socket connection.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">sid</td><td>Socket ID handle returned from socketConnect or socketAccept.</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a864d6957a721958fa113d9be97e2cc04"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    socketConnect
+(char *host, int port, int flags)
+  </div>
+  <div class="apiDetail">
+<p>Connect to a server and create a new socket.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">host</td><td>Host IP address.</td>
+    <tr><td class="param">port</td><td>Port number to connect to.</td>
+    <tr><td class="param">flags</td><td>Set to SOCKET_BLOCK for blocking I/O. Otherwise non-blocking I/O is used.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the address is an IPv6 address.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a860aa94cb98a3f2c67426695060dba0c"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    socketCreateHandler
+(int sid, int mask, <a href="#goahead_8h_1a657e287f5f61294f65c3092a0e0b5e18" class="ref">SocketHandler</a> handler, void *arg)
+  </div>
+  <div class="apiDetail">
+<p>Create a socket handler that will be invoked when I/O events occur.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">sid</td><td>Socket ID handle returned from socketConnect or socketAccept.</td>
+    <tr><td class="param">mask</td><td>Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.</td>
+    <tr><td class="param">handler</td><td>Socket handler function.</td>
+    <tr><td class="param">arg</td><td>Arbitrary object reference to pass to the SocketHandler callback function.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the address is an IPv6 address.</dd></dl>
   </div>
 </div>
 <a name="goahead_8h_1a9169827ad693bc412f22a9b6802deb65"></a>
@@ -979,6 +1318,37 @@ The end pointer is not changed
 <p>Signed char data type.</p>
   </div>
 </div>
+<a name="goahead_8h_1ae933cccfa3a1515f056e16543e384790"></a>
+<div class="api">
+  <div class="prototype">
+    typedef int(* SocketAccept)(int sid, char *ipaddr, int port, int listenSid).
+  </div>
+  <div class="apiDetail">
+<p>Socket accept callback.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">sid</td><td>Socket ID handle for the newly accepted socket.</td>
+    <tr><td class="param">ipaddr</td><td>IP address of the connecting client.</td>
+    <tr><td class="param">port</td><td>Port of the connecting client.</td>
+    <tr><td class="param">listenSid</td><td>Socket ID for the listening socket.</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a657e287f5f61294f65c3092a0e0b5e18"></a>
+<div class="api">
+  <div class="prototype">
+    typedef void(* SocketHandler)(int sid, int mask, void *data).
+  </div>
+  <div class="apiDetail">
+<p>Socket I/O callback.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">sid</td><td>Socket ID handle returned from socketConnect or when a new socket is passed to a SocketAccept callback.</td>
+    <tr><td class="param">mask</td><td>Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.</td>
+    <tr><td class="param">data</td><td>Data argument to pass to the callback function.</td>
+    </table></dd></dl>
+  </div>
+</div>
 <a name="goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1"></a>
 <div class="api">
   <div class="prototype">
@@ -1050,6 +1420,15 @@ The end pointer is not changed
   <div class="apiDetail">
 <p>Signed file offset data type.</p>
 Supports large files greater than 4GB in size on all systems
+  </div>
+</div>
+<a name="goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67"></a>
+<div class="api">
+  <div class="prototype">
+    typedef int WebsHash.
+  </div>
+  <div class="apiDetail">
+<p>Hash table ID returned by hashCreate.</p>
   </div>
 </div>
 <a name="goahead_8h_1a3a874b92bbb07540254ed16567db3aa3"></a>

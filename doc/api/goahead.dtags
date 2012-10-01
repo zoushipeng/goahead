@@ -1,0 +1,1247 @@
+<?xml version='1.0' encoding='ISO-8859-1' standalone='yes' ?>
+<tagfile>
+  <compound kind="file">
+    <name>goahead.h</name>
+    <path>/Users/mob/git/goahead/</path>
+    <filename>goahead_8h</filename>
+    <class kind="struct">WebsValue</class>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_ARM</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aed3a84de9262dc591ddc9e66995c5250</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_ITANIUM</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac3d4e6de34e64419807ae6285a944d9a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_MIPS</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a4e0ab48e13de6e7ba194fc37bf979074</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_PPC</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a3096261bc95345ccba482868497f5b4d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_SPARC</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a5871fea8252dc92579b25c4cd5836486</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_X64</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a01af7ca1197fc86fc1c76e22a25f824a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_CPU_X86</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad588852cfcc2aa70973364e4ea8410e4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_DEBUG</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac36a46b5b17a90c26041fea9bcc7fdb1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>BIT_ROM</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab2c71e38994dd26268646b5421ca3e4b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_ACCEPTED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a1efdfd58d322aa536b75deecf922f1c8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_BAD_GATEWAY</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0af0302aed58ea49fd6b1be26179585c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_BAD_METHOD</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a8b9b86ec8ac18bf9e606f22c0921dd4a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_BAD_REQUEST</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a16c7e21f17349c2515fe0134f9b7ffd4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_BAD_VERSION</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa7dc3796cad07c52f3db7ed660948405</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_COMMS_ERROR</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac4e84c07da5d5314255265a9470004fe</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_CONFLICT</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a33cde539885f920737a6c148f854aa15</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_CONTINUE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad1f324698e12fefadfc2ec5d16ce6a5b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_CREATED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a00c11c6c6bf42cf1fb483c273454cf45</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_EXPECTATION_FAILED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a7b7785ff11163b18f12bc2d66f728abe</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_FORBIDDEN</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac68e0a1d868dad52967d757dab5220db</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_GATEWAY_TIMEOUT</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab24790eefb565c4e7064438592e32204</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_GONE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0eeb0f3801fbd1ca5d0f050e12426768</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_INSUFFICIENT_STORAGE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>af7fab487ecc4f937304ff5ad1fd97330</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_INTERNAL_SERVER_ERROR</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a6d47746cc8b934944ed4f05308b2da63</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_LENGTH_REQUIRED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>af92be73f22cd3758211ce5b90ec64572</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_MOVED_PERMANENTLY</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a3d8f6601017c97af5fe8bd5267be8b02</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_MOVED_TEMPORARILY</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a33f32423ccbf3a2a61f56cc5aee18cd8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NO_CONTENT</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a7e41c8a47383e2bdf4b34ce5510bc9b6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NO_RESPONSE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a1159b67860d06bcce578f8d4d0083070</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NOT_ACCEPTABLE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa44abbf9540845f062801eb5bff8a128</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NOT_AUTHORITATIVE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0a20b658e0dc1c0634a4eb5b07b36d52</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NOT_FOUND</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a20eb5cc8af538c827de0f7ed9811243c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NOT_IMPLEMENTED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a9e272d1190eb37ce4447a9021f68a0c4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_NOT_MODIFIED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a225a5999b63c699c4492a8412b315452</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_OK</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a471de168f41ecf5e8d62a43fea28b5d7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_PARTIAL</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ae55f28c554e19bbddaba95fdb81c90e0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_PAYMENT_REQUIRED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab772ef28d09ec65afdfc7b67ca29c4b8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_PRECOND_FAILED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a9b62630f040b66859f1b08380ac52250</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_RANGE_NOT_SATISFIABLE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>abf878ed6908fa91fca3138731e7033a2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_REQUEST_TIMEOUT</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aac7ff73346b1a2812e6b2cde68ace003</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_REQUEST_TOO_LARGE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a9d41ec497841c29d86a1b9ef93a6316d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_REQUEST_URL_TOO_LARGE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a4b04fb7856d5d412df31b0d9528d6191</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_RESET</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aab1d80e99e8e1db0a8a4531c69f037c9</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_SEE_OTHER</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a81767ddf9b55cb683935842e67b93680</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_SERVICE_UNAVAILABLE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a00a05677bf92a38abf5be28b5ce0d294</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_TEMPORARY_REDIRECT</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a12036a2f5ae164e644d3a063864cb1a1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_UNAUTHORIZED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a4667745cca24cb084488393a562647aa</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_UNSUPPORTED_MEDIA_TYPE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad0f303cb6433d273adbfd7a8db38f720</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>HTTP_CODE_USE_PROXY</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a368ec3a2d7da1dc0a43de55c829ae97b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_AGAIN</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a85ee14e72ab035c35530a02e9f6a1859</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_ASYNC</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a6db72d1b78eff6c606633c46190078dc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_BLOCK</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a15bfb9f8b3f96c54b4121ddc58018b08</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_CLOSING</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a2e950af59def710c7fc0745860e2ed2a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_CONNECTING</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a77b85be920c891600f978c675884fa7c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_CONNRESET</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a46f9c219ce9e6e0198c95b091ae49d92</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_EOF</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>abefba48844b9ab23b89c3a7736ef0778</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_EXCEPTION</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a5b1aa2c0ae9c92a40413887ef6c51448</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_INTR</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>acde08b14ccbd79f650c92bc209d6026b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_INVAL</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a9815fe10f80b45a92172de59bc8effb4</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_LISTENING</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ae817478fd76f7c8ab0e4cb4afd2fdbe7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_NETDOWN</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a4ca860e3aca64e92a0efb6dfa76c4bc5</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_PENDING</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a86febd1301127144a2c9e42b8adcc339</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_READABLE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a8b56e2a409b2468f527d17c5e82cbea6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_RESERVICE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a2cd104f31be96aaa2d1d3a2386682430</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_RESET</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab8aedcb785ff519c36d26ec43a8e95d7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_TRACED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a134b552c326be6389ccef43e33a285bb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_WOULDBLOCK</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad82a8f322ed6b5db8563862d9dc78454</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>SOCKET_WRITABLE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a200ee94b56ff93dfbe869aeebeb0f2ed</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>VALUE_ALLOCATE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad67de85ec9f1c5f73e756af3054bd78b</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>value_numeric</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a341a7720a9020d6a29fd77b540422579</anchor>
+      <arglist>(t)</arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>value_ok</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac0bedfb6f2b538f9459d04e0d60e2935</anchor>
+      <arglist>(t)</arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>value_str</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0c4fe8ad2c4157463c53d540b526a7db</anchor>
+      <arglist>(t)</arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_CHUNK_DATA</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ae0e37be791db29aacc26b899596f21c6</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_CHUNK_HEADER</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a599da0f60dabc762dbf1a6b303bd6cab</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_CHUNK_START</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ae8a0189bb1a76bacdd40f3e448486dbd</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_CHUNK_UNCHUNKED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a2ef42bef1fe656be2d208c3116c75d23</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_COOKIE_HTTP</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0542132a4a1e922f07cedb9fc62345af</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_COOKIE_SECURE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab4d2a11360e7f9acdfc46d917d6c2695</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_DECODE_TOKEQ</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a1646430a51608c0851ea5beae48a2b59</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_MAX_LISTEN</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a25bcde7fa767594ca76c2f657565152d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_SESSION_USERNAME</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>acf53c18ee7fc4673a34465c35fde1d54</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_SMALL_HASH</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a74710a46052fef4648a4192538741a0a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_TRIM_BOTH</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a97b3ad9c701c52137117f6d82702895a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_TRIM_END</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>acd059bb8f02892cb0093e5bb7c13c99a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_TRIM_START</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad185deb88c41c92632f330d3191f73af</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>char</type>
+      <name>bool</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad5c9d4ba3dc37783a528b0925dc981a0</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const char</type>
+      <name>cchar</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0f128c3e0c83721af0220c00554e9c4e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const unsigned char</type>
+      <name>cuchar</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad5d9ae5e2ea7e75aa605e36485987fc2</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const unsigned short</type>
+      <name>cushort</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a585ef5c0f4567945e1f3e7f32670accb</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>const void</type>
+      <name>cvoid</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a5272042f7e0f5c53e2fd4b49ff47d92d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>int</type>
+      <name>int32</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a56f1a81c92849566ae864511088eb7e8</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>signed char</type>
+      <name>schar</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0fd9ce9d735064461bebfe6037026093</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>int(*</type>
+      <name>SocketAccept</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ae933cccfa3a1515f056e16543e384790</anchor>
+      <arglist>)(int sid, char *ipaddr, int port, int listenSid)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>SocketHandler</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a657e287f5f61294f65c3092a0e0b5e18</anchor>
+      <arglist>)(int sid, int mask, void *data)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>ssize_t</type>
+      <name>ssize</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a7d08ccc1e981eb4d5a238641ac4ccfc1</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>unsigned char</type>
+      <name>uchar</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a65f85814a8290f9797005d3b28e7e5fc</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>unsigned int</type>
+      <name>uint</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a91ad9478d81a7aaf2593e8d9c3d06a14</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>unsigned int</type>
+      <name>uint32</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a1134b580f8da4de94ca6b1de4d37975e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>unsigned long</type>
+      <name>ulong</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a718b4eb2652c286f4d42dc18a8e71a1a</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>unsigned short</type>
+      <name>ushort</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab95f123a6c9bcfee6a343170ef8c5f69</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>int64</type>
+      <name>WebsDateTime</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0143a9b28125b27c8caa8d1837819e27</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>int64</type>
+      <name>WebsFilePos</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac24bb6883f09c6da59aa56c2ec03842e</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>int</type>
+      <name>WebsHash</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a8b29ad60e66971115b4c4dbbc655ae67</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>struct stat</type>
+      <name>WebsStat</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a3a874b92bbb07540254ed16567db3aa3</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>time_t</type>
+      <name>WebsTime</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>acdd9aaf80c8e9b08b3cf94200c91a6ae</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>WebsTraceHandler</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ad4170133b27239cbe1e7a54f101f53fb</anchor>
+      <arglist>)(int level, char *msg)</arglist>
+    </member>
+    <member kind="enumeration">
+      <name>WebsType</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a6c89b321c48204d8aab29ee65618ffab</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufAddNull</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga1838678c03f471aed89edfa5db822272</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufAdjustEnd</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga7fb267b66c30173cf035560028e83eba</anchor>
+      <arglist>(WebsBuf *bp, ssize size)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufAdjustStart</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga89be85c8255bbe0b7a414af5f1587600</anchor>
+      <arglist>(WebsBuf *bp, ssize count)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufCompact</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga9ffe6a1664c7911d12e01f317fc18458</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufCreate</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga5acfca7bd6b154817530a4551de9a4a6</anchor>
+      <arglist>(WebsBuf *bp, int increment, int maxsize)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufFlush</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaf5a93373e65f8a7ccb456eb4bf72bba8</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufFree</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gacda55401603f555af52faee39639d78c</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufGetBlk</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaa3a7777b78cd891c746772b5c489fd99</anchor>
+      <arglist>(WebsBuf *bp, char *blk, ssize len)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufGetBlkMax</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gafa8400821880a8f4d9f1cad4a9595626</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufGetc</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaad216addfbff3e9ecacdf4f4a651ac90</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>bufGrow</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga48fc76d92c206efcfdf3a376f85214dd</anchor>
+      <arglist>(WebsBuf *bp, ssize room)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufInsertc</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaa0ae470cc24e8e57db77e42ffb751b83</anchor>
+      <arglist>(WebsBuf *bp, char c)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufLen</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga284f3c18de56b775c0a13f58f78d4744</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufPutBlk</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga419d75c03c567d76446620184f3a4c3b</anchor>
+      <arglist>(WebsBuf *bp, char *blk, ssize len)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufPutc</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga7c38d63ce718b544ebdb32807a34ca3e</anchor>
+      <arglist>(WebsBuf *bp, char c)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufPutStr</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gab2cc7762352180cf3334b0395c0026e3</anchor>
+      <arglist>(WebsBuf *bp, char *str)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufReset</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaa1f359ca367a6f72ebaa4b4028732333</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufRoom</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga2ffac4a06b33a774a59e0441bbf0a555</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>error</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa7733e30b2951f225e24dca1ed4632b2</anchor>
+      <arglist>(char *fmt,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsHash</type>
+      <name>hashCreate</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>ga38965650a2f6f2666e0120498594a135</anchor>
+      <arglist>(int size)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>hashDelete</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>ga9897fc40715bc8645e35d4314bdf66d1</anchor>
+      <arglist>(WebsHash id, char *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashEnter</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gae375baa6d25284d055122f683d3ae9c3</anchor>
+      <arglist>(WebsHash id, char *name, WebsValue value, int arg)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashFirst</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gac33b2f81aa5b83316a20dd6ea6da9bd1</anchor>
+      <arglist>(WebsHash id)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>hashFree</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gae27ba1e72086c5fbc0019882c88129ea</anchor>
+      <arglist>(WebsHash id)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashLookup</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gae35ff2d94467272c72ddd47daed16d5b</anchor>
+      <arglist>(WebsHash id, char *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashNext</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gad26ba48ce394674a7e026dcc876f4e21</anchor>
+      <arglist>(WebsHash id, WebsKey *last)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketAddress</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac14f3548201f71b558822b3c68153ebe</anchor>
+      <arglist>(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>socketAddressIsV6</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ab17617765c946113630985a5b5101d73</anchor>
+      <arglist>(char *ip)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketClose</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a494634a4e6b82e22f14fcf8ee7f16003</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketCloseConnection</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a08b16008980854d2aa6d1ebf588724a7</anchor>
+      <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>socketConnect</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a864d6957a721958fa113d9be97e2cc04</anchor>
+      <arglist>(char *host, int port, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>socketCreateHandler</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a860aa94cb98a3f2c67426695060dba0c</anchor>
+      <arglist>(int sid, int mask, SocketHandler handler, void *arg)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>strim</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a9169827ad693bc412f22a9b6802deb65</anchor>
+      <arglist>(char *str, char *set, int where)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>trace</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac74782a3320b6cf7ae6ae14cb0cce791</anchor>
+      <arglist>(int level, char *fmt,...)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>traceClose</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a338aab0253658a4b09ac15e3e57a21b0</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>traceOpen</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a4333728562014357eb604c500f5f5f81</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsTraceHandler</type>
+      <name>traceSetHandler</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac6aed506f3906ab158f50ff1aeb6cf41</anchor>
+      <arglist>(WebsTraceHandler handler)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>traceSetPath</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa66a3f0c6816efa405be63fbbae4fea4</anchor>
+      <arglist>(char *path)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>valueFree</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ac5058870cad6692d50f7fa9775a56c25</anchor>
+      <arglist>(WebsValue *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsValue</type>
+      <name>valueInteger</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa27f5beea810d9124985ecf1c1fe41fa</anchor>
+      <arglist>(long value)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsValue</type>
+      <name>valueString</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a52e422ee4bf93b1acf60b1e63df7e13e</anchor>
+      <arglist>(char *value, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsValue</type>
+      <name>valueSymbol</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aa9292efb92931035fbdb7e8cc9fc2a58</anchor>
+      <arglist>(void *value)</arglist>
+    </member>
+    <member kind="variable">
+      <type>WebsSocket **</type>
+      <name>socketList</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a3b17fcf1369dfefdddec2da7dbbebd50</anchor>
+      <arglist></arglist>
+    </member>
+  </compound>
+  <compound kind="group">
+    <name>WebsBuf</name>
+    <title>WebsBuf</title>
+    <filename>group___webs_buf.html</filename>
+    <member kind="function">
+      <type>void</type>
+      <name>bufAddNull</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga1838678c03f471aed89edfa5db822272</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufAdjustEnd</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga7fb267b66c30173cf035560028e83eba</anchor>
+      <arglist>(WebsBuf *bp, ssize size)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufAdjustStart</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga89be85c8255bbe0b7a414af5f1587600</anchor>
+      <arglist>(WebsBuf *bp, ssize count)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufCompact</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga9ffe6a1664c7911d12e01f317fc18458</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufCreate</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga5acfca7bd6b154817530a4551de9a4a6</anchor>
+      <arglist>(WebsBuf *bp, int increment, int maxsize)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufFlush</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaf5a93373e65f8a7ccb456eb4bf72bba8</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufFree</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gacda55401603f555af52faee39639d78c</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufGetBlk</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaa3a7777b78cd891c746772b5c489fd99</anchor>
+      <arglist>(WebsBuf *bp, char *blk, ssize len)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufGetBlkMax</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gafa8400821880a8f4d9f1cad4a9595626</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufGetc</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaad216addfbff3e9ecacdf4f4a651ac90</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>bufGrow</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga48fc76d92c206efcfdf3a376f85214dd</anchor>
+      <arglist>(WebsBuf *bp, ssize room)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufInsertc</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaa0ae470cc24e8e57db77e42ffb751b83</anchor>
+      <arglist>(WebsBuf *bp, char c)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufLen</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga284f3c18de56b775c0a13f58f78d4744</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufPutBlk</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga419d75c03c567d76446620184f3a4c3b</anchor>
+      <arglist>(WebsBuf *bp, char *blk, ssize len)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>bufPutc</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga7c38d63ce718b544ebdb32807a34ca3e</anchor>
+      <arglist>(WebsBuf *bp, char c)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufPutStr</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gab2cc7762352180cf3334b0395c0026e3</anchor>
+      <arglist>(WebsBuf *bp, char *str)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>bufReset</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>gaa1f359ca367a6f72ebaa4b4028732333</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
+      <name>bufRoom</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga2ffac4a06b33a774a59e0441bbf0a555</anchor>
+      <arglist>(WebsBuf *bp)</arglist>
+    </member>
+  </compound>
+  <compound kind="group">
+    <name>WebsHash</name>
+    <title>WebsHash</title>
+    <filename>group___webs_hash.html</filename>
+    <member kind="function">
+      <type>WebsHash</type>
+      <name>hashCreate</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>ga38965650a2f6f2666e0120498594a135</anchor>
+      <arglist>(int size)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>hashDelete</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>ga9897fc40715bc8645e35d4314bdf66d1</anchor>
+      <arglist>(WebsHash id, char *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashEnter</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gae375baa6d25284d055122f683d3ae9c3</anchor>
+      <arglist>(WebsHash id, char *name, WebsValue value, int arg)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashFirst</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gac33b2f81aa5b83316a20dd6ea6da9bd1</anchor>
+      <arglist>(WebsHash id)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>hashFree</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gae27ba1e72086c5fbc0019882c88129ea</anchor>
+      <arglist>(WebsHash id)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashLookup</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gae35ff2d94467272c72ddd47daed16d5b</anchor>
+      <arglist>(WebsHash id, char *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsKey *</type>
+      <name>hashNext</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>gad26ba48ce394674a7e026dcc876f4e21</anchor>
+      <arglist>(WebsHash id, WebsKey *last)</arglist>
+    </member>
+  </compound>
+  <compound kind="struct">
+    <name>WebsValue</name>
+    <filename>struct_webs_value.html</filename>
+  </compound>
+</tagfile>

@@ -3,23 +3,27 @@ AUTH(1)                          User Commands                         AUTH(1)
 
 
 NAME
-       authpass - Create and manage passwords
+       gopass - Create and manage passwords
 
 SYNOPSIS
-       authpass [-c] [-p password] passwordFile realm userName
+       gopass [-c] [-p password] authFile realm user roles...
 
 OPTIONS
        -p password
               Specifies a password to use to for the user.
 
-       -c     Create the specified password file
+       -c     Create the specified file
 
 
 DESCRIPTION
-       The  authpass  program  is used to create user passwords in a nominated
-       password configuration file.  GoAhead uses the same  authorization  file
-       andeformat  for Basic, Digest and Post authentication stores. This sim-
-       plifies administration.
+       The  gopass  program  is  used  to create user passwords in a nominated
+       authentication configuration file.  GoAhead uses the same authorization
+       file  and  format  for  Basic, Digest and web-form authentication. This
+       simplifies administration.
+
+       The optional roles specified define the  abilities  of  the  user.  The
+       roles may those defined in auth.txt file via the "role" keyword. Alter-
+       natively, the roles may be pure ability strings.
 
 REPORTING BUGS
        Report bugs to <dev@embedthis.com>.

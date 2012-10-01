@@ -239,7 +239,7 @@ int websOpen(char *documents, char *routeFile)
         return -1;
     }
 #endif 
-    if ((sessions = symOpen(-1)) < 0) {
+    if ((sessions = hashCreate(-1)) < 0) {
         return -1;
     }
     if (!websDebug) {
@@ -274,10 +274,10 @@ int websOpen(char *documents, char *routeFile)
     /*
         Create a mime type lookup table for quickly determining the content type
      */
-    websMime = symOpen(WEBS_SYM_INIT * 4);
+    websMime = hashCreate(WEBS_SYM_INIT * 4);
     gassert(websMime >= 0);
     for (mt = websMimeList; mt->type; mt++) {
-        symEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
+        hashEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
     }
 
 #if BIT_ACCESS_LOG
@@ -304,7 +304,7 @@ void websClose()
         pruneId = -1;
     }
     if (sessions >= 0) {
-        symClose(sessions);
+        hashFree(sessions);
         sessions = -1;
     }
     for (i = 0; i < listenMax; i++) {
@@ -338,7 +338,7 @@ void websClose()
 #if BIT_ROM
     websRomClose();
 #endif
-    symClose(websMime);
+    hashFree(websMime);
     socketClose();
     traceClose();
 #if BIT_UNIX_LIKE
@@ -367,7 +367,7 @@ static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *rxbuf)
 #if BIT_UPLOAD
     wp->upfd = -1;
 #endif
-    wp->vars = symOpen(WEBS_SYM_INIT);
+    wp->vars = hashCreate(WEBS_SYM_INIT);
     /*
         Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
         a little more memory than required.
@@ -423,7 +423,7 @@ static void termWebs(Webs *wp, int keepAlive)
     gfree(wp->nonce);
     gfree(wp->qop);
 #endif
-    symClose(wp->vars);
+    hashFree(wp->vars);
 #if BIT_PACK_SSL
     sslFree(wp);
 #endif
@@ -1342,7 +1342,7 @@ void websSetVar(Webs *wp, char *var, char *value)
     } else {
         v = valueString("", VALUE_ALLOCATE);
     }
-    symEnter(wp->vars, var, v, 0);
+    hashEnter(wp->vars, var, v, 0);
 }
 
 
@@ -1359,7 +1359,7 @@ int websTestVar(Webs *wp, char *var)
     if (var == NULL || *var == '\0') {
         return 0;
     }
-    if ((sp = symLookup(wp->vars, var)) == NULL) {
+    if ((sp = hashLookup(wp->vars, var)) == NULL) {
         return 0;
     }
     return 1;
@@ -1377,7 +1377,7 @@ char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
     gassert(websValid(wp));
     gassert(var && *var);
  
-    if ((sp = symLookup(wp->vars, var)) != NULL) {
+    if ((sp = hashLookup(wp->vars, var)) != NULL) {
         gassert(sp->content.type == string);
         if (sp->content.value.string) {
             return sp->content.value.string;
@@ -1529,7 +1529,7 @@ int websRedirectByStatus(Webs *wp, int status)
 
     if (wp->route->redirects >= 0) {
         itosbuf(code, sizeof(code), status, 10);
-        if ((key = symLookup(wp->route->redirects, code)) != 0) {
+        if ((key = hashLookup(wp->route->redirects, code)) != 0) {
             uri = key->content.value.string;
         } else {
             return -1;
@@ -1753,7 +1753,7 @@ void websWriteHeaders(Webs *wp, int code, ssize length, char *location)
         }
         if (location) {
             websWriteHeader(wp, "Location: %s\r\n", location);
-        } else if ((key = symLookup(websMime, wp->ext)) != 0) {
+        } else if ((key = hashLookup(websMime, wp->ext)) != 0) {
             websWriteHeader(wp, "Content-Type: %s\r\n", key->content.value.string);
         }
         if (wp->responseCookie) {
@@ -3303,7 +3303,7 @@ WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
         id = makeSessionID(wp);
     }
     sp->id = sclone(id);
-    if ((sp->cache = symOpen(WEBS_SESSION_HASH)) == 0) {
+    if ((sp->cache = hashCreate(WEBS_SESSION_HASH)) == 0) {
         return 0;
     }
     return sp;
@@ -3329,7 +3329,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 
     if (!wp->session) {
         id = websGetSessionID(wp);
-        if ((sym = symLookup(sessions, id)) == 0) {
+        if ((sym = hashLookup(sessions, id)) == 0) {
             if (!create) {
                 return 0;
             }
@@ -3341,7 +3341,7 @@ WebsSession *websGetSession(Webs *wp, int create)
             if ((wp->session = websAllocSession(wp, id, BIT_LIMIT_SESSION_LIFE)) == 0) {
                 return 0;
             }
-            if ((sym = symEnter(sessions, wp->session->id, valueSymbol(wp->session), 0)) == 0) {
+            if ((sym = hashEnter(sessions, wp->session->id, valueSymbol(wp->session), 0)) == 0) {
                 return 0;
             }
             wp->session = (WebsSession*) sym->content.value.symbol;
@@ -3412,7 +3412,7 @@ char *websGetSessionVar(Webs *wp, char *key, char *defaultValue)
     gassert(key && *key);
 
     if ((sp = websGetSession(wp, 1)) != 0) {
-        if ((sym = symLookup(sp->cache, key)) == 0) {
+        if ((sym = hashLookup(sp->cache, key)) == 0) {
             return defaultValue;
         }
         return (char*) sym->content.value.symbol;
@@ -3429,7 +3429,7 @@ void websRemoveSessionVar(Webs *wp, char *key)
     gassert(key && *key);
 
     if ((sp = websGetSession(wp, 1)) != 0) {
-        symDelete(sp->cache, key);
+        hashDelete(sp->cache, key);
     }
 }
 
@@ -3445,7 +3445,7 @@ int websSetSessionVar(Webs *wp, char *key, char *value)
     if ((sp = websGetSession(wp, 1)) == 0) {
         return 0;
     }
-    if (symEnter(sp->cache, key, valueString(value, VALUE_ALLOCATE), 0) == 0) {
+    if (hashEnter(sp->cache, key, valueString(value, VALUE_ALLOCATE), 0) == 0) {
         return -1;
     }
     return 0;
@@ -3460,11 +3460,11 @@ static void pruneCache()
 
     //  MOB - should limit size of session cache
     when = time(0);
-    for (sym = symFirst(sessions); sym; sym = next) {
-        next = symNext(sessions, sym);
+    for (sym = hashFirst(sessions); sym; sym = next) {
+        next = hashNext(sessions, sym);
         sp = (WebsSession*) sym->content.value.symbol;
         if (sp->expires <= when) {
-            symDelete(sessions, sp->id);
+            hashDelete(sessions, sp->id);
             //  MOB - must make sure that no request is active using sp!!!
             //  Do we need acquire / release
             sessionCount--;

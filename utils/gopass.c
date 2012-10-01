@@ -68,11 +68,11 @@ int main(int argc, char *argv[])
     realm = argv[nextArg++];
     username = argv[nextArg++];
 
-    ringqOpen(&buf, 0, 0);
+    bufCreate(&buf, 0, 0);
     for (i = nextArg; i < argc; ) {
-        ringqPutStr(&buf, argv[i]);
+        bufPutStr(&buf, argv[i]);
         if (++i < argc) {
-            ringqPutc(&buf, ',');
+            bufPutc(&buf, ',');
         }
     }
     roles = sclone(buf.servp);
@@ -105,51 +105,6 @@ int main(int argc, char *argv[])
     websCloseAuth();
     return 0;
 }
-
-
-#if UNUSED
-static int writeAuthFile(char *path)
-{
-    FILE        *fp;
-    WebsKey     *kp, *ap;
-    WebsRole    *role;
-    WebsUser    *user;
-    WebsHash    roles, users;
-    char        *tempFile;
-
-    users = websGetUsers();
-    roles = websGetRoles();
-
-    tempFile = tempnam(NULL, "tmp");
-    if ((fp = fopen(tempFile, "wt")) == 0) {
-        error("Can't open %s", tempFile);
-        return -1;
-    }
-    fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
-
-    for (kp = symFirst(roles); kp; kp = symNext(roles, kp)) {
-        role = kp->content.value.symbol;
-        fprintf(fp, "role name=%s abilities=", kp->name.value.string);
-        for (ap = symFirst(role->abilities); ap; ap = symNext(role->abilities, ap)) {
-            fprintf(fp, " %s", ap->name.value.string);
-        }
-        fputc('\n', fp);
-    }
-    fputc('\n', fp);
-    for (kp = symFirst(users); kp; kp = symNext(users, kp)) {
-        user = kp->content.value.string;
-        fprintf(fp, "user name=%s password=%s roles=%s", user->name, user->password, user->roles);
-        fputc('\n', fp);
-    }
-    fclose(fp);
-    unlink(path);
-    if (rename(tempFile, path) < 0) {
-        error("Can't create new %s", path);
-        return -1;
-    }
-    return 0;
-}
-#endif
 
 
 static char *getPassword()

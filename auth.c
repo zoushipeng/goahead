@@ -139,10 +139,10 @@ int websOpenAuth(int minimal)
     
     gassert(minimal == 0 || minimal == 1);
 
-    if ((users = symOpen(-1)) < 0) {
+    if ((users = hashCreate(-1)) < 0) {
         return -1;
     }
-    if ((roles = symOpen(-1)) < 0) {
+    if ((roles = hashCreate(-1)) < 0) {
         return -1;
     }
     if (!minimal) {
@@ -164,19 +164,19 @@ void websCloseAuth()
 
     gfree(secret);
     if (users >= 0) {
-        for (key = symFirst(users); key; key = next) {
-            next = symNext(users, key);
+        for (key = hashFirst(users); key; key = next) {
+            next = hashNext(users, key);
             freeUser(key->content.value.symbol);
         }
-        symClose(users);
+        hashFree(users);
         users = -1;
     }
     if (roles >= 0) {
-        for (key = symFirst(roles); key; key = next) {
-            key = symNext(roles, key);
+        for (key = hashFirst(roles); key; key = next) {
+            key = hashNext(roles, key);
             freeRole(key->content.value.symbol);
         }
-        symClose(roles);
+        hashFree(roles);
         roles = -1;
     }
 }
@@ -200,10 +200,10 @@ int websWriteAuthFile(char *path)
     fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
 
     if (roles >= 0) {
-        for (kp = symFirst(roles); kp; kp = symNext(roles, kp)) {
+        for (kp = hashFirst(roles); kp; kp = hashNext(roles, kp)) {
             role = kp->content.value.symbol;
             fprintf(fp, "role name=%s abilities=", kp->name.value.string);
-            for (ap = symFirst(role->abilities); ap; ap = symNext(role->abilities, ap)) {
+            for (ap = hashFirst(role->abilities); ap; ap = hashNext(role->abilities, ap)) {
                 fprintf(fp, "%s,", ap->name.value.string);
             }
             fputc('\n', fp);
@@ -211,7 +211,7 @@ int websWriteAuthFile(char *path)
         fputc('\n', fp);
     }
     if (users >= 0) {
-        for (kp = symFirst(users); kp; kp = symNext(users, kp)) {
+        for (kp = hashFirst(users); kp; kp = hashNext(users, kp)) {
             user = kp->content.value.symbol;
             fprintf(fp, "user name=%s password=%s roles=%s", user->name, user->password, user->roles);
             fputc('\n', fp);
@@ -261,7 +261,7 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
     if ((user = createUser(username, password, roles)) == 0) {
         return 0;
     }
-    if (symEnter(users, username, valueSymbol(user), 0) == 0) {
+    if (hashEnter(users, username, valueSymbol(user), 0) == 0) {
         return 0;
     }
     return user;
@@ -273,17 +273,17 @@ int websRemoveUser(char *username)
     WebsKey     *key;
     
     gassert(username && *username);
-    if ((key = symLookup(users, username)) != 0) {
+    if ((key = hashLookup(users, username)) != 0) {
         freeUser(key->content.value.symbol);
     }
-    return symDelete(users, username);
+    return hashDelete(users, username);
 }
 
 
 static void freeUser(WebsUser *up)
 {
     gassert(up);
-    symClose(up->abilities);
+    hashFree(up->abilities);
     gfree(up->name);
     gfree(up->password);
     gfree(up->roles);
@@ -311,7 +311,7 @@ WebsUser *websLookupUser(char *username)
     WebsKey     *key;
 
     gassert(username &&*username);
-    if ((key = symLookup(users, username)) == 0) {
+    if ((key = hashLookup(users, username)) == 0) {
         return 0;
     }
     return (WebsUser*) key->content.value.symbol;
@@ -332,13 +332,13 @@ static void computeAbilities(WebsHash abilities, char *role, int depth)
         return;
     }
     if (roles >= 0) {
-        if ((key = symLookup(roles, role)) != 0) {
+        if ((key = hashLookup(roles, role)) != 0) {
             rp = (WebsRole*) key->content.value.symbol;
-            for (key = symFirst(rp->abilities); key; key = symNext(rp->abilities, key)) {
+            for (key = hashFirst(rp->abilities); key; key = hashNext(rp->abilities, key)) {
                 computeAbilities(abilities, key->name.value.string, ++depth);
             }
         } else {
-            symEnter(abilities, role, valueInteger(0), 0);
+            hashEnter(abilities, role, valueInteger(0), 0);
         }
     }
 }
@@ -349,7 +349,7 @@ static void computeUserAbilities(WebsUser *user)
     char    *ability, *roles, *tok;
 
     gassert(user);
-    if ((user->abilities = symOpen(-1)) == 0) {
+    if ((user->abilities = hashCreate(-1)) == 0) {
         return;
     }
     roles = sclone(user->roles);
@@ -360,7 +360,7 @@ static void computeUserAbilities(WebsUser *user)
     {
         WebsKey *key;
         trace(5, "User \"%s\" has abilities: ", user->name);
-        for (key = symFirst(user->abilities); key; key = symNext(user->abilities, key)) {
+        for (key = hashFirst(user->abilities); key; key = hashNext(user->abilities, key)) {
             trace(5, "%s ", key->name.value.string);
             ability = key->name.value.string;
         }
@@ -377,7 +377,7 @@ void websComputeAllUserAbilities()
     WebsKey     *sym;
 
     if (users) {
-        for (sym = symFirst(users); sym; sym = symNext(users, sym)) {
+        for (sym = hashFirst(users); sym; sym = hashNext(users, sym)) {
             user = (WebsUser*) sym->content.value.symbol;
             computeUserAbilities(user);
         }
@@ -393,7 +393,7 @@ int websAddRole(char *name, WebsHash abilities)
         error("Role is missing name");
         return -1;
     }
-    if (symLookup(roles, name)) {
+    if (hashLookup(roles, name)) {
         error("Role %s already exists", name);
         /* Already exists */
         return -1;
@@ -402,7 +402,7 @@ int websAddRole(char *name, WebsHash abilities)
         return -1;
     }
     rp->abilities = abilities;
-    if (symEnter(roles, name, valueSymbol(rp), 0) == 0) {
+    if (hashEnter(roles, name, valueSymbol(rp), 0) == 0) {
         return -1;
     }
     return 0;
@@ -412,7 +412,7 @@ int websAddRole(char *name, WebsHash abilities)
 static void freeRole(WebsRole *rp)
 {
     gassert(rp);
-    symClose(rp->abilities);
+    hashFree(rp->abilities);
     gfree(rp);
 }
 
@@ -427,13 +427,13 @@ int websRemoveRole(char *name)
 
     gassert(name && *name);
     if (roles) {
-        if ((sym = symLookup(roles, name)) == 0) {
+        if ((sym = hashLookup(roles, name)) == 0) {
             return -1;
         }
         rp = sym->content.value.symbol;
-        symClose(rp->abilities);
+        hashFree(rp->abilities);
         gfree(rp);
-        return symDelete(roles, name);
+        return hashDelete(roles, name);
     }
     return -1;
 }

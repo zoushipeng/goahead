@@ -152,11 +152,11 @@ typedef struct Format {
 
 #define RINGQ_LEN(bp) ((bp->servp > bp->endp) ? (bp->buflen + (bp->endp - bp->servp)) : (bp->endp - bp->servp))
 
-typedef struct SymTab {                 /* Symbol table descriptor */
+typedef struct HashTable {                 /* Symbol table descriptor */
     WebsKey     **hash_table;           /* Allocated at run time */
     int         inuse;                  /* Is this entry in use */
     int         size;                   /* Size of the table below */
-} SymTab;
+} HashTable;
 
 #ifndef LOG_ERR
     #define LOG_ERR 0
@@ -171,7 +171,7 @@ typedef struct SymTab {                 /* Symbol table descriptor */
 static Callback **callbacks;
 static int      callbackMax;
 
-static SymTab   **sym;              /* List of symbol tables */
+static HashTable   **sym;              /* List of symbol tables */
 static int      symMax;             /* One past the max symbol table */
 static char     *tracePath;
 static int      traceFd;            /* Log file handle */
@@ -183,8 +183,8 @@ char* embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
 
 static int calcPrime(int size);
 static int getBinBlockSize(int size);
-static int hashIndex(SymTab *tp, char *name);
-static WebsKey *hash(SymTab *tp, char *name);
+static int hashIndex(HashTable *tp, char *name);
+static WebsKey *hash(HashTable *tp, char *name);
 static void defaultTraceHandler(int level, char *buf);
 static WebsTraceHandler traceHandler = defaultTraceHandler;
 
@@ -1877,10 +1877,10 @@ static int  getBinBlockSize(int size)
 }
 
 
-WebsHash symOpen(int size)
+WebsHash hashCreate(int size)
 {
     WebsHash    sd;
-    SymTab      *tp;
+    HashTable      *tp;
 
     if (size < 0) {
         size = WEBS_SMALL_HASH;
@@ -1897,11 +1897,11 @@ WebsHash symOpen(int size)
     /*
         Create a new symbol table structure and zero
      */
-    if ((tp = (SymTab*) galloc(sizeof(SymTab))) == NULL) {
+    if ((tp = (HashTable*) galloc(sizeof(HashTable))) == NULL) {
         symMax = gfreeHandle(&sym, sd);
         return -1;
     }
-    memset(tp, 0, sizeof(SymTab));
+    memset(tp, 0, sizeof(HashTable));
     if (sd >= symMax) {
         symMax = sd + 1;
     }
@@ -1923,9 +1923,9 @@ WebsHash symOpen(int size)
     Close this symbol table. Call a cleanup function to allow the caller to free resources associated with each symbol
     table entry.  
  */
-void symClose(WebsHash sd)
+void hashFree(WebsHash sd)
 {
-    SymTab      *tp;
+    HashTable      *tp;
     WebsKey     *sp, *forw;
     int         i;
 
@@ -1956,11 +1956,11 @@ void symClose(WebsHash sd)
 
 /*
     Return the first symbol in the hashtable if there is one. This call is used as the first step in traversing the
-    table. A call to symFirst should be followed by calls to symNext to get all the rest of the entries.
+    table. A call to hashFirst should be followed by calls to hashNext to get all the rest of the entries.
  */
-WebsKey *symFirst(WebsHash sd)
+WebsKey *hashFirst(WebsHash sd)
 {
-    SymTab      *tp;
+    HashTable      *tp;
     WebsKey     *sp;
     int         i;
 
@@ -1981,11 +1981,11 @@ WebsKey *symFirst(WebsHash sd)
 
 
 /*
-    Return the next symbol in the hashtable if there is one. See symFirst.
+    Return the next symbol in the hashtable if there is one. See hashFirst.
  */
-WebsKey *symNext(WebsHash sd, WebsKey *last)
+WebsKey *hashNext(WebsHash sd, WebsKey *last)
 {
-    SymTab      *tp;
+    HashTable      *tp;
     WebsKey     *sp;
     int         i;
 
@@ -1996,7 +1996,7 @@ WebsKey *symNext(WebsHash sd, WebsKey *last)
     tp = sym[sd];
     gassert(tp);
     if (last == 0) {
-        return symFirst(sd);
+        return hashFirst(sd);
     }
     if (last->forw) {
         return last->forw;
@@ -2013,9 +2013,9 @@ WebsKey *symNext(WebsHash sd, WebsKey *last)
 /*
     Lookup a symbol and return a pointer to the symbol entry. If not present then return a NULL.
  */
-WebsKey *symLookup(WebsHash sd, char *name)
+WebsKey *hashLookup(WebsHash sd, char *name)
 {
-    SymTab      *tp;
+    HashTable      *tp;
     WebsKey     *sp;
     char        *cp;
 
@@ -2044,9 +2044,9 @@ WebsKey *symLookup(WebsHash sd, char *name)
     a copy of "name" here so it can be a volatile variable. The value "v" is just a copy of the passed in value, so it
     MUST be persistent.
  */
-WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
+WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 {
-    SymTab      *tp;
+    HashTable      *tp;
     WebsKey     *sp, *last;
     char        *cp;
     int         hindex;
@@ -2122,9 +2122,9 @@ WebsKey *symEnter(WebsHash sd, char *name, WebsValue v, int arg)
 /*
     Delete a symbol from a table
  */
-int symDelete(WebsHash sd, char *name)
+int hashDelete(WebsHash sd, char *name)
 {
-    SymTab      *tp;
+    HashTable      *tp;
     WebsKey     *sp, *last;
     char        *cp;
     int         hindex;
@@ -2171,7 +2171,7 @@ int symDelete(WebsHash sd, char *name)
     Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
     the hash table itself) 
  */
-static WebsKey *hash(SymTab *tp, char *name)
+static WebsKey *hash(HashTable *tp, char *name)
 {
     gassert(tp);
 
@@ -2183,7 +2183,7 @@ static WebsKey *hash(SymTab *tp, char *name)
     Compute the hash function and return an index into the hash table We use a basic additive function that is then made
     modulo the size of the table.
  */
-static int hashIndex(SymTab *tp, char *name)
+static int hashIndex(HashTable *tp, char *name)
 {
     uint        sum;
     int         i;

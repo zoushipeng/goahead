@@ -45,7 +45,7 @@ static bool procHandler(Webs *wp)
     /*
         Lookup the C form function first and then try tcl (no javascript support yet).
      */
-    sp = symLookup(formSymtab, formName);
+    sp = hashLookup(formSymtab, formName);
     if (sp == NULL) {
         websError(wp, 404, "Proc %s is not defined", formName);
     } else {
@@ -70,7 +70,7 @@ int websProcDefine(char *name, void *fn)
     if (fn == NULL) {
         return -1;
     }
-    symEnter(formSymtab, name, valueSymbol(fn), 0);
+    hashEnter(formSymtab, name, valueSymbol(fn), 0);
     return 0;
 }
 
@@ -78,7 +78,7 @@ int websProcDefine(char *name, void *fn)
 static void closeProc()
 {
     if (formSymtab != -1) {
-        symClose(formSymtab);
+        hashFree(formSymtab);
         formSymtab = -1;
     }
 }
@@ -86,7 +86,7 @@ static void closeProc()
 
 void websProcOpen()
 {
-    formSymtab = symOpen(WEBS_SYM_INIT);
+    formSymtab = hashCreate(WEBS_SYM_INIT);
     websDefineHandler("proc", procHandler, closeProc, 0);
 }
 
