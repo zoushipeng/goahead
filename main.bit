@@ -11,6 +11,7 @@
 Bit.load({
     blend: [
         "${BITS}/embedthis.bit",
+        "doc/doc.bit",
     ],
 
     '+modules': [
@@ -155,7 +156,6 @@ Bit.load({
          */
         goahead: {
             type: 'exe',
-            rule: 'gui',
             sources: [ '*.c' ],
             headers: [ '*.h' ],
             depends: [ 'openssl', 'matrixssl' ],
@@ -166,6 +166,14 @@ Bit.load({
                     }                                                                                      
                 ",  
             },
+        },
+
+        libgo: {
+            enable: false,
+            type: 'lib',
+            static: 'true',
+            sources: [ '*.c' ],
+            headers: [ '*.h' ],
         },
 
         /*

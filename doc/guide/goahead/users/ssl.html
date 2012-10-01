@@ -1,0 +1,177 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Users Guide</a> &gt; <b>SSL</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#sslQuickStart">Quick Start</a></li>
+                <li><a href="#sslConfigurationDirectives">Configuration Directives</a></li>
+                <li><a href="#sslConfigurationExample">Example</a></li>
+                <li><a href="#generatingKeys">Generating Keys</a></li>
+                <li><a href="#sslProviders">SSL Providers</a></li>
+            </ul>
+<!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/users/index.html">User Guide Overview</a></li>
+                <li><a href="../../../guide/goahead/users/configuration.html">Configuring GoAhead</a></li>
+                <li><a href="../../../guide/goahead/users/authentication.html">User Authorization</a></li>
+                <li><a href="../../../guide/goahead/users/logFiles.html">Log Files</a></li>
+                <li><a href="../../../guide/goahead/users/security.html">Security Considerations</a></li>
+                <li><a href="../../../guide/goahead/users/ssl.html">SSL</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Configuring SSL</h1>
+            <p>GoAhead supports the Secure Sockets Layer (SSL) protocol for authenticating systems and encrypting data.
+            Use of this protocol enables secure data transmission to and from clients in a standards-based manner.</p>
+            <p>This document provides step-by-step instructions for configuring SSL in GoAhead. If you are unfamiliar
+            with SSL, please read the <a href="sslOverview.html">SSL Overview</a> first.</p><a id="sslQuickStart"></a>
+            <h2 class="section">SSL Quick Start</h2>
+            <p>The default binary installation of GoAhead will support SSL on port 4443 for all network interfaces. You
+            can immediately test SSL access to documents by using the <b>https://</b> scheme and <b>4443</b> as the
+            port. For example, to access the home page using SSL, use this URL in your browser:</p>
+            <pre>
+https://127.0.0.1:4443/index.html
+</pre>
+            <h3>Self-Signed Certificate</h3>
+            <p>GoAhead is shipped with a self-signed certificate to identify the web server. This certificate is
+            suitable for testing purposes only and your browser will issue a warning when you access the server. For
+            production use, you should obtain your own service certificate from signing authorities such as <a href=
+            "http://www.verisign.com">Verisign</a>.</p><a id="sslConfigurationDirectives"></a>
+            <h2 class="section">SSL Configuration Directives</h2>
+            <p>GoAhead uses several configuration file directives to control SSL and manage secure access to the server.
+            These directives can be specified in the Default Server section or in a Virtual Host section. When included
+            in a Virtual Host section, the SSL directives will only apply for that virtual host.</p>
+            <p>The relevant SSL directives are:</p>
+            <ul>
+                <li><a href="dir/ssl.html#sslEngine">SSLEngine</a></li>
+                <li><a href="dir/ssl.html#sslCipherSuite">SSLCipherSuite</a></li>
+                <li><a href="dir/ssl.html#sslProtocol">SSLProtocol</a></li>
+                <li><a href="dir/ssl.html#sslCertificateFile">SSLCertificateFile</a></li>
+                <li><a href="dir/ssl.html#sslCertificateKeyFile">SSLCertificateKeyFile</a></li>
+            </ul>
+            <p>There are some additional directives that are necessary should you wish to have GoAhead verify client
+            certificates. These directives are:</p>
+            <ul>
+                <li><a href="dir/ssl.html#sslVerifyClient">SSLVerifyClient</a></li>
+                <li><a href="dir/ssl.html#sslCaCertificateFile">SSLCACertificateFile</a></li>
+                <li><a href="dir/ssl.html#sslCaCertificatePath">SSLCACertificatePath</a></li>
+            </ul><a id="sslConfigurationExample"></a>
+            <h2 class="section">SSL Configuration Example</h2>
+            <p>Consider the default GoAhead SSL configuration in the goahead.conf configuration file:</p>
+            <pre>
+&lt;VirtualHost *:4443&gt;
+    DocumentRoot "$SERVER_ROOT/web"
+    SSLEngine on
+    SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
+    SSLProtocol ALL -SSLV2
+    SSLCertificateFile "$SERVER_ROOT/server.crt"
+    SSLCertificateKeyFile "$SERVER_ROOT/server.key.pem"
+&lt;/VirtualHost&gt;
+</pre>
+            <p>This set of directives enables SSL on port 4443 for all network interfaces and uses the default supplied
+            self-signed certificate to identify the server.</p>
+            <p>The <b>&lt;virtualHost *:4443&gt;</b> directive instructs GoAhead to process requests from all interfaces
+            on port 4443 using this virtual host configuration.</p>
+            <p>The DocumentRoot "$SERVER_ROOT/web" locates documents for this virtual host in the <b>web</b>
+            subdirectory under the ServerRoot.</p>
+            <p>The <a href="dir/ssl.html#sslEngine">SSLEngine</a> directive enables SSL processing for this virtual
+            host. Only requests that use SSL will be honored.</p>
+            <p>The <a href="dir/ssl.html#sslCipherSuite">SSLCipherSuite</a> directive configures the underlying SSL
+            provider to use the appropriate ciphers when negotiating the session with the client. See the <a href=
+            "dir/ssl.html#sslCipherSuite">SSLCipherSuite</a> directive for details about how to create the cipher
+            spec.</p>
+            <p>The <a href="dir/ssl.html#sslProtocol">SSLProtocol</a> directive enables all SSL protocol version except
+            for SSLv2 which is somewhat flawed.</p>
+            <p>The <a href="dir/ssl.html#sslCertificateFile">SSLCertificateFile</a> directive specifies the server
+            certificate to use and the <a href="dir/ssl.html#sslCertificateKeyFile">SSLCertificateKeyFile</a> directive
+            specifies the server private key for signing.</p>
+            <p><b>SECURITY WARNING</b>: You must regenerate the server certificate and server key before using this
+            example in a production environment.</p>
+            <p>The server key file is a PEM encoded private key. You may supply either an encrypted private key or a
+            decrypted private key. If you use an encrypted private key, the server will prompt you for a pass-phrase to
+            decrypt the key when the server boots.</p><a id="generatingKeys"></a>
+            <h2 class="section">Generating Keys and Certificates</h2>
+            <p>To generate a request file that you can send to a certificate issuing authority such as <a href=
+            "http://www.verisign.com">Verisign</a>, use the following openssl command or equivalent command from your
+            SSL provider:</p>
+            <pre>
+openssl genrsa -des3 -out server.key 1024
+openssl req -new -key server.key -out server.csr
+</pre>
+            <p>This will generate a server key in the file "server.key" and will generate a certificate request in the
+            file "server.csr" that you can send to the issuing authority. The issuing authority will generate a server
+            certificate for your server and they will sign it with their private key. Subsequently, clients will be
+            able to use the signing authorities public key to decrypt your server certificate and thus verify the
+            identity of your server when negotiating a SSL session. When running these commands, you will be prompted
+            to enter a pass-phrase password to decrypt the server private key. REMEMBER this password.</p>
+            <p><b>SECURITY WARNING</b>: Safeguard the "server.key" private key jealously. If this falls into malicious
+            hands, then your server identity may be hijacked by another site.</p><a id="sslProviders"></a>
+            <h2 class="section">SSL Providers</h2>
+            <p>GoAhead employs an open architecture SSL Provider interface so that customers can select the ideal SSL
+            provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
+            fast and some are extensive in their cipher support.</p>
+            <p>GoAhead supports two SSL implementations:</p>
+            <ul>
+                <li>OpenSSL -- designed for enterprise use. See <a href=
+                "http://www.openssl.org">http://www.openssl.org</a>.</li>
+                <li>PeerSec MatrixSSL -- designed for embedding. See <a href=
+                "http://www.peersec.com">http://www.peersec.com</a>.</li>
+            </ul>
+            <p>The binary installation will use the OpenSSL SSL provider by default.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

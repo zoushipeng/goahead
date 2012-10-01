@@ -1,0 +1,209 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Programming Guide</a> &gt; <b>Embedding GoAhead</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#loadable">Loadable Modules</a></li>
+                <li><a href="#goaheadProgram">GoAhead Program</a></li>
+                <li><a href="#module">Creating a Module</a></li>
+                <li><a href="#library">Embed GoAhead Library</a></li>
+            </ul>
+<!-- BeginDsi "dsi/progGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/programmers/index.html">Programmers Guide</a></li>
+                <li><a href="../../../guide/goahead/programmers/embedding.html">Embedding GoAhead</a></li>
+                <li><a href="../../../guide/goahead/programmers/handlers.html">Custom Handlers</a></li>
+                <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
+                <li><a href="../../../guide/goahead/programmers/rom.html">ROM Content</a></li>
+                <li><a href="../../../guide/goahead/programmers/man.html">Manual Pages</a></li>
+                <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
+                <li><a href="../../../api/native.html">Native APIs</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1 class="title">Embedding GoAhead</h1>
+            <p>When extending and embedding GoAhead in your application or system, you have three options:</p>
+            <ol>
+                <li>Use the existing GoAhead main program and extend GoAhead via a loadable module.</li>
+                <li>Use the existing GoAhead main program and extend GoAhead via the ESP web framework.</li>
+                <li>Link the GoAhead HTTP library with your application main program.</li>
+            </ol><a id="loadable"></a>
+            <h2>Extending via a Loadable Module</h2>
+            <p>You can extend the GoAhead server program by creating an GoAhead loadable module. You do this by creating
+            a shared library that contains your application and some GoAhead module interface code. This module is then
+            specified in the GoAhead configuration file so that the GoAhead program will load it. It requires about 10
+            lines of code to create an GoAhead module.</p>
+            <h2>Extending via ESP</h2>
+            <p>The Embedded Server Pages (ESP) web framework allows the direct embedding of "C" language code in
+            HTML web pages. This is the easiest way to invoke "C" APIs in your program. ESP also supports the loading
+            of Model/View/Controller (MVC-based) applications. ESP will compile and load controller source code. Controllers
+            provide an easy and efficient way to invoke "C" code when requests are made to certain URIs.</p>
+            <h2>Embed the GoAhead Library</h2>
+            <p>You can link the GoAhead library with your application to enable it to listen for HTTP requests and thus
+            become a HTTP server itself. Embedding the GoAhead library is easy and can be done with as little as one
+            line of code.</p>
+            
+            <a id="goaheadProgram"></a>
+            <h2 class="section">The GoAhead Server Program</h2>
+            <p>The GoAhead product includes a fully-featured HTTP server program that uses the GoAhead HTTP library. This
+            server (called <b>goahead</b>) is run by default when you install the GoAhead binary distribution or run
+            "make install" after building from source.</p>
+            <p>The GoAhead server program is ideal for embedded systems as it offers the following features:</p>
+            <ul>
+                <li>High performance</li>
+                <li>Extendable via loadable modules</li>
+                <li>Deterministic memory footprint and CPU loads</li>
+                <li>Configurable sandbox limits that control memory usage</li>
+                <li>Monitored and managed by the GoAhead manager process</li>
+            </ul>
+            
+            <a id="module"></a>
+            <h2 class="section">Creating a Module</h2>
+            <p>You can extend the GoAhead program by creating a loadable module for your application code.</p>
+            <p>To initialize your module and register with GoAhead, you must create an initialization function that is
+            called when GoAhead loads your module. This must be named according to the form:</p>
+            <pre>
+ma<b>Name</b>ModuleInit(MaHttp *http)
+</pre>
+            <p>Where <b>Name</b> is the name of your module.</p>
+            <p>This initialization function must call the <b>mprCreateModule</b> API to register with GoAhead.</p>
+            <pre>
+int mprSimpleModuleInit(Http *http, MprModule *module)
+{
+    /* Put custom code here */
+    return 0;
+}
+</pre>
+            <p>See <a href="modules.html">Creating GoAhead Modules</a> for more details.</p><a id="library"></a>
+            <h2 class="section">Embed the GoAhead Library</h2>
+            <p>You can link the GoAhead HTTP library with your main program to enable it to function as a HTTP
+            server itself. This is ideal if your application is large and/or has a complex I/O, eventing or threading
+            paradigm.</p>
+            <h3>Linking with the GoAhead Library</h3>
+            <p>To include the GoAhead library in your program you need to do the following things:</p>
+            <ol>
+                <li>Add <b>#include "goahead/goahead.h"</b> to the relevant source files.</li>
+                <li>Add the GoAhead library to your Makefiles or Windows project files. This will mean adding
+                    libgoahead.dll on Windows or libgoahead.so on Unix.</li>
+                <li>Use one of the embedding APIs to create the HTTP server.</li>
+            </ol>
+            <h3>One Line Embedding</h3>
+            <p>The following code demonstrates the one-line GoAhead embedding API. This will create and configure a web
+            server based on the "server.conf" configuration file.</p>
+            <pre>
+#include "goahead/goahead.h"
+int main(int argc, char** argv)
+{
+    return maRunWebServer("server.conf");
+}
+</pre>
+            <p>To build this sample and link with the GoAhead library:</p>
+            <pre>
+cc -o server server.c -lgoahead
+</pre>
+            <h3>Full Control API</h3>
+            <p>The GoAhead library also provides a lower level embedding interface where you can precisely control how
+            the web server is created and configured. This API also exposes the inner event and threading
+            mechanisms.</p>
+            <p>This example creates a web server using the "server.conf" configuration file and will service events
+            until terminated.</p>
+            <pre>
+#include "goahead/goahead.h"
+int main(int argc, char **argv)
+{
+    Mpr         *mpr;
+    MaServer    *server;
+    MaGoAhead    *goahead;
+    /*
+     *  Initialize and start the portable runtime services.
+     */
+    if ((mpr = mprCreate(0, NULL, 0)) == 0) {
+        mprError("Can't create the web server runtime");
+        return 0;
+    }
+    if (mprStart() &lt; 0) {
+        mprError("Can't start the web server runtime");
+        return 0;
+    }
+    goahead = maCreateGoAhead(mpr);
+    mprAddRoot(goahead);
+    if ((server = maCreateServer(goahead, 0)) == 0) {
+        mprError("Can't create the web server");
+        return 0;
+    }
+    if (maParseConfig(server, "server.conf") &lt; 0) {
+        mprError("Can't parse the config file %s", "server.conf");
+        return 0;
+    }
+    if (maStartServer(server) &lt; 0) {
+        mprError("Can't start the web server");
+        return MPR_ERR_CANT_CREATE;
+    }
+    mprServiceEvents(-1, 0);
+    maStopServer(server);
+    mprRemoveRoot(goahead);
+    mprDestroy(MPR_EXIT_DEFAULT);
+    return 0;
+}
+</pre>
+            <h3>More Details</h3>
+            <p>For more details about the embedding API, please consult the <a href="../../../api/goahead.html">GoAhead
+            API</a> and the <a href="../../../api/native.html">Native APIs</a>.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

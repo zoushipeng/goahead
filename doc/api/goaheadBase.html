@@ -1,0 +1,824 @@
+<h1>APPWEB - Appweb API Native API</h1>
+<a name="Components"></a><h1>Components</h1>
+  <table class="apiIndex" title="Components">
+<tr class="apiDef">
+<td class="apiName"><a href="#group___appweb" class="nameRef">Appweb</a></td>
+<td class="apiBrief">Appweb Service.</td></tr>
+<tr class="apiDef">
+<td class="apiName"><a href="#group___ma_server" class="nameRef">MaServer</a></td>
+<td class="apiBrief">The MaServer object.</td></tr>
+<tr class="apiDef">
+<td class="apiName"><a href="#group___ma_state" class="nameRef">MaState</a></td>
+<td class="apiBrief">Current configuration parse state.</td></tr>
+</table>
+<a name="Functions"></a><h1>Functions</h1>
+  <table class="apiIndex" title="Functions">
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga2288c0f827a92c4f693c98072c37a1b8" class="nameRef">maAddDirective</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *directive, <a href="#group___appweb_1ga6a437d214b5963248c0985eb1bc2a096" class="ref">MaDirective</a> proc)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a new config directive.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550" class="nameRef">maAddEndpoint</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="httpBare.html#group___http_endpoint" class="ref">HttpEndpoint</a> *endpoint)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Add a listening endpoint.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="nameRef">maAddServer</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, struct MaServer *server)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Add a server.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="nameRef">maApplyChangedGroup</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Apply the changed group.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="nameRef">maApplyChangedUser</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Apply the changed user.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#appweb_8h_1a454f6a859fd29e3c76e136420fdfc3c4" class="nameRef">maArchiveLog</a>(<a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, int count, int maxSize)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Archive a log file.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ma_server_1ga95cc0d8c3f161d0a9d4a2a4925e50158" class="nameRef">maConfigureServer</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *configFile, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *home, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *documents, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Configure a web server.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_ma_appweb" class="ref">MaAppweb*</a></td><td><a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="nameRef">maCreateAppweb</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create the Appweb object.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___ma_server" class="ref">MaServer*</a></td><td><a href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f" class="nameRef">maCreateServer</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a MaServer object.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="nameRef">maGetUserGroup</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the user group.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="nameRef">maLoadModule</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *libname)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Load an appweb module.</td></tr>
+<tr class="apiDef"><td class="apiType">struct MaServer*</td><td><a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="nameRef">maLookupServer</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Lookup a server.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="nameRef">maMatchDir</a>(<a href="httpBare.html#group___http_conn" class="ref">HttpConn</a> *conn, <a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route, int direction)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Match routine for the dirHandler.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8" class="nameRef">maParseConfig</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Parse an Appweb configuration file.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="nameRef">maParseInit</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Initialize the config file parser.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___ma_state" class="ref">MaState*</a></td><td><a href="#group___appweb_1ga2ff0312d66ba2c173b2ff6882e1f4ce9" class="nameRef">maPopState</a>(<a href="#group___ma_state" class="ref">MaState</a> *state)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Pop the state.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___ma_state" class="ref">MaState*</a></td><td><a href="#group___appweb_1gad960c7ab5089293e33a0cf221f41072d" class="nameRef">maPushState</a>(<a href="#group___ma_state" class="ref">MaState</a> *state)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Push the state.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7" class="nameRef">maRunSimpleWebServer</a>(<a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *home, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *documents)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create and run a simple web server listening on a single IP address.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4" class="nameRef">maRunWebServer</a>(<a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *configFile)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create and run a web server based on a configuration file.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga9b68eb868e420bafc8b6fde4a5c3d15c" class="nameRef">maSetAccessLog</a>(<a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *format)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the access log.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="nameRef">maSetDefaultServer</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, struct MaServer *server)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the default server.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="nameRef">maSetHttpGroup</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *group)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the Http Group.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="nameRef">maSetHttpUser</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *user)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the Http User.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga8c95d4a11a227962df2feaddf98c4151" class="nameRef">maSetServerAddress</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the server listen address.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3" class="nameRef">maSetServerHome</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the server home directory.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1ga4b758efae1918f0bd5704fdd79ca674a" class="nameRef">maStartAccessLogging</a>(<a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start access logging.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="nameRef">maStartAppweb</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start Appweb services.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#appweb_8h_1a3df448d06702386f01bdf34fa9e2df42" class="nameRef">maStartServer</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start a server.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___appweb_1ga2a09e8fd4be12b6f3488e64afc09c3d6" class="nameRef">maStopAccessLogging</a>(<a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop access logging.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="nameRef">maStopAppweb</a>(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop Appweb services.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#appweb_8h_1a18b14ec844e122a098d89abebde6d7de" class="nameRef">maStopServer</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop a server.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="mprBare.html#mpr_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc" class="nameRef">maValidateServer</a>(<a href="#group___ma_server" class="ref">MaServer</a> *server)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Validate the configuration of a server.</td></tr>
+</table>
+<a name="Typedefs"></a><h1>Typedefs</h1>
+<table class="apiIndex" title="typedefs">
+<tr class="apiDef"><td class="apiName"><a href="#group___appweb_1ga6a437d214b5963248c0985eb1bc2a096" class="nameRef">MaDirective</a></td><td class="apiBrief">Directive callback function.</td></tr>
+</table>
+<a name="Defines"></a><h1>Defines</h1>
+<table class="apiIndex" title="Defines">
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a2e012ddf800b3e5136dcd051fd2f5beb" class="nameRef">HTTP_NAME</a>&nbsp;&nbsp;&nbsp;MA_SERVER_NAME</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Default web server software identification.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a0f3ef26669049854a44cb4febd5a9d06" class="nameRef">MA_MAX_ACCESS_LOG</a>&nbsp;&nbsp;&nbsp;20971520</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Access file size (20 MB).</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a96fc829fd68edb25c6cc34cb87486b5c" class="nameRef">MA_MAX_CONFIG_DEPTH</a>&nbsp;&nbsp;&nbsp;16</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Max nest of directives in config file.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a59f4c03bc579e6720e8dfc3105330301" class="nameRef">MA_MAX_REWRITE</a>&nbsp;&nbsp;&nbsp;10</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Maximum recursive URI rewrites.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a3b315098fc2d1fc56d9d2832902dacff" class="nameRef">MA_PARSE_NON_SERVER</a>&nbsp;&nbsp;&nbsp;0x1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Command file being parsed by a utility program.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a941331c73618954e4cb160c76d65ef43" class="nameRef">MA_SDB_MEMORY</a>&nbsp;&nbsp;&nbsp;(20 * 1024 * 1024)</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>SDB heap memory.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1a173ecfcbce1665c7a62b42e523b5d35f" class="nameRef">MA_SDB_TIMEOUT</a>&nbsp;&nbsp;&nbsp;(20 * 1000)</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>SDB busy timeout.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#appweb_8h_1aba0a3eb51d76651562bc5c0bb2c0f424" class="nameRef">MA_UNLOAD_TIMEOUT</a>&nbsp;&nbsp;&nbsp;&quot;5mins&quot;</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Default module inactivity unload timeout.</td></tr>
+  </table>
+<h1>Appweb</h1>
+<a name="group___appweb"></a>
+<div class="api">
+  <div class="prototype">Appweb</div>
+  <div class="apiDetail">
+<p>Appweb Service.</p>
+    <dl><dt><b>Description</b>:</dt><dd>There is one instance of MaAppweb per application. It manages a list of HTTP servers running in the application.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+    <dl><dt>Fields:</dt><dd>
+    <table class="parameters" title="Parameters">
+    </table></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga2288c0f827a92c4f693c98072c37a1b8"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maAddDirective
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *directive, <a href="#group___appweb_1ga6a437d214b5963248c0985eb1bc2a096" class="ref">MaDirective</a> proc)
+  </div>
+  <div class="apiDetail">
+<p>Define a new config directive.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The appweb configuration file parse is extensible. New directives can be registered by this call. When encountered in the config file, the given callback proc will be invoked to parse.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">directive</td><td>Directive name.</td>
+    <tr><td class="param">proc</td><td>Directive callback procedure of the type <a class="ref" BBB href="#group___appweb_1ga6a437d214b5963248c0985eb1bc2a096">MaDirective</a></td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maAddEndpoint
+(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="httpBare.html#group___http_endpoint" class="ref">HttpEndpoint</a> *endpoint)
+  </div>
+  <div class="apiDetail">
+<p>Add a listening endpoint.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>Server object to modify.</td>
+    <tr><td class="param">endpoint</td><td>Listening endpoint to add to the server.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maAddServer
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, struct MaServer *server)
+  </div>
+  <div class="apiDetail">
+<p>Add a server.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Add a server to the list of appweb managed web servers.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">server</td><td>MaServer object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaf558e80479e238939e4c4edf16a16ec0"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maApplyChangedGroup
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)
+  </div>
+  <div class="apiDetail">
+<p>Apply the changed group.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Apply configuration changes and actually change the Appweb group id.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maApplyChangedUser
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)
+  </div>
+  <div class="apiDetail">
+<p>Apply the changed user.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Apply configuration changes and actually change the Appweb user id.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_ma_appweb" class="ref">MaAppweb</a> *
+    maCreateAppweb
+()
+  </div>
+  <div class="apiDetail">
+<p>Create the Appweb object.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Appweb uses a singleton Appweb object to manage multiple web servers instances.</dd></dl>
+    <dl><dt>Returns:</dt><dd>A Http object. Use mprFree to close and release.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaeea4a201c9a8cca9521cd006436b8570"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maGetUserGroup
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)
+  </div>
+  <div class="apiDetail">
+<p>Get the user group.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Get the user name and ID for appweb.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maLoadModule
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *libname)
+  </div>
+  <div class="apiDetail">
+<p>Load an appweb module.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Load an appweb module. If the module is already loaded, this call will return successfully without reloading. Modules can be dynamically loaded or may also be pre-loaded using static linking.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">name</td><td>User name. Must be defined in the system password file.</td>
+    <tr><td class="param">libname</td><td>Library path name.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b"></a>
+<div class="api">
+  <div class="prototype">
+    struct MaServer *
+    MaServer* maLookupServer
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name)
+  </div>
+  <div class="apiDetail">
+<p>Lookup a server.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Lookup a server by name and return the MaServer object.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">name</td><td>Server name.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>MaServer object.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maMatchDir
+(<a href="httpBare.html#group___http_conn" class="ref">HttpConn</a> *conn, <a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route, int direction)
+  </div>
+  <div class="apiDetail">
+<p>Match routine for the dirHandler.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">conn</td><td>Connection object.</td>
+    <tr><td class="param">route</td><td>Matching route object.</td>
+    <tr><td class="param">direction</td><td>Set to HTTP_STAGE_TX or HTTP_STAGE_RX.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>HTTP_ROUTE_OK if the request matches.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maParseConfig
+(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, int flags)
+  </div>
+  <div class="apiDetail">
+<p>Parse an Appweb configuration file.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Parse the configuration file and configure the server. This creates a default host and route and then configures the server based on config file directives.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>MaServer object created via <a class="ref" BBB href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f">maCreateServer</a></td>
+    <tr><td class="param">path</td><td>Configuration file pathname.</td>
+    <tr><td class="param">flags</td><td>Parse control flags. Reserved. Set to zero.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maParseInit
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)
+  </div>
+  <div class="apiDetail">
+<p>Initialize the config file parser.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga2ff0312d66ba2c173b2ff6882e1f4ce9"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#group___ma_state" class="ref">MaState</a> *
+    maPopState
+(<a href="#group___ma_state" class="ref">MaState</a> *state)
+  </div>
+  <div class="apiDetail">
+<p>Pop the state.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This is used when parsing config files to handle nested include files and block level directives.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">state</td><td>Current state.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>The next lower level state object.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gad960c7ab5089293e33a0cf221f41072d"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#group___ma_state" class="ref">MaState</a> *
+    maPushState
+(<a href="#group___ma_state" class="ref">MaState</a> *state)
+  </div>
+  <div class="apiDetail">
+<p>Push the state.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This is used when parsing config files to handle nested include files and block level directives.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">state</td><td>Current state.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>The state passed as a parameter which becomes the new top level state.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga9b68eb868e420bafc8b6fde4a5c3d15c"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maSetAccessLog
+(<a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *format)
+  </div>
+  <div class="apiDetail">
+<p>Define the access log.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The access log is used to log details about requests to the web server. Errors are logged in the error log.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">route</td><td>HttpRoute object for which to define the logging characteristics.</td>
+    <tr><td class="param">path</td><td>Pathname for the log file.</td>
+    <tr><td class="param">format</td><td>Log file format. The format string argument defines how Appweb will record HTTP accesses to the access log. The following log format specifiers are supported: <ul><li>%% - Percent sign </li><li>a - Remote IP address </li><li>b - Response bytes written to the client include headers. If zero, &quot;-&quot; is written. </li><li>B - Response bytes written excluding headers </li><li>h - Remote hostname </li><li>O - Bytes written include headers. If zero bytes, &quot;0&quot; is written. </li><li>r - First line of the request </li><li>s - HTTP response status code </li><li>t - Time the request was completed </li><li>u - Authenticated username </li><li>%{header}i -  </li></ul></td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga30109915ae5446c9299173528c2c880e"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maSetDefaultServer
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, struct MaServer *server)
+  </div>
+  <div class="apiDetail">
+<p>Set the default server.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">server</td><td>MaServer object.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maSetHttpGroup
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *group)
+  </div>
+  <div class="apiDetail">
+<p>Set the Http Group.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Define the group name under which to run the Appweb service.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">group</td><td>Group name. Must be defined in the system group file.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaf824d096f9596ebf8840d7e8d005baad"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maSetHttpUser
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *user)
+  </div>
+  <div class="apiDetail">
+<p>Set the Http User.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Define the user name under which to run the Appweb service.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">user</td><td>User name. Must be defined in the system password file.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga8c95d4a11a227962df2feaddf98c4151"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maSetServerAddress
+(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port)
+  </div>
+  <div class="apiDetail">
+<p>Set the server listen address.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Set the internet addresses for all endpoints managed by the server.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>MaServer object created via <a class="ref" BBB href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f">maCreateServer</a></td>
+    <tr><td class="param">ip</td><td>IP address to set for the server.</td>
+    <tr><td class="param">port</td><td>Port number to use for the server.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maSetServerHome
+(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path)
+  </div>
+  <div class="apiDetail">
+<p>Set the server home directory.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>MaServer object created via <a class="ref" BBB href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f">maCreateServer</a></td>
+    <tr><td class="param">path</td><td>Path to the directory for the server configuration.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga4b758efae1918f0bd5704fdd79ca674a"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maStartAccessLogging
+(<a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route)
+  </div>
+  <div class="apiDetail">
+<p>Start access logging.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Start access logging for a host.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">route</td><td>HttpRoute object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gaad2b501a1eef1b0210189ef055c4f158"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maStartAppweb
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)
+  </div>
+  <div class="apiDetail">
+<p>Start Appweb services.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This starts listening for requests on all configured servers.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1ga2a09e8fd4be12b6f3488e64afc09c3d6"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maStopAccessLogging
+(<a href="httpBare.html#group___http_route" class="ref">HttpRoute</a> *route)
+  </div>
+  <div class="apiDetail">
+<p>Stop access logging.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">route</td><td>HttpRoute object.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maStopAppweb
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb)
+  </div>
+  <div class="apiDetail">
+<p>Stop Appweb services.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This stops listening for requests on all configured servers. Shutdown is somewhat graceful.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Appweb object created via <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a></dd></dl>
+  </div>
+</div>
+<a name="group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="mprBare.html#mpr_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
+    maValidateServer
+(<a href="#group___ma_server" class="ref">MaServer</a> *server)
+  </div>
+  <div class="apiDetail">
+<p>Validate the configuration of a server.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>Server object to validate.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the configuration is valid.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>
+<h1>MaServer</h1>
+<a name="group___ma_server"></a>
+<div class="api">
+  <div class="prototype">MaServer</div>
+  <div class="apiDetail">
+<p>The MaServer object.</p>
+    <dl><dt><b>Description</b>:</dt><dd>An application may have any number of HTTP servers, each managed by a MaServer instance.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550" class="ref">maAddEndpoint</a>, <a href="#group___ma_server_1ga95cc0d8c3f161d0a9d4a2a4925e50158" class="ref">maConfigureServer</a>, <a href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f" class="ref">maCreateServer</a>, <a href="#group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8" class="ref">maParseConfig</a>, <a href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7" class="ref">maRunSimpleWebServer</a>, <a href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4" class="ref">maRunWebServer</a>, <a href="#group___appweb_1ga8c95d4a11a227962df2feaddf98c4151" class="ref">maSetServerAddress</a>, <a href="#group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3" class="ref">maSetServerHome</a>, <a href="#group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc" class="ref">maValidateServer</a></dd></dl>
+    <dl><dt>Fields:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">MaAppweb *</td><td><td>appweb</td><td>
+Appweb control object.
+</td>
+    <tr><td class="param">MprList *</td><td><td>endpoints</td><td>
+List of HttpEndpoints.
+</td>
+    <tr><td class="param">char *</td><td><td>home</td><td>
+Server root.
+</td>
+    <tr><td class="param">Http *</td><td><td>http</td><td>
+Http service object (copy of appweb-&gt;http).
+</td>
+    <tr><td class="param">HttpLimits *</td><td><td>limits</td><td>
+Limits for this server.
+</td>
+    <tr><td class="param">char *</td><td><td>name</td><td>
+Unique name for this server.
+</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="group___ma_server_1ga95cc0d8c3f161d0a9d4a2a4925e50158"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maConfigureServer
+(<a href="#group___ma_server" class="ref">MaServer</a> *server, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *configFile, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *home, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *documents, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port)
+  </div>
+  <div class="apiDetail">
+<p>Configure a web server.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This will configure a web server based on either a configuration file or using the supplied IP address and port.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>MaServer object created via <a class="ref" BBB href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f">maCreateServer</a></td>
+    <tr><td class="param">configFile</td><td>File name of the Appweb configuration file (appweb.conf) that defines the web server configuration.</td>
+    <tr><td class="param">home</td><td>Admin directory for the server. This overrides the value in the config file.</td>
+    <tr><td class="param">documents</td><td>Default directory for web documents to serve. This overrides the value in the config file.</td>
+    <tr><td class="param">ip</td><td>IP address to listen on. This overrides the value specified in the config file.</td>
+    <tr><td class="param">port</td><td>Port address to listen on. This overrides the value specified in the config file.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___ma_server" class="ref">MaServer</a>, <a href="#group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550" class="ref">maAddEndpoint</a>, <a href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f" class="ref">maCreateServer</a>, <a href="#group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8" class="ref">maParseConfig</a>, <a href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7" class="ref">maRunSimpleWebServer</a>, <a href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4" class="ref">maRunWebServer</a>, <a href="#group___appweb_1ga8c95d4a11a227962df2feaddf98c4151" class="ref">maSetServerAddress</a>, <a href="#group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3" class="ref">maSetServerHome</a>, <a href="#group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc" class="ref">maValidateServer</a></dd></dl>
+  </div>
+</div>
+<a name="group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#group___ma_server" class="ref">MaServer</a> *
+    maCreateServer
+(<a href="#struct_ma_appweb" class="ref">MaAppweb</a> *appweb, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name)
+  </div>
+  <div class="apiDetail">
+<p>Create a MaServer object.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Create new MaServer object. This routine creates a bare MaServer object, loads any required static modules and performs minimal configuration. To use the server object created, more configuration will be required before starting Http services. If you want a one-line embedding of Appweb, use <a class="ref" BBB href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4">maRunWebServer</a> or <a class="ref" BBB href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7">maRunSimpleWebServer</a></dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">appweb</td><td>Http object returned from <a class="ref" BBB href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee">maCreateAppweb</a></td>
+    <tr><td class="param">name</td><td>Name of the web server. This name is used as the initial server name.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>MaServer A newly created MaServer object. Use mprFree to free and release.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___ma_server" class="ref">MaServer</a>, <a href="#group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550" class="ref">maAddEndpoint</a>, <a href="#group___ma_server_1ga95cc0d8c3f161d0a9d4a2a4925e50158" class="ref">maConfigureServer</a>, <a href="#group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8" class="ref">maParseConfig</a>, <a href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7" class="ref">maRunSimpleWebServer</a>, <a href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4" class="ref">maRunWebServer</a>, <a href="#group___appweb_1ga8c95d4a11a227962df2feaddf98c4151" class="ref">maSetServerAddress</a>, <a href="#group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3" class="ref">maSetServerHome</a>, <a href="#group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc" class="ref">maValidateServer</a></dd></dl>
+  </div>
+</div>
+<a name="group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maRunSimpleWebServer
+(<a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *home, <a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *documents)
+  </div>
+  <div class="apiDetail">
+<p>Create and run a simple web server listening on a single IP address.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Create a simple web server without using a configuration file. The server is created to listen on the specified IP address and port. This routine provides a one-line embedding of Appweb. If you want to use a config file, try the <a class="ref" BBB href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4">maRunWebServer</a> instead.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">ip</td><td>IP address on which to listen. Set to &quot;0.0.0.0&quot; to listen on all interfaces.</td>
+    <tr><td class="param">port</td><td>Port number to listen to.</td>
+    <tr><td class="param">home</td><td>Home directory for the web server.</td>
+    <tr><td class="param">documents</td><td>Directory containing the documents to serve.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___ma_server" class="ref">MaServer</a>, <a href="#group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550" class="ref">maAddEndpoint</a>, <a href="#group___ma_server_1ga95cc0d8c3f161d0a9d4a2a4925e50158" class="ref">maConfigureServer</a>, <a href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f" class="ref">maCreateServer</a>, <a href="#group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8" class="ref">maParseConfig</a>, <a href="#group___ma_server_1ga4994c273e87409b094418dd7bd370ee4" class="ref">maRunWebServer</a>, <a href="#group___appweb_1ga8c95d4a11a227962df2feaddf98c4151" class="ref">maSetServerAddress</a>, <a href="#group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3" class="ref">maSetServerHome</a>, <a href="#group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc" class="ref">maValidateServer</a></dd></dl>
+  </div>
+</div>
+<a name="group___ma_server_1ga4994c273e87409b094418dd7bd370ee4"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maRunWebServer
+(<a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *configFile)
+  </div>
+  <div class="apiDetail">
+<p>Create and run a web server based on a configuration file.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Create a web server configuration based on the supplied config file. This routine provides a one-line embedding of Appweb. If you don&apos;t want to use a config file, try the <a class="ref" BBB href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7">maRunSimpleWebServer</a> instead.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">configFile</td><td>File name of the Appweb configuration file (appweb.conf) that defines the web server configuration.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___ma_server" class="ref">MaServer</a>, <a href="#group___appweb_1ga4f98dc51b9f96f3636ba16d4075d2550" class="ref">maAddEndpoint</a>, <a href="#group___ma_server_1ga95cc0d8c3f161d0a9d4a2a4925e50158" class="ref">maConfigureServer</a>, <a href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f" class="ref">maCreateServer</a>, <a href="#group___appweb_1gaaee49b7b7de456a272e476b9a1228bc8" class="ref">maParseConfig</a>, <a href="#group___ma_server_1ga88a2bd1d0f26f024e6cb2d693c13e4f7" class="ref">maRunSimpleWebServer</a>, <a href="#group___appweb_1ga8c95d4a11a227962df2feaddf98c4151" class="ref">maSetServerAddress</a>, <a href="#group___appweb_1ga8e99d32507bca4e743bd52fb9175c6f3" class="ref">maSetServerHome</a>, <a href="#group___appweb_1gabd0d6aff18d184020e8ed1f0a388c3fc" class="ref">maValidateServer</a></dd></dl>
+  </div>
+</div>
+<h1>MaState</h1>
+<a name="group___ma_state"></a>
+<div class="api">
+  <div class="prototype">MaState</div>
+  <div class="apiDetail">
+<p>Current configuration parse state.</p>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___appweb_1ga6a437d214b5963248c0985eb1bc2a096" class="ref">MaDirective</a>, <a href="#group___appweb_1ga2288c0f827a92c4f693c98072c37a1b8" class="ref">maAddDirective</a>, <a href="#group___appweb_1ga2ff0312d66ba2c173b2ff6882e1f4ce9" class="ref">maPopState</a>, <a href="#group___appweb_1gad960c7ab5089293e33a0cf221f41072d" class="ref">maPushState</a>, <a href="#group___appweb_1ga9b68eb868e420bafc8b6fde4a5c3d15c" class="ref">maSetAccessLog</a>, <a href="#group___appweb_1ga4b758efae1918f0bd5704fdd79ca674a" class="ref">maStartAccessLogging</a>, <a href="#group___appweb_1ga2a09e8fd4be12b6f3488e64afc09c3d6" class="ref">maStopAccessLogging</a></dd></dl>
+    <dl><dt>Fields:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">HttpAuth *</td><td><td>auth</td><td>
+Quick alias for route-&gt;auth.
+</td>
+    <tr><td class="param">char *</td><td><td>configDir</td><td>
+Directory containing config file.
+</td>
+    <tr><td class="param">struct MaState *</td><td><td>current</td><td>
+Current state.
+</td>
+    <tr><td class="param">int</td><td><td>enabled</td><td>
+True if the current block is enabled.
+</td>
+    <tr><td class="param">MprFile *</td><td><td>file</td><td>
+Config file handle.
+</td>
+    <tr><td class="param">char *</td><td><td>filename</td><td>
+Config file name.
+</td>
+    <tr><td class="param">int</td><td><td>flags</td><td>
+Parsing flags.
+</td>
+    <tr><td class="param">HttpHost *</td><td><td>host</td><td>
+Current host.
+</td>
+    <tr><td class="param">char *</td><td><td>key</td><td>
+Current directive being parsed.
+</td>
+    <tr><td class="param">HttpLimits *</td><td><td>limits</td><td>
+Current limits (host-&gt;limits).
+</td>
+    <tr><td class="param">int</td><td><td>lineNumber</td><td>
+Current line number.
+</td>
+    <tr><td class="param">struct MaState *</td><td><td>prev</td><td>
+Previous (inherited) state.
+</td>
+    <tr><td class="param">HttpRoute *</td><td><td>route</td><td>
+Current route.
+</td>
+    <tr><td class="param">MaServer *</td><td><td>server</td><td>
+Current server.
+</td>
+    <tr><td class="param">struct MaState *</td><td><td>top</td><td>
+Top level state.
+</td>
+    </table></dd></dl>
+  </div>
+</div>
+<h2>Functions</h2>
+<a name="appweb_8h_1a454f6a859fd29e3c76e136420fdfc3c4"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maArchiveLog
+(<a href="mprBare.html#mpr_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, int count, int maxSize)
+  </div>
+  <div class="apiDetail">
+<p>Archive a log file.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The current log file is archived by appending &quot;.1&quot; to the log path name. If a &quot;path.1&quot; exists, it will be renamed first to &quot;path.2&quot; and so on up to &quot;path.count&quot;.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">path</td><td>Current log file name.</td>
+    <tr><td class="param">count</td><td>Number of archived log files to preserve.</td>
+    <tr><td class="param">maxSize</td><td>Reserved.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+  </div>
+</div>
+<a name="appweb_8h_1a3df448d06702386f01bdf34fa9e2df42"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    maStartServer
+(<a href="#group___ma_server" class="ref">MaServer</a> *server)
+  </div>
+  <div class="apiDetail">
+<p>Start a server.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>Object created via <a class="ref" BBB href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f">maCreateServer</a></td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+  </div>
+</div>
+<a name="appweb_8h_1a18b14ec844e122a098d89abebde6d7de"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    maStopServer
+(<a href="#group___ma_server" class="ref">MaServer</a> *server)
+  </div>
+  <div class="apiDetail">
+<p>Stop a server.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">server</td><td>Object created via <a class="ref" BBB href="#group___ma_server_1gad21a5a81aa006217ecc220da1198ff7f">maCreateServer</a></td>
+    </table></dd></dl>
+  </div>
+</div>
+<h2>Typedefs</h2>
+<a name="group___appweb_1ga6a437d214b5963248c0985eb1bc2a096"></a>
+<div class="api">
+  <div class="prototype">
+    typedef int( MaDirective)(MaState *state, cchar *key, cchar *value).
+  </div>
+  <div class="apiDetail">
+<p>Directive callback function.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Directive callbacks are invoked to parse a directive. Directive callbacks are registered using <a class="ref" BBB href="#group___appweb_1ga2288c0f827a92c4f693c98072c37a1b8">maAddDirective</a></dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">state</td><td>Current config parse state.</td>
+    <tr><td class="param">key</td><td>Directive key name.</td>
+    <tr><td class="param">value</td><td>Directive key value.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise a negative Mpr error code. See the Appweb log for diagnostics.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="httpBare.html#group___http" class="ref">Http</a>, <a href="#group___appweb_1ga6dddb0f76c4bb135ee006f2fb48f38ae" class="ref">maAddServer</a>, <a href="#group___appweb_1gaf558e80479e238939e4c4edf16a16ec0" class="ref">maApplyChangedGroup</a>, <a href="#group___appweb_1ga04b040307aaccc46eaf6fef1dd61d024" class="ref">maApplyChangedUser</a>, <a href="#group___appweb_1ga3c5d11ffcda01cb1d75ae24faa39cdee" class="ref">maCreateAppweb</a>, <a href="#group___appweb_1gaeea4a201c9a8cca9521cd006436b8570" class="ref">maGetUserGroup</a>, <a href="#group___appweb_1gaba2d0d4cfa73dbc028719098908eaa89" class="ref">maLoadModule</a>, <a href="#group___appweb_1gaf5f955fddd686c69147a13fe34f57a9b" class="ref">maLookupServer</a>, <a href="#group___appweb_1ga0595cfc8aa7064cd3b26f4bd2c5748ba" class="ref">maMatchDir</a>, <a href="#group___appweb_1gaf72ae42c5d6c767a221d6d84f4f0b83b" class="ref">maParseInit</a>, <a href="#group___appweb_1ga30109915ae5446c9299173528c2c880e" class="ref">maSetDefaultServer</a>, <a href="#group___appweb_1ga29500f7d8b117921cf5c68beb7ef40ad" class="ref">maSetHttpGroup</a>, <a href="#group___appweb_1gaf824d096f9596ebf8840d7e8d005baad" class="ref">maSetHttpUser</a>, <a href="#group___appweb_1gaad2b501a1eef1b0210189ef055c4f158" class="ref">maStartAppweb</a>, <a href="#group___appweb_1gae98b753968134ec1c2bc50d5d63b2a1f" class="ref">maStopAppweb</a></dd></dl>
+  </div>
+</div>

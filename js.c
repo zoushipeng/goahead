@@ -1676,16 +1676,16 @@ int jsLexOpenScript(Js *ep, char *script)
     /*
         Create the parse token buffer and script buffer
      */
-    if (ringqOpen(&ip->tokbuf, JS_INC, -1) < 0) {
+    if (bufCreate(&ip->tokbuf, JS_INC, -1) < 0) {
         return -1;
     }
-    if (ringqOpen(&ip->script, JS_SCRIPT_INC, -1) < 0) {
+    if (bufCreate(&ip->script, JS_SCRIPT_INC, -1) < 0) {
         return -1;
     }
     /*
         Put the Javascript into a ring queue for easy parsing
      */
-    ringqPutStr(&ip->script, script);
+    bufPutStr(&ip->script, script);
 
     ip->lineNumber = 1;
     ip->lineLength = 0;
@@ -1715,8 +1715,8 @@ void jsLexCloseScript(Js *ep)
         gfree(ip->line);
         ip->line = NULL;
     }
-    ringqClose(&ip->tokbuf);
-    ringqClose(&ip->script);
+    bufFree(&ip->tokbuf);
+    bufFree(&ip->script);
     gfree(ip);
 }
 
@@ -1788,10 +1788,10 @@ static int getLexicalToken(Js *ep, int state)
     ep->tid = -1;
     tid = -1;
     ep->token = "";
-    ringqFlush(tokq);
+    bufFlush(tokq);
 
     if (ip->putBackTokenId > 0) {
-        ringqPutStr(tokq, ip->putBackToken);
+        bufPutStr(tokq, ip->putBackToken);
         tid = ip->putBackTokenId;
         ip->putBackTokenId = 0;
         ep->token = (char*) tokq->servp;
@@ -2166,7 +2166,7 @@ static int tokenAddChar(Js *ep, int c)
     ip = ep->input;
     gassert(ip);
 
-    if (ringqPutc(&ip->tokbuf, (char) c) < 0) {
+    if (bufPutc(&ip->tokbuf, (char) c) < 0) {
         jsError(ep, "Token too big");
         return -1;
     }
@@ -2186,10 +2186,10 @@ static int inputGetc(Js *ep)
     gassert(ep);
     ip = ep->input;
 
-    if ((len = ringqLen(&ip->script)) == 0) {
+    if ((len = bufLen(&ip->script)) == 0) {
         return -1;
     }
-    c = ringqGetc(&ip->script);
+    c = bufGetc(&ip->script);
     if (c == '\n') {
         ip->lineNumber++;
         ip->lineColumn = 0;
@@ -2212,7 +2212,7 @@ static void inputPutback(Js *ep, int c)
     gassert(ep);
 
     ip = ep->input;
-    ringqInsertc(&ip->script, (char) c);
+    bufInsertc(&ip->script, (char) c);
     /* Fix by Fred Sauer, 2002/12/23 */
     if (ip->lineColumn > 0) {
         ip->lineColumn-- ;

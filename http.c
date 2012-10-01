@@ -372,12 +372,12 @@ static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *rxbuf)
         Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
         a little more memory than required.
      */
-    ringqOpen(&wp->output, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER + 1);
-    ringqOpen(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_RX_BODY + 1);
+    bufCreate(&wp->output, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER + 1);
+    bufCreate(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_RX_BODY + 1);
     if (rxbuf) {
         wp->rxbuf = *rxbuf;
     } else {
-        ringqOpen(&wp->rxbuf, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_RX_BODY);
+        bufCreate(&wp->rxbuf, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_RX_BODY);
     }
     wp->rxbuf = wp->rxbuf;
 }
@@ -432,10 +432,10 @@ static void termWebs(Webs *wp, int keepAlive)
         websFreeUpload(wp);
     }
 #endif
-    ringqClose(&wp->input);
-    ringqClose(&wp->output);
+    bufFree(&wp->input);
+    bufFree(&wp->output);
     if (!keepAlive) {
-        ringqClose(&wp->rxbuf);
+        bufFree(&wp->rxbuf);
     }
 }
 
@@ -467,8 +467,8 @@ static void reuseConn(Webs *wp)
     flags = wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
     sid = wp->sid;
     wid = wp->wid;
-    ringqCompact(&wp->rxbuf);
-    if (ringqLen(&wp->rxbuf)) {
+    bufCompact(&wp->rxbuf);
+    if (bufLen(&wp->rxbuf)) {
         socketReservice(wp->sid);
     }
     rxbuf = wp->rxbuf;
@@ -737,8 +737,8 @@ void websReadEvent(Webs *wp)
     rxbuf = &wp->rxbuf;
 
     while (websValid(wp)) {
-        if (ringqPutBlkMax(rxbuf) < (BIT_LIMIT_SOCKET_BUFFER + 1)) {
-            if (!ringqGrow(rxbuf, BIT_LIMIT_SOCKET_BUFFER + 1)) {
+        if (bufRoom(rxbuf) < (BIT_LIMIT_SOCKET_BUFFER + 1)) {
+            if (!bufGrow(rxbuf, BIT_LIMIT_SOCKET_BUFFER + 1)) {
                 error("Can't grow rxbuf");
                 websDone(wp, 500);
                 break;
@@ -746,8 +746,8 @@ void websReadEvent(Webs *wp)
         }
         if ((nbytes = websRead(wp, (char*) rxbuf->endp, BIT_LIMIT_SOCKET_BUFFER)) > 0) {
             wp->lastRead = nbytes;
-            ringqPutBlkAdj(rxbuf, nbytes);
-            ringqAddNull(rxbuf);
+            bufAdjustEnd(rxbuf, nbytes);
+            bufAddNull(rxbuf);
         }
         websPump(wp);
 
@@ -798,10 +798,10 @@ bool parseIncoming(Webs *wp)
 
     rxbuf = &wp->rxbuf;
     while (*rxbuf->servp == '\r' || *rxbuf->servp == '\n') {
-        ringqGetc(rxbuf);
+        bufGetc(rxbuf);
     }
     if ((end = strstr((char*) wp->rxbuf.servp, "\r\n\r\n")) == 0) {
-        if (ringqLen(&wp->rxbuf) >= BIT_LIMIT_HEADER) {
+        if (bufLen(&wp->rxbuf) >= BIT_LIMIT_HEADER) {
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Header too large");
         }
         return 0;
@@ -1056,7 +1056,7 @@ static bool parseHeaders(Webs *wp)
             Step over "\r\n" after headers.
             Don't do this if chunked so chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
-        gassert(ringqLen(&wp->rxbuf) >= 2);
+        gassert(bufLen(&wp->rxbuf) >= 2);
         wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
@@ -1099,13 +1099,13 @@ void websConsumeInput(Webs *wp, ssize nbytes)
     gassert(wp);
     gassert(nbytes >= 0);
 
-    gassert(ringqLen(&wp->input) >= nbytes);
+    gassert(bufLen(&wp->input) >= nbytes);
     if (nbytes <= 0) {
         return;
     }
-    ringqGetBlkAdj(&wp->input, nbytes);
-    if (ringqLen(&wp->input) == 0) {
-        ringqReset(&wp->input);
+    bufAdjustStart(&wp->input, nbytes);
+    if (bufLen(&wp->input) == 0) {
+        bufReset(&wp->input);
     }
 }
 
@@ -1124,14 +1124,14 @@ static bool filterChunkData(Webs *wp)
     rxbuf = &wp->rxbuf;
     added = 0;
 
-    while (ringqLen(rxbuf) > 0) {
+    while (bufLen(rxbuf) > 0) {
         switch (wp->rxChunkState) {
         case WEBS_CHUNK_UNCHUNKED:
-            len = min(wp->rxRemaining, ringqLen(rxbuf));
-            ringqPutBlk(&wp->input, rxbuf->servp, len);
-            ringqAddNull(&wp->input);
-            ringqGetBlkAdj(rxbuf, len);
-            ringqCompact(rxbuf);
+            len = min(wp->rxRemaining, bufLen(rxbuf));
+            bufPutBlk(&wp->input, rxbuf->servp, len);
+            bufAddNull(&wp->input);
+            bufAdjustStart(rxbuf, len);
+            bufCompact(rxbuf);
             wp->rxRemaining -= len;
             if (wp->rxRemaining <= 0) {
                 wp->eof = 1;
@@ -1143,7 +1143,7 @@ static bool filterChunkData(Webs *wp)
             /*  
                 Expect: "\r\nSIZE.*\r\n"
              */
-            if (ringqLen(rxbuf) < 5) {
+            if (bufLen(rxbuf) < 5) {
                 return 0;
             }
             start = rxbuf->servp;
@@ -1175,7 +1175,7 @@ static bool filterChunkData(Webs *wp)
                     return 0;
                 }
             }
-            ringqGetBlkAdj(rxbuf, cp - start + 1);
+            bufAdjustStart(rxbuf, cp - start + 1);
             wp->rxChunkSize = chunkSize;
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
@@ -1187,15 +1187,15 @@ static bool filterChunkData(Webs *wp)
             break;
 
         case WEBS_CHUNK_DATA:
-            len = min(ringqLen(rxbuf), wp->rxRemaining);
-            nbytes = min(ringqPutBlkMax(&wp->input), len);
-            nbytes = ringqPutBlk(&wp->input, rxbuf->servp, nbytes);
-            ringqAddNull(&wp->input);
-            ringqGetBlkAdj(rxbuf, nbytes);
+            len = min(bufLen(rxbuf), wp->rxRemaining);
+            nbytes = min(bufRoom(&wp->input), len);
+            nbytes = bufPutBlk(&wp->input, rxbuf->servp, nbytes);
+            bufAddNull(&wp->input);
+            bufAdjustStart(rxbuf, nbytes);
             wp->rxRemaining -= nbytes;
             if (wp->rxRemaining <= 0) {
                 wp->rxChunkState = WEBS_CHUNK_START;
-                ringqCompact(rxbuf);
+                bufCompact(rxbuf);
             }
             added = 1;
             if (nbytes < len) {
@@ -1313,7 +1313,7 @@ void websSetFormVars(Webs *wp)
         wp->decodedQuery = strdup(wp->query);
         addFormVars(wp, wp->decodedQuery);
     }
-    if (wp->rxLen > 0 && ringqLen(&wp->input) > 0) {
+    if (wp->rxLen > 0 && bufLen(&wp->input) > 0) {
         if (wp->flags & WEBS_FORM) {
             addFormVars(wp, wp->input.servp);
             websConsumeInput(wp, wp->rxLen);
@@ -1826,14 +1826,14 @@ static ssize bufferOutput(Webs *wp, char *buf, ssize size)
     op = &wp->output;
     sofar = 0;
     while (size > 0) {
-        len = ringqLen(op);
+        len = bufLen(op);
         room = op->buflen - len;
         if (len > 0 && room < size) {
             if (websFlush(wp) > 0) {
                 continue;
             }
             if (op->buflen < op->maxsize) {
-                ringqGrow(op, 0);
+                bufGrow(op, 0);
                 continue;
             }
         }
@@ -1841,7 +1841,7 @@ static ssize bufferOutput(Webs *wp, char *buf, ssize size)
             break;
         }
         thisWrite = min(room, size);
-        ringqPutBlk(op, buf, thisWrite);
+        bufPutBlk(op, buf, thisWrite);
         size -= thisWrite;
         buf += thisWrite;
         sofar += thisWrite;
@@ -1968,11 +1968,11 @@ ssize websFlush(Webs *wp)
 
     op = &wp->output;
     written = 0;
-    size = ringqLen(&wp->output);
+    size = bufLen(&wp->output);
     if (size > 0 && (written = writeChunked(wp, op->servp, size)) >= 0) {
-        ringqGetBlkAdj(op, written);
+        bufAdjustStart(op, written);
     }
-    ringqCompact(op);
+    bufCompact(op);
     return written;
 }
 
@@ -2044,7 +2044,7 @@ ssize websWriteRaw(Webs *wp, char *buf, ssize size)
         Flush any buffered data to ensure data remains in sequence. 
         WARNING: Must do this blocking to ensure all data is written.
      */
-    if (ringqLen(&wp->output) > 0) {
+    if (bufLen(&wp->output) > 0) {
         prior = socketSetBlock(wp->sid, 1);
         written = websFlush(wp);
         socketSetBlock(wp->sid, prior);

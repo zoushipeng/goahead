@@ -910,14 +910,14 @@ bool websVerifyPamUser(Webs *wp)
          */
         ngroups = sizeof(groups) / sizeof(Gid);
         if ((i = getgrouplist(wp->username, 99999, groups, &ngroups)) >= 0) {
-            ringqOpen(&abilities, 128, -1);
+            bufCreate(&abilities, 128, -1);
             for (i = 0; i < ngroups; i++) {
                 if ((gp = getgrgid(groups[i])) != 0) {
-                    ringqPutStr(&abilities, gp->gr_name);
-                    ringqPutc(&abilities, ' ');
+                    bufPutStr(&abilities, gp->gr_name);
+                    bufPutc(&abilities, ' ');
                 }
             }
-            ringqAddNull(&abilities);
+            bufAddNull(&abilities);
             trace(5, "Create temp user \"%s\" with abilities: %s", wp->username, abilities.servp);
             if ((wp->user = websAddUser(wp->username, 0, abilities.servp)) == 0) {
                 return 0;

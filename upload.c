@@ -150,7 +150,7 @@ int websProcessUploadData(Webs *wp)
             if ((rc = processContentData(wp)) < 0) {
                 done++;
             }
-            if (ringqLen(&wp->input) < wp->boundaryLen) {
+            if (bufLen(&wp->input) < wp->boundaryLen) {
                 /*  Incomplete boundary - return to get more data */
                 done++;
             }
@@ -164,7 +164,7 @@ int websProcessUploadData(Webs *wp)
     if (!websValid(wp)) {
         return -1;
     }
-    ringqCompact(&wp->input);
+    bufCompact(&wp->input);
     return 0;
 }
 
@@ -327,7 +327,7 @@ static int processContentData(Webs *wp)
     content = &wp->input;
     file = wp->currentFile;
 
-    size = ringqLen(content);
+    size = bufLen(content);
     if (size < wp->boundaryLen) {
         /*  Incomplete boundary. Return and get more data */
         return 0;
@@ -349,7 +349,7 @@ static int processContentData(Webs *wp)
         }
     }
     data = content->servp;
-    nbytes = (bp) ? (bp - data) : ringqLen(content);
+    nbytes = (bp) ? (bp - data) : bufLen(content);
 
     if (nbytes > 0) {
         websConsumeInput(wp, nbytes);

@@ -1,0 +1,155 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">User Guide</a> &gt; <b>Modules</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#goaheadModules">Modules</a></li>
+                <li><a href="#dynamicAndStaticLoading">Dynamic and Static Loading</a></li>
+                <li><a href="#loadModuleDirective">LoadModule Directive</a></li>
+            </ul>
+<!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/users/index.html">User Guide Overview</a></li>
+                <li><a href="../../../guide/goahead/users/configuration.html">Configuring GoAhead</a></li>
+                <li><a href="../../../guide/goahead/users/authentication.html">User Authorization</a></li>
+                <li><a href="../../../guide/goahead/users/logFiles.html">Log Files</a></li>
+                <li><a href="../../../guide/goahead/users/security.html">Security Considerations</a></li>
+                <li><a href="../../../guide/goahead/users/ssl.html">SSL</a></li>
+            </ul>
+<!-- EndDsi -->
+            <!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Using Loadable Modules</h1>
+            <p>Embeddable web servers have several competing goals. They endeavor to:</p>
+            <ul>
+                <li>Minimize memory footprint</li>
+                <li>Minimize CPU consumption</li>
+                <li>Maximize security</li>
+                <li>Provide a strong and standard feature set</li>
+            </ul>
+            <p>It is difficult to meet all these goals in one server. GoAhead, however, uses loadable modules to 
+            segment functionality and make it possible to meet these goals effectively. The loadable modules ensure that
+            the core HTTP server is compact, secure, and fast, and still has the ability to grow functionality as
+            required.</p>
+            
+            <a id="goaheadModules"></a>
+            <h2>GoAhead Modules</h2>
+            <p>GoAhead delivers the following modules:</p>
+            <table title="modules">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>mod_cgi</td>
+                        <td>Common Gateway Interface (CGI) handler</td>
+                    </tr>
+                    <tr>
+                        <td>mod_dir</td>
+                        <td>Directory listing handler</td>
+                    </tr>
+                    <tr>
+                        <td>mod_esp</td>
+                        <td>Embedded Server Pages (ESP) handler</td>
+                    </tr>
+                    <tr>
+                        <td>mod_ejs</td>
+                        <td>Ejscript Server-Side JavaScript) module</td>
+                    </tr>
+                    <tr>
+                        <td>mod_php</td>
+                        <td>PHP handler</td>
+                    </tr>
+                    <tr>
+                        <td>mod_ssl</td>
+                        <td>Secure Sockets Layer (SSL) module</td>
+                    </tr>
+                </tbody>
+            </table><a id="dynamicAndStaticLoading"></a>
+            <h2>Dynamic Loading</h2>
+            <p>An GoAhead loadable module is a discrete unit of functionality that may be linked into GoAhead to enhance
+            the core HTTP server. Loadable Modules may be dynamically loaded via shared libraries or DLLs</p>
+            <p>If building GoAhead from source, modules can also be statically linked when the library initialization
+                entry point is explicitly invoked from the web server main program.</p>
+            
+            <a id="loadModuleDirective"></a>
+            <h2>LoadModule Directive</h2>
+            <p>The GoAhead configuration file specifies which modules to load and in what order. As some modules may
+            depend on the functionality provided by other modules -- order does matter.</p>
+            <p>The <a href="dir/module.html#loadModule">LoadModule</a> directive will load a module and activate it for
+            processing. If the module is already loaded (either statically or dynamically), the load directive will
+            have no effect.</p>
+            <pre>
+LoadModule myModule lib/libmyModule
+</pre>
+            <p>On Windows, this directive will load libmyModule.dll. On Linux, it will load libmyModule.so. If the
+            module is statically linked into GoAhead, the Load Module directive will not need to load it.</p>
+            <p>GoAhead will look for the module in the directory specified relative to the directory defined by the
+            ServerRoot. GoAhead will search other directories if a <a href=
+            "dir/module.html#loadModulePath">LoadModulePath</a> directive is specified. This will nominate a set of
+            directories to search in order when attempting to locate the module.</p>
+            <pre>
+LoadModulePath "../macosx-x64-debug/bin"
+</pre>
+            <p>For information about how to create a loadable module, see <a href=
+            "../programmers/modules.html">Creating GoAhead Modules</a>.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<BODY><PRE>
+GOAHEAD(1)                        User Commands                       GOAHEAD(1)
+
+<B>NAME</B>
+       goahead- Embedded HTTP Web Server
+
+<B>SYNOPSIS</B>
+       <B>goahead [options]</B>
+       <B>goahead [options] [IP][:port] [documentRoot]</B>
+
+       <B>goahead  </B>[<I>--config  configFile</I>] [<I>--chroot directory</I>] [<I>--debugger</I>] [<I>--exe</I>
+       <I>path</I>] [<I>--log logSpec</I>] [<I>--home directory</I>]  [<I>--threads  threads</I>]  [<I>--ver-</I>
+       <I>sion</I>] [<I>--verbose</I>]
+
+<B>DESCRIPTION</B>
+       GoAhead  is  a  compact  embedded HTTP web server.  It is a fast, small-
+       footprint, multi-threaded, standards-based, portable  server  developed
+       for  use  by embedded devices and applications.  It can run as a stand-
+       alone web server or the GoAhead library can be embedded in applications.
+
+       GoAhead supports HTTP/1.1, SSL, digest and basic authentication, virtual
+       hosting, ranged requests, chunked transfers, file upload  and  security
+       limits.  GoAhead has an Apache style configuration file and supports the
+       PHP and Ejscript web frameworks.
+
+       GoAhead normally reads the <B>goahead.conf  </B>file  for  configuration  direc-
+       tives.  However, if goahead is invoked with an IP address or port number
+       on the command line, GoAhead  will  not  read  the  configuration  file.
+       Rather it will listen for requests on the specified IP:PORT address. If
+       the PORT component is omitted, GoAhead will listen on port 80. If the IP
+       address  is  omitted  and a port is supplied, GoAhead will listen on all
+       network interfaces.
+
+<B>OPTIONS</B>
+       <B>--config filename</B>
+              Define the name of the GoAhead configuration  file.  This  is  by
+              default <B>goahead</B>.
+
+       <B>--chroot directory</B>
+              Change  the  system  root  directory  for GoAhead. This creates a
+              chroot jail so that the GoAhead process cannot access  any  files
+              outside the given directory.
+
+       <B>--debugger</B>
+              Run GoAhead in debug mode and disable all timeouts. This disables
+              request and session timeouts.  The <B>-d </B>option  is  an  alias  for
+              --debug.
+
+       <B>--exe path</B>
+              Set  the  path  to  the goahead.exe executable image. This may be
+              required on VxWorks so that GoAhead can load  modules  which  are
+              located   at  "goahead.exe/../lib".  This  is  necessary  because
+              VxWorks cannot determine the path to  the  executable  image  at
+              runtime.
+
+       <B>--log logSpec</B>
+              Name the GoAhead log file. This will override the ErrorLog direc-
+              tive in the  configuration  file.   When  the  maximum  size  is
+              exceeded,  the log file will be rotated to logName.old and a new
+              log file will be started. The <B>-l </B>option is an alias  for  --log.
+              The syntax is:
+
+              --log logName[:logLevel][.maxSize]
+
+       <B>--home directory</B>
+              Define the server home directory for GoAhead.
+
+       <B>--threads numThreads</B>
+              Specify  the  maximum  number  of  threads to use for the goahead
+              thread pool. This overrides the ThreadLimit  configuration  file
+              directive.
+
+       <B>--verbose</B>
+              Shorthand  for  --log  stdout:4.  The  <B>-v </B>option is an alias for
+              --verbose.
+
+       <B>--version</B>
+              Output the product version number.
+
+<B>FILES</B>
+       <B>/etc/goahead/goahead.conf</B>
+       <B>/var/www/goahead-default</B>
+       <B>/usr/lib/goahead</B>
+       <B>/var/log/goahead</B>
+
+<B>REPORTING BUGS</B>
+       Report bugs to &ltdev@embedthis.com&gt.
+
+<B>COPYRIGHT</B>
+       Copyright (C) 2003-2012 Embedthis Software.
+
+<B>SEE ALSO</B>
+       http
+
+goahead                            March 2012                         GOAHEAD(1)
+</PRE></BODY>

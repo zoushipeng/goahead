@@ -1,0 +1,130 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <b>Source Code</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#get">Getting the Source</a></li>
+                <li><a href="#repository">Repository</a></li>
+                <li><a href="#building">Building</a></li>
+                <li><a href="#porting">Porting</a></li>
+            </ul>
+<!-- BeginDsi "dsi/sourceSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/source/index.html">Working with Source</a></li>
+                <li><a href="../../../guide/goahead/source/building.html">Building From Source</a></li>
+                <li><a href="../../../guide/goahead/source/porting.html">Porting Guide</a></li>
+
+                <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
+                <li><a href="../../../api/native.html">Native APIs</a></li>
+
+                <li><a href="../../../guide/goahead/programmers/embedding.html">Embedding GoAhead</a></li>
+                <li><a href="../../../guide/goahead/programmers/handlers.html">GoAhead Handlers</a></li>
+                <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+                <li><a href="../../../product/changeLog.html">Change Log</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Working with the GoAhead Source Code</h1>
+            <p>GoAhead releases are available as either a binary or source code distribution. It is your choice which
+            distribution you choose, but the source code distribution has several advantages:</p>
+            <ul>
+                <li>You can recompile GoAhead to optimize it for your specific system environment.</li>
+                <li>You can reconfigure GoAhead via configuration options to select the specific
+                feature set you require.</li>
+                <li>You can minimize the memory footprint and decrease the securable surface area.</li>
+            </ul><a id="get"></a>
+            <h2>Getting the Source Code</h2>
+            <p>With each GoAhead release, a complete source code snapshot is provided. You can get the latest source
+            code from the <a href="http://embedthis.com/downloads/goahead/download.ejs">download</a> site or you can
+            access the <a href="https://github.com/embedthis/goahead">source code repository</a>.</p>
+            <a id="repository"></a>
+            <h3>Source Repository</h3>
+            <p>The GoAhead source code is hosted in a Git repository. We provide open read-only access. Write
+            access is available to regular contributing developers. To check out the source use this command:</p>
+            <pre>
+$ git clone http://github.com/embedthis/goahead
+</pre>
+            <p>You can also view the repository at <a
+                href="https://github.com/embedthis/goahead">https://github.com/embedthis/goahead</a>. This is also a
+            convenient way to get the source code. </p>
+            <h3>Repository Branches</h3>
+            The repository has three branches for various phases of development and release: Master, Dev and Stable. 
+            <h4>Master Branch</h4>
+            The Master branch in the repository source code is the code base for the next minor and major release. It 
+            will contain the latest features and fixes, but it will also contain bugs and issues that have not been 
+            resolved. For this reason use of the repository source code is not recommended for production or development use.  
+            <h4>Dev Branch</h4>
+            <p>The Dev branch is updated when the Master branch is relatively steady and usable, but prior to release.
+            The Dev branch is used to create Beta releases. It is not as bug-free as the Stable branch and yet has most
+            of the features in the master branch.</p>
+            <h4>Stable Branch</h4>
+            <p>The stable branch is for ongoing maintenance of the current stable release.</p>
+            <a id="building"></a>
+            <h2>Building GoAhead from Source</h2>
+            <p>The GoAhead source distribution contains all the required source files, headers, tools, and test framework
+            to reconfigure, build, and verify GoAhead. For details, see the <a href="building.html">building from
+                source</a> instructions.</p>
+            
+            <a id="porting"></a>
+            <h2>Porting the Source to a New Platform</h2>
+            <p>GoAhead currently runs on a wide variety of operating platforms including: FreeBSD, Linux, MAC OS X and
+            Windows. If your system is not one of these, you may like to try porting GoAhead to your system. See the
+            detailed <a href="porting.html">porting instructions</a> for tips on this process.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

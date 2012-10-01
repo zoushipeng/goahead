@@ -60,14 +60,14 @@ MAIN(goahead, int argc, char **argv, char **envp)
         if (*argp != '-') {
             break;
 
-        } else if (smatch(argp, "--auth") || smatch(argp, "-b")) {
+        } else if (smatch(argp, "--auth") || smatch(argp, "-a")) {
             if (argind >= argc) usage();
             auth = argv[++argind];
 
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
 
-        } else if (smatch(argp, "--debug")) {
+        } else if (smatch(argp, "--debugger") || smatch(argp, "-d")) {
             websSetDebug(1);
 
         } else if (smatch(argp, "--home")) {
@@ -184,7 +184,7 @@ static void usage() {
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
         "    --background           # Run as a Unix daemon\n"
-        "    --debug                # Run in debug mode\n"
+        "    --debugger             # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
         "    --route routeFile      # Route configuration file\n"

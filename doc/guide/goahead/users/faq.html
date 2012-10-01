@@ -1,0 +1,273 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="gettingStarted.html">Getting Started</a> &gt; <b>FAQ</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#questions">Questions</a></li>
+                <li><a href="#answers">Answers</a></li>
+            </ul>
+<!-- BeginDsi "dsi/gettingSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/overview.html">GoAhead Overview</a></li>
+                <li><a href="../../../guide/goahead/features.html">GoAhead Features</a></li>
+                <li><a href="../../../product/releaseNotes.html">Release Notes</a></li>
+                <li><a href="../../../product/install/index.html">Installation Overview</a></li>
+                <li><a href="../../../guide/goahead/users/gettingStarted.html">Getting Started</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+                <li><a href="../../../guide/goahead/users/configuration.html">Configuring GoAhead</a></li>
+                <li><a href="../../../guide/goahead/users/authentication.html">User Authentication</a></li>
+                <li><a href="../../../guide/goahead/users/logFiles.html">Log Files</a></li>
+                <li><a href="../../../guide/goahead/users/security.html">Security Considerations</a></li>
+            </ul>
+<!-- EndDsi -->
+            <!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>GoAhead&trade; FAQ</h1>
+            <p>If you don't find the answers you need here, please submit your question to the online community support
+            <a href="http://groups.google.com/forum/goaheadwebs">Forum</a>.</p>
+            <a id="questions"></a>
+            <h2 class="section">Questions</h2>
+            <h3>General Questions</h3>
+            <ul class="questions">
+                <li><a href="#history">Why is Embedthis Software supporting and distributing the GoAhead WebServer?</a></li>
+                <li><a href="#compare">How does the GoAhead WebServer compare with Appweb?</a></li>
+                <li><a href="#runTimeModules">Can I disable features to minimize memory footprint at run-time?</a></li>
+                <li><a href="#upload">How can I upload large files?</a></li>
+            </ul>
+            <h3>Building Questions</h3>
+            <ul class="questions">
+                <li><a href="#disableFeatures">When I build the source, can I disable features at compile
+                time?</a></li>
+            </ul>
+            <h3>Diagnostic Questions</h3>
+            <ul class="questions">
+                <li><a href="#trace">How can I trouble-shoot with trace?</a></li>
+                <li><a href="#cgi">How can I use CGI?</a></li>
+            </ul>
+            <h3>Embedded Questions</h3>
+            <ul class="questions">
+                <li><a href="#minimalFootprint">How small can I make GoAhead?</a></li>
+                <li><a href="#cross">How can I cross compile?</a></li>
+            </ul>
+
+
+            <a id="answers"></a>
+            <h2 class="section">Answers</h2>
+            <p class="question"><a id="history"></a>Why is Embedthis Software supporting and distributing 
+                the GoAhead WebServer?</p>
+            <div class="answer">
+                The GoAhead WebServer was originally written by Michael O'Brien CEO of Embedthis and it remains a very
+                popular to this day. With the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing
+                GoAhead WebServer customers and to offer commercial licenses for the GoAhead WebServer.
+            </div>
+
+            <a id="compare"></a>
+            <p class="question">How does the GoAhead WebServer compare with Appweb?</p>
+            <div class="answer">
+                <p>The GoAhead WebServer is a simple, compact web server that has been widely ported to many embedded
+                operating systems. Appweb is faster and more powerful &emdash; but requires more memory. If you need a very
+                simple, low end web server and have little memory available, the GoAhead WebServer is ideal. If you need
+                higher performance and extended security, then Appweb is the right choice.</p>
+            </div>
+
+            <a id="runTimeModules"></a>
+            <p class="question">Can I disable features to minimize memory footprint at run-time?</p>
+            <div class="answer">
+                <p>Yes. GoAhead has build-time configuration settings to select required features and minimize 
+                memory footprint. See <a href="..//source/building.html#configuring">Building from Source</a> for details of
+                the configuration options.</p> 
+            </div>
+
+            <p class="question"><a id="upload"></a>How can I upload large files?</p>
+            <div class="answer">
+                <p>You need to increase the LimitRequestBody limit in the goahead.conf file. This imposes a maximum
+                upload file size. Some samples have a MAX_FILE_SIZE input field in the HTML form. This however, is 
+                just a hint to the browser, and is only processed by some browsers.</p>
+            </div>
+            <p class="question"><a id="replacePHP"></a>Can I replace the PHP library?</p>
+            <div class="answer">
+                <p>Yes, you can replace the GoAhead-supplied PHP library with either the library from the standard PHP
+                distribution or a custom PHP library of your own building. The GoAhead PHP library is not special. It is
+                a PHP configuration that omits features to create a small PHP library. To replace the PHP library 
+                replace the the file named either: libphp.so, libphp.dylib or php5ts.dll</p>
+            </div>
+
+            <p class="question"><a id="disableFeatures"></a>When I build from the source, can I
+            disable features at compile time?</p>
+            <div class="answer">
+                <p>Yes. When GoAhead is built from source, a single bld.h header controls exactly what features and
+                modules are built into the server. For example, if you don't require HTTP Keep-Alive support, and you
+                wish to minimize memory footprint, you can modify the MPR_FEATURE_HTTP_KEEP_ALIVE definition to be
+                0.</p>
+            </div><a id="trace"></a>
+            <p class="question">How can I trouble-shoot with trace?</p>
+            <div class="answer">
+                <p>Run goahead or winGoAhead with the logging switch "-l". The logging switch takes the following
+                parameters:</p>
+                <pre>
+goahead -l logName[:logLevel][.maxSize]
+</pre>
+                <p>Where logLevel is a number between 0 and 9. Zero is the least verbose. To debug HTTP requests, a
+                level of 6 provides the detail of all the request / response exchanges. MaxSize is the maximum size of
+                the log file in MB. When the maximum size is exceeded, the log file will be rotated to logName.old and
+                a new log file will be started.</p>
+            </div>
+            <p class="question"><a id="cgi"></a> How can I use CGI?</p>
+            <div class="answer">
+                <p>GoAhead is configured by default to run CGI programs. If you do need to modify the CGI configuration,
+                the following may help:</p>
+                <p>The configuration file directives for CGI are:</p>
+                <pre>
+AddHandler cgiHandler .cgi .bat .cmd .pl
+</pre>
+                <p>This instructs GoAhead to run the CGI handler for specified file extensions. You can also have CGI be
+                used for URLs that begin with a given prefix. By default, there is already a Location block defined for
+                /cgi-bin in the default goahead.conf. Any files under this URL (http://host/cgi-bin/scriptName) will
+                also run as CGI scripts. To run a given interpreter (for example Perl), you can either just include</p>
+                <pre>
+#!/bin/perl 
+</pre>in the first line of your script (replace the /bin/perl path to point to your interpreter), and make sure your
+script has a .pl extension. Alternatively, you can change the path specified in the ActionProgram directive to point to
+your perl interpreter.
+                <p>Here is the list of CGI variables that are defined for GoAhead under CGI and PHP:</p>
+                <pre>
+AUTH_TYPE 
+CONTENT_LENGTH 
+CONTENT_TYPE 
+DOCUMENT_ROOT 
+GATEWAY_INTERFACE 
+HTTP_ACCEPT 
+HTTP_CONNECTION 
+HTTP_HOST 
+HTTP_USER_AGENT 
+PATH_INFO 
+PATH_TRANSLATED 
+QUERY_STRING 
+REMOTE_ADDR 
+REMOTE_HOST 
+REMOTE_USER 
+REQUEST_METHOD 
+REQUEST_URI 
+SCRIPT_NAME 
+SERVER_ADDR 
+SERVER_HOST 
+SERVER_NAME 
+SERVER_PORT 
+SERVER_PROTOCOL 
+SERVER_SOFTWARE 
+SERVER_URL
+</pre>
+            </div>
+            <p class="question"><a id="handlers"></a>What is the difference between handlers and
+            modules?</p>
+            <div class="answer">
+                <p><b>Modules</b> are just for the basic loading mechanism of shared objects (DLLs). However, they also
+                provide a consistent way to handle modules that are statically loaded without much effort on the part
+                of the developers.</p><b>Handlers</b> are the work-horses for the HTTP server. They actually process
+                the HTTP requests and have full access to the request. They also own its processing.
+            </div>
+            <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
+            <div class="answer">
+                <p>GoAhead 2 has about 150K of code. On a VxWorks or uClibc based Linux system, you should be able to
+                build GoAhead for an all-up memory footprint 200K. It will be larger if you use OpenSSL.
+                (which is +800K).</p>
+                <p>For a minimal footprint on GoAhead, use:</p>
+                <pre>
+./configure --disable-all ... more options ...
+</pre>
+                <p>This will disable all possible features but still provide a running web server. Then add various
+                <em>--enable-option</em> and <em>--with-component</em> switches as required.</p>
+                <p>Things to consider when building small:</p>
+                <ul>
+                    <li>Disable all possible features. In particular, disable the CGI and Javascript handlers</li>
+                    <li>Don't build DEBUG. Use: <em>./configure --type=release</em></li>
+                    <li>Use a small C-Library such as uClibc on embedded Linux systems</li>
+                </ul>
+            </div>
+            <p class="question"><a id="cross"></a>How can I cross compile?</p>
+            <div class="answer">
+                <p>The GoAhead configure command has switches to specify the <b>build</b> system and the target system
+                that will <b>host</b> GoAhead. For example:</p>
+                <pre>
+./configure --host powerpc-wrs-vxworks --build pentium-pc-windows
+</pre>
+                <p>When cross compiling, you also need to tell configure about your cross-compilation tool chain. This
+                means the names of your compiler, library archiver, and other utilities and flags. The configure program
+                listens to the settings of the AR, CC, NM, RANLIB, STRIP, CFLAGS, IFLAGS and LDFLAGS environment
+                variables and will pass their values into the build system. These will be used to define the
+                cross-compilation tool chain. You can also specify an alternate build tool chain by using the same
+                variables but with a BUILD_ prefix. For example:</p>
+                <pre>
+DIR=/path/to/cross-tools ; \
+AR=$DIR/bin/ar.exe \
+CC=$DIR/bin/cc.exe \
+LD=$DIR/bin/cc.exe \
+NM=$DIR/nm.exe \
+RANLIB=$DIR/ranlib.exe \
+STRIP=$DIR/strip.exe \
+CFLAGS="-I$DIR/include \
+./configure --type=DEBUG --host=arm--linux 
+</pre>
+                <p>For more details, please read: <a href="../source/building.html#cross">Cross Compilation</a> in the
+                <a href="../source/building.html">Building from Source</a> guide.</p>
+            </div>
+            <h2 class="section">Need more help?</h2>
+            <p>If you have any further questions, please go to the GoAhead community support email list at <a href=
+            "http://groups.google.com/forum/goaheadwebs">Forum</a>.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

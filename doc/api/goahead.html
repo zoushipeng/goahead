@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta charset="utf-8"/>
+    <meta name="description" content="Embedthis GoAhead - embedded web servers for devices and applications." />
+	<link href="../doc.css" rel="stylesheet" type="text/css" />
+	<link href="api.css" rel="stylesheet" type="text/css" />
+	<link href="../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+<body>
+    <div class="top">
+        <a class="logo" href="http://embedthis.com/">&nbsp;</a>
+        <div class="topRight">
+             <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version"><!--TITLE-->Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../index.html">Home</a>
+            &gt; <a href="../ref/goahead/index.html">Programmers Reference</a> 
+            &gt; <a href="native.html">Native APIs</a> 
+            &gt; <b>GoAhead</b> 
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+            
+<!-- BeginDsi "dsi/see.html" -->
+				<h1>See Also</h1>
+				<ul class="nav">
+					<li><a href="../ref/goahead/index.html">Programmers Reference</a></li>
+					<li><a href="../api/native.html">Native APIs</a></li>
+				</ul>
+<!-- EndDsi -->
+            <h2>Quick Nav</h2>
+            <ul>
+                <li><a href="#Components">Components</a></li>
+                <li><a href="#Typedefs">Typedefs</a></li>
+                <li><a href="#Functions">Functions</a></li>
+                <li><a href="#Defines">Defines</a></li>
+            </ul>
+        </div>
+        <div class="contentLeft">
+<h1>GOAHEAD - GoAhead API Native API</h1>
+<a name="goahead.h"></a>
+<p>GoAhead is a tiny, simple web server.</p>
+Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language. 
+<a name="Components"></a><h1>Components</h1>
+  <table class="apiIndex" title="Components">
+<tr class="apiDef">
+<td class="apiName"><a href="#group___webs_buf" class="nameRef">WebsBuf</a></td>
+<td class="apiBrief">A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering.</td></tr>
+</table>
+<a name="Functions"></a><h1>Functions</h1>
+  <table class="apiIndex" title="Functions">
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1ga1838678c03f471aed89edfa5db822272" class="nameRef">bufAddNull</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Add a trailing null to the buffer.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1ga7fb267b66c30173cf035560028e83eba" class="nameRef">bufAdjustEnd</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Adjust the endp pointer by the specified size.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1ga89be85c8255bbe0b7a414af5f1587600" class="nameRef">bufAdjustStart</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> count)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Adjust the start (servp) reference.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1ga9ffe6a1664c7911d12e01f317fc18458" class="nameRef">bufCompact</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compact the data in the buffer and move to the start of the buffer.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_buf_1ga5acfca7bd6b154817530a4551de9a4a6" class="nameRef">bufCreate</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, int increment, int maxsize)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a buffer.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1gaf5a93373e65f8a7ccb456eb4bf72bba8" class="nameRef">bufFlush</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Flush all data in the buffer and reset the pointers.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1gacda55401603f555af52faee39639d78c" class="nameRef">bufFree</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free allocated storage for the buffer.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1gaa3a7777b78cd891c746772b5c489fd99" class="nameRef">bufGetBlk</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char *blk, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Copy a block of from the buffer and adjust the servp.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1gafa8400821880a8f4d9f1cad4a9595626" class="nameRef">bufGetBlkMax</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Return the maximum number of bytes the buffer can provide via a single block copy.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_buf_1gaad216addfbff3e9ecacdf4f4a651ac90" class="nameRef">bufGetc</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a character from the buffer and increment the servp.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_buf_1ga48fc76d92c206efcfdf3a376f85214dd" class="nameRef">bufGrow</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> room)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Grow the buffer by at least the required amount of room.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_buf_1gaa0ae470cc24e8e57db77e42ffb751b83" class="nameRef">bufInsertc</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char c)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Insert a character to the buffer before the servp position and decrement the servp.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1ga284f3c18de56b775c0a13f58f78d4744" class="nameRef">bufLen</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the length of available data in the buffer.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1ga419d75c03c567d76446620184f3a4c3b" class="nameRef">bufPutBlk</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char *blk, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Put a block to the buffer.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1gab2cc7762352180cf3334b0395c0026e3" class="nameRef">bufPutStr</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Append a string to the buffer at the endp position and increment the endp.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_buf_1ga7c38d63ce718b544ebdb32807a34ca3e" class="nameRef">bufPutc</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char c)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Append a character to the buffer at the endp position and increment the endp.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_buf_1gaa1f359ca367a6f72ebaa4b4028732333" class="nameRef">bufReset</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Reset the buffer pointers to the start of the buffer if empty.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_buf_1ga2ffac4a06b33a774a59e0441bbf0a555" class="nameRef">bufRoom</a>(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Determine the room available in the buffer.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1aa7733e30b2951f225e24dca1ed4632b2" class="nameRef">error</a>(char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the trace logging module.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#goahead_8h_1a9169827ad693bc412f22a9b6802deb65" class="nameRef">strim</a>(char *str, char *set, int where)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Trim a string.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ac74782a3320b6cf7ae6ae14cb0cce791" class="nameRef">trace</a>(int level, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Emit trace a.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a338aab0253658a4b09ac15e3e57a21b0" class="nameRef">traceClose</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the trace logging module.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1a4333728562014357eb604c500f5f5f81" class="nameRef">traceOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the trace logging module.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb" class="ref">WebsTraceHandler</a></td><td><a href="#goahead_8h_1ac6aed506f3906ab158f50ff1aeb6cf41" class="nameRef">traceSetHandler</a>(<a href="#goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb" class="ref">WebsTraceHandler</a> handler)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a trace callback.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1aa66a3f0c6816efa405be63fbbae4fea4" class="nameRef">traceSetPath</a>(char *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the filename to save logging output.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ac5058870cad6692d50f7fa9775a56c25" class="nameRef">valueFree</a>(<a href="#struct_webs_value" class="ref">WebsValue</a> *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free any allocated string in a value.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_value" class="ref">WebsValue</a></td><td><a href="#goahead_8h_1aa27f5beea810d9124985ecf1c1fe41fa" class="nameRef">valueInteger</a>(long value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an integer value.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_value" class="ref">WebsValue</a></td><td><a href="#goahead_8h_1a52e422ee4bf93b1acf60b1e63df7e13e" class="nameRef">valueString</a>(char *value, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an string value.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_value" class="ref">WebsValue</a></td><td><a href="#goahead_8h_1aa9292efb92931035fbdb7e8cc9fc2a58" class="nameRef">valueSymbol</a>(void *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an symbol value containing an object reference.</td></tr>
+</table>
+<a name="Typedefs"></a><h1>Typedefs</h1>
+<table class="apiIndex" title="typedefs">
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a0143a9b28125b27c8caa8d1837819e27" class="nameRef">WebsDateTime</a></td><td class="apiBrief">Date and time storage with millisecond resolution.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ac24bb6883f09c6da59aa56c2ec03842e" class="nameRef">WebsFilePos</a></td><td class="apiBrief">Signed file offset data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a3a874b92bbb07540254ed16567db3aa3" class="nameRef">WebsStat</a></td><td class="apiBrief">File status structure.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="nameRef">WebsTime</a></td><td class="apiBrief">System native time type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb" class="nameRef">WebsTraceHandler</a></td><td class="apiBrief">Callback for emitting trace log output.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#struct_webs_value" class="nameRef">WebsValue</a></td><td class="apiBrief">Value union to store primitive value types.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="nameRef">bool</a></td><td class="apiBrief">Boolean data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="nameRef">cchar</a></td><td class="apiBrief">Constant char data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ad5d9ae5e2ea7e75aa605e36485987fc2" class="nameRef">cuchar</a></td><td class="apiBrief">Unsigned char data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a585ef5c0f4567945e1f3e7f32670accb" class="nameRef">cushort</a></td><td class="apiBrief">Constant unsigned short data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a5272042f7e0f5c53e2fd4b49ff47d92d" class="nameRef">cvoid</a></td><td class="apiBrief">Constant void data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a56f1a81c92849566ae864511088eb7e8" class="nameRef">int32</a></td><td class="apiBrief">Integer 32 bits data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a0fd9ce9d735064461bebfe6037026093" class="nameRef">schar</a></td><td class="apiBrief">Signed char data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="nameRef">ssize</a></td><td class="apiBrief">Signed integer size field large enough to hold a pointer offset.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a65f85814a8290f9797005d3b28e7e5fc" class="nameRef">uchar</a></td><td class="apiBrief">Unsigned char data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a91ad9478d81a7aaf2593e8d9c3d06a14" class="nameRef">uint</a></td><td class="apiBrief">Unsigned integer (machine dependent bit size) data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a1134b580f8da4de94ca6b1de4d37975e" class="nameRef">uint32</a></td><td class="apiBrief">Unsigned integer 32 bits data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a718b4eb2652c286f4d42dc18a8e71a1a" class="nameRef">ulong</a></td><td class="apiBrief">Unsigned long (machine dependent bit size) data type.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ab95f123a6c9bcfee6a343170ef8c5f69" class="nameRef">ushort</a></td><td class="apiBrief">Unsigned short data type.</td></tr>
+</table>
+<a name="Defines"></a><h1>Defines</h1>
+<table class="apiIndex" title="Defines">
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1aed3a84de9262dc591ddc9e66995c5250" class="nameRef">BIT_CPU_ARM</a>&nbsp;&nbsp;&nbsp;1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Arm.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ac3d4e6de34e64419807ae6285a944d9a" class="nameRef">BIT_CPU_ITANIUM</a>&nbsp;&nbsp;&nbsp;2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Intel Itanium.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a4e0ab48e13de6e7ba194fc37bf979074" class="nameRef">BIT_CPU_MIPS</a>&nbsp;&nbsp;&nbsp;5</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Mips.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a3096261bc95345ccba482868497f5b4d" class="nameRef">BIT_CPU_PPC</a>&nbsp;&nbsp;&nbsp;6</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Power PC.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a5871fea8252dc92579b25c4cd5836486" class="nameRef">BIT_CPU_SPARC</a>&nbsp;&nbsp;&nbsp;7</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Sparc.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a01af7ca1197fc86fc1c76e22a25f824a" class="nameRef">BIT_CPU_X64</a>&nbsp;&nbsp;&nbsp;4</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>AMD64 or EMT64.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad588852cfcc2aa70973364e4ea8410e4" class="nameRef">BIT_CPU_X86</a>&nbsp;&nbsp;&nbsp;3</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>X86.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ac36a46b5b17a90c26041fea9bcc7fdb1" class="nameRef">BIT_DEBUG</a>&nbsp;&nbsp;&nbsp;0</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Enable a debug build.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ab2c71e38994dd26268646b5421ca3e4b" class="nameRef">BIT_ROM</a>&nbsp;&nbsp;&nbsp;0</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Build for execute from ROM.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a1efdfd58d322aa536b75deecf922f1c8" class="nameRef">HTTP_CODE_ACCEPTED</a>&nbsp;&nbsp;&nbsp;202</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request has been accepted and processing is continuing.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0af0302aed58ea49fd6b1be26179585c" class="nameRef">HTTP_CODE_BAD_GATEWAY</a>&nbsp;&nbsp;&nbsp;502</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server cannot act as a gateway for the given request.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a8b9b86ec8ac18bf9e606f22c0921dd4a" class="nameRef">HTTP_CODE_BAD_METHOD</a>&nbsp;&nbsp;&nbsp;405</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request HTTP method was not supported by the resource.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a16c7e21f17349c2515fe0134f9b7ffd4" class="nameRef">HTTP_CODE_BAD_REQUEST</a>&nbsp;&nbsp;&nbsp;400</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request is malformed.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1aa7dc3796cad07c52f3db7ed660948405" class="nameRef">HTTP_CODE_BAD_VERSION</a>&nbsp;&nbsp;&nbsp;505</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server does not support the HTTP protocol version.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ac4e84c07da5d5314255265a9470004fe" class="nameRef">HTTP_CODE_COMMS_ERROR</a>&nbsp;&nbsp;&nbsp;550</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server had a communicationss error responding to the client.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a33cde539885f920737a6c148f854aa15" class="nameRef">HTTP_CODE_CONFLICT</a>&nbsp;&nbsp;&nbsp;409</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request had a conflict in the request headers and URI.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad1f324698e12fefadfc2ec5d16ce6a5b" class="nameRef">HTTP_CODE_CONTINUE</a>&nbsp;&nbsp;&nbsp;100</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Continue with request, only partial content transmitted.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a00c11c6c6bf42cf1fb483c273454cf45" class="nameRef">HTTP_CODE_CREATED</a>&nbsp;&nbsp;&nbsp;201</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request has completed and a new resource was created.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a7b7785ff11163b18f12bc2d66f728abe" class="nameRef">HTTP_CODE_EXPECTATION_FAILED</a>&nbsp;&nbsp;&nbsp;417</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server cannot satisfy the Expect header requirements.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ac68e0a1d868dad52967d757dab5220db" class="nameRef">HTTP_CODE_FORBIDDEN</a>&nbsp;&nbsp;&nbsp;403</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request was legal, but the server refuses to process.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ab24790eefb565c4e7064438592e32204" class="nameRef">HTTP_CODE_GATEWAY_TIMEOUT</a>&nbsp;&nbsp;&nbsp;504</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server gateway timed out waiting for the upstream server.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0eeb0f3801fbd1ca5d0f050e12426768" class="nameRef">HTTP_CODE_GONE</a>&nbsp;&nbsp;&nbsp;410</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested resource is no longer available.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1af7fab487ecc4f937304ff5ad1fd97330" class="nameRef">HTTP_CODE_INSUFFICIENT_STORAGE</a>&nbsp;&nbsp;&nbsp;507</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server has insufficient storage to complete the request.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a6d47746cc8b934944ed4f05308b2da63" class="nameRef">HTTP_CODE_INTERNAL_SERVER_ERROR</a>&nbsp;&nbsp;&nbsp;500</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Server processing or configuration error.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1af92be73f22cd3758211ce5b90ec64572" class="nameRef">HTTP_CODE_LENGTH_REQUIRED</a>&nbsp;&nbsp;&nbsp;411</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request did not specify a required content length.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a3d8f6601017c97af5fe8bd5267be8b02" class="nameRef">HTTP_CODE_MOVED_PERMANENTLY</a>&nbsp;&nbsp;&nbsp;301</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested URI has moved permanently to a new location.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a33f32423ccbf3a2a61f56cc5aee18cd8" class="nameRef">HTTP_CODE_MOVED_TEMPORARILY</a>&nbsp;&nbsp;&nbsp;302</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The URI has moved temporarily to a new location.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a7e41c8a47383e2bdf4b34ce5510bc9b6" class="nameRef">HTTP_CODE_NO_CONTENT</a>&nbsp;&nbsp;&nbsp;204</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request has completed and there is no response to send.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a1159b67860d06bcce578f8d4d0083070" class="nameRef">HTTP_CODE_NO_RESPONSE</a>&nbsp;&nbsp;&nbsp;444</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The connection was closed with no response to the client.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1aa44abbf9540845f062801eb5bff8a128" class="nameRef">HTTP_CODE_NOT_ACCEPTABLE</a>&nbsp;&nbsp;&nbsp;406</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested resource cannot generate the required content.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0a20b658e0dc1c0634a4eb5b07b36d52" class="nameRef">HTTP_CODE_NOT_AUTHORITATIVE</a>&nbsp;&nbsp;&nbsp;203</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request has completed but content may be from another source.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a20eb5cc8af538c827de0f7ed9811243c" class="nameRef">HTTP_CODE_NOT_FOUND</a>&nbsp;&nbsp;&nbsp;404</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested resource was not found.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a9e272d1190eb37ce4447a9021f68a0c4" class="nameRef">HTTP_CODE_NOT_IMPLEMENTED</a>&nbsp;&nbsp;&nbsp;501</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server does not recognize the request or method.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a225a5999b63c699c4492a8412b315452" class="nameRef">HTTP_CODE_NOT_MODIFIED</a>&nbsp;&nbsp;&nbsp;304</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested resource has changed since the last request.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a471de168f41ecf5e8d62a43fea28b5d7" class="nameRef">HTTP_CODE_OK</a>&nbsp;&nbsp;&nbsp;200</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request completed successfully.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ae55f28c554e19bbddaba95fdb81c90e0" class="nameRef">HTTP_CODE_PARTIAL</a>&nbsp;&nbsp;&nbsp;206</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request has completed and is returning partial content.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ab772ef28d09ec65afdfc7b67ca29c4b8" class="nameRef">HTTP_CODE_PAYMENT_REQUIRED</a>&nbsp;&nbsp;&nbsp;402</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Reserved for future use.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a9b62630f040b66859f1b08380ac52250" class="nameRef">HTTP_CODE_PRECOND_FAILED</a>&nbsp;&nbsp;&nbsp;412</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server cannot satisfy one of the request preconditions.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1abf878ed6908fa91fca3138731e7033a2" class="nameRef">HTTP_CODE_RANGE_NOT_SATISFIABLE</a>&nbsp;&nbsp;&nbsp;416</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request content range does not exist for the resource.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1aac7ff73346b1a2812e6b2cde68ace003" class="nameRef">HTTP_CODE_REQUEST_TIMEOUT</a>&nbsp;&nbsp;&nbsp;408</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server timed out waiting for the request to complete.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a9d41ec497841c29d86a1b9ef93a6316d" class="nameRef">HTTP_CODE_REQUEST_TOO_LARGE</a>&nbsp;&nbsp;&nbsp;413</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request is too large for the server to process.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a4b04fb7856d5d412df31b0d9528d6191" class="nameRef">HTTP_CODE_REQUEST_URL_TOO_LARGE</a>&nbsp;&nbsp;&nbsp;414</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request URI is too long for the server to process.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1aab1d80e99e8e1db0a8a4531c69f037c9" class="nameRef">HTTP_CODE_RESET</a>&nbsp;&nbsp;&nbsp;205</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request has completed with no content.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a81767ddf9b55cb683935842e67b93680" class="nameRef">HTTP_CODE_SEE_OTHER</a>&nbsp;&nbsp;&nbsp;303</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested URI can be found at another URI location.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a00a05677bf92a38abf5be28b5ce0d294" class="nameRef">HTTP_CODE_SERVICE_UNAVAILABLE</a>&nbsp;&nbsp;&nbsp;503</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The server is currently unavailable or overloaded.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a12036a2f5ae164e644d3a063864cb1a1" class="nameRef">HTTP_CODE_TEMPORARY_REDIRECT</a>&nbsp;&nbsp;&nbsp;307</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request should be repeated at another URI location.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a4667745cca24cb084488393a562647aa" class="nameRef">HTTP_CODE_UNAUTHORIZED</a>&nbsp;&nbsp;&nbsp;401</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Authentication for the request has failed.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad0f303cb6433d273adbfd7a8db38f720" class="nameRef">HTTP_CODE_UNSUPPORTED_MEDIA_TYPE</a>&nbsp;&nbsp;&nbsp;415</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The request media type is not supported by the server or resource.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a368ec3a2d7da1dc0a43de55c829ae97b" class="nameRef">HTTP_CODE_USE_PROXY</a>&nbsp;&nbsp;&nbsp;305</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The requested resource must be accessed via the location proxy.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad67de85ec9f1c5f73e756af3054bd78b" class="nameRef">VALUE_ALLOCATE</a>&nbsp;&nbsp;&nbsp;0x1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Allocate strings using malloc.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a341a7720a9020d6a29fd77b540422579" class="nameRef">value_numeric</a>&nbsp;&nbsp;&nbsp;(t &gt;= byteint &amp;&amp; t &lt;= big)</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The value is a numeric type.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ac0bedfb6f2b538f9459d04e0d60e2935" class="nameRef">value_ok</a>&nbsp;&nbsp;&nbsp;(t &gt; undefined &amp;&amp; t &lt;= symbol)</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The value is valid supported type.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0c4fe8ad2c4157463c53d540b526a7db" class="nameRef">value_str</a>&nbsp;&nbsp;&nbsp;(t &gt;= string &amp;&amp; t &lt;= bytes)</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>The value is a string type.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ae0e37be791db29aacc26b899596f21c6" class="nameRef">WEBS_CHUNK_DATA</a>&nbsp;&nbsp;&nbsp;3</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Start of chunk data.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a599da0f60dabc762dbf1a6b303bd6cab" class="nameRef">WEBS_CHUNK_HEADER</a>&nbsp;&nbsp;&nbsp;2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Preparing tx chunk header.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ae8a0189bb1a76bacdd40f3e448486dbd" class="nameRef">WEBS_CHUNK_START</a>&nbsp;&nbsp;&nbsp;1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Start of a new chunk.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a2ef42bef1fe656be2d208c3116c75d23" class="nameRef">WEBS_CHUNK_UNCHUNKED</a>&nbsp;&nbsp;&nbsp;0</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Data is not transfer-chunk encoded.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0542132a4a1e922f07cedb9fc62345af" class="nameRef">WEBS_COOKIE_HTTP</a>&nbsp;&nbsp;&nbsp;0x2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for websSetCookie for http cookies (http only).</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ab4d2a11360e7f9acdfc46d917d6c2695" class="nameRef">WEBS_COOKIE_SECURE</a>&nbsp;&nbsp;&nbsp;0x1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for websSetCookie for secure cookies (https only).</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a1646430a51608c0851ea5beae48a2b59" class="nameRef">WEBS_DECODE_TOKEQ</a>&nbsp;&nbsp;&nbsp;1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Decode base 64 blocks up to a NULL or equals.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a25bcde7fa767594ca76c2f657565152d" class="nameRef">WEBS_MAX_LISTEN</a>&nbsp;&nbsp;&nbsp;8</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Maximum number of listen endpoints.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1acf53c18ee7fc4673a34465c35fde1d54" class="nameRef">WEBS_SESSION_USERNAME</a>&nbsp;&nbsp;&nbsp;&quot;_:USERNAME:_&quot;</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Username variable.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a74710a46052fef4648a4192538741a0a" class="nameRef">WEBS_SMALL_HASH</a>&nbsp;&nbsp;&nbsp;31</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>General small hash size.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a97b3ad9c701c52137117f6d82702895a" class="nameRef">WEBS_TRIM_BOTH</a>&nbsp;&nbsp;&nbsp;0x3</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for <a class="ref" href="#goahead_8h_1a9169827ad693bc412f22a9b6802deb65">strim</a> to trim from both the start and the end of the string.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1acd059bb8f02892cb0093e5bb7c13c99a" class="nameRef">WEBS_TRIM_END</a>&nbsp;&nbsp;&nbsp;0x2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for <a class="ref" href="#goahead_8h_1a9169827ad693bc412f22a9b6802deb65">strim</a> to trim from the end of the string.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad185deb88c41c92632f330d3191f73af" class="nameRef">WEBS_TRIM_START</a>&nbsp;&nbsp;&nbsp;0x1</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for <a class="ref" href="#goahead_8h_1a9169827ad693bc412f22a9b6802deb65">strim</a> to trim from the start of the string.</td></tr>
+  </table>
+<h1>WebsBuf</h1>
+<a name="group___webs_buf"></a>
+<div class="api">
+  <div class="prototype">WebsBuf</div>
+  <div class="apiDetail">
+<p>A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering.</p>
+    <dl><dt>Fields:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">char *</td><td><td>buf</td><td>
+Holding buffer for data.
+</td>
+    <tr><td class="param"><a class="ref" href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1">ssize</a></td><td><td>buflen</td><td>
+Length of ring queue.
+</td>
+    <tr><td class="param">char *</td><td><td>endbuf</td><td>
+Pointer to end of buffer.
+</td>
+    <tr><td class="param">char *</td><td><td>endp</td><td>
+Pointer to end of data.
+</td>
+    <tr><td class="param">int</td><td><td>increment</td><td>
+Growth increment.
+</td>
+    <tr><td class="param"><a class="ref" href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1">ssize</a></td><td><td>maxsize</td><td>
+Maximum size.
+</td>
+    <tr><td class="param">char *</td><td><td>servp</td><td>
+Pointer to start of data.
+</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga1838678c03f471aed89edfa5db822272"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufAddNull
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Add a trailing null to the buffer.</p>
+The end pointer is not changed
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga7fb267b66c30173cf035560028e83eba"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufAdjustEnd
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)
+  </div>
+  <div class="apiDetail">
+<p>Adjust the endp pointer by the specified size.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This is useful after manually copying data into the buffer and needing to adjust the end pointer.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">size</td><td>Size of adjustment. May be positive or negative value.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga89be85c8255bbe0b7a414af5f1587600"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufAdjustStart
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> count)
+  </div>
+  <div class="apiDetail">
+<p>Adjust the start (servp) reference.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">count</td><td>Number of bytes to adjust.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga9ffe6a1664c7911d12e01f317fc18458"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufCompact
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Compact the data in the buffer and move to the start of the buffer.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga5acfca7bd6b154817530a4551de9a4a6"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    bufCreate
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, int increment, int maxsize)
+  </div>
+  <div class="apiDetail">
+<p>Create a buffer.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">increment</td><td>Incremental size to grow the buffer. This will be increased by a power of two each time the buffer grows.</td>
+    <tr><td class="param">maxsize</td><td>Maximum size of the buffer.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gaf5a93373e65f8a7ccb456eb4bf72bba8"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufFlush
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Flush all data in the buffer and reset the pointers.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gacda55401603f555af52faee39639d78c"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufFree
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Free allocated storage for the buffer.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gaa3a7777b78cd891c746772b5c489fd99"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    bufGetBlk
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char *blk, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)
+  </div>
+  <div class="apiDetail">
+<p>Copy a block of from the buffer and adjust the servp.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">blk</td><td>Block into which to place the data.</td>
+    <tr><td class="param">len</td><td>Length of the block.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Number of bytes copied.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gafa8400821880a8f4d9f1cad4a9595626"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    bufGetBlkMax
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Return the maximum number of bytes the buffer can provide via a single block copy.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Useful if the user is doing their own data retrieval.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Number of bytes available for copying.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gaad216addfbff3e9ecacdf4f4a651ac90"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    bufGetc
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Get a character from the buffer and increment the servp.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>The next character or -1 if the buffer is empty.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga48fc76d92c206efcfdf3a376f85214dd"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
+    bufGrow
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> room)
+  </div>
+  <div class="apiDetail">
+<p>Grow the buffer by at least the required amount of room.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">room</td><td>Available size required after growing the buffer.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the buffer can be grown to have the required amount of room.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gaa0ae470cc24e8e57db77e42ffb751b83"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    bufInsertc
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char c)
+  </div>
+  <div class="apiDetail">
+<p>Insert a character to the buffer before the servp position and decrement the servp.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">c</td><td>Character to insert.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga284f3c18de56b775c0a13f58f78d4744"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    bufLen
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Get the length of available data in the buffer.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Size of available data in bytes.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga419d75c03c567d76446620184f3a4c3b"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    bufPutBlk
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char *blk, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)
+  </div>
+  <div class="apiDetail">
+<p>Put a block to the buffer.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">blk</td><td>Block to append to the buffer.</td>
+    <tr><td class="param">len</td><td>Size of the block.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Length of data appended. Should equal len.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga7c38d63ce718b544ebdb32807a34ca3e"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    bufPutc
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char c)
+  </div>
+  <div class="apiDetail">
+<p>Append a character to the buffer at the endp position and increment the endp.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">c</td><td>Character to append.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gab2cc7762352180cf3334b0395c0026e3"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    bufPutStr
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp, char *str)
+  </div>
+  <div class="apiDetail">
+<p>Append a string to the buffer at the endp position and increment the endp.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    <tr><td class="param">str</td><td>String to append.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Count of characters appended. Returns negative if there is an allocation error.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1gaa1f359ca367a6f72ebaa4b4028732333"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    bufReset
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Reset the buffer pointers to the start of the buffer if empty.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_buf_1ga2ffac4a06b33a774a59e0441bbf0a555"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    bufRoom
+(<a href="#group___webs_buf" class="ref">WebsBuf</a> *bp)
+  </div>
+  <div class="apiDetail">
+<p>Determine the room available in the buffer.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This returns the maximum number of bytes the buffer can absorb in a single block copy.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">bp</td><td>Buffer reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Number of bytes of availble space.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<h2>Functions</h2>
+<a name="goahead_8h_1aa7733e30b2951f225e24dca1ed4632b2"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    error
+(char *fmt, ...)
+  </div>
+  <div class="apiDetail">
+<p>Open the trace logging module.</p>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a9169827ad693bc412f22a9b6802deb65"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    strim
+(char *str, char *set, int where)
+  </div>
+  <div class="apiDetail">
+<p>Trim a string.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Trim leading and trailing characters off a string.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">str</td><td>String to trim.</td>
+    <tr><td class="param">set</td><td>String of characters to remove.</td>
+    <tr><td class="param">where</td><td>Flags to indicate trim from the start, end or both. Use WEBS_TRIM_START, WEBS_TRIM_END, WEBS_TRIM_BOTH.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Returns a pointer to the trimmed string. May not equal str.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1ac74782a3320b6cf7ae6ae14cb0cce791"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    trace
+(int level, char *fmt, ...)
+  </div>
+  <div class="apiDetail">
+<p>Emit trace a.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the most verbose. Level 2-4 are the most useful for debugging.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">level</td><td>Integer verbosity level (0-9).</td>
+    <tr><td class="param">fmt</td><td>Printf style format string.</td>
+    <tr><td class="param">...</td><td>Arguments for the format string.</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a338aab0253658a4b09ac15e3e57a21b0"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    traceClose
+()
+  </div>
+  <div class="apiDetail">
+<p>Close the trace logging module.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a4333728562014357eb604c500f5f5f81"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    traceOpen
+()
+  </div>
+  <div class="apiDetail">
+<p>Open the trace logging module.</p>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1ac6aed506f3906ab158f50ff1aeb6cf41"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb" class="ref">WebsTraceHandler</a>
+    traceSetHandler
+(<a href="#goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb" class="ref">WebsTraceHandler</a> handler)
+  </div>
+  <div class="apiDetail">
+<p>Set a trace callback.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">handler</td><td>Callback handler function of type WebsTraceHandler.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>The previous callback function.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1aa66a3f0c6816efa405be63fbbae4fea4"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    traceSetPath
+(char *path)
+  </div>
+  <div class="apiDetail">
+<p>Set the filename to save logging output.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">path</td><td>Filename path to use.</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1ac5058870cad6692d50f7fa9775a56c25"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    valueFree
+(<a href="#struct_webs_value" class="ref">WebsValue</a> *value)
+  </div>
+  <div class="apiDetail">
+<p>Free any allocated string in a value.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">value</td><td>Value object.</td>
+    </table></dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1aa27f5beea810d9124985ecf1c1fe41fa"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_value" class="ref">WebsValue</a>
+    valueInteger
+(long value)
+  </div>
+  <div class="apiDetail">
+<p>Create an integer value.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">value</td><td>Integer long value.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Value object containing the integer.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a52e422ee4bf93b1acf60b1e63df7e13e"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_value" class="ref">WebsValue</a>
+    valueString
+(char *value, int flags)
+  </div>
+  <div class="apiDetail">
+<p>Create an string value.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">value</td><td>String long value.</td>
+    <tr><td class="param">flags</td><td>Set to VALUE_ALLOCATE to store a copy of the string reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Value object containing the string.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1aa9292efb92931035fbdb7e8cc9fc2a58"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#struct_webs_value" class="ref">WebsValue</a>
+    valueSymbol
+(void *value)
+  </div>
+  <div class="apiDetail">
+<p>Create an symbol value containing an object reference.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">value</td><td>Value reference.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Value object containing the symbol reference.</dd></dl>
+  </div>
+</div>
+<h2>Typedefs</h2>
+<a name="goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0"></a>
+<div class="api">
+  <div class="prototype">
+    typedef char bool.
+  </div>
+  <div class="apiDetail">
+<p>Boolean data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a0f128c3e0c83721af0220c00554e9c4e"></a>
+<div class="api">
+  <div class="prototype">
+    typedef const char cchar.
+  </div>
+  <div class="apiDetail">
+<p>Constant char data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1ad5d9ae5e2ea7e75aa605e36485987fc2"></a>
+<div class="api">
+  <div class="prototype">
+    typedef const unsigned char cuchar.
+  </div>
+  <div class="apiDetail">
+<p>Unsigned char data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a585ef5c0f4567945e1f3e7f32670accb"></a>
+<div class="api">
+  <div class="prototype">
+    typedef const unsigned short cushort.
+  </div>
+  <div class="apiDetail">
+<p>Constant unsigned short data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a5272042f7e0f5c53e2fd4b49ff47d92d"></a>
+<div class="api">
+  <div class="prototype">
+    typedef const void cvoid.
+  </div>
+  <div class="apiDetail">
+<p>Constant void data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a56f1a81c92849566ae864511088eb7e8"></a>
+<div class="api">
+  <div class="prototype">
+    typedef int int32.
+  </div>
+  <div class="apiDetail">
+<p>Integer 32 bits data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a0fd9ce9d735064461bebfe6037026093"></a>
+<div class="api">
+  <div class="prototype">
+    typedef signed char schar.
+  </div>
+  <div class="apiDetail">
+<p>Signed char data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1"></a>
+<div class="api">
+  <div class="prototype">
+    typedef ssize_t ssize.
+  </div>
+  <div class="apiDetail">
+<p>Signed integer size field large enough to hold a pointer offset.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a65f85814a8290f9797005d3b28e7e5fc"></a>
+<div class="api">
+  <div class="prototype">
+    typedef unsigned char uchar.
+  </div>
+  <div class="apiDetail">
+<p>Unsigned char data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a91ad9478d81a7aaf2593e8d9c3d06a14"></a>
+<div class="api">
+  <div class="prototype">
+    typedef unsigned int uint.
+  </div>
+  <div class="apiDetail">
+<p>Unsigned integer (machine dependent bit size) data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a1134b580f8da4de94ca6b1de4d37975e"></a>
+<div class="api">
+  <div class="prototype">
+    typedef unsigned int uint32.
+  </div>
+  <div class="apiDetail">
+<p>Unsigned integer 32 bits data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a718b4eb2652c286f4d42dc18a8e71a1a"></a>
+<div class="api">
+  <div class="prototype">
+    typedef unsigned long ulong.
+  </div>
+  <div class="apiDetail">
+<p>Unsigned long (machine dependent bit size) data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1ab95f123a6c9bcfee6a343170ef8c5f69"></a>
+<div class="api">
+  <div class="prototype">
+    typedef unsigned short ushort.
+  </div>
+  <div class="apiDetail">
+<p>Unsigned short data type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1a0143a9b28125b27c8caa8d1837819e27"></a>
+<div class="api">
+  <div class="prototype">
+    typedef int64 WebsDateTime.
+  </div>
+  <div class="apiDetail">
+<p>Date and time storage with millisecond resolution.</p>
+  </div>
+</div>
+<a name="goahead_8h_1ac24bb6883f09c6da59aa56c2ec03842e"></a>
+<div class="api">
+  <div class="prototype">
+    typedef int64 WebsFilePos.
+  </div>
+  <div class="apiDetail">
+<p>Signed file offset data type.</p>
+Supports large files greater than 4GB in size on all systems
+  </div>
+</div>
+<a name="goahead_8h_1a3a874b92bbb07540254ed16567db3aa3"></a>
+<div class="api">
+  <div class="prototype">
+    typedef struct stat WebsStat.
+  </div>
+  <div class="apiDetail">
+<p>File status structure.</p>
+  </div>
+</div>
+<a name="goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae"></a>
+<div class="api">
+  <div class="prototype">
+    typedef time_t WebsTime.
+  </div>
+  <div class="apiDetail">
+<p>System native time type.</p>
+  </div>
+</div>
+<a name="goahead_8h_1ad4170133b27239cbe1e7a54f101f53fb"></a>
+<div class="api">
+  <div class="prototype">
+    typedef void(* WebsTraceHandler)(int level, char *msg).
+  </div>
+  <div class="apiDetail">
+<p>Callback for emitting trace log output.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">level</td><td>Integer between 0 and 9. Zero is the lowest trace level used for the most important messages.</td>
+    <tr><td class="param">msg</td><td>Message to log.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
+  </div>
+</div>
+<a name="struct_webs_value"></a>
+<div class="api">
+  <div class="prototype">WebsValue</div>
+  <div class="apiDetail">
+<p>Value union to store primitive value types.</p>
+    <dl><dt>Fields:</dt><dd>
+    <table class="parameters" title="Parameters">
+    </table></dd></dl>
+  </div>
+</div>
+            </div>
+        </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

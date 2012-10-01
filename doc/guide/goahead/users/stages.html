@@ -1,0 +1,129 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Users Guide</a> &gt; <b>Handlers</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#handlerProcessing">Handler Processing</a></li>
+            </ul>
+<!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/users/index.html">User Guide Overview</a></li>
+                <li><a href="../../../guide/goahead/users/configuration.html">Configuring GoAhead</a></li>
+                <li><a href="../../../guide/goahead/users/authentication.html">User Authorization</a></li>
+                <li><a href="../../../guide/goahead/users/logFiles.html">Log Files</a></li>
+                <li><a href="../../../guide/goahead/users/security.html">Security Considerations</a></li>
+                <li><a href="../../../guide/goahead/users/ssl.html">SSL</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Configuring Pipeline Stages</h1>
+            <p>GoAhead uses a bidirectional pipeline to process requests and generate responses. This consists of a
+            mechanism of queues, packets, buffering and event scheduling. The pipeline architecture is highly optimized
+            and supports the efficient transmission of data without copying.</p>
+            <p>The request pipeline is comprised of an incoming and outgoing stream. Each stream is in turn comprised
+            of stages.</p>
+            <img src="../../../images/pipeline.jpg" alt="pipeline" />
+            <p>Stages come in three varieties:</p>
+            <ul>
+                <li>Handlers</li>
+                <li>Filters</li>
+                <li>Network Connectors</li>
+            </ul>
+            <p>Handlers are responsible for generating the response content. Filters permute the request or incoming
+            and outgoing data in some way, and network connectors send the final response over the network to the
+            client.</p>
+            <p>GoAhead has a set of handlers for common application and content types. Different handlers service
+            different content. GoAhead provides the following handlers: PHP, CGI, ESP, Ejscript, directory listings,
+            and a file handler for static file content. An API is also provided so you can create your own
+            request handlers and pipeline filters and connectors.</p>
+            <h2 class="section">Handlers</h2>
+            <p>GoAhead handlers typically utilize the GoAhead <a href="modules.html">loadable module</a> interface and
+            may be dynamically loaded and configured via the <a href="configuration.html">GoAhead configuration
+            file</a>. The configuration file defines the handlers to use and the order in which they are matched to a
+            given request.</p><a id="handlerProcessing"></a>
+            <h3>Handler Processing</h3>
+            <p>The following is an example set of GoAhead configuration file directives that loads modules and defines
+            the handlers to process client requests.</p>
+            <pre>
+<a href="dir/module.html#loadModule">LoadModule</a> ejs mod_ejs
+LoadModule file mod_file
+<a href="dir/route.html#addHandler">AddHandler</a> ejsHandler ejs
+<a href="dir/route.html#addHandler">AddHandler</a> fileHandler
+</pre>
+            <p>The order of the directives is important. When a request is received from a client, the handlers
+            specified in the configuration file will be matched against the request. If a handler does not specify an
+            extension, then it will always match. If the request URL
+            extension matches the extension for a handler, then that handler will be added to the list of handlers for
+            this request.</p>
+            <p>For example: "http://www.acme.com/myDoc.esp" would match the ".esp" extension for the ejsHandler. The
+            result is a list of handlers that will be applied to the request in the order they appear in the
+            configuration file. The first matching handler to accept the request will be responsible for the
+            request.</p>
+            <h2 class="section">Filters</h2>
+            <p>Filters can manipulate the request as it passes through the request pipeline. Typical uses are to
+            compress or encrypt data. GoAhead implements Transfer Chunk Encoding and Ranged requests via filters. 
+            Filters are configured via the <a href="dir/route.html#addInputFilter">AddInputFilter</a>
+            and <a href="dir/route.html#addOutputFilter">AddOutputFilter</a> configuration file directives.</p>
+            <h2 class="section">Connectors</h2>
+            <p>Network connectors are the end of the outgoing stream of the pipeline. Their job is to transmit data
+            back to the client. GoAhead supplies two connectors. One general purpose <b>net</b> connector and a
+            specialize <b>send</b> connector for static file content.</p>
+            <p>Please see the document <a href="../programmers/stages.html">Extending via Pipeline Stages</a> for
+            programming information about how to create GoAhead handlers, filters and connectors.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

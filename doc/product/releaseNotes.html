@@ -1,0 +1,151 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <b>Release Notes</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#licensing">License</a></li>
+                <li><a href="#requirements">System Requirements</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#hints">Helpful Hints</a></li>
+                <li><a href="#resolvedIssues">Resolved Issues</a></li>
+            </ul>
+<!-- BeginDsi "dsi/genSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../guide/goahead/overview.html">GoAhead Overview</a></li>
+                <li><a href="../guide/goahead/features.html">GoAhead Features</a></li>
+                <li><a href="../product/releaseNotes.html">Release Notes</a></li>
+                <li><a href="../product/changeLog.html">Change Log</a></li>
+                <li><a href="../product/roadmap.html">Roadmap</a></li>
+                <li><a href="../product/compatibility.html">Compatibility</a></li>
+                <li><a href="../licenses/index.html">Licensing</a></li>
+                <li><a href="../product/install/index.html">Installation Overview</a></li>
+                <li><a href="../guide/goahead/users/gettingStarted.html">Getting Started</a></li>
+                <li><a href="../guide/goahead/users/index.html">Users Guide</a></li>
+                <li><a href="../product/project.html">Project Resources</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div><a id="features"></a>
+        <div class="contentLeft">
+            <a id="releaseNotes"></a>
+            <h1>Release Notes</h1>
+            <p>Welcome to the Embedthis GoAhead&trade; installation release notes. This document provides
+            release-specific information for GoAhead. The release package the full source code, headers, documentation
+            and samples for the GoAhead embedded web server.
+            <a id="licensing"></a>
+            <h2 class="section">License</h2>
+            <p>This software is copyrighted and distributed under license. It is available under an open source
+            license and an optional <a href="http://embedthis.com/licensing/index.html">commercial license</a>.
+            Please read LICENSE.md for details.</p>
+            <p>GoAhead includes support for several external packages such as MatrixSSL and OpenSSL. These
+            packages have their own licenses. Make sure you check the relevant package license details to ensure you are
+            complying with their licenses.</p>
+            
+            <a id="requirements"></a>
+            <h2 class="section">System Requirements</h2>
+            <p>The following operating systems are be supported by compiling GoAhead from source.</p>
+            <ul>
+                <li>FreeBSD</li>
+                <li>Linux 2.4 and 2.6</li>
+                <li>MAC OS X</li>
+                <li>VxWorks 5.4 and 6.X</li>
+                <li>Windows</li>
+            </ul>
+            <p>The following CPU architectures are supported: arm, mips, ppc, xscale, x86, x64, sparc.</p>
+            <p>The software has also been ported to other operating systems.</p>
+            <h2 class="section">Run-time System Requirements</h2>
+            <p>To install GoAhead on a development system, your system will need at least the following:</p>
+            <ul>
+                <li>60 MB Disk</li>
+                <li>1GB MB RAM</li>
+            </ul>
+            <p>To deploy GoAhead in an embedded environment, you will need at least the following:</p>
+            <ul>
+                <li>500K Disk / ROM space</li>
+                <li>400K RAM</li>
+            </ul>
+            <h2 class="section">Development Environment</h2>
+            <p>To compile GoAhead you will need to use a C compiler and associated
+            development tools. Several development environments are supported. You may choose any of the following to
+            compile and build samples and source code.</p>
+            <ul>
+                <li>Linux GNU tools</li>
+                <li>Windows Visual Studio (Visual Studio 2008 and Visual Studio 2008 Express).</li>
+                <li>Windows XP with Cygwin UNIX emulation tools. See <a href=
+                "http://www.cygwin.com/">www.cygwin.com</a>.</li>
+                <li>WindRiver Tornado Development Tools.</li>
+                <li>Ejscript including the Built It. Download from (<a href="http://ejscript.org/">Ejscript</a>).</li>
+            </ul>
+            <a id="hints"></a>
+            <h2 class="section">Helpful Hints</h2>
+            <h3>Debug Trace and Logging</h3>
+            <p>GoAhead has a debug logging and trace facility that can help when debugging configuration issues or
+            developing your application code that uses GoAhead. You can vary the level of logging via the <b>--log
+            logfile</b> command line switch for the <b>goahead</b> commands. The log command line switch has the
+            format:</p>
+                <pre>
+goahead --log logFile:logLevel
+</pre>
+            <p>Use the <em>-v</em> switch to trace to the standard output at level 2.</p>
+            <pre>
+goahead -v
+</pre>
+            <p>The log level can be from 0 to 9, with 9 being the most verbose level.</p><a id="limitations"></a>
+            <h2 class="section">Limitations and Special Notes</h2><a id="resolvedIssues"></a>
+            <h3>Resolved Issues</h3>
+            <p>See the new features and fixes in the <a href="changeLog.html">Change Log</a> document.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

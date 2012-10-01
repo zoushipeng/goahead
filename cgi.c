@@ -209,7 +209,7 @@ int websProcessCgiData(Webs *wp)
 {
     ssize   nbytes;
 
-    nbytes = ringqLen(&wp->input);
+    nbytes = bufLen(&wp->input);
     if (write(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
         websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
         return -1;

@@ -107,7 +107,7 @@ int websProcessPutData(Webs *wp)
     gassert(wp->putfd >= 0);
     gassert(wp->input.buf);
 
-    nbytes = ringqLen(&wp->input);
+    nbytes = bufLen(&wp->input);
     if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
         websError(wp, WEBS_CLOSE | 500, "Can't write to file");
         return -1;

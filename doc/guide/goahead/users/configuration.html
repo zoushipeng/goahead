@@ -1,0 +1,634 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Users Guide</a> &gt; <b>Configuring GoAhead</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#syntax">File Syntax</a></li>
+                <li><a href="#blocks">Configuration Blocks</a></li>
+                <li><a href="#include">Include Directives</a></li>
+                <li><a href="#conditional">Conditional Directives</a></li>
+                <li><a href="#order">Order of Processing</a></li>
+                <li><a href="#directives">Configuration Directives</a></li>
+            </ul>
+<!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/users/index.html">User Guide Overview</a></li>
+                <li><a href="../../../guide/goahead/users/configuration.html">Configuring GoAhead</a></li>
+                <li><a href="../../../guide/goahead/users/authentication.html">User Authorization</a></li>
+                <li><a href="../../../guide/goahead/users/logFiles.html">Log Files</a></li>
+                <li><a href="../../../guide/goahead/users/security.html">Security Considerations</a></li>
+                <li><a href="../../../guide/goahead/users/ssl.html">SSL</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Configuring GoAhead</h1>
+            <p>The GoAhead operation is typically controlled by an GoAhead configuration file. This configuration file is
+            read when GoAhead starts up, and it manages every aspect of GoAhead's configuration including what ports and
+            addresses to listen to, what modules to load, where to find the web pages and how to log requests.</p>
+            <p>GoAhead can also be configured programmatically. For details, please read the <a href=
+            "../../../api/goahead.html">GoAhead API</a>.</p>
+            <p>The top-level configuration file is usually called <b>goahead.conf</b> and is read once when goahead is
+            started. Changes to the configuration file will require GoAhead to be restarted.</p>
+            <p>An alternative configuration file may be specified by using the <b>--config</b> GoAhead command
+            option.</p>
+            <pre>
+goahead --config myConfigFile.conf
+</pre>The configuration file may include other configuration files and it is normal practice to partition the
+configuration file into sections &mdash; especially application definitions.
+            <h2>Apache Compatible</h2>
+            <p>The GoAhead configuration file closely matches that used by the Apache web server. Compatibility with the
+            <a href="http://httpd.apache.org/docs/2.2/configuring.html">Apache</a> configuration file has been a goal
+            to minimize learning time and switching costs. While the level of compatibility is high, there are a few
+            differences:</p>
+            <ul>
+                <li>The GoAhead configuration file is processed in a single-pass.</li>
+                <li>A subset of Apache directives are supported.</li>
+                <li>For enhanced security, GoAhead has a few extra security directives</li>
+            </ul>
+            <p>By processing directives on a single-pass, GoAhead is more efficient, but the order of directives does
+            matter with GoAhead.</p><a id="syntax"></a>
+            <h2 class="section">Configuration File Syntax</h2>
+            <p>Configuration directives are one per line and are case-insensitive for the directive names. Lines
+            beginning with a "#" character are comments and are ignored.</p>
+            <h2>Sample configuration file</h2>
+            <pre>
+ServerRoot "."
+ErrorLog error.log
+ServerName http://localhost:7777
+DocumentRoot "/var/web"
+Listen 7777
+LoadModule fileHandler mod_file
+AddHandler fileHandler html
+</pre><a id="blocks"></a>
+            <h2 class="section">Configuration Blocks</h2>
+            <p>The configuration file is comprised of several directive groups or blocks:</p>
+            <ul>
+                <li>Global Directives</li>
+                <li>Route Blocks</li>
+                <li>Virtual Host Blocks</li>
+            </ul>
+            <p>When a new block is defined, it inherits the settings of the outer block. New directives defined inside
+            a block are local to that block.</p>
+            <h2>Global Directives</h2>
+            <p>A directive is regarded as global if it is not enclosed in a block. You cannot nest blocks of a like
+            kind. i.e. you cannot nest a directory block inside a directory block.</p>
+            <h2>Route Blocks</h2>
+            <p>A Route block defines a group of directives that apply to a specific URL. The block is created by the
+            <b>Route</b> directive.</p>
+            <pre>
+&lt;Route "/myapp/"&gt;
+    SetHandler esp
+&lt;/Route&gt;
+</pre>
+            <p>This will configure GoAhead to pass requests that begin with the URL "/myapp" to the 
+                <em>esp</em> handler.</p>
+            <h2>Virtual Host Blocks</h2>
+            <p>A Virtual host block defines a group of directives that apply to a virtual sub-server. A virtual server
+            may be associated with a virtual server name or with an IP address. Virtual hosts enable you to segment the
+            web server to serve unique content for different domains or IP addresses.</p>
+            <p>Here is an example of an IP-based virtual host.</p>
+            <pre>
+&lt;VirtualHost 206.148.97.56&gt;
+    DocumentRoot /var/www/mycorp
+    ...
+&lt;/VirtualHost&gt;
+</pre>
+            <p>Here is an example of a Name-based virtual host.</p>
+            <pre>
+NameVirtualHost 206.148.96.56
+&lt;VirtualHost 206.148.97.56&gt;
+    ServerName www.mycorp.org
+    DocumentRoot /var/www/mycorp
+    ...
+&lt;/VirtualHost&gt;
+</pre>
+            <p>See <a href="vhosts.html">Virtual Hosting</a> for more details.</p><a id="include"></a>
+            <h2 class="section">Include Directives</h2>
+            <p>The <b>include</b> directive allows other files to be included in the configuration file. The include
+            directive can be a single filename or filename with wildcards.</p>
+            <pre>
+Include myconfig.conf
+Include conf/applications/*.conf
+</pre>
+            <a id="conditional"></a>
+            <h2 class="section">Conditional Directives</h2>
+            <p>The configuration file supports conditional processing via the <b>&lt;if&gt;</b> directive. The
+            <b>if</b> directive tests a symbolic value and if true, it enables parsing the nested directives. If the
+            value is values, the nested directives are ignored.</p>
+            <pre>
+&lt;if FILE_MODULE&gt;
+    LoadModule fileHandler mod_file
+&lt;/if&gt;
+</pre>
+            <p>This will load the file handler if it has been enabled via the <b>configure</b> command.</p>
+            <h2>Supported Conditional Values</h2>
+            <table title="values" class="full">
+                <thead>
+                    <tr>
+                        <th>Value</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>BLD_DEBUG</td>
+                        <td>True if this is a DEBUG build</td>
+                    </tr>
+                    <tr>
+                        <td>NAME_MODULE</td>
+                        <td>True if the module if enabled, where NAME is the name of the module.</td>
+                    </tr>
+                </tbody>
+            </table><a id="order"></a>
+            <h2 class="section">Order of Processing</h2>
+            <p>The configuration file is parsed in a single top-to-bottom pass. The order of directives is important
+            as certain directives depend on others. For example, you must define the ServerRoot before using the
+            LoadModule directive. Also, block level directives inherit their configuration from the outer block. 
+            For example: a Route block will inherit the outer configuration and may modify that inside the Route block.</p>
+            
+            <a id="directives"></a>
+            <h2 class="section">Configuration File Directives</h2>
+            <p>This is the list of GoAhead supported configuration directives.</p>
+            <table title="directives" class="full">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><a href="dir/log.html#accessLog">AccessLog</a></td>
+                        <td>Define the location and format of the access log.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#action">Action</a></td>
+                        <td>CGI program to run to handle specific content.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#addInputFilter">AddInputFilter</a></td>
+                        <td>Add an input filter to the processing pipeline.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#addHandler">AddHandler</a></td>
+                        <td>Add a handler for processing given file extensions.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#addLanguageSuffix">AddLanguageSuffix</a></td>
+                        <td>Add a supported language and filename suffix to use for this language.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#addLanguageDir">AddLanguageDir</a></td>
+                        <td>Add a per-language content directory.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#addOutputFilter">AddOutputFilter</a></td>
+                        <td>Add an output filter to the processing pipeline.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#addType">AddType</a></td>
+                        <td>Add a MIME type specification.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#alias">Alias</a></td>
+                        <td>Map URLs to directories.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#allow">Allow</a></td>
+                        <td>Define which servers can access content.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#authDigestQop">AuthDigestQop</a></td>
+                        <td>Define the quality of protection for Digest Authentication.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#authGroupFile">AuthGroupFile</a></td>
+                        <td>Define the name of the user group file for authentication.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#authMethod">AuthMethod</a></td>
+                        <td>Define the authentication method: File or PAM.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#authName">AuthName</a></td>
+                        <td>Define the realm of users to be permitted access to this set of documents.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#authType">AuthType</a></td>
+                        <td>Define the type of authentication to use: Basic or Digest.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#authUserFile">AuthUserFile</a></td>
+                        <td>Defines the file of user names.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#cache">Cache</a></td>
+                        <td>Configure client and server side caching.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#chroot">Chroot</a></td>
+                        <td>Define the directory for a "chroot jail" in which GoAhead will execute.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#compress">Compress</a></td>
+                        <td>Control the use of compressed content.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#condition">Condition</a></td>
+                        <td>Define a conditional test for a route.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#defaultLanguage">DefaultLanguage</a></td>
+                        <td>Set the default language to use for a route.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#deny">Deny</a></td>
+                        <td>Define which servers cannot access content.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/dir.html#directoryIndex">DirectoryIndex</a></td>
+                        <td>Define the default index file to service for directory requests.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#documentRoot">DocumentRoot</a></td>
+                        <td>Directory containing web content.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ejs.html#ejsAlias">EjsAlias</a></td>
+                        <td>Define an Ejscript application alias.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ejs.html#ejsStartup">EjsStartup</a></td>
+                        <td>Define an Ejscript application script.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ejs.html#ejsWorkers">EjsWorkers</a></td>
+                        <td>Define the maximum number of worker threads.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#errorDocument">ErrorDocument</a></td>
+                        <td>Define an error document to serve.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/log.html#errorLog">ErrorLog</a></td>
+                        <td>Define the location and format of the error log.</td>
+                    </tr>
+                    <tr><td><a href="dir/esp.html#espApp">EspApp</a></td>
+                        <td>Define an ESP application with required Routes.</td></tr>
+                    <tr><td><a href="dir/esp.html#espCompile">EspCompile</a></td>
+                        <td>Define the compilation command.</td></tr>
+                    <tr><td><a href="dir/esp.html#espDb">EspDb</a></td>
+                        <td>ESP Database configuration.</td></tr>
+                    <tr><td><a href="dir/esp.html#espDir">EspDir</a></td>
+                        <td>Set the directory for ESP MVC components.</td></tr>
+                    <tr><td><a href="dir/esp.html#espEnv">EspEnv</a></td>
+                        <td>Set an environment variable for ESP compilation commands.</td></tr>
+                    <tr><td><a href="dir/esp.html#espKeepSource">EspKeepSource</a></td>
+                        <td>Control the preservation of intermediate source code.</td></tr>
+                    <tr><td><a href="dir/esp.html#espLink">EspLink</a></td>
+                        <td>Define the link command.</td></tr>
+                    <tr><td><a href="dir/esp.html#espLoad">EspLoad</a></td>
+                        <td>Load an application.</td></tr>
+                    <tr><td><a href="dir/esp.html#espResource">EspResource</a></td>
+                        <td>Create routes for a resource.</td></tr>
+                    <tr><td><a href="dir/esp.html#espResourceGroup">EspResourceGroup</a></td>
+                        <td>Create route for a group of resources.</td></tr>
+                    <tr><td><a href="dir/esp.html#espRoute">EspRoute</a></td>
+                        <td>Create a new route for ESP controllers and pages.</td></tr>
+                    <tr><td><a href="dir/esp.html#espRouteSet">EspRouteSet</a></td>
+                        <td>Define a package of routes for ESP.</td></tr>
+                    <tr><td><a href="dir/esp.html#espShowErrors">EspShowErrors</a></td>
+                        <td>Show server side errors back to the client.</td></tr>
+                    <tr><td><a href="dir/esp.html#espUpdate">EspUpdate</a></td>
+                        <td>Control whether updated ESP source code triggers reloading.</td></tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#exitTimeout">ExitTimeout</a></td>
+                        <td>Define the timeout period to wait for requests to complete before exiting or restarting.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#header">Header</a></td>
+                        <td>Define a HTTP header test for a route.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#group">Group</a></td>
+                        <td>Define the O/S account group used by GoAhead.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/dir.html#indexOptions">IndexOptions</a></td>
+                        <td>Define the options for directory listings.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/dir.html#indexOrder">IndexOrder</a></td>
+                        <td>Define the order of processing directory index options.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#inactivityTimeout">InactivityTimeout</a></td>
+                        <td>Maximum request and connection inactivity duration.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitCache">LimitCache</a></td>
+                        <td>Set the maximum size of the GoAhead cache for responses and sessions.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitCacheItem">LimitCacheItem</a></td>
+                        <td>Set the maximum size of a single item in the GoAhead cache.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitChunk">LimitChunk</a></td>
+                        <td>Set the maximum transfer chunk encoding size.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitConnections">LimitClients</a></td>
+                        <td>Set the limit of simultaneous clients.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitKeepAlive">LimitKeepAlive</a></td>
+                        <td>Define the re-use count for a connection.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitMemory">LimitMemory</a></td>
+                        <td>Limit the total memory usage of GoAhead. This is a hard limit.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitProcesses">LimitProcesses</a></td>
+                        <td>Maximum number of CGI processes to spawn.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitRequests">LimitRequests</a></td>
+                        <td>Set the limit of simultaneous requests.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitRequestBody">LimitRequestBody</a></td>
+                        <td>Set the maximum size of the incoming request body.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitRequestForm">LimitRequestForm</a></td>
+                        <td>Set the maximum size of the incoming request form data.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitRequestHeader">LimitRequestHeader</a></td>
+                        <td>Set the maximum total request header size.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitRequestHeaderLines">LimitRequestHeaderLines</a></td>
+                        <td>Set the maximum number of request header lines.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitResponseBody">LimitResponseBody</a></td>
+                        <td>Set the maximum response body size.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitStageBuffer">LimitStageBuffer</a></td>
+                        <td>Set the maximum buffer size for pipeline stages.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitUpload">LimitUpload</a></td>
+                        <td>Set the maximum file upload size.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitUri">LimitUri</a></td>
+                        <td>Set the maximum size of a request URI.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#limitWorkers">LimitWorkers</a></td>
+                        <td>Maximum number of worker threads.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#listen">Listen</a></td>
+                        <td>Define the IP address and port on which to listen.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/module.html#loadModule">LoadModule</a></td>
+                        <td>Load an GoAhead module.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/module.html#loadModulePath">LoadModulePath</a></td>
+                        <td>Specify a list of directories to search for modules.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#logRoutes">LogRoutes</a></td>
+                        <td>Display the route table in the error log.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/log.html#log">Log</a></td>
+                        <td>Control the tracing of HTTP events.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#memoryPolicy">MemoryPolicy</a></td>
+                        <td>Define the action to take when memory is depleted.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/vhost.html#namedVirtualHost">NameVirtualHost</a></td>
+                        <td>Nominate an IP address for name-based virtual hosting.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/dir.html#options">Options</a></td>
+                        <td>Control directory listing options.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#order">Order</a></td>
+                        <td>Specify the order in which the allow and deny directives apply.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#param">Param</a></td>
+                        <td>Define a route step to test request param values.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#prefix">Prefix</a></td>
+                        <td>Define a route prefix to trim from the URI.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#protocol">Protocol</a></td>
+                        <td>Define the HTTP protocol to use.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#putMethod">PutMethod</a></td>
+                        <td>Control use of the HTTP PUT method.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#redirect">Redirect</a></td>
+                        <td>Redirect requests to a new target.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#requestTimeout">RequestTimeout</a></td>
+                        <td>Maximum request duration.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/auth.html#require">Require</a></td>
+                        <td>Define which authenticated users will be permitted access to content.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#resetPipeline">ResetPipeline</a></td>
+                        <td>Reset the input and output pipeline for a block.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#route">Route</a></td>
+                        <td>Define a block of directives to apply to a URL route.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#routeName">RouteName</a></td>
+                        <td>Set the route name.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#scriptAlias">ScriptAlias</a></td>
+                        <td>Map a URL to a directory for CGI processing.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#setConnector">SetConnector</a></td>
+                        <td>Set the connector stage for a block.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#setHandler">SetHandler</a></td>
+                        <td>Set the handler to process requests.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#source">Source</a></td>
+                        <td>Define source code for the handler to use.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#startWorkers">StartWorkers</a></td>
+                        <td>Number of worker threads to pre-allocate and preserve.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#target">Target</a></td>
+                        <td>Define the target action to take for a route to serve a response to the client.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/sandbox.html#threadStack">ThreadStack</a></td>
+                        <td>Stack size for each thread.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#serverName">ServerName</a></td>
+                        <td>Define a name for the server to use for itself.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#serverRoot">ServerRoot</a></td>
+                        <td>Define the directory containing the core GoAhead configuration.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#sessionTimeout">SessionTimeout</a></td>
+                        <td>Maximum session state inactivity duration.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslCaCertificateFile">SSLCACertificateFile</a></td>
+                        <td>Define the location of the client certificate file.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslCaCertificatePath">SSLCACertificatePath</a></td>
+                        <td>Define the directory for client certificates.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslCertificateFile">SSLCertificateFile</a></td>
+                        <td>Define the server certificate.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslCertificateKeyFile">SSLCertificateKeyFile</a></td>
+                        <td>Define the server's private key.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslCipherSuite">SSLCipherSuite</a></td>
+                        <td>Set the cipher suite to use for SSL.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslEngine">SSLEngine</a></td>
+                        <td>Enable SSL processing for a block.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/ssl.html#sslProtocol">SSLProtocol</a></td>
+                        <td>Set the SSL protocols to enable.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#target">Target</a></td>
+                        <td>Define a route target.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#traceMethod">TraceMethod</a></td>
+                        <td>Control whether the HTTP Trace method is enabled.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#typesConfig">TypesConfig</a></td>
+                        <td>Specify the location of the MIME types file.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/module.html#unloadModule">UnloadModule</a></td>
+                        <td>Unload an GoAhead module.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/route.html#update">Update</a></td>
+                        <td>Define an update modification for a route.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/module.html#uploadDir">UploadDir</a></td>
+                        <td>Set the directory for uploaded files.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/module.html#uploadDir">UploadAutoDelete</a></td>
+                        <td>Control if files are auto-deleted after uploading.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/server.html#user">User</a></td>
+                        <td>Define the O/S user account used by GoAhead.</td>
+                    </tr>
+                    <tr>
+                        <td><a href="dir/vhost.html#virtualHost">VirtualHost</a></td>
+                        <td>Create a directory block for virtual hosting for an IP address.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

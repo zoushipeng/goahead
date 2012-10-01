@@ -150,7 +150,7 @@ typedef struct Format {
 #define H_OFFSET    2       /* Offset to real start of list */
 #define H_INCR      16      /* Grow handle list in chunks this size */
 
-#define RINGQ_LEN(rq) ((rq->servp > rq->endp) ? (rq->buflen + (rq->endp - rq->servp)) : (rq->endp - rq->servp))
+#define RINGQ_LEN(bp) ((bp->servp > bp->endp) ? (bp->buflen + (bp->endp - bp->servp)) : (bp->endp - bp->servp))
 
 typedef struct SymTab {                 /* Symbol table descriptor */
     WebsKey     **hash_table;           /* Allocated at run time */
@@ -1365,15 +1365,15 @@ int gallocEntry(void *listArg, int *max, int size)
 
     
 /*
-    Create a new ringq. "increment" is the amount to increase the size of the ringq should it need to grow to accomodate
+    Create a new buf. "increment" is the amount to increase the size of the buf should it need to grow to accomodate
     data being added. "maxsize" is an upper limit (sanity level) beyond which the q must not grow. Set maxsize to -1 to
-    imply no upper limit. The buffer for the ringq is always *  dynamically allocated. Set maxsize
+    imply no upper limit. The buffer for the buf is always *  dynamically allocated. Set maxsize
  */
-int ringqOpen(WebsBuf *rq, int initSize, int maxsize)
+int bufCreate(WebsBuf *bp, int initSize, int maxsize)
 {
     int increment;
 
-    gassert(rq);
+    gassert(bp);
     
     if (initSize <= 0) {
         initSize = BIT_LIMIT_BUFFER;
@@ -1384,50 +1384,50 @@ int ringqOpen(WebsBuf *rq, int initSize, int maxsize)
     gassert(initSize >= 0);
 
     increment = getBinBlockSize(initSize);
-    if ((rq->buf = galloc((increment))) == NULL) {
+    if ((bp->buf = galloc((increment))) == NULL) {
         return -1;
     }
-    rq->maxsize = maxsize;
-    rq->buflen = increment;
-    rq->increment = increment;
-    rq->endbuf = &rq->buf[rq->buflen];
-    rq->servp = rq->buf;
-    rq->endp = rq->buf;
-    *rq->servp = '\0';
+    bp->maxsize = maxsize;
+    bp->buflen = increment;
+    bp->increment = increment;
+    bp->endbuf = &bp->buf[bp->buflen];
+    bp->servp = bp->buf;
+    bp->endp = bp->buf;
+    *bp->servp = '\0';
     return 0;
 }
 
 
 /*
-    Delete a ringq and free the ringq buffer.
+    Delete a buf and free the buf buffer.
  */
-void ringqClose(WebsBuf *rq)
+void bufFree(WebsBuf *bp)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (rq == NULL) {
+    if (bp == NULL) {
         return;
     }
-    ringqFlush(rq);
-    gfree((char*) rq->buf);
-    rq->buf = NULL;
+    bufFlush(bp);
+    gfree((char*) bp->buf);
+    bp->buf = NULL;
 }
 
 
 /*
-    Return the length of the data in the ringq. Users must fill the queue to a high water mark of at most one less than
+    Return the length of the data in the buf. Users must fill the queue to a high water mark of at most one less than
     the queue size.  
  */
-ssize ringqLen(WebsBuf *rq)
+ssize bufLen(WebsBuf *bp)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (rq->servp > rq->endp) {
-        return rq->buflen + rq->endp - rq->servp;
+    if (bp->servp > bp->endp) {
+        return bp->buflen + bp->endp - bp->servp;
     } else {
-        return rq->endp - rq->servp;
+        return bp->endp - bp->servp;
     }
 }
 
@@ -1435,22 +1435,22 @@ ssize ringqLen(WebsBuf *rq)
 /*
     Get a byte from the queue
  */
-int ringqGetc(WebsBuf *rq)
+int bufGetc(WebsBuf *bp)
 {
     char    c, *cp;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (rq->servp == rq->endp) {
+    if (bp->servp == bp->endp) {
         return -1;
     }
 
-    cp = (char*) rq->servp;
+    cp = (char*) bp->servp;
     c = *cp++;
-    rq->servp = cp;
-    if (rq->servp >= rq->endbuf) {
-        rq->servp = rq->buf;
+    bp->servp = cp;
+    if (bp->servp >= bp->endbuf) {
+        bp->servp = bp->buf;
     }
     return (int) ((uchar) c);
 }
@@ -1460,21 +1460,21 @@ int ringqGetc(WebsBuf *rq)
     Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the q as
     required.  
  */
-int ringqPutc(WebsBuf *rq, char c)
+int bufPutc(WebsBuf *bp, char c)
 {
     char *cp;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if ((ringqPutBlkMax(rq) < (int) sizeof(char)) && !ringqGrow(rq, 0)) {
+    if ((bufRoom(bp) < (int) sizeof(char)) && !bufGrow(bp, 0)) {
         return -1;
     }
-    cp = (char*) rq->endp;
+    cp = (char*) bp->endp;
     *cp++ = (char) c;
-    rq->endp = cp;
-    if (rq->endp >= rq->endbuf) {
-        rq->endp = rq->buf;
+    bp->endp = cp;
+    if (bp->endp >= bp->endbuf) {
+        bp->endp = bp->buf;
     }
     return 0;
 }
@@ -1483,22 +1483,22 @@ int ringqPutc(WebsBuf *rq, char c)
 /*
     Insert a wide character at the front of the queue
  */
-int ringqInsertc(WebsBuf *rq, char c)
+int bufInsertc(WebsBuf *bp, char c)
 {
     char *cp;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (ringqPutBlkMax(rq) < (int) sizeof(char) && !ringqGrow(rq, 0)) {
+    if (bufRoom(bp) < (int) sizeof(char) && !bufGrow(bp, 0)) {
         return -1;
     }
-    if (rq->servp <= rq->buf) {
-        rq->servp = rq->endbuf;
+    if (bp->servp <= bp->buf) {
+        bp->servp = bp->endbuf;
     }
-    cp = (char*) rq->servp;
+    cp = (char*) bp->servp;
     *--cp = (char) c;
-    rq->servp = cp;
+    bp->servp = cp;
     return 0;
 }
 
@@ -1506,16 +1506,16 @@ int ringqInsertc(WebsBuf *rq, char c)
 /*
     Add a string to the queue. Add a trailing null (maybe two nulls)
  */
-ssize ringqPutStr(WebsBuf *rq, char *str)
+ssize bufPutStr(WebsBuf *bp, char *str)
 {
     ssize   rc;
 
-    gassert(rq);
+    gassert(bp);
     gassert(str);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    rc = ringqPutBlk(rq, str, strlen(str) * sizeof(char));
-    *((char*) rq->endp) = (char) '\0';
+    rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
+    *((char*) bp->endp) = (char) '\0';
     return rc;
 }
 
@@ -1523,16 +1523,16 @@ ssize ringqPutStr(WebsBuf *rq, char *str)
 /*
     Add a null terminator. This does NOT increase the size of the queue
  */
-void ringqAddNull(WebsBuf *rq)
+void bufAddNull(WebsBuf *bp)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (ringqPutBlkMax(rq) < (int) sizeof(char)) {
-        ringqGrow(rq, 0);
+    if (bufRoom(bp) < (int) sizeof(char)) {
+        bufGrow(bp, 0);
         return;
     }
-    *((char*) rq->endp) = (char) '\0';
+    *((char*) bp->endp) = (char) '\0';
 }
 
 
@@ -1540,20 +1540,20 @@ void ringqAddNull(WebsBuf *rq)
 /*
     Get a byte from the queue
  */
-int ringqGetcA(WebsBuf *rq)
+int bufGetcA(WebsBuf *bp)
 {
     uchar   c;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (rq->servp == rq->endp) {
+    if (bp->servp == bp->endp) {
         return -1;
     }
 
-    c = *rq->servp++;
-    if (rq->servp >= rq->endbuf) {
-        rq->servp = rq->buf;
+    c = *bp->servp++;
+    if (bp->servp >= bp->endbuf) {
+        bp->servp = bp->buf;
     }
     return c;
 }
@@ -1562,17 +1562,17 @@ int ringqGetcA(WebsBuf *rq)
 /*
     Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. Grow the q as required.
  */
-int ringqPutcA(WebsBuf *rq, char c)
+int bufPutcA(WebsBuf *bp, char c)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (ringqPutBlkMax(rq) == 0 && !ringqGrow(rq)) {
+    if (bufRoom(bp) == 0 && !bufGrow(bp)) {
         return -1;
     }
-    *rq->endp++ = (uchar) c;
-    if (rq->endp >= rq->endbuf) {
-        rq->endp = rq->buf;
+    *bp->endp++ = (uchar) c;
+    if (bp->endp >= bp->endbuf) {
+        bp->endp = bp->buf;
     }
     return 0;
 }
@@ -1581,18 +1581,18 @@ int ringqPutcA(WebsBuf *rq, char c)
 /*
     Insert a byte at the front of the queue
  */
-int ringqInsertcA(WebsBuf *rq, char c)
+int bufInsertcA(WebsBuf *bp, char c)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    if (ringqPutBlkMax(rq) == 0 && !ringqGrow(rq)) {
+    if (bufRoom(bp) == 0 && !bufGrow(bp)) {
         return -1;
     }
-    if (rq->servp <= rq->buf) {
-        rq->servp = rq->endbuf;
+    if (bp->servp <= bp->buf) {
+        bp->servp = bp->endbuf;
     }
-    *--rq->servp = (uchar) c;
+    *--bp->servp = (uchar) c;
     return 0;
 }
 
@@ -1600,30 +1600,30 @@ int ringqInsertcA(WebsBuf *rq, char c)
 /*
     Add a string to the queue. Add a trailing null (not really in the q). ie. beyond the last valid byte.
  */
-int ringqPutStrA(WebsBuf *rq, char *str)
+int bufPutStrA(WebsBuf *bp, char *str)
 {
     int     rc;
 
-    gassert(rq);
+    gassert(bp);
     gassert(str);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    rc = (int) ringqPutBlk(rq, str, strlen(str));
-    rq->endp[0] = '\0';
+    rc = (int) bufPutBlk(bp, str, strlen(str));
+    bp->endp[0] = '\0';
     return rc;
 }
 #endif
 
 
 /*
-    Add a block of data to the ringq. Return the number of bytes added. Grow the q as required.
+    Add a block of data to the buf. Return the number of bytes added. Grow the q as required.
  */
-ssize ringqPutBlk(WebsBuf *rq, char *buf, ssize size)
+ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, bytes_put;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
     gassert(buf);
     gassert(0 <= size);
 
@@ -1632,21 +1632,21 @@ ssize ringqPutBlk(WebsBuf *rq, char *buf, ssize size)
      */
     bytes_put = 0;
     while (size > 0) {
-        this = min(ringqPutBlkMax(rq), size);
+        this = min(bufRoom(bp), size);
         if (this <= 0) {
-            if (! ringqGrow(rq, 0)) {
+            if (! bufGrow(bp, 0)) {
                 break;
             }
-            this = min(ringqPutBlkMax(rq), size);
+            this = min(bufRoom(bp), size);
         }
-        memcpy(rq->endp, buf, this);
+        memcpy(bp->endp, buf, this);
         buf += this;
-        rq->endp += this;
+        bp->endp += this;
         size -= this;
         bytes_put += this;
 
-        if (rq->endp >= rq->endbuf) {
-            rq->endp = rq->buf;
+        if (bp->endp >= bp->endbuf) {
+            bp->endp = bp->buf;
         }
     }
     return bytes_put;
@@ -1654,35 +1654,35 @@ ssize ringqPutBlk(WebsBuf *rq, char *buf, ssize size)
 
 
 /*
-    Get a block of data from the ringq. Return the number of bytes returned.
+    Get a block of data from the buf. Return the number of bytes returned.
  */
-ssize ringqGetBlk(WebsBuf *rq, char *buf, ssize size)
+ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, bytes_read;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
     gassert(buf);
-    gassert(0 <= size && size < rq->buflen);
+    gassert(0 <= size && size < bp->buflen);
 
     /*
         Loop getting the maximum bytes we can get in a single straight line copy
      */
     bytes_read = 0;
     while (size > 0) {
-        this = ringqGetBlkMax(rq);
+        this = bufGetBlkMax(bp);
         this = min(this, size);
         if (this <= 0) {
             break;
         }
-        memcpy(buf, rq->servp, this);
+        memcpy(buf, bp->servp, this);
         buf += this;
-        rq->servp += this;
+        bp->servp += this;
         size -= this;
         bytes_read += this;
 
-        if (rq->servp >= rq->endbuf) {
-            rq->servp = rq->buf;
+        if (bp->servp >= bp->endbuf) {
+            bp->servp = bp->buf;
         }
     }
     return bytes_read;
@@ -1690,37 +1690,36 @@ ssize ringqGetBlk(WebsBuf *rq, char *buf, ssize size)
 
 
 /*
-    Return the maximum number of bytes the ring q can accept via a single block copy. Useful if the user is doing their
+    Return the maximum number of bytes the buffer can accept via a single block copy. Useful if the user is doing their
     own data insertion. 
-    MOB - rename Room
  */
-ssize ringqPutBlkMax(WebsBuf *rq)
+ssize bufRoom(WebsBuf *bp)
 {
     ssize   space, in_a_line;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
     
-    space = rq->buflen - RINGQ_LEN(rq) - 1;
-    in_a_line = rq->endbuf - rq->endp;
+    space = bp->buflen - RINGQ_LEN(bp) - 1;
+    in_a_line = bp->endbuf - bp->endp;
 
     return min(in_a_line, space);
 }
 
 
 /*
-    Return the maximum number of bytes the ring q can provide via a single block copy. Useful if the user is doing their
+    Return the maximum number of bytes the buffer can provide via a single block copy. Useful if the user is doing their
     own data retrieval.  
  */
-ssize ringqGetBlkMax(WebsBuf *rq)
+ssize bufGetBlkMax(WebsBuf *bp)
 {
     ssize   len, in_a_line;
 
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
 
-    len = RINGQ_LEN(rq);
-    in_a_line = rq->endbuf - rq->servp;
+    len = RINGQ_LEN(bp);
+    in_a_line = bp->endbuf - bp->servp;
 
     return min(in_a_line, len);
 }
@@ -1729,22 +1728,22 @@ ssize ringqGetBlkMax(WebsBuf *rq)
 /*
     Adjust the endp pointer after the user has copied data into the queue.
  */
-void ringqPutBlkAdj(WebsBuf *rq, ssize size)
+void bufAdjustEnd(WebsBuf *bp, ssize size)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
-    gassert(0 <= size && size < rq->buflen);
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    gassert(0 <= size && size < bp->buflen);
 
-    rq->endp += size;
-    if (rq->endp >= rq->endbuf) {
-        rq->endp -= rq->buflen;
+    bp->endp += size;
+    if (bp->endp >= bp->endbuf) {
+        bp->endp -= bp->buflen;
     }
     /*
         Flush the queue if the endp pointer is corrupted via a bad size
      */
-    if (rq->endp >= rq->endbuf) {
+    if (bp->endp >= bp->endbuf) {
         error("Bad end pointer");
-        ringqFlush(rq);
+        bufFlush(bp);
     }
 }
 
@@ -1752,58 +1751,58 @@ void ringqPutBlkAdj(WebsBuf *rq, ssize size)
 /*
     Adjust the servp pointer after the user has copied data from the queue.
  */
-void ringqGetBlkAdj(WebsBuf *rq, ssize size)
+void bufAdjustStart(WebsBuf *bp, ssize size)
 {
-    gassert(rq);
-    gassert(rq->buflen == (rq->endbuf - rq->buf));
-    gassert(0 <= size && size < rq->buflen);
+    gassert(bp);
+    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    gassert(0 <= size && size < bp->buflen);
 
-    rq->servp += size;
-    if (rq->servp >= rq->endbuf) {
-        rq->servp -= rq->buflen;
+    bp->servp += size;
+    if (bp->servp >= bp->endbuf) {
+        bp->servp -= bp->buflen;
     }
     /*
         Flush the queue if the servp pointer is corrupted via a bad size
      */
-    if (rq->servp >= rq->endbuf) {
+    if (bp->servp >= bp->endbuf) {
         error("Bad serv pointer");
-        ringqFlush(rq);
+        bufFlush(bp);
     }
 }
 
 
 /*
-    Flush all data in a ring q. Reset the pointers.
+    Flush all data in a buffer. Reset the pointers.
  */
-void ringqFlush(WebsBuf *rq)
+void bufFlush(WebsBuf *bp)
 {
-    gassert(rq);
-    gassert(rq->servp);
+    gassert(bp);
+    gassert(bp->servp);
 
-    if (rq->buf) {
-        rq->servp = rq->buf;
-        rq->endp = rq->buf;
-        if (rq->servp) {
-            *rq->servp = '\0';
+    if (bp->buf) {
+        bp->servp = bp->buf;
+        bp->endp = bp->buf;
+        if (bp->servp) {
+            *bp->servp = '\0';
         }
     }
 }
 
 
-void ringqCompact(WebsBuf *rq)
+void bufCompact(WebsBuf *bp)
 {
     ssize   len;
     
-    if (rq->buf) {
-        if (rq->servp < rq->endp && rq->servp > rq->buf) {
-            ringqAddNull(rq);
-            len = ringqLen(rq) + 1;
-            memmove(rq->buf, rq->servp, len);
-            rq->endp -= rq->servp - rq->buf;
-            rq->servp = rq->buf;
+    if (bp->buf) {
+        if (bp->servp < bp->endp && bp->servp > bp->buf) {
+            bufAddNull(bp);
+            len = bufLen(bp) + 1;
+            memmove(bp->buf, bp->servp, len);
+            bp->endp -= bp->servp - bp->buf;
+            bp->servp = bp->buf;
         } else {
-            rq->servp = rq->endp = rq->buf;
-            *rq->servp = '\0';
+            bp->servp = bp->endp = bp->buf;
+            *bp->servp = '\0';
         }
     }
 }
@@ -1812,58 +1811,58 @@ void ringqCompact(WebsBuf *rq)
 /*
     Reset pointers if empty
  */
-void ringqReset(WebsBuf *rq)
+void bufReset(WebsBuf *bp)
 {
-    if (rq->buf && rq->servp == rq->endp && rq->servp > rq->buf) {
-        rq->servp = rq->endp = rq->buf;
-        *rq->servp = '\0';
+    if (bp->buf && bp->servp == bp->endp && bp->servp > bp->buf) {
+        bp->servp = bp->endp = bp->buf;
+        *bp->servp = '\0';
     }
 }
 
 
 /*
     Grow the buffer. Return true if the buffer can be grown. Grow using the increment size specified when opening the
-    ringq. Don't grow beyond the maximum possible size.
+    buf. Don't grow beyond the maximum possible size.
  */
-bool ringqGrow(WebsBuf *rq, ssize room)
+bool bufGrow(WebsBuf *bp, ssize room)
 {
     char    *newbuf;
     ssize   len;
 
-    gassert(rq);
+    gassert(bp);
 
     if (room == 0) {
-        if (rq->maxsize >= 0 && rq->buflen >= rq->maxsize) {
+        if (bp->maxsize >= 0 && bp->buflen >= bp->maxsize) {
 #if BLD_DEBUG
-            error("Can't grow ringq. Needed %d, max %d", room, rq->maxsize);
+            error("Can't grow buf. Needed %d, max %d", room, bp->maxsize);
 #endif
             return 0;
         }
-        room = rq->increment;
+        room = bp->increment;
         /*
             Double the increment so the next grow will line up with galloc'ed memory
          */
-        rq->increment = getBinBlockSize(2 * rq->increment);
+        bp->increment = getBinBlockSize(2 * bp->increment);
     }
-    len = ringqLen(rq);
-    if ((newbuf = galloc(rq->buflen + room)) == NULL) {
+    len = bufLen(bp);
+    if ((newbuf = galloc(bp->buflen + room)) == NULL) {
         return 0;
     }
-    ringqGetBlk(rq, newbuf, ringqLen(rq));
-    gfree((char*) rq->buf);
+    bufGetBlk(bp, newbuf, bufLen(bp));
+    gfree((char*) bp->buf);
 
-    rq->buflen += room;
-    rq->endp = newbuf;
-    rq->servp = newbuf;
-    rq->buf = newbuf;
-    rq->endbuf = &rq->buf[rq->buflen];
-    ringqPutBlk(rq, newbuf, len);
+    bp->buflen += room;
+    bp->endp = newbuf;
+    bp->servp = newbuf;
+    bp->buf = newbuf;
+    bp->endbuf = &bp->buf[bp->buflen];
+    bufPutBlk(bp, newbuf, len);
     return 1;
 }
 
 
 /*
-    Find the smallest binary memory size that "size" will fit into.  This makes the ringq and ringqGrow routines much
+    Find the smallest binary memory size that "size" will fit into.  This makes the buf and bufGrow routines much
     more efficient. The galloc routine likes powers of 2 minus 1.
  */
 static int  getBinBlockSize(int size)

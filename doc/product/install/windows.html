@@ -1,0 +1,133 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Installation</a> &gt; <b>Installing on Windows</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#exe">Installing the EXE Image</a></li>
+                <li><a href="#removing">Removing GoAhead</a></li>
+                <li><a href="#silentInstallation">Silent Installation</a></li>
+                <li><a href="#running">Running GoAhead</a></li>
+            </ul>
+<!-- BeginDsi "dsi/installSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../product/install/index.html">Installing</a></li>
+                <li><a href="../../guide/goahead/overview.html">GoAhead Overview</a></li>
+                <li><a href="../../guide/goahead/features.html">GoAhead Features</a></li>
+                <li><a href="../../product/releaseNotes.html">Release Notes</a></li>
+                <li><a href="../../product/changeLog.html">Change Log</a></li>
+                <li><a href="../../product/roadmap.html">Roadmap</a></li>
+                <li><a href="../../product/compatibility.html">Compatibility</a></li>
+                <li><a href="../../licenses/index.html">Licensing</a></li>
+
+                <li><a href="../../guide/goahead/users/gettingStarted.html">Getting Started</a></li>
+                <li><a href="../../guide/goahead/users/index.html">Users Guide</a></li>
+
+                <li><a href="../../guide/goahead/source/building.html">Building from Source</a></li>
+                <li><a href="../../guide/goahead/source/porting.html">Porting Guide</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Installing on Windows</h1>
+            <p>The Embedthis GoAhead install package for Windows is an installation executable compressed in a ZIP file
+            called:</p>
+            <pre>
+goahead-VERSION-BUILD-MS-WIN-i686.exe.zip
+</pre>
+            <p>The distribution image contains the binary distribution, documentation and development headers, and
+            libraries in the one package. During installation you will have the option of installing the full package
+            or portions of the distribution.</p><a id="exe"></a>
+            <h2 class="section">Installing the EXE Image</h2>
+            <ol>
+                <li>Login with administrator privileges.</li>
+                <li>Run winzip and extract the contents of the zipped EXE install image to a folder of your
+                choosing.</li>
+                <li>Browse to the location holding the EXE install image and run it.</li>
+            </ol><a id="removing"></a>
+            <h2 class="section">Removing GoAhead</h2>
+            <ol>
+                <li>Login with administrator privileges.</li>
+                <li>Run the <b>Add / Remove Programs</b> applet from the <b>control panel</b>.</li>
+                <li>Select <b>Embedthis GoAhead</b> and choose remove.</li>
+            </ol><a id="silentInstallation"></a>
+            <h2 class="section">Silent Installation</h2>
+            <p>If you need to do batch or unattended installations, you can install GoAhead silently. Use the
+            <b>/silent</b> switch to suppress questions and <b>/verysilent</b> to suppress all visual
+            output.</p><a id="running"></a>
+            <h2 class="section">Running GoAhead</h2>
+            <p>GoAhead will start when the installation procedure completes and will launch your browser directed at the
+            GoAhead local home page. Thereafter, GoAhead will automatically start if the system is rebooted.</p>
+            <p>If you wish to manually stop GoAhead, right click on the GoAhead Monitor icon in the system tray (lower
+            left corner of the task bar) and select the <b>Stop GoAhead</b> option.</p>
+            <p>To restart GoAhead, select the <b>Start GoAhead</b> option.</p>
+            <p>Alternatively, you can run goahead manually in a command window.:</p>
+            <pre>
+cd /etc/goahead
+goahead
+</pre>
+            <p>GoAhead is configured by default to listen on port 7777. To test that it is serving pages, point your
+            browser at http://localhost:7777. To tailor the Embedthis GoAhead configuration, including the default port,
+            you may wish to edit the <b>goahead.conf</b> configuration file.</p>
+            <p>To get all the options for GoAhead, read the man page via:</p>
+            <pre>
+man goahead
+</pre>or get the command help via:
+            <pre>
+goahead --help
+</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

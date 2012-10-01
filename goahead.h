@@ -4,6 +4,12 @@
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
+/**
+    @file goahead.h
+    GoAhead is a tiny, simple web server. Yes it supports HTTP/1.1 and a simple
+    server-side JavaScript expression language.
+ */
+
 #ifndef _h_GOAHEAD
 #define _h_GOAHEAD 1
 
@@ -12,20 +18,20 @@
 #include    "bit.h"
 
 #ifndef BIT_DEBUG
-    #define BIT_DEBUG 0
+    #define BIT_DEBUG 0                 /**< Enable a debug build */
 #endif
 #ifndef BIT_ASSERT
     #if BIT_DEBUG
-        #define BIT_ASSERT 1
+        #define BIT_ASSERT 1            /**< Turn debug assertions on */
     #else
         #define BIT_ASSERT 0
     #endif
 #endif
 #ifndef BIT_FLOAT
-    #define BIT_FLOAT 1
+    #define BIT_FLOAT 1                 /**< Build with floating point support */
 #endif
 #ifndef BIT_ROM
-    #define BIT_ROM 0
+    #define BIT_ROM 0                   /**< Build for execute from ROM */
 #endif
 
 /********************************* CPU Families *******************************/
@@ -33,13 +39,13 @@
     CPU Architectures
  */
 #define BIT_CPU_UNKNOWN     0
-#define BIT_CPU_ARM         1           /* Arm */
-#define BIT_CPU_ITANIUM     2           /* Intel Itanium */
-#define BIT_CPU_X86         3           /* X86 */
-#define BIT_CPU_X64         4           /* AMD64 or EMT64 */
-#define BIT_CPU_MIPS        5           /* Mips */
-#define BIT_CPU_PPC         6           /* Power PC */
-#define BIT_CPU_SPARC       7           /* Sparc */
+#define BIT_CPU_ARM         1           /**< Arm */
+#define BIT_CPU_ITANIUM     2           /**< Intel Itanium */
+#define BIT_CPU_X86         3           /**< X86 */
+#define BIT_CPU_X64         4           /**< AMD64 or EMT64 */
+#define BIT_CPU_MIPS        5           /**< Mips */
+#define BIT_CPU_PPC         6           /**< Power PC */
+#define BIT_CPU_SPARC       7           /**< Sparc */
 
 /*
     Use compiler definitions to determine the CPU
@@ -813,6 +819,10 @@ extern "C" {
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
  */
 typedef int64 WebsFilePos;
+
+/**
+    Date and time storage with millisecond resolution.
+  */
 typedef int64 WebsDateTime;
 
 #if VXWORKS
@@ -885,6 +895,9 @@ typedef int64 WebsDateTime;
     extern char *tempnam(char *dir, char *pfx);
 #endif
 
+/**
+    File status structure
+ */
 typedef struct stat WebsStat;
 
 /*
@@ -892,7 +905,7 @@ typedef struct stat WebsStat;
  */
 #define EMBEDTHIS_GOAHEAD_COPYRIGHT \
     "Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved." \
-    "Copyright (c) GoAhead Software Inc., 2012. All Rights Reserved."
+    "Copyright (c) GoAhead Software Inc., 2003. All Rights Reserved."
 
 /************************************* Main ***********************************/
 
@@ -962,15 +975,67 @@ extern int websParseArgs(char *args, char **argv, int maxArgc);
     #define gassert(C)     if (1) ; else
 #endif
 
-#define LOG trace
+/*
+    Optimized logging calling sequence. This compiles out for release mode.
+ */
+#if BIT_DEBUG
+    #define LOG trace
+#else
+    #define LOG if (0) trace
+#endif
+
+/**
+    Open the trace logging module
+    @return Zero if successful
+    @internal
+ */
 extern int traceOpen();
+
+/**
+    Close the trace logging module
+    @internal
+ */
 extern void traceClose();
+
+/**
+    Callback for emitting trace log output
+    @param level Integer between 0 and 9. Zero is the lowest trace level used for the most important messages.
+    @param msg Message to log
+    @return Zero if successful
+    @internal
+ */
 typedef void (*WebsTraceHandler)(int level, char *msg);
+
+/**
+    Set a trace callback
+    @param handler Callback handler function of type WebsTraceHandler
+    @return The previous callback function
+ */
 extern WebsTraceHandler traceSetHandler(WebsTraceHandler handler);
+
+/**
+    Set the filename to save logging output
+    @param path Filename path to use
+ */
 extern void traceSetPath(char *path);
 
+/**
+    Open the trace logging module
+    @return Zero if successful
+    @internal
+*/
 extern void error(char *fmt, ...);
-extern void trace(int lev, char *fmt, ...);
+
+/**
+    Emit trace a
+    @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
+    level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
+    most verbose. Level 2-4 are the most useful for debugging.
+    @param level Integer verbosity level (0-9).
+    @param fmt Printf style format string
+    @param ... Arguments for the format string
+ */
+extern void trace(int level, char *fmt, ...);
 
 /*********************************** HTTP Codes *******************************/
 /*
@@ -1023,8 +1088,8 @@ extern void trace(int lev, char *fmt, ...);
 #define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
 
 /************************************* WebsValue ******************************/
-/*
-    These values are not prefixed so as to aid code readability
+/**
+    Value types.
  */
 typedef enum WebsType {
     undefined   = 0,
@@ -1043,8 +1108,14 @@ typedef enum WebsType {
     errmsg      = 13
 } WebsType;
 
+/**
+    System native time type
+ */
 typedef time_t WebsTime;
 
+/**
+    Value union to store primitive value types
+ */
 typedef struct WebsValue {
     union {
         char    flag;
@@ -1068,31 +1139,86 @@ typedef struct WebsValue {
     uint        allocated   : 8;        /* String was allocated */
 } WebsValue;
 
+/**
+    The value is a numeric type
+ */
 #define value_numeric(t)    (t >= byteint && t <= big)
+
+/**
+    The value is a string type
+ */
 #define value_str(t)        (t >= string && t <= bytes)
+
+/**
+    The value is valid supported type
+ */
 #define value_ok(t)         (t > undefined && t <= symbol)
 
+/**
+    Allocate strings using malloc
+ */
 #define VALUE_ALLOCATE      0x1
-#define VALUE_VALID         { {0}, integer, 1 }
-#define VALUE_INVALID       { {0}, undefined, 0 }
 
+#if UNUSED && KEEP
+/**
+    Static definition of a valid value (Uses an integer of value 1)
+ */
+#define VALUE_VALID         { {0}, integer, 1 }
+
+/**
+    Static definition of an invalid value
+ */
+#define VALUE_INVALID       { {0}, undefined, 0 }
+#endif
+
+/**
+    Create an integer value
+    @param value Integer long value
+    @return Value object containing the integer
+ */
 extern WebsValue valueInteger(long value);
+
+/**
+    Create an string value
+    @param value String long value
+    @param flags Set to VALUE_ALLOCATE to store a copy of the string reference
+    @return Value object containing the string
+ */
 extern WebsValue valueString(char *value, int flags);
+
+/**
+    Create an symbol value containing an object reference
+    @param value Value reference
+    @return Value object containing the symbol reference
+ */
 extern WebsValue valueSymbol(void *value);
+
+#if UNUSED
+/**
+    Create an  value
+    @param value Integer long value
+    @return Value object containing the integer
+ */
 extern WebsValue valueErrmsg(char *value);
-extern void valueFree(WebsValue *v);
+#endif
+
+/**
+    Free any allocated string in a value
+    @param value Value object
+ */
+extern void valueFree(WebsValue *value);
 
 /************************************* Ringq **********************************/
-/*
+/**
     A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is
     ideal for input/output buffering. This module provides a highly effecient
     implementation and a vehicle for dynamic strings.
-  
+    \n\n
     WARNING:  This is a public implementation and callers have full access to
     the queue structure and pointers.  Change this module very carefully.
-  
+    \n\n
     This module follows the open/close model.
-  
+    \n\n
     Operation of a WebsBuf where bp is a pointer to a WebsBuf :
   
         bp->buflen contains the size of the buffer.
@@ -1100,115 +1226,279 @@ extern void valueFree(WebsValue *v);
         bp->servp will point to the first (un-consumed) data byte.
         bp->endp will point to the next free location to which new data is added
         bp->endbuf will point to one past the end of the buffer.
-  
+    \n\n
     Eg. If the WebsBuf contains the data "abcdef", it might look like :
-  
+    \n\n
     +-------------------------------------------------------------------+
     |   |   |   |   |   |   |   | a | b | c | d | e | f |   |   |   |   |
     +-------------------------------------------------------------------+
       ^                           ^                       ^               ^
       |                           |                       |               |
     bp->buf                    bp->servp               bp->endp      bp->enduf
-       
+    \n\n
     The queue is empty when servp == endp.  This means that the queue will hold
     at most bp->buflen -1 bytes.  It is the fillers responsibility to ensure
     the WebsBuf is never filled such that servp == endp.
-  
+    \n\n
     It is the fillers responsibility to "wrap" the endp back to point to
     bp->buf when the pointer steps past the end. Correspondingly it is the
     consumers responsibility to "wrap" the servp when it steps to bp->endbuf.
-    The ringqPutc and ringqGetc routines will do this automatically.
+    The bufPutc and bufGetc routines will do this automatically.
+    @defgroup WebsBuf WebsBuf
  */
-
 typedef struct WebsBuf {
-    char    *buf;               /* Holding buffer for data */
-    char    *servp;             /* Pointer to start of data */
-    char    *endp;              /* Pointer to end of data */
-    char    *endbuf;            /* Pointer to end of buffer */
-    ssize   buflen;             /* Length of ring queue */
-    ssize   maxsize;            /* Maximum size */
-    int     increment;          /* Growth increment */
+    char    *buf;               /**< Holding buffer for data */
+    char    *servp;             /**< Pointer to start of data */
+    char    *endp;              /**< Pointer to end of data */
+    char    *endbuf;            /**< Pointer to end of buffer */
+    ssize   buflen;             /**< Length of ring queue */
+    ssize   maxsize;            /**< Maximum size */
+    int     increment;          /**< Growth increment */
 } WebsBuf;
 
-extern int ringqOpen(WebsBuf *bp, int increment, int maxsize);
-extern void ringqClose(WebsBuf *bp);
-extern ssize ringqLen(WebsBuf *bp);
-extern int ringqPutc(WebsBuf *bp, char c);
-extern int ringqInsertc(WebsBuf *bp, char c);
-extern ssize ringqPutStr(WebsBuf *bp, char *str);
-extern int ringqGetc(WebsBuf *bp);
-extern bool ringqGrow(WebsBuf *bp, ssize room);
+/**
+    Create a buffer
+    @param bp Buffer reference
+    @param increment Incremental size to grow the buffer. This will be increased by a power of two each time
+        the buffer grows.
+    @param maxsize Maximum size of the buffer
+    @return Zero if successful
+    @ingroup WebsBuf
+ */
+extern int bufCreate(WebsBuf *bp, int increment, int maxsize);
 
-extern ssize ringqPutBlk(WebsBuf *bp, char *buf, ssize len);
-//  MOB rename ringqRoom
-extern ssize ringqPutBlkMax(WebsBuf *bp);
-//  MOB rename ringqAdjustBufEnd
-extern void ringqPutBlkAdj(WebsBuf *bp, ssize size);
-extern ssize ringqGetBlk(WebsBuf *bp, char *buf, ssize len);
-extern ssize ringqGetBlkMax(WebsBuf *bp);
+/**
+    Free allocated storage for the buffer
+    @param bp Buffer reference
+    @return Zero if successful
+    @ingroup WebsBuf
+ */
+extern void bufFree(WebsBuf *bp);
 
-//  MOB rename ringqAdjustBufStart
+/**
+    Get the length of available data in the buffer
+    @param bp Buffer reference
+    @return Size of available data in bytes
+    @ingroup WebsBuf
+ */
+extern ssize bufLen(WebsBuf *bp);
 
-extern void ringqGetBlkAdj(WebsBuf *bp, ssize size);
-extern void ringqFlush(WebsBuf *bp);
-extern void ringqCompact(WebsBuf *bp);
-extern void ringqReset(WebsBuf *bp);
-extern void ringqAddNull(WebsBuf *bp);
+/**
+    Append a character to the buffer at the endp position and increment the endp
+    @param bp Buffer reference
+    @param c Character to append
+    @return Zero if successful
+    @ingroup WebsBuf
+ */
+extern int bufPutc(WebsBuf *bp, char c);
+
+/**
+    Insert a character to the buffer before the servp position and decrement the servp
+    @param bp Buffer reference
+    @param c Character to insert
+    @return Zero if successful
+    @ingroup WebsBuf
+ */
+extern int bufInsertc(WebsBuf *bp, char c);
+
+/**
+    Append a string to the buffer at the endp position and increment the endp
+    @param bp Buffer reference
+    @param str String to append
+    @return Count of characters appended. Returns negative if there is an allocation error.
+    @ingroup WebsBuf
+ */
+extern ssize bufPutStr(WebsBuf *bp, char *str);
+
+/**
+    Get a character from the buffer and increment the servp
+    @param bp Buffer reference
+    @return The next character or -1 if the buffer is empty
+    @ingroup WebsBuf
+ */
+extern int bufGetc(WebsBuf *bp);
+
+/**
+    Grow the buffer by at least the required amount of room
+    @param bp Buffer reference
+    @param room Available size required after growing the buffer 
+    @return True if the buffer can be grown to have the required amount of room.
+    @ingroup WebsBuf
+ */
+extern bool bufGrow(WebsBuf *bp, ssize room);
+
+/**
+    Put a block to the buffer.
+    @param bp Buffer reference
+    @param blk Block to append to the buffer
+    @param len Size of the block
+    @return Length of data appended. Should equal len.
+    @ingroup WebsBuf
+ */
+extern ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
+
+/**
+    Determine the room available in the buffer. 
+    @description This returns the maximum number of bytes the buffer can absorb in a single block copy.
+    @param bp Buffer reference
+    @return Number of bytes of availble space. 
+    @ingroup WebsBuf
+ */
+extern ssize bufRoom(WebsBuf *bp);
+
+/**
+    Adjust the endp pointer by the specified size.
+    @description This is useful after manually copying data into the buffer and needing to adjust the end pointer.
+    @param bp Buffer reference
+    @param size Size of adjustment. May be positive or negative value.
+    @ingroup WebsBuf
+ */
+extern void bufAdjustEnd(WebsBuf *bp, ssize size);
+
+/**
+    Copy a block of from the buffer and adjust the servp.
+    @param bp Buffer reference
+    @param blk Block into which to place the data
+    @param len Length of the block
+    @return Number of bytes copied. 
+    @ingroup WebsBuf
+ */
+extern ssize bufGetBlk(WebsBuf *bp, char *blk, ssize len);
+
+/**
+    Return the maximum number of bytes the buffer can provide via a single block copy. 
+    @description Useful if the user is doing their own data retrieval. 
+    @param bp Buffer reference
+    @return Number of bytes available for copying.
+    @ingroup WebsBuf
+ */
+extern ssize bufGetBlkMax(WebsBuf *bp);
+
+/**
+    Adjust the start (servp) reference
+    @param bp Buffer reference
+    @param count Number of bytes to adjust
+    @ingroup WebsBuf
+ */
+extern void bufAdjustStart(WebsBuf *bp, ssize count);
+
+/**
+    Flush all data in the buffer and reset the pointers.
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+extern void bufFlush(WebsBuf *bp);
+
+/**
+    Compact the data in the buffer and move to the start of the buffer
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+extern void bufCompact(WebsBuf *bp);
+
+/**
+    Reset the buffer pointers to the start of the buffer if empty
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+extern void bufReset(WebsBuf *bp);
+
+/**
+    Add a trailing null to the buffer. The end pointer is not changed.
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+extern void bufAddNull(WebsBuf *bp);
 
 /******************************* Malloc Replacement ***************************/
 #if BIT_REPLACE_MALLOC
-/*
-    Block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536 
+/**
+    GoAhead allocator memory block 
+    Memory block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536.
+    @defgroup WebsAlloc WebsAlloc
  */
-typedef struct WebsBlock {
+typedef struct WebsAlloc {
     union {
-        void    *next;                          /* Pointer to next in q */
-        int     size;                           /* Actual requested size */
+        void    *next;                          /**< Pointer to next in q */
+        int     size;                           /**< Actual requested size */
     } u;
-    int         flags;                          /* Per block allocation flags */
-} WebsBlock;
+    int         flags;                          /**< Per block allocation flags */
+} WebsAlloc;
 
-#define WEBS_SHIFT         4                   /* Convert size to class */
+#define WEBS_DEFAULT_MEM   (64 * 1024)         /**< Default memory allocation */
+#define WEBS_MAX_CLASS     13                  /**< Maximum class number + 1 */
+#define WEBS_SHIFT         4                   /**< Convert size to class */
 #define WEBS_ROUND         ((1 << (B_SHIFT)) - 1)
-#define WEBS_MAX_CLASS     13                  /* Maximum class number + 1 */
 #define WEBS_MALLOCED      0x80000000          /* Block was malloced */
-#define WEBS_DEFAULT_MEM   (64 * 1024)         /* Default memory allocation */
-#define WEBS_MAX_FILES     (512)               /* Maximum number of files */
 #define WEBS_FILL_CHAR     (0x77)              /* Fill byte for buffers */
 #define WEBS_FILL_WORD     (0x77777777)        /* Fill word for buffers */
-#define WEBS_MAX_BLOCKS    (64 * 1024)         /* Maximum allocated blocks */
 
 /*
     Flags. The integrity value is used as an arbitrary value to fill the flags.
  */
+#define WEBS_USE_MALLOC        0x1             /**< Okay to use malloc if required */
+#define WEBS_USER_BUF          0x2             /* User supplied buffer for mem */
 #define WEBS_INTEGRITY         0x8124000       /* Integrity value */
 #define WEBS_INTEGRITY_MASK    0xFFFF000       /* Integrity mask */
-#define WEBS_USE_MALLOC        0x1             /* Okay to use malloc if required */
-#define WEBS_USER_BUF          0x2             /* User supplied buffer for mem */
 
-    extern void gcloseAlloc();
-    extern int  gopenAlloc(void *buf, int bufsize, int flags);
-    extern void *galloc(ssize size);
-    extern void gfree(void *mp);
-    extern void *grealloc(void *buf, ssize newsize);
-    extern char *gstrdup(char *s);
+/**
+    Close the GoAhead memory allocator
+    @ingroup WebsAlloc
+ */
+extern void gcloseAlloc();
+
+/**
+    Initialize the galloc module. 
+    @description The gopenAlloc function should be called the very first thing after the application starts and gclose
+    should be called the last thing before exiting. If gopenAlloc is not called, it will be called on the first allocation
+    with default values. "buf" points to memory to use of size "bufsize". If buf is NULL, memory is allocated using malloc.
+    flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial buffer of size
+    bufsize for use by the application. 
+    @param buf Optional user supplied block of memory to use for allocations
+    @param bufsize Size of buf
+    @param flags Allocation flags. Set to WEBS_USE_MALLOC to permit the use of malloc() to grow memory.
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsAlloc
+ */
+extern int gopenAlloc(void *buf, int bufsize, int flags);
+
+/**
+    Allocate a block of the requested size
+    @param size Memory size required
+    @return A reference to the allocated block 
+    @ingroup WebsAlloc
+ */
+extern void *galloc(ssize size);
+
+/**
+    Free an allocated block of memory
+    @param blk Reference to the memory block to free.
+    @ingroup WebsAlloc
+ */
+extern void gfree(void *blk);
+
+/**
+    Reallocate a block of memory and grow its size
+    @description If the new size is larger than the existing block, a new block will be allocated and the old data
+        will be copied to the new block.
+    @param blk Original block reference
+    @param newsize Size of the new block. 
+    @return Reference to the new memory block
+    @ingroup WebsAlloc
+ */
+extern void *grealloc(void *blk, ssize newsize);
 
 #else /* !BIT_REPLACE_MALLOC */
 
     #define WEBS_SHIFT 4
-    extern char *gstrdupNoAlloc(char *s);
-    extern char *gstrdupANoAlloc(char *s);
     #define galloc(num) malloc(num)
     #define gfree(p) if (p) { free(p); } else
     #define grealloc(p, num) realloc(p, num)
-    #define gstrdup(s) gstrdupNoAlloc(s)
-    #define gstrdupA(s) gstrdupANoAlloc(s)
-    #define gstrdup(s) gstrdupNoAlloc(s)
 #endif /* BIT_REPLACE_MALLOC */
 
+//  FUTURE DOC
 extern ssize mtow(wchar *dest, ssize count, char *src, ssize len);
 extern ssize wtom(char *dest, ssize count, wchar *src, ssize len);
-
 extern wchar *amtow(char *src, ssize *len);
 extern char  *awtom(wchar *src, ssize *len);
 
@@ -1228,8 +1518,6 @@ typedef int WebsHash;                       /* Returned by symOpen */
 
 extern WebsHash symOpen(int hash_size);
 extern void     symClose(WebsHash sd);
-
-//  MOB - need lookup that returns content symbol
 extern WebsKey  *symLookup(WebsHash sd, char *name);
 extern WebsKey  *symEnter(WebsHash sd, char *name, WebsValue v, int arg);
 extern int      symDelete(WebsHash sd, char *name);
@@ -1360,6 +1648,16 @@ extern int sncmp(char *s1, char *s2, ssize n);
 extern char *stok(char *str, char *delim, char **last);
 extern char *slower(char *string);
 extern char *supper(char *string);
+
+
+/**
+    Trim a string.
+    @description Trim leading and trailing characters off a string.
+    @param str String to trim.
+    @param set String of characters to remove.
+    @param where Flags to indicate trim from the start, end or both. Use WEBS_TRIM_START, WEBS_TRIM_END, WEBS_TRIM_BOTH.
+    @return Returns a pointer to the trimmed string. May not equal \a str.
+ */
 extern char *strim(char *str, char *set, int where);
 
 extern char *itosbuf(char *buf, ssize size, int64 value, int radix);
@@ -1975,6 +2273,25 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define websSetRequestLpath websSetRequestFilename
     #define websSetRequestWritten(wp, nbytes)  if (1) { wp->written = nbytes; } else
     #define websWriteDataNonBlock websWriteRaw
+
+	#define ringqOpen bufCreate
+	#define ringqClose bufClose
+	#define ringqLen bufLen
+	#define ringqPutc bufPutc
+	#define ringqInsertc bufInsertc
+	#define ringqPutStr bufPutStr
+	#define ringqGetc bufGetc
+	#define ringqGrow bufGrow
+	#define ringqPutBlk bufPutBlk
+	#define ringqPutBlkMax bufRoom
+	#define ringqPutBlkAdj bufAdjustEnd
+	#define ringqGetBlk bufGetBlk
+	#define ringqGetBlkMax bufGetBlkMax
+	#define ringqGetBlkAdj bufAdjustSTart
+	#define ringqFlush bufFlush
+	#define ringqCompact bufCompact
+	#define ringqReset bufReset
+	#define ringqAddNull bufAddNull
 
     typedef Webs *webs_t;
     typedef Webs WebsRec;

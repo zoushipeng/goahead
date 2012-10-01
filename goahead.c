@@ -3,6 +3,7 @@
 
     Usage: goahead [options] [documents] [IP][:port] ...
         Options:
+        --auth authFile        # User and role configuration
         --background           # Run as a Unix daemon
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
@@ -40,7 +41,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char  *argp, *home, *documents, *endpoint, addr[32], *route;
+    char  *argp, *home, *documents, *endpoint, addr[32], *route, *auth;
     int     argind;
 
 #if WINDOWS
@@ -49,16 +50,20 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
 #endif
     route = "route.txt";
+    auth = "auth.txt";
 
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
         if (*argp != '-') {
             break;
 
+        } else if (smatch(argp, "--auth") || smatch(argp, "-a")) {
+            auth = argv[++argind];
+
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
 
-        } else if (smatch(argp, "--debug")) {
+        } else if (smatch(argp, "--debugger") || smatch(argp, "-D")) {
             websSetDebug(1);
 
         } else if (smatch(argp, "--home")) {
@@ -93,6 +98,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
     initPlatform();
     if (websOpen(documents, route) < 0) {
         error("Can't initialize server. Exiting.");
+        return -1;
+    }
+    if (websLoad(auth) < 0) {
+        error("Can't load %s", auth);
         return -1;
     }
     if (argind < argc) {
@@ -161,8 +170,9 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [IPaddress][:port] [documents]\n\n"
         "  Options:\n"
+        "    --auth authFile        # User and role configuration\n"
         "    --background           # Run as a Unix daemon\n"
-        "    --debug                # Run in debug mode\n"
+        "    --debugger             # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
         "    --route routeFile      # Route configuration file\n"

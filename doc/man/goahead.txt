@@ -1,0 +1,99 @@
+GOAHEAD(1)                        User Commands                       GOAHEAD(1)
+
+
+
+NAME
+       goahead- Embedded HTTP Web Server
+
+SYNOPSIS
+       goahead [options]
+       goahead [options] [IP][:port] [documentRoot]
+
+       goahead  [--config  configFile] [--chroot directory] [--debugger] [--exe
+       path] [--log logSpec] [--home directory]  [--threads  threads]  [--ver-
+       sion] [--verbose]
+
+DESCRIPTION
+       GoAhead  is  a  compact  embedded HTTP web server.  It is a fast, small-
+       footprint, multi-threaded, standards-based, portable  server  developed
+       for  use  by embedded devices and applications.  It can run as a stand-
+       alone web server or the GoAhead library can be embedded in applications.
+
+       GoAhead supports HTTP/1.1, SSL, digest and basic authentication, virtual
+       hosting, ranged requests, chunked transfers, file upload  and  security
+       limits.  GoAhead has an Apache style configuration file and supports the
+       PHP and Ejscript web frameworks.
+
+       GoAhead normally reads the goahead.conf  file  for  configuration  direc-
+       tives.  However, if goahead is invoked with an IP address or port number
+       on the command line, GoAhead  will  not  read  the  configuration  file.
+       Rather it will listen for requests on the specified IP:PORT address. If
+       the PORT component is omitted, GoAhead will listen on port 80. If the IP
+       address  is  omitted  and a port is supplied, GoAhead will listen on all
+       network interfaces.
+
+OPTIONS
+       --config filename
+              Define the name of the GoAhead configuration  file.  This  is  by
+              default goahead.
+
+       --chroot directory
+              Change  the  system  root  directory  for GoAhead. This creates a
+              chroot jail so that the GoAhead process cannot access  any  files
+              outside the given directory.
+
+       --debugger
+              Run GoAhead in debug mode and disable all timeouts. This disables
+              request and session timeouts.  The -d option  is  an  alias  for
+              --debug.
+
+       --exe path
+              Set  the  path  to  the goahead.exe executable image. This may be
+              required on VxWorks so that GoAhead can load  modules  which  are
+              located   at  "goahead.exe/../lib".  This  is  necessary  because
+              VxWorks cannot determine the path to  the  executable  image  at
+              runtime.
+
+       --log logSpec
+              Name the GoAhead log file. This will override the ErrorLog direc-
+              tive in the  configuration  file.   When  the  maximum  size  is
+              exceeded,  the log file will be rotated to logName.old and a new
+              log file will be started. The -l option is an alias  for  --log.
+              The syntax is:
+
+              --log logName[:logLevel][.maxSize]
+
+       --home directory
+              Define the server home directory for GoAhead.
+
+       --threads numThreads
+              Specify  the  maximum  number  of  threads to use for the goahead
+              thread pool. This overrides the ThreadLimit  configuration  file
+              directive.
+
+       --verbose
+              Shorthand  for  --log  stdout:4.  The  -v option is an alias for
+              --verbose.
+
+       --version
+              Output the product version number.
+
+
+FILES
+       /etc/goahead/goahead.conf
+       /var/www/goahead-default
+       /usr/lib/goahead
+       /var/log/goahead
+
+REPORTING BUGS
+       Report bugs to <dev@embedthis.com>.
+
+COPYRIGHT
+       Copyright (C) 2003-2012 Embedthis Software.
+
+SEE ALSO
+       http
+
+
+
+goahead                            March 2012                         GOAHEAD(1)
