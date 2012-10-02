@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9FC45C179FC48C4D00000043"
-               BuildableName = "goahead"
-               BlueprintName = "goahead"
+               BlueprintIdentifier = "9FC45C179FC48C4D00000044"
+               BuildableName = "libgo.dylib"
+               BlueprintName = "libgo"
                ReferencedContainer = "container:goahead-macosx.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -32,9 +32,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
-            BuildableName = "goahead-test"
-            BlueprintName = "goahead-test"
+            BlueprintIdentifier = "9FC45C179FC48C4D0000004E"
+            BuildableName = "goahead"
+            BlueprintName = "goahead"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
@@ -52,9 +52,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
-            BuildableName = "goahead-test"
-            BlueprintName = "goahead-test"
+            BlueprintIdentifier = "9FC45C179FC48C4D0000004E"
+            BuildableName = "goahead"
+            BlueprintName = "goahead"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -84,9 +84,9 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000043"
-            BuildableName = "goahead"
-            BlueprintName = "goahead"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000044"
+            BuildableName = "libgo.dylib"
+            BlueprintName = "libgo"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>

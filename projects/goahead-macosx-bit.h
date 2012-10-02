@@ -117,6 +117,9 @@
 #ifndef BIT_LIMIT_STRING
     #define BIT_LIMIT_STRING 4096
 #endif
+#ifndef BIT_LIMIT_TIMEOUT
+    #define BIT_LIMIT_TIMEOUT 60
+#endif
 #ifndef BIT_LIMIT_UPLOAD
     #define BIT_LIMIT_UPLOAD 204800000
 #endif

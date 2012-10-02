@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "9FC45C179FC48C4D00000045"
+               BlueprintIdentifier = "9FC45C179FC48C4D00000050"
                BuildableName = "goahead-test"
                BlueprintName = "goahead-test"
                ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -32,7 +32,7 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000050"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -52,7 +52,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000050"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">
@@ -60,11 +60,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--route mob.txt --log stdout:4 --debug web"
+            argument = "--route mob.txt --log stdout:4 -D web"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--log stdout:5 --debug web"
+            argument = "--log stdout:5 -D web"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
@@ -80,7 +80,7 @@
       <BuildableProductRunnable>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "9FC45C179FC48C4D00000045"
+            BlueprintIdentifier = "9FC45C179FC48C4D00000050"
             BuildableName = "goahead-test"
             BlueprintName = "goahead-test"
             ReferencedContainer = "container:goahead-macosx.xcodeproj">

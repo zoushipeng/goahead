@@ -14,15 +14,20 @@
 			<key>orderHint</key>
 			<integer>1</integer>
 		</dict>
-		<key>cgitest.xcscheme</key>
+		<key>cgitest 2.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>7</integer>
 		</dict>
+		<key>cgitest.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>6</integer>
+		</dict>
 		<key>goahead-test.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>5</integer>
+			<integer>4</integer>
 		</dict>
 		<key>goahead.xcscheme</key>
 		<dict>
@@ -32,7 +37,7 @@
 		<key>gopass.xcscheme</key>
 		<dict>
 			<key>orderHint</key>
-			<integer>6</integer>
+			<integer>5</integer>
 		</dict>
 		<key>webcomp.xcscheme</key>
 		<dict>
@@ -63,6 +68,11 @@
 			<true/>
 		</dict>
 		<key>9FC45C179FC48C4D0000000D</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D0000000E</key>
 		<dict>
 			<key>primary</key>
 			<true/>
@@ -107,6 +117,11 @@
 			<key>primary</key>
 			<true/>
 		</dict>
+		<key>9FC45C179FC48C4D00000044</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>9FC45C179FC48C4D00000045</key>
 		<dict>
 			<key>primary</key>
@@ -143,6 +158,21 @@
 			<true/>
 		</dict>
 		<key>9FC45C179FC48C4D00000050</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D00000052</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D00000054</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>9FC45C179FC48C4D00000056</key>
 		<dict>
 			<key>primary</key>
 			<true/>

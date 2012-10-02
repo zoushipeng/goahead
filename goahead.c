@@ -63,7 +63,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
 
-        } else if (smatch(argp, "--debugger") || smatch(argp, "-D")) {
+        } else if (smatch(argp, "--debugger") || smatch(argp, "-d") || smatch(argp, "-D")) {
             websSetDebug(1);
 
         } else if (smatch(argp, "--home")) {

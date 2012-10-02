@@ -155,11 +155,21 @@ Bit.load({
         /*
             Target for the goahead executable
          */
-        goahead: {
-            type: 'exe',
+        libgo: {
+            enable: true,
+            type: 'lib',
+            static: 'true',
             sources: [ '*.c' ],
             headers: [ '*.h' ],
+            exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
+        },
+
+        goahead: {
+            type: 'exe',
+            sources: [ 'goahead.c' ],
+            headers: [ '*.h' ],
+            depends: [ 'libgo', 'openssl', 'matrixssl' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasPam && bit.settings.pam) {
@@ -169,24 +179,15 @@ Bit.load({
             },
         },
 
-        libgo: {
-            enable: false,
-            type: 'lib',
-            static: 'true',
-            sources: [ '*.c' ],
-            headers: [ '*.h' ],
-        },
-
         /*
             Target for unit tests. Includes ASP and form callbacks
          */
         'goahead-test': {
             enable: bit.settings.profile != 'release',
             type: 'exe',
-            sources: [ '*.c', 'test/test.c' ],
-            exclude: /goahead\.c/,
+            sources: [ 'test/test.c' ],
             headers: [ '*.h' ],
-            depends: [ 'openssl', 'matrixssl' ],
+            depends: [ 'libgo', 'openssl', 'matrixssl' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasPam && bit.settings.pam) {
@@ -201,10 +202,9 @@ Bit.load({
          */
         gopass: {
             type: 'exe',
-            sources: [ '*.c', 'utils/gopass.c' ],
-            exclude: /goahead\.c/,
+            sources: [ 'utils/gopass.c' ],
             headers: [ '*.h' ],
-            depends: [ 'openssl', 'matrixssl' ],
+            depends: [ 'libgo', 'openssl', 'matrixssl' ],
         },
 
         /*
@@ -220,7 +220,6 @@ Bit.load({
         cgitest: {
             path: 'test/cgi-bin/cgitest${EXE}'
             type: 'exe',
-            depends: [ ],
             sources: [ 'test/cgitest.c' ],
             headers: [ '*.h' ],
         },
