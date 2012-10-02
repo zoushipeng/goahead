@@ -104,6 +104,7 @@ Bit.load({
         limitSessionCount:     120,    /* Maximum number of sessions to support */
         limitString:          4096,    /* Default string size */
         limitSocketBuffer:    4096,    /* Default socket buffer size */
+        limitTimeout:           60,    /* Request inactivity timeout (secs) */
         limitUri:             2048,    /* Maximum URI size */
         limitUpload:     204800000,    /* Maximum upload size ~ 200MB */
 

@@ -270,9 +270,9 @@ void socketRegisterInterest(WebsSocket *sp, int handlerMask)
 
 
 /*
-    Wait until an event occurs on a socket. Return 1 on success, 0 on failure. or -1 on exception
+    Wait until an event occurs on a socket. Return zero on success, -1 on failure.
  */
-int socketWaitForEvent(WebsSocket *sp, int handlerMask, int *errCode)
+int socketWaitForEvent(WebsSocket *sp, int handlerMask)
 {
     int mask;
 
@@ -289,10 +289,7 @@ int socketWaitForEvent(WebsSocket *sp, int handlerMask, int *errCode)
     if (sp->currentEvents & SOCKET_EXCEPTION) {
         return -1;
     } else if (sp->currentEvents & handlerMask) {
-        return 1;
-    }
-    if (errCode) {
-        *errCode = errno = EWOULDBLOCK;
+        return 0;
     }
     return 0;
 }
@@ -433,13 +430,11 @@ int socketSelect(int sid, int timeout)
             }
         }
         gassert(sp);
-
         /*
-                Initialize the ready masks and compute the mask offsets.
+            Initialize the ready masks and compute the mask offsets.
          */
         index = sp->sock / (NBBY * sizeof(fd_mask));
         bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
-        
         /*
             Set the appropriate bit in the ready masks for the sp->sock.
          */
@@ -646,13 +641,16 @@ ssize socketWrite(int sid, void *buf, ssize bufsize)
 }
 
 
+#if UNUSED
 /*
     Write a string to a socket
+    WARNING: can return short
  */
 ssize socketWriteString(int sid, char *buf)
 {
     return socketWrite(sid, buf, slen(buf));
 }
+#endif
 
 
 /*
@@ -755,7 +753,7 @@ int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
     WebsSocket    *sp;
     int         sid;
 
-    if ((sid = gallocEntry(&socketList, &socketMax, sizeof(WebsSocket))) < 0) {
+    if ((sid = gallocObject(&socketList, &socketMax, sizeof(WebsSocket))) < 0) {
         return -1;
     }
     sp = socketList[sid];

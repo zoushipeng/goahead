@@ -52,7 +52,11 @@ static bool procHandler(Webs *wp)
         fn = (WebsProc) sp->content.value.symbol;
         gassert(fn);
         if (fn) {
+#if BIT_LEGACY
             (*fn)((void*) wp, formName, wp->query);
+#else
+            (*fn)((void*) wp);
+#endif
         }
     }
     return 1;
@@ -86,7 +90,7 @@ static void closeProc()
 
 void websProcOpen()
 {
-    formSymtab = hashCreate(WEBS_SYM_INIT);
+    formSymtab = hashCreate(WEBS_HASH_INIT);
     websDefineHandler("proc", procHandler, closeProc, 0);
 }
 

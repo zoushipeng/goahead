@@ -322,7 +322,7 @@ static void showTest(Webs *wp, char *path, char *query)
 static void uploadTest(Webs *wp, char *path, char *query)
 {
     WebsKey         *s;
-    WebsUploadFile  *up;
+    WebsUpload  *up;
     char            *upfile;
 
     websWriteHeaders(wp, 200, -1, 0);

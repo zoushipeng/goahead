@@ -48,7 +48,7 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
     Js  *ep;
     int     eid, vid;
 
-    if ((eid = gallocEntry(&jsHandles, &jsMax, sizeof(Js))) < 0) {
+    if ((eid = gallocObject(&jsHandles, &jsMax, sizeof(Js))) < 0) {
         return -1;
     }
     ep = jsHandles[eid];

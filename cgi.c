@@ -177,7 +177,7 @@ static bool cgiHandler(Webs *wp)
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
          */
-        cid = gallocEntry(&cgiList, &cgiMax, sizeof(Cgi));
+        cid = gallocObject(&cgiList, &cgiMax, sizeof(Cgi));
         cgip = cgiList[cid];
         cgip->handle = pHandle;
         cgip->stdIn = stdIn;

@@ -815,7 +815,7 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *
     *secret = stok(decoded, ":", &tok);
     *realm = stok(NULL, ":", &tok);
     whenStr = stok(NULL, ":", &tok);
-    *when = ghextoi(whenStr);
+    *when = hextoi(whenStr);
     return 0;
 }
 

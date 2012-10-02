@@ -26,7 +26,7 @@ int websRomOpen()
     char          name[BIT_LIMIT_FILENAME];
     ssize           len;
 
-    romTab = hashCreate(WEBS_SYM_INIT);
+    romTab = hashCreate(WEBS_HASH_INIT);
     for (wip = websRomPageIndex; wip->path; wip++) {
         strncpy(name, wip->path, BIT_LIMIT_FILENAME);
         len = strlen(name) - 1;

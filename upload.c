@@ -67,7 +67,7 @@ static int initUpload(Webs *wp)
 }
 
 
-static void freeUploadFile(WebsUploadFile *up)
+static void freeUploadFile(WebsUpload *up)
 {
     if (up->filename) {
         unlink(up->filename);
@@ -81,7 +81,7 @@ static void freeUploadFile(WebsUploadFile *up)
 
 void websFreeUpload(Webs *wp)
 {
-    WebsUploadFile  *up;
+    WebsUpload  *up;
     WebsKey         *s;
 
     for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
@@ -189,7 +189,7 @@ static int processContentBoundary(Webs *wp, char *line)
 
 static int processUploadHeader(Webs *wp, char *line)
 {
-    WebsUploadFile  *file;
+    WebsUpload  *file;
     char            *key, *headerTok, *rest, *nextPair, *value;
 
     if (line[0] == '\0') {
@@ -252,8 +252,8 @@ static int processUploadHeader(Webs *wp, char *line)
                 /*  
                     Create the files[id]
                  */
-                file = wp->currentFile = galloc(sizeof(WebsUploadFile));
-                memset(file, 0, sizeof(WebsUploadFile));
+                file = wp->currentFile = galloc(sizeof(WebsUpload));
+                memset(file, 0, sizeof(WebsUpload));
                 file->clientFilename = strdup(wp->clientFilename);
                 file->filename = strdup(wp->uploadTmp);
             }
@@ -272,7 +272,7 @@ static int processUploadHeader(Webs *wp, char *line)
 
 static void defineUploadVars(Webs *wp)
 {
-    WebsUploadFile  *file;
+    WebsUpload  *file;
     char            key[64], value[64];
 
     file = wp->currentFile;
@@ -293,7 +293,7 @@ static void defineUploadVars(Webs *wp)
 
 static int writeToFile(Webs *wp, char *data, ssize len)
 {
-    WebsUploadFile  *file;
+    WebsUpload  *file;
     ssize           rc;
 
     file = wp->currentFile;
@@ -319,7 +319,7 @@ static int writeToFile(Webs *wp, char *data, ssize len)
 
 static int processContentData(Webs *wp)
 {
-    WebsUploadFile  *file;
+    WebsUpload  *file;
     WebsBuf         *content;
     ssize           size, nbytes;
     char            *data, *bp;
@@ -426,7 +426,7 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 
 
 
-WebsUploadFile *websLookupUpload(Webs *wp, char *key)
+WebsUpload *websLookupUpload(Webs *wp, char *key)
 {
     WebsKey     *sp;
 

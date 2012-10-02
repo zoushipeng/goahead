@@ -274,7 +274,7 @@ int websOpen(char *documents, char *routeFile)
     /*
         Create a mime type lookup table for quickly determining the content type
      */
-    websMime = hashCreate(WEBS_SYM_INIT * 4);
+    websMime = hashCreate(WEBS_HASH_INIT * 4);
     gassert(websMime >= 0);
     for (mt = websMimeList; mt->type; mt++) {
         hashEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
@@ -367,7 +367,7 @@ static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *rxbuf)
 #if BIT_UPLOAD
     wp->upfd = -1;
 #endif
-    wp->vars = hashCreate(WEBS_SYM_INIT);
+    wp->vars = hashCreate(WEBS_HASH_INIT);
     /*
         Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
         a little more memory than required.
@@ -445,7 +445,7 @@ int websAlloc(int sid)
     Webs    *wp;
     int     wid;
 
-    if ((wid = gallocEntry(&webs, &websMax, sizeof(Webs))) < 0) {
+    if ((wid = gallocObject(&webs, &websMax, sizeof(Webs))) < 0) {
         return -1;
     }
     wp = webs[wid];
@@ -532,7 +532,7 @@ void websDone(Webs *wp, int code)
         websTimeoutCancel(wp);
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
+        wp->timeout = websStartEvent(BIT_LIMIT_TIMEOUT, websTimeout, (void*) wp);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -589,6 +589,7 @@ int websListen(char *endpoint)
 }
 
 
+#if UNUSED && KEEP
 void websCloseListen(int sid)
 {
     int     i;
@@ -605,6 +606,7 @@ void websCloseListen(int sid)
         }
     }
 }
+#endif
 
 
 /*
@@ -672,7 +674,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
+    wp->timeout = websStartEvent(BIT_LIMIT_TIMEOUT, websTimeout, (void*) wp);
     trace(5, "accept connection\n");
     return 0;
 }
@@ -1157,7 +1159,7 @@ static bool filterChunkData(Webs *wp)
                 websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad chunk specification");
                 return 0;
             }
-            chunkSize = ghextoi(&start[2]);
+            chunkSize = hextoi(&start[2]);
             if (!isxdigit((uchar) start[2]) || chunkSize < 0) {
                 websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad chunk specification");
                 return 0;
@@ -2150,25 +2152,25 @@ static void logRequest(Webs *wp, int code)
 
 
 /*
-    Request timeout. The timeout triggers if we have not read any data from the users browser in the last WEBS_TIMEOUT
+    Request timeout. The timeout triggers if we have not read any data from the users browser in the last BIT_LIMIT_TIMEOUT
     period. If we have heard from the browser, simply re-issue the timeout.
  */
 void websTimeout(void *arg, int id)
 {
     Webs        *wp;
-    WebsTime    tm, delay;
+    WebsTime    elapsed, delay;
 
     wp = (Webs*) arg;
     gassert(websValid(wp));
 
-    tm = getTimeSinceMark(wp) * 1000;
+    elapsed = getTimeSinceMark(wp) * 1000;
     if (websDebug) {
-        websRestartEvent(id, (int) WEBS_TIMEOUT);
+        websRestartEvent(id, (int) BIT_LIMIT_TIMEOUT);
         return;
-    } else if (tm >= WEBS_TIMEOUT) {
+    } else if (elapsed >= BIT_LIMIT_TIMEOUT) {
         websDone(wp, 404 | WEBS_CLOSE);
     } else {
-        delay = WEBS_TIMEOUT - tm;
+        delay = BIT_LIMIT_TIMEOUT - elapsed;
         gassert(delay > 0);
         websRestartEvent(id, (int) delay);
     }

@@ -224,7 +224,7 @@ int websStartEvent(int delay, WebsEventProc proc, void *arg)
     Callback    *s;
     int         id;
 
-    if ((id = gallocEntry(&callbacks, &callbackMax, sizeof(Callback))) < 0) {
+    if ((id = gallocObject(&callbacks, &callbackMax, sizeof(Callback))) < 0) {
         return -1;
     }
     s = callbacks[id];
@@ -1234,7 +1234,7 @@ char *itosbuf(char *buf, ssize size, int64 value, int radix)
 
 
 /*
-    Allocate a new file handle.  On the first call, the caller must set the handle map to be a pointer to a null
+    Allocate a new file handle. On the first call, the caller must set the handle map to be a pointer to a null
     pointer.  map points to the second element in the handle array.
  */
 int gallocHandle(void *mapArg)
@@ -1335,7 +1335,7 @@ int gfreeHandle(void *mapArg, int handle)
 /*
     Allocate an entry in the halloc array
  */
-int gallocEntry(void *listArg, int *max, int size)
+int gallocObject(void *listArg, int *max, int size)
 {
     void    ***list;
     char    *cp;
@@ -2467,7 +2467,7 @@ char *awtom(wchar *src, ssize *lenp)
 /*
     Convert a hex string to an integer
  */
-uint ghextoi(char *hexstring)
+uint hextoi(char *hexstring)
 {
     char      *h;
     uint        c, v;
@@ -2513,7 +2513,7 @@ uint strtoi(char *s)
 {
     if (*s == '0' && (*(s+1) == 'x' || *(s+1) == 'X')) {
         s += 2;
-        return ghextoi(s);
+        return hextoi(s);
     }
     return atoi(s);
 }

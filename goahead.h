@@ -1895,17 +1895,175 @@ extern void socketReservice(int sid);
         until a suitable I/O event or timeout occurs.
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @param timeout Timeout in milliseconds.
-    @return True if an I/O event occurs. Returns zero for a timeout.
+    @return Number of I/O events.
     @ingroup WebsSocket
  */
 extern int socketSelect(int sid, int timeout);
-extern int socketSetBlock(int sid, int flags);
-extern int socketWaitForEvent(WebsSocket *sp, int events, int *errCode);
+
+/**
+    Set the socket blocking mode
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @param on Set to 1 to enable blocking 
+    @return The previous blocking mode
+    @ingroup WebsSocket
+ */
+extern int socketSetBlock(int sid, int on);
+
+/**
+    Wait for a socket I/O event
+    @param sp Socket object
+    @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
+    @return Zero if successful in waiting for the desired event, othewise return -1.
+    @ingroup WebsSocket
+ */
+extern int socketWaitForEvent(WebsSocket *sp, int mask);
+
+/**
+    Write data to the socket
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @param buf Buffer containing data to write
+    @param len Size of buf
+    @return Count of bytes written. May be less than len if the socket is in non-blocking mode.
+        Returns -1 for errors.
+    @ingroup WebsSocket
+ */
 extern ssize socketWrite(int sid, void *buf, ssize len);
-extern ssize socketWriteString(int sid, char *buf);
+
+/**
+    Return the socket object for the socket ID.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @return Corresponding socket object.
+    @ingroup WebsSocket
+ */
 extern WebsSocket *socketPtr(int sid);
 
 /*********************************** Runtime **********************************/
+/**
+    GoAhead Web Server Runtime
+    @description GoAhead provides a secure runtime environment for safe string manipulation and to 
+    help prevent buffer overflows and other potential security traps.
+    @defgroup WebsRuntime WebsRuntime
+    @see fmt gallocHandle gallocObject gfreehandle hextoi itosbuf scaselesscmp scaselessmatch
+    sclone scmp scopy sfmt sfmtv slen slower smatch sncaselesscmp sncmp sncopy stok strim supper
+ */
+
+/**
+    Format a string into a static buffer.
+    @description This call format a string using printf style formatting arguments. A trailing null will 
+        always be appended. The call returns the size of the allocated string excluding the null.
+    @param buf Pointer to the buffer.
+    @param maxSize Size of the buffer.
+    @param format Printf style format string
+    @param ... Variable arguments to format
+    @return Returns the buffer.
+    @ingroup WebsRuntime
+ */
+extern char *fmt(char *buf, ssize maxSize, char *format, ...);
+
+/**
+    Allocate a handle from a map
+    @param map Reference to a location holding the map reference. On the first call, the map is allocated.
+    @return Integer handle index. Otherwise return -1 on allocation errors.
+    @ingroup WebsRuntime
+ */
+extern int gallocHandle(void *map);
+
+/**
+    Allocate an object in a halloc map
+    @param map Reference to a location holding the map reference. On the first call, the map is allocated.
+    @param max Reference to an integer that holds the maximum handle in the map.
+    @param size Size of the object to allocate.
+    @return Integer handle index. Otherwise return -1 on allocation errors.
+    @ingroup WebsRuntime
+ */
+extern int gallocObject(void *map, int *max, int size);
+
+/**
+    Free a handle in the map
+    @param map Reference to a location to hold the map reference.
+    @param handle Handle to free in the map.
+    @return Integer handle index. Otherwise return -1 on allocation errors.
+    @ingroup WebsRuntime
+ */
+extern int gfreeHandle(void *map, int handle);
+
+/**
+    Convert a hex string to an integer 
+    @description This call converts the supplied string to an integer using base 16.
+    @param str Pointer to the string to parse.
+    @return Returns the integer equivalent value of the string. 
+    @ingroup WebsRuntime
+ */
+extern uint hextoi(char *str);
+
+/**
+    Convert an integer to a string buffer.
+    @description This call converts the supplied 64 bit integer into a string formatted into the supplied buffer according
+        to the specified radix.
+    @param buf Pointer to the buffer that will hold the string.
+    @param size Size of the buffer.
+    @param value Integer value to convert
+    @param radix The base radix to use when encoding the number
+    @return Returns a reference to the string.
+    @ingroup WebsRuntime
+ */
+extern char *itosbuf(char *buf, ssize size, int64 value, int radix);
+
+/**
+    Compare strings ignoring case. This is a safe replacement for strcasecmp. It can handle NULL args.
+    @description Compare two strings ignoring case differences. This call operates similarly to strcmp.
+    @param s1 First string to compare.
+    @param s2 Second string to compare. 
+    @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence 
+        or > 0 if it sorts higher.
+    @ingroup WebsRuntime
+ */
+extern int scaselesscmp(char *s1, char *s2);
+
+/**
+    Compare strings ignoring case. This is similar to scaselesscmp but it returns a boolean.
+    @description Compare two strings ignoring case differences.
+    @param s1 First string to compare.
+    @param s2 Second string to compare. 
+    @return Returns true if the strings are equivalent, otherwise false.
+    @ingroup WebsRuntime
+ */
+extern bool scaselessmatch(char *s1, char *s2);
+
+/**
+    Clone a string
+    @description Copy a string into a newly allocated block.
+    @param str Pointer to the block to duplicate.
+    @return Returns a newly allocated string.
+    @ingroup WebsRuntime
+ */
+extern char *sclone(char *str);
+
+/**
+    Compare strings.
+    @description Compare two strings. This is a safe replacement for strcmp. It can handle null args.
+    @param s1 First string to compare.
+    @param s2 Second string to compare.
+    @return Returns zero if the strings are identical. Return -1 if the first string is less than the second. Return 1
+        if the first string is greater than the second.
+    @ingroup WebsRuntime
+ */
+extern int scmp(char *s1, char *s2);
+
+/**
+    Copy a string.
+    @description Safe replacement for strcpy. Copy a string and ensure the destination buffer is not overflowed. 
+        The call returns the length of the resultant string or an error code if it will not fit into the target
+        string. This is similar to strcpy, but it will enforce a maximum size for the copied string and will 
+        ensure it is always terminated with a null.
+    @param dest Pointer to a pointer that will hold the address of the allocated block.
+    @param destMax Maximum size of the target string in characters.
+    @param src String to copy
+    @return Returns the number of characters in the target string.
+    @ingroup WebsRuntime
+ */
+extern ssize scopy(char *dest, ssize destMax, char *src);
+
 /*
     String trim flags
  */
@@ -1913,31 +2071,107 @@ extern WebsSocket *socketPtr(int sid);
 #define WEBS_TRIM_END    0x2             /**< Flag for #strim to trim from the end of the string */
 #define WEBS_TRIM_BOTH   0x3             /**< Flag for #strim to trim from both the start and the end of the string */
 
-extern int gallocHandle(void *map);
-extern int gallocEntry(void *list, int *max, int size);
-extern int gfreeHandle(void *map, int handle);
-
+/**
+    Format a string. This is a secure verion of printf that can handle null args.
+    @description Format the given arguments according to the printf style format. See fmt() for a full list of the
+        format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
+    @param format Printf style format string
+    @param ... Variable arguments for the format string
+    @return Returns a newly allocated string
+    @ingroup WebsRuntime
+ */
 extern char *sfmt(char *format, ...);
-extern char *sfmtv(char *format, va_list arg);
-extern char *fmt(char *s, ssize n, char *format, ...);
 
-//  MOB rename ahtoi
-extern uint ghextoi(char *hexstring);
+/**
+    Format a string with varargs. This is a secure verion of printf that can handle null args.
+    @description Format the given arguments according to the printf style format. See fmt() for a full list of the
+        format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
+    @param format Printf style format string
+    @param args Varargs argument obtained from va_start.
+    @return Returns a newly allocated string
+    @ingroup WebsRuntime
+ */
+extern char *sfmtv(char *format, va_list args);
 
-extern char *sclone(char *s);
-extern ssize slen(char *s1);
+/**
+    Return the length of a string.
+    @description Safe replacement for strlen. This call returns the length of a string and tests if the length is 
+        less than a given maximum. It will return zero for NULL args.
+    @param str String to measure.
+    @return Returns the length of the string
+    @ingroup WebsRuntime
+ */
+extern ssize slen(char *str);
+
+/**
+    Convert a string to lower case. 
+    @description Convert a string to its lower case equivalent.
+    @param str String to convert. This string is modified.
+    @return Reference to the supplied str.
+    @ingroup WebsRuntime
+ */
+extern char *slower(char *str);
+
+/**
+    Compare strings
+    @description Compare two strings. This is similar to #scmp but it returns a boolean.
+    @param s1 First string to compare.
+    @param s2 Second string to compare.
+    @return Returns true if the strings are equivalent, otherwise false.
+    @ingroup WebsRuntime
+ */
 extern bool smatch(char *s1, char *s2);
-extern ssize scopy(char *dest, ssize destMax, char *src);
-extern ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
-extern int scaselesscmp(char *s1, char *s2);
-extern bool scaselessmatch(char *s1, char *s2);
-extern int scmp(char *s1, char *s2);
-extern int sncaselesscmp(char *s1, char *s2, ssize n);
-extern int sncmp(char *s1, char *s2, ssize n);
-extern char *stok(char *str, char *delim, char **last);
-extern char *slower(char *string);
-extern char *supper(char *string);
 
+/**
+    Compare strings ignoring case.
+    @description Compare two strings ignoring case differences for a given string length. This call operates 
+        similarly to strncasecmp.
+    @param s1 First string to compare.
+    @param s2 Second string to compare.
+    @param len Length of characters to compare.
+    @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence 
+        or > 0 if it sorts higher.
+    @ingroup WebsRuntime
+ */
+extern int sncaselesscmp(char *s1, char *s2, ssize len);
+
+/**
+    Compare strings.
+    @description Compare two strings for a given string length. This call operates similarly to strncmp.
+    @param s1 First string to compare.
+    @param s2 Second string to compare.
+    @param len Length of characters to compare.
+    @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence 
+        or > 0 if it sorts higher.
+    @ingroup WebsRuntime
+ */
+extern int sncmp(char *s1, char *s2, ssize len);
+
+/**
+    Copy characters from a string.
+    @description Safe replacement for strncpy. Copy bytes from a string and ensure the target string is not overflowed. 
+        The call returns the length of the resultant string or an error code if it will not fit into the target
+        string. This is similar to strcpy, but it will enforce a maximum size for the copied string and will 
+        ensure it is terminated with a null.
+    @param dest Pointer to a pointer that will hold the address of the allocated block.
+    @param destMax Maximum size of the target string in characters.
+    @param src String to copy
+    @param count Maximum count of characters to copy
+    @return Returns a reference to the destination if successful or NULL if the string won't fit.
+    @ingroup WebsRuntime
+ */
+extern ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
+
+/**
+    Tokenize a string
+    @description Split a string into tokens.
+    @param str String to tokenize.
+    @param delim String of characters to use as token separators.
+    @param last Last token pointer.
+    @return Returns a pointer to the next token.
+    @ingroup WebsRuntime
+ */
+extern char *stok(char *str, char *delim, char **last);
 
 /**
     Trim a string.
@@ -1949,12 +2183,56 @@ extern char *supper(char *string);
  */
 extern char *strim(char *str, char *set, int where);
 
-extern char *itosbuf(char *buf, ssize size, int64 value, int radix);
+/**
+    Convert a string to upper case.
+    @description Convert a string to its upper case equivalent.
+    @param str String to convert. This string is modified.
+    @return Returns a pointer to the converted string. Will always equal str.
+    @ingroup WebsRuntime
+ */
+extern char *supper(char *str);
 
+/**
+    Callback function for events
+    @param data Opaque data argument
+    @param id Event ID
+    @ingroup WebsRuntime
+ */
 typedef void (*WebsEventProc)(void *data, int id);
-extern int websStartEvent(int delay, WebsEventProc proc, void *arg);
+
+/**
+    Start a callback event
+    @description This schedules an event to run once. The event can be rescheduled in the callback by invoking
+    websRestartEvent.
+    @param delay Delay in milliseconds in which to run the callback
+    @param proc Callback procedure function. Signature is: void (*fn)(void *data, int id)
+    @param data Data reference to pass to the callback
+    @return A positive integer event ID
+    @ingroup WebsRuntime
+ */
+extern int websStartEvent(int delay, WebsEventProc proc, void *data);
+
+/**
+    Stop an event
+    @param id Event id allocated by websStartEvent
+    @return Integer handle index. Otherwise return -1 on allocation errors.
+    @ingroup WebsRuntime
+ */
 extern void websStopEvent(int id);
+
+/**
+    Restart an event
+    @param id Event id allocated by websStartEvent
+    @param delay Delay in milliseconds till the event next runs
+    @ingroup WebsRuntime
+ */
 extern void websRestartEvent(int id, int delay);
+
+/**
+    Run due events
+    @ingroup WebsRuntime
+    @internal
+ */
 extern void websRunEvents();
 
 /* Forward declare */
@@ -1966,40 +2244,64 @@ struct Webs;
 /********************************** Upload ************************************/
 #if BIT_UPLOAD
 
-typedef struct WebsUploadFile {
+/**
+    File upload structure
+    @see websUploadOpen websLookupUpload websGetUpload
+    @defgroup WebsUpload WebsUpload
+ */
+typedef struct WebsUpload {
     char    *filename;              /**< Local (temp) name of the file */
     char    *clientFilename;        /**< Client side name of the file */
     char    *contentType;           /**< Content type */
     ssize   size;                   /**< Uploaded file size */
-} WebsUploadFile;
+} WebsUpload;
 
+/**
+    Open the file upload filter
+    @ingroup WebsUpload
+ */
 extern void websUploadOpen();
+
+/**
+    Get the hash of uploaded files for the request
+    @param wp Webs request object
+    @return Hash table of uploaded files
+    @ingroup WebsUpload
+ */
 extern WebsHash websGetUpload(struct Webs *wp);
-extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
+
+/**
+    Open the file upload filter
+    @param wp Webs request object
+    @param key Form upload name
+    @return Upload object for the uploaded file
+    @ingroup WebsUpload
+ */
+extern WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #endif
 /********************************** Defines ***********************************/
 
 #define WEBS_MAX_PORT_LEN       10          /* Max digits in port number */
-#define WEBS_SYM_INIT           64          /* Hash size for form table */
+#define WEBS_HASH_INIT          64          /* Hash size for form table */
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
 
 /* 
     Request flags
  */
-#define WEBS_ACCEPTED           0x1         /* TLS connection accepted */
-#define WEBS_COOKIE             0x2         /* Cookie supplied in request */
-#define WEBS_FORM               0x4         /* Request is a form (url encoded data) */
-#define WEBS_HEADERS_DONE       0x8         /* Already output the HTTP header */
-#define WEBS_HTTP11             0x10        /* Request is using HTTP/1.1 */
-#define WEBS_KEEP_ALIVE         0x20        /* HTTP/1.1 keep alive */
-#define WEBS_RESPONSE_TRACED    0x40        /* Started tracing the response */
-#define WEBS_SECURE             0x80        /* Connection uses SSL */
-#define WEBS_UPLOAD             0x100       /* Multipart-mime file upload */
-#define WEBS_REROUTE            0x200       /* Restart route matching */
-#define WEBS_FINALIZED          0x400       /* Output is finalized */
+#define WEBS_ACCEPTED           0x1         /**< TLS connection accepted */
+#define WEBS_COOKIE             0x2         /**< Cookie supplied in request */
+#define WEBS_FORM               0x4         /**< Request is a form (url encoded data) */
+#define WEBS_HEADERS_DONE       0x8         /**< Already output the HTTP header */
+#define WEBS_HTTP11             0x10        /**< Request is using HTTP/1.1 */
+#define WEBS_KEEP_ALIVE         0x20        /**< HTTP/1.1 keep alive */
+#define WEBS_RESPONSE_TRACED    0x40        /**< Started tracing the response */
+#define WEBS_SECURE             0x80        /**< Connection uses SSL */
+#define WEBS_UPLOAD             0x100       /**< Multipart-mime file upload */
+#define WEBS_REROUTE            0x200       /**< Restart route matching */
+#define WEBS_FINALIZED          0x400       /**< Output is finalized */
 #if BIT_LEGACY
-#define WEBS_LOCAL              0x10000     /* Request from local system */
+#define WEBS_LOCAL              0x10000     /**< Request from local system */
 #endif
 
 /*
@@ -2013,18 +2315,15 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 /* 
     Read handler flags and state
  */
-#define WEBS_BEGIN          0x1             /* Beginning state */
-#define WEBS_CONTENT        0x2             /* Ready for body data */
-#define WEBS_RUNNING        0x4             /* Processing request */
-
-#define WEBS_KEEP_TIMEOUT   15000           /* Keep-alive timeout (15 secs) */
-#define WEBS_TIMEOUT        60000           /* General request timeout (60) */
+#define WEBS_BEGIN          0x1             /**< Beginning state */
+#define WEBS_CONTENT        0x2             /**< Ready for body data */
+#define WEBS_RUNNING        0x4             /**< Processing request */
 
 /*
     Session names
  */
 #define WEBS_SESSION            "-goahead-session-"
-#define WEBS_SESSION_USERNAME   "_:USERNAME:_"      /**< Username variable */
+#define WEBS_SESSION_USERNAME   "_:USERNAME:_"  /* Username variable */
 
 /*
     Flags for httpSetCookie
@@ -2035,107 +2334,108 @@ extern WebsUploadFile *websLookupUpload(struct Webs *wp, char *key);
 /*
     WebsDone flags
  */
-#define WEBS_CLOSE          0x20000
+#define WEBS_CLOSE          0x20000     /**< Close connection */
 
-/* 
-    Per socket connection webs structure
+/**
+    GoAhead request structure. This is a per-socket connection structure.
+    @defgroup Webs Webs
  */
 typedef struct Webs {
-    WebsBuf         rxbuf;              /* Raw receive buffer */
-    WebsBuf         input;              /* Receive buffer after de-chunking */
-    WebsBuf         output;             /* Transmit data buffer */
-    WebsTime        since;              /* Parsed if-modified-since time */
-    WebsHash        vars;               /* CGI standard variables */
-    WebsTime        timestamp;          /* Last transaction with browser */
-    int             timeout;            /* Timeout handle */
-    char            ipaddr[64];         /* Connecting ipaddress */
-    char            ifaddr[64];         /* Local interface ipaddress */
+    WebsBuf         rxbuf;              /**< Raw receive buffer */
+    WebsBuf         input;              /**< Receive buffer after de-chunking */
+    WebsBuf         output;             /**< Transmit data buffer */
+    WebsTime        since;              /**< Parsed if-modified-since time */
+    WebsHash        vars;               /**< CGI standard variables */
+    WebsTime        timestamp;          /**< Last transaction with browser */
+    int             timeout;            /**< Timeout handle */
+    char            ipaddr[64];         /**< Connecting ipaddress */
+    char            ifaddr[64];         /**< Local interface ipaddress */
 
-    int             rxChunkState;       /* Rx chunk encoding state */
-    ssize           rxChunkSize;        /* Rx chunk size */
-    char            *rxEndp;            /* Pointer to end of raw data in input beyond endp */
-    ssize           lastRead;           /* Number of bytes last read from the socket */
-    bool            eof;                /* If at the end of the request content */
+    int             rxChunkState;       /**< Rx chunk encoding state */
+    ssize           rxChunkSize;        /**< Rx chunk size */
+    char            *rxEndp;            /**< Pointer to end of raw data in input beyond endp */
+    ssize           lastRead;           /**< Number of bytes last read from the socket */
+    bool            eof;                /**< If at the end of the request content */
 
-    char            txChunkPrefix[16];
-    char            *txChunkPrefixNext;
-    ssize           txChunkPrefixLen;
-    ssize           txChunkLen;
-    int             txChunkState;
+    char            txChunkPrefix[16];  /**< Transmit chunk prefix */
+    char            *txChunkPrefixNext; /**< Current I/O pos in txChunkPrefix */
+    ssize           txChunkPrefixLen;   /**< Length of prefix */
+    ssize           txChunkLen;         /**< Length of the chunk */
+    int             txChunkState;       /**< Transmit chunk state */
 
     //  MOB OPT - which of these should be allocated strings and which should be static
 
-    char            *authDetails;       /* Http header auth details */
-    char            *authResponse;      /* Outgoing auth header */
-    char            *authType;          /* Authorization type (Basic/DAA) */
-    char            *contentType;       /* Body content type */
-    char            *cookie;            /* Request cookie string */
-    char            *decodedQuery;      /* Decoded request query */
-    char            *digest;            /* Password digest */
-    char            *ext;               /* Path extension */
-    char            *filename;          /* Document path name */
-    char            *host;              /* Requested host */
-    char            *inputFile;         /* File name to write input body data */
-    char            *method;            /* HTTP request method */
-    char            *password;          /* Authorization password */
-    char            *path;              /* Path name without query */
-    char            *protoVersion;      /* Protocol version (HTTP/1.1)*/
-    char            *protocol;          /* Protocol scheme (normally http|https) */
-    char            *query;             /* Request query */
-    char            *realm;             /* Realm field supplied in auth header */
-    char            *referrer;          /* The referring page */
-    char            *responseCookie;    /* Outgoing cookie */
-    char            *url;               /* Full request url */
-    char            *userAgent;         /* User agent (browser) */
-    char            *username;          /* Authorization username */
+    char            *authDetails;       /**< Http header auth details */
+    char            *authResponse;      /**< Outgoing auth header */
+    char            *authType;          /**< Authorization type (Basic/DAA) */
+    char            *contentType;       /**< Body content type */
+    char            *cookie;            /**< Request cookie string */
+    char            *decodedQuery;      /**< Decoded request query */
+    char            *digest;            /**< Password digest */
+    char            *ext;               /**< Path extension */
+    char            *filename;          /**< Document path name */
+    char            *host;              /**< Requested host */
+    char            *inputFile;         /**< File name to write input body data */
+    char            *method;            /**< HTTP request method */
+    char            *password;          /**< Authorization password */
+    char            *path;              /**< Path name without query */
+    char            *protoVersion;      /**< Protocol version (HTTP/1.1)*/
+    char            *protocol;          /**< Protocol scheme (normally http|https) */
+    char            *query;             /**< Request query */
+    char            *realm;             /**< Realm field supplied in auth header */
+    char            *referrer;          /**< The referring page */
+    char            *responseCookie;    /**< Outgoing cookie */
+    char            *url;               /**< Full request url */
+    char            *userAgent;         /**< User agent (browser) */
+    char            *username;          /**< Authorization username */
 
-    int             sid;                /* Socket id (handler) */
-    int             listenSid;          /* Listen Socket id */
-    int             port;               /* Request port number */
-    int             state;              /* Current state */
-    int             flags;              /* Current flags -- see above */
-    int             code;               /* Response status code */
-    ssize           rxLen;              /* Rx content length */
-    ssize           rxRemaining;        /* Remaining content to read from client */
-    ssize           txLen;              /* Tx content length header value */
-    int             wid;                /* Index into webs */
+    int             sid;                /**< Socket id (handler) */
+    int             listenSid;          /**< Listen Socket id */
+    int             port;               /**< Request port number */
+    int             state;              /**< Current state */
+    int             flags;              /**< Current flags -- see above */
+    int             code;               /**< Response status code */
+    ssize           rxLen;              /**< Rx content length */
+    ssize           rxRemaining;        /**< Remaining content to read from client */
+    ssize           txLen;              /**< Tx content length header value */
+    int             wid;                /**< Index into webs */
 #if BIT_CGI
-    char            *cgiStdin;          /* Filename for CGI program input */
-    int             cgifd;              /* File handle for CGI program input */
+    char            *cgiStdin;          /**< Filename for CGI program input */
+    int             cgifd;              /**< File handle for CGI program input */
 #endif
-    int             putfd;              /* File handle to write PUT data */
-    int             docfd;              /* File descriptor for document being served */
-    ssize           written;            /* Bytes actually transferred */
+    int             putfd;              /**< File handle to write PUT data */
+    int             docfd;              /**< File descriptor for document being served */
+    ssize           written;            /**< Bytes actually transferred */
     void            (*writable)(struct Webs *wp);
 
-    struct WebsSession *session;        /* Session record */
-    struct WebsRoute *route;            /* Request route */
-    struct WebsUser *user;              /* User auth record */
-    int             encoded;            /* True if the password is MD5(username:realm:password) */
+    struct WebsSession *session;        /**< Session record */
+    struct WebsRoute *route;            /**< Request route */
+    struct WebsUser *user;              /**< User auth record */
+    int             encoded;            /**< True if the password is MD5(username:realm:password) */
 #if BIT_DIGEST
-    char            *cnonce;            /* check nonce */
-    char            *digestUri;         /* URI found in digest header */
-    char            *nonce;             /* opaque-to-client string sent by server */
-    char            *nc;                /* nonce count */
-    char            *opaque;            /* opaque value passed from server */
-    char            *qop;               /* quality operator */
+    char            *cnonce;            /**< check nonce */
+    char            *digestUri;         /**< URI found in digest header */
+    char            *nonce;             /**< opaque-to-client string sent by server */
+    char            *nc;                /**< nonce count */
+    char            *opaque;            /**< opaque value passed from server */
+    char            *qop;               /**< quality operator */
 #endif
 #if BIT_UPLOAD
-    int             upfd;               /* Upload file handle */
-    WebsHash        files;              /* Uploaded files */
-    char            *boundary;          /* Mime boundary (static) */
-    ssize           boundaryLen;        /* Boundary length */
-    int             uploadState;        /* Current file upload state */
-    WebsUploadFile  *currentFile;       /* Current file context */
-    char            *clientFilename;    /* Current file filename */
-    char            *uploadTmp;         /* Current temp filename for upload data */
-    char            *uploadVar;         /* Current upload form variable name */
+    int             upfd;               /**< Upload file handle */
+    WebsHash        files;              /**< Uploaded files */
+    char            *boundary;          /**< Mime boundary (static) */
+    ssize           boundaryLen;        /**< Boundary length */
+    int             uploadState;        /**< Current file upload state */
+    WebsUpload      *currentFile;       /**< Current file context */
+    char            *clientFilename;    /**< Current file filename */
+    char            *uploadTmp;         /**< Current temp filename for upload data */
+    char            *uploadVar;         /**< Current upload form variable name */
 #endif
 #if BIT_PACK_OPENSSL
-    SSL             *ssl;               /* SSL state */
-    BIO             *bio;               /* Buffer for I/O - not used in actual I/O */
+    SSL             *ssl;               /**< SSL state */
+    BIO             *bio;               /**< Buffer for I/O - not used in actual I/O */
 #elif BIT_PACK_MATRIXSSL
-    void            *ms;                /* MatrixSSL state */
+    void            *ms;                /**< MatrixSSL state */
 #endif
 } Webs;
 
@@ -2143,89 +2443,252 @@ typedef struct Webs {
     #define WEBS_LEGACY_HANDLER 0x1     /* Using legacy calling sequence */
 #endif
 
+
+/**
+    GoAhead handler service callback
+    @param wp Webs request object
+    @return True if the handler serviced the request
+    @ingroup Webs
+ */
 typedef bool (*WebsHandlerProc)(Webs *wp);
+
+/**
+    GoAhead handler close to release memory prior to shutdown.
+    @description This callback is invoked when GoAhead is shutting down.
+    @ingroup Webs
+ */
 typedef void (*WebsHandlerClose)();
 
+/**
+    GoAhead handler object
+    @ingroup Webs
+ */
 typedef struct WebsHandler {
-    char                *name;
-    WebsHandlerProc     service;
-    WebsHandlerClose    close;
-    int                 flags;
+    char                *name;              /**< Handler name */
+    WebsHandlerProc     service;            /**< Handler service callback */
+    WebsHandlerClose    close;              /**< Handler close callback  */
+    int                 flags;              /**< Handler control flags */
 } WebsHandler;
 
-typedef int (*WebsProc)(Webs *wp, char *path, char *query);
-
-/* 
-    Error code list
- */
-typedef struct WebsError {
-    int     code;                           /* HTTP error code */
-    char    *msg;                           /* HTTP error message */
-} WebsError;
-
-/* 
-    Mime type list
- */
-typedef struct WebsMime {
-    char    *type;                          /* Mime type */
-    char    *ext;                           /* File extension */
-} WebsMime;
-
-/*
-    File information structure.
- */
-typedef struct WebsFileInfo {
-    ulong           size;                   /* File length */
-    int             isDir;                  /* Set if directory */
-    WebsTime        mtime;                  /* Modified time */
-} WebsFileInfo;
-
-/*
-    Compiled Rom Page Index
- */
-typedef struct WebsRomIndex {
-    char            *path;                  /* Web page URL path */
-    uchar           *page;                  /* Web page data */
-    int             size;                   /* Size of web page in bytes */
-    WebsFilePos     pos;                    /* Current read position */
-} WebsRomIndex;
-
-/*
-    Globals
- */
-#if BIT_ROM
-    extern WebsRomIndex websRomPageIndex[];
+#if BIT_LEGACY
+    typedef void (*WebsProc)(Webs *wp, char *path, char *query);
+#else
+    /**
+        Proc handler callback
+        @param wp Webs request object
+        @ingroup Webs
+     */
+    typedef void (*WebsProc)(Webs *wp);
 #endif
 
 /**
-    Decode base 64 blocks up to a NULL or equals
+    Error code list
+    @ingroup Webs
  */
-#define WEBS_DECODE_TOKEQ 1
+typedef struct WebsError {
+    int     code;                           /**< HTTP error code */
+    char    *msg;                           /**< HTTP error message */
+} WebsError;
 
+/** 
+    Mime type list
+    @ingroup Webs
+ */
+typedef struct WebsMime {
+    char    *type;                          /**< Mime type */
+    char    *ext;                           /**< File extension */
+} WebsMime;
+
+/**
+    File information structure.
+    @ingroup Webs
+ */
+typedef struct WebsFileInfo {
+    ulong           size;                   /**< File length */
+    int             isDir;                  /**< Set if directory */
+    WebsTime        mtime;                  /**< Modified time */
+} WebsFileInfo;
+
+/**
+    Compiled Rom Page Index
+    @ingroup Webs
+ */
+typedef struct WebsRomIndex {
+    char            *path;                  /**< Web page URL path */
+    uchar           *page;                  /**< Web page data */
+    int             size;                   /**< Size of web page in bytes */
+    WebsFilePos     pos;                    /**< Current read position */
+} WebsRomIndex;
+
+#if BIT_ROM
+    /**
+        List of documents to service when built with ROM support
+        @ingroup Webs
+     */
+    extern WebsRomIndex websRomPageIndex[];
+#endif
+
+#define WEBS_DECODE_TOKEQ 1                 /**< Decode base 64 blocks up to a NULL or equals */
+
+/**
+    Accept a new connection 
+    @param sid Socket ID handle for the newly accepted socket
+    @param ipaddr IP address originating the connection.
+    @param port Port number originating the connection.
+    @param listenSid Socket ID of the listening socket
+    @return Zero if successful, otherwise -1
+    @ingroup Webs
+ */
 extern int websAccept(int sid, char *ipaddr, int port, int listenSid);
+
+/**
+    Allocate a new Webs object
+    @param sid Socket ID handle for the newly accepted socket
+    @return The webs[] handle index for the allocated Webs object
+    @ingroup Webs
+ */
 extern int websAlloc(int sid);
-extern char *websCalcNonce(Webs *wp);
-extern char *websCalcOpaque(Webs *wp);
-extern char *websCalcDigest(Webs *wp);
-extern char *websCalcUrlDigest(Webs *wp);
+
+/**
+    Open the CGI handler
+    @return Zero if successful, otherwise -1
+    @ingroup Webs
+ */
 extern int websCgiOpen();
+
+/**
+    CGI handler service callback
+    @param wp Webs object
+    @return Returns 1 if the request was handled. 
+    @ingroup Webs
+ */
 extern int websCgiHandler(Webs *wp);
+
+/**
+    Cleanup completed CGI processes and output.
+    @ingroup Webs
+ */
 extern void websCgiCleanup();
+
+/**
+    Check if a CGI process has completed
+    @param handle CGI process handle
+    @ingroup Webs
+ */
 extern int websCheckCgiProc(int handle);
+
+/**
+    Close the core GoAhead web server module
+    @description Invoked when GoAhead is shutting down.
+    @ingroup Webs
+ */
 extern void websClose();
-extern void websCloseListen(int sock);
+
+/**
+    Compare a request variable
+    @param wp Webs request object
+    @param var Variable name
+    @param value Value to compare with
+    @return True if the value matches. Otherwise return 0
+    @ingroup Webs
+ */
 extern int websCompareVar(Webs *wp, char *var, char *value);
+
+/**
+    Consume input from the request input buffer.
+    @description This is called by handlers when consuming data from the request input buffer.
+        This call updates the input service pointers and compacts the input buffer if required.
+    @param wp Webs request object
+    @param nbytes Number of bytes the handler has consumed from the input buffer.
+    @ingroup Webs
+ */
 extern void websConsumeInput(Webs *wp, ssize nbytes);
-extern int websContinueHandler(Webs *wp);
-extern char *websDecode64(char *string);
-extern char *websDecode64Block(char *s, ssize *len, int flags);
-extern void websDecodeUrl(char *token, char *decoded, ssize len);
+
+/**
+    Decode the string using base-64 encoding
+    @description This modifies the original string
+    @param str String to decode
+    @return The original string.
+    @ingroup Webs
+ */
+extern char *websDecode64(char *str);
+
+/**
+    Decode a block using base-46 encoding
+    @param str String to decode. The string must be null terminated.
+    @param len Reference to an integer holding the length of the decoded string.
+    @param flags Reserved.
+    @return The original string.
+    @ingroup Webs
+ */
+extern char *websDecode64Block(char *str, ssize *len, int flags);
+
+/**
+    Decode a URL expanding %NN encoding
+    @description Supports insitu decoding. i.e. url may equal decoded.
+    @param url URL to decode
+    @param decoded Buffer to hold the decoded URL
+    @param len Length of the decoded buffer.
+    @ingroup Webs
+ */
+extern void websDecodeUrl(char *url, char *decoded, ssize len);
+
+/**
+    Define a request handler
+    @param name Name of the handler
+    @param service Handler callback service procedure. Invoked to service each relevant request.
+    @param close Handler callback close procedure. Called when GoAhead is shutting down.
+    @param flags Set to WEBS_LEGACY_HANDLER to support the legacy handler API calling sequence.
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
 extern int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose close, int flags);
+
+/**
+    Complete a request.
+    @description A handler should call websDone() to complete the request.
+    @param wp Webs request object
+    @param code HTTP status code
+    @ingroup Webs
+ */
 extern void websDone(Webs *wp, int code);
-extern char *websEncode64(char *string);
-extern char *websEncode64Block(char *s, ssize len);
-extern char *websEscapeHtml(char *html);
-extern void websError(Webs *wp, int code, char *msg, ...);
+
+/**
+    Encode a string using base-64 encoding
+    @description The string is encoded insitu.
+    @param str String to encode
+    @return The original string.
+    @ingroup Webs
+ */
+extern char *websEncode64(char *str);
+
+/**
+    Encode a block using base-64 encoding
+    @description The string is encoded insitu.
+    @param str String to encode.
+    @param len Length of string to encode
+    @return The original string.
+    @ingroup Webs
+ */
+extern char *websEncode64Block(char *str, ssize len);
+
+/**
+    Escape unsafe characters in a string
+    @param str String to escape
+    @return An allocated block containing the escaped string. Caller must free.
+    @ingroup Webs
+ */
+extern char *websEscapeHtml(char *str);
+
+/**
+    Complete a request with an error response
+    @param wp Webs request object
+    @param code HTTP status code
+    @param fmt Message printf style format
+    @param ... Format args
+    @ingroup Webs
+ */
+extern void websError(Webs *wp, int code, char *fmt, ...);
 extern char *websErrorMsg(int code);
 extern int websEval(char *cmd, char **rslt, void *chan);
 extern void websFileClose();
@@ -2535,7 +2998,7 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define gvsprintf   vsprintf
     #define gwrite      write
     #define hAlloc galloc
-    #define hAllocEntry gallocEntry
+    #define hAllocEntry gallocObject
     #define hFree gFree
     #define stritoa gstritoa
     #define strlower gstrlower

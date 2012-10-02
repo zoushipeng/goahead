@@ -49,7 +49,7 @@ static void closeJs()
 
 int websJsOpen()
 {
-    websJsFunctions = hashCreate(WEBS_SYM_INIT * 2);
+    websJsFunctions = hashCreate(WEBS_HASH_INIT * 2);
     websJsDefine("write", websJsWrite);
     websDefineHandler("js", jsHandler, closeJs, 0);
     return 0;
