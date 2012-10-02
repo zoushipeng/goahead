@@ -111,13 +111,26 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../test/test.c"
-         timestampString = "370838877.409198"
+         filePath = "../http.c"
+         timestampString = "370839195.349392"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "56"
-         endingLineNumber = "56"
-         landmarkName = "MAIN()"
+         startingLineNumber = "505"
+         endingLineNumber = "505"
+         landmarkName = "websDone()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../http.c"
+         timestampString = "370839202.935908"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "812"
+         endingLineNumber = "812"
+         landmarkName = "parseIncoming()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

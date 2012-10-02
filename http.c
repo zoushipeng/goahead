@@ -16,6 +16,8 @@
 static int  websBackground;             /* Run as a daemon */
 static int  websDebug;                  /* Run in debug mode and defeat timeouts */
 
+#define WEBS_TIMEOUT (BIT_LIMIT_TIMEOUT * 1000)
+
 /************************************ Locals **********************************/
 
 static int          listens[WEBS_MAX_LISTEN];   /* Listen endpoints */;
@@ -452,6 +454,7 @@ int websAlloc(int sid)
     gassert(wp);
     initWebs(wp, wid, sid, 0, 0);
     wp->sid = sid;
+    wp->timestamp = time(0);
     return wid;
 }
 
@@ -532,7 +535,7 @@ void websDone(Webs *wp, int code)
         websTimeoutCancel(wp);
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        wp->timeout = websStartEvent(BIT_LIMIT_TIMEOUT, websTimeout, (void*) wp);
+        wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -674,7 +677,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = websStartEvent(BIT_LIMIT_TIMEOUT, websTimeout, (void*) wp);
+    wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
     trace(5, "accept connection\n");
     return 0;
 }
@@ -2152,8 +2155,8 @@ static void logRequest(Webs *wp, int code)
 
 
 /*
-    Request timeout. The timeout triggers if we have not read any data from the users browser in the last BIT_LIMIT_TIMEOUT
-    period. If we have heard from the browser, simply re-issue the timeout.
+    Request timeout. The timeout triggers if we have not read any data from the users browser in the last 
+    WEBS_TIMEOUT period. If we have heard from the browser, simply re-issue the timeout.
  */
 void websTimeout(void *arg, int id)
 {
@@ -2165,12 +2168,12 @@ void websTimeout(void *arg, int id)
 
     elapsed = getTimeSinceMark(wp) * 1000;
     if (websDebug) {
-        websRestartEvent(id, (int) BIT_LIMIT_TIMEOUT);
+        websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
-    } else if (elapsed >= BIT_LIMIT_TIMEOUT) {
+    } else if (elapsed >= WEBS_TIMEOUT) {
         websDone(wp, 404 | WEBS_CLOSE);
     } else {
-        delay = BIT_LIMIT_TIMEOUT - elapsed;
+        delay = WEBS_TIMEOUT - elapsed;
         gassert(delay > 0);
         websRestartEvent(id, (int) delay);
     }
