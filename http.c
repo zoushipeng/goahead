@@ -190,6 +190,7 @@ static int      pruneId;                            /* Callback ID */
 
 /**************************** Forward Declarations ****************************/
 
+static void     checkRequestTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
@@ -198,6 +199,7 @@ static bool     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 extern bool     parseIncoming(Webs *wp);
 extern bool     processParsed(Webs *wp);
+static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void *data);
@@ -535,7 +537,7 @@ void websDone(Webs *wp, int code)
         websTimeoutCancel(wp);
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
+        wp->timeout = websStartEvent(WEBS_TIMEOUT, checkRequestTimeout, (void*) wp);
         trace(5, "Keep connection alive\n");
         return;
     }
@@ -677,7 +679,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for a timeout to kill hung requests
      */
-    wp->timeout = websStartEvent(WEBS_TIMEOUT, websTimeout, (void*) wp);
+    wp->timeout = websStartEvent(WEBS_TIMEOUT, checkRequestTimeout, (void*) wp);
     trace(5, "accept connection\n");
     return 0;
 }
@@ -698,7 +700,7 @@ static void socketEvent(int sid, int mask, void *iwp)
         return;
     }
     if (mask & SOCKET_READABLE) {
-        websReadEvent(wp);
+        readEvent(wp);
     } 
     if (mask & SOCKET_WRITABLE) {
         if (websValid(wp) && wp->writable) {
@@ -730,7 +732,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
     The webs read handler. This is the primary read event loop. It uses a state machine to track progress while parsing
     the HTTP request.  Note: we never block as the socket is always in non-blocking mode.
  */
-void websReadEvent(Webs *wp)
+static void readEvent(Webs *wp)
 {
     WebsBuf     *rxbuf;
     ssize       nbytes;
@@ -738,7 +740,7 @@ void websReadEvent(Webs *wp)
     gassert(wp);
     gassert(websValid(wp));
 
-    websSetTimeMark(wp);
+    websNoteRequestActivity(wp);
     rxbuf = &wp->rxbuf;
 
     while (websValid(wp)) {
@@ -898,7 +900,7 @@ static bool parseFirstLine(Webs *wp)
         start of the URL. Non-proxied will just be local path names.
      */
     host = path = port = query = ext = NULL;
-    if (websUrlParse(url, &buf, &host, &path, &port, &query, NULL, NULL, &ext) < 0) {
+    if (websUrlParse(url, &buf, NULL, &host, &port, &path, &ext, NULL, &query) < 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
         return 0;
     }
@@ -1354,7 +1356,7 @@ void websSetVar(Webs *wp, char *var, char *value)
 /*
     Return TRUE if a webs variable exists for this connection.
  */
-int websTestVar(Webs *wp, char *var)
+bool websTestVar(Webs *wp, char *var)
 {
     WebsKey       *sp;
 
@@ -1511,7 +1513,7 @@ void websRedirect(Webs *wp, char *uri)
         Please update your documents to reflect the new location.\r\n\
         </body></html>\r\n", uri);
     len = slen(message);
-    code = 302;
+    code = HTTP_CODE_MOVED_TEMPORARILY;
     websWriteHeaders(wp, code, len + 2, uri);
     websWriteEndHeaders(wp);
     websWriteBlock(wp, message, len);
@@ -2158,7 +2160,7 @@ static void logRequest(Webs *wp, int code)
     Request timeout. The timeout triggers if we have not read any data from the users browser in the last 
     WEBS_TIMEOUT period. If we have heard from the browser, simply re-issue the timeout.
  */
-void websTimeout(void *arg, int id)
+static void checkRequestTimeout(void *arg, int id)
 {
     Webs        *wp;
     WebsTime    elapsed, delay;
@@ -2259,7 +2261,7 @@ int websRewriteRequest(Webs *wp, char *url)
     gfree(wp->url);
     wp->url = sclone(url);
     gfree(wp->path);
-    if (websUrlParse(url, &buf, NULL, &path, NULL, NULL, NULL, NULL, NULL) < 0) {
+    if (websUrlParse(url, &buf, NULL, NULL, &path, NULL, NULL, NULL, NULL) < 0) {
         return -1;
     }
     wp->path = sclone(path);
@@ -2307,10 +2309,10 @@ char *websGetDateString(WebsFileInfo *sbuf)
 
 
 /*
-    Mark time. Set a timestamp so that, later, we can return the number of seconds since we made the mark. Note that the
-    mark my not be a "real" time, but rather a relative marker.
+    Take not of the request activity and mark the time. Set a timestamp so that, later, we can return the number of seconds
+    since we made the mark.
  */
-void websSetTimeMark(Webs *wp)
+void websNoteRequestActivity(Webs *wp)
 {
     wp->timestamp = time(0);
 }
@@ -2851,16 +2853,15 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
 
 
 /*
-    Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller. NOTE: tag
-    is not yet fully supported.  
+    Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
  */
-int websUrlParse(char *url, char **pbuf, char **phost, char **ppath, char **pport, char **pquery, 
-        char **pproto, char **ptag, char **pext)
+int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **pport, char **ppath, char **pext, 
+        char **preference, char **pquery)
 {
-    char      *tok, *cp, *host, *path, *port, *proto, *tag, *query, *ext;
-    char      *hostbuf, *portbuf, *buf;
-    ssize       len, ulen;
-    int         c;
+    char    *tok, *cp, *host, *path, *port, *protocol, *reference, *query, *ext;
+    char    *hostbuf, *portbuf, *buf;
+    ssize   len, ulen;
+    int     c;
 
     gassert(url);
     gassert(pbuf);
@@ -2885,16 +2886,16 @@ int websUrlParse(char *url, char **pbuf, char **phost, char **ppath, char **ppor
     url = buf;
     port = portbuf;
     path = "/";
-    proto = "http";
+    protocol = "http";
     host = "localhost";
     query = "";
     ext = 0;
-    tag = "";
+    reference = "";
 
     if (strncmp(url, "http://", 7) == 0) {
         tok = &url[7];
         tok[-3] = '\0';
-        proto = url;
+        protocol = url;
         host = tok;
         for (cp = tok; *cp; cp++) {
             if (*cp == '/') {
@@ -2937,8 +2938,8 @@ int websUrlParse(char *url, char **pbuf, char **phost, char **ppath, char **ppor
     /*
         Parse the fragment identifier
      */
-    if ((cp = strchr(tok, '#')) != NULL) {
-        *cp++ = '\0';
+    if ((reference = strchr(tok, '#')) != NULL) {
+        *reference++ = '\0';
         if (*query == 0) {
             path = tok;
         }
@@ -2970,12 +2971,12 @@ int websUrlParse(char *url, char **pbuf, char **phost, char **ppath, char **ppor
         *ppath = path;
     if (pport)
         *pport = port;
-    if (pproto)
-        *pproto = proto;
+    if (pprotocol)
+        *pprotocol = protocol;
     if (pquery)
         *pquery = query;
-    if (ptag)
-        *ptag = tag;
+    if (preference)
+        *preference = reference;
     if (pext)
         *pext = ext;
     *pbuf = buf;
@@ -3082,7 +3083,7 @@ void websPageClose(Webs *wp)
     gassert(websValid(wp));
 
 #if BIT_ROM
-    websRomPageClose(wp->docfd);
+    websRomPageClose(wp);
 #else
     if (wp->docfd >= 0) {
         close(wp->docfd);
@@ -3151,14 +3152,14 @@ ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 /*
     Move file pointer offset bytes.
  */
-void websPageSeek(Webs *wp, WebsFilePos offset)
+void websPageSeek(Webs *wp, WebsFilePos offset, int origin)
 {
     gassert(websValid(wp));
 
 #if BIT_ROM
-    websRomPageSeek(wp, offset, SEEK_CUR);
+    websRomPageSeek(wp, offset, origin);
 #else
-    lseek(wp->docfd, (long) offset, SEEK_CUR);
+    lseek(wp->docfd, (long) offset, origin);
 #endif
 }
 
@@ -3347,7 +3348,7 @@ WebsSession *websGetSession(Webs *wp, int create)
             }
             wp->session = (WebsSession*) sym->content.value.symbol;
             sp = socketPtr(wp->sid);
-            websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, sp->secure ? 1 : 0);
+            websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, 0);
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
         }

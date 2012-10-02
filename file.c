@@ -127,7 +127,7 @@ static void writeEvent(Webs *wp)
     gassert(wp);
     gassert(websValid(wp));
 
-    websSetTimeMark(wp);
+    websNoteRequestActivity(wp);
 
     /*
         Note: websWriteRaw may return less than we wanted. It will return -1 on a socket error.
@@ -142,7 +142,7 @@ static void writeEvent(Webs *wp)
             break;
         }
         if (wrote != len) {
-            websPageSeek(wp, - (len - wrote));
+            websPageSeek(wp, - (len - wrote), SEEK_CUR);
             break;
         }
     }

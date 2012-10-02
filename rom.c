@@ -64,7 +64,7 @@ int websRomPageOpen(Webs *wp)
 }
 
 
-void websRomPageClose(int fd)
+void websRomPageClose(Webs *wp)
 {
 }
 

@@ -146,6 +146,8 @@ typedef struct Js {
     void        *userHandle;                    /* User defined handle */
 } Js;
 
+typedef int (*JsProc)(int eid, void *handle, int argc, char **argv);
+
 /******************************** Prototypes **********************************/
 
 extern int      jsOpenBlock(int eid);
@@ -158,8 +160,7 @@ extern char     *jsEvalFile(int eid, char *path, char **emsg);
 
 extern int      jsRemoveGlobalFunction(int eid, char *name);
 extern void     *jsGetGlobalFunction(int eid, char *name);
-extern int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, 
-                    int (*fn)(int eid, void *handle, int argc, char **argv));
+extern int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn);
 extern void     jsError(Js *ep, char *fmt, ...);
 extern void     jsSetUserHandle(int eid, void *handle);
 extern void     *jsGetUserHandle(int eid);
@@ -185,7 +186,7 @@ extern int      jsArgs(int argc, char **argv, char *fmt, ...);
 extern void     jsSetResult(int eid, char *s);
 extern int      jsOpenEngine(WebsHash variables, WebsHash functions);
 extern void     jsCloseEngine(int eid);
-extern int      jsSetGlobalFunction(int eid, char *name, int (*fn)(int eid, void *handle, int argc, char **argv));
+extern int      jsSetGlobalFunction(int eid, char *name, JsProc fn);
 extern void     jsSetVar(int eid, char *var, char *value);
 extern int      jsGetVar(int eid, char *var, char **value);
 extern char     *jsEval(int eid, char *script, char **emsg);

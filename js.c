@@ -1316,7 +1316,7 @@ static void appendString(char **ptr, char *s)
 /*
     Define a function
  */
-int jsSetGlobalFunction(int eid, char *name, int (*fn)(int eid, void *handle, int argc, char **argv))
+int jsSetGlobalFunction(int eid, char *name, JsProc fn)
 {
     Js    *ep;
 

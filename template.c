@@ -207,11 +207,9 @@ done:
 /*
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-int websJsDefine(char *name, 
-    int (*fn)(int jsid, Webs *wp, int argc, char **argv))
+int websJsDefine(char *name, WebsJsProc fn)
 {
-    return jsSetGlobalFunctionDirect(websJsFunctions, name, 
-        (int (*)(int, void*, int, char**)) fn);
+    return jsSetGlobalFunctionDirect(websJsFunctions, name, (JsProc) fn);
 }
 
 

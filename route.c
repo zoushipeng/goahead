@@ -91,7 +91,9 @@ void websRouteRequest(Webs *wp)
                 gfree(wp->filename);
                 wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
             }
-            websSetFormVars(wp);
+            if (wp->flags & WEBS_FORM) {
+                websSetFormVars(wp);
+            }
 #if BIT_LEGACY
             if (route->handler->flags & WEBS_LEGACY_HANDLER) {
                 if ((*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags)) {

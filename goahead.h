@@ -2242,7 +2242,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if BIT_UPLOAD
+#if BIT_UPLOAD || DOXYGEN
 
 /**
     File upload structure
@@ -2326,12 +2326,6 @@ extern WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_SESSION_USERNAME   "_:USERNAME:_"  /* Username variable */
 
 /*
-    Flags for httpSetCookie
- */
-#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
-#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
-
-/*
     WebsDone flags
  */
 #define WEBS_CLOSE          0x20000     /**< Close connection */
@@ -2399,7 +2393,7 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if BIT_CGI
+#if BIT_CGI || DOXYGEN
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
@@ -2420,7 +2414,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if BIT_UPLOAD
+#if BIT_UPLOAD || DOXYGEN
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -2549,6 +2543,7 @@ extern int websAccept(int sid, char *ipaddr, int port, int listenSid);
  */
 extern int websAlloc(int sid);
 
+#if BIT_CGI || DOXYGEN
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -2578,6 +2573,7 @@ extern void websCgiCleanup();
  */
 extern int websCheckCgiProc(int handle);
 #endif
+#endif /* BIT_CGI || DOXYGEN */
 
 /**
     Close the core GoAhead web server module
@@ -2739,12 +2735,14 @@ extern void websFree(Webs *wp);
  */
 extern int websGetBackground();
 
+#if BIT_CGI || DOXYGEN 
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
     @ingroup Webs
  */
 extern char *websGetCgiCommName();
+#endif /* BIT_CGI || DOXYGEN */
 
 /**
     Get the request cookie if supplied
@@ -2849,7 +2847,8 @@ extern char *websGetMethod(Webs *wp);
 
 /**
     Get the request password
-    @description The request password may be encoded depending on the authentication scheme. See wp->encoded to test if it is encoded.
+    @description The request password may be encoded depending on the authentication scheme. 
+        See wp->encoded to test if it is encoded.
     @param wp Webs request object
     @return Password string. Caller should not free.
     @ingroup Webs
@@ -2947,8 +2946,8 @@ extern char *websGetUsername(Webs *wp);
 
 /**
     Get a request variable
-    @description Request variables are defined for HTTP headers of the form HTTP_*. Some request handlers also define their own
-        variables. For example: CGI environment variables.
+    @description Request variables are defined for HTTP headers of the form HTTP_*. 
+        Some request handlers also define their own variables. For example: CGI environment variables.
     @param wp Webs request object
     @param name Variable name
     @param defaultValue Default value to return if the variable is not defined
@@ -2997,9 +2996,10 @@ extern char *websNormalizeUriPath(char *path);
 /**
     Open the web server
     @description This initializes the web server and defines the documents directory.
-    @param documents Optional web documents directory. If set to null, the build time BIT_DOCUMENTS value is used for the documents directory.
-    @param routes Optional filename for a route configuration file to load. Additional route or authentication configuration files can be 
-        loaded via websLoad.
+    @param documents Optional web documents directory. If set to null, the build time BIT_DOCUMENTS value 
+        is used for the documents directory.
+    @param routes Optional filename for a route configuration file to load. Additional route or 
+        authentication configuration files can be loaded via websLoad.
     @param routes Webs request object
     @return Zero if successful, otherwise -1.
     @ingroup Webs
@@ -3054,78 +3054,454 @@ extern ssize websPageReadData(Webs *wp, char *buf, ssize size);
 /**
     Seek to a position in the request page document
     @param wp Webs request object
-    @param offset Location in the file to seek to.
+    @param offset Offset of location in the file to seek to. This is relative to the specified origin.
+    @param origin Set to SEEK_CUR, SEEK_SET or SEEK_END to position relative to the current position, 
+        beginning or end of the document.
     @ingroup Webs
  */
-extern void websPageSeek(Webs *wp, WebsFilePos offset);
+extern void websPageSeek(Webs *wp, WebsFilePos offset, int origin);
 
 /**
-    Test if a filename is a directory 
+    Get file status for the current request document
     @description This provides an interface above the file system or ROM based file system.
     @param wp Webs request object
-    @return True if the filename is a directory
+    @param sbuf File information structure to modify with file status
+    @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
 extern int websPageStat(Webs *wp, WebsFileInfo *sbuf);
-extern int websProcessPutData(Webs *wp);
-extern int websProcDefine(char *name, void *proc);
-extern int websProcHandler(Webs *wp);
-extern void websProcOpen();
-extern void websProcClose();
-extern void websReadEvent(Webs *wp);
-extern void websRedirect(Webs *wp, char *url);
-extern int websRedirectHandler(Webs *wp);
-extern int websRedirectByStatus(Webs *wp, int status);
-extern void websResponse(Webs *wp, int code, char *msg);
-extern int websRewriteRequest(Webs *wp, char *url);
-extern int websRomOpen();
-extern void websRomClose();
-extern int websRomPageOpen(Webs *wp);
-extern void websRomPageClose(int fd);
-extern ssize websRomPageReadData(Webs *wp, char *buf, ssize len);
-extern int websRomPageStat(Webs *wp, WebsFileInfo *sbuf);
-extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
-extern void websServiceEvents(int *finished);
-extern void websSetBackground(int on);
-extern void websSetDebug(int on);
-extern void websSetEnv(Webs *wp);
-extern void websSetFormVars(Webs *wp);
-extern void websSetHost(char *host);
-extern void websSetIpAddr(char *ipaddr);
-extern void websSetDocuments(char *dir);
-extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags);
-extern void websSetIndex(char *page);
-extern void websSetTimeMark(Webs *wp);
-extern void websSetTxLength(Webs *wp, ssize length);
-extern void websSetVar(Webs *wp, char *var, char *value);
-extern int websTestVar(Webs *wp, char *var);
-extern void websTimeout(void *arg, int id);
-extern void websTimeoutCancel(Webs *wp);
-extern void websUrlHandlerClose();
-extern int websUrlHandlerOpen();
-extern int websUrlParse(char *url, char **buf, char **host, char **path, char **port, char **query, char **proto, char **tag, char **ext);
-extern bool websValid(Webs *wp);
-extern void websWriteHeaders(Webs *wp, int code, ssize contentLength, char *redirect);
-extern void websWriteEndHeaders(Webs *wp);
-extern ssize websWriteHeader(Webs *wp, char *fmt, ...);
-extern ssize websWrite(Webs *wp, char *fmt, ...);
-extern ssize websWriteBlock(Webs *wp, char *buf, ssize nChars);
-extern ssize websWriteDataNonBlock(Webs *wp, char *buf, ssize nChars);
-extern ssize websWriteRaw(Webs *wp, char *buf, ssize size) ;
 
-#if BIT_UPLOAD
+/**
+    Process request PUT body data
+    @description This routine is called by the core HTTP engine to process request PUT data.
+    @param wp Webs request object
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websProcessPutData(Webs *wp);
+
+/**
+    Define a procedure callback for use with the proc handler.
+    @description The proc handler binds function procedure calls to URIs.
+    @param name URI path suffix. This suffix is added to "/proc" to form the bound URI path.
+    @param proc Callback function procedure. The signature is void (*WebsProc)(Webs *wp);
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websProcDefine(char *name, void *proc);
+
+/**
+    Open the proc handler
+    @ingroup Webs
+ */
+extern void websProcOpen();
+
+/**
+    Redirect the client to a new URL.
+    @description This creates a response to the client with a Location header directing the client to a new location.
+        The response uses a 302 HTTP status code.
+    @param wp Webs request object
+    @param url URL to direct the client to. 
+    @ingroup Webs
+ */
+extern void websRedirect(Webs *wp, char *url);
+
+/**
+    Redirect the client to a new URI
+    @description The routing configuration file can define redirection routes for various HTTP status codes.
+        This routine will utilize the appropriate route redirection based on the request route and specified status code.
+    @param wp Webs request object
+    @param status HTTP status code to use in selecting the route redirection.
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websRedirectByStatus(Webs *wp, int status);
+
+/**
+    Create and send a request response
+    @description This creates a response for the current request using the specified HTTP status code and 
+        the supplied message.
+    @param wp Webs request object
+    @param status HTTP status code.
+    @param msg Response message body
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern void websResponse(Webs *wp, int status, char *msg);
+
+/**
+    Rewrite a request
+    @description Handlers may choose to not process a request but rather rewrite requests and then reroute. 
+    @param wp Webs request object
+    @param url New request URL.
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websRewriteRequest(Webs *wp, char *url);
+
+#if BIT_ROM || DOXYGEN
+/**
+    Open the ROM file system
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websRomOpen();
+
+/**
+    Close the ROM file system
+    @ingroup Webs
+ */
+extern void websRomClose();
+
+/**
+    Open the web page document for the current request
+    @param wp Webs request object
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websRomPageOpen(Webs *wp);
+
+/**
+    Close the web page document for the current request
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websRomPageClose(Webs *wp);
+
+/**
+    Read data from ROM for the current request document
+    @param wp Webs request object
+    @param buf Buffer for the read data
+    @param size Size of buf
+    @return Count of bytes read if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern ssize websRomPageReadData(Webs *wp, char *buf, ssize size);
+
+/**
+    Get ROM file status for the current request document
+    @description This provides an interface above the file system or ROM based file system.
+    @param wp Webs request object
+    @param sbuf File information structure to modify with file status
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websRomPageStat(Webs *wp, WebsFileInfo *sbuf);
+
+/**
+    Seek to a position in the current request page document
+    @param wp Webs request object
+    @param offset Location in the file to seek to.
+    @param origin Set to SEEK_CUR, SEEK_SET or SEEK_END to position relative to the current position, 
+        beginning or end of the document.
+    @ingroup Webs
+ */
+extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
+#endif
+
+
+/**
+    Service I/O events until finished
+    @description This will wait for socket events and service those until *finished is set to true
+    @param finished Integer location to test. If set to true, then exit. Note: setting finished will not 
+        automatically wake up the service routine. 
+    @ingroup Webs
+ */
+extern void websServiceEvents(int *finished);
+
+/**
+    Set the background processing flag
+    @param on Value to set the background flag to.
+    @ingroup Webs
+    @internal
+ */
+extern void websSetBackground(int on);
+
+/**
+    Set the debug processing flag
+    @param on Value to set the debug flag to.
+    @ingroup Webs
+    @internal
+ */
+extern void websSetDebug(int on);
+
+/**
+    Create the CGI environment variables for the current request.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websSetEnv(Webs *wp);
+
+/**
+    Create request variables for query and POST body data
+    @description This creates request variables if the request is a POST form (has a Content-Type of 
+        application/x-www-form-urlencoded). The POST body data is consumed from the input buffer.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websSetFormVars(Webs *wp);
+
+/**
+    Define the host name for the server
+    @param host String host name
+    @ingroup Webs
+ */
+extern void websSetHost(char *host);
+
+/**
+    Define the host IP address
+    @param ipaddr Host IP address
+    @ingroup Webs
+ */
+extern void websSetIpAddr(char *ipaddr);
+
+/**
+    Set the web documents directory
+    @description The web documents directory is used when resolving request URIs into filenames.
+    @param dir Directory path to use
+    @ingroup Webs
+ */
+extern void websSetDocuments(char *dir);
+
+/*
+    Flags for websSetCookie
+ */
+#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
+#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
+
+/**
+    Define a cookie to include in the response
+    @param wp Webs request object
+    @param name Cookie name
+    @param value Cookie value
+    @param path URI path prefix applicable for this cookie 
+    @param domain Domain applicable for this cookie
+    @param lifespan Cookie lifespan in secons
+    @param flags Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only. 
+        Otherwise the cookie applies to both http and https requests.
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags);
+
+/**
+    Create and send a request response
+    @description This creates a response for the current request using the specified HTTP status code and 
+        the supplied message.
+    @param filename Web document name to use as the index. This should not contain any directory components.
+    @ingroup Webs
+ */
+extern void websSetIndex(char *filename);
+
+/**
+    Take not of the request activity and mark the time.
+    @description This is used to defer the request timeout whenever there is request I/O activity.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websNoteRequestActivity(Webs *wp);
+
+/**
+    Set the response body content length
+    @param wp Webs request object
+    @param length Length value to use
+    @ingroup Webs
+ */
+extern void websSetTxLength(Webs *wp, ssize length);
+
+/**
+    Set a request variable
+    @description Request variables are defined for HTTP headers of the form HTTP_*. 
+        Some request handlers also define their own variables. For example: CGI environment variables.
+    @param wp Webs request object
+    @param name Variable name to set
+    @param value Value to set
+    @ingroup Webs
+ */
+extern void websSetVar(Webs *wp, char *name, char *value);
+
+/**
+    Test if  a request variable is defined
+    @param wp Webs request object
+    @param name Variable name
+    @return True if the variable is defined
+    @ingroup Webs
+ */
+extern bool websTestVar(Webs *wp, char *name);
+
+/**
+    Cancel the request timeout.
+    @description Handlers may choose to manually manage the request timeout. This routine will disable the
+        centralized management of the timeout for this request.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websTimeoutCancel(Webs *wp);
+
+
+/**
+    Parse a URL into its components
+    @param url URL to parse
+    @param buf Buffer to hold storage for various parsed components. Caller must free. NOTE: the parsed components may
+        point to locations in this buffer.
+    @param protocol Parsed URL protocol component
+    @param host Parsed hostname
+    @param port Parsed URL port
+    @param path Parsed URL path component
+    @param ext Parsed URL extension
+    @param reference Parsed URL reference portion (\#reference)
+    @param query Parsed URL query component
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websUrlParse(char *url, char **buf, char **protocol, char **host, char **port, char **path, char **ext, 
+    char **reference, char **query);
+
+/**
+    Test if a webs object is valid
+    @description After calling websDone, the websFree routine will have been called and the memory for the webs object
+        will be released. Call websValid to test an object hand for validity.
+    @param wp Webs request object
+    @return True if the webs object is still valid and the request has not been completed.
+    @ingroup Webs
+ */
+extern bool websValid(Webs *wp);
+
+/**
+    Write a set of standard response headers
+    @param wp Webs request object
+    @param status HTTP status code
+    @param contentLength Value for the Content-Length header which describes the length of the response body
+    @param redirect Value for the Location header which redirects the client to a new URL.
+    @ingroup Webs
+ */
+extern void websWriteHeaders(Webs *wp, int status, ssize contentLength, char *redirect);
+
+/**
+    Signify the end of the response headers
+    @description This call concludes the response headers and writes a blank line to the response.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websWriteEndHeaders(Webs *wp);
+
+/**
+    Write a response header
+    @description This routine writes a response header. It should be invoked after calling websWriteHeaders
+        to write the standard headers and before websWriteEndHeaders.
+        This routine differs from websWrite in that it traces header values to the log.
+    @param wp Webs request object
+    @param fmt Header key and value. Should be of the form: "Name: Value"
+    @param ... Arguments to the format string.
+    @return Count of bytes written
+    @ingroup Webs
+ */
+extern ssize websWriteHeader(Webs *wp, char *fmt, ...);
+
+/**
+    Write data to the response
+    @description The data is buffered and will be sent to the client when the buffer is full or websFlush is
+        called.
+    @param wp Webs request object
+    @param fmt Printf style format string.
+    @param ... Arguments to the format string.
+    @return Count of bytes written
+    @ingroup Webs
+ */
+extern ssize websWrite(Webs *wp, char *fmt, ...);
+
+/**
+    Write a block of data to the response
+    @description The data is buffered and will be sent to the client when the buffer is full or websFlush is
+        called.
+    @param wp Webs request object
+    @param buf Buffer of data to write
+    @param size Length of buf
+    @return Count of bytes written
+    @ingroup Webs
+ */
+extern ssize websWriteBlock(Webs *wp, char *buf, ssize size);
+
+/**
+    Write a block of data to the response and bypass output buffering.
+    @description This routine will first invoke websFlush if there is prior data in the output buffer, before writing
+        the raw data.
+    @param wp Webs request object
+    @param buf Buffer of data to write
+    @param size Length of buf
+    @return Count of bytes written
+    @ingroup Webs
+ */
+extern ssize websWriteRaw(Webs *wp, char *buf, ssize size);
+
+#if BIT_UPLOAD || DOXYGEN
+/**
+    Process upload data for form, multipart mime file upload.
+    @param wp Webs request object
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
 extern int websProcessUploadData(Webs *wp);
+
+/**
+    Free file upload data structures.
+    @param wp Webs request object
+    @ingroup Webs
+ */
 extern void websFreeUpload(Webs *wp);
 #endif
-#if BIT_CGI
+
+#if BIT_CGI || DOXYGEN
+/**
+    Process CGI request body data.
+    @param wp Webs request object
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
 extern int websProcessCgiData(Webs *wp);
 #endif
 
 #if BIT_JAVASCRIPT
-extern int websJsDefine(char *name, int (*fn)(int ejid, Webs *wp, int argc, char **argv));
+/**
+    Javascript native function 
+    @param jid JavaScript engine ID
+    @param wp Webs request object
+    @param argc Count of function arguments
+    @param argv Array of function arguments
+    @param defaultValue Default value to return if the variable is not defined
+    @return Return zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+typedef int (*WebsJsProc)(int jid, Webs *wp, int argc, char **argv);
+
+/**
+    Define a Javscript native function.
+    @description This routine binds a C function to a Javascript function. When the Javascript function is called,
+        the C function is invoked.
+    @param name Javascript function name
+    @param fn C function to invoke
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websJsDefine(char *name, WebsJsProc fn);
+
+/**
+    Open the Javascript module.
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
 extern int websJsOpen();
-extern int websJsWrite(int ejid, Webs *wp, int argc, char **argv);
-extern int websJsHandler(Webs *wp);
+
+/**
+    Write data to the response
+    @param jid Javascript ID handle
+    @param wp Webs request object 
+    @param argc Count of arguments
+    @param argv Array arguments
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websJsWrite(int jid, Webs *wp, int argc, char **argv);
 #endif
 
 /*************************************** SSL ***********************************/
