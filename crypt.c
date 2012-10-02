@@ -191,14 +191,14 @@ char *websDecode64Block(char *s, ssize *len, int flags)
 
 char *websMD5(char *s)
 {
-    return websMD5binary(s, strlen(s), NULL);
+    return websMD5Block(s, strlen(s), NULL);
 }
 
 
 /*
     Return the MD5 hash of a block. Returns allocated string. A prefix for the result can be supplied.
  */
-char *websMD5binary(char *buf, ssize length, char *prefix)
+char *websMD5Block(char *buf, ssize length, char *prefix)
 {
     MD5CONTEXT      context;
     uchar           hash[CRYPT_HASH_SIZE];

@@ -164,7 +164,6 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gabe46636b1ed60023b2f044479c029428" class="nameRef">websCgiCleanup</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Cleanup completed CGI processes and output.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gac05856f3dd04aeef0732570bedf044ad" class="nameRef">websCgiHandler</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>CGI handler service callback.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gafd0f480e0038ab974e96c009a9a83641" class="nameRef">websCgiOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the CGI handler.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gabb68e1d669101908905e860d2d8b160a" class="nameRef">websCheckCgiProc</a>(int handle)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Check if a CGI process has completed.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga387ea3a4b02143494265204e69b31e7d" class="nameRef">websClose</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the core GoAhead web server module.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga014740ccd3fe55e30e8188ee826d19ad" class="nameRef">websCompareVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *var, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compare a request variable.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga6e0b2ea7b62d847fd10d7bb761d1189e" class="nameRef">websConsumeInput</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> nbytes)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Consume input from the request input buffer.</td></tr>
@@ -176,9 +175,51 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga97f5bcd7b8aa8df838037f9cf2c55267" class="nameRef">websEncode64</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Encode a string using base-64 encoding.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga01aac3c460b2484e8f26f147e993846e" class="nameRef">websEncode64Block</a>(char *str, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Encode a block using base-64 encoding.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga3a9158494088fc25249543e69481e00e" class="nameRef">websError</a>(<a href="#group___webs" class="ref">Webs</a> *wp, int code, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Complete a request with an error response.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga80307b2df19b5f59a77d1e344a75f9fb" class="nameRef">websErrorMsg</a>(int code)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a message for a HTTP status code.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga28126b9afadd3c20a82b311d5de153bf" class="nameRef">websEscapeHtml</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Escape unsafe characters in a string.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaf92974c51178c68fb23ce1d49b920d82" class="nameRef">websFileOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open and initialize the file handler.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1gaecb6e7beda41581176bdcb0fb3787e0e" class="nameRef">websFinalize</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Finalize the response.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1ga2a36d30b43d4167bcb6bf31938925bf1" class="nameRef">websFlush</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Flush buffered transmit data and compact the transmit buffer to make room for more data.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga34a9c871eaf4cba49ff81174318af979" class="nameRef">websFree</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free the webs request object.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaaad30c26a4b0932d71f7d9a8ab4ce191" class="nameRef">websGetBackground</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the background execution flag.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga736eaad151d7a8e1c0bf8eab0321394a" class="nameRef">websGetCgiCommName</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a unique temporary filename for CGI communications.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga8803708cd8e23b3e83cc4bc8f3b7948d" class="nameRef">websGetCookie</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request cookie if supplied.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga8d082538c22928173eaf231eece3c2bb" class="nameRef">websGetDateString</a>(<a href="#struct_webs_file_info" class="ref">WebsFileInfo</a> *sbuf)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a date as a string.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga2927bb0ad265ad9ca5171d1357290415" class="nameRef">websGetDebug</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the debug flag.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gac3ac9699755b04de92b8e732cd7a1669" class="nameRef">websGetDir</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the base file directory for a request.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gacada77ce9dcff2e8f85b0b0d3a11f71b" class="nameRef">websGetDocuments</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the GoAhead base documents directory.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga2666ed7d6a56c3014d5ceb076cff0567" class="nameRef">websGetEof</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request EOF status.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga329f8ab91d78501c9711e723ac5baeff" class="nameRef">websGetExt</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request URI extension.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga8782d2d6705e72c3bcfa543c0da2c8fd" class="nameRef">websGetFilename</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request filename.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gaab45f540a17ac66539ab1aded1d0a8fc" class="nameRef">websGetHost</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request host.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga7a42f218fb5301961cf6e92c9e0fb86d" class="nameRef">websGetIfaddr</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request interface address.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gad1dfc6241ecc200c8924320e22f4913e" class="nameRef">websGetIndex</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the default index document name.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga84a673a973f93952e539b27378b1b562" class="nameRef">websGetMethod</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request method.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga7aacfebafd43621c248d98ea95fcb085" class="nameRef">websGetPassword</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request password.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gaf994917a647cd4fe237ae09bc2221014" class="nameRef">websGetPath</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request path.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaee772cdbaee60ec39567c47e9a83c2c6" class="nameRef">websGetPort</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request TCP/IP port.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gac524063b09849a6b851e654d1002409a" class="nameRef">websGetProtocol</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request HTTP protocol.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga210a87892c4557ab1725a3f4a3a5fb88" class="nameRef">websGetQuery</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request query component.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga6bd95d9dc8d3f2ff32176d2201764d5c" class="nameRef">websGetServer</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the server host name.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga0a8fa9e8c4556b78252f7663c77d95e9" class="nameRef">websGetServerAddress</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the server IP address.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga0842c8a8658cc4397868a693cf31fe5d" class="nameRef">websGetServerAddressUrl</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the server IP address with port number.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga2bf2e77d285ccc08506e7e69f85130a1" class="nameRef">websGetServerUrl</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the server host name with port number.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#group___webs_hash" class="ref">WebsHash</a></td><td><a href="#group___webs_upload_1gaf80a429f3b30c1e621e917c8f04f0415" class="nameRef">websGetUpload</a>(struct Webs *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the hash of uploaded files for the request.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gaf2a517035ed0b35bc4c08aa98058a5d2" class="nameRef">websGetUrl</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request URI.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga99d3f5adee800f9b136ff9c0cffbbbd9" class="nameRef">websGetUserAgent</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the client User-Agent HTTP header.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gafe782d481e8f3a9cb978d88ac42b12be" class="nameRef">websGetUsername</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request username.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gaf7e6e1358ef151e6f7e1fa03abe2faf2" class="nameRef">websGetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *defaultValue)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a request variable.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga696377149d258256c0f4d3f19128c044" class="nameRef">websListen</a>(char *endpoint)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Listen on a TCP/IP address endpoint.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#group___webs_upload" class="ref">WebsUpload*</a></td><td><a href="#group___webs_upload_1ga8bb8ede239760e2701c88e701ef1aee1" class="nameRef">websLookupUpload</a>(struct Webs *wp, char *key)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the file upload filter.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga5a891f5c94d41d2f319bcee2916f298e" class="nameRef">websMD5</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get an MD5 digest of a string.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gaa273ce4bf40c92fd66cae9f7c84738bb" class="nameRef">websMD5Block</a>(char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> length, char *prefix)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get an MD5 digest of a block and optionally prepend a prefix.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga0dcee4a9a2ecf29b16b0ccdbb46fed94" class="nameRef">websNormalizeUriPath</a>(char *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Normalize a URI path.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gad93784bd2f8eb153f1f7e623be175bb5" class="nameRef">websOpen</a>(char *documents, char *routes)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the web server.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga18855395ff5856acaa2ead4070cca304" class="nameRef">websOptionsOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the options handler.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga42ac8fd2d43cd62e36de672897476033" class="nameRef">websPageClose</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the document page.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gae3a5d48960ff548b64372bf79d151801" class="nameRef">websPageIsDirectory</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if the document page for the request corresponds to a directory.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga445f9440d6762711540e3c80d47947af" class="nameRef">websPageOpen</a>(<a href="#group___webs" class="ref">Webs</a> *wp, int mode, int perm)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open a web page document for a request.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1ga412045a224b12fad35f3ccb0eba21309" class="nameRef">websPageReadData</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Read data from the request page document.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_runtime_1ga766658ed30f45bec60eef120f2b74c08" class="nameRef">websRestartEvent</a>(int id, int delay)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Restart an event.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_runtime_1ga23543df0a1a5bf78bc5edf62d98122ce" class="nameRef">websRunEvents</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Run due events.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga3d52faf06a56379bb23247aa9a0acb0f" class="nameRef">websStartEvent</a>(int delay, <a href="#group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a" class="ref">WebsEventProc</a> proc, void *data)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start a callback event.</td></tr>
@@ -738,7 +779,8 @@ Transmit data buffer.
 Authorization password.
 </td>
     <tr><td class="param">char *</td><td><td>path</td><td>
-Path name without query.
+Path name without query. 
+This is decoded.
 </td>
     <tr><td class="param">int</td><td><td>port</td><td>
 Request port number.
@@ -756,7 +798,8 @@ File handle to write PUT data.
 quality operator.
 </td>
     <tr><td class="param">char *</td><td><td>query</td><td>
-Request query.
+Request query. 
+This is decoded.
 </td>
     <tr><td class="param">char *</td><td><td>realm</td><td>
 Realm field supplied in auth header.
@@ -840,7 +883,8 @@ Current temp filename for upload data.
 Current upload form variable name.
 </td>
     <tr><td class="param">char *</td><td><td>url</td><td>
-Full request url.
+Full request url. 
+This is not decoded.
 </td>
     <tr><td class="param">struct WebsUser *</td><td><td>user</td><td>
 User auth record.
@@ -943,23 +987,6 @@ Bytes actually transferred.
   <div class="apiDetail">
 <p>Open the CGI handler.</p>
     <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
-    <dl><dt>See Also:</dt><dd>
-    </dd></dl>
-  </div>
-</div>
-<a name="group___webs_1gabb68e1d669101908905e860d2d8b160a"></a>
-<div class="api">
-  <div class="prototype">
-    int
-    websCheckCgiProc
-(int handle)
-  </div>
-  <div class="apiDetail">
-<p>Check if a CGI process has completed.</p>
-    <dl><dt>Parameters:</dt><dd>
-    <table class="parameters" title="Parameters">
-    <tr><td class="param">handle</td><td>CGI process handle.</td>
-    </table></dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -1175,6 +1202,24 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
+<a name="group___webs_1ga80307b2df19b5f59a77d1e344a75f9fb"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websErrorMsg
+(int code)
+  </div>
+  <div class="apiDetail">
+<p>Get a message for a HTTP status code.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">code</td><td>HTTP status code.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Http status message.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
 <a name="group___webs_1ga28126b9afadd3c20a82b311d5de153bf"></a>
 <div class="api">
   <div class="prototype">
@@ -1189,6 +1234,727 @@ Bytes actually transferred.
     <tr><td class="param">str</td><td>String to escape.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>An allocated block containing the escaped string. Caller must free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaf92974c51178c68fb23ce1d49b920d82"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websFileOpen
+()
+  </div>
+  <div class="apiDetail">
+<p>Open and initialize the file handler.</p>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaecb6e7beda41581176bdcb0fb3787e0e"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    websFinalize
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Finalize the response.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Flush transmit data and write a chunk trailer if required. After finalization, the client should have the full response. WARNING: this call may block.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga2a36d30b43d4167bcb6bf31938925bf1"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    websFlush
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Flush buffered transmit data and compact the transmit buffer to make room for more data.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Number of bytes written.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga34a9c871eaf4cba49ff81174318af979"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websFree
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Free the webs request object.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Callers should call websDone to complete requests prior to invoking websFree.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaaad30c26a4b0932d71f7d9a8ab4ce191"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websGetBackground
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the background execution flag.</p>
+    <dl><dt><b>Description</b>:</dt><dd>If goahead is invoked with &mdash;background, it will run as a daemon in the background.</dd></dl>
+    <dl><dt>Returns:</dt><dd>True if GoAhead is running in the background.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga736eaad151d7a8e1c0bf8eab0321394a"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetCgiCommName
+()
+  </div>
+  <div class="apiDetail">
+<p>Get a unique temporary filename for CGI communications.</p>
+    <dl><dt>Returns:</dt><dd>Filename string.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga8803708cd8e23b3e83cc4bc8f3b7948d"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetCookie
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request cookie if supplied.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Cookie string if defined, otherwise null.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga8d082538c22928173eaf231eece3c2bb"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetDateString
+(<a href="#struct_webs_file_info" class="ref">WebsFileInfo</a> *sbuf)
+  </div>
+  <div class="apiDetail">
+<p>Get a date as a string.</p>
+    <dl><dt><b>Description</b>:</dt><dd>If sbuf is supplied, it is used to calculate the date. Otherwise, the current time is used.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">sbuf</td><td>File info object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>An allocated date string. Caller should free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga2927bb0ad265ad9ca5171d1357290415"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websGetDebug
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the debug flag.</p>
+    <dl><dt><b>Description</b>:</dt><dd>If GoAhead is invoked with &mdash;debugger, the debug flag will be set to true.</dd></dl>
+    <dl><dt>Returns:</dt><dd>True if GoAhead is running in debug mode.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gac3ac9699755b04de92b8e732cd7a1669"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetDir
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the base file directory for a request.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Returns the request route directory if defined, otherwise returns the documents directory.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Path name string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gacada77ce9dcff2e8f85b0b0d3a11f71b"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetDocuments
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the GoAhead base documents directory.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The documents directory is defined at build time and may be overridden by the GoAhead command line.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Path string for the documents directory.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga2666ed7d6a56c3014d5ceb076cff0567"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websGetEof
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request EOF status.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The request EOF status is set to true when all the request body (POST|PUT) data has been received.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if all the request body data has been received.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga329f8ab91d78501c9711e723ac5baeff"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetExt
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request URI extension.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>The URI filename extension component. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga8782d2d6705e72c3bcfa543c0da2c8fd"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetFilename
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request filename.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The URI is mapped to a filename by decoding and prepending with the request directory.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Filename string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaab45f540a17ac66539ab1aded1d0a8fc"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetHost
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request host.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The request host is set to the Host HTTP header value if it is present. Otherwise it is set to the request URI hostname.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Host string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga7a42f218fb5301961cf6e92c9e0fb86d"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetIfaddr
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request interface address.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Network interface string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gad1dfc6241ecc200c8924320e22f4913e"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetIndex
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the default index document name.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The default index is &quot;index.html&quot; and can be updated via websSetIndex.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Index name string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga84a673a973f93952e539b27378b1b562"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetMethod
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request method.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>HTTP method string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga7aacfebafd43621c248d98ea95fcb085"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetPassword
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request password.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The request password may be encoded depending on the authentication scheme. See wp-&gt;encoded to test if it is encoded.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Password string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaf994917a647cd4fe237ae09bc2221014"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetPath
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request path.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The URI path component excludes the http protocol, hostname, port, reference and query components. It always beings with &quot;/&quot;.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Request path string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaee772cdbaee60ec39567c47e9a83c2c6"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websGetPort
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request TCP/IP port.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>TCP/IP Port integer.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gac524063b09849a6b851e654d1002409a"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetProtocol
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request HTTP protocol.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This will be set to either &quot;http&quot; or &quot;https&quot;.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Protocol string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga210a87892c4557ab1725a3f4a3a5fb88"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetQuery
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request query component.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Request query string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga6bd95d9dc8d3f2ff32176d2201764d5c"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetServer
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the server host name.</p>
+    <dl><dt>Returns:</dt><dd>Host name string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga0a8fa9e8c4556b78252f7663c77d95e9"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetServerAddress
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the server IP address.</p>
+    <dl><dt>Returns:</dt><dd>Server IP address string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga0842c8a8658cc4397868a693cf31fe5d"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetServerAddressUrl
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the server IP address with port number.</p>
+    <dl><dt>Returns:</dt><dd>Server IP:PORT address string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga2bf2e77d285ccc08506e7e69f85130a1"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetServerUrl
+()
+  </div>
+  <div class="apiDetail">
+<p>Get the server host name with port number.</p>
+    <dl><dt>Returns:</dt><dd>Host name string with port number. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaf2a517035ed0b35bc4c08aa98058a5d2"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetUrl
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request URI.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This returns the request URI. This may be modified if the request is rewritten via websRewrite.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>URI string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga99d3f5adee800f9b136ff9c0cffbbbd9"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetUserAgent
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the client User-Agent HTTP header.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>User-Agent string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gafe782d481e8f3a9cb978d88ac42b12be"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetUsername
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Get the request username.</p>
+    <dl><dt><b>Description</b>:</dt><dd>If the request is authenticated, this call returns the username supplied during authentication.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Username string if defined, otherwise null. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaf7e6e1358ef151e6f7e1fa03abe2faf2"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websGetVar
+(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *defaultValue)
+  </div>
+  <div class="apiDetail">
+<p>Get a request variable.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Request variables are defined for HTTP headers of the form HTTP_*. Some request handlers also define their own variables. For example: CGI environment variables.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    <tr><td class="param">name</td><td>Variable name.</td>
+    <tr><td class="param">defaultValue</td><td>Default value to return if the variable is not defined.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Variable value string. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga696377149d258256c0f4d3f19128c044"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websListen
+(char *endpoint)
+  </div>
+  <div class="apiDetail">
+<p>Listen on a TCP/IP address endpoint.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The URI is mapped to a filename by decoding and prepending with the request directory. For IPv6 addresses, use the format: [aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii]:port.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">endpoint</td><td>IPv4 or IPv6 address on which to listen.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Positive integer holding a Socket ID handle if successful, otherwise -1.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga5a891f5c94d41d2f319bcee2916f298e"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websMD5
+(char *str)
+  </div>
+  <div class="apiDetail">
+<p>Get an MD5 digest of a string.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">str</td><td>String to analyze.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Allocated MD5 checksum. Caller should free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gaa273ce4bf40c92fd66cae9f7c84738bb"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websMD5Block
+(char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> length, char *prefix)
+  </div>
+  <div class="apiDetail">
+<p>Get an MD5 digest of a block and optionally prepend a prefix.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">buf</td><td>Block to analyze.</td>
+    <tr><td class="param">length</td><td>Length of block.</td>
+    <tr><td class="param">prefix</td><td>Optional prefix to prepend to the MD5 sum.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Allocated MD5 checksum. Caller should free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga0dcee4a9a2ecf29b16b0ccdbb46fed94"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    websNormalizeUriPath
+(char *path)
+  </div>
+  <div class="apiDetail">
+<p>Normalize a URI path.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This removes &quot;./&quot;, &quot;../&quot; and redundant separators.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">path</td><td>URI path to normalize.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>A normalized URI path. Caller should not free.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gad93784bd2f8eb153f1f7e623be175bb5"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websOpen
+(char *documents, char *routes)
+  </div>
+  <div class="apiDetail">
+<p>Open the web server.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This initializes the web server and defines the documents directory.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">documents</td><td>Optional web documents directory. If set to null, the build time BIT_DOCUMENTS value is used for the documents directory.</td>
+    <tr><td class="param">routes</td><td>Optional filename for a route configuration file to load. Additional route or authentication configuration files can be loaded via websLoad.</td>
+    <tr><td class="param">routes</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga18855395ff5856acaa2ead4070cca304"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websOptionsOpen
+()
+  </div>
+  <div class="apiDetail">
+<p>Open the options handler.</p>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga42ac8fd2d43cd62e36de672897476033"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websPageClose
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Close the document page.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This provides an interface above the file system or ROM based file system.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gae3a5d48960ff548b64372bf79d151801"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websPageIsDirectory
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Test if the document page for the request corresponds to a directory.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This provides an interface above the file system or ROM based file system.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the filename is a directory.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga445f9440d6762711540e3c80d47947af"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websPageOpen
+(<a href="#group___webs" class="ref">Webs</a> *wp, int mode, int perm)
+  </div>
+  <div class="apiDetail">
+<p>Open a web page document for a request.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This provides an interface above the file system or ROM based file system.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the filename is a directory.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga412045a224b12fad35f3ccb0eba21309"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    websPageReadData
+(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)
+  </div>
+  <div class="apiDetail">
+<p>Read data from the request page document.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    <tr><td class="param">buf</td><td>Buffer for the read data.</td>
+    <tr><td class="param">size</td><td>Size of buf.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Count of bytes read if successful, otherwise -1.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>

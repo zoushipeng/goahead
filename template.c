@@ -16,8 +16,9 @@ static WebsHash websJsFunctions = -1;  /* Symbol table of functions */
 
 /***************************** Forward Declarations ***************************/
 
-static char   *strtokcmp(char *s1, char *s2);
-static char   *skipWhite(char *s);
+static int  jsRequest(Webs *wp);
+static char *strtokcmp(char *s1, char *s2);
+static char *skipWhite(char *s);
 
 /************************************* Code ***********************************/
 /*
@@ -30,7 +31,7 @@ static bool jsHandler(Webs *wp)
     if (!smatch(wp->ext, ".asp")) {
         return 0;
     }
-    if (websJsRequest(wp, wp->filename) < 0) {
+    if (jsRequest(wp) < 0) {
         return 1;
     }
     websDone(wp, 200);
@@ -56,34 +57,19 @@ int websJsOpen()
 }
 
 
-int websEval(char *cmd, char **result, void* chan)
-{
-    int     jsid;
-
-    jsid = PTOI(chan);
-    if (jsEval(jsid, cmd, result)) {
-        return 0;
-    } else {
-        return -1;
-    }
-    return -1;
-}
-
-
 /*
     Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
  */
-int websJsRequest(Webs *wp, char *filename)
+static int jsRequest(Webs *wp)
 {
     WebsFileInfo    sbuf;
-    char          *token, *lang, *result, *ep, *cp, *buf, *nextp;
-    char          *last;
+    char            *token, *lang, *result, *ep, *cp, *buf, *nextp, *last;
     ssize           len;
     int             rc, jsid;
 
     gassert(websValid(wp));
-    gassert(filename && *filename);
+    gassert(wp->filename && *wp->filename);
 
     rc = -1;
     buf = NULL;
@@ -94,11 +80,11 @@ int websJsRequest(Webs *wp, char *filename)
     }
     jsSetUserHandle(jsid, wp);
 
-    if (websPageStat(wp, filename, wp->path, &sbuf) < 0) {
-        websError(wp, 404, "Can't stat %s", filename);
+    if (websPageStat(wp, &sbuf) < 0) {
+        websError(wp, 404, "Can't stat %s", wp->filename);
         goto done;
     }
-    if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
+    if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
         websError(wp, 404, "Cannot open URL: %s", wp->filename);
         return 1;
     }
@@ -113,7 +99,7 @@ int websJsRequest(Webs *wp, char *filename)
     buf[len] = '\0';
 
     if (websPageReadData(wp, buf, len) != len) {
-        websError(wp, 200, "Cant read %s", filename);
+        websError(wp, 200, "Cant read %s", wp->filename);
         goto done;
     }
     websPageClose(wp);
@@ -167,11 +153,13 @@ int websJsRequest(Webs *wp, char *filename)
             }
             if (*nextp) {
                 result = NULL;
-                if ((rc = websEval(nextp, &result, ITOP(jsid))) < 0) {
+
+                if (jsEval(jsid, nextp, &result) == 0) {
                     /*
                          On an error, discard all output accumulated so far and store the error in the result buffer. Be
                          careful if the user has called websError() already.
                      */
+                    rc = -1;
                     if (websValid(wp)) {
                         if (result) {
                             websWrite(wp, "<h2><b>Javascript Error: %s</b></h2>\n", result);
@@ -188,7 +176,7 @@ int websJsRequest(Webs *wp, char *filename)
             }
 
         } else {
-            websError(wp, 200, "Unterminated script in %s: \n", filename);
+            websError(wp, 200, "Unterminated script in %s: \n", wp->filename);
             rc = -1;
             goto done;
         }

@@ -2984,8 +2984,8 @@ int websUrlParse(char *url, char **pbuf, char **phost, char **ppath, char **ppor
 
 
 /*
-    Normalize a URI path to remove redundant "./" and cleanup "../" and make separator uniform. Does not make an abs path.
-    It does not map separators nor change case. 
+    Normalize a URI path to remove "./",  "../" and redundant separators. Note: this does not make an abs path and 
+    does not map separators nor change case. 
  */
 char *websNormalizeUriPath(char *pathArg)
 {
@@ -3065,15 +3065,14 @@ char *websNormalizeUriPath(char *pathArg)
 
 /*
     Open a web page. filename is the local filename. path is the URL path name.
-
  */
-int websPageOpen(Webs *wp, char *filename, char *path, int mode, int perm)
+int websPageOpen(Webs *wp, int mode, int perm)
 {
     gassert(websValid(wp));
 #if BIT_ROM
-    return websRomPageOpen(wp, path, mode, perm);
+    return websRomPageOpen(wp);
 #else
-    return (wp->docfd = open(filename, mode, perm));
+    return (wp->docfd = open(wp->filename, mode, perm));
 #endif
 }
 
@@ -3093,17 +3092,14 @@ void websPageClose(Webs *wp)
 }
 
 
-/*
-    Stat a web page filename is the local filename. path is the URL path name.
- */
-int websPageStat(Webs *wp, char *filename, char *path, WebsFileInfo *sbuf)
+int websPageStat(Webs *wp, WebsFileInfo *sbuf)
 {
 #if BIT_ROM
-    return websRomPageStat(path, sbuf);
+    return websRomPageStat(wp, sbuf);
 #else
     WebsStat    s;
 
-    if (stat(filename, &s) < 0) {
+    if (stat(wp->filename, &s) < 0) {
         return -1;
     }
     sbuf->size = (ssize) s.st_size;
@@ -3114,12 +3110,12 @@ int websPageStat(Webs *wp, char *filename, char *path, WebsFileInfo *sbuf)
 }
 
 
-int websPageIsDirectory(char *filename)
+int websPageIsDirectory(Webs *wp)
 {
 #if BIT_ROM
     WebsFileInfo    sbuf;
 
-    if (websRomPageStat(filename, &sbuf) >= 0) {
+    if (websRomPageStat(wp, &sbuf) >= 0) {
         return(sbuf.isDir);
     } else {
         return 0;
@@ -3127,7 +3123,7 @@ int websPageIsDirectory(char *filename)
 #else
     WebsStat    sbuf;
 
-    if (stat(filename, &sbuf) >= 0) {
+    if (stat(wp->filename, &sbuf) >= 0) {
         return(sbuf.st_mode & S_IFDIR);
     } else {
         return 0;
@@ -3289,7 +3285,7 @@ static char *makeSessionID(Webs *wp)
 
     gassert(wp);
     fmt(idBuf, sizeof(idBuf), "%08x%08x%d", PTOI(wp) + PTOI(wp->url), (int) time(0), nextSession++);
-    return websMD5binary(idBuf, sizeof(idBuf), "::webs.session::");
+    return websMD5Block(idBuf, sizeof(idBuf), "::webs.session::");
 }
 
 

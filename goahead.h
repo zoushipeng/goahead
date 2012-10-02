@@ -2378,14 +2378,14 @@ typedef struct Webs {
     char            *inputFile;         /**< File name to write input body data */
     char            *method;            /**< HTTP request method */
     char            *password;          /**< Authorization password */
-    char            *path;              /**< Path name without query */
+    char            *path;              /**< Path name without query. This is decoded. */
     char            *protoVersion;      /**< Protocol version (HTTP/1.1)*/
     char            *protocol;          /**< Protocol scheme (normally http|https) */
-    char            *query;             /**< Request query */
+    char            *query;             /**< Request query. This is decoded. */
     char            *realm;             /**< Realm field supplied in auth header */
     char            *referrer;          /**< The referring page */
     char            *responseCookie;    /**< Outgoing cookie */
-    char            *url;               /**< Full request url */
+    char            *url;               /**< Full request url. This is not decoded. */
     char            *userAgent;         /**< User agent (browser) */
     char            *username;          /**< Authorization username */
 
@@ -2570,12 +2570,14 @@ extern int websCgiHandler(Webs *wp);
  */
 extern void websCgiCleanup();
 
+#if UNUSED
 /**
     Check if a CGI process has completed
     @param handle CGI process handle
     @ingroup Webs
  */
 extern int websCheckCgiProc(int handle);
+#endif
 
 /**
     Close the core GoAhead web server module
@@ -2689,56 +2691,382 @@ extern char *websEscapeHtml(char *str);
     @ingroup Webs
  */
 extern void websError(Webs *wp, int code, char *fmt, ...);
+
+/**
+    Get a message for a HTTP status code
+    @param code HTTP status code
+    @return Http status message
+    @ingroup Webs
+ */
 extern char *websErrorMsg(int code);
-extern int websEval(char *cmd, char **rslt, void *chan);
-extern void websFileClose();
-extern int websFileHandler(Webs *wp);
+
+/**
+    Open and initialize the file handler
+    @ingroup Webs
+ */
 extern void websFileOpen();
+
+/**
+    Finalize the response 
+    @description Flush transmit data and write a chunk trailer if required. After finalization, 
+        the client should have the full response. WARNING: this call may block.
+    @param wp Webs request object
+    @ingroup Webs
+ */
 extern ssize websFinalize(Webs *wp);
+
+/**
+    Flush buffered transmit data and compact the transmit buffer to make room for more data
+    @param wp Webs request object
+    @return Number of bytes written
+    @ingroup Webs
+ */
 extern ssize websFlush(Webs *wp);
+
+/**
+    Free the webs request object. 
+    @description Callers should call websDone to complete requests prior to invoking websFree.
+    @param wp Webs request object
+    @ingroup Webs
+ */
 extern void websFree(Webs *wp);
+
+/**
+    Get the background execution flag
+    @description If goahead is invoked with --background, it will run as a daemon in the background.
+    @return True if GoAhead is running in the background.
+    @ingroup Webs
+ */
 extern int websGetBackground();
+
+/**
+    Get a unique temporary filename for CGI communications
+    @return Filename string
+    @ingroup Webs
+ */
 extern char *websGetCgiCommName();
+
+/**
+    Get the request cookie if supplied
+    @param wp Webs request object
+    @return Cookie string if defined, otherwise null.
+    @ingroup Webs
+ */
 extern char *websGetCookie(Webs *wp);
+
+/**
+    Get a date as a string
+    @description If sbuf is supplied, it is used to calculate the date. Otherwise, the current time is used.
+    @param sbuf File info object
+    @return An allocated date string. Caller should free.
+    @ingroup Webs
+ */
 extern char *websGetDateString(WebsFileInfo *sbuf);
+
+/**
+    Get the debug flag
+    @description If GoAhead is invoked with --debugger, the debug flag will be set to true
+    @return True if GoAhead is running in debug mode.
+    @ingroup Webs
+ */
 extern int websGetDebug();
+
+/**
+    Get the base file directory for a request
+    @description Returns the request route directory if defined, otherwise returns the documents directory.
+    @param wp Webs request object
+    @return Path name string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetDir(Webs *wp);
+
+/**
+    Get the GoAhead base documents directory 
+    @description The documents directory is defined at build time and may be overridden by the GoAhead command line.
+    @return Path string for the documents directory.
+    @ingroup Webs
+ */
 extern char *websGetDocuments();
-extern int  websGetEof(Webs *wp);
+
+/**
+    Get the request EOF status
+    @description The request EOF status is set to true when all the request body (POST|PUT) data has been received.
+    @param wp Webs request object
+    @return True if all the request body data has been received.
+    @ingroup Webs
+ */
+extern int websGetEof(Webs *wp);
+
+/**
+    Get the request URI extension
+    @param wp Webs request object
+    @return The URI filename extension component. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetExt(Webs *wp);
+
+/**
+    Get the request filename
+    @description The URI is mapped to a filename by decoding and prepending with the request directory.
+    @param wp Webs request object
+    @return Filename string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetFilename(Webs *wp);
+
+/**
+    Get the request host
+    @description The request host is set to the Host HTTP header value if it is present. Otherwise it is set to the request URI hostname.
+    @param wp Webs request object
+    @return Host string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetHost(Webs *wp);
+
+/**
+    Get the request interface address
+    @param wp Webs request object
+    @return Network interface string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetIfaddr(Webs *wp);
+
+/**
+    Get the default index document name
+    @description The default index is "index.html" and can be updated via websSetIndex.
+    @return Index name string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetIndex();
-extern char *websGetIpAddrUrl();
+
+/**
+    Get the request method
+    @param wp Webs request object
+    @return HTTP method string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetMethod(Webs *wp);
+
+/**
+    Get the request password
+    @description The request password may be encoded depending on the authentication scheme. See wp->encoded to test if it is encoded.
+    @param wp Webs request object
+    @return Password string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetPassword(Webs *wp);
+
+/**
+    Get the request path
+    @description The URI path component excludes the http protocol, hostname, port, reference and query components.
+    It always beings with "/".
+    @param wp Webs request object
+    @return Request path string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetPath(Webs *wp);
-extern int   websGetPort(Webs *wp);
+
+/**
+    Get the request TCP/IP port
+    @param wp Webs request object
+    @return TCP/IP Port integer
+    @ingroup Webs
+ */
+extern int websGetPort(Webs *wp);
+
+/**
+    Get the request HTTP protocol
+    @description This will be set to either "http" or "https"
+    @param wp Webs request object
+    @return Protocol string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetProtocol(Webs *wp);
-extern char *websGetRealm();
+
+/**
+    Get the request query component
+    @param wp Webs request object
+    @return Request query string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetQuery(Webs *wp);
+
+/**
+    Get the server host name
+    @return Host name string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetServer();
+
+/**
+    Get the server host name with port number.
+    @return Host name string with port number. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetServerUrl();
+
+/**
+    Get the server IP address
+    @return Server IP address string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetServerAddress();
+
+/**
+    Get the server IP address with port number
+    @return Server IP:PORT address string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetServerAddressUrl();
+
+/**
+    Get the request URI
+    @description This returns the request URI. This may be modified if the request is rewritten via websRewrite
+    @param wp Webs request object
+    @return URI string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetUrl(Webs *wp);
+
+/**
+    Get the client User-Agent HTTP header
+    @param wp Webs request object
+    @return User-Agent string. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetUserAgent(Webs *wp);
+
+/**
+    Get the request username
+    @description If the request is authenticated, this call returns the username supplied during authentication.
+    @param wp Webs request object
+    @return Username string if defined, otherwise null. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websGetUsername(Webs *wp);
-extern char *websGetVar(Webs *wp, char *var, char *def);
-extern int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
+
+/**
+    Get a request variable
+    @description Request variables are defined for HTTP headers of the form HTTP_*. Some request handlers also define their own
+        variables. For example: CGI environment variables.
+    @param wp Webs request object
+    @param name Variable name
+    @param defaultValue Default value to return if the variable is not defined
+    @return Variable value string. Caller should not free.
+    @ingroup Webs
+ */
+extern char *websGetVar(Webs *wp, char *name, char *defaultValue);
+
+/**
+    Listen on a TCP/IP address endpoint
+    @description The URI is mapped to a filename by decoding and prepending with the request directory.
+        For IPv6 addresses, use the format: [aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii]:port.
+    @param endpoint IPv4 or IPv6 address on which to listen.
+    @return Positive integer holding a Socket ID handle if successful, otherwise -1.
+    @ingroup Webs
+ */
 extern int websListen(char *endpoint);
-extern char *websMD5(char *s);
-extern char *websMD5binary(char *buf, ssize length, char *prefix);
+
+/**
+    Get an MD5 digest of a string
+    @param str String to analyze.
+    @return Allocated MD5 checksum. Caller should free.
+    @ingroup Webs
+ */
+extern char *websMD5(char *str);
+
+/**
+    Get an MD5 digest of a block and optionally prepend a prefix.
+    @param buf Block to analyze
+    @param length Length of block
+    @param prefix Optional prefix to prepend to the MD5 sum.
+    @return Allocated MD5 checksum. Caller should free.
+    @ingroup Webs
+ */
+extern char *websMD5Block(char *buf, ssize length, char *prefix);
+
+/**
+    Normalize a URI path
+    @description This removes "./", "../" and redundant separators.
+    @param path URI path to normalize
+    @return A normalized URI path. Caller should not free.
+    @ingroup Webs
+ */
 extern char *websNormalizeUriPath(char *path);
-extern int websOpen(char *documents, char *authPath);
+
+/**
+    Open the web server
+    @description This initializes the web server and defines the documents directory.
+    @param documents Optional web documents directory. If set to null, the build time BIT_DOCUMENTS value is used for the documents directory.
+    @param routes Optional filename for a route configuration file to load. Additional route or authentication configuration files can be 
+        loaded via websLoad.
+    @param routes Webs request object
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websOpen(char *documents, char *routes);
+
+/**
+    Open the options handler
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
 extern int websOptionsOpen();
+
+/**
+    Close the document page
+    @description This provides an interface above the file system or ROM based file system.
+    @param wp Webs request object
+    @ingroup Webs
+ */
 extern void websPageClose(Webs *wp);
-extern int websPageIsDirectory(char *filename);
-extern int websPageOpen(Webs *wp, char *filename, char *path, int mode, int perm);
-extern ssize websPageReadData(Webs *wp, char *buf, ssize nBytes);
+
+/**
+    Test if the document page for the request corresponds to a directory 
+    @description This provides an interface above the file system or ROM based file system.
+    @param wp Webs request object
+    @return True if the filename is a directory
+    @ingroup Webs
+ */
+extern int websPageIsDirectory(Webs *wp);
+
+/**
+    Open a web page document for a request
+    @description This provides an interface above the file system or ROM based file system.
+    @param wp Webs request object
+    @param mode File open mode. Select from O_RDONLY and O_BINARY. Rom files systems ignore this argument.
+    @param perms Ignored
+    @return File handle if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int websPageOpen(Webs *wp, int mode, int perms);
+
+/**
+    Read data from the request page document
+    @param wp Webs request object
+    @param buf Buffer for the read data
+    @param size Size of buf
+    @return Count of bytes read if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern ssize websPageReadData(Webs *wp, char *buf, ssize size);
+
+/**
+    Seek to a position in the request page document
+    @param wp Webs request object
+    @param offset Location in the file to seek to.
+    @ingroup Webs
+ */
 extern void websPageSeek(Webs *wp, WebsFilePos offset);
-extern int websPageStat(Webs *wp, char *filename, char *path, WebsFileInfo *sbuf);
+
+/**
+    Test if a filename is a directory 
+    @description This provides an interface above the file system or ROM based file system.
+    @param wp Webs request object
+    @return True if the filename is a directory
+    @ingroup Webs
+ */
+extern int websPageStat(Webs *wp, WebsFileInfo *sbuf);
 extern int websProcessPutData(Webs *wp);
 extern int websProcDefine(char *name, void *proc);
 extern int websProcHandler(Webs *wp);
@@ -2752,10 +3080,10 @@ extern void websResponse(Webs *wp, int code, char *msg);
 extern int websRewriteRequest(Webs *wp, char *url);
 extern int websRomOpen();
 extern void websRomClose();
-extern int websRomPageOpen(Webs *wp, char *path, int mode, int perm);
+extern int websRomPageOpen(Webs *wp);
 extern void websRomPageClose(int fd);
 extern ssize websRomPageReadData(Webs *wp, char *buf, ssize len);
-extern int websRomPageStat(char *path, WebsFileInfo *sbuf);
+extern int websRomPageStat(Webs *wp, WebsFileInfo *sbuf);
 extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
 extern void websServiceEvents(int *finished);
 extern void websSetBackground(int on);
@@ -2796,7 +3124,6 @@ extern int websProcessCgiData(Webs *wp);
 #if BIT_JAVASCRIPT
 extern int websJsDefine(char *name, int (*fn)(int ejid, Webs *wp, int argc, char **argv));
 extern int websJsOpen();
-extern int websJsRequest(Webs *wp, char *filename);
 extern int websJsWrite(int ejid, Webs *wp, int argc, char **argv);
 extern int websJsHandler(Webs *wp);
 #endif

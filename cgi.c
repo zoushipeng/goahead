@@ -31,6 +31,11 @@ typedef struct Cgi {            /* Struct for CGI tasks which have completed */
 static Cgi      **cgiList;      /* galloc chain list of wp's to be closed */
 static int      cgiMax;         /* Size of galloc list */
 
+/************************************ Forwards ********************************/
+
+static int checkCgi(int handle);
+static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
+
 /************************************* Code ***********************************/
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
@@ -163,7 +168,7 @@ static bool cgiHandler(Webs *wp)
         Now launch the process.  If not successful, do the cleanup of resources.  If successful, the cleanup will be
         done after the process completes.  
      */
-    if ((pHandle = websLaunchCgiProc(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
+    if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
         websError(wp, 200, "failed to spawn CGI task");
         for (ep = envp; *ep != NULL; ep++) {
             gfree(*ep);
@@ -266,7 +271,7 @@ void websCgiCleanup()
         if ((cgip = cgiList[cid]) != NULL) {
             wp = cgip->wp;
             websCgiGatherOutput (cgip);
-            if (websCheckCgiProc(cgip->handle) == 0) {
+            if (checkCgi(cgip->handle) == 0) {
                 /*
                     We get here if the CGI process has terminated.  Clean up.
                  */
@@ -319,7 +324,7 @@ void websCgiCleanup()
 
 /*  
     PLATFORM IMPLEMENTATIONS FOR CGI HELPERS
-        websGetCgiCommName, websLaunchCgiProc, websCheckCgiProc
+        websGetCgiCommName, launchCgi, checkCgi
 */
 
 #if CE
@@ -349,7 +354,7 @@ char *websGetCgiCommName()
      Launch the CGI process and return a handle to it.  CE note: This function is not complete.  The missing piece is
      the ability to redirect stdout.
  */
-int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     PROCESS_INFORMATION procinfo;       /*  Information about created proc   */
     DWORD               dwCreateFlags;
@@ -397,7 +402,7 @@ int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-int websCheckCgiProc(int handle)
+static int checkCgi(int handle)
 {
     int     nReturn;
     DWORD   exitCode;
@@ -433,7 +438,7 @@ char *websGetCgiCommName()
 /*
     Launch the CGI process and return a handle to it.
  */
-int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     int pid, fdin, fdout, hstdin, hstdout, rc;
 
@@ -476,7 +481,7 @@ DONE:
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-int websCheckCgiProc(int handle)
+static int checkCgi(int handle)
 {
     /*
         Check to see if the CGI child process has terminated or not yet.
@@ -527,7 +532,7 @@ char *websGetCgiCommName()
         open and redirect stdin and stdout to stdIn and stdOut, and then it will call the user entry.
     6.  Return the taskSpawn return value.
  */
-int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     SYM_TYPE    ptype;
     char      *p, *basename, *pEntry, *pname, *entryAddr, **pp;
@@ -664,7 +669,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argp, 
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-int websCheckCgiProc(int handle)
+static int checkCgi(int handle)
 {
     STATUS stat;
 
@@ -741,7 +746,7 @@ char *websGetCgiCommName()
 /*
     Create a temporary stdout file and launch the CGI process. Returns a handle to the spawned CGI process.
  */
-int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     STARTUPINFO         newinfo;
     SECURITY_ATTRIBUTES security;
@@ -858,10 +863,10 @@ int websLaunchCgiProc(char *cgiPath, char **argp, char **envp, char *stdIn, char
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-int websCheckCgiProc(int handle)
+static int checkCgi(int handle)
 {
-    int     nReturn;
     DWORD   exitCode;
+    int     nReturn;
 
     nReturn = GetExitCodeProcess((HANDLE)handle, &exitCode);
     /*

@@ -50,7 +50,7 @@ static bool fileHandler(Webs *wp)
         /*
             If the file is a directory, redirect using the nominated default page
          */
-        if (websPageIsDirectory(wp->filename)) {
+        if (websPageIsDirectory(wp)) {
             nchars = strlen(wp->path);
             if (wp->path[nchars - 1] == '/' || wp->path[nchars - 1] == '\\') {
                 wp->path[--nchars] = '\0';
@@ -60,7 +60,7 @@ static bool fileHandler(Webs *wp)
             gfree(tmp);
             return 1;
         }
-        if (websPageOpen(wp, wp->filename, wp->path, O_RDONLY | O_BINARY, 0666) < 0) {
+        if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
 #if BIT_DEBUG
             if (wp->referrer) {
                 trace(1, "From %s\n", wp->referrer);
@@ -69,9 +69,7 @@ static bool fileHandler(Webs *wp)
             websError(wp, 404, "Cannot open: %s", wp->filename);
             return 1;
         }
-        //  MOB - confusion with filename and path
-        //  MOB - should we be using just lower stat?
-        if (websPageStat(wp, wp->filename, wp->path, &info) < 0) {
+        if (websPageStat(wp, &info) < 0) {
             websError(wp, 400, "Cannot stat page for URL");
             return 1;
         }

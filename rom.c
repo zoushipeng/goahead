@@ -46,7 +46,7 @@ void websRomClose()
 }
 
 
-int websRomPageOpen(Webs *wp, char *path, int mode, int perm)
+int websRomPageOpen(Webs *wp)
 {
     WebsRomIndex    *wip;
     WebsKey           *sp;
@@ -54,7 +54,7 @@ int websRomPageOpen(Webs *wp, char *path, int mode, int perm)
     gassert(websValid(wp));
     gassert(path && *path);
 
-    if ((sp = hashLookup(romTab, path)) == NULL) {
+    if ((sp = hashLookup(romTab, wp->path)) == NULL) {
         return -1;
     }
     wip = (WebsRomIndex*) sp->content.value.integer;
