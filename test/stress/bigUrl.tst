@@ -29,6 +29,11 @@ for (iter in depth) {
         assert(http.status == 200)
         assert(http.response.contains("Hello /index.html"))
     } else {
+        if (http.status != 413) {
+            print('STATUS', http.status)
+            dump('HEADERS', http.headers)
+            print('response', http.response)
+        }
         assert(http.status == 413)
     }
 }
