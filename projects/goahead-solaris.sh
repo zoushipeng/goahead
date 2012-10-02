@@ -65,19 +65,19 @@ ${CC} -c -o ${CONFIG}/obj/template.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFL
 
 ${CC} -c -o ${CONFIG}/obj/upload.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc upload.c
 
-/usr/bin/ar -cqv ${CONFIG}/bin/libgo.a ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/options.o ${CONFIG}/obj/proc.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/template.o ${CONFIG}/obj/upload.o
+/usr/bin/ar -cr ${CONFIG}/bin/libgo.a ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/options.o ${CONFIG}/obj/proc.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/template.o ${CONFIG}/obj/upload.o
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc goahead.c
 
-${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o ${LIBS} -lgo ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/test.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o ${LIBS} -lgo ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/gopass.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
 
-${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o ${LIBS} -lgo ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o -lgo ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/webcomp.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 

@@ -200,7 +200,7 @@
     #define BIT_SHOBJ ".dll"
 #endif
 #ifndef BIT_LIB
-    #define BIT_LIB ".a"
+    #define BIT_LIB ".lib"
 #endif
 #ifndef BIT_OBJ
     #define BIT_OBJ ".obj"

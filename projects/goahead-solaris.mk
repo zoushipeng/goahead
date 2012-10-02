@@ -195,7 +195,7 @@ $(CONFIG)/bin/libgo.a:  \
         $(CONFIG)/obj/socket.o \
         $(CONFIG)/obj/template.o \
         $(CONFIG)/obj/upload.o
-	/usr/bin/ar -cqv $(CONFIG)/bin/libgo.a $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/proc.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libgo.a $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/proc.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/template.o $(CONFIG)/obj/upload.o
 
 $(CONFIG)/obj/goahead.o: \
         goahead.c \
@@ -207,7 +207,7 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/goahead.o
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS) -lgo $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/test.o: \
         test/test.c \
@@ -219,7 +219,7 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/test.o
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS) -lgo $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/gopass.o: \
         utils/gopass.c \
@@ -231,7 +231,7 @@ $(CONFIG)/bin/gopass:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/gopass.o
-	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS) -lgo $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \

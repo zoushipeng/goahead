@@ -65,19 +65,19 @@ ${CC} -c -o ${CONFIG}/obj/template.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG
 
 ${CC} -c -o ${CONFIG}/obj/upload.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc upload.c
 
-/usr/bin/ar -cq ${CONFIG}/bin/libgo.a ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/options.o ${CONFIG}/obj/proc.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/template.o ${CONFIG}/obj/upload.o
+/usr/bin/ar -cr ${CONFIG}/bin/libgo.a ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/options.o ${CONFIG}/obj/proc.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/template.o ${CONFIG}/obj/upload.o
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc goahead.c
 
-${CC} -o ${CONFIG}/bin/goahead -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o ${LIBS} -lgo
+${CC} -o ${CONFIG}/bin/goahead -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS}
 
 ${CC} -c -o ${CONFIG}/obj/test.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o ${LIBS} -lgo
+${CC} -o ${CONFIG}/bin/goahead-test -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS}
 
 ${CC} -c -o ${CONFIG}/obj/gopass.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
 
-${CC} -o ${CONFIG}/bin/gopass -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o ${LIBS} -lgo
+${CC} -o ${CONFIG}/bin/gopass -arch x86_64 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o -lgo ${LIBS}
 
 ${CC} -c -o ${CONFIG}/obj/webcomp.o -arch x86_64 ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 
