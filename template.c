@@ -66,7 +66,7 @@ static int jsRequest(Webs *wp)
     WebsFileInfo    sbuf;
     char            *token, *lang, *result, *ep, *cp, *buf, *nextp, *last;
     ssize           len;
-    int             rc, jsid;
+    int             rc, jid;
 
     gassert(websValid(wp));
     gassert(wp->filename && *wp->filename);
@@ -74,11 +74,11 @@ static int jsRequest(Webs *wp)
     rc = -1;
     buf = NULL;
 
-    if ((jsid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
+    if ((jid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
         websError(wp, 200, "Can't create JavaScript engine");
         goto done;
     }
-    jsSetUserHandle(jsid, wp);
+    jsSetUserHandle(jid, wp);
 
     if (websPageStat(wp, &sbuf) < 0) {
         websError(wp, 404, "Can't stat %s", wp->filename);
@@ -154,7 +154,7 @@ static int jsRequest(Webs *wp)
             if (*nextp) {
                 result = NULL;
 
-                if (jsEval(jsid, nextp, &result) == 0) {
+                if (jsEval(jid, nextp, &result) == 0) {
                     /*
                          On an error, discard all output accumulated so far and store the error in the result buffer. Be
                          careful if the user has called websError() already.
@@ -195,8 +195,8 @@ static int jsRequest(Webs *wp)
 done:
     if (websValid(wp)) {
         websPageClose(wp);
-        if (jsid >= 0) {
-            jsCloseEngine(jsid);
+        if (jid >= 0) {
+            jsCloseEngine(jid);
         }
     }
     gfree(buf);
@@ -216,7 +216,7 @@ int websJsDefine(char *name, WebsJsProc fn)
 /*
     Javascript write command. This implemements <% write("text"); %> command
  */
-int websJsWrite(int jsid, Webs *wp, int argc, char **argv)
+int websJsWrite(int jid, Webs *wp, int argc, char **argv)
 {
     int     i;
 

@@ -128,8 +128,9 @@ typedef struct JsInput {
 } JsInput;
 
 
-/*
-    Per Javascript session structure
+/**
+    Javascript engine structure
+    @defgroup Js Js
  */
 typedef struct Js {
     JsInput     *input;                         /* Input evaluation block */
@@ -141,34 +142,122 @@ typedef struct Js {
     char        *error;                         /* Error message */
     char        *token;                         /* Pointer to token string */
     int         tid;                            /* Current token id */
-    int         eid;                            /* Halloc handle */
+    int         jid;                            /* Halloc handle */
     int         flags;                          /* Flags */
     void        *userHandle;                    /* User defined handle */
 } Js;
 
-typedef int (*JsProc)(int eid, void *handle, int argc, char **argv);
+
+/**
+    Javascript function procedure
+    @ingroup Js
+ */
+typedef int (*JsProc)(int jid, void *handle, int argc, char **argv);
 
 /******************************** Prototypes **********************************/
+/**
+    Utility routine to parse function arguments
+    @param argc Count of arguments in argv
+    @param argv Array of arguments
+    @param fmt Printf style format string
+    @return Count of the arguments parsed
+    @ingroup Js
+ */
+extern int jsArgs(int argc, char **argv, char *fmt, ...);
 
-extern int      jsOpenBlock(int eid);
-extern int      jsCloseBlock(int eid, int vid);
-extern char     *jsEvalBlock(int eid, char *script, char **emsg);
+/**
+    Get the function result value
+    @param jid Javascript ID allocated via jsOpenEngine
+    @return Function return value string. Caller must not free.
+    @ingroup Js
+ */
+extern char *jsGetResult(int jid);
 
-#if !ECOS && UNUSED && KEEP
-extern char     *jsEvalFile(int eid, char *path, char **emsg);
-#endif
+/**
+    Set the function return result
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param str String value to use as the result
+    @ingroup Js
+ */
+extern void jsSetResult(int jid, char *str);
 
-extern int      jsRemoveGlobalFunction(int eid, char *name);
-extern void     *jsGetGlobalFunction(int eid, char *name);
-extern int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn);
-extern void     jsError(Js *ep, char *fmt, ...);
-extern void     jsSetUserHandle(int eid, void *handle);
-extern void     *jsGetUserHandle(int eid);
-extern int      jsGetLineNumber(int eid);
-extern char     *jsGetResult(int eid);
-extern void     jsSetLocalVar(int eid, char *var, char *value);
-extern void     jsSetGlobalVar(int eid, char *var, char *value);
+/**
+    Set a variable value in the top most variable frame
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param var Variable name
+    @param value Value to set
+    @ingroup Js
+ */
+extern void jsSetVar(int jid, char *var, char *value);
 
+/**
+    Get a variable value
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param var Variable name
+    @param value Returned value.
+    @return If successful, a positive variable index, otherwise -1. This will be zero for global variables
+        and > 0 for local variables.
+    @ingroup Js
+ */
+extern int jsGetVar(int jid, char *var, char **value);
+
+
+/**
+    Set a local variable 
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param var Variable name
+    @param value Value to use
+    @ingroup Js
+ */
+extern void jsSetLocalVar(int jid, char *var, char *value);
+
+/**
+    Set a global variable
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param var Variable name
+    @param value value to use
+    @ingroup Js
+ */
+extern void jsSetGlobalVar(int jid, char *var, char *value);
+
+/**
+    Parse and evaluate a script. Return the last function return value.
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param script Script to evaluate
+    @param emsg Pointer to a string to receive any error message
+    @param str String value to use as the result. Set to null for errors.
+    @ingroup Js
+ */
+extern char *jsEval(int jid, char *script, char **emsg);
+
+/**
+    Set a global function
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param name Javascript function name
+    @param fn C function providing the implementation.
+    @ingroup Js
+ */
+extern int jsSetGlobalFunction(int jid, char *name, JsProc fn);
+
+/**
+    Emit a parse error
+    @param js Javascript engine object
+    @param fmt Error message format string
+    @ingroup Js
+ */
+extern void jsError(Js *js, char *fmt, ...);
+
+/*
+    Internal API
+ */
+extern int      jsCloseBlock(int jid, int vid);
+extern void     jsCloseEngine(int jid);
+extern char     *jsEvalBlock(int jid, char *script, char **emsg);
+extern WebsHash jsGetFunctionTable(int jid);
+extern void     *jsGetGlobalFunction(int jid, char *name);
+extern int      jsGetLineNumber(int jid);
+extern void     *jsGetUserHandle(int jid);
+extern WebsHash jsGetVariableTable(int jid);
 extern int      jsLexOpen(Js *ep);
 extern void     jsLexClose(Js *ep);
 extern int      jsLexOpenScript(Js *ep, char *script);
@@ -178,18 +267,11 @@ extern void     jsLexFreeInputState(Js *ep, JsInput *state);
 extern void     jsLexRestoreInputState(Js *ep, JsInput *state);
 extern int      jsLexGetToken(Js *ep, int state);
 extern void     jsLexPutbackToken(Js *ep, int tid, char *string);
-
-extern WebsHash jsGetVariableTable(int eid);
-extern WebsHash jsGetFunctionTable(int eid);
-
-extern int      jsArgs(int argc, char **argv, char *fmt, ...);
-extern void     jsSetResult(int eid, char *s);
+extern int      jsOpenBlock(int jid);
 extern int      jsOpenEngine(WebsHash variables, WebsHash functions);
-extern void     jsCloseEngine(int eid);
-extern int      jsSetGlobalFunction(int eid, char *name, JsProc fn);
-extern void     jsSetVar(int eid, char *var, char *value);
-extern int      jsGetVar(int eid, char *var, char **value);
-extern char     *jsEval(int eid, char *script, char **emsg);
+extern int      jsRemoveGlobalFunction(int jid, char *name);
+extern int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn);
+extern void     jsSetUserHandle(int jid, void *handle);
 
 #if BIT_LEGACY
     typedef Js ej_t;

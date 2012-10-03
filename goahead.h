@@ -831,7 +831,7 @@ typedef int64 WebsDateTime;
     typedef socklen_t WebsSockLenArg;
 #endif
 
-#if DOXYGEN || WINDOWS
+#if WINDOWS || DOXYGEN
     typedef int socklen_t;
 #endif
 
@@ -2242,7 +2242,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if BIT_UPLOAD || DOXYGEN
+#if BIT_UPLOAD
 
 /**
     File upload structure
@@ -2393,7 +2393,7 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if BIT_CGI || DOXYGEN
+#if BIT_CGI
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
@@ -2414,7 +2414,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if BIT_UPLOAD || DOXYGEN
+#if BIT_UPLOAD
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -2543,7 +2543,7 @@ extern int websAccept(int sid, char *ipaddr, int port, int listenSid);
  */
 extern int websAlloc(int sid);
 
-#if BIT_CGI || DOXYGEN
+#if BIT_CGI
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -2573,7 +2573,7 @@ extern void websCgiCleanup();
  */
 extern int websCheckCgiProc(int handle);
 #endif
-#endif /* BIT_CGI || DOXYGEN */
+#endif /* BIT_CGI */
 
 /**
     Close the core GoAhead web server module
@@ -2735,14 +2735,14 @@ extern void websFree(Webs *wp);
  */
 extern int websGetBackground();
 
-#if BIT_CGI || DOXYGEN 
+#if BIT_CGI
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
     @ingroup Webs
  */
 extern char *websGetCgiCommName();
-#endif /* BIT_CGI || DOXYGEN */
+#endif /* BIT_CGI */
 
 /**
     Get the request cookie if supplied
@@ -3139,7 +3139,7 @@ extern void websResponse(Webs *wp, int status, char *msg);
  */
 extern int websRewriteRequest(Webs *wp, char *url);
 
-#if BIT_ROM || DOXYGEN
+#if BIT_ROM
 /**
     Open the ROM file system
     @return Zero if successful, otherwise -1.
@@ -3434,7 +3434,7 @@ extern ssize websWriteBlock(Webs *wp, char *buf, ssize size);
  */
 extern ssize websWriteRaw(Webs *wp, char *buf, ssize size);
 
-#if BIT_UPLOAD || DOXYGEN
+#if BIT_UPLOAD
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
@@ -3451,7 +3451,7 @@ extern int websProcessUploadData(Webs *wp);
 extern void websFreeUpload(Webs *wp);
 #endif
 
-#if BIT_CGI || DOXYGEN
+#if BIT_CGI
 /**
     Process CGI request body data.
     @param wp Webs request object
@@ -3507,95 +3507,338 @@ extern int websJsWrite(int jid, Webs *wp, int argc, char **argv);
 /*************************************** SSL ***********************************/
 
 #if BIT_PACK_SSL
-    extern int sslOpen();
-    extern void sslClose();
-    extern int sslAccept(Webs *wp);
-    extern void sslFree(Webs *wp);
-    extern int sslUpgrade(Webs *wp);
-    extern ssize sslRead(Webs *wp, void *buf, ssize len);
-    extern ssize sslWrite(Webs *wp, void *buf, ssize len);
-    extern void sslWriteClosureAlert(Webs *wp);
-    extern ssize sslFlush(Webs *wp);
+/**
+    Open the ssl module
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int sslOpen();
+
+/**
+    Close the ssl module
+    @ingroup Webs
+ */
+extern void sslClose();
+
+/**
+    Free a ssl connection associated with a request
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void sslFree(Webs *wp);
+
+/**
+    Upgrade a request connection to utilize SSL
+    @description This routine is invoked on a connection received on a secure listening socket
+    @param wp Webs request object
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+extern int sslUpgrade(Webs *wp);
+
+/**
+    Read data from a secure socket
+    @param wp Webs request object
+    @param buf Buffer into which to read data
+    @param len Size of buf
+    @return Count of bytes read if successful, otherwise -1. 
+    @ingroup Webs
+ */
+extern ssize sslRead(Webs *wp, void *buf, ssize len);
+
+/**
+    WRite data to a secure socket
+    @param wp Webs request object
+    @param buf Buffer from which to write data
+    @param len Size of buf
+    @return Count of bytes written if successful, otherwise -1. 
+    @ingroup Webs
+ */
+extern ssize sslWrite(Webs *wp, void *buf, ssize len);
 #endif /* BIT_PACK_SSL */
 
 /*************************************** Route *********************************/
-
+/**
+    Callback to prompt the user for their password
+    @param wp Webs request object
+    @ingroup Webs
+ */
 typedef void (*WebsAskLogin)(Webs *wp);
+
+/**
+    Callback to verify the username and password
+    @param wp Webs request object
+    @return True if the password is verified
+    @ingroup Webs
+ */
 typedef bool (*WebsVerify)(Webs *wp);
+
+/**
+    Callback to parse authentication details submitted with the web request
+    @param wp Webs request object
+    @return True if the details can be parsed
+    @ingroup Webs
+ */
 typedef bool (*WebsParseAuth)(Webs *wp);
 
+/**
+    Request route structure
+    @defgroup WebsRoute WebsRoute
+ */
 typedef struct WebsRoute {
-    char            *prefix;
-    ssize           prefixLen;
-    char            *dir;
-    char            *protocol;
-    char            *authType;
-    WebsHandler     *handler;
-    WebsHash        abilities;
-    WebsHash        extensions;
-    WebsHash        redirects;
-    WebsHash        methods;
-    WebsAskLogin    askLogin;
-    WebsParseAuth   parseAuth;              /* Basic or Digest */
-    WebsVerify      verify;                 /* Pam or internal */
-    int             flags;
+    char            *prefix;                /**< Route path prefix */
+    ssize           prefixLen;              /**< Prefix length */
+    char            *dir;                   /**< Filesystem base directory for route documents */
+    char            *protocol;              /**< HTTP protocol to use for this route */
+    char            *authType;              /**< Authentication type */
+    WebsHandler     *handler;               /**< Request handler to service requests */
+    WebsHash        abilities;              /**< Required user abilities */
+    WebsHash        extensions;             /**< Permissible URI extensions */
+    WebsHash        redirects;              /**< Response redirections */
+    WebsHash        methods;                /**< Supported HTTP methods */
+    WebsAskLogin    askLogin;               /**< Route path prefix */
+    WebsParseAuth   parseAuth;              /**< Parse authentication details callback*/
+    WebsVerify      verify;                 /**< Verify password callback */
+    int             flags;                  /**< Route control flags */
 } WebsRoute;
 
+/**
+    Add a route to the routing tables
+    @param uri Matching URI prefix
+    @param handler Request handler to service routed requests
+    @param pos Position in the list of routes. Zero inserts at the front of the list. A value of -1 will append to the
+        end of the list.
+    @return A route object
+    @ingroup WebsRoute
+ */
 extern WebsRoute *websAddRoute(char *uri, char *handler, int pos);
+
+/**
+    Close the route module
+    @ingroup WebsRoute
+ */
 extern void websCloseRoute();
+
+/**
+    Load routing tables from the specified filename
+    @param path Route configuration filename
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsRoute
+ */
 extern int websLoad(char *path);
+
+/**
+    Open the routing module
+    @ingroup WebsRoute
+ */
 extern int websOpenRoute();
+
+/**
+    Remove a route from the routing tables
+    @param uri Matching URI prefix
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsRoute
+ */
 extern int websRemoveRoute(char *uri);
+
+/**
+    Route a request
+    @description This routine will select a matching route and will invoke the selected route handler to service
+        the request. In the process, authentication and request rewriting may take place.
+    @param wp Webs request object
+    @ingroup WebsRoute
+ */
 extern void websRouteRequest(Webs *wp);
+
+/**
+    Configure a route by adding matching criteria
+    @param route Route to modify
+    @param dir Set the route documents directory filename
+    @param protocol Set the matching HTTP protocol (http or https)
+    @param methods Hash of permissible HTTP methods. (GET, HEAD, POST, PUT)
+    @param extensions Hash of permissible URI filename extensions.
+    @param abilities Required user abilities. The user must be authenticated.
+    @param abilities Required user abilities. If abilities are required, the user must be authenticated.
+    @param redirects Set of applicable response redirections when completing the request.
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsRoute
+ */
 extern int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
         WebsHash abilities, WebsHash redirects);
-extern int websSetRouteAuth(WebsRoute *route, char *auth);
+
+/**
+    Set route authentication scheme
+    @param route Route to modify
+    @param authType Set to "basic", "digest" or "form".
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsRoute
+ */
+extern int websSetRouteAuth(WebsRoute *route, char *authType);
 
 /*************************************** Auth **********************************/
 #define WEBS_USIZE          128              /* Size of realm:username */
 
+/**
+    GoAhead Authentication
+    @defgroup WebsAuth WebsAuth
+ */
+/**
+    User definition structure
+    @ingroup WebsAuth
+ */
 typedef struct WebsUser {
-    char    *name;
-    char    *password;
-    char    *roles;
-    WebsHash abilities;
+    char    *name;                          /**< User name */
+    char    *password;                      /**< User password (encrypted) */
+    char    *roles;                         /**< User roles */
+    WebsHash abilities;                     /**< Resolved user abilities */
 } WebsUser;
 
+/**
+    Role definition structure
+    @ingroup WebsAuth
+ */
 typedef struct WebsRole {
-    WebsHash  abilities;
+    WebsHash  abilities;                    /**< Resolved role abilities */
 } WebsRole;
 
-extern int websAddRole(char *role, WebsHash abilities);
+/**
+    Add a role
+    @description The role is added to the list of roles
+    @param role Role name
+    @param abilities Hash of abilities for the role
+    @return The allocated role.
+    @ingroup WebsAuth
+ */
+extern WebsRole *websAddRole(char *role, WebsHash abilities);
+
+/**
+    Add a user
+    @description The user is added to the list of users
+    @param username User name
+    @param password User password (encrypted)
+    @param roles Space separated list of roles. This may also contain abilities.
+    @return User object.
+    @ingroup WebsAuth
+ */
 extern WebsUser *websAddUser(char *username, char *password, char *roles);
+
+/**
+    Authenticate a user
+    @description The user is authenticated if required by the selected request route.
+    @return True if the route does not require authentication or the user is authenticated successfully.
+    @ingroup WebsAuth
+ */
 extern bool websAuthenticate(Webs *wp);
-extern void websBasicLogin(Webs *wp);
+
+/**
+    Test if a user possesses the required ability
+    @param wp Webs request object
+    @param ability Set of required abilities.
+    @return True if the user has the required ability.
+    @ingroup WebsAuth
+ */
 extern bool websCan(Webs *wp, WebsHash ability);
-extern bool websCanString(Webs *wp, char *ability);
+
+/**
+    Close the authentication module
+    @ingroup WebsAuth
+ */
 extern void websCloseAuth();
+
+/**
+    Compute the abilities for all users by resolving roles into abilities
+    @ingroup WebsAuth
+ */
 extern void websComputeAllUserAbilities();
+
+#if UNUSED
 extern WebsHash websGetUsers();
 extern WebsHash websGetRoles();
-extern bool websLoginUser(Webs *wp, char *username, char *password);
-extern WebsUser *websLookupUser(char *username);
-extern bool websParseBasicDetails(Webs *wp);
-extern int websRemoveRole(char *role);
-extern int websRemoveUser(char *name);
-extern int websOpenAuth(int minimal);
-extern int websSetUserRoles(char *username, char *roles);
-extern int websWriteAuthFile(char *path);
-extern bool websVerifyUser(Webs *wp);
-
-#if BIT_HAS_PAM && BIT_PAM
-    extern bool websVerifyPamUser(Webs *wp);
 #endif
 
-#if BIT_DIGEST
-    extern void websDigestLogin(Webs *wp);
-    extern bool websParseDigestDetails(Webs *wp);
+/**
+    Login a user by verifying the login credentials.
+    @description This may be called by handlers to manually authenticate a user.
+    @param wp Webs request object
+    @param username User name
+    @param password User password (encrypted)
+    @return True if the user can be authenticated. 
+    @ingroup WebsAuth
+ */
+extern bool websLoginUser(Webs *wp, char *username, char *password);
+
+/**
+    Lookup if a user exists
+    @param username User name to search for
+    @return User object or null if the user cannot be found
+    @ingroup WebsAuth
+ */
+extern WebsUser *websLookupUser(char *username);
+
+/**
+    Remove a role from the system
+    @param role Role name
+    @return Zero if successful, otherwise -1
+    @ingroup WebsAuth
+ */
+extern int websRemoveRole(char *role);
+
+/**
+    Remove a user from the system
+    @param name User name
+    @return Zero if successful, otherwise -1
+    @ingroup WebsAuth
+ */
+extern int websRemoveUser(char *name);
+
+/**
+    Open the authentication module
+    @param minimal Reserved. Set to zero.
+    @return True if the user has the required ability.
+    @ingroup WebsAuth
+ */
+extern int websOpenAuth(int minimal);
+
+/**
+    Define the set of roles for a user
+    @param username User name
+    @param roles Space separated list of roles or abilities
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsAuth
+ */
+extern int websSetUserRoles(char *username, char *roles);
+
+/**
+    Save the authentication file
+    @param path Filename to save to
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsAuth
+ */
+extern int websWriteAuthFile(char *path);
+
+/**
+    Standard user password verification routine.
+    @param wp Webs request object
+    @return True if the user password verifies.
+    @ingroup WebsAuth
+ */
+extern bool websVerifyPassword(Webs *wp);
+
+#if BIT_HAS_PAM && BIT_PAM
+/**
+    Verify a password using the system PAM password database.
+    @param wp Webs request object
+    @return True if the user password verifies.
+    @ingroup WebsAuth
+ */
+extern bool websVerifyPampassword(Webs *wp);
 #endif
 
 /************************************** Sessions *******************************/
-
+/**
+    Session state storage
+    @defgroup WebsSession WebsSession
+ */
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
     WebsTime        lifespan;               /**< Session inactivity timeout (msecs) */
@@ -3603,11 +3846,59 @@ typedef struct WebsSession {
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
 
+/**
+    Test if a user possesses the required ability
+    @param wp Webs request object
+    @param id Session ID to use. Set to null to allocate a new session ID.
+    @param lifespan Lifespan of the session in seconds.
+    @return Allocated session object
+    @ingroup WebsSession
+ */
 extern WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan);
+
+/**
+    Get the session ID
+    @param wp Webs request object
+    @return The session ID if session state storage is defined for this request.
+    @ingroup WebsSession
+ */
 extern char *websGetSessionID(Webs *wp);
+
+/**
+    Get the session state object for the current request
+    @param wp Webs request object
+    @param create Set to true to create a new session if one does not already exist.
+    @return Session object
+    @ingroup WebsSession
+ */
 extern WebsSession *websGetSession(Webs *wp, int create);
+
+/**
+    Get a session variable
+    @param wp Webs request object
+    @param name Session variable name
+    @param defaultValue Default value to return if the variable does not exist
+    @return Session variable value or default value if it does not exist
+    @ingroup WebsSession
+ */
 extern char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
+
+/**
+    Remove a session variable
+    @param wp Webs request object
+    @param name Session variable name
+    @ingroup WebsSession
+ */
 extern void websRemoveSessionVar(Webs *wp, char *name);
+
+/**
+    Set a session variable name value
+    @param wp Webs request object
+    @param name Session variable name
+    @param value Value to set the variable to
+    @return Zero if successful, otherwise -1
+    @ingroup WebsSession
+ */
 extern int websSetSessionVar(Webs *wp, char *name, char *value);
 
 /************************************ Legacy **********************************/

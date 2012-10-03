@@ -252,9 +252,9 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     }
     route->handler = key->content.value.symbol;
 #if BIT_PAM
-    route->verify = websVerifyPamUser;
+    route->verify = websVerifyPamPassword;
 #else
-    route->verify = websVerifyUser;
+    route->verify = websVerifyPassword;
 #endif
     growRoutes();
     if (pos < 0) {
@@ -282,34 +282,6 @@ int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash meth
     route->extensions = extensions;
     route->methods = methods;
     route->redirects = redirects;
-    return 0;
-}
-
-
-int websSetRouteAuth(WebsRoute *route, char *auth)
-{
-    WebsParseAuth parseAuth;
-    WebsAskLogin  askLogin;
-
-    gassert(route);
-    gassert(auth && *auth);
-
-    askLogin = 0;
-    parseAuth = 0;
-    if (smatch(auth, "basic")) {
-        askLogin = websBasicLogin;
-        parseAuth = websParseBasicDetails;
-#if BIT_DIGEST
-    } else if (smatch(auth, "digest")) {
-        askLogin = websDigestLogin;
-        parseAuth = websParseDigestDetails;
-#endif
-    } else {
-        auth = 0;
-    }
-    route->authType = sclone(auth);
-    route->askLogin = askLogin;
-    route->parseAuth = parseAuth;
     return 0;
 }
 
@@ -559,7 +531,7 @@ int websLoad(char *path)
                     addOption(&abilities, value, 0);
                 }
             }
-            if (websAddRole(name, abilities) < 0) {
+            if (websAddRole(name, abilities) == 0) {
                 return -1;
             }
         } else {

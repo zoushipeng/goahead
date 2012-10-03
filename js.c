@@ -19,7 +19,7 @@ static int  jsMax = -1;     /* Maximum size of  */
 
 /****************************** Forward Declarations **************************/
 
-static Js       *jsPtr(int eid);
+static Js       *jsPtr(int jid);
 static void     clearString(char **ptr);
 static void     setString(char **ptr, char *s);
 static void     appendString(char **ptr, char *s);
@@ -45,21 +45,21 @@ static int      charConvert(Js *ep, int base, int maxDig);
 
 int jsOpenEngine(WebsHash variables, WebsHash functions)
 {
-    Js  *ep;
-    int     eid, vid;
+    Js      *ep;
+    int     jid, vid;
 
-    if ((eid = gallocObject(&jsHandles, &jsMax, sizeof(Js))) < 0) {
+    if ((jid = gallocObject(&jsHandles, &jsMax, sizeof(Js))) < 0) {
         return -1;
     }
-    ep = jsHandles[eid];
-    ep->eid = eid;
+    ep = jsHandles[jid];
+    ep->jid = jid;
 
     /*
         Create a top level symbol table if one is not provided for variables and functions. Variables may create other
         symbol tables for block level declarations so we use galloc to manage a list of variable tables.
      */
     if ((vid = gallocHandle(&ep->variables)) < 0) {
-        jsMax = gfreeHandle(&jsHandles, ep->eid);
+        jsMax = gfreeHandle(&jsHandles, ep->jid);
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -82,17 +82,17 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
     /*
         Define standard constants
      */
-    jsSetGlobalVar(ep->eid, "null", NULL);
-    return ep->eid;
+    jsSetGlobalVar(ep->jid, "null", NULL);
+    return ep->jid;
 }
 
 
-void jsCloseEngine(int eid)
+void jsCloseEngine(int jid)
 {
-    Js  *ep;
+    Js      *ep;
     int     i;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return;
     }
 
@@ -112,13 +112,13 @@ void jsCloseEngine(int eid)
     if (ep->flags & FLAGS_FUNCTIONS) {
         hashFree(ep->functions);
     }
-    jsMax = gfreeHandle(&jsHandles, ep->eid);
+    jsMax = gfreeHandle(&jsHandles, ep->jid);
     gfree(ep);
 }
 
 
 #if !ECOS && UNUSED
-char *jsEvalFile(int eid, char *path, char **emsg)
+char *jsEvalFile(int jid, char *path, char **emsg)
 {
     WebsStat    sbuf;
     Js          *ep;
@@ -130,11 +130,11 @@ char *jsEvalFile(int eid, char *path, char **emsg)
     if (emsg) {
         *emsg = NULL;
     }
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return NULL;
     }
     if ((fd = open(path, O_RDONLY | O_BINARY, 0666)) < 0) {
-        jsError(ep, "Bad handle %d", eid);
+        jsError(ep, "Bad handle %d", jid);
         return NULL;
     }
     if (stat(path, &sbuf) < 0) {
@@ -155,7 +155,7 @@ char *jsEvalFile(int eid, char *path, char **emsg)
     }
     script[sbuf.st_size] = '\0';
     close(fd);
-    rs = jsEvalBlock(eid, script, emsg);
+    rs = jsEvalBlock(jid, script, emsg);
     gfree(script);
     return rs;
 }
@@ -166,12 +166,12 @@ char *jsEvalFile(int eid, char *path, char **emsg)
     Create a new variable scope block so that consecutive jsEval calls may be made with the same varible scope. This
     space MUST be closed with jsCloseBlock when the evaluations are complete.
  */
-int jsOpenBlock(int eid)
+int jsOpenBlock(int jid)
 {
-    Js  *ep;
+    Js      *ep;
     int     vid;
 
-    if((ep = jsPtr(eid)) == NULL) {
+    if((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     if ((vid = gallocHandle(&ep->variables)) < 0) {
@@ -186,11 +186,11 @@ int jsOpenBlock(int eid)
 }
 
 
-int jsCloseBlock(int eid, int vid)
+int jsCloseBlock(int jid, int vid)
 {
     Js    *ep;
 
-    if((ep = jsPtr(eid)) == NULL) {
+    if((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     hashFree(ep->variables[vid] - JS_OFFSET);
@@ -204,25 +204,24 @@ int jsCloseBlock(int eid, int vid)
     Create a new variable scope block and evaluate a script. All variables
     created during this context will be automatically deleted when complete.
  */
-char *jsEvalBlock(int eid, char *script, char **emsg)
+char *jsEvalBlock(int jid, char *script, char **emsg)
 {
     char* returnVal;
     int     vid;
 
     gassert(script);
 
-    vid = jsOpenBlock(eid);
-    returnVal = jsEval(eid, script, emsg);
-    jsCloseBlock(eid, vid);
+    vid = jsOpenBlock(jid);
+    returnVal = jsEval(jid, script, emsg);
+    jsCloseBlock(jid, vid);
     return returnVal;
 }
 
 
 /*
-    Parse and evaluate Javascript. The caller may provide a symbol table to use for variables and function definitions.
-    Return char pointer on success otherwise NULL pointer is returned.
+    Parse and evaluate Javascript.
  */
-char *jsEval(int eid, char *script, char **emsg)
+char *jsEval(int jid, char *script, char **emsg)
 {
     Js      *ep;
     JsInput *oldBlock;
@@ -236,7 +235,7 @@ char *jsEval(int eid, char *script, char **emsg)
     if (emsg) {
         *emsg = NULL;
     } 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return NULL;
     }
     setString(&ep->result, "");
@@ -442,13 +441,13 @@ static int parseStmt(Js *ep, int state, int flags)
                 }
                 if (flags & FLAGS_EXE) {
                     if ( state == STATE_DEC ) {
-                        jsSetLocalVar(ep->eid, identifier, ep->result);
+                        jsSetLocalVar(ep->jid, identifier, ep->result);
                     } else {
-                        jsVarType = jsGetVar(ep->eid, identifier, &value);
+                        jsVarType = jsGetVar(ep->jid, identifier, &value);
                         if (jsVarType > 0) {
-                            jsSetLocalVar(ep->eid, identifier, ep->result);
+                            jsSetLocalVar(ep->jid, identifier, ep->result);
                         } else {
-                            jsSetGlobalVar(ep->eid, identifier, ep->result);
+                            jsSetGlobalVar(ep->jid, identifier, ep->result);
                         }
                     }
                 }
@@ -456,7 +455,7 @@ static int parseStmt(Js *ep, int state, int flags)
             } else if (tid == TOK_INC_DEC ) {
                 value = NULL;
                 if (flags & FLAGS_EXE) {
-                    jsVarType = jsGetVar(ep->eid, identifier, &value);
+                    jsVarType = jsGetVar(ep->jid, identifier, &value);
                     if (jsVarType < 0) {
                         jsError(ep, "Undefined variable %s\n", identifier);
                         goto error;
@@ -468,9 +467,9 @@ static int parseStmt(Js *ep, int state, int flags)
                     }
 
                     if (jsVarType > 0) {
-                        jsSetLocalVar(ep->eid, identifier, ep->result);
+                        jsSetLocalVar(ep->jid, identifier, ep->result);
                     } else {
-                        jsSetGlobalVar(ep->eid, identifier, ep->result);
+                        jsSetGlobalVar(ep->jid, identifier, ep->result);
                     }
                 }
 
@@ -480,16 +479,16 @@ static int parseStmt(Js *ep, int state, int flags)
                  */
                 value = NULL;
                 if (state == STATE_DEC) {
-                    if (jsGetVar(ep->eid, identifier, &value) > 0) {
+                    if (jsGetVar(ep->jid, identifier, &value) > 0) {
                         jsError(ep, "Variable already declared",
                             identifier);
                         clearString(&identifier);
                         goto error;
                     }
-                    jsSetLocalVar(ep->eid, identifier, NULL);
+                    jsSetLocalVar(ep->jid, identifier, NULL);
                 } else {
                     if ( flags & FLAGS_EXE ) {
-                        if (jsGetVar(ep->eid, identifier, &value) < 0) {
+                        if (jsGetVar(ep->jid, identifier, &value) < 0) {
                             jsError(ep, "Undefined variable %s\n",
                                 identifier);
                             clearString(&identifier);
@@ -1228,7 +1227,7 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
 static int evalFunction(Js *ep)
 {
     WebsKey   *sp;
-    int     (*fn)(int eid, void *handle, int argc, char **argv);
+    int     (*fn)(int jid, void *handle, int argc, char **argv);
 
     if ((sp = hashLookup(ep->functions, ep->func->fname)) == NULL) {
         jsError(ep, "Undefined procedure %s", ep->func->fname);
@@ -1239,7 +1238,7 @@ static int evalFunction(Js *ep)
         jsError(ep, "Undefined procedure %s", ep->func->fname);
         return -1;
     }
-    return (*fn)(ep->eid, ep->userHandle, ep->func->nArgs, ep->func->args);
+    return (*fn)(ep->jid, ep->userHandle, ep->func->nArgs, ep->func->args);
 }
 
 
@@ -1316,11 +1315,11 @@ static void appendString(char **ptr, char *s)
 /*
     Define a function
  */
-int jsSetGlobalFunction(int eid, char *name, JsProc fn)
+int jsSetGlobalFunction(int jid, char *name, JsProc fn)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     return jsSetGlobalFunctionDirect(ep->functions, name, fn);
@@ -1330,7 +1329,7 @@ int jsSetGlobalFunction(int eid, char *name, JsProc fn)
 /*
     Define a function directly into the function symbol table.
  */
-int jsSetGlobalFunctionDirect(WebsHash functions, char *name, int (*fn)(int eid, void *handle, int argc, char **argv))
+int jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn)
 {
     if (hashEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
@@ -1342,24 +1341,24 @@ int jsSetGlobalFunctionDirect(WebsHash functions, char *name, int (*fn)(int eid,
 /*
     Remove ("undefine") a function
  */
-int jsRemoveGlobalFunction(int eid, char *name)
+int jsRemoveGlobalFunction(int jid, char *name)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     return hashDelete(ep->functions, name);
 }
 
 
-void *jsGetGlobalFunction(int eid, char *name)
+void *jsGetGlobalFunction(int jid, char *name)
 {
-    Js  *ep;
-    WebsKey   *sp;
-    int     (*fn)(int eid, void *handle, int argc, char **argv);
+    Js      *ep;
+    WebsKey *sp;
+    int     (*fn)(int jid, void *handle, int argc, char **argv);
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return NULL;
     }
 
@@ -1423,55 +1422,55 @@ int jsArgs(int argc, char **argv, char *fmt, ...)
 }
 
 
-void jsSetUserHandle(int eid, void* handle)
+void jsSetUserHandle(int jid, void* handle)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return;
     }
     ep->userHandle = handle;
 }
 
 
-void* jsGetUserHandle(int eid)
+void* jsGetUserHandle(int jid)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return NULL;
     }
     return ep->userHandle;
 }
 
 
-int jsGetLineNumber(int eid)
+int jsGetLineNumber(int jid)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     return ep->input->lineNumber;
 }
 
 
-void jsSetResult(int eid, char *s)
+void jsSetResult(int jid, char *s)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return;
     }
     setString(&ep->result, s);
 }
 
 
-char *jsGetResult(int eid)
+char *jsGetResult(int jid)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return NULL;
     }
     return ep->result;
@@ -1481,14 +1480,14 @@ char *jsGetResult(int eid)
     Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
     top-most variable frame.  
  */
-void jsSetVar(int eid, char *var, char *value)
+void jsSetVar(int jid, char *var, char *value)
 {
-    Js      *ep;
-    WebsValue     v;
+    Js          *ep;
+    WebsValue   v;
 
     gassert(var && *var);
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return;
     }
     if (value == NULL) {
@@ -1504,17 +1503,16 @@ void jsSetVar(int eid, char *var, char *value)
     Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the top-most variable frame.  
  */
-void jsSetLocalVar(int eid, char *var, char *value)
+void jsSetLocalVar(int jid, char *var, char *value)
 {
-    Js      *ep;
-    WebsValue     v;
+    Js          *ep;
+    WebsValue   v;
 
     gassert(var && *var);
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return;
     }
-
     if (value == NULL) {
         v = valueString(value, 0);
     } else {
@@ -1528,14 +1526,14 @@ void jsSetLocalVar(int eid, char *var, char *value)
     Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the global variable frame.  
  */
-void jsSetGlobalVar(int eid, char *var, char *value)
+void jsSetGlobalVar(int jid, char *var, char *value)
 {
-    Js      *ep;
-    WebsValue     v;
+    Js          *ep;
+    WebsValue   v;
 
     gassert(var && *var);
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return;
     }
     if (value == NULL) {
@@ -1550,19 +1548,18 @@ void jsSetGlobalVar(int eid, char *var, char *value)
 /*
     Get a variable
  */
-int jsGetVar(int eid, char *var, char **value)
+int jsGetVar(int jid, char *var, char **value)
 {
-    Js      *ep;
-    WebsKey       *sp;
+    Js          *ep;
+    WebsKey     *sp;
     int         i;
 
     gassert(var && *var);
     gassert(value);
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
-
     i = ep->variableMax - 1;
     if ((sp = hashLookup(ep->variables[i] - JS_OFFSET, var)) == NULL) {
         i = 0;
@@ -1576,22 +1573,22 @@ int jsGetVar(int eid, char *var, char **value)
 }
 
 
-WebsHash jsGetVariableTable(int eid)
+WebsHash jsGetVariableTable(int jid)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     return *ep->variables;
 }
 
 
-WebsHash jsGetFunctionTable(int eid)
+WebsHash jsGetFunctionTable(int jid)
 {
     Js    *ep;
 
-    if ((ep = jsPtr(eid)) == NULL) {
+    if ((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
     return ep->functions;
@@ -1619,15 +1616,15 @@ static void freeFunc(JsFun *func)
 /*
     Get Javascript engine pointer
  */
-static Js *jsPtr(int eid)
+static Js *jsPtr(int jid)
 {
-    gassert(0 <= eid && eid < jsMax);
+    gassert(0 <= jid && jid < jsMax);
 
-    if (eid < 0 || eid >= jsMax || jsHandles[eid] == NULL) {
-        jsError(NULL, "Bad handle %d", eid);
+    if (jid < 0 || jid >= jsMax || jsHandles[jid] == NULL) {
+        jsError(NULL, "Bad handle %d", jid);
         return NULL;
     }
-    return jsHandles[eid];
+    return jsHandles[jid];
 }
 
 

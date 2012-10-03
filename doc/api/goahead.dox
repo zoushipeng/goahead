@@ -1270,6 +1270,7 @@ PREDEFINED             = WIN=1 \
                          BIT_CGI=1 \
                          BIT_JAVASCRIPT=1 \
                          BIT_UPLOAD=1 \
+                         BIT_ROM=1 \
                          DOXYGEN=1
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 

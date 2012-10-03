@@ -385,27 +385,27 @@ void websComputeAllUserAbilities()
 }
 
 
-int websAddRole(char *name, WebsHash abilities)
+WebsRole *websAddRole(char *name, WebsHash abilities)
 {
     WebsRole    *rp;
 
     if (!name) {
         error("Role is missing name");
-        return -1;
+        return 0;
     }
     if (hashLookup(roles, name)) {
         error("Role %s already exists", name);
         /* Already exists */
-        return -1;
+        return 0;
     }
     if ((rp = galloc(sizeof(WebsRole))) == 0) {
-        return -1;
+        return 0;
     }
     rp->abilities = abilities;
     if (hashEnter(roles, name, valueSymbol(rp), 0) == 0) {
-        return -1;
+        return 0;
     }
-    return 0;
+    return rp;
 }
 
 
@@ -439,7 +439,7 @@ int websRemoveRole(char *name)
 }
 
 
-
+#if UNUSED && KEEP
 WebsHash websGetUsers()
 {
     return users;
@@ -450,6 +450,7 @@ WebsHash websGetRoles()
 {
     return roles;
 }
+#endif
 
 
 bool websLoginUser(Webs *wp, char *username, char *password)
@@ -516,7 +517,7 @@ static void logoutServiceProc(Webs *wp)
 }
 
 
-void websBasicLogin(Webs *wp)
+static void basicLogin(Webs *wp)
 {
     gassert(wp);
     gassert(wp->route);
@@ -525,7 +526,7 @@ void websBasicLogin(Webs *wp)
 }
 
 
-bool websVerifyUser(Webs *wp)
+bool websVerifyPassword(Webs *wp)
 {
     char      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
     bool        success;
@@ -573,7 +574,7 @@ static int jsCan(int jsid, Webs *wp, int argc, char **argv)
 #endif
 
 
-bool websParseBasicDetails(Webs *wp)
+static bool parseBasicDetails(Webs *wp)
 {
     char    *cp, *userAuth;
 
@@ -599,7 +600,7 @@ bool websParseBasicDetails(Webs *wp)
 
 
 #if BIT_DIGEST
-void websDigestLogin(Webs *wp)
+static void digestLogin(Webs *wp)
 {
     char  *nonce, *opaque;
 
@@ -616,7 +617,7 @@ void websDigestLogin(Webs *wp)
 }
 
 
-bool websParseDigestDetails(Webs *wp)
+static bool parseDigestDetails(Webs *wp)
 {
     WebsTime    when;
     char        *value, *tok, *key, *dp, *sp, *secret, *realm;
@@ -871,7 +872,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 
 
 #if BIT_HAS_PAM && BIT_PAM
-bool websVerifyPamUser(Webs *wp)
+bool websVerifyPamPassword(Webs *wp)
 {
     WebsBuf             abilities;
     pam_handle_t        *pamh;
@@ -971,6 +972,35 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     return PAM_SUCCESS;
 }
 #endif /* BIT_HAS_PAM */
+
+
+int websSetRouteAuth(WebsRoute *route, char *auth)
+{
+    WebsParseAuth parseAuth;
+    WebsAskLogin  askLogin;
+
+    gassert(route);
+    gassert(auth && *auth);
+
+    askLogin = 0;
+    parseAuth = 0;
+    if (smatch(auth, "basic")) {
+        askLogin = basicLogin;
+        parseAuth = parseBasicDetails;
+#if BIT_DIGEST
+    } else if (smatch(auth, "digest")) {
+        askLogin = digestLogin;
+        parseAuth = parseDigestDetails;
+#endif
+    } else {
+        auth = 0;
+    }
+    route->authType = sclone(auth);
+    route->askLogin = askLogin;
+    route->parseAuth = parseAuth;
+    return 0;
+}
+
 
 /*
     @copy   default
