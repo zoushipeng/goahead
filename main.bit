@@ -23,7 +23,7 @@ Bit.load({
         title: 'Embedthis GoAhead',
         company: 'Embedthis',
         version: '3.0.0',
-        buildNumber: '0',
+        buildNumber: 'B0',
         packs: [ 'bits/packs' ]
 
         /*

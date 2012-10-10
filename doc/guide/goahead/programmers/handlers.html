@@ -104,49 +104,47 @@ websWriteEndHeaders(wp);
 websWriteBlock(wp, buf, len);
 websDone(wp);
 </pre>
-            <p>The websWrite routine will always accept and buffer the data. But it will limit the amount of
+                <p>The websWriteBlock function will buffer written data that will be written to the client in the
+                background.</p>
 
             <a id="errors"></a>
             <h3>Generating an Error Response</h3>
-            <p>If the request has an error, the status and a response message may be set via:
-                <a href="../../../api/http.html#group___http_conn_1ga9f730354501b53a97b7678a91273a3be">httpError</a>.
-                When httpError is called to indicate a request error, the supplied response text is used instead of
+            <p>If the request has an error, the status and a response message may be set in one step via:
+                <a href="../../../api/goahead.html#group___webs_1ga3a9158494088fc25249543e69481e00e">websError</a>.
+                When websError is called to indicate a request error, the supplied response text is used instead of
                 any partially generated response body and the the connection field <em>conn-&gt;error</em> is set. Once
                 set, pipeline processing is abbreviated and handler callbacks will not be called anymore. Consequently, if
                 you need to continue handler processing, but want to set a non-zero status return code, do <i>not</i>
-                use httpError. Rather, use httpSetStatus.</p>
+                use websError. Rather, use websSetStatus.</p>
 <pre>
-httpError(conn, 200, HTTP_CODE_GONE, "Can't find %s", path);
+websError(conn, 404, "Can't find %s", path);
 </pre>
                 <h4>Aborting Requests</h4>
-                <p>The status argument to httpError can also accept flags to control how the socket connection is
-                managed. If HTTP_ABORT is supplied, the request will be aborted and the connection will be
-                immediately closed. The supplied message will be logged but not transmitted.
-                When a request encounters an error after generating the status and headers, the only way to indicate
-                an error to the client is to prematurely close the connection. The browser should notice this and
-                discard the response. The HTTP_CLOSE flag may be used to indicate the connection should be closed at the
-                orderly completion of the request. Normally the connection is kept-open for subsequent requests on the
-                same socket.</p>
+                <p>The status argument to websError can also accept flags to control how the socket connection is
+                managed. If WEBS_CLOSE is supplied, the connection will be closed when the request is completed. 
+                Normally the connection is kept-open for subsequent requests on the same socket.</p>
 <pre>
-httpError(conn, 504, HTTP_ABOR, "Can't continue with the request");
+websError(conn, 404 | WEBS_CLOSE, "Protocol error");
 </pre>
             <a id="redirecting"></a>
             <h3>Redirecting</h3>
             <p>Sometimes a handler will want to generate a response that will redirect the client to a new URI.
-            Use the <a href="../../../api/http.html#group___http_tx_1ga616290c9e8fe95419d3a31f6fbb870b5">httpRedirect</a> call 
+            Use the 
+            <a href="../../../api/goahead.html#group___webs_1ga2a3e594ef28c12f3be0d7b54461af36e">websRedirect</a> call 
             to redirect the client. For example:
-            <pre>httpRedirect(conn, HTTP_CODE_MOVED_PERMANENTLY, uri);</pre>
+            <pre>websRedirect(wp, WEBS_CODE_MOVED_PERMANENTLY, uri);</pre>
+
             <h3>Generating Response Body</h3>
             <p>The simplest way to generate a response is to use 
-            <a href="../../../api/http.html#group___http_queue_1ga5599a178a2bab73929795952231d6e6a">httpWrite</a>. 
+            <a href="../../../">websWrite</a>. 
             This is effective if the total response content can be buffered in the pipeline and socket without blocking.
-            (Typically 64K or less depending on LimitStageBuffer in goahead.conf). The httpWrite routine will
+            (Typically 64K or less depending on LimitStageBuffer in goahead.conf). The websWrite routine will
             automatically flush data as required. When all the data has been written, call:
             <a href="../../../api/http.html#group___http_tx_1ga279ad49e5163402e2afd6caf478bcc70">httpFinalize</a>. This
             finalizes the output response data by sending an empty packet to the network connector which signifies 
             the completion of the request.</p>
         <pre>
-httpWrite(conn, "Hello World\n");
+websWrite(conn, "Hello World\n");
 httpFinalize(conn);
 </pre>
             <a id="nonblocking"></a>
@@ -179,7 +177,7 @@ static void writable(HttpQueue *q)
     if (finished) {
         httpFinalize(q-&gt;conn);
     } else {
-        httpWriteString(q, getMoreData(q));
+        websWriteString(q, getMoreData(q));
     }
 }
 </pre>
@@ -193,7 +191,7 @@ static void writable(HttpQueue *q)
         <p>In summary, a handler may use one of several paradigms to implement how it responds to requests.</p>
         <h3>Blocking</h3>
         <p>A handler may generate its entire response in its start(), or ready() callback and will block if required while
-        output drains to the client. In this paradigm, httpWrite is typically used and GoAhead will automatically buffer
+        output drains to the client. In this paradigm, websWrite is typically used and GoAhead will automatically buffer
         the response if required.  If the response is shorter than available buffering (typically 64K), the request
         should not block. After the handler has written all the data, it will return immediately and GoAhead will use its event
         mechanism to manage completing the request. For such short requests, this is highly efficient.</p>

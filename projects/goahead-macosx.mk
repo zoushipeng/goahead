@@ -88,110 +88,110 @@ $(CONFIG)/obj/auth.o: \
         auth.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/auth.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include auth.c
+	$(CC) -c -o $(CONFIG)/obj/auth.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc auth.c
 
 $(CONFIG)/obj/cgi.o: \
         cgi.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/cgi.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include cgi.c
+	$(CC) -c -o $(CONFIG)/obj/cgi.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc cgi.c
 
 $(CONFIG)/obj/crypt.o: \
         crypt.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include crypt.c
+	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc crypt.c
 
 $(CONFIG)/obj/file.o: \
         file.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include file.c
+	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc file.c
 
 $(CONFIG)/obj/galloc.o: \
         galloc.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/galloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include galloc.c
+	$(CC) -c -o $(CONFIG)/obj/galloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc galloc.c
 
 $(CONFIG)/obj/http.o: \
         http.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc http.c
 
 $(CONFIG)/obj/js.o: \
         js.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/js.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include js.c
+	$(CC) -c -o $(CONFIG)/obj/js.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc js.c
 
 $(CONFIG)/obj/jst.o: \
         jst.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/jst.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include jst.c
+	$(CC) -c -o $(CONFIG)/obj/jst.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc jst.c
 
 $(CONFIG)/obj/matrixssl.o: \
         matrixssl.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include matrixssl.c
+	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc matrixssl.c
 
 $(CONFIG)/obj/openssl.o: \
         openssl.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/openssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include openssl.c
+	$(CC) -c -o $(CONFIG)/obj/openssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc openssl.c
 
 $(CONFIG)/obj/options.o: \
         options.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/options.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include options.c
+	$(CC) -c -o $(CONFIG)/obj/options.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc options.c
 
 $(CONFIG)/obj/proc.o: \
         proc.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/proc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include proc.c
+	$(CC) -c -o $(CONFIG)/obj/proc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc proc.c
 
 $(CONFIG)/obj/rom-documents.o: \
         rom-documents.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include rom-documents.c
+	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc rom-documents.c
 
 $(CONFIG)/obj/rom.o: \
         rom.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include rom.c
+	$(CC) -c -o $(CONFIG)/obj/rom.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc rom.c
 
 $(CONFIG)/obj/route.o: \
         route.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/route.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include route.c
+	$(CC) -c -o $(CONFIG)/obj/route.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc route.c
 
 $(CONFIG)/obj/runtime.o: \
         runtime.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/runtime.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include runtime.c
+	$(CC) -c -o $(CONFIG)/obj/runtime.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc runtime.c
 
 $(CONFIG)/obj/socket.o: \
         socket.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/socket.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include socket.c
+	$(CC) -c -o $(CONFIG)/obj/socket.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc socket.c
 
 $(CONFIG)/obj/upload.o: \
         upload.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include upload.c
+	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc upload.c
 
 $(CONFIG)/bin/libgo.a:  \
         $(CONFIG)/inc/goahead.h \
@@ -220,53 +220,53 @@ $(CONFIG)/obj/goahead.o: \
         goahead.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include goahead.c
+	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
 
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/bin/libgo.a \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/goahead.o
-	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/goahead.o -lgo $(LIBS) -lssl -lcrypto -lssl -lcrypto
+	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS)
 
 $(CONFIG)/obj/test.o: \
         test/test.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include test/test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/bin/libgo.a \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/test.o
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/test.o -lgo $(LIBS) -lssl -lcrypto -lssl -lcrypto
+	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS)
 
 $(CONFIG)/obj/gopass.o: \
         utils/gopass.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include utils/gopass.c
+	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
 
 $(CONFIG)/bin/gopass:  \
         $(CONFIG)/bin/libgo.a \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/gopass.o
-	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/gopass.o -lgo $(LIBS) -lssl -lcrypto -lssl -lcrypto
+	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS)
 
 $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -I../packages-macosx-x64/openssl/openssl-1.0.1b/include utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/webcomp.o
-	$(CC) -o $(CONFIG)/bin/webcomp -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L../packages-macosx-x64/openssl/openssl-1.0.1b $(CONFIG)/obj/webcomp.o $(LIBS) -lssl -lcrypto
+	$(CC) -o $(CONFIG)/bin/webcomp -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS)
 
 $(CONFIG)/obj/cgitest.o: \
         test/cgitest.c \

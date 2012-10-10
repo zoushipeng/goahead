@@ -197,8 +197,8 @@ static void     checkTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
-static bool     parseFirstLine(Webs *wp);
-static bool     parseHeaders(Webs *wp);
+static void     parseFirstLine(Webs *wp);
+static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 extern bool     parseIncoming(Webs *wp);
 extern bool     processParsed(Webs *wp);
@@ -915,8 +915,7 @@ bool parseIncoming(Webs *wp)
 /*
     Parse the first line of a HTTP request
  */
-//  MOB - change to void
-static bool parseFirstLine(Webs *wp)
+static void parseFirstLine(Webs *wp)
 {
     char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
     int     testPort;
@@ -930,18 +929,18 @@ static bool parseFirstLine(Webs *wp)
     op = getToken(wp, 0);
     if (op == NULL || *op == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 1;
+        return;
     }
     wp->method = supper(strdup(op));
 
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 1;
+        return;
     }
     if (strlen(url) > BIT_LIMIT_URI) {
         websError(wp, 400 | WEBS_CLOSE, "URI too big");
-        return 1;
+        return;
     }
     protoVer = getToken(wp, "\r\n");
 
@@ -953,18 +952,17 @@ static bool parseFirstLine(Webs *wp)
     host = path = port = query = ext = NULL;
     if (websUrlParse(url, &buf, NULL, &host, &port, &path, &ext, NULL, &query) < 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
-        return 1;
+        return;
     }
     if ((wp->path = websNormalizeUriPath(path)) == 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
         gfree(buf);
-        return 1;
+        return;
     }
     wp->url = strdup(url);
     if (ext) {
         wp->ext = sclone(slower(ext));
     }
-    //  MOB - these should be updated based on the route?
     wp->filename = sfmt("%s%s", websGetDocuments(), wp->path);
 
     wp->query = sclone(query);
@@ -982,15 +980,13 @@ static bool parseFirstLine(Webs *wp)
         wp->port = atoi(port);
     }
     gfree(buf);
-    return 1;
 }
 
 
 /*
     Parse a full request
  */
-//  MOB - change to void
-static bool parseHeaders(Webs *wp)
+static void parseHeaders(Webs *wp)
 {
     char    *upperKey, *cp, *key, *value, *tok;
     int     count;
@@ -1005,7 +1001,7 @@ static bool parseHeaders(Webs *wp)
     for (count = 0; wp->rxbuf.servp[0] != '\r'; count++) {
         if (count >= BIT_LIMIT_NUM_HEADERS) {
             websError(wp, 400 | WEBS_CLOSE, "Too many headers");
-            return 0;
+            return;
         }
         if ((key = getToken(wp, ":")) == NULL) {
             continue;
@@ -1015,7 +1011,7 @@ static bool parseHeaders(Webs *wp)
         }
         if (!key || !value) {
             websError(wp, 400 | WEBS_CLOSE, "Bad header format");
-            return 1;
+            return;
         }
         while (isspace(*value)) {
             value++;
@@ -1059,7 +1055,7 @@ static bool parseHeaders(Webs *wp)
             wp->rxLen = atoi(value);
             if (wp->rxLen > BIT_LIMIT_RX_BODY) {
                 websError(wp, 413 | WEBS_CLOSE, "Too big");
-                return 1;
+                return;
             }
             if (wp->rxLen > 0 && !smatch(wp->method, "HEAD")) {
                 wp->rxRemaining = wp->rxLen;
@@ -1115,7 +1111,6 @@ static bool parseHeaders(Webs *wp)
         wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
-    return 1;
 }
 
 
@@ -1675,7 +1670,7 @@ char *websEscapeHtml(char *html)
 void websError(Webs *wp, int code, char *fmt, ...)
 {
     va_list     args;
-    char        *userMsg, *buf;
+    char        *msg, *buf;
     char        *encoded;
 
     gassert(wp);
@@ -1695,18 +1690,18 @@ void websError(Webs *wp, int code, char *fmt, ...)
 
     if (fmt) {
         va_start(args, fmt);
-        userMsg = sfmtv(fmt, args);
+        msg = sfmtv(fmt, args);
         va_end(args);
-        error("%s", userMsg);
+        error("%s", msg);
 
-        encoded = websEscapeHtml(userMsg);
-        gfree(userMsg);
-        userMsg = encoded;
+        encoded = websEscapeHtml(msg);
+        gfree(msg);
+        msg = encoded;
 
         buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
             <body><h2>Access Error: %s</h2>\r\n\
-            <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), userMsg);
-        gfree(userMsg);
+            <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
+        gfree(msg);
     } else {
         buf = 0;
     }
@@ -2107,12 +2102,6 @@ ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     written = len = 0;
 
     while (size > 0) {  
-#if UNUSED
-        /* Buffer may call flush which can fail if the connection is closed */
-        if (wp->state == WEBS_COMPLETE) {
-            return -1;
-        }
-#endif
         if (bufRoom(op) < size) {
             websFlush(wp);
         }
