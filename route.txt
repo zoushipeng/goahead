@@ -32,12 +32,12 @@
 #   Eanable the PUT or DELETE methods (only) for the /put directory
 #       route uri=/put/ methods=PUT|DELETE
 #
-#   Standard routes. Uncomment to enable if required.
+#   Standard routes
 #
-#       route uri=/cgi-bin handler=cgi
-#       route uri=/proc handler=proc
-#       route uri=/ extensions=asp handler=js
-#       route uri=/ methods=OPTIONS|TRACE handler=options
+route uri=/cgi-bin handler=cgi
+route uri=/proc handler=proc
+route uri=/ extensions=jst,asp handler=js
+route uri=/ methods=OPTIONS|TRACE handler=options
 
 #
 #   Catch-all route without authentication for all other URIs

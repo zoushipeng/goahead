@@ -266,7 +266,7 @@ int websOpen(char *documents, char *routeFile)
     websUploadOpen();
 #endif
 #if BIT_JAVASCRIPT
-    websJsOpen();
+    websJstOpen();
 #endif
     if (websOpenAuth(0) < 0) {
         return -1;

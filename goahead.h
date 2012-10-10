@@ -750,6 +750,10 @@ extern "C" {
     #define F_OK    0
 #endif
 
+#ifndef SHUT_RDWR
+    #define SHUT_RDWR 2
+#endif
+
 #ifndef O_RDONLY
     #if ECOS
         #define     O_RDONLY  1
@@ -3486,7 +3490,7 @@ extern int websProcessCgiData(Webs *wp);
     @return Return zero if successful, otherwise -1.
     @ingroup Webs
  */
-typedef int (*WebsJsProc)(int jid, Webs *wp, int argc, char **argv);
+typedef int (*WebsJstProc)(int jid, Webs *wp, int argc, char **argv);
 
 /**
     Define a Javscript native function.
@@ -3497,14 +3501,14 @@ typedef int (*WebsJsProc)(int jid, Webs *wp, int argc, char **argv);
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern int websJsDefine(char *name, WebsJsProc fn);
+extern int websJstDefine(char *name, WebsJstProc fn);
 
 /**
     Open the Javascript module.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern int websJsOpen();
+extern int websJstOpen();
 
 /**
     Write data to the response
@@ -3515,7 +3519,7 @@ extern int websJsOpen();
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern int websJsWrite(int jid, Webs *wp, int argc, char **argv);
+extern int websJstWrite(int jid, Webs *wp, int argc, char **argv);
 #endif
 
 /*************************************** SSL ***********************************/
@@ -3919,7 +3923,6 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
  */
 #if BIT_LEGACY
     #define B_L 0
-    #define WEBS_ASP WEBS_JS
     #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
     #define a_assert gassert
     #define balloc galloc
@@ -4006,9 +4009,9 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define stritoa gstritoa
     #define strlower gstrlower
     #define strupper gstrupper
-    #define websAspDefine websJsDefine
-    #define websAspOpen websJsOpen
-    #define websAspRequest websJsRequest
+    #define websAspDefine websJstDefine
+    #define websAspOpen websJstOpen
+    #define websAspRequest websJstRequest
     #define websFormDefine websProcDefine
     #define websGetDefaultDir websGetDocuments
     #define websGetDefaultPage websGetIndex

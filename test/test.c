@@ -136,8 +136,8 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);
 #endif
 #if BIT_JAVASCRIPT
-    websJsDefine("aspTest", aspTest);
-    websJsDefine("bigTest", bigTest);
+    websJstDefine("aspTest", aspTest);
+    websJstDefine("bigTest", bigTest);
 #endif
     websProcDefine("test", procTest);
     websProcDefine("sessionTest", sessionTest);

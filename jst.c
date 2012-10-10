@@ -1,5 +1,5 @@
 /*
-    template.c -- JavaScript web page templates
+    jst.c -- JavaScript templates
   
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -12,7 +12,7 @@
 #if BIT_JAVASCRIPT
 /********************************** Locals ************************************/
 
-static WebsHash websJsFunctions = -1;  /* Symbol table of functions */
+static WebsHash websJstFunctions = -1;  /* Symbol table of functions */
 
 /***************************** Forward Declarations ***************************/
 
@@ -24,7 +24,7 @@ static char *skipWhite(char *s);
     Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
  */
-static bool jsHandler(Webs *wp)
+static bool jstHandler(Webs *wp)
 {
     WebsFileInfo    sbuf;
     char            *token, *lang, *result, *ep, *cp, *buf, *nextp, *last;
@@ -35,12 +35,14 @@ static bool jsHandler(Webs *wp)
     gassert(wp->filename && *wp->filename);
     gassert(wp->ext && *wp->ext);
 
+#if UNUSED
     if (!smatch(wp->ext, ".asp")) {
         return 0;
     }
+#endif
     buf = NULL;
 
-    if ((jid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
+    if ((jid = jsOpenEngine(wp->vars, websJstFunctions)) < 0) {
         websError(wp, 200, "Can't create JavaScript engine");
         goto done;
     }
@@ -168,20 +170,20 @@ done:
 }
 
 
-static void closeJs()
+static void closeJst()
 {
-    if (websJsFunctions != -1) {
-        hashFree(websJsFunctions);
-        websJsFunctions = -1;
+    if (websJstFunctions != -1) {
+        hashFree(websJstFunctions);
+        websJstFunctions = -1;
     }
 }
 
 
-int websJsOpen()
+int websJstOpen()
 {
-    websJsFunctions = hashCreate(WEBS_HASH_INIT * 2);
-    websJsDefine("write", websJsWrite);
-    websDefineHandler("js", jsHandler, closeJs, 0);
+    websJstFunctions = hashCreate(WEBS_HASH_INIT * 2);
+    websJstDefine("write", websJstWrite);
+    websDefineHandler("jst", jstHandler, closeJst, 0);
     return 0;
 }
 
@@ -189,16 +191,16 @@ int websJsOpen()
 /*
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-int websJsDefine(char *name, WebsJsProc fn)
+int websJstDefine(char *name, WebsJstProc fn)
 {
-    return jsSetGlobalFunctionDirect(websJsFunctions, name, (JsProc) fn);
+    return jsSetGlobalFunctionDirect(websJstFunctions, name, (JsProc) fn);
 }
 
 
 /*
     Javascript write command. This implemements <% write("text"); %> command
  */
-int websJsWrite(int jid, Webs *wp, int argc, char **argv)
+int websJstWrite(int jid, Webs *wp, int argc, char **argv)
 {
     int     i;
 
