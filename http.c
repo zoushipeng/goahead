@@ -506,8 +506,6 @@ int websAlloc(int sid)
 
 static void reuseConn(Webs *wp)
 {
-    WebsBuf     rxbuf;
-
     gassert(wp);
     gassert(websValid(wp));
 
@@ -515,7 +513,6 @@ static void reuseConn(Webs *wp)
     if (bufLen(&wp->rxbuf)) {
         socketReservice(wp->sid);
     }
-    rxbuf = wp->rxbuf;
     termWebs(wp, 1);
     initWebs(wp, wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11), 1);
 }
@@ -3397,7 +3394,6 @@ static void freeSession(WebsSession *sp)
 
 WebsSession *websGetSession(Webs *wp, int create)
 {
-    WebsSocket  *sp;
     WebsKey     *sym;
     char        *id;
     
@@ -3421,7 +3417,6 @@ WebsSession *websGetSession(Webs *wp, int create)
                 return 0;
             }
             wp->session = (WebsSession*) sym->content.value.symbol;
-            sp = socketPtr(wp->sid);
             websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, 0);
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
