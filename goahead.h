@@ -3436,7 +3436,7 @@ extern ssize websWrite(Webs *wp, char *fmt, ...);
     @param wp Webs request object
     @param buf Buffer of data to write
     @param size Length of buf
-    @return Count of bytes written
+    @return Count of bytes written. This will always equal size if there are not errors.
     @ingroup Webs
  */
 extern ssize websWriteBlock(Webs *wp, char *buf, ssize size);

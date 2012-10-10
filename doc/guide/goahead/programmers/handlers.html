@@ -39,7 +39,6 @@
                 <li><a href="#responses">Generating Responses</a></li>
                 <li><a href="#errors">Generating Errors</a></li>
                 <li><a href="#redirecting">Redirecting</a></li>
-                <li><a href="#nonblocking">Non-Blocking</a></li>
                 <li><a href="#paradigms">Response Paradigms</a></li>
                 <li><a href="#coding">Coding Issues</a></li>
                 <li><a href="#defining">Defining a Handler</a></li>
@@ -104,154 +103,47 @@ websWriteEndHeaders(wp);
 websWriteBlock(wp, buf, len);
 websDone(wp);
 </pre>
-            <p>The websWrite routine will always accept and buffer the data. But it will limit the amount of
-
+                <p>The websWriteBlock function will buffer written data that will be written to the client in the
+                background.</p>
             <a id="errors"></a>
             <h3>Generating an Error Response</h3>
-            <p>If the request has an error, the status and a response message may be set via:
-                <a href="../../../api/http.html#group___http_conn_1ga9f730354501b53a97b7678a91273a3be">httpError</a>.
-                When httpError is called to indicate a request error, the supplied response text is used instead of
+            <p>If the request has an error, the status and a response message may be set in one step via:
+                <a href="../../../api/goahead.html#group___webs_1ga3a9158494088fc25249543e69481e00e">websError</a>.
+                When websError is called to indicate a request error, the supplied response text is used instead of
                 any partially generated response body and the the connection field <em>conn-&gt;error</em> is set. Once
                 set, pipeline processing is abbreviated and handler callbacks will not be called anymore. Consequently, if
                 you need to continue handler processing, but want to set a non-zero status return code, do <i>not</i>
-                use httpError. Rather, use httpSetStatus.</p>
+                use websError. Rather, use websSetStatus.</p>
 <pre>
-httpError(conn, 200, HTTP_CODE_GONE, "Can't find %s", path);
+websError(conn, 404, "Can't find %s", path);
 </pre>
                 <h4>Aborting Requests</h4>
-                <p>The status argument to httpError can also accept flags to control how the socket connection is
-                managed. If HTTP_ABORT is supplied, the request will be aborted and the connection will be
-                immediately closed. The supplied message will be logged but not transmitted.
-                When a request encounters an error after generating the status and headers, the only way to indicate
-                an error to the client is to prematurely close the connection. The browser should notice this and
-                discard the response. The HTTP_CLOSE flag may be used to indicate the connection should be closed at the
-                orderly completion of the request. Normally the connection is kept-open for subsequent requests on the
-                same socket.</p>
+                <p>The status argument to websError can also accept flags to control how the socket connection is
+                managed. If WEBS_CLOSE is supplied, the connection will be closed when the request is completed. 
+                Normally the connection is kept-open for subsequent requests on the same socket.</p>
 <pre>
-httpError(conn, 504, HTTP_ABOR, "Can't continue with the request");
+websError(conn, 404 | WEBS_CLOSE, "Protocol error");
 </pre>
             <a id="redirecting"></a>
             <h3>Redirecting</h3>
             <p>Sometimes a handler will want to generate a response that will redirect the client to a new URI.
-            Use the <a href="../../../api/http.html#group___http_tx_1ga616290c9e8fe95419d3a31f6fbb870b5">httpRedirect</a> call 
+            Use the 
+            <a href="../../../api/goahead.html#group___webs_1ga2a3e594ef28c12f3be0d7b54461af36e">websRedirect</a> call 
             to redirect the client. For example:
-            <pre>httpRedirect(conn, HTTP_CODE_MOVED_PERMANENTLY, uri);</pre>
+            <pre>websRedirect(wp, WEBS_CODE_MOVED_PERMANENTLY, uri);</pre>
             <h3>Generating Response Body</h3>
             <p>The simplest way to generate a response is to use 
-            <a href="../../../api/http.html#group___http_queue_1ga5599a178a2bab73929795952231d6e6a">httpWrite</a>. 
-            This is effective if the total response content can be buffered in the pipeline and socket without blocking.
-            (Typically 64K or less depending on LimitStageBuffer in goahead.conf). The httpWrite routine will
-            automatically flush data as required. When all the data has been written, call:
-            <a href="../../../api/http.html#group___http_tx_1ga279ad49e5163402e2afd6caf478bcc70">httpFinalize</a>. This
-            finalizes the output response data by sending an empty packet to the network connector which signifies 
-            the completion of the request.</p>
+            <a href="../../../api/goahead.html#group___webs_1ga8d5489a7fa2a2126bc0b6c703da4b964">websWrite</a>. 
+            The websWrite routine will automatically flush data as required. This routine may block while data drains
+            to the client if the data cannot be buffered. See the <i>main.bit</i> configuration limit:
+            <a href="../../../guide/goahead/source/building.html#main">LimitBuffer</a> for how to control the internal buffer size.
+            When all the data has been written, call:
+            <a href="../../../api/goahead.html#group___webs_1gac2af58b7a686cb33e44eb010cf755ce1">websDone</a>. This
+            finalizes the request.</p>
         <pre>
-httpWrite(conn, "Hello World\n");
-httpFinalize(conn);
+websWrite(p, "Hello World\n");
+websDone(wp);
 </pre>
-            <a id="nonblocking"></a>
-            <h3>Generating Responses without Blocking</h3>
-            <p>If a handler must generate a lot of response data, it should take care not to 
-            exceed the maximum queue size (q-&gt;max) and to size packets so as to not exceed the maximum queue packet
-            size (q-&gt;packetSize). These advisory maximums are set to maximize efficiency.</p>
-            <p>Here is an example routine to write a block of data downstream, but only send what the queue can
-            absorb without blocking.</p>
-<pre>
-static ssize doOutput(HttpQueue *q, cchar *data, ssize len)
-{
-    HttpPacket  *packet;
-    ssize       count;
-    count = min(len, q-&gt;max - q-&gt;count);
-    count = min(count, q-&gt;packetSize);
-    packet = httpCreateDataPacket(count);
-    mprPutBlockToBuf(packet-&gt;content, data, len);
-    httpPutForService(q, packet, HTTP_SCHEDULE_QUEUE);
-    /* Return the count of bytes actually written */
-    return count;
-}
-</pre>
-            <p>The handler's <em>process</em> handler callback will be invoked once the request has received all body data
-            and whenever the output queue can absorb more data. Thus the <em>writable</em> callback is an ideal place for
-            generating the response in chunks.</p>
-<pre>
-static void writable(HttpQueue *q)
-{
-    if (finished) {
-        httpFinalize(q-&gt;conn);
-    } else {
-        httpWriteString(q, getMoreData(q));
-    }
-}
-</pre>
-            <p>This (trivial) example writes data in chunks each time the <em>writable</em> callback is invoked.
-            When output is complete, the example calls httpFinalize.</p>
-            <p>If a handler puts data onto a service queue, it should call 
-            <a href="../../../api/http.html#group___http_rx_1gaf5503f75323ec0c6df1b3ee5615ad496">httpPump</a> to enable
-            the pipeline to advance and potentially invoke the handler's <em>writable</em> callback.</p>
-        <a id="paradigms"></a>
-        <h2>Response Paradigms</h2>
-        <p>In summary, a handler may use one of several paradigms to implement how it responds to requests.</p>
-        <h3>Blocking</h3>
-        <p>A handler may generate its entire response in its start(), or ready() callback and will block if required while
-        output drains to the client. In this paradigm, httpWrite is typically used and GoAhead will automatically buffer
-        the response if required.  If the response is shorter than available buffering (typically 64K), the request
-        should not block. After the handler has written all the data, it will return immediately and GoAhead will use its event
-        mechanism to manage completing the request. For such short requests, this is highly efficient.</p>
-        <p>If the response is larger than available buffering, the GoAhead worker thread will have to pause for data to
-        drain to the client as there is more data than the pipeline can absorb. This will consume a worker thread while the request
-        completes, and so is more costly in terms of GoAhead resources. Use care when using this paradigm for larger
-        responses. Ensure you provided you have sufficient worker threads and/or this kind of request is infrequent.
-        Otherwise this can lead to a denial-of-service vulnerability.</p>
-        <h3>Non-Blocking</h3>
-        <p>A more advanced technique is to write data in portions from the writable() callback. The callback will be
-        invoked whenever the pipeline can absorb more data. The handler should test the <em>q-&gt;max, q-&gt;count</em> and
-        <em>q-&gt;packetSize</em> values to determine how much to write before returning from writable(). The httpFinalize
-        routine should be called when the request is complete.</p>
-        <h3>Async Generation</h3>
-        <p>A handler can asynchronously generate response data outside of the typical handler callbacks. This may be in
-        response to an application or device vent. Consequently, care must be taken to ensure thread safety. GoAhead
-        serializes request activity on a <em>connection dispatcher</em> and does not use thread locking for handlers or
-        pipeline processing. This is highly efficient, but requires that all interaction with GoAhead data structures 
-        be done from GoAhead events via GoAhead dispatchers. To run code from the connection dispatcher, use: 
-        <a href="../../../api/mpr.html#group___mpr_event_1ga6154e34c582e39cd64b4505a6afb39c4">mprCreateEvent</a>.
-        <pre>
-mprCreateEvent(q-&gt;conn-&gt;dispatcher, "deviceEvent", 0, doMoreOutput, q, 0);
-</pre>
-        <p>This will schedule the function <em>doMoreOutput</em> to run from the connection dispatcher. 
-        <p>You may call mprCreateEvent from any thread and the scheduled function will run serialized within the event
-        loop for the connection.</p> 
-        <h4>Owning a Connection</h4>
-        <p>GoAhead monitors requests and imposes timeout limits. The RequestTimeout directive in the goahead.conf file
-        specifies the maximum time a request can take to complete. The InactivityTimeout directive specifies the maximum
-        time a request can perform no input or output before being terminated. If either of these timeouts are violated,
-        the request will be terminated and the connection will be closed by GoAhead. 
-        
-        <p>A handler can modify these timeouts via the <a
-            href="../../../api/http.html#group___http_conn_1ga62a6f4aec1892bd682d7a661d1aae4ee">httpSetTimeout</a>
-        API. Alternatively, the handler can <em>steal</em> the connection from GoAhead and assume responsibility for 
-        the connection via: <a
-            href="../../../api/http.html#http_8h_1a269af9eeb75763738059d298b48f1032">httpStealConn</a>. Otherwise, a
-        handler should check that a connection has not been closed before generating output for a connection. This can
-        be done by checking <em>conn-&gt;tx</em> which will be set to NULL when the connection is closed.</p> 
-        <p>Note that the HttpConn object and other request objects will be preserved in memory even after GoAhead closes a
-        request and connection. This is because calling <em>mprCreateEvent</em> with a queue reference will maintain a
-        reference to the queue and connection object and this reference will delay the garbage collector from reclaiming
-        the memory for these objects.</p>
-        <p>When output is complete, httpFinalize should be called to signal the completion of the request. After writing
-        or completing the request, httpPump() should be called to perform pipeline processing on the request.</p>
-        <a id="coding"></a>
-        <h2>Coding Issues</h2>
-        <p>There are a few coding issues to keep in mind when creating handlers. GoAhead is a multithreaded, event loop
-        server. As such, handlers must cooperate and take care when using resources.</p>
-        <h3>Blocking</h3>
-        <p>If a handler blocks, it will consume a worker thread. But more importantly, when a thread blocks, it must
-        yield to the garbage collector. GoAhead uses a cooperative garbage collector where worker thread yield to the 
-        collector at designated control points. This provides workers with a guarantee that temporary memory will not be
-        prematurely collected. All MPR functions that wait implicitly also yield to the garbage collector. Handlers can
-        should call <a href="../../../api/mpr.html#mpr_8h_1af140a2fda18b2e8461236cc44c0a2cc4">mprYield</a> directly whenever
-        they block and are not calling an MPR function that blocks. This ensures that the garbage collector can work and
-        collect memory while the worker thread is asleep. Handlers do not need to call mprYield when executing on
-        threads that were created outside of the MPR (i.e. not MPR worker threads).</p>
         <a id="defining"></a>
         <h2>Defining a Handler</h2>
         <p>To define an GoAhead handler, you need to call <a href=

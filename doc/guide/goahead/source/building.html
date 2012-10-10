@@ -39,6 +39,7 @@
                 <li><a href="#overview">Build Overview</a></li>
                 <li><a href="#env">Prepare the Environment</a></li>
                 <li><a href="#configuring">Configuring the Build</a></li>
+                <li><a href="#main">Main Options</a></li>
                 <li><a href="#cross">Cross Compilation</a></li>
                 <li><a href="#building">Building</a></li>
                 <li><a href="#customizing">Customizing</a></li>
@@ -157,14 +158,15 @@
             
             <a id="configuring"></a>
             <h2 class="section">Configure GoAhead</h2>
-            <p>GoAhead may be customized for your local system by running <em>bit configure</em>. This is used to select
+            <p>GoAhead may be customized for environment by running <em>bit configure</em>. This is used to select
             features, options, and integrate third-party packages. </p>
             <p>A <em>configure</em> script is provided to give a familiar "configure" command interface to the
             <em>bit</em> tool. This script simply invokes the <em>bit configure</em> command and passed all command line
             options to bit.</p>
            
-            <p>During configuration, <em>bit</em> will create several output files that contain settings for each 
-            specified platform.</p>
+            <p>During configuration, <em>bit</em> will read the master <i>main.bit</i> configuration file. This
+            file controls and specifies  essential GoAhead settings. You can edit this file to suit your neds. After
+            configuration, several output files are created that contain settings for each specified platform.</p>
             <ul>
                 <li>A bit file that specifies the platforms to build named: start.bit</li>
                 <li>A bit file for each platform named: OS-ARCH.bit</li>
@@ -295,6 +297,110 @@
                     <td>--without PACKAGE</td>
                     <td>Do not include the PACKAGE in the build.</td>
                 </tr>
+                </tbody>
+            </table>
+            <a name="main"></a>
+            <h3>Main Configuration Options</h3>
+            <p>The main.bit configuration file specifies build-time defaults. Some of the important values
+            are listed below:</p>
+            <table title="main">
+                <tbody>
+                    <tr>
+                        <td class="pivot">accessLog</td>
+                        <td>Enable request URI logging to an access log</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">certificate</td>
+                        <td>SSL certificate file</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">cgi</td>
+                        <td>Set to true to enable the CGI handler</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">javascript</td>
+                        <td>Enable the Javascript template handler</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">key</td>
+                        <td>SSL private key</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">legacy</td>
+                        <td>Enable GoAhead 2.X APIs to improve backward compatibility</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">listens</td>
+                        <td>List of endpoints on which GoAhead will listen</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitBuffer</td>
+                        <td>General I/O buffer size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitFilename</td>
+                        <td>Maximum filename size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitHeader</td>
+                        <td>Maximum size of the request header</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitNumHeaders</td>
+                        <td>Maximum number of header lines in the request</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPassword</td>
+                        <td>Maximum size of a password</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitRxBody</td>
+                        <td>Maximum size of the incoming request body</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSessionLife</td>
+                        <td>Default session lifespan in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSessionCount</td>
+                        <td>Maximum number of sessions</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitString</td>
+                        <td>Default string size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitTimeout</td>
+                        <td>Request inactivity timeout in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUri</td>
+                        <td>Maximum URI size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUpload</td>
+                        <td>Maximum size of a file upload request</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">pam</td>
+                        <td>Build with Unix PAM authentication password support</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">trace</td>
+                        <td>Trace log destination. Uses the form: path:level</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">traceMethod</td>
+                        <td>Enable the TRACE method which is disabled by default</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">upload</td>
+                        <td>Enable the upload handler</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">uploadDir</td>
+                        <td>Directory to store uploaded files</td>
+                    </tr>
                 </tbody>
             </table>
             <h3>Example Use</h3>

@@ -107,6 +107,7 @@
     <ClCompile Include="..\..\galloc.c" />
     <ClCompile Include="..\..\http.c" />
     <ClCompile Include="..\..\js.c" />
+    <ClCompile Include="..\..\jst.c" />
     <ClCompile Include="..\..\matrixssl.c" />
     <ClCompile Include="..\..\openssl.c" />
     <ClCompile Include="..\..\options.c" />
@@ -116,7 +117,6 @@
     <ClCompile Include="..\..\route.c" />
     <ClCompile Include="..\..\runtime.c" />
     <ClCompile Include="..\..\socket.c" />
-    <ClCompile Include="..\..\template.c" />
     <ClCompile Include="..\..\upload.c" />
   </ItemGroup>
 

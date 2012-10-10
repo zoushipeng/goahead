@@ -197,8 +197,8 @@ static void     checkTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
-static bool     parseFirstLine(Webs *wp);
-static bool     parseHeaders(Webs *wp);
+static void     parseFirstLine(Webs *wp);
+static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 extern bool     parseIncoming(Webs *wp);
 extern bool     processParsed(Webs *wp);
@@ -803,6 +803,7 @@ static void readEvent(Webs *wp)
         if (wp->state < WEBS_READY) {
             if (wp->state > WEBS_BEGIN) {
                 websError(wp, HTTP_CODE_COMMS_ERROR, "Read error: connection lost");
+                websPump(wp);
             }
             recycle(wp, 0);
         }
@@ -844,6 +845,8 @@ static void websPump(Webs *wp)
 bool parseIncoming(Webs *wp)
 {
     WebsBuf     *rxbuf;
+    WebsStat    sbuf;
+    int         mode, exists;
     char        *end, c;
 
     rxbuf = &wp->rxbuf;
@@ -868,11 +871,13 @@ bool parseIncoming(Webs *wp)
     /*
         Parse the first line of the Http header
      */
-    if (!parseFirstLine(wp)) {
-        return 0;
+    parseFirstLine(wp);
+    if (wp->state == WEBS_COMPLETE) {
+        return 1;
     }
-    if (!parseHeaders(wp)) {
-        return 0;
+    parseHeaders(wp);
+    if (wp->state == WEBS_COMPLETE) {
+        return 1;
     }
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
@@ -889,8 +894,6 @@ bool parseIncoming(Webs *wp)
     }
 #endif
     if (smatch(wp->method, "PUT")) {
-        WebsStat sbuf;
-        int mode, exists;
         exists = stat(wp->filename, &sbuf) == 0;
         mode = O_BINARY | O_WRONLY;
         if (!exists) {
@@ -909,7 +912,7 @@ bool parseIncoming(Webs *wp)
 /*
     Parse the first line of a HTTP request
  */
-static bool parseFirstLine(Webs *wp)
+static void parseFirstLine(Webs *wp)
 {
     char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
     int     testPort;
@@ -923,18 +926,18 @@ static bool parseFirstLine(Webs *wp)
     op = getToken(wp, 0);
     if (op == NULL || *op == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 0;
+        return;
     }
     wp->method = supper(strdup(op));
 
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 0;
+        return;
     }
     if (strlen(url) > BIT_LIMIT_URI) {
         websError(wp, 400 | WEBS_CLOSE, "URI too big");
-        return 0;
+        return;
     }
     protoVer = getToken(wp, "\r\n");
 
@@ -946,18 +949,17 @@ static bool parseFirstLine(Webs *wp)
     host = path = port = query = ext = NULL;
     if (websUrlParse(url, &buf, NULL, &host, &port, &path, &ext, NULL, &query) < 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
-        return 0;
+        return;
     }
     if ((wp->path = websNormalizeUriPath(path)) == 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
         gfree(buf);
-        return 0;
+        return;
     }
     wp->url = strdup(url);
     if (ext) {
         wp->ext = sclone(slower(ext));
     }
-    //  MOB - these should be updated based on the route?
     wp->filename = sfmt("%s%s", websGetDocuments(), wp->path);
 
     wp->query = sclone(query);
@@ -975,14 +977,13 @@ static bool parseFirstLine(Webs *wp)
         wp->port = atoi(port);
     }
     gfree(buf);
-    return 1;
 }
 
 
 /*
     Parse a full request
  */
-static bool parseHeaders(Webs *wp)
+static void parseHeaders(Webs *wp)
 {
     char    *upperKey, *cp, *key, *value, *tok;
     int     count;
@@ -997,7 +998,7 @@ static bool parseHeaders(Webs *wp)
     for (count = 0; wp->rxbuf.servp[0] != '\r'; count++) {
         if (count >= BIT_LIMIT_NUM_HEADERS) {
             websError(wp, 400 | WEBS_CLOSE, "Too many headers");
-            return 0;
+            return;
         }
         if ((key = getToken(wp, ":")) == NULL) {
             continue;
@@ -1007,11 +1008,7 @@ static bool parseHeaders(Webs *wp)
         }
         if (!key || !value) {
             websError(wp, 400 | WEBS_CLOSE, "Bad header format");
-            return 0;
-        }
-        if (!key || !value) {
-            websError(wp, 503 | WEBS_CLOSE, "Insufficient memory");
-            return 0;
+            return;
         }
         while (isspace(*value)) {
             value++;
@@ -1055,7 +1052,7 @@ static bool parseHeaders(Webs *wp)
             wp->rxLen = atoi(value);
             if (wp->rxLen > BIT_LIMIT_RX_BODY) {
                 websError(wp, 413 | WEBS_CLOSE, "Too big");
-                return 0;
+                return;
             }
             if (wp->rxLen > 0 && !smatch(wp->method, "HEAD")) {
                 wp->rxRemaining = wp->rxLen;
@@ -1111,7 +1108,6 @@ static bool parseHeaders(Webs *wp)
         wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
-    return 1;
 }
 
 
@@ -1337,14 +1333,15 @@ void websSetEnv(Webs *wp)
         websSetVar(wp, "DOCUMENT_ROOT", wp->route->dir);
     }
     websSetVar(wp, "GATEWAY_INTERFACE", "CGI/1.1");
-    websSetVar(wp, "QUERY_STRING", wp->query);
     websSetVar(wp, "PATH_INFO", wp->path);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
+    websSetVar(wp, "QUERY_STRING", wp->query);
+    websSetVar(wp, "REMOTE_ADDR", wp->ipaddr);
     websSetVar(wp, "REMOTE_USER", wp->username);
     websSetVar(wp, "REMOTE_HOST", wp->ipaddr);
-    websSetVar(wp, "REMOTE_ADDR", wp->ipaddr);
     websSetVar(wp, "REQUEST_METHOD", wp->method);
     websSetVar(wp, "REQUEST_TRANSPORT", wp->protocol);
+    websSetVar(wp, "REQUEST_URI", wp->path);
     websSetVar(wp, "SCRIPT_FILENAME", wp->filename);
     websSetVar(wp, "SERVER_ADDR", wp->ifaddr);
     websSetVar(wp, "SERVER_HOST", websHost);
@@ -1388,7 +1385,6 @@ void websSetVar(Webs *wp, char *var, char *value)
 
     gassert(websValid(wp));
     gassert(var && *var);
-    gassert(value);
 
     /*
         value_instring will allocate the string if required.
@@ -1671,7 +1667,7 @@ char *websEscapeHtml(char *html)
 void websError(Webs *wp, int code, char *fmt, ...)
 {
     va_list     args;
-    char        *userMsg, *buf;
+    char        *msg, *buf;
     char        *encoded;
 
     gassert(wp);
@@ -1691,18 +1687,18 @@ void websError(Webs *wp, int code, char *fmt, ...)
 
     if (fmt) {
         va_start(args, fmt);
-        userMsg = sfmtv(fmt, args);
+        msg = sfmtv(fmt, args);
         va_end(args);
-        error("%s", userMsg);
+        error("%s", msg);
 
-        encoded = websEscapeHtml(userMsg);
-        gfree(userMsg);
-        userMsg = encoded;
+        encoded = websEscapeHtml(msg);
+        gfree(msg);
+        msg = encoded;
 
         buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
             <body><h2>Access Error: %s</h2>\r\n\
-            <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), userMsg);
-        gfree(userMsg);
+            <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
+        gfree(msg);
     } else {
         buf = 0;
     }
@@ -1772,7 +1768,10 @@ int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 
 void websSetStatus(Webs *wp, int code)
 {
-    wp->code = code;
+    wp->code = code & ~WEBS_CLOSE;
+    if (code & WEBS_CLOSE) {
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+    }
 }
 
 
@@ -2100,12 +2099,6 @@ ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     written = len = 0;
 
     while (size > 0) {  
-#if UNUSED
-        /* Buffer may call flush which can fail if the connection is closed */
-        if (wp->state == WEBS_COMPLETE) {
-            return -1;
-        }
-#endif
         if (bufRoom(op) < size) {
             websFlush(wp);
         }

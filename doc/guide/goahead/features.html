@@ -44,7 +44,7 @@
                 <li><a href="../../product/roadmap.html">Roadmap</a></li>
                 <li><a href="../../product/compatibility.html">Compatibility</a></li>
                 <li><a href="../../licenses/index.html">Licensing</a></li>
-                <li><a href="../../product/install/index.html">Installation Overview</a></li>
+                <li><a href="../../guide/goahead/source/building.html">Building GoAhead</a></li>
                 <li><a href="../../guide/goahead/users/gettingStarted.html">Getting Started</a></li>
                 <li><a href="../../guide/goahead/users/index.html">Users Guide</a></li>
                 <li><a href="../../product/project.html">Project Resources</a></li>
@@ -55,11 +55,9 @@
             <h1>Embedthis GoAhead&trade; Features</h1><a id="components"></a>
             <p>The GoAhead product includes the following components:</p>
             <ul>
+                <li>GoAhead HTTP Server library</li>
                 <li>GoAhead HTTP Server main program</li>
-                <li>GoAhead HTTP Client program</li>
-                <li>GoAhead HTTP Client and Server libraries</li>
-                <li>Multiple web frameworks</li>
-                <li>Secure Sockets Layer (SSL/TLS)</li>
+                <li>Interface to Secure Sockets Layer (SSL/TLS)</li>
                 <li>Documentation</li>
                 <li>Samples</li>
                 <li>Source code</li>
@@ -68,35 +66,31 @@
             <h3>HTTP Server Engine</h3>
             <ul>
                 <li>Full HTTP/1.1 support</li>
-                <li>Multithreaded, event-based server</li>
-                <li>Fast co-routine request pipeline</li>
-                <li>Request routing with RegularExpression request rewriting</li>
-                <li>Supports ranged, chunked and pipelined requests</li>
-                <li>Sendfile and vectored I/O</li>
-                <li>Virtual Hosting. IP-based and Name-based</li>
+                <li>IPv4 and IPv6</li>
+                <li>Single-threaded, event-based server</li>
+                <li>Request routing and rewriting</li>
+                <li>Supports chunked and pipelined requests</li>
                 <li>Error and access Logging (Common Log Format)</li>
-                <li>Apache style configuration</li>
-                <li>Manager monitoring process</li>
                 <li>Sand-box resource limits</li>
-                <li>Garbage collection based memory allocator</li>
+                <li>Session state storage</li>
             </ul>
             <h3>Performance</h3>
             <ul>
-                <li>Request throughput (&gt; 5,000 requests per second)</li>
-                <li>Multi-threaded core for scale and blocking requests</li>
-                <li>Small memory footprint even under heavy load (from 1MB)</li>
+                <li>Request throughput (&gt; 10,000 requests per second)</li>
+                <li>Event-based core for efficient processing of multiple requests</li>
+                <li>Small memory footprint even under heavy load (from 300K)</li>
             </ul>
             <h3>Modularity</h3>
             <ul>
-                <li>Dynamic loading of modules</li>
-                <li>Modules for CGI, Directory Listings, ESP, Ejscript, PHP, file upload and SSL</li>
+                <li>Conditional build-time options</li>
+                <li>Handlers for CGI, Javascript templates, files, file upload and SSL</li>
                 <li>Configurable request routing</li>
-                <li>Extensible / replaceable authorization, SSL and script</li>
+                <li>Extensible / replaceable authorization</li>
             </ul>
             <h3>Security</h3>
             <ul>
                 <li>Secure Sockets Layer (SSL)</li>
-                <li>Basic and Digest Authentication</li>
+                <li>Basic, Digest and Form Authentication</li>
                 <li>Route based authorization</li>
                 <li>Sandbox limits</li>
                 <li>Access and access violation logging</li>
@@ -104,37 +98,32 @@
             </ul>
             <h3>Dynamic Content</h3>
             <ul>
-                <li>Embedded Server Pages (included)</li>
-                <li>Support for Ejscript Server-Side JavaScript (separate product)</li>
-                <li>PHP (separate)</li>
+                <li>Server-Side JavaScript</li>
                 <li>CGI/1.1</li>
+                <li>Proc Handlers</li>
+                <li>Custom C Handlers</li>
             </ul>
-            <h3>Embedded Server Pages (ESP) Web Framework</h3>
+            <h3>Javascript Templates (JST)</h3>
             <ul>
-                <li>Web page templating engine without layout pages</li>
-                <li>Model / View / Controller paradigm or stand-alone web pages</li>
-                <li>Embedded "C" language code in HTML pages</li>
-                <li>Fast, automatic recompilation and reloading of updated web pages</li>
+                <li>Web page templating engine</li>
+                <li>Embedded Javascript code in HTML pages</li>
+                <li>Fast, automatic reloading of updated web pages</li>
                 <li>Ajax View Controls with jQuery support</li>
-                <li>Session and flash inter-request state management</li>
-                <li>Routing of URL requests directly to "C" language functions</li>
-                <li>Integrated and transparent content caching</li>
+                <li>Session state management</li>
             </ul>
             <h3>Developer Support</h3>
             <ul>
-                <li>HTTP server and client libraries</li>
-                <li>Shared and static libraries supplied</li>
-                <li>Extensive C API</li>
+                <li>HTTP server libraries</li>
+                <li>Shared and static library build options</li>
                 <li>Operate single-threaded or multithreaded (Compile or run-time selectable)</li>
                 <li>Easy, intuitive programming model</li>
-                <li>Coding minimized as most features can be specified via the configuration file</li>
+                <li>Extensive C API</li>
                 <li>Extensive debug trace logging</li>
             </ul>
             <h3>Documentation</h3>
             <ul>
                 <li>Full C API Documentation</li>
-                <li>Cookbook of samples (cut and paste to get going)</li>
-                <li>Tutorials</li>
+                <li>Guides and programmer references</li>
             </ul>
             <h3>Platform Support</h3>
             <ul>
@@ -144,7 +133,7 @@
                 <li>VxWorks (5.4, 6.3)</li>
                 <li>Free BSD</li>
                 <li>Unix</li>
-                <li>Windows CE</li>
+                <li>Easily ported to new platforms</li>
             </ul>
             <h3>Embedding Support</h3>
             <ul>
@@ -153,17 +142,10 @@
                 <li>Fine-grained control for conditional build and compilation</li>
                 <li>Execute from ROM (XIP)</li>
             </ul>
-            <h3>Other Features</h3>
-            <ul>
-                <li>Packaged installations for Linux, Windows and MAC OS X</li>
-                <li>Run as a service / daemon</li>
-                <li>HTTP server and client access program</li>
-            </ul>
             <h3>Standards</h3>
             <ul>
                 <li>HTTP/1.1</li>
                 <li>CGI/1.1</li>
-                <li>Apache configuration file and logging compatibility</li>
             </ul>
         </div>
     </div>

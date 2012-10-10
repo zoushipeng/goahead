@@ -13,7 +13,7 @@
     #define BIT_AUTO_LOGIN 0
 #endif
 #ifndef BIT_BUILD_NUMBER
-    #define BIT_BUILD_NUMBER "0"
+    #define BIT_BUILD_NUMBER "B0"
 #endif
 #ifndef BIT_CA_FILE
     #define BIT_CA_FILE ""

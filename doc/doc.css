@@ -384,6 +384,17 @@ table {
 	-webkit-box-shadow: 2px 2px 4px #BBB;
 }
 
+table.form {
+    margin-top: 20px;
+    padding: 0px;
+	border: 0px solid #DDDDDD;
+	border-collapse: none;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+    width: 100%;
+	font-size: 100%;
+}
+
 thead {
 	background-color: #7090C0;
 	color: #FFFFFF;
@@ -403,6 +414,10 @@ th {
 td {
 	border: 1px solid #AAAAAA;
 	padding: 4px;
+}
+
+table.form td {
+	border: 0;
 }
 
 p.finePrint { 
