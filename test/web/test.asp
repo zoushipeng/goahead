@@ -1,11 +1,5 @@
 <html>
-<head>
-<title>ASP Test</title>
-</head>
-
-<body>
-<% 
+<body><% 
     write("Hello ASP World");
-%>
-</body>
+%></body>
 </html>

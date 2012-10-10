@@ -18,7 +18,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -50,85 +50,26 @@
                 <li><a href="../../guide/goahead/overview.html">User Guide Overview</a></li>
                 <li><a href="../../guide/goahead/users/authentication.html">Authorization</a></li>
                 <li><a href="../../guide/goahead/users/configuration.html">Configuration</a></li>
-                <li><a href="../../guide/goahead/users/configuration.html#directives">Configuration Directives</a></li>
-                <li><a href="../../guide/goahead/users/stages.html">Pipeline Stages</a></li>
                 <li><a href="../../guide/goahead/users/client.html">HTTP Client</a></li>
-                <li><a href="../../guide/goahead/users/modules.html">Loadable Modules</a></li>
                 <li><a href="../../guide/goahead/users/ports.html">Ports and Binding</a></li>
                 <li><a href="../../guide/goahead/users/ssl.html">Secure Sockets Layer</a></li>
-                <li><a href="../../guide/goahead/users/vhosts.html">Virtual Hosts</a></li>
             </ul>
         </div>
         <div class="contentLeft">
-            <h1>GoAhead Architecture</h1><!--
-    Diagrams:
-        - Process diagram
-        - Request pipeline
-        - Module Block diagram
-        - Key objects
--->
-            <p>The GoAhead HTTP web server is the fastest little web server. It is a high-performance yet compact
-            embeddable webserver that has a modular, secure core.  It supports an extensive feature set including:
-            HTTP/1.1, TLS/SSL, CGI, PHP, ESP, Ejscript, Virtual Hosts, Digest
-            Authentication, Apache style configuration, and logging and security sandboxing. Yet GoAhead remains very
-            small (from 1MB) and exceptionally fast (&gt; 7,000 requests per second).</p>
-            <p>GoAhead supports dynamic web application frameworks like ESP, Ejscript and PHP. It also supports older
-            web creation strategies like CGI.</p>
-            <p>GoAhead is an event-driven, multi-threaded web server and is able to support many
-            thousands of requests per second but it does not try to scale out like an enterprise class server for 
-            top-tier web sites.
-            Rather, it aims to be robust, secure and blazing fast with low and predictable memory utilization.</p>
-            <a id="deployment"></a>
-            <h2 class="section">Deployment Models</h2>
-            <p>GoAhead can be deployed in several ways:</p>
-            <ul>
-                <li>As a stand-alone web server</li>
-                <li>Embedded in applications and devices</li>
-                <li>Proxied behind front-end web servers</li>
-            </ul>
-            <h3>Stand-Alone Web Server</h3>
-            <p>The GoAhead distribution contains a robust, secure, stand-alone web server. The binary installation will
-            install this web server to be automatically started as a system daemon/service. It is supervised by an
-            manager process which acts as a guardian to start, monitor and restart GoAhead if required.</p>
-            <h3>Embedded in Applications and Devices</h3>
-            <p>GoAhead provides an embeddable server and client library so that any application can be web-enabled. When
-            embedded, the application can provide data and respond to requests over HTTP. For devices, GoAhead can be
-            configured with the minimal required set of features for minimal memory and security footprint.</p>
-            <h3>Proxied</h3>
-            <p>GoAhead is an ideal application web server when running behind a reverse proxy. The
-            reverse proxy dispatches incoming requests to a set of GoAhead instances which can effectively host
-            ESP, Ejscript or PHP applications.</p>
-            
+            <h1>GoAhead Architecture</h1>
+            <p>The GoAhead web server is the worlds most popuplar embedded web server. It is a compact and efficient
+            embeddable webserver with simple code and APIs. It supports an strong feature set including:
+            HTTP/1.1 including Keep-Alive and chunking, TLS/SSL, Server-side Javascript, Basic, Digest and Form-based
+            Authentication, Session state storage, URI routing and rewriting, logging and security sandboxing. Yet 
+            GoAhead remains very small (from 150K) and quite fast (&gt; 1,000 requests per second).</p>
+            <p>GoAhead uses an event-driven, single-threaded HTTP core and is able to support many hundreds of requests per second.
             <a id="processing"></a>
             <h2 class="section">Processing Architecture</h2>
-            <p>GoAhead typically runs one, multi-threaded, event driven process. GoAhead uses a non-blocking
-            event driven architecture and is capable of running many requests simultaneously.</p>
-            <h3>Event Driven and Multi-threaded</h3>
-            <p>While GoAhead is multi-threaded, it does not consume a thread per request. A high performance thread pool
-            is used to temporarily loan worker threads as required to service incoming requests. While waiting for
-            incoming and outgoing I/O, the worker thread is returned to the pool for use by other requests. This
-            architecture minimizes memory usage by reusing threads and provides excellent performance due to the thread
-            pool. Further, it scales well, as one thread can service many requests.</p>
-            
-            <a id="modules"></a>
-            <h2 class="section">GoAhead Modules</h2>
-            <p>Embeddable web servers have several competing goals:</p>
-            <ul>
-                <li>Minimize memory footprint</li>
-                <li>Minimize CPU consumption</li>
-                <li>Maximize security</li>
-                <li>Provide a strong and standard feature set</li>
-            </ul>
-            <p>To meet all these goals in one server is difficult. GoAhead uses loadable modules so that the core GoAhead
-            HTTP server may be compact, secure, and fast while still having the ability to grow functionality as
-            required.</p>
-            <p>An GoAhead loadable module is a discrete unit of functionality that may be linked into GoAhead to enhance
-            the core HTTP server. A module may be a request handler, filter, network connector, or simply a "lump" of
-            code.</p>
+            <p>GoAhead runs as single-threaded, event driven, non-blocking process. It is capable of supporting many hundreds of requests
+            per second on a suitable CPU. 
             <h3>Core Components</h3>
             <p>GoAhead has a modular architecture where modules are dynamically loaded at runtime depending on the
             desired configuration. The key components of GoAhead are:</p>
-            <p><img src="../../images/modules.jpg" alt="GoAhead Architecture" /></p>
             <table title="Components">
                 <thead>
                     <tr>
@@ -138,71 +79,37 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">Multithreaded Portable Runtime</td>
-                    <td>Cross-platform, multi-threaded portable runtime. Includes services for memory allocation,
-                    dynamic module loading, safe string handling, lists, hashing, command execution, socket
-                    communications, threads, thread synchronization, thread-pool, events, timers, debug trace and
-                    logging.</td>
+                    <td class="nowrap">Single-Threaded Runtime</td>
+                    <td>Cross-platform, single-threaded, event-based portable runtime. Includes services for memory allocation,
+                    safe string handling, lists, hashing, command execution, socket
+                    communications, events, timers, debug trace and logging.</td>
                 </tr>
                 <tr>
                     <td>GoAhead HTTP Core Library</td>
-                    <td>Core HTTP server. Includes services for initialization, HTTP protocol handling, socket
-                    connection management, logging, virtual hosts, directory and location blocks, request processing
-                    pipeline, and module loading and management.</td>
+                    <td>Core HTTP server. Includes services for HTTP protocol handling, socket
+                        connection management, logging, session state storage, request routing and authentication.</td>
                 </tr>
                 <tr>
                     <td>File Handler</td>
-                    <td>The File handler serves static content such as HTML pages, images and PDF files. It works
-                    cooperatively with the Send connector to eliminate reading such content into memory. The File
-                    handler sends details of the content name via the processing pipeline to the Send connector which
-                    uses special O/S APIs to directly copy files to the network.</td>
+                    <td>The File handler serves static content such as HTML pages, images and PDF files.</td>
                 </tr>
                 <tr>
-                    <td>ESP Handler</td>
-                    <td>The Embedded Server Pages (ESP) web framework is an advanced, Model,View,Controller "C" 
-                        language web framework.</td>
-                </tr>
-                <tr>
-                    <td>Ejscript Handler</td>
-                    <td>Ejscript Web Framework Handler. This is a Server-Side JavaScript web application framework.
-                    Ideal for dynamic web applications.</td>
-                </tr>
-                <tr>
-                    <td>PHP Handler</td>
-                    <td>In-memory handler module for the PHP web environment.</td>
+                    <td>Javascript Handler</td>
+                    <td>The Javascript web framework is supports embedded server-side javascript.</td>
                 </tr>
                 <tr>
                     <td>CGI Handler</td>
-                    <td>Common Gateway Interface handler.</td>
-                </tr>
-                <tr>
-                    <td>Chunk Filter</td>
-                    <td>The Chunk applies Transfer Chunk Encoding to outgoing data. Chunk encoding enables the HTTP
-                    connection to be reused for subsequent requests without having to establish a new TCP/IP
-                    connection. This can significantly improve network and application performance.</td>
-                </tr>
-                <tr>
-                    <td>Range Filter</td>
-                    <td>The Range filter selects the requested I/O range by the client. The Range filter works
-                    cooperatively with the File handler and Send connector to eliminate copying and reading static
-                    content for ranged requests.</td>
-                </tr>
-                <tr>
-                    <td>Net Connector</td>
-                    <td>The Net connector is the general purpose transmitter of content to the client. It supports
-                    vectored gather/scatter writes for optimal performance.</td>
-                </tr>
-                <tr>
-                    <td>Send Connector</td>
-                    <td>The Send connector is a special purpose transmitter of static file content to the client. It
-                    uses operating system APIs to send file data to the client without reading the data into GoAhead. It
-                    also uses vectored gather/scatter I/O to blend response, chunk, and range headers into the static
-                    data. These strategies dramatically boost the performance of serving static data.</td>
+                    <td>Common Gateway Interface handler for serving pages by running external CGI programs.</td>
                 </tr>
                 <tr>
                     <td>Secure Sockets Layer (SSL)</td>
                     <td>Secure Socket Layer protocol stack. This is a virtual interface that can selectively support a
                     variety of SSL providers including: the Peersec MatrixSSL and OpenSSL stacks.</td>
+                </tr>
+                <tr>
+                    <td>Authorization Framework</td>
+                    <td>GoAhead supports a role based user authorization framework. Coupled with Basic/Digest or Form-based
+                        authorization, access to resources can be controlled on a granular basis.</td>
                 </tr>
                 </tbody>
             </table>
@@ -224,29 +131,11 @@
             
             <a id="configuration"></a>
             <h2 class="section">GoAhead Configuration</h2>
-            <p>GoAhead uses an Apache style configuration file. This configuration file is read when GoAhead starts and
-            it manages every aspect of GoAhead's configuration including what ports and addresses to listen to, what
-            modules to load, where to find the web pages, and how to log requests.</p>
-            <p>The configuration file supports a wide variety of directives such as virtual hosting, directory
-            authentication, port binding, aliasing, logging, and request pipeline configuration. It has conditional
-            declarations and supports the inclusion of other configuration files. GoAhead uses a one-pass traversal of the
-            configuration file which means that the order of directives matters.</p>
+            <p>GoAhead uses a route configuration file typically called <em>route.txt</em>. This configuration file is read
+            when GoAhead starts and it controls how client requests are processed and URIs are routed to handlers. </p>
             
             <a id="requests"></a>
-            <h2 class="section">Request Processing</h2><!--
-        - Header parsing
-        - Request Matching
-            - By extension
-            - By location block
-        - Pipeline construction
-        - Run pipeline
-            - Pipeline input
-            - Pipeline output
-            - Header generation
-            - Filters
-                - Chunking
-        - Keep alive
-        -->
+            <h2 class="section">Request Processing</h2>
             <p>The GoAhead HTTP core manages the processing of requests and the construction of the request processing
             pipeline. When a new HTTP request arrives, GoAhead will examine the network interface on which the request
             arrived, and if it is assigned to an IP based virtual host, GoAhead will route the request to be handled by
@@ -285,7 +174,7 @@ HeaderName: value
                     <td>Describe how the TCP/IP connection should be managed when the request completes.</td>
                 </tr>
                 <tr>
-                    <td>Content-Length</td>
+                    <td nowrap="nowrap">Content-Length</td>
                     <td>Length of any addition data with a POST request.</td>
                 </tr>
                 <tr>
@@ -302,7 +191,7 @@ HeaderName: value
                     hosting.</td>
                 </tr>
                 <tr>
-                    <td>If-Modified-Since</td>
+                    <td nowrap="nowrap">If-Modified-Since</td>
                     <td>Only return the content if it has been modified since the date specified. Clients who have
                     cached copies of a document (or graphics) use this header to allow the server to skip copying the
                     document if it has not changed.</td>
@@ -385,7 +274,7 @@ AddHandler espHandler myDoc
             to find documents to serve. The routing engine may rewrite the request and then reroute. The engine 
             also manages HTTP authorization.</p>
             <p>Depending on the request URI and headers, the appropriate handler will be selected.  There are handlers
-            for ESP, PHP, CGI, Ejscript and static file data.</p>
+            for CGI, Javascript and static file data.</p>
             <h3>Handlers</h3>
             <p>The handler is responsible for receiving the request and creating a response. It generates response
             content based on the HTTP request URI, headers, any associated body data, and potential application session
@@ -429,21 +318,17 @@ AddHandler espHandler myDoc
             
             <a id="frameworks"></a>
             <h2 class="section">Web Frameworks</h2>
-            <p>GoAhead supports loadable modules for the ESP, Ejscript and PHP web frameworks.</p>
-            <h3>Embedded Server Pages  Web Framework</h3>
+            <h3>Javascript Server Pages  Web Framework</h3>
             <p>The ESP web framework is a high performance, Model/View/Controller web framework. 
             It uses the "C" language embedded in HTML web pages and for Controllers. It provides 
             an application generator, templating and layout engine, a Model/View/Controller framework, extensive caching,
             and a library of Ajax view controls. It is blazing fast via the use of "C" and caching of 
             compiled web pages and rendered HTML.
-            <h3>Ejscript Web Framework</h3>
-            <p>The Ejscript Web Framework was designed to make it easier to create dynamic web applications. It uses
+            <h3>Javascript Web Framework</h3>
+            <p>The Javascript Web Framework was designed to make it easier to create dynamic web applications. It uses
                 server-side JavaScript as the application language and provides provides an application generator,
                 templating engine, a powerful Model/View/Controller framework, and a library of Ajax view controls. See
-                the <a href="ejsArchitecture.html">Ejscript Web Framework</a> for more details.</p>
-            <h3>PHP</h3>
-            <p>PHP is a widely-used general-purpose scripting language that is especially suited for Web development
-            and can be embedded into HTML. GoAhead provides a fast, in-memory handler for the PHP web framework.</p>
+                the <a href="ejsArchitecture.html">Javascript Web Framework</a> for more details.</p>
             
             <a id="security"></a>
             <h2 class="section">Security</h2>

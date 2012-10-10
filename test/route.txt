@@ -1,11 +1,7 @@
 #
 #   route.txt - Route configuration
 #
-#   User and role definitions are stored in auth.txt
-#
 #   Schema
-#       user name=NAME password=PASSWORD roles=ROLES
-#       role name=NAME abilities=ABILITIES
 #       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=STATUS@URI \
 #           extensions=EXTENSIONS abilities=ABILITIES 
 #

@@ -166,29 +166,37 @@ typedef int (*JsProc)(int jid, void *handle, int argc, char **argv);
 extern int jsArgs(int argc, char **argv, char *fmt, ...);
 
 /**
+    Close a javascript engine
+    @param jid Javascript ID allocated via jsOpenEngine
+    @ingroup Js
+ */
+extern void jsCloseEngine(int jid);
+
+/**
+    Emit a parse error
+    @param js Javascript engine object
+    @param fmt Error message format string
+    @ingroup Js
+ */
+extern void jsError(Js *js, char *fmt, ...);
+
+/**
+    Parse and evaluate a script. Return the last function return value.
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param script Script to evaluate
+    @param emsg Pointer to a string to receive any error message
+    @param str String value to use as the result. Set to null for errors.
+    @ingroup Js
+ */
+extern char *jsEval(int jid, char *script, char **emsg);
+
+/**
     Get the function result value
     @param jid Javascript ID allocated via jsOpenEngine
     @return Function return value string. Caller must not free.
     @ingroup Js
  */
 extern char *jsGetResult(int jid);
-
-/**
-    Set the function return result
-    @param jid Javascript ID allocated via jsOpenEngine
-    @param str String value to use as the result
-    @ingroup Js
- */
-extern void jsSetResult(int jid, char *str);
-
-/**
-    Set a variable value in the top most variable frame
-    @param jid Javascript ID allocated via jsOpenEngine
-    @param var Variable name
-    @param value Value to set
-    @ingroup Js
- */
-extern void jsSetVar(int jid, char *var, char *value);
 
 /**
     Get a variable value
@@ -201,6 +209,13 @@ extern void jsSetVar(int jid, char *var, char *value);
  */
 extern int jsGetVar(int jid, char *var, char **value);
 
+/**
+    Open a new javascript engine
+    @param variables Hash table of variables
+    @param functions Hash table of functions
+    @ingroup Js
+ */
+extern int jsOpenEngine(WebsHash variables, WebsHash functions);
 
 /**
     Set a local variable 
@@ -221,14 +236,21 @@ extern void jsSetLocalVar(int jid, char *var, char *value);
 extern void jsSetGlobalVar(int jid, char *var, char *value);
 
 /**
-    Parse and evaluate a script. Return the last function return value.
+    Set the function return result
     @param jid Javascript ID allocated via jsOpenEngine
-    @param script Script to evaluate
-    @param emsg Pointer to a string to receive any error message
-    @param str String value to use as the result. Set to null for errors.
+    @param str String value to use as the result
     @ingroup Js
  */
-extern char *jsEval(int jid, char *script, char **emsg);
+extern void jsSetResult(int jid, char *str);
+
+/**
+    Set a variable value in the top most variable frame
+    @param jid Javascript ID allocated via jsOpenEngine
+    @param var Variable name
+    @param value Value to set
+    @ingroup Js
+ */
+extern void jsSetVar(int jid, char *var, char *value);
 
 /**
     Set a global function
@@ -239,19 +261,10 @@ extern char *jsEval(int jid, char *script, char **emsg);
  */
 extern int jsSetGlobalFunction(int jid, char *name, JsProc fn);
 
-/**
-    Emit a parse error
-    @param js Javascript engine object
-    @param fmt Error message format string
-    @ingroup Js
- */
-extern void jsError(Js *js, char *fmt, ...);
-
 /*
     Internal API
  */
 extern int      jsCloseBlock(int jid, int vid);
-extern void     jsCloseEngine(int jid);
 extern char     *jsEvalBlock(int jid, char *script, char **emsg);
 extern WebsHash jsGetFunctionTable(int jid);
 extern void     *jsGetGlobalFunction(int jid, char *name);
@@ -268,7 +281,6 @@ extern void     jsLexRestoreInputState(Js *ep, JsInput *state);
 extern int      jsLexGetToken(Js *ep, int state);
 extern void     jsLexPutbackToken(Js *ep, int tid, char *string);
 extern int      jsOpenBlock(int jid);
-extern int      jsOpenEngine(WebsHash variables, WebsHash functions);
 extern int      jsRemoveGlobalFunction(int jid, char *name);
 extern int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn);
 extern void     jsSetUserHandle(int jid, void *handle);

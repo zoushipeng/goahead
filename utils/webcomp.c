@@ -23,15 +23,25 @@ static void usage();
 
 int main(int argc, char* argv[])
 {
-    char        *fileList, *prefix;
+    char    *argp, *fileList, *prefix;
+    int     argind;
 
     fileList = NULL;
+    prefix = "";
 
-    if (argc != 3) {
+    for (argind = 1; argind < argc; argind++) {
+        argp = argv[argind];
+        if (*argp != '-') {
+            break;
+        } else if (strcmp(argp, "--prefix") == 0) {
+            if (argind >= argc) usage();
+            prefix = argv[++argind];
+        }
+    }
+    if (argind >= argc) {
         usage();
     }
-    prefix = argv[1];
-    fileList = argv[2];
+    fileList = argv[argind];
     if (compile(fileList, prefix) < 0) {
         return -1;
     }
@@ -41,11 +51,10 @@ int main(int argc, char* argv[])
 
 static void usage()
 {
-    fprintf(stderr, "usage: webcomp prefix filelist >output.c\n\
-    filelist is a file containing the pathnames of all web pages\n\
-    prefix is a path prefix to remove from all the web page pathnames\n\
-    output.c is the resulting C source file to compile and link.\n");
-
+    fprintf(stderr, "usage: webcomp [--prefix prefix] filelist >output.c\n\
+        --prefix specifies is a path prefix to remove from all the web page pathnames\n\
+        filelist is a file containing the pathnames of all web pages\n\
+        output.c is the resulting C source file to compile and link.\n");
     exit(2);
 }
 
@@ -65,8 +74,8 @@ static int compile(char *fileList, char *prefix)
         return -1;
     }
     time(&now);
-    fprintf(stdout, "/*\n * webrom.c -- Compiled Web Pages\n *\n");
-    fprintf(stdout, " * Compiled by webcomp: %s */\n\n", ctime(&now));
+    fprintf(stdout, "/*\n   rom-documents.c \n");
+    fprintf(stdout, "   Compiled by webcomp: %s */\n\n", ctime(&now));
     fprintf(stdout, "#include \"goahead.h\"\n\n");
     fprintf(stdout, "#ifndef WEBS_PAGE_ROM\n");
     fprintf(stdout, "websRomPageIndexType websRomPageIndex[] = {\n");

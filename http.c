@@ -13,10 +13,13 @@
 
 /*********************************** Globals **********************************/
 
-static int  websBackground;             /* Run as a daemon */
-static int  websDebug;                  /* Run in debug mode and defeat timeouts */
+static int websBackground;              /* Run as a daemon */
+static int websDebug;                   /* Run in debug mode and defeat timeouts */
+static int defaultHttpPort;             /* Default port number for http */
+static int defaultSslPort;              /* Default port number for https */
 
 #define WEBS_TIMEOUT (BIT_LIMIT_TIMEOUT * 1000)
+#define CHUNK_LOW   128                 /* Low water mark for chunking */
 
 /************************************ Locals **********************************/
 
@@ -190,7 +193,7 @@ static int      pruneId;                            /* Callback ID */
 
 /**************************** Forward Declarations ****************************/
 
-static void     checkRequestTimeout(void *arg, int id);
+static void     checkTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
@@ -203,7 +206,7 @@ static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void *data);
-
+static void     writeEvent(Webs *wp);
 static void     websPump(Webs *wp);
 
 static void     pruneCache();
@@ -315,15 +318,13 @@ void websClose()
         socketCloseConnection(listens[i]);
         listens[i] = -1;
     }
-    for (i = listenMax; i >= 0; i--) {
-        socketCloseConnection(listens[i]);
-    }
     listenMax = 0;
     for (i = websMax; webs && i >= 0; i--) {
         if ((wp = webs[i]) == NULL) {
             continue;
         }
         socketCloseConnection(wp->sid);
+        wp->sid = -1;
         websFree(wp);
     }
     gfree(websHostUrl);
@@ -351,35 +352,53 @@ void websClose()
 }
 
 
-static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *rxbuf)
+static void initWebs(Webs *wp, int flags, int reuse)
 {
+    WebsBuf     rxbuf;
+    int         wid, sid, timeout;
+
     gassert(wp);
 
+    if (reuse) {
+        rxbuf = wp->rxbuf;
+        wid = wp->wid;
+        sid = wp->sid;
+        timeout = wp->timeout;
+    } else {
+        wid = sid = -1;
+        timeout = -1;
+    }
     memset(wp, 0, sizeof(Webs));
     wp->flags = flags;
     wp->state = WEBS_BEGIN;
     wp->wid = wid;
     wp->sid = sid;
+    wp->timeout = timeout;
     wp->docfd = -1;
     wp->putfd = -1;
-    wp->timeout = -1;
     wp->txLen = -1;
     wp->rxLen = -1;
+    wp->code = HTTP_CODE_OK;
 #if BIT_CGI
     wp->cgifd = -1;
 #endif
 #if BIT_UPLOAD
     wp->upfd = -1;
 #endif
+    if (!reuse) {
+        wp->timeout = -1;
+    }
     wp->vars = hashCreate(WEBS_HASH_INIT);
     /*
         Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
-        a little more memory than required.
+        a little more memory than required. The chunkbuf has extra room to fit chunk headers and trailers.
      */
+    gassert(BIT_LIMIT_BUFFER >= 1024);
     bufCreate(&wp->output, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER + 1);
+    bufCreate(&wp->chunkbuf, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER * 2);
     bufCreate(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_RX_BODY + 1);
-    if (rxbuf) {
-        wp->rxbuf = *rxbuf;
+    if (reuse) {
+        wp->rxbuf = rxbuf;
     } else {
         bufCreate(&wp->rxbuf, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_RX_BODY);
     }
@@ -387,9 +406,37 @@ static void initWebs(Webs *wp, int wid, int sid, int flags, WebsBuf *rxbuf)
 }
 
 
-static void termWebs(Webs *wp, int keepAlive)
+static void termWebs(Webs *wp, int reuse)
 {
     gassert(wp);
+
+    /*
+        Some of this is done elsewhere, but keep this here for when a shutdown is done and there are open connections.
+     */
+    bufFree(&wp->input);
+    bufFree(&wp->output);
+    bufFree(&wp->chunkbuf);
+    if (!reuse) {
+        bufFree(&wp->rxbuf);
+        if (wp->sid >= 0) {
+            socketDeleteHandler(wp->sid);
+            socketCloseConnection(wp->sid);
+            wp->sid = -1;
+        }
+    }
+#if BIT_CGI
+    if (wp->cgifd >= 0) {
+        close(wp->cgifd);
+        wp->cgifd = -1;
+    }
+#endif
+    if (wp->putfd >= 0) {
+        close(wp->putfd);
+        wp->putfd = -1;
+    }
+    if (wp->timeout >= 0 && !reuse) {
+        websCancelTimeout(wp);
+    }
     //  MOB - OPT reduce allocations
     gfree(wp->authDetails);
     gfree(wp->authResponse);
@@ -436,11 +483,6 @@ static void termWebs(Webs *wp, int keepAlive)
         websFreeUpload(wp);
     }
 #endif
-    bufFree(&wp->input);
-    bufFree(&wp->output);
-    if (!keepAlive) {
-        bufFree(&wp->rxbuf);
-    }
 }
 
 
@@ -454,7 +496,8 @@ int websAlloc(int sid)
     }
     wp = webs[wid];
     gassert(wp);
-    initWebs(wp, wid, sid, 0, 0);
+    initWebs(wp, 0, 0);
+    wp->wid = wid;
     wp->sid = sid;
     wp->timestamp = time(0);
     return wid;
@@ -464,21 +507,17 @@ int websAlloc(int sid)
 static void reuseConn(Webs *wp)
 {
     WebsBuf     rxbuf;
-    int         flags, sid, wid;
 
     gassert(wp);
     gassert(websValid(wp));
 
-    flags = wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11);
-    sid = wp->sid;
-    wid = wp->wid;
     bufCompact(&wp->rxbuf);
     if (bufLen(&wp->rxbuf)) {
         socketReservice(wp->sid);
     }
     rxbuf = wp->rxbuf;
     termWebs(wp, 1);
-    initWebs(wp, wid, sid, flags, &rxbuf);
+    initWebs(wp, wp->flags & (WEBS_KEEP_ALIVE | WEBS_SECURE | WEBS_HTTP11), 1);
 }
 
 
@@ -486,6 +525,7 @@ void websFree(Webs *wp)
 {
     gassert(wp);
     gassert(websValid(wp));
+    gassert(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
 
     termWebs(wp, 0);
     websMax = gfreeHandle(&webs, wp->wid);
@@ -495,25 +535,26 @@ void websFree(Webs *wp)
 
 
 /*
-    Called when the request is complete.
+    Called when the request is complete. Note: it may not have fully drained from the tx buffer.
  */
-void websDone(Webs *wp, int code)
+void websDone(Webs *wp) 
 {
+    WebsSocket  *sp;
+
     gassert(wp);
     gassert(websValid(wp));
 
-    websFinalize(wp);
-    if (wp->code == 0) {
-        wp->code = code & ~WEBS_CLOSE;
+    if (wp->flags & WEBS_FINALIZED) {
+        return;
     }
-    if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
-        trace(3 | WEBS_LOG_RAW, "Request complete: code %d", code);
+    gassert(WEBS_BEGIN <= wp->state && wp->state < WEBS_COMPLETE);
+    wp->flags |= WEBS_FINALIZED;
+
+    if (!websFlush(wp)) {
+        /* Need to wait for output buffer to drain */
+        sp = socketPtr(wp->sid);
+        socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
     }
-    socketDeleteHandler(wp->sid);
-#if BIT_ACCESS_LOG
-    logRequest(wp, wp->code);
-#endif
-    websPageClose(wp);
 #if BIT_CGI
     if (wp->cgifd >= 0) {
         close(wp->cgifd);
@@ -524,27 +565,38 @@ void websDone(Webs *wp, int code)
         close(wp->putfd);
         wp->putfd = -1;
     }
-#if BIT_PACK_SSL
-    if (wp->flags & WEBS_SECURE) {
-        websTimeoutCancel(wp);
-        //  MOB - why close connection. Why not keep-alive?
-        socketCloseConnection(wp->sid);
-        websFree(wp);
-        return;
-    }
+#if BIT_ACCESS_LOG
+    logRequest(wp, wp->code);
 #endif
-    if (wp->flags & WEBS_KEEP_ALIVE && wp->rxRemaining == 0) {
-        websTimeoutCancel(wp);
+    websPageClose(wp);
+    if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
+        trace(3 | WEBS_LOG_RAW, "Request complete: code %d", wp->code);
+    }
+}
+
+
+static void recycle(Webs *wp, int reuse) 
+{
+    gassert(wp);
+    gassert(websValid(wp));
+    gassert(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
+
+    if (reuse && wp->flags & WEBS_KEEP_ALIVE && wp->rxRemaining == 0) {
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        wp->timeout = websStartEvent(WEBS_TIMEOUT, checkRequestTimeout, (void*) wp);
         trace(5, "Keep connection alive\n");
         return;
     }
-    websTimeoutCancel(wp);
-    socketCloseConnection(wp->sid);
-    websFree(wp);
     trace(5, "Close connection\n");
+    gassert(wp->timeout >= 0);
+    websCancelTimeout(wp);
+    gassert(wp->sid >= 0);
+    socketDeleteHandler(wp->sid);
+    socketCloseConnection(wp->sid);
+    bufFlush(&wp->rxbuf);
+    wp->sid = -1;
+    wp->state = WEBS_BEGIN;
+    wp->flags |= WEBS_CLOSED;
 }
 
 
@@ -567,13 +619,20 @@ int websListen(char *endpoint)
     }
     sp = socketPtr(sid);
     sp->secure = secure;
+    if (sp->secure) {
+        if (!defaultSslPort) {
+            defaultSslPort = port;
+        }
+    } else if (!defaultHttpPort) {
+        defaultHttpPort = port;
+    }
     listens[listenMax++] = sid;
     if (ip) {
         ipaddr = smatch(ip, "::") ? "[::]" : ip;
     } else {
         ipaddr = "*";
     }
-    trace(0, "Started %s://%s:%d\n", secure ? "https" : "http", ipaddr, port);
+    trace(2, "Started %s://%s:%d\n", secure ? "https" : "http", ipaddr, port);
     gfree(ip);
 
     if (!websHostUrl) {
@@ -592,26 +651,6 @@ int websListen(char *endpoint)
     }
     return sid;
 }
-
-
-#if UNUSED && KEEP
-void websCloseListen(int sid)
-{
-    int     i;
-
-    if (sid >= 0) {
-        socketCloseConnection(sid);
-        for (i = 0; i < listenMax; i++) {
-            if (listens[i] == sid) {
-                for (; i < listenMax; i++) {
-                    listens[i] = listens[i+1];
-                }
-                break;
-            }
-        }
-    }
-}
-#endif
 
 
 /*
@@ -675,27 +714,26 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
 }
 #endif
-    socketCreateHandler(sid, SOCKET_READABLE, socketEvent, wp);
-    /*
-        Arrange for a timeout to kill hung requests
-     */
-    wp->timeout = websStartEvent(WEBS_TIMEOUT, checkRequestTimeout, (void*) wp);
+    gassert(wp->timeout == -1);
+    wp->timeout = websStartEvent(WEBS_TIMEOUT, checkTimeout, (void*) wp);
     trace(5, "accept connection\n");
+    socketEvent(sid, SOCKET_READABLE, wp);
     return 0;
 }
 
 
 /*
-    The webs socket handler.  Called in response to I/O. We just pass control to the relevant read or write handler. A
-    pointer to the webs structure is passed as a (void*) in iwp.  
+    The webs socket handler. Called in response to I/O. We just pass control to the relevant read or write handler. A
+    pointer to the webs structure is passed as a (void*) in wptr.  
  */
-static void socketEvent(int sid, int mask, void *iwp)
+static void socketEvent(int sid, int mask, void *wptr)
 {
     Webs    *wp;
 
-    wp = (Webs*) iwp;
+    wp = (Webs*) wptr;
     gassert(wp);
 
+    gassert(websValid(wp));
     if (! websValid(wp)) {
         return;
     }
@@ -703,10 +741,12 @@ static void socketEvent(int sid, int mask, void *iwp)
         readEvent(wp);
     } 
     if (mask & SOCKET_WRITABLE) {
-        if (websValid(wp) && wp->writable) {
-            (*wp->writable)(wp);
-        }
+        writeEvent(wp);
     } 
+    if (wp->flags & WEBS_CLOSED) {
+        websFree(wp);
+        /* WARNING: wp not valid here */
+    }
 }
 
 
@@ -735,6 +775,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
 static void readEvent(Webs *wp)
 {
     WebsBuf     *rxbuf;
+    WebsSocket  *sp;
     ssize       nbytes;
 
     gassert(wp);
@@ -743,37 +784,34 @@ static void readEvent(Webs *wp)
     websNoteRequestActivity(wp);
     rxbuf = &wp->rxbuf;
 
-    while (websValid(wp)) {
-        if (bufRoom(rxbuf) < (BIT_LIMIT_SOCKET_BUFFER + 1)) {
-            if (!bufGrow(rxbuf, BIT_LIMIT_SOCKET_BUFFER + 1)) {
-                error("Can't grow rxbuf");
-                websDone(wp, 500);
-                break;
-            }
+    if (bufRoom(rxbuf) < (BIT_LIMIT_BUFFER + 1)) {
+        if (!bufGrow(rxbuf, BIT_LIMIT_BUFFER + 1)) {
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't grow rxbuf");
+            websPump(wp);
+            return;
         }
-        if ((nbytes = websRead(wp, (char*) rxbuf->endp, BIT_LIMIT_SOCKET_BUFFER)) > 0) {
-            wp->lastRead = nbytes;
-            bufAdjustEnd(rxbuf, nbytes);
-            bufAddNull(rxbuf);
-        }
+    }
+    if ((nbytes = websRead(wp, (char*) rxbuf->endp, BIT_LIMIT_BUFFER)) > 0) {
+        wp->lastRead = nbytes;
+        bufAdjustEnd(rxbuf, nbytes);
+        bufAddNull(rxbuf);
+    } 
+    if (nbytes > 0 || wp->state > WEBS_BEGIN) {
         websPump(wp);
-
-        if (!websValid(wp)) {
-            break;
-        } else if (nbytes < 0) {
-            if (wp->state < WEBS_RUNNING) {
-                /* EOF or error */
-                websTimeoutCancel(wp);
-                socketCloseConnection(wp->sid);
-                websFree(wp);
-                trace(5, "Close inactive connection\n");
-            } else {
-                /* Request still running. Wait till complete or timer expires */
+    }
+    if (wp->flags & WEBS_CLOSED) {
+        return;
+    } else if (nbytes < 0) {
+        /* EOF or error. Allow running requests to continue. */
+        if (wp->state < WEBS_READY) {
+            if (wp->state > WEBS_BEGIN) {
+                websError(wp, HTTP_CODE_COMMS_ERROR, "Read error: connection lost");
             }
-            break;
-        } else if (nbytes == 0 || wp->state != WEBS_CONTENT) {
-            break;
+            recycle(wp, 0);
         }
+    } else if (wp->state < WEBS_READY) {
+        sp = socketPtr(wp->sid);
+        socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_READABLE, socketEvent, wp);
     }
 }
 
@@ -790,9 +828,17 @@ static void websPump(Webs *wp)
         case WEBS_CONTENT:
             canProceed = processContent(wp);
             break;
-        case WEBS_RUNNING:
+        case WEBS_READY:
             websRouteRequest(wp);
+            canProceed = (wp->state != WEBS_RUNNING);
+            break;
+        case WEBS_RUNNING:
+            /* Nothing to do until websDone is called */
             return;
+        case WEBS_COMPLETE:
+            recycle(wp, 1);
+            canProceed = bufLen(&wp->rxbuf) != 0;
+            break;
         }
     }
 }
@@ -810,11 +856,12 @@ bool parseIncoming(Webs *wp)
     if ((end = strstr((char*) wp->rxbuf.servp, "\r\n\r\n")) == 0) {
         if (bufLen(&wp->rxbuf) >= BIT_LIMIT_HEADER) {
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Header too large");
+            return 1;
         }
         return 0;
     }    
 #if BIT_DEBUG
-    trace(3 | WEBS_LOG_RAW, "<<< Request\n");
+    trace(3 | WEBS_LOG_RAW, "\n<<< Request\n");
 #endif
     c = *end;
     *end = '\0';
@@ -830,7 +877,7 @@ bool parseIncoming(Webs *wp)
     if (!parseHeaders(wp)) {
         return 0;
     }
-    wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_RUNNING;
+    wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
     //  MOB Functionalize
 #if BIT_CGI
@@ -839,7 +886,7 @@ bool parseIncoming(Webs *wp)
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
                 websError(wp, 400 | WEBS_CLOSE, "Can't open CGI file");
-                return 0;
+                return 1;
             }
         }
     }
@@ -855,7 +902,7 @@ bool parseIncoming(Webs *wp)
         wp->code = (exists && sbuf.st_mode & S_IFDIR) ? 204 : 201;
         if ((wp->putfd = open(wp->filename, mode, 0644)) < 0) {
             websError(wp, 500, "Can't create the put URI");
-            return 0;
+            return 1;
         }
     }
     return 1;
@@ -1061,7 +1108,7 @@ static bool parseHeaders(Webs *wp)
     if (!wp->rxChunkState) {
         /*
             Step over "\r\n" after headers.
-            Don't do this if chunked so chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
+            Don't do this if chunked so that chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
         gassert(bufLen(&wp->rxbuf) >= 2);
         wp->rxbuf.servp += 2;
@@ -1090,7 +1137,11 @@ static bool processContent(Webs *wp)
         return 0;
     }
     if (wp->eof) {
-        wp->state = WEBS_RUNNING;
+        wp->state = WEBS_READY;
+        /* 
+            Prevent reading content from the next request 
+            The handler may not have been created if all the content was read in the initial read. No matter.
+         */
         socketDeleteHandler(wp->sid);
         return 1;
     }
@@ -1221,10 +1272,11 @@ static bool filterChunkData(Webs *wp)
  */
 void websServiceEvents(int *finished)
 {
-    gassert(finished);
-    *finished = 0;
-    while (!*finished) {
-        if (socketSelect(-1, 3600 * 1000)) {
+    if (finished) {
+        *finished = 0;
+    }
+    while (!finished || !*finished) {
+        if (socketSelect(-1, 1000)) {
             socketProcess();
         }
         websCgiCleanup();
@@ -1414,7 +1466,7 @@ int websCompareVar(Webs *wp, char *var, char *value)
 /*
     Cancel the request timeout. Note may be called multiple times.
  */
-void websTimeoutCancel(Webs *wp)
+void websCancelTimeout(Webs *wp)
 {
     gassert(websValid(wp));
 
@@ -1433,25 +1485,26 @@ void websResponse(Webs *wp, int code, char *message)
     ssize   len;
     
     gassert(websValid(wp));
+    websSetStatus(wp, code);
 
     if (!smatch(wp->method, "HEAD") && message && *message) {
         len = slen(message);
-        websWriteHeaders(wp, code, len + 2, 0);
+        websWriteHeaders(wp, len + 2, 0);
         websWriteEndHeaders(wp);
         websWriteBlock(wp, message, len);
         websWriteBlock(wp, "\r\n", 2);
     } else {
-        websWriteHeaders(wp, code, 0, 0);
+        websWriteHeaders(wp, 0, 0);
         websWriteEndHeaders(wp);
     }
-    websDone(wp, code);
+    websDone(wp);
 }
 
 
 static char *makeUri(char *scheme, char *host, int port, char *path)
 {
     if (port <= 0) {
-        port = smatch(scheme, "https") ? BIT_SSL_PORT : BIT_HTTP_PORT;
+        port = smatch(scheme, "https") ? defaultSslPort : defaultHttpPort;
     }
     if (port == 80 || port == 443) {
         return sfmt("%s://%s%s", scheme, host, path);
@@ -1469,7 +1522,7 @@ void websRedirect(Webs *wp, char *uri)
     char    hostbuf[BIT_LIMIT_STRING];
     bool    secure, fullyQualified;
     ssize   len;
-    int     originalPort, port, code;
+    int     originalPort, port;
 
     gassert(websValid(wp));
     gassert(uri);
@@ -1496,7 +1549,7 @@ void websRedirect(Webs *wp, char *uri)
     }
     scheme = secure ? "https" : "http";
     if (port <= 0) {
-        port = secure ? BIT_SSL_PORT : BIT_HTTP_PORT;
+        port = secure ? defaultSslPort : defaultHttpPort;
     }
     if (strstr(uri, "https:///")) {
         /* Short-hand for redirect to https */
@@ -1513,13 +1566,12 @@ void websRedirect(Webs *wp, char *uri)
         Please update your documents to reflect the new location.\r\n\
         </body></html>\r\n", uri);
     len = slen(message);
-    code = HTTP_CODE_MOVED_TEMPORARILY;
-    websWriteHeaders(wp, code, len + 2, uri);
+    websSetStatus(wp, HTTP_CODE_MOVED_TEMPORARILY);
+    websWriteHeaders(wp, len + 2, uri);
     websWriteEndHeaders(wp);
     websWriteBlock(wp, message, len);
     websWriteBlock(wp, "\r\n", 2);
-    websDone(wp, code);
-
+    websDone(wp);
     gfree(message);
     gfree(location);
     gfree(uribuf);
@@ -1630,10 +1682,6 @@ void websError(Webs *wp, int code, char *fmt, ...)
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
-    if (!websValid(wp)) {
-        websDone(wp, code);
-        return;
-    }
     code &= ~WEBS_CLOSE;
 
     if (wp->rxRemaining && code != 200 && code != 301 && code != 302 && code != 401) {
@@ -1683,33 +1731,51 @@ char *websErrorMsg(int code)
 }
 
 
-/*
-    Trace a response header
- */
-ssize websWriteHeader(Webs *wp, char *fmt, ...)
+int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 {
     va_list     vargs;
     char        *buf;
-    ssize        rc;
     
     gassert(websValid(wp));
-    va_start(vargs, fmt);
-    if ((buf = sfmtv(fmt, vargs)) == 0) {
-        error("websWrite lost data, buffer overflow");
+
+    if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
+        wp->flags |= WEBS_RESPONSE_TRACED;
+        trace(3 | WEBS_LOG_RAW, "\n>>> Response\n");
     }
-    va_end(vargs);
-    gassert(buf);
-    rc = 0;
-    if (buf) {
-        if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
-            wp->flags |= WEBS_RESPONSE_TRACED;
-            trace(3 | WEBS_LOG_RAW, ">>> Response\n");
+
+    if (key) {
+        if (websWriteBlock(wp, key, strlen(key)) < 0) {
+            return -1;
         }
-        trace(3 | WEBS_LOG_RAW, "%s", buf);
-        rc = websWriteBlock(wp, buf, strlen(buf));
-        gfree(buf);
+        if (websWriteBlock(wp, ": ", 2) < 0) {
+            return -1;
+        }
+        trace(3 | WEBS_LOG_RAW, "%s: ", key);
     }
-    return rc;
+    if (fmt) {
+        va_start(vargs, fmt);
+        if ((buf = sfmtv(fmt, vargs)) == 0) {
+            error("websWrite lost data, buffer overflow");
+            return -1;
+        }
+        va_end(vargs);
+        trace(3 | WEBS_LOG_RAW, "%s", buf);
+        if (websWriteBlock(wp, buf, strlen(buf)) < 0) {
+            return -1;
+        }
+        gfree(buf);
+        if (websWriteBlock(wp, "\r\n", 2) != 2) {
+            return -1;
+        }
+    }
+    trace(3 | WEBS_LOG_RAW, "\r\n");
+    return 0;
+}
+
+
+void websSetStatus(Webs *wp, int code)
+{
+    wp->code = code;
 }
 
 
@@ -1717,55 +1783,53 @@ ssize websWriteHeader(Webs *wp, char *fmt, ...)
     Write a set of headers. Does not write the trailing blank line so callers can add more headers.
     Set length to -1 if unknown and transfer-chunk-encoding will be employed.
  */
-void websWriteHeaders(Webs *wp, int code, ssize length, char *location)
+void websWriteHeaders(Webs *wp, ssize length, char *location)
 {
     WebsKey     *key;
     char        *date;
 
     gassert(websValid(wp));
-    gassert(code >= 0);
 
-    if (!(wp->flags & WEBS_HEADERS_DONE)) {
-        wp->code = code;
+    if (!(wp->flags & WEBS_HEADERS_CREATED)) {
         if (!wp->protoVersion) {
             wp->protoVersion = sclone("HTTP/1.0");
             wp->flags &= ~WEBS_KEEP_ALIVE;
         }
-        websWriteHeader(wp, "%s %d %s\r\n", wp->protoVersion, code, websErrorMsg(code));
+        websWriteHeader(wp, NULL, "%s %d %s", wp->protoVersion, wp->code, websErrorMsg(wp->code));
         /*
             The Embedthis Open Source license does not permit modification of the Server header
          */
-        websWriteHeader(wp, "Server: GoAhead/%s\r\n", BIT_VERSION);
+        websWriteHeader(wp, "Server", "GoAhead/%s", BIT_VERSION);
 
         if ((date = websGetDateString(NULL)) != NULL) {
-            websWriteHeader(wp, "Date: %s\r\n", date);
+            websWriteHeader(wp, "Date", "%s", date);
             gfree(date);
         }
         if (wp->authResponse) {
-            websWriteHeader(wp, "WWW-Authenticate: %s\r\n", wp->authResponse);
+            websWriteHeader(wp, "WWW-Authenticate", "%s", wp->authResponse);
         }
         if (smatch(wp->method, "HEAD")) {
-            websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
+            websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
         } else if (length >= 0) {                                                                                    
-            websWriteHeader(wp, "Content-Length: %d\r\n", (int) length);                                           
+            websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
         }
         wp->txLen = length;
         if (wp->txLen < 0) {
-            websWriteHeader(wp, "Transfer-Encoding: chunked\r\n");
+            websWriteHeader(wp, "Transfer-Encoding", "chunked");
         }
         if (wp->flags & WEBS_KEEP_ALIVE) {
-            websWriteHeader(wp, "Connection: keep-alive\r\n");
+            websWriteHeader(wp, "Connection", "keep-alive");
         } else {
-            websWriteHeader(wp, "Connection: close\r\n");   
+            websWriteHeader(wp, "Connection", "close");   
         }
         if (location) {
-            websWriteHeader(wp, "Location: %s\r\n", location);
+            websWriteHeader(wp, "Location", "%s", location);
         } else if ((key = hashLookup(websMime, wp->ext)) != 0) {
-            websWriteHeader(wp, "Content-Type: %s\r\n", key->content.value.string);
+            websWriteHeader(wp, "Content-Type", "%s", key->content.value.string);
         }
         if (wp->responseCookie) {
-            websWriteHeader(wp, "Set-Cookie: %s\r\n", wp->responseCookie);
-            websWriteHeader(wp, "Cache-Control: %s\r\n", "no-cache=\"set-cookie\"");
+            websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
+            websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
         }
     }
 }
@@ -1778,10 +1842,12 @@ void websWriteEndHeaders(Webs *wp)
         By omitting the "\r\n" delimiter after the headers, chunks can emit "\r\nSize\r\n" as a single chunk delimiter
      */
     if (wp->txLen >= 0) {
-        websWriteHeader(wp, "\r\n");
+        websWriteBlock(wp, "\r\n", 2);
     }
-    websFlush(wp);
-    wp->flags |= WEBS_HEADERS_DONE;
+    wp->flags |= WEBS_HEADERS_CREATED;
+    if (wp->txLen < 0) {
+        wp->flags |= WEBS_CHUNKING;
+    }
 }
 
 
@@ -1821,49 +1887,21 @@ ssize websWrite(Webs *wp, char *fmt, ...)
 }
 
 
-static ssize bufferOutput(Webs *wp, char *buf, ssize size) 
-{
-    WebsBuf     *op;
-    ssize       sofar, thisWrite, len, room;
-
-    gassert(wp);
-    gassert(buf);
-    gassert(size >= 0);
-
-    op = &wp->output;
-    sofar = 0;
-    while (size > 0) {
-        len = bufLen(op);
-        room = op->buflen - len;
-        if (len > 0 && room < size) {
-            if (websFlush(wp) > 0) {
-                continue;
-            }
-            if (op->buflen < op->maxsize) {
-                bufGrow(op, 0);
-                continue;
-            }
-        }
-        if (room == 0) {
-            break;
-        }
-        thisWrite = min(room, size);
-        bufPutBlk(op, buf, thisWrite);
-        size -= thisWrite;
-        buf += thisWrite;
-        sofar += thisWrite;
-    }
-    return sofar;
-}
-
-
-static ssize writeToSocket(Webs *wp, char *buf, ssize size)
+/*
+    Non-blocking write to socket. 
+    Returns number of bytes written. Returns -1 on errors. May return short.
+ */
+ssize websWriteSocket(Webs *wp, char *buf, ssize size)
 {
     ssize   written;
 
     gassert(wp);
     gassert(buf);
     gassert(size >= 0);
+
+    if (wp->flags & WEBS_CLOSED) {
+        return -1;
+    }
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         if ((written = sslWrite(wp, buf, size)) < 0) {
@@ -1875,47 +1913,47 @@ static ssize writeToSocket(Webs *wp, char *buf, ssize size)
         return -1;
     }
     wp->written += written;
+    websNoteRequestActivity(wp);
     return written;
 }
 
 
 /*
     Write some output using transfer chunk encoding if required
+    Returns the number of bytes written. Returns -1 for errors. May return short.
  */
-static ssize writeChunked(Webs *wp, char *buf, ssize size)
+static bool flushChunkData(Webs *wp)
 {
-    ssize   written;
+    ssize   len, written, room;
 
     gassert(wp);
-    gassert(buf);
-    gassert(size > 0);
 
-    written = 0;
-    if (wp->txLen > 0 || !(wp->flags & WEBS_HEADERS_DONE)) {
-        if (size == 0) {
+    while (bufLen(&wp->chunkbuf) > 0) {
+        /*
+            Stop if there is not room for a reasonable size chunk.
+            Subtract 16 to allow for the final trailer.
+         */
+        if ((room = bufRoom(&wp->output) - 16) <= CHUNK_LOW) {
             return 0;
         }
-        /* Know the content length, no need for chunking */
-        return writeToSocket(wp, buf, size);
-    }
-    while (1) {
         switch (wp->txChunkState) {
         default:
         case WEBS_CHUNK_START:
-            fmt(wp->txChunkPrefix, sizeof(wp->txChunkPrefix), "\r\n%x\r\n", size);
+            /* Select the chunk size so that both the prefix and data will fit */
+            wp->txChunkLen = min(bufLen(&wp->chunkbuf), room - 16);
+            fmt(wp->txChunkPrefix, sizeof(wp->txChunkPrefix), "\r\n%x\r\n", wp->txChunkLen);
             wp->txChunkPrefixLen = slen(wp->txChunkPrefix);
             wp->txChunkPrefixNext = wp->txChunkPrefix;
-            wp->txChunkLen = size;
             wp->txChunkState = WEBS_CHUNK_HEADER;
             break;
 
         case WEBS_CHUNK_HEADER:
-            if ((written = writeToSocket(wp, wp->txChunkPrefixNext, wp->txChunkPrefixLen)) < 0) {
-                return -1;
+            if ((written = bufPutBlk(&wp->output, wp->txChunkPrefixNext, wp->txChunkPrefixLen)) < 0) {
+                return 0;
             } else {
                 wp->txChunkPrefixNext += written;
                 wp->txChunkPrefixLen -= written;
-                if (wp->txChunkPrefixLen <= 0 && size > 0) {
+                if (wp->txChunkPrefixLen <= 0) {
                     wp->txChunkState = WEBS_CHUNK_DATA;
                 } else {
                     return 0;
@@ -1925,62 +1963,96 @@ static ssize writeChunked(Webs *wp, char *buf, ssize size)
 
         case WEBS_CHUNK_DATA:
             if (wp->txChunkLen > 0) {
-                if ((written = writeToSocket(wp, buf, wp->txChunkLen)) < 0) {
+                len = min(room, wp->txChunkLen);
+                if ((written = bufPutBlk(&wp->output, wp->chunkbuf.servp, len)) != len) {
+                    gassert(0);
                     return -1;
                 }
+                bufAdjustStart(&wp->chunkbuf, written);
                 wp->txChunkLen -= written;
                 if (wp->txChunkLen <= 0) {
                     wp->txChunkState = WEBS_CHUNK_START;
+                    bufCompact(&wp->chunkbuf);
                 }
-            }
-            if (wp->txChunkLen <= 0) {
-                return size;
+                bufAddNull(&wp->output);
             }
         }
     }
+    return bufLen(&wp->chunkbuf) == 0;
 }
 
 
 /*
-    Finalize output. Flush tx data and write chunk trailer if required. 
-    After finalization, the client should have the full response.
-    WARNING: this blocks
+    Initiate flushing output buffer. Returns true if all data is written to the socket and the buffer is empty.
  */
-ssize websFinalize(Webs *wp)
-{
-    ssize       written;
-    int         prior;
-
-    gassert(wp);
-    if (!(wp->flags & WEBS_FINALIZED)) {
-        wp->flags |= WEBS_FINALIZED;
-        prior = socketSetBlock(wp->sid, 1);
-        written = websFlush(wp);
-        if (wp->txLen < 0 && writeToSocket(wp, "\r\n0\r\n\r\n", 7) != 7) {
-            written = -1;
-        }
-        socketSetBlock(wp->sid, prior);
-    } else written = 0;
-    return written;
-}
-
-
-/*
-    Flush buffered tx data and compact the txbuf
- */
-ssize websFlush(Webs *wp)
+bool websFlush(Webs *wp)
 {
     WebsBuf     *op;
-    ssize       written, size;
+    ssize       nbytes, written;
 
     op = &wp->output;
-    written = 0;
-    size = bufLen(&wp->output);
-    if (size > 0 && (written = writeChunked(wp, op->servp, size)) >= 0) {
-        bufAdjustStart(op, written);
+    if (wp->flags & WEBS_CHUNKING) {
+        if (flushChunkData(wp) && wp->flags & WEBS_FINALIZED) {
+            bufPutStr(op, "\r\n0\r\n\r\n");
+            bufAddNull(&wp->output);
+            wp->flags &= ~WEBS_CHUNKING;
+        }
     }
-    bufCompact(op);
-    return written;
+    while ((nbytes = bufLen(op)) > 0) {
+        if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
+            websError(wp, HTTP_CODE_COMMS_ERROR, "Comms write error");
+            return 0;
+        } else if (written == 0) {
+            break;
+        }
+        bufAdjustStart(op, written);
+        bufCompact(op);
+        nbytes = bufLen(op);
+    }
+    gassert(websValid(wp));
+
+    if (bufLen(op) == 0 && wp->flags & WEBS_FINALIZED) {
+        wp->state = WEBS_COMPLETE;
+    }
+    return bufLen(op) == 0;
+}
+
+
+/*
+    Respond to a writable event. First write any tx buffer by calling websFlush.
+    Then write body data if writeProc is defined. If all written, ensure transition to complete state.
+    Calls websPump() to advance state.
+ */
+static void writeEvent(Webs *wp)
+{
+    WebsBuf     *op;
+
+    op = &wp->output;
+    if (bufLen(op) > 0) {
+        websFlush(wp);
+    }
+    if (bufLen(op) == 0 && wp->writeData) {
+        (wp->writeData)(wp);
+    }
+    if (wp->state != WEBS_RUNNING) {
+        websPump(wp);
+    }
+}
+
+
+void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
+{
+    WebsSocket  *sp;
+
+    wp->writeData = proc;
+    if (websFlush(wp)) {
+        /* Can call the writeData proc if all output buffered data has been flushed */
+        (wp->writeData)(wp);
+    }
+    if (wp->state < WEBS_COMPLETE) {
+        sp = socketPtr(wp->sid);
+        socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
+    }
 }
 
 
@@ -2010,56 +2082,47 @@ char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
+    Buffer data. Will flush as required. May return -1 on write errors.
+ */
+
+
+/*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
  */
 ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 {
-    ssize   len, written;
+    WebsBuf     *op;
+    ssize       written, thisWrite, len, room;
 
     gassert(wp);
     gassert(websValid(wp));
     gassert(buf);
     gassert(size >= 0);
 
+    op = (wp->flags & WEBS_CHUNKING) ? &wp->chunkbuf : &wp->output;
     written = len = 0;
+
     while (size > 0) {  
-        if ((len = bufferOutput(wp, buf, size)) < 0) {
+#if UNUSED
+        /* Buffer may call flush which can fail if the connection is closed */
+        if (wp->state == WEBS_COMPLETE) {
             return -1;
         }
-        size -= len;
-        buf += len;
-        written += len;
-    }
-    return written;
-}
-
-
-/*
-    Write a block of data of length "size" to the user's browser. Unbuffered write.
-    WARNING: If data is buffered, this will do a blocking flush first. To avoid this, call websFlush() manually
-    and check the results.
- */
-ssize websWriteRaw(Webs *wp, char *buf, ssize size)
-{
-    ssize   written;
-    int     prior;
-    
-    gassert(wp);
-    gassert(buf);
-    gassert(size >= 0);
-    /*
-        Flush any buffered data to ensure data remains in sequence. 
-        WARNING: Must do this blocking to ensure all data is written.
-     */
-    if (bufLen(&wp->output) > 0) {
-        prior = socketSetBlock(wp->sid, 1);
-        written = websFlush(wp);
-        socketSetBlock(wp->sid, prior);
-        if (written < 0) {
-            return written;
+#endif
+        if (bufRoom(op) < size) {
+            websFlush(wp);
         }
+        if ((room = bufRoom(op)) == 0) {
+            break;
+        }
+        thisWrite = min(room, size);
+        bufPutBlk(op, buf, thisWrite);
+        size -= thisWrite;
+        buf += thisWrite;
+        written += thisWrite;
     }
-    return writeToSocket(wp, buf, size);
+    bufAddNull(op);
+    return written;
 }
 
 
@@ -2157,10 +2220,10 @@ static void logRequest(Webs *wp, int code)
 
 
 /*
-    Request timeout. The timeout triggers if we have not read any data from the users browser in the last 
+    Request and connection timeout. The timeout triggers if we have not read any data from the users browser in the last 
     WEBS_TIMEOUT period. If we have heard from the browser, simply re-issue the timeout.
  */
-static void checkRequestTimeout(void *arg, int id)
+static void checkTimeout(void *arg, int id)
 {
     Webs        *wp;
     WebsTime    elapsed, delay;
@@ -2173,7 +2236,16 @@ static void checkRequestTimeout(void *arg, int id)
         websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
     } else if (elapsed >= WEBS_TIMEOUT) {
-        websDone(wp, 404 | WEBS_CLOSE);
+        if (!(wp->flags & WEBS_HEADERS_CREATED)) {
+            if (wp->state > WEBS_BEGIN) {
+                websError(wp, HTTP_CODE_REQUEST_TIMEOUT, "Request exceeded timeout");
+            } else {
+                websError(wp, HTTP_CODE_REQUEST_TIMEOUT, "Idle connection closed");
+            }
+        }
+        recycle(wp, 0);
+        websFree(wp);
+        /* WARNING: wp not valid here */
     } else {
         delay = WEBS_TIMEOUT - elapsed;
         gassert(delay > 0);
@@ -3057,6 +3129,8 @@ char *websNormalizeUriPath(char *pathArg)
         }
         *dp = '\0';
     }
+    gfree(dupPath);
+    gfree(segments);
     if ((path[0] != '/') || strchr(path, '\\')) {
         return 0;
     }

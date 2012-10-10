@@ -103,9 +103,12 @@ void websRouteRequest(Webs *wp)
 #endif
             gassert(route->handler);
             trace(5, "Route %s calls handler %s\n", route->prefix, route->handler->name);
+            wp->state = WEBS_RUNNING;
             if ((*route->handler->service)(wp)) {                                        
+                /* Handled */
                 return;
             }
+            wp->state = WEBS_READY;
             if (wp->flags & WEBS_REROUTE) {
                 wp->flags &= ~WEBS_REROUTE;
                 if (++count >= WEBS_MAX_ROUTE) {

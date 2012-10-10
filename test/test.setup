@@ -6,10 +6,10 @@ require ejs.unix
 let config      = Config.OS + '-' + Config.CPU + '-' + 'debug'
 const HOST      = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "127.0.0.1"
 const HOSTV6    = '[::1]'
-const HTTP      = "http://"  + HOST   + ":" + App.config.bit_http_port
-const SSL       = "https://" + HOST   + ":" + App.config.bit_ssl_port
-const HTTPV6    = "http://[::]:" + App.config.bit_http_v6_port
-const SSLV6     = "https://" + HOST   + ":" + App.config.bit_ssl_v6_port
+const HTTP      = "http://"  + HOST   + ":8080"
+const SSL       = "https://" + HOST   + ":4443"
+const HTTPV6    = "http://[::]:8090"
+const SSLV6     = "https://[::]:4453"
 const PIDFILE   = ".pidfile"
 
 let listen = [ HTTP, SSL, HTTPV6, SSLV6 ]

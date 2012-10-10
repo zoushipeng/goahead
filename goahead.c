@@ -25,6 +25,7 @@ static int finished = 0;
 /********************************* Forwards ***********************************/
 
 static void initPlatform();
+static void logHeader();
 static void usage();
 
 #if WINDOWS
@@ -41,7 +42,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char  *argp, *home, *documents, *endpoint, addr[32], *route, *auth;
+    char  *argp, *home, *documents, *endpoints, *endpoint, *route, *auth, *tok;
     int     argind;
 
 #if WINDOWS
@@ -78,7 +79,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             traceSetPath(argv[++argind]);
 
         } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
-            traceSetPath("stdout:4");
+            traceSetPath("stdout:2");
 
         } else if (smatch(argp, "--route") || smatch(argp, "-r")) {
             route = argv[++argind];
@@ -104,6 +105,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error("Can't load %s", auth);
         return -1;
     }
+    logHeader();
     if (argind < argc) {
         while (argind < argc) {
             endpoint = argv[argind++];
@@ -112,32 +114,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     } else {
-        if (BIT_HTTP_PORT > 0) {
-            fmt(addr, sizeof(addr), "http://:%d", BIT_HTTP_PORT);
-            if (websListen(addr) < 0) {
+        endpoints = sclone(BIT_LISTEN);
+        for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
+            if (websListen(endpoint) < 0) {
                 return -1;
             }
         }
-        if (BIT_HTTP_V6_PORT > 0) {
-            fmt(addr, sizeof(addr), "http://[::]:%d", BIT_HTTP_V6_PORT);
-            if (websListen(addr) < 0) {
-                return -1;
-            }
-        } 
-#if BIT_PACK_SSL
-        if (BIT_SSL_PORT > 0) {
-            fmt(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
-            if (websListen(addr) < 0) {
-                return -1;
-            }
-        }
-        if (BIT_SSL_V6_PORT > 0) {
-            fmt(addr, sizeof(addr), "https://[::]:%d", BIT_SSL_V6_PORT);
-            if (websListen(addr) < 0) {
-                return -1;
-            }
-        }
-#endif
+        gfree(endpoints);
     }
 #if BIT_ROM && UNUSED
     /*
@@ -166,9 +149,28 @@ MAIN(goahead, int argc, char **argv, char **envp)
 }
 
 
+static void logHeader()
+{
+    char    home[BIT_LIMIT_STRING];
+
+    getcwd(home, sizeof(home));
+    trace(2, "Configuration for %s\n", BIT_TITLE);
+    trace(2, "---------------------------------------------\n");
+    trace(2, "Version:            %s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
+    trace(2, "BuildType:          %s\n", BIT_DEBUG ? "Debug" : "Release");
+    trace(2, "CPU:                %s\n", BIT_CPU);
+    trace(2, "OS:                 %s\n", BIT_OS);
+    trace(2, "Host:               %s\n", websGetServer());
+    trace(2, "Directory:          %s\n", home);
+    trace(2, "Documents:          %s\n", websGetDocuments());
+    trace(2, "Configure:          %s\n", BIT_CONFIG_CMD);
+    trace(2, "---------------------------------------------\n");
+}
+
+
 static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
-        "  %s [options] [IPaddress][:port] [documents]\n\n"
+        "  %s [options] [documents] [IPaddress][:port]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
         "    --background           # Run as a Unix daemon\n"

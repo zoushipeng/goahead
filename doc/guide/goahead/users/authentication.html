@@ -18,7 +18,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -37,6 +37,7 @@
             <ul class="nav">
                 <li><a href="#basicAuthentication">Basic Authentication</a></li>
                 <li><a href="#digestAuthentication">Digest Authentication</a></li>
+                <li><a href="#formAuthentication">Form Authentication</a></li>
                 <li><a href="#beltAndSuspenders">Belt and Suspenders</a></li>
             </ul>
 <!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
@@ -51,39 +52,21 @@
             </ul>
 <!-- EndDsi -->
         </div>
-<!--
-    AuthType: basic, digest, post
-    AuthStore: pam, internal
-    Auth Directives
-        AuthRealm, User, Role, AuthType, AuthStore
-    Sessions
-    Custom stores, auth types
-    Internal store
-    Abilities, and Roles
-    Using basic
-    Using digest
-    Using psot
-        - login form page
-        - login service
-        ....
--->
         <div class="contentLeft">
             <h1>Authentication</h1>
             <p>Authentication is the process by which a client's identity and abilities are verified before granting
-            access to server resources. Authentication is essential when you have content that you wish to protect and
-            provide only to specific, approved clients.</p>
+            access to server resources. Authentication is essential when you have content that you wish to protect
+            and you wish to provide access only to specific, approved clients.</p>
             <p>GoAhead implements a powerful and flexible authorization mechanism that supports Basic, Digest and
-            Post (web-form) authentication schemes. GoAhead employs a unified flexible authentication front and back ends
+            Web-form ) authentication schemes. GoAhead employs a unified flexible authentication front and back ends
             that can be mixed and matched to meet most authentication needs.</p>
             
-            <a id="basicAuthentication"></a>
             <h2>Authentication Schemes</h2>
             <p>GoAhead provides several authentication schemes.
             <ul>
                 <li>Basic Authentication</li>
                 <li>Digest Authentication</li>
-                <li>Post Web Form </li>
-                <li>Custom via API</li>
+                <li>Form Authentication</li>
             </ul>
             <p>Basic and Digest authentication are HTTP protocol mechanisms defined by the <a href=
             "http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP/1.1 RFC2616</a> specification. Because they operate
@@ -92,8 +75,42 @@
             credentials. When submitted, the GoAhead server consults the appropriate user password store to authenticate the
             user. While this scheme works, applications increasingly need to utilize an application-level user login
             mechanism that is more integrated into the overall look-and-feel of the application. Such login facilities
-            are defined using HTTP Post requests from standard web page forms. GoAhead supports this scheme via the
-            Post Web Form authentication scheme.</p>
+            are defined using HTTP POST requests from standard web page forms. GoAhead supports this scheme via the
+            Form authentication scheme.</p>
+            <h2>Configuration</h2>
+            <p>Authentication is controlled by two configuration files:<p>
+            <ul>
+                <li><i>auth.txt</i> &mdash; which contains authorization directives
+                <li><i>route.txt</i> &mdash; which contains URI routing directives
+            </ul>
+            <p>Together these two files define the authentication scheme to be used for each and every request to
+            GoAhead. When GoAhead is run, the auth.txt and route.txt file are read and authenticated routes are created
+            for each specified URI pattern. When client requests are received, they are matched against the URI routes
+            to find the required authentication scheme. This enables great flexibility as different requests can use
+            different authentication schemes.</p>
+            <h3>Authorization Configuration</h3>
+            The <i>auth.txt</i> file contains <i>user</i> and <i>role</i> definitions to establish an authentication
+            database. If running on a Unix system, the standard Unix user database may be used instead of defining users in
+            <i>auth.txt</i>.<p>
+            <h4>User directive</h4>
+            <p>Users can be defined via the <i>user</i> directive. This specifies the username, encrypted password
+            and the authentication roles played by the user.</p>
+            <h4>Role directive</h4>
+            <p>Roles can be defined via the <i>role</i> directive. This specifies the role name and a set of ability
+            words. URI routes may require that a user has certain abilities before access is granted.</p>
+            <pre>
+role name=manager abilities=view,edit,delete
+user name=joshua password=2fd6e47ff9bb70c0465fd2f5c8e5305e roles=manager
+</pre>
+            <h3>Routing</h3>
+            <p>The <i>route.txt</i> file contains <i>route</i> definitions that specify how each request URI will
+            be processed and what, if any, kind of authentication will be required for the request. For example:
+<pre>
+route uri=/private/ auth=digest abilities=edit
+route uri=/cgi-bin handler=cgi
+</pre>
+            The <i>auth</i> keyword takes an argument set to <i>digest</i>, <i>basic</i> or <i>form</i>. The 
+            <i>abilities</i> keyword takes a comma separated list of ability words.</p>
             <h2 class="section">Basic Authentication</h2>
             <p>Basic authentication was the original HTTP/1.0 authentication scheme. It transmits user names and
             passwords using a trivial encoding that is no better than using plain text.</p>
@@ -101,104 +118,97 @@
             Authentication instead if it is supported by your clients. If you must use Basic Authentication, use it over
             TLS/SSL which will encrypt the password over the wire.</p>
             <h2>Basic Authentication Directives</h2>
-            <p>GoAhead basic authorization is controlled by configuration file directives that may be used inside a
-            Route or VirtualHost block, or within the Default server configuration.</p>
-            <pre>
-&lt;Route /private/&gt;
-    <b>AuthType basic</b>
-    AuthRealm "example.com"
-    User julie 9d8873a123eb506e7f8e84d1f2a26916 view
-    Require user julie
-&lt;/Route&gt;
+            <p>GoAhead basic authorization is defined by specifying <i>auth=basic</i> in the required routes in 
+            <i>route.txt</i>. For example:
+<pre>
+# In auth.txt
+role name=operator abilities=start,stop
+user name=julie password=9d8873a123eb506e7f8e84d1f2a26916 roles=operator
+# In route.txt
+route uri=/machinery auth=basic abilities=start,stop
 </pre>
-            <p>This example restricts access to URIs beginning with "/private". It permits access to the user
-            "julie" once authenticated.</p>
-            <p>The <a href="dir/auth.html#authType">AuthType</a> directive specifies that basic authorization is being
-            used. The <a href="dir/auth.html#authName">AuthRealm</a> directive specifies the realm of access to GoAhead.
+            <p>This example restricts access to URIs beginning with "/machinery". It permits access to the users with
+            the <i>start, stop</i> abilities. This means that the user "julie" will be granted access once authenticated.</p>
+            <a id="basicAuthentication"></a>
+            <p>The <i>auth=basic</i>keyword specifies that basic authorization is being
+            used. The Authentication Realm used by Basic and Digest authentication is set when GoAhead is built. 
             The realm is used in combination with the username and password to encrypt the password.
-            The <a href="dir/auth.html#User">AuthUserFile</a> directive specifies the location of the user
-            password file. You may use a single password file for all authorization, or you can use different files for
-            each authorization section.</p>
-            <p>The <a href="dir/auth.html#user">User</a> directive defines a user by name with encrypted password and
-            zero or more roles for the user. Typically, User and Role directives are placed in a separate configuration 
-            file called <tt>auth.conf</tt> and are included via an <tt>"include auth.conf"</tt> directive.
-            To create passwords, see the section
-            below that describes the <a href="#authpass">authpass</a> utility.</p>
-            <h3>Require Directive</h3>
-            <p>The <a href="dir/auth.html#require">Require</a> directive controls access to the resources managed by
-            the route. There are three possibilities to control access: require specific named users, 
-            require a secure protocol such as TLS/SSL to be used, and require that the authenticated user possess 
-            a set of specified abilities. </p>
-            <ul>
-                <li>Require user username ...</li>
-                <li>Require ability name...</li>
-                <li>Require secure</li>
-            </ul>
-            <p>When using <tt>Require ability</tt>, the abilities may be roles defined via the 
-            <a href="dir/auth.html#role">Role</a> directive, or they may be simple words which represent a discrete
-            ability that is explicitly specified in the <a href="dir/auth.html#user">User</a> directive.
-            <p>The <tt>require secure</tt> directive specifies that the SSL/TLS protocol must be used for the
-            request to permit access.</p>
-            <p>Note: These three require directives alternatives may be used in combination. However, multiple
-            <tt>Require user</tt> or multiple <tt>Require ability</tt> directives are not supported. The last 
-            directive will take precedence.</p>
-            <p><b>SECURITY WARNING</b>: it is essential that the authentication file be stored outside
-            the DocumentRoot or any directory serving content.</p>
-            
+            <p>To create passwords, see the section below that describes the <a href="#gopass">gopass</a> utility.</p>
             <a id="digestAuthentication"></a>
             <h2 class="section">Digest Authentication</h2>
             <p>The Digest authentication scheme is a modern replacement for the Basic authorization scheme. It uses
             cryptographic techniques to encode passwords and does not transmit sensitive information in clear-text.</p>
-            <h2>Digest Authentication Directives</h2>
-            <p>GoAhead digest authorization is controlled by configuration file directives that may be used within any
-            Route, VirtualHost block or within the Default server configuration.</p>
-            <pre>
-&lt;Route /private/&gt;
-    <b>AuthType Digest</b>
-    AuthRealm "example.com"
-    include auth.conf
-    Require user peter
-&lt;/Route&gt;
-</pre>
-            <p>This example restricts access to the "/private" directory and all sub-directories to users whose username
-            and password are validated against the designated user.db password file. The essential differences between
-            this example and the Basic Authentication example is the AuthType directive.</p><a id="auth"></a>
-            <a id="postAuthentication"></a>
-            <h2 class="section">Post Authentication</h2>
-            <p>The Post authentication scheme uses a standard web page form that prompts for the user to enter their
-            name and password. These values are then submitted to GoAhead via a standard Http POST request. GoAhead
-            analyzes the
-            user and password, and if authenticated, a login session is created and a cookie is returned 
-            to the users's browser. Subsequent requests that include the cookie will be automatically authenticated and
-            served.</p>
-            <p>The <a href="dir/auth.html#authType">AuthType post</a> directive controls how Post authentication
-            operates. The post variant of AuthType specifies the login web page, the login service URI, the logout 
-            service URI and the destination web page once authenticated. The format is:
-    <pre>AuthType post Login-Page Login-Service Logout-Service Logged-In-Destination</pre>
-            <p>For example:</p>
-            <pre>
-&lt;Route ^/&gt;
-    <b>AuthType post /auth/login.html /auth/login /auth/logout /</b>
-&lt;/Route&gt; 
-</pre>
-            <p>This directive enables Post authentication for all requests and will redirect the client browser to
-            <tt>/auth/login.esp</tt> to prompt for the username and password. This example uses a plain HTML web page, but 
-            the web page can be created in ESP, PHP, CGI or any other web framework. The web page should submit the username
-            and password to the <tt>/auth/login</tt> login service. When logout is required, the client should submit
-            a HTTP POST request to the logout service URI <tt>/auth/logout</tt>. The last field in the AuthType
-            directive is the destination URI to which the client's browser will be redirected once logged in. </p>
-            <h3>Login Service</h3>
-            <p>The Login-Service is URI that is bound to an internal service to receive the <tt>username</tt> and 
-            <tt>password</tt> and authenticate the user. This service expects the username/password to be submitted 
-            via POST data using the form input fields "username" and "password". You can supply your own login and
-            logout service by specifying the empty string <tt>""</tt> for the Login-Service in the AuthType directive.
-            If using your own Login Service, you should call <tt>httpLogin</tt> to validate the user against the
-            configured password store.</p> 
+            <p>GoAhead digest authorization is very similar to Basic authentication and is 
+            is controlled by the <i>auth=digest</i> keyword on required routes.
+            <a id="formAuthentication"></a>
+            <h2 class="section">Form Authentication</h2>
+            <p>The Form authentication scheme uses a standard web page form that prompts for the user to enter their
+            name and password. This scheme allows the user login interface to have the same look and feel as the rest of the
+            web application. </p>
             
+            <p>The Form authentication scheme submits the username and password  to GoAhead via a standard Http POST
+            request. GoAhead analyzes the user and password, and if authenticated, a login session is created and a cookie
+            is returned to the users's browser. Subsequent requests that include the cookie will be automatically
+            authenticated and served. Because the username and password are sent in the clear (unencrypted), it is 
+            important that Form authentication only be used over SSL connections.</p>
+            <p>The form authentication scheme is enabled via the <i>auth=digest</i> keyword on required routes.
+            For example:</p>
+            <pre>
+route uri=/ auth=form handler=continue redirect=401@/login.html
+</pre>
+            <h3>Secure Form-based Authentication</h3>
+            <p>To effectively secure an application using Form authentication requires five routes to implement
+            the login and logout process. These are:
+            <ul>
+                <li>Route to redirect all HTTP traffic over SSL</li>
+                <li>Route for the login page which must be accessible when unauthenticated</li>
+                <li>Route for the login service</li>
+                <li>Route for the logout service</li>
+                <li>Route to require authentication for all URIs</li>
+            </ul>
+            <p>For example:
+<pre>
+route uri=/ protocol=http redirect=*@https handler=redirect
+route uri=/pub/
+route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/pub/login.html
+route uri=/proc/logout methods=POST handler=proc redirect=200@/pub/login.html
+route uri=/ auth=form handler=continue redirect=401@/pub/login.html
+</pre>
+            <h3>Redirect over SSL</h3>
+            <p>The first directive:
+                <pre>route uri=/ protocol=http redirect=*@https handler=redirect</pre>
+            is responsibile for redirecting all HTTP traffic over SSL.
+            The <i>uri=/</i> defines a URI prefix. Since all URIs start with <i>/</i>, this route will match all requests
+            that use http:// and not https://.</p>
+            <h3>Unauthenticated Access to the Login Page</h3>
+            <p>The second directive:
+                <pre>route uri=/pub/</pre>
+            permits unauthenticated access to any documents in the <i>/pub</i> directory. This is where the 
+            <i>login.html</i> form and any required CSS or Javascript files should be located.</p>
+            <h3>The Login Service</h3>
+            <p>The third directive:
+<pre>route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/pub/login.html</pre>
+            defines the login service route. The proc handler bind the login service to the URI <i>/proc/login</i>. This
+            service expects a POST request with username and password form fields. If the user authenticates, the
+            user is redirected via <i>redirect=200@/</i>. The redirection form is: STATUS@URI. If the user credentials
+            cannot be authenticated successfully, the user is redirected back to the login page 
+            via: <i>redirect=401@/pub/login.html</i>.</p>
+            <h3>The Logout Service</h3>
+            <p>The fourth directive:
+            <pre>route uri=/proc/logout methods=POST handler=proc redirect=200@/pub/login.html</pre>
+            defines the logout service. This simply deletes the user's login session and redirects the user 
+            back to the login page.</p>
+            <h3>Authentication Required</h3>
+            <p>The fifth and final directive:
+                <pre>route uri=/ auth=form handler=continue redirect=401@/pub/login.html</pre>
+            defines a route that matches all other URIs and stipulates form-based authentication. The <i>continue</i>
+            handler authenticates the user and if the user is successfully authenticated, processing continues on 
+            to let other handlers service the request and generate a response. If authentication fails, the user
+            is redirected back to the login page.</p>
             <h3>Web Form</h3>
             <p>Here is a minimal example login form:</p>
             <pre>
-&lt;html&gt;&lt;head&gt;&lt;title&gt;login.esp&lt;/title&gt;&lt;/head&gt;
+&lt;html&gt;&lt;head&gt;&lt;title&gt;login.html&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;
     &lt;p&gt;Please log in&lt;/p&gt;
     &lt;form name="details" method="post" <b>action="/auth/login"</b>&gt;
@@ -210,76 +220,41 @@
 &lt;/html&gt;
 </pre>
             <p>The two submitted fields must be named <tt>username</tt> and <tt>password</tt>. 
-            <p>If the login attempt succeeds, the client will receive a response including a session cookie and 
-            will be redirected to the Destination URI. If the destination URI includes a <tt>referrer:</tt> prefix and
-            the login form request contatained a referrer URI in the HTTP header, then that referrer URI will be used
-            as the destination instead of the hard-wired destination.</p>
             <h3>Securing the Password</h3>
-            <p><b>SECURITY WARNING:</b> The Post authentication scheme submits the user password as plain text. To secure
-            communications, the Post authentication schem should be used over a secure connection using TLS/SSL.
-            To achieve this, you should create a route which redirects the client to the secure login form.  For
-            example: </p>
-            <pre>
-Listen 443
-&lt;VirtualHost *:443&gt;
-    SSLEngine on openssl
-    # More SSL directives if required
-    AuthType post /login.esp /login /logout referrer:/index.html
-&lt;/VirtualHost&gt;
-&lt;Route ^/&gt;
-    AuthType post https://example.com/login.esp
-&lt;/Route&gt;
-</pre>
+            <p><b>SECURITY WARNING:</b> The Form authentication scheme submits the user password as plain text. To secure
+            communications, the Form authentication schem should be used over a secure connection using TLS/SSL.</p>
             <a id="authStores"></a>
             <h2 class="section">Password Stores</h2>
-            <p>GoAhead can retrieve passwords from the Unix system password database or from password text configuration 
-            file. Selection of the password store is controlled by the <a href="dir/auth.html#authStore">AuthStore</a>
-            directive.</p>
-<pre>
-AuthStore pam
-</pre>
-or 
-<pre>
-AuthStore internal
-User julie 9d8873a123eb506e7f8e84d1f2a26916 view
-</pre>
-            <p>The Unix system password database is managed via the <a href="http://kb.iu.edu/data/anpn.html">PAM</a> 
-            interface. GoAhead uses this interface when the <tt>AuthStore pam</tt> directive is used.</p>
-            <p>The <tt>AuthStore internal</tt> option specifies that passwords will be defined by the
-            <a href="dir/auth.html#user">User</a> directive and will be stored internally in GoAhead.
-            The default password store for GoAhead is internal. Typically, User directives are kept in a separate
-            passwords are stored in a separate configuration file that is included from the <tt>goahead.conf</tt>
-            master configuration file.</p>
-<pre>
-include auth.conf
+            <p>GoAhead can be built to retrieve passwords from the Unix system password database or from password text
+            configuration file. 
+            The Unix system password database is managed via the <a href="http://kb.iu.edu/data/anpn.html">PAM</a> 
+            interface. GoAhead can be configured to use PAM with the command:
+            <pre>configure --set pam=true</pre>
+            <h3>Determining Abilities with PAM</h3>
+            <p>When using PAM, <i>user</i> records are not required in auth.txt. However, to determine the users's
+            abilities, the Unix group membership for the user and role definitions are used. For each Unix group that
+            the user is a member of, a corresponding <i>role</i> in auth.txt is checked. If a role of the same name as the
+            group exists, the abilities specified by that role are added to the set of abilities for the user. In other
+            words, you should create a role definition for each group in <i>auth.txt</i> that will specify the abilities for
+            users in that Unix group. For example, say a user joshua was a member of the Unix group "staff". The following
+            auth.txt definitions would give joshua the abilities: <i>add,edit,delete</i>.</p>
+            <pre>
+Role staff add,edit,delete
 </pre>
             <h2 class="section">Password Program</h2>
-            <p>The <tt>authpass</tt> program supports the <tt>internal</tt> AuthStore and is used to create user
-            passwords in an authentication file. GoAhead uses the same authorization file and format for Basic, Digest
-            and Post authentication types. This simplifies administration. The file simply contains User and Role
-            directives and may be edited by hand if desired.</p> 
-<pre>
-#
-#   auth.conf - Authentication data
-#
-Role administrator view
-Role executive manage direct
-Role user view
-User julie 9d8873a123eb506e7f8e84d1f2a26916 user
-User peter 7cdba57892649fd95a540683fdf8fba6 user
-User joshua 2fd6e47ff9bb70c0465fd2f5c8e5305e user administrator purchase
-User mary 5b90553bea8ba3686f4239d62801f0f3 user executive
-</pre>
-            <p>The <tt>authpass</tt> program will create and modify User directives in the authentication file.</p>
-            <p>The command line syntax for authpass is:</p>
+            <p>To create the required encrypted password fields for <i>user</i> definitions, the  <tt>gopass</tt> program
+            is used. It can generate passwords and edit the <i>auth.txt</i> with updated user definitions.
+            <p>The command line syntax for gopass is:</p>
             <pre>
-authpass [-c] [-p passWord] authFile realm username roles...
+gopass [-c] [-p passWord] authFile realm username roles...
 </pre>
-            <p>The authFile parameter specifies the name of the authentication file. 
-            If the -p password option is not used, authpass will prompt for the password. The -c option will
-            cause authpass to create the authentication file if it does not already exist. Otherwise it will update the
-            nominated file.</p> 
-            <p>The Realm is the name used in the AuthRealm directive.
+            <p>The authFile parameter specifies the name of the authentication file which is typically "auth.txt".. 
+            If the -p password option is not used, gopass will prompt for the password. The -c option will
+            cause gopass to create the authentication file if it does not already exist. Otherwise it will update the
+            nominated file. The Realm is the name used when GoAhead was built. It defaults to: "Please Login". You may
+            set this to any string you like. If you are using Basic or Digest authentication, this string will be displayed
+            at the top of the login popup dialog. If using Form authentication, it is never displaed to the user and is
+            only used to salt the encryption of the passwords.</p>
             <p><b>SECURITY WARNING</b>: it is essential that the authentication file be stored outside
             the DocumentRoot or any directory serving content.</p>
         </div>

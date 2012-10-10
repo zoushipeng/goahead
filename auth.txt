@@ -5,9 +5,7 @@
 #       user name=NAME password=PASSWORD roles=ROLES
 #       role name=NAME abilities=ABILITIES
 #
-#   Routes may require authentication and that users possess certain abilities.
-#   The abilities, extensions, methods and redirect keywords use comma separated tokens to express a set of 
-#       required options, or use "|" separated tokens for a set of alternative options. This implements AND/OR.
+#   Routes (see route.txt) may require authentication and that users possess certain abilities.
 #
 #   Examples:
 #

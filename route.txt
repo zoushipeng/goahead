@@ -1,11 +1,7 @@
 #
 #   route.txt - Route and authorization configuration
 #
-#   User and role definitions are stored in auth.txt
-
 #   Schema
-#       user name=NAME password=PASSWORD roles=ROLES
-#       role name=NAME abilities=ABILITIES
 #       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=STATUS@URI \
 #           extensions=EXTENSIONS abilities=ABILITIES 
 #
@@ -23,17 +19,11 @@
 #   Require TLS to access anything under /secure
 #       route uri=/secure/ protocol=https
 #
-#   Define roles
-#       role name=manager abilities=view,edit,delete
-#
-#   Define a user
-#       user name=joshua password=2fd6e47ff9bb70c0465fd2f5c8e5305e roles=manager,purchaser
-#
-#   Form based login pattern
-#       route uri=/login.html
-#       route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/login.html
-#       route uri=/proc/logout methods=POST handler=proc redirect=200@/login.html
-#       route uri=/ auth=form handler=continue redirect=401@/login.html
+#   Form based login pattern. 
+#       route uri=/pub/
+#       route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/pub/login.html
+#       route uri=/proc/logout methods=POST handler=proc redirect=200@/pub/login.html
+#       route uri=/ auth=form handler=continue redirect=401@/pub/login.html
 #
 #   Sample basic or digest authentication for user "joshua" 
 #       route uri=/auth/basic/ auth=basic abilities=manage

@@ -100,6 +100,7 @@ int sslOpen()
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_CA_FILE));
     }
 
+    SSL_CTX_set_cipher_list(sslctx, BIT_CIPHERS);
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
     SSL_CTX_sess_set_cache_size(sslctx, 128);
 #ifdef SSL_OP_NO_TICKET

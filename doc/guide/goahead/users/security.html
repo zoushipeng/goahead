@@ -18,7 +18,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -66,33 +66,16 @@
             latest version of GoAhead.</p>
             <p><a href="http://www.embedthis.com/">Embedthis</a> offers a Security Enhancement Service as part of an
             GoAhead commercial license that will proactively notify you of any security flaws and will expedite fixes or
-            workarounds to minimize the vulnerability.</p><a id="account"></a>
+            workarounds to minimize the vulnerability.</p>
+            
+            <a id="account"></a>
             <h2 class="section">GoAhead User Account</h2>
             <p>It is important that you run GoAhead with the lowest system privilege that will get the job done. If any
             application is compromised, including GoAhead, then the system will be safest if the compromised application
             has as few privileges as possible.</p>
-            <h3>Unix Account</h3>
-            <p>On Unix, GoAhead initially runs as root or administrator and then changes to the user account defined in
-            the GoAhead configuration file via the <a href="dir/server.html#user">User</a> directive. As installed,
-            GoAhead will be configured to run in the <b>nobody</b> account on Unix. You may modify the user and group
-            account for GoAhead by changing the GoAhead <a href="configuration.html">configuration file</a>.</p>
-            <h3>Windows Account</h3>
-            <p>On Windows, when running as a system service, GoAhead will run using the LocalSystem account. This account
-            has no privileges to access the network using network drives, named pipes, RPC or DCOM. However, it has
-            considerable privileges locally. It is suggested that you create a dedicated account for GoAhead to minimize
-            the privileges available should GoAhead be compromised.</p>
-            <p>When creating an account for GoAhead, ensure you do the following:</p>
-            <ul>
-                <li>Using the Group Policy manager, grant the account the privilege of "Act as part of the operating
-                system" and "Log on as a service".</li>
-                <li>Ensure the account is a member of the "Users" group.</li>
-                <li>Give the account read and execute rights to all HTML documents.</li>
-                <li>Give the account read, write, execute and delete rights to the logs directory.</li>
-                <li>Give the account read and execute rights to the goahead.exe and the DLLs in the libs directory.</li>
-            </ul><a id="directoryPermissions"></a>
+            <a id="directoryPermissions"></a>
             <h2 class="section">Directory and File Permissions</h2>
-            <p>When GoAhead is installed, it is configured for maximum security. This section explains the policy 
-            should you need to move or modify files and directories.</p>
+            <p>This section explains the policy should you need to move or modify files and directories.</p>
             <p>To enhance security you need to consider the directory and file permissions for three classes of
             content:</p>
             <ul>
@@ -100,7 +83,7 @@
                 <li>Scripts run by the HTTP server</li>
                 <li>Configuration and log files used by the HTTP server.</li>
             </ul>
-            <p>Pages served by the GoAhead server should be owned by root or administrator and should be only readable
+            <p>Pages served by the GoAhead server should be owned by root or administrator and should only be readable
             by the GoAhead user account. Directories containing served pages should be readable and executable only.</p>
             <p>Scripts run by the GoAhead server should always be outside all directories containing served pages. After
             all, you don't want prying eyes viewing your scripts! Scripts should be owned by the <b>root</b> or
@@ -108,186 +91,84 @@
             <p>Configuration and log files used by the GoAhead server should always be outside all directories
             containing served pages or scripts. The directory containing the log files must be writable by the GoAhead
             user account.</p>
-            <h3>ServerRoot Permissions</h3>
-            <p>The root directory for GoAhead is called the ServerRoot directory and is defined by the ServerRoot
-            directive in the configuration file. The ServerRoot directory, and the logs and lib directory below it,
-            should be owned by <b>root</b> (or admin), and should be in the group <b>root</b> (or administrators). They
-            should only be writable by this specific user and group.</p>
-            <p>For Linux, these commands will ensure the privileges are correctly set up:</p>
-            <pre>
-cd    /etc/goahead
-chown root . lib logs
-chgrp root . lib logs
-chmod 755  . lib logs
-</pre><a id="dynamicContent"></a>
-            <h2 class="section">Dynamic Content</h2>
-            <p>GoAhead supports several Web Frameworks for creating dynamic content. These frameworks sometimes require
-            special security considerations because they are executing code or scripts to render the content.</p>
-            <h3>Ejscript Web Framework</h3>
-            <p>GoAhead supports the Ejscript web framework for dynamic web applications. Ejscript will execute HTML
-            pages with embedded script code and process the pages before returning the result to the client. Properly
-            configured, your scripts will not be readable by users and they will only see the generated content.</p>
-            <p>To keep server-side scripts private, you must have the Ejscript handler configured to process the
-            required script extensions or URL prefixes. If a script extension is not configured, the <b>file</b>
-            handler may process the page and return the raw script back to the user. As installed, GoAhead defines the
-            ".ejs" extension for Ejscript pages. Using the <a href="dir/ejs.html#ejsAppAlias">EjsAppAlias</a> directive
-            will correctly configure an Ejscript application to prevent access to raw script code.</p>
-            <h3>PHP</h3>
-            <p>The php.ini file controls the setup and execution of the PHP web framework. The following table lists
-            several parameters that should be set for enhanced security:</p>
-            <table title="parameters">
-                <thead>
-                    <tr>
-                        <th>Parameter</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>safe_mode = on</td>
-                        <td>When safe mode is enabled, PHP scripts can only access a file if it is the owner of the
-                        file. This prevents access to system files.</td>
-                    </tr>
-                    <tr>
-                        <td>safe_mode = on</td>
-                        <td>When safe mode is enabled, PHP scripts can only access a file if it is the same group as
-                        the file. This prevents access to system files.</td>
-                    </tr>
-                    <tr>
-                        <td>open_basedir = directory[:...]</td>
-                        <td>Define a set of directories that will be the only directories for files that PHP can
-                        access.</td>
-                    </tr>
-                    <tr>
-                        <td class="nowrap">safe_mode_exec_dir = directory[:...]</td>
-                        <td>Define a set of directories that will be the only directories from which PHP can execute
-                        programs.</td>
-                    </tr>
-                    <tr>
-                        <td>expose_php = off</td>
-                        <td>This causes PHP to run in silent mode and not disclose information about itself.</td>
-                    </tr>
-                    <tr>
-                        <td>display_errors = off</td>
-                        <td>This causes PHP to write errors to the log rather than sending them to the client's
-                        browser.</td>
-                    </tr>
-                    <tr>
-                        <td>register_globals = off</td>
-                        <td>When enabled, register_globals will also define many request variables as global variables.
-                        This can be a serious security threat.</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h3>Changing the extension</h3>
-            <p>To obscure the fact that PHP is being run on the server-side, you can change the extension for pages
-            from <b>.php</b> to say ".web". You then need to add the following directive to the goahead.conf file.</p>
-            <pre>
-AddType application/x-httpd-php .web
-</pre>
-            <h2 class="section">Embedded Server Pages</h2>
-            <p>ESP applications are not immune to security flaws. It is highly recommended that
-            you use the <a href="../../../api/mpr.html">MPR</a> services for all your ESP code. This portable runtime
-            has been extensively tested and includes routines to guard against common buffer overflows and other such
-            exploits.</p>
-            <a id="ssl"></a>
-            <h2 class="section">SSL Servers</h2>
-            <p>If you configure a SSL virtual server, remember to define a separate DocumentRoot if you want to only
-            serve private content to SSL users. Otherwise those pages will also be visible via the default
-            server.</p><a id="authentication"></a>
+            <h3>Home Permissions</h3>
+            <p>The home directory in which GoAhead executes should be owned by <b>root</b> or administrator, and should be
+            in the group <b>root</b> or administrators. They should only be writable by this specific user and group.</p>
+            
+            <a id="authentication"></a>
             <h2 class="section">Authentication</h2>
-            <p>It is highly recommended that you use only <a href="authentication.html#digestAuthentication">Digest</a>
-            authentication and not Basic authentication. As implemented in GoAhead, digest authentication provides many
-            safeguards against known exploits including; man-in-the-middle attacks, client spoofing, and replay
-            attacks.</p><a id="sandBoxing"></a>
+            <p>It is highly recommended that you use Form-based <a href="authentication.html#formAuthentication">Form</a>
+            authentication and not Basic authentication. As implemented in GoAhead, Form authentication over SSL 
+            provides many safeguards against known exploits including; man-in-the-middle attacks, client spoofing, 
+            and replay attacks.</p>
+            
+            <a id="sandBoxing"></a>
             <h2 class="section">Sandboxing</h2>
             <p>Sandboxing is the term applied to running GoAhead in a confined environment. When embedding a HTTP server
             in an application, the profile of client access is often well known. This profile includes the rate of
             accesses, the length of URLs and the size of pages returned to the user.</p>
-            <p>GoAhead has a set of configuration file directives that allow you to define a sandbox which specifies how
+            <p>GoAhead has a set of build time configuration options that allow you to define a sandbox which specifies how
             GoAhead must be used for a request to be serviced. By using well defined sandbox directives, you can help
-            ensure that your application will not be compromised by malicious requests. By default, GoAhead has a
-            relaxed set of defaults that will permit a wide range of requests.</p>
-            <h3>Sandbox Directives</h3>
-            <p>The sandbox directives are:</p>
+            ensure that your application will not be compromised by malicious requests.</p>
+            <h3>Limit Directives</h3>
+            <p>The limit directives are defined in main.bit which is used by <i>Bit</i> when configuring GoAhead
+                and generating the <i>bit.h</i> header that is included by GoAhead source code.</p>
             <table title="sandbox">
                 <tbody>
                     <tr>
-                        <td class="pivot">LimitCache</td>
-                        <td>Maximum size of the response cache</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitCacheItem</td>
-                        <td>Maximum size of a single item in the response cache</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitChunk</td>
-                        <td>Maximum size of chunks when using Transfer Chunk Encoding</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitClients</td>
-                        <td>Maximum size of simultaneous clients</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitKeepAlive</td>
-                        <td>Maximum number of requests to serve using a single TCP/IP connection</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitMemory</td>
-                        <td>Maximum memory the server can allocate</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitRequestBody</td>
+                        <td class="pivot">limitRxBody</td>
                         <td>Maximum size of the incoming request body</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitRequestForm</td>
-                        <td>Maximum size of request form data (POST data)</td>
+                        <td class="pivot">limitBuffer</td>
+                        <td>General I/O buffer size</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitRequestHeader</td>
+                        <td class="pivot">limitFilename</td>
+                        <td>Maximum filename size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitHeader</td>
                         <td>Maximum size of the request header</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitRequestHeaderLines</td>
+                        <td class="pivot">limitNumHeaders</td>
                         <td>Maximum number of header lines in the request</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitRequests</td>
-                        <td>Maximum number of simultaneous requests</td>
+                        <td class="pivot">limitPassword</td>
+                        <td>Maximum size of a password</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitResponseBody</td>
-                        <td>Maximum size of a response</td>
+                        <td class="pivot">limitSessionLife</td>
+                        <td>Default session lifespan in seconds</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitStageBuffer</td>
-                        <td>Pipeline stage buffer size</td>
+                        <td class="pivot">limitSessionCount</td>
+                        <td>Maximum number of sessions</td>
                     </tr>
                     <tr>
-                        <td class="pivot">LimitUpload</td>
+                        <td class="pivot">limitString</td>
+                        <td>Default string size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSocketBuffer</td>
+                        <td>Default socket buffer size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitTimeout</td>
+                        <td>Request inactivity timeout in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUri</td>
+                        <td>Maximum URI size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUpload</td>
                         <td>Maximum size of a file upload request</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitUri</td>
-                        <td>Maximum size of a URI</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">StartThreads</td>
-                        <td>Number of threads to pre-allocate in the thread pool</td>
-                    </tr>
-                    <tr>
-                        <td class="pivot">LimitWorkers</td>
-                        <td>Maximum number of worker threads to service requests</td>
                     </tr>
                 </tbody>
             </table>
-            <p>See the <a href="dir/sandbox.html">Sandbox Directives</a> and <a href="dir/perf.html">Performance
-            Directives</a> for further details.</p><a id="logFiles"></a>
-            <h2 class="section">Log Files</h2>
-            <p>GoAhead will log satisfied requests to the access log (usually logs/access.log) and errors to the error
-            log (usually logs/error.log). It is recommended that you regularly review these logs for suspicious
-            activity.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

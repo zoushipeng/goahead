@@ -105,7 +105,7 @@ void websHeader(Webs *wp)
 {
     gassert(websValid(wp));
 
-    websWriteHeaders(wp, 200, -1, 0);
+    websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
     websWrite(wp, "<html>\n");
 }

@@ -15,19 +15,20 @@ static bool optionsHandler(Webs *wp)
     gassert(wp);
 
     if (smatch(wp->method, "OPTIONS")) {
-        websWriteHeaders(wp, HTTP_CODE_OK, 0, 0);
-        websWriteHeader(wp, "Allow: DELETE,GET,HEAD,OPTIONS,POST,PUT%s\r\n", BIT_TRACE_METHOD ? ",TRACE" : "");
+        websSetStatus(wp, HTTP_CODE_OK);
+        websWriteHeaders(wp, 0, 0);
+        websWriteHeader(wp, "Allow", "DELETE,GET,HEAD,OPTIONS,POST,PUT%s", BIT_TRACE_METHOD ? ",TRACE" : "");
         websWriteEndHeaders(wp);
-        websDone(wp, HTTP_CODE_OK);
+        websDone(wp);
         return 1;
 
 #if BIT_TRACE_METHOD
     } else if (smatch(wp->method, "TRACE")) {
-        websWriteHeaders(wp, HTTP_CODE_OK, -1, 0);
+        websSetStatus(wp, HTTP_CODE_OK);
+        websWriteHeaders(wp, 0, 0);
         websWriteEndHeaders(wp);
         websWrite(wp, "%s %s %s\r\n", wp->method, wp->url, wp->protoVersion);
-        websDone(wp, HTTP_CODE_OK);
-        
+        websDone(wp);
         return 1;
 #endif
     }

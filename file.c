@@ -15,7 +15,7 @@ static char   *websDocuments;               /* Default Web page directory */
 
 /**************************** Forward Declarations ****************************/
 
-static void writeEvent(Webs *wp);
+static void fileWriteEvent(Webs *wp);
 
 /*********************************** Code *************************************/
 /*
@@ -77,9 +77,10 @@ static bool fileHandler(Webs *wp)
         if (info.mtime <= wp->since) {
             code = 304;
         }
-        websWriteHeaders(wp, code, info.size, 0);
+        websSetStatus(wp, code);
+        websWriteHeaders(wp, info.size, 0);
         if ((date = websGetDateString(&info)) != NULL) {
-            websWriteHeader(wp, "Last-modified: %s\r\n", date);
+            websWriteHeader(wp, "Last-modified", "%s", date);
             gfree(date);
         }
         websWriteEndHeaders(wp);
@@ -88,12 +89,47 @@ static bool fileHandler(Webs *wp)
             All done if the browser did a HEAD request
          */
         if (smatch(wp->method, "HEAD")) {
-            websDone(wp, 200);
+            websDone(wp);
             return 1;
         }
-        writeEvent(wp);
+        websSetBackgroundWriter(wp, fileWriteEvent);
     }
     return 1;
+}
+
+
+/*
+    Do output back to the browser in the background. This is a socket write handler.
+    This bypasses the output buffer and writes directly to the socket.
+ */
+static void fileWriteEvent(Webs *wp)
+{
+    char    *buf;
+    ssize   len, wrote;
+
+    gassert(wp);
+    gassert(websValid(wp));
+
+    /*
+        Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
+     */
+    if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
+        websError(wp, 200, "Can't get memory");
+        return;
+    }
+    while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
+        if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
+            break;
+        }
+        if (wrote != len) {
+            websPageSeek(wp, - (len - wrote), SEEK_CUR);
+            break;
+        }
+    }
+    gfree(buf);
+    if (len <= 0) {
+        websDone(wp);
+    }
 }
 
 
@@ -112,49 +148,6 @@ int websProcessPutData(Webs *wp)
     }
     websConsumeInput(wp, nbytes);
     return 0;
-}
-
-
-/*
-    Do output back to the browser in the background. This is a socket write handler.
- */
-static void writeEvent(Webs *wp)
-{
-    WebsSocket      *sp;
-    char            *buf;
-    ssize           len, wrote;
-
-    gassert(wp);
-    gassert(websValid(wp));
-
-    websNoteRequestActivity(wp);
-
-    /*
-        Note: websWriteRaw may return less than we wanted. It will return -1 on a socket error.
-     */
-    if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
-        websError(wp, 200, "Can't get memory");
-        return;
-    }
-    wrote = 0;
-    while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
-        if ((wrote = websWriteRaw(wp, buf, len)) < 0) {
-            break;
-        }
-        if (wrote != len) {
-            websPageSeek(wp, - (len - wrote), SEEK_CUR);
-            break;
-        }
-    }
-    gfree(buf);
-    if (len <= 0) {
-        websDone(wp, 200);
-    } else {
-        //  MOB - wrap in websRegisterInterest(wp, SOCKET_WRITABLE, writeEvent);
-        sp = socketPtr(wp->sid);
-        socketRegisterInterest(sp, sp->handlerMask | SOCKET_WRITABLE);
-        wp->writable = writeEvent;
-    }
 }
 
 

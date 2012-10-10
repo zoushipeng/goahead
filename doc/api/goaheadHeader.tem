@@ -27,7 +27,6 @@
         <div class="crumbs">
             <a href="../index.html">Home</a>
             &gt; <a href="../ref/goahead/index.html">Programmers Reference</a> 
-            &gt; <a href="native.html">Native APIs</a> 
             &gt; <b>GoAhead</b> 
         </div>
     </div>
@@ -39,7 +38,6 @@
             <h2>See Also</h2>
             <ul>
                 <li><a href="../ref/goahead/index.html">Programmers Reference</a></li>
-                <li><a href="native.html">Native APIs</a></li>
             </ul>
             <!-- EndDsi -->
             <h2>Quick Nav</h2>

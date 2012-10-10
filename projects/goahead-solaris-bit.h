@@ -30,6 +30,9 @@
 #ifndef BIT_CGI_BIN
     #define BIT_CGI_BIN "cgi-bin"
 #endif
+#ifndef BIT_CIPHERS
+    #define BIT_CIPHERS "HIGH:RC4+SHA"
+#endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
 #endif
@@ -69,12 +72,6 @@
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
 #endif
-#ifndef BIT_HTTP_PORT
-    #define BIT_HTTP_PORT 8080
-#endif
-#ifndef BIT_HTTP_V6_PORT
-    #define BIT_HTTP_V6_PORT 8090
-#endif
 #ifndef BIT_JAVASCRIPT
     #define BIT_JAVASCRIPT 1
 #endif
@@ -111,9 +108,6 @@
 #ifndef BIT_LIMIT_SESSION_LIFE
     #define BIT_LIMIT_SESSION_LIFE 1800
 #endif
-#ifndef BIT_LIMIT_SOCKET_BUFFER
-    #define BIT_LIMIT_SOCKET_BUFFER 4096
-#endif
 #ifndef BIT_LIMIT_STRING
     #define BIT_LIMIT_STRING 4096
 #endif
@@ -125,6 +119,9 @@
 #endif
 #ifndef BIT_LIMIT_URI
     #define BIT_LIMIT_URI 2048
+#endif
+#ifndef BIT_LISTEN
+    #define BIT_LISTEN "http://*:80,https://*:443"
 #endif
 #ifndef BIT_OPTIONAL
     #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
@@ -146,12 +143,6 @@
 #endif
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "compiler,lib,link"
-#endif
-#ifndef BIT_SSL_PORT
-    #define BIT_SSL_PORT 4443
-#endif
-#ifndef BIT_SSL_V6_PORT
-    #define BIT_SSL_V6_PORT 4453
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis GoAhead"

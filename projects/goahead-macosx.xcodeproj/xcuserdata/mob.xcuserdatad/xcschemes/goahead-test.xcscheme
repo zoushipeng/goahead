@@ -64,7 +64,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--log stdout:5 -D web"
+            argument = "--log stdout:4 web"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

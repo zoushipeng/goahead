@@ -284,7 +284,7 @@ void websRunEvents()
     }
     id = next;
     for (;;) {
-        if ((s = callbacks[id]) != NULL && (int)s->at <= (int)time(0)) {
+        if ((s = callbacks[id]) != NULL && (int) s->at <= (int) time(0)) {
             callEvent(id);
             next = id + 1;
             return;
@@ -300,6 +300,7 @@ void websRunEvents()
         }
     }
 }
+
 
 #if UNUSED
 /*
@@ -1366,7 +1367,7 @@ int gallocObject(void *listArg, int *max, int size)
     
 /*
     Create a new buf. "increment" is the amount to increase the size of the buf should it need to grow to accomodate
-    data being added. "maxsize" is an upper limit (sanity level) beyond which the q must not grow. Set maxsize to -1 to
+    data being added. "maxsize" is an upper limit (sanity level) beyond which the buffer must not grow. Set maxsize to -1 to
     imply no upper limit. The buffer for the buf is always *  dynamically allocated. Set maxsize
  */
 int bufCreate(WebsBuf *bp, int initSize, int maxsize)
@@ -1457,7 +1458,7 @@ int bufGetc(WebsBuf *bp)
 
 
 /*
-    Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the q as
+    Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the buffer as
     required.  
  */
 int bufPutc(WebsBuf *bp, char c)
@@ -1560,7 +1561,8 @@ int bufGetcA(WebsBuf *bp)
 
 
 /*
-    Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. Grow the q as required.
+    Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. 
+    Grow the buffer as required.
  */
 int bufPutcA(WebsBuf *bp, char c)
 {
@@ -1616,11 +1618,11 @@ int bufPutStrA(WebsBuf *bp, char *str)
 
 
 /*
-    Add a block of data to the buf. Return the number of bytes added. Grow the q as required.
+    Add a block of data to the buf. Return the number of bytes added. Grow the buffer as required.
  */
 ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
 {
-    ssize   this, bytes_put;
+    ssize   this, added;
 
     gassert(bp);
     gassert(bp->buflen == (bp->endbuf - bp->buf));
@@ -1630,7 +1632,7 @@ ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
     /*
         Loop adding the maximum bytes we can add in a single straight line copy
      */
-    bytes_put = 0;
+    added = 0;
     while (size > 0) {
         this = min(bufRoom(bp), size);
         if (this <= 0) {
@@ -1643,13 +1645,12 @@ ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
         buf += this;
         bp->endp += this;
         size -= this;
-        bytes_put += this;
-
+        added += this;
         if (bp->endp >= bp->endbuf) {
             bp->endp = bp->buf;
         }
     }
-    return bytes_put;
+    return added;
 }
 
 
@@ -1773,6 +1774,7 @@ void bufAdjustStart(WebsBuf *bp, ssize size)
 
 /*
     Flush all data in a buffer. Reset the pointers.
+    MOB - rename. BufDiscard
  */
 void bufFlush(WebsBuf *bp)
 {

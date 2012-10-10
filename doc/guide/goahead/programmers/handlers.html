@@ -18,7 +18,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -35,12 +35,7 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul class="nav">
-                <li><a href="#pipeline">Pipeline</a></li>
-                <li><a href="#queues">Queues</a></li>
-                <li><a href="#packets">Packets</a></li>
-                <li><a href="#callbacks">Callbacks</a></li>
-                <li><a href="#flow">Data Flow</a></li>
-                <li><a href="#pipelineLifecycle">Pipeline Life Cycle</a></li>
+                <li><a href="#processing">Request Processing</a></li>
                 <li><a href="#responses">Generating Responses</a></li>
                 <li><a href="#errors">Generating Errors</a></li>
                 <li><a href="#redirecting">Redirecting</a></li>
@@ -60,132 +55,35 @@
                 <li><a href="../../../guide/goahead/programmers/rom.html">ROM Content</a></li>
                 <li><a href="../../../guide/goahead/programmers/man.html">Manual Pages</a></li>
                 <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
-                <li><a href="../../../api/native.html">Native APIs</a></li>
                 <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
             </ul>
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
             <h1>Creating GoAhead Handlers</h1>
-            <p>GoAhead responds to client Http requests via request handlers. A request handler is 
-            is responsible for analyzing the request and generating the appropriate response content.</p>
+            <p>GoAhead responds to client requests by routing the request to the appropriate request handler. The
+            request handler is responsible for generating the appropriate response content or redirecting to another
+            handler if required.</p>
             
             <p>GoAhead provides a suite of handlers for various content types and web frameworks. The standard handlers
-            supplied with GoAhead are: CGI, directory, file, Ejscript, ESP and PHP. You can extend GoAhead by
-            creating your own custom handler to process Http requests and perform any processing you desire.</p> 
+            supplied with GoAhead are: continue, CGI, file, Javascript, options, proc, redirect and upload. You can 
+            extend GoAhead by creating your own custom handler to process Http requests and perform any processing you
+            desire.</p> 
             
-            <p>Handlers are typically packaged as <a href="modules.html">modules</a> and are configured in the
-            <em>goahead.conf</em> configuration file. Modules are loaded by the <a
-                href="../users/dir/module.html#loadModule">LoadModule</a> directive. A handler
-            is specified to service requests for a route by either the 
-            <a href="../users/dir/route.html#addHandler">AddHandler</a> or 
-            <a href="../users/dir/route.html#setHandler">SetHandler</a> directives. For example:</p>
-            <pre>
-<b>LoadModule</b> myHandler mod_my
-&lt;Route /my/&gt;
-    <b>SetHandler</b> myHandler
-&lt;/Route&gt;
-</pre>
-            <p>The LoadModule directive causes GoAhead to load a shared library containing your handler. The SetHandler
-            directive then defines the handler to serve all requests that begin with <em>/my/</em>.</p>
-            <a id="pipeline"></a>
-            <h2>Request Pipeline</h2>
-            <p>When configured for a route, a handler sets at one end of the request pipeline. The pipeline is a full-duplex
-            data stream in which request data flows upstream from the client and response data to the client flows
-            downstream.</p>
-            <img src="../../../images/pipeline.jpg" alt="pipeline"/>
-            <p>The request pipeline consists of a sequence of processing stages. There is one stage that is the handler,
-            zero or more filters and a network connector stage. Each stage has two queues, one for outgoing data and one
-            for incoming. A queue also has two links to refer to the upstream and downstream queues in the pipeline.</p>
-           
-            <a id="queues"></a>
-            <h3>Queues</h3>
-            <p>Queue's provide open, close, put, and service methods. These methods allow a queue instance to 
-            manage state and respond to data packets. A queue can respond immediately to an incoming packet by
-            processing or forwarding a packet in its put() method.  Alternatively, the queue can defer processing by
-            queueing the packet on it's service queue and then waiting for it's service() method to be invoked.</p>
-            <p>If a queue does not define a put() method, the default put() method will be used which queues data onto the
-            service queue. The default incoming put() method joins incoming packets into a single packet on the service
-            queue.</p>
-            <a id="packets"></a>
-            <h3>Packets</h3>
-            <p>Packets are an instance of the 
-            <a href="../../../api/http.html#group___http_packet">HttpPacket</a> structure. HttpPacket instances efficiently
-            store data and can be passed through the pipeline without copying. GoAhead network connectors are optimized
-            to write packets to network connections using scatter/gather techniques so multiple packets can be written
-            in one O/S system call.</p>
-            <a id="callbacks"></a>
-            <h3>Handler Callbacks</h3>
-            <p>A handler integrates into the pipeline via its two queues. Furthermore, the handler defines an extended
-            set of callback functions that are invoked by the pipeline as the client request progresses through the
-            pipeline life cycle. These callbacks are:</p>
-            <table title="callbacks">
-                <thead>
-                <tr><th>Callback</th><th>Purpose</th></tr>
-                </thead>
-                <tbody>
-                <tr><td>match</td><td>Test if the request matches this handler.</td></tr>
-                <tr><td>open</td><td>Open a new request instance for the handler. Corresponds to the queue open
-                        callback.</td></tr>
-                <tr><td>start</td><td>Start the request.</td></tr>
-                <tr><td>incomingData</td><td>Accept a packet of incoming data. Corresponds to the receive queue put
-                        callback.</td></tr>
-                <tr><td>ready</td><td>The request is fully parsed and all incoming data has been received.</td></tr>
-                <tr><td>outgoingService</td><td>Service the outgoing queue. Used primarily for non-blocking output
-                        and flow control.</td></tr>
-                <tr><td>writable</td><td>The outgoing pipeline can absorb more data.</td></tr>
-                <tr><td>close</td><td>Close the request. Corresponds to the queue close callback.</td></tr>
-                </tbody>
-            </table>
-            <p>When the pipeline is constructed for a request, the relevant handler callbacks 
-            (open, close, incomingData, outgoingService) callbacks will be copied into the relevant queue callbacks
-            (open, close, put, service). The handler callbacks are discussed in more detail below.</p>
-            <a id="flow"></a>
-            <h3>Handler Data Flow</h3>
-            <p>A handler will receive request body data via its <em>incomingData</em> callback on its read queue. The
-            callback will be invoked for each packet of data. The end of the input stream is signified by a zero length
-            packet. The handler may choose to aggregate body data on its read service queue until the entire body is
-            received.</p>
-            <p>A handler will generate output response data and send downstream. This may be done by calling 
-            <a href="../../../api/http.html#group___http_queue_1ga5599a178a2bab73929795952231d6e6a">httpWrite</a>
-            which buffers output and creates packets as required and queues the packets on the handlers output queue. 
-            These packets will be flushed downstream if the queue becomes full or if 
-            <a href="../../../api/http.html#group___http_tx_1ga279ad49e5163402e2afd6caf478bcc70">httpFinalize</a> is called.
-            Alternatively, the handler can create its own packets via <a
-                href="../../../api/http.html#group___http_packet_1gad491733e89bee8b1b64b47fa0e798931">httpCreateDataPacket</a>,
-            fill with data and then send downstream by calling <a
-                href="../../../api/http.html#group___http_queue_1ga15c957cd47313affb413d681767a4763">httpPutPackToNext</a>.</p>
-            <p>The httpWrite routine will always accept and buffer the data. But it will limit the amount of
-            buffering by flushing data as required. Handlers that create their own packets should take create to test if
-            the output queue is full. If the output queue is full, the handler should pause generating the response
-            and wait until the queue has drained sufficiently. When that occurs, the <em>writable</em> callback will be
-            invoked.</p>
-            <a id="pipelineLifecycle"></a>
-            <h2>Pipeline Life Cycle</h2>
-            <p>When a request is received from the client, the GoAhead Http engine parses the Http request headers and
+            <p>Handlers are configured via routes in the route table. See <a href="routing">Request Routing</a> for 
+            more details about Routing.</p>
+            <a id="processing"></a>
+            <h2>Request Processing</h2>
+            <p>When a request is received from the client, GoAhead parses the HTTP request headers and
             then determines the best GoAhead <a href="../users/routing.html">route</a> for the request. A route contains
-            the full details for how to process a request including the required handler and pipeline configuration.</p>
-            <h3>Matching a Handler &mdash; <em>match</em></h3>
-            <p>Once parsed, the router tests each of the eligible handlers for the route by calling the handler 
-            <em>match</em> callback. The first handler to claim the request will be used.</p>
-            <h3>Initializing a Handler &mdash; <em>open</em></h3>
-            <p>The Http engine then creates the pipeline and invokes the handler <em>open</em> callback to perform
-            required initialization for the handler.</p>
-            <h3>Starting a Handler &mdash; <em>start</em></h3>
-            <p>Once the request headers are fully parsed, the Http engine invokes the handler <em>start</em> callback.
-            At this point, request body data may not have been received. Depending on the request, generating a response
-            may or may not be appropriate until all body data has been received. If there is no body data, the handler
-            can process and maybe generate the entire response for the request during this callback.</p>
-            <h3>Ready to Respond &mdash; <em>ready</em></h3>
-            <p>Once all body data has been received, the handler <em>ready</em> callback is invoked. At this stage, 
-            the handler has all the request information and can fully process the request. The handler may start or
-            fully generate the response to the request.</p>
-            <h3>Pipeline Writable &mdash; <em>writable</em></h3>
-            <p>Some requests may generate more response data than can be efficiently buffered by GoAhead. If the output
-            TCP/IP socket to the client is full, a handler may not be able to continue processing until this data
-            drains. In these cases, the <em>writable</em> callback will be invoked whenever the output service queue
-            can absorb more data. As such, it may be used to efficiently generate the response in chunks without
-            blocking.</p>
+            the full details for how to process a request including the required handler and required authentication.
+            GoAhead matches each route in the route table in-order and selects the first matching route. The route
+            specifies the desired handler for requests matching that route.</p>
+            <h3>Running a Handler</h3>
+            <p>Once the route has been selected, GoAhead engine invokes the handler to process the request and generate
+            a response. At this point, request body data will be received and bufferd. The handler may choose to not
+            handler the request by returning a zero status code. In that case, the router continues matching routes 
+            to find a more suitable route and handler combination.
             
             <a id="responses"></a>
             <h2>Generating Responses</h2>
@@ -194,15 +92,20 @@
           minimal standard set will be generated.</p>
             <h3>Setting Status and Headers</h3>
             <p>The response status may be set via:
-                <a href="../../../api/http.html#group___http_tx_1gab965a17de1c0a823eec176bdf95b2bee">httpSetStatus</a>. 
+                <a href="../../../api/goahead.html#group___webs_1gaef03eccfb6f0d42b34f1a7a90bac62b6">websSetStatus</a>. 
                 The response headers may be set via:
-                <a href="../../../api/http.html#group___http_tx_1gadc3a395967972fb839f0639f8cd66c61">httpSetHeader</a>.
+                <a href="../../../api/goahead.html#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b">websWriteHeaders</a>.
                 For example:</p>
             <pre>
-HttpConn *conn = q-&gt;conn;
-httpSetStatus(conn, 200);
-httpSetHeader(conn, "NowIs", "The time is %s", mprGetDate(NULL));
+websSetStatus(wp, 200);
+websWriteHeaders(wp, contentLength, 0);
+websWriteHeader(wp, "X-MyCustomHeader", "1234");
+websWriteEndHeaders(wp);
+websWriteBlock(wp, buf, len);
+websDone(wp);
 </pre>
+            <p>The websWrite routine will always accept and buffer the data. But it will limit the amount of
+
             <a id="errors"></a>
             <h3>Generating an Error Response</h3>
             <p>If the request has an error, the status and a response message may be set via:
@@ -351,53 +254,20 @@ mprCreateEvent(q-&gt;conn-&gt;dispatcher, "deviceEvent", 0, doMoreOutput, q, 0);
         threads that were created outside of the MPR (i.e. not MPR worker threads).</p>
         <a id="defining"></a>
         <h2>Defining a Handler</h2>
-        <p>To define an GoAhead handler, you must do three things:
-        <ol>
-            <li>Package as a module (see <a href="modules.html">Creating Modules</a>).</li>
-            <li>Call <a
-                href="../../../api/http.html#group___http_stage_1gac2637a927981b3338c86a27f7ebd5f19">httpCreateHandler</a>
-            in your module initialization code to define the handler when the module is loaded</li>
-            <li>Define the handler in the goahead.conf configuration file via the
-            <a href="../users/dir/route.html#addHandler">AddHandler</a> or 
-            <a href="../users/dir/route.html#setHandler">SetHandler</a> directives.</li>
-        </ol>
+        <p>To define an GoAhead handler, you need to call <a href=
+            "../../../api/goahead.html#group___webs_1gaac26a36fb28e1486fd54443ad59674a5">websDefineHandler</a>. For example:
 <pre>
-int maMyModuleInit(Http *http, MprModule *mp)
+static bool fooHandler(Webs *wp)
 {
-    HttpStage   *handler;
-    if ((handler = httpCreateHandler(http, "myHandler", 0, mp)) == 0) {
-        return MPR_ERR_CANT_CREATE;
-    }
-    handler-&gt;open = openSimple; 
-    handler-&gt;close = closeSimple; 
-    handler-&gt;start = startSimple; 
-    return 0;
+    /* Handle request */
+    return 1;
 }
+static void closeFoo() {
+    /* Cleanup */
+}
+...
+websDefineHandler("foo", fooHandler, closeFooHandler, 0);
 </pre>
-            <a id="more"></a>
-            <h2>More Info</h2>
-            <p>See the <a
-                href="https://github.com/embedthis/goahead-4/tree/master/src/samples/c/simpleHandler">simpleHandler for a
-                working handler example.</a></p>
-            <p>Here are links to some of the GoAhead supplied handlers: </p>
-            <ul>
-                <li><a href="https://github.com/embedthis/goahead-4/blob/master/src/dirHandler.c">Dir Handler</a></li>
-                <li><a href="https://github.com/embedthis/goahead-4/blob/master/src/fileHandler.c">File Handler</a></li>
-                <li><a href="https://github.com/embedthis/http/blob/master/src/passHandler.c">Pass through Handler</a></li>
-                <li><a href="https://github.com/embedthis/goahead-4/blob/master/src/modules/cgiHandler.c">CGI Handler</a></li>
-                <li><a href="https://github.com/embedthis/goahead-4/blob/master/src/modules/phpHandler.c">PHP Handler</a></li>
-            </ul>
-            <p>Here are links to some of the GoAhead supplied handlers: </p>
-            <ul>
-                <li><a href="https://github.com/embedthis/http/blob/master/src/chunkFilter.c">Chunk Encoding Filter</a></li>
-                <li><a href="https://github.com/embedthis/http/blob/master/src/rangeFilter.c">Ranged Requests Filter</a></li>
-                <li><a href="https://github.com/embedthis/http/blob/master/src/uploadFilter.c">File UploadFilter</a></li>
-            </ul>
-            <p>Here are links to some of the GoAhead supplied connectors: </p>
-            <ul>
-                <li><a href="https://github.com/embedthis/http/blob/master/src/netConnector.c">Network Connector</a></li>
-                <li><a href="https://github.com/embedthis/http/blob/master/src/sendConnector.c">Send Connector</a></li>
-            </ul>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

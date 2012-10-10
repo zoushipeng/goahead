@@ -16,52 +16,15 @@ static WebsHash websJsFunctions = -1;  /* Symbol table of functions */
 
 /***************************** Forward Declarations ***************************/
 
-static int  jsRequest(Webs *wp);
 static char *strtokcmp(char *s1, char *s2);
 static char *skipWhite(char *s);
 
 /************************************* Code ***********************************/
 /*
-    Process template JS request
- */
-static bool jsHandler(Webs *wp)
-{
-    gassert(websValid(wp));
-
-    if (!smatch(wp->ext, ".asp")) {
-        return 0;
-    }
-    if (jsRequest(wp) < 0) {
-        return 1;
-    }
-    websDone(wp, 200);
-    return 1;
-}
-
-
-static void closeJs()
-{
-    if (websJsFunctions != -1) {
-        hashFree(websJsFunctions);
-        websJsFunctions = -1;
-    }
-}
-
-
-int websJsOpen()
-{
-    websJsFunctions = hashCreate(WEBS_HASH_INIT * 2);
-    websJsDefine("write", websJsWrite);
-    websDefineHandler("js", jsHandler, closeJs, 0);
-    return 0;
-}
-
-
-/*
     Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
  */
-static int jsRequest(Webs *wp)
+static bool jsHandler(Webs *wp)
 {
     WebsFileInfo    sbuf;
     char            *token, *lang, *result, *ep, *cp, *buf, *nextp, *last;
@@ -70,8 +33,11 @@ static int jsRequest(Webs *wp)
 
     gassert(websValid(wp));
     gassert(wp->filename && *wp->filename);
+    gassert(wp->ext && *wp->ext);
 
-    rc = -1;
+    if (!smatch(wp->ext, ".asp")) {
+        return 0;
+    }
     buf = NULL;
 
     if ((jid = jsOpenEngine(wp->vars, websJsFunctions)) < 0) {
@@ -86,7 +52,7 @@ static int jsRequest(Webs *wp)
     }
     if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
         websError(wp, 404, "Cannot open URL: %s", wp->filename);
-        return 1;
+        goto done;
     }
     /*
         Create a buffer to hold the web page in-memory
@@ -103,24 +69,22 @@ static int jsRequest(Webs *wp)
         goto done;
     }
     websPageClose(wp);
-    websWriteHeaders(wp, 200, (ssize) -1, 0);
-    websWriteHeader(wp, "Pragma: no-cache\r\nCache-Control: no-cache\r\n");
+    websWriteHeaders(wp, (ssize) -1, 0);
+    websWriteHeader(wp, "Pragma", "no-cache");
+    websWriteHeader(wp, "Cache-Control", "no-cache");
     websWriteEndHeaders(wp);
 
     /*
         Scan for the next "<%"
      */
     last = buf;
-    rc = 0;
-    while (rc == 0 && *last && ((nextp = strstr(last, "<%")) != NULL)) {
+    for (rc = 0; rc == 0 && *last && ((nextp = strstr(last, "<%")) != NULL); ) {
         websWriteBlock(wp, last, (nextp - last));
         nextp = skipWhite(nextp + 2);
-
         /*
             Decode the language
          */
         token = "language";
-
         if ((lang = strtokcmp(nextp, token)) != NULL) {
             if ((cp = strtokcmp(lang, "=javascript")) != NULL) {
                 /* Ignore */;
@@ -160,6 +124,7 @@ static int jsRequest(Webs *wp)
                          careful if the user has called websError() already.
                      */
                     rc = -1;
+                    //  MOB - should not need this now as websFree cant be called
                     if (websValid(wp)) {
                         if (result) {
                             websWrite(wp, "<h2><b>Javascript Error: %s</b></h2>\n", result);
@@ -177,7 +142,6 @@ static int jsRequest(Webs *wp)
 
         } else {
             websError(wp, 200, "Unterminated script in %s: \n", wp->filename);
-            rc = -1;
             goto done;
         }
     }
@@ -187,7 +151,6 @@ static int jsRequest(Webs *wp)
     if (last && *last && rc == 0) {
         websWriteBlock(wp, last, strlen(last));
     }
-    rc = 0;
 
 /*
     Common exit and cleanup
@@ -199,8 +162,27 @@ done:
             jsCloseEngine(jid);
         }
     }
+    websDone(wp);
     gfree(buf);
-    return rc;
+    return 1;
+}
+
+
+static void closeJs()
+{
+    if (websJsFunctions != -1) {
+        hashFree(websJsFunctions);
+        websJsFunctions = -1;
+    }
+}
+
+
+int websJsOpen()
+{
+    websJsFunctions = hashCreate(WEBS_HASH_INIT * 2);
+    websJsDefine("write", websJsWrite);
+    websDefineHandler("js", jsHandler, closeJs, 0);
+    return 0;
 }
 
 

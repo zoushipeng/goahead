@@ -262,9 +262,12 @@ static void socketAccept(WebsSocket *sp)
 }
 
 
-void socketRegisterInterest(WebsSocket *sp, int handlerMask)
+void socketRegisterInterest(int sid, int handlerMask)
 {
-    gassert(sp);
+    WebsSocket  *sp;
+
+    gassert(socketPtr(sid));
+    sp = socketPtr(sid);
     sp->handlerMask = handlerMask;
 }
 
@@ -299,7 +302,6 @@ int socketWaitForEvent(WebsSocket *sp, int handlerMask)
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
 #if BIT_WIN_LIKE
-
 int socketSelect(int sid, int timeout)
 {
     struct timeval  tv;
@@ -458,7 +460,6 @@ int socketSelect(int sid, int timeout)
             break;
         }
     }
-
     /*
         Wait for the event or a timeout. Reset nEvents to be the number of actual events now.
      */
@@ -509,7 +510,7 @@ void socketProcess()
 
     for (sid = 0; sid < socketMax; sid++) {
         if ((sp = socketList[sid]) != NULL) {
-            if (sp->currentEvents & sp->handlerMask /* UNUSED || sp->flags & SOCKET_RESERVICE */) {
+            if (sp->currentEvents & sp->handlerMask) {
                 socketDoEvent(sp);
             }
         }
@@ -641,18 +642,6 @@ ssize socketWrite(int sid, void *buf, ssize bufsize)
 }
 
 
-#if UNUSED
-/*
-    Write a string to a socket
-    WARNING: can return short
- */
-ssize socketWriteString(int sid, char *buf)
-{
-    return socketWrite(sid, buf, slen(buf));
-}
-#endif
-
-
 /*
     Read from a socket. Return the number of bytes read if successful. This may be less than the requested "bufsize" and
     may be zero. This routine may block if the socket is in blocking mode.
@@ -720,7 +709,7 @@ void socketReservice(int sid)
     Create a user handler for this socket. The handler called whenever there
     is an event of interest as defined by handlerMask (SOCKET_READABLE, ...)
  */
-void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void* data)
+void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void *data)
 {
     WebsSocket    *sp;
 
@@ -729,7 +718,7 @@ void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void* 
     }
     sp->handler = handler;
     sp->handler_data = data;
-    socketRegisterInterest(sp, handlerMask);
+    socketRegisterInterest(sid, handlerMask);
 }
 
 
@@ -741,7 +730,7 @@ void socketDeleteHandler(int sid)
         return;
     }
     sp->handler = NULL;
-    socketRegisterInterest(sp, 0);
+    socketRegisterInterest(sid, 0);
 }
 
 
@@ -775,8 +764,8 @@ int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
  */
 void socketFree(int sid)
 {
-    WebsSocket    *sp;
-    char      buf[256];
+    WebsSocket  *sp;
+    char        buf[256];
     int         i;
 
     if ((sp = socketPtr(sid)) == NULL) {
@@ -788,18 +777,18 @@ void socketFree(int sid)
         from the receive buffer, and finally close it.  If these steps are not all performed RESETs may be sent to the
         other end causing problems.
      */
-    socketRegisterInterest(sp, 0);
+    socketRegisterInterest(sid, 0);
     if (sp->sock >= 0) {
         socketSetBlock(sid, 0);
-        if (shutdown(sp->sock, 1) >= 0) {
-            recv(sp->sock, buf, sizeof(buf), 0);
+        while (recv(sp->sock, buf, sizeof(buf), 0) > 0) {}
+        if (shutdown(sp->sock, SHUT_RDWR) >= 0) {
+            while (recv(sp->sock, buf, sizeof(buf), 0) > 0) {}
         }
         closesocket(sp->sock);
     }
     gfree(sp->ip);
     gfree(sp);
     socketMax = gfreeHandle(&socketList, sid);
-
     /*
         Calculate the new highest socket number
      */

@@ -298,7 +298,7 @@ ol {
 code {
     white-space: pre;
     display: block;
-	font-size: 110%;
+	font-size: 100%;
     __width: 600px;
 	line-height: 140%; 
 	font-family: Consolas, Monaco, Courier, Courier New, Courier, monospace; 
@@ -311,10 +311,11 @@ code {
 	-webkit-border-radius: 7px;
 	-webkit-box-shadow: 5px 5px 9px #888;
 }
+
 pre {
     white-space: pre;
     display: block;
-	font-size: 110%;
+	font-size: 100%;
     width: 600px;
 	line-height: 140%; 
 	font-family: Consolas, Monaco, Courier, Courier New, Courier, monospace; 
@@ -490,8 +491,8 @@ img.screen {
 td.pivot {
 	background-color: #7090C0;
 	color: #FFFFFF;
-	font-weight: bold;
-	font-size: 110%;
+	__font-weight: bold;
+	font-size: 100%;
     width: 17%;
 }
 
@@ -532,7 +533,7 @@ div.note {
 	-webkit-box-shadow: 5px 5px 9px #888;
 }
 
-tt,em {
+tt,em,i {
     font-weight: bold;
     font-style: normal;
     font-size: 110%;

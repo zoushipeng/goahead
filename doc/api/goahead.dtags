@@ -1695,8 +1695,8 @@
       <type>void</type>
       <name>websDone</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga17c37592269155907251488473c6e061</anchor>
-      <arglist>(Webs *wp, int code)</arglist>
+      <anchor>gac2af58b7a686cb33e44eb010cf755ce1</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -2393,6 +2393,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>websSetStatus</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaef03eccfb6f0d42b34f1a7a90bac62b6</anchor>
+      <arglist>(Webs *wp, int status)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>websSetTxLength</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga999bb54215bbc7d71c7d6e828fcf49c8</anchor>
@@ -2507,8 +2514,8 @@
       <type>void</type>
       <name>websWriteHeaders</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga4b74403f02e92f5434317d2939e23e50</anchor>
-      <arglist>(Webs *wp, int status, ssize contentLength, char *redirect)</arglist>
+      <anchor>ga506c041a3eb2dfeaab1e9d1f322eea0b</anchor>
+      <arglist>(Webs *wp, ssize contentLength, char *redirect)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>
@@ -3118,8 +3125,8 @@
       <type>void</type>
       <name>websDone</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga17c37592269155907251488473c6e061</anchor>
-      <arglist>(Webs *wp, int code)</arglist>
+      <anchor>gac2af58b7a686cb33e44eb010cf755ce1</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
@@ -3676,6 +3683,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>websSetStatus</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaef03eccfb6f0d42b34f1a7a90bac62b6</anchor>
+      <arglist>(Webs *wp, int status)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>websSetTxLength</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga999bb54215bbc7d71c7d6e828fcf49c8</anchor>
@@ -3748,8 +3762,8 @@
       <type>void</type>
       <name>websWriteHeaders</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga4b74403f02e92f5434317d2939e23e50</anchor>
-      <arglist>(Webs *wp, int status, ssize contentLength, char *redirect)</arglist>
+      <anchor>ga506c041a3eb2dfeaab1e9d1f322eea0b</anchor>
+      <arglist>(Webs *wp, ssize contentLength, char *redirect)</arglist>
     </member>
     <member kind="function">
       <type>ssize</type>

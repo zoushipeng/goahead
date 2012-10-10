@@ -18,7 +18,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://goahead.com/">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -52,109 +52,42 @@
         </div>
         <div class="contentLeft">
             <h1>Log Files</h1>
-            <p>GoAhead provides detailed logging regarding client accesses and the operation of GoAhead. This is done via two
-            log files:</p>
-            <ul>
-                <li>Error Log</li>
-                <li>Access Log</li>
-            </ul>
-            <p>This document describes the two logs and the information available in each log.</p>
+            <p>GoAhead provides detailed logging regarding client accesses and the operation of GoAhead. 
+            The log records the essential GoAhead configuration, details of denied requests, and other trace
+            and error information. The log can also record request and response headers and other request details.</p>
             
-            <a id="errorLog"></a>
-            <h2 class="section">Error Log</h2>
-            <p>The Error Log records the essential GoAhead configuration, details of denied requests, and other trace
-            and error information. The location of the Error Log file is specified by the 
-            <a href="dir/log.html#errorLog">ErrorLog</a> 
-            configuration file directive. The ErrorLog directive can also specify the maximum log file size, 
-            the number of backup log files to keep and whether to append or truncate the log file when GoAhead is
-            restarted. </p>
-            <p>The ErrorLog directive can also specify the verbosity level with which to write to the log. 
-            The log level is a digit ranging from 0, the least verbose to 9 being the most verbose. For example, if you
-            set the log level to 2, messages at levels 0 and 1 will be output to the log. Level 0 will only record
-            errors. Level 2 is the default and will record denied accesses. Levels 3-9 will record various internal
-            GoAhead activities. You should be careful with levels above 4 as the error log can grow very large with high
-            log levels.</p>
-            <pre>ErrorLog error.log level=2 backup=5 append stamp=1hr</pre>
-            <h3>Logging Requests</h3>
-            <p>The error log can also record detailed request information that is useful for debugging. The
-            <a href="dir/log.html#log">Log</a> directive controls which parts of a request will be traced to the error
-            log.</p>
-            <pre>Log rx conn=5 first=2 headers=3 body=5 size=10K exclude="jpg,gif,png"</pre>
-            <p>These directive will cause requests to be traced to the error log. New connections will be emitted
-            at level 5, the first line of the request at level 2, request headers at level 3 and the request body
-            data at level 5. Trace will be a maximum of 10K per request and graphic requests will be excluded.</p>
-<pre>Log tx first=3 headers=3 body=5 time=6 size=10K exclude="jpg,gif,png"</pre>
-            <p>These directive will cause responses to be traced to the error log.</p>
-            <h3>Sample Output</h3>
-            <p>Here is a sample error log. Some lines have been manually wrapped to fit on the page.</p>
+            <h2>Sample Output</h2>
+            <p>Here is some sample log output.</p>
             <pre>
 goahead: 2: Configuration for Embedthis GoAhead
 goahead: 2: ---------------------------------------------
-goahead: 2: Version:            4.0.0-B2
+goahead: 2: Version:            3.0.0-0
 goahead: 2: BuildType:          Debug
 goahead: 2: CPU:                x64
 goahead: 2: OS:                 macosx
-goahead: 2: Host:               sunny.local
-goahead: 2: Directory:          /Users/guest/git/goahead/src/server
-goahead: 2: Configure:          bit -q -configure . -debug
+goahead: 2: Host:               10.0.0.102
+goahead: 2: Directory:          /Users/mob/git/goahead
+goahead: 2: Configure:          bit configure
 goahead: 2: ---------------------------------------------
-goahead: 2: Config File /Users/guest/git/goahead/src/server/goahead.conf
-goahead: 2: Set server root to: "/Users/guest/git/goahead/src/server"
-goahead: 2: Server Root "."
-goahead: 2: Loading native module cgiHandler
-goahead: 2: Loading native module espHandler
-goahead: 2: Loading native module phpHandler
-goahead: 2: Loading native module sslModule
-goahead: 2: Started HTTP  service on "*:80"
-goahead: 1: HTTP services Started at Wed May 23 17:39:10 2012 PDT with max 10 threads
+goahead: 2: Started http://*:80
+goahead: 2: Started https://*:443
 </pre>
             <p>Each line in the error log is prefixed with source information. This follows the format:</p>
             <pre>
 program:logLevel
 </pre>
             <p>The log level is the verbosity level assigned to the trace information by GoAhead.</p>
-            <p>The error log always contains a header detailing the high level GoAhead configuration. It specifies what
-            version of GoAhead is being run, what handlers and modules are loaded, and what IP addresses are being
-            listened to.</p>
-            <p>You may also specify the error log file and log level via the GoAhead command line "--log" option. If you
-            invoke GoAhead with a "--log logSpec" command line option, it will override the ErrorLog and LogLevel
-            directives.</p>
-            
-            <a id="accessLog"></a>
-            <h2>Access Log</h2>
-            <p>The Access Log records the details of each successful request served by GoAhead. The access log file
-            format is configurable and can log requests in a variety of formats. By default, it will log in the
-            Combined Log File Format that is used by the Apache web server. The location of the access log file and its
-            format is specified via the <a href="dir/log.html#customLog">CustomLog</a> configuration file
-            directive.</p>
-            <p>The access log file is parsable by many open source and commercial log file analyzers. Here is a sample
-            access log. Some lines have been manually wrapped to fit on the page.</p>
-            <pre>
-localhost - - [Fri Dec 19 16:08:13 2003] "GET / 
-        HTTP/1.1" 302 464
-localhost - - [Fri Dec 19 16:08:22 2003] "GET /doc/index.html 
-        HTTP/1.1" 200 8006
-localhost - - [Fri Dec 19 16:08:22 2003] "GET /doc/css/doc.css 
-        HTTP/1.1" 200 10588
-localhost - - [Fri Dec 19 16:08:22 2003] "GET /doc/images/backLeft.png 
-        HTTP/1.1" 200 16492
-localhost - - [Fri Dec 19 16:08:22 2003] "GET /doc/images/backMiddle.png 
-        HTTP/1.1" 200 464
-localhost - - [Fri Dec 19 16:08:22 2003] "GET /doc/images/backRight.png 
-        HTTP/1.1" 200 987
-localhost - - [Fri Dec 19 16:08:22 2003] "GET /doc/images/graybar.gif 
-        HTTP/1.1" 200 290
-localhost - - [Fri Dec 19 16:08:24 2003] "GET /doc/index.html 
-        HTTP/1.1" 304 167
-localhost - - [Fri Dec 19 16:08:24 2003] "GET /doc/css/doc.css 
-        HTTP/1.1" 304 167
-localhost - - [Fri Dec 19 16:08:24 2003] "GET /doc/images/backLeft.png 
-        HTTP/1.1" 304 167
-localhost - - [Fri Dec 19 16:08:24 2003] "GET /doc/images/backMiddle.png 
-        HTTP/1.1" 304 165
-localhost - - [Fri Dec 19 16:08:24 2003] "GET /doc/images/backRight.png 
-        HTTP/1.1" 304 166
-</pre>
+            <h2>Log Files</h2>
+            <p>The default location of the log file is specified at build time via the command:
+            <pre>./configure --set trace="file:level"</pre>
+            <p>The log filename can be set to "stdout" or "stderr".  The debug level specifies the desired trace verbosity.
+            Level 0 is the least verbose and level 9 is the most verbose.</p>
+            <p>Configure will defines a <em>BIT_TRACE</em> definition in the <em>bit.h</em> configuration header that is used
+            to set the default log location. After building, the trace can be redirected via a <em>goahead</em> command line option.
+            <h3>Command Line Log Option</h3>
+            <p>You may specify the error log file and log level via the GoAhead command line <em>--log</em> option. If you
+            invoke GoAhead with a <em>--log file:level</em>. command line option, it will override the build time
+            defaults.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

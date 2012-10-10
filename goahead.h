@@ -1874,11 +1874,11 @@ extern ssize socketRead(int sid, void *buf, ssize len);
 
 /**
     Register interest in socket I/OEvents
-    @param sp Socket object reference. Use socketPtr to obtain from a socket ID.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
     @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
     @ingroup WebsSocket
  */
-extern void socketRegisterInterest(WebsSocket *sp, int mask);
+extern void socketRegisterInterest(int sid, int mask);
 
 /**
     Request that the socket be reserviced.
@@ -2290,18 +2290,20 @@ extern WebsUpload *websLookupUpload(struct Webs *wp, char *key);
     Request flags
  */
 #define WEBS_ACCEPTED           0x1         /**< TLS connection accepted */
-#define WEBS_COOKIE             0x2         /**< Cookie supplied in request */
-#define WEBS_FORM               0x4         /**< Request is a form (url encoded data) */
-#define WEBS_HEADERS_DONE       0x8         /**< Already output the HTTP header */
-#define WEBS_HTTP11             0x10        /**< Request is using HTTP/1.1 */
-#define WEBS_KEEP_ALIVE         0x20        /**< HTTP/1.1 keep alive */
-#define WEBS_RESPONSE_TRACED    0x40        /**< Started tracing the response */
-#define WEBS_SECURE             0x80        /**< Connection uses SSL */
-#define WEBS_UPLOAD             0x100       /**< Multipart-mime file upload */
-#define WEBS_REROUTE            0x200       /**< Restart route matching */
-#define WEBS_FINALIZED          0x400       /**< Output is finalized */
+#define WEBS_CHUNKING           0x2         /**< Currently chunking output body data */
+#define WEBS_CLOSED             0x4         /**< Connection closed, ready to free */
+#define WEBS_COOKIE             0x8         /**< Cookie supplied in request */
+#define WEBS_FINALIZED          0x10        /**< Output is finalized */
+#define WEBS_FORM               0x20        /**< Request is a form (url encoded data) */
+#define WEBS_HEADERS_CREATED    0x40        /**< Headers have been created and buffered */
+#define WEBS_HTTP11             0x80        /**< Request is using HTTP/1.1 */
+#define WEBS_KEEP_ALIVE         0x100       /**< HTTP/1.1 keep alive */
+#define WEBS_RESPONSE_TRACED    0x200       /**< Started tracing the response */
+#define WEBS_SECURE             0x400       /**< Connection uses SSL */
+#define WEBS_UPLOAD             0x800       /**< Multipart-mime file upload */
+#define WEBS_REROUTE            0x1000      /**< Restart route matching */
 #if BIT_LEGACY
-#define WEBS_LOCAL              0x10000     /**< Request from local system */
+#define WEBS_LOCAL              0x2000      /**< Request from local system */
 #endif
 
 /*
@@ -2315,9 +2317,11 @@ extern WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 /* 
     Read handler flags and state
  */
-#define WEBS_BEGIN          0x1             /**< Beginning state */
-#define WEBS_CONTENT        0x2             /**< Ready for body data */
+#define WEBS_BEGIN          0x0             /**< Beginning state */
+#define WEBS_CONTENT        0x1             /**< Ready for body data */
+#define WEBS_READY          0x2             /**< Ready to route and start handler */
 #define WEBS_RUNNING        0x4             /**< Processing request */
+#define WEBS_COMPLETE       0x8             /**< Request complete */
 
 /*
     Session names
@@ -2331,13 +2335,20 @@ extern WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_CLOSE          0x20000     /**< Close connection */
 
 /**
+    Callback for write I/O events
+ */
+typedef void (*WebsWriteProc)(struct Webs *wp);
+
+/**
     GoAhead request structure. This is a per-socket connection structure.
     @defgroup Webs Webs
  */
 typedef struct Webs {
     WebsBuf         rxbuf;              /**< Raw receive buffer */
     WebsBuf         input;              /**< Receive buffer after de-chunking */
-    WebsBuf         output;             /**< Transmit data buffer */
+    WebsBuf         output;             /**< Transmit buffer after chunking */
+    WebsBuf         chunkbuf;           /**< Pre-chunking data buffer */
+    WebsBuf         *txbuf;
     WebsTime        since;              /**< Parsed if-modified-since time */
     WebsHash        vars;               /**< CGI standard variables */
     WebsTime        timestamp;          /**< Last transaction with browser */
@@ -2400,11 +2411,11 @@ typedef struct Webs {
     int             putfd;              /**< File handle to write PUT data */
     int             docfd;              /**< File descriptor for document being served */
     ssize           written;            /**< Bytes actually transferred */
-    void            (*writable)(struct Webs *wp);
 
     struct WebsSession *session;        /**< Session record */
     struct WebsRoute *route;            /**< Request route */
     struct WebsUser *user;              /**< User auth record */
+    WebsWriteProc   writeData;          /**< Handler write I/O event callback. Used by fileHandler */
     int             encoded;            /**< True if the password is MD5(username:realm:password) */
 #if BIT_DIGEST
     char            *cnonce;            /**< check nonce */
@@ -2564,15 +2575,6 @@ extern int websCgiHandler(Webs *wp);
     @ingroup Webs
  */
 extern void websCgiCleanup();
-
-#if UNUSED
-/**
-    Check if a CGI process has completed
-    @param handle CGI process handle
-    @ingroup Webs
- */
-extern int websCheckCgiProc(int handle);
-#endif
 #endif /* BIT_CGI */
 
 /**
@@ -2646,10 +2648,9 @@ extern int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClo
     Complete a request.
     @description A handler should call websDone() to complete the request.
     @param wp Webs request object
-    @param code HTTP status code
     @ingroup Webs
  */
-extern void websDone(Webs *wp, int code);
+extern void websDone(Webs *wp);
 
 /**
     Encode a string using base-64 encoding
@@ -2702,22 +2703,25 @@ extern char *websErrorMsg(int code);
  */
 extern void websFileOpen();
 
+#if UNUSED
 /**
     Finalize the response 
-    @description Flush transmit data and write a chunk trailer if required. After finalization, 
-        the client should have the full response. WARNING: this call may block.
+    @description Finalize the transmit data by flushing buffered data and writing a chunk trailer if required. 
+        After finalization, the client should have the full response.
     @param wp Webs request object
+    @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern ssize websFinalize(Webs *wp);
+extern int websFinalize(Webs *wp);
+#endif
 
 /**
     Flush buffered transmit data and compact the transmit buffer to make room for more data
     @param wp Webs request object
-    @return Number of bytes written
+    @return True if the contents of the transmit buffer are fully written and the buffer is now empty
     @ingroup Webs
  */
-extern ssize websFlush(Webs *wp);
+extern bool websFlush(Webs *wp);
 
 /**
     Free the webs request object. 
@@ -2814,7 +2818,8 @@ extern char *websGetFilename(Webs *wp);
 
 /**
     Get the request host
-    @description The request host is set to the Host HTTP header value if it is present. Otherwise it is set to the request URI hostname.
+    @description The request host is set to the Host HTTP header value if it is present. Otherwise it is set to 
+        the request URI hostname.
     @param wp Webs request object
     @return Host string. Caller should not free.
     @ingroup Webs
@@ -2992,6 +2997,14 @@ extern char *websMD5Block(char *buf, ssize length, char *prefix);
     @ingroup Webs
  */
 extern char *websNormalizeUriPath(char *path);
+
+/**
+    Take not of the request activity and mark the time.
+    @description This is used to defer the request timeout whenever there is request I/O activity.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websNoteRequestActivity(Webs *wp);
 
 /**
     Open the web server
@@ -3209,6 +3222,8 @@ extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
  */
 extern void websServiceEvents(int *finished);
 
+extern void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
+
 /**
     Set the background processing flag
     @param on Value to set the background flag to.
@@ -3294,12 +3309,12 @@ extern void websSetCookie(Webs *wp, char *name, char *value, char *path, char *d
 extern void websSetIndex(char *filename);
 
 /**
-    Take not of the request activity and mark the time.
-    @description This is used to defer the request timeout whenever there is request I/O activity.
+    Set the response HTTP status code
     @param wp Webs request object
+    @param status HTTP status code
     @ingroup Webs
  */
-extern void websNoteRequestActivity(Webs *wp);
+extern void websSetStatus(Webs *wp, int status);
 
 /**
     Set the response body content length
@@ -3336,8 +3351,7 @@ extern bool websTestVar(Webs *wp, char *name);
     @param wp Webs request object
     @ingroup Webs
  */
-extern void websTimeoutCancel(Webs *wp);
-
+extern void websCancelTimeout(Webs *wp);
 
 /**
     Parse a URL into its components
@@ -3370,12 +3384,12 @@ extern bool websValid(Webs *wp);
 /**
     Write a set of standard response headers
     @param wp Webs request object
-    @param status HTTP status code
     @param contentLength Value for the Content-Length header which describes the length of the response body
     @param redirect Value for the Location header which redirects the client to a new URL.
     @ingroup Webs
+    @see websSetStatus
  */
-extern void websWriteHeaders(Webs *wp, int status, ssize contentLength, char *redirect);
+extern void websWriteHeaders(Webs *wp, ssize contentLength, char *redirect);
 
 /**
     Signify the end of the response headers
@@ -3391,12 +3405,13 @@ extern void websWriteEndHeaders(Webs *wp);
         to write the standard headers and before websWriteEndHeaders.
         This routine differs from websWrite in that it traces header values to the log.
     @param wp Webs request object
-    @param fmt Header key and value. Should be of the form: "Name: Value"
+    @param key Header key value
+    @param fmt Header value format string.
     @param ... Arguments to the format string.
-    @return Count of bytes written
+    @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern ssize websWriteHeader(Webs *wp, char *fmt, ...);
+extern int websWriteHeader(Webs *wp, char *key, char *fmt, ...);
 
 /**
     Write data to the response
@@ -3423,16 +3438,15 @@ extern ssize websWrite(Webs *wp, char *fmt, ...);
 extern ssize websWriteBlock(Webs *wp, char *buf, ssize size);
 
 /**
-    Write a block of data to the response and bypass output buffering.
-    @description This routine will first invoke websFlush if there is prior data in the output buffer, before writing
-        the raw data.
+    Write a block of data to the network
+    @description This bypassed output buffering and is the lowest level write.
     @param wp Webs request object
     @param buf Buffer of data to write
     @param size Length of buf
-    @return Count of bytes written
+    @return Count of bytes written. Returns -1 on errors. May return having written less than requested.
     @ingroup Webs
  */
-extern ssize websWriteRaw(Webs *wp, char *buf, ssize size);
+ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
 #if BIT_UPLOAD
 /**
@@ -3751,11 +3765,6 @@ extern void websCloseAuth();
  */
 extern void websComputeAllUserAbilities();
 
-#if UNUSED
-extern WebsHash websGetUsers();
-extern WebsHash websGetRoles();
-#endif
-
 /**
     Login a user by verifying the login credentials.
     @description This may be called by handlers to manually authenticate a user.
@@ -4018,6 +4027,7 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define websSetDefaultPage websGetIndex
     #define websSetRequestLpath websSetRequestFilename
     #define websSetRequestWritten(wp, nbytes)  if (1) { wp->written = nbytes; } else
+    #define websTimeoutCancel websCancelTimeout
     #define websWriteDataNonBlock websWriteRaw
 
     #define ringqOpen bufCreate

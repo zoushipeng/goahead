@@ -49,12 +49,12 @@ Bit.load({
         autoLogin: false,
 
         /*
-            Directory for use when validating client certificates
+            Directory for use when validating client certificates for SSL
          */
         caPath: "",
 
         /*
-            File of certificates 
+            SSL file of certificates 
          */
         caFile: "",
 
@@ -62,6 +62,12 @@ Bit.load({
             Server certificate file for SSL
          */
         certificate: "server.crt",
+
+        /*
+            Cipher suite to use with openssl
+            AES128-SHA
+         */
+        ciphers: "HIGH:RC4+SHA",
 
         /*
             Build with CGI support and directory for CGI programs.
@@ -75,10 +81,9 @@ Bit.load({
         documents: "web",
 
         /*
-            HTTP IPv4 and IPv6 ports to listen on
+            Addresses to listen on. This specifies the protocol, interface and port.
          */
-        httpPort: 8080,
-        httpV6Port: 8090,
+        listen: ["http://*:80", "https://*:443"]
 
         /*
             Build with support for javascript web templates
@@ -93,18 +98,17 @@ Bit.load({
         /*
             Sandbox limits and allocation sizes
          */
-        limitRxBody:         16384,    /* Maximum receive body size for PUT|POST */
-        limitBuffer:          8192,    /* I/O Buffer size */
+        limitBuffer:          8192,    /* I/O Buffer size. Also chunk size. */
         limitFilename:         256,    /* Maximum filename size */
         limitHeader:          2048,    /* Maximum HTTP single header size */
         limitHeaders:         4096,    /* Maximum HTTP header size */
         limitNumHeaders:        64,    /* Maximum number of headers */
         limitPassword:          32,    /* Maximum password size */
-        limitSessionLife:     1800,    /* Session lifespan in secons */
+        limitRxBody:         16384,    /* Maximum receive body size for PUT|POST */
+        limitSessionLife:     1800,    /* Session lifespan in seconds */
         limitSessionCount:     120,    /* Maximum number of sessions to support */
         limitString:          4096,    /* Default string size */
-        limitSocketBuffer:    4096,    /* Default socket buffer size */
-        limitTimeout:           60,    /* Request inactivity timeout (secs) */
+        limitTimeout:           60,    /* Request inactivity timeout in seconds */
         limitUri:             2048,    /* Maximum URI size */
         limitUpload:     204800000,    /* Maximum upload size ~ 200MB */
 
@@ -119,7 +123,7 @@ Bit.load({
         pam: false,
 
         /*
-            Authentication realm
+            Authentication realm. Replace with your realm.
          */
         realm: "example.com",
 
@@ -127,12 +131,6 @@ Bit.load({
             Replace malloc with a non-fragmenting allocator
          */
         replaceMalloc: false,
-
-        /*
-            SSL IPv4 and IPv6 ports to listen on
-         */
-        sslPort: 4443,
-        sslV6Port: 4453,
 
         /*
             Default location for debug log 

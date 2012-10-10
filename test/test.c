@@ -1,7 +1,7 @@
 /*
     test.c -- Unit test program for GoAhead
 
-    Usage: goahead-test [options] [IPaddress][:port] [documents]
+    Usage: goahead-test [options] [documents] [endpoints...]
         Options:
         --auth authFile        # User and role configuration
         --home directory       # Change to directory to run
@@ -22,9 +22,13 @@
 
 static int finished = 0;
 
+#undef BIT_LISTEN
+#define BIT_LISTEN "http://*:8080, https://*:4443, http://[::]:8090, https://[::]:4453"
+
 /********************************* Forwards ***********************************/
 
 static void initPlatform();
+static void logHeader();
 static void usage();
 
 static bool testHandler(Webs *wp);
@@ -49,7 +53,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char    *argp, *auth, *home, *documents, *endpoint, addr[32], *route;
+    char    *argp, *auth, *home, *documents, *endpoints, *endpoint, *route, *tok;
     int     argind;
 
     route = "route.txt";
@@ -82,7 +86,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             traceSetPath(argv[++argind]);
 
         } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
-            traceSetPath("stdout:4");
+            traceSetPath("stdout:2");
 
         } else if (smatch(argp, "--route") || smatch(argp, "-r")) {
             route = argv[++argind];
@@ -104,6 +108,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error("Can't initialize server. Exiting.");
         return -1;
     }
+    logHeader();
     if (websLoad(auth) < 0) {
         error("Can't load %s", auth);
         return -1;
@@ -116,32 +121,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     } else {
-        if (BIT_HTTP_PORT > 0) {
-            fmt(addr, sizeof(addr), "http://:%d", BIT_HTTP_PORT);
-            if (websListen(addr) < 0) {
+        endpoints = sclone(BIT_LISTEN);
+        for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
+            if (websListen(endpoint) < 0) {
                 return -1;
             }
         }
-        if (BIT_HTTP_V6_PORT > 0) {
-            fmt(addr, sizeof(addr), "http://[::]:%d", BIT_HTTP_V6_PORT);
-            if (websListen(addr) < 0) {
-                return -1;
-            }
-        }
-#if BIT_PACK_SSL
-        if (BIT_SSL_PORT > 0) {
-            fmt(addr, sizeof(addr), "https://:%d", BIT_SSL_PORT);
-            if (websListen(addr) < 0) {
-                return -1;
-            }
-        }
-        if (BIT_SSL_V6_PORT > 0) {
-            fmt(addr, sizeof(addr), "https://[::]:%d", BIT_SSL_V6_PORT);
-            if (websListen(addr) < 0) {
-                return -1;
-            }
-        }
-#endif
+        gfree(endpoints);
     }
 
     websDefineHandler("test", testHandler, 0, 0);
@@ -174,6 +160,25 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websServiceEvents(&finished);
     websClose();
     return 0;
+}
+
+
+static void logHeader()
+{
+    char    home[BIT_LIMIT_STRING];
+
+    getcwd(home, sizeof(home));
+    trace(2, "Configuration for %s\n", BIT_TITLE);
+    trace(2, "---------------------------------------------\n");
+    trace(2, "Version:            %s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
+    trace(2, "BuildType:          %s\n", BIT_DEBUG ? "Debug" : "Release");
+    trace(2, "CPU:                %s\n", BIT_CPU);
+    trace(2, "OS:                 %s\n", BIT_OS);
+    trace(2, "Host:               %s\n", websGetServer());
+    trace(2, "Directory:          %s\n", home);
+    trace(2, "Documents:          %s\n", websGetDocuments());
+    trace(2, "Configure:          %s\n", BIT_CONFIG_CMD);
+    trace(2, "---------------------------------------------\n");
 }
 
 
@@ -254,14 +259,15 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv)
 {
     int     i;
 
-    websWriteHeaders(wp, 200, -1, 0);
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
     websWrite(wp, "<html>\n");
     for (i = 0; i < 800; i++) {
         websWrite(wp, " Line: %05d %s", i, "aaaaaaaaaaaaaaaaaabbbbbbbbbbbbbbbbccccccccccccccccccddddddd<br/>\r\n");
     }
     websWrite(wp, "</html>\n");
-    websDone(wp, 200);
+    websDone(wp);
     return 0;
 }
 #endif
@@ -276,10 +282,11 @@ static void procTest(Webs *wp, char *path, char *query)
 
 	name = websGetVar(wp, "name", NULL);
 	address = websGetVar(wp, "address", NULL);
-    websWriteHeaders(wp, 200, -1, 0);
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
 	websWrite(wp, "<html><body><h2>name: %s, address: %s</h2></body></html>\n", name, address);
-	websDone(wp, 200);
+	websDone(wp);
 }
 
 
@@ -293,10 +300,11 @@ static void sessionTest(Webs *wp, char *path, char *query)
     } else {
         number = websGetSessionVar(wp, "number", 0);
     }
-    websWriteHeaders(wp, 200, -1, 0);
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
     websWrite(wp, "<html><body><p>Number %s</p></body></html>\n", number);
-    websDone(wp, 200);
+    websDone(wp);
 }
 
 
@@ -304,14 +312,15 @@ static void showTest(Webs *wp, char *path, char *query)
 {
     WebsKey     *s;
 
-    websWriteHeaders(wp, 200, -1, 0);
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
     websWrite(wp, "<html><body><pre>\n");
     for (s = hashFirst(wp->vars); s; s = hashNext(wp->vars, s)) {
         websWrite(wp, "%s=%s\n", s->name.value.string, s->content.value.string);
     }
     websWrite(wp, "</pre></body></html>\n");
-    websDone(wp, 200);
+    websDone(wp);
 }
 
 
@@ -325,8 +334,9 @@ static void uploadTest(Webs *wp, char *path, char *query)
     WebsUpload  *up;
     char            *upfile;
 
-    websWriteHeaders(wp, 200, -1, 0);
-    websWriteHeader(wp, "Content-Type: text/plain\r\n");
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, -1, 0);
+    websWriteHeader(wp, "Content-Type", "text/plain");
     websWriteEndHeaders(wp);
     if (scaselessmatch(wp->method, "POST")) {
         for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
@@ -345,7 +355,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
             websWrite(wp, "%s=%s\r\n", s->name.value.string, s->content.value.string);
         }
     }
-    websDone(wp, 200);
+    websDone(wp);
 }
 #endif
 
@@ -356,11 +366,12 @@ static void uploadTest(Webs *wp, char *path, char *query)
  */
 static int legacyTest(Webs *wp, char *prefix, char *dir, int flags)
 {
-    websWriteHeaders(wp, 200, -1, 0);
-    websWriteHeader(wp, "Content-Type: text/plain\r\n");
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, -1, 0);
+    websWriteHeader(wp, "Content-Type", "text/plain");
     websWriteEndHeaders(wp);
     websWrite(wp, "Hello Legacy World\n");
-    websDone(wp, 200);
+    websDone(wp);
     return 1;
 }
 

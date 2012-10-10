@@ -192,7 +192,9 @@ static bool cgiHandler(Webs *wp)
         cgip->envp = envp;
         cgip->wp = wp;
         cgip->fplacemark = 0;
-        websTimeoutCancel(wp);
+#if UNUSED
+        websCancelTimeout(wp);
+#endif
         gfree(query);
     }
     /*
@@ -243,8 +245,9 @@ void websCgiGatherOutput (Cgi *cgip)
              */
             wp = cgip->wp;
             if (cgip->fplacemark == 0) {
-                websWriteHeader(wp, "HTTP/1.0 200 OK\r\n");
-                websWriteHeader(wp, "Pragma: no-cache\r\nCache-Control: no-cache\r\n");
+                websWriteHeader(wp, NULL, "HTTP/1.0 200 OK");
+                websWriteHeader(wp, "Pragma", "no-cache");
+                websWriteHeader(wp, "Cache-Control", "no-cache");
             }
             lseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nRead = read(fdout, cgiBuf, BIT_LIMIT_FILENAME)) > 0) {
@@ -296,7 +299,7 @@ void websCgiCleanup()
                 if (cgip->fplacemark == 0) {
                     websError(wp, 200, "CGI generated no output");
                 } else {
-                    websDone(wp, 200);
+                    websDone(wp);
                 }
                 /*
                     Remove the temporary re-direction files
