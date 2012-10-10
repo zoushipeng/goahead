@@ -45,30 +45,43 @@ static bool cgiHandler(Webs *wp)
 {
     Cgi         *cgip;
     WebsKey     *s;
-    char        cgiBuf[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
-    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir;
+    char        cgiPrefix[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
+    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath;
     int         n, envpsize, argpsize, pHandle, cid;
 
     gassert(websValid(wp));
     
-    getcwd(cwd, BIT_LIMIT_FILENAME);
-    dir = wp->route->dir ? wp->route->dir : cwd;
-    chdir(dir);
-    cgiPath = sfmt("%s%s", dir, wp->path);
+    websSetEnv(wp);
 
     /*
         Extract the form name and then build the full path name.  The form name will follow the first '/' in path.
      */
-    strncpy(cgiBuf, wp->path, TSZ(cgiBuf));
-    if ((cgiName = strchr(&cgiBuf[1], '/')) == NULL) {
+    scopy(cgiPrefix, sizeof(cgiPrefix), wp->path);
+    if ((cgiName = strchr(&cgiPrefix[1], '/')) == NULL) {
         websError(wp, 200, "Missing CGI name");
         return 1;
     }
-    cgiName++;
-    if ((cp = strchr(cgiName, '/')) != NULL) {
-        *cp = '\0';
-    }
+    *cgiName++ = '\0';
 
+    getcwd(cwd, BIT_LIMIT_FILENAME);
+    dir = wp->route->dir ? wp->route->dir : cwd;
+    chdir(dir);
+    
+    extraPath = 0;
+    if ((cp = strchr(cgiName, '/')) != NULL) {
+        extraPath = sclone(cp);
+        *cp = '\0';
+        websSetVar(wp, "PATH_INFO", extraPath);
+        websSetVarFmt(wp, "PATH_TRANSLATED", "%s%s%s", dir, cgiPrefix, extraPath);
+        gfree(extraPath);
+    } else {
+        websSetVar(wp, "PATH_INFO", "");
+        websSetVar(wp, "PATH_TRANSLATED", "");        
+    }
+    cgiPath = sfmt("%s%s/%s", dir, cgiPrefix, cgiName);
+    websSetVarFmt(wp, "SCRIPT_NAME", "%s/%s", cgiPrefix, cgiName);
+    websSetVar(wp, "SCRIPT_FILENAME", cgiPath);
+    
 /*
     See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
     may already be part of the OS image, rather than in the file system.
@@ -77,7 +90,7 @@ static bool cgiHandler(Webs *wp)
     {
         WebsStat sbuf;
         if (stat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
-            websError(wp, 404, "CGI process file does not exist");
+            websError(wp, 404, "CGI program file does not exist");
             gfree(cgiPath);
             return 1;
         }
@@ -93,16 +106,6 @@ static bool cgiHandler(Webs *wp)
         }
     }
 #endif /* ! VXWORKS */
-#if UNUSED
-    /*
-        Retrieve the directory of the child process CGI
-     */
-    if ((cp = strrchr(cgiPath, '/')) != NULL) {
-        *cp = '\0';
-        chdir(cgiPath);
-        *cp = '/';
-    }
-#endif
     /*
         Build command line arguments.  Only used if there is no non-encoded = character.  This is indicative of a ISINDEX
         query.  POST separators are & and others are +.  argp will point to a galloc'd array of pointers.  Each pointer
@@ -139,17 +142,13 @@ static bool cgiHandler(Webs *wp)
         loop includes logic to grow the array size via grealloc.
      */
     envpsize = 64;
-    envp = galloc(envpsize * sizeof(char *));
-    n = 0;
-    envp[n++] = sfmt("%s=%s/%s", "PATH_TRANSLATED", wp->route->dir, cgiPath);
-    envp[n++] = sfmt("%s=%s/%s", "SCRIPT_NAME", wp->route->dir, cgiName);
-
-    websSetEnv(wp);
-    for (s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
+    envp = galloc(envpsize * sizeof(char*));
+    for (n = 0, s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
         if (s->content.valid && s->content.type == string &&
             strcmp(s->name.value.string, "REMOTE_HOST") != 0 &&
             strcmp(s->name.value.string, "HTTP_AUTHORIZATION") != 0) {
             envp[n++] = sfmt("%s=%s", s->name.value.string, s->content.value.string);
+            trace(5, "Env[%d] %s\n", n, envp[n-1]);
             if (n >= envpsize) {
                 envpsize *= 2;
                 envp = grealloc(envp, envpsize * sizeof(char *));
@@ -281,12 +280,7 @@ void websCgiCleanup()
                 /*
                     We get here if the CGI process has terminated.  Clean up.
                  */
-                nTries = 0;
-                /*              
-                     Make sure we didn't miss something during a task switch.  Maximum wait is 100 times 10 msecs (1
-                     second).  
-                 */
-                while ((cgip->fplacemark == 0) && (nTries < 100)) {
+                for (nTries = 0; (cgip->fplacemark == 0) && (nTries < 100); nTries++) {
                     websCgiGatherOutput(cgip);
                     /*                  
                          There are some cases when we detect app exit before the file is ready. 
@@ -297,7 +291,6 @@ void websCgiCleanup()
                         Sleep(10);
 #endif
                     }
-                    nTries++;
                 }
                 if (cgip->fplacemark == 0) {
                     websError(wp, 200, "CGI generated no output");
@@ -453,7 +446,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
             (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
             (hstdin = dup(0)) == -1 || (hstdout = dup(1)) == -1 ||
             dup2(fdin, 0) == -1 || dup2(fdout, 1) == -1) {
-        goto DONE;
+        goto done;
     }
     pid = vfork();
     if (pid == 0) {
@@ -465,7 +458,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
         }
         _exit(0);
     }
-DONE:
+done:
     if (hstdout >= 0) {
         dup2(hstdout, 1);
         close(hstdout);
@@ -583,7 +576,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
             (int) envp, (int) stdIn, (int) stdOut, 0, 0, 0, 0, 0);
-        goto DONE;
+        goto done;
     }
 
     /*
@@ -591,7 +584,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
      */
     if ((fd = open(cgiPath, O_RDONLY | O_BINARY, 0666)) < 0 ||
         loadModule(fd, LOAD_GLOBAL_SYMBOLS) == NULL) {
-        goto DONE;
+        goto done;
     }
     if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
         pname = sfmt("_%s", pEntry);
@@ -602,7 +595,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
         rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
             (int) envp, (int) stdIn, (int) stdOut, 0, 0, 0, 0, 0);
     }
-DONE:
+done:
     if (fd != -1) {
         close(fd);
     }

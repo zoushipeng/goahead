@@ -58,7 +58,7 @@
         <div class="contentLeft">
             <h1>GoAhead&trade; FAQ</h1>
             <p>If you don't find the answers you need here, please submit your question to the online community support
-            <a href="http://groups.google.com/d/forum/goaheadwebs">Forum</a>.</p>
+            <a href="http://groups.google.com/d/forum/#!forum/goaheadwebs">Forum</a>.</p>
             <a id="questions"></a>
             <h2 class="section">Questions</h2>
             <h3>General Questions</h3>
@@ -88,7 +88,7 @@
             <p class="question"><a id="history"></a>Why is Embedthis Software supporting and distributing 
                 the GoAhead WebServer?</p>
             <div class="answer">
-                The GoAhead WebServer was originally written by Michael O'Brien CEO of Embedthis and it remains a very
+                The GoAhead WebServer was originally written by Michael O'Brien, CEO of Embedthis and it remains a very
                 popular to this day. With the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing
                 GoAhead WebServer customers and to offer commercial licenses for the GoAhead WebServer.
             </div>
@@ -96,7 +96,7 @@
             <p class="question">How does the GoAhead WebServer compare with Appweb?</p>
             <div class="answer">
                 <p>The GoAhead WebServer is a simple, compact web server that has been widely ported to many embedded
-                operating systems. Appweb is faster and more powerful &emdash; but requires more memory. If you need a very
+                operating systems. Appweb is faster and more powerful &mdash; but requires more memory. If you need a very
                 simple, low end web server and have little memory available, the GoAhead WebServer is ideal. If you need
                 higher performance and extended security, then Appweb is the right choice.</p>
             </div>
@@ -104,7 +104,7 @@
             <p class="question">Can I disable features to minimize memory footprint at run-time?</p>
             <div class="answer">
                 <p>Yes. GoAhead has build-time configuration settings to select required features and minimize 
-                memory footprint. See <a href="..//source/building.html#configuring">Building from Source</a> for details of
+                memory footprint. See <a href="../source/building.html#configuring">Building from Source</a> for details of
                 the configuration options.</p> 
             </div>
             <p class="question"><a id="upload"></a>How can I upload large files?</p>
@@ -186,29 +186,20 @@ SERVER_SOFTWARE
 SERVER_URL
 </pre>
             </div>
-            <p class="question"><a id="handlers"></a>What is the difference between handlers and
-            modules?</p>
-            <div class="answer">
-                <p><b>Modules</b> are just for the basic loading mechanism of shared objects (DLLs). However, they also
-                provide a consistent way to handle modules that are statically loaded without much effort on the part
-                of the developers.</p><b>Handlers</b> are the work-horses for the HTTP server. They actually process
-                the HTTP requests and have full access to the request. They also own its processing.
-            </div>
             <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
             <div class="answer">
-                <p>GoAhead 2 has about 150K of code. On a VxWorks or uClibc based Linux system, you should be able to
-                build GoAhead for an all-up memory footprint 200K. It will be larger if you use OpenSSL.
-                (which is +800K).</p>
+                <p>GoAhead 3 has about 150K of code. On a VxWorks or uClibc based Linux system, you should be able to
+                build GoAhead for an all-up running memory footprint of 800K. It will be larger if you use OpenSSL.
+                (which is +800K). On other systems, a good guide is 1MB without SSL and 2MB with OpenSSL.</p>
                 <p>For a minimal footprint on GoAhead, use:</p>
                 <pre>
-./configure --disable-all ... more options ...
+./configure --without all --set cgi=false --set javascript=false
 </pre>
-                <p>This will disable all possible features but still provide a running web server. Then add various
-                <em>--enable-option</em> and <em>--with-component</em> switches as required.</p>
+                <p>This will disable most features including CGI and Javascript but still provide a running web server.
                 <p>Things to consider when building small:</p>
                 <ul>
                     <li>Disable all possible features. In particular, disable the CGI and Javascript handlers</li>
-                    <li>Don't build DEBUG. Use: <em>./configure --type=release</em></li>
+                    <li>Don't build DEBUG. Use: <em>./configure -release</em></li>
                     <li>Use a small C-Library such as uClibc on embedded Linux systems</li>
                 </ul>
             </div>
@@ -217,7 +208,7 @@ SERVER_URL
                 <p>The GoAhead configure command has switches to specify the <b>build</b> system and the target system
                 that will <b>host</b> GoAhead. For example:</p>
                 <pre>
-./configure --host powerpc-wrs-vxworks --build pentium-pc-windows
+./configure --platform vxworks-arm
 </pre>
                 <p>When cross compiling, you also need to tell configure about your cross-compilation tool chain. This
                 means the names of your compiler, library archiver, and other utilities and flags. The configure program
@@ -234,14 +225,14 @@ NM=$DIR/nm.exe \
 RANLIB=$DIR/ranlib.exe \
 STRIP=$DIR/strip.exe \
 CFLAGS="-I$DIR/include \
-./configure --type=DEBUG --host=arm--linux 
+./configure --debug --platform linux-arm
 </pre>
                 <p>For more details, please read: <a href="../source/building.html#cross">Cross Compilation</a> in the
                 <a href="../source/building.html">Building from Source</a> guide.</p>
             </div>
             <h2 class="section">Need more help?</h2>
             <p>If you have any further questions, please go to the GoAhead community support email list at <a href=
-            "http://groups.google.com/d/forum/goaheadwebs">Forum</a>.</p>
+            "http://groups.google.com/d/forum/#!forum/goaheadwebs">Forum</a>.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

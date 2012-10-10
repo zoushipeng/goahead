@@ -272,8 +272,8 @@ static int processUploadHeader(Webs *wp, char *line)
 
 static void defineUploadVars(Webs *wp)
 {
-    WebsUpload  *file;
-    char            key[64], value[64];
+    WebsUpload      *file;
+    char            key[64];
 
     file = wp->currentFile;
     fmt(key, sizeof(key), "FILE_CLIENT_FILENAME_%s", wp->uploadVar);
@@ -286,14 +286,13 @@ static void defineUploadVars(Webs *wp)
     websSetVar(wp, key, file->filename);
 
     fmt(key, sizeof(key), "FILE_SIZE_%s", wp->uploadVar);
-    itosbuf(value, sizeof(value), file->size, 10);
-    websSetVar(wp, key, value);
+    websSetVarFmt(wp, key, "%d", (int) file->size);
 }
 
 
 static int writeToFile(Webs *wp, char *data, ssize len)
 {
-    WebsUpload  *file;
+    WebsUpload      *file;
     ssize           rc;
 
     file = wp->currentFile;

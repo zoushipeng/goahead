@@ -1271,7 +1271,8 @@ void websServiceEvents(int *finished)
         *finished = 0;
     }
     while (!finished || !*finished) {
-        if (socketSelect(-1, 1000)) {
+        //  MOB - fix
+        if (socketSelect(-1, 50)) {
             socketProcess();
         }
 #if BIT_CGI
@@ -1287,7 +1288,7 @@ void websServiceEvents(int *finished)
  */
 static void addFormVars(Webs *wp, char *vars)
 {
-    char  *keyword, *value, *prior, *valNew, *tok;
+    char  *keyword, *value, *prior, *tok;
 
     gassert(wp);
     gassert(vars);
@@ -1306,9 +1307,7 @@ static void addFormVars(Webs *wp, char *vars)
                 If keyword has already been set, append the new value to what has been stored.
              */
             if ((prior = websGetVar(wp, keyword, NULL)) != 0) {
-                valNew = sfmt("%s %s", prior, value);
-                websSetVar(wp, keyword, valNew);
-                gfree(valNew);
+                websSetVarFmt(wp, keyword, "%s %s", prior, value);
             } else {
                 websSetVar(wp, keyword, value);
             }
@@ -1324,14 +1323,11 @@ static void addFormVars(Webs *wp, char *vars)
  */
 void websSetEnv(Webs *wp)
 {
-    char  numbuf[8], *value;
-
     gassert(wp);
     gassert(websValid(wp));
 
     websSetVar(wp, "AUTH_TYPE", wp->authType);
-    itosbuf(numbuf, sizeof(numbuf), wp->rxLen, 10);
-    websSetVar(wp, "CONTENT_LENGTH", numbuf);
+    websSetVarFmt(wp, "CONTENT_LENGTH", "%d", wp->rxLen);
     websSetVar(wp, "CONTENT_TYPE", wp->contentType);
     if (wp->route && wp->route->dir) {
         websSetVar(wp, "DOCUMENT_ROOT", wp->route->dir);
@@ -1346,17 +1342,13 @@ void websSetEnv(Webs *wp)
     websSetVar(wp, "REQUEST_METHOD", wp->method);
     websSetVar(wp, "REQUEST_TRANSPORT", wp->protocol);
     websSetVar(wp, "REQUEST_URI", wp->path);
-    websSetVar(wp, "SCRIPT_FILENAME", wp->filename);
     websSetVar(wp, "SERVER_ADDR", wp->ifaddr);
     websSetVar(wp, "SERVER_HOST", websHost);
     websSetVar(wp, "SERVER_NAME", websHost);
-    itosbuf(numbuf, sizeof(numbuf), wp->port, 10);
-    websSetVar(wp, "SERVER_PORT", numbuf);
+    websSetVarFmt(wp, "SERVER_PORT", "%d", wp->port);
     websSetVar(wp, "SERVER_PROTOCOL", wp->protoVersion);
     websSetVar(wp, "SERVER_URL", websHostUrl);
-    value = sfmt("GoAhead/%s", BIT_VERSION);
-    websSetVar(wp, "SERVER_SOFTWARE", value);
-    gfree(value);
+    websSetVarFmt(wp, "SERVER_SOFTWARE", "GoAhead/%s", BIT_VERSION);
 }
 
 
@@ -1383,20 +1375,36 @@ void websSetFormVars(Webs *wp)
     Define a webs (CGI) variable for this connection. Also create in relevant scripting engines. Note: the incoming
     value may be volatile.  
  */
-void websSetVar(Webs *wp, char *var, char *value)
+void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
 {
-    WebsValue      v;
+    WebsValue   v;
+    va_list     args;
 
     gassert(websValid(wp));
     gassert(var && *var);
 
-    /*
-        value_instring will allocate the string if required.
-     */
+    if (fmt) {
+        va_start(args, fmt);
+        v = valueString(sfmtv(fmt, args), 0);
+        va_end(args);
+    } else {
+        v = valueString("", 0);
+    }
+    hashEnter(wp->vars, var, v, 0);
+}
+
+
+void websSetVar(Webs *wp, char *var, char *value)
+{
+    WebsValue   v;
+
+    gassert(websValid(wp));
+    gassert(var && *var);
+
     if (value) {
         v = valueString(value, VALUE_ALLOCATE);
     } else {
-        v = valueString("", VALUE_ALLOCATE);
+        v = valueString("", 0);
     }
     hashEnter(wp->vars, var, v, 0);
 }
@@ -2285,7 +2293,7 @@ static int setLocalHost()
 
 void websSetHost(char *host)
 {
-    strncpy(websHost, host, TSZ(websHost));
+    scopy(websHost, sizeof(websHost), host);
 }
 
 
@@ -2301,7 +2309,7 @@ void websSetHostUrl(char *url)
 void websSetIpAddr(char *ipaddr)
 {
     gassert(ipaddr && *ipaddr);
-    strncpy(websIpAddr, ipaddr, TSZ(websIpAddr));
+    scopy(websIpAddr, sizeof(websIpAddr), ipaddr);
 }
 
 

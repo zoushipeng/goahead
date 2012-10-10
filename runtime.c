@@ -325,7 +325,7 @@ char *dirname(char *buf, char *name, ssize bufsize)
         return buf;
     }
     if ((*(cp + 1) == '\0' && cp == name)) {
-        strncpy(buf, ".", TSZ(bufsize));
+        strncpy(buf, ".", bufsize);
         strcpy(buf, ".");
         return buf;
     }
@@ -334,7 +334,7 @@ char *dirname(char *buf, char *name, ssize bufsize)
         strncpy(buf, name, len);
         buf[len] = '\0';
     } else {
-        strncpy(buf, name, TSZ(bufsize));
+        strncpy(buf, name, bufsize);
         buf[bufsize - 1] = '\0';
     }
     return buf;

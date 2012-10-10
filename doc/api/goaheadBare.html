@@ -98,7 +98,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a8a2ce01d9ac050fc1cd21861d8781da0" class="nameRef">socketProcess</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Process pending socket I/O events.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_socket" class="ref">WebsSocket*</a></td><td><a href="#goahead_8h_1af627805ebf8640d0ae8d81684e07f67f" class="nameRef">socketPtr</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Return the socket object for the socket ID.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#goahead_8h_1a19822e9bedff6170ab41c053a9ee29f8" class="nameRef">socketRead</a>(int sid, void *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Read data from a socket.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a7fd6eb3c97d27307012101aabfbb19f2" class="nameRef">socketRegisterInterest</a>(<a href="#struct_webs_socket" class="ref">WebsSocket</a> *sp, int mask)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Register interest in socket I/OEvents.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ad9ad9874969bd051043a41147f5a9f01" class="nameRef">socketRegisterInterest</a>(int sid, int mask)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Register interest in socket I/OEvents.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a84620d0cf38e9279f91e6c71364233ac" class="nameRef">socketReservice</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Request that the socket be reserviced.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1aa4d7c7dee5c5104c2f19b7b702ee8c4f" class="nameRef">socketSelect</a>(int sid, int timeout)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Wait for I/O on a socket.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1a87a2c90218477d33c088510d629174c7" class="nameRef">socketSetBlock</a>(int sid, int on)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the socket blocking mode.</td></tr>
@@ -130,6 +130,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType"><a href="#group___webs_session" class="ref">WebsSession*</a></td><td><a href="#group___webs_session_1ga69b6c95bd3d6a7ed5fde4cdefb8e4dcc" class="nameRef">websAllocSession</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *id, <a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="ref">WebsTime</a> lifespan)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a user possesses the required ability.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1ga2e7099150ce40f126e53901b37055164" class="nameRef">websAuthenticate</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Authenticate a user.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1ga4b9213d33c030e357c81a97765a83ab3" class="nameRef">websCan</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#group___webs_hash" class="ref">WebsHash</a> ability)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a user possesses the required ability.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gad02e7e70e4f3b7bca1ee2a318a336e80" class="nameRef">websCancelTimeout</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Cancel the request timeout.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gabe46636b1ed60023b2f044479c029428" class="nameRef">websCgiCleanup</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Cleanup completed CGI processes and output.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gac05856f3dd04aeef0732570bedf044ad" class="nameRef">websCgiHandler</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>CGI handler service callback.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gafd0f480e0038ab974e96c009a9a83641" class="nameRef">websCgiOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the CGI handler.</td></tr>
@@ -150,8 +151,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga80307b2df19b5f59a77d1e344a75f9fb" class="nameRef">websErrorMsg</a>(int code)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a message for a HTTP status code.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga28126b9afadd3c20a82b311d5de153bf" class="nameRef">websEscapeHtml</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Escape unsafe characters in a string.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaf92974c51178c68fb23ce1d49b920d82" class="nameRef">websFileOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open and initialize the file handler.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1gaecb6e7beda41581176bdcb0fb3787e0e" class="nameRef">websFinalize</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Finalize the response.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1ga2a36d30b43d4167bcb6bf31938925bf1" class="nameRef">websFlush</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Flush buffered transmit data and compact the transmit buffer to make room for more data.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_1gaa722e1c0bc9fb59b5564963b39111cc4" class="nameRef">websFlush</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Flush buffered transmit data and compact the transmit buffer to make room for more data.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga34a9c871eaf4cba49ff81174318af979" class="nameRef">websFree</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free the webs request object.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga54bd8e9073aca8fe5ac527e0b26ae738" class="nameRef">websFreeUpload</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free file upload data structures.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaaad30c26a4b0932d71f7d9a8ab4ce191" class="nameRef">websGetBackground</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the background execution flag.</td></tr>
@@ -185,9 +185,9 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga99d3f5adee800f9b136ff9c0cffbbbd9" class="nameRef">websGetUserAgent</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the client User-Agent HTTP header.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gafe782d481e8f3a9cb978d88ac42b12be" class="nameRef">websGetUsername</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request username.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1gaf7e6e1358ef151e6f7e1fa03abe2faf2" class="nameRef">websGetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *defaultValue)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a request variable.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga5dd14a2e3bdf5ce7a983740bcd1fc504" class="nameRef">websJsDefine</a>(char *name, <a href="#group___webs_1gadf9544adf489578837319068afaa466e" class="ref">WebsJsProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a Javscript native function.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga65aa1a63140184164ef3dc1cf122eb7f" class="nameRef">websJsOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the Javascript module.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga3dff65a7e69615d717becc24553992dd" class="nameRef">websJsWrite</a>(int jid, <a href="#group___webs" class="ref">Webs</a> *wp, int argc, char **argv)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write data to the response.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga4db3f71301ed08e4f8d3c466d3632ea1" class="nameRef">websJstDefine</a>(char *name, <a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="ref">WebsJstProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a Javscript native function.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga41c32b21bf85d279079adc32517d7678" class="nameRef">websJstOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the Javascript module.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga88501f83c58a6ea9dc8fd14974db9130" class="nameRef">websJstWrite</a>(int jid, <a href="#group___webs" class="ref">Webs</a> *wp, int argc, char **argv)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write data to the response.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga696377149d258256c0f4d3f19128c044" class="nameRef">websListen</a>(char *endpoint)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Listen on a TCP/IP address endpoint.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_route_1ga61b2b64c87e2281781fe44fa7d3f64d2" class="nameRef">websLoad</a>(char *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Load routing tables from the specified filename.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1gab25039c07458532abc0d3e9fd57e8b81" class="nameRef">websLoginUser</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *username, char *password)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Login a user by verifying the login credentials.</td></tr>
@@ -246,11 +246,11 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaef03eccfb6f0d42b34f1a7a90bac62b6" class="nameRef">websSetStatus</a>(<a href="#group___webs" class="ref">Webs</a> *wp, int status)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the response HTTP status code.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga999bb54215bbc7d71c7d6e828fcf49c8" class="nameRef">websSetTxLength</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> length)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the response body content length.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1ga696e28bbcd0692b8806759a1a1c3ab6e" class="nameRef">websSetUserRoles</a>(char *username, char *roles)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the set of roles for a user.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga4bdea6a000f895b450f81eb8dd2ea9a9" class="nameRef">websSetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga4bdea6a000f895b450f81eb8dd2ea9a9" class="nameRef">websSetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a string value.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga12f0360e8d96ccb2b3f71223f06a4519" class="nameRef">websSetVarFmt</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a formatted string value.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga3d52faf06a56379bb23247aa9a0acb0f" class="nameRef">websStartEvent</a>(int delay, <a href="#group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a" class="ref">WebsEventProc</a> proc, void *data)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start a callback event.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_runtime_1ga9a6524bc11288246c84651f99fd24425" class="nameRef">websStopEvent</a>(int id)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop an event.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_1ga58d6c3612158fe5471c16998478ea31c" class="nameRef">websTestVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a request variable is defined.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaa92de2413447a28ddd585011a6043b4c" class="nameRef">websTimeoutCancel</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Cancel the request timeout.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_upload_1ga1fc8250d601b18c880422178cfe81fd5" class="nameRef">websUploadOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the file upload filter.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga7c195edbd32a17dc9659ce7e63a51a13" class="nameRef">websUrlParse</a>(char *url, char **buf, char **protocol, char **host, char **port, char **path, char **ext, char **reference, char **query)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Parse a URL into its components.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_1gaebff2db9e8b7a70579082cf92593bcfe" class="nameRef">websValid</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a webs object is valid.</td></tr>
@@ -259,9 +259,9 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1ga7b797aacc4dcfaa53fcaf756ae2d9819" class="nameRef">websWriteAuthFile</a>(char *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Save the authentication file.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1gae50ab024e80d1eb1e3c7ff00319e310d" class="nameRef">websWriteBlock</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a block of data to the response.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga7b3fddd74796c79f7e41e8bd9ce107a4" class="nameRef">websWriteEndHeaders</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Signify the end of the response headers.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1ga643fea10f07ad138b26c5eff47f59de2" class="nameRef">websWriteHeader</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a response header.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga3c10083a5aff35cd5052a91696d51c60" class="nameRef">websWriteHeader</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *key, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a response header.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b" class="nameRef">websWriteHeaders</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> contentLength, char *redirect)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a set of standard response headers.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1gace422646a2b284afa608c3f4464609dd" class="nameRef">websWriteRaw</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a block of data to the response and bypass output buffering.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1gad1bbea0e441d727f248127408ce745d6" class="nameRef">websWriteSocket</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a block of data to the network.</td></tr>
 </table>
 <a name="Typedefs"></a><h1>Typedefs</h1>
 <table class="apiIndex" title="typedefs">
@@ -277,7 +277,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiName"><a href="#group___webs_1gaf6c91717f5b5f07d037ce21a8450dd54" class="nameRef">WebsHandlerClose</a></td><td class="apiBrief">GoAhead handler close to release memory prior to shutdown.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="nameRef">WebsHandlerProc</a></td><td class="apiBrief">GoAhead handler service callback.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="nameRef">WebsHash</a></td><td class="apiBrief">Hash table ID returned by hashCreate.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1gadf9544adf489578837319068afaa466e" class="nameRef">WebsJsProc</a></td><td class="apiBrief">Javascript native function.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="nameRef">WebsJstProc</a></td><td class="apiBrief">Javascript native function.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_mime" class="nameRef">WebsMime</a></td><td class="apiBrief">Mime type list.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga15af4264d6a7f06686169c0ca2fd397e" class="nameRef">WebsParseAuth</a></td><td class="apiBrief">Callback to parse authentication details submitted with the web request.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga235a01601ad030edf9c30d3a9843e6af" class="nameRef">WebsProc</a></td><td class="apiBrief">Proc handler callback.</td></tr>
@@ -289,6 +289,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_user" class="nameRef">WebsUser</a></td><td class="apiBrief">User definition structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_value" class="nameRef">WebsValue</a></td><td class="apiBrief">Value union to store primitive value types.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="nameRef">WebsVerify</a></td><td class="apiBrief">Callback to verify the username and password.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d" class="nameRef">WebsWriteProc</a></td><td class="apiBrief">Callback for write I/O events.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="nameRef">bool</a></td><td class="apiBrief">Boolean data type.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="nameRef">cchar</a></td><td class="apiBrief">Constant char data type.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ad5d9ae5e2ea7e75aa605e36485987fc2" class="nameRef">cuchar</a></td><td class="apiBrief">Unsigned char data type.</td></tr>
@@ -594,7 +595,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>TLS connection accepted.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1a4d8188c7828dfb02d45653a83b3761d6" class="nameRef">WEBS_BEGIN</a>&nbsp;&nbsp;&nbsp;0x1</td>
+<td>#define</td><td><a href="#goahead_8h_1a4d8188c7828dfb02d45653a83b3761d6" class="nameRef">WEBS_BEGIN</a>&nbsp;&nbsp;&nbsp;0x0</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Beginning state.</td></tr>
 <tr class="apiDef">
@@ -614,15 +615,27 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Data is not transfer-chunk encoded.</td></tr>
 <tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a7cdb57c12b6fb4c9a4cde3e0c51af3a7" class="nameRef">WEBS_CHUNKING</a>&nbsp;&nbsp;&nbsp;0x2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Currently chunking output body data.</td></tr>
+<tr class="apiDef">
 <td>#define</td><td><a href="#goahead_8h_1a798cdf39a853d9d287a10c6d7d8d0f0c" class="nameRef">WEBS_CLOSE</a>&nbsp;&nbsp;&nbsp;0x20000</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Close connection.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1a0d9a3cace663a786a25612d4ea507d4d" class="nameRef">WEBS_CONTENT</a>&nbsp;&nbsp;&nbsp;0x2</td>
+<td>#define</td><td><a href="#goahead_8h_1aaa3cf9edabf08d9e8d7c679e82c04c82" class="nameRef">WEBS_CLOSED</a>&nbsp;&nbsp;&nbsp;0x4</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Connection closed, ready to free.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0f6ea1e528550a08c75510244019623d" class="nameRef">WEBS_COMPLETE</a>&nbsp;&nbsp;&nbsp;0x8</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Request complete.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a0d9a3cace663a786a25612d4ea507d4d" class="nameRef">WEBS_CONTENT</a>&nbsp;&nbsp;&nbsp;0x1</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Ready for body data.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1aae31b3bad03626c2cddc014fb995d947" class="nameRef">WEBS_COOKIE</a>&nbsp;&nbsp;&nbsp;0x2</td>
+<td>#define</td><td><a href="#goahead_8h_1aae31b3bad03626c2cddc014fb995d947" class="nameRef">WEBS_COOKIE</a>&nbsp;&nbsp;&nbsp;0x8</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Cookie supplied in request.</td></tr>
 <tr class="apiDef">
@@ -638,23 +651,23 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Decode base 64 blocks up to a NULL or equals.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1a52a69dfd87586752955431da82cb93f4" class="nameRef">WEBS_FINALIZED</a>&nbsp;&nbsp;&nbsp;0x400</td>
+<td>#define</td><td><a href="#goahead_8h_1a52a69dfd87586752955431da82cb93f4" class="nameRef">WEBS_FINALIZED</a>&nbsp;&nbsp;&nbsp;0x10</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Output is finalized.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1a07b35d14e2525658fe2e57c4a2ba8b86" class="nameRef">WEBS_FORM</a>&nbsp;&nbsp;&nbsp;0x4</td>
+<td>#define</td><td><a href="#goahead_8h_1a07b35d14e2525658fe2e57c4a2ba8b86" class="nameRef">WEBS_FORM</a>&nbsp;&nbsp;&nbsp;0x20</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Request is a form (url encoded data).</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1a4aedc438dba0bede137355c8dfe6c6e7" class="nameRef">WEBS_HEADERS_DONE</a>&nbsp;&nbsp;&nbsp;0x8</td>
+<td>#define</td><td><a href="#goahead_8h_1a99e42945b85f2f9946f3db27ca0e92e9" class="nameRef">WEBS_HEADERS_CREATED</a>&nbsp;&nbsp;&nbsp;0x40</td>
 </tr>
-<tr class="apiBrief"><td>&nbsp;</td><td>Already output the HTTP header.</td></tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Headers have been created and buffered.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1ac91876c9dd625cfacab287b19963b3be" class="nameRef">WEBS_HTTP11</a>&nbsp;&nbsp;&nbsp;0x10</td>
+<td>#define</td><td><a href="#goahead_8h_1ac91876c9dd625cfacab287b19963b3be" class="nameRef">WEBS_HTTP11</a>&nbsp;&nbsp;&nbsp;0x80</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Request is using HTTP/1.1.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1ab4d91d57c30dbfe518be10b0e28eb237" class="nameRef">WEBS_KEEP_ALIVE</a>&nbsp;&nbsp;&nbsp;0x20</td>
+<td>#define</td><td><a href="#goahead_8h_1ab4d91d57c30dbfe518be10b0e28eb237" class="nameRef">WEBS_KEEP_ALIVE</a>&nbsp;&nbsp;&nbsp;0x100</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>HTTP/1.1 keep alive.</td></tr>
 <tr class="apiDef">
@@ -662,11 +675,15 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Maximum number of listen endpoints.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1af97a00bf1e3283dd14196e29005796b5" class="nameRef">WEBS_REROUTE</a>&nbsp;&nbsp;&nbsp;0x200</td>
+<td>#define</td><td><a href="#goahead_8h_1a43ffc2adb5fe2908fd3757029d070313" class="nameRef">WEBS_READY</a>&nbsp;&nbsp;&nbsp;0x2</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Ready to route and start handler.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1af97a00bf1e3283dd14196e29005796b5" class="nameRef">WEBS_REROUTE</a>&nbsp;&nbsp;&nbsp;0x1000</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Restart route matching.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1affca463a40f2f7aee71a6bcd909906d6" class="nameRef">WEBS_RESPONSE_TRACED</a>&nbsp;&nbsp;&nbsp;0x40</td>
+<td>#define</td><td><a href="#goahead_8h_1affca463a40f2f7aee71a6bcd909906d6" class="nameRef">WEBS_RESPONSE_TRACED</a>&nbsp;&nbsp;&nbsp;0x200</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Started tracing the response.</td></tr>
 <tr class="apiDef">
@@ -674,7 +691,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Processing request.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1a166e115282d96ae40b39515a2fff9772" class="nameRef">WEBS_SECURE</a>&nbsp;&nbsp;&nbsp;0x80</td>
+<td>#define</td><td><a href="#goahead_8h_1a166e115282d96ae40b39515a2fff9772" class="nameRef">WEBS_SECURE</a>&nbsp;&nbsp;&nbsp;0x400</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Connection uses SSL.</td></tr>
 <tr class="apiDef">
@@ -694,7 +711,7 @@ Yes it supports HTTP/1.1 and a simple server-side JavaScript expression language
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Flag for <a class="ref" href="#goahead_8h_1a9169827ad693bc412f22a9b6802deb65">strim</a> to trim from the start of the string.</td></tr>
 <tr class="apiDef">
-<td>#define</td><td><a href="#goahead_8h_1af5bbd57723f7a60b90ac58a2b56ca7f1" class="nameRef">WEBS_UPLOAD</a>&nbsp;&nbsp;&nbsp;0x100</td>
+<td>#define</td><td><a href="#goahead_8h_1af5bbd57723f7a60b90ac58a2b56ca7f1" class="nameRef">WEBS_UPLOAD</a>&nbsp;&nbsp;&nbsp;0x800</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Multipart-mime file upload.</td></tr>
   </table>
@@ -729,6 +746,9 @@ File handle for CGI program input.
 </td>
     <tr><td class="param">char *</td><td><td>cgiStdin</td><td>
 Filename for CGI program input.
+</td>
+    <tr><td class="param">WebsBuf</td><td><td>chunkbuf</td><td>
+Pre-chunking data buffer.
 </td>
     <tr><td class="param">char *</td><td><td>clientFilename</td><td>
 Current file filename.
@@ -812,7 +832,7 @@ opaque-to-client string sent by server.
 opaque value passed from server.
 </td>
     <tr><td class="param">WebsBuf</td><td><td>output</td><td>
-Transmit data buffer.
+Transmit buffer after chunking.
 </td>
     <tr><td class="param">char *</td><td><td>password</td><td>
 Authorization password.
@@ -939,6 +959,10 @@ CGI standard variables.
 </td>
     <tr><td class="param">int</td><td><td>wid</td><td>
 Index into webs.
+</td>
+    <tr><td class="param"><a class="ref" href="#goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d">WebsWriteProc</a></td><td><td>writeData</td><td>
+Handler write I/O event callback. 
+Used by fileHandler.
 </td>
     <tr><td class="param"><a class="ref" href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1">ssize</a></td><td><td>written</td><td>
 Bytes actually transferred.
@@ -1084,6 +1108,24 @@ Bytes actually transferred.
     <tr><td class="param">sid</td><td>Socket ID handle for the newly accepted socket.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>The webs[] handle index for the allocated Webs object.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1gad02e7e70e4f3b7bca1ee2a318a336e80"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websCancelTimeout
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Cancel the request timeout.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Handlers may choose to manually manage the request timeout. This routine will disable the centralized management of the timeout for this request.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -1392,28 +1434,10 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1gaecb6e7beda41581176bdcb0fb3787e0e"></a>
+<a name="group___webs_1gaa722e1c0bc9fb59b5564963b39111cc4"></a>
 <div class="api">
   <div class="prototype">
-    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
-    websFinalize
-(<a href="#group___webs" class="ref">Webs</a> *wp)
-  </div>
-  <div class="apiDetail">
-<p>Finalize the response.</p>
-    <dl><dt><b>Description</b>:</dt><dd>Flush transmit data and write a chunk trailer if required. After finalization, the client should have the full response. WARNING: this call may block.</dd></dl>
-    <dl><dt>Parameters:</dt><dd>
-    <table class="parameters" title="Parameters">
-    <tr><td class="param">wp</td><td>Webs request object.</td>
-    </table></dd></dl>
-    <dl><dt>See Also:</dt><dd>
-    </dd></dl>
-  </div>
-</div>
-<a name="group___webs_1ga2a36d30b43d4167bcb6bf31938925bf1"></a>
-<div class="api">
-  <div class="prototype">
-    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    <a href="#goahead_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
     websFlush
 (<a href="#group___webs" class="ref">Webs</a> *wp)
   </div>
@@ -1423,7 +1447,7 @@ Bytes actually transferred.
     <table class="parameters" title="Parameters">
     <tr><td class="param">wp</td><td>Webs request object.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>Number of bytes written.</dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the contents of the transmit buffer are fully written and the buffer is now empty.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -1930,12 +1954,12 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga5dd14a2e3bdf5ce7a983740bcd1fc504"></a>
+<a name="group___webs_1ga4db3f71301ed08e4f8d3c466d3632ea1"></a>
 <div class="api">
   <div class="prototype">
     int
-    websJsDefine
-(char *name, <a href="#group___webs_1gadf9544adf489578837319068afaa466e" class="ref">WebsJsProc</a> fn)
+    websJstDefine
+(char *name, <a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="ref">WebsJstProc</a> fn)
   </div>
   <div class="apiDetail">
 <p>Define a Javscript native function.</p>
@@ -1950,11 +1974,11 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga65aa1a63140184164ef3dc1cf122eb7f"></a>
+<a name="group___webs_1ga41c32b21bf85d279079adc32517d7678"></a>
 <div class="api">
   <div class="prototype">
     int
-    websJsOpen
+    websJstOpen
 ()
   </div>
   <div class="apiDetail">
@@ -1964,11 +1988,11 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga3dff65a7e69615d717becc24553992dd"></a>
+<a name="group___webs_1ga88501f83c58a6ea9dc8fd14974db9130"></a>
 <div class="api">
   <div class="prototype">
     int
-    websJsWrite
+    websJstWrite
 (int jid, <a href="#group___webs" class="ref">Webs</a> *wp, int argc, char **argv)
   </div>
   <div class="apiDetail">
@@ -2745,13 +2769,34 @@ Bytes actually transferred.
 (<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)
   </div>
   <div class="apiDetail">
-<p>Set a request variable.</p>
+<p>Set a request variable to a string value.</p>
     <dl><dt><b>Description</b>:</dt><dd>Request variables are defined for HTTP headers of the form HTTP_*. Some request handlers also define their own variables. For example: CGI environment variables.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">wp</td><td>Webs request object.</td>
     <tr><td class="param">name</td><td>Variable name to set.</td>
     <tr><td class="param">value</td><td>Value to set.</td>
+    </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga12f0360e8d96ccb2b3f71223f06a4519"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websSetVarFmt
+(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *fmt, ...)
+  </div>
+  <div class="apiDetail">
+<p>Set a request variable to a formatted string value.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Request variables are defined for HTTP headers of the form HTTP_*. Some request handlers also define their own variables. For example: CGI environment variables.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    <tr><td class="param">name</td><td>Variable name to set.</td>
+    <tr><td class="param">fmt</td><td>Value format string.</td>
+    <tr><td class="param">...</td><td>Args to format.</td>
     </table></dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
@@ -2772,24 +2817,6 @@ Bytes actually transferred.
     <tr><td class="param">name</td><td>Variable name.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>True if the variable is defined.</dd></dl>
-    <dl><dt>See Also:</dt><dd>
-    </dd></dl>
-  </div>
-</div>
-<a name="group___webs_1gaa92de2413447a28ddd585011a6043b4c"></a>
-<div class="api">
-  <div class="prototype">
-    void
-    websTimeoutCancel
-(<a href="#group___webs" class="ref">Webs</a> *wp)
-  </div>
-  <div class="apiDetail">
-<p>Cancel the request timeout.</p>
-    <dl><dt><b>Description</b>:</dt><dd>Handlers may choose to manually manage the request timeout. This routine will disable the centralized management of the timeout for this request.</dd></dl>
-    <dl><dt>Parameters:</dt><dd>
-    <table class="parameters" title="Parameters">
-    <tr><td class="param">wp</td><td>Webs request object.</td>
-    </table></dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -2876,7 +2903,7 @@ Bytes actually transferred.
     <tr><td class="param">buf</td><td>Buffer of data to write.</td>
     <tr><td class="param">size</td><td>Length of buf.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>Count of bytes written.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Count of bytes written. This will always equal size if there are not errors.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -2899,12 +2926,12 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga643fea10f07ad138b26c5eff47f59de2"></a>
+<a name="group___webs_1ga3c10083a5aff35cd5052a91696d51c60"></a>
 <div class="api">
   <div class="prototype">
-    <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
+    int
     websWriteHeader
-(<a href="#group___webs" class="ref">Webs</a> *wp, char *fmt, ...)
+(<a href="#group___webs" class="ref">Webs</a> *wp, char *key, char *fmt, ...)
   </div>
   <div class="apiDetail">
 <p>Write a response header.</p>
@@ -2912,10 +2939,11 @@ Bytes actually transferred.
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">wp</td><td>Webs request object.</td>
-    <tr><td class="param">fmt</td><td>Header key and value. Should be of the form: &quot;Name: Value&quot;.</td>
+    <tr><td class="param">key</td><td>Header key value.</td>
+    <tr><td class="param">fmt</td><td>Header value format string.</td>
     <tr><td class="param">...</td><td>Arguments to the format string.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>Count of bytes written.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -2939,23 +2967,23 @@ Bytes actually transferred.
     <a href="#group___webs_1gaef03eccfb6f0d42b34f1a7a90bac62b6" class="ref">websSetStatus</a></dd></dl>
   </div>
 </div>
-<a name="group___webs_1gace422646a2b284afa608c3f4464609dd"></a>
+<a name="group___webs_1gad1bbea0e441d727f248127408ce745d6"></a>
 <div class="api">
   <div class="prototype">
     <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a>
-    websWriteRaw
+    websWriteSocket
 (<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="#goahead_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)
   </div>
   <div class="apiDetail">
-<p>Write a block of data to the response and bypass output buffering.</p>
-    <dl><dt><b>Description</b>:</dt><dd>This routine will first invoke websFlush if there is prior data in the output buffer, before writing the raw data.</dd></dl>
+<p>Write a block of data to the network.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This bypassed output buffering and is the lowest level write.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">wp</td><td>Webs request object.</td>
     <tr><td class="param">buf</td><td>Buffer of data to write.</td>
     <tr><td class="param">size</td><td>Length of buf.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>Count of bytes written.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Count of bytes written. Returns -1 on errors. May return having written less than requested.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
@@ -5023,18 +5051,18 @@ Uploaded file size.
     <dl><dt>Returns:</dt><dd>Count of bytes actually read. Returns -1 for errors and EOF. Distinguish between errors and EOF via <a class="ref" href="#goahead_8h_1ab7e5de92ef3adf4262ccf4e5faacf150">socketEof()</a></dd></dl>
   </div>
 </div>
-<a name="goahead_8h_1a7fd6eb3c97d27307012101aabfbb19f2"></a>
+<a name="goahead_8h_1ad9ad9874969bd051043a41147f5a9f01"></a>
 <div class="api">
   <div class="prototype">
     void
     socketRegisterInterest
-(<a href="#struct_webs_socket" class="ref">WebsSocket</a> *sp, int mask)
+(int sid, int mask)
   </div>
   <div class="apiDetail">
 <p>Register interest in socket I/OEvents.</p>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param">sp</td><td>Socket object reference. Use socketPtr to obtain from a socket ID.</td>
+    <tr><td class="param">sid</td><td>Socket ID handle returned from socketConnect or socketAccept.</td>
     <tr><td class="param">mask</td><td>Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.</td>
     </table></dd></dl>
   </div>
@@ -5490,6 +5518,15 @@ Supports large files greater than 4GB in size on all systems
     <dl><dt>Returns:</dt><dd>Zero if successful.</dd></dl>
   </div>
 </div>
+<a name="goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d"></a>
+<div class="api">
+  <div class="prototype">
+    typedef void(* WebsWriteProc)(struct Webs *wp).
+  </div>
+  <div class="apiDetail">
+<p>Callback for write I/O events.</p>
+  </div>
+</div>
 <a name="group___webs_1ga6e48901e1591eed982ca02059748538b"></a>
 <div class="api">
   <div class="prototype">
@@ -5533,10 +5570,10 @@ Supports large files greater than 4GB in size on all systems
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1gadf9544adf489578837319068afaa466e"></a>
+<a name="group___webs_1ga95d129571903557ca1817968430bafd9"></a>
 <div class="api">
   <div class="prototype">
-    typedef int(* WebsJsProc)(int jid, Webs *wp, int argc, char **argv).
+    typedef int(* WebsJstProc)(int jid, Webs *wp, int argc, char **argv).
   </div>
   <div class="apiDetail">
 <p>Javascript native function.</p>

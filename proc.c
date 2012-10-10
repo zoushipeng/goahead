@@ -33,7 +33,7 @@ static bool procHandler(Webs *wp)
     /*
         Extract the form name
      */
-    strncpy(formBuf, wp->path, TSZ(formBuf));
+    scopy(formBuf, sizeof(formBuf), wp->path);
     if ((formName = strchr(&formBuf[1], '/')) == NULL) {
         websError(wp, 200, "Missing form name");
         return 1;

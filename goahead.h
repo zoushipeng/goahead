@@ -3329,7 +3329,19 @@ extern void websSetStatus(Webs *wp, int status);
 extern void websSetTxLength(Webs *wp, ssize length);
 
 /**
-    Set a request variable
+    Set a request variable to a formatted string value
+    @description Request variables are defined for HTTP headers of the form HTTP_*. 
+        Some request handlers also define their own variables. For example: CGI environment variables.
+    @param wp Webs request object
+    @param name Variable name to set
+    @param fmt Value format string
+    @param ... Args to format
+    @ingroup Webs
+ */
+extern void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
+
+/**
+    Set a request variable to a string value
     @description Request variables are defined for HTTP headers of the form HTTP_*. 
         Some request handlers also define their own variables. For example: CGI environment variables.
     @param wp Webs request object

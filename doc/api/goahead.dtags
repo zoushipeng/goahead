@@ -553,9 +553,30 @@
     </member>
     <member kind="define">
       <type>#define</type>
+      <name>WEBS_CHUNKING</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a7cdb57c12b6fb4c9a4cde3e0c51af3a7</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
       <name>WEBS_CLOSE</name>
       <anchorfile>goahead_8h.html</anchorfile>
       <anchor>a798cdf39a853d9d287a10c6d7d8d0f0c</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_CLOSED</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>aaa3cf9edabf08d9e8d7c679e82c04c82</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_COMPLETE</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a0f6ea1e528550a08c75510244019623d</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -609,9 +630,9 @@
     </member>
     <member kind="define">
       <type>#define</type>
-      <name>WEBS_HEADERS_DONE</name>
+      <name>WEBS_HEADERS_CREATED</name>
       <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a4aedc438dba0bede137355c8dfe6c6e7</anchor>
+      <anchor>a99e42945b85f2f9946f3db27ca0e92e9</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -633,6 +654,13 @@
       <name>WEBS_MAX_LISTEN</name>
       <anchorfile>goahead_8h.html</anchorfile>
       <anchor>a25bcde7fa767594ca76c2f657565152d</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="define">
+      <type>#define</type>
+      <name>WEBS_READY</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a43ffc2adb5fe2908fd3757029d070313</anchor>
       <arglist></arglist>
     </member>
     <member kind="define">
@@ -854,9 +882,9 @@
     </member>
     <member kind="typedef">
       <type>int(*</type>
-      <name>WebsJsProc</name>
+      <name>WebsJstProc</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gadf9544adf489578837319068afaa466e</anchor>
+      <anchor>ga95d129571903557ca1817968430bafd9</anchor>
       <arglist>)(int jid, Webs *wp, int argc, char **argv)</arglist>
     </member>
     <member kind="typedef">
@@ -900,6 +928,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga51bf732cb5d04090e77cfa66eeca394c</anchor>
       <arglist>)(Webs *wp)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
+      <name>WebsWriteProc</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>ae4404fa7b2ae18e39956ddbb6d78974d</anchor>
+      <arglist>)(struct Webs *wp)</arglist>
     </member>
     <member kind="enumeration">
       <name>WebsType</name>
@@ -1380,8 +1415,8 @@
       <type>void</type>
       <name>socketRegisterInterest</name>
       <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a7fd6eb3c97d27307012101aabfbb19f2</anchor>
-      <arglist>(WebsSocket *sp, int mask)</arglist>
+      <anchor>ad9ad9874969bd051043a41147f5a9f01</anchor>
+      <arglist>(int sid, int mask)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1602,6 +1637,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>websCancelTimeout</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gad02e7e70e4f3b7bca1ee2a318a336e80</anchor>
+      <arglist>(Webs *wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>websCgiCleanup</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gabe46636b1ed60023b2f044479c029428</anchor>
@@ -1741,17 +1783,10 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>ssize</type>
-      <name>websFinalize</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaecb6e7beda41581176bdcb0fb3787e0e</anchor>
-      <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>ssize</type>
+      <type>bool</type>
       <name>websFlush</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga2a36d30b43d4167bcb6bf31938925bf1</anchor>
+      <anchor>gaa722e1c0bc9fb59b5564963b39111cc4</anchor>
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
@@ -1987,23 +2022,23 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJsDefine</name>
+      <name>websJstDefine</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga5dd14a2e3bdf5ce7a983740bcd1fc504</anchor>
-      <arglist>(char *name, WebsJsProc fn)</arglist>
+      <anchor>ga4db3f71301ed08e4f8d3c466d3632ea1</anchor>
+      <arglist>(char *name, WebsJstProc fn)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJsOpen</name>
+      <name>websJstOpen</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga65aa1a63140184164ef3dc1cf122eb7f</anchor>
+      <anchor>ga41c32b21bf85d279079adc32517d7678</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJsWrite</name>
+      <name>websJstWrite</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga3dff65a7e69615d717becc24553992dd</anchor>
+      <anchor>ga88501f83c58a6ea9dc8fd14974db9130</anchor>
       <arglist>(int jid, Webs *wp, int argc, char **argv)</arglist>
     </member>
     <member kind="function">
@@ -2420,6 +2455,13 @@
       <arglist>(Webs *wp, char *name, char *value)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>websSetVarFmt</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga12f0360e8d96ccb2b3f71223f06a4519</anchor>
+      <arglist>(Webs *wp, char *name, char *fmt,...)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>websStartEvent</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
@@ -2439,13 +2481,6 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga58d6c3612158fe5471c16998478ea31c</anchor>
       <arglist>(Webs *wp, char *name)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>websTimeoutCancel</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaa92de2413447a28ddd585011a6043b4c</anchor>
-      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2504,11 +2539,11 @@
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
-      <type>ssize</type>
+      <type>int</type>
       <name>websWriteHeader</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga643fea10f07ad138b26c5eff47f59de2</anchor>
-      <arglist>(Webs *wp, char *fmt,...)</arglist>
+      <anchor>ga3c10083a5aff35cd5052a91696d51c60</anchor>
+      <arglist>(Webs *wp, char *key, char *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2519,9 +2554,9 @@
     </member>
     <member kind="function">
       <type>ssize</type>
-      <name>websWriteRaw</name>
+      <name>websWriteSocket</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gace422646a2b284afa608c3f4464609dd</anchor>
+      <anchor>gad1bbea0e441d727f248127408ce745d6</anchor>
       <arglist>(Webs *wp, char *buf, ssize size)</arglist>
     </member>
     <member kind="variable">
@@ -2969,9 +3004,9 @@
     </member>
     <member kind="typedef">
       <type>int(*</type>
-      <name>WebsJsProc</name>
+      <name>WebsJstProc</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gadf9544adf489578837319068afaa466e</anchor>
+      <anchor>ga95d129571903557ca1817968430bafd9</anchor>
       <arglist>)(int jid, Webs *wp, int argc, char **argv)</arglist>
     </member>
     <member kind="typedef">
@@ -3050,6 +3085,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga069bb8b6d336ca5f8ea2f3b8c113371b</anchor>
       <arglist>(int sid)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websCancelTimeout</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gad02e7e70e4f3b7bca1ee2a318a336e80</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3171,17 +3213,10 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>ssize</type>
-      <name>websFinalize</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaecb6e7beda41581176bdcb0fb3787e0e</anchor>
-      <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>ssize</type>
+      <type>bool</type>
       <name>websFlush</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga2a36d30b43d4167bcb6bf31938925bf1</anchor>
+      <anchor>gaa722e1c0bc9fb59b5564963b39111cc4</anchor>
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
@@ -3389,23 +3424,23 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJsDefine</name>
+      <name>websJstDefine</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga5dd14a2e3bdf5ce7a983740bcd1fc504</anchor>
-      <arglist>(char *name, WebsJsProc fn)</arglist>
+      <anchor>ga4db3f71301ed08e4f8d3c466d3632ea1</anchor>
+      <arglist>(char *name, WebsJstProc fn)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJsOpen</name>
+      <name>websJstOpen</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga65aa1a63140184164ef3dc1cf122eb7f</anchor>
+      <anchor>ga41c32b21bf85d279079adc32517d7678</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJsWrite</name>
+      <name>websJstWrite</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga3dff65a7e69615d717becc24553992dd</anchor>
+      <anchor>ga88501f83c58a6ea9dc8fd14974db9130</anchor>
       <arglist>(int jid, Webs *wp, int argc, char **argv)</arglist>
     </member>
     <member kind="function">
@@ -3703,18 +3738,18 @@
       <arglist>(Webs *wp, char *name, char *value)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>websSetVarFmt</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga12f0360e8d96ccb2b3f71223f06a4519</anchor>
+      <arglist>(Webs *wp, char *name, char *fmt,...)</arglist>
+    </member>
+    <member kind="function">
       <type>bool</type>
       <name>websTestVar</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga58d6c3612158fe5471c16998478ea31c</anchor>
       <arglist>(Webs *wp, char *name)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>websTimeoutCancel</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaa92de2413447a28ddd585011a6043b4c</anchor>
-      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3752,11 +3787,11 @@
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
-      <type>ssize</type>
+      <type>int</type>
       <name>websWriteHeader</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga643fea10f07ad138b26c5eff47f59de2</anchor>
-      <arglist>(Webs *wp, char *fmt,...)</arglist>
+      <anchor>ga3c10083a5aff35cd5052a91696d51c60</anchor>
+      <arglist>(Webs *wp, char *key, char *fmt,...)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3767,9 +3802,9 @@
     </member>
     <member kind="function">
       <type>ssize</type>
-      <name>websWriteRaw</name>
+      <name>websWriteSocket</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gace422646a2b284afa608c3f4464609dd</anchor>
+      <anchor>gad1bbea0e441d727f248127408ce745d6</anchor>
       <arglist>(Webs *wp, char *buf, ssize size)</arglist>
     </member>
     <member kind="variable">
