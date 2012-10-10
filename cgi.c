@@ -1,5 +1,5 @@
 /*
-    gfree -- CGI processing (for the GoAhead Web server
+    cgi.c -- CGI processing
   
     This module implements the /cgi-bin handler. CGI processing differs from
     goforms processing in that each CGI request is executed as a separate 
@@ -16,6 +16,7 @@
 #include    "goahead.h"
 
 /*********************************** Defines **********************************/
+#if BIT_CGI
 
 typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     Webs    *wp;                /* Connection object */
@@ -113,6 +114,8 @@ static bool cgiHandler(Webs *wp)
     argp = galloc(argpsize * sizeof(char *));
     *argp = cgiPath;
     n = 1;
+    query = 0;
+
     if (strchr(wp->query, '=') == NULL) {
         query = sclone(wp->query);
         websDecodeUrl(query, query, strlen(query));
@@ -445,7 +448,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 {
     int pid, fdin, fdout, hstdin, hstdout;
 
-    fdin = fdout = hstdin = hstdout = -1;
+    pid = fdin = fdout = hstdin = hstdout = -1;
     if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
             (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
             (hstdin = dup(0)) == -1 || (hstdout = dup(1)) == -1 ||
@@ -883,6 +886,7 @@ static int checkCgi(int handle)
     return 1;
 }
 #endif /* WIN */
+#endif /* BIT_CGI */
 
 /*
     @copy   default

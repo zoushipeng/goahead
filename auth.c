@@ -173,7 +173,7 @@ void websCloseAuth()
     }
     if (roles >= 0) {
         for (key = hashFirst(roles); key; key = next) {
-            key = hashNext(roles, key);
+            next = hashNext(roles, key);
             freeRole(key->content.value.symbol);
         }
         hashFree(roles);

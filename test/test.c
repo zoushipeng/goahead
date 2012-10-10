@@ -23,7 +23,11 @@
 static int finished = 0;
 
 #undef BIT_LISTEN
-#define BIT_LISTEN "http://*:8080, https://*:4443, http://[::]:8090, https://[::]:4453"
+#if BIT_PACK_SSL
+    #define BIT_LISTEN "http://*:8080, https://*:4443, http://[::]:8090, https://[::]:4453"
+#else
+    #define BIT_LISTEN "http://*:8080, http://[::]:8090"
+#endif
 
 /********************************* Forwards ***********************************/
 

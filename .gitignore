@@ -54,3 +54,5 @@ test/web/tmp
 windows-*-vsdebug
 *.dmp
 releases
+*.out
+*-release

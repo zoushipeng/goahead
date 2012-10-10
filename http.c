@@ -258,7 +258,9 @@ int websOpen(char *documents, char *routeFile)
     if (websOpenRoute() < 0) {
         return -1;
     }
+#if BIT_CGI
     websCgiOpen();
+#endif
     websOptionsOpen();
     websProcOpen();
     websFileOpen();
@@ -1272,7 +1274,9 @@ void websServiceEvents(int *finished)
         if (socketSelect(-1, 1000)) {
             socketProcess();
         }
+#if BIT_CGI
         websCgiCleanup();
+#endif
         websRunEvents();
     }
 }

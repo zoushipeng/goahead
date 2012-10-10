@@ -116,6 +116,9 @@ MAIN(goahead, int argc, char **argv, char **envp)
     } else {
         endpoints = sclone(BIT_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
+#if !BIT_PACK_SSL
+            if (strstr(endpoint, "https")) continue;
+#endif
             if (websListen(endpoint) < 0) {
                 return -1;
             }
