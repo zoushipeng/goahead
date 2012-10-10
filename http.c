@@ -806,6 +806,7 @@ static void readEvent(Webs *wp)
         if (wp->state < WEBS_READY) {
             if (wp->state > WEBS_BEGIN) {
                 websError(wp, HTTP_CODE_COMMS_ERROR, "Read error: connection lost");
+                websPump(wp);
             }
             recycle(wp, 0);
         }
@@ -871,11 +872,13 @@ bool parseIncoming(Webs *wp)
     /*
         Parse the first line of the Http header
      */
-    if (!parseFirstLine(wp)) {
-        return 0;
+    parseFirstLine(wp);
+    if (wp->state == WEBS_COMPLETE) {
+        return 1;
     }
-    if (!parseHeaders(wp)) {
-        return 0;
+    parseHeaders(wp);
+    if (wp->state == WEBS_COMPLETE) {
+        return 1;
     }
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
@@ -912,6 +915,7 @@ bool parseIncoming(Webs *wp)
 /*
     Parse the first line of a HTTP request
  */
+//  MOB - change to void
 static bool parseFirstLine(Webs *wp)
 {
     char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
@@ -926,18 +930,18 @@ static bool parseFirstLine(Webs *wp)
     op = getToken(wp, 0);
     if (op == NULL || *op == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 0;
+        return 1;
     }
     wp->method = supper(strdup(op));
 
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
         websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
-        return 0;
+        return 1;
     }
     if (strlen(url) > BIT_LIMIT_URI) {
         websError(wp, 400 | WEBS_CLOSE, "URI too big");
-        return 0;
+        return 1;
     }
     protoVer = getToken(wp, "\r\n");
 
@@ -949,12 +953,12 @@ static bool parseFirstLine(Webs *wp)
     host = path = port = query = ext = NULL;
     if (websUrlParse(url, &buf, NULL, &host, &port, &path, &ext, NULL, &query) < 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
-        return 0;
+        return 1;
     }
     if ((wp->path = websNormalizeUriPath(path)) == 0) {
         websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
         gfree(buf);
-        return 0;
+        return 1;
     }
     wp->url = strdup(url);
     if (ext) {
@@ -985,6 +989,7 @@ static bool parseFirstLine(Webs *wp)
 /*
     Parse a full request
  */
+//  MOB - change to void
 static bool parseHeaders(Webs *wp)
 {
     char    *upperKey, *cp, *key, *value, *tok;
@@ -1010,11 +1015,7 @@ static bool parseHeaders(Webs *wp)
         }
         if (!key || !value) {
             websError(wp, 400 | WEBS_CLOSE, "Bad header format");
-            return 0;
-        }
-        if (!key || !value) {
-            websError(wp, 503 | WEBS_CLOSE, "Insufficient memory");
-            return 0;
+            return 1;
         }
         while (isspace(*value)) {
             value++;
@@ -1058,7 +1059,7 @@ static bool parseHeaders(Webs *wp)
             wp->rxLen = atoi(value);
             if (wp->rxLen > BIT_LIMIT_RX_BODY) {
                 websError(wp, 413 | WEBS_CLOSE, "Too big");
-                return 0;
+                return 1;
             }
             if (wp->rxLen > 0 && !smatch(wp->method, "HEAD")) {
                 wp->rxRemaining = wp->rxLen;
@@ -1775,7 +1776,10 @@ int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 
 void websSetStatus(Webs *wp, int code)
 {
-    wp->code = code;
+    wp->code = code & ~WEBS_CLOSE;
+    if (code & WEBS_CLOSE) {
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+    }
 }
 
 

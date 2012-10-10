@@ -36,7 +36,7 @@
 #
 route uri=/cgi-bin handler=cgi
 route uri=/proc handler=proc
-route uri=/ extensions=jst,asp handler=js
+route uri=/ extensions=jst,asp handler=jst
 route uri=/ methods=OPTIONS|TRACE handler=options
 
 #
