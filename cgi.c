@@ -45,10 +45,15 @@ static bool cgiHandler(Webs *wp)
     Cgi         *cgip;
     WebsKey     *s;
     char        cgiBuf[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
-    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query;
+    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir;
     int         n, envpsize, argpsize, pHandle, cid;
 
     gassert(websValid(wp));
+    
+    getcwd(cwd, BIT_LIMIT_FILENAME);
+    dir = wp->route->dir ? wp->route->dir : cwd;
+    chdir(dir);
+    cgiPath = sfmt("%s%s", dir, wp->path);
 
     /*
         Extract the form name and then build the full path name.  The form name will follow the first '/' in path.
@@ -62,12 +67,12 @@ static bool cgiHandler(Webs *wp)
     if ((cp = strchr(cgiName, '/')) != NULL) {
         *cp = '\0';
     }
-    cgiPath = sfmt("%s/%s/%s", websGetDocuments(), BIT_CGI_BIN, cgiName);
+
+/*
+    See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
+    may already be part of the OS image, rather than in the file system.
+*/
 #if !VXWORKS
-    /*
-        See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
-        may already be part of the OS image, rather than in the file system.
-    */
     {
         WebsStat sbuf;
         if (stat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
@@ -87,12 +92,7 @@ static bool cgiHandler(Webs *wp)
         }
     }
 #endif /* ! VXWORKS */
-         
-    /*
-        Get the CWD for resetting after launching the child process CGI
-     */
-    getcwd(cwd, BIT_LIMIT_FILENAME);
-
+#if UNUSED
     /*
         Retrieve the directory of the child process CGI
      */
@@ -101,13 +101,13 @@ static bool cgiHandler(Webs *wp)
         chdir(cgiPath);
         *cp = '/';
     }
-
+#endif
     /*
-         Build command line arguments.  Only used if there is no non-encoded = character.  This is indicative of a ISINDEX
-         query.  POST separators are & and others are +.  argp will point to a galloc'd array of pointers.  Each pointer
-         will point to substring within the query string.  This array of string pointers is how the spawn or exec routines
-         expect command line arguments to be passed.  Since we don't know ahead of time how many individual items there are
-         in the query string, the for loop includes logic to grow the array size via grealloc.
+        Build command line arguments.  Only used if there is no non-encoded = character.  This is indicative of a ISINDEX
+        query.  POST separators are & and others are +.  argp will point to a galloc'd array of pointers.  Each pointer
+        will point to substring within the query string.  This array of string pointers is how the spawn or exec routines
+        expect command line arguments to be passed.  Since we don't know ahead of time how many individual items there are
+        in the query string, the for loop includes logic to grow the array size via grealloc.
      */
     argpsize = 10;
     argp = galloc(argpsize * sizeof(char *));
@@ -138,8 +138,8 @@ static bool cgiHandler(Webs *wp)
     envpsize = 64;
     envp = galloc(envpsize * sizeof(char *));
     n = 0;
-    envp[n++] = sfmt("%s=%s", "PATH_TRANSLATED", cgiPath);
-    envp[n++] = sfmt("%s=%s/%s", "SCRIPT_NAME", BIT_CGI_BIN, cgiName);
+    envp[n++] = sfmt("%s=%s/%s", "PATH_TRANSLATED", wp->route->dir, cgiPath);
+    envp[n++] = sfmt("%s=%s/%s", "SCRIPT_NAME", wp->route->dir, cgiName);
 
     websSetEnv(wp);
     for (s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
@@ -178,6 +178,7 @@ static bool cgiHandler(Webs *wp)
         gfree(envp);
         gfree(stdOut);
         gfree(query);
+
     } else {
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
@@ -192,9 +193,6 @@ static bool cgiHandler(Webs *wp)
         cgip->envp = envp;
         cgip->wp = wp;
         cgip->fplacemark = 0;
-#if UNUSED
-        websCancelTimeout(wp);
-#endif
         gfree(query);
     }
     /*
@@ -229,30 +227,32 @@ int websProcessCgiData(Webs *wp)
 /*
     Any entry in the cgiList need to be checked to see if it has
  */
-void websCgiGatherOutput (Cgi *cgip)
+void websCgiGatherOutput(Cgi *cgip)
 {
-    Webs     *wp;
-    WebsStat sbuf;
-    char   cgiBuf[BIT_LIMIT_FILENAME];
-    ssize    nRead;
-    int      fdout;
+    Webs        *wp;
+    WebsStat    sbuf;
+    char        buf[BIT_LIMIT_BUFFER];
+    ssize       nbytes;
+    int         fdout;
 
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
         if ((fdout = open(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
             /*
                 Check to see if any data is available in the output file and send its contents to the socket.
-                Write the HTTP header on our first pass
+                Write the HTTP header on our first pass.
              */
             wp = cgip->wp;
             if (cgip->fplacemark == 0) {
-                websWriteHeader(wp, NULL, "HTTP/1.0 200 OK");
+                websSetStatus(wp, 200);
+                websWriteHeaders(wp, -1, NULL);
                 websWriteHeader(wp, "Pragma", "no-cache");
                 websWriteHeader(wp, "Cache-Control", "no-cache");
+                websWriteEndHeaders(wp);
             }
             lseek(fdout, cgip->fplacemark, SEEK_SET);
-            while ((nRead = read(fdout, cgiBuf, BIT_LIMIT_FILENAME)) > 0) {
-                websWriteBlock(wp, cgiBuf, nRead);
-                cgip->fplacemark += (off_t) nRead;
+            while ((nbytes = read(fdout, buf, BIT_LIMIT_BUFFER)) > 0) {
+                websWriteBlock(wp, buf, nbytes);
+                cgip->fplacemark += (off_t) nbytes;
             }
             close(fdout);
         }
@@ -267,13 +267,13 @@ void websCgiCleanup()
 {
     Webs    *wp;
     Cgi     *cgip;
-    char  **ep;
+    char    **ep;
     int     cid, nTries;
 
     for (cid = 0; cid < cgiMax; cid++) {
         if ((cgip = cgiList[cid]) != NULL) {
             wp = cgip->wp;
-            websCgiGatherOutput (cgip);
+            websCgiGatherOutput(cgip);
             if (checkCgi(cgip->handle) == 0) {
                 /*
                     We get here if the CGI process has terminated.  Clean up.
@@ -341,7 +341,6 @@ char *websGetCgiCommName()
          tmpnam, tempnam, tmpfile not supported for CE 2.12 or lower.  The Win32 API
          GetTempFileName is scheduled to be part of CE 3.0.
      */
-    //  MOB
 #if 0  
     char  *pname1, *pname2;
     pname1 = gtempnam(NULL, "cgi");
@@ -422,6 +421,7 @@ static int checkCgi(int handle)
 }
 #endif /* CE */
 
+
 #if BIT_UNIX_LIKE || QNX
 /*
      Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
@@ -443,16 +443,16 @@ char *websGetCgiCommName()
  */
 static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
-    int pid, fdin, fdout, hstdin, hstdout, rc;
+    int pid, fdin, fdout, hstdin, hstdout;
 
-    fdin = fdout = hstdin = hstdout = rc = -1;
+    fdin = fdout = hstdin = hstdout = -1;
     if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
             (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
             (hstdin = dup(0)) == -1 || (hstdout = dup(1)) == -1 ||
             dup2(fdin, 0) == -1 || dup2(fdout, 1) == -1) {
         goto DONE;
     }
-    rc = pid = fork();
+    pid = vfork();
     if (pid == 0) {
         /*
             if pid == 0, then we are in the child process
@@ -460,7 +460,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
         if (execve(cgiPath, argp, envp) == -1) {
             printf("content-type: text/html\n\nExecution of cgi process failed\n");
         }
-        exit (0);
+        _exit(0);
     }
 DONE:
     if (hstdout >= 0) {
@@ -477,7 +477,7 @@ DONE:
     if (fdin >= 0) {
         close(fdin);
     }
-    return rc;
+    return pid;
 }
 
 

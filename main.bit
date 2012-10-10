@@ -71,6 +71,7 @@ Bit.load({
 
         /*
             Build with CGI support and directory for CGI programs.
+            The cgiBin is a unique path prefix for CGI URIs.
          */
         cgi: true,
         cgiBin: "cgi-bin",
@@ -89,6 +90,11 @@ Bit.load({
             Build with support for javascript web templates
          */
         javascript: true,
+
+        /*
+            Server SSL key
+         */
+        key: "server.key.pem",
 
         /*
             Define legacy APIs for compatibility with old GoAhead web server applications
@@ -111,11 +117,6 @@ Bit.load({
         limitTimeout:           60,    /* Request inactivity timeout in seconds */
         limitUri:             2048,    /* Maximum URI size */
         limitUpload:     204800000,    /* Maximum upload size ~ 200MB */
-
-        /*
-            Server SSL key
-         */
-        key: "server.key.pem",
 
         /*
             Use PAM (Plugable Authentication Module) to store passwords

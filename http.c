@@ -848,6 +848,8 @@ static void websPump(Webs *wp)
 bool parseIncoming(Webs *wp)
 {
     WebsBuf     *rxbuf;
+    WebsStat    sbuf;
+    int         mode, exists;
     char        *end, c;
 
     rxbuf = &wp->rxbuf;
@@ -895,8 +897,6 @@ bool parseIncoming(Webs *wp)
     }
 #endif
     if (smatch(wp->method, "PUT")) {
-        WebsStat sbuf;
-        int mode, exists;
         exists = stat(wp->filename, &sbuf) == 0;
         mode = O_BINARY | O_WRONLY;
         if (!exists) {
@@ -1336,14 +1336,15 @@ void websSetEnv(Webs *wp)
         websSetVar(wp, "DOCUMENT_ROOT", wp->route->dir);
     }
     websSetVar(wp, "GATEWAY_INTERFACE", "CGI/1.1");
-    websSetVar(wp, "QUERY_STRING", wp->query);
     websSetVar(wp, "PATH_INFO", wp->path);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
+    websSetVar(wp, "QUERY_STRING", wp->query);
+    websSetVar(wp, "REMOTE_ADDR", wp->ipaddr);
     websSetVar(wp, "REMOTE_USER", wp->username);
     websSetVar(wp, "REMOTE_HOST", wp->ipaddr);
-    websSetVar(wp, "REMOTE_ADDR", wp->ipaddr);
     websSetVar(wp, "REQUEST_METHOD", wp->method);
     websSetVar(wp, "REQUEST_TRANSPORT", wp->protocol);
+    websSetVar(wp, "REQUEST_URI", wp->path);
     websSetVar(wp, "SCRIPT_FILENAME", wp->filename);
     websSetVar(wp, "SERVER_ADDR", wp->ifaddr);
     websSetVar(wp, "SERVER_HOST", websHost);
@@ -1387,7 +1388,6 @@ void websSetVar(Webs *wp, char *var, char *value)
 
     gassert(websValid(wp));
     gassert(var && *var);
-    gassert(value);
 
     /*
         value_instring will allocate the string if required.

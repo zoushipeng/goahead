@@ -34,7 +34,7 @@
 #
 #   Standard routes
 #
-route uri=/cgi-bin handler=cgi
+route uri=/cgi-bin dir=cgi-bin handler=cgi
 route uri=/proc handler=proc
 route uri=/ extensions=jst,asp handler=jst
 route uri=/ methods=OPTIONS|TRACE handler=options

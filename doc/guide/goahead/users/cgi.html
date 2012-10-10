@@ -68,175 +68,22 @@
             PHP</a>.</p>
             <p>Embedthis GoAhead supports CGI so that existing CGI applications can be fully supported. GoAhead has a
             high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI
-            setup.</p><a id="configuringCgi"></a>
+            setup.</p>
+            
+            <a id="configuringCgi"></a>
             <h2 class="section">Configuring CGI Programs</h2>
-            <p>Requests for CGI programs may be configured in two primary ways:</p>
-            <ul>
-                <li>By URI prefix</li>
-                <li>By extension</li>
-            </ul>
-            <p>When invoked by URI prefix, the CGI programs and scripts are stored in special CGI directories (for
-            example "cgi-bin"). When invoked by URI extension, the CGI programs may be stored anywhere in the web
-            directory.</p>
-            <p>For security, it is usually best to store all CGI programs and scripts outside the directory containing
-            the web content. Consequently, invoking CGI programs by extension should only be used in combination with a
-            URI prefix that allows the CGI directory to be specified.</p>
-            <h3>Invoking by URI Prefix</h3>
-            <p>GoAhead nominates a directory as a CGI directory via the <a href=
-            "dir/server.html#scriptAlias">ScriptAlias</a> configuration file directive. For example:</p>
-<pre>
-ScriptAlias /cgi-bin/ $SERVER_ROOT/cgi-bin/ 
-</pre>
-            <p>The ScriptAlias directive above is short hand for:
-<pre>
-&lt;Route /cgi-bin/&gt;
-    DocumentRoot $SERVER_ROOT/cgi-bin/
-    SetHandler cgiHandler
-    Target run
-&lt;/Route&gt;
-</pre>
+            <p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is
+            typically "cgi-bin". Tthe CGI programs and scripts are stored in special CGI directories outside the
+            document root.</p>
             <p>When a URI is requested by a browser that includes the "<em>/cgi-bin/</em>" prefix, the 
             script name immediately after "/cgi-bin/" will be run. For example:</p>
 <pre>
 http://www.embedthis.com/cgi-bin/testCgi
 </pre>
-            <h3>Invoking by URI Extension</h3>
-            <p>To configure GoAhead to run CGI programs based on the URI extension use the <a href=
-            "dir/route.html#addHandler">AddHandler</a> configuration file directive. For example:</p>
-            <pre>
-AddHandler cgiHandler .myExt
-</pre>
-            <p>This configures GoAhead to pass URIs that contain the ".myExt extension to the CGI handler.</p>
-            <h4>Mime Types and Action Programs</h4>
-            <p>To determine which program the CGI handler should run, the CGI handler looks up the mime type associated
-            with the ".myExt" extension. Mime types are read by GoAhead from the "mime.types" file at startup. This file
-            maps extensions to mime types. This is an example line from the "mime.types" file:</p>
-            <pre>
-application/x-goahead-perl myExt
-</pre>
-            <p>This maps the ".myExt" extension to the perl mime type. This mime type must then be mapped to a program
-            via the the <a href="dir/server.html#action">Action</a> directive. For example:</p>
-            <pre>
-Action application/x-goahead-perl /usr/bin/perl
-</pre>
-            <p>This will cause /usr/bin/perl to be run to process the request. Output from perl is captured by the CGI
-            handler and then returned to the user's browser.</p><a id="invoking"></a>
             <h2 class="section">Invoking CGI Programs</h2>
             <p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program
-            via Environment Variables and in some cases, via the command line.</p>
-            <h3>CGI Command Line</h3>
-            <p>The command line will be set differently depending on how the CGI program is being invoked. There are
-            four possible scenarios:</p>
-            <ul>
-                <li>Program invoked directly via the request URI.</li>
-                <li>Program invoked indirectly if the CGI script contains a Bang path directive.</li>
-                <li>The program is specified via an ActionProgram directive in the GoAhead configuration file.</li>
-                <li>On Windows if the program is a Windows Batch file</li>
-            </ul>
-            <p>The command line arguments for the CGI program will be set differently in each case. See the tables
-            below for the specifications as to how the command line arguments are defined:</p>
-            <h4>Programs Invoked Directly via the Request URI</h4>
-            <table title="args">
-                <thead>
-                    <tr>
-                        <th>Arg</th>
-                        <th>Contents</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>argv[0]</td>
-                        <td>Program name immediately after the CGI URI prefix (E.g. after /cgi-bin/)</td>
-                    </tr>
-                    <tr>
-                        <td>argv[1..N]</td>
-                        <td>Each arg is set to portions of the QUERY_STRING. The query is split at "+" characters after
-                        unescaping the query.</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h4>Programs Invoked Indirectly with Bang Directive</h4>
-            <p>If the CGI program/script specified in the URI contains a "#!/pathToProgram" directive on the first
-            line, it is interpreted to be the path to the real CGI program to run. The script name is then passed in
-            the command line.</p>
-            <table title="args">
-                <thead>
-                    <tr>
-                        <th>Arg</th>
-                        <th>Contents</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>argv[0]</td>
-                        <td>Program name defined in the first line of the CGI script after the "#!" characters.</td>
-                    </tr>
-                    <tr>
-                        <td>argv[1]</td>
-                        <td>The name of the CGI script originally specified in the URI.</td>
-                    </tr>
-                    <tr>
-                        <td>argv[2..N]</td>
-                        <td>Each arg is set to portions of the QUERY_STRING. The query is split at "+" characters after
-                        unescaping the query.</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h4>Programs Specified via an ActionProgram Directive</h4>
-            <table title="args">
-                <thead>
-                    <tr>
-                        <th>Arg</th>
-                        <th>Contents</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>argv[0]</td>
-                        <td>Program name specified in the ActionProgram directive in the GoAhead configuration
-                        file.</td>
-                    </tr>
-                    <tr>
-                        <td>argv[1]</td>
-                        <td>The name of the CGI script originally specified in the URI.</td>
-                    </tr>
-                    <tr>
-                        <td>argv[2..N]</td>
-                        <td>Each arg is set to portions of the QUERY_STRING. The query is split at "+" characters after
-                        unescaping the query.</td>
-                    </tr>
-                </tbody>
-            </table>
-            <h4>Windows Batch Commands</h4>
-            <table title="args">
-                <thead>
-                    <tr>
-                        <th>Arg</th>
-                        <th>Contents</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>argv[0]</td>
-                        <td>Set to "cmd.exe"</td>
-                    </tr>
-                    <tr>
-                        <td>argv[1]</td>
-                        <td>/Q</td>
-                    </tr>
-                    <tr>
-                        <td>argv[2]</td>
-                        <td>/C</td>
-                    </tr>
-                    <tr>
-                        <td>argv[3]</td>
-                        <td>Command</td>
-                    </tr>
-                </tbody>
-            </table>
-            <p>The "Command" is a quoted string set to the name of the CGI script originally specified in the URI
-            followed by the Query String, split at "+" characters. The entire Command string is escaped so that
-            dangerous characters are preceded by "^" to prevent security attacks.</p><a id="environmentVariables"></a>
+            via Environment Variables.</p>
+            
             <h2 class="section">CGI Environment Variables</h2>
             <p>CGI uses environment variables to send your program additional parameters. The following environment
             variables are defined:</p>
@@ -255,6 +102,10 @@ Action application/x-goahead-perl /usr/bin/perl
                     <tr>
                         <td>CONTENT_LENGTH</td>
                         <td>Set to the length of any associated posted content.</td>
+                    </tr>
+                    <tr>
+                        <td>CONTENT_TYPE</td>
+                        <td>Set to the content mime type of any associated posted content.</td>
                     </tr>
                     <tr>
                         <td>DOCUMENT_ROOT</td>
@@ -333,6 +184,10 @@ Action application/x-goahead-perl /usr/bin/perl
                         <td>The IP address of the server or virtual host responding to the request.</td>
                     </tr>
                     <tr>
+                        <td>SERVER_HOST</td>
+                        <td>Set to server hostname without port.</td>
+                    </tr>
+                    <tr>
                         <td>SERVER_NAME</td>
                         <td>The name of the default server or virtual host serving the request.</td>
                     </tr>
@@ -343,6 +198,10 @@ Action application/x-goahead-perl /usr/bin/perl
                     <tr>
                         <td>SERVER_PROTOCOL</td>
                         <td>Set to "HTTP/1.0" or "HTTP/1.1" depending on the protocol used by the client.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_URL</td>
+                        <td>Set to server hostname with port. Suitable for use in a URL.</td>
                     </tr>
                     <tr>
                         <td>SERVER_SOFTWARE</td>
@@ -385,18 +244,6 @@ http://hostname/cgi-bin/myScript/products/pricelists.pl?id=23&amp;payment=credit
                         <td>SCRIPT_NAME</td>
                         <td>myScript</td>
                     </tr>
-                    <tr>
-                        <td>ARGV[0]</td>
-                        <td>/usr/bin/perl</td>
-                    </tr>
-                    <tr>
-                        <td>ARGV[1]</td>
-                        <td>pricelists.pl</td>
-                    </tr>
-                    <tr>
-                        <td>ARGV[2]</td>
-                        <td>id=23&amp;payment=creditCard</td>
-                    </tr>
                 </tbody>
             </table>
             <p>This URI below demonstrates some rather cryptic encoding of URIs. The important thing to remember is
@@ -434,18 +281,6 @@ http://hostname/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
                     <tr>
                         <td>SCRIPT_NAME</td>
                         <td>cgiProgram</td>
-                    </tr>
-                    <tr>
-                        <td>ARGV[0]</td>
-                        <td>cgiProgram</td>
-                    </tr>
-                    <tr>
-                        <td>ARGV[1]</td>
-                        <td>var1=a</td>
-                    </tr>
-                    <tr>
-                        <td>ARGV[2]</td>
-                        <td>a&amp;var2=b b&amp;var3=c</td>
                     </tr>
                 </tbody>
             </table>

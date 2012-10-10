@@ -63,7 +63,6 @@
     typedef int ssize_t;
 #else
 #include <unistd.h>
-
 #endif
 
 /*********************************** Locals ***********************************/
