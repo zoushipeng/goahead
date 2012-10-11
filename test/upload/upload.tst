@@ -10,7 +10,7 @@ let http: Http = new Http
 if (App.config.bit_upload) {
 
     //  Upload a small file
-    http.upload(HTTP + "/proc/uploadTest", { myfile: "small.dat"} )
+    http.upload(HTTP + "/action/uploadTest", { myfile: "small.dat"} )
     assert(http.status == 200)
     assert(http.response.contains('CLIENT=small.dat'))
     assert(http.response.contains('SIZE=29'))
@@ -21,7 +21,7 @@ if (App.config.bit_upload) {
     http.wait()
 
     //  Test with form data
-    http.upload(HTTP + "/proc/uploadTest", { myfile: "small.dat"}, {name: "John Smith", address: "100 Mayfair"} )
+    http.upload(HTTP + "/action/uploadTest", { myfile: "small.dat"}, {name: "John Smith", address: "100 Mayfair"} )
     assert(http.status == 200)
     assert(http.response.contains('CLIENT=small.dat'))
     assert(http.response.contains('SIZE=29'))

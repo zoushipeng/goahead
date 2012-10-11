@@ -60,17 +60,26 @@
         </div>
         <div class="contentLeft">
             <h1>Creating GoAhead Handlers</h1>
-            <p>GoAhead responds to client requests by routing the request to the appropriate request handler. The
-            request handler is responsible for generating the appropriate response content or redirecting to another
-            handler if required.</p>
+            <p>GoAhead responds to client requests by routing the request to a request handler. The
+            request handler is responsible for generating the response content or redirecting to another
+            more suitable handler.</p>
             
             <p>GoAhead provides a suite of handlers for various content types and web frameworks. The standard handlers
-            supplied with GoAhead are: continue, CGI, file, Javascript, options, proc, redirect and upload. You can 
-            extend GoAhead by creating your own custom handler to process Http requests and perform any processing you
-            desire.</p> 
-            
-            <p>Handlers are configured via routes in the route table. See <a href="routing.html">Request Routing</a> for 
-            more details about Routing.</p>
+            supplied with GoAhead are: </p>
+            <ul>
+                <li>action &mdash; for GoActions</li>
+                <li>continue &mdash; </li>
+                <li>cgi &mdash; for CGI programs</li>
+                <li>file &mdash; for static documents</li>
+                <li>jst &mdash; for Javascript templates </li>
+                <li>options &mdash; for Options and Trace methods</li>
+                <li>redirect &mdash; to process route redirects </li>
+                <li>upload &mdash; for file uploads</li>
+            </ul>
+            <p>You can extend GoAhead by creating your own custom handler to process Http requests and perform any
+            processing you desire. Once created handlers are configured via routes in the route table. See <a
+            href="routing.html">Request Routing</a> for more details about Routing.</p>
+
             <a id="processing"></a>
             <h2>Request Processing</h2>
             <p>When a request is received from the client, GoAhead parses the HTTP request headers and

@@ -1,0 +1,133 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.0.0</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Users Guide</a> &gt; <b>JST</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+            </ul>
+<!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/users/index.html">User Guide Overview</a></li>
+                <li><a href="../../../guide/goahead/users/configuration.html">Configuring GoAhead</a></li>
+                <li><a href="../../../guide/goahead/users/authentication.html">User Authorization</a></li>
+                <li><a href="../../../guide/goahead/users/logFiles.html">Log Files</a></li>
+                <li><a href="../../../guide/goahead/users/security.html">Security Considerations</a></li>
+                <li><a href="../../../guide/goahead/users/ssl.html">SSL</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Embedded Javascript</h1>
+            
+            <p>GoAhead provides an embedded version of Javascript for use in JST pages.  As the full Javascript 5
+            specification is quite a large language, GoAhead's implements a small subset suitable for embedded use.
+            GoAhead Javascript™ is a strict subset of Javascript and implements the essential elements of the language.
+            It also provides the engine for JST pages to enable the easy creation of dynamic web pages.</p>
+            <p>A standalone product, <a href="http://ejscript.org/">Embedthis Ejscript™</a> more fully supports the latest
+            Javascript 5 specification and when used with <a href="http://appwebserver.org">Appweb</a> is an 
+            alternative to GoAhead if you have sufficient memory available.</p>
+            <p>When GoAhead Javascript is used inside a JST web page, it consists of a script within JST delimiters. 
+            The basic format is:</p>
+             <pre>&lt;% function(arguments, ...); %&gt;</pre>
+            <p>Javascript functions are created by the jsSetGlobalFunction. When the function is evaluated, the
+            corresponding C procedure that implements the Javascript function is called.</p>
+            <p>GoAhead Javascript implements the following Javascript elements:</p>
+            <ul>
+                <li>Case sensitivity</li>
+                <li>White space</li>
+                <li>Semicolons</li>
+                <li>Comments</li>
+                <li>Identifiers</li>
+                <li>Data types including numbers, booleans, and strings with backslash characters</li>
+                <li>Full expressions</li>
+                <li>If/else, for, return</li>
+                <li>Global function calls</li>
+            </ul>
+            <p>The following language elements are not implemented:</p>
+            <ul>
+                <li>Arrays</li>
+                <li>Objects</li>
+                <li>Labeled statements</li>
+                <li>Control flow statements including: break, case, continue, default, do/while, export, for/in, function,
+                import,switch, var, while, and with</li>
+                <li>Regular expressions</li>
+            </ul>
+            <p>Javascript scripts can span multiple lines by using "\" as the last character on the preceding line. When
+            used in JST pages, function arguments can contain any query variable defined in either the URL query string or
+            the standard variable set.  URL query strings are automatically decoded, and Javascript variables are defined to
+            the decoded query value. For example, to parse the name and address encoded as a query string in a URL, use the
+            following code:</p>
+             <pre>http://localhost/mypage?name=smith&age=35</pre>
+            <pre>
+int myAspProcedure(Webs wp, int argc, char **argv) {
+    char *name = websGetVar(wp, "name", "undefined");
+    char *age = websGetVar(wp, "age", "undefined");
+    websWrite(wp, "Name %s, Age %s", name, age);
+}
+</pre>
+             <p>Javascript procedures are registered by using the <a
+                 href="../../../api/goahead.html#group___webs_1ga4db3f71301ed08e4f8d3c466d3632ea1">websJstDefine</a> API. 
+             This publishes a C procedure as a Javascript global function. For example:</p>
+             <pre>
+extern int outputMyTable(int ejid, Webs wp, int argc, char **argv);
+websJstDefine("outputTable", outputMyTable);
+</pre>
+             <p>The websJstDefine call publishes the Javascript command "outputTable" and links it to the
+             outputMyTable C procedure. When an JST page is requested by the user's browser, any JST
+             Javascript which uses the outputTable command will cause the outputMyTable to be called with
+             the relevant arguments.
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2012.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+</body>
+</html>

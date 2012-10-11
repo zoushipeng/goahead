@@ -21,8 +21,8 @@
 #
 #   Form based login pattern. 
 #       route uri=/pub/
-#       route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/pub/login.html
-#       route uri=/proc/logout methods=POST handler=proc redirect=200@/pub/login.html
+#       route uri=/action/login methods=POST handler=action redirect=200@/ redirect=401@/pub/login.html
+#       route uri=/action/logout methods=POST handler=action redirect=200@/pub/login.html
 #       route uri=/ auth=form handler=continue redirect=401@/pub/login.html
 #
 #   Sample basic or digest authentication for user "joshua" 
@@ -35,7 +35,7 @@
 #   Standard routes
 #
 route uri=/cgi-bin dir=cgi-bin handler=cgi
-route uri=/proc handler=proc
+route uri=/action handler=action
 route uri=/ extensions=jst,asp handler=jst
 route uri=/ methods=OPTIONS|TRACE handler=options
 

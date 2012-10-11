@@ -40,7 +40,7 @@ static bool testHandler(Webs *wp);
 static int aspTest(int eid, Webs *wp, int argc, char **argv);
 static int bigTest(int eid, Webs *wp, int argc, char **argv);
 #endif
-static void procTest(Webs *wp, char *path, char *query);
+static void actionTest(Webs *wp, char *path, char *query);
 static void sessionTest(Webs *wp, char *path, char *query);
 static void showTest(Webs *wp, char *path, char *query);
 #if BIT_UPLOAD
@@ -140,14 +140,14 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);
 #endif
 #if BIT_JAVASCRIPT
-    websJstDefine("aspTest", aspTest);
-    websJstDefine("bigTest", bigTest);
+    websDefineJst("aspTest", aspTest);
+    websDefineJst("bigTest", bigTest);
 #endif
-    websProcDefine("test", procTest);
-    websProcDefine("sessionTest", sessionTest);
-    websProcDefine("showTest", showTest);
+    websDefineAction("test", actionTest);
+    websDefineAction("sessionTest", sessionTest);
+    websDefineAction("showTest", showTest);
 #if BIT_UPLOAD
-    websProcDefine("uploadTest", uploadTest);
+    websDefineAction("uploadTest", uploadTest);
 #endif
 
 #if BIT_UNIX_LIKE
@@ -278,9 +278,9 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv)
 
 
 /*
-    Implement /proc/procTest. Parse the form variables: name, address and echo back.
+    Implement /action/actionTest. Parse the form variables: name, address and echo back.
  */
-static void procTest(Webs *wp, char *path, char *query)
+static void actionTest(Webs *wp, char *path, char *query)
 {
 	char	*name, *address;
 

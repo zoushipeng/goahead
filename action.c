@@ -1,7 +1,7 @@
 /*
-    proc.c -- Proc handler
+    action.c -- Action handler
 
-    This module implements the /proc handler. It is a simple binding of URIs to C procedures.
+    This module implements the /action handler. It is a simple binding of URIs to C functions.
     This enables a very high performance implementation with easy parsing and decoding of query
     strings and posted data.
 
@@ -18,14 +18,14 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 
 /************************************* Code ***********************************/
 /*
-    Process a form request. Returns 1 always to indicate it handled the URL
+    Process an action request. Returns 1 always to indicate it handled the URL
  */
-static bool procHandler(Webs *wp)
+static bool actionHandler(Webs *wp)
 {
     WebsKey     *sp;
     char        formBuf[BIT_LIMIT_FILENAME];
     char        *cp, *formName;
-    WebsProc    fn;
+    WebsAction  fn;
 
     gassert(websValid(wp));
     gassert(formSymtab >= 0);
@@ -47,9 +47,9 @@ static bool procHandler(Webs *wp)
      */
     sp = hashLookup(formSymtab, formName);
     if (sp == NULL) {
-        websError(wp, 404, "Proc %s is not defined", formName);
+        websError(wp, 404, "Action %s is not defined", formName);
     } else {
-        fn = (WebsProc) sp->content.value.symbol;
+        fn = (WebsAction) sp->content.value.symbol;
         gassert(fn);
         if (fn) {
 #if BIT_LEGACY
@@ -64,9 +64,9 @@ static bool procHandler(Webs *wp)
 
 
 /*
-    Define a procedure function in the "proc" map space
+    Define a function in the "action" map space
  */
-int websProcDefine(char *name, void *fn)
+int websDefineAction(char *name, void *fn)
 {
     gassert(name && *name);
     gassert(fn);
@@ -79,7 +79,7 @@ int websProcDefine(char *name, void *fn)
 }
 
 
-static void closeProc()
+static void closeAction()
 {
     if (formSymtab != -1) {
         hashFree(formSymtab);
@@ -88,10 +88,10 @@ static void closeProc()
 }
 
 
-void websProcOpen()
+void websActionOpen()
 {
     formSymtab = hashCreate(WEBS_HASH_INIT);
-    websDefineHandler("proc", procHandler, closeProc, 0);
+    websDefineHandler("action", actionHandler, closeAction, 0);
 }
 
 

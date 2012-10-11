@@ -32,7 +32,7 @@ if (App.config.bit_upload) {
     try {
         if (test.threads == 1) {
             size = Path(TESTFILE).size
-            http.upload(HTTP + "/proc/uploadTest", { file: TESTFILE })
+            http.upload(HTTP + "/action/uploadTest", { file: TESTFILE })
             assert(http.status == 200)
             http.close()
             let uploaded = Path("../web/tmp").join(Path(TESTFILE).basename)

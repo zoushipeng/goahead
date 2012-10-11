@@ -833,6 +833,13 @@
     </member>
     <member kind="typedef">
       <type>void(*</type>
+      <name>WebsAction</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaef2ecde6d7702a3510c2848ee0fc5934</anchor>
+      <arglist>)(Webs *wp)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
       <name>WebsAskLogin</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga6e48901e1591eed982ca02059748538b</anchor>
@@ -892,13 +899,6 @@
       <name>WebsParseAuth</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga15af4264d6a7f06686169c0ca2fd397e</anchor>
-      <arglist>)(Webs *wp)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>void(*</type>
-      <name>WebsProc</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga235a01601ad030edf9c30d3a9843e6af</anchor>
       <arglist>)(Webs *wp)</arglist>
     </member>
     <member kind="typedef">
@@ -1587,6 +1587,13 @@
       <arglist>(int sid, char *ipaddr, int port, int listenSid)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>websActionOpen</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga97f8e2c9c4943e01efc9c0f2c07a2133</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>WebsRole *</type>
       <name>websAddRole</name>
       <anchorfile>group___webs_auth.html</anchorfile>
@@ -1728,10 +1735,24 @@
     </member>
     <member kind="function">
       <type>int</type>
+      <name>websDefineAction</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gabadb35ad9084ca79783d0a63437d4959</anchor>
+      <arglist>(char *name, void *fun)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>websDefineHandler</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaac26a36fb28e1486fd54443ad59674a5</anchor>
       <arglist>(char *name, WebsHandlerProc service, WebsHandlerClose close, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websDefineJst</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaafb69f988b3093c4981fd7bc94f1a42a</anchor>
+      <arglist>(char *name, WebsJstProc fn)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2022,13 +2043,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJstDefine</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga4db3f71301ed08e4f8d3c466d3632ea1</anchor>
-      <arglist>(char *name, WebsJstProc fn)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>websJstOpen</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga41c32b21bf85d279079adc32517d7678</anchor>
@@ -2176,13 +2190,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websProcDefine</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaa7ba538c9321b9cdba7bd3725625f0d1</anchor>
-      <arglist>(char *name, void *proc)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>websProcessCgiData</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gac2b3fb36265e574114d52d2cb37b62b9</anchor>
@@ -2201,13 +2208,6 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gad6b26796bb47176098f6f27424cf0dd5</anchor>
       <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>websProcOpen</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gad23f60cfc494b5421ca71e74da1bf7a3</anchor>
-      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2983,6 +2983,13 @@
     <class kind="struct">WebsRomIndex</class>
     <member kind="typedef">
       <type>void(*</type>
+      <name>WebsAction</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaef2ecde6d7702a3510c2848ee0fc5934</anchor>
+      <arglist>)(Webs *wp)</arglist>
+    </member>
+    <member kind="typedef">
+      <type>void(*</type>
       <name>WebsAskLogin</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga6e48901e1591eed982ca02059748538b</anchor>
@@ -3014,13 +3021,6 @@
       <name>WebsParseAuth</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga15af4264d6a7f06686169c0ca2fd397e</anchor>
-      <arglist>)(Webs *wp)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>void(*</type>
-      <name>WebsProc</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga235a01601ad030edf9c30d3a9843e6af</anchor>
       <arglist>)(Webs *wp)</arglist>
     </member>
     <member kind="typedef">
@@ -3078,6 +3078,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaae29f33a0907964a300fc66117b8051f</anchor>
       <arglist>(int sid, char *ipaddr, int port, int listenSid)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websActionOpen</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga97f8e2c9c4943e01efc9c0f2c07a2133</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3158,10 +3165,24 @@
     </member>
     <member kind="function">
       <type>int</type>
+      <name>websDefineAction</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gabadb35ad9084ca79783d0a63437d4959</anchor>
+      <arglist>(char *name, void *fun)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>websDefineHandler</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaac26a36fb28e1486fd54443ad59674a5</anchor>
       <arglist>(char *name, WebsHandlerProc service, WebsHandlerClose close, int flags)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websDefineJst</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaafb69f988b3093c4981fd7bc94f1a42a</anchor>
+      <arglist>(char *name, WebsJstProc fn)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3424,13 +3445,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websJstDefine</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga4db3f71301ed08e4f8d3c466d3632ea1</anchor>
-      <arglist>(char *name, WebsJstProc fn)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>websJstOpen</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga41c32b21bf85d279079adc32517d7678</anchor>
@@ -3536,13 +3550,6 @@
     </member>
     <member kind="function">
       <type>int</type>
-      <name>websProcDefine</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaa7ba538c9321b9cdba7bd3725625f0d1</anchor>
-      <arglist>(char *name, void *proc)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
       <name>websProcessCgiData</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gac2b3fb36265e574114d52d2cb37b62b9</anchor>
@@ -3561,13 +3568,6 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gad6b26796bb47176098f6f27424cf0dd5</anchor>
       <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>websProcOpen</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gad23f60cfc494b5421ca71e74da1bf7a3</anchor>
-      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>

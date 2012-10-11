@@ -2483,11 +2483,11 @@ typedef struct WebsHandler {
     typedef void (*WebsProc)(Webs *wp, char *path, char *query);
 #else
     /**
-        Proc handler callback
+        Action callback
         @param wp Webs request object
         @ingroup Webs
      */
-    typedef void (*WebsProc)(Webs *wp);
+    typedef void (*WebsAction)(Webs *wp);
 #endif
 
 /**
@@ -3098,20 +3098,20 @@ extern int websPageStat(Webs *wp, WebsFileInfo *sbuf);
 extern int websProcessPutData(Webs *wp);
 
 /**
-    Define a procedure callback for use with the proc handler.
-    @description The proc handler binds function procedure calls to URIs.
-    @param name URI path suffix. This suffix is added to "/proc" to form the bound URI path.
-    @param proc Callback function procedure. The signature is void (*WebsProc)(Webs *wp);
+    Define an action callback for use with the action handler.
+    @description The action handler binds a C function to a URI under "/action".
+    @param name URI path suffix. This suffix is added to "/action" to form the bound URI path.
+    @param fun Callback function. The signature is void (*WebsAction)(Webs *wp);
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern int websProcDefine(char *name, void *proc);
+extern int websDefineAction(char *name, void *fun);
 
 /**
-    Open the proc handler
+    Open the action handler
     @ingroup Webs
  */
-extern void websProcOpen();
+extern void websActionOpen();
 
 /**
     Redirect the client to a new URL.
@@ -3513,7 +3513,7 @@ typedef int (*WebsJstProc)(int jid, Webs *wp, int argc, char **argv);
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-extern int websJstDefine(char *name, WebsJstProc fn);
+extern int websDefineJst(char *name, WebsJstProc fn);
 
 /**
     Open the Javascript module.
@@ -4021,10 +4021,10 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define stritoa gstritoa
     #define strlower gstrlower
     #define strupper gstrupper
-    #define websAspDefine websJstDefine
+    #define websAspDefine websDefineJst
     #define websAspOpen websJstOpen
     #define websAspRequest websJstRequest
-    #define websFormDefine websProcDefine
+    #define websFormDefine websDefineAction
     #define websGetDefaultDir websGetDocuments
     #define websGetDefaultPage websGetIndex
 

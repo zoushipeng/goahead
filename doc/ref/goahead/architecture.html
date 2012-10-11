@@ -128,6 +128,59 @@
             server can be configured to execute single or multi-threaded. With appropriate sandbox limits, it can serve
             thousands of requests per second if required.</p>
             
+            <a id="directories"></a>
+            <h2 class="section">GoAhead Directories</h2>
+            <table>
+                <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+                <tr><td>bits</td><td>Directory of scripts for the Bit tool</td></tr>
+                <tr><td>doc</td><td>Documentation</td></tr>
+                <tr><td>package</td><td>Packaging scripts</td></tr>
+                <tr><td>projects</td><td>IDE and Makefile projects</td></tr>
+                <tr><td>releases</td><td>Release packages</td></tr>
+                <tr><td>test</td><td>Unit test directory</td></tr>
+                <tr><td>test/web</td><td>Unit test web documents</td></tr>
+                <tr><td>utils</td><td>Utility programs</td></tr>
+                <tr><td>web</td><td>Web documents directory</td></tr>
+                <tr><td>*/inc</td><td>Master include directory</td></tr>
+                <tr><td>*/bin</td><td>Output for binaries</td></tr>
+                <tr><td>*/obj</td><td>Output directory for objects</td></tr>
+            </table>
+            <a id="files"></a>
+            <h2 class="section">GoAhead Files</h2>
+            <table>
+                <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+                <tr><td>auth.c</td><td>Authorization management</td></tr>
+                <tr><td>cgi.c</td><td>CGI handler</td></tr>
+                <tr><td>crypt.c</td><td>Crypto routines</td></tr>
+                <tr><td>file.c</td><td>File handler for static documents</td></tr>
+                <tr><td>galloc.c</td><td>Optional fast memory allocator</td></tr>
+                <tr><td>goahead.c</td><td>GoAhead server main program</td></tr>
+                <tr><td>goahead.h</td><td>GoAhead master include header</td></tr>
+                <tr><td>http.c</td><td>HTTP core engine</td></tr>
+                <tr><td>js.c</td><td>GoAhead Javascript language</td></tr>
+                <tr><td>js.h</td><td>Javascript header</td></tr>
+                <tr><td>jst.c</td><td>Javascript Templates handler</td></tr>
+                <tr><td>openssl.c</td><td>OpenSSL interface</td></tr>
+                <tr><td>options.c</td><td>Options and Trace method handlers</td></tr>
+                <tr><td>rom-documents.c</td><td>Compiled web pages into C code</td></tr>
+                <tr><td>rom.c</td><td>ROM file system</td></tr>
+                <tr><td>route.c</td><td>Request router</td></tr>
+                <tr><td>route.txt</td><td>Route configuration</td></tr>
+                <tr><td>runtime.c</td><td>Portable runtime layer</td></tr>
+                <tr><td>socket.c</td><td>Socket management</td></tr>
+                <tr><td>upload.c</td><td>File upload handler</td></tr>
+            </table>
+            <a id="files"></a>
+            <h2 class="section">GoAhead Additional Files</h2>
+            <table>
+                <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+                <tr><td>configure</td><td>Configuration script</td></tr>
+                <tr><td>Makefile</td><td>Top-level Makefile</td></tr>
+                <tr><td>main.bit</td><td>Primary Bit configuration</td></tr>
+                <tr><td>*/inc/bit.h</td><td>Generate Bit include header</td></tr>
+                <tr><td>OS-ARCH.bit</td><td>Generated Bit configuration</td></tr>
+                <tr><td>server.key.pem</td><td>Test SSL private key</td></tr>
+                <tr><td>server.crt</td><td>Test SSL certificate</td></tr>
             <a id="configuration"></a>
             <h2 class="section">GoAhead Configuration</h2>
             <p>GoAhead uses a route configuration file typically called <em>route.txt</em>. This configuration file is read

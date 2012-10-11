@@ -182,7 +182,7 @@ static void closeJst()
 int websJstOpen()
 {
     websJstFunctions = hashCreate(WEBS_HASH_INIT * 2);
-    websJstDefine("write", websJstWrite);
+    websDefineJst("write", websJstWrite);
     websDefineHandler("jst", jstHandler, closeJst, 0);
     return 0;
 }
@@ -191,7 +191,7 @@ int websJstOpen()
 /*
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-int websJstDefine(char *name, WebsJstProc fn)
+int websDefineJst(char *name, WebsJstProc fn)
 {
     return jsSetGlobalFunctionDirect(websJstFunctions, name, (JsProc) fn);
 }

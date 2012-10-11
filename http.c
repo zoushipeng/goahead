@@ -262,7 +262,7 @@ int websOpen(char *documents, char *routeFile)
     websCgiOpen();
 #endif
     websOptionsOpen();
-    websProcOpen();
+    websActionOpen();
     websFileOpen();
 #if BIT_UPLOAD
     websUploadOpen();

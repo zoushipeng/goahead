@@ -151,8 +151,8 @@ int websOpenAuth(int minimal)
 #if BIT_JAVASCRIPT && FUTURE
         websJsDefine("can", jsCan);
 #endif
-        websProcDefine("login", loginServiceProc);
-        websProcDefine("logout", logoutServiceProc);
+        websDefineAction("login", loginServiceProc);
+        websDefineAction("logout", logoutServiceProc);
     }
     return 0;
 }
