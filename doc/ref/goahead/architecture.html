@@ -14,11 +14,21 @@
     <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
     <![endif]-->
     <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
 </head>
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -149,7 +159,6 @@
             <p>The GoAhead HTTP core is responsible for parsing client HTTP requests and directing 
             how the request will be processed. The HTTP core reads client requests and parses the request headers.
             It then invokes the GoAhead request router to process the request.</p>
-
             <p>The HTTP core includes services for: the main HTTP processing, socket communications, and logging.  
             The HTTP core server also manages and enforces the sandbox resource limits that have been
             defined at build time. These limits enable GoAhead to be more deterministic in its use of system resources and 
@@ -161,7 +170,6 @@
             router is configured with a set of routes from the <i>route.txt</i> configuration. 
             When a request is received, the router tests various routes and selects the best route to handle
             the request. In the process, routes may redirect or rewrite the request as required.</p>
-
             <p>A GoAhead configuration will typically have many routes. The configured routes are tested in-order by
             matching the route URI pattern against the request URL. A route may require that further preconditions be met
             before it is suitable to process the request. If the required conditions are not met, the next route in the
@@ -176,23 +184,18 @@
             <p>GoAhead is built upon a portable runtime layer that insulates the rest of the
             product from the underlying platform and allows it to be highly portable to new operating systems or
             hardware.</p>
-
             <p>The GoAhead runtime provides a suite of services that facilitate the creation of secure,
             embedded applications including: events, networking, safe string handling, timers, hashing, lists and
             logging.</p> <p>The runtime also provides a safer environment in which to program as it replaces 'C' APIs that
             are prone to buffer overflows and other similar security exploits. The runtime includes a high performance, safe
             string library that supports a secure programming style.</p>
-
             <p>The runtime's event processing can be easily integrated into existing applications. It supports
             single and multi-threaded architectures, polled or async event notification. This flexibility means that
             GoAhead can be easily integrated into most C/C++ applications.</p>
-
             <p>The runtime includes an optional high performance memory allocator. 
             This allocator is useful when the native operating system allocator suffers from memory fragmentation.</p>
-
             <a id="dynamic"></a>
             <h2 class="section">Dynamic Content</h2>
-
             <a id="cgi"></a>
             <h3>CGI</h3>
             <p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web servers. CGI
@@ -202,32 +205,26 @@
             and access environment variables. This means that virtually any programming language can be used, including C,
             Perl, or even Unix shell scripting.
             See <a href="../../guide/goahead/uses/cgi.html">CGI</a> for more details.</p>
-
             <a id="goactions"></a>
             <h3>GoActions</h3>
             <p>CGI is a slow technique for creating dynamic web pages as it creates a new process for every request. This is
             slow and cumbersome. GoAhead provides a high-performance replacement called GoActions&trade; that is a more
             suitable solution for embedded systems that demand compact and efficient solutions.</p>
-
             <p>GoActions are "C" language functions that are bound directly to specific URIs. They respond to client
             requests without creating a new process for each request. By sharing the address space with GoAhead, GoActions
             can directly access the full request context and device/application specific data.</p>
-
             <p>GoActions are bound to URIs that begin with <i>/action/</i>. When a client requests a URI beginning with
             /action, the action handler looks for a defined GoAction of the correct name. Then the bound C function is
             invoked to service the request. 
             See <a href="../../guide/goahead/uses/goactions.html">GoActions</a> for more details.</p>
-
             <a id="jst"></a>
             <h3>Javascript Templates</h3>
             <p>Javascript Templates (JST) use Javascript code directly embedded in HTML web pages.
             The Javascript is run on the server and the result when the code executes is substitued back into the
             web page before it is sent to the client.</p>
-
             <p>JST allows the binding of C functions to Javascript functions, so that a JST web page can 
             easily access device or system data.</p>
             See <a href="../../guide/goahead/uses/jst.html">Javascript Templates</a> for more details.</p>
-
             <a id="security"></a>
             <h2 class="section">Security</h2>
             <p>GoAhead provides a suite of measures designed to increase the security of your web server:</p>
@@ -240,10 +237,8 @@
             <h3>Secure Sockets</h3>
             <p>GoAhead supports the OpenSSL and MatrixSSL SSL stacks. You can configure both server and/or client
             authentication of certificates. SSL and TLS are supported.</p>
-
             <h3>Authentication</h3>GoAhead provides Basic, Digest and Web-Form based authentication mechanisms. It
             supports both file and PAM-based password backends.
-
             <h3>Sandboxing</h3>
             <p>Sandboxing is the term applied to running GoAhead in a confined environment. GoAhead has a set of
             build-time directives that define a sandbox which limits the resources that GoAhead may
@@ -254,7 +249,6 @@
             <p>GoAhead also provides a detailed API so you can create an embedded web server instance and control
             virtual hosts, port binding, directory and location blocks and every other part of GoAhead. See the <a href=
             "../../api/goahead.html">GoAhead API</a> for full details.</p>
-
             <a id="dirs"></a>
             <h2 class="section">GoAhead Directories</h2>
             <p>Here is the list of top level directories in the GoAhead source code distribution.</p>
@@ -311,7 +305,6 @@
                 <tr><td>server.key.pem</td><td>Test SSL private key</td></tr>
                 <tr><td>server.crt</td><td>Test SSL certificate</td></tr>
             </table>
-
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

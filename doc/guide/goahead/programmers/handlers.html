@@ -14,11 +14,21 @@
     <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
     <![endif]-->
     <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
 </head>
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/webserver/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -52,7 +62,6 @@
                 <li><a href="../../../guide/goahead/programmers/handlers.html">Custom Handlers</a></li>
                 <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
                 <li><a href="../../../guide/goahead/programmers/rom.html">ROM Content</a></li>
-                <li><a href="../../../guide/goahead/programmers/man.html">Manual Pages</a></li>
                 <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
                 <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
             </ul>
@@ -79,7 +88,6 @@
             <p>You can extend GoAhead by creating your own custom handler to process Http requests and perform any
             processing you desire. Once created handlers are configured via routes in the route table. See <a
             href="routing.html">Request Routing</a> for more details about Routing.</p>
-
             <a id="processing"></a>
             <h2>Request Processing</h2>
             <p>When a request is received from the client, GoAhead parses the HTTP request headers and
