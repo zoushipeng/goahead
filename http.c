@@ -207,7 +207,6 @@ static void     reuseConn(Webs *wp);
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void *data);
 static void     writeEvent(Webs *wp);
-static void     websPump(Webs *wp);
 
 static void     pruneCache();
 #if BIT_ACCESS_LOG
@@ -816,7 +815,7 @@ static void readEvent(Webs *wp)
 }
 
 
-static void websPump(Webs *wp)
+void websPump(Webs *wp)
 {
     bool    canProceed;
 
@@ -1998,14 +1997,18 @@ bool websFlush(Webs *wp)
     WebsBuf     *op;
     ssize       nbytes, written;
 
+    trace(0, "websFlush\n");
     op = &wp->output;
     if (wp->flags & WEBS_CHUNKING) {
+        trace(0, "websFlush chunking finalized %d\n", wp->flags & WEBS_FINALIZED);
         if (flushChunkData(wp) && wp->flags & WEBS_FINALIZED) {
+            trace(0, "websFlush: write chunk trailer\n");
             bufPutStr(op, "\r\n0\r\n\r\n");
-            bufAddNull(&wp->output);
+            bufAddNull(op);
             wp->flags &= ~WEBS_CHUNKING;
         }
     }
+    trace(0, "websFlush: buflen %d\n", bufLen(op));
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
             websError(wp, HTTP_CODE_COMMS_ERROR, "Comms write error");
@@ -2013,6 +2016,7 @@ bool websFlush(Webs *wp)
         } else if (written == 0) {
             break;
         }
+        trace(0, "websFlush: wrote %d to socket\n", written);
         bufAdjustStart(op, written);
         bufCompact(op);
         nbytes = bufLen(op);
@@ -2952,7 +2956,11 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
     memset(buf, 0, len * sizeof(char));
     portbuf = &buf[len - WEBS_MAX_PORT_LEN - 1];
     hostbuf = &buf[ulen+1];
+#if UNUSED
     websDecodeUrl(buf, url, ulen);
+#else
+    sncopy(buf, len, url, ulen);
+#endif
 
     /*
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
@@ -3036,6 +3044,11 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
             }
         }
     }
+    /*
+        Only the path and extension is decoded (ext is a reference into the path)
+     */
+    websDecodeUrl(path, path, -1);
+
     /*
         Pass back the fields requested (if not NULL)
      */

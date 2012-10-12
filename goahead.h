@@ -3104,6 +3104,14 @@ extern int websPageStat(Webs *wp, WebsFileInfo *sbuf);
 extern int websProcessPutData(Webs *wp);
 
 /**
+    Pump the state machine
+    @description This routine will advance the connection state machine in response to events.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+extern void websPump(Webs *wp);
+
+/**
     Define an action callback for use with the action handler.
     @description The action handler binds a C function to a URI under "/action".
     @param name URI path suffix. This suffix is added to "/action" to form the bound URI path.

@@ -124,6 +124,7 @@ static bool cgiHandler(Webs *wp)
         websDecodeUrl(query, query, strlen(query));
         for (cp = stok(query, " ", &tok); cp != NULL; ) {
             *(argp+n) = cp;
+            trace(5, "ARG[%d] %s\n", n, argp[n-1]);
             n++;
             if (n >= argpsize) {
                 argpsize *= 2;
@@ -217,12 +218,89 @@ int websProcessCgiData(Webs *wp)
     ssize   nbytes;
 
     nbytes = bufLen(&wp->input);
+    trace(0, "cgi: write %d bytes to CGI program\n", nbytes);
     if (write(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
         websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
         return -1;
     }
     websConsumeInput(wp, nbytes);
+    trace(0, "cgi: write %d bytes to CGI program\n", nbytes);
     return 0;
+}
+
+
+static void writeCgiHeaders(Webs *wp, int status, ssize contentLength, char *location, char *contentType)
+{
+    trace(0, "cgi: Start response headers\n");
+    websSetStatus(wp, status);
+    websWriteHeaders(wp, contentLength, location);
+    websWriteHeader(wp, "Pragma", "no-cache");
+    websWriteHeader(wp, "Cache-Control", "no-cache");
+    if (contentType) {
+        websWriteHeader(wp, "Content-Type", contentType);
+    }
+}
+
+static ssize parseCgiHeaders(Webs *wp, char *buf)
+{
+    char    *end, *cp, *key, *value, *location, *contentType;
+    ssize   len, contentLength;
+    int     status, doneHeaders;
+
+    status = HTTP_CODE_OK;
+    contentLength = -1;
+    contentType = 0;
+    location = 0;
+    doneHeaders = 0;
+
+    /*
+        Look for end of headers
+     */
+    if ((end = strstr(buf, "\r\n\r\n")) == NULL) {
+        if ((end = strstr(buf, "\n\n")) == NULL) {
+            return 0;
+        }
+        len = 2;
+    } else {
+        len = 4;
+    }
+    end[len - 1] = '\0';
+    end += len;
+    cp = buf;
+    if (!strchr(cp, ':')) {
+        /* No headers found */
+        return 0;
+    }
+    if (strncmp(cp, "HTTP/1.", 7) == 0) {
+        stok(cp, "\r\n", &cp);
+    }
+    for (; *cp && (*cp != '\r' && *cp != '\n') && cp < end; ) {
+        key = slower(stok(cp, ":", &value));
+        if (strcmp(key, "location") == 0) {
+            location = value;
+        } else if (strcmp(key, "status") == 0) {
+            status = atoi(value);
+        } else if (strcmp(key, "content-type") == 0) {
+            contentType = value;
+        } else if (strcmp(key, "content-length") == 0) {
+            contentLength = atoi(value);
+        } else {
+            /*
+                Now pass all other headers back to the client
+             */
+            if (!doneHeaders) {
+                writeCgiHeaders(wp, status, contentLength, location, contentType);
+                doneHeaders = 1;
+            }
+            websWriteHeader(wp, key, "%s", value);
+        }
+        stok(value, "\r\n", &cp);
+    }
+    if (!doneHeaders) {
+        writeCgiHeaders(wp, status, contentLength, location, contentType);
+     }
+    websWriteEndHeaders(wp);
+    return end - buf;
 }
 
 
@@ -234,29 +312,28 @@ void websCgiGatherOutput(Cgi *cgip)
     Webs        *wp;
     WebsStat    sbuf;
     char        buf[BIT_LIMIT_BUFFER];
-    ssize       nbytes;
+    ssize       nbytes, skip;
     int         fdout;
 
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
+        trace(0, "cgi: gather output\n");
         if ((fdout = open(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
             /*
                 Check to see if any data is available in the output file and send its contents to the socket.
                 Write the HTTP header on our first pass.
              */
             wp = cgip->wp;
-            if (cgip->fplacemark == 0) {
-                websSetStatus(wp, 200);
-                websWriteHeaders(wp, -1, NULL);
-                websWriteHeader(wp, "Pragma", "no-cache");
-                websWriteHeader(wp, "Cache-Control", "no-cache");
-                websWriteEndHeaders(wp);
-            }
             lseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nbytes = read(fdout, buf, BIT_LIMIT_BUFFER)) > 0) {
-                websWriteBlock(wp, buf, nbytes);
+                trace(0, "cgi: read %d bytes from GI\n", nbytes);
+                skip = (cgip->fplacemark == 0) ? parseCgiHeaders(wp, buf) : 0;
+                trace(0, "cgi: write %d bytes to client\n", nbytes - skip);
+                websWriteBlock(wp, &buf[skip], nbytes - skip);
                 cgip->fplacemark += (off_t) nbytes;
             }
             close(fdout);
+        } else {
+            trace(0, "cgi: open failed\n");
         }
     }
 }
@@ -278,7 +355,7 @@ void websCgiCleanup()
             websCgiGatherOutput(cgip);
             if (checkCgi(cgip->handle) == 0) {
                 /*
-                    We get here if the CGI process has terminated.  Clean up.
+                    We get here if the CGI process has terminated. Clean up.
                  */
                 for (nTries = 0; (cgip->fplacemark == 0) && (nTries < 100); nTries++) {
                     websCgiGatherOutput(cgip);
@@ -292,9 +369,11 @@ void websCgiCleanup()
 #endif
                     }
                 }
+trace(0, "POS %d\n", cgip->fplacemark);
                 if (cgip->fplacemark == 0) {
                     websError(wp, 200, "CGI generated no output");
                 } else {
+                    trace(0, "cgi: Request complete - calling websDone\n");
                     websDone(wp);
                 }
                 /*
@@ -315,6 +394,7 @@ void websCgiCleanup()
                 gfree(cgip->envp);
                 gfree(cgip->stdOut);
                 gfree(cgip);
+                websPump(wp);
             }
         }
     }
@@ -441,6 +521,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 {
     int pid, fdin, fdout, hstdin, hstdout;
 
+    trace(0, "cgi: run %s\n", cgiPath);
     pid = fdin = fdout = hstdin = hstdout = -1;
     if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
             (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
@@ -448,6 +529,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
             dup2(fdin, 0) == -1 || dup2(fdout, 1) == -1) {
         goto done;
     }
+
     pid = vfork();
     if (pid == 0) {
         /*
@@ -482,10 +564,13 @@ done:
  */
 static int checkCgi(int handle)
 {
+    int     pid;
+    
     /*
         Check to see if the CGI child process has terminated or not yet.
      */
-    if (waitpid(handle, NULL, WNOHANG) == handle) {
+    if ((pid = waitpid(handle, NULL, WNOHANG)) == handle) {
+        trace(0, "cgi: waited for pid %d\n", pid);
         return 0;
     } else {
         return 1;
@@ -612,7 +697,7 @@ done:
  */
 static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argp, char **envp, char *stdIn, char *stdOut)
 {
-    char  **p;
+    char    **p;
     int     argc, taskId, fdin, fdout;
 
     /*
@@ -739,7 +824,6 @@ char *websGetCgiCommName()
     free(pname1);
     return pname2;
 }
-
 
 
 /*

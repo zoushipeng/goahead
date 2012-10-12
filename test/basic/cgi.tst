@@ -7,7 +7,7 @@ let http: Http = new Http
 
 let vxworks = (global.test && test.hostOs == "VXWORKS")
 
-if (false && App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").exists) {
+if (App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").exists) {
     /* Suport routines */
 
     function contains(pat): Void {
@@ -67,7 +67,6 @@ if (false && App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").e
         contains("QVAR a=b")
         contains("QVAR c=d")
 
-/*MOB
         http.get(HTTP + "/cgi-bin/cgitest?a+b+c")
         match("QUERY_STRING", "a+b+c")
         contains("QVAR a b c")
@@ -94,7 +93,6 @@ if (false && App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").e
         match("QVAR var3", "c")
         match("PVAR name", "Peter")
         match("PVAR address", "777 Mulberry Lane")
-*/
     }
 
     function encoding() {
@@ -113,7 +111,7 @@ if (false && App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").e
     function status() {
         let http = new Http
         http.setHeader("SWITCHES", "-s%20711")
-        http.get(HTTP + "/cgi-bin/cgi-bin/cgitest")
+        http.get(HTTP + "/cgi-bin/cgitest?mob=111")
         assert(http.status == 711)
         http.close()
     }
@@ -122,7 +120,7 @@ if (false && App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").e
         let http = new Http
         http.setHeader("SWITCHES", "-l%20/index.html")
         http.followRedirects = false
-        http.get(HTTP + "/cgi-bin/cgi-bin/cgitest")
+        http.get(HTTP + "/cgi-bin/cgitest")
         assert(http.status == 302)
         http.close()
     }
@@ -146,23 +144,6 @@ if (false && App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").e
         match("QUERY_STRING", "a%20a=1%201&b%20b=2%202")
         match("QVAR a a", "1 1")
         match("QVAR b b", "2 2")
-
-        http.get(HTTP + "/cgi-bin/cgitest?a|b+c>d+e?f+g>h+i'j+k\"l+m%20n")
-        match("ARG.2.", "a\\|b")
-        match("ARG.3.", "c\\>d")
-        match("ARG.4.", "e\\?f")
-        match("ARG.5.", "g\\>h")
-        match("ARG.6.", "i\\'j")
-
-        if (Config.OS == "windows" || Config.OS == "cygwin") {
-            //  TODO - fix. Windows is eating a backslash
-            match("ARG.7.", "k\"l")
-        } else {
-            match("ARG.7.", "k\\\"l")
-        }
-        match("ARG.8.", "m n")
-        match("QUERY_STRING", "a|b+c>d+e?f+g>h+i'j+k\"l+m%20n")
-        assert(http.response.contains("QVAR a|b c>d e?f g>h i'j k\"l m n"))
     }
     forms()
     extraPath()
