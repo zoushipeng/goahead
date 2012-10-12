@@ -176,7 +176,7 @@
 
 /* Begin PBXFileReference section */
 		9FC45C179FC48C4D00000011 /* action.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = action.c; path = action.c; sourceTree = "<group>"; };
-		9FC45C179FC48C4D00000057 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-xcode\inc\bit.h; sourceTree = "<group>"; };
+		9FC45C179FC48C4D00000057 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-xcode/inc/bit.h; sourceTree = "<group>"; };
 		9FC45C179FC48C4D00000013 /* auth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = auth.c; path = auth.c; sourceTree = "<group>"; };
 		9FC45C179FC48C4D00000015 /* cgi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgi.c; path = cgi.c; sourceTree = "<group>"; };
 		9FC45C179FC48C4D00000017 /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crypt.c; path = crypt.c; sourceTree = "<group>"; };
@@ -492,41 +492,41 @@
 if ! diff ${INC_DIR}/bit.h goahead-macosx-bit.h >/dev/null ; then
 cp goahead-macosx-bit.h ${INC_DIR}/bit.h
 fi
-if [ ../goahead.h -nt .${CFG_DIR}\\inc\\goahead.h ] ; then
-cp ../goahead.h .${CFG_DIR}\\inc\\goahead.h
+if [ ../goahead.h -nt ${CFG_DIR}/inc/goahead.h ] ; then
+cp ../goahead.h ${CFG_DIR}/inc/goahead.h
 fi
-if [ ../js.h -nt .${CFG_DIR}\\inc\\js.h ] ; then
-cp ../js.h .${CFG_DIR}\\inc\\js.h
+if [ ../js.h -nt ${CFG_DIR}/inc/js.h ] ; then
+cp ../js.h ${CFG_DIR}/inc/js.h
 fi
-if [ ../goahead.h -nt .${CFG_DIR}\\inc\\goahead.h ] ; then
-cp ../goahead.h .${CFG_DIR}\\inc\\goahead.h
+if [ ../goahead.h -nt ${CFG_DIR}/inc/goahead.h ] ; then
+cp ../goahead.h ${CFG_DIR}/inc/goahead.h
 fi
-if [ ../js.h -nt .${CFG_DIR}\\inc\\js.h ] ; then
-cp ../js.h .${CFG_DIR}\\inc\\js.h
+if [ ../js.h -nt ${CFG_DIR}/inc/js.h ] ; then
+cp ../js.h ${CFG_DIR}/inc/js.h
 fi
-if [ ../goahead.h -nt .${CFG_DIR}\\inc\\goahead.h ] ; then
-cp ../goahead.h .${CFG_DIR}\\inc\\goahead.h
+if [ ../goahead.h -nt ${CFG_DIR}/inc/goahead.h ] ; then
+cp ../goahead.h ${CFG_DIR}/inc/goahead.h
 fi
-if [ ../js.h -nt .${CFG_DIR}\\inc\\js.h ] ; then
-cp ../js.h .${CFG_DIR}\\inc\\js.h
+if [ ../js.h -nt ${CFG_DIR}/inc/js.h ] ; then
+cp ../js.h ${CFG_DIR}/inc/js.h
 fi
-if [ ../goahead.h -nt .${CFG_DIR}\\inc\\goahead.h ] ; then
-cp ../goahead.h .${CFG_DIR}\\inc\\goahead.h
+if [ ../goahead.h -nt ${CFG_DIR}/inc/goahead.h ] ; then
+cp ../goahead.h ${CFG_DIR}/inc/goahead.h
 fi
-if [ ../js.h -nt .${CFG_DIR}\\inc\\js.h ] ; then
-cp ../js.h .${CFG_DIR}\\inc\\js.h
+if [ ../js.h -nt ${CFG_DIR}/inc/js.h ] ; then
+cp ../js.h ${CFG_DIR}/inc/js.h
 fi
-if [ ../goahead.h -nt .${CFG_DIR}\\inc\\goahead.h ] ; then
-cp ../goahead.h .${CFG_DIR}\\inc\\goahead.h
+if [ ../goahead.h -nt ${CFG_DIR}/inc/goahead.h ] ; then
+cp ../goahead.h ${CFG_DIR}/inc/goahead.h
 fi
-if [ ../js.h -nt .${CFG_DIR}\\inc\\js.h ] ; then
-cp ../js.h .${CFG_DIR}\\inc\\js.h
+if [ ../js.h -nt ${CFG_DIR}/inc/js.h ] ; then
+cp ../js.h ${CFG_DIR}/inc/js.h
 fi
-if [ ../goahead.h -nt .${CFG_DIR}\\inc\\goahead.h ] ; then
-cp ../goahead.h .${CFG_DIR}\\inc\\goahead.h
+if [ ../goahead.h -nt ${CFG_DIR}/inc/goahead.h ] ; then
+cp ../goahead.h ${CFG_DIR}/inc/goahead.h
 fi
-if [ ../js.h -nt .${CFG_DIR}\\inc\\js.h ] ; then
-cp ../js.h .${CFG_DIR}\\inc\\js.h
+if [ ../js.h -nt ${CFG_DIR}/inc/js.h ] ; then
+cp ../js.h ${CFG_DIR}/inc/js.h
 fi";
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -720,7 +720,7 @@ fi";
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
                 LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -739,13 +739,23 @@ fi";
                 DSTROOT = "/tmp/goahead.dst";
                 OBJROOT = "$(OBJ_DIR)";
                 SYMROOT = "$(BIN_DIR)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
 
                 /* Debug Settings */
 				COPY_PHASE_STRIP = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					"..\macosx-x64-xcode\inc",
+					"../macosx-x64-xcode/inc",
 					"$(inherited)"
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -753,7 +763,7 @@ fi";
 					"$(inherited)"
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"..\macosx-x64-xcode\bin",
+					"../macosx-x64-xcode/bin",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
@@ -779,7 +789,7 @@ fi";
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_VERSION = com.apple.compilers.llvmgcc42;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
                 LD_DYLIB_INSTALL_NAME = "@rpath/$(EXECUTABLE_PATH)";
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
@@ -798,19 +808,29 @@ fi";
                 DSTROOT = "/tmp/goahead.dst";
                 OBJROOT = "$(OBJ_DIR)";
                 SYMROOT = "$(BIN_DIR)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				GCC_WARN_UNUSED_FUNCTION = NO;
+				GCC_WARN_UNUSED_LABEL = NO;
 
                 /* Release Settings */
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_OPTIMIZATION_LEVEL = s;
-                GCC_WARN_UNINITIALIZED_AUTOS = null;
+                GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				HEADER_SEARCH_PATHS = (
-					"..\macosx-x64-xcode\inc",
+					"../macosx-x64-xcode/inc",
 					"$(inherited)"
 				);
 
 				LIBRARY_SEARCH_PATHS = (
-					"..\macosx-x64-xcode\bin",
+					"../macosx-x64-xcode/bin",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
