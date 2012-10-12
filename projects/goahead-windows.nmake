@@ -86,92 +86,111 @@ $(CONFIG)\inc\js.h:
 
 $(CONFIG)\obj\action.obj: \
         action.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc action.c
 
 $(CONFIG)\obj\auth.obj: \
         auth.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc auth.c
 
 $(CONFIG)\obj\cgi.obj: \
         cgi.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc cgi.c
 
 $(CONFIG)\obj\crypt.obj: \
         crypt.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc crypt.c
 
 $(CONFIG)\obj\file.obj: \
         file.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc file.c
 
 $(CONFIG)\obj\galloc.obj: \
         galloc.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\galloc.obj -Fd$(CONFIG)\obj\galloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc galloc.c
 
 $(CONFIG)\obj\http.obj: \
         http.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc http.c
 
 $(CONFIG)\obj\js.obj: \
         js.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\js.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc js.c
 
 $(CONFIG)\obj\jst.obj: \
         jst.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc jst.c
 
 $(CONFIG)\obj\matrixssl.obj: \
         matrixssl.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc matrixssl.c
 
 $(CONFIG)\obj\openssl.obj: \
         openssl.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc openssl.c
 
 $(CONFIG)\obj\options.obj: \
         options.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc options.c
 
 $(CONFIG)\obj\rom-documents.obj: \
         rom-documents.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc rom-documents.c
 
 $(CONFIG)\obj\rom.obj: \
         rom.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\rom.obj -Fd$(CONFIG)\obj\rom.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc rom.c
 
 $(CONFIG)\obj\route.obj: \
         route.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc route.c
 
 $(CONFIG)\obj\runtime.obj: \
         runtime.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc runtime.c
 
 $(CONFIG)\obj\socket.obj: \
         socket.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc socket.c
 
 $(CONFIG)\obj\upload.obj: \
         upload.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc upload.c
 
 $(CONFIG)\bin\libgo.lib:  \
@@ -195,11 +214,12 @@ $(CONFIG)\bin\libgo.lib:  \
         $(CONFIG)\obj\runtime.obj \
         $(CONFIG)\obj\socket.obj \
         $(CONFIG)\obj\upload.obj
-	"lib.exe" -nologo -out:$(CONFIG)\bin\libgo.lib $(CONFIG)\obj\action.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj
+	"C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\lib.exe" -nologo -out:$(CONFIG)\bin\libgo.lib $(CONFIG)\obj\action.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj
 
 $(CONFIG)\obj\goahead.obj: \
         goahead.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc goahead.c
 
 $(CONFIG)\bin\goahead.exe:  \
@@ -211,7 +231,9 @@ $(CONFIG)\bin\goahead.exe:  \
 
 $(CONFIG)\obj\test.obj: \
         test\test.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\test.c
 
 $(CONFIG)\bin\goahead-test.exe:  \
@@ -223,7 +245,8 @@ $(CONFIG)\bin\goahead-test.exe:  \
 
 $(CONFIG)\obj\gopass.obj: \
         utils\gopass.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc utils\gopass.c
 
 $(CONFIG)\bin\gopass.exe:  \
@@ -235,7 +258,8 @@ $(CONFIG)\bin\gopass.exe:  \
 
 $(CONFIG)\obj\webcomp.obj: \
         utils\webcomp.c \
-        $(CONFIG)\inc\bit.h
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\webcomp.obj -Fd$(CONFIG)\obj\webcomp.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc utils\webcomp.c
 
 $(CONFIG)\bin\webcomp.exe:  \
