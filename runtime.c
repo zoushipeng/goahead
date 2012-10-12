@@ -263,42 +263,27 @@ void websStopEvent(int id)
 }
 
 
-void websRunEvents()
+WebsTime websRunEvents()
 {
     Callback    *s;
-    int         id;
-    static int  next = 0;   
+    WebsTime    delay, now, nextEvent;
+    int         i;
 
-    /*
-        If callbackMax is 0, there are no tasks scheduled, so just return.
-     */
-    if (callbackMax <= 0) {
-        return;
-    }
-    /*
-        If next >= callbackMax, the schedule queue was reduced in our absence
-        so reset next to 0 to start from the begining of the queue again.
-     */
-    if (next >= callbackMax) {
-        next = 0;
-    }
-    id = next;
-    for (;;) {
-        if ((s = callbacks[id]) != NULL && (int) s->at <= (int) time(0)) {
-            callEvent(id);
-            next = id + 1;
-            return;
+    nextEvent = MAXINT;
+    now = time(0);
+
+    for (i = 0; i < callbackMax; i++) {
+        if ((s = callbacks[i]) != NULL) {
+            if ((delay = s->at - now) <= 0) {
+                callEvent(i);
+                delay = MAXINT;
+                /* Rescan incase event scheduled or modified an event */
+                i = -1;
+            }
         }
-        if (++id >= callbackMax) {
-            id = 0;
-        }
-        if (id == next) {
-            /*
-                We've gone all the way through the queue without finding anything to do so just return.
-             */
-            return;
-        }
+        nextEvent = min(delay, nextEvent);
     }
+    return nextEvent * 1000;
 }
 
 

@@ -302,10 +302,10 @@ int socketWaitForEvent(WebsSocket *sp, int handlerMask)
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
 #if BIT_WIN_LIKE
-int socketSelect(int sid, int timeout)
+int socketSelect(int sid, WebsTime timeout)
 {
     struct timeval  tv;
-    WebsSocket        *sp;
+    WebsSocket      *sp;
     fd_set          readFds, writeFds, exceptFds;
     int             nEvents;
     int             all, socketHighestFd;   /* Highest socket fd opened */
@@ -390,7 +390,7 @@ int socketSelect(int sid, int timeout)
 
 #else /* !BIT_WIN_LIKE */
 
-int socketSelect(int sid, int timeout)
+int socketSelect(int sid, WebsTime timeout)
 {
     WebsSocket        *sp;
     struct timeval  tv;

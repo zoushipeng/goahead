@@ -1266,18 +1266,23 @@ static bool filterChunkData(Webs *wp)
  */
 void websServiceEvents(int *finished)
 {
+    WebsTime    delay, nextEvent;
+
     if (finished) {
         *finished = 0;
     }
+    delay = 0;
     while (!finished || !*finished) {
-        //  MOB - fix
-        if (socketSelect(-1, 50)) {
+        if (socketSelect(-1, delay)) {
             socketProcess();
         }
 #if BIT_CGI
-        websCgiCleanup();
+        delay = websCgiPoll();
+#else
+        delay = MAXINT;
 #endif
-        websRunEvents();
+        nextEvent = websRunEvents();
+        delay = min(delay, nextEvent);
     }
 }
 

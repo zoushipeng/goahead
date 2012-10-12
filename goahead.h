@@ -1908,7 +1908,7 @@ extern void socketReservice(int sid);
     @return Number of I/O events.
     @ingroup WebsSocket
  */
-extern int socketSelect(int sid, int timeout);
+extern int socketSelect(int sid, WebsTime timeout);
 
 /**
     Set the socket blocking mode
@@ -2241,9 +2241,10 @@ extern void websRestartEvent(int id, int delay);
 /**
     Run due events
     @ingroup WebsRuntime
+    @return Time till the next event
     @internal
  */
-extern void websRunEvents();
+extern WebsTime websRunEvents();
 
 /* Forward declare */
 struct WebsRoute;
@@ -2581,10 +2582,11 @@ extern int websCgiOpen();
 extern int websCgiHandler(Webs *wp);
 
 /**
-    Cleanup completed CGI processes and output.
+    Poll for output from CGI processes and output.
+    @return Time delay till next poll
     @ingroup Webs
  */
-extern void websCgiCleanup();
+extern WebsTime websCgiPoll();
 #endif /* BIT_CGI */
 
 /**

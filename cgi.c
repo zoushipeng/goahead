@@ -341,8 +341,9 @@ void websCgiGatherOutput(Cgi *cgip)
 
 /*
     Any entry in the cgiList need to be checked to see if it has completed, and if so, process its output and clean up.
+    Return time till next poll.
  */
-void websCgiCleanup()
+WebsTime websCgiPoll()
 {
     Webs    *wp;
     Cgi     *cgip;
@@ -398,6 +399,7 @@ trace(0, "POS %d\n", cgip->fplacemark);
             }
         }
     }
+    return cgiMax ? 10 : MAXINT;
 }
 
 
