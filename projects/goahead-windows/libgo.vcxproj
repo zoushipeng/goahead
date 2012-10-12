@@ -100,6 +100,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+    <ClCompile Include="..\..\action.c" />
     <ClCompile Include="..\..\auth.c" />
     <ClCompile Include="..\..\cgi.c" />
     <ClCompile Include="..\..\crypt.c" />
@@ -111,7 +112,6 @@
     <ClCompile Include="..\..\matrixssl.c" />
     <ClCompile Include="..\..\openssl.c" />
     <ClCompile Include="..\..\options.c" />
-    <ClCompile Include="..\..\proc.c" />
     <ClCompile Include="..\..\rom-documents.c" />
     <ClCompile Include="..\..\rom.c" />
     <ClCompile Include="..\..\route.c" />

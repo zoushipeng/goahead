@@ -33,6 +33,8 @@ cp -r goahead.h ${CONFIG}/inc/goahead.h
 rm -rf ${CONFIG}/inc/js.h
 cp -r js.h ${CONFIG}/inc/js.h
 
+"${CC}" -c -Fo${CONFIG}/obj/action.obj -Fd${CONFIG}/obj/action.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc action.c
+
 "${CC}" -c -Fo${CONFIG}/obj/auth.obj -Fd${CONFIG}/obj/auth.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc auth.c
 
 "${CC}" -c -Fo${CONFIG}/obj/cgi.obj -Fd${CONFIG}/obj/cgi.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc cgi.c
@@ -55,8 +57,6 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/options.obj -Fd${CONFIG}/obj/options.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc options.c
 
-"${CC}" -c -Fo${CONFIG}/obj/proc.obj -Fd${CONFIG}/obj/proc.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc proc.c
-
 "${CC}" -c -Fo${CONFIG}/obj/rom-documents.obj -Fd${CONFIG}/obj/rom-documents.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc rom-documents.c
 
 "${CC}" -c -Fo${CONFIG}/obj/rom.obj -Fd${CONFIG}/obj/rom.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc rom.c
@@ -69,7 +69,7 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/upload.obj -Fd${CONFIG}/obj/upload.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc upload.c
 
-"lib.exe" -nologo -out:${CONFIG}/bin/libgo.lib ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/jst.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/proc.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/upload.obj
+"lib.exe" -nologo -out:${CONFIG}/bin/libgo.lib ${CONFIG}/obj/action.obj ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/galloc.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/jst.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/upload.obj
 
 "${CC}" -c -Fo${CONFIG}/obj/goahead.obj -Fd${CONFIG}/obj/goahead.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc goahead.c
 
