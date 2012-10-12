@@ -165,7 +165,7 @@ static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int 
             return 0;
 
         case MATRIXSSL_RECEIVED_ALERT:
-            gassert(dlen == 2);
+            assure(dlen == 2);
             if (data[0] == SSL_ALERT_LEVEL_FATAL) {
                 return -1;
             } else if (data[1] == SSL_ALERT_CLOSE_NOTIFY) {

@@ -22,7 +22,7 @@
 #endif
 #ifndef BIT_ASSERT
     #if BIT_DEBUG
-        #define BIT_ASSERT 1            /**< Turn debug assertions on */
+        #define BIT_ASSERT 1            /**< Turn debug assure assertions on */
     #else
         #define BIT_ASSERT 0
     #endif
@@ -972,11 +972,17 @@ extern int websParseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_LOG_NEWLINE    0x2000
 #define WEBS_LOG_MASK       0xF
 
-#if BIT_DEBUG
-    #define gassert(C)     if (C) ; else gassertError(WEBS_L, "%s", #C)
-    extern void gassertError(WEBS_ARGS_DEC, char *fmt, ...);
+#if DOXYGEN
+/**
+    Assure that an assert condition is true
+    @param cond Boolean result of a conditional test
+ */
+extern void assure(bool cond);
+#elif BIT_DEBUG
+    #define assure(C)       if (C) ; else assureError(WEBS_L, "%s", #C)
+    extern void assureError(WEBS_ARGS_DEC, char *fmt, ...);
 #else
-    #define gassert(C)     if (1) ; else
+    #define assure(C)       if (1) ; else
 #endif
 
 /*
@@ -3936,7 +3942,7 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
 #if BIT_LEGACY
     #define B_L 0
     #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
-    #define a_assert gassert
+    #define a_assert assure
     #define balloc galloc
     #define bclose gcloseAlloc
     #define bfree(loc, p) gfree(p)

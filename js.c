@@ -125,7 +125,7 @@ char *jsEvalFile(int jid, char *path, char **emsg)
     char      *script, *rs;
     int         fd;
 
-    gassert(path && *path);
+    assure(path && *path);
 
     if (emsg) {
         *emsg = NULL;
@@ -209,7 +209,7 @@ char *jsEvalBlock(int jid, char *script, char **emsg)
     char* returnVal;
     int     vid;
 
-    gassert(script);
+    assure(script);
 
     vid = jsOpenBlock(jid);
     returnVal = jsEval(jid, script, emsg);
@@ -230,7 +230,7 @@ char *jsEval(int jid, char *script, char **emsg)
     int     loopCounter;
     
     
-    gassert(script);
+    assure(script);
 
     if (emsg) {
         *emsg = NULL;
@@ -303,7 +303,7 @@ char *jsEval(int jid, char *script, char **emsg)
  */
 static int parse(Js *ep, int state, int flags)
 {
-    gassert(ep);
+    assure(ep);
 
     switch (state) {
     /*
@@ -379,7 +379,7 @@ static int parseStmt(Js *ep, int state, int flags)
     int         done, expectSemi, thenFlags, elseFlags, tid, cond, forFlags;
     int         jsVarType;
 
-    gassert(ep);
+    assure(ep);
 
     /*
         Set these to NULL, else we try to free them if an error occurs.
@@ -585,9 +585,9 @@ static int parseStmt(Js *ep, int state, int flags)
                 thenFlags = flags & ~FLAGS_EXE;
                 elseFlags = flags;
             }
-/*
- *          Process the "then" case.  Allow for RETURN statement
- */
+            /*
+                Process the "then" case.  Allow for RETURN statement
+             */
             switch (parse(ep, STATE_STMT, thenFlags)) {
             case STATE_RET:
                 return STATE_RET;
@@ -835,7 +835,7 @@ static int parseDeclaration(Js *ep, int state, int flags)
 {
     int     tid;
 
-    gassert(ep);
+    assure(ep);
 
     /*
         Declarations can be of the following forms:
@@ -883,7 +883,7 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
 {
     int     tid, aid;
 
-    gassert(ep);
+    assure(ep);
 
     do {
         state = parse(ep, STATE_RELEXP, flags);
@@ -919,17 +919,16 @@ static int parseCond(Js *ep, int state, int flags)
     char  *lhs, *rhs;
     int     tid, operator;
 
-    gassert(ep);
+    assure(ep);
 
     setString(&ep->result, "");
     rhs = lhs = NULL;
     operator = 0;
 
     do {
-/*
- *  Recurse to handle one side of a conditional. Accumulate the
- *  left hand side and the final result in ep->result.
- */
+        /*
+            Recurse to handle one side of a conditional. Accumulate the left hand side and the final result in ep->result.
+         */
         state = parse(ep, STATE_RELEXP, flags);
         if (state != STATE_RELEXP_DONE) {
             state = STATE_ERR;
@@ -979,7 +978,7 @@ static int parseExpr(Js *ep, int state, int flags)
     char  *lhs, *rhs;
     int     rel, tid;
 
-    gassert(ep);
+    assure(ep);
 
     setString(&ep->result, "");
     rhs = lhs = NULL;
@@ -1033,11 +1032,9 @@ static int parseExpr(Js *ep, int state, int flags)
     if (rhs) {
         gfree(rhs);
     }
-
     if (lhs) {
         gfree(lhs);
     }
-
     return state;
 }
 
@@ -1050,9 +1047,9 @@ static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
     char  buf[16];
     int     l, r, lval;
 
-    gassert(lhs);
-    gassert(rhs);
-    gassert(rel > 0);
+    assure(lhs);
+    assure(rhs);
+    assure(rel > 0);
 
     lval = 0;
     if (isdigit((uchar) *lhs) && isdigit((uchar) *rhs)) {
@@ -1090,9 +1087,9 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
     char  *cp, buf[16];
     int     numeric, l, r, lval;
 
-    gassert(lhs);
-    gassert(rhs);
-    gassert(rel > 0);
+    assure(lhs);
+    assure(rhs);
+    assure(rel > 0);
 
     /*
         All of the characters in the lhs and rhs must be numeric
@@ -1104,7 +1101,6 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
             break;
         }
     }
-
     if (numeric) {
         for (cp = rhs; *cp; cp++) {
             if (!isdigit((uchar) *cp)) {
@@ -1177,7 +1173,6 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
             jsError(ep, "Bad operator %d", rel);
             return -1;
         }
-
     } else {
         switch (rel) {
         case EXPR_PLUS:
@@ -1251,8 +1246,8 @@ void jsError(Js *ep, char* fmt, ...)
     JsInput     *ip;
     char      *errbuf, *msgbuf;
 
-    gassert(ep);
-    gassert(fmt);
+    assure(ep);
+    assure(fmt);
     ip = ep->input;
 
     va_start(args, fmt);
@@ -1270,7 +1265,7 @@ void jsError(Js *ep, char* fmt, ...)
 
 static void clearString(char **ptr)
 {
-    gassert(ptr);
+    assure(ptr);
 
     if (*ptr) {
         gfree(*ptr);
@@ -1281,7 +1276,7 @@ static void clearString(char **ptr)
 
 static void setString(char **ptr, char *s)
 {
-    gassert(ptr);
+    assure(ptr);
 
     if (*ptr) {
         gfree(*ptr);
@@ -1294,7 +1289,7 @@ static void appendString(char **ptr, char *s)
 {
     ssize   len, oldlen, size;
 
-    gassert(ptr);
+    assure(ptr);
 
     if (*ptr) {
         len = strlen(s);
@@ -1412,7 +1407,7 @@ int jsArgs(int argc, char **argv, char *fmt, ...)
             /*
                 Unsupported
              */
-            gassert(0);
+            assure(0);
         }
         argn++;
     }
@@ -1485,7 +1480,7 @@ void jsSetVar(int jid, char *var, char *value)
     Js          *ep;
     WebsValue   v;
 
-    gassert(var && *var);
+    assure(var && *var);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return;
@@ -1508,7 +1503,7 @@ void jsSetLocalVar(int jid, char *var, char *value)
     Js          *ep;
     WebsValue   v;
 
-    gassert(var && *var);
+    assure(var && *var);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return;
@@ -1531,7 +1526,7 @@ void jsSetGlobalVar(int jid, char *var, char *value)
     Js          *ep;
     WebsValue   v;
 
-    gassert(var && *var);
+    assure(var && *var);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return;
@@ -1554,8 +1549,8 @@ int jsGetVar(int jid, char *var, char **value)
     WebsKey     *sp;
     int         i;
 
-    gassert(var && *var);
-    gassert(value);
+    assure(var && *var);
+    assure(value);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return -1;
@@ -1567,7 +1562,7 @@ int jsGetVar(int jid, char *var, char **value)
             return -1;
         }
     }
-    gassert(sp->content.type == string);
+    assure(sp->content.type == string);
     *value = sp->content.value.string;
     return i;
 }
@@ -1618,7 +1613,7 @@ static void freeFunc(JsFun *func)
  */
 static Js *jsPtr(int jid)
 {
-    gassert(0 <= jid && jid < jsMax);
+    assure(0 <= jid && jid < jsMax);
 
     if (jid < 0 || jid >= jsMax || jsHandles[jid] == NULL) {
         jsError(NULL, "Bad handle %d", jid);
@@ -1657,8 +1652,8 @@ int jsLexOpenScript(Js *ep, char *script)
 {
     JsInput     *ip;
 
-    gassert(ep);
-    gassert(script);
+    assure(ep);
+    assure(script);
 
     if ((ep->input = galloc(sizeof(JsInput))) == NULL) {
         return -1;
@@ -1666,9 +1661,9 @@ int jsLexOpenScript(Js *ep, char *script)
     ip = ep->input;
     memset(ip, 0, sizeof(*ip));
 
-    gassert(ip);
-    gassert(ip->putBackToken == NULL);
-    gassert(ip->putBackTokenId == 0);
+    assure(ip);
+    assure(ip->putBackToken == NULL);
+    assure(ip->putBackTokenId == 0);
 
     /*
         Create the parse token buffer and script buffer
@@ -1697,10 +1692,10 @@ void jsLexCloseScript(Js *ep)
 {
     JsInput     *ip;
 
-    gassert(ep);
+    assure(ep);
 
     ip = ep->input;
-    gassert(ip);
+    assure(ip);
 
     if (ip->putBackToken) {
         gfree(ip->putBackToken);
@@ -1722,10 +1717,10 @@ void jsLexSaveInputState(Js *ep, JsInput *state)
 {
     JsInput     *ip;
 
-    gassert(ep);
+    assure(ep);
 
     ip = ep->input;
-    gassert(ip);
+    assure(ip);
 
     *state = *ip;
     if (ip->putBackToken) {
@@ -1738,10 +1733,10 @@ void jsLexRestoreInputState(Js *ep, JsInput *state)
 {
     JsInput     *ip;
 
-    gassert(ep);
+    assure(ep);
 
     ip = ep->input;
-    gassert(ip);
+    assure(ip);
 
     ip->tokbuf = state->tokbuf;
     ip->script = state->script;
@@ -1777,9 +1772,9 @@ static int getLexicalToken(Js *ep, int state)
     JsInput     *ip;
     int         done, tid, c, quote, style;
 
-    gassert(ep);
+    assure(ep);
     ip = ep->input;
-    gassert(ip);
+    assure(ip);
 
     tokq = &ip->tokbuf;
     ep->tid = -1;
@@ -2143,9 +2138,9 @@ void jsLexPutbackToken(Js *ep, int tid, char *string)
 {
     JsInput *ip;
 
-    gassert(ep);
+    assure(ep);
     ip = ep->input;
-    gassert(ip);
+    assure(ip);
 
     if (ip->putBackToken) {
         gfree(ip->putBackToken);
@@ -2159,9 +2154,9 @@ static int tokenAddChar(Js *ep, int c)
 {
     JsInput *ip;
 
-    gassert(ep);
+    assure(ep);
     ip = ep->input;
-    gassert(ip);
+    assure(ip);
 
     if (bufPutc(&ip->tokbuf, (char) c) < 0) {
         jsError(ep, "Token too big");
@@ -2180,7 +2175,7 @@ static int inputGetc(Js *ep)
     ssize       len;
     int         c;
 
-    gassert(ep);
+    assure(ep);
     ip = ep->input;
 
     if ((len = bufLen(&ip->script)) == 0) {
@@ -2206,7 +2201,7 @@ static void inputPutback(Js *ep, int c)
 {
     JsInput   *ip;
 
-    gassert(ep);
+    assure(ep);
 
     ip = ep->input;
     bufInsertc(&ip->script, (char) c);

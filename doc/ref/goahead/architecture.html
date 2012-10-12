@@ -35,40 +35,57 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#deployment">Deployment Models</a></li>
-                <li><a href="#processing">Processing Architecture</a></li>
-                <li><a href="#modules">GoAhead Modules</a></li>
-                <li><a href="#configuration">GoAhead Configuration</a></li>
-                <li><a href="#requests">Request Processing</a></li>
-                <li><a href="#pipeline">Request Pipeline</a></li>
-                <li><a href="#frameworks">Web Frameworks</a></li>
+                <li><a href="#components">Core Components</a></li>
+                <li><a href="#core">HTTP Core</a></li>
+                <li><a href="#router">Request Router</a></li>
+                <li><a href="#runtime">Portable Runtime</a></li>
+                <li><a href="#dynamic">Dynamic Content</a></li>
+                <li><a href="#cgi">CGI</a></li>
+                <li><a href="#goactions">GoActions</a></li>
+                <li><a href="#jst">Javascript Templates</a></li>
                 <li><a href="#security">Security</a></li>
-                <li><a href="#mpr">Portable Runtime</a></li>
+                <li><a href="#apis">APIs</a></li>
+                <li><a href="#dirs">Directories</a></li>
+                <li><a href="#files">Files</a></li>
             </ul>
             <h1>See Also</h1>
             <ul>
-                <li><a href="../../guide/goahead/overview.html">User Guide Overview</a></li>
+                <li><a href="../../guide/goahead/overview.html">GoAhead Overview</a></li>
                 <li><a href="../../guide/goahead/users/authentication.html">Authorization</a></li>
-                <li><a href="../../guide/goahead/users/configuration.html">Configuration</a></li>
                 <li><a href="../../guide/goahead/users/ports.html">Ports and Binding</a></li>
+                <li><a href="../../guide/goahead/users/routing.html">Routing</a></li>
                 <li><a href="../../guide/goahead/users/ssl.html">Secure Sockets Layer</a></li>
             </ul>
         </div>
         <div class="contentLeft">
             <h1>GoAhead Architecture</h1>
-            <p>The GoAhead web server is the worlds most popuplar embedded web server. It is a compact and efficient
-            embeddable webserver with simple code and APIs. It supports an strong feature set including:
-            HTTP/1.1 including Keep-Alive and chunking, TLS/SSL, Server-side Javascript, Basic, Digest and Form-based
-            Authentication, Session state storage, URI routing and rewriting, logging and security sandboxing. Yet 
-            GoAhead remains very small (from 150K) and quite fast (&gt; 1,000 requests per second).</p>
-            <p>GoAhead uses an event-driven, single-threaded HTTP core and is able to support many hundreds of requests per second.
-            <a id="processing"></a>
-            <h2 class="section">Processing Architecture</h2>
-            <p>GoAhead runs as single-threaded, event driven, non-blocking process. It is capable of supporting many hundreds of requests
-            per second on a suitable CPU. 
-            <h3>Core Components</h3>
-            <p>GoAhead has a modular architecture where modules are dynamically loaded at runtime depending on the
-            desired configuration. The key components of GoAhead are:</p>
+            <p>The GoAhead web server is the worlds most popuplar embedded web server and has been embedded in
+            hundreds of different products and hundreds of millions of devices. GoAhead is a compact and efficient
+            webserver with simple clean code and APIs.</p>
+           
+            <p>GoAhead has an strong feature set including:
+            <ul>
+                <li>HTTP/1.1</li>
+                <li>IPv4 and IPv6</li>
+                <li>TLS/SSL</li>
+                <li>32 and 64-bit support</li>
+                <li>HTTP Keep-Alive</li>
+                <li>Transfer chunk encoding</li>
+                <li>Server-side Javascript</li>
+                <li>Basic, Digest and Form-based Authentication</li>
+                <li>Session state storage</li>
+                <li>URI routing and rewriting</li>
+                <li>Logging</li>
+                <li>Security sandboxing.
+            </ul>
+            
+            <p>GoAhead is extremely efficient. It runs as a single-threaded, event driven, non-blocking process. 
+            GoAhead is very small (from 600K) and very fast. On a PC class system, it will serve over 10,000 requests per
+            second.</p> 
+            
+            <a id="components"></a>
+            <h2 class="section">Core Components</h2>
+            <p>GoAhead has a modular architecture and clean source code. The key components of GoAhead are:</p>
             <table title="Components">
                 <thead>
                     <tr>
@@ -78,15 +95,34 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">Single-Threaded Runtime</td>
-                    <td>Cross-platform, single-threaded, event-based portable runtime. Includes services for memory allocation,
-                    safe string handling, lists, hashing, command execution, socket
+                    <td>GoAhead HTTP Core</td>
+                    <td>Core HTTP server. Includes services for HTTP protocol handling, socket connection 
+                        management and logging.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">Request Router</td>
+                    <td>The request router directs client requests to the appropriate request handler. It 
+                        enforces user authentication and general redirection and URI rewriting instructions.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">Portable Runtime</td>
+                    <td>Cross-platform, single-threaded, non-blocking event-based portable runtime. Includes services for
+                        memory allocation, safe string handling, lists, hashing, command execution, socket
                     communications, events, timers, debug trace and logging.</td>
                 </tr>
                 <tr>
-                    <td>GoAhead HTTP Core Library</td>
-                    <td>Core HTTP server. Includes services for HTTP protocol handling, socket
-                        connection management, logging, session state storage, request routing and authentication.</td>
+                    <td>Authentication Framework</td>
+                    <td>Pluggable authentication. Supports Basic, Digest and Web Form-based authentication schemes.
+                        This includes a Role-based authorization scheme to access to resources can be controlled on 
+                       a granular basis.</td>
+                </tr>
+                <tr>
+                    <td>Session State</td>
+                    <td>Session state storage. This stores per-user state and cookie management.</td>
+                </tr>
+                <tr>
+                    <td>Action Handler</td>
+                    <td>The Action handler binds URIs to C functions for simple, easy access to C-language code.</td>
                 </tr>
                 <tr>
                     <td>File Handler</td>
@@ -103,33 +139,125 @@
                 <tr>
                     <td>Secure Sockets Layer (SSL)</td>
                     <td>Secure Socket Layer protocol stack. This is a virtual interface that can selectively support a
-                    variety of SSL providers including: the Peersec MatrixSSL and OpenSSL stacks.</td>
-                </tr>
-                <tr>
-                    <td>Authorization Framework</td>
-                    <td>GoAhead supports a role based user authorization framework. Coupled with Basic/Digest or Form-based
-                        authorization, access to resources can be controlled on a granular basis.</td>
+                    variety of SSL providers including: the MatrixSSL and OpenSSL stacks.</td>
                 </tr>
                 </tbody>
             </table>
             
-            <a id="httpServer"></a>
-            <h3>GoAhead HTTP Server Core</h3>
-            <p>The core GoAhead HTTP server is one of the relatively smaller components of the GoAhead product when
-            compared to the dynamic modules that run atop it. The core server provides a set of services for the
-            handlers, filters and connectors to use when serving content to clients. The goal is to centralize any
-            facilities for the modules so it will not be replicated.</p>
-            <p>The core services include: the main HTTP processing and socket communications, initialization and
-            parsing the GoAhead configuration file, server, virtual host and directory authorization management, request
-            pipeline management and request processing.</p>
-            <p>The core server also configures and enforces any sandbox resource limits that have been requested in the
-            configuration file, for example: thread limits and request URI and body size limitations. This enables
-            GoAhead to be deterministic in its use of system resources and to be a good system citizen. The core GoAhead
-            server can be configured to execute single or multi-threaded. With appropriate sandbox limits, it can serve
-            thousands of requests per second if required.</p>
+            <a id="core"></a>
+            <h2>HTTP Core</h2>
+            <p>The GoAhead HTTP core is responsible for parsing client HTTP requests and directing 
+            how the request will be processed. The HTTP core reads client requests and parses the request headers.
+            It then invokes the GoAhead request router to process the request.</p>
+
+            <p>The HTTP core includes services for: the main HTTP processing, socket communications, and logging.  
+            The HTTP core server also manages and enforces the sandbox resource limits that have been
+            defined at build time. These limits enable GoAhead to be more deterministic in its use of system resources and 
+            to be a good system citizen.</p>
             
-            <a id="directories"></a>
+            <a id="router"></a>
+            <h2>Request Router</h2>
+            <p>GoAhead includes a powerful request router that manages how client HTTP requests are processed. The
+            router is configured with a set of routes from the <i>route.txt</i> configuration. 
+            When a request is received, the router tests various routes and selects the best route to handle
+            the request. In the process, routes may redirect or rewrite the request as required.</p>
+
+            <p>A GoAhead configuration will typically have many routes. The configured routes are tested in-order by
+            matching the route URI pattern against the request URL. A route may require that further preconditions be met
+            before it is suitable to process the request. If the required conditions are not met, the next route in the
+            configuration will be tested. There is always a catch-all route that will process the request if all prior
+            routes fail to qualify.</p>
+            
+            <p>Once a route is selected, the specified request handler is invoked to service the request.
+            GoAhead has handlers for CGI, Javascript and static file data.</p>
+            
+            <a id="runtime"></a>
+            <h2>Portable Runtime</h2>
+            <p>GoAhead is built upon a portable runtime layer that insulates the rest of the
+            product from the underlying platform and allows it to be highly portable to new operating systems or
+            hardware.</p>
+
+            <p>The GoAhead runtime provides a suite of services that facilitate the creation of secure,
+            embedded applications including: events, networking, safe string handling, timers, hashing, lists and
+            logging.</p> <p>The runtime also provides a safer environment in which to program as it replaces 'C' APIs that
+            are prone to buffer overflows and other similar security exploits. The runtime includes a high performance, safe
+            string library that supports a secure programming style.</p>
+
+            <p>The runtime's event processing can be easily integrated into existing applications. It supports
+            single and multi-threaded architectures, polled or async event notification. This flexibility means that
+            GoAhead can be easily integrated into most C/C++ applications.</p>
+
+            <p>The runtime includes an optional high performance memory allocator. 
+            This allocator is useful when the native operating system allocator suffers from memory fragmentation.</p>
+
+            <a id="dynamic"></a>
+            <h2 class="section">Dynamic Content</h2>
+
+            <a id="cgi"></a>
+            <h3>CGI</h3>
+            <p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web servers. CGI
+            was originally developed as part of the NCSA HTTP server and is an old standard for interfacing external
+            applications with HTTP servers. It still enjoys considerable use.</p>
+            <p>CGI scripts are written in any language that can read from the standard-input, write to the standard-output,
+            and access environment variables. This means that virtually any programming language can be used, including C,
+            Perl, or even Unix shell scripting.
+            See <a href="../../guide/goahead/uses/cgi.html">CGI</a> for more details.</p>
+
+            <a id="goactions"></a>
+            <h3>GoActions</h3>
+            <p>CGI is a slow technique for creating dynamic web pages as it creates a new process for every request. This is
+            slow and cumbersome. GoAhead provides a high-performance replacement called GoActions&trade; that is a more
+            suitable solution for embedded systems that demand compact and efficient solutions.</p>
+
+            <p>GoActions are "C" language functions that are bound directly to specific URIs. They respond to client
+            requests without creating a new process for each request. By sharing the address space with GoAhead, GoActions
+            can directly access the full request context and device/application specific data.</p>
+
+            <p>GoActions are bound to URIs that begin with <i>/action/</i>. When a client requests a URI beginning with
+            /action, the action handler looks for a defined GoAction of the correct name. Then the bound C function is
+            invoked to service the request. 
+            See <a href="../../guide/goahead/uses/goactions.html">GoActions</a> for more details.</p>
+
+            <a id="jst"></a>
+            <h3>Javascript Templates</h3>
+            <p>Javascript Templates (JST) use Javascript code directly embedded in HTML web pages.
+            The Javascript is run on the server and the result when the code executes is substitued back into the
+            web page before it is sent to the client.</p>
+
+            <p>JST allows the binding of C functions to Javascript functions, so that a JST web page can 
+            easily access device or system data.</p>
+            See <a href="../../guide/goahead/uses/jst.html">Javascript Templates</a> for more details.</p>
+
+            <a id="security"></a>
+            <h2 class="section">Security</h2>
+            <p>GoAhead provides a suite of measures designed to increase the security of your web server:</p>
+            <ul>
+                <li>Secure Sockets Layer</li>
+                <li>Authorization directives</li>
+                <li>Sandbox directives</li>
+                <li>Secure portable runtime</li>
+            </ul>
+            <h3>Secure Sockets</h3>
+            <p>GoAhead supports the OpenSSL and MatrixSSL SSL stacks. You can configure both server and/or client
+            authentication of certificates. SSL and TLS are supported.</p>
+
+            <h3>Authentication</h3>GoAhead provides Basic, Digest and Web-Form based authentication mechanisms. It
+            supports both file and PAM-based password backends.
+
+            <h3>Sandboxing</h3>
+            <p>Sandboxing is the term applied to running GoAhead in a confined environment. GoAhead has a set of
+            build-time directives that define a sandbox which limits the resources that GoAhead may
+            used.</p>
+            
+            <a name="apis"></a>
+            <h2 class="section">Embedding APIs</h2>
+            <p>GoAhead also provides a detailed API so you can create an embedded web server instance and control
+            virtual hosts, port binding, directory and location blocks and every other part of GoAhead. See the <a href=
+            "../../api/goahead.html">GoAhead API</a> for full details.</p>
+
+            <a id="dirs"></a>
             <h2 class="section">GoAhead Directories</h2>
+            <p>Here is the list of top level directories in the GoAhead source code distribution.</p>
             <table>
                 <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
                 <tr><td>bits</td><td>Directory of scripts for the Bit tool</td></tr>
@@ -147,6 +275,7 @@
             </table>
             <a id="files"></a>
             <h2 class="section">GoAhead Files</h2>
+            <p>Here is a list of the major files in the GoAhead source code distribution.</p>
             <table>
                 <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
                 <tr><td>auth.c</td><td>Authorization management</td></tr>
@@ -170,8 +299,8 @@
                 <tr><td>socket.c</td><td>Socket management</td></tr>
                 <tr><td>upload.c</td><td>File upload handler</td></tr>
             </table>
-            <a id="files"></a>
-            <h2 class="section">GoAhead Additional Files</h2>
+            <a id="additional"></a>
+            <h3 class="section">GoAhead Additional Files</h3>
             <table>
                 <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
                 <tr><td>configure</td><td>Configuration script</td></tr>
@@ -181,270 +310,8 @@
                 <tr><td>OS-ARCH.bit</td><td>Generated Bit configuration</td></tr>
                 <tr><td>server.key.pem</td><td>Test SSL private key</td></tr>
                 <tr><td>server.crt</td><td>Test SSL certificate</td></tr>
-            <a id="configuration"></a>
-            <h2 class="section">GoAhead Configuration</h2>
-            <p>GoAhead uses a route configuration file typically called <em>route.txt</em>. This configuration file is read
-            when GoAhead starts and it controls how client requests are processed and URIs are routed to handlers. </p>
-            
-            <a id="requests"></a>
-            <h2 class="section">Request Processing</h2>
-            <p>The GoAhead HTTP core manages the processing of requests and the construction of the request processing
-            pipeline. When a new HTTP request arrives, GoAhead will examine the network interface on which the request
-            arrived, and if it is assigned to an IP based virtual host, GoAhead will route the request to be handled by
-            that virtual host. If name based virtual hosting is configured, the determination of which virtual host
-            will process the request must be deferred until the HTTP header has been parsed and the default server is
-            used to initially parse the request. See the <a href="../../guide/goahead/users/vhosts.html">Virtual
-            Hosts</a> for more information.</p>
-            <h3>HTTP Header Parsing</h3>
-            <p>The first line of the HTTP request specifies the HTTP operation method to use, the URI to access and the
-            variant of the HTTP protocol to use. This typically looks like:</p>
-            <pre>
-GET /index.html HTTP/1.1
-</pre>
-            <p>This example is asking for the /index.html document via the GET method using the HTTP/1.1 protocol.</p>
-            <p>After the request line, follow a set of HTTP headers. Typically there are 5-15 headers which specify
-            further information to help the server process the request. Headers are of the format:</p>
-            <pre>
-HeaderName: value
-</pre>
-            <p>Some typical headers are:</p>
-            <table title="Headers">
-                <thead>
-                    <tr>
-                        <th>Header</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td>Authorization</td>
-                    <td>Authorization details including user name, realm, password digest and other authorization
-                    parameters to implement Basic and Digest authentication.</td>
-                </tr>
-                <tr>
-                    <td>Connection</td>
-                    <td>Describe how the TCP/IP connection should be managed when the request completes.</td>
-                </tr>
-                <tr>
-                    <td nowrap="nowrap">Content-Length</td>
-                    <td>Length of any addition data with a POST request.</td>
-                </tr>
-                <tr>
-                    <td>Content-Type</td>
-                    <td>Mime types the client prefers to accept in response to this request.</td>
-                </tr>
-                <tr>
-                    <td>Cookie</td>
-                    <td>Cookie associated with the URI in the clients cookie cache.</td>
-                </tr>
-                <tr>
-                    <td>Host</td>
-                    <td>Name to the target host to serve the request. This specifies the host name when using virtual
-                    hosting.</td>
-                </tr>
-                <tr>
-                    <td nowrap="nowrap">If-Modified-Since</td>
-                    <td>Only return the content if it has been modified since the date specified. Clients who have
-                    cached copies of a document (or graphics) use this header to allow the server to skip copying the
-                    document if it has not changed.</td>
-                </tr>
-                <tr>
-                    <td>Keep-Alive</td>
-                    <td>Request the server to keep the connection alive so that subsequent requests can reuse the
-                    connection.</td>
-                </tr>
-                </tbody>
             </table>
-            <p>For example:</p>
-            <pre>
-Connection: keep-alive
-</pre>
-            <p>GoAhead parses the HTTP headers and stores their values in a hash table for access by the request
-            handlers and pipeline stages. When all the headers have been processed GoAhead proceeds to do handler
-            matching. This will occur before any associated POST data has been read from the client. POST data may be
-            form data submitted by the client or it may be a file upload using the PUT method.</p>
-            <h3>Request Routing</h3>
-            <p>GoAhead has a powerful request routing engine that processes client HTTP requests. The engine is 
-            configured with a set of routes from the GoAhead configuration file. When a request is received, 
-            it tests various routes and selects 
-            the best route to handle the request. In the process, routes may redirect or rewrite the request as required.</p>
-            <p>An GoAhead configuration will typically have many routes. The configured routes are tested in order 
-            by matching the route regular expression pattern against the request URI. A route may require that 
-            further preconditions 
-            be met before it is suitable to process the request. If the required conditions are not met, the next 
-            route in the configuration will be tested. There is always a catch-all route that will process the 
-            request if all prior routes fail to qualify.</p>
-            <p>To define a route, use the <a href=
-            "../../guide/goahead/users/dir/route.html">Route</a> directive. For example:</p>
-            <pre>
-&lt;Route /projects/video&gt;
-    SetHandler videoHandler
-&lt;/Route&gt;
-</pre>
-            <p>This will cause the videoHandler to respond to any URI that begins with "/projects/video" after the
-            http://site portion of the URI.</p>
-            <p>To associate a handler to a given extension, use the <a href=
-            "../../guide/goahead/users/dir/route.html#addHandler">AddHandler</a> directive. For example:</p>
-<pre>
-AddHandler espHandler myDoc
-</pre>
-            <p>This will cause the ejsHandler to respond to any URI that has a "<em>.myDoc</em>" extension.</p>
-            <p>Multiple routes may match a URI. In this case they are applied in the order they are specified in the
-            GoAhead configuration file. 
-            <p>Once the route has been selected, the request pipeline is constructed and the request handler is started
-            to create the response for the client.</p>
-            
-            <a id="pipeline"></a>
-            <h2 class="section">Request Pipeline</h2>
-            <p>The GoAhead core uses a bidirectional pipeline to process requests and generate responses. This consists
-            of a mechanism of queues, packets, buffering and event scheduling. The pipeline architecture is highly
-            optimized and supports the efficient transmission of data without copying. It uses vectored, scatter/gather
-            writes to the network to avoid the costly aggregation of data and headers in a single buffer before writing
-            to the network.</p>
-            <h3>Pipeline Stages</h3>
-            <p>The request pipeline is comprised of an incoming and outgoing stream. Each stream is in turn comprised
-            of <b>stages</b>. Each stage has a data queue with two service routines, one to accept data without queuing
-            and one for delayed servicing of previously queued data. Pipeline stages support flow-control and can queue
-            data for delayed servicing if the downstream stage cannot currently accept data.</p><img src=
-            "../../images/pipeline.jpg" alt="" />
-            <p>A typical pipeline consists of the following <b>stages</b>.</p>
-            <ul>
-                <li>One handler</li>
-                <li>Zero or more filters</li>
-                <li>One network connector</li>
-            </ul>
-            <h3>Http Core</h3>
-            <p>The GoAhead HTTP core is responsible for parsing the incoming HTTP request. The HTTP request first line
-            specifies the request URI resource and the request headers provide additional context. The HTTP core stores
-            the parsed headers for use by the routing engine and creates a new request pipeline to process the request.
-            The incoming and outgoing pipelines are constructed separately as each direction may require a different set
-            of filters.</p>
-            
-            <h3>Routing Engine</h3>
-            <p>The routing engine matches the request against the configured request routes and selects the best 
-            route for the request. A route specifies the handler to manage the request and other context such as where
-            to find documents to serve. The routing engine may rewrite the request and then reroute. The engine 
-            also manages HTTP authorization.</p>
-            <p>Depending on the request URI and headers, the appropriate handler will be selected.  There are handlers
-            for CGI, Javascript and static file data.</p>
-            <h3>Handlers</h3>
-            <p>The handler is responsible for receiving the request and creating a response. It generates response
-            content based on the HTTP request URI, headers, any associated body data, and potential application session
-            state. The output data flows through the output pipeline before transmission by the network connector to
-            the client.</p>
-            <p>There is one handler for each request. The GoAhead core selects that handler based on a request matching
-            algorithm. Handlers are configured in the GoAhead configure file via the <a href=
-            "../../guide/goahead/users/dir/route.html#addHandler">AddHandler</a> and the <a href=
-            "../../guide/goahead/users/dir/route.html#setHandler">SetHandler</a> directives.</p>
-            <h3>Filters</h3>
-            <p>The filters job is to permute the data in some way and pass it on to the next stage in the pipeline.
-            Filters connect one to another and multiple filters may be used in both the incoming and outgoing pipeline
-            directions.</p>
-            <p>The order of filters typically does matter. For example, compressing data before encrypting is not the
-            same as encrypting then compressing. GoAhead provides the <a href=
-            "../../guide/goahead/users/dir/route.html#addInputFilter">AddInputFilter</a> and <a href=
-            "../../guide/goahead/users/dir/route.html#addOutputFilter">AddOutputFilter</a> directives to assist in
-            constructing filter pipelines.</p>
-            <p>GoAhead uses filters to implement Transfer Authorization, Chunk Encoding and HTTP Ranged requests. By
-            using filters to implement these features, they automatically become available to all handlers and all
-            content types.</p>
-            <h3>Connectors</h3>
-            <p>The connector is responsible for transmitting the outgoing data to the client. It receives a set of
-            packets representing the data to send to the client. The connector is responsible for requesting the GoAhead
-            HTTP core to create a packet with the HTTP response headers. It is at this stage that GoAhead can determine
-            if the TCP/IP connection can be kept alive for subsequent requests on the same connection.</p>
-            <h4>Delayed Headers</h4>
-            <p>Connectors will receive an empty header packet which must first be filled with the HTTP response
-            headers. By delaying the generation of the HTTP headers until the last possible moment, GoAhead maximizes
-            every opportunity to optimize the response and use the HTTP/1.1 Keep-Alive feature even for dynamically
-            generated data.</p>
-            <h4>Send Connector</h4>
-            <p>If the File handler is communicating directly to the Send connector, it will optimize its operation by
-            not reading the static file data. Rather, it will send empty packets to the Send connector which will use
-            the operating system <b>sendfile</b> (or equivalent) primitive. This avoids reading the static file data
-            into the GoAhead user process.</p>
-            <h4>Net Connector</h4>
-            <p>The Net connector is a generalized network connector that can transmit content from any handler to the
-            client. It supports vectored writes to avoid copying data when interleaving with HTTP, range or chunk
-            headers.</p>
-            
-            <a id="frameworks"></a>
-            <h2 class="section">Web Frameworks</h2>
-            <h3>Javascript Server Pages  Web Framework</h3>
-            <p>The ESP web framework is a high performance, Model/View/Controller web framework. 
-            It uses the "C" language embedded in HTML web pages and for Controllers. It provides 
-            an application generator, templating and layout engine, a Model/View/Controller framework, extensive caching,
-            and a library of Ajax view controls. It is blazing fast via the use of "C" and caching of 
-            compiled web pages and rendered HTML.
-            <h3>Javascript Web Framework</h3>
-            <p>The Javascript Web Framework was designed to make it easier to create dynamic web applications. It uses
-                server-side JavaScript as the application language and provides provides an application generator,
-                templating engine, a powerful Model/View/Controller framework, and a library of Ajax view controls. See
-                the <a href="ejsArchitecture.html">Javascript Web Framework</a> for more details.</p>
-            
-            <a id="security"></a>
-            <h2 class="section">Security</h2>
-            <p>GoAhead provides a suite of measures designed to increase the security of your web server:</p>
-            <ul>
-                <li>Secure Sockets Layer</li>
-                <li>Authorization directives</li>
-                <li>Sandbox directives</li>
-                <li>MPR &mdash; secure portable runtime</li>
-                <li>Manager monitoring process</li>
-            </ul>
-            <h4>Secure Sockets</h4>
-            <p>GoAhead supports the OpenSSL and MatrixSSL SSL stacks. You can configure server and/or client
-            certificate-based authentication. SSL and TLS are supported.</p>
-            <h4>Authentication</h4>GoAhead provides the Digest authentication mechanism and supports both file and
-            PAM-based authentication backends.
-            <h4>Sandboxing</h4>
-            <p>Sandboxing is the term applied to running GoAhead in a confined environment. GoAhead has a set of
-            configuration file directives that allow you to define a sandbox which limits the resources that GoAhead may
-            used for a given request. By using well defined sandbox directives, you can help ensure that your
-            application and system will not be compromised by malicious requests.</p>
-            
-            <a id="mpr"></a>
-            <h2 class="section">Multithreaded Portable Runtime (MPR)</h2>
-            <p>GoAhead is built upon a portable runtime layer called the MPR. This layer insulates the rest of the
-            product from the underlying platform and allows it to be highly portable to new operating systems or
-            hardware.</p>
-            <p>The MPR provides a suite of services that facilitate the creation of high performance,
-            multi-threaded management and server applications, including: thread management, dynamic module loading, 
-            networking, safe string handling, timers, XML parsing and logging.</p>
-            <p>The MPR also provides a safer environment in which to program as it replaces 'C' APIs that are prone to
-            buffer overflows and other similar security exploits. The MPR includes a high performance, safe string
-            library that supports a secure programming style.</p>
-            <p>The MPR event processing mechanism can be easily integrated into existing applications. It supports
-            single and multi-threaded architectures, polled or async event notification, POSIX select waiting and
-            Windows message loops. When coupled with C and C++ APIs, API web can be easily integrated into most C/C++
-            applications.</p>
-            <p>The MPR includes a high performance memory allocator and generational garbage collector. 
-            The allocator is a fast, coalescing allocator that exhibits very low fragmentation.  It is optimized 
-            for frequent allocations of small blocks and uses a background collector for freeing unused memory.</p>
-            <p>The garbage collector is somewhat unusual in a C program. However, garbage collection is 
-            especially well suited for long running applications like a web server as it virtually eliminates 
-            memory leaks. Unlike traditional memory allocation where free must be called, GoAhead 4 uses the 
-            opposite approach where memory that must be retained, needs to be actively managed to prevent 
-            garbage collection. This means that a managed reference must be held for all active memory. 
-            See <a href="memory.html">Memory Allocation</a> for more details.</p>
-            <a id="misc"></a>
-            <h2 class="section">Misc Features</h2>
-            <h3>IP Networking</h3>
-            <p>GoAhead fully supports both IPv4 and IPv6 for both server and client operations. You can configure GoAhead
-            to listen on both IPv4 and IPv6 addresses.</p>
-            <h2 class="section">Embedding APIs</h2>
-            <p>The GoAhead HTTP server library can be embedded in an application to web-enable that application. 
-            GoAhead provides two levels of embedding:</p>
-            <h3>One Line Embedding</h3>
-            <p>GoAhead can be embedded in one C statement. This will create a web server instance based on the given
-            configuration file.:</p>
-            <pre>
-maRunWebServer("goahead.conf");
-</pre>
-            <h3>Expanded Control</h3>
-            <p>GoAhead also provides a detailed API so you can create an embedded web server instance and control
-            virtual hosts, port binding, directory and location blocks and every other part of GoAhead. See the <a href=
-            "../../api/goahead.html">GoAhead Native API</a> for full details.</p>
+
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

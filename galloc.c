@@ -186,7 +186,7 @@ void gfree(void *mp)
         return;
     }
     bp = (WebsAlloc*) ((char*) mp - sizeof(WebsAlloc));
-    gassert((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
+    assure((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
     if ((bp->flags & WEBS_INTEGRITY_MASK) != WEBS_INTEGRITY) {
         return;
     }
@@ -258,7 +258,7 @@ void *grealloc(void *mp, ssize newsize)
         return galloc(newsize);
     }
     bp = (WebsAlloc*) ((char*) mp - sizeof(WebsAlloc));
-    gassert((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
+    assure((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
 
     /*
         If the allocated memory already has enough room just return the previously allocated address.

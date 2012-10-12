@@ -284,7 +284,7 @@ int websOpen(char *documents, char *routeFile)
         Create a mime type lookup table for quickly determining the content type
      */
     websMime = hashCreate(WEBS_HASH_INIT * 4);
-    gassert(websMime >= 0);
+    assure(websMime >= 0);
     for (mt = websMimeList; mt->type; mt++) {
         hashEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
     }
@@ -359,7 +359,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     WebsBuf     rxbuf;
     int         wid, sid, timeout;
 
-    gassert(wp);
+    assure(wp);
 
     if (reuse) {
         rxbuf = wp->rxbuf;
@@ -395,7 +395,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
         Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
         a little more memory than required. The chunkbuf has extra room to fit chunk headers and trailers.
      */
-    gassert(BIT_LIMIT_BUFFER >= 1024);
+    assure(BIT_LIMIT_BUFFER >= 1024);
     bufCreate(&wp->output, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER + 1);
     bufCreate(&wp->chunkbuf, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER * 2);
     bufCreate(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_RX_BODY + 1);
@@ -410,7 +410,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
 
 static void termWebs(Webs *wp, int reuse)
 {
-    gassert(wp);
+    assure(wp);
 
     /*
         Some of this is done elsewhere, but keep this here for when a shutdown is done and there are open connections.
@@ -497,7 +497,7 @@ int websAlloc(int sid)
         return -1;
     }
     wp = webs[wid];
-    gassert(wp);
+    assure(wp);
     initWebs(wp, 0, 0);
     wp->wid = wid;
     wp->sid = sid;
@@ -508,8 +508,8 @@ int websAlloc(int sid)
 
 static void reuseConn(Webs *wp)
 {
-    gassert(wp);
-    gassert(websValid(wp));
+    assure(wp);
+    assure(websValid(wp));
 
     bufCompact(&wp->rxbuf);
     if (bufLen(&wp->rxbuf)) {
@@ -522,14 +522,14 @@ static void reuseConn(Webs *wp)
 
 void websFree(Webs *wp)
 {
-    gassert(wp);
-    gassert(websValid(wp));
-    gassert(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
+    assure(wp);
+    assure(websValid(wp));
+    assure(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
 
     termWebs(wp, 0);
     websMax = gfreeHandle(&webs, wp->wid);
     gfree(wp);
-    gassert(websMax >= 0);
+    assure(websMax >= 0);
 }
 
 
@@ -540,13 +540,13 @@ void websDone(Webs *wp)
 {
     WebsSocket  *sp;
 
-    gassert(wp);
-    gassert(websValid(wp));
+    assure(wp);
+    assure(websValid(wp));
 
     if (wp->flags & WEBS_FINALIZED) {
         return;
     }
-    gassert(WEBS_BEGIN <= wp->state && wp->state < WEBS_COMPLETE);
+    assure(WEBS_BEGIN <= wp->state && wp->state < WEBS_COMPLETE);
     wp->flags |= WEBS_FINALIZED;
 
     if (!websFlush(wp)) {
@@ -576,9 +576,9 @@ void websDone(Webs *wp)
 
 static void recycle(Webs *wp, int reuse) 
 {
-    gassert(wp);
-    gassert(websValid(wp));
-    gassert(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
+    assure(wp);
+    assure(websValid(wp));
+    assure(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
 
     if (reuse && wp->flags & WEBS_KEEP_ALIVE && wp->rxRemaining == 0) {
         reuseConn(wp);
@@ -587,9 +587,9 @@ static void recycle(Webs *wp, int reuse)
         return;
     }
     trace(5, "Close connection\n");
-    gassert(wp->timeout >= 0);
+    assure(wp->timeout >= 0);
     websCancelTimeout(wp);
-    gassert(wp->sid >= 0);
+    assure(wp->sid >= 0);
     socketDeleteHandler(wp->sid);
     socketCloseConnection(wp->sid);
     bufFlush(&wp->rxbuf);
@@ -605,7 +605,7 @@ int websListen(char *endpoint)
     char        *ip, *ipaddr;
     int         port, secure, sid;
 
-    gassert(endpoint && *endpoint);
+    assure(endpoint && *endpoint);
 
     if (listenMax >= WEBS_MAX_LISTEN) {
         error("Too many listen endpoints");
@@ -661,10 +661,10 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     struct sockaddr_storage ifAddr;
     int         wid, len;
 
-    gassert(sid >= 0);
-    gassert(ipaddr && *ipaddr);
-    gassert(listenSid >= 0);
-    gassert(port >= 0);
+    assure(sid >= 0);
+    assure(ipaddr && *ipaddr);
+    assure(listenSid >= 0);
+    assure(port >= 0);
 
     /*
         Allocate a new handle for this accepted connection. This will allocate a Webs structure in the webs[] list
@@ -673,7 +673,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
         return -1;
     }
     wp = webs[wid];
-    gassert(wp);
+    assure(wp);
     wp->listenSid = listenSid;
     strncpy(wp->ipaddr, ipaddr, min(sizeof(wp->ipaddr) - 1, strlen(ipaddr)));
 
@@ -713,7 +713,7 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
 }
 #endif
-    gassert(wp->timeout == -1);
+    assure(wp->timeout == -1);
     wp->timeout = websStartEvent(WEBS_TIMEOUT, checkTimeout, (void*) wp);
     trace(5, "accept connection\n");
     socketEvent(sid, SOCKET_READABLE, wp);
@@ -730,9 +730,9 @@ static void socketEvent(int sid, int mask, void *wptr)
     Webs    *wp;
 
     wp = (Webs*) wptr;
-    gassert(wp);
+    assure(wp);
 
-    gassert(websValid(wp));
+    assure(websValid(wp));
     if (! websValid(wp)) {
         return;
     }
@@ -755,9 +755,9 @@ static void socketEvent(int sid, int mask, void *wptr)
  */
 static ssize websRead(Webs *wp, char *buf, ssize len)
 {
-    gassert(wp);
-    gassert(buf);
-    gassert(len > 0);
+    assure(wp);
+    assure(buf);
+    assure(len > 0);
 #if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         return sslRead(wp, buf, len);
@@ -777,8 +777,8 @@ static void readEvent(Webs *wp)
     WebsSocket  *sp;
     ssize       nbytes;
 
-    gassert(wp);
-    gassert(websValid(wp));
+    assure(wp);
+    assure(websValid(wp));
 
     websNoteRequestActivity(wp);
     rxbuf = &wp->rxbuf;
@@ -919,8 +919,8 @@ static void parseFirstLine(Webs *wp)
     char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
     int     testPort;
 
-    gassert(wp);
-    gassert(websValid(wp));
+    assure(wp);
+    assure(websValid(wp));
 
     /*
         Determine the request type: GET, HEAD or POST
@@ -990,7 +990,7 @@ static void parseHeaders(Webs *wp)
     char    *upperKey, *cp, *key, *value, *tok;
     int     count;
 
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     /* 
         Parse the header and create the Http header keyword variables
@@ -1106,7 +1106,7 @@ static void parseHeaders(Webs *wp)
             Step over "\r\n" after headers.
             Don't do this if chunked so that chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
-        gassert(bufLen(&wp->rxbuf) >= 2);
+        assure(bufLen(&wp->rxbuf) >= 2);
         wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
@@ -1149,10 +1149,10 @@ static bool processContent(Webs *wp)
  */
 void websConsumeInput(Webs *wp, ssize nbytes)
 {
-    gassert(wp);
-    gassert(nbytes >= 0);
+    assure(wp);
+    assure(nbytes >= 0);
 
-    gassert(bufLen(&wp->input) >= nbytes);
+    assure(bufLen(&wp->input) >= nbytes);
     if (nbytes <= 0) {
         return;
     }
@@ -1172,8 +1172,8 @@ static bool filterChunkData(Webs *wp)
     bool        added;
     int         bad;
 
-    gassert(wp);
-    gassert(wp->rxbuf.buf);
+    assure(wp);
+    assure(wp->rxbuf.buf);
     rxbuf = &wp->rxbuf;
     added = 0;
 
@@ -1189,7 +1189,7 @@ static bool filterChunkData(Webs *wp)
             if (wp->rxRemaining <= 0) {
                 wp->eof = 1;
             }
-            gassert(wp->rxRemaining >= 0);
+            assure(wp->rxRemaining >= 0);
             return 1;
 
         case WEBS_CHUNK_START:
@@ -1290,8 +1290,8 @@ static void addFormVars(Webs *wp, char *vars)
 {
     char  *keyword, *value, *prior, *tok;
 
-    gassert(wp);
-    gassert(vars);
+    assure(wp);
+    assure(vars);
 
     keyword = stok(vars, "&", &tok);
     while (keyword != NULL) {
@@ -1323,8 +1323,8 @@ static void addFormVars(Webs *wp, char *vars)
  */
 void websSetEnv(Webs *wp)
 {
-    gassert(wp);
-    gassert(websValid(wp));
+    assure(wp);
+    assure(websValid(wp));
 
     websSetVar(wp, "AUTH_TYPE", wp->authType);
     websSetVarFmt(wp, "CONTENT_LENGTH", "%d", wp->rxLen);
@@ -1380,8 +1380,8 @@ void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
     WebsValue   v;
     va_list     args;
 
-    gassert(websValid(wp));
-    gassert(var && *var);
+    assure(websValid(wp));
+    assure(var && *var);
 
     if (fmt) {
         va_start(args, fmt);
@@ -1398,8 +1398,8 @@ void websSetVar(Webs *wp, char *var, char *value)
 {
     WebsValue   v;
 
-    gassert(websValid(wp));
-    gassert(var && *var);
+    assure(websValid(wp));
+    assure(var && *var);
 
     if (value) {
         v = valueString(value, VALUE_ALLOCATE);
@@ -1417,8 +1417,8 @@ bool websTestVar(Webs *wp, char *var)
 {
     WebsKey       *sp;
 
-    gassert(websValid(wp));
-    gassert(var && *var);
+    assure(websValid(wp));
+    assure(var && *var);
 
     if (var == NULL || *var == '\0') {
         return 0;
@@ -1438,11 +1438,11 @@ char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 {
     WebsKey   *sp;
 
-    gassert(websValid(wp));
-    gassert(var && *var);
+    assure(websValid(wp));
+    assure(var && *var);
  
     if ((sp = hashLookup(wp->vars, var)) != NULL) {
-        gassert(sp->content.type == string);
+        assure(sp->content.type == string);
         if (sp->content.value.string) {
             return sp->content.value.string;
         } else {
@@ -1458,8 +1458,8 @@ char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
  */
 int websCompareVar(Webs *wp, char *var, char *value)
 {
-    gassert(websValid(wp));
-    gassert(var && *var);
+    assure(websValid(wp));
+    assure(var && *var);
  
     if (strcmp(value, websGetVar(wp, var, " __UNDEF__ ")) == 0) {
         return 1;
@@ -1473,7 +1473,7 @@ int websCompareVar(Webs *wp, char *var, char *value)
  */
 void websCancelTimeout(Webs *wp)
 {
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     if (wp->timeout >= 0) {
         websStopEvent(wp->timeout);
@@ -1489,7 +1489,7 @@ void websResponse(Webs *wp, int code, char *message)
 {
     ssize   len;
     
-    gassert(websValid(wp));
+    assure(websValid(wp));
     websSetStatus(wp, code);
 
     if (!smatch(wp->method, "HEAD") && message && *message) {
@@ -1529,8 +1529,8 @@ void websRedirect(Webs *wp, char *uri)
     ssize   len;
     int     originalPort, port;
 
-    gassert(websValid(wp));
-    gassert(uri);
+    assure(websValid(wp));
+    assure(uri);
     message = location = uribuf = NULL;
 
     originalPort = port = 0;
@@ -1588,8 +1588,8 @@ int websRedirectByStatus(Webs *wp, int status)
     WebsKey     *key;
     char        code[16], *uri;
 
-    gassert(wp);
-    gassert(status >= 0);
+    assure(wp);
+    assure(status >= 0);
 
     if (wp->route->redirects >= 0) {
         itosbuf(code, sizeof(code), status, 10);
@@ -1660,14 +1660,14 @@ char *websEscapeHtml(char *html)
                 strcpy(op, "&#39;");
                 op += 5;
             } else {
-                gassert(0);
+                assure(0);
             }
             html++;
         } else {
             *op++ = *html++;
         }
     }
-    gassert(op < &result[len]);
+    assure(op < &result[len]);
     *op = '\0';
     return result;
 }
@@ -1682,7 +1682,7 @@ void websError(Webs *wp, int code, char *fmt, ...)
     char        *msg, *buf;
     char        *encoded;
 
-    gassert(wp);
+    assure(wp);
 
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
@@ -1726,7 +1726,7 @@ char *websErrorMsg(int code)
 {
     WebsError   *ep;
 
-    gassert(code >= 0);
+    assure(code >= 0);
     for (ep = websErrors; ep->code; ep++) {
         if (code == ep->code) {
             return ep->msg;
@@ -1741,7 +1741,7 @@ int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
     va_list     vargs;
     char        *buf;
     
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
         wp->flags |= WEBS_RESPONSE_TRACED;
@@ -1796,7 +1796,7 @@ void websWriteHeaders(Webs *wp, ssize length, char *location)
     WebsKey     *key;
     char        *date;
 
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     if (!(wp->flags & WEBS_HEADERS_CREATED)) {
         if (!wp->protoVersion) {
@@ -1845,7 +1845,7 @@ void websWriteHeaders(Webs *wp, ssize length, char *location)
 
 void websWriteEndHeaders(Webs *wp)
 {
-    gassert(wp);
+    assure(wp);
     /*
         By omitting the "\r\n" delimiter after the headers, chunks can emit "\r\nSize\r\n" as a single chunk delimiter
      */
@@ -1861,7 +1861,7 @@ void websWriteEndHeaders(Webs *wp)
 
 void websSetTxLength(Webs *wp, ssize length)
 {
-    gassert(wp);
+    assure(wp);
     wp->txLen = length;
 }
 
@@ -1875,8 +1875,8 @@ ssize websWrite(Webs *wp, char *fmt, ...)
     char        *buf;
     ssize       rc;
     
-    gassert(websValid(wp));
-    gassert(fmt && *fmt);
+    assure(websValid(wp));
+    assure(fmt && *fmt);
 
     va_start(vargs, fmt);
 
@@ -1886,7 +1886,7 @@ ssize websWrite(Webs *wp, char *fmt, ...)
         error("websWrite lost data, buffer overflow");
     }
     va_end(vargs);
-    gassert(buf);
+    assure(buf);
     if (buf) {
         rc = websWriteBlock(wp, buf, strlen(buf));
         gfree(buf);
@@ -1903,9 +1903,9 @@ ssize websWriteSocket(Webs *wp, char *buf, ssize size)
 {
     ssize   written;
 
-    gassert(wp);
-    gassert(buf);
-    gassert(size >= 0);
+    assure(wp);
+    assure(buf);
+    assure(size >= 0);
 
     if (wp->flags & WEBS_CLOSED) {
         return -1;
@@ -1934,7 +1934,7 @@ static bool flushChunkData(Webs *wp)
 {
     ssize   len, written, room;
 
-    gassert(wp);
+    assure(wp);
 
     while (bufLen(&wp->chunkbuf) > 0) {
         /*
@@ -1973,7 +1973,7 @@ static bool flushChunkData(Webs *wp)
             if (wp->txChunkLen > 0) {
                 len = min(room, wp->txChunkLen);
                 if ((written = bufPutBlk(&wp->output, wp->chunkbuf.servp, len)) != len) {
-                    gassert(0);
+                    assure(0);
                     return -1;
                 }
                 bufAdjustStart(&wp->chunkbuf, written);
@@ -2017,7 +2017,7 @@ bool websFlush(Webs *wp)
         bufCompact(op);
         nbytes = bufLen(op);
     }
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     if (bufLen(op) == 0 && wp->flags & WEBS_FINALIZED) {
         wp->state = WEBS_COMPLETE;
@@ -2102,10 +2102,10 @@ ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     WebsBuf     *op;
     ssize       written, thisWrite, len, room;
 
-    gassert(wp);
-    gassert(websValid(wp));
-    gassert(buf);
-    gassert(size >= 0);
+    assure(wp);
+    assure(websValid(wp));
+    assure(buf);
+    assure(size >= 0);
 
     op = (wp->flags & WEBS_CHUNKING) ? &wp->chunkbuf : &wp->output;
     written = len = 0;
@@ -2136,8 +2136,8 @@ void websDecodeUrl(char *decoded, char *token, ssize len)
     char    *ip,  *op;
     int     num, i, c;
     
-    gassert(decoded);
-    gassert(token);
+    assure(decoded);
+    assure(token);
 
     if (len < 0) {
         len = strlen(token);
@@ -2186,7 +2186,7 @@ static void logRequest(Webs *wp, int code)
     TIME_ZONE_INFORMATION tzi;
 #endif
 
-    gassert(wp);
+    assure(wp);
     time(&timer);
 #if WINDOWS
     localtime_s(&localt, &timer);
@@ -2231,7 +2231,7 @@ static void checkTimeout(void *arg, int id)
     WebsTime    elapsed, delay;
 
     wp = (Webs*) arg;
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     elapsed = getTimeSinceMark(wp) * 1000;
     if (websDebug) {
@@ -2250,7 +2250,7 @@ static void checkTimeout(void *arg, int id)
         /* WARNING: wp not valid here */
     } else {
         delay = WEBS_TIMEOUT - elapsed;
-        gassert(delay > 0);
+        assure(delay > 0);
         websRestartEvent(id, (int) delay);
     }
 }
@@ -2299,7 +2299,7 @@ void websSetHost(char *host)
 
 void websSetHostUrl(char *url)
 {
-    gassert(url && *url);
+    assure(url && *url);
 
     gfree(websHostUrl);
     websHostUrl = strdup(url);
@@ -2308,7 +2308,7 @@ void websSetHostUrl(char *url)
 
 void websSetIpAddr(char *ipaddr)
 {
-    gassert(ipaddr && *ipaddr);
+    assure(ipaddr && *ipaddr);
     scopy(websIpAddr, sizeof(websIpAddr), ipaddr);
 }
 
@@ -2316,8 +2316,8 @@ void websSetIpAddr(char *ipaddr)
 #if BIT_LEGACY
 void websSetRequestFilename(Webs *wp, char *filename)
 {
-    gassert(websValid(wp));
-    gassert(filename && *filename);
+    assure(websValid(wp));
+    assure(filename && *filename);
 
     if (wp->filename) {
         gfree(wp->filename);
@@ -2937,8 +2937,8 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
     ssize   len, ulen;
     int     c;
 
-    gassert(url);
-    gassert(pbuf);
+    assure(url);
+    assure(pbuf);
 
     ulen = strlen(url);
     /*
@@ -3119,7 +3119,7 @@ char *websNormalizeUriPath(char *pathArg)
         }
     }
     nseg = j;
-    gassert(nseg >= 0);
+    assure(nseg >= 0);
     if ((path = galloc(len + nseg + 1)) != 0) {
         for (i = 0, dp = path; i < nseg; ) {
             strcpy(dp, segments[i]);
@@ -3145,7 +3145,7 @@ char *websNormalizeUriPath(char *pathArg)
  */
 int websPageOpen(Webs *wp, int mode, int perm)
 {
-    gassert(websValid(wp));
+    assure(websValid(wp));
 #if BIT_ROM
     return websRomPageOpen(wp);
 #else
@@ -3156,7 +3156,7 @@ int websPageOpen(Webs *wp, int mode, int perm)
 
 void websPageClose(Webs *wp)
 {
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
 #if BIT_ROM
     websRomPageClose(wp);
@@ -3216,10 +3216,10 @@ ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 {
 
 #if BIT_ROM
-    gassert(websValid(wp));
+    assure(websValid(wp));
     return websRomPageReadData(wp, buf, nBytes);
 #else
-    gassert(websValid(wp));
+    assure(websValid(wp));
     return read(wp->docfd, buf, (int) nBytes);
 #endif
 }
@@ -3230,7 +3230,7 @@ ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
  */
 void websPageSeek(Webs *wp, WebsFilePos offset, int origin)
 {
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
 #if BIT_ROM
     websRomPageSeek(wp, offset, origin);
@@ -3245,8 +3245,8 @@ void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDo
     WebsTime    when;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
 
-    gassert(wp);
-    gassert(name && *name);
+    assure(wp);
+    assure(name && *name);
 
     if (path == 0) {
         path = "/";
@@ -3305,7 +3305,7 @@ static char *getToken(Webs *wp, char *delim)
     WebsBuf     *buf;
     char        *token, *nextToken, *endToken;
 
-    gassert(wp);
+    assure(wp);
     buf = &wp->rxbuf;
     nextToken = (char*) buf->endp;
 
@@ -3360,7 +3360,7 @@ static char *makeSessionID(Webs *wp)
     char        idBuf[64];
     static int  nextSession = 0;
 
-    gassert(wp);
+    assure(wp);
     fmt(idBuf, sizeof(idBuf), "%08x%08x%d", PTOI(wp) + PTOI(wp->url), (int) time(0), nextSession++);
     return websMD5Block(idBuf, sizeof(idBuf), "::webs.session::");
 }
@@ -3370,7 +3370,7 @@ WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
 {
     WebsSession     *sp;
 
-    gassert(wp);
+    assure(wp);
 
     if ((sp = galloc(sizeof(WebsSession))) == 0) {
         return 0;
@@ -3390,7 +3390,7 @@ WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
 
 static void freeSession(WebsSession *sp)
 {
-    gassert(sp);
+    assure(sp);
 
     gfree(sp->id);
     gfree(sp);
@@ -3402,7 +3402,7 @@ WebsSession *websGetSession(Webs *wp, int create)
     WebsKey     *sym;
     char        *id;
     
-    gassert(wp);
+    assure(wp);
 
     if (!wp->session) {
         id = websGetSessionID(wp);
@@ -3440,7 +3440,7 @@ char *websGetSessionID(Webs *wp)
     ssize   len;
     int     quoted;
 
-    gassert(wp);
+    assure(wp);
 
     if (wp->session) {
         return wp->session->id;
@@ -3484,8 +3484,8 @@ char *websGetSessionVar(Webs *wp, char *key, char *defaultValue)
     WebsSession     *sp;
     WebsKey         *sym;
 
-    gassert(wp);
-    gassert(key && *key);
+    assure(wp);
+    assure(key && *key);
 
     if ((sp = websGetSession(wp, 1)) != 0) {
         if ((sym = hashLookup(sp->cache, key)) == 0) {
@@ -3501,8 +3501,8 @@ void websRemoveSessionVar(Webs *wp, char *key)
 {
     WebsSession     *sp;
 
-    gassert(wp);
-    gassert(key && *key);
+    assure(wp);
+    assure(key && *key);
 
     if ((sp = websGetSession(wp, 1)) != 0) {
         hashDelete(sp->cache, key);
@@ -3514,9 +3514,9 @@ int websSetSessionVar(Webs *wp, char *key, char *value)
 {
     WebsSession  *sp;
 
-    gassert(wp);
-    gassert(key && *key);
-    gassert(value);
+    assure(wp);
+    assure(key && *key);
+    assure(value);
 
     if ((sp = websGetSession(wp, 1)) == 0) {
         return 0;

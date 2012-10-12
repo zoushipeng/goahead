@@ -31,16 +31,9 @@ static bool jstHandler(Webs *wp)
     ssize           len;
     int             rc, jid;
 
-    gassert(websValid(wp));
-    gassert(wp->filename && *wp->filename);
-    gassert(wp->ext && *wp->ext);
-
-#if UNUSED
-    if (!smatch(wp->ext, ".asp")) {
-        return 0;
-    }
-#endif
-    buf = NULL;
+    assure(websValid(wp));
+    assure(wp->filename && *wp->filename);
+    assure(wp->ext && *wp->ext);
 
     if ((jid = jsOpenEngine(wp->vars, websJstFunctions)) < 0) {
         websError(wp, 200, "Can't create JavaScript engine");
@@ -122,8 +115,8 @@ static bool jstHandler(Webs *wp)
 
                 if (jsEval(jid, nextp, &result) == 0) {
                     /*
-                         On an error, discard all output accumulated so far and store the error in the result buffer. Be
-                         careful if the user has called websError() already.
+                         On an error, discard all output accumulated so far and store the error in the result buffer. 
+                         Be careful if the user has called websError() already.
                      */
                     rc = -1;
                     //  MOB - should not need this now as websFree cant be called
@@ -204,10 +197,10 @@ int websJstWrite(int jid, Webs *wp, int argc, char **argv)
 {
     int     i;
 
-    gassert(websValid(wp));
+    assure(websValid(wp));
     
     for (i = 0; i < argc; ) {
-        gassert(argv);
+        assure(argv);
         if (websWriteBlock(wp, argv[i], strlen(argv[i])) < 0) {
             return -1;
         }
@@ -246,7 +239,7 @@ static char *strtokcmp(char *s1, char *s2)
 
 static char *skipWhite(char *s) 
 {
-    gassert(s);
+    assure(s);
 
     if (s == NULL) {
         return s;

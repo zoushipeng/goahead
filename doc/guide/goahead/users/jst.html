@@ -48,21 +48,58 @@
             </ul>
 <!-- EndDsi -->
         </div>
+<!--
+
+write
+defining functions
+-->
         <div class="contentLeft">
             <h1>Javascript Templates (JST)</h1>
-            <p>Javascript Templates (JST) is embeds Javascript code in HTML pages to serve dynamic content. An JST
-            document has an ".jst" extension and uses embedded scripting to insert dynamic data into the page before it is
-            sent to the user's browser.</p>
-            engines can be selected at run time. Individual pages can use multiple scripting engines if required.
-            <p>To create an JST script field in a JST document, use the <% and %> delimiters. For example, the following
+
+            <p>Javascript Templates (JST) enable the easy creation of dynamic web pages and applications.
+            Javascript Templates are HTML web pages that execute embedded Javascript on the server before rendering the page
+            back to the client.</p>
+
+            <p>JST is an extensible environment and allows the direct binding of C functions to Javascript functions, so
+            that a JST web page can easily access device or system data.</p>
+
+            <h2>JST Handler</h2>
+            <p>A JST document has an <i>.jst</i> extension and is processed by the <i>jst</i> handler. The JST handler
+            executes JST scripts and replaces them with the corresponding script results. The user sees a normal
+            HTML page, but it is one that was dynamically created by the JST handler.</p>
+
+            <h2>JST Delimiters</h2>
+            <p>To create a JST script field in a JST document, use the <i>&lt;%</i> and <i>%&gt;</i> delimiters. 
+            For example, the following
             JavaScript will output "Hello World" in place of the JST-delimited field:</p>
-            <pre>Today is <% write("Hello World"); %></pre>
+            <pre>Today is &lt;% write("Hello" + " World"); %&gt;</pre>
+
             <h2>Scripting Execution</h2>
-            <p>When a user's browser requests an JST document, the JST handler is invoked to serve the request.
-            The JST document is read from the file system or ROM store in a one-pass operation. Text before the JST
-            delimiters is copied directly to the requesting browser. If JST delimiters are found, the text between the
-            delimiters is passed to the relevant scripting engine for execution. The resulting text is passed
-            back to the browser, and the process continues until the end of the document.</p>
+            <p>When a user's browser requests a JST document, the JST handler is invoked to serve the request.
+            The JST document is read from the file system in a one-pass operation. HTML text before the JST
+            delimiters is copied directly to the client. If JST delimiters are found, the script between the
+            delimiters is executed and the resulting text is written to the client. The process continues until the end of
+            the document.</p>
+
+            <h2>Standard Functions</h2>
+            <p>JST defines one standard function: <i>write</i>. This function writes data back to the client in 
+            the place of the JST script.</p>
+
+            <h2>Defining JST functions</h2>
+            <p>New JST functions can be created via
+                <a href="../../../api/goahead.html#group___webs_1gaafb69f988b3093c4981fd7bc94f1a42a">websDefineJst</a>.
+            This binds a C function to a Javascript function. For example:
+            <pre>
+static getDate(int jid, Webs *wp, int argc, char **argv) {
+    char *date = websGetDate(0);
+    websWrite(wp, "%s", date);
+    gfree(date);
+}
+<b>websDefineJst("date", getDate);</b></pre>
+            <p>Once defined, JST pages can use the new <i>date</i> function:
+            <pre>
+Today's date is: &lt;% <b>date();</b> %&gt;
+</pre>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

@@ -28,9 +28,9 @@ static bool fileHandler(Webs *wp)
     ssize           nchars;
     int             code;
 
-    gassert(websValid(wp));
-    gassert(wp->method);
-    gassert(wp->filename && wp->filename[0]);
+    assure(websValid(wp));
+    assure(wp->method);
+    assure(wp->filename && wp->filename[0]);
 
 #if !BIT_ROM
     if (smatch(wp->method, "DELETE")) {
@@ -107,8 +107,8 @@ static void fileWriteEvent(Webs *wp)
     char    *buf;
     ssize   len, wrote;
 
-    gassert(wp);
-    gassert(websValid(wp));
+    assure(wp);
+    assure(websValid(wp));
 
     /*
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
@@ -137,9 +137,9 @@ int websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
 
-    gassert(wp);
-    gassert(wp->putfd >= 0);
-    gassert(wp->input.buf);
+    assure(wp);
+    assure(wp->putfd >= 0);
+    assure(wp->input.buf);
 
     nbytes = bufLen(&wp->input);
     if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
@@ -187,7 +187,7 @@ char *websGetDocuments()
  */
 void websSetIndex(char *page)
 {
-    gassert(page && *page);
+    assure(page && *page);
 
     if (websIndex) {
         gfree(websIndex);
@@ -201,7 +201,7 @@ void websSetIndex(char *page)
  */
 void websSetDocuments(char *dir)
 {
-    gassert(dir && *dir);
+    assure(dir && *dir);
     if (websDocuments) {
         gfree(websDocuments);
     }

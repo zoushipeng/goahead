@@ -51,8 +51,8 @@ int websRomPageOpen(Webs *wp)
     WebsRomIndex    *wip;
     WebsKey           *sp;
 
-    gassert(websValid(wp));
-    gassert(path && *path);
+    assure(websValid(wp));
+    assure(path && *path);
 
     if ((sp = hashLookup(romTab, wp->path)) == NULL) {
         return -1;
@@ -74,7 +74,7 @@ int websRomPageStat(char *path, WebsFileInfo *sbuf)
     WebsRomIndex    *wip;
     WebsKey                   *sp;
 
-    gassert(path && *path);
+    assure(path && *path);
 
     if ((sp = hashLookup(romTab, path)) == NULL) {
         return -1;
@@ -95,9 +95,9 @@ ssize websRomPageReadData(Webs *wp, char *buf, ssize size)
     WebsRomIndex    *wip;
     ssize           len;
 
-    gassert(websValid(wp));
-    gassert(buf);
-    gassert(wp->docfd >= 0);
+    assure(websValid(wp));
+    assure(buf);
+    assure(wp->docfd >= 0);
 
     wip = &websRomPageIndex[wp->docfd];
 
@@ -113,9 +113,9 @@ long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin)
     WebsRomIndex    *wip;
     WebsFilePos     pos;
 
-    gassert(websValid(wp));
-    gassert(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
-    gassert(wp->docfd >= 0);
+    assure(websValid(wp));
+    assure(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
+    assure(wp->docfd >= 0);
 
     wip = &websRomPageIndex[wp->docfd];
 

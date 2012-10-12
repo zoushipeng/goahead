@@ -77,7 +77,7 @@ int socketListen(char *ip, int port, SocketAccept accept, int flags)
         return -1;
     }
     sp = socketList[sid];
-    gassert(sp);
+    assure(sp);
 
     /*
         Bind to the socket endpoint and the call listen() to start listening
@@ -128,7 +128,7 @@ int socketConnect(char *ip, int port, int flags)
         return -1;
     }
     sp = socketList[sid];
-    gassert(sp);
+    assure(sp);
 
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;       
@@ -222,7 +222,7 @@ static void socketAccept(WebsSocket *sp)
     char                    ipbuf[1024];
     int                     port, newSock, nid;
 
-    gassert(sp);
+    assure(sp);
 
     /*
         Accept the connection and prevent inheriting by children (F_SETFD)
@@ -244,7 +244,7 @@ static void socketAccept(WebsSocket *sp)
     if ((nsp = socketList[nid]) == 0) {
         return;
     }
-    gassert(nsp);
+    assure(nsp);
     nsp->sock = newSock;
     nsp->flags &= ~SOCKET_LISTENING;
     socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK));
@@ -266,7 +266,7 @@ void socketRegisterInterest(int sid, int handlerMask)
 {
     WebsSocket  *sp;
 
-    gassert(socketPtr(sid));
+    assure(socketPtr(sid));
     sp = socketPtr(sid);
     sp->handlerMask = handlerMask;
 }
@@ -279,7 +279,7 @@ int socketWaitForEvent(WebsSocket *sp, int handlerMask)
 {
     int mask;
 
-    gassert(sp);
+    assure(sp);
 
     mask = sp->handlerMask;
     sp->handlerMask |= handlerMask;
@@ -332,7 +332,7 @@ int socketSelect(int sid, int timeout)
         if ((sp = socketList[sid]) == NULL) {
             continue;
         }
-        gassert(sp);
+        assure(sp);
         /*
                 Set the appropriate bit in the ready masks for the sp->sock.
          */
@@ -431,7 +431,7 @@ int socketSelect(int sid, int timeout)
                 continue;
             }
         }
-        gassert(sp);
+        assure(sp);
         /*
             Initialize the ready masks and compute the mask offsets.
          */
@@ -522,7 +522,7 @@ static void socketDoEvent(WebsSocket *sp)
 {
     int     sid;
 
-    gassert(sp);
+    assure(sp);
 
     sid = sp->sid;
     if (sp->currentEvents & SOCKET_READABLE) {
@@ -557,7 +557,7 @@ int socketSetBlock(int sid, int on)
     int             oldBlock;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        gassert(0);
+        assure(0);
         return 0;
     }
     oldBlock = (sp->flags & SOCKET_BLOCK);
@@ -653,8 +653,8 @@ ssize socketRead(int sid, void *buf, ssize bufsize)
     ssize       bytes;
     int         errCode;
 
-    gassert(buf);
-    gassert(bufsize > 0);
+    assure(buf);
+    assure(bufsize > 0);
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -808,11 +808,11 @@ void socketFree(int sid)
 WebsSocket *socketPtr(int sid)
 {
     if (sid < 0 || sid >= socketMax || socketList[sid] == NULL) {
-        gassert(NULL);
+        assure(NULL);
         errno = EBADF;
         return NULL;
     }
-    gassert(socketList[sid]);
+    assure(socketList[sid]);
     return socketList[sid];
 }
 
@@ -865,7 +865,7 @@ int socketGetBlock(int sid)
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        gassert(0);
+        assure(0);
         return 0;
     }
     return (sp->flags & SOCKET_BLOCK);
@@ -877,7 +877,7 @@ int socketGetMode(int sid)
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        gassert(0);
+        assure(0);
         return 0;
     }
     return sp->flags;
@@ -889,7 +889,7 @@ void socketSetMode(int sid, int mode)
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        gassert(0);
+        assure(0);
         return;
     }
     sp->flags = mode;
@@ -919,7 +919,7 @@ int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_s
     char                portBuf[16];
     int                 v6;
 
-    gassert(addr);
+    assure(addr);
     memset((char*) &hints, '\0', sizeof(hints));
 
     /*
@@ -994,7 +994,7 @@ int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_s
          */
         sa.sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
         if (sa.sin_addr.s_addr < 0) {
-            gassert(0);
+            assure(0);
             return 0;
         }
 #else

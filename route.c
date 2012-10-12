@@ -43,10 +43,10 @@ void websRouteRequest(Webs *wp)
     char        *documents;
     int         i, count;
 
-    gassert(wp);
-    gassert(wp->path);
-    gassert(wp->method);
-    gassert(wp->protocol);
+    assure(wp);
+    assure(wp->path);
+    assure(wp->method);
+    assure(wp->protocol);
 
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
 
@@ -55,7 +55,7 @@ void websRouteRequest(Webs *wp)
 
     for (count = 0, i = 0; i < routeCount; i++) {
         route = routes[i];
-        gassert(route->prefix && route->prefixLen > 0);
+        assure(route->prefix && route->prefixLen > 0);
 
         if (plen < route->prefixLen) continue;
         len = min(route->prefixLen, plen);
@@ -101,7 +101,7 @@ void websRouteRequest(Webs *wp)
                 }
             } else
 #endif
-            gassert(route->handler);
+            assure(route->handler);
             trace(5, "Route %s calls handler %s\n", route->prefix, route->handler->name);
             wp->state = WEBS_RUNNING;
             if ((*route->handler->service)(wp)) {                                        
@@ -131,8 +131,8 @@ void websRouteRequest(Webs *wp)
 
 static bool can(Webs *wp, char *ability)
 {
-    gassert(wp);
-    gassert(ability && *ability);
+    assure(wp);
+    assure(ability && *ability);
 
     if (wp->user && hashLookup(wp->user->abilities, ability)) {
         return 1;
@@ -146,8 +146,8 @@ bool websCan(Webs *wp, WebsHash abilities)
     WebsKey     *key;
     char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
 
-    gassert(wp);
-    gassert(abilities >= 0);
+    assure(wp);
+    assure(abilities >= 0);
 
     if (!wp->user) {
         if (wp->authType) {
@@ -165,7 +165,7 @@ bool websCan(Webs *wp, WebsHash abilities)
         if (!wp->user && wp->username) {
             wp->user = websLookupUser(wp->username);
         }
-        gassert(abilities);
+        assure(abilities);
         for (key = hashFirst(abilities); key; key = hashNext(abilities, key)) {
             ability = key->name.value.string;
             if ((cp = strchr(ability, '|')) != 0) {
@@ -275,7 +275,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
 int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
         WebsHash abilities, WebsHash redirects)
 {
-    gassert(route);
+    assure(route);
 
     if (dir) {
         route->dir = sclone(dir);
@@ -305,7 +305,7 @@ static int lookupRoute(char *uri)
     WebsRoute   *route;
     int         i;
 
-    gassert(uri && *uri);
+    assure(uri && *uri);
 
     for (i = 0; i < routeCount; i++) {
         route = routes[i];
@@ -319,7 +319,7 @@ static int lookupRoute(char *uri)
 
 static void freeRoute(WebsRoute *route)
 {
-    gassert(route);
+    assure(route);
 
     if (route->abilities >= 0) {
         hashFree(route->abilities);
@@ -346,7 +346,7 @@ int websRemoveRoute(char *uri)
 {
     int         i;
 
-    gassert(uri && *uri);
+    assure(uri && *uri);
 
     if ((i = lookupRoute(uri)) < 0) {
         return -1;
@@ -399,8 +399,8 @@ int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose clos
 {
     WebsHandler     *handler;
 
-    gassert(name && *name);
-    gassert(service);
+    assure(name && *name);
+    assure(service);
 
     if ((handler = galloc(sizeof(WebsHandler))) == 0) {
         return -1;
@@ -449,7 +449,7 @@ int websLoad(char *path)
     char          *name, *redirectUri, *password, *roles;
     WebsHash      abilities, extensions, methods, redirects;
     
-    gassert(path && *path);
+    assure(path && *path);
 
     if ((fp = fopen(path, "rt")) == 0) {
         error("Can't open route config file %s", path);
@@ -481,7 +481,9 @@ int websLoad(char *path)
                 } else if (smatch(key, "redirect")) {
                     if (strchr(value, '@')) {
                         status = stok(value, "@", &redirectUri);
-                        if (smatch(status, "*")) status = "0";
+                        if (smatch(status, "*")) {
+                            status = "0";
+                        }
                     } else {
                         status = "0";
                         redirectUri = value;
@@ -590,8 +592,8 @@ int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc
     static int  legacyCount = 0;
     char        name[BIT_LIMIT_STRING];
 
-    gassert(prefix && *prefix);
-    gassert(handler);
+    assure(prefix && *prefix);
+    assure(handler);
 
     fmt(name, sizeof(name), "%s-%d", prefix, legacyCount);
     if (websDefineHandler(name, (WebsHandlerProc) handler, 0, WEBS_LEGACY_HANDLER) < 0) {

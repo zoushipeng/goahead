@@ -135,7 +135,7 @@ int sslUpgrade(Webs *wp)
 {
     WebsSocket        *sptr;
 
-    gassert(wp);
+    assure(wp);
 
     sptr = socketPtr(wp->sid);
     if ((wp->ssl = SSL_new(sslctx)) == 0) {
@@ -224,7 +224,7 @@ ssize sslWrite(Webs *wp, void *buf, ssize len)
     int     rc;
 
     if (wp->bio == 0 || wp->ssl == 0 || len <= 0) {
-        gassert(0);
+        assure(0);
         return -1;
     }
     totalWritten = 0;
@@ -240,7 +240,7 @@ ssize sslWrite(Webs *wp, void *buf, ssize len)
                 continue;
             } else if (rc == SSL_ERROR_WANT_READ) {
                 //  AUTO-RETRY should stop this
-                gassert(0);
+                assure(0);
                 return -1;
             } else {
                 return -1;
@@ -261,8 +261,8 @@ ssize sslWrite(Webs *wp, void *buf, ssize len)
  */
 static int sslSetCertFile(char *certFile)
 {
-    gassert (sslctx);
-    gassert (certFile);
+    assure (sslctx);
+    assure (certFile);
 
     if (sslctx == NULL) {
         return -1;
@@ -289,8 +289,8 @@ static int sslSetCertFile(char *certFile)
  */
 static int sslSetKeyFile(char *keyFile)
 {
-    gassert (sslctx);
-    gassert (keyFile);
+    assure (sslctx);
+    assure (keyFile);
 
     if (sslctx == NULL) {
         return -1;

@@ -36,7 +36,7 @@ static int processUploadHeader(Webs *wp, char *line);
  */
 static bool uploadHandler(Webs *wp)
 {
-    gassert(websValid(wp));
+    assure(websValid(wp));
 
     if (!(wp->flags & WEBS_UPLOAD)) {
         return 0;
@@ -402,7 +402,7 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
     char    *cp, *endp;
     char    first;
 
-    gassert(buf);
+    assure(buf);
 
     first = *wp->boundary;
     cp = buf;

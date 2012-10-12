@@ -49,7 +49,7 @@ static bool cgiHandler(Webs *wp)
     char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath;
     int         n, envpsize, argpsize, pHandle, cid;
 
-    gassert(websValid(wp));
+    assure(websValid(wp));
     
     websSetEnv(wp);
 
@@ -697,7 +697,7 @@ static uchar *tableToBlock(char **table)
     size_t  sizeBlock;      /*  Size of table */
     int     index;          /*  Index into string table */
 
-    gassert(table);
+    assure(table);
 
     /*  
         Calculate the size of the data block.  Allow for final null byte. 
@@ -780,7 +780,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
         Construct command line
      */
     cmdLine = galloc(sizeof(char) * nLen);
-    gassert (cmdLine);
+    assure (cmdLine);
     strcpy(cmdLine, "");
 
     pArgs = argp;

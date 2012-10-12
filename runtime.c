@@ -208,9 +208,9 @@ static void callEvent(int id)
 {
     Callback    *cp;
 
-    gassert(0 <= id && id < callbackMax);
+    assure(0 <= id && id < callbackMax);
     cp = callbacks[id];
-    gassert(cp);
+    assure(cp);
 
     (cp->routine)(cp->arg, cp->id);
 }
@@ -311,9 +311,9 @@ char *dirname(char *buf, char *name, ssize bufsize)
     char  *cp;
     ssize   len;
 
-    gassert(name);
-    gassert(buf);
-    gassert(bufsize > 0);
+    assure(name);
+    assure(buf);
+    assure(bufsize > 0);
 
 #if BIT_WIN_LIKE
     if ((cp = strrchr(name, '/')) == NULL && (cp = strrchr(name, '\\')) == NULL)
@@ -350,7 +350,7 @@ char *sfmt(char *format, ...)
     va_list     ap;
     char        *result;
 
-    gassert(format);
+    assure(format);
 
     va_start(ap, format);
     result = sprintfCore(NULL, -1, format, ap);
@@ -367,9 +367,9 @@ char *fmt(char *buf, ssize bufsize, char *format, ...)
     va_list     ap;
     char        *result;
 
-    gassert(buf);
-    gassert(format);
-    gassert(bufsize <= BIT_LIMIT_STRING);
+    assure(buf);
+    assure(format);
+    assure(bufsize <= BIT_LIMIT_STRING);
 
     if (bufsize <= 0) {
         return 0;
@@ -386,7 +386,7 @@ char *fmt(char *buf, ssize bufsize, char *format, ...)
  */
 char *sfmtv(char *fmt, va_list arg)
 {
-    gassert(fmt);
+    assure(fmt);
     return sprintfCore(NULL, -1, fmt, arg);
 }
 
@@ -398,10 +398,10 @@ static int getState(char c, int state)
     if (c < ' ' || c > 'z') {
         chrClass = CLASS_NORMAL;
     } else {
-        gassert((c - ' ') < (int) sizeof(classMap));
+        assure((c - ' ') < (int) sizeof(classMap));
         chrClass = classMap[(c - ' ')];
     }
-    gassert((chrClass * STATE_COUNT + state) < (int) sizeof(stateMap));
+    assure((chrClass * STATE_COUNT + state) < (int) sizeof(stateMap));
     state = stateMap[chrClass * STATE_COUNT + state];
     return state;
 }
@@ -420,7 +420,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
         spec = "";
     }
     if (buf != 0) {
-        gassert(maxsize > 0);
+        assure(maxsize > 0);
         fmt.buf = (uchar*) buf;
         fmt.endbuf = &fmt.buf[maxsize];
         fmt.growBy = -1;
@@ -1042,7 +1042,7 @@ void error(char *fmt, ...)
 }
 
 
-void gassertError(WEBS_ARGS_DEC, char *fmt, ...)
+void assureError(WEBS_ARGS_DEC, char *fmt, ...)
 {
     va_list     args;
     char        *fmtBuf, *message;
@@ -1156,7 +1156,7 @@ char *slower(char *string)
 {
     char  *s;
 
-    gassert(string);
+    assure(string);
 
     if (string == NULL) {
         return NULL;
@@ -1180,7 +1180,7 @@ char *supper(char *string)
 {
     char  *s;
 
-    gassert(string);
+    assure(string);
     if (string == NULL) {
         return NULL;
     }
@@ -1245,7 +1245,7 @@ int gallocHandle(void *mapArg)
     int     handle, len, memsize, incr;
 
     map = (void***) mapArg;
-    gassert(map);
+    assure(map);
 
     if (*map == NULL) {
         incr = H_INCR;
@@ -1302,12 +1302,12 @@ int gfreeHandle(void *mapArg, int handle)
     int     len;
 
     map = (void***) mapArg;
-    gassert(map);
+    assure(map);
     mp = &((*(ssize**)map)[-H_OFFSET]);
-    gassert(mp[H_LEN] >= H_INCR);
+    assure(mp[H_LEN] >= H_INCR);
 
-    gassert(mp[handle + H_OFFSET]);
-    gassert(mp[H_USED]);
+    assure(mp[handle + H_OFFSET]);
+    assure(mp[H_USED]);
     mp[handle + H_OFFSET] = 0;
     if (--(mp[H_USED]) == 0) {
         gfree((void*) mp);
@@ -1343,8 +1343,8 @@ int gallocObject(void *listArg, int *max, int size)
     int     id;
 
     list = (void***) listArg;
-    gassert(list);
-    gassert(max);
+    assure(list);
+    assure(max);
 
     if ((id = gallocHandle(list)) < 0) {
         return -1;
@@ -1354,7 +1354,7 @@ int gallocObject(void *listArg, int *max, int size)
             gfreeHandle(list, id);
             return -1;
         }
-        gassert(cp);
+        assure(cp);
         memset(cp, 0, size);
         (*list)[id] = (void*) cp;
     }
@@ -1374,7 +1374,7 @@ int bufCreate(WebsBuf *bp, int initSize, int maxsize)
 {
     int increment;
 
-    gassert(bp);
+    assure(bp);
     
     if (initSize <= 0) {
         initSize = BIT_LIMIT_BUFFER;
@@ -1382,7 +1382,7 @@ int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     if (maxsize <= 0) {
         maxsize = initSize;
     }
-    gassert(initSize >= 0);
+    assure(initSize >= 0);
 
     increment = getBinBlockSize(initSize);
     if ((bp->buf = galloc((increment))) == NULL) {
@@ -1404,8 +1404,8 @@ int bufCreate(WebsBuf *bp, int initSize, int maxsize)
  */
 void bufFree(WebsBuf *bp)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp == NULL) {
         return;
@@ -1422,8 +1422,8 @@ void bufFree(WebsBuf *bp)
  */
 ssize bufLen(WebsBuf *bp)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp->servp > bp->endp) {
         return bp->buflen + bp->endp - bp->servp;
@@ -1440,8 +1440,8 @@ int bufGetc(WebsBuf *bp)
 {
     char    c, *cp;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp->servp == bp->endp) {
         return -1;
@@ -1465,8 +1465,8 @@ int bufPutc(WebsBuf *bp, char c)
 {
     char *cp;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if ((bufRoom(bp) < (int) sizeof(char)) && !bufGrow(bp, 0)) {
         return -1;
@@ -1488,8 +1488,8 @@ int bufInsertc(WebsBuf *bp, char c)
 {
     char *cp;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) < (int) sizeof(char) && !bufGrow(bp, 0)) {
         return -1;
@@ -1511,9 +1511,9 @@ ssize bufPutStr(WebsBuf *bp, char *str)
 {
     ssize   rc;
 
-    gassert(bp);
-    gassert(str);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(str);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
     *((char*) bp->endp) = (char) '\0';
@@ -1526,8 +1526,8 @@ ssize bufPutStr(WebsBuf *bp, char *str)
  */
 void bufAddNull(WebsBuf *bp)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) < (int) sizeof(char)) {
         bufGrow(bp, 0);
@@ -1545,8 +1545,8 @@ int bufGetcA(WebsBuf *bp)
 {
     uchar   c;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp->servp == bp->endp) {
         return -1;
@@ -1566,8 +1566,8 @@ int bufGetcA(WebsBuf *bp)
  */
 int bufPutcA(WebsBuf *bp, char c)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) == 0 && !bufGrow(bp)) {
         return -1;
@@ -1585,8 +1585,8 @@ int bufPutcA(WebsBuf *bp, char c)
  */
 int bufInsertcA(WebsBuf *bp, char c)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) == 0 && !bufGrow(bp)) {
         return -1;
@@ -1606,9 +1606,9 @@ int bufPutStrA(WebsBuf *bp, char *str)
 {
     int     rc;
 
-    gassert(bp);
-    gassert(str);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(str);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     rc = (int) bufPutBlk(bp, str, strlen(str));
     bp->endp[0] = '\0';
@@ -1624,10 +1624,10 @@ ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, added;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
-    gassert(buf);
-    gassert(0 <= size);
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assure(buf);
+    assure(0 <= size);
 
     /*
         Loop adding the maximum bytes we can add in a single straight line copy
@@ -1661,10 +1661,10 @@ ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, bytes_read;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
-    gassert(buf);
-    gassert(0 <= size && size < bp->buflen);
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assure(buf);
+    assure(0 <= size && size < bp->buflen);
 
     /*
         Loop getting the maximum bytes we can get in a single straight line copy
@@ -1698,8 +1698,8 @@ ssize bufRoom(WebsBuf *bp)
 {
     ssize   space, in_a_line;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
     
     space = bp->buflen - RINGQ_LEN(bp) - 1;
     in_a_line = bp->endbuf - bp->endp;
@@ -1716,8 +1716,8 @@ ssize bufGetBlkMax(WebsBuf *bp)
 {
     ssize   len, in_a_line;
 
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
 
     len = RINGQ_LEN(bp);
     in_a_line = bp->endbuf - bp->servp;
@@ -1731,9 +1731,9 @@ ssize bufGetBlkMax(WebsBuf *bp)
  */
 void bufAdjustEnd(WebsBuf *bp, ssize size)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
-    gassert(0 <= size && size < bp->buflen);
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assure(0 <= size && size < bp->buflen);
 
     bp->endp += size;
     if (bp->endp >= bp->endbuf) {
@@ -1754,9 +1754,9 @@ void bufAdjustEnd(WebsBuf *bp, ssize size)
  */
 void bufAdjustStart(WebsBuf *bp, ssize size)
 {
-    gassert(bp);
-    gassert(bp->buflen == (bp->endbuf - bp->buf));
-    gassert(0 <= size && size < bp->buflen);
+    assure(bp);
+    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assure(0 <= size && size < bp->buflen);
 
     bp->servp += size;
     if (bp->servp >= bp->endbuf) {
@@ -1778,8 +1778,8 @@ void bufAdjustStart(WebsBuf *bp, ssize size)
  */
 void bufFlush(WebsBuf *bp)
 {
-    gassert(bp);
-    gassert(bp->servp);
+    assure(bp);
+    assure(bp->servp);
 
     if (bp->buf) {
         bp->servp = bp->buf;
@@ -1831,7 +1831,7 @@ bool bufGrow(WebsBuf *bp, ssize room)
     char    *newbuf;
     ssize   len;
 
-    gassert(bp);
+    assure(bp);
 
     if (room == 0) {
         if (bp->maxsize >= 0 && bp->buflen >= bp->maxsize) {
@@ -1887,7 +1887,7 @@ WebsHash hashCreate(int size)
     if (size < 0) {
         size = WEBS_SMALL_HASH;
     }
-    gassert(size > 2);
+    assure(size > 2);
 
     /*
         Create a new handle for this symbol table
@@ -1907,7 +1907,7 @@ WebsHash hashCreate(int size)
     if (sd >= symMax) {
         symMax = sd + 1;
     }
-    gassert(0 <= sd && sd < symMax);
+    assure(0 <= sd && sd < symMax);
     sym[sd] = tp;
 
     /*
@@ -1915,7 +1915,7 @@ WebsHash hashCreate(int size)
      */
     tp->size = calcPrime(size);
     tp->hash_table = (WebsKey**) galloc(tp->size * sizeof(WebsKey*));
-    gassert(tp->hash_table);
+    assure(tp->hash_table);
     memset(tp->hash_table, 0, tp->size * sizeof(WebsKey*));
     return sd;
 }
@@ -1934,9 +1934,9 @@ void hashFree(WebsHash sd)
     if (sd < 0) {
         return;
     }
-    gassert(0 <= sd && sd < symMax);
+    assure(0 <= sd && sd < symMax);
     tp = sym[sd];
-    gassert(tp);
+    assure(tp);
 
     /*
         Free all symbols in the hash table, then the hash table itself.
@@ -1966,9 +1966,9 @@ WebsKey *hashFirst(WebsHash sd)
     WebsKey     *sp;
     int         i;
 
-    gassert(0 <= sd && sd < symMax);
+    assure(0 <= sd && sd < symMax);
     tp = sym[sd];
-    gassert(tp);
+    assure(tp);
 
     /*
         Find the first symbol in the hashtable and return a pointer to it.
@@ -1991,12 +1991,12 @@ WebsKey *hashNext(WebsHash sd, WebsKey *last)
     WebsKey     *sp;
     int         i;
 
-    gassert(0 <= sd && sd < symMax);
+    assure(0 <= sd && sd < symMax);
     if (sd < 0) {
         return 0;
     }
     tp = sym[sd];
-    gassert(tp);
+    assure(tp);
     if (last == 0) {
         return hashFirst(sd);
     }
@@ -2021,7 +2021,7 @@ WebsKey *hashLookup(WebsHash sd, char *name)
     WebsKey     *sp;
     char        *cp;
 
-    gassert(0 <= sd && sd < symMax);
+    assure(0 <= sd && sd < symMax);
     if (sd < 0 || (tp = sym[sd]) == NULL) {
         return NULL;
     }
@@ -2053,10 +2053,10 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
     char        *cp;
     int         hindex;
 
-    gassert(name);
-    gassert(0 <= sd && sd < symMax);
+    assure(name);
+    assure(0 <= sd && sd < symMax);
     tp = sym[sd];
-    gassert(tp);
+    assure(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
@@ -2131,10 +2131,10 @@ int hashDelete(WebsHash sd, char *name)
     char        *cp;
     int         hindex;
 
-    gassert(name && *name);
-    gassert(0 <= sd && sd < symMax);
+    assure(name && *name);
+    assure(0 <= sd && sd < symMax);
     tp = sym[sd];
-    gassert(tp);
+    assure(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
@@ -2175,7 +2175,7 @@ int hashDelete(WebsHash sd, char *name)
  */
 static WebsKey *hash(HashTable *tp, char *name)
 {
-    gassert(tp);
+    assure(tp);
 
     return tp->hash_table[hashIndex(tp, name)];
 }
@@ -2190,7 +2190,7 @@ static int hashIndex(HashTable *tp, char *name)
     uint        sum;
     int         i;
 
-    gassert(tp);
+    assure(tp);
     /*
         Add in each character shifted up progressively by 7 bits. The shift amount is rounded so as to not shift too
         far. It thus cycles with each new cycle placing character shifted up by one bit.
@@ -2212,7 +2212,7 @@ static int isPrime(int n)
 {
     int     i, max;
 
-    gassert(n > 0);
+    assure(n > 0);
 
     max = n / 2;
     for (i = 2; i <= max; i++) {
@@ -2231,7 +2231,7 @@ static int calcPrime(int size)
 {
     int count;
 
-    gassert(size > 0);
+    assure(size > 0);
 
     for (count = size; count > 0; count--) {
         if (isPrime(count)) {
@@ -2570,9 +2570,9 @@ ssize scopy(char *dest, ssize destMax, char *src)
 {
     ssize      len;
 
-    gassert(src);
-    gassert(dest);
-    gassert(0 < dest && destMax < MAXINT);
+    assure(src);
+    assure(dest);
+    assure(0 < dest && destMax < MAXINT);
 
     len = slen(src);
     if (destMax <= len) {
@@ -2591,11 +2591,11 @@ ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
 {
     ssize      len;
 
-    gassert(dest);
-    gassert(src);
-    gassert(src != dest);
-    gassert(0 <= count && count < MAXINT);
-    gassert(0 < destMax && destMax < MAXINT);
+    assure(dest);
+    assure(src);
+    assure(src != dest);
+    assure(0 <= count && count < MAXINT);
+    assure(0 < destMax && destMax < MAXINT);
 
     //  OPT need snlen(src, count);
     len = slen(src);
@@ -2635,7 +2635,7 @@ int sncmp(char *s1, char *s2, ssize n)
 {
     int     rc;
 
-    gassert(0 <= n && n < MAXINT);
+    assure(0 <= n && n < MAXINT);
 
     if (s1 == 0 && s2 == 0) {
         return 0;
@@ -2666,7 +2666,7 @@ int sncaselesscmp(char *s1, char *s2, ssize n)
 {
     int     rc;
 
-    gassert(0 <= n && n < MAXINT);
+    assure(0 <= n && n < MAXINT);
 
     if (s1 == 0 || s2 == 0) {
         return -1;

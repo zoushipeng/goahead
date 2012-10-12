@@ -12,7 +12,7 @@
 
 static bool optionsHandler(Webs *wp)
 {
-    gassert(wp);
+    assure(wp);
 
     if (smatch(wp->method, "OPTIONS")) {
         websSetStatus(wp, HTTP_CODE_OK);
