@@ -181,7 +181,7 @@
     #define BIT_WITHOUT_OWN "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #endif
 #ifndef BIT_XFRAME_HEADER
-    #define BIT_XFRAME_HEADER "sameorigin"
+    #define BIT_XFRAME_HEADER "SAMEORIGIN"
 #endif
 
 /* Prefixes */
@@ -232,7 +232,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64 -without own -profile xcode -configure . -gen xcode"
+    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64 -without all -profile xcode -configure . -gen xcode"
 #endif
 #ifndef BIT_GOAHEAD_PRODUCT
     #define BIT_GOAHEAD_PRODUCT 1
@@ -284,13 +284,13 @@
     #define BIT_PACK_MATRIXSSL 0
 #endif
 #ifndef BIT_PACK_OPENSSL
-    #define BIT_PACK_OPENSSL 1
+    #define BIT_PACK_OPENSSL 0
 #endif
 #ifndef BIT_PACK_PMAKER
     #define BIT_PACK_PMAKER 0
 #endif
 #ifndef BIT_PACK_SSL
-    #define BIT_PACK_SSL 1
+    #define BIT_PACK_SSL 0
 #endif
 #ifndef BIT_PACK_UTEST
     #define BIT_PACK_UTEST 1

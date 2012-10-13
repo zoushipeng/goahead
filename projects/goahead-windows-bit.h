@@ -81,8 +81,11 @@
 #ifndef BIT_LIMIT_PASSWORD
     #define BIT_LIMIT_PASSWORD 32
 #endif
-#ifndef BIT_LIMIT_RX_BODY
-    #define BIT_LIMIT_RX_BODY 16384
+#ifndef BIT_LIMIT_POST
+    #define BIT_LIMIT_POST 16384
+#endif
+#ifndef BIT_LIMIT_PUT
+    #define BIT_LIMIT_PUT 204800000
 #endif
 #ifndef BIT_LIMIT_SESSION_COUNT
     #define BIT_LIMIT_SESSION_COUNT 120
@@ -117,6 +120,9 @@
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"
 #endif
+#ifndef BIT_PUT_DIR
+    #define BIT_PUT_DIR "/tmp"
+#endif
 #ifndef BIT_REALM
     #define BIT_REALM "example.com"
 #endif
@@ -126,14 +132,14 @@
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc"
 #endif
+#ifndef BIT_STEALTH
+    #define BIT_STEALTH 1
+#endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
 #ifndef BIT_TRACE
     #define BIT_TRACE "stderr:0"
-#endif
-#ifndef BIT_TRACE_METHOD
-    #define BIT_TRACE_METHOD 0
 #endif
 #ifndef BIT_UPLOAD
     #define BIT_UPLOAD 1
@@ -149,6 +155,9 @@
 #endif
 #ifndef BIT_WITHOUT_OWN
     #define BIT_WITHOUT_OWN "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
+#endif
+#ifndef BIT_XFRAME_HEADER
+    #define BIT_XFRAME_HEADER "SAMEORIGIN"
 #endif
 
 /* Prefixes */

@@ -43,7 +43,7 @@ prep:
 	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
 	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
 	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-$(OS)-bit.h $(CONFIG)\inc\bit.h
-	@if not exist $(CONFIG)\bin\libmpr.def xcopy /Y /S projects\goahead-windows\*.def $(CONFIG)\bin
+	@if exist $(CONFIG)\bin\*.def xcopy /Y /S projects\goahead-windows\*.def $(CONFIG)\bin
 
 clean:
 	-if exist $(CONFIG)\bin\libgo.lib del /Q $(CONFIG)\bin\libgo.lib
