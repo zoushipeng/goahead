@@ -58,7 +58,7 @@ static bool cgiHandler(Webs *wp)
      */
     scopy(cgiPrefix, sizeof(cgiPrefix), wp->path);
     if ((cgiName = strchr(&cgiPrefix[1], '/')) == NULL) {
-        websError(wp, 200, "Missing CGI name");
+        websError(wp, HTTP_CODE_NOT_FOUND, "Missing CGI name");
         return 1;
     }
     *cgiName++ = '\0';
@@ -90,7 +90,8 @@ static bool cgiHandler(Webs *wp)
     {
         WebsStat sbuf;
         if (stat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
-            websError(wp, 404, "CGI program file does not exist");
+            error("Cannot find CGI program: ", cgiPath);
+            websError(wp, HTTP_CODE_NOT_FOUND | WEBS_NOLOG, "CGI program file does not exist");
             gfree(cgiPath);
             return 1;
         }
@@ -100,7 +101,7 @@ static bool cgiHandler(Webs *wp)
         if (access(cgiPath, X_OK) != 0)
 #endif
         {
-            websError(wp, 200, "CGI process file is not executable");
+            websError(wp, HTTP_CODE_NOT_FOUND, "CGI process file is not executable");
             gfree(cgiPath);
             return 1;
         }
@@ -172,7 +173,7 @@ static bool cgiHandler(Webs *wp)
         done after the process completes.  
      */
     if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
-        websError(wp, 200, "failed to spawn CGI task");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "failed to spawn CGI task");
         for (ep = envp; *ep != NULL; ep++) {
             gfree(*ep);
         }
@@ -218,20 +219,20 @@ int websProcessCgiData(Webs *wp)
     ssize   nbytes;
 
     nbytes = bufLen(&wp->input);
-    trace(0, "cgi: write %d bytes to CGI program\n", nbytes);
+    trace(5, "cgi: write %d bytes to CGI program\n", nbytes);
     if (write(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
-        websError(wp, WEBS_CLOSE | 500, "Can't write to CGI gateway");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR| WEBS_CLOSE, "Can't write to CGI gateway");
         return -1;
     }
     websConsumeInput(wp, nbytes);
-    trace(0, "cgi: write %d bytes to CGI program\n", nbytes);
+    trace(5, "cgi: write %d bytes to CGI program\n", nbytes);
     return 0;
 }
 
 
 static void writeCgiHeaders(Webs *wp, int status, ssize contentLength, char *location, char *contentType)
 {
-    trace(0, "cgi: Start response headers\n");
+    trace(5, "cgi: Start response headers\n");
     websSetStatus(wp, status);
     websWriteHeaders(wp, contentLength, location);
     websWriteHeader(wp, "Pragma", "no-cache");
@@ -316,7 +317,7 @@ void websCgiGatherOutput(Cgi *cgip)
     int         fdout;
 
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
-        trace(0, "cgi: gather output\n");
+        trace(5, "cgi: gather output\n");
         if ((fdout = open(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
             /*
                 Check to see if any data is available in the output file and send its contents to the socket.
@@ -325,15 +326,15 @@ void websCgiGatherOutput(Cgi *cgip)
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nbytes = read(fdout, buf, BIT_LIMIT_BUFFER)) > 0) {
-                trace(0, "cgi: read %d bytes from GI\n", nbytes);
+                trace(5, "cgi: read %d bytes from GI\n", nbytes);
                 skip = (cgip->fplacemark == 0) ? parseCgiHeaders(wp, buf) : 0;
-                trace(0, "cgi: write %d bytes to client\n", nbytes - skip);
+                trace(5, "cgi: write %d bytes to client\n", nbytes - skip);
                 websWriteBlock(wp, &buf[skip], nbytes - skip);
                 cgip->fplacemark += (off_t) nbytes;
             }
             close(fdout);
         } else {
-            trace(0, "cgi: open failed\n");
+            trace(5, "cgi: open failed\n");
         }
     }
 }
@@ -370,11 +371,10 @@ WebsTime websCgiPoll()
 #endif
                     }
                 }
-trace(0, "POS %d\n", cgip->fplacemark);
                 if (cgip->fplacemark == 0) {
-                    websError(wp, 200, "CGI generated no output");
+                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "CGI generated no output");
                 } else {
-                    trace(0, "cgi: Request complete - calling websDone\n");
+                    trace(5, "cgi: Request complete - calling websDone\n");
                     websDone(wp);
                 }
                 /*
@@ -523,7 +523,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 {
     int pid, fdin, fdout, hstdin, hstdout;
 
-    trace(0, "cgi: run %s\n", cgiPath);
+    trace(5, "cgi: run %s\n", cgiPath);
     pid = fdin = fdout = hstdin = hstdout = -1;
     if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
             (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
@@ -572,7 +572,7 @@ static int checkCgi(int handle)
         Check to see if the CGI child process has terminated or not yet.
      */
     if ((pid = waitpid(handle, NULL, WNOHANG)) == handle) {
-        trace(0, "cgi: waited for pid %d\n", pid);
+        trace(5, "cgi: waited for pid %d\n", pid);
         return 0;
     } else {
         return 1;

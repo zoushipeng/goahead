@@ -7,13 +7,13 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../template.c"
-         timestampString = "371545286.974677"
+         filePath = "../upload.c"
+         timestampString = "371790847.65715"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "36"
-         endingLineNumber = "36"
-         landmarkName = "jsHandler()"
+         startingLineNumber = "111"
+         endingLineNumber = "111"
+         landmarkName = "websProcessUploadData()"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
@@ -21,12 +21,38 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../runtime.c"
-         timestampString = "371774014.0461"
+         timestampString = "371804067.862609"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "272"
-         endingLineNumber = "272"
-         landmarkName = "websRunEvents()"
+         startingLineNumber = "1035"
+         endingLineNumber = "1035"
+         landmarkName = "assureError()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../http.c"
+         timestampString = "371805583.04845"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "437"
+         endingLineNumber = "437"
+         landmarkName = "termWebs()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../upload.c"
+         timestampString = "371805594.346408"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "248"
+         endingLineNumber = "248"
+         landmarkName = "processUploadHeader()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

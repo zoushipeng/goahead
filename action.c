@@ -35,7 +35,7 @@ static bool actionHandler(Webs *wp)
      */
     scopy(formBuf, sizeof(formBuf), wp->path);
     if ((formName = strchr(&formBuf[1], '/')) == NULL) {
-        websError(wp, 200, "Missing form name");
+        websError(wp, HTTP_CODE_NOT_FOUND, "Missing form name");
         return 1;
     }
     formName++;
@@ -47,7 +47,7 @@ static bool actionHandler(Webs *wp)
      */
     sp = hashLookup(formSymtab, formName);
     if (sp == NULL) {
-        websError(wp, 404, "Action %s is not defined", formName);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Action %s is not defined", formName);
     } else {
         fn = (WebsAction) sp->content.value.symbol;
         assure(fn);

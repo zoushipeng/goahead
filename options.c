@@ -14,15 +14,15 @@ static bool optionsHandler(Webs *wp)
 {
     assure(wp);
 
+#if !BIT_STEALTH
     if (smatch(wp->method, "OPTIONS")) {
         websSetStatus(wp, HTTP_CODE_OK);
         websWriteHeaders(wp, 0, 0);
-        websWriteHeader(wp, "Allow", "DELETE,GET,HEAD,OPTIONS,POST,PUT%s", BIT_TRACE_METHOD ? ",TRACE" : "");
+        websWriteHeader(wp, "Allow", "DELETE,GET,HEAD,OPTIONS,POST,PUT,TRACE");
         websWriteEndHeaders(wp);
         websDone(wp);
         return 1;
 
-#if BIT_TRACE_METHOD
     } else if (smatch(wp->method, "TRACE")) {
         websSetStatus(wp, HTTP_CODE_OK);
         websWriteHeaders(wp, 0, 0);
@@ -30,8 +30,8 @@ static bool optionsHandler(Webs *wp)
         websWrite(wp, "%s %s %s\r\n", wp->method, wp->url, wp->protoVersion);
         websDone(wp);
         return 1;
-#endif
     }
+#endif
     websResponse(wp, HTTP_CODE_NOT_ACCEPTABLE, "Unsupported method");
     return 1;
 }

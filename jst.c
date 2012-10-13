@@ -35,18 +35,19 @@ static bool jstHandler(Webs *wp)
     assure(wp->filename && *wp->filename);
     assure(wp->ext && *wp->ext);
 
+    buf = 0;
     if ((jid = jsOpenEngine(wp->vars, websJstFunctions)) < 0) {
-        websError(wp, 200, "Can't create JavaScript engine");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create JavaScript engine");
         goto done;
     }
     jsSetUserHandle(jid, wp);
 
     if (websPageStat(wp, &sbuf) < 0) {
-        websError(wp, 404, "Can't stat %s", wp->filename);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Can't stat %s", wp->filename);
         goto done;
     }
     if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
-        websError(wp, 404, "Cannot open URL: %s", wp->filename);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Cannot open URL: %s", wp->filename);
         goto done;
     }
     /*
@@ -54,13 +55,13 @@ static bool jstHandler(Webs *wp)
      */
     len = sbuf.size;
     if ((buf = galloc(len + 1)) == NULL) {
-        websError(wp, 200, "Can't get memory");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
         goto done;
     }
     buf[len] = '\0';
 
     if (websPageReadData(wp, buf, len) != len) {
-        websError(wp, 200, "Cant read %s", wp->filename);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Cant read %s", wp->filename);
         goto done;
     }
     websPageClose(wp);
@@ -136,7 +137,7 @@ static bool jstHandler(Webs *wp)
             }
 
         } else {
-            websError(wp, 200, "Unterminated script in %s: \n", wp->filename);
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Unterminated script in %s: \n", wp->filename);
             goto done;
         }
     }

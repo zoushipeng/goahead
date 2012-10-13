@@ -152,11 +152,11 @@ bool websCan(Webs *wp, WebsHash abilities)
     if (!wp->user) {
         if (wp->authType) {
             if (!wp->username) {
-                websError(wp, 401, "Access Denied. User not logged in.");
+                websError(wp, HTTP_CODE_UNAUTHORIZED, "Access Denied. User not logged in.");
                 return 0;
             }
             if ((wp->user = websLookupUser(wp->username)) == 0) {
-                websError(wp, 401, "Access Denied. Unknown user.");
+                websError(wp, HTTP_CODE_UNAUTHORIZED, "Access Denied. Unknown user.");
                 return 0;
             }
         }
@@ -186,11 +186,11 @@ bool websCan(Webs *wp, WebsHash abilities)
                     start = &cp[1];
                 } while ((cp = strchr(start, '|')) != 0);
                 if (!cp) {
-                    websError(wp, 401, "Access Denied. Insufficient capabilities.");
+                    websError(wp, HTTP_CODE_UNAUTHORIZED, "Access Denied. Insufficient capabilities.");
                     return 0;
                 }
             } else if (!can(wp, ability)) {
-                websError(wp, 401, "Access Denied. Insufficient capabilities.");
+                websError(wp, HTTP_CODE_UNAUTHORIZED, "Access Denied. Insufficient capabilities.");
                 return 0;
             }
         }

@@ -2344,6 +2344,7 @@ extern WebsUpload *websLookupUpload(struct Webs *wp, char *key);
     WebsDone flags
  */
 #define WEBS_CLOSE          0x20000     /**< Close connection */
+#define WEBS_NOLOG          0x40000     /**< Don't write error to log */
 
 /**
     Callback for write I/O events
@@ -2397,6 +2398,7 @@ typedef struct Webs {
     char            *path;              /**< Path name without query. This is decoded. */
     char            *protoVersion;      /**< Protocol version (HTTP/1.1)*/
     char            *protocol;          /**< Protocol scheme (normally http|https) */
+    char            *putname;           /**< PUT temporary filename */
     char            *query;             /**< Request query. This is decoded. */
     char            *realm;             /**< Realm field supplied in auth header */
     char            *referrer;          /**< The referring page */
@@ -2422,6 +2424,7 @@ typedef struct Webs {
     int             putfd;              /**< File handle to write PUT data */
     int             docfd;              /**< File descriptor for document being served */
     ssize           written;            /**< Bytes actually transferred */
+    ssize           putLen;             /**< Bytes read by a PUT request */
 
     struct WebsSession *session;        /**< Session record */
     struct WebsRoute *route;            /**< Request route */

@@ -82,9 +82,10 @@ Bit.load({
         documents: "web",
 
         /*
-            Addresses to listen on. This specifies the protocol, interface and port.
+            Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
+            Set to: DENY, SAMEORIGIN, ALLOW uri
          */
-        listen: ["http://*:80", "https://*:443"]
+        xframeHeader: "SAMEORIGIN",
 
         /*
             Build with support for javascript web templates
@@ -110,7 +111,8 @@ Bit.load({
         limitHeaders:         4096,    /* Maximum HTTP header size */
         limitNumHeaders:        64,    /* Maximum number of headers */
         limitPassword:          32,    /* Maximum password size */
-        limitRxBody:         16384,    /* Maximum receive body size for PUT|POST */
+        limitPost:           16384,    /* Maximum POST (and other method) incoming body size */
+        limitPut:        204800000,    /* Maximum PUT body size ~ 200MB */
         limitSessionLife:     1800,    /* Session lifespan in seconds */
         limitSessionCount:     120,    /* Maximum number of sessions to support */
         limitString:          4096,    /* Default string size */
@@ -119,9 +121,19 @@ Bit.load({
         limitUpload:     204800000,    /* Maximum upload size ~ 200MB */
 
         /*
+            Addresses to listen on. This specifies the protocol, interface and port.
+         */
+        listen: ["http://*:80", "https://*:443"]
+
+        /*
             Use PAM (Plugable Authentication Module) to store passwords
          */
         pam: false,
+
+        /*
+            Temporary directory to hold PUT files
+         */
+        putDir: "/tmp",
 
         /*
             Authentication realm. Replace with your realm.
@@ -134,14 +146,16 @@ Bit.load({
         replaceMalloc: false,
 
         /*
+            Enable stealth options:
+            - Don't disclose mutating methods: DELETE, PUT
+            - Don't enable TRACE method
+         */
+        stealth: true,
+
+        /*
             Default location for debug log 
          */
         trace: "stderr:0",
-
-        /*
-            Enable the trace method. This should be disabled for security
-         */
-        traceMethod: false,
 
         /*
             Upload file support

@@ -397,11 +397,11 @@ static void initWebs(Webs *wp, int flags, int reuse)
     assure(BIT_LIMIT_BUFFER >= 1024);
     bufCreate(&wp->output, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER + 1);
     bufCreate(&wp->chunkbuf, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_BUFFER * 2);
-    bufCreate(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_RX_BODY + 1);
+    bufCreate(&wp->input, BIT_LIMIT_BUFFER + 1, BIT_LIMIT_PUT + 1);
     if (reuse) {
         wp->rxbuf = rxbuf;
     } else {
-        bufCreate(&wp->rxbuf, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_RX_BODY);
+        bufCreate(&wp->rxbuf, BIT_LIMIT_HEADERS, BIT_LIMIT_HEADERS + BIT_LIMIT_PUT);
     }
     wp->rxbuf = wp->rxbuf;
 }
@@ -434,6 +434,10 @@ static void termWebs(Webs *wp, int reuse)
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
+        assure(wp->putname && wp->filename);
+        if (rename(wp->putname, wp->filename) < 0) {
+            error("Can't rename put file from %s to %s", wp->putname, wp->filename);
+        }
     }
     if (wp->timeout >= 0 && !reuse) {
         websCancelTimeout(wp);
@@ -454,6 +458,7 @@ static void termWebs(Webs *wp, int reuse)
     gfree(wp->password);
     gfree(wp->path);
     gfree(wp->protoVersion);
+    gfree(wp->putname);
     gfree(wp->query);
     gfree(wp->realm);
     gfree(wp->referrer);
@@ -552,16 +557,6 @@ void websDone(Webs *wp)
         /* Need to wait for output buffer to drain */
         sp = socketPtr(wp->sid);
         socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
-    }
-#if BIT_CGI
-    if (wp->cgifd >= 0) {
-        close(wp->cgifd);
-        wp->cgifd = -1;
-    }
-#endif
-    if (wp->putfd >= 0) {
-        close(wp->putfd);
-        wp->putfd = -1;
     }
 #if BIT_ACCESS_LOG
     logRequest(wp, wp->code);
@@ -758,7 +753,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
     assure(buf);
     assure(len > 0);
 #if BIT_PACK_SSL
-    if (wp->flags & WEBS_SECURE) {
+    if (wp->flags & WEBS_SECURE && wp->ssl) {
         return sslRead(wp, buf, len);
     }
 #endif
@@ -779,6 +774,9 @@ static void readEvent(Webs *wp)
     assure(wp);
     assure(websValid(wp));
 
+    if (!websValid(wp)) {
+        return;
+    }
     websNoteRequestActivity(wp);
     rxbuf = &wp->rxbuf;
 
@@ -847,7 +845,6 @@ bool parseIncoming(Webs *wp)
 {
     WebsBuf     *rxbuf;
     WebsStat    sbuf;
-    int         mode, exists;
     char        *end, c;
 
     rxbuf = &wp->rxbuf;
@@ -888,21 +885,19 @@ bool parseIncoming(Webs *wp)
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
-                websError(wp, 400 | WEBS_CLOSE, "Can't open CGI file");
+                websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Can't open CGI file");
                 return 1;
             }
         }
     }
 #endif
     if (smatch(wp->method, "PUT")) {
-        exists = stat(wp->filename, &sbuf) == 0;
-        mode = O_BINARY | O_WRONLY;
-        if (!exists) {
-            mode |= O_CREAT | O_TRUNC;
-        }  
-        wp->code = (exists && sbuf.st_mode & S_IFDIR) ? 204 : 201;
-        if ((wp->putfd = open(wp->filename, mode, 0644)) < 0) {
-            websError(wp, 500, "Can't create the put URI");
+        wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
+        wp->putname = tempnam(BIT_PUT_DIR, "put-");
+        if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
+            error("Can't create PUT filename %s", wp->putname);
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create the put URI");
+            gfree(wp->putname);
             return 1;
         }
     }
@@ -926,18 +921,18 @@ static void parseFirstLine(Webs *wp)
      */
     op = getToken(wp, 0);
     if (op == NULL || *op == '\0') {
-        websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
+        websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Bad HTTP request");
         return;
     }
     wp->method = supper(strdup(op));
 
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
-        websError(wp, 400 | WEBS_CLOSE, "Bad HTTP request");
+        websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
         return;
     }
     if (strlen(url) > BIT_LIMIT_URI) {
-        websError(wp, 400 | WEBS_CLOSE, "URI too big");
+        websError(wp, HTTP_CODE_REQUEST_URL_TOO_LARGE | WEBS_CLOSE, "URI too big");
         return;
     }
     protoVer = getToken(wp, "\r\n");
@@ -949,11 +944,13 @@ static void parseFirstLine(Webs *wp)
      */
     host = path = port = query = ext = NULL;
     if (websUrlParse(url, &buf, NULL, &host, &port, &path, &ext, NULL, &query) < 0) {
-        websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
+        error("Cannot parse URL: %s", url);
+        websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         return;
     }
     if ((wp->path = websNormalizeUriPath(path)) == 0) {
-        websError(wp, 400 | WEBS_CLOSE, "Bad URL format");
+        error("Cannot normalize URL: %s", url);
+        websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         gfree(buf);
         return;
     }
@@ -962,16 +959,18 @@ static void parseFirstLine(Webs *wp)
         wp->ext = sclone(slower(ext));
     }
     wp->filename = sfmt("%s%s", websGetDocuments(), wp->path);
-
     wp->query = sclone(query);
     wp->host = sclone(host);
     wp->protocol = wp->flags & WEBS_SECURE ? "https" : "http";
-    wp->protoVersion = sclone(protoVer);
     if (smatch(protoVer, "HTTP/1.1")) {
         wp->flags |= WEBS_KEEP_ALIVE | WEBS_HTTP11;
-    } else {
+    } else if (smatch(protoVer, "HTTP/1.0")) {
         wp->flags &= ~(WEBS_HTTP11);
+    } else {
+        protoVer = sclone("HTTP/1.1");
+        websError(wp, WEBS_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
     }
+    wp->protoVersion = sclone(protoVer);
     if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
         wp->port = testPort;
     } else {
@@ -998,7 +997,7 @@ static void parseHeaders(Webs *wp)
     */
     for (count = 0; wp->rxbuf.servp[0] != '\r'; count++) {
         if (count >= BIT_LIMIT_NUM_HEADERS) {
-            websError(wp, 400 | WEBS_CLOSE, "Too many headers");
+            websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too many headers");
             return;
         }
         if ((key = getToken(wp, ":")) == NULL) {
@@ -1008,7 +1007,7 @@ static void parseHeaders(Webs *wp)
             value = "";
         }
         if (!key || !value) {
-            websError(wp, 400 | WEBS_CLOSE, "Bad header format");
+            websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
         }
         while (isspace(*value)) {
@@ -1051,9 +1050,16 @@ static void parseHeaders(Webs *wp)
 
         } else if (strcmp(key, "content-length") == 0) {
             wp->rxLen = atoi(value);
-            if (wp->rxLen > BIT_LIMIT_RX_BODY) {
-                websError(wp, 413 | WEBS_CLOSE, "Too big");
-                return;
+            if (smatch(wp->method, "PUT")) {
+                if (wp->rxLen > BIT_LIMIT_PUT) {
+                    websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
+                    return;
+                }
+            } else {
+                if (wp->rxLen > BIT_LIMIT_POST) {
+                    websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
+                    return;
+                }
             }
             if (wp->rxLen > 0 && !smatch(wp->method, "HEAD")) {
                 wp->rxRemaining = wp->rxLen;
@@ -1687,12 +1693,14 @@ void websError(Webs *wp, int code, char *fmt, ...)
     char        *encoded;
 
     assure(wp);
-
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
     code &= ~WEBS_CLOSE;
-
+    if (wp->putfd >= 0) {
+        close(wp->putfd);
+        wp->putfd = -1;
+    }
     if (wp->rxRemaining && code != 200 && code != 301 && code != 302 && code != 401) {
         /* Close connection so we don't have to consume remaining content */
         wp->flags &= ~WEBS_KEEP_ALIVE;
@@ -1700,17 +1708,16 @@ void websError(Webs *wp, int code, char *fmt, ...)
     encoded = websEscapeHtml(wp->url);
     gfree(wp->url);
     wp->url = encoded;
-
     if (fmt) {
         va_start(args, fmt);
         msg = sfmtv(fmt, args);
         va_end(args);
-        error("%s", msg);
-
+        if (!(code & WEBS_NOLOG)) {
+            error("%s", msg);
+        }
         encoded = websEscapeHtml(msg);
         gfree(msg);
         msg = encoded;
-
         buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
             <body><h2>Access Error: %s</h2>\r\n\
             <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
@@ -1736,7 +1743,7 @@ char *websErrorMsg(int code)
             return ep->msg;
         }
     }
-    return websErrorMsg(500);
+    return websErrorMsg(HTTP_CODE_INTERNAL_SERVER_ERROR);
 }
 
 
@@ -1751,7 +1758,6 @@ int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
         wp->flags |= WEBS_RESPONSE_TRACED;
         trace(3 | WEBS_LOG_RAW, "\n>>> Response\n");
     }
-
     if (key) {
         if (websWriteBlock(wp, key, strlen(key)) < 0) {
             return -1;
@@ -1768,6 +1774,7 @@ int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
             return -1;
         }
         va_end(vargs);
+        assure(strstr(buf, "UNION") == 0);
         trace(3 | WEBS_LOG_RAW, "%s", buf);
         if (websWriteBlock(wp, buf, strlen(buf)) < 0) {
             return -1;
@@ -1843,6 +1850,11 @@ void websWriteHeaders(Webs *wp, ssize length, char *location)
             websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
         }
+#ifdef BIT_XFRAME_HEADER
+        if (*BIT_XFRAME_HEADER) {
+            websWriteHeader(wp, "X-Frame-Options", "%s", BIT_XFRAME_HEADER);
+        }
+#endif
     }
 }
 
@@ -2002,26 +2014,30 @@ bool websFlush(Webs *wp)
     WebsBuf     *op;
     ssize       nbytes, written;
 
-    trace(0, "websFlush\n");
+    trace(6, "websFlush\n");
     op = &wp->output;
     if (wp->flags & WEBS_CHUNKING) {
-        trace(0, "websFlush chunking finalized %d\n", wp->flags & WEBS_FINALIZED);
+        trace(6, "websFlush chunking finalized %d\n", wp->flags & WEBS_FINALIZED);
         if (flushChunkData(wp) && wp->flags & WEBS_FINALIZED) {
-            trace(0, "websFlush: write chunk trailer\n");
+            trace(6, "websFlush: write chunk trailer\n");
             bufPutStr(op, "\r\n0\r\n\r\n");
             bufAddNull(op);
             wp->flags &= ~WEBS_CHUNKING;
         }
     }
-    trace(0, "websFlush: buflen %d\n", bufLen(op));
+    trace(6, "websFlush: buflen %d\n", bufLen(op));
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
+            wp->flags &= ~WEBS_KEEP_ALIVE;
+#if UNUSED
+            //  MOB - this goes recursive
             websError(wp, HTTP_CODE_COMMS_ERROR, "Comms write error");
+#endif
             return 0;
         } else if (written == 0) {
             break;
         }
-        trace(0, "websFlush: wrote %d to socket\n", written);
+        trace(6, "websFlush: wrote %d to socket\n", written);
         bufAdjustStart(op, written);
         bufCompact(op);
         nbytes = bufLen(op);
@@ -2820,13 +2836,12 @@ static WebsTime parseDate3Time(char *buf, int *index)
 }
 
 
-//  MOB - macro and rename
-static int bufferIndexIncrementGivenNTest(char *buf, int testIndex, char testChar, int foundIncrement, int notfoundIncrement) 
+/*
+    This calculates the buffer index by comparing with a testChar
+ */
+static int getInc(char *buf, int testIndex, char testChar, int foundIncrement, int notfoundIncrement) 
 {
-    if (buf[testIndex] == testChar) {
-        return foundIncrement;
-    }
-    return notfoundIncrement;
+    return (buf[testIndex] == testChar) ? foundIncrement : notfoundIncrement;
 }
 
 
@@ -2849,21 +2864,21 @@ static int parseWeekday(char *buf, int *index)
     switch (buf[tmpIndex]) {
         case 'F':
             returnValue = FRI;
-            *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 'd', sizeof("Friday"), 3);
+            *index += getInc(buf, tmpIndex+3, 'd', sizeof("Friday"), 3);
             break;
         case 'M':
             returnValue = MON;
-            *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 'd', sizeof("Monday"), 3);
+            *index += getInc(buf, tmpIndex+3, 'd', sizeof("Monday"), 3);
             break;
         case 'S':
             switch (buf[tmpIndex+1]) {
                 case 'a':
                     returnValue = SAT;
-                    *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 'u', sizeof("Saturday"), 3);
+                    *index += getInc(buf, tmpIndex+3, 'u', sizeof("Saturday"), 3);
                     break;
                 case 'u':
                     returnValue = SUN;
-                    *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 'd', sizeof("Sunday"), 3);
+                    *index += getInc(buf, tmpIndex+3, 'd', sizeof("Sunday"), 3);
                     break;
             }
             break;
@@ -2871,17 +2886,17 @@ static int parseWeekday(char *buf, int *index)
             switch (buf[tmpIndex+1]) {
                 case 'h':
                     returnValue = THU;
-                    *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 'r', sizeof("Thursday"), 3);
+                    *index += getInc(buf, tmpIndex+3, 'r', sizeof("Thursday"), 3);
                     break;
                 case 'u':
                     returnValue = TUE;
-                    *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 's', sizeof("Tuesday"), 3);
+                    *index += getInc(buf, tmpIndex+3, 's', sizeof("Tuesday"), 3);
                     break;
             }
             break;
         case 'W':
             returnValue = WED;
-            *index += bufferIndexIncrementGivenNTest(buf, tmpIndex+3, 'n', sizeof("Wednesday"), 3);
+            *index += getInc(buf, tmpIndex+3, 'n', sizeof("Wednesday"), 3);
             break;
     }
     return returnValue;
@@ -2930,7 +2945,6 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
             parsedValue = parseDate3Time(cmd, &tmpIndex);
         }
     }
-
     return parsedValue;
 }
 
@@ -3021,7 +3035,6 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
         path = tok;
         tok = query;
     } 
-
     /*
         Parse the fragment identifier
      */
@@ -3057,20 +3070,27 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
     /*
         Pass back the fields requested (if not NULL)
      */
-    if (phost)
+    if (phost) {
         *phost = host;
-    if (ppath)
+    }
+    if (ppath) {
         *ppath = path;
-    if (pport)
+    }
+    if (pport) {
         *pport = port;
-    if (pprotocol)
+    }
+    if (pprotocol) {
         *pprotocol = protocol;
-    if (pquery)
+    }
+    if (pquery) {
         *pquery = query;
-    if (preference)
+    }
+    if (preference) {
         *preference = reference;
-    if (pext)
+    }
+    if (pext) {
         *pext = ext;
+    }
     *pbuf = buf;
     return 0;
 }

@@ -34,7 +34,7 @@ int sslOpen()
         return -1;
     }
     if (matrixSslNewKeys(&sslKeys) < 0) {
-        trace(0, "Failed to allocate keys in sslOpen\n");
+        error("Failed to allocate keys in sslOpen\n");
         return -1;
     }
     password = 0;

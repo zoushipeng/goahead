@@ -166,11 +166,15 @@ void sslFree(Webs *wp)
 
 ssize sslRead(Webs *wp, void *buf, ssize len)
 {
-    WebsSocket        *sp;
+    WebsSocket      *sp;
     char            ebuf[BIT_LIMIT_STRING];
     ulong           serror;
     int             rc, error, retries, i;
 
+    if (wp->bio == 0 || wp->ssl == 0 || len <= 0) {
+        assure(0);
+        return -1;
+    }
     /*  
         Limit retries on WANT_READ. If non-blocking and no data, then this can spin forever.
      */

@@ -35,7 +35,7 @@ static bool fileHandler(Webs *wp)
 #if !BIT_ROM
     if (smatch(wp->method, "DELETE")) {
         if (unlink(wp->filename) < 0) {
-            websError(wp, 404, "Can't delete the URI");
+            websError(wp, HTTP_CODE_NOT_FOUND, "Can't delete the URI");
         } else {
             /* No content */
             websResponse(wp, 204, 0);
@@ -66,11 +66,11 @@ static bool fileHandler(Webs *wp)
                 trace(1, "From %s\n", wp->referrer);
             }
 #endif
-            websError(wp, 404, "Cannot open: %s", wp->filename);
+            websError(wp, HTTP_CODE_NOT_FOUND, "Cannot open document for: %s", wp->path);
             return 1;
         }
         if (websPageStat(wp, &info) < 0) {
-            websError(wp, 400, "Cannot stat page for URL");
+            websError(wp, HTTP_CODE_NOT_FOUND, "Cannot stat page for URL");
             return 1;
         }
         code = 200;
@@ -114,7 +114,7 @@ static void fileWriteEvent(Webs *wp)
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
      */
     if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
-        websError(wp, 200, "Can't get memory");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
         return;
     }
     while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
@@ -142,8 +142,13 @@ int websProcessPutData(Webs *wp)
     assure(wp->input.buf);
 
     nbytes = bufLen(&wp->input);
+    wp->putLen += nbytes;
+    if (wp->putLen > BIT_LIMIT_PUT) {
+        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Put file too large");
+        return -1;
+    }
     if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
-        websError(wp, WEBS_CLOSE | 500, "Can't write to file");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR | WEBS_CLOSE, "Can't write to file");
         return -1;
     }
     websConsumeInput(wp, nbytes);

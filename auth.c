@@ -510,7 +510,7 @@ static void logoutServiceProc(Webs *wp)
     assure(wp);
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
     if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
-        websError(wp, 401, "Logged out.");
+        websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
         return;
     }
     websRedirectByStatus(wp, HTTP_CODE_OK);
