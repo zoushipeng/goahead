@@ -3596,6 +3596,31 @@ static void pruneCache()
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
 }
 
+
+/*
+    One line embedding
+ */
+int websServer(char *endpoint, char *documents)
+{
+    int     finished = 0;
+
+    if (websOpen(documents, "route.txt") < 0) {
+        error("Can't initialize server. Exiting.");
+        return -1;
+    }
+    if (websLoad("auth.txt") < 0) {
+        error("Can't load auth.txt");
+        return -1;
+    }
+    if (websListen(endpoint) < 0) {
+        return -1;
+    }
+    websServiceEvents(&finished);
+    websClose();
+    return 0;
+}
+
+
 /*
     @copy   default
 

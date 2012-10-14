@@ -3209,6 +3209,14 @@ extern int websRomPageStat(Webs *wp, WebsFileInfo *sbuf);
 extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
 #endif
 
+/**
+    One line embedding API.
+    @description This call will also open auth.txt and route.txt for authentication and routing configuration.
+    @param endpoint IP:PORT address on which to listen
+    @param documents Directory containing web documents to serve
+    @ingroup Webs
+ */
+extern int websServer(char *endpoint, char *documents);
 
 /**
     Service I/O events until finished
@@ -3219,8 +3227,6 @@ extern long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
  */
 extern void websServiceEvents(int *finished);
 
-extern void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
-
 /**
     Set the background processing flag
     @param on Value to set the background flag to.
@@ -3228,6 +3234,13 @@ extern void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
     @internal
  */
 extern void websSetBackground(int on);
+
+/**
+    Define a background write I/O event callback
+    @param wp Webs request object
+    @param proc Write callback
+ */
+extern void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
 
 /**
     Set the debug processing flag
