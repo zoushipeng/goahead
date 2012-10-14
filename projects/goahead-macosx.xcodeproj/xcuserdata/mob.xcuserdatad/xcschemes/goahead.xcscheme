@@ -61,7 +61,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--log stdout:1"
+            argument = "--log stdout:4"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

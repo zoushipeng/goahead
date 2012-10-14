@@ -7,19 +7,6 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../upload.c"
-         timestampString = "371790847.65715"
-         startingColumnNumber = "9223372036854775807"
-         endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "111"
-         endingLineNumber = "111"
-         landmarkName = "websProcessUploadData()"
-         landmarkType = "7">
-      </FileBreakpoint>
-      <FileBreakpoint
-         shouldBeEnabled = "Yes"
-         ignoreCount = "0"
-         continueAfterRunningActions = "No"
          filePath = "../runtime.c"
          timestampString = "371804067.862609"
          startingColumnNumber = "9223372036854775807"
@@ -34,25 +21,51 @@
          ignoreCount = "0"
          continueAfterRunningActions = "No"
          filePath = "../http.c"
-         timestampString = "371805583.04845"
+         timestampString = "371879320.264588"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "437"
-         endingLineNumber = "437"
-         landmarkName = "termWebs()"
+         startingLineNumber = "3580"
+         endingLineNumber = "3580"
+         landmarkName = "pruneCache()"
          landmarkType = "7">
       </FileBreakpoint>
       <FileBreakpoint
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "../upload.c"
-         timestampString = "371805594.346408"
+         filePath = "../http.c"
+         timestampString = "371879382.747699"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "248"
-         endingLineNumber = "248"
-         landmarkName = "processUploadHeader()"
+         startingLineNumber = "251"
+         endingLineNumber = "251"
+         landmarkName = "websOpen()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../http.c"
+         timestampString = "371879386.415779"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "311"
+         endingLineNumber = "311"
+         landmarkName = "websClose()"
+         landmarkType = "7">
+      </FileBreakpoint>
+      <FileBreakpoint
+         shouldBeEnabled = "Yes"
+         ignoreCount = "0"
+         continueAfterRunningActions = "No"
+         filePath = "../http.c"
+         timestampString = "371888674.319508"
+         startingColumnNumber = "9223372036854775807"
+         endingColumnNumber = "9223372036854775807"
+         startingLineNumber = "3416"
+         endingLineNumber = "3416"
+         landmarkName = "websAllocSession()"
          landmarkType = "7">
       </FileBreakpoint>
    </FileBreakpoints>

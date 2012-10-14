@@ -162,6 +162,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
 #endif
     websServiceEvents(&finished);
+    trace(1, "Instructed to exit\n");
     websClose();
     return 0;
 }
@@ -207,6 +208,7 @@ static void usage() {
 void initPlatform() 
 {
 #if BIT_UNIX_LIKE
+    signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
     signal(SIGKILL, sigHandler);
     #ifdef SIGPIPE

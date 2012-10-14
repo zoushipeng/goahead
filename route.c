@@ -178,11 +178,6 @@ bool websCan(Webs *wp, WebsHash abilities)
                     if (can(wp, abuf)) {
                         break;
                     }
-#if UNUSED
-                    if (websComplete(wp)) {
-                        return 0;
-                    }
-#endif
                     start = &cp[1];
                 } while ((cp = strchr(start, '|')) != 0);
                 if (!cp) {
@@ -545,21 +540,6 @@ int websLoad(char *path)
         }
     }
     fclose(fp);
-
-#if UNUSED
-    /*
-        Ensure there is a route for "/", if not, create it.
-     */
-    for (i = 0, route = 0; i < routeCount; i++) {
-        route = routes[i];
-        if (strcmp(route->prefix, "/") == 0) {
-            break;
-        }
-    }
-    if (i >= routeCount) {
-        websAddRoute("/", 0, -1);
-    }
-#endif
     websComputeAllUserAbilities();
     return 0;
 }

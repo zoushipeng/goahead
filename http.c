@@ -446,6 +446,7 @@ static void termWebs(Webs *wp, int reuse)
     gfree(wp->authDetails);
     gfree(wp->authResponse);
     gfree(wp->authType);
+    gfree(wp->boundary);
     gfree(wp->contentType);
     gfree(wp->cookie);
     gfree(wp->decodedQuery);
@@ -468,6 +469,7 @@ static void termWebs(Webs *wp, int reuse)
     gfree(wp->username);
 #if BIT_UPLOAD
     gfree(wp->uploadTmp);
+    gfree(wp->uploadVar);
 #endif
 #if BIT_CGI
     gfree(wp->cgiStdin);
@@ -652,6 +654,7 @@ int websListen(char *endpoint)
 int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
     Webs        *wp;
+    WebsSocket  *lp;
     struct sockaddr_storage ifAddr;
     int         wid, len;
 
@@ -695,21 +698,21 @@ int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for socketEvent to be called when read data is available
      */
+     lp = socketPtr(listenSid);
+    trace(4, "New connection from %s:%d to %s:%d\n", ipaddr, port, wp->ifaddr, lp->port);
+
 #if BIT_PACK_SSL
-{
-    WebsSocket *lp = socketPtr(listenSid);
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
+        trace(4, "Upgrade connection to TLS\n");
         if (sslUpgrade(wp) < 0) {
             error("Can't upgrade to TLS");
             return -1;
         }
     }
-}
 #endif
     assure(wp->timeout == -1);
     wp->timeout = websStartEvent(WEBS_TIMEOUT, checkTimeout, (void*) wp);
-    trace(5, "accept connection\n");
     socketEvent(sid, SOCKET_READABLE, wp);
     return 0;
 }
@@ -858,9 +861,7 @@ bool parseIncoming(Webs *wp)
         }
         return 0;
     }    
-#if BIT_DEBUG
     trace(3 | WEBS_LOG_RAW, "\n<<< Request\n");
-#endif
     c = *end;
     *end = '\0';
     trace(3 | WEBS_LOG_RAW, "%s\n", wp->rxbuf.servp);
@@ -936,6 +937,9 @@ static void parseFirstLine(Webs *wp)
         return;
     }
     protoVer = getToken(wp, "\r\n");
+    if (websGetTraceLevel() == 2) {
+        trace(2, "%s %s %s\n", wp->method, url, protoVer);
+    }
 
     /*
         Parse the URL and store all the various URL components. websUrlParse returns an allocated buffer in buf which we
@@ -1396,6 +1400,7 @@ void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
     if (fmt) {
         va_start(args, fmt);
         v = valueString(sfmtv(fmt, args), 0);
+        v.allocated = 1;
         va_end(args);
     } else {
         v = valueString("", 0);
@@ -1850,7 +1855,7 @@ void websWriteHeaders(Webs *wp, ssize length, char *location)
             websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
         }
-#ifdef BIT_XFRAME_HEADER
+#ifdef UNUSED_BIT_XFRAME_HEADER
         if (*BIT_XFRAME_HEADER) {
             websWriteHeader(wp, "X-Frame-Options", "%s", BIT_XFRAME_HEADER);
         }
@@ -2029,10 +2034,6 @@ bool websFlush(Webs *wp)
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
             wp->flags &= ~WEBS_KEEP_ALIVE;
-#if UNUSED
-            //  MOB - this goes recursive
-            websError(wp, HTTP_CODE_COMMS_ERROR, "Comms write error");
-#endif
             return 0;
         } else if (written == 0) {
             break;
@@ -2975,11 +2976,7 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
     memset(buf, 0, len * sizeof(char));
     portbuf = &buf[len - WEBS_MAX_PORT_LEN - 1];
     hostbuf = &buf[ulen+1];
-#if UNUSED
-    websDecodeUrl(buf, url, ulen);
-#else
     sncopy(buf, len, url, ulen);
-#endif
 
     /*
         Convert the current listen port to a string. We use this if the URL has no explicit port setting
@@ -3416,9 +3413,10 @@ WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
     sp->lifespan = lifespan;
     sp->expires = time(0) + lifespan;
     if (id == 0) {
-        id = makeSessionID(wp);
+        sp->id = makeSessionID(wp);
+    } else {
+        sp->id = sclone(id);
     }
-    sp->id = sclone(id);
     if ((sp->cache = hashCreate(WEBS_SESSION_HASH)) == 0) {
         return 0;
     }
@@ -3430,6 +3428,9 @@ static void freeSession(WebsSession *sp)
 {
     assure(sp);
 
+    if (sp->cache >= 0) {
+        hashFree(sp->cache);
+    }
     gfree(sp->id);
     gfree(sp);
 }
@@ -3446,17 +3447,21 @@ WebsSession *websGetSession(Webs *wp, int create)
         id = websGetSessionID(wp);
         if ((sym = hashLookup(sessions, id)) == 0) {
             if (!create) {
+                gfree(id);
                 return 0;
             }
             if (sessionCount > BIT_LIMIT_SESSION_COUNT) {
                 error("Too many sessions %d/%d", sessionCount, BIT_LIMIT_SESSION_COUNT);
+                gfree(id);
                 return 0;
             }
             sessionCount++;
             if ((wp->session = websAllocSession(wp, id, BIT_LIMIT_SESSION_LIFE)) == 0) {
+                gfree(id);
                 return 0;
             }
             if ((sym = hashEnter(sessions, wp->session->id, valueSymbol(wp->session), 0)) == 0) {
+                gfree(id);
                 return 0;
             }
             wp->session = (WebsSession*) sym->content.value.symbol;
@@ -3464,6 +3469,7 @@ WebsSession *websGetSession(Webs *wp, int create)
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
         }
+        gfree(id);
     }
     if (wp->session) {
         wp->session->expires = time(0) + wp->session->lifespan;
@@ -3573,6 +3579,7 @@ static void pruneCache()
     WebsKey         *sym, *next;
 
     //  MOB - should limit size of session cache
+    trace(4, "Prune session cache: count %d\n", sessionCount);
     when = time(0);
     for (sym = hashFirst(sessions); sym; sym = next) {
         next = hashNext(sessions, sym);
@@ -3585,6 +3592,7 @@ static void pruneCache()
             freeSession(sp);
         }
     }
+    trace(4, "Remaining sessions: %d\n", sessionCount);
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
 }
 

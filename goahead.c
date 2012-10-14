@@ -144,6 +144,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
 #endif
     websServiceEvents(&finished);
+    trace(1, "Instructed to exit\n");
     websClose();
 #if WINDOWS
     windowsClose();

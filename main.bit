@@ -113,8 +113,8 @@ Bit.load({
         limitPassword:          32,    /* Maximum password size */
         limitPost:           16384,    /* Maximum POST (and other method) incoming body size */
         limitPut:        204800000,    /* Maximum PUT body size ~ 200MB */
-        limitSessionLife:     1800,    /* Session lifespan in seconds */
-        limitSessionCount:     120,    /* Maximum number of sessions to support */
+        limitSessionLife:       30,    /* Session lifespan in seconds (30 mins) */
+        limitSessionCount:     512,    /* Maximum number of sessions to support */
         limitString:          4096,    /* Default string size */
         limitTimeout:           60,    /* Request inactivity timeout in seconds */
         limitUri:             2048,    /* Maximum URI size */
@@ -146,9 +146,7 @@ Bit.load({
         replaceMalloc: false,
 
         /*
-            Enable stealth options:
-            - Don't disclose mutating methods: DELETE, PUT
-            - Don't enable TRACE method
+            Enable stealth options. Disable OPTIONS and TRACE methods.
          */
         stealth: true,
 

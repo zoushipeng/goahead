@@ -82,7 +82,7 @@ static void freeUploadFile(WebsUpload *up)
 void websFreeUpload(Webs *wp)
 {
     WebsUpload  *up;
-    WebsKey         *s;
+    WebsKey     *s;
 
     for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
         up = s->content.value.symbol;
@@ -91,6 +91,7 @@ void websFreeUpload(Webs *wp)
             wp->currentFile = 0;
         }
     }
+    hashFree(wp->files);
     if (wp->currentFile) {
         freeUploadFile(wp->currentFile);
         wp->currentFile = 0;

@@ -60,10 +60,6 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "--route mob.txt --log stdout:4 -D web"
-            isEnabled = "NO">
-         </CommandLineArgument>
-         <CommandLineArgument
             argument = "--log stdout:4 web"
             isEnabled = "YES">
          </CommandLineArgument>

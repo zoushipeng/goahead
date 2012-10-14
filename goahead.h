@@ -1169,18 +1169,6 @@ typedef struct WebsValue {
  */
 #define VALUE_ALLOCATE      0x1
 
-#if UNUSED && KEEP
-/**
-    Static definition of a valid value (Uses an integer of value 1)
- */
-#define VALUE_VALID         { {0}, integer, 1 }
-
-/**
-    Static definition of an invalid value
- */
-#define VALUE_INVALID       { {0}, undefined, 0 }
-#endif
-
 /**
     Create an integer value
     @param value Integer long value
@@ -1202,15 +1190,6 @@ extern WebsValue valueString(char *value, int flags);
     @return Value object containing the symbol reference
  */
 extern WebsValue valueSymbol(void *value);
-
-#if UNUSED
-/**
-    Create an  value
-    @param value Integer long value
-    @return Value object containing the integer
- */
-extern WebsValue valueErrmsg(char *value);
-#endif
 
 /**
     Free any allocated string in a value
@@ -2718,18 +2697,6 @@ extern char *websErrorMsg(int code);
  */
 extern void websFileOpen();
 
-#if UNUSED
-/**
-    Finalize the response 
-    @description Finalize the transmit data by flushing buffered data and writing a chunk trailer if required. 
-        After finalization, the client should have the full response.
-    @param wp Webs request object
-    @return Zero if successful, otherwise -1.
-    @ingroup Webs
- */
-extern int websFinalize(Webs *wp);
-#endif
-
 /**
     Flush buffered transmit data and compact the transmit buffer to make room for more data
     @param wp Webs request object
@@ -2937,6 +2904,13 @@ extern char *websGetServerAddress();
     @ingroup Webs
  */
 extern char *websGetServerAddressUrl();
+
+/**
+    Get the current trace log level
+    @return Number between 0 and 9
+    @ingroup Webs
+ */
+extern int websGetTraceLevel();
 
 /**
     Get the request URI

@@ -1065,6 +1065,12 @@ void trace(int level, char *fmt, ...)
 }
 
 
+int websGetTraceLevel() 
+{
+    return traceLevel;
+}
+
+
 #if UNUSED
 /*
     Trace log. Customize this function to log trace output

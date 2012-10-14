@@ -8,7 +8,6 @@
 #include    "goahead.h"
 
 #if BIT_PACK_OPENSSL
-
 /************************************* Defines ********************************/
 
 static SSL_CTX *sslctx = NULL;
@@ -99,7 +98,6 @@ int sslOpen()
     if (BIT_CA_FILE && *BIT_CA_FILE) {
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_CA_FILE));
     }
-
     SSL_CTX_set_cipher_list(sslctx, BIT_CIPHERS);
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
     SSL_CTX_sess_set_cache_size(sslctx, 128);
@@ -317,13 +315,6 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
     int             error;
     
     subject[0] = issuer[0] = '\0';
-
-#if UNUSED
-    SSL             *handle;
-    handle = (SSL*) X509_STORE_CTX_get_app_data(xContext);
-    wp = (Webs*) SSL_get_app_data(handle);
-    depth = X509_STORE_CTX_get_error_depth(xContext);
-#endif
 
     cert = X509_STORE_CTX_get_current_cert(xContext);
     error = X509_STORE_CTX_get_error(xContext);
