@@ -788,19 +788,6 @@
 					BIT_DEBUG,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = libgo;
 			};
 			name = Debug;
@@ -808,19 +795,6 @@
 		9FC45C179FC48C4D00000083 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = libgo;
 			};
 			name = Release;
@@ -832,22 +806,6 @@
 					BIT_DEBUG,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = goahead;
 			};
 			name = Debug;
@@ -855,22 +813,6 @@
 		9FC45C179FC48C4D00000085 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = goahead;
 			};
 			name = Release;
@@ -882,22 +824,6 @@
 					BIT_DEBUG,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = "goahead-test";
 			};
 			name = Debug;
@@ -905,22 +831,6 @@
 		9FC45C179FC48C4D00000087 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = "goahead-test";
 			};
 			name = Release;
@@ -932,22 +842,6 @@
 					BIT_DEBUG,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = gopass;
 			};
 			name = Debug;
@@ -955,22 +849,6 @@
 		9FC45C179FC48C4D00000089 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = gopass;
 			};
 			name = Release;
@@ -982,19 +860,6 @@
 					BIT_DEBUG,
 					"$(inherited)",
 				);
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = webcomp;
 			};
 			name = Debug;
@@ -1002,19 +867,6 @@
 		9FC45C179FC48C4D0000008B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				HEADER_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c/include",
-					"$(inherited)",
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"../../packages-macosx-x64/openssl/openssl-1.0.1c",
-					"$(inherited)",
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)",
-				);
 				PRODUCT_NAME = webcomp;
 			};
 			name = Release;

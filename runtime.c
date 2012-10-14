@@ -193,9 +193,6 @@ static int  growBuf(Format *fmt);
 static char *sprintfCore(char *buf, ssize maxsize, char *fmt, va_list arg);
 static void outNum(Format *fmt, char *prefix, uint64 val);
 static void outString(Format *fmt, char *str, ssize len);
-#if BIT_CHAR_LEN > 1 && UNUSED && KEEP
-static void outWideString(Format *fmt, wchar *str, ssize len);
-#endif
 #if BIT_FLOAT
 static void outFloat(Format *fmt, char specChar, double value);
 #endif
@@ -285,46 +282,6 @@ WebsTime websRunEvents()
     }
     return nextEvent * 1000;
 }
-
-
-#if UNUSED
-/*
-    Returns a pointer to the directory component of a pathname. bufsize is the size of the buffer in BYTES!
- */
-char *dirname(char *buf, char *name, ssize bufsize)
-{
-    char  *cp;
-    ssize   len;
-
-    assure(name);
-    assure(buf);
-    assure(bufsize > 0);
-
-#if BIT_WIN_LIKE
-    if ((cp = strrchr(name, '/')) == NULL && (cp = strrchr(name, '\\')) == NULL)
-#else
-    if ((cp = strrchr(name, '/')) == NULL)
-#endif
-    {
-        strcpy(buf, ".");
-        return buf;
-    }
-    if ((*(cp + 1) == '\0' && cp == name)) {
-        strncpy(buf, ".", bufsize);
-        strcpy(buf, ".");
-        return buf;
-    }
-    len = cp - name;
-    if (len < bufsize) {
-        strncpy(buf, name, len);
-        buf[len] = '\0';
-    } else {
-        strncpy(buf, name, bufsize);
-        buf[bufsize - 1] = '\0';
-    }
-    return buf;
-}
-#endif
 
 
 /*
@@ -1069,19 +1026,6 @@ int websGetTraceLevel()
 {
     return traceLevel;
 }
-
-
-#if UNUSED
-/*
-    Trace log. Customize this function to log trace output
- */
-void traceRaw(char *buf)
-{
-    if (traceHandler) {
-        traceHandler(WEBS_LOG_RAW, buf);
-    }
-}
-#endif
 
 
 /*
@@ -2233,103 +2177,6 @@ static int calcPrime(int size)
 }
 
 
-#if UNUSED
-int gopen(char *path, int oflags, int mode)
-{
-    int     fd;
-
-#if BIT_WIN_LIKE
-    #if UNICODE
-        fd = _wopen(path, oflags, mode);
-    #else
-        if (_sopen_s(&fd, path, oflags, _SH_DENYNO, mode & 0600) != 0) {
-            fd = -1;
-        }
-    #endif
-#else
-    fd = open(path, oflags, mode);
-#endif
-#if VXWORKS
-    if (oflags & O_APPEND) {
-        lseek(fd, 0, SEEK_END);
-    }
-#endif
-    return fd;
-}
-
-
-/*
-    Convert an ansi string to a unicode string. On an error, we return the original ansi string which is better than
-    returning NULL. nBytes is the size of the destination buffer (ubuf) in _bytes_.
- */
-char *guni(char *ubuf, char *str, ssize nBytes)
-{
-#if UNICODE
-    if (MultiByteToWideChar(CP_ACP, 0, str, nBytes / sizeof(char), ubuf, nBytes / sizeof(char)) < 0) {
-        return (char*) str;
-    }
-#else
-   memcpy(ubuf, str, nBytes);
-#endif
-    return ubuf;
-}
-
-
-/*
-    Convert a unicode string to an ansi string. On an error, return the original unicode string which is better than
-    returning NULL.  N.B. nBytes is the number of _bytes_ in the destination buffer, buf.
- */
-char *gasc(char *buf, char *ustr, ssize nBytes)
-{
-#if UNICODE
-    if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL, NULL) < 0) {
-        return (char*) ustr;
-    }
-#else
-    memcpy(buf, ustr, nBytes);
-#endif
-    return (char*) buf;
-}
-
-
-/*
-    Allocate (galloc) a buffer and do ascii to unicode conversion into it.  cp points to the ascii buffer.  alen is the
-    length of the buffer to be converted not including a terminating NULL.  Return a pointer to the unicode buffer which
-    must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
- */
-char *gallocAscToUni(char *cp, ssize alen)
-{
-    char  *unip;
-    ssize   ulen;
-
-    ulen = (alen + 1) * sizeof(char);
-    if ((unip = galloc(ulen)) == NULL) {
-        return NULL;
-    }
-    guni(unip, cp, ulen);
-    unip[alen] = 0;
-    return unip;
-}
-
-
-/*
-    Allocate (galloc) a buffer and do unicode to ascii conversion into it.  unip points to the unicoded string. ulen is
-    the number of characters in the unicode string not including a teminating null.  Return a pointer to the ascii
-    buffer which must be gfree'd later.  Return NULL on failure to get buffer.  The buffer returned is NULL terminated.
- */
-char *gallocUniToAsc(char *unip, ssize ulen)
-{
-    char    *cp;
-
-    if ((cp = galloc(ulen+1)) == NULL) {
-        return NULL;
-    }
-    gasc(cp, unip, ulen);
-    cp[ulen] = '\0';
-    return cp;
-}
-#else
-
 /*
     Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length 
     in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1 
@@ -2454,7 +2301,6 @@ char *awtom(wchar *src, ssize *lenp)
     }
     return dest;
 }
-#endif /* UNUSED */
 
 
 /*
