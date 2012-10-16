@@ -53,11 +53,11 @@ clean:
 	-if exist $(CONFIG)\bin\webcomp.exe del /Q $(CONFIG)\bin\webcomp.exe
 	-if exist test\cgi-bin\cgitest.exe del /Q test\cgi-bin\cgitest.exe
 	-if exist $(CONFIG)\obj\action.obj del /Q $(CONFIG)\obj\action.obj
+	-if exist $(CONFIG)\obj\alloc.obj del /Q $(CONFIG)\obj\alloc.obj
 	-if exist $(CONFIG)\obj\auth.obj del /Q $(CONFIG)\obj\auth.obj
 	-if exist $(CONFIG)\obj\cgi.obj del /Q $(CONFIG)\obj\cgi.obj
 	-if exist $(CONFIG)\obj\crypt.obj del /Q $(CONFIG)\obj\crypt.obj
 	-if exist $(CONFIG)\obj\file.obj del /Q $(CONFIG)\obj\file.obj
-	-if exist $(CONFIG)\obj\galloc.obj del /Q $(CONFIG)\obj\galloc.obj
 	-if exist $(CONFIG)\obj\http.obj del /Q $(CONFIG)\obj\http.obj
 	-if exist $(CONFIG)\obj\js.obj del /Q $(CONFIG)\obj\js.obj
 	-if exist $(CONFIG)\obj\jst.obj del /Q $(CONFIG)\obj\jst.obj
@@ -89,6 +89,11 @@ $(CONFIG)\obj\action.obj: \
         $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc action.c
 
+$(CONFIG)\obj\alloc.obj: \
+        alloc.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc alloc.c
+
 $(CONFIG)\obj\auth.obj: \
         auth.c \
         $(CONFIG)\inc\bit.h
@@ -108,11 +113,6 @@ $(CONFIG)\obj\file.obj: \
         file.c \
         $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc file.c
-
-$(CONFIG)\obj\galloc.obj: \
-        galloc.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\galloc.obj -Fd$(CONFIG)\obj\galloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc galloc.c
 
 $(CONFIG)\obj\http.obj: \
         http.c \
@@ -178,11 +178,11 @@ $(CONFIG)\bin\libgo.lib:  \
         $(CONFIG)\inc\goahead.h \
         $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\action.obj \
+        $(CONFIG)\obj\alloc.obj \
         $(CONFIG)\obj\auth.obj \
         $(CONFIG)\obj\cgi.obj \
         $(CONFIG)\obj\crypt.obj \
         $(CONFIG)\obj\file.obj \
-        $(CONFIG)\obj\galloc.obj \
         $(CONFIG)\obj\http.obj \
         $(CONFIG)\obj\js.obj \
         $(CONFIG)\obj\jst.obj \
@@ -195,7 +195,7 @@ $(CONFIG)\bin\libgo.lib:  \
         $(CONFIG)\obj\runtime.obj \
         $(CONFIG)\obj\socket.obj \
         $(CONFIG)\obj\upload.obj
-	"lib.exe" -nologo -out:$(CONFIG)\bin\libgo.lib $(CONFIG)\obj\action.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\galloc.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj
+	"lib.exe" -nologo -out:$(CONFIG)\bin\libgo.lib $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj
 
 $(CONFIG)\obj\goahead.obj: \
         goahead.c \

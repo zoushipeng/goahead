@@ -50,11 +50,11 @@ clean:
 	rm -rf $(CONFIG)/bin/webcomp
 	rm -rf test/cgi-bin/cgitest
 	rm -rf $(CONFIG)/obj/action.o
+	rm -rf $(CONFIG)/obj/alloc.o
 	rm -rf $(CONFIG)/obj/auth.o
 	rm -rf $(CONFIG)/obj/cgi.o
 	rm -rf $(CONFIG)/obj/crypt.o
 	rm -rf $(CONFIG)/obj/file.o
-	rm -rf $(CONFIG)/obj/galloc.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/jst.o
@@ -90,6 +90,12 @@ $(CONFIG)/obj/action.o: \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/action.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc action.c
 
+$(CONFIG)/obj/alloc.o: \
+        alloc.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/alloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc alloc.c
+
 $(CONFIG)/obj/auth.o: \
         auth.c \
         $(CONFIG)/inc/bit.h \
@@ -113,12 +119,6 @@ $(CONFIG)/obj/file.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc file.c
-
-$(CONFIG)/obj/galloc.o: \
-        galloc.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/galloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc galloc.c
 
 $(CONFIG)/obj/http.o: \
         http.c \
@@ -197,11 +197,11 @@ $(CONFIG)/bin/libgo.a:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/action.o \
+        $(CONFIG)/obj/alloc.o \
         $(CONFIG)/obj/auth.o \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
         $(CONFIG)/obj/file.o \
-        $(CONFIG)/obj/galloc.o \
         $(CONFIG)/obj/http.o \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/jst.o \
@@ -214,7 +214,7 @@ $(CONFIG)/bin/libgo.a:  \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
         $(CONFIG)/obj/upload.o
-	/usr/bin/ar -cr $(CONFIG)/bin/libgo.a $(CONFIG)/obj/action.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/galloc.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o
+	/usr/bin/ar -cr $(CONFIG)/bin/libgo.a $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o
 
 $(CONFIG)/obj/goahead.o: \
         goahead.c \

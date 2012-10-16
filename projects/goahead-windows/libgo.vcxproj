@@ -101,11 +101,11 @@
   
   <ItemGroup>
     <ClCompile Include="..\..\action.c" />
+    <ClCompile Include="..\..\alloc.c" />
     <ClCompile Include="..\..\auth.c" />
     <ClCompile Include="..\..\cgi.c" />
     <ClCompile Include="..\..\crypt.c" />
     <ClCompile Include="..\..\file.c" />
-    <ClCompile Include="..\..\galloc.c" />
     <ClCompile Include="..\..\http.c" />
     <ClCompile Include="..\..\js.c" />
     <ClCompile Include="..\..\jst.c" />

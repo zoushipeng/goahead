@@ -31,6 +31,8 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 ${CC} -c -o ${CONFIG}/obj/action.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc action.c
 
+${CC} -c -o ${CONFIG}/obj/alloc.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc alloc.c
+
 ${CC} -c -o ${CONFIG}/obj/auth.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc auth.c
 
 ${CC} -c -o ${CONFIG}/obj/cgi.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc cgi.c
@@ -38,8 +40,6 @@ ${CC} -c -o ${CONFIG}/obj/cgi.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc cgi.c
 ${CC} -c -o ${CONFIG}/obj/crypt.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc crypt.c
 
 ${CC} -c -o ${CONFIG}/obj/file.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc file.c
-
-${CC} -c -o ${CONFIG}/obj/galloc.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc galloc.c
 
 ${CC} -c -o ${CONFIG}/obj/http.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc http.c
 
@@ -65,7 +65,7 @@ ${CC} -c -o ${CONFIG}/obj/socket.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc socket.c
 
 ${CC} -c -o ${CONFIG}/obj/upload.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc upload.c
 
-/usr/bin/ar -cr ${CONFIG}/bin/libgo.a ${CONFIG}/obj/action.o ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/galloc.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/jst.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/options.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/upload.o
+/usr/bin/ar -cr ${CONFIG}/bin/libgo.a ${CONFIG}/obj/action.o ${CONFIG}/obj/alloc.o ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/jst.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${CONFIG}/obj/options.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/upload.o
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc goahead.c
 
