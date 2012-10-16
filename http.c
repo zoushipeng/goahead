@@ -499,7 +499,7 @@ int websAlloc(int sid)
     Webs    *wp;
     int     wid;
 
-    if ((wid = gallocObject(&webs, &websMax, sizeof(Webs))) < 0) {
+    if ((wid = wallocObject(&webs, &websMax, sizeof(Webs))) < 0) {
         return -1;
     }
     wp = webs[wid];
@@ -1641,7 +1641,7 @@ char *websEscapeHtml(char *html)
             len += 5;
         }
     }
-    if ((result = galloc(len)) == 0) {
+    if ((result = walloc(len)) == 0) {
         return 0;
     }
     /*  
@@ -2970,7 +2970,7 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
         we need room for 3 null chars.  We allocate WEBS_MAX_PORT_LEN char's for the port number.  
      */
     len = ulen * 2 + WEBS_MAX_PORT_LEN + 3;
-    if ((buf = galloc(len * sizeof(char))) == NULL) {
+    if ((buf = walloc(len * sizeof(char))) == NULL) {
         return -1;
     }
     memset(buf, 0, len * sizeof(char));
@@ -3106,12 +3106,12 @@ char *websNormalizeUriPath(char *pathArg)
         return "";
     }
     len = (int) slen(pathArg);
-    if ((dupPath = galloc(len + 2)) == 0) {
+    if ((dupPath = walloc(len + 2)) == 0) {
         return NULL;
     }
     strcpy(dupPath, pathArg);
 
-    if ((segments = galloc(sizeof(char*) * (len + 1))) == 0) {
+    if ((segments = walloc(sizeof(char*) * (len + 1))) == 0) {
         return NULL;
     }
     nseg = len = 0;
@@ -3155,7 +3155,7 @@ char *websNormalizeUriPath(char *pathArg)
     }
     nseg = j;
     assure(nseg >= 0);
-    if ((path = galloc(len + nseg + 1)) != 0) {
+    if ((path = walloc(len + nseg + 1)) != 0) {
         for (i = 0, dp = path; i < nseg; ) {
             strcpy(dp, segments[i]);
             len = (int) slen(segments[i]);
@@ -3407,7 +3407,7 @@ WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
 
     assure(wp);
 
-    if ((sp = galloc(sizeof(WebsSession))) == 0) {
+    if ((sp = walloc(sizeof(WebsSession))) == 0) {
         return 0;
     }
     sp->lifespan = lifespan;
@@ -3512,7 +3512,7 @@ char *websGetSessionID(Webs *wp)
             }
         }
         len = cp - value;
-        if ((cp = galloc(len + 1)) == 0) {
+        if ((cp = walloc(len + 1)) == 0) {
             return 0;
         }
         strncpy(cp, value, len);

@@ -234,7 +234,7 @@ static WebsUser *createUser(char *username, char *password, char *roles)
     assure(username && *username);
     assure(password && *password);
 
-    if ((user = galloc(sizeof(WebsUser))) == 0) {
+    if ((user = walloc(sizeof(WebsUser))) == 0) {
         return 0;
     }
     user->name = sclone(username);
@@ -398,7 +398,7 @@ WebsRole *websAddRole(char *name, WebsHash abilities)
         /* Already exists */
         return 0;
     }
-    if ((rp = galloc(sizeof(WebsRole))) == 0) {
+    if ((rp = walloc(sizeof(WebsRole))) == 0) {
         return 0;
     }
     rp->abilities = abilities;

@@ -54,7 +54,7 @@ static bool jstHandler(Webs *wp)
         Create a buffer to hold the web page in-memory
      */
     len = sbuf.size;
-    if ((buf = galloc(len + 1)) == NULL) {
+    if ((buf = walloc(len + 1)) == NULL) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
         goto done;
     }

@@ -403,11 +403,11 @@ int socketSelect(int sid, WebsTime timeout)
     nwords = (socketHighestFd + NFDBITS) / NFDBITS;
     len = nwords * sizeof(fd_mask);
 
-    readFds = galloc(len);
+    readFds = walloc(len);
     memset(readFds, 0, len);
-    writeFds = galloc(len);
+    writeFds = walloc(len);
     memset(writeFds, 0, len);
-    exceptFds = galloc(len);
+    exceptFds = walloc(len);
     memset(exceptFds, 0, len);
 
     tv.tv_sec = timeout / 1000;
@@ -742,7 +742,7 @@ int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
     WebsSocket    *sp;
     int         sid;
 
-    if ((sid = gallocObject(&socketList, &socketMax, sizeof(WebsSocket))) < 0) {
+    if ((sid = wallocObject(&socketList, &socketMax, sizeof(WebsSocket))) < 0) {
         return -1;
     }
     sp = socketList[sid];

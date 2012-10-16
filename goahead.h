@@ -1434,12 +1434,12 @@ typedef struct WebsAlloc {
     Close the GoAhead memory allocator
     @ingroup WebsAlloc
  */
-extern void gcloseAlloc();
+extern void wcloseAlloc();
 
 /**
-    Initialize the galloc module. 
-    @description The gopenAlloc function should be called the very first thing after the application starts and gclose
-    should be called the last thing before exiting. If gopenAlloc is not called, it will be called on the first allocation
+    Initialize the walloc module. 
+    @description The wopenAlloc function should be called the very first thing after the application starts and wclose
+    should be called the last thing before exiting. If wopenAlloc is not called, it will be called on the first allocation
     with default values. "buf" points to memory to use of size "bufsize". If buf is NULL, memory is allocated using malloc.
     flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial buffer of size
     bufsize for use by the application. 
@@ -1449,7 +1449,7 @@ extern void gcloseAlloc();
     @return Zero if successful, otherwise -1.
     @ingroup WebsAlloc
  */
-extern int gopenAlloc(void *buf, int bufsize, int flags);
+extern int wopenAlloc(void *buf, int bufsize, int flags);
 
 /**
     Allocate a block of the requested size
@@ -1457,7 +1457,7 @@ extern int gopenAlloc(void *buf, int bufsize, int flags);
     @return A reference to the allocated block 
     @ingroup WebsAlloc
  */
-extern void *galloc(ssize size);
+extern void *walloc(ssize size);
 
 /**
     Free an allocated block of memory
@@ -1480,7 +1480,7 @@ extern void *grealloc(void *blk, ssize newsize);
 #else /* !BIT_REPLACE_MALLOC */
 
     #define WEBS_SHIFT 4
-    #define galloc(num) malloc(num)
+    #define walloc(num) malloc(num)
     #define gfree(p) if (p) { free(p); } else
     #define grealloc(p, num) realloc(p, num)
 #endif /* BIT_REPLACE_MALLOC */
@@ -1932,7 +1932,7 @@ extern WebsSocket *socketPtr(int sid);
     @description GoAhead provides a secure runtime environment for safe string manipulation and to 
     help prevent buffer overflows and other potential security traps.
     @defgroup WebsRuntime WebsRuntime
-    @see fmt gallocHandle gallocObject gfreehandle hextoi itosbuf scaselesscmp scaselessmatch
+    @see fmt wallocHandle wallocObject gfreeHandle hextoi itosbuf scaselesscmp scaselessmatch
     sclone scmp scopy sfmt sfmtv slen slower smatch sncaselesscmp sncmp sncopy stok strim supper
  */
 
@@ -1955,7 +1955,7 @@ extern char *fmt(char *buf, ssize maxSize, char *format, ...);
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
  */
-extern int gallocHandle(void *map);
+extern int wallocHandle(void *map);
 
 /**
     Allocate an object in a halloc map
@@ -1965,7 +1965,7 @@ extern int gallocHandle(void *map);
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
  */
-extern int gallocObject(void *map, int *max, int size);
+extern int wallocObject(void *map, int *max, int size);
 
 /**
     Free a handle in the map
@@ -2715,7 +2715,7 @@ extern void websFree(Webs *wp);
 
 /**
     Get the background execution flag
-    @description If goahead is invoked with --background, it will run as a daemon in the background.
+    @description If GoAhead is invoked with --background, it will run as a daemon in the background.
     @return True if GoAhead is running in the background.
     @ingroup Webs
  */
@@ -3943,11 +3943,11 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define B_L 0
     #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
     #define a_assert assure
-    #define balloc galloc
-    #define bclose gcloseAlloc
+    #define balloc walloc
+    #define bclose wcloseAlloc
     #define bfree(loc, p) gfree(p)
     #define bfreeSafe(loc, p) gfree(p)
-    #define bopen gopenAlloc
+    #define bopen wopenAlloc
     #define brealloc grealloc
     #define bstrdup strdup
     #define emfReschedCallback websRestartEvent
@@ -3960,8 +3960,8 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define gasctime    asctime
     #define gatoi       atoi
     #define gchmod      chmod
-    #define gclose      close
-    #define gclosedir   closedir
+    #define wclose      close
+    #define wclosedir   closedir
     #define gcreat      creat
     #define gctime      ctime
     #define gexecvp     execvp
@@ -4021,8 +4021,8 @@ extern int websSetSessionVar(Webs *wp, char *name, char *value);
     #define gunlink     unlink
     #define gvsprintf   vsprintf
     #define gwrite      write
-    #define hAlloc galloc
-    #define hAllocEntry gallocObject
+    #define hAlloc walloc
+    #define hAllocEntry wallocObject
     #define hFree gFree
     #define stritoa gstritoa
     #define strlower gstrlower

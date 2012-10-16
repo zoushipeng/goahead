@@ -253,7 +253,7 @@ static int processUploadHeader(Webs *wp, char *line)
                 /*  
                     Create the files[id]
                  */
-                file = wp->currentFile = galloc(sizeof(WebsUpload));
+                file = wp->currentFile = walloc(sizeof(WebsUpload));
                 memset(file, 0, sizeof(WebsUpload));
                 file->clientFilename = strdup(wp->clientFilename);
                 file->filename = strdup(wp->uploadTmp);

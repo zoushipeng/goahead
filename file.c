@@ -113,7 +113,7 @@ static void fileWriteEvent(Webs *wp)
     /*
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
      */
-    if ((buf = galloc(BIT_LIMIT_BUFFER)) == NULL) {
+    if ((buf = walloc(BIT_LIMIT_BUFFER)) == NULL) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
         return;
     }

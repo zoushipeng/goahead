@@ -158,7 +158,7 @@ char *websDecode64Block(char *s, ssize *len, int flags)
     int     c, i, j, shift;
 
     size = strlen(s);
-    if ((buffer = galloc(size + 1)) == 0) {
+    if ((buffer = walloc(size + 1)) == 0) {
         return NULL;
     }
     bp = buffer;
@@ -221,7 +221,7 @@ char *websMD5Block(char *buf, ssize length, char *prefix)
     }
     *r = '\0';
     len = (prefix) ? strlen(prefix) : 0;
-    str = galloc(sizeof(result) + len);
+    str = walloc(sizeof(result) + len);
     if (str) {
         if (prefix) {
             strcpy(str, prefix);
@@ -444,7 +444,7 @@ char *websEncode64Block(char *s, ssize len)
     int     i, j, shift;
 
     size = len * 2;
-    if ((buffer = galloc(size + 1)) == 0) {
+    if ((buffer = walloc(size + 1)) == 0) {
         return NULL;
     }
     bp = buffer;

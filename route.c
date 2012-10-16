@@ -234,7 +234,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         error("Route has bad URI");
         return 0;
     }
-    if ((route = galloc(sizeof(WebsRoute))) == 0) {
+    if ((route = walloc(sizeof(WebsRoute))) == 0) {
         return 0;
     }
     memset(route, 0, sizeof(WebsRoute));
@@ -397,7 +397,7 @@ int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose clos
     assure(name && *name);
     assure(service);
 
-    if ((handler = galloc(sizeof(WebsHandler))) == 0) {
+    if ((handler = walloc(sizeof(WebsHandler))) == 0) {
         return -1;
     }
     memset(handler, 0, sizeof(WebsHandler));

@@ -92,7 +92,7 @@ int sslUpgrade(Webs *wp)
     if (matrixSslNewServerSession(&handle, sslKeys, NULL) < 0) {
         return -1;
     }
-    if ((ms = galloc(sizeof(Ms))) == 0) {
+    if ((ms = walloc(sizeof(Ms))) == 0) {
         return -1;
     }
     memset(ms, 0x0, sizeof(Ms));

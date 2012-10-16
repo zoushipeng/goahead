@@ -221,7 +221,7 @@ int websStartEvent(int delay, WebsEventProc proc, void *arg)
     Callback    *s;
     int         id;
 
-    if ((id = gallocObject(&callbacks, &callbackMax, sizeof(Callback))) < 0) {
+    if ((id = wallocObject(&callbacks, &callbackMax, sizeof(Callback))) < 0) {
         return -1;
     }
     s = callbacks[id];
@@ -371,7 +371,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
             maxsize = MAXINT;
         }
         len = min(256, maxsize);
-        if ((buf = galloc(len)) == 0) {
+        if ((buf = walloc(len)) == 0) {
             return 0;
         }
         fmt.buf = (uchar*) buf;
@@ -856,7 +856,7 @@ static int growBuf(Format *fmt)
          */
         return 0;
     }
-    if ((newbuf = galloc(buflen + fmt->growBy)) == 0) {
+    if ((newbuf = walloc(buflen + fmt->growBy)) == 0) {
         return -1;
     }
     if (fmt->buf) {
@@ -1173,7 +1173,7 @@ char *itosbuf(char *buf, ssize size, int64 value, int radix)
     Allocate a new file handle. On the first call, the caller must set the handle map to be a pointer to a null
     pointer.  map points to the second element in the handle array.
  */
-int gallocHandle(void *mapArg)
+int wallocHandle(void *mapArg)
 {
     void    ***map;
     ssize   *mp;
@@ -1185,7 +1185,7 @@ int gallocHandle(void *mapArg)
     if (*map == NULL) {
         incr = H_INCR;
         memsize = (incr + H_OFFSET) * sizeof(void*);
-        if ((mp = galloc(memsize)) == NULL) {
+        if ((mp = walloc(memsize)) == NULL) {
             return -1;
         }
         memset(mp, 0, memsize);
@@ -1271,7 +1271,7 @@ int gfreeHandle(void *mapArg, int handle)
 /*
     Allocate an entry in the halloc array
  */
-int gallocObject(void *listArg, int *max, int size)
+int wallocObject(void *listArg, int *max, int size)
 {
     void    ***list;
     char    *cp;
@@ -1281,11 +1281,11 @@ int gallocObject(void *listArg, int *max, int size)
     assure(list);
     assure(max);
 
-    if ((id = gallocHandle(list)) < 0) {
+    if ((id = wallocHandle(list)) < 0) {
         return -1;
     }
     if (size > 0) {
-        if ((cp = galloc(size)) == NULL) {
+        if ((cp = walloc(size)) == NULL) {
             gfreeHandle(list, id);
             return -1;
         }
@@ -1320,7 +1320,7 @@ int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     assure(initSize >= 0);
 
     increment = getBinBlockSize(initSize);
-    if ((bp->buf = galloc((increment))) == NULL) {
+    if ((bp->buf = walloc((increment))) == NULL) {
         return -1;
     }
     bp->maxsize = maxsize;
@@ -1777,12 +1777,12 @@ bool bufGrow(WebsBuf *bp, ssize room)
         }
         room = bp->increment;
         /*
-            Double the increment so the next grow will line up with galloc'ed memory
+            Double the increment so the next grow will line up with walloc'ed memory
          */
         bp->increment = getBinBlockSize(2 * bp->increment);
     }
     len = bufLen(bp);
-    if ((newbuf = galloc(bp->buflen + room)) == NULL) {
+    if ((newbuf = walloc(bp->buflen + room)) == NULL) {
         return 0;
     }
     bufGetBlk(bp, newbuf, bufLen(bp));
@@ -1800,7 +1800,7 @@ bool bufGrow(WebsBuf *bp, ssize room)
 
 /*
     Find the smallest binary memory size that "size" will fit into.  This makes the buf and bufGrow routines much
-    more efficient. The galloc routine likes powers of 2 minus 1.
+    more efficient. The walloc routine likes powers of 2 minus 1.
  */
 static int  getBinBlockSize(int size)
 {
@@ -1827,14 +1827,14 @@ WebsHash hashCreate(int size)
     /*
         Create a new handle for this symbol table
      */
-    if ((sd = gallocHandle(&sym)) < 0) {
+    if ((sd = wallocHandle(&sym)) < 0) {
         return -1;
     }
 
     /*
         Create a new symbol table structure and zero
      */
-    if ((tp = (HashTable*) galloc(sizeof(HashTable))) == NULL) {
+    if ((tp = (HashTable*) walloc(sizeof(HashTable))) == NULL) {
         symMax = gfreeHandle(&sym, sd);
         return -1;
     }
@@ -1849,7 +1849,7 @@ WebsHash hashCreate(int size)
         Now create the hash table for fast indexing.
      */
     tp->size = calcPrime(size);
-    tp->hash_table = (WebsKey**) galloc(tp->size * sizeof(WebsKey*));
+    tp->hash_table = (WebsKey**) walloc(tp->size * sizeof(WebsKey*));
     assure(tp->hash_table);
     memset(tp->hash_table, 0, tp->size * sizeof(WebsKey*));
     return sd;
@@ -2024,7 +2024,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
         /*
             Not found so allocate and append to the daisy-chain
          */
-        sp = (WebsKey*) galloc(sizeof(WebsKey));
+        sp = (WebsKey*) walloc(sizeof(WebsKey));
         if (sp == NULL) {
             return NULL;
         }
@@ -2039,7 +2039,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
         /*
             Daisy chain is empty so we need to start the chain
          */
-        sp = (WebsKey*) galloc(sizeof(WebsKey));
+        sp = (WebsKey*) walloc(sizeof(WebsKey));
         if (sp == NULL) {
             return NULL;
         }
@@ -2272,7 +2272,7 @@ wchar *amtow(char *src, ssize *lenp)
     if (len < 0) {
         return NULL;
     }
-    if ((dest = galloc((len + 1) * sizeof(wchar))) != NULL) {
+    if ((dest = walloc((len + 1) * sizeof(wchar))) != NULL) {
         mtow(dest, len + 1, src, -1);
     }
     if (lenp) {
@@ -2293,7 +2293,7 @@ char *awtom(wchar *src, ssize *lenp)
     if (len < 0) {
         return NULL;
     }
-    if ((dest = galloc(len + 1)) != 0) {
+    if ((dest = walloc(len + 1)) != 0) {
         wtom(dest, len + 1, src, -1);
     }
     if (lenp) {
@@ -2339,7 +2339,7 @@ char *sclone(char *s)
     if (s == NULL) {
         s = "";
     }
-    buf = galloc(strlen(s) + 1);
+    buf = walloc(strlen(s) + 1);
     strcpy(buf, s);
     return buf;
 }
@@ -2668,7 +2668,7 @@ static char *getAbsolutePath(char *path)
     if (iosDevFind(path, &tail) != NULL && path != tail) {
         return sclone(path);
     }
-    dev = galloc(BIT_LIMIT_FILENAME);
+    dev = walloc(BIT_LIMIT_FILENAME);
     getcwd(dev, BIT_LIMIT_FILENAME);
     strcat(dev, "/");
     strcat(dev, path);

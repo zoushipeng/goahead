@@ -29,8 +29,8 @@ typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     off_t   fplacemark;         /* Seek location for CGI output file */
 } Cgi;
 
-static Cgi      **cgiList;      /* galloc chain list of wp's to be closed */
-static int      cgiMax;         /* Size of galloc list */
+static Cgi      **cgiList;      /* walloc chain list of wp's to be closed */
+static int      cgiMax;         /* Size of walloc list */
 
 /************************************ Forwards ********************************/
 
@@ -109,13 +109,13 @@ static bool cgiHandler(Webs *wp)
 #endif /* ! VXWORKS */
     /*
         Build command line arguments.  Only used if there is no non-encoded = character.  This is indicative of a ISINDEX
-        query.  POST separators are & and others are +.  argp will point to a galloc'd array of pointers.  Each pointer
+        query.  POST separators are & and others are +.  argp will point to a walloc'd array of pointers.  Each pointer
         will point to substring within the query string.  This array of string pointers is how the spawn or exec routines
         expect command line arguments to be passed.  Since we don't know ahead of time how many individual items there are
         in the query string, the for loop includes logic to grow the array size via grealloc.
      */
     argpsize = 10;
-    argp = galloc(argpsize * sizeof(char *));
+    argp = walloc(argpsize * sizeof(char *));
     *argp = cgiPath;
     n = 1;
     query = 0;
@@ -139,12 +139,12 @@ static bool cgiHandler(Webs *wp)
     /*
         Add all CGI variables to the environment strings to be passed to the spawned CGI process. This includes a few
         we don't already have in the symbol table, plus all those that are in the vars symbol table. envp will point
-        to a galloc'd array of pointers. Each pointer will point to a galloc'd string containing the keyword value pair
+        to a walloc'd array of pointers. Each pointer will point to a walloc'd string containing the keyword value pair
         in the form keyword=value. Since we don't know ahead of time how many environment strings there will be the for
         loop includes logic to grow the array size via grealloc.
      */
     envpsize = 64;
-    envp = galloc(envpsize * sizeof(char*));
+    envp = walloc(envpsize * sizeof(char*));
     for (n = 0, s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
         if (s->content.valid && s->content.type == string &&
             strcmp(s->name.value.string, "REMOTE_HOST") != 0 &&
@@ -187,7 +187,7 @@ static bool cgiHandler(Webs *wp)
         /*
             If the spawn was successful, put this wp on a queue to be checked for completion.
          */
-        cid = gallocObject(&cgiList, &cgiMax, sizeof(Cgi));
+        cid = wallocObject(&cgiList, &cgiMax, sizeof(Cgi));
         cgip = cgiList[cid];
         cgip->handle = pHandle;
         cgip->stdIn = stdIn;
@@ -774,7 +774,7 @@ static int checkCgi(int handle)
 #if WINDOWS 
 /*
     Convert a table of strings into a single block of memory. The input table consists of an array of null-terminated
-    strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the galloc()
+    strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the walloc()
     function.  The returned pointer must be deleted using gfree().  Returns NULL on error.
  */
 static uchar *tableToBlock(char **table)
@@ -796,7 +796,7 @@ static uchar *tableToBlock(char **table)
     /*
         Allocate the data block and fill it with the strings                   
      */
-    pBlock = galloc(sizeBlock);
+    pBlock = walloc(sizeBlock);
 
     if (pBlock != NULL) {
         pEntry = (char*) pBlock;
@@ -865,7 +865,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     /*
         Construct command line
      */
-    cmdLine = galloc(sizeof(char) * nLen);
+    cmdLine = walloc(sizeof(char) * nLen);
     assure (cmdLine);
     strcpy(cmdLine, "");
 

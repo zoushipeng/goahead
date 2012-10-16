@@ -48,7 +48,7 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
     Js      *ep;
     int     jid, vid;
 
-    if ((jid = gallocObject(&jsHandles, &jsMax, sizeof(Js))) < 0) {
+    if ((jid = wallocObject(&jsHandles, &jsMax, sizeof(Js))) < 0) {
         return -1;
     }
     ep = jsHandles[jid];
@@ -56,9 +56,9 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
 
     /*
         Create a top level symbol table if one is not provided for variables and functions. Variables may create other
-        symbol tables for block level declarations so we use galloc to manage a list of variable tables.
+        symbol tables for block level declarations so we use walloc to manage a list of variable tables.
      */
-    if ((vid = gallocHandle(&ep->variables)) < 0) {
+    if ((vid = wallocHandle(&ep->variables)) < 0) {
         jsMax = gfreeHandle(&jsHandles, ep->jid);
         return -1;
     }
@@ -142,7 +142,7 @@ char *jsEvalFile(int jid, char *path, char **emsg)
         jsError(ep, "Cant stat %s", path);
         return NULL;
     }
-    if ((script = galloc(sbuf.st_size + 1)) == NULL) {
+    if ((script = walloc(sbuf.st_size + 1)) == NULL) {
         close(fd);
         jsError(ep, "Cant malloc %d", sbuf.st_size);
         return NULL;
@@ -174,7 +174,7 @@ int jsOpenBlock(int jid)
     if((ep = jsPtr(jid)) == NULL) {
         return -1;
     }
-    if ((vid = gallocHandle(&ep->variables)) < 0) {
+    if ((vid = wallocHandle(&ep->variables)) < 0) {
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -891,7 +891,7 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
             return state;
         }
         if (state == STATE_RELEXP_DONE) {
-            aid = gallocHandle(&ep->func->args);
+            aid = wallocHandle(&ep->func->args);
             ep->func->args[aid] = sclone(ep->result);
             ep->func->nArgs++;
         }
@@ -1655,7 +1655,7 @@ int jsLexOpenScript(Js *ep, char *script)
     assure(ep);
     assure(script);
 
-    if ((ep->input = galloc(sizeof(JsInput))) == NULL) {
+    if ((ep->input = walloc(sizeof(JsInput))) == NULL) {
         return -1;
     }
     ip = ep->input;
