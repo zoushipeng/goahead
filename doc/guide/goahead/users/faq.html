@@ -122,20 +122,15 @@
                 upload file size. Some samples have a MAX_FILE_SIZE input field in the HTML form. This however, is 
                 just a hint to the browser, and is only processed by some browsers.</p>
             </div>
-            <p class="question"><a id="replacePHP"></a>Can I replace the PHP library?</p>
-            <div class="answer">
-                <p>Yes, you can replace the GoAhead-supplied PHP library with either the library from the standard PHP
-                distribution or a custom PHP library of your own building. The GoAhead PHP library is not special. It is
-                a PHP configuration that omits features to create a small PHP library. To replace the PHP library 
-                replace the the file named either: libphp.so, libphp.dylib or php5ts.dll</p>
-            </div>
+
             <p class="question"><a id="disableFeatures"></a>When I build from the source, can I
             disable features at compile time?</p>
             <div class="answer">
                 <p>Yes. When GoAhead is built from source, a single bld.h header controls exactly what features and
-                modules are built into the server. For example, if you don't require HTTP Keep-Alive support, and you
-                wish to minimize memory footprint, you can modify the MPR_FEATURE_HTTP_KEEP_ALIVE definition to be
-                0.</p>
+                modules are built into the server. For example, if you don't require SSL support,
+                and you wish to minimize memory footprint, you can run:</p>
+                <pre>./configure --without ssl</pre>
+
             </div><a id="trace"></a>
             <p class="question">How can I trouble-shoot with trace?</p>
             <div class="answer">
@@ -149,58 +144,9 @@ goahead -l logName[:logLevel][.maxSize]
                 the log file in MB. When the maximum size is exceeded, the log file will be rotated to logName.old and
                 a new log file will be started.</p>
             </div>
-            <p class="question"><a id="cgi"></a> How can I use CGI?</p>
-            <div class="answer">
-                <p>GoAhead is configured by default to run CGI programs. If you do need to modify the CGI configuration,
-                the following may help:</p>
-                <p>The configuration file directives for CGI are:</p>
-                <pre>
-AddHandler cgiHandler .cgi .bat .cmd .pl
-</pre>
-                <p>This instructs GoAhead to run the CGI handler for specified file extensions. You can also have CGI be
-                used for URLs that begin with a given prefix. By default, there is already a Location block defined for
-                /cgi-bin in the default goahead.conf. Any files under this URL (http://host/cgi-bin/scriptName) will
-                also run as CGI scripts. To run a given interpreter (for example Perl), you can either just include</p>
-                <pre>
-#!/bin/perl 
-</pre>in the first line of your script (replace the /bin/perl path to point to your interpreter), and make sure your
-script has a .pl extension. Alternatively, you can change the path specified in the ActionProgram directive to point to
-your perl interpreter.
-                <p>Here is the list of CGI variables that are defined for GoAhead under CGI and PHP:</p>
-                <pre>
-AUTH_TYPE 
-CONTENT_LENGTH 
-CONTENT_TYPE 
-DOCUMENT_ROOT 
-GATEWAY_INTERFACE 
-HTTP_ACCEPT 
-HTTP_CONNECTION 
-HTTP_HOST 
-HTTP_USER_AGENT 
-PATH_INFO 
-PATH_TRANSLATED 
-QUERY_STRING 
-REMOTE_ADDR 
-REMOTE_HOST 
-REMOTE_USER 
-REQUEST_METHOD 
-REQUEST_URI 
-SCRIPT_NAME 
-SERVER_ADDR 
-SERVER_HOST 
-SERVER_NAME 
-SERVER_PORT 
-SERVER_PROTOCOL 
-SERVER_SOFTWARE 
-SERVER_URL
-</pre>
-            </div>
             <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
             <div class="answer">
-                <p>GoAhead 3 has about 150K of code. On a VxWorks or uClibc based Linux system, you should be able to
-                build GoAhead for an all-up running memory footprint of 800K. It will be larger if you use OpenSSL.
-                (which is +800K). On other systems, a good guide is 1MB without SSL and 2MB with OpenSSL.</p>
-                <p>For a minimal footprint on GoAhead, use:</p>
+                <p>GoAhead 3 has about 115K of code. For a minimal footprint on GoAhead, use:</p>
                 <pre>
 ./configure --without all --set cgi=false --set javascript=false
 </pre>
