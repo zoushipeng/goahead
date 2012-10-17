@@ -162,6 +162,49 @@ Bit.load({
         uploadDir: "/tmp",
     },
 
+    usage: {
+        accessLog:          'Enable request access log (true|false)',
+        assert:             'Enable program assertions (true|false)',
+        caPath:             'Directory for client certificates (path)',
+        caFile:             'File of client certificates (path)',
+        certificate:        'Server certificate for SSL (path)',
+        ciphers:            'SSL cipher suite (string)',
+        cgi:                'Enable the CGI handler (true|false)',
+        cgiBin:             'Directory CGI programs (path)',
+        javascript:         'Enable the Javascript JST handler (true|false)',
+        key:                'Server private key for SSL (path)',
+        legacy:             'Enable the GoAhead 2.X legacy APIs (true|false)',
+
+        limitBuffer:        'I/O Buffer size. Also chunk size.',
+        limitFilename:      'Maximum filename size',
+        limitHeader:        'Maximum HTTP single header size',
+        limitHeaders:       'Maximum HTTP header size',
+        limitNumHeaders:    'Maximum number of headers',
+        limitPassword:      'Maximum password size',
+        limitPost:          'Maximum POST (and other method) incoming body size',
+        limitPut:           'Maximum PUT body size ~ 200MB',
+        limitSessionLife:   'Session lifespan in seconds (30 mins)',
+        limitSessionCount:  'Maximum number of sessions to support',
+        limitString:        'Default string allocation size',
+        limitTimeout:       'Request inactivity timeout in seconds',
+        limitUri:           'Maximum URI size',
+        limitUpload:        'Maximum upload size ~ 200MB',
+
+
+        listen:             'Addresses to listen to (["http://IP:port", ...])',
+        pam:                'Enable Unix Pluggable Auth Module (true|false)',
+        putDir:             'Define the directory for file uploaded via HTTP PUT (path)',
+        realm:              'Authentication realm (string)',
+
+        replaceMalloc:      'Replace malloc with non-fragmenting allocator (true|false)',
+        static:             'Build with static linking (true|false)',
+        stealth:            'Run in stealth mode. Disable OPTIONS, TRACE (true|false)',
+        trace:              'Default location and level for debug log (path:level)',
+        tune:               'Optimize (size|speed|balanced)',
+        upload:             'Enable file upload (true|false)',
+        uploadDir:          'Define directory for uploaded files (path)',
+    },
+
     targets: {
         /*
             Target for the goahead executable
