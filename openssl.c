@@ -110,12 +110,10 @@ int sslOpen()
     SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY);
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
 
-#if FUTURE && KEEP
     /* 
         Ensure we generate a new private key for each connection
      */
-    SSL_CTX_set_options(context, SSL_OP_SINGLE_DH_USE);
-#endif
+    SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_DH_USE);
     return 0;
 }
 
