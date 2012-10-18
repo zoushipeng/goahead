@@ -154,7 +154,7 @@ static char *getpass(char *prompt)
         } else if (c == 3) {            /* Control C */
             fputs("^C\n", stderr);
             exit(255);
-        } else if (!iscntrl(c) && (i < (int) sizeof(password) - 1)) {
+        } else if (!iscntrl((uchar) c) && (i < (int) sizeof(password) - 1)) {
             password[i] = c;
             fputc('*', stderr);
         } else {

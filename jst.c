@@ -245,7 +245,7 @@ static char *skipWhite(char *s)
     if (s == NULL) {
         return s;
     }
-    while (*s && isspace(*s)) {
+    while (*s && isspace((uchar) *s)) {
         s++;
     }
     return s;

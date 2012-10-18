@@ -1014,7 +1014,7 @@ static void parseHeaders(Webs *wp)
             websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
         }
-        while (isspace(*value)) {
+        while (isspace((uchar) *value)) {
             value++;
         }
         slower(key);

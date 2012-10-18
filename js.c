@@ -2084,13 +2084,11 @@ static int getLexicalToken(Js *ep, int state)
                 if ((c = inputGetc(ep)) < 0) {
                     break;
                 }
-                if (!isalnum(c) && c != '$' && c != '_' &&
-                    c != '\\') {
+                if (!isalnum((uchar) c) && c != '$' && c != '_' && c != '\\') {
                     break;
                 }
             }
-            if (! isalpha(*tokq->servp) && *tokq->servp != '$' && 
-                    *tokq->servp != '_') {
+            if (! isalpha((uchar) *tokq->servp) && *tokq->servp != '$' && *tokq->servp != '_') {
                 jsError(ep, "Invalid identifier %s", tokq->servp);
                 return TOK_ERR;
             }
