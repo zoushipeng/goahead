@@ -69,15 +69,15 @@ ${CC} -c -o ${CONFIG}/obj/upload.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc upload.c
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc goahead.c
 
-${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o ${CONFIG}/bin/libgo.a ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/test.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o ${CONFIG}/bin/libgo.a ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/gopass.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
 
-${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o -lgo ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o ${CONFIG}/bin/libgo.a ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/webcomp.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 

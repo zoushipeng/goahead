@@ -69,15 +69,15 @@ ${CC} -c -o ${CONFIG}/obj/upload.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAG
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc goahead.c
 
-${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o ${CONFIG}/bin/libgo.a ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/test.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o ${CONFIG}/bin/libgo.a ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/gopass.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
 
-${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o -lgo ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o ${CONFIG}/bin/libgo.a ${LIBS} ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/webcomp.o -Wall -fPIC ${LDFLAGS} -mtune=generic ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
 
