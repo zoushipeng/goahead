@@ -2468,15 +2468,15 @@ typedef struct WebsHandler {
     int                 flags;              /**< Handler control flags */
 } WebsHandler;
 
+/**
+    Action callback
+    @param wp Webs request object
+    @ingroup Webs
+ */
+typedef void (*WebsAction)(Webs *wp);
+
 #if BIT_LEGACY
     typedef void (*WebsProc)(Webs *wp, char *path, char *query);
-#else
-    /**
-        Action callback
-        @param wp Webs request object
-        @ingroup Webs
-     */
-    typedef void (*WebsAction)(Webs *wp);
 #endif
 
 /**
@@ -3862,7 +3862,7 @@ extern bool websVerifyPassword(Webs *wp);
     @return True if the user password verifies.
     @ingroup WebsAuth
  */
-extern bool websVerifyPampassword(Webs *wp);
+extern bool websVerifyPamPassword(Webs *wp);
 #endif
 
 /************************************** Sessions *******************************/

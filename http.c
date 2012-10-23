@@ -446,7 +446,6 @@ static void termWebs(Webs *wp, int reuse)
     gfree(wp->authDetails);
     gfree(wp->authResponse);
     gfree(wp->authType);
-    gfree(wp->boundary);
     gfree(wp->contentType);
     gfree(wp->cookie);
     gfree(wp->decodedQuery);
@@ -468,6 +467,7 @@ static void termWebs(Webs *wp, int reuse)
     gfree(wp->userAgent);
     gfree(wp->username);
 #if BIT_UPLOAD
+    gfree(wp->boundary);
     gfree(wp->uploadTmp);
     gfree(wp->uploadVar);
 #endif
