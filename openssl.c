@@ -240,7 +240,6 @@ ssize sslWrite(Webs *wp, void *buf, ssize len)
                 continue;
             } else if (rc == SSL_ERROR_WANT_READ) {
                 //  AUTO-RETRY should stop this
-                assure(0);
                 return -1;
             } else {
                 return -1;

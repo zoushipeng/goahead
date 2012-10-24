@@ -1718,7 +1718,7 @@ void websError(Webs *wp, int code, char *fmt, ...)
         msg = sfmtv(fmt, args);
         va_end(args);
         if (!(code & WEBS_NOLOG)) {
-            error("%s", msg);
+            trace(2, "%s", msg);
         }
         encoded = websEscapeHtml(msg);
         gfree(msg);
