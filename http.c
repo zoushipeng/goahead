@@ -3577,9 +3577,10 @@ static void pruneCache()
     WebsSession     *sp;
     WebsTime        when;
     WebsKey         *sym, *next;
+    int             oldCount;
 
     //  MOB - should limit size of session cache
-    trace(4, "Prune session cache: count %d\n", sessionCount);
+    oldCount = sessionCount;
     when = time(0);
     for (sym = hashFirst(sessions); sym; sym = next) {
         next = hashNext(sessions, sym);
@@ -3592,7 +3593,9 @@ static void pruneCache()
             freeSession(sp);
         }
     }
-    trace(4, "Remaining sessions: %d\n", sessionCount);
+    if (oldCount != sessionCount || sessionCount) { 
+        trace(4, "Prune %d sessions. Remaining: %d\n", oldCount - sessionCount, sessionCount);
+    }
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
 }
 
