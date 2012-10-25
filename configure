@@ -1,12 +1,23 @@
 #!/bin/sh
 #
-#   configure -- Configure for building on Unix systems
+#   configure -- Configure for building
 #
-#   This simply invokes bit to do the work
+MIN_BIT=2.0.1
 
 if ! type bit >/dev/null 2>&1 ; then
-    echo "Install Bit for building. Distributed as part of Ejscript:" >&2
+    echo "" >&2
+    echo "Install the \"bit\" tool from Ejscript $MIN_BIT or later for configuring." >&2
+    echo "Distributed as part of Ejscript:" >&2
     echo "  http://ejscript.org/downloads/ejs/download.ejs" >&2
+    echo "" >&2
+    echo "Or skip configuring and make a standard build using \"make\"." >&2
+    echo "" >&2
+    exit 255
+fi
+
+ver=`(echo $MIN_BIT ; bit -V) | sort -r | head -n 1`
+if [ "${MIN_BIT}" = "${ver}" ] ; then
+    echo Please upgrade \"bit\" to $MIN_BIT
     exit 255
 fi
 bit configure $*
