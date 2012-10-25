@@ -1,5 +1,5 @@
 #
-#   goahead-solaris.sh -- Build It Shell Script to build Embedthis GoAhead
+#   goahead-solaris-debug.sh -- Build It Shell Script to build Embedthis GoAhead
 #
 
 ARCH="x86"

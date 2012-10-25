@@ -1,5 +1,5 @@
 #
-#   goahead-windows.sh -- Build It Shell Script to build Embedthis GoAhead
+#   goahead-windows-debug.sh -- Build It Shell Script to build Embedthis GoAhead
 #
 
 export PATH="$(SDK)/Bin:$(VS)/VC/Bin:$(VS)/Common7/IDE:$(VS)/Common7/Tools:$(VS)/SDK/v3.5/bin:$(VS)/VC/VCPackages;$(PATH)"

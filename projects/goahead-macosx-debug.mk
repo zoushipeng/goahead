@@ -1,5 +1,5 @@
 #
-#   goahead-macosx.mk -- Makefile to build Embedthis GoAhead for macosx
+#   goahead-macosx-debug.mk -- Makefile to build Embedthis GoAhead for macosx
 #
 
 ARCH     ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/')

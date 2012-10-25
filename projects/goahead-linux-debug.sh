@@ -1,5 +1,5 @@
 #
-#   goahead-linux.sh -- Build It Shell Script to build Embedthis GoAhead
+#   goahead-linux-debug.sh -- Build It Shell Script to build Embedthis GoAhead
 #
 
 ARCH="x86"

@@ -1,20 +1,20 @@
 #
-#   goahead-linux.mk -- Makefile to build Embedthis GoAhead for linux
+#   goahead-solaris-debug.mk -- Makefile to build Embedthis GoAhead for solaris
 #
 
 ARCH     ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/')
-OS       ?= linux
+OS       ?= solaris
 CC       ?= gcc
 LD       ?= /usr/bin/ld
 PROFILE  ?= debug
 CONFIG   ?= $(OS)-$(ARCH)-$(PROFILE)
 
-CFLAGS   += -fPIC   -mtune=generic -w
+CFLAGS   += -fPIC  -mtune=generic -w
 DFLAGS   += -D_REENTRANT -DPIC 
 IFLAGS   += -I$(CONFIG)/inc
-LDFLAGS  += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-Wl,-rpath,$$ORIGIN/../bin' '-rdynamic'
+LDFLAGS  += '-g'
 LIBPATHS += -L$(CONFIG)/bin
-LIBS     += -lpthread -lm -ldl
+LIBS     += -llxnet -lrt -lsocket -lpthread -lm -ldl
 
 CFLAGS-debug    := -DBIT_DEBUG -g
 CFLAGS-release  := -O2
@@ -87,92 +87,92 @@ $(CONFIG)/inc/js.h:
 $(CONFIG)/obj/action.o: \
         action.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc action.c
+	$(CC) -c -o $(CONFIG)/obj/action.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc action.c
 
 $(CONFIG)/obj/alloc.o: \
         alloc.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc alloc.c
+	$(CC) -c -o $(CONFIG)/obj/alloc.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc alloc.c
 
 $(CONFIG)/obj/auth.o: \
         auth.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc auth.c
+	$(CC) -c -o $(CONFIG)/obj/auth.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc auth.c
 
 $(CONFIG)/obj/cgi.o: \
         cgi.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc cgi.c
+	$(CC) -c -o $(CONFIG)/obj/cgi.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc cgi.c
 
 $(CONFIG)/obj/crypt.o: \
         crypt.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc crypt.c
+	$(CC) -c -o $(CONFIG)/obj/crypt.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc crypt.c
 
 $(CONFIG)/obj/file.o: \
         file.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc file.c
+	$(CC) -c -o $(CONFIG)/obj/file.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc file.c
 
 $(CONFIG)/obj/http.o: \
         http.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc http.c
 
 $(CONFIG)/obj/js.o: \
         js.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc js.c
+	$(CC) -c -o $(CONFIG)/obj/js.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc js.c
 
 $(CONFIG)/obj/jst.o: \
         jst.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc jst.c
+	$(CC) -c -o $(CONFIG)/obj/jst.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc jst.c
 
 $(CONFIG)/obj/matrixssl.o: \
         matrixssl.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc matrixssl.c
+	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc matrixssl.c
 
 $(CONFIG)/obj/openssl.o: \
         openssl.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc openssl.c
+	$(CC) -c -o $(CONFIG)/obj/openssl.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc openssl.c
 
 $(CONFIG)/obj/options.o: \
         options.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc options.c
+	$(CC) -c -o $(CONFIG)/obj/options.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc options.c
 
 $(CONFIG)/obj/rom-documents.o: \
         rom-documents.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc rom-documents.c
+	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc rom-documents.c
 
 $(CONFIG)/obj/rom.o: \
         rom.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/rom.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc rom.c
+	$(CC) -c -o $(CONFIG)/obj/rom.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc rom.c
 
 $(CONFIG)/obj/route.o: \
         route.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc route.c
+	$(CC) -c -o $(CONFIG)/obj/route.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc route.c
 
 $(CONFIG)/obj/runtime.o: \
         runtime.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc runtime.c
+	$(CC) -c -o $(CONFIG)/obj/runtime.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc runtime.c
 
 $(CONFIG)/obj/socket.o: \
         socket.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc socket.c
+	$(CC) -c -o $(CONFIG)/obj/socket.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc socket.c
 
 $(CONFIG)/obj/upload.o: \
         upload.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc upload.c
+	$(CC) -c -o $(CONFIG)/obj/upload.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc upload.c
 
 $(CONFIG)/bin/libgo.a:  \
         $(CONFIG)/inc/goahead.h \
@@ -200,7 +200,7 @@ $(CONFIG)/bin/libgo.a:  \
 $(CONFIG)/obj/goahead.o: \
         goahead.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
+	$(CC) -c -o $(CONFIG)/obj/goahead.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc goahead.c
 
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/bin/libgo.a \
@@ -212,7 +212,7 @@ $(CONFIG)/bin/goahead:  \
 $(CONFIG)/obj/test.o: \
         test/test.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/bin/libgo.a \
@@ -224,7 +224,7 @@ $(CONFIG)/bin/goahead-test:  \
 $(CONFIG)/obj/gopass.o: \
         utils/gopass.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
+	$(CC) -c -o $(CONFIG)/obj/gopass.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
 
 $(CONFIG)/bin/gopass:  \
         $(CONFIG)/bin/libgo.a \
@@ -236,7 +236,7 @@ $(CONFIG)/bin/gopass:  \
 $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/goahead.h \
@@ -247,7 +247,7 @@ $(CONFIG)/bin/webcomp:  \
 $(CONFIG)/obj/cgitest.o: \
         test/cgitest.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/cgitest.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
+	$(CC) -c -o $(CONFIG)/obj/cgitest.o -fPIC $(LDFLAGS) -mtune=generic $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
 
 test/cgi-bin/cgitest:  \
         $(CONFIG)/inc/goahead.h \

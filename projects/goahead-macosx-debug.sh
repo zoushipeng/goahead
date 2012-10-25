@@ -1,5 +1,5 @@
 #
-#   goahead-macosx.sh -- Build It Shell Script to build Embedthis GoAhead
+#   goahead-macosx-debug.sh -- Build It Shell Script to build Embedthis GoAhead
 #
 
 ARCH="x64"

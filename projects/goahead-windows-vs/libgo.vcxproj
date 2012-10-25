@@ -13,7 +13,7 @@
   </ItemDefinitionGroup>
 
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{ab436208-c727-475a-ad2d-180d8f0995f4}</ProjectGuid>
+    <ProjectGuid>{7c17e307-cdf0-42ab-ac16-79c2b0661e35}</ProjectGuid>
     <RootNamespace />
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
@@ -38,19 +38,19 @@
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
 
@@ -83,24 +83,41 @@
     <_ProjectFileVersion>10</_ProjectFileVersion>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\webcomp\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\libgo\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\webcomp\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\libgo\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\webcomp\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\libgo\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
 
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\webcomp\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\libgo\</IntDir>
     <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\utils\webcomp.c" />
+    <ClCompile Include="..\..\action.c" />
+    <ClCompile Include="..\..\alloc.c" />
+    <ClCompile Include="..\..\auth.c" />
+    <ClCompile Include="..\..\cgi.c" />
+    <ClCompile Include="..\..\crypt.c" />
+    <ClCompile Include="..\..\file.c" />
+    <ClCompile Include="..\..\http.c" />
+    <ClCompile Include="..\..\js.c" />
+    <ClCompile Include="..\..\jst.c" />
+    <ClCompile Include="..\..\matrixssl.c" />
+    <ClCompile Include="..\..\openssl.c" />
+    <ClCompile Include="..\..\options.c" />
+    <ClCompile Include="..\..\rom-documents.c" />
+    <ClCompile Include="..\..\rom.c" />
+    <ClCompile Include="..\..\route.c" />
+    <ClCompile Include="..\..\runtime.c" />
+    <ClCompile Include="..\..\socket.c" />
+    <ClCompile Include="..\..\upload.c" />
   </ItemGroup>
 
   <ItemGroup>
@@ -121,8 +138,8 @@
     <Command>cd ..\..
 copy /Y goahead.h $(IncDir)
 copy /Y js.h $(IncDir)
-cd projects\goahead-windows</Command>
-    <Outputs>$(BinDir)\webcomp.exe</Outputs>
+cd projects\goahead-windows-vs</Command>
+    <Outputs>$(BinDir)\libgo.lib</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
 

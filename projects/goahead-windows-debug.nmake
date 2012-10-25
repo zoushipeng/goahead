@@ -1,5 +1,5 @@
 #
-#   goahead-windows.nmake -- Makefile to build Embedthis GoAhead for windows
+#   goahead-windows-debug.nmake -- Makefile to build Embedthis GoAhead for windows
 #
 
 PA        = $(PROCESSOR_ARCHITECTURE)

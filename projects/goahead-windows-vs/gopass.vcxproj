@@ -121,7 +121,7 @@
     <Command>cd ..\..
 copy /Y goahead.h $(IncDir)
 copy /Y js.h $(IncDir)
-cd projects\goahead-windows</Command>
+cd projects\goahead-windows-vs</Command>
     <Outputs>$(BinDir)\gopass.exe</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
