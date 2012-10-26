@@ -7,7 +7,7 @@ export INCLUDE="$(INCLUDE);$(SDK)/Include:$(VS)/VC/INCLUDE"
 export LIB="$(LIB);$(SDK)/Lib:$(VS)/VC/lib"
 
 ARCH="x86"
-ARCH="$(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/')"
+ARCH="`uname -m | sed 's/i.86/x86/;s/x86_64/x64/'`"
 OS="windows"
 PROFILE="debug"
 CONFIG="${OS}-${ARCH}-${PROFILE}"
@@ -22,9 +22,9 @@ LIBS="ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib sh
 
 [ ! -x ${CONFIG}/inc ] && mkdir -p ${CONFIG}/inc ${CONFIG}/obj ${CONFIG}/lib ${CONFIG}/bin
 
-[ ! -f ${CONFIG}/inc/bit.h ] && cp projects/goahead-${OS}-bit.h ${CONFIG}/inc/bit.h
-if ! diff ${CONFIG}/inc/bit.h projects/goahead-${OS}-bit.h >/dev/null ; then
-	cp projects/goahead-${OS}-bit.h ${CONFIG}/inc/bit.h
+[ ! -f ${CONFIG}/inc/bit.h ] && cp projects/goahead-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h
+if ! diff ${CONFIG}/inc/bit.h projects/goahead-${OS}-${PROFILE}-bit.h >/dev/null ; then
+	cp projects/goahead-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h
 fi
 
 rm -rf ${CONFIG}/inc/goahead.h
