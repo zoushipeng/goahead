@@ -315,8 +315,8 @@ int socketSelect(int sid, WebsTime timeout)
     FD_ZERO(&exceptFds);
     socketHighestFd = -1;
 
-    tv.tv_sec = timeout / 1000;
-    tv.tv_usec = (timeout % 1000) * 1000;
+    tv.tv_sec = (long) (timeout / 1000);
+    tv.tv_usec = (DWORD) (timeout % 1000) * 1000;
 
     /*
         Set the select event masks for events to watch
