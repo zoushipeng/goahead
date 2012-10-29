@@ -212,7 +212,8 @@ Bit.load({
         libgo: {
             enable: true,
             type: 'lib',
-            static: 'true',
+            /* Xcode projects can't yet handle static builds */
+            _static: 'true',
             sources: [ '*.c' ],
             headers: [ '*.h' ],
             exclude: /goahead\.c/,

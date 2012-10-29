@@ -24,7 +24,7 @@ CFLAGS          += $(CFLAGS-$(PROFILE))
 LDFLAGS         += $(LDFLAGS-$(PROFILE))
 
 all: prep \
-        $(CONFIG)/bin/libgo.a \
+        $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/bin/goahead \
         $(CONFIG)/bin/goahead-test \
         $(CONFIG)/bin/gopass \
@@ -43,7 +43,7 @@ prep:
 	fi; true
 
 clean:
-	rm -rf $(CONFIG)/bin/libgo.a
+	rm -rf $(CONFIG)/bin/libgo.dylib
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
 	rm -rf $(CONFIG)/bin/gopass
@@ -193,7 +193,7 @@ $(CONFIG)/obj/upload.o: \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc upload.c
 
-$(CONFIG)/bin/libgo.a:  \
+$(CONFIG)/bin/libgo.dylib:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/action.o \
@@ -214,7 +214,7 @@ $(CONFIG)/bin/libgo.a:  \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
         $(CONFIG)/obj/upload.o
-	/usr/bin/ar -cr $(CONFIG)/bin/libgo.a $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 3.0.0 -current_version 3.0.0 -compatibility_version 3.0.0 -current_version 3.0.0 $(LIBPATHS) -install_name @rpath/libgo.dylib $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(LIBS)
 
 $(CONFIG)/obj/goahead.o: \
         goahead.c \
@@ -223,7 +223,7 @@ $(CONFIG)/obj/goahead.o: \
 	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
 
 $(CONFIG)/bin/goahead:  \
-        $(CONFIG)/bin/libgo.a \
+        $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/goahead.o
@@ -237,7 +237,7 @@ $(CONFIG)/obj/test.o: \
 	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
-        $(CONFIG)/bin/libgo.a \
+        $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/test.o
@@ -250,7 +250,7 @@ $(CONFIG)/obj/gopass.o: \
 	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
 
 $(CONFIG)/bin/gopass:  \
-        $(CONFIG)/bin/libgo.a \
+        $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/gopass.o

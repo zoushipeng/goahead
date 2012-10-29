@@ -69,7 +69,7 @@ cp -r js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/upload.obj -Fd${CONFIG}/obj/upload.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc upload.c
 
-"lib.exe" -nologo -out:${CONFIG}/bin/libgo.lib ${CONFIG}/obj/action.obj ${CONFIG}/obj/alloc.obj ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/jst.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/upload.obj
+"${LD}" -dll -out:${CONFIG}/bin/libgo.dll -entry:_DllMainCRTStartup@12 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/action.obj ${CONFIG}/obj/alloc.obj ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/jst.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/upload.obj ${LIBS}
 
 "${CC}" -c -Fo${CONFIG}/obj/goahead.obj -Fd${CONFIG}/obj/goahead.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc goahead.c
 

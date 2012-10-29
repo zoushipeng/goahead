@@ -139,7 +139,7 @@
 copy /Y goahead.h $(IncDir)
 copy /Y js.h $(IncDir)
 cd projects\goahead-windows-vs</Command>
-    <Outputs>$(BinDir)\libgo.lib</Outputs>
+    <Outputs>$(BinDir)\libgo.dll</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
 
