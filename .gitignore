@@ -57,3 +57,4 @@ releases
 *.out
 *-release
 *-mine*
+xcuserdata
