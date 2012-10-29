@@ -357,7 +357,7 @@ int socketSelect(int sid, WebsTime timeout)
         So, if WINDOWS, sleep.  
      */
     if (nEvents == 0) {
-        Sleep(timeout);
+        Sleep((DWORD) timeout);
         return 0;
     }
     /*
