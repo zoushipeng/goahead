@@ -277,8 +277,8 @@ WebsTime websRunEvents()
                 /* Rescan incase event scheduled or modified an event */
                 i = -1;
             }
+            nextEvent = min(delay, nextEvent);
         }
-        nextEvent = min(delay, nextEvent);
     }
     return nextEvent * 1000;
 }
