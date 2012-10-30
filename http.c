@@ -529,7 +529,6 @@ PUBLIC void websFree(Webs *wp)
 {
     assure(wp);
     assure(websValid(wp));
-    assure(wp->state == WEBS_BEGIN || wp->state == WEBS_COMPLETE);
 
     termWebs(wp, 0);
     websMax = gfreeHandle(&webs, wp->wid);
@@ -1717,7 +1716,7 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
         msg = sfmtv(fmt, args);
         va_end(args);
         if (!(code & WEBS_NOLOG)) {
-            trace(2, "%s", msg);
+            trace(2, "%s\n", msg);
         }
         encoded = websEscapeHtml(msg);
         gfree(msg);
