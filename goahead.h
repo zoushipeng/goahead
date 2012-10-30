@@ -688,11 +688,17 @@ extern "C" {
 #if BIT_WIN_LIKE
     #define INT64(x)    (x##i64)
     #define UINT64(x)   (x##Ui64)
-    #define BIT_EXPORT  __declspec(dllexport)
 #else
     #define INT64(x)    (x##LL)
     #define UINT64(x)   (x##ULL)
-    #define BIT_EXPORT 
+#endif
+
+#if BIT_WIN_LIKE
+    #define PUBLIC      __declspec(dllexport)
+    #define PRIVATE     static
+#else
+    #define PUBLIC
+    #define PRIVATE     static
 #endif
 
 #ifndef max
