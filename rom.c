@@ -20,7 +20,7 @@ WebsHash    romTab;                     /* Symbol table for web pages */
 
 /*********************************** Code *************************************/
 
-int websRomOpen()
+PUBLIC int websRomOpen()
 {
     WebsRomIndex    *wip;
     char          name[BIT_LIMIT_FILENAME];
@@ -40,13 +40,13 @@ int websRomOpen()
 }
 
 
-void websRomClose()
+PUBLIC void websRomClose()
 {
     hashFree(romTab);
 }
 
 
-int websRomPageOpen(Webs *wp)
+PUBLIC int websRomPageOpen(Webs *wp)
 {
     WebsRomIndex    *wip;
     WebsKey           *sp;
@@ -64,12 +64,12 @@ int websRomPageOpen(Webs *wp)
 }
 
 
-void websRomPageClose(Webs *wp)
+PUBLIC void websRomPageClose(Webs *wp)
 {
 }
 
 
-int websRomPageStat(char *path, WebsFileInfo *sbuf)
+PUBLIC int websRomPageStat(char *path, WebsFileInfo *sbuf)
 {
     WebsRomIndex    *wip;
     WebsKey                   *sp;
@@ -90,7 +90,7 @@ int websRomPageStat(char *path, WebsFileInfo *sbuf)
 }
 
 
-ssize websRomPageReadData(Webs *wp, char *buf, ssize size)
+PUBLIC ssize websRomPageReadData(Webs *wp, char *buf, ssize size)
 {
     WebsRomIndex    *wip;
     ssize           len;

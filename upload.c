@@ -79,7 +79,7 @@ static void freeUploadFile(WebsUpload *up)
 }
 
 
-void websFreeUpload(Webs *wp)
+PUBLIC void websFreeUpload(Webs *wp)
 {
     WebsUpload  *up;
     WebsKey     *s;
@@ -103,7 +103,7 @@ void websFreeUpload(Webs *wp)
 }
 
 
-int websProcessUploadData(Webs *wp) 
+PUBLIC int websProcessUploadData(Webs *wp) 
 {
     char    *line, *nextTok;
     ssize   len, nbytes;
@@ -446,7 +446,7 @@ WebsHash websGetUpload(Webs *wp)
 }
 
 
-void websUploadOpen()
+PUBLIC void websUploadOpen()
 {
     uploadDir = BIT_UPLOAD_DIR;
     if (*uploadDir == '\0') {

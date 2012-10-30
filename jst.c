@@ -173,7 +173,7 @@ static void closeJst()
 }
 
 
-int websJstOpen()
+PUBLIC int websJstOpen()
 {
     websJstFunctions = hashCreate(WEBS_HASH_INIT * 2);
     websDefineJst("write", websJstWrite);
@@ -185,7 +185,7 @@ int websJstOpen()
 /*
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-int websDefineJst(char *name, WebsJstProc fn)
+PUBLIC int websDefineJst(char *name, WebsJstProc fn)
 {
     return jsSetGlobalFunctionDirect(websJstFunctions, name, (JsProc) fn);
 }
@@ -194,7 +194,7 @@ int websDefineJst(char *name, WebsJstProc fn)
 /*
     Javascript write command. This implemements <% write("text"); %> command
  */
-int websJstWrite(int jid, Webs *wp, int argc, char **argv)
+PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv)
 {
     int     i;
 

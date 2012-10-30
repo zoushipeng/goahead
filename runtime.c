@@ -44,7 +44,7 @@ typedef struct Callback {
 #define STATE_TYPE      7               /* Data type */
 #define STATE_COUNT     8
 
-char stateMap[] = {
+PUBLIC char stateMap[] = {
     /*     STATES:  Normal Percent Modifier Width  Dot  Prec Bits Type */
     /* CLASS           0      1       2       3     4     5    6    7  */
     /* Normal   0 */   0,     0,      0,      0,    0,    0,   0,   0,
@@ -63,7 +63,7 @@ char stateMap[] = {
   
     The Class map will map from a specifier letter to a state.
  */
-char classMap[] = {
+PUBLIC char classMap[] = {
     /*   0  ' '    !     "     #     $     %     &     ' */
              2,    0,    0,    2,    0,    1,    0,    0,
     /*  07   (     )     *     +     ,     -     .     / */
@@ -216,7 +216,7 @@ static void callEvent(int id)
 /*
     Schedule an event in delay milliseconds time. We will use 1 second granularity for webServer.
  */
-int websStartEvent(int delay, WebsEventProc proc, void *arg)
+PUBLIC int websStartEvent(int delay, WebsEventProc proc, void *arg)
 {
     Callback    *s;
     int         id;
@@ -237,7 +237,7 @@ int websStartEvent(int delay, WebsEventProc proc, void *arg)
 }
 
 
-void websRestartEvent(int id, int delay)
+PUBLIC void websRestartEvent(int id, int delay)
 {
     Callback    *s;
 
@@ -248,7 +248,7 @@ void websRestartEvent(int id, int delay)
 }
 
 
-void websStopEvent(int id)
+PUBLIC void websStopEvent(int id)
 {
     Callback    *s;
 
@@ -287,7 +287,7 @@ WebsTime websRunEvents()
 /*
     Allocating secure replacement for sprintf and vsprintf. 
  */
-char *sfmt(char *format, ...)
+PUBLIC char *sfmt(char *format, ...)
 {
     va_list     ap;
     char        *result;
@@ -304,7 +304,7 @@ char *sfmt(char *format, ...)
 /*
     Replacement for sprintf
  */
-char *fmt(char *buf, ssize bufsize, char *format, ...)
+PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
 {
     va_list     ap;
     char        *result;
@@ -326,7 +326,7 @@ char *fmt(char *buf, ssize bufsize, char *format, ...)
 /*
     Scure vsprintf replacement
  */
-char *sfmtv(char *fmt, va_list arg)
+PUBLIC char *sfmtv(char *fmt, va_list arg)
 {
     assure(fmt);
     return sprintfCore(NULL, -1, fmt, arg);
@@ -881,7 +881,7 @@ static int growBuf(Format *fmt)
 /*
     For easy debug trace
  */
-int print(cchar *fmt, ...)
+PUBLIC int print(cchar *fmt, ...)
 {
     va_list     ap;
     int         len;
@@ -935,7 +935,7 @@ WebsValue valueString(char *value, int flags)
 }
 
 
-void valueFree(WebsValue* v)
+PUBLIC void valueFree(WebsValue* v)
 {
     if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
         gfree(v->value.string);
@@ -963,7 +963,7 @@ static void defaultTraceHandler(int level, char *buf)
 }
 
 
-void error(char *fmt, ...)
+PUBLIC void error(char *fmt, ...)
 {
     va_list     args;
     char      *message;
@@ -984,7 +984,7 @@ void error(char *fmt, ...)
 }
 
 
-void assureError(WEBS_ARGS_DEC, char *fmt, ...)
+PUBLIC void assureError(WEBS_ARGS_DEC, char *fmt, ...)
 {
     va_list     args;
     char        *fmtBuf, *message;
@@ -1005,7 +1005,7 @@ void assureError(WEBS_ARGS_DEC, char *fmt, ...)
 /*
     Trace log. Customize this function to log trace output
  */
-void trace(int level, char *fmt, ...)
+PUBLIC void trace(int level, char *fmt, ...)
 {
     va_list     args;
     char      *message;
@@ -1022,7 +1022,7 @@ void trace(int level, char *fmt, ...)
 }
 
 
-int websGetTraceLevel() 
+PUBLIC int websGetTraceLevel() 
 {
     return traceLevel;
 }
@@ -1043,7 +1043,7 @@ WebsTraceHandler traceSetHandler(WebsTraceHandler handler)
 }
 
 
-int traceOpen()
+PUBLIC int traceOpen()
 {
     if (!tracePath) {
         /* This defintion comes from main.bit and bit.h */
@@ -1062,7 +1062,7 @@ int traceOpen()
 }
 
 
-void traceClose()
+PUBLIC void traceClose()
 {
     if (traceFd >= 0) {
         close(traceFd);                                                                              
@@ -1071,7 +1071,7 @@ void traceClose()
 }
 
 
-void traceSetPath(char *path)
+PUBLIC void traceSetPath(char *path)
 {
     char  *lp;
     
@@ -1087,7 +1087,7 @@ void traceSetPath(char *path)
 /*
     Convert a string to lower case
  */
-char *slower(char *string)
+PUBLIC char *slower(char *string)
 {
     char  *s;
 
@@ -1111,7 +1111,7 @@ char *slower(char *string)
 /* 
     Convert a string to upper case
  */
-char *supper(char *string)
+PUBLIC char *supper(char *string)
 {
     char  *s;
 
@@ -1131,7 +1131,7 @@ char *supper(char *string)
 }
 
 
-char *itosbuf(char *buf, ssize size, int64 value, int radix)
+PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix)
 {
     char    *cp, *end;
     char    digits[] = "0123456789ABCDEF";
@@ -1173,7 +1173,7 @@ char *itosbuf(char *buf, ssize size, int64 value, int radix)
     Allocate a new file handle. On the first call, the caller must set the handle map to be a pointer to a null
     pointer.  map points to the second element in the handle array.
  */
-int wallocHandle(void *mapArg)
+PUBLIC int wallocHandle(void *mapArg)
 {
     void    ***map;
     ssize   *mp;
@@ -1230,7 +1230,7 @@ int wallocHandle(void *mapArg)
 /*
     Free a handle. This function returns the value of the largest handle in use plus 1, to be saved as a max value.
  */
-int gfreeHandle(void *mapArg, int handle)
+PUBLIC int gfreeHandle(void *mapArg, int handle)
 {
     void    ***map;
     ssize   *mp;
@@ -1271,7 +1271,7 @@ int gfreeHandle(void *mapArg, int handle)
 /*
     Allocate an entry in the halloc array
  */
-int wallocObject(void *listArg, int *max, int size)
+PUBLIC int wallocObject(void *listArg, int *max, int size)
 {
     void    ***list;
     char    *cp;
@@ -1305,7 +1305,7 @@ int wallocObject(void *listArg, int *max, int size)
     data being added. "maxsize" is an upper limit (sanity level) beyond which the buffer must not grow. Set maxsize to -1 to
     imply no upper limit. The buffer for the buf is always *  dynamically allocated. Set maxsize
  */
-int bufCreate(WebsBuf *bp, int initSize, int maxsize)
+PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
 {
     int increment;
 
@@ -1337,7 +1337,7 @@ int bufCreate(WebsBuf *bp, int initSize, int maxsize)
 /*
     Delete a buf and free the buf buffer.
  */
-void bufFree(WebsBuf *bp)
+PUBLIC void bufFree(WebsBuf *bp)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1355,7 +1355,7 @@ void bufFree(WebsBuf *bp)
     Return the length of the data in the buf. Users must fill the queue to a high water mark of at most one less than
     the queue size.  
  */
-ssize bufLen(WebsBuf *bp)
+PUBLIC ssize bufLen(WebsBuf *bp)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1371,7 +1371,7 @@ ssize bufLen(WebsBuf *bp)
 /*
     Get a byte from the queue
  */
-int bufGetc(WebsBuf *bp)
+PUBLIC int bufGetc(WebsBuf *bp)
 {
     char    c, *cp;
 
@@ -1396,7 +1396,7 @@ int bufGetc(WebsBuf *bp)
     Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the buffer as
     required.  
  */
-int bufPutc(WebsBuf *bp, char c)
+PUBLIC int bufPutc(WebsBuf *bp, char c)
 {
     char *cp;
 
@@ -1419,7 +1419,7 @@ int bufPutc(WebsBuf *bp, char c)
 /*
     Insert a wide character at the front of the queue
  */
-int bufInsertc(WebsBuf *bp, char c)
+PUBLIC int bufInsertc(WebsBuf *bp, char c)
 {
     char *cp;
 
@@ -1442,7 +1442,7 @@ int bufInsertc(WebsBuf *bp, char c)
 /*
     Add a string to the queue. Add a trailing null (maybe two nulls)
  */
-ssize bufPutStr(WebsBuf *bp, char *str)
+PUBLIC ssize bufPutStr(WebsBuf *bp, char *str)
 {
     ssize   rc;
 
@@ -1459,7 +1459,7 @@ ssize bufPutStr(WebsBuf *bp, char *str)
 /*
     Add a null terminator. This does NOT increase the size of the queue
  */
-void bufAddNull(WebsBuf *bp)
+PUBLIC void bufAddNull(WebsBuf *bp)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1476,7 +1476,7 @@ void bufAddNull(WebsBuf *bp)
 /*
     Get a byte from the queue
  */
-int bufGetcA(WebsBuf *bp)
+PUBLIC int bufGetcA(WebsBuf *bp)
 {
     uchar   c;
 
@@ -1499,7 +1499,7 @@ int bufGetcA(WebsBuf *bp)
     Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. 
     Grow the buffer as required.
  */
-int bufPutcA(WebsBuf *bp, char c)
+PUBLIC int bufPutcA(WebsBuf *bp, char c)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1518,7 +1518,7 @@ int bufPutcA(WebsBuf *bp, char c)
 /*
     Insert a byte at the front of the queue
  */
-int bufInsertcA(WebsBuf *bp, char c)
+PUBLIC int bufInsertcA(WebsBuf *bp, char c)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1537,7 +1537,7 @@ int bufInsertcA(WebsBuf *bp, char c)
 /*
     Add a string to the queue. Add a trailing null (not really in the q). ie. beyond the last valid byte.
  */
-int bufPutStrA(WebsBuf *bp, char *str)
+PUBLIC int bufPutStrA(WebsBuf *bp, char *str)
 {
     int     rc;
 
@@ -1555,7 +1555,7 @@ int bufPutStrA(WebsBuf *bp, char *str)
 /*
     Add a block of data to the buf. Return the number of bytes added. Grow the buffer as required.
  */
-ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
+PUBLIC ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, added;
 
@@ -1592,7 +1592,7 @@ ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
 /*
     Get a block of data from the buf. Return the number of bytes returned.
  */
-ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
+PUBLIC ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, bytes_read;
 
@@ -1629,7 +1629,7 @@ ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
     Return the maximum number of bytes the buffer can accept via a single block copy. Useful if the user is doing their
     own data insertion. 
  */
-ssize bufRoom(WebsBuf *bp)
+PUBLIC ssize bufRoom(WebsBuf *bp)
 {
     ssize   space, in_a_line;
 
@@ -1647,7 +1647,7 @@ ssize bufRoom(WebsBuf *bp)
     Return the maximum number of bytes the buffer can provide via a single block copy. Useful if the user is doing their
     own data retrieval.  
  */
-ssize bufGetBlkMax(WebsBuf *bp)
+PUBLIC ssize bufGetBlkMax(WebsBuf *bp)
 {
     ssize   len, in_a_line;
 
@@ -1664,7 +1664,7 @@ ssize bufGetBlkMax(WebsBuf *bp)
 /*
     Adjust the endp pointer after the user has copied data into the queue.
  */
-void bufAdjustEnd(WebsBuf *bp, ssize size)
+PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1687,7 +1687,7 @@ void bufAdjustEnd(WebsBuf *bp, ssize size)
 /*
     Adjust the servp pointer after the user has copied data from the queue.
  */
-void bufAdjustStart(WebsBuf *bp, ssize size)
+PUBLIC void bufAdjustStart(WebsBuf *bp, ssize size)
 {
     assure(bp);
     assure(bp->buflen == (bp->endbuf - bp->buf));
@@ -1711,7 +1711,7 @@ void bufAdjustStart(WebsBuf *bp, ssize size)
     Flush all data in a buffer. Reset the pointers.
     MOB - rename. BufDiscard
  */
-void bufFlush(WebsBuf *bp)
+PUBLIC void bufFlush(WebsBuf *bp)
 {
     assure(bp);
     assure(bp->servp);
@@ -1726,7 +1726,7 @@ void bufFlush(WebsBuf *bp)
 }
 
 
-void bufCompact(WebsBuf *bp)
+PUBLIC void bufCompact(WebsBuf *bp)
 {
     ssize   len;
     
@@ -1748,7 +1748,7 @@ void bufCompact(WebsBuf *bp)
 /*
     Reset pointers if empty
  */
-void bufReset(WebsBuf *bp)
+PUBLIC void bufReset(WebsBuf *bp)
 {
     if (bp->buf && bp->servp == bp->endp && bp->servp > bp->buf) {
         bp->servp = bp->endp = bp->buf;
@@ -1761,7 +1761,7 @@ void bufReset(WebsBuf *bp)
     Grow the buffer. Return true if the buffer can be grown. Grow using the increment size specified when opening the
     buf. Don't grow beyond the maximum possible size.
  */
-bool bufGrow(WebsBuf *bp, ssize room)
+PUBLIC bool bufGrow(WebsBuf *bp, ssize room)
 {
     char    *newbuf;
     ssize   len;
@@ -1860,7 +1860,7 @@ WebsHash hashCreate(int size)
     Close this symbol table. Call a cleanup function to allow the caller to free resources associated with each symbol
     table entry.  
  */
-void hashFree(WebsHash sd)
+PUBLIC void hashFree(WebsHash sd)
 {
     HashTable      *tp;
     WebsKey     *sp, *forw;
@@ -2059,7 +2059,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 /*
     Delete a symbol from a table
  */
-int hashDelete(WebsHash sd, char *name)
+PUBLIC int hashDelete(WebsHash sd, char *name)
 {
     HashTable      *tp;
     WebsKey     *sp, *last;
@@ -2185,7 +2185,7 @@ static int calcPrime(int size)
     invalid unicode sequence was provided in src.
     NOTE: does not allocate.
  */
-ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
+PUBLIC ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
 {
     ssize   len;
 
@@ -2228,7 +2228,7 @@ ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
     or -1 if an invalid multibyte sequence was provided in src.
     NOTE: does not allocate.
  */
-ssize mtow(wchar *dest, ssize destCount, char *src, ssize count) 
+PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count) 
 {
     ssize      len;
 
@@ -2284,7 +2284,7 @@ wchar *amtow(char *src, ssize *lenp)
 
 //  FUTURE UNICODE - need a version that can supply a length
 
-char *awtom(wchar *src, ssize *lenp)
+PUBLIC char *awtom(wchar *src, ssize *lenp)
 {
     char    *dest;
     ssize   len;
@@ -2332,7 +2332,7 @@ uint hextoi(char *hexstring)
 }
 
 
-char *sclone(char *s)
+PUBLIC char *sclone(char *s)
 {
     char    *buf;
 
@@ -2358,7 +2358,7 @@ uint strtoi(char *s)
 }
 
 
-int scaselesscmp(char *s1, char *s2)
+PUBLIC int scaselesscmp(char *s1, char *s2)
 {
     if (s1 == 0 || s2 == 0) {
         return -1;
@@ -2371,19 +2371,19 @@ int scaselesscmp(char *s1, char *s2)
 }
 
 
-bool scaselessmatch(char *s1, char *s2)
+PUBLIC bool scaselessmatch(char *s1, char *s2)
 {
     return scaselesscmp(s1, s2) == 0;
 }
 
 
-bool smatch(char *s1, char *s2)
+PUBLIC bool smatch(char *s1, char *s2)
 {
     return scmp(s1, s2) == 0;
 }
 
 
-int scmp(char *s1, char *s2)
+PUBLIC int scmp(char *s1, char *s2)
 {
     if (s1 == s2) {
         return 0;
@@ -2396,14 +2396,14 @@ int scmp(char *s1, char *s2)
 }
 
 
-ssize slen(char *s)
+PUBLIC ssize slen(char *s)
 {
     return s ? strlen(s) : 0;
 }
 
 
 
-ssize scopy(char *dest, ssize destMax, char *src)
+PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
 {
     ssize      len;
 
@@ -2424,7 +2424,7 @@ ssize scopy(char *dest, ssize destMax, char *src)
     This routine copies at most "count" characters from a string. It ensures the result is always null terminated and 
     the buffer does not overflow. Returns -1 if the buffer is too small.
  */
-ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
+PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
 {
     ssize      len;
 
@@ -2455,7 +2455,7 @@ ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
 /*
     Return the length of a string limited by a given length
  */
-ssize strnlen(char *s, ssize n)
+PUBLIC ssize strnlen(char *s, ssize n)
 {
     ssize   len;
 
@@ -2468,7 +2468,7 @@ ssize strnlen(char *s, ssize n)
 /*
     Case sensitive string comparison. Limited by length
  */
-int sncmp(char *s1, char *s2, ssize n)
+PUBLIC int sncmp(char *s1, char *s2, ssize n)
 {
     int     rc;
 
@@ -2499,7 +2499,7 @@ int sncmp(char *s1, char *s2, ssize n)
 }
 
 
-int sncaselesscmp(char *s1, char *s2, ssize n)
+PUBLIC int sncaselesscmp(char *s1, char *s2, ssize n)
 {
     int     rc;
 
@@ -2534,7 +2534,7 @@ int sncaselesscmp(char *s1, char *s2, ssize n)
     Note "str" is modifed as per strtok()
     WARNING:  this does not allocate
  */
-char *stok(char *str, char *delim, char **last)
+PUBLIC char *stok(char *str, char *delim, char **last)
 {
     char  *start, *end;
     ssize   i;
@@ -2561,7 +2561,7 @@ char *stok(char *str, char *delim, char **last)
 }
 
 
-char *strim(char *str, char *set, int where)
+PUBLIC char *strim(char *str, char *set, int where)
 {
     char    *s;
     ssize   len, i;
@@ -2591,7 +2591,7 @@ char *strim(char *str, char *set, int where)
     then the args will be extracted, back-quotes removed and argv will be set to point to all the args.
     NOTE: this routine does not allocate.
  */
-int websParseArgs(char *args, char **argv, int maxArgc)
+PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
 {
     char    *dest, *src, *start;
     int     quote, argc;
@@ -2676,7 +2676,7 @@ static char *getAbsolutePath(char *path)
 }
 
 
-int vxchdir(char *dirname)
+PUBLIC int vxchdir(char *dirname)
 {
     char  *path;
     int     rc;
@@ -2689,7 +2689,7 @@ int vxchdir(char *dirname)
 }
 
 
-char *tempnam(char *dir, char *pfx)
+PUBLIC char *tempnam(char *dir, char *pfx)
 {
     static int count = 0;
     if (!pfx) {
@@ -2700,13 +2700,13 @@ char *tempnam(char *dir, char *pfx)
 #endif
 
 #if ECOS
-int send(int s, const void *buf, size_t len, int flags)
+PUBLIC int send(int s, const void *buf, size_t len, int flags)
 {
     return write(s, buf, len);
 }
 
 
-int recv(int s, void *buf, size_t len, int flags)
+PUBLIC int recv(int s, void *buf, size_t len, int flags)
 {
     return read(s, buf, len);
 }
@@ -2714,7 +2714,7 @@ int recv(int s, void *buf, size_t len, int flags)
 
 
 #if BIT_WIN_LIKE
-void websSetInst(HINSTANCE inst)
+PUBLIC void websSetInst(HINSTANCE inst)
 {
     appInstance = inst;
 }
@@ -2790,7 +2790,7 @@ static void syslog(int priority, char *fmt, ...)
  */
 
 #if !BIT_UNIX_LIKE
-char *basename(char *name)
+PUBLIC char *basename(char *name)
 {
     char  *cp;
 
@@ -2812,7 +2812,7 @@ char *basename(char *name)
 #endif
 
 #if BIT_WIN_LIKE
-void sleep(int secs)
+PUBLIC void sleep(int secs)
 {
     Sleep(secs / 1000);
 }
@@ -2820,14 +2820,14 @@ void sleep(int secs)
 
 
 #if BIT_LEGACY
-int fmtValloc(char **sp, int n, char *format, va_list args)
+PUBLIC int fmtValloc(char **sp, int n, char *format, va_list args)
 {
     *sp = sfmtv(format, args);
     return (int) slen(*sp);
 }
 
 
-int fmtAlloc(char **sp, int n, char *format, ...)
+PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
 {
     va_list     args;
 

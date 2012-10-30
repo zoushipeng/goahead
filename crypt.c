@@ -139,7 +139,7 @@ static void update(MD5CONTEXT *context, uchar *input, uint inputLen);
     Decode a null terminated string and returns a null terminated string.
     Stops decoding at the end of string or '='
  */
-char *websDecode64(char *s)
+PUBLIC char *websDecode64(char *s)
 {
     return websDecode64Block(s, NULL, WEBS_DECODE_TOKEQ);
 }
@@ -149,7 +149,7 @@ char *websDecode64(char *s)
     Decode a null terminated string and return a block with length.
     Stops decoding at the end of the block or '=' if WEBS_DECODE_TOKEQ is specified.
  */
-char *websDecode64Block(char *s, ssize *len, int flags)
+PUBLIC char *websDecode64Block(char *s, ssize *len, int flags)
 {
     uint    bitBuf;
     char  *buffer, *bp;
@@ -189,7 +189,7 @@ char *websDecode64Block(char *s, ssize *len, int flags)
 }
 
 
-char *websMD5(char *s)
+PUBLIC char *websMD5(char *s)
 {
     return websMD5Block(s, strlen(s), NULL);
 }
@@ -198,7 +198,7 @@ char *websMD5(char *s)
 /*
     Return the MD5 hash of a block. Returns allocated string. A prefix for the result can be supplied.
  */
-char *websMD5Block(char *buf, ssize length, char *prefix)
+PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix)
 {
     MD5CONTEXT      context;
     uchar           hash[CRYPT_HASH_SIZE];
@@ -425,7 +425,7 @@ static void decode(uint *output, uchar *input, uint len)
     Encode a null terminated string.
     Returns a null terminated block
  */
-char *websEncode64(char *s)
+PUBLIC char *websEncode64(char *s)
 {
     return websEncode64Block(s, slen(s));
 }
@@ -435,7 +435,7 @@ char *websEncode64(char *s)
     Encode a block of a given length
     Returns a null terminated block
  */
-char *websEncode64Block(char *s, ssize len)
+PUBLIC char *websEncode64Block(char *s, ssize len)
 {
     uint    shiftbuf;
     char    *buffer, *bp;

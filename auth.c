@@ -74,7 +74,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
 
 /************************************ Code ************************************/
 
-bool websAuthenticate(Webs *wp)
+PUBLIC bool websAuthenticate(Webs *wp)
 {
     WebsRoute   *route;
     char        *username;
@@ -133,7 +133,7 @@ bool websAuthenticate(Webs *wp)
 }
 
 
-int websOpenAuth(int minimal)
+PUBLIC int websOpenAuth(int minimal)
 {
     char    sbuf[64];
     
@@ -158,7 +158,7 @@ int websOpenAuth(int minimal)
 }
 
 
-void websCloseAuth() 
+PUBLIC void websCloseAuth() 
 {
     WebsKey     *key, *next;
 
@@ -182,7 +182,7 @@ void websCloseAuth()
 }
 
 
-int websWriteAuthFile(char *path)
+PUBLIC int websWriteAuthFile(char *path)
 {
     FILE        *fp;
     WebsKey     *kp, *ap;
@@ -268,7 +268,7 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
 }
 
 
-int websRemoveUser(char *username) 
+PUBLIC int websRemoveUser(char *username) 
 {
     WebsKey     *key;
     
@@ -291,7 +291,7 @@ static void freeUser(WebsUser *up)
 }
 
 
-int websSetUserRoles(char *username, char *roles)
+PUBLIC int websSetUserRoles(char *username, char *roles)
 {
     WebsUser    *user;
 
@@ -371,7 +371,7 @@ static void computeUserAbilities(WebsUser *user)
 }
 
 
-void websComputeAllUserAbilities()
+PUBLIC void websComputeAllUserAbilities()
 {
     WebsUser    *user;
     WebsKey     *sym;
@@ -420,7 +420,7 @@ static void freeRole(WebsRole *rp)
 /*
     Does not recompute abilities for users that use this role
  */
-int websRemoveRole(char *name) 
+PUBLIC int websRemoveRole(char *name) 
 {
     WebsRole    *rp;
     WebsKey     *sym;
@@ -453,7 +453,7 @@ WebsHash websGetRoles()
 #endif
 
 
-bool websLoginUser(Webs *wp, char *username, char *password)
+PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
 {
     assure(wp);
     assure(wp->route);
@@ -526,7 +526,7 @@ static void basicLogin(Webs *wp)
 }
 
 
-bool websVerifyPassword(Webs *wp)
+PUBLIC bool websVerifyPassword(Webs *wp)
 {
     char      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
     bool        success;
@@ -872,7 +872,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 
 
 #if BIT_HAS_PAM && BIT_PAM
-bool websVerifyPamPassword(Webs *wp)
+PUBLIC bool websVerifyPamPassword(Webs *wp)
 {
     WebsBuf             abilities;
     pam_handle_t        *pamh;
@@ -974,7 +974,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
 #endif /* BIT_HAS_PAM */
 
 
-int websSetRouteAuth(WebsRoute *route, char *auth)
+PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
 {
     WebsParseAuth parseAuth;
     WebsAskLogin  askLogin;

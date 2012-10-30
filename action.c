@@ -66,7 +66,7 @@ static bool actionHandler(Webs *wp)
 /*
     Define a function in the "action" map space
  */
-int websDefineAction(char *name, void *fn)
+PUBLIC int websDefineAction(char *name, void *fn)
 {
     assure(name && *name);
     assure(fn);
@@ -88,7 +88,7 @@ static void closeAction()
 }
 
 
-void websActionOpen()
+PUBLIC void websActionOpen()
 {
     formSymtab = hashCreate(WEBS_HASH_INIT);
     websDefineHandler("action", actionHandler, closeAction, 0);
@@ -101,7 +101,7 @@ void websActionOpen()
 
     Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
  */
-void websHeader(Webs *wp)
+PUBLIC void websHeader(Webs *wp)
 {
     assure(websValid(wp));
 
@@ -111,7 +111,7 @@ void websHeader(Webs *wp)
 }
 
 
-void websFooter(Webs *wp)
+PUBLIC void websFooter(Webs *wp)
 {
     assure(websValid(wp));
     websWrite(wp, "</html>\n");

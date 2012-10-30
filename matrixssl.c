@@ -26,7 +26,7 @@ static sslKeys_t *sslKeys = NULL;
 
 /************************************ Code ************************************/
 
-int sslOpen()
+PUBLIC int sslOpen()
 {
     char    *password;
 
@@ -46,7 +46,7 @@ int sslOpen()
 }
 
 
-void sslClose()
+PUBLIC void sslClose()
 {
     if (sslKeys) {
         matrixSslDeleteKeys(sslKeys);
@@ -56,7 +56,7 @@ void sslClose()
 }
 
 
-void sslFree(Webs *wp)
+PUBLIC void sslFree(Webs *wp)
 {
     Ms          *ms;
     WebsSocket    *sp;
@@ -84,7 +84,7 @@ void sslFree(Webs *wp)
 }
 
 
-int sslUpgrade(Webs *wp)
+PUBLIC int sslUpgrade(Webs *wp)
 {
     Ms      *ms;
     ssl_t   *handle;
@@ -229,7 +229,7 @@ static ssize innerRead(Webs *wp, char *buf, ssize size)
 /*
     Return number of bytes read. Return -1 on errors and EOF.
  */
-ssize sslRead(Webs *wp, void *buf, ssize len)
+PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     Ms      *ms;
     ssize   bytes;
@@ -267,7 +267,7 @@ ssize sslRead(Webs *wp, void *buf, ssize len)
     been encoded.  When it is completely flushed, we return the originally requested length, and resume normal 
     processing.
  */
-ssize sslWrite(Webs *wp, void *buf, ssize len)
+PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 {
     Ms      *ms;
     uchar   *obuf;

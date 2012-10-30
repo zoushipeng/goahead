@@ -43,7 +43,7 @@ static int      charConvert(Js *ep, int base, int maxDig);
 
 /************************************* Code ***********************************/
 
-int jsOpenEngine(WebsHash variables, WebsHash functions)
+PUBLIC int jsOpenEngine(WebsHash variables, WebsHash functions)
 {
     Js      *ep;
     int     jid, vid;
@@ -87,7 +87,7 @@ int jsOpenEngine(WebsHash variables, WebsHash functions)
 }
 
 
-void jsCloseEngine(int jid)
+PUBLIC void jsCloseEngine(int jid)
 {
     Js      *ep;
     int     i;
@@ -118,7 +118,7 @@ void jsCloseEngine(int jid)
 
 
 #if !ECOS && UNUSED
-char *jsEvalFile(int jid, char *path, char **emsg)
+PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
 {
     WebsStat    sbuf;
     Js          *ep;
@@ -166,7 +166,7 @@ char *jsEvalFile(int jid, char *path, char **emsg)
     Create a new variable scope block so that consecutive jsEval calls may be made with the same varible scope. This
     space MUST be closed with jsCloseBlock when the evaluations are complete.
  */
-int jsOpenBlock(int jid)
+PUBLIC int jsOpenBlock(int jid)
 {
     Js      *ep;
     int     vid;
@@ -186,7 +186,7 @@ int jsOpenBlock(int jid)
 }
 
 
-int jsCloseBlock(int jid, int vid)
+PUBLIC int jsCloseBlock(int jid, int vid)
 {
     Js    *ep;
 
@@ -204,7 +204,7 @@ int jsCloseBlock(int jid, int vid)
     Create a new variable scope block and evaluate a script. All variables
     created during this context will be automatically deleted when complete.
  */
-char *jsEvalBlock(int jid, char *script, char **emsg)
+PUBLIC char *jsEvalBlock(int jid, char *script, char **emsg)
 {
     char* returnVal;
     int     vid;
@@ -221,7 +221,7 @@ char *jsEvalBlock(int jid, char *script, char **emsg)
 /*
     Parse and evaluate Javascript.
  */
-char *jsEval(int jid, char *script, char **emsg)
+PUBLIC char *jsEval(int jid, char *script, char **emsg)
 {
     Js      *ep;
     JsInput *oldBlock;
@@ -1240,7 +1240,7 @@ static int evalFunction(Js *ep)
 /*
     Output a parse js_error message
  */
-void jsError(Js *ep, char* fmt, ...)
+PUBLIC void jsError(Js *ep, char* fmt, ...)
 {
     va_list     args;
     JsInput     *ip;
@@ -1310,7 +1310,7 @@ static void appendString(char **ptr, char *s)
 /*
     Define a function
  */
-int jsSetGlobalFunction(int jid, char *name, JsProc fn)
+PUBLIC int jsSetGlobalFunction(int jid, char *name, JsProc fn)
 {
     Js    *ep;
 
@@ -1324,7 +1324,7 @@ int jsSetGlobalFunction(int jid, char *name, JsProc fn)
 /*
     Define a function directly into the function symbol table.
  */
-int jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn)
+PUBLIC int jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn)
 {
     if (hashEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
@@ -1336,7 +1336,7 @@ int jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn)
 /*
     Remove ("undefine") a function
  */
-int jsRemoveGlobalFunction(int jid, char *name)
+PUBLIC int jsRemoveGlobalFunction(int jid, char *name)
 {
     Js    *ep;
 
@@ -1347,7 +1347,7 @@ int jsRemoveGlobalFunction(int jid, char *name)
 }
 
 
-void *jsGetGlobalFunction(int jid, char *name)
+PUBLIC void *jsGetGlobalFunction(int jid, char *name)
 {
     Js      *ep;
     WebsKey *sp;
@@ -1376,7 +1376,7 @@ void *jsGetGlobalFunction(int jid, char *name)
             return -1;
         }
  */
-int jsArgs(int argc, char **argv, char *fmt, ...)
+PUBLIC int jsArgs(int argc, char **argv, char *fmt, ...)
 {
     va_list vargs;
     char  *cp, **sp;
@@ -1417,7 +1417,7 @@ int jsArgs(int argc, char **argv, char *fmt, ...)
 }
 
 
-void jsSetUserHandle(int jid, void* handle)
+PUBLIC void jsSetUserHandle(int jid, void* handle)
 {
     Js    *ep;
 
@@ -1439,7 +1439,7 @@ void* jsGetUserHandle(int jid)
 }
 
 
-int jsGetLineNumber(int jid)
+PUBLIC int jsGetLineNumber(int jid)
 {
     Js    *ep;
 
@@ -1450,7 +1450,7 @@ int jsGetLineNumber(int jid)
 }
 
 
-void jsSetResult(int jid, char *s)
+PUBLIC void jsSetResult(int jid, char *s)
 {
     Js    *ep;
 
@@ -1461,7 +1461,7 @@ void jsSetResult(int jid, char *s)
 }
 
 
-char *jsGetResult(int jid)
+PUBLIC char *jsGetResult(int jid)
 {
     Js    *ep;
 
@@ -1475,7 +1475,7 @@ char *jsGetResult(int jid)
     Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
     top-most variable frame.  
  */
-void jsSetVar(int jid, char *var, char *value)
+PUBLIC void jsSetVar(int jid, char *var, char *value)
 {
     Js          *ep;
     WebsValue   v;
@@ -1498,7 +1498,7 @@ void jsSetVar(int jid, char *var, char *value)
     Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the top-most variable frame.  
  */
-void jsSetLocalVar(int jid, char *var, char *value)
+PUBLIC void jsSetLocalVar(int jid, char *var, char *value)
 {
     Js          *ep;
     WebsValue   v;
@@ -1521,7 +1521,7 @@ void jsSetLocalVar(int jid, char *var, char *value)
     Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the global variable frame.  
  */
-void jsSetGlobalVar(int jid, char *var, char *value)
+PUBLIC void jsSetGlobalVar(int jid, char *var, char *value)
 {
     Js          *ep;
     WebsValue   v;
@@ -1543,7 +1543,7 @@ void jsSetGlobalVar(int jid, char *var, char *value)
 /*
     Get a variable
  */
-int jsGetVar(int jid, char *var, char **value)
+PUBLIC int jsGetVar(int jid, char *var, char **value)
 {
     Js          *ep;
     WebsKey     *sp;
@@ -1637,18 +1637,18 @@ static void jsRemoveNewlines(Js *ep, int state)
 }
 
 
-int jsLexOpen(Js *ep)
+PUBLIC int jsLexOpen(Js *ep)
 {
     return 0;
 }
 
 
-void jsLexClose(Js *ep)
+PUBLIC void jsLexClose(Js *ep)
 {
 }
 
 
-int jsLexOpenScript(Js *ep, char *script)
+PUBLIC int jsLexOpenScript(Js *ep, char *script)
 {
     JsInput     *ip;
 
@@ -1688,7 +1688,7 @@ int jsLexOpenScript(Js *ep, char *script)
 }
 
 
-void jsLexCloseScript(Js *ep)
+PUBLIC void jsLexCloseScript(Js *ep)
 {
     JsInput     *ip;
 
@@ -1713,7 +1713,7 @@ void jsLexCloseScript(Js *ep)
 }
 
 
-void jsLexSaveInputState(Js *ep, JsInput *state)
+PUBLIC void jsLexSaveInputState(Js *ep, JsInput *state)
 {
     JsInput     *ip;
 
@@ -1729,7 +1729,7 @@ void jsLexSaveInputState(Js *ep, JsInput *state)
 }
 
 
-void jsLexRestoreInputState(Js *ep, JsInput *state)
+PUBLIC void jsLexRestoreInputState(Js *ep, JsInput *state)
 {
     JsInput     *ip;
 
@@ -1750,7 +1750,7 @@ void jsLexRestoreInputState(Js *ep, JsInput *state)
 }
 
 
-void jsLexFreeInputState(Js *ep, JsInput *state)
+PUBLIC void jsLexFreeInputState(Js *ep, JsInput *state)
 {
     if (state->putBackToken) {
         gfree(state->putBackToken);
@@ -1759,7 +1759,7 @@ void jsLexFreeInputState(Js *ep, JsInput *state)
 }
 
 
-int jsLexGetToken(Js *ep, int state)
+PUBLIC int jsLexGetToken(Js *ep, int state)
 {
     ep->tid = getLexicalToken(ep, state);
     return ep->tid;
@@ -2132,7 +2132,7 @@ static int getLexicalToken(Js *ep, int state)
 }
 
 
-void jsLexPutbackToken(Js *ep, int tid, char *string)
+PUBLIC void jsLexPutbackToken(Js *ep, int tid, char *string)
 {
     JsInput *ip;
 

@@ -48,7 +48,7 @@ static int wallocGetSize(ssize size, int *q);
     using malloc. flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial
     buffer of size bufsize for use by the application.
  */
-int wopenAlloc(void *buf, int bufsize, int flags)
+PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
 {
     controlFlags = flags;
 
@@ -80,7 +80,7 @@ int wopenAlloc(void *buf, int bufsize, int flags)
 }
 
 
-void wcloseAlloc()
+PUBLIC void wcloseAlloc()
 {
     if (--wopenCount <= 0 && !(controlFlags & WEBS_USER_BUF)) {
         free(freeBuf);
@@ -92,7 +92,7 @@ void wcloseAlloc()
 /*
     Allocate a block of the requested size. First check the block queues for a suitable one.
  */
-void *walloc(ssize size)
+PUBLIC void *walloc(ssize size)
 {
     WebsAlloc   *bp;
     int     q, memSize;
@@ -176,7 +176,7 @@ void *walloc(ssize size)
     Free a block back to the relevant free q. We don't free back to the O/S or run time system unless the block is
     greater than the maximum class size. We also do not coalesce blocks.  
  */
-void gfree(void *mp)
+PUBLIC void gfree(void *mp)
 {
     WebsAlloc   *bp;
     int     q;
@@ -207,7 +207,7 @@ void gfree(void *mp)
 /*
     Duplicate a string, allow NULL pointers and then dup an empty string.
  */
-char *strdupA(char *s)
+PUBLIC char *strdupA(char *s)
 {
     char    *cp;
     int     len;
@@ -229,7 +229,7 @@ char *strdupA(char *s)
     Duplicate an ascii string, allow NULL pointers and then dup an empty string. If UNICODE, strdup above works with
     wide chars, so we need this routine *  for ascii strings. 
  */
-char *strdup(const char *s)
+PUBLIC char *strdup(const char *s)
 {
     char  *cp;
     ssize   len;
@@ -250,7 +250,7 @@ char *strdup(const char *s)
     Reallocate a block. Allow NULL pointers and just do a malloc. Note: if the realloc fails, we return NULL and the
     previous buffer is preserved.
  */
-void *grealloc(void *mp, ssize newsize)
+PUBLIC void *grealloc(void *mp, ssize newsize)
 {
     WebsAlloc   *bp;
     void    *newbuf;
@@ -297,8 +297,8 @@ static int wallocGetSize(ssize size, int *q)
 /*
     Stubs
  */
-int wopenAlloc(void *buf, int bufsize, int flags) { return 0; }
-void wcloseAlloc() { }
+PUBLIC int wopenAlloc(void *buf, int bufsize, int flags) { return 0; }
+PUBLIC void wcloseAlloc() { }
 
 #endif /* BIT_REPLACE_MALLOC */
 

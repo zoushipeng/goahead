@@ -26,7 +26,7 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 
 /************************************** Code **********************************/
 
-int sslOpen()
+PUBLIC int sslOpen()
 {
     RandBuf     randBuf;
     char        *caFile, *caPath;
@@ -118,7 +118,7 @@ int sslOpen()
 }
 
 
-void sslClose()
+PUBLIC void sslClose()
 {
     if (sslctx != NULL) {
         SSL_CTX_free(sslctx);
@@ -127,7 +127,7 @@ void sslClose()
 }
 
 
-int sslUpgrade(Webs *wp)
+PUBLIC int sslUpgrade(Webs *wp)
 {
     WebsSocket        *sptr;
 
@@ -147,7 +147,7 @@ int sslUpgrade(Webs *wp)
 }
     
 
-void sslFree(Webs *wp)
+PUBLIC void sslFree(Webs *wp)
 {
     /* 
         Re-use sessions
@@ -160,7 +160,7 @@ void sslFree(Webs *wp)
     }
 }
 
-ssize sslRead(Webs *wp, void *buf, ssize len)
+PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     WebsSocket      *sp;
     char            ebuf[BIT_LIMIT_STRING];
@@ -218,7 +218,7 @@ ssize sslRead(Webs *wp, void *buf, ssize len)
 }
 
 
-ssize sslWrite(Webs *wp, void *buf, ssize len)
+PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 {
     ssize   totalWritten;
     int     rc;

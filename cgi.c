@@ -207,14 +207,14 @@ static bool cgiHandler(Webs *wp)
 }
 
 
-int websCgiOpen()
+PUBLIC int websCgiOpen()
 {
     websDefineHandler("cgi", cgiHandler, 0, 0);
     return 0;
 }
 
 
-int websProcessCgiData(Webs *wp)
+PUBLIC int websProcessCgiData(Webs *wp)
 {
     ssize   nbytes;
 
@@ -308,7 +308,7 @@ static ssize parseCgiHeaders(Webs *wp, char *buf)
 /*
     Any entry in the cgiList need to be checked to see if it has
  */
-void websCgiGatherOutput(Cgi *cgip)
+PUBLIC void websCgiGatherOutput(Cgi *cgip)
 {
     Webs        *wp;
     WebsStat    sbuf;
@@ -413,7 +413,7 @@ WebsTime websCgiPoll()
      Returns a pointer to an allocated qualified unique temporary file name.
      This filename must eventually be deleted with gfree().
  */
-char *websGetCgiCommName()
+PUBLIC char *websGetCgiCommName()
 {
     /*
          tmpnam, tempnam, tmpfile not supported for CE 2.12 or lower.  The Win32 API
@@ -505,7 +505,7 @@ static int checkCgi(int handle)
      Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
      with gfree(); 
  */
-char *websGetCgiCommName()
+PUBLIC char *websGetCgiCommName()
 {
     char  *pname1, *pname2;
 
@@ -589,7 +589,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
      Returns a pointer to an allocated qualified unique temporary file name.
      This filename must eventually be deleted with gfree();
  */
-char *websGetCgiCommName()
+PUBLIC char *websGetCgiCommName()
 {
     char  *tname, buf[BIT_LIMIT_FILENAME];
 
@@ -817,7 +817,7 @@ static uchar *tableToBlock(char **table)
     Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
     with gfree().  
  */
-char *websGetCgiCommName()
+PUBLIC char *websGetCgiCommName()
 {
     char  *pname1, *pname2;
 

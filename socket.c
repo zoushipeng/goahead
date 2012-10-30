@@ -11,9 +11,9 @@
 /************************************ Locals **********************************/
 
 WebsSocket    **socketList;           /* List of open sockets */
-int         socketMax;              /* Maximum size of socket */
-int         socketHighestFd = -1;   /* Highest socket fd opened */
-int         socketOpenCount = 0;    /* Number of task using sockets */
+PUBLIC int         socketMax;              /* Maximum size of socket */
+PUBLIC int         socketHighestFd = -1;   /* Highest socket fd opened */
+PUBLIC int         socketOpenCount = 0;    /* Number of task using sockets */
 
 /***************************** Forward Declarations ***************************/
 
@@ -23,7 +23,7 @@ static void socketDoEvent(WebsSocket *sp);
 
 /*********************************** Code *************************************/
 
-int socketOpen()
+PUBLIC int socketOpen()
 {
     if (++socketOpenCount > 1) {
         return 0;
@@ -48,7 +48,7 @@ int socketOpen()
 }
 
 
-void socketClose()
+PUBLIC void socketClose()
 {
     int     i;
 
@@ -63,7 +63,7 @@ void socketClose()
 }
 
 
-int socketListen(char *ip, int port, SocketAccept accept, int flags)
+PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket                *sp;
     struct sockaddr_storage addr;
@@ -114,7 +114,7 @@ int socketListen(char *ip, int port, SocketAccept accept, int flags)
 
 
 #if UNUSED && KEEP
-int socketConnect(char *ip, int port, int flags)
+PUBLIC int socketConnect(char *ip, int port, int flags)
 {
     WebsSocket                *sp;
     struct sockaddr_storage addr;
@@ -199,7 +199,7 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 #endif
 
 
-void socketCloseConnection(int sid)
+PUBLIC void socketCloseConnection(int sid)
 {
     WebsSocket    *sp;
 
@@ -262,7 +262,7 @@ static void socketAccept(WebsSocket *sp)
 }
 
 
-void socketRegisterInterest(int sid, int handlerMask)
+PUBLIC void socketRegisterInterest(int sid, int handlerMask)
 {
     WebsSocket  *sp;
 
@@ -275,7 +275,7 @@ void socketRegisterInterest(int sid, int handlerMask)
 /*
     Wait until an event occurs on a socket. Return zero on success, -1 on failure.
  */
-int socketWaitForEvent(WebsSocket *sp, int handlerMask)
+PUBLIC int socketWaitForEvent(WebsSocket *sp, int handlerMask)
 {
     int mask;
 
@@ -302,7 +302,7 @@ int socketWaitForEvent(WebsSocket *sp, int handlerMask)
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
 #if BIT_WIN_LIKE
-int socketSelect(int sid, WebsTime timeout)
+PUBLIC int socketSelect(int sid, WebsTime timeout)
 {
     struct timeval  tv;
     WebsSocket      *sp;
@@ -390,7 +390,7 @@ int socketSelect(int sid, WebsTime timeout)
 
 #else /* !BIT_WIN_LIKE */
 
-int socketSelect(int sid, WebsTime timeout)
+PUBLIC int socketSelect(int sid, WebsTime timeout)
 {
     WebsSocket        *sp;
     struct timeval  tv;
@@ -503,7 +503,7 @@ int socketSelect(int sid, WebsTime timeout)
 #endif /* WINDOWS || CE */
 
 
-void socketProcess()
+PUBLIC void socketProcess()
 {
     WebsSocket    *sp;
     int         sid;
@@ -551,7 +551,7 @@ static void socketDoEvent(WebsSocket *sp)
 /*
     Set the socket blocking mode. Return the previous mode.
  */
-int socketSetBlock(int sid, int on)
+PUBLIC int socketSetBlock(int sid, int on)
 {
     WebsSocket        *sp;
     int             oldBlock;
@@ -611,7 +611,7 @@ int socketSetBlock(int sid, int on)
     Write to a socket. Absorb as much data as the socket can buffer. Block if the socket is in blocking mode. Returns -1
     on error, otherwise the number of bytes written.
  */
-ssize socketWrite(int sid, void *buf, ssize bufsize)
+PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
 {
     WebsSocket    *sp;
     ssize       len, written, sofar;
@@ -647,7 +647,7 @@ ssize socketWrite(int sid, void *buf, ssize bufsize)
     may be zero. This routine may block if the socket is in blocking mode.
     Return -1 for errors or EOF. Distinguish between error and EOF via socketEof().
  */
-ssize socketRead(int sid, void *buf, ssize bufsize)
+PUBLIC ssize socketRead(int sid, void *buf, ssize bufsize)
 {
     WebsSocket    *sp;
     ssize       bytes;
@@ -683,7 +683,7 @@ ssize socketRead(int sid, void *buf, ssize bufsize)
 /*
     Return true if EOF
  */
-bool socketEof(int sid)
+PUBLIC bool socketEof(int sid)
 {
     WebsSocket    *sp;
 
@@ -694,7 +694,7 @@ bool socketEof(int sid)
 }
 
 
-void socketReservice(int sid)
+PUBLIC void socketReservice(int sid)
 {
     WebsSocket    *sp;
 
@@ -709,7 +709,7 @@ void socketReservice(int sid)
     Create a user handler for this socket. The handler called whenever there
     is an event of interest as defined by handlerMask (SOCKET_READABLE, ...)
  */
-void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void *data)
+PUBLIC void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void *data)
 {
     WebsSocket    *sp;
 
@@ -722,7 +722,7 @@ void socketCreateHandler(int sid, int handlerMask, SocketHandler handler, void *
 }
 
 
-void socketDeleteHandler(int sid)
+PUBLIC void socketDeleteHandler(int sid)
 {
     WebsSocket    *sp;
 
@@ -737,7 +737,7 @@ void socketDeleteHandler(int sid)
 /*
     Allocate a new socket structure
  */
-int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
+PUBLIC int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket    *sp;
     int         sid;
@@ -762,7 +762,7 @@ int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
 /*
     Free a socket structure
  */
-void socketFree(int sid)
+PUBLIC void socketFree(int sid)
 {
     WebsSocket  *sp;
     char        buf[256];
@@ -820,7 +820,7 @@ WebsSocket *socketPtr(int sid)
 /*
     Get the operating system error code
  */
-int socketGetError()
+PUBLIC int socketGetError()
 {
 #if BIT_WIN_LIKE
     switch (WSAGetLastError()) {
@@ -846,7 +846,7 @@ int socketGetError()
 /*
     Return the underlying socket handle
  */
-int socketGetHandle(int sid)
+PUBLIC int socketGetHandle(int sid)
 {
     WebsSocket    *sp;
 
@@ -860,7 +860,7 @@ int socketGetHandle(int sid)
 /*
     Get blocking mode
  */
-int socketGetBlock(int sid)
+PUBLIC int socketGetBlock(int sid)
 {
     WebsSocket    *sp;
 
@@ -872,7 +872,7 @@ int socketGetBlock(int sid)
 }
 
 
-int socketGetMode(int sid)
+PUBLIC int socketGetMode(int sid)
 {
     WebsSocket    *sp;
 
@@ -884,7 +884,7 @@ int socketGetMode(int sid)
 }
 
 
-void socketSetMode(int sid, int mode)
+PUBLIC void socketSetMode(int sid, int mode)
 {
     WebsSocket    *sp;
 
@@ -896,7 +896,7 @@ void socketSetMode(int sid, int mode)
 }
 
 
-int socketGetPort(int sid)
+PUBLIC int socketGetPort(int sid)
 {
     WebsSocket    *sp;
 
@@ -913,7 +913,7 @@ int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -974,7 +974,7 @@ int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_s
 }
 #else
 
-int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
 {
     struct sockaddr_in  sa;
 
@@ -1021,7 +1021,7 @@ int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_s
 /*  
     Return a numerical IP address and port for the given socket info
  */
-int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
+PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
 #if (BIT_UNIX_LIKE || WINDOWS)
     char    service[NI_MAXSERV];
@@ -1103,7 +1103,7 @@ static int ipv6(char *ip)
 
     Caller must free *pip
  */
-int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)
+PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)
 {
     char    *ip, *cp;
 
@@ -1185,7 +1185,7 @@ int socketParseAddress(char *address, char **pip, int *pport, int *secure, int d
 }
 
 
-bool socketIsV6(int sid)
+PUBLIC bool socketIsV6(int sid)
 {
     WebsSocket    *sp;
 
@@ -1196,7 +1196,7 @@ bool socketIsV6(int sid)
 }
 
 
-bool socketAddressIsV6(char *ip)
+PUBLIC bool socketAddressIsV6(char *ip)
 {
     return ip && ipv6(ip);
 }

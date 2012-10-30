@@ -200,8 +200,7 @@ static char     *getToken(Webs *wp, char *delim);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
-extern bool     parseIncoming(Webs *wp);
-extern bool     processParsed(Webs *wp);
+static bool     parseIncoming(Webs *wp);
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
 static int      setLocalHost();
@@ -216,7 +215,7 @@ static WebsTime dateParse(WebsTime tip, char *cmd);
 
 /*********************************** Code *************************************/
 
-int websOpen(char *documents, char *routeFile)
+PUBLIC int websOpen(char *documents, char *routeFile)
 {
     WebsMime    *mt;
 
@@ -300,7 +299,7 @@ int websOpen(char *documents, char *routeFile)
 }
 
 
-void websClose() 
+PUBLIC void websClose() 
 {
     Webs    *wp;
     int     i;
@@ -494,7 +493,7 @@ static void termWebs(Webs *wp, int reuse)
 }
 
 
-int websAlloc(int sid)
+PUBLIC int websAlloc(int sid)
 {
     Webs    *wp;
     int     wid;
@@ -526,7 +525,7 @@ static void reuseConn(Webs *wp)
 }
 
 
-void websFree(Webs *wp)
+PUBLIC void websFree(Webs *wp)
 {
     assure(wp);
     assure(websValid(wp));
@@ -542,7 +541,7 @@ void websFree(Webs *wp)
 /*
     Called when the request is complete. Note: it may not have fully drained from the tx buffer.
  */
-void websDone(Webs *wp) 
+PUBLIC void websDone(Webs *wp) 
 {
     WebsSocket  *sp;
 
@@ -595,7 +594,7 @@ static void recycle(Webs *wp, int reuse)
 }
 
 
-int websListen(char *endpoint)
+PUBLIC int websListen(char *endpoint)
 {
     WebsSocket  *sp;
     char        *ip, *ipaddr;
@@ -651,7 +650,7 @@ int websListen(char *endpoint)
 /*
     Accept a new connection from ipaddr:port 
  */
-int websAccept(int sid, char *ipaddr, int port, int listenSid)
+PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
     Webs        *wp;
     WebsSocket  *lp;
@@ -816,7 +815,7 @@ static void readEvent(Webs *wp)
 }
 
 
-void websPump(Webs *wp)
+PUBLIC void websPump(Webs *wp)
 {
     bool    canProceed;
 
@@ -844,7 +843,7 @@ void websPump(Webs *wp)
 }
 
 
-bool parseIncoming(Webs *wp)
+static bool parseIncoming(Webs *wp)
 {
     WebsBuf     *rxbuf;
     WebsStat    sbuf;
@@ -1156,7 +1155,7 @@ static bool processContent(Webs *wp)
 /*
     Always called when data is consumed from the input buffer
  */
-void websConsumeInput(Webs *wp, ssize nbytes)
+PUBLIC void websConsumeInput(Webs *wp, ssize nbytes)
 {
     assure(wp);
     assure(nbytes >= 0);
@@ -1274,7 +1273,7 @@ static bool filterChunkData(Webs *wp)
     Basic event loop. SocketReady returns true when a socket is ready for service. SocketSelect will block until an
     event occurs. SocketProcess will actually do the servicing.
  */
-void websServiceEvents(int *finished)
+PUBLIC void websServiceEvents(int *finished)
 {
     WebsTime    delay, nextEvent;
 
@@ -1335,7 +1334,7 @@ static void addFormVars(Webs *wp, char *vars)
     Set the variable (CGI) environment for this request. Create variables for all standard CGI variables. Also decode
     the query string and create a variable for each name=value pair.
  */
-void websSetEnv(Webs *wp)
+PUBLIC void websSetEnv(Webs *wp)
 {
     assure(wp);
     assure(websValid(wp));
@@ -1366,7 +1365,7 @@ void websSetEnv(Webs *wp)
 }
 
 
-void websSetFormVars(Webs *wp)
+PUBLIC void websSetFormVars(Webs *wp)
 {
     /*
         Decode and create an environment query variable for each query keyword. We split into pairs at each '&', then
@@ -1389,7 +1388,7 @@ void websSetFormVars(Webs *wp)
     Define a webs (CGI) variable for this connection. Also create in relevant scripting engines. Note: the incoming
     value may be volatile.  
  */
-void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
+PUBLIC void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
 {
     WebsValue   v;
     va_list     args;
@@ -1409,7 +1408,7 @@ void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
 }
 
 
-void websSetVar(Webs *wp, char *var, char *value)
+PUBLIC void websSetVar(Webs *wp, char *var, char *value)
 {
     WebsValue   v;
 
@@ -1428,7 +1427,7 @@ void websSetVar(Webs *wp, char *var, char *value)
 /*
     Return TRUE if a webs variable exists for this connection.
  */
-bool websTestVar(Webs *wp, char *var)
+PUBLIC bool websTestVar(Webs *wp, char *var)
 {
     WebsKey       *sp;
 
@@ -1449,7 +1448,7 @@ bool websTestVar(Webs *wp, char *var)
     Get a webs variable but return a default value if string not found.  Note, defaultGetValue can be NULL to permit
     testing existence.  
  */
-char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
+PUBLIC char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 {
     WebsKey   *sp;
 
@@ -1471,7 +1470,7 @@ char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 /*
     Return TRUE if a webs variable is set to a given value
  */
-int websCompareVar(Webs *wp, char *var, char *value)
+PUBLIC int websCompareVar(Webs *wp, char *var, char *value)
 {
     assure(websValid(wp));
     assure(var && *var);
@@ -1486,7 +1485,7 @@ int websCompareVar(Webs *wp, char *var, char *value)
 /*
     Cancel the request timeout. Note may be called multiple times.
  */
-void websCancelTimeout(Webs *wp)
+PUBLIC void websCancelTimeout(Webs *wp)
 {
     assure(websValid(wp));
 
@@ -1500,7 +1499,7 @@ void websCancelTimeout(Webs *wp)
 /*
     Output a HTTP response back to the browser. If redirect is set to a URL, the browser will be sent to this location.
  */
-void websResponse(Webs *wp, int code, char *message)
+PUBLIC void websResponse(Webs *wp, int code, char *message)
 {
     ssize   len;
     
@@ -1536,7 +1535,7 @@ static char *makeUri(char *scheme, char *host, int port, char *path)
 /*
     Redirect the user to another webs page
  */
-void websRedirect(Webs *wp, char *uri)
+PUBLIC void websRedirect(Webs *wp, char *uri)
 {
     char    *message, *location, *uribuf, *scheme, *host, *pstr;
     char    hostbuf[BIT_LIMIT_STRING];
@@ -1598,7 +1597,7 @@ void websRedirect(Webs *wp, char *uri)
 }
 
 
-int websRedirectByStatus(Webs *wp, int status)
+PUBLIC int websRedirectByStatus(Webs *wp, int status)
 {
     WebsKey     *key;
     char        code[16], *uri;
@@ -1628,7 +1627,7 @@ int websRedirectByStatus(Webs *wp, int status)
 /*  
     Escape HTML to escape defined characters (prevent cross-site scripting)
  */
-char *websEscapeHtml(char *html)
+PUBLIC char *websEscapeHtml(char *html)
 {
     char    *ip, *result, *op;
     int     len;
@@ -1691,7 +1690,7 @@ char *websEscapeHtml(char *html)
 /*  
     Output an error message and cleanup
  */
-void websError(Webs *wp, int code, char *fmt, ...)
+PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
 {
     va_list     args;
     char        *msg, *buf;
@@ -1738,7 +1737,7 @@ void websError(Webs *wp, int code, char *fmt, ...)
 /*
     Return the error message for a given code
  */
-char *websErrorMsg(int code)
+PUBLIC char *websErrorMsg(int code)
 {
     WebsError   *ep;
 
@@ -1752,7 +1751,7 @@ char *websErrorMsg(int code)
 }
 
 
-int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
+PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 {
     va_list     vargs;
     char        *buf;
@@ -1794,7 +1793,7 @@ int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 }
 
 
-void websSetStatus(Webs *wp, int code)
+PUBLIC void websSetStatus(Webs *wp, int code)
 {
     wp->code = code & ~WEBS_CLOSE;
     if (code & WEBS_CLOSE) {
@@ -1807,7 +1806,7 @@ void websSetStatus(Webs *wp, int code)
     Write a set of headers. Does not write the trailing blank line so callers can add more headers.
     Set length to -1 if unknown and transfer-chunk-encoding will be employed.
  */
-void websWriteHeaders(Webs *wp, ssize length, char *location)
+PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
 {
     WebsKey     *key;
     char        *date;
@@ -1864,7 +1863,7 @@ void websWriteHeaders(Webs *wp, ssize length, char *location)
 }
 
 
-void websWriteEndHeaders(Webs *wp)
+PUBLIC void websWriteEndHeaders(Webs *wp)
 {
     assure(wp);
     /*
@@ -1880,7 +1879,7 @@ void websWriteEndHeaders(Webs *wp)
 }
 
 
-void websSetTxLength(Webs *wp, ssize length)
+PUBLIC void websSetTxLength(Webs *wp, ssize length)
 {
     assure(wp);
     wp->txLen = length;
@@ -1890,7 +1889,7 @@ void websSetTxLength(Webs *wp, ssize length)
 /*
     Do formatted output to the browser. This is the public Javascript and form write procedure.
  */
-ssize websWrite(Webs *wp, char *fmt, ...)
+PUBLIC ssize websWrite(Webs *wp, char *fmt, ...)
 {
     va_list     vargs;
     char        *buf;
@@ -1920,7 +1919,7 @@ ssize websWrite(Webs *wp, char *fmt, ...)
     Non-blocking write to socket. 
     Returns number of bytes written. Returns -1 on errors. May return short.
  */
-ssize websWriteSocket(Webs *wp, char *buf, ssize size)
+PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
 {
     ssize   written;
 
@@ -2014,7 +2013,7 @@ static bool flushChunkData(Webs *wp)
 /*
     Initiate flushing output buffer. Returns true if all data is written to the socket and the buffer is empty.
  */
-bool websFlush(Webs *wp)
+PUBLIC bool websFlush(Webs *wp)
 {
     WebsBuf     *op;
     ssize       nbytes, written;
@@ -2074,7 +2073,7 @@ static void writeEvent(Webs *wp)
 }
 
 
-void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
+PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
 {
     WebsSocket  *sp;
 
@@ -2093,27 +2092,27 @@ void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
 /*
     Accessors
  */
-char *websGetCookie(Webs *wp) { return wp->cookie; }
-char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
-int  websGetEof(Webs *wp) { return wp->eof; }
-char *websGetExt(Webs *wp) { return wp->ext; }
-char *websGetFilename(Webs *wp) { return wp->filename; }
-char *websGetHost(Webs *wp) { return wp->host; }
-char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
-char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
-char *websGetMethod(Webs *wp) { return wp->method; }
-char *websGetPassword(Webs *wp) { return wp->password; }
-char *websGetPath(Webs *wp) { return wp->path; }
-int   websGetPort(Webs *wp) { return wp->port; }
-char *websGetProtocol(Webs *wp) { return wp->protocol; }
-char *websGetQuery(Webs *wp) { return wp->query; }
-char *websGetServer() { return websHost; } 
-char *websGetServerAddress() { return websIpAddr; } 
-char *websGetServerAddressUrl() { return websIpAddrUrl; } 
-char *websGetServerUrl() { return websHostUrl; }
-char *websGetUrl(Webs *wp) { return wp->url; }
-char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
-char *websGetUsername(Webs *wp) { return wp->username; }
+PUBLIC char *websGetCookie(Webs *wp) { return wp->cookie; }
+PUBLIC char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
+PUBLIC int  websGetEof(Webs *wp) { return wp->eof; }
+PUBLIC char *websGetExt(Webs *wp) { return wp->ext; }
+PUBLIC char *websGetFilename(Webs *wp) { return wp->filename; }
+PUBLIC char *websGetHost(Webs *wp) { return wp->host; }
+PUBLIC char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
+PUBLIC char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
+PUBLIC char *websGetMethod(Webs *wp) { return wp->method; }
+PUBLIC char *websGetPassword(Webs *wp) { return wp->password; }
+PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
+PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
+PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
+PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
+PUBLIC char *websGetServer() { return websHost; } 
+PUBLIC char *websGetServerAddress() { return websIpAddr; } 
+PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; } 
+PUBLIC char *websGetServerUrl() { return websHostUrl; }
+PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
+PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
+PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
     Buffer data. Will flush as required. May return -1 on write errors.
@@ -2123,7 +2122,7 @@ char *websGetUsername(Webs *wp) { return wp->username; }
 /*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
  */
-ssize websWriteBlock(Webs *wp, char *buf, ssize size)
+PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 {
     WebsBuf     *op;
     ssize       written, thisWrite, len, room;
@@ -2157,7 +2156,7 @@ ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 /*
     Decode a URL (or part thereof). Allows insitu decoding.
  */
-void websDecodeUrl(char *decoded, char *token, ssize len)
+PUBLIC void websDecodeUrl(char *decoded, char *token, ssize len)
 {
     char    *ip,  *op;
     int     num, i, c;
@@ -2317,13 +2316,13 @@ static int setLocalHost()
 }
 
 
-void websSetHost(char *host)
+PUBLIC void websSetHost(char *host)
 {
     scopy(websHost, sizeof(websHost), host);
 }
 
 
-void websSetHostUrl(char *url)
+PUBLIC void websSetHostUrl(char *url)
 {
     assure(url && *url);
 
@@ -2332,7 +2331,7 @@ void websSetHostUrl(char *url)
 }
 
 
-void websSetIpAddr(char *ipaddr)
+PUBLIC void websSetIpAddr(char *ipaddr)
 {
     assure(ipaddr && *ipaddr);
     scopy(websIpAddr, sizeof(websIpAddr), ipaddr);
@@ -2340,7 +2339,7 @@ void websSetIpAddr(char *ipaddr)
 
 
 #if BIT_LEGACY
-void websSetRequestFilename(Webs *wp, char *filename)
+PUBLIC void websSetRequestFilename(Webs *wp, char *filename)
 {
     assure(websValid(wp));
     assure(filename && *filename);
@@ -2354,7 +2353,7 @@ void websSetRequestFilename(Webs *wp, char *filename)
 #endif
 
 
-int websRewriteRequest(Webs *wp, char *url)
+PUBLIC int websRewriteRequest(Webs *wp, char *url)
 {
     char    *buf, *path;
 
@@ -2373,7 +2372,7 @@ int websRewriteRequest(Webs *wp, char *url)
 }
 
 
-bool websValid(Webs *wp)
+PUBLIC bool websValid(Webs *wp)
 {
     int     wid;
 
@@ -2389,7 +2388,7 @@ bool websValid(Webs *wp)
 /*
     Build an ASCII time string.  If sbuf is NULL we use the current time, else we use the last modified time of sbuf;
  */
-char *websGetDateString(WebsFileInfo *sbuf)
+PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
 {
     WebsTime    now;
     char        *cp, *r;
@@ -2412,7 +2411,7 @@ char *websGetDateString(WebsFileInfo *sbuf)
     Take not of the request activity and mark the time. Set a timestamp so that, later, we can return the number of seconds
     since we made the mark.
  */
-void websNoteRequestActivity(Webs *wp)
+PUBLIC void websNoteRequestActivity(Webs *wp)
 {
     wp->timestamp = time(0);
 }
@@ -2586,7 +2585,7 @@ const int GregorianEpoch = 1;
 /*
     Determine if year is a leap year
  */
-int GregorianLeapYearP(long year) 
+PUBLIC int GregorianLeapYearP(long year) 
 {
     long    tmp;
     
@@ -2650,7 +2649,7 @@ long GregorianYearFromFixed(long fixedDate)
     Returns the Gregorian date from a fixed date (not needed for this use, but included for completeness)
  */
 #if UNUSED && KEEP
-void GregorianFromFixed(long fixedDate, long *month, long *day, long *year) 
+PUBLIC void GregorianFromFixed(long fixedDate, long *month, long *day, long *year) 
 {
     long priorDays, correction;
 
@@ -2953,7 +2952,7 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
 /*
     Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
  */
-int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **pport, char **ppath, char **pext, 
+PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **pport, char **ppath, char **pext, 
         char **preference, char **pquery)
 {
     char    *tok, *cp, *host, *path, *port, *protocol, *reference, *query, *ext;
@@ -3097,7 +3096,7 @@ int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **
     Normalize a URI path to remove "./",  "../" and redundant separators. Note: this does not make an abs path and 
     does not map separators nor change case. 
  */
-char *websNormalizeUriPath(char *pathArg)
+PUBLIC char *websNormalizeUriPath(char *pathArg)
 {
     char    *dupPath, *path, *sp, *dp, *mark, **segments;
     int     firstc, j, i, nseg, len;
@@ -3178,7 +3177,7 @@ char *websNormalizeUriPath(char *pathArg)
 /*
     Open a web page. filename is the local filename. path is the URL path name.
  */
-int websPageOpen(Webs *wp, int mode, int perm)
+PUBLIC int websPageOpen(Webs *wp, int mode, int perm)
 {
     assure(websValid(wp));
 #if BIT_ROM
@@ -3189,7 +3188,7 @@ int websPageOpen(Webs *wp, int mode, int perm)
 }
 
 
-void websPageClose(Webs *wp)
+PUBLIC void websPageClose(Webs *wp)
 {
     assure(websValid(wp));
 
@@ -3204,7 +3203,7 @@ void websPageClose(Webs *wp)
 }
 
 
-int websPageStat(Webs *wp, WebsFileInfo *sbuf)
+PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf)
 {
 #if BIT_ROM
     return websRomPageStat(wp, sbuf);
@@ -3222,7 +3221,7 @@ int websPageStat(Webs *wp, WebsFileInfo *sbuf)
 }
 
 
-int websPageIsDirectory(Webs *wp)
+PUBLIC int websPageIsDirectory(Webs *wp)
 {
 #if BIT_ROM
     WebsFileInfo    sbuf;
@@ -3247,7 +3246,7 @@ int websPageIsDirectory(Webs *wp)
 /*
     Read a web page. Returns the number of _bytes_ read. len is the size of buf, in bytes.
  */
-ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
+PUBLIC ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 {
 
 #if BIT_ROM
@@ -3263,7 +3262,7 @@ ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 /*
     Move file pointer offset bytes.
  */
-void websPageSeek(Webs *wp, WebsFilePos offset, int origin)
+PUBLIC void websPageSeek(Webs *wp, WebsFilePos offset, int origin)
 {
     assure(websValid(wp));
 
@@ -3275,7 +3274,7 @@ void websPageSeek(Webs *wp, WebsFilePos offset, int origin)
 }
 
 
-void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, WebsTime lifespan, int flags)
+PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, WebsTime lifespan, int flags)
 {
     WebsTime    when;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
@@ -3366,25 +3365,25 @@ static char *getToken(Webs *wp, char *delim)
 }
 
 
-int websGetBackground() 
+PUBLIC int websGetBackground() 
 {
     return websBackground;
 }
 
 
-void websSetBackground(int on) 
+PUBLIC void websSetBackground(int on) 
 {
     websBackground = on;
 }
 
 
-int websGetDebug() 
+PUBLIC int websGetDebug() 
 {
     return websDebug;
 }
 
 
-void websSetDebug(int on) 
+PUBLIC void websSetDebug(int on) 
 {
     websDebug = on;
 }
@@ -3478,7 +3477,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 }
 
 
-char *websGetSessionID(Webs *wp)
+PUBLIC char *websGetSessionID(Webs *wp)
 {
     char    *cookies, *cookie, *cp, *value;
     ssize   len;
@@ -3523,7 +3522,7 @@ char *websGetSessionID(Webs *wp)
 }
 
 
-char *websGetSessionVar(Webs *wp, char *key, char *defaultValue)
+PUBLIC char *websGetSessionVar(Webs *wp, char *key, char *defaultValue)
 {
     WebsSession     *sp;
     WebsKey         *sym;
@@ -3541,7 +3540,7 @@ char *websGetSessionVar(Webs *wp, char *key, char *defaultValue)
 }
 
 
-void websRemoveSessionVar(Webs *wp, char *key)
+PUBLIC void websRemoveSessionVar(Webs *wp, char *key)
 {
     WebsSession     *sp;
 
@@ -3554,7 +3553,7 @@ void websRemoveSessionVar(Webs *wp, char *key)
 }
 
 
-int websSetSessionVar(Webs *wp, char *key, char *value)
+PUBLIC int websSetSessionVar(Webs *wp, char *key, char *value)
 {
     WebsSession  *sp;
 
@@ -3603,7 +3602,7 @@ static void pruneCache()
 /*
     One line embedding
  */
-int websServer(char *endpoint, char *documents)
+PUBLIC int websServer(char *endpoint, char *documents)
 {
     int     finished = 0;
 

@@ -133,7 +133,7 @@ static void fileWriteEvent(Webs *wp)
 }
 
 
-int websProcessPutData(Webs *wp)
+PUBLIC int websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
 
@@ -165,7 +165,7 @@ static void fileClose()
 }
 
 
-void websFileOpen()
+PUBLIC void websFileOpen()
 {
     websIndex = strdup("index.html");
     websDefineHandler("file", fileHandler, fileClose, 0);
@@ -175,13 +175,13 @@ void websFileOpen()
 /*
     Get the default page for URL requests ending in "/"
  */
-char *websGetIndex()
+PUBLIC char *websGetIndex()
 {
     return websIndex;
 }
 
 
-char *websGetDocuments()
+PUBLIC char *websGetDocuments()
 {
     return websDocuments;
 }
@@ -190,7 +190,7 @@ char *websGetDocuments()
 /*
     Set the default page for URL requests ending in "/"
  */
-void websSetIndex(char *page)
+PUBLIC void websSetIndex(char *page)
 {
     assure(page && *page);
 
@@ -204,7 +204,7 @@ void websSetIndex(char *page)
 /*
     Set the default web directory
  */
-void websSetDocuments(char *dir)
+PUBLIC void websSetDocuments(char *dir)
 {
     assure(dir && *dir);
     if (websDocuments) {

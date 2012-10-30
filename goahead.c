@@ -189,7 +189,7 @@ static void usage() {
 }
 
 
-void initPlatform() 
+static void initPlatform() 
 {
 #if BIT_UNIX_LIKE
     signal(SIGTERM, sigHandler);
