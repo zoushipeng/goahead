@@ -162,7 +162,7 @@ PUBLIC void websCloseAuth()
 {
     WebsKey     *key, *next;
 
-    gfree(secret);
+    wfree(secret);
     if (users >= 0) {
         for (key = hashFirst(users); key; key = next) {
             next = hashNext(users, key);
@@ -193,7 +193,7 @@ PUBLIC int websWriteAuthFile(char *path)
     assure(path && *path);
 
     tempFile = tempnam(NULL, "tmp");
-    if ((fp = fopen(tempFile, "wt")) == 0) {
+    if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
         error("Can't open %s", tempFile);
         return -1;
     }
@@ -284,10 +284,10 @@ static void freeUser(WebsUser *up)
 {
     assure(up);
     hashFree(up->abilities);
-    gfree(up->name);
-    gfree(up->password);
-    gfree(up->roles);
-    gfree(up);
+    wfree(up->name);
+    wfree(up->password);
+    wfree(up->roles);
+    wfree(up);
 }
 
 
@@ -299,7 +299,7 @@ PUBLIC int websSetUserRoles(char *username, char *roles)
     if ((user = websLookupUser(username)) == 0) {
         return -1;
     }
-    gfree(user->roles);
+    wfree(user->roles);
     user->roles = sclone(roles);
     computeUserAbilities(user);
     return 0;
@@ -367,7 +367,7 @@ static void computeUserAbilities(WebsUser *user)
         trace(5, "\n");
     }
 #endif
-    gfree(roles);
+    wfree(roles);
 }
 
 
@@ -413,7 +413,7 @@ static void freeRole(WebsRole *rp)
 {
     assure(rp);
     hashFree(rp->abilities);
-    gfree(rp);
+    wfree(rp);
 }
 
 
@@ -432,7 +432,7 @@ PUBLIC int websRemoveRole(char *name)
         }
         rp = sym->content.value.symbol;
         hashFree(rp->abilities);
-        gfree(rp);
+        wfree(rp);
         return hashDelete(roles, name);
     }
     return -1;
@@ -463,9 +463,9 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
     if (!wp->route || !wp->route->verify) {
         return 0;
     }
-    gfree(wp->username);
+    wfree(wp->username);
     wp->username = sclone(username);
-    gfree(wp->password);
+    wfree(wp->password);
     wp->password = sclone(password);
 
     if (!(wp->route->verify)(wp)) {
@@ -521,7 +521,7 @@ static void basicLogin(Webs *wp)
 {
     assure(wp);
     assure(wp->route);
-    gfree(wp->authResponse);
+    wfree(wp->authResponse);
     wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_REALM);
 }
 
@@ -534,7 +534,7 @@ PUBLIC bool websVerifyPassword(Webs *wp)
     assure(wp);
     if (!wp->encoded) {
         fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
-        gfree(wp->password);
+        wfree(wp->password);
         wp->password = websMD5(passbuf);
         wp->encoded = 1;
     }
@@ -594,7 +594,7 @@ static bool parseBasicDetails(Webs *wp)
         wp->username = sclone("");
         wp->password = sclone("");
     }
-    gfree(userAuth);
+    wfree(userAuth);
     return 1;
 }
 
@@ -613,7 +613,7 @@ static void digestLogin(Webs *wp)
     wp->authResponse = sfmt(
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
         BIT_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
-    gfree(nonce);
+    wfree(nonce);
 }
 
 
@@ -864,8 +864,8 @@ static char *calcDigest(Webs *wp, char *username, char *password)
         fmt(digestBuf, sizeof(digestBuf), "%s:%s:%s", ha1, wp->nonce, ha2);
     }
     result = websMD5(digestBuf);
-    gfree(ha1);
-    gfree(ha2);
+    wfree(ha1);
+    wfree(ha2);
     return result;
 }
 #endif /* BIT_DIGEST */

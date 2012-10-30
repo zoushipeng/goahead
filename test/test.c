@@ -131,7 +131,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 return -1;
             }
         }
-        gfree(endpoints);
+        wfree(endpoints);
     }
 
     websDefineHandler("test", testHandler, 0, 0);
@@ -354,7 +354,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
             websWrite(wp, "SIZE=%d\r\n", up->size);
             upfile = sfmt("%s/tmp/%s", websGetDocuments(), up->clientFilename);
             rename(up->filename, upfile);
-            gfree(upfile);
+            wfree(upfile);
         }
         websWrite(wp, "\r\nVARS:\r\n");
         for (s = hashFirst(wp->vars); s; s = hashNext(wp->vars, s)) {

@@ -73,7 +73,7 @@ static bool cgiHandler(Webs *wp)
         *cp = '\0';
         websSetVar(wp, "PATH_INFO", extraPath);
         websSetVarFmt(wp, "PATH_TRANSLATED", "%s%s%s", dir, cgiPrefix, extraPath);
-        gfree(extraPath);
+        wfree(extraPath);
     } else {
         websSetVar(wp, "PATH_INFO", "");
         websSetVar(wp, "PATH_TRANSLATED", "");        
@@ -92,7 +92,7 @@ static bool cgiHandler(Webs *wp)
         if (stat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
             error("Cannot find CGI program: ", cgiPath);
             websError(wp, HTTP_CODE_NOT_FOUND | WEBS_NOLOG, "CGI program file does not exist");
-            gfree(cgiPath);
+            wfree(cgiPath);
             return 1;
         }
 #if BIT_WIN_LIKE
@@ -102,7 +102,7 @@ static bool cgiHandler(Webs *wp)
 #endif
         {
             websError(wp, HTTP_CODE_NOT_FOUND, "CGI process file is not executable");
-            gfree(cgiPath);
+            wfree(cgiPath);
             return 1;
         }
     }
@@ -112,7 +112,7 @@ static bool cgiHandler(Webs *wp)
         query.  POST separators are & and others are +.  argp will point to a walloc'd array of pointers.  Each pointer
         will point to substring within the query string.  This array of string pointers is how the spawn or exec routines
         expect command line arguments to be passed.  Since we don't know ahead of time how many individual items there are
-        in the query string, the for loop includes logic to grow the array size via grealloc.
+        in the query string, the for loop includes logic to grow the array size via wrealloc.
      */
     argpsize = 10;
     argp = walloc(argpsize * sizeof(char *));
@@ -129,7 +129,7 @@ static bool cgiHandler(Webs *wp)
             n++;
             if (n >= argpsize) {
                 argpsize *= 2;
-                argp = grealloc(argp, argpsize * sizeof(char *));
+                argp = wrealloc(argp, argpsize * sizeof(char *));
             }
             cp = stok(NULL, " ", &tok);
         }
@@ -141,7 +141,7 @@ static bool cgiHandler(Webs *wp)
         we don't already have in the symbol table, plus all those that are in the vars symbol table. envp will point
         to a walloc'd array of pointers. Each pointer will point to a walloc'd string containing the keyword value pair
         in the form keyword=value. Since we don't know ahead of time how many environment strings there will be the for
-        loop includes logic to grow the array size via grealloc.
+        loop includes logic to grow the array size via wrealloc.
      */
     envpsize = 64;
     envp = walloc(envpsize * sizeof(char*));
@@ -153,7 +153,7 @@ static bool cgiHandler(Webs *wp)
             trace(5, "Env[%d] %s\n", n, envp[n-1]);
             if (n >= envpsize) {
                 envpsize *= 2;
-                envp = grealloc(envp, envpsize * sizeof(char *));
+                envp = wrealloc(envp, envpsize * sizeof(char *));
             }
         }
     }
@@ -175,13 +175,13 @@ static bool cgiHandler(Webs *wp)
     if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "failed to spawn CGI task");
         for (ep = envp; *ep != NULL; ep++) {
-            gfree(*ep);
+            wfree(*ep);
         }
-        gfree(cgiPath);
-        gfree(argp);
-        gfree(envp);
-        gfree(stdOut);
-        gfree(query);
+        wfree(cgiPath);
+        wfree(argp);
+        wfree(envp);
+        wfree(stdOut);
+        wfree(query);
 
     } else {
         /*
@@ -197,7 +197,7 @@ static bool cgiHandler(Webs *wp)
         cgip->envp = envp;
         cgip->wp = wp;
         cgip->fplacemark = 0;
-        gfree(query);
+        wfree(query);
     }
     /*
         Restore the current working directory after spawning child CGI
@@ -386,15 +386,15 @@ WebsTime websCgiPoll()
                     Free all the memory buffers pointed to by cgip. The stdin file name (wp->cgiStdin) gets freed as
                     part of websFree().
                  */
-                cgiMax = gfreeHandle(&cgiList, cid);
+                cgiMax = wfreeHandle(&cgiList, cid);
                 for (ep = cgip->envp; ep != NULL && *ep != NULL; ep++) {
-                    gfree(*ep);
+                    wfree(*ep);
                 }
-                gfree(cgip->cgiPath);
-                gfree(cgip->argp);
-                gfree(cgip->envp);
-                gfree(cgip->stdOut);
-                gfree(cgip);
+                wfree(cgip->cgiPath);
+                wfree(cgip->argp);
+                wfree(cgip->envp);
+                wfree(cgip->stdOut);
+                wfree(cgip);
                 websPump(wp);
             }
         }
@@ -411,7 +411,7 @@ WebsTime websCgiPoll()
 #if CE
 /*
      Returns a pointer to an allocated qualified unique temporary file name.
-     This filename must eventually be deleted with gfree().
+     This filename must eventually be deleted with wfree().
  */
 PUBLIC char *websGetCgiCommName()
 {
@@ -422,8 +422,8 @@ PUBLIC char *websGetCgiCommName()
 #if 0  
     char  *pname1, *pname2;
     pname1 = gtempnam(NULL, "cgi");
-    pname2 = strdup(pname1);
-    free(pname1);
+    pname2 = sclone(pname1);
+    wfree(pname1);
     return pname2;
 #endif
     return NULL;
@@ -503,15 +503,15 @@ static int checkCgi(int handle)
 #if BIT_UNIX_LIKE || QNX
 /*
      Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
-     with gfree(); 
+     with wfree(); 
  */
 PUBLIC char *websGetCgiCommName()
 {
     char  *pname1, *pname2;
 
     pname1 = tempnam(NULL, "cgi");
-    pname2 = strdup(pname1);
-    free(pname1);
+    pname2 = sclone(pname1);
+    wfree(pname1);
     return pname2;
 }
 
@@ -587,7 +587,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
         *stdOut); 
 /*
      Returns a pointer to an allocated qualified unique temporary file name.
-     This filename must eventually be deleted with gfree();
+     This filename must eventually be deleted with wfree();
  */
 PUBLIC char *websGetCgiCommName()
 {
@@ -630,7 +630,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     if ((int)(p = strrchr(cgiPath, '/') + 1) == 1) {
         p = cgiPath;
     }
-    basename = strdup(p);
+    basename = sclone(p);
     if ((p = strrchr(basename, '.')) != NULL) {
         *p = '\0';
     }
@@ -647,7 +647,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
      */
     for (pp = envp, pEntry = NULL; pp != NULL && *pp != NULL; pp++) {
         if (strncmp(*pp, "cgientry=", 9) == 0) {
-            pEntry = strdup(*pp + 9);
+            pEntry = sclone(*pp + 9);
             break;
         }
     }
@@ -658,7 +658,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {
         pname = sfmt("_%s", pEntry);
         symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
-        gfree(pname);
+        wfree(pname);
     }
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
@@ -676,7 +676,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
         pname = sfmt("_%s", pEntry);
         symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
-        gfree(pname);
+        wfree(pname);
     }
     if (entryAddr != 0) {
         rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
@@ -686,8 +686,8 @@ done:
     if (fd != -1) {
         close(fd);
     }
-    gfree(basename);
-    gfree(pEntry);
+    wfree(basename);
+    wfree(pEntry);
     return rc;
 }
 
@@ -775,7 +775,7 @@ static int checkCgi(int handle)
 /*
     Convert a table of strings into a single block of memory. The input table consists of an array of null-terminated
     strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the walloc()
-    function.  The returned pointer must be deleted using gfree().  Returns NULL on error.
+    function.  The returned pointer must be deleted using wfree().  Returns NULL on error.
  */
 static uchar *tableToBlock(char **table)
 {
@@ -815,15 +815,15 @@ static uchar *tableToBlock(char **table)
 
 /*
     Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
-    with gfree().  
+    with wfree().  
  */
 PUBLIC char *websGetCgiCommName()
 {
     char  *pname1, *pname2;
 
     pname1 = tempnam(NULL, "cgi");
-    pname2 = strdup(pname1);
-    free(pname1);
+    pname2 = sclone(pname1);
+    wfree(pname1);
     return pname2;
 }
 
@@ -934,8 +934,8 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     if (newinfo.hStdOutput) {
         CloseHandle(newinfo.hStdOutput);
     }
-    gfree(pEnvData);
-    gfree(cmdLine);
+    wfree(pEnvData);
+    wfree(cmdLine);
 
     if (bReturn == 0) {
         return -1;

@@ -57,7 +57,7 @@ static bool fileHandler(Webs *wp)
             }
             tmp = sfmt("%s/%s", wp->path, websIndex);
             websRedirect(wp, tmp);
-            gfree(tmp);
+            wfree(tmp);
             return 1;
         }
         if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
@@ -81,7 +81,7 @@ static bool fileHandler(Webs *wp)
         websWriteHeaders(wp, info.size, 0);
         if ((date = websGetDateString(&info)) != NULL) {
             websWriteHeader(wp, "Last-modified", "%s", date);
-            gfree(date);
+            wfree(date);
         }
         websWriteEndHeaders(wp);
 
@@ -126,7 +126,7 @@ static void fileWriteEvent(Webs *wp)
             break;
         }
     }
-    gfree(buf);
+    wfree(buf);
     if (len <= 0) {
         websDone(wp);
     }
@@ -158,16 +158,16 @@ PUBLIC int websProcessPutData(Webs *wp)
 
 static void fileClose()
 {
-    gfree(websIndex);
+    wfree(websIndex);
     websIndex = NULL;
-    gfree(websDocuments);
+    wfree(websDocuments);
     websDocuments = NULL;
 }
 
 
 PUBLIC void websFileOpen()
 {
-    websIndex = strdup("index.html");
+    websIndex = sclone("index.html");
     websDefineHandler("file", fileHandler, fileClose, 0);
 }
 
@@ -195,9 +195,9 @@ PUBLIC void websSetIndex(char *page)
     assure(page && *page);
 
     if (websIndex) {
-        gfree(websIndex);
+        wfree(websIndex);
     }
-    websIndex = strdup(page);
+    websIndex = sclone(page);
 }
 
 
@@ -208,9 +208,9 @@ PUBLIC void websSetDocuments(char *dir)
 {
     assure(dir && *dir);
     if (websDocuments) {
-        gfree(websDocuments);
+        wfree(websDocuments);
     }
-    websDocuments = strdup(dir);
+    websDocuments = sclone(dir);
 }
 
 /*

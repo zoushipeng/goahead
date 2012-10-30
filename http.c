@@ -327,8 +327,8 @@ PUBLIC void websClose()
         wp->sid = -1;
         websFree(wp);
     }
-    gfree(websHostUrl);
-    gfree(websIpAddrUrl);
+    wfree(websHostUrl);
+    wfree(websIpAddrUrl);
     websIpAddrUrl = websHostUrl = NULL;
 
 #if BIT_PACK_SSL
@@ -442,44 +442,44 @@ static void termWebs(Webs *wp, int reuse)
         websCancelTimeout(wp);
     }
     //  MOB - OPT reduce allocations
-    gfree(wp->authDetails);
-    gfree(wp->authResponse);
-    gfree(wp->authType);
-    gfree(wp->contentType);
-    gfree(wp->cookie);
-    gfree(wp->decodedQuery);
-    gfree(wp->digest);
-    gfree(wp->ext);
-    gfree(wp->filename);
-    gfree(wp->host);
-    gfree(wp->inputFile);
-    gfree(wp->method);
-    gfree(wp->password);
-    gfree(wp->path);
-    gfree(wp->protoVersion);
-    gfree(wp->putname);
-    gfree(wp->query);
-    gfree(wp->realm);
-    gfree(wp->referrer);
-    gfree(wp->responseCookie);
-    gfree(wp->url);
-    gfree(wp->userAgent);
-    gfree(wp->username);
+    wfree(wp->authDetails);
+    wfree(wp->authResponse);
+    wfree(wp->authType);
+    wfree(wp->contentType);
+    wfree(wp->cookie);
+    wfree(wp->decodedQuery);
+    wfree(wp->digest);
+    wfree(wp->ext);
+    wfree(wp->filename);
+    wfree(wp->host);
+    wfree(wp->inputFile);
+    wfree(wp->method);
+    wfree(wp->password);
+    wfree(wp->path);
+    wfree(wp->protoVersion);
+    wfree(wp->putname);
+    wfree(wp->query);
+    wfree(wp->realm);
+    wfree(wp->referrer);
+    wfree(wp->responseCookie);
+    wfree(wp->url);
+    wfree(wp->userAgent);
+    wfree(wp->username);
 #if BIT_UPLOAD
-    gfree(wp->boundary);
-    gfree(wp->uploadTmp);
-    gfree(wp->uploadVar);
+    wfree(wp->boundary);
+    wfree(wp->uploadTmp);
+    wfree(wp->uploadVar);
 #endif
 #if BIT_CGI
-    gfree(wp->cgiStdin);
+    wfree(wp->cgiStdin);
 #endif
 #if BIT_DIGEST
-    gfree(wp->cnonce);
-    gfree(wp->digestUri);
-    gfree(wp->opaque);
-    gfree(wp->nc);
-    gfree(wp->nonce);
-    gfree(wp->qop);
+    wfree(wp->cnonce);
+    wfree(wp->digestUri);
+    wfree(wp->opaque);
+    wfree(wp->nc);
+    wfree(wp->nonce);
+    wfree(wp->qop);
 #endif
     hashFree(wp->vars);
 #if BIT_PACK_SSL
@@ -531,8 +531,8 @@ PUBLIC void websFree(Webs *wp)
     assure(websValid(wp));
 
     termWebs(wp, 0);
-    websMax = gfreeHandle(&webs, wp->wid);
-    gfree(wp);
+    websMax = wfreeHandle(&webs, wp->wid);
+    wfree(wp);
     assure(websMax >= 0);
 }
 
@@ -626,18 +626,18 @@ PUBLIC int websListen(char *endpoint)
         ipaddr = "*";
     }
     trace(2, "Started %s://%s:%d\n", secure ? "https" : "http", ipaddr, port);
-    gfree(ip);
+    wfree(ip);
 
     if (!websHostUrl) {
         if (port == 80) {
-            websHostUrl = strdup(ip ? ip : websIpAddr);
+            websHostUrl = sclone(ip ? ip : websIpAddr);
         } else {
             websHostUrl = sfmt("%s:%d", ip ? ip : websIpAddr, port);
         }
     }
     if (!websIpAddrUrl) {
         if (port == 80) {
-            websIpAddrUrl = strdup(websIpAddr);
+            websIpAddrUrl = sclone(websIpAddr);
         } else {
             websIpAddrUrl = sfmt("%s:%d", websIpAddr, port);
         }
@@ -896,7 +896,7 @@ static bool parseIncoming(Webs *wp)
         if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
             error("Can't create PUT filename %s", wp->putname);
             websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create the put URI");
-            gfree(wp->putname);
+            wfree(wp->putname);
             return 1;
         }
     }
@@ -923,7 +923,7 @@ static void parseFirstLine(Webs *wp)
         websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Bad HTTP request");
         return;
     }
-    wp->method = supper(strdup(op));
+    wp->method = supper(sclone(op));
 
     url = getToken(wp, 0);
     if (url == NULL || *url == '\0') {
@@ -953,10 +953,10 @@ static void parseFirstLine(Webs *wp)
     if ((wp->path = websNormalizeUriPath(path)) == 0) {
         error("Cannot normalize URL: %s", url);
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
-        gfree(buf);
+        wfree(buf);
         return;
     }
-    wp->url = strdup(url);
+    wp->url = sclone(url);
     if (ext) {
         wp->ext = sclone(slower(ext));
     }
@@ -978,7 +978,7 @@ static void parseFirstLine(Webs *wp)
     } else {
         wp->port = atoi(port);
     }
-    gfree(buf);
+    wfree(buf);
 }
 
 
@@ -1028,18 +1028,18 @@ static void parseHeaders(Webs *wp)
         }
         supper(upperKey);
         websSetVar(wp, upperKey, value);
-        gfree(upperKey);
+        wfree(upperKey);
 
         /*
             Track the requesting agent (browser) type
          */
         if (strcmp(key, "user-agent") == 0) {
-            wp->userAgent = strdup(value);
+            wp->userAgent = sclone(value);
 
         } else if (scaselesscmp(key, "authorization") == 0) {
-            wp->authType = strdup(value);
+            wp->authType = sclone(value);
             stok(wp->authType, " \t", &tok);
-            wp->authDetails = strdup(tok);
+            wp->authDetails = sclone(tok);
             slower(wp->authType);
 
         } else if (strcmp(key, "connection") == 0) {
@@ -1077,10 +1077,10 @@ static void parseHeaders(Webs *wp)
 
         } else if (strcmp(key, "cookie") == 0) {
             wp->flags |= WEBS_COOKIE;
-            wp->cookie = strdup(value);
+            wp->cookie = sclone(value);
 
         } else if (strcmp(key, "host") == 0) {
-            gfree(wp->host);
+            wfree(wp->host);
             wp->host = sclone(value);
 
         } else if (strcmp(key, "if-modified-since") == 0) {
@@ -1091,9 +1091,8 @@ static void parseHeaders(Webs *wp)
                 *cp = '\0';
             }
             cmd = sfmt("%s", value);
-
             wp->since = dateParse(tip, cmd);
-            gfree(cmd);
+            wfree(cmd);
 
         /*
             Yes Veronica, the HTTP spec does misspell Referrer
@@ -1371,7 +1370,7 @@ PUBLIC void websSetFormVars(Webs *wp)
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
      */
     if (wp->query && *wp->query) {
-        wp->decodedQuery = strdup(wp->query);
+        wp->decodedQuery = sclone(wp->query);
         addFormVars(wp, wp->decodedQuery);
     }
     if (wp->rxLen > 0 && bufLen(&wp->input) > 0) {
@@ -1590,9 +1589,9 @@ PUBLIC void websRedirect(Webs *wp, char *uri)
     websWriteBlock(wp, message, len);
     websWriteBlock(wp, "\r\n", 2);
     websDone(wp);
-    gfree(message);
-    gfree(location);
-    gfree(uribuf);
+    wfree(message);
+    wfree(location);
+    wfree(uribuf);
 }
 
 
@@ -1632,7 +1631,7 @@ PUBLIC char *websEscapeHtml(char *html)
     int     len;
 
     if (!html) {
-        return strdup("");
+        return sclone("");
     }
     for (len = 1, ip = html; *ip; ip++, len++) {
         if (charMatch[(int) (uchar) *ip] & WEBS_ENCODE_HTML) {
@@ -1709,7 +1708,7 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
     encoded = websEscapeHtml(wp->url);
-    gfree(wp->url);
+    wfree(wp->url);
     wp->url = encoded;
     if (fmt) {
         va_start(args, fmt);
@@ -1719,17 +1718,17 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
             trace(2, "%s\n", msg);
         }
         encoded = websEscapeHtml(msg);
-        gfree(msg);
+        wfree(msg);
         msg = encoded;
         buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
             <body><h2>Access Error: %s</h2>\r\n\
             <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
-        gfree(msg);
+        wfree(msg);
     } else {
         buf = 0;
     }
     websResponse(wp, code, buf);
-    gfree(buf);
+    wfree(buf);
 }
 
 
@@ -1782,7 +1781,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
         if (websWriteBlock(wp, buf, strlen(buf)) < 0) {
             return -1;
         }
-        gfree(buf);
+        wfree(buf);
         if (websWriteBlock(wp, "\r\n", 2) != 2) {
             return -1;
         }
@@ -1825,7 +1824,7 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
 
         if ((date = websGetDateString(NULL)) != NULL) {
             websWriteHeader(wp, "Date", "%s", date);
-            gfree(date);
+            wfree(date);
         }
         if (wp->authResponse) {
             websWriteHeader(wp, "WWW-Authenticate", "%s", wp->authResponse);
@@ -1908,7 +1907,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...)
     assure(buf);
     if (buf) {
         rc = websWriteBlock(wp, buf, strlen(buf));
-        gfree(buf);
+        wfree(buf);
     }
     return rc;
 }
@@ -2240,7 +2239,7 @@ static void logRequest(Webs *wp, int code)
         timeStr, zoneStr, wp->method, wp->path, wp->protoVersion, code, dataStr);
     len = strlen(buf);
     write(accessFd, buf, len);
-    gfree(buf);
+    wfree(buf);
 }
 #endif
 
@@ -2293,7 +2292,9 @@ static int setLocalHost()
     ipaddr = inet_ntoa(intaddr);
     websSetIpAddr(ipaddr);
     websSetHost(ipaddr);
-    free(ipaddr);
+    #if _WRS_VXWORKS_MAJOR < 6
+        free(ipaddr);
+    #endif
 #elif ECOS
     ipaddr = inet_ntoa(eth0_bootp_data.bp_yiaddr);
     websSetIpAddr(ipaddr);
@@ -2325,8 +2326,8 @@ PUBLIC void websSetHostUrl(char *url)
 {
     assure(url && *url);
 
-    gfree(websHostUrl);
-    websHostUrl = strdup(url);
+    wfree(websHostUrl);
+    websHostUrl = sclone(url);
 }
 
 
@@ -2344,7 +2345,7 @@ PUBLIC void websSetRequestFilename(Webs *wp, char *filename)
     assure(filename && *filename);
 
     if (wp->filename) {
-        gfree(wp->filename);
+        wfree(wp->filename);
     }
     wp->filename = sclone(filename);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
@@ -2356,17 +2357,17 @@ PUBLIC int websRewriteRequest(Webs *wp, char *url)
 {
     char    *buf, *path;
 
-    gfree(wp->url);
+    wfree(wp->url);
     wp->url = sclone(url);
-    gfree(wp->path);
+    wfree(wp->path);
     if (websUrlParse(url, &buf, NULL, NULL, &path, NULL, NULL, NULL, NULL) < 0) {
         return -1;
     }
     wp->path = sclone(path);
-    gfree(wp->filename);
+    wfree(wp->filename);
     wp->filename = 0;
     wp->flags |= WEBS_REROUTE;
-    gfree(buf);
+    wfree(buf);
     return 0;
 }
 
@@ -2390,7 +2391,7 @@ PUBLIC bool websValid(Webs *wp)
 PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
 {
     WebsTime    now;
-    char        *cp, *r;
+    char        *cp;
 
     if (sbuf == NULL) {
         time(&now);
@@ -2399,8 +2400,7 @@ PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
     }
     if ((cp = ctime(&now)) != NULL) {
         cp[strlen(cp) - 1] = '\0';
-        r = strdup(cp);
-        return r;
+        return sclone(cp);
     }
     return NULL;
 }
@@ -2467,15 +2467,15 @@ static int parseNDIGIT(char *buf, int digits, int *index)
 static int parseMonth(char *buf, int *index) 
 {
     /*  
-        "Jan" | "Feb" | "Mar" | "Apr" | "May" | "Jun" | 
-        "Jul" | "Aug" | "Sep" | "Oct" | "Nov" | "Dec"
+        "jan" | "feb" | "mar" | "apr" | "may" | "jun" | 
+        "jul" | "aug" | "sep" | "oct" | "nov" | "dec"
      */
     int tmpIndex, returnValue;
     returnValue = -1;
     tmpIndex = *index;
 
     switch (buf[tmpIndex]) {
-        case 'A':
+        case 'a':
             switch (buf[tmpIndex+1]) {
                 case 'p':
                     returnValue = APR;
@@ -2485,13 +2485,13 @@ static int parseMonth(char *buf, int *index)
                     break;
             }
             break;
-        case 'D':
+        case 'd':
             returnValue = DEC;
             break;
-        case 'F':
+        case 'f':
             returnValue = FEB;
             break;
-        case 'J':
+        case 'j':
             switch (buf[tmpIndex+1]) {
                 case 'a':
                     returnValue = JAN;
@@ -2508,7 +2508,7 @@ static int parseMonth(char *buf, int *index)
                     break;
             }
             break;
-        case 'M':
+        case 'm':
             switch (buf[tmpIndex+1]) {
                 case 'a':
                     switch (buf[tmpIndex+2]) {
@@ -2522,13 +2522,13 @@ static int parseMonth(char *buf, int *index)
                     break;
             }
             break;
-        case 'N':
+        case 'n':
             returnValue = NOV;
             break;
-        case 'O':
+        case 'o':
             returnValue = OCT;
             break;
-        case 'S':
+        case 's':
             returnValue = SEP;
             break;
     }
@@ -2680,8 +2680,6 @@ long GregorianDateDifferenc(long month1, long day1, long year1, long month2, lon
 /*
     Return the number of seconds into the current day
  */
-#define SECONDS_PER_DAY 24*60*60
-
 static int parseTime(char *buf, int *index) 
 {
     /*  
@@ -2711,12 +2709,14 @@ static int parseTime(char *buf, int *index)
 }
 
 
+#define SECONDS_PER_DAY 24*60*60
+
 /*
     Return the equivalent of time() given a gregorian date
  */
 static WebsTime dateToTimet(int year, int month, int day) 
 {
-    long dayDifference;
+    long    dayDifference;
 
     dayDifference = FixedFromGregorian(month + 1, day, year) - FixedFromGregorian(1, 1, 1970);
     return dayDifference * SECONDS_PER_DAY;
@@ -2778,7 +2778,6 @@ static WebsTime parseDate1or2(char *buf, int *index)
             *index = tmpIndex;
         }
     }
-    
     return returnValue;
 }
 
@@ -2903,13 +2902,14 @@ static int parseWeekday(char *buf, int *index)
 
 
 /*
-        Parse the date and time string.
+    Parse the date and time string
  */
 static WebsTime dateParse(WebsTime tip, char *cmd)
 {
     WebsTime    parsedValue, dateValue;
     int         index, tmpIndex, weekday, timeValue;
 
+    slower(cmd);
     parsedValue = (WebsTime) 0;
     index = timeValue = 0;
     weekday = parseWeekday(cmd, &index);
@@ -2917,7 +2917,7 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
     if (weekday >= 0) {
         tmpIndex = index;
         dateValue = parseDate1or2(cmd, &tmpIndex);
-        if (dateValue >= 0) {
+        if ((signed) dateValue == -1) {
             index = tmpIndex + 1;
             /*
                 One of these two forms is being used
@@ -3164,8 +3164,8 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
         }
         *dp = '\0';
     }
-    gfree(dupPath);
-    gfree(segments);
+    wfree(dupPath);
+    wfree(segments);
     if ((path[0] != '/') || strchr(path, '\\')) {
         return 0;
     }
@@ -3301,7 +3301,7 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
     if (domain && !strchr(domain, '.')) {
         old = domain;
         domain = sfmt(".%s", domain);
-        gfree(old);
+        wfree(old);
     }
     if (lifespan > 0) {
         expiresAtt = "; expires=";
@@ -3324,12 +3324,12 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
     if (wp->responseCookie) {
         old = wp->responseCookie;
         wp->responseCookie = sfmt("%s %s", wp->responseCookie, cookie);
-        gfree(old);
-        gfree(cookie);
+        wfree(old);
+        wfree(cookie);
     } else {
         wp->responseCookie = cookie;
     }
-    gfree(domain);
+    wfree(domain);
 }
 
 
@@ -3429,8 +3429,8 @@ static void freeSession(WebsSession *sp)
     if (sp->cache >= 0) {
         hashFree(sp->cache);
     }
-    gfree(sp->id);
-    gfree(sp);
+    wfree(sp->id);
+    wfree(sp);
 }
 
 
@@ -3445,21 +3445,21 @@ WebsSession *websGetSession(Webs *wp, int create)
         id = websGetSessionID(wp);
         if ((sym = hashLookup(sessions, id)) == 0) {
             if (!create) {
-                gfree(id);
+                wfree(id);
                 return 0;
             }
             if (sessionCount > BIT_LIMIT_SESSION_COUNT) {
                 error("Too many sessions %d/%d", sessionCount, BIT_LIMIT_SESSION_COUNT);
-                gfree(id);
+                wfree(id);
                 return 0;
             }
             sessionCount++;
             if ((wp->session = websAllocSession(wp, id, BIT_LIMIT_SESSION_LIFE)) == 0) {
-                gfree(id);
+                wfree(id);
                 return 0;
             }
             if ((sym = hashEnter(sessions, wp->session->id, valueSymbol(wp->session), 0)) == 0) {
-                gfree(id);
+                wfree(id);
                 return 0;
             }
             wp->session = (WebsSession*) sym->content.value.symbol;
@@ -3467,7 +3467,7 @@ WebsSession *websGetSession(Webs *wp, int create)
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
         }
-        gfree(id);
+        wfree(id);
     }
     if (wp->session) {
         wp->session->expires = time(0) + wp->session->lifespan;

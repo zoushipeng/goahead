@@ -495,9 +495,9 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
             }
         }
     }
-    gfree(readFds);
-    gfree(writeFds);
-    gfree(exceptFds);
+    wfree(readFds);
+    wfree(writeFds);
+    wfree(exceptFds);
     return nEvents;
 }
 #endif /* WINDOWS || CE */
@@ -752,7 +752,7 @@ PUBLIC int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
     sp->fileHandle = -1;
     sp->saveMask = -1;
     if (ip) {
-        sp->ip = strdup(ip);
+        sp->ip = sclone(ip);
     }
     sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING);
     return sid;
@@ -786,9 +786,9 @@ PUBLIC void socketFree(int sid)
         }
         closesocket(sp->sock);
     }
-    gfree(sp->ip);
-    gfree(sp);
-    socketMax = gfreeHandle(&socketList, sid);
+    wfree(sp->ip);
+    wfree(sp);
+    socketMax = wfreeHandle(&socketList, sid);
     /*
         Calculate the new highest socket number
      */
@@ -982,7 +982,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     sa.sin_family = AF_INET;
     sa.sin_port = htons((short) (port & 0xFFFF));
 
-    if (strcmp(ip, "") != 0) {
+    if (scmp(ip, "") != 0) {
         sa.sin_addr.s_addr = inet_addr((char*) ip);
     } else {
         sa.sin_addr.s_addr = INADDR_ANY;
@@ -1059,7 +1059,9 @@ PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen
     cp = (uchar*) &sa->sin_addr;
     fmt(ip, ipLen, "%d.%d.%d.%d", cp[0], cp[1], cp[2], cp[3]);
 #endif
-    *port = ntohs(sa->sin_port);
+    if (port) {
+        *port = ntohs(sa->sin_port);
+    }
 #endif
     return 0;
 }
@@ -1125,13 +1127,13 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
                 *pport = (*++cp == '*') ? -1 : atoi(cp);
 
                 /* Set ipAddr to ipv6 address without brackets */
-                ip = strdup(address + 1);
+                ip = sclone(address + 1);
                 cp = strchr(ip, ']');
                 *cp = '\0';
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
-                ip = strdup(address + 1);
+                ip = sclone(address + 1);
                 if ((cp = strchr(ip, ']')) != 0) {
                     *cp = '\0';
                 }
@@ -1143,7 +1145,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
             }
         } else {
             /* Handles a:b:c:d:e:f:g:h:i case (no port) */
-            ip = strdup(address);
+            ip = sclone(address);
 
             /* No port present, use callers default */
             *pport = defaultPort;
@@ -1153,7 +1155,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         /*  
             ipv4 
          */
-        ip = strdup(address);
+        ip = sclone(address);
         if ((cp = strchr(ip, ':')) != 0) {
             *cp++ = '\0';
             if (*cp == '*') {

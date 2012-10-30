@@ -59,7 +59,7 @@ PUBLIC int jsOpenEngine(WebsHash variables, WebsHash functions)
         symbol tables for block level declarations so we use walloc to manage a list of variable tables.
      */
     if ((vid = wallocHandle(&ep->variables)) < 0) {
-        jsMax = gfreeHandle(&jsHandles, ep->jid);
+        jsMax = wfreeHandle(&jsHandles, ep->jid);
         return -1;
     }
     if (vid >= ep->variableMax) {
@@ -96,9 +96,9 @@ PUBLIC void jsCloseEngine(int jid)
         return;
     }
 
-    gfree(ep->error);
+    wfree(ep->error);
     ep->error = NULL;
-    gfree(ep->result);
+    wfree(ep->result);
     ep->result = NULL;
 
     jsLexClose(ep);
@@ -107,13 +107,13 @@ PUBLIC void jsCloseEngine(int jid)
         if (ep->flags & FLAGS_VARIABLES) {
             hashFree(ep->variables[i] - JS_OFFSET);
         }
-        ep->variableMax = gfreeHandle(&ep->variables, i);
+        ep->variableMax = wfreeHandle(&ep->variables, i);
     }
     if (ep->flags & FLAGS_FUNCTIONS) {
         hashFree(ep->functions);
     }
-    jsMax = gfreeHandle(&jsHandles, ep->jid);
-    gfree(ep);
+    jsMax = wfreeHandle(&jsHandles, ep->jid);
+    wfree(ep);
 }
 
 
@@ -149,14 +149,14 @@ PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
     }
     if (read(fd, script, sbuf.st_size) != (int)sbuf.st_size) {
         close(fd);
-        gfree(script);
+        wfree(script);
         jsError(ep, "Error reading %s", path);
         return NULL;
     }
     script[sbuf.st_size] = '\0';
     close(fd);
     rs = jsEvalBlock(jid, script, emsg);
-    gfree(script);
+    wfree(script);
     return rs;
 }
 #endif
@@ -194,7 +194,7 @@ PUBLIC int jsCloseBlock(int jid, int vid)
         return -1;
     }
     hashFree(ep->variables[vid] - JS_OFFSET);
-    ep->variableMax = gfreeHandle(&ep->variables, vid);
+    ep->variableMax = wfreeHandle(&ep->variables, vid);
     return 0;
 
 }
@@ -960,11 +960,11 @@ static int parseCond(Js *ep, int state, int flags)
     } while (state == STATE_RELEXP_DONE);
 
     if (lhs) {
-        gfree(lhs);
+        wfree(lhs);
     }
 
     if (rhs) {
-        gfree(rhs);
+        wfree(rhs);
     }
     return state;
 }
@@ -1030,10 +1030,10 @@ static int parseExpr(Js *ep, int state, int flags)
     } while (state == STATE_EXPR_DONE);
 
     if (rhs) {
-        gfree(rhs);
+        wfree(rhs);
     }
     if (lhs) {
-        gfree(lhs);
+        wfree(lhs);
     }
     return state;
 }
@@ -1256,10 +1256,10 @@ PUBLIC void jsError(Js *ep, char* fmt, ...)
 
     if (ep && ip) {
         errbuf = sfmt("%s\n At line %d, line => \n\n%s\n", msgbuf, ip->lineNumber, ip->line);
-        gfree(ep->error);
+        wfree(ep->error);
         ep->error = errbuf;
     }
-    gfree(msgbuf);
+    wfree(msgbuf);
 }
 
 
@@ -1268,7 +1268,7 @@ static void clearString(char **ptr)
     assure(ptr);
 
     if (*ptr) {
-        gfree(*ptr);
+        wfree(*ptr);
     }
     *ptr = NULL;
 }
@@ -1279,7 +1279,7 @@ static void setString(char **ptr, char *s)
     assure(ptr);
 
     if (*ptr) {
-        gfree(*ptr);
+        wfree(*ptr);
     }
     *ptr = sclone(s);
 }
@@ -1295,7 +1295,7 @@ static void appendString(char **ptr, char *s)
         len = strlen(s);
         oldlen = strlen(*ptr);
         size = (len + oldlen + 1) * sizeof(char);
-        *ptr = grealloc(*ptr, size);
+        *ptr = wrealloc(*ptr, size);
 #if WINDOWS
         strcpy_s(&(*ptr)[oldlen], size - oldlen, s);
 #else
@@ -1598,11 +1598,11 @@ static void freeFunc(JsFun *func)
     int i;
 
     for (i = func->nArgs - 1; i >= 0; i--) {
-        gfree(func->args[i]);
-        func->nArgs = gfreeHandle(&func->args, i);
+        wfree(func->args[i]);
+        func->nArgs = wfreeHandle(&func->args, i);
     }
     if (func->fname) {
-        gfree(func->fname);
+        wfree(func->fname);
         func->fname = NULL;
     }
 }
@@ -1698,18 +1698,18 @@ PUBLIC void jsLexCloseScript(Js *ep)
     assure(ip);
 
     if (ip->putBackToken) {
-        gfree(ip->putBackToken);
+        wfree(ip->putBackToken);
         ip->putBackToken = NULL;
     }
     ip->putBackTokenId = 0;
 
     if (ip->line) {
-        gfree(ip->line);
+        wfree(ip->line);
         ip->line = NULL;
     }
     bufFree(&ip->tokbuf);
     bufFree(&ip->script);
-    gfree(ip);
+    wfree(ip);
 }
 
 
@@ -1742,7 +1742,7 @@ PUBLIC void jsLexRestoreInputState(Js *ep, JsInput *state)
     ip->script = state->script;
     ip->putBackTokenId = state->putBackTokenId;
     if (ip->putBackToken) {
-        gfree(ip->putBackToken);
+        wfree(ip->putBackToken);
     }
     if (state->putBackToken) {
         ip->putBackToken = sclone(state->putBackToken);
@@ -1753,7 +1753,7 @@ PUBLIC void jsLexRestoreInputState(Js *ep, JsInput *state)
 PUBLIC void jsLexFreeInputState(Js *ep, JsInput *state)
 {
     if (state->putBackToken) {
-        gfree(state->putBackToken);
+        wfree(state->putBackToken);
         state->putBackToken = NULL;
     }
 }
@@ -2141,7 +2141,7 @@ PUBLIC void jsLexPutbackToken(Js *ep, int tid, char *string)
     assure(ip);
 
     if (ip->putBackToken) {
-        gfree(ip->putBackToken);
+        wfree(ip->putBackToken);
     }
     ip->putBackTokenId = tid;
     ip->putBackToken = sclone(string);
@@ -2186,7 +2186,7 @@ static int inputGetc(Js *ep)
     } else {
         if ((ip->lineColumn + 2) >= ip->lineLength) {
             ip->lineLength += JS_INC;
-            ip->line = grealloc(ip->line, ip->lineLength * sizeof(char));
+            ip->line = wrealloc(ip->line, ip->lineLength * sizeof(char));
         }
         ip->line[ip->lineColumn++] = c;
         ip->line[ip->lineColumn] = '\0';

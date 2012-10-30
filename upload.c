@@ -71,11 +71,11 @@ static void freeUploadFile(WebsUpload *up)
 {
     if (up->filename) {
         unlink(up->filename);
-        gfree(up->filename);
+        wfree(up->filename);
     }
-    gfree(up->clientFilename);
-    gfree(up->contentType);
-    gfree(up);
+    wfree(up->clientFilename);
+    wfree(up->contentType);
+    wfree(up);
 }
 
 
@@ -228,14 +228,14 @@ static int processUploadHeader(Webs *wp, char *line)
                 /* Nothing to do */
 
             } else if (scaselesscmp(key, "name") == 0) {
-                wp->uploadVar = strdup(value);
+                wp->uploadVar = sclone(value);
 
             } else if (scaselesscmp(key, "filename") == 0) {
                 if (wp->uploadVar == 0) {
                     websError(wp, HTTP_CODE_BAD_REQUEST, "Bad upload state. Missing name field");
                     return -1;
                 }
-                wp->clientFilename = strdup(value);
+                wp->clientFilename = sclone(value);
                 /*  
                     Create the file to hold the uploaded data
                  */
@@ -255,8 +255,8 @@ static int processUploadHeader(Webs *wp, char *line)
                  */
                 file = wp->currentFile = walloc(sizeof(WebsUpload));
                 memset(file, 0, sizeof(WebsUpload));
-                file->clientFilename = strdup(wp->clientFilename);
-                file->filename = strdup(wp->uploadTmp);
+                file->clientFilename = sclone(wp->clientFilename);
+                file->filename = sclone(wp->uploadTmp);
             }
             key = nextPair;
         }
@@ -264,7 +264,7 @@ static int processUploadHeader(Webs *wp, char *line)
     } else if (scaselesscmp(headerTok, "Content-Type") == 0) {
         if (wp->clientFilename) {
             trace(5, "Set files[%s][CONTENT_TYPE] = %s", wp->uploadVar, rest);
-            wp->currentFile->contentType = strdup(rest);
+            wp->currentFile->contentType = sclone(rest);
         }
     }
     return 0;
@@ -387,7 +387,7 @@ static int processContentData(Webs *wp)
         close(wp->upfd);
         wp->upfd = -1;
         wp->clientFilename = 0;
-        gfree(wp->uploadTmp);
+        wfree(wp->uploadTmp);
         wp->uploadTmp = 0;
     }
     wp->uploadState = UPLOAD_BOUNDARY;

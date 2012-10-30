@@ -26,7 +26,7 @@
 #define ROUNDUP4(size) ((size) % 4) ? (size) + (4 - ((size) % 4)) : (size)
 
 /*
-    qhead blocks are created as the original memory allocation is freed up. See gfree.
+    qhead blocks are created as the original memory allocation is freed up. See wfree.
  */
 static WebsAlloc    *qhead[WEBS_MAX_CLASS];             /* Per class block q head */
 static char         *freeBuf;                           /* Pointer to free memory */
@@ -176,7 +176,7 @@ PUBLIC void *walloc(ssize size)
     Free a block back to the relevant free q. We don't free back to the O/S or run time system unless the block is
     greater than the maximum class size. We also do not coalesce blocks.  
  */
-PUBLIC void gfree(void *mp)
+PUBLIC void wfree(void *mp)
 {
     WebsAlloc   *bp;
     int     q;
@@ -250,7 +250,7 @@ PUBLIC char *strdup(const char *s)
     Reallocate a block. Allow NULL pointers and just do a malloc. Note: if the realloc fails, we return NULL and the
     previous buffer is preserved.
  */
-PUBLIC void *grealloc(void *mp, ssize newsize)
+PUBLIC void *wrealloc(void *mp, ssize newsize)
 {
     WebsAlloc   *bp;
     void    *newbuf;
@@ -269,7 +269,7 @@ PUBLIC void *grealloc(void *mp, ssize newsize)
     }
     if ((newbuf = walloc(newsize)) != NULL) {
         memcpy(newbuf, mp, bp->u.size);
-        gfree(mp);
+        wfree(mp);
     }
     return newbuf;
 }
@@ -278,7 +278,7 @@ PUBLIC void *grealloc(void *mp, ssize newsize)
 /*
     Find the size of the block to be walloc'ed.  It takes in a size, finds the smallest binary block it fits into, adds
     an overhead amount and returns.  q is the binary size used to keep track of block sizes in use.  Called from both
-    walloc and gfree.
+    walloc and wfree.
  */
 static int wallocGetSize(ssize size, int *q)
 {

@@ -123,7 +123,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
                 return -1;
             }
         }
-        gfree(endpoints);
+        wfree(endpoints);
     }
 #if BIT_ROM && UNUSED
     /*

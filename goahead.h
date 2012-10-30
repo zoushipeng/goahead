@@ -776,6 +776,14 @@ extern "C" {
     #endif
 #endif
 
+#if BIT_WIN_LIKE
+    #define FILE_BINARY  "b"
+    #define FILE_TEXT    "t"
+#else
+    #define FILE_TEXT    ""
+    #define FILE_BINARY  ""
+#endif
+
 #if BIT_UNIX_LIKE || VXWORKS
     #define closesocket(x) close(x)
 #endif
@@ -1470,7 +1478,7 @@ PUBLIC void *walloc(ssize size);
     @param blk Reference to the memory block to free.
     @ingroup WebsAlloc
  */
-PUBLIC void gfree(void *blk);
+PUBLIC void wfree(void *blk);
 
 /**
     Reallocate a block of memory and grow its size
@@ -1481,14 +1489,14 @@ PUBLIC void gfree(void *blk);
     @return Reference to the new memory block
     @ingroup WebsAlloc
  */
-PUBLIC void *grealloc(void *blk, ssize newsize);
+PUBLIC void *wrealloc(void *blk, ssize newsize);
 
 #else /* !BIT_REPLACE_MALLOC */
 
     #define WEBS_SHIFT 4
     #define walloc(num) malloc(num)
-    #define gfree(p) if (p) { free(p); } else
-    #define grealloc(p, num) realloc(p, num)
+    #define wfree(p) if (p) { free(p); } else
+    #define wrealloc(p, num) realloc(p, num)
 #endif /* BIT_REPLACE_MALLOC */
 
 //  FUTURE DOC
@@ -1938,7 +1946,7 @@ PUBLIC WebsSocket *socketPtr(int sid);
     @description GoAhead provides a secure runtime environment for safe string manipulation and to 
     help prevent buffer overflows and other potential security traps.
     @defgroup WebsRuntime WebsRuntime
-    @see fmt wallocHandle wallocObject gfreeHandle hextoi itosbuf scaselesscmp scaselessmatch
+    @see fmt wallocHandle wallocObject wfreeHandle hextoi itosbuf scaselesscmp scaselessmatch
     sclone scmp scopy sfmt sfmtv slen slower smatch sncaselesscmp sncmp sncopy stok strim supper
  */
 
@@ -1980,7 +1988,7 @@ PUBLIC int wallocObject(void *map, int *max, int size);
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
  */
-PUBLIC int gfreeHandle(void *map, int handle);
+PUBLIC int wfreeHandle(void *map, int handle);
 
 /**
     Convert a hex string to an integer 
@@ -3951,82 +3959,82 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define a_assert assure
     #define balloc walloc
     #define bclose wcloseAlloc
-    #define bfree(loc, p) gfree(p)
-    #define bfreeSafe(loc, p) gfree(p)
+    #define bfree(loc, p) wfree(p)
+    #define bfreeSafe(loc, p) wfree(p)
     #define bopen wopenAlloc
-    #define brealloc grealloc
-    #define bstrdup strdup
+    #define brealloc wrealloc
+    #define bstrdup sclone
     #define emfReschedCallback websRestartEvent
     #define emfSchedCallback websStartEVent
     #define emfSchedProc WebsEventProc
     #define emfSchedProcess websRunEvents
     #define emfUnschedCallback websStopEvent
     #define fmtStatic fmt
-    #define gaccess     access
-    #define gasctime    asctime
-    #define gatoi       atoi
-    #define gchmod      chmod
-    #define wclose      close
-    #define wclosedir   closedir
-    #define gcreat      creat
-    #define gctime      ctime
-    #define gexecvp     execvp
-    #define gfgets      fgets
-    #define gfindclose  _findclose
+    #define gaccess access
+    #define gasctime asctime
+    #define gatoi atoi
+    #define gchmod chmod
+    #define wclose close
+    #define wclosedir closedir
+    #define gcreat creat
+    #define gctime ctime
+    #define gexecvp execvp
+    #define gfgets fgets
+    #define gfindclose _findclose
     #define gfinddata_t _finddata_t
-    #define gfindfirst  _findfirst
-    #define gfindnext   _findnext
-    #define gfopen      fopen
-    #define gfprintf    fprintf
-    #define gfputs      fputs
-    #define gfscanf     fscanf
-    #define ggetcwd     getcwd
-    #define ggetenv     getenv
-    #define ggets       gets
-    #define gisalnum    isalnum
-    #define gisalpha    isalpha
-    #define gisdigit    isdigit
-    #define gislower    islower
-    #define gisspace    isspace
-    #define gisupper    isupper
-    #define gisxdigit   isxdigit
+    #define gfindfirst _findfirst
+    #define gfindnext _findnext
+    #define gfopen fopen
+    #define gfprintf fprintf
+    #define gfputs fputs
+    #define gfscanf fscanf
+    #define ggetcwd getcwd
+    #define ggetenv getenv
+    #define ggets gets
+    #define gisalnum isalnum
+    #define gisalpha isalpha
+    #define gisdigit isdigit
+    #define gislower islower
+    #define gisspace isspace
+    #define gisupper isupper
+    #define gisxdigit isxdigit
     #define gloadModule loadModule
-    #define glseek      lseek
-    #define gopendir    opendir
-    #define gprintf     printf
-    #define gread       read
-    #define greaddir    readdir
-    #define gremove     remove
-    #define grename     rename
-    #define gsprintf    sprintf
-    #define gsscanf     sscanf
-    #define gstat       stat
-    #define gstrcat     strcat
-    #define gstrchr     strchr
-    #define gstrcmp     strcmp
-    #define gstrcpy     strcpy
-    #define gstrcspn    strcspn
-    #define gstricmp    strcmpci
-    #define gstritoa    stritoa
-    #define gstrlen     strlen
-    #define gstrlower   strlower
-    #define gstrncat    strncat
-    #define gstrncmp    strncmp
-    #define gstrncpy    strncpy
-    #define gstrnlen    strnlen
-    #define gstrnset    strnset
-    #define gstrrchr    strrchr
-    #define gstrspn     strspn
-    #define gstrstr     strstr
-    #define gstrtok     strtok
-    #define gstrtol     strtol
-    #define gstrupper   strupper
-    #define gtempnam    tempnam
-    #define gtolower    tolower
-    #define gtoupper    toupper
-    #define gunlink     unlink
-    #define gvsprintf   vsprintf
-    #define gwrite      write
+    #define glseek lseek
+    #define gopendir opendir
+    #define gprintf printf
+    #define gread read
+    #define greaddir readdir
+    #define gremove remove
+    #define grename rename
+    #define gsprintf sprintf
+    #define gsscanf sscanf
+    #define gstat stat
+    #define gstrcat strcat
+    #define gstrchr strchr
+    #define gstrcmp strcmp
+    #define gstrcpy strcpy
+    #define gstrcspn strcspn
+    #define gstricmp strcmpci
+    #define gstritoa stritoa
+    #define gstrlen strlen
+    #define gstrlower strlower
+    #define gstrncat strncat
+    #define gstrncmp strncmp
+    #define gstrncpy strncpy
+    #define gstrnlen strnlen
+    #define gstrnset strnset
+    #define gstrrchr strrchr
+    #define gstrspn strspn
+    #define gstrstr strstr
+    #define gstrtok strtok
+    #define gstrtol strtol
+    #define gstrupper strupper
+    #define gtempnam tempnam
+    #define gtolower tolower
+    #define gtoupper toupper
+    #define gunlink unlink
+    #define gvsprintf vsprintf
+    #define gwrite write
     #define hAlloc walloc
     #define hAllocEntry wallocObject
     #define hFree gFree
@@ -4053,7 +4061,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define websSetDefaultDir websSetDocuments
     #define websSetDefaultPage websGetIndex
     #define websSetRequestLpath websSetRequestFilename
-    #define websSetRequestWritten(wp, nbytes)  if (1) { wp->written = nbytes; } else
+    #define websSetRequestWritten(wp, nbytes) if (1) { wp->written = nbytes; } else
     #define websTimeoutCancel websCancelTimeout
     #define websWriteDataNonBlock websWriteRaw
 

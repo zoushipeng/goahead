@@ -125,7 +125,7 @@ static bool jstHandler(Webs *wp)
                         if (result) {
                             websWrite(wp, "<h2><b>Javascript Error: %s</b></h2>\n", result);
                             websWrite(wp, "<pre>%s</pre>", nextp);
-                            gfree(result);
+                            wfree(result);
                         } else {
                             websWrite(wp, "<h2><b>Javascript Error</b></h2>\n%s\n", nextp);
                         }
@@ -159,7 +159,7 @@ done:
         }
     }
     websDone(wp);
-    gfree(buf);
+    wfree(buf);
     return 1;
 }
 

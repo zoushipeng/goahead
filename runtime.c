@@ -255,8 +255,8 @@ PUBLIC void websStopEvent(int id)
     if (callbacks == NULL || id == -1 || id >= callbackMax || (s = callbacks[id]) == NULL) {
         return;
     }
-    gfree(s);
-    callbackMax = gfreeHandle(&callbacks, id);
+    wfree(s);
+    callbackMax = wfreeHandle(&callbacks, id);
 }
 
 
@@ -938,7 +938,7 @@ WebsValue valueString(char *value, int flags)
 PUBLIC void valueFree(WebsValue* v)
 {
     if (v->valid && v->allocated && v->type == string && v->value.string != NULL) {
-        gfree(v->value.string);
+        wfree(v->value.string);
     }
     v->type = undefined;
     v->valid = 0;
@@ -980,7 +980,7 @@ PUBLIC void error(char *fmt, ...)
         syslog(LOG_ERR, "%s", message);
     }
 #endif
-    gfree(message);
+    wfree(message);
 }
 
 
@@ -994,11 +994,11 @@ PUBLIC void assureError(WEBS_ARGS_DEC, char *fmt, ...)
 
     message = sfmt("Assertion %s, failed at %s %d\n", fmtBuf, WEBS_ARGS); 
     va_end(args);
-    gfree(fmtBuf);
+    wfree(fmtBuf);
     if (traceHandler) {
         traceHandler(-1, message);
     }
-    gfree(message);
+    wfree(message);
 }
 
 
@@ -1016,7 +1016,7 @@ PUBLIC void trace(int level, char *fmt, ...)
         if (traceHandler) {
             traceHandler(level, message);
         }
-        gfree(message);
+        wfree(message);
         va_end(args);
     }
 }
@@ -1075,8 +1075,8 @@ PUBLIC void traceSetPath(char *path)
 {
     char  *lp;
     
-    gfree(tracePath);
-    tracePath = strdup(path);
+    wfree(tracePath);
+    tracePath = sclone(path);
     if ((lp = strchr(tracePath, ':')) != 0) {
         *lp++ = '\0';
         traceLevel = atoi(lp);
@@ -1216,7 +1216,7 @@ PUBLIC int wallocHandle(void *mapArg)
      */
     len += H_INCR;
     memsize = (len + H_OFFSET) * sizeof(void*);
-    if ((mp = grealloc(mp, memsize)) == NULL) {
+    if ((mp = wrealloc(mp, memsize)) == NULL) {
         return -1;
     }
     *map = (void*) &mp[H_OFFSET];
@@ -1230,7 +1230,7 @@ PUBLIC int wallocHandle(void *mapArg)
 /*
     Free a handle. This function returns the value of the largest handle in use plus 1, to be saved as a max value.
  */
-PUBLIC int gfreeHandle(void *mapArg, int handle)
+PUBLIC int wfreeHandle(void *mapArg, int handle)
 {
     void    ***map;
     ssize   *mp;
@@ -1245,7 +1245,7 @@ PUBLIC int gfreeHandle(void *mapArg, int handle)
     assure(mp[H_USED]);
     mp[handle + H_OFFSET] = 0;
     if (--(mp[H_USED]) == 0) {
-        gfree((void*) mp);
+        wfree((void*) mp);
         *map = NULL;
     }
     /*
@@ -1286,7 +1286,7 @@ PUBLIC int wallocObject(void *listArg, int *max, int size)
     }
     if (size > 0) {
         if ((cp = walloc(size)) == NULL) {
-            gfreeHandle(list, id);
+            wfreeHandle(list, id);
             return -1;
         }
         assure(cp);
@@ -1346,7 +1346,7 @@ PUBLIC void bufFree(WebsBuf *bp)
         return;
     }
     bufFlush(bp);
-    gfree((char*) bp->buf);
+    wfree((char*) bp->buf);
     bp->buf = NULL;
 }
 
@@ -1786,7 +1786,7 @@ PUBLIC bool bufGrow(WebsBuf *bp, ssize room)
         return 0;
     }
     bufGetBlk(bp, newbuf, bufLen(bp));
-    gfree((char*) bp->buf);
+    wfree((char*) bp->buf);
 
     bp->buflen += room;
     bp->endp = newbuf;
@@ -1835,7 +1835,7 @@ WebsHash hashCreate(int size)
         Create a new symbol table structure and zero
      */
     if ((tp = (HashTable*) walloc(sizeof(HashTable))) == NULL) {
-        symMax = gfreeHandle(&sym, sd);
+        symMax = wfreeHandle(&sym, sd);
         return -1;
     }
     memset(tp, 0, sizeof(HashTable));
@@ -1881,13 +1881,13 @@ PUBLIC void hashFree(WebsHash sd)
             forw = sp->forw;
             valueFree(&sp->name);
             valueFree(&sp->content);
-            gfree((void*) sp);
+            wfree((void*) sp);
             sp = forw;
         }
     }
-    gfree((void*) tp->hash_table);
-    symMax = gfreeHandle(&sym, sd);
-    gfree((void*) tp);
+    wfree((void*) tp->hash_table);
+    symMax = wfreeHandle(&sym, sd);
+    wfree((void*) tp);
 }
 
 
@@ -2099,7 +2099,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
     }
     valueFree(&sp->name);
     valueFree(&sp->content);
-    gfree((void*) sp);
+    wfree((void*) sp);
     return 0;
 }
 
@@ -2684,7 +2684,7 @@ PUBLIC int vxchdir(char *dirname)
     path = getAbsolutePath(dirname);
     #undef chdir
     rc = chdir(path);
-    gfree(path);
+    wfree(path);
     return rc;
 }
 
@@ -2762,14 +2762,14 @@ static void syslog(int priority, char *fmt, ...)
             if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
                     (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
                 RegCloseKey(hkey);
-                gfree(buf);
+                wfree(buf);
                 return;
             }
             errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
             if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
                     ERROR_SUCCESS) {
                 RegCloseKey(hkey);
-                gfree(buf);
+                wfree(buf);
                 return;
             }
             RegCloseKey(hkey);
@@ -2780,7 +2780,7 @@ static void syslog(int priority, char *fmt, ...)
         ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
         DeregisterEventSource(event);
     }
-    gfree(buf);
+    wfree(buf);
 }
 #endif
 

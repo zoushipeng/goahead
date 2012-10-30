@@ -88,7 +88,7 @@ PUBLIC void websRouteRequest(Webs *wp)
                 return;
             }
             if (!wp->filename || route->dir) {
-                gfree(wp->filename);
+                wfree(wp->filename);
                 wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
             }
             if (wp->flags & WEBS_FORM) {
@@ -212,11 +212,11 @@ PUBLIC bool websCanString(Webs *wp, char *abilities)
     abilities = sclone(abilities);
     for (ability = stok(abilities, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         if (hashLookup(wp->user->abilities, ability) == 0) {
-            gfree(abilities);
+            wfree(abilities);
             return 0;
         }
     }
-    gfree(abilities);
+    wfree(abilities);
     return 1;
 }
 #endif
@@ -288,7 +288,7 @@ static void growRoutes()
 {
     if (routeCount >= routeMax) {
         routeMax += 16;
-        if ((routes = grealloc(routes, sizeof(WebsRoute*) * routeMax)) == 0) {
+        if ((routes = wrealloc(routes, sizeof(WebsRoute*) * routeMax)) == 0) {
             error("Can't grow routes");
         }
     }
@@ -328,12 +328,12 @@ static void freeRoute(WebsRoute *route)
     if (route->redirects >= 0) {
         hashFree(route->redirects);
     }
-    gfree(route->prefix);
-    gfree(route->dir);
-    gfree(route->protocol);
-    gfree(route->authType);
-    gfree(route->handler);
-    gfree(route);
+    wfree(route->prefix);
+    wfree(route->dir);
+    wfree(route->protocol);
+    wfree(route->authType);
+    wfree(route->handler);
+    wfree(route);
 }
 
 
@@ -377,13 +377,13 @@ PUBLIC void websCloseRoute()
             if (handler->close) {
                 (*handler->close)();
             }
-            gfree(handler->name);
+            wfree(handler->name);
         }
         hashFree(handlers);
         handlers = -1;
     }
     if (routes) {
-        gfree(routes);
+        wfree(routes);
         routes = 0;
     }
     routeCount = routeMax = 0;
@@ -446,7 +446,7 @@ PUBLIC int websLoad(char *path)
     
     assure(path && *path);
 
-    if ((fp = fopen(path, "rt")) == 0) {
+    if ((fp = fopen(path, "r" FILE_TEXT)) == 0) {
         error("Can't open route config file %s", path);
         return -1;
     }
