@@ -2036,6 +2036,8 @@ PUBLIC bool websFlush(Webs *wp)
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
             wp->flags &= ~WEBS_KEEP_ALIVE;
+            bufFlush(op);
+            wp->state = WEBS_COMPLETE;
             return 0;
         } else if (written == 0) {
             break;
@@ -2138,7 +2140,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     op = (wp->flags & WEBS_CHUNKING) ? &wp->chunkbuf : &wp->output;
     written = len = 0;
 
-    while (size > 0) {  
+    while (size > 0 && wp->state < WEBS_COMPLETE) {  
         if (bufRoom(op) < size) {
             websFlush(wp);
         }
