@@ -3256,6 +3256,27 @@ PUBLIC void websSetBackground(int on);
  */
 PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
 
+/*
+    Flags for websSetCookie
+ */
+#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
+#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
+
+/**
+    Define a cookie to include in the response
+    @param wp Webs request object
+    @param name Cookie name
+    @param value Cookie value
+    @param path URI path prefix applicable for this cookie 
+    @param domain Domain applicable for this cookie
+    @param lifespan Cookie lifespan in secons
+    @param flags Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only. 
+        Otherwise the cookie applies to both http and https requests.
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags);
+
 /**
     Set the debug processing flag
     @param on Value to set the debug flag to.
@@ -3263,6 +3284,14 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
     @internal
  */
 PUBLIC void websSetDebug(int on);
+
+/**
+    Set the web documents directory
+    @description The web documents directory is used when resolving request URIs into filenames.
+    @param dir Directory path to use
+    @ingroup Webs
+ */
+PUBLIC void websSetDocuments(char *dir);
 
 /**
     Create the CGI environment variables for the current request.
@@ -3295,35 +3324,6 @@ PUBLIC void websSetHost(char *host);
 PUBLIC void websSetIpAddr(char *ipaddr);
 
 /**
-    Set the web documents directory
-    @description The web documents directory is used when resolving request URIs into filenames.
-    @param dir Directory path to use
-    @ingroup Webs
- */
-PUBLIC void websSetDocuments(char *dir);
-
-/*
-    Flags for websSetCookie
- */
-#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
-#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
-
-/**
-    Define a cookie to include in the response
-    @param wp Webs request object
-    @param name Cookie name
-    @param value Cookie value
-    @param path URI path prefix applicable for this cookie 
-    @param domain Domain applicable for this cookie
-    @param lifespan Cookie lifespan in secons
-    @param flags Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only. 
-        Otherwise the cookie applies to both http and https requests.
-    @return Zero if successful, otherwise -1.
-    @ingroup Webs
- */
-PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags);
-
-/**
     Create and send a request response
     @description This creates a response for the current request using the specified HTTP status code and 
         the supplied message.
@@ -3331,6 +3331,13 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *d
     @ingroup Webs
  */
 PUBLIC void websSetIndex(char *filename);
+
+/**
+    Create request variables for query string data
+    @param wp Webs request object
+    @ingroup Webs
+ */
+PUBLIC void websSetQueryVars(Webs *wp);
 
 /**
     Set the response HTTP status code

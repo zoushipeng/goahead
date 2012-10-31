@@ -1365,6 +1365,17 @@ PUBLIC void websSetEnv(Webs *wp)
 
 PUBLIC void websSetFormVars(Webs *wp)
 {
+    if (wp->rxLen > 0 && bufLen(&wp->input) > 0) {
+        if (wp->flags & WEBS_FORM) {
+            addFormVars(wp, wp->input.servp);
+            websConsumeInput(wp, wp->rxLen);
+        }
+    }
+}
+
+
+PUBLIC void websSetQueryVars(Webs *wp)
+{
     /*
         Decode and create an environment query variable for each query keyword. We split into pairs at each '&', then
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
@@ -1372,12 +1383,6 @@ PUBLIC void websSetFormVars(Webs *wp)
     if (wp->query && *wp->query) {
         wp->decodedQuery = sclone(wp->query);
         addFormVars(wp, wp->decodedQuery);
-    }
-    if (wp->rxLen > 0 && bufLen(&wp->input) > 0) {
-        if (wp->flags & WEBS_FORM) {
-            addFormVars(wp, wp->input.servp);
-            websConsumeInput(wp, wp->rxLen);
-        }
     }
 }
 
@@ -2816,15 +2821,16 @@ static WebsTime parseDate3Time(char *buf, int *index)
         /*      
             Now get the time and time SP 4DIGIT
          */
+        tmpIndex++;
         timeValue = parseTime(buf, &tmpIndex);
         if (timeValue >= 0) {
             /*          
                 Now grab the 4DIGIT year value
              */
+            tmpIndex++;
             yearValue = parseYear(buf, &tmpIndex);
         }
     }
-
     if ((dayValue >= 0) && (monthValue >= 0) && (yearValue >= 0)) {
         returnValue = dateToTimet(yearValue, monthValue, dayValue);
         returnValue += timeValue;

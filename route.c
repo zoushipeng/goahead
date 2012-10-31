@@ -91,6 +91,9 @@ PUBLIC void websRouteRequest(Webs *wp)
                 wfree(wp->filename);
                 wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
             }
+            if (wp->query && *wp->query) {
+                websSetQueryVars(wp);
+            }
             if (wp->flags & WEBS_FORM) {
                 websSetFormVars(wp);
             }
