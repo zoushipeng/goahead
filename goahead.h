@@ -2290,6 +2290,11 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
 
+/*
+    The license agreement stipulates that you must not change this definition.
+ */
+#define WEBS_NAME "Server: GoAhead/" BIT_VERSION
+
 /* 
     Request flags
  */
@@ -3733,6 +3738,7 @@ PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHa
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *authType);
 
 /*************************************** Auth **********************************/
+
 #define WEBS_USIZE          128              /* Size of realm:username */
 
 /**
@@ -3962,7 +3968,6 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
  */
 #if BIT_LEGACY
     #define B_L 0
-    #define WEBS_NAME "Server: GoAhead/" BIT_VERSION
     #define a_assert assure
     #define balloc walloc
     #define bclose wcloseAlloc
