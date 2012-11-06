@@ -1825,7 +1825,7 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         /*
             The Embedthis Open Source license does not permit modification of the Server header
          */
-        websWriteHeader(wp, "Server", "GoAhead/%s", BIT_VERSION);
+        websWriteHeader(wp, "Server", "GoAhead");
 
         if ((date = websGetDateString(NULL)) != NULL) {
             websWriteHeader(wp, "Date", "%s", date);
