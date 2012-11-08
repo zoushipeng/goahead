@@ -179,9 +179,9 @@
             configuration, several output files are created that contain settings for each specified platform.</p>
             <ul>
                 <li>A bit file that specifies the platforms to build named: start.bit</li>
-                <li>A bit file for each platform named: OS-ARCH.bit</li>
-                <li>A source header with for the build configuration named: OS-ARCH-PROFILE/inc/bit.h</li>
-                <li>An output products directory for each platform named: OS-ARCH-PROFILE</li>
+                <li>A bit file for each platform named: OS-ARCH[-CPU].bit</li>
+                <li>A source header with for the build configuration named: OS-ARCH[-CPU]-PROFILE/inc/bit.h</li>
+                <li>An output products directory for each platform named: OS-ARCH[-CPU]-PROFILE</li>
             </ul>
             <p>where OS is the name of the operating system, ARCH is the name of the CPU architecture and PROFILE
             is the build profile name, typically "debug" or "release". For example: linux-x86-debug.</p>
@@ -250,12 +250,14 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--platform OS-ARCH</td>
+                    <td class="nowrap">--platform OS-ARCH[-CPU]</td>
                     <td><p>Specify the target platform for which to build. For example "-platform linux-arm". 
                         Supported operating systems are: freebsd, linux, macosx, solaris, vxworks and windows. 
                         Supported architectures are: arm, mips, ppc, x64 or x86.
                         If the -platform option is omitted, the local system is added as the target platform.  You may
                         use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
+                        <p>The optional CPU component specifies a CPU instance to tune for. The CPU setting is used
+                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm-arm7tdmi".</p>
                     </td>
                 </tr>
             </tbody>
@@ -509,7 +511,7 @@ bit           # To build GoAhead with Ejscript support</pre></li>
             <p>Bit supports cross compiling via the <em>-platform PLATFORM</em> bit configure option. This option adds a
             platform to the list of platforms to be made. Multiple platforms may be
             specified and the 'local' platform alias may be used for the local development platform.</p>
-            <pre>bit -platform linux-arm -configure . </pre>
+            <pre>bit -platform linux-arm-arm7 -configure . </pre>
             <p>This will create a windows-x64.bit configuration file and a start.es that references it. The
             platform switch does not need to be restated after configuration.</p>
             <p>Some products require local building to make tools that are required to build for any platform. These
@@ -521,6 +523,7 @@ bit           # To build GoAhead with Ejscript support</pre></li>
             supported operating systems are: freebsd, linux, macosx, solaris, vxworks and windows. The ARCH field is
             one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86
             Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.
+            The CPU field is optional and specifies a CPU to tune for.</p>
             <h3>Environment Variables</h3>
             <p>When cross compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain.
             Bit will do its best to discover the installed cross tool chain and will look in well known
@@ -532,7 +535,7 @@ bit           # To build GoAhead with Ejscript support</pre></li>
 CC=/opt/bin/cc.exe \
 LD=/opt/bin/cc.exe \
 CFLAGS=-I/opt/include \
-./configure --debug --platform linux-arm
+./configure --debug --platform linux-arm-arm7
 </pre>
             
             <a id="building"></a>
@@ -588,7 +591,7 @@ sudo bit uninstall
             simple compressed tar archive of the binary release. If you are embedding goahead into another application,
             you can extract the required GoAhead files from this release archive and include them with your application.
             Alternatively, you can extract them from the staging directory
-            under the <em>OS-ARCH-PROFILE/pkg/bin/goahead-VERSION/contents</em> directory. </p>
+            under the <em>OS-ARCH[-CPU]-PROFILE/pkg/bin/goahead-VERSION/contents</em> directory. </p>
             <a id="repository"></a>
             <h2 class="section">Building from the Source Code Repository</h2>
             <p>You can checkout a copy of the product source code via:</p>
@@ -619,7 +622,7 @@ sudo bit uninstall
                 </tr>
                 <tr>
                     <td></td>
-                    <td class="nowrap">OS-ARCH-PROFILE</td>
+                    <td class="nowrap">OS-ARCH[-CPU]-PROFILE</td>
                     <td>Build output directory.</td>
                 </tr>
                 <tr>
@@ -683,7 +686,7 @@ sudo bit uninstall
                     <td>Build configuration script. This invokes Bit to configure GoAhead on the development system.</td>
                 </tr>
                 <tr>
-                    <td class="nowrap">OS-ARCH.bit</td>
+                    <td class="nowrap">OS-ARCH[-CPU].bit</td>
                     <td>Platform specific Bit file. There will be one platform bit file for each target platform.</td>
                 </tr>
                 <tr>
