@@ -2293,7 +2293,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 /*
     The license agreement stipulates that you must not change this definition.
  */
-#define WEBS_NAME "Server: GoAhead/" BIT_VERSION
+#define WEBS_NAME "Server: GoAhead-http"
 
 /* 
     Request flags

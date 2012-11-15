@@ -67,8 +67,8 @@
 
 /*********************************** Locals ***********************************/
 
-#define MPR_CMD_VXWORKS_EOF     "_ _EOF_ _"
-#define MPR_CMD_VXWORKS_EOF_LEN 9
+#define CMD_VXWORKS_EOF     "_ _EOF_ _"
+#define CMD_VXWORKS_EOF_LEN 9
 #define MAX_ARGV                64
 
 static char     *argvList[MAX_ARGV];
@@ -80,7 +80,7 @@ static int      numQueryKeys;
 static int      originalArgc;
 static char     **originalArgv;
 static int      outputArgs, outputEnv, outputPost, outputQuery;
-static int      outputBytes, outputHeaderLines, responseStatus;
+static int      outputLines, outputHeaderLines, responseStatus;
 static char     *outputLocation;
 static char     *postBuf;
 static size_t   postBufLen;
@@ -119,7 +119,7 @@ int main(int argc, char **argv, char **envp)
 
     err = 0;
     outputArgs = outputQuery = outputEnv = outputPost = 0;
-    outputBytes = outputHeaderLines = responseStatus = 0;
+    outputLines = outputHeaderLines = responseStatus = 0;
     outputLocation = 0;
     nonParsedHeader = 0;
     responseMsg = 0;
@@ -158,7 +158,7 @@ int main(int argc, char **argv, char **envp)
                 if (++i >= argc) {
                     err = __LINE__;
                 } else {
-                    outputBytes = atoi(argv[i]);
+                    outputLines = atoi(argv[i]);
                 }
                 break;
 
@@ -270,56 +270,45 @@ int main(int argc, char **argv, char **envp)
     }
     printf("\r\n");
 
-    if ((outputBytes + outputArgs + outputEnv + outputQuery + outputPost + outputLocation + responseStatus) == 0) {
+    if ((outputLines + outputArgs + outputEnv + outputQuery + outputPost + outputLocation + responseStatus) == 0) {
         outputArgs++;
         outputEnv++;
         outputQuery++;
         outputPost++;
     }
 
-    if (outputBytes) {
-        j = 0;
-        for (i = 0; i < outputBytes; i++) {
-            putchar('0' + j);
-            j++;
-            if (j > 9) {
-                if (++outputBytes > 0) {
-                    putchar('\r');
-                }
-                if (++outputBytes > 0) {
-                    putchar('\n');
-                }
-                j = 0;
+    if (outputLines) {
+        for (j = 0; j < outputLines; j++) {
+            printf("%010d\n", j);
+        }
+    } else { 
+        printf("<HTML><TITLE>cgitest: Output</TITLE><BODY>\r\n");
+        if (outputArgs) {
+#if _WIN32
+            printf("<P>CommandLine: %s</P>\r\n", GetCommandLine());
+#endif
+            printf("<H2>Args</H2>\r\n");
+            for (i = 0; i < argc; i++) {
+                printf("<P>ARG[%d]=%s</P>\r\n", i, argv[i]);
             }
         }
-
-    } 
-    printf("<HTML><TITLE>cgitest: Output</TITLE><BODY>\r\n");
-    if (outputArgs) {
-#if _WIN32
-        printf("<P>CommandLine: %s</P>\r\n", GetCommandLine());
-#endif
-        printf("<H2>Args</H2>\r\n");
-        for (i = 0; i < argc; i++) {
-            printf("<P>ARG[%d]=%s</P>\r\n", i, argv[i]);
+        printEnv(envp);
+        if (outputQuery) {
+            printQuery();
         }
+        if (outputPost) {
+            printPost(postBuf, postBufLen);
+        }
+        printf("</BODY></HTML>\r\n");
     }
-    printEnv(envp);
-    if (outputQuery) {
-        printQuery();
-    }
-    if (outputPost) {
-        printPost(postBuf, postBufLen);
-    }
-    printf("</BODY></HTML>\r\n");
 
 #if VXWORKS
     /*
         VxWorks pipes need an explicit eof string
         Must not call exit(0) in Vxworks as that will exit the task before the CGI handler can cleanup. Must use return 0.
      */
-    write(1, MPR_CMD_VXWORKS_EOF, MPR_CMD_VXWORKS_EOF_LEN);
-    write(2, MPR_CMD_VXWORKS_EOF, MPR_CMD_VXWORKS_EOF_LEN);
+    write(1, CMD_VXWORKS_EOF, CMD_VXWORKS_EOF_LEN);
+    write(2, CMD_VXWORKS_EOF, CMD_VXWORKS_EOF_LEN);
 #endif
     fflush(stderr);
     fflush(stdout);
