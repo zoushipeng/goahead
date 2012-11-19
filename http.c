@@ -1703,7 +1703,7 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
-    code &= ~WEBS_CLOSE;
+    code &= ~(WEBS_CLOSE | WEBS_NOLOG);
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
