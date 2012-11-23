@@ -354,6 +354,10 @@
                         <td>Maximum filename size</td>
                     </tr>
                     <tr>
+                        <td class="pivot">limitFiles</td>
+                        <td>Maximum number of files/sockets (ulimit)</td>
+                    </tr>
+                    <tr>
                         <td class="pivot">limitHeader</td>
                         <td>Maximum size of the request header</td>
                     </tr>
@@ -362,12 +366,20 @@
                         <td>Maximum number of header lines in the request</td>
                     </tr>
                     <tr>
+                        <td class="pivot">limitParseTimeout</td>
+                        <td>Maximum time to parse the request headers</td>
+                    </tr>
+                    <tr>
                         <td class="pivot">limitPassword</td>
                         <td>Maximum size of a password</td>
                     </tr>
                     <tr>
-                        <td class="pivot">limitRxBody</td>
+                        <td class="pivot">limitPost</td>
                         <td>Maximum size of the incoming request body</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPut</td>
+                        <td>Maximum size of a put request</td>
                     </tr>
                     <tr>
                         <td class="pivot">limitSessionLife</td>

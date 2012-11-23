@@ -106,12 +106,14 @@ Bit.load({
             Sandbox limits and allocation sizes
          */
         limitBuffer:          8192,    /* I/O Buffer size. Also chunk size. */
+        limitFiles:              0,    /* Maximum number of files/sockets. Set to zero for unlimited. Unix only */
         limitFilename:         256,    /* Maximum filename size */
         limitHeader:          2048,    /* Maximum HTTP single header size */
         limitHeaders:         4096,    /* Maximum HTTP header size */
         limitNumHeaders:        64,    /* Maximum number of headers */
+        limitParseTimeout:       5,    /* Maximum time to parse the request headers */
         limitPassword:          32,    /* Maximum password size */
-        limitPost:           16384,    /* Maximum POST (and other method) incoming body size */
+        limitPost:           16384,    /* Maximum POST incoming body size */
         limitPut:        204800000,    /* Maximum PUT body size ~ 200MB */
         limitSessionLife:     1800,    /* Session lifespan in seconds (30 mins) */
         limitSessionCount:     512,    /* Maximum number of sessions to support */

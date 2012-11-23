@@ -10,6 +10,7 @@
 /********************************* Includes ***********************************/
 
 #include    "goahead.h"
+#include    <sys/resource.h>
 
 /*********************************** Globals **********************************/
 
@@ -19,6 +20,7 @@ static int defaultHttpPort;             /* Default port number for http */
 static int defaultSslPort;              /* Default port number for https */
 
 #define WEBS_TIMEOUT (BIT_LIMIT_TIMEOUT * 1000)
+#define PARSE_TIMEOUT (BIT_LIMIT_PARSE_TIMEOUT * 1000)
 #define CHUNK_LOW   128                 /* Low water mark for chunking */
 
 /************************************ Locals **********************************/
@@ -203,6 +205,7 @@ static bool     processContent(Webs *wp);
 static bool     parseIncoming(Webs *wp);
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
+static void     setFileLimits();
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void *data);
 static void     writeEvent(Webs *wp);
@@ -228,13 +231,13 @@ PUBLIC int websOpen(char *documents, char *routeFile)
 #elif BIT_UNIX_LIKE
     openlog(BIT_PRODUCT, 0, LOG_LOCAL0);
 #endif
-    //  MOB - wrap
 #if WINDOWS || VXWORKS
     rand();
 #else
     random();
 #endif
     traceOpen();
+    setFileLimits();
     socketOpen();
     if (setLocalHost() < 0) {
         return -1;
@@ -710,7 +713,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
 #endif
     assure(wp->timeout == -1);
-    wp->timeout = websStartEvent(WEBS_TIMEOUT, checkTimeout, (void*) wp);
+    wp->timeout = websStartEvent(PARSE_TIMEOUT, checkTimeout, (void*) wp);
     socketEvent(sid, SOCKET_READABLE, wp);
     return 0;
 }
@@ -1725,9 +1728,14 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
         encoded = websEscapeHtml(msg);
         wfree(msg);
         msg = encoded;
-        buf = sfmt("<html><head><title>Document Error: %s</title></head>\r\n\
-            <body><h2>Access Error: %s</h2>\r\n\
-            <p>%s</p></body></html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
+        buf = sfmt("\
+<html>\r\n\
+    <head><title>Document Error: %s</title></head>\r\n\
+    <body>\r\n\
+        <h2>Access Error: %s</h2>\r\n\
+        <p>%s</p>\r\n\
+    </body>\r\n\
+</html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
         wfree(msg);
     } else {
         buf = 0;
@@ -2267,7 +2275,14 @@ static void checkTimeout(void *arg, int id)
     if (websDebug) {
         websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
-    } else if (elapsed >= WEBS_TIMEOUT) {
+    } 
+    if (wp->state == WEBS_BEGIN) {
+        websError(wp, HTTP_CODE_REQUEST_TIMEOUT | WEBS_CLOSE, "Request exceeded parse timeout");
+        recycle(wp, 0);
+        websFree(wp);
+        return;
+    }
+    if (elapsed >= WEBS_TIMEOUT) {
         if (!(wp->flags & WEBS_HEADERS_CREATED)) {
             if (wp->state > WEBS_BEGIN) {
                 websError(wp, HTTP_CODE_REQUEST_TIMEOUT, "Request exceeded timeout");
@@ -2278,11 +2293,11 @@ static void checkTimeout(void *arg, int id)
         recycle(wp, 0);
         websFree(wp);
         /* WARNING: wp not valid here */
-    } else {
-        delay = WEBS_TIMEOUT - elapsed;
-        assure(delay > 0);
-        websRestartEvent(id, (int) delay);
+        return;
     }
+    delay = WEBS_TIMEOUT - elapsed;
+    assure(delay > 0);
+    websRestartEvent(id, (int) delay);
 }
 
 static int setLocalHost()
@@ -3629,6 +3644,42 @@ PUBLIC int websServer(char *endpoint, char *documents)
     return 0;
 }
 
+
+static void setFileLimits()
+{
+#if BIT_UNIX_LIKE
+    struct rlimit r;
+    int           i, limit;
+
+    limit = BIT_LIMIT_FILES;
+    if (limit == 0) {
+        /*
+            We need to determine a reasonable maximum possible limit value.
+            There is no #define we can use for this, so we test to determine it empirically
+         */
+        for (limit = 0x40000000; limit > 0; limit >>= 1) {
+            r.rlim_cur = r.rlim_max = limit;
+            if (setrlimit(RLIMIT_NOFILE, &r) == 0) {
+                for (i = (limit >> 4) * 15; i > 0; i--) {
+                    r.rlim_max = r.rlim_cur = limit + i;
+                    if (setrlimit(RLIMIT_NOFILE, &r) == 0) {
+                        limit = 0;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    } else {
+        r.rlim_cur = r.rlim_max = limit;
+        if (setrlimit(RLIMIT_NOFILE, &r) == 0) {
+            error("Can't set file limit to %d", limit);
+        }
+    }
+    getrlimit(RLIMIT_NOFILE, &r);
+    trace(6, "Max files soft %d, max %d\n", r.rlim_cur, r.rlim_max);
+#endif
+}
 
 /*
     @copy   default
