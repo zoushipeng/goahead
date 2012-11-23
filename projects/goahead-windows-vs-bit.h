@@ -13,7 +13,7 @@
     #define BIT_AUTO_LOGIN 0
 #endif
 #ifndef BIT_BUILD_NUMBER
-    #define BIT_BUILD_NUMBER "B0"
+    #define BIT_BUILD_NUMBER "0"
 #endif
 #ifndef BIT_CA_FILE
     #define BIT_CA_FILE ""
@@ -48,6 +48,9 @@
 #ifndef BIT_HAS_LIB_EDIT
     #define BIT_HAS_LIB_EDIT 0
 #endif
+#ifndef BIT_HAS_LIB_RT
+    #define BIT_HAS_LIB_RT 0
+#endif
 #ifndef BIT_HAS_MMU
     #define BIT_HAS_MMU 1
 #endif
@@ -69,6 +72,9 @@
 #ifndef BIT_LIMIT_FILENAME
     #define BIT_LIMIT_FILENAME 256
 #endif
+#ifndef BIT_LIMIT_FILES
+    #define BIT_LIMIT_FILES 0
+#endif
 #ifndef BIT_LIMIT_HEADER
     #define BIT_LIMIT_HEADER 2048
 #endif
@@ -77,6 +83,9 @@
 #endif
 #ifndef BIT_LIMIT_NUM_HEADERS
     #define BIT_LIMIT_NUM_HEADERS 64
+#endif
+#ifndef BIT_LIMIT_PARSE_TIMEOUT
+    #define BIT_LIMIT_PARSE_TIMEOUT 5
 #endif
 #ifndef BIT_LIMIT_PASSWORD
     #define BIT_LIMIT_PASSWORD 32
