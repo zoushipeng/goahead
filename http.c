@@ -3672,7 +3672,7 @@ static void setFileLimits()
         }
     } else {
         r.rlim_cur = r.rlim_max = limit;
-        if (setrlimit(RLIMIT_NOFILE, &r) == 0) {
+        if (setrlimit(RLIMIT_NOFILE, &r) < 0) {
             error("Can't set file limit to %d", limit);
         }
     }
