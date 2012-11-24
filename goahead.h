@@ -281,6 +281,7 @@
     #include    <stdio.h>
     #include    <stdlib.h>
     #include    <unistd.h>
+    #include    <sys/resource.h>
     #include    <sys/socket.h>
     #include    <sys/select.h>
     #include    <netinet/in.h>
@@ -331,6 +332,7 @@
     #include    <grp.h>
     #include    <time.h>
     #include    <stdbool.h>
+    #include    <sys/resource.h>
     #include    <sys/wait.h>
     #include    <syslog.h>
     #include    <libgen.h>
@@ -372,6 +374,7 @@
     #include    <stdlib.h>
     #include    <unistd.h>
     #include    <socket.h>
+    #include    <sys/resource.h>
     #include    <sys/select.h>
     #include    <netinet/in.h>
     #include    <arpa/inet.h>
