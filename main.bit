@@ -22,7 +22,7 @@ Bit.load({
         product: 'goahead',
         title: 'Embedthis GoAhead',
         company: 'Embedthis',
-        version: '3.0.0',
+        version: '3.1.0',
         buildNumber: '0',
         packs: [ 'bits/packs' ]
 
