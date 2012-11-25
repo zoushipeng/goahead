@@ -175,7 +175,7 @@
     #define BIT_UPLOAD_DIR "/tmp"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "3.0.0"
+    #define BIT_VERSION "3.1.0"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 0
@@ -198,10 +198,10 @@
     #define BIT_CFG_PREFIX "/etc/goahead"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "/usr/lib/goahead/3.0.0/bin"
+    #define BIT_BIN_PREFIX "/usr/lib/goahead/3.1.0/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "/usr/lib/goahead/3.0.0/inc"
+    #define BIT_INC_PREFIX "/usr/lib/goahead/3.1.0/inc"
 #endif
 #ifndef BIT_LOG_PREFIX
     #define BIT_LOG_PREFIX "/var/log/goahead"
@@ -213,10 +213,10 @@
     #define BIT_SPL_PREFIX "/var/spool/goahead"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "/usr/src/goahead-3.0.0"
+    #define BIT_SRC_PREFIX "/usr/src/goahead-3.1.0"
 #endif
 #ifndef BIT_VER_PREFIX
-    #define BIT_VER_PREFIX "/usr/lib/goahead/3.0.0"
+    #define BIT_VER_PREFIX "/usr/lib/goahead/3.1.0"
 #endif
 #ifndef BIT_WEB_PREFIX
     #define BIT_WEB_PREFIX "/var/www/goahead-default"
@@ -255,13 +255,13 @@
     #define BIT_MAJOR_VERSION 3
 #endif
 #ifndef BIT_MINOR_VERSION
-    #define BIT_MINOR_VERSION 0
+    #define BIT_MINOR_VERSION 1
 #endif
 #ifndef BIT_PATCH_VERSION
     #define BIT_PATCH_VERSION 0
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 300000000
+    #define BIT_VNUM 300010000
 #endif
 
 /* Packs */
