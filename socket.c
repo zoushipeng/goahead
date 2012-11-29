@@ -65,10 +65,11 @@ PUBLIC void socketClose()
 
 PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
 {
-    WebsSocket                *sp;
+    WebsSocket              *sp;
     struct sockaddr_storage addr;
     WebsSockLenArg          addrlen;
-    int                     family, protocol, sid, rc;
+    char                    *sip;
+    int                     family, protocol, sid, rc, only;
 
     if (port > SOCKET_PORT_MAX) {
         return -1;
@@ -79,6 +80,16 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     sp = socketList[sid];
     assure(sp);
 
+    /*
+        Change null IP address to be an IPv6 endpoint if the system is dual-stack. That way we can listen on
+        both IPv4 and IPv6
+    */
+    sip = ip;
+#if !defined(BIT_HAS_SINGLE_STACK) && !VXWORKS && !(WINDOWS && _WIN32_WINNT < 0x0600)
+    if (ip == 0 || *ip == '\0') {
+        sip = "::";
+    }
+#endif
     /*
         Bind to the socket endpoint and the call listen() to start listening
      */
@@ -95,8 +106,25 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
     rc = 1;
+#if BIT_UNIX_LIKE
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
+#elif BIT_WIN_LIKE
+    setsockopt(sp->fd, SOL_SOCKET, SO_REUSEADDR | SO_EXCLUSIVEADDRUSE, (char*) &rc, sizeof(rc));
+#endif
 
+#if defined(IPV6_V6ONLY)
+    /*
+        By default, most stacks listen on both IPv6 and IPv4 if ip == 0, except windows which inverts this.
+        So we explicitly control.
+     */
+    if (ip == 0) {
+        only = 0;
+        setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+    } else if (ipv6(ip)) {
+        only = 1;
+        setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+    }
+#endif
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
         error("Can't bind to address %s:%d, errno %d", ip ? ip : "*", port, errno);
         socketFree(sid);
