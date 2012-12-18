@@ -2305,7 +2305,7 @@ static int setLocalHost()
     char            host[128], *ipaddr;
 
     if (gethostname(host, sizeof(host)) < 0) {
-        error("Can't get hostname");
+        error("Can't get hostname: errno %d", errno);
         return -1;
     }
 #if VXWORKS
@@ -2324,7 +2324,7 @@ static int setLocalHost()
 {
     struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
-        error("Can't get host address");
+        error("Can't get host address for host %s: errno %d", host, errno);
         return -1;
     }
     memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
