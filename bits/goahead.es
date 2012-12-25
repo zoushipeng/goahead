@@ -65,8 +65,8 @@ public function packageComboFiles() {
         title: bit.settings.title + ' Library Source',
     })
     install(['src/goahead.c'], pkg.join('src/deps/goahead/goahead.c'))
-    install(['route.txt'], pkg.join('src/deps/goahead/route.txt'))
-    install(['auth.txt'], pkg.join('src/deps/goahead/auth.txt'))
+    install(['src/route.txt'], pkg.join('src/deps/goahead/route.txt'))
+    install(['src/auth.txt'], pkg.join('src/deps/goahead/auth.txt'))
     package(bit.dir.pkg.join('src'), ['combo', 'flat'])
 }
 
