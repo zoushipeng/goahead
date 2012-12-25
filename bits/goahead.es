@@ -20,7 +20,7 @@ public function packageSourceFiles() {
     install('bits', pkg)
     install('configure', pkg, {permissions: 0755})
     install('*.md', pkg, {fold: true, expand: true})
-    install(['*.c', '*.h'], pkg, {
+    install(['src/*.c', 'src/*.h'], pkg, {
         exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp/,
     })
     install('utils', pkg, {
@@ -51,20 +51,20 @@ public function packageComboFiles() {
     install('projects/goahead-' + bit.platform.os + '-debug-bit.h', pkg.join('src/deps/goahead/bit.h'))
     install('package/start-flat.bit', pkg.join('src/deps/goahead/start.bit'))
     install('package/Makefile-flat', pkg.join('src/deps/goahead/Makefile'))
-    install(['js.h', 'goahead.h'], 
+    install(['src/js.h', 'src/goahead.h'], 
         pkg.join('src/deps/goahead/goahead.h'), {
         cat: true,
         filter: /^#inc.*goahead.*$/mg,
         title: bit.settings.title + ' Library Source',
     })
-    install(['*.c'], pkg.join('src/deps/goahead/goaheadLib.c'), {
+    install(['src/*.c'], pkg.join('src/deps/goahead/goaheadLib.c'), {
         cat: true,
         filter: /^#inc.*goahead.*$|^#inc.*mpr.*$|^#inc.*http.*$|^#inc.*customize.*$|^#inc.*edi.*$|^#inc.*mdb.*$|^#inc.*esp.*$/mg,
         exclude: /goahead.c|samples|test.c/,
         header: '#include \"goahead.h\"',
         title: bit.settings.title + ' Library Source',
     })
-    install(['goahead.c'], pkg.join('src/deps/goahead/goahead.c'))
+    install(['src/goahead.c'], pkg.join('src/deps/goahead/goahead.c'))
     install(['route.txt'], pkg.join('src/deps/goahead/route.txt'))
     install(['auth.txt'], pkg.join('src/deps/goahead/auth.txt'))
     package(bit.dir.pkg.join('src'), ['combo', 'flat'])

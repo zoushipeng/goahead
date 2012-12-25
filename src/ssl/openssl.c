@@ -73,7 +73,7 @@ PUBLIC int sslOpen()
     caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
     if (caFile || caPath) {
         if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
-            error("Unable to set cert verification locations");
+            error("Unable to read cert verification locations");
             sslClose();
             return -1;
         }
@@ -279,7 +279,7 @@ static int sslSetCertFile(char *certFile)
     }
     if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
-            error("Unable to set certificate file: %s", certFile); 
+            error("Unable to read certificate file: %s", certFile); 
             return -1;
         }
         return -1;
@@ -307,7 +307,7 @@ static int sslSetKeyFile(char *keyFile)
     }
     if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
         if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_ASN1) <= 0) {
-            error("Unable to set private key file: %s", keyFile); 
+            error("Unable to read private key file: %s", keyFile); 
             return -1;
         }
         return -1;
