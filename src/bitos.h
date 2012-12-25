@@ -810,7 +810,7 @@ typedef int64 Ticks;
     #if !CYGWIN
         #define MSG_NOSIGNAL 0
     #endif
-    #if !defined(_STRUCT_TIMEVAL)
+    #if UNUSED && !defined(_STRUCT_TIMEVAL)
         struct timeval
         {
             time_t  tv_sec;     /* Seconds.  */
