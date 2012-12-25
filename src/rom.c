@@ -108,10 +108,10 @@ PUBLIC ssize websRomPageReadData(Webs *wp, char *buf, ssize size)
 }
 
 
-long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin)
+long websRomPageSeek(Webs *wp, Offset offset, int origin)
 {
     WebsRomIndex    *wip;
-    WebsFilePos     pos;
+    Offset          pos;
 
     assure(websValid(wp));
     assure(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);

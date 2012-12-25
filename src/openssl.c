@@ -5,9 +5,20 @@
  */
 /************************************ Include *********************************/
 
-#include    "goahead.h"
+#include    "bit.h"
 
 #if BIT_PACK_OPENSSL
+
+/* Clashes with WinCrypt.h */
+#undef OCSP_RESPONSE
+#include    <openssl/ssl.h>
+#include    <openssl/evp.h>
+#include    <openssl/rand.h>
+#include    <openssl/err.h>
+#include    <openssl/dh.h>
+
+#include    "goahead.h"
+
 /************************************* Defines ********************************/
 
 static SSL_CTX *sslctx = NULL;

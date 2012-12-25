@@ -678,7 +678,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Get the ip address of the interface that accept the connection.
      */
     len = sizeof(ifAddr);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (WebsSockLenArg*) &len) < 0) {
+    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
         error("Can't get sockname");
         return -1;
     }
@@ -756,7 +756,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
     assure(buf);
     assure(len > 0);
 #if BIT_PACK_SSL
-    if (wp->flags & WEBS_SECURE && wp->ssl) {
+    if (wp->flags & WEBS_SECURE) {
         return sslRead(wp, buf, len);
     }
 #endif
@@ -3283,7 +3283,7 @@ PUBLIC ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 /*
     Move file pointer offset bytes.
  */
-PUBLIC void websPageSeek(Webs *wp, WebsFilePos offset, int origin)
+PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin)
 {
     assure(websValid(wp));
 

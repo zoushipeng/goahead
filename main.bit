@@ -24,7 +24,8 @@ Bit.load({
         company: 'Embedthis',
         version: '3.1.0',
         buildNumber: '0',
-        packs: [ 'bits/packs' ]
+        sync: [ 'bitos' ],
+        packs: [ 'bits/packs' ],
 
         /*
             Optional packs to search for when configuring
@@ -36,7 +37,6 @@ Bit.load({
             Packs to disable when using --without all
          */
         'without-all': ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'matrixssl', 'openssl', 'ssl' ],
-        'without-own': ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'matrixssl' ],
 
         /*
             Log for request access logging
@@ -216,15 +216,15 @@ Bit.load({
             type: 'lib',
             /* Xcode projects can't yet handle static builds */
             _static: 'true',
-            sources: [ '*.c' ],
-            headers: [ '*.h' ],
+            sources: [ 'src/*.c' ],
+            headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
         },
 
         goahead: {
             type: 'exe',
-            sources: [ 'goahead.c' ],
+            sources: [ 'src/goahead.c' ],
             headers: [ '*.h' ],
             depends: [ 'libgo', 'openssl', 'matrixssl' ],
             scripts: {

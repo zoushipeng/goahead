@@ -67,7 +67,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket              *sp;
     struct sockaddr_storage addr;
-    WebsSockLenArg          addrlen;
+    Socklen                 addrlen;
     char                    *sip;
     int                     family, protocol, sid, rc, only;
 
@@ -257,7 +257,7 @@ static void socketAccept(WebsSocket *sp)
      */
     len = sizeof(addrStorage);
     addr = (struct sockaddr*) &addrStorage;
-    if ((newSock = (int) accept(sp->sock, addr, (WebsSockLenArg*) &len)) < 0) {
+    if ((newSock = (int) accept(sp->sock, addr, (Socklen*) &len)) < 0) {
         return;
     }
 #if BIT_HAS_FCNTL
@@ -941,7 +941,7 @@ PUBLIC int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];

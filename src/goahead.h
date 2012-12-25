@@ -16,6 +16,10 @@
 /************************************ Defaults ********************************/
 
 #include    "bit.h"
+#include    "bitos.h"
+
+#if BITOS && 0
+/******************************* Default Features *****************************/
 
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 0                 /**< Enable a debug build */
@@ -48,32 +52,64 @@
 #define BIT_CPU_SPARC       7           /**< Sparc */
 
 /*
-    Use compiler definitions to determine the CPU
+    Byte orderings
+ */
+#define BIT_LITTLE_ENDIAN   1           /**< Little endian byte ordering */
+#define BIT_BIG_ENDIAN      2           /**< Big endian byte ordering */
+
+/*
+    Use compiler definitions to determine the CPU type. 
+    The default endianness can be overridden by configure --endian big|little.
  */
 #if defined(__alpha__)
     #define BIT_CPU "ALPHA"
     #define BIT_CPU_ARCH BIT_CPU_ALPHA
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
+
 #elif defined(__arm__)
     #define BIT_CPU "ARM"
     #define BIT_CPU_ARCH BIT_CPU_ARM
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
+
 #elif defined(__x86_64__) || defined(_M_AMD64)
     #define BIT_CPU "x64"
     #define BIT_CPU_ARCH BIT_CPU_X64
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
+
 #elif defined(__i386__) || defined(__i486__) || defined(__i585__) || defined(__i686__) || defined(_M_IX86)
     #define BIT_CPU "x86"
     #define BIT_CPU_ARCH BIT_CPU_X86
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
+
 #elif defined(_M_IA64)
     #define BIT_CPU "IA64"
     #define BIT_CPU_ARCH BIT_CPU_ITANIUM
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
+
 #elif defined(__mips__)
     #define BIT_CPU "MIPS"
-    #define BIT_CPU_ARCH BIT_CPU_SPARC
-#elif defined(__ppc__) || defined(__powerpc__) || defined(__ppc64__)
+    #define BIT_CPU_ARCH BIT_CPU_MIPS
+    #define CPU_ENDIAN BIT_BIG_ENDIAN
+
+#elif defined(__ppc__) || defined(__powerpc__) || defined(__ppc64__) || defined(__ppc)
     #define BIT_CPU "PPC"
     #define BIT_CPU_ARCH BIT_CPU_PPC
+    #define CPU_ENDIAN BIT_BIG_ENDIAN
+
 #elif defined(__sparc__)
     #define BIT_CPU "SPARC"
     #define BIT_CPU_ARCH BIT_CPU_SPARC
+    #define CPU_ENDIAN BIT_BIG_ENDIAN
+
+#else
+    #error "Cannot determine CPU type in est.h"
+#endif
+
+/*
+    Set the default endian if bit.h does not define it explicitly
+ */
+#ifndef BIT_ENDIAN
+    #define BIT_ENDIAN CPU_ENDIAN
 #endif
 
 /*
@@ -85,76 +121,91 @@
     #define MACOSX 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(__linux__)
     #define BIT_OS "linux"
     #define LINUX 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(__FreeBSD__)
     #define BIT_OS "freebsd"
     #define FREEBSD 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(_WIN32)
     #define BIT_OS "windows"
     #define WINDOWS 1
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 1
+
 #elif defined(__OS2__)
     #define BIT_OS "os2"
     #define OS2 0
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
 #elif defined(MSDOS) || defined(__DOS__)
     #define BIT_OS "msdos"
     #define WINDOWS 0
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
 #elif defined(__NETWARE_386__)
     #define BIT_OS "netware"
     #define NETWARE 0
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
 #elif defined(__bsdi__)
     #define BIT_OS "bsdi"
     #define BSDI 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(__NetBSD__)
     #define BIT_OS "netbsd"
     #define NETBSD 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(__QNX__)
     #define BIT_OS "qnx"
     #define QNX 1
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
 #elif defined(__hpux)
     #define BIT_OS "hpux"
     #define HPUX 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(_AIX)
     #define BIT_OS "aix"
     #define AIX 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(__CYGWIN__)
     #define BIT_OS "cygwin"
     #define CYGWIN 1
     #define BIT_UNIX_LIKE 1
     #define BIT_WIN_LIKE 0
+
 #elif defined(__VMS)
     #define BIT_OS "vms"
     #define VMS 1
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
 #elif defined(VXWORKS)
     /* VxWorks does not have a pre-defined symbol */
     #define BIT_OS "vxworks"
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
 #elif defined(ECOS)
     /* ECOS may not have a pre-defined symbol */
     #define BIT_OS "ecos"
@@ -169,6 +220,7 @@
     #define BIT_WORDSIZE 32
 #endif
 
+#if UNUSED
 /*
     Unicode 
  */
@@ -189,6 +241,7 @@
 #endif
     #define TSZ(b) (sizeof(b) / sizeof(wchar))
     #define T(s) s
+#endif
 
 /********************************* O/S Includes *******************************/
 /*
@@ -836,20 +889,23 @@ extern "C" {
     PUBLIC int _getch();
 #endif
 
+//MOB --- here
 /**
     Signed file offset data type. Supports large files greater than 4GB in size on all systems.
  */
-typedef int64 WebsFilePos;
+typedef int64 Offset;
 
 /**
     Date and time storage with millisecond resolution.
   */
+//  MOB - convert to Time
 typedef int64 WebsDateTime;
 
+//  MOB - convert to Socklen
 #if VXWORKS
-    typedef int WebsSockLenArg;
+    typedef int Socklen;
 #else
-    typedef socklen_t WebsSockLenArg;
+    typedef socklen_t Socklen;
 #endif
 
 #if WINDOWS || DOXYGEN
@@ -865,13 +921,6 @@ typedef int64 WebsDateTime;
         struct sockaddr_storage { char pad[1024]; };
     #endif
 #endif /* VXWORKS */
-
-#if ECOS
-    #define     LIBKERN_INLINE          /* to avoid kernel inline functions */
-    #if BIT_CGI
-        #error "Ecos does not support CGI. Disable BIT_CGI"
-    #endif
-#endif /* ECOS */
 
 #if BIT_WIN_LIKE
     #ifndef EWOULDBLOCK
@@ -894,18 +943,27 @@ typedef int64 WebsDateTime;
     #define _STRUCT_TIMEVAL 1
 #endif
 
+#endif /* BITOS */
+
+//  MOB - sort these out
+#if ECOS
+    #if BIT_CGI
+        #error "Ecos does not support CGI. Disable BIT_CGI"
+    #endif
+#endif /* ECOS */
+
 #if QNX
     typedef long fd_mask;
     #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
 #endif
 
+    //  MOB - needed by GoAhead
 #if MACOSX
     typedef int32_t fd_mask;
 #endif
 #if WINDOWS
     typedef fd_set fd_mask;
 #endif
-
 
 #if !LINUX
     PUBLIC char *basename(char *name);
@@ -1812,7 +1870,7 @@ PUBLIC int socketGetPort(int sid);
     @ingroup WebsSocket
  */
 PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
-    WebsSockLenArg *addrlen);
+    Socklen *addrlen);
 
 /**
     Determine if a socket is bound to an IPv6 address.
@@ -2452,8 +2510,8 @@ typedef struct Webs {
     char            *uploadVar;         /**< Current upload form variable name */
 #endif
 #if BIT_PACK_OPENSSL
-    SSL             *ssl;               /**< SSL state */
-    BIO             *bio;               /**< Buffer for I/O - not used in actual I/O */
+    void            *ssl;               /**< SSL state */
+    void            *bio;               /**< Buffer for I/O - not used in actual I/O */
 #elif BIT_PACK_MATRIXSSL
     void            *ms;                /**< MatrixSSL state */
 #endif
@@ -2537,7 +2595,7 @@ typedef struct WebsRomIndex {
     char            *path;                  /**< Web page URL path */
     uchar           *page;                  /**< Web page data */
     int             size;                   /**< Size of web page in bytes */
-    WebsFilePos     pos;                    /**< Current read position */
+    Offset          pos;                    /**< Current read position */
 } WebsRomIndex;
 
 #if BIT_ROM
@@ -3083,7 +3141,7 @@ PUBLIC ssize websPageReadData(Webs *wp, char *buf, ssize size);
         beginning or end of the document.
     @ingroup Webs
  */
-PUBLIC void websPageSeek(Webs *wp, WebsFilePos offset, int origin);
+PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin);
 
 /**
     Get file status for the current request document
@@ -3228,7 +3286,7 @@ PUBLIC int websRomPageStat(Webs *wp, WebsFileInfo *sbuf);
         beginning or end of the document.
     @ingroup Webs
  */
-PUBLIC long websRomPageSeek(Webs *wp, WebsFilePos offset, int origin);
+PUBLIC long websRomPageSeek(Webs *wp, Offset offset, int origin);
 #endif
 
 /**

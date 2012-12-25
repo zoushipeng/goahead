@@ -5,9 +5,25 @@
  */
 /************************************ Includes ********************************/
 
-#include    "goahead.h"
+#include    "bit.h"
 
 #if BIT_PACK_MATRIXSSL && !BIT_PACK_OPENSSL
+/*
+    Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
+    So must include matrixsslApi.h first and then workaround. Ugh!
+*/
+#if WIN32
+    #include   <winsock2.h>
+    #include   <windows.h>
+#endif
+#include    "matrixsslApi.h"
+#define     HAS_INT32 1
+#define     HAS_UINT32 1
+#define     HAS_INT64 1
+#define     HAS_UINT64 1
+
+#include    "goahead.h"
+
 /************************************ Defines *********************************/
 
 /*
