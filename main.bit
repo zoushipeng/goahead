@@ -216,7 +216,7 @@ Bit.load({
             type: 'lib',
             /* Xcode projects can't yet handle static builds */
             _static: 'true',
-            sources: [ 'src/*.c' ],
+            sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
             depends: [ 'openssl', 'matrixssl' ],
