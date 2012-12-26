@@ -951,9 +951,11 @@ typedef int64 Ticks;
     #define rmdir(a)    _rmdir(a)
     #define stat        _stat
     #define strdup      _strdup
+    #define tempnam     _tempnam
     #define umask       _umask
     #define unlink      _unlink
     #define write       _write
+    PUBLIC void         sleep(int secs);
     #endif
     #define strcasecmp scaselesscmp
     #define strncasecmp sncaselesscmp

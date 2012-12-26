@@ -6,6 +6,7 @@
 /************************************ Include *********************************/
 
 #include    "bit.h"
+#include    "bitos.h"
 
 #if BIT_PACK_OPENSSL
 
