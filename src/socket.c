@@ -1002,7 +1002,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
 }
 #else
 
-PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)
+PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)
 {
     struct sockaddr_in  sa;
 

@@ -1869,8 +1869,7 @@ PUBLIC int socketGetPort(int sid);
     @return Zero if successful, otherwise -1.
     @ingroup WebsSocket
  */
-PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, 
-    Socklen *addrlen);
+PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen);
 
 /**
     Determine if a socket is bound to an IPv6 address.
