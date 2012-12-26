@@ -4,7 +4,7 @@
     Usage: goahead [options] [documents] [IP][:port] ...
         Options:
         --auth authFile        # User and role configuration
-        --background           # Run as a Unix daemon
+        --background           # Run as a Linux daemon
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
         --route routeFile      # Route configuration file
@@ -132,7 +132,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
      */
     websAddRoute("/", "file", 0);
 #endif
-#if BIT_UNIX_LIKE
+#if BIT_UNIX_LIKE && !MACOSX
     /*
         Service events till terminated
      */
@@ -177,7 +177,9 @@ static void usage() {
         "  %s [options] [documents] [IPaddress][:port]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
+#if BIT_WIN_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
+#endif
         "    --debugger             # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
