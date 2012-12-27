@@ -118,7 +118,7 @@
     #define BIT_LISTEN "http://*:80,https://*:443"
 #endif
 #ifndef BIT_OPTIONAL
-    #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,matrixssl,pmaker,ssl,utest,zip"
+    #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,pmaker,ssl,utest,zip"
 #endif
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"

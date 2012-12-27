@@ -74,20 +74,15 @@ clean:
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
 
-$(CONFIG)\inc\bitos.h:  \
-        $(CONFIG)\inc\bit.h
+$(CONFIG)\inc\bitos.h: 
 	-if exist $(CONFIG)\inc\bitos.h del /Q $(CONFIG)\inc\bitos.h
 	copy /Y src\bitos.h $(CONFIG)\inc\bitos.h
 
-$(CONFIG)\inc\goahead.h:  \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\bitos.h
+$(CONFIG)\inc\goahead.h: 
 	-if exist $(CONFIG)\inc\goahead.h del /Q $(CONFIG)\inc\goahead.h
 	copy /Y src\goahead.h $(CONFIG)\inc\goahead.h
 
-$(CONFIG)\inc\js.h:  \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+$(CONFIG)\inc\js.h: 
 	-if exist $(CONFIG)\inc\js.h del /Q $(CONFIG)\inc\js.h
 	copy /Y src\js.h $(CONFIG)\inc\js.h
 
@@ -191,7 +186,6 @@ $(CONFIG)\obj\upload.obj: \
 $(CONFIG)\obj\matrixssl.obj: \
         src\ssl\matrixssl.c \
         $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\matrixsslApi.h \
         $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\ssl\matrixssl.c
 
@@ -226,10 +220,6 @@ $(CONFIG)\bin\libgo.dll:  \
         $(CONFIG)\obj\openssl.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\rom.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS)
 
-$(CONFIG)\inc\*.h: 
-	-if exist $(CONFIG)\inc\*.h del /Q $(CONFIG)\inc\*.h
-	copy /Y *.h $(CONFIG)\inc\*.h
-
 $(CONFIG)\obj\goahead.obj: \
         src\goahead.c \
         $(CONFIG)\inc\bit.h \
@@ -238,7 +228,9 @@ $(CONFIG)\obj\goahead.obj: \
 
 $(CONFIG)\bin\goahead.exe:  \
         $(CONFIG)\bin\libgo.dll \
-        $(CONFIG)\inc\*.h \
+        $(CONFIG)\inc\bitos.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\goahead.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj libgo.lib $(LIBS)
 
@@ -251,7 +243,9 @@ $(CONFIG)\obj\test.obj: \
 
 $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\bin\libgo.dll \
-        $(CONFIG)\inc\*.h \
+        $(CONFIG)\inc\bitos.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\test.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj libgo.lib $(LIBS)
 
@@ -263,7 +257,9 @@ $(CONFIG)\obj\gopass.obj: \
 
 $(CONFIG)\bin\gopass.exe:  \
         $(CONFIG)\bin\libgo.dll \
-        $(CONFIG)\inc\*.h \
+        $(CONFIG)\inc\bitos.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\gopass.obj
 	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj libgo.lib $(LIBS)
 
@@ -274,7 +270,9 @@ $(CONFIG)\obj\webcomp.obj: \
 	"$(CC)" -c -Fo$(CONFIG)\obj\webcomp.obj -Fd$(CONFIG)\obj\webcomp.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc utils\webcomp.c
 
 $(CONFIG)\bin\webcomp.exe:  \
-        $(CONFIG)\inc\*.h \
+        $(CONFIG)\inc\bitos.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\webcomp.obj
 	"$(LD)" -out:$(CONFIG)\bin\webcomp.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\webcomp.obj $(LIBS)
 
@@ -284,7 +282,9 @@ $(CONFIG)\obj\cgitest.obj: \
 	"$(CC)" -c -Fo$(CONFIG)\obj\cgitest.obj -Fd$(CONFIG)\obj\cgitest.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\cgitest.c
 
 test\cgi-bin\cgitest.exe:  \
-        $(CONFIG)\inc\*.h \
+        $(CONFIG)\inc\bitos.h \
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\cgitest.obj
 	"$(LD)" -out:test\cgi-bin\cgitest.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\cgitest.obj $(LIBS)
 

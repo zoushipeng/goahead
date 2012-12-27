@@ -77,20 +77,15 @@ clean:
 clobber: clean
 	rm -fr ./$(CONFIG)
 
-$(CONFIG)/inc/bitos.h:  \
-        $(CONFIG)/inc/bit.h
+$(CONFIG)/inc/bitos.h: 
 	rm -fr $(CONFIG)/inc/bitos.h
 	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
 
-$(CONFIG)/inc/goahead.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/bitos.h
+$(CONFIG)/inc/goahead.h: 
 	rm -fr $(CONFIG)/inc/goahead.h
 	cp -r src/goahead.h $(CONFIG)/inc/goahead.h
 
-$(CONFIG)/inc/js.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
+$(CONFIG)/inc/js.h: 
 	rm -fr $(CONFIG)/inc/js.h
 	cp -r src/js.h $(CONFIG)/inc/js.h
 
@@ -194,7 +189,6 @@ $(CONFIG)/obj/upload.o: \
 $(CONFIG)/obj/matrixssl.o: \
         src/ssl/matrixssl.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/matrixsslApi.h \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/ssl/matrixssl.c
 
@@ -229,10 +223,6 @@ $(CONFIG)/bin/libgo.so:  \
         $(CONFIG)/obj/openssl.o
 	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS)
 
-$(CONFIG)/inc/*.h: 
-	rm -fr $(CONFIG)/inc/*.h
-	cp -r *.h $(CONFIG)/inc/*.h
-
 $(CONFIG)/obj/goahead.o: \
         src/goahead.c \
         $(CONFIG)/inc/bit.h \
@@ -241,7 +231,9 @@ $(CONFIG)/obj/goahead.o: \
 
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/bin/libgo.so \
-        $(CONFIG)/inc/*.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/goahead.o
 	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS) $(LDFLAGS)
 
@@ -254,7 +246,9 @@ $(CONFIG)/obj/test.o: \
 
 $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/bin/libgo.so \
-        $(CONFIG)/inc/*.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/test.o
 	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) $(LDFLAGS)
 
@@ -266,7 +260,9 @@ $(CONFIG)/obj/gopass.o: \
 
 $(CONFIG)/bin/gopass:  \
         $(CONFIG)/bin/libgo.so \
-        $(CONFIG)/inc/*.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/gopass.o
 	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS) $(LDFLAGS)
 
@@ -277,7 +273,9 @@ $(CONFIG)/obj/webcomp.o: \
 	$(CC) -c -o $(CONFIG)/obj/webcomp.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
-        $(CONFIG)/inc/*.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/webcomp.o
 	$(CC) -o $(CONFIG)/bin/webcomp $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS) $(LDFLAGS)
 
@@ -287,7 +285,9 @@ $(CONFIG)/obj/cgitest.o: \
 	$(CC) -c -o $(CONFIG)/obj/cgitest.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
 
 test/cgi-bin/cgitest:  \
-        $(CONFIG)/inc/*.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/cgitest.o
 	$(CC) -o test/cgi-bin/cgitest $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/cgitest.o $(LIBS) $(LDFLAGS)
 

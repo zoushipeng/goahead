@@ -16,7 +16,9 @@
     #include   <winsock2.h>
     #include   <windows.h>
 #endif
-#include    "matrixsslApi.h"
+    /* Indent to not create a dependency on this file if not enabled */
+    #include    "matrixsslApi.h"
+
 #define     HAS_INT32 1
 #define     HAS_UINT32 1
 #define     HAS_INT64 1

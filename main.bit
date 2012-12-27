@@ -30,8 +30,7 @@ Bit.load({
         /*
             Optional packs to search for when configuring
          */
-        '+optional': [ 'doxygen', 'dsi', 'ejs', 'man', 'man2html', 'openssl', 'matrixssl', 'pmaker', 
-            'ssl', 'utest', 'zip' ],
+        '+optional': [ 'doxygen', 'dsi', 'ejs', 'man', 'man2html', 'openssl', 'pmaker', 'ssl', 'utest', 'zip' ],
 
         /*
             Packs to disable when using --without all
@@ -225,7 +224,7 @@ Bit.load({
         goahead: {
             type: 'exe',
             sources: [ 'src/goahead.c' ],
-            headers: [ '*.h' ],
+            headers: [ 'src/*.h' ],
             depends: [ 'libgo', 'openssl', 'matrixssl' ],
             scripts: {
                 prebuild: "
@@ -243,7 +242,7 @@ Bit.load({
             enable: bit.settings.profile != 'release',
             type: 'exe',
             sources: [ 'test/test.c' ],
-            headers: [ '*.h' ],
+            headers: [ 'src/*.h' ],
             depends: [ 'libgo', 'openssl', 'matrixssl' ],
             scripts: {
                 prebuild: "
@@ -260,7 +259,7 @@ Bit.load({
         gopass: {
             type: 'exe',
             sources: [ 'utils/gopass.c' ],
-            headers: [ '*.h' ],
+            headers: [ 'src/*.h' ],
             depends: [ 'libgo', 'openssl', 'matrixssl' ],
         },
 
@@ -270,7 +269,7 @@ Bit.load({
         webcomp: {
             type: 'exe',
             sources: [ 'utils/webcomp.c' ],
-            headers: [ '*.h' ],
+            headers: [ 'src/*.h' ],
             depends: [ 'openssl', 'matrixssl' ],
         },
 
@@ -278,7 +277,7 @@ Bit.load({
             path: 'test/cgi-bin/cgitest${EXE}'
             type: 'exe',
             sources: [ 'test/cgitest.c' ],
-            headers: [ '*.h' ],
+            headers: [ 'src/*.h' ],
         },
 
         test: {

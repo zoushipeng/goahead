@@ -71,9 +71,6 @@ ${CC} -c -o ${CONFIG}/obj/openssl.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc s
 
 ${CC} -shared -o ${CONFIG}/bin/libgo.so ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/action.o ${CONFIG}/obj/alloc.o ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/jst.o ${CONFIG}/obj/options.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/upload.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${LIBS}
 
-rm -rf ${CONFIG}/inc/*.h
-cp -r *.h ${CONFIG}/inc/*.h
-
 ${CC} -c -o ${CONFIG}/obj/goahead.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc src/goahead.c
 
 ${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS} ${LDFLAGS}

@@ -104,7 +104,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ClInclude Include="$(IncDir)\*.h" />
+    <ClInclude Include="$(IncDir)\bitos.h" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="$(IncDir)\goahead.h" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="$(IncDir)\js.h" />
   </ItemGroup>
 
   <ItemDefinitionGroup>
@@ -115,7 +123,9 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y *.h $(IncDir)
+copy /Y src\bitos.h $(IncDir)
+copy /Y src\goahead.h $(IncDir)
+copy /Y src\js.h $(IncDir)
 cd projects\goahead-windows-vs</Command>
     <Outputs>$(BinDir)\gopass.exe</Outputs>
   </CustomBuildStep>
