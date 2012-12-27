@@ -207,6 +207,7 @@
     #define BIT_64 1
     #define BIT_WORDSIZE 64
 #else
+    #define BIT_64 0
     #define BIT_WORDSIZE 32
 #endif
 
