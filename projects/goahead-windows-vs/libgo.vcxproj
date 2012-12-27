@@ -100,24 +100,28 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\action.c" />
-    <ClCompile Include="..\..\alloc.c" />
-    <ClCompile Include="..\..\auth.c" />
-    <ClCompile Include="..\..\cgi.c" />
-    <ClCompile Include="..\..\crypt.c" />
-    <ClCompile Include="..\..\file.c" />
-    <ClCompile Include="..\..\http.c" />
-    <ClCompile Include="..\..\js.c" />
-    <ClCompile Include="..\..\jst.c" />
-    <ClCompile Include="..\..\matrixssl.c" />
-    <ClCompile Include="..\..\openssl.c" />
-    <ClCompile Include="..\..\options.c" />
-    <ClCompile Include="..\..\rom-documents.c" />
-    <ClCompile Include="..\..\rom.c" />
-    <ClCompile Include="..\..\route.c" />
-    <ClCompile Include="..\..\runtime.c" />
-    <ClCompile Include="..\..\socket.c" />
-    <ClCompile Include="..\..\upload.c" />
+    <ClCompile Include="..\..\src\action.c" />
+    <ClCompile Include="..\..\src\alloc.c" />
+    <ClCompile Include="..\..\src\auth.c" />
+    <ClCompile Include="..\..\src\cgi.c" />
+    <ClCompile Include="..\..\src\crypt.c" />
+    <ClCompile Include="..\..\src\file.c" />
+    <ClCompile Include="..\..\src\http.c" />
+    <ClCompile Include="..\..\src\js.c" />
+    <ClCompile Include="..\..\src\jst.c" />
+    <ClCompile Include="..\..\src\options.c" />
+    <ClCompile Include="..\..\src\rom-documents.c" />
+    <ClCompile Include="..\..\src\rom.c" />
+    <ClCompile Include="..\..\src\route.c" />
+    <ClCompile Include="..\..\src\runtime.c" />
+    <ClCompile Include="..\..\src\socket.c" />
+    <ClCompile Include="..\..\src\upload.c" />
+    <ClCompile Include="..\..\src\ssl\matrixssl.c" />
+    <ClCompile Include="..\..\src\ssl\openssl.c" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ClInclude Include="$(IncDir)\bitos.h" />
   </ItemGroup>
 
   <ItemGroup>
@@ -136,8 +140,9 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y goahead.h $(IncDir)
-copy /Y js.h $(IncDir)
+copy /Y src\bitos.h $(IncDir)
+copy /Y src\goahead.h $(IncDir)
+copy /Y src\js.h $(IncDir)
 cd projects\goahead-windows-vs</Command>
     <Outputs>$(BinDir)\libgo.dll</Outputs>
   </CustomBuildStep>

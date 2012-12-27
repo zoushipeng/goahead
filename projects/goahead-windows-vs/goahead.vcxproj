@@ -100,15 +100,11 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\goahead.c" />
+    <ClCompile Include="..\..\src\goahead.c" />
   </ItemGroup>
 
   <ItemGroup>
-    <ClInclude Include="$(IncDir)\goahead.h" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ClInclude Include="$(IncDir)\js.h" />
+    <ClInclude Include="$(IncDir)\*.h" />
   </ItemGroup>
 
   <ItemDefinitionGroup>
@@ -119,8 +115,7 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y goahead.h $(IncDir)
-copy /Y js.h $(IncDir)
+copy /Y *.h $(IncDir)
 cd projects\goahead-windows-vs</Command>
     <Outputs>$(BinDir)\goahead.exe</Outputs>
   </CustomBuildStep>

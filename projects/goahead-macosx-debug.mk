@@ -2,7 +2,7 @@
 #   goahead-macosx-debug.mk -- Makefile to build Embedthis GoAhead for macosx
 #
 
-ARCH     ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/')
+ARCH     ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS       ?= macosx
 CC       ?= /usr/bin/clang
 LD       ?= /usr/bin/ld
@@ -37,6 +37,7 @@ prep:
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc $(CONFIG)/obj $(CONFIG)/lib $(CONFIG)/bin ; true
 	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h ; true
+	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
 	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-$(OS)-$(PROFILE)-bit.h >/dev/null ; then\
 		echo cp projects/goahead-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h  ; \
 		cp projects/goahead-$(OS)-$(PROFILE)-bit.h $(CONFIG)/inc/bit.h  ; \
@@ -58,8 +59,6 @@ clean:
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/jst.o
-	rm -rf $(CONFIG)/obj/matrixssl.o
-	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/options.o
 	rm -rf $(CONFIG)/obj/rom-documents.o
 	rm -rf $(CONFIG)/obj/rom.o
@@ -67,6 +66,8 @@ clean:
 	rm -rf $(CONFIG)/obj/runtime.o
 	rm -rf $(CONFIG)/obj/socket.o
 	rm -rf $(CONFIG)/obj/upload.o
+	rm -rf $(CONFIG)/obj/matrixssl.o
+	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/gopass.o
@@ -76,124 +77,136 @@ clean:
 clobber: clean
 	rm -fr ./$(CONFIG)
 
-$(CONFIG)/inc/goahead.h: 
-	rm -fr $(CONFIG)/inc/goahead.h
-	cp -r goahead.h $(CONFIG)/inc/goahead.h
+$(CONFIG)/inc/bitos.h:  \
+        $(CONFIG)/inc/bit.h
+	rm -fr $(CONFIG)/inc/bitos.h
+	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
 
-$(CONFIG)/inc/js.h: 
+$(CONFIG)/inc/goahead.h:  \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/bitos.h
+	rm -fr $(CONFIG)/inc/goahead.h
+	cp -r src/goahead.h $(CONFIG)/inc/goahead.h
+
+$(CONFIG)/inc/js.h:  \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/goahead.h
 	rm -fr $(CONFIG)/inc/js.h
-	cp -r js.h $(CONFIG)/inc/js.h
+	cp -r src/js.h $(CONFIG)/inc/js.h
 
 $(CONFIG)/obj/action.o: \
-        action.c \
+        src/action.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/action.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc action.c
+	$(CC) -c -o $(CONFIG)/obj/action.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/action.c
 
 $(CONFIG)/obj/alloc.o: \
-        alloc.c \
+        src/alloc.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/alloc.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc alloc.c
+	$(CC) -c -o $(CONFIG)/obj/alloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/alloc.c
 
 $(CONFIG)/obj/auth.o: \
-        auth.c \
+        src/auth.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/auth.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc auth.c
+	$(CC) -c -o $(CONFIG)/obj/auth.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/auth.c
 
 $(CONFIG)/obj/cgi.o: \
-        cgi.c \
+        src/cgi.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/cgi.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc cgi.c
+	$(CC) -c -o $(CONFIG)/obj/cgi.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/cgi.c
 
 $(CONFIG)/obj/crypt.o: \
-        crypt.c \
+        src/crypt.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc crypt.c
+	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/crypt.c
 
 $(CONFIG)/obj/file.o: \
-        file.c \
+        src/file.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc file.c
+	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/file.c
 
 $(CONFIG)/obj/http.o: \
-        http.c \
+        src/http.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/http.c
 
 $(CONFIG)/obj/js.o: \
-        js.c \
+        src/js.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/js.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc js.c
+	$(CC) -c -o $(CONFIG)/obj/js.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/js.c
 
 $(CONFIG)/obj/jst.o: \
-        jst.c \
+        src/jst.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/jst.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc jst.c
-
-$(CONFIG)/obj/matrixssl.o: \
-        matrixssl.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc matrixssl.c
-
-$(CONFIG)/obj/openssl.o: \
-        openssl.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/openssl.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc openssl.c
+	$(CC) -c -o $(CONFIG)/obj/jst.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/jst.c
 
 $(CONFIG)/obj/options.o: \
-        options.c \
+        src/options.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/options.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc options.c
+	$(CC) -c -o $(CONFIG)/obj/options.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/options.c
 
 $(CONFIG)/obj/rom-documents.o: \
-        rom-documents.c \
+        src/rom-documents.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc rom-documents.c
+	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/rom-documents.c
 
 $(CONFIG)/obj/rom.o: \
-        rom.c \
+        src/rom.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc rom.c
+	$(CC) -c -o $(CONFIG)/obj/rom.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/rom.c
 
 $(CONFIG)/obj/route.o: \
-        route.c \
+        src/route.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/route.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc route.c
+	$(CC) -c -o $(CONFIG)/obj/route.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/route.c
 
 $(CONFIG)/obj/runtime.o: \
-        runtime.c \
+        src/runtime.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/runtime.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc runtime.c
+	$(CC) -c -o $(CONFIG)/obj/runtime.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/runtime.c
 
 $(CONFIG)/obj/socket.o: \
-        socket.c \
+        src/socket.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/socket.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc socket.c
+	$(CC) -c -o $(CONFIG)/obj/socket.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/socket.c
 
 $(CONFIG)/obj/upload.o: \
-        upload.c \
+        src/upload.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc upload.c
+	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/upload.c
+
+$(CONFIG)/obj/matrixssl.o: \
+        src/ssl/matrixssl.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/matrixsslApi.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/ssl/matrixssl.c
+
+$(CONFIG)/obj/openssl.o: \
+        src/ssl/openssl.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/bitos.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/openssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/ssl/openssl.c
 
 $(CONFIG)/bin/libgo.dylib:  \
+        $(CONFIG)/inc/bitos.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/action.o \
@@ -205,27 +218,30 @@ $(CONFIG)/bin/libgo.dylib:  \
         $(CONFIG)/obj/http.o \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/jst.o \
-        $(CONFIG)/obj/matrixssl.o \
-        $(CONFIG)/obj/openssl.o \
         $(CONFIG)/obj/options.o \
         $(CONFIG)/obj/rom-documents.o \
         $(CONFIG)/obj/rom.o \
         $(CONFIG)/obj/route.o \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
-        $(CONFIG)/obj/upload.o
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 3.1.0 -current_version 3.1.0 -compatibility_version 3.1.0 -current_version 3.1.0 $(LIBPATHS) -install_name @rpath/libgo.dylib $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(LIBS)
+        $(CONFIG)/obj/upload.o \
+        $(CONFIG)/obj/matrixssl.o \
+        $(CONFIG)/obj/openssl.o
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch x86_64 $(LDFLAGS) -compatibility_version 3.1.0 -current_version 3.1.0 -compatibility_version 3.1.0 -current_version 3.1.0 $(LIBPATHS) -install_name @rpath/libgo.dylib $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS)
+
+$(CONFIG)/inc/*.h: 
+	rm -fr $(CONFIG)/inc/*.h
+	cp -r *.h $(CONFIG)/inc/*.h
 
 $(CONFIG)/obj/goahead.o: \
-        goahead.c \
+        src/goahead.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc goahead.c
+	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
 
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/bin/libgo.dylib \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/*.h \
         $(CONFIG)/obj/goahead.o
 	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS)
 
@@ -234,12 +250,11 @@ $(CONFIG)/obj/test.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/bin/libgo.dylib \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/*.h \
         $(CONFIG)/obj/test.o
 	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS)
 
@@ -247,12 +262,11 @@ $(CONFIG)/obj/gopass.o: \
         utils/gopass.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
+	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
 
 $(CONFIG)/bin/gopass:  \
         $(CONFIG)/bin/libgo.dylib \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/*.h \
         $(CONFIG)/obj/gopass.o
 	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS)
 
@@ -260,22 +274,20 @@ $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/*.h \
         $(CONFIG)/obj/webcomp.o
 	$(CC) -o $(CONFIG)/bin/webcomp -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS)
 
 $(CONFIG)/obj/cgitest.o: \
         test/cgitest.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/cgitest.o -arch x86_64 -mtune=generic $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
+	$(CC) -c -o $(CONFIG)/obj/cgitest.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
 
 test/cgi-bin/cgitest:  \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/*.h \
         $(CONFIG)/obj/cgitest.o
 	$(CC) -o test/cgi-bin/cgitest -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/cgitest.o $(LIBS)
 

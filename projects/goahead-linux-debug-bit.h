@@ -70,7 +70,7 @@
     #define BIT_HAS_SYNC 1
 #endif
 #ifndef BIT_HAS_SYNC_CAS
-    #define BIT_HAS_SYNC_CAS 1
+    #define BIT_HAS_SYNC_CAS 0
 #endif
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
@@ -162,6 +162,9 @@
 #ifndef BIT_STEALTH
     #define BIT_STEALTH 1
 #endif
+#ifndef BIT_SYNC
+    #define BIT_SYNC "bitos"
+#endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
@@ -185,9 +188,6 @@
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl,openssl,ssl"
-#endif
-#ifndef BIT_WITHOUT_OWN
-    #define BIT_WITHOUT_OWN "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl"
 #endif
 #ifndef BIT_XFRAME_HEADER
     #define BIT_XFRAME_HEADER "SAMEORIGIN"
@@ -306,4 +306,19 @@
 #endif
 #ifndef BIT_PACK_ZIP
     #define BIT_PACK_ZIP 1
+#endif
+#ifndef BIT_PACK_COMPILER_PATH
+    #define BIT_PACK_COMPILER_PATH "/usr/bin/gcc"
+#endif
+#ifndef BIT_PACK_LIB_PATH
+    #define BIT_PACK_LIB_PATH "/usr/bin/ar"
+#endif
+#ifndef BIT_PACK_LINK_PATH
+    #define BIT_PACK_LINK_PATH "/usr/bin/ld"
+#endif
+#ifndef BIT_PACK_UTEST_PATH
+    #define BIT_PACK_UTEST_PATH "/Users/mob/git/ejs/macosx-x64-debug/bin/utest"
+#endif
+#ifndef BIT_PACK_ZIP_PATH
+    #define BIT_PACK_ZIP_PATH "/usr/bin/zip"
 #endif
