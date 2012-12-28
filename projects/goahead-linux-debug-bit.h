@@ -6,32 +6,8 @@
  */
 
 /* Settings */
-#ifndef BIT_ACCESS_LOG
-    #define BIT_ACCESS_LOG 0
-#endif
-#ifndef BIT_AUTO_LOGIN
-    #define BIT_AUTO_LOGIN 0
-#endif
 #ifndef BIT_BUILD_NUMBER
     #define BIT_BUILD_NUMBER "0"
-#endif
-#ifndef BIT_CA_FILE
-    #define BIT_CA_FILE ""
-#endif
-#ifndef BIT_CA_PATH
-    #define BIT_CA_PATH ""
-#endif
-#ifndef BIT_CERTIFICATE
-    #define BIT_CERTIFICATE "server.crt"
-#endif
-#ifndef BIT_CGI
-    #define BIT_CGI 1
-#endif
-#ifndef BIT_CGI_BIN
-    #define BIT_CGI_BIN "cgi-bin"
-#endif
-#ifndef BIT_CIPHERS
-    #define BIT_CIPHERS "HIGH:RC4+SHA"
 #endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
@@ -39,8 +15,120 @@
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
 #endif
-#ifndef BIT_DOCUMENTS
-    #define BIT_DOCUMENTS "web"
+/* Settings */
+#ifndef BIT_GOAHEAD_ACCESS_LOG
+    #define BIT_GOAHEAD_ACCESS_LOG 0
+#endif
+#ifndef BIT_GOAHEAD_AUTO_LOGIN
+    #define BIT_GOAHEAD_AUTO_LOGIN 0
+#endif
+#ifndef BIT_GOAHEAD_CA_FILE
+    #define BIT_GOAHEAD_CA_FILE ""
+#endif
+#ifndef BIT_GOAHEAD_CA_PATH
+    #define BIT_GOAHEAD_CA_PATH ""
+#endif
+#ifndef BIT_GOAHEAD_CERTIFICATE
+    #define BIT_GOAHEAD_CERTIFICATE "server.crt"
+#endif
+#ifndef BIT_GOAHEAD_CGI
+    #define BIT_GOAHEAD_CGI 1
+#endif
+#ifndef BIT_GOAHEAD_CGI_BIN
+    #define BIT_GOAHEAD_CGI_BIN "cgi-bin"
+#endif
+#ifndef BIT_GOAHEAD_CIPHERS
+    #define BIT_GOAHEAD_CIPHERS "HIGH:RC4+SHA"
+#endif
+#ifndef BIT_GOAHEAD_DOCUMENTS
+    #define BIT_GOAHEAD_DOCUMENTS "web"
+#endif
+#ifndef BIT_GOAHEAD_JAVASCRIPT
+    #define BIT_GOAHEAD_JAVASCRIPT 1
+#endif
+#ifndef BIT_GOAHEAD_KEY
+    #define BIT_GOAHEAD_KEY "server.key.pem"
+#endif
+#ifndef BIT_GOAHEAD_LEGACY
+    #define BIT_GOAHEAD_LEGACY 0
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_BUFFER
+    #define BIT_GOAHEAD_LIMIT_BUFFER 8192
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_FILENAME
+    #define BIT_GOAHEAD_LIMIT_FILENAME 256
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_FILES
+    #define BIT_GOAHEAD_LIMIT_FILES 0
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_HEADER
+    #define BIT_GOAHEAD_LIMIT_HEADER 2048
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_HEADERS
+    #define BIT_GOAHEAD_LIMIT_HEADERS 4096
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_NUM_HEADERS
+    #define BIT_GOAHEAD_LIMIT_NUM_HEADERS 64
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_PARSE_TIMEOUT
+    #define BIT_GOAHEAD_LIMIT_PARSE_TIMEOUT 5
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_PASSWORD
+    #define BIT_GOAHEAD_LIMIT_PASSWORD 32
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_POST
+    #define BIT_GOAHEAD_LIMIT_POST 16384
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_PUT
+    #define BIT_GOAHEAD_LIMIT_PUT 204800000
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_SESSION_COUNT
+    #define BIT_GOAHEAD_LIMIT_SESSION_COUNT 512
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_SESSION_LIFE
+    #define BIT_GOAHEAD_LIMIT_SESSION_LIFE 1800
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_STRING
+    #define BIT_GOAHEAD_LIMIT_STRING 4096
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_TIMEOUT
+    #define BIT_GOAHEAD_LIMIT_TIMEOUT 60
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_UPLOAD
+    #define BIT_GOAHEAD_LIMIT_UPLOAD 204800000
+#endif
+#ifndef BIT_GOAHEAD_LIMIT_URI
+    #define BIT_GOAHEAD_LIMIT_URI 2048
+#endif
+#ifndef BIT_GOAHEAD_LISTEN
+    #define BIT_GOAHEAD_LISTEN "http://*:80,https://*:443"
+#endif
+#ifndef BIT_GOAHEAD_PAM
+    #define BIT_GOAHEAD_PAM 0
+#endif
+#ifndef BIT_GOAHEAD_PUT_DIR
+    #define BIT_GOAHEAD_PUT_DIR "/tmp"
+#endif
+#ifndef BIT_GOAHEAD_REALM
+    #define BIT_GOAHEAD_REALM "example.com"
+#endif
+#ifndef BIT_GOAHEAD_REPLACE_MALLOC
+    #define BIT_GOAHEAD_REPLACE_MALLOC 0
+#endif
+#ifndef BIT_GOAHEAD_STEALTH
+    #define BIT_GOAHEAD_STEALTH 1
+#endif
+#ifndef BIT_GOAHEAD_TRACE
+    #define BIT_GOAHEAD_TRACE "stderr:0"
+#endif
+#ifndef BIT_GOAHEAD_UPLOAD
+    #define BIT_GOAHEAD_UPLOAD 1
+#endif
+#ifndef BIT_GOAHEAD_UPLOAD_DIR
+    #define BIT_GOAHEAD_UPLOAD_DIR "/tmp"
+#endif
+#ifndef BIT_GOAHEAD_XFRAME_HEADER
+    #define BIT_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
 #endif
 #ifndef BIT_HAS_DOUBLE_BRACES
     #define BIT_HAS_DOUBLE_BRACES 0
@@ -75,107 +163,23 @@
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
 #endif
-#ifndef BIT_JAVASCRIPT
-    #define BIT_JAVASCRIPT 1
-#endif
-#ifndef BIT_KEY
-    #define BIT_KEY "server.key.pem"
-#endif
-#ifndef BIT_LEGACY
-    #define BIT_LEGACY 0
-#endif
-#ifndef BIT_LIMIT_BUFFER
-    #define BIT_LIMIT_BUFFER 8192
-#endif
-#ifndef BIT_LIMIT_FILENAME
-    #define BIT_LIMIT_FILENAME 256
-#endif
-#ifndef BIT_LIMIT_FILES
-    #define BIT_LIMIT_FILES 0
-#endif
-#ifndef BIT_LIMIT_HEADER
-    #define BIT_LIMIT_HEADER 2048
-#endif
-#ifndef BIT_LIMIT_HEADERS
-    #define BIT_LIMIT_HEADERS 4096
-#endif
-#ifndef BIT_LIMIT_NUM_HEADERS
-    #define BIT_LIMIT_NUM_HEADERS 64
-#endif
-#ifndef BIT_LIMIT_PARSE_TIMEOUT
-    #define BIT_LIMIT_PARSE_TIMEOUT 5
-#endif
-#ifndef BIT_LIMIT_PASSWORD
-    #define BIT_LIMIT_PASSWORD 32
-#endif
-#ifndef BIT_LIMIT_POST
-    #define BIT_LIMIT_POST 16384
-#endif
-#ifndef BIT_LIMIT_PUT
-    #define BIT_LIMIT_PUT 204800000
-#endif
-#ifndef BIT_LIMIT_SESSION_COUNT
-    #define BIT_LIMIT_SESSION_COUNT 512
-#endif
-#ifndef BIT_LIMIT_SESSION_LIFE
-    #define BIT_LIMIT_SESSION_LIFE 1800
-#endif
-#ifndef BIT_LIMIT_STRING
-    #define BIT_LIMIT_STRING 4096
-#endif
-#ifndef BIT_LIMIT_TIMEOUT
-    #define BIT_LIMIT_TIMEOUT 60
-#endif
-#ifndef BIT_LIMIT_UPLOAD
-    #define BIT_LIMIT_UPLOAD 204800000
-#endif
-#ifndef BIT_LIMIT_URI
-    #define BIT_LIMIT_URI 2048
-#endif
-#ifndef BIT_LISTEN
-    #define BIT_LISTEN "http://*:80,https://*:443"
-#endif
 #ifndef BIT_OPTIONAL
     #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,pmaker,ssl,utest,zip"
 #endif
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
 #endif
-#ifndef BIT_PAM
-    #define BIT_PAM 0
-#endif
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"
 #endif
-#ifndef BIT_PUT_DIR
-    #define BIT_PUT_DIR "/tmp"
-#endif
-#ifndef BIT_REALM
-    #define BIT_REALM "example.com"
-#endif
-#ifndef BIT_REPLACE_MALLOC
-    #define BIT_REPLACE_MALLOC 0
-#endif
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "compiler,lib,link"
-#endif
-#ifndef BIT_STEALTH
-    #define BIT_STEALTH 1
 #endif
 #ifndef BIT_SYNC
     #define BIT_SYNC "bitos"
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis GoAhead"
-#endif
-#ifndef BIT_TRACE
-    #define BIT_TRACE "stderr:0"
-#endif
-#ifndef BIT_UPLOAD
-    #define BIT_UPLOAD 1
-#endif
-#ifndef BIT_UPLOAD_DIR
-    #define BIT_UPLOAD_DIR "/tmp"
 #endif
 #ifndef BIT_VERSION
     #define BIT_VERSION "3.1.0"
@@ -188,9 +192,6 @@
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl,openssl,ssl"
-#endif
-#ifndef BIT_XFRAME_HEADER
-    #define BIT_XFRAME_HEADER "SAMEORIGIN"
 #endif
 
 /* Prefixes */
@@ -276,6 +277,9 @@
 #endif
 #ifndef BIT_PACK_EJS
     #define BIT_PACK_EJS 0
+#endif
+#ifndef BIT_PACK_EST
+    #define BIT_PACK_EST 0
 #endif
 #ifndef BIT_PACK_LIB
     #define BIT_PACK_LIB 1
