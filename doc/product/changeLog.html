@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.0.0 Documentation</title>
+    <title>Embedthis GoAhead 3.1.0 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.0.0</div>
+                <div class="version">Embedthis GoAhead 3.1.0</div>
             </div>
         </div>
         <div class="crumbs">
@@ -45,6 +45,7 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
+                <li><a href="#r3.1.0">Release 3.1.0</a></li>
                 <li><a href="#r3.0.0">Release 3.0.0</a></li>
             </ul>
 <!-- BeginDsi "dsi/genSeeAlso.html" -->
@@ -74,14 +75,36 @@
             for the official product issue list and for comprehensive CVE dispositions.</p>
 
             <h3>History</h3>
-            <p>The GoAhead WebServer was originally written by Michael O'Brien when he founded GoAhead Software.
+            <p>The GoAhead web server was originally written by Michael O'Brien when he founded GoAhead Software.
             Since the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing GoAhead customers 
-            and to offer commercial licenses for the GoAhead WebServer. Embedthis has now significantly upgraded the
-            GoAhead web server with features and security fixes. GoAhead is now more popular than ever.</p>
+            and to offer commercial licenses for GoAhead. Embedthis has now significantly upgraded
+            GoAhead with features and security fixes. GoAhead is now more popular than ever.</p>
         
+            <a id="r3.1.0"></a>
+            <h2 class="section">Changes in 3.1.0</h2>
+            <h2>Major Features</h2>
+            <ul>
+                <li>Change tunable defines to be overridable via configure. These are now all named: BIT_*.
+                    <a href="https://github.com/embedthis/goahead/issues/36">[issue 36].</a></li>
+                <li>Add support for the Mocana SSL stack:
+                    <a href="https://github.com/embedthis/goahead/issues/32">[issue 32].</a></li>
+                <li>Add prototype support for the EST SSL stack:
+                    <a href="https://github.com/embedthis/goahead/issues/35">[issue 35].</a></li>
+            </ul>
+            <h3>Fixes</h3>
+            <ul>
+                <li>The mpr.h header has been split into a cross platform operating system layer called bitos.h.
+                    The mpr.h header includes this, so there should be no API impact.
+                    <a href="https://github.com/embedthis/goahead/issues/37">[issue 37].</a></li>
+                <li>Remove compiler switch -mtune when not required
+                    <a href="https://github.com/embedthis/goahead/issues/38">[issue 38].</a></li>
+                <li>Fix generated makefiles determining the system CPU architecture
+                    <a href="https://github.com/embedthis/goahead/issues/39">[issue 39].</a></li>
+            </ul>
+
             <a id="r3.0.0"></a>
             <h2 class="section">Changes in 3.0.0</h2>
-            <p>This is the first Embedthis edition of the GoAhead web server. 
+            <p>This is the first Embedthis edition of the GoAhead web server. </p>
             <h2>Major Features</h2>
             <ul>
                 <li>Enhanced HTTP/1.1 support
