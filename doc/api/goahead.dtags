@@ -1,8 +1,8 @@
-<?xml version='1.0' encoding='ISO-8859-1' standalone='yes' ?>
+<?xml version='1.0' encoding='UTF-8' standalone='yes' ?>
 <tagfile>
   <compound kind="file">
     <name>goahead.h</name>
-    <path>/Users/mob/git/goahead/</path>
+    <path>/Users/mob/git/goahead/src/</path>
     <filename>goahead_8h</filename>
     <class kind="struct">WebsError</class>
     <class kind="struct">WebsFileInfo</class>
@@ -12,62 +12,6 @@
     <class kind="struct">WebsRomIndex</class>
     <class kind="struct">WebsUser</class>
     <class kind="struct">WebsValue</class>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_ARM</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>aed3a84de9262dc591ddc9e66995c5250</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_ITANIUM</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ac3d4e6de34e64419807ae6285a944d9a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_MIPS</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a4e0ab48e13de6e7ba194fc37bf979074</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_PPC</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a3096261bc95345ccba482868497f5b4d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_SPARC</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a5871fea8252dc92579b25c4cd5836486</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_X64</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a01af7ca1197fc86fc1c76e22a25f824a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_CPU_X86</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ad588852cfcc2aa70973364e4ea8410e4</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="define">
-      <type>#define</type>
-      <name>BIT_DEBUG</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ac36a46b5b17a90c26041fea9bcc7fdb1</anchor>
-      <arglist></arglist>
-    </member>
     <member kind="define">
       <type>#define</type>
       <name>HTTP_CODE_ACCEPTED</name>
@@ -734,55 +678,6 @@
       <arglist></arglist>
     </member>
     <member kind="typedef">
-      <type>char</type>
-      <name>bool</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ad5c9d4ba3dc37783a528b0925dc981a0</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>const char</type>
-      <name>cchar</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a0f128c3e0c83721af0220c00554e9c4e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>const unsigned char</type>
-      <name>cuchar</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ad5d9ae5e2ea7e75aa605e36485987fc2</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>const unsigned short</type>
-      <name>cushort</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a585ef5c0f4567945e1f3e7f32670accb</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>const void</type>
-      <name>cvoid</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a5272042f7e0f5c53e2fd4b49ff47d92d</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>int</type>
-      <name>int32</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a56f1a81c92849566ae864511088eb7e8</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>signed char</type>
-      <name>schar</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a0fd9ce9d735064461bebfe6037026093</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
       <type>int(*</type>
       <name>SocketAccept</name>
       <anchorfile>goahead_8h.html</anchorfile>
@@ -795,48 +690,6 @@
       <anchorfile>goahead_8h.html</anchorfile>
       <anchor>a657e287f5f61294f65c3092a0e0b5e18</anchor>
       <arglist>)(int sid, int mask, void *data)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>ssize_t</type>
-      <name>ssize</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a7d08ccc1e981eb4d5a238641ac4ccfc1</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>unsigned char</type>
-      <name>uchar</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a65f85814a8290f9797005d3b28e7e5fc</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>unsigned int</type>
-      <name>uint</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a91ad9478d81a7aaf2593e8d9c3d06a14</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>unsigned int</type>
-      <name>uint32</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a1134b580f8da4de94ca6b1de4d37975e</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>unsigned long</type>
-      <name>ulong</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a718b4eb2652c286f4d42dc18a8e71a1a</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
-      <type>unsigned short</type>
-      <name>ushort</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ab95f123a6c9bcfee6a343170ef8c5f69</anchor>
-      <arglist></arglist>
     </member>
     <member kind="typedef">
       <type>void(*</type>
@@ -853,25 +706,11 @@
       <arglist>)(Webs *wp)</arglist>
     </member>
     <member kind="typedef">
-      <type>int64</type>
-      <name>WebsDateTime</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a0143a9b28125b27c8caa8d1837819e27</anchor>
-      <arglist></arglist>
-    </member>
-    <member kind="typedef">
       <type>void(*</type>
       <name>WebsEventProc</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
       <anchor>ga1d4b3f68e80ae2c0095153a94aed1d4a</anchor>
       <arglist>)(void *data, int id)</arglist>
-    </member>
-    <member kind="typedef">
-      <type>int64</type>
-      <name>WebsFilePos</name>
-      <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>ac24bb6883f09c6da59aa56c2ec03842e</anchor>
-      <arglist></arglist>
     </member>
     <member kind="typedef">
       <type>void(*</type>
@@ -1095,27 +934,6 @@
       <anchorfile>group___webs_runtime.html</anchorfile>
       <anchor>ga0059cf5f07c49990bb9905d0e6daa4c7</anchor>
       <arglist>(char *buf, ssize maxSize, char *format,...)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>gallocHandle</name>
-      <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga8a67ec05054026513afdece32a4cafad</anchor>
-      <arglist>(void *map)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>gallocObject</name>
-      <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga49b1285f8411c466936217efbcab4df7</anchor>
-      <arglist>(void *map, int *max, int size)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>gfreeHandle</name>
-      <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga9ee2b799fe31d8c2ac4a8c1b60355204</anchor>
-      <arglist>(void *map, int handle)</arglist>
     </member>
     <member kind="function">
       <type>WebsHash</type>
@@ -1373,8 +1191,8 @@
       <type>int</type>
       <name>socketInfo</name>
       <anchorfile>goahead_8h.html</anchorfile>
-      <anchor>a8c0950c752de6ca9467c0f7868b98539</anchor>
-      <arglist>(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, WebsSockLenArg *addrlen)</arglist>
+      <anchor>a2eb427d708953db22f3d88bd02b4b492</anchor>
+      <arglist>(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
@@ -1592,6 +1410,20 @@
       <anchorfile>goahead_8h.html</anchorfile>
       <anchor>aa9292efb92931035fbdb7e8cc9fc2a58</anchor>
       <arglist>(void *value)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>wallocHandle</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>gaf7553e70a9cd19a472ed5af514776e09</anchor>
+      <arglist>(void *map)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>wallocObject</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>ga5bdd5a92db14503e6bb55c5c37c7580d</anchor>
+      <arglist>(void *map, int *max, int size)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -2199,8 +2031,8 @@
       <type>void</type>
       <name>websPageSeek</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaab18d0b3b8cdd442f07c219eea5ea2a8</anchor>
-      <arglist>(Webs *wp, WebsFilePos offset, int origin)</arglist>
+      <anchor>gade99dac2cc10314deb754833298fc3af</anchor>
+      <arglist>(Webs *wp, Offset offset, int origin)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -2339,8 +2171,8 @@
       <type>long</type>
       <name>websRomPageSeek</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaeac1db27e9c1cb3376aa2d62eb52703b</anchor>
-      <arglist>(Webs *wp, WebsFilePos offset, int origin)</arglist>
+      <anchor>ga71df66855e01cec4776704d8523e2f82</anchor>
+      <arglist>(Webs *wp, Offset offset, int origin)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -2364,6 +2196,13 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>websServer</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga2ed74d7fae640cea3a1ab59eabe70d6a</anchor>
+      <arglist>(char *endpoint, char *documents)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>websServiceEvents</name>
       <anchorfile>group___webs.html</anchorfile>
@@ -2376,6 +2215,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaed3bf51e30277fe1b56379bb6a1b6699</anchor>
       <arglist>(int on)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websSetBackgroundWriter</name>
+      <anchorfile>goahead_8h.html</anchorfile>
+      <anchor>a5a271ccc2e8fbc76a49f2f2022db21cc</anchor>
+      <arglist>(Webs *wp, WebsWriteProc proc)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -2432,6 +2278,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gad9e1768c40bf090739e5f1234dd0b589</anchor>
       <arglist>(char *ipaddr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websSetQueryVars</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga9b7ae14718f40340d9621529f4587548</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -2586,6 +2439,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gad1bbea0e441d727f248127408ce745d6</anchor>
       <arglist>(Webs *wp, char *buf, ssize size)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>wfreeHandle</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>ga147dadfb8200bc1df51ea64bbaae5db2</anchor>
+      <arglist>(void *map, int handle)</arglist>
     </member>
     <member kind="variable">
       <type>WebsSocket **</type>
@@ -2806,27 +2666,6 @@
       <arglist>(char *buf, ssize maxSize, char *format,...)</arglist>
     </member>
     <member kind="function">
-      <type>int</type>
-      <name>gallocHandle</name>
-      <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga8a67ec05054026513afdece32a4cafad</anchor>
-      <arglist>(void *map)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>gallocObject</name>
-      <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga49b1285f8411c466936217efbcab4df7</anchor>
-      <arglist>(void *map, int *max, int size)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>gfreeHandle</name>
-      <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga9ee2b799fe31d8c2ac4a8c1b60355204</anchor>
-      <arglist>(void *map, int handle)</arglist>
-    </member>
-    <member kind="function">
       <type>uint</type>
       <name>hextoi</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
@@ -2946,6 +2785,20 @@
       <arglist>(char *str)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>wallocHandle</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>gaf7553e70a9cd19a472ed5af514776e09</anchor>
+      <arglist>(void *map)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>wallocObject</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>ga5bdd5a92db14503e6bb55c5c37c7580d</anchor>
+      <arglist>(void *map, int *max, int size)</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>websRestartEvent</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
@@ -2972,6 +2825,13 @@
       <anchorfile>group___webs_runtime.html</anchorfile>
       <anchor>ga9a6524bc11288246c84651f99fd24425</anchor>
       <arglist>(int id)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>wfreeHandle</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>ga147dadfb8200bc1df51ea64bbaae5db2</anchor>
+      <arglist>(void *map, int handle)</arglist>
     </member>
   </compound>
   <compound kind="group">
@@ -3573,8 +3433,8 @@
       <type>void</type>
       <name>websPageSeek</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaab18d0b3b8cdd442f07c219eea5ea2a8</anchor>
-      <arglist>(Webs *wp, WebsFilePos offset, int origin)</arglist>
+      <anchor>gade99dac2cc10314deb754833298fc3af</anchor>
+      <arglist>(Webs *wp, Offset offset, int origin)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3678,8 +3538,8 @@
       <type>long</type>
       <name>websRomPageSeek</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaeac1db27e9c1cb3376aa2d62eb52703b</anchor>
-      <arglist>(Webs *wp, WebsFilePos offset, int origin)</arglist>
+      <anchor>ga71df66855e01cec4776704d8523e2f82</anchor>
+      <arglist>(Webs *wp, Offset offset, int origin)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -3687,6 +3547,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga3c2813c1bd8425348da7b7863e1ad4a3</anchor>
       <arglist>(Webs *wp, WebsFileInfo *sbuf)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websServer</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga2ed74d7fae640cea3a1ab59eabe70d6a</anchor>
+      <arglist>(char *endpoint, char *documents)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -3757,6 +3624,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gad9e1768c40bf090739e5f1234dd0b589</anchor>
       <arglist>(char *ipaddr)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websSetQueryVars</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga9b7ae14718f40340d9621529f4587548</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -4192,10 +4066,10 @@
       <arglist></arglist>
     </member>
     <member kind="variable">
-      <type>WebsFilePos</type>
+      <type>Offset</type>
       <name>pos</name>
       <anchorfile>struct_webs_rom_index.html</anchorfile>
-      <anchor>a11c87228e2f783bfc0cdb1671caa1765</anchor>
+      <anchor>aeb5b9cf7ef8a7beeefe7a166339509fa</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">
@@ -4241,5 +4115,11 @@
   <compound kind="struct">
     <name>WebsValue</name>
     <filename>struct_webs_value.html</filename>
+  </compound>
+  <compound kind="dir">
+    <name>src</name>
+    <path>/Users/mob/git/goahead/src/</path>
+    <filename>dir_68267d1309a1af8e8297ef4c3efbcdba.html</filename>
+    <file>goahead.h</file>
   </compound>
 </tagfile>

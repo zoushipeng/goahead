@@ -70,11 +70,11 @@ REPORTING BUGS
        Report bugs to <dev@embedthis.com>.
 
 COPYRIGHT
-       Copyright (C) 2003-2012 Embedthis Software.
+       Copyright (C) 2003-2013 Embedthis Software.
 
 SEE ALSO
        gopass, webcomp
 
 
 
-goahead                           March 2012                        GOAHEAD(1)
+goahead                           March 2013                        GOAHEAD(1)

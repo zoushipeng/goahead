@@ -246,7 +246,7 @@
         #define _WIN32_WINNT 0x501
     #endif
     /* 
-        Work-around to allow the windows 7.* SDK to be used with VS 2012 
+        Work-around to allow the windows 7.* SDK to be used with VS 2013 
      */
     #if _MSC_VER >= 1700
         #define SAL_SUPP_H
@@ -1156,7 +1156,7 @@ extern "C" {
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 

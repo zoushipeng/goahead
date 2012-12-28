@@ -15,10 +15,10 @@ Commercial licenses for this software and support services are available from Em
 
 Trademarks and Copyrights
 ---
-Copyright (c) 2003-2012 Embedthis Software, LLC. All Rights Reserved.
+Copyright (c) 2003-2013 Embedthis Software, LLC. All Rights Reserved.
 Copyright (c) GoAhead Software, 2003. All Rights Reserved.
 Copyright (c) PeerSec Networks, 2003. All Rights Reserved.
-Copyright (c) Michael O'Brien, 1993-2012. All Rights Reserved.
+Copyright (c) Michael O'Brien, 1993-2013. All Rights Reserved.
 
 Embedthis is a trademark of Embedthis Software, LLC. Other brands and their products are trademarks of their respective holders.
 
@@ -39,7 +39,7 @@ Third Party Licenses
 
 2) JQuery and plugins: MIT license.
 
-    Copyright (c) 2012 John Resig, http://jquery.com/
+    Copyright (c) 2013 John Resig, http://jquery.com/
 
     Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 
     associated documentation files (the "Software"), to deal in the Software without restriction, including

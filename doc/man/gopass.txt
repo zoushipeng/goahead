@@ -29,7 +29,7 @@ REPORTING BUGS
        Report bugs to <dev@embedthis.com>.
 
 COPYRIGHT
-       Copyright (C) 2003-2012 Embedthis Software.
+       Copyright (C) 2003-2013 Embedthis Software.
 
 SEE ALSO
-auth                             February 2012                         AUTH(1)
+auth                             February 2013                         AUTH(1)

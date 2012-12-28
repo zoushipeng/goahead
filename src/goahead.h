@@ -983,7 +983,7 @@ typedef struct stat WebsStat;
     Copyright. The software license requires that this not be modified or removed.
  */
 #define EMBEDTHIS_GOAHEAD_COPYRIGHT \
-    "Copyright (c) Embedthis Software Inc., 1993-2012. All Rights Reserved." \
+    "Copyright (c) Embedthis Software Inc., 1993-2013. All Rights Reserved." \
     "Copyright (c) GoAhead Software Inc., 2003. All Rights Reserved."
 
 /************************************* Main ***********************************/
@@ -1702,7 +1702,7 @@ typedef void (*SocketHandler)(int sid, int mask, void *data);
  */
 typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
 
-/*
+/**
     Socket control structure
     @see socketAddress socketAddressIsV6 socketClose socketCloseConnection socketCreateHandler
     socketDeletehandler socketReservice socketEof socketGetPort socketInfo socketIsV6
@@ -1712,23 +1712,23 @@ typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
     @defgroup WebsSocket WebsSocket
  */
 typedef struct WebsSocket {
-    WebsBuf         lineBuf;            /* Line ring queue */
-    SocketAccept    accept;             /* Accept handler */
-    SocketHandler   handler;            /* User I/O handler */
-    char            *ip;                /* Server listen address or remote client address */
-    void            *handler_data;      /* User handler data */
-    int             handlerMask;        /* Handler events of interest */
-    int             sid;                /* Index into socket[] */
-    int             port;               /* Port to listen on */
-    int             flags;              /* Current state flags */
-    int             sock;               /* Actual socket handle */
-    int             fileHandle;         /* ID of the file handler */
-    int             interestEvents;     /* Mask of events to watch for */
-    int             currentEvents;      /* Mask of ready events (FD_xx) */
-    int             selectEvents;       /* Events being selected */
-    int             saveMask;           /* saved Mask for socketFlush */
-    int             error;              /* Last error */
-    int             secure;             /* Socket is using SSL */
+    WebsBuf         lineBuf;            /**< Line ring queue */
+    SocketAccept    accept;             /**< Accept handler */
+    SocketHandler   handler;            /**< User I/O handler */
+    char            *ip;                /**< Server listen address or remote client address */
+    void            *handler_data;      /**< User handler data */
+    int             handlerMask;        /**< Handler events of interest */
+    int             sid;                /**< Index into socket[] */
+    int             port;               /**< Port to listen on */
+    int             flags;              /**< Current state flags */
+    int             sock;               /**< Actual socket handle */
+    int             fileHandle;         /**< ID of the file handler */
+    int             interestEvents;     /**< Mask of events to watch for */
+    int             currentEvents;      /**< Mask of ready events (FD_xx) */
+    int             selectEvents;       /**< Events being selected */
+    int             saveMask;           /**< saved Mask for socketFlush */
+    int             error;              /**< Last error */
+    int             secure;             /**< Socket is using SSL */
 } WebsSocket;
 
 
@@ -2001,6 +2001,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize len);
 PUBLIC WebsSocket *socketPtr(int sid);
 
 /*********************************** Runtime **********************************/
+
 /**
     GoAhead Web Server Runtime
     @description GoAhead provides a secure runtime environment for safe string manipulation and to 
@@ -4205,7 +4206,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2012. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

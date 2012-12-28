@@ -480,8 +480,7 @@ SHOW_USED_FILES        = YES
 # If the sources in your project are distributed over multiple directories 
 # then setting the SHOW_DIRECTORIES tag to YES will show the directory hierarchy 
 # in the documentation. The default is NO.
-
-SHOW_DIRECTORIES       = YES
+# SHOW_DIRECTORIES       = YES
 
 # Set the SHOW_FILES tag to NO to disable the generation of the Files page. 
 # This will remove the Files entry from the Quick Index and from the 
@@ -575,7 +574,7 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../../goahead.h
+INPUT                  = ../../src/goahead.h
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
@@ -808,8 +807,7 @@ HTML_STYLESHEET        =
 # If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes, 
 # files or namespaces will be aligned in HTML using tables. If set to 
 # NO a bullet list will be used.
-
-HTML_ALIGN_MEMBERS     = YES
+# HTML_ALIGN_MEMBERS     = YES
 
 # If the HTML_DYNAMIC_SECTIONS tag is set to YES then the generated HTML 
 # documentation will contain sections that can be hidden and shown after the 
@@ -1260,7 +1258,6 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = WIN=1 \
 						 LINUX=1 \
                          BIT_UNIX_LIKE=1 \
-                         BIT_WIN_LIKE=1 \
                          BIT_ASSERT=1 \
                          BIT_FLOAT=1 \
                          BIT_PACK_SSL=1 \
@@ -1271,7 +1268,8 @@ PREDEFINED             = WIN=1 \
                          BIT_JAVASCRIPT=1 \
                          BIT_UPLOAD=1 \
                          BIT_ROM=1 \
-                         DOXYGEN=1
+                         DOXYGEN=1 \
+                         PUBLIC=
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

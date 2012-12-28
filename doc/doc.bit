@@ -28,7 +28,7 @@ Bit.load({
 
         api: {
             action: "
-                apidoc('api/goahead.dox', '${SRC}/goahead.h', 'GoAhead API', 'api/*.tags')
+                apidoc('api/goahead.dox', '${SRC}/src/goahead.h', 'GoAhead API', 'api/*.tags')
                 for each (let f: Path in ['api/goahead.html']) {
                     trace('Generate', f)
                     apiwrap(f)
