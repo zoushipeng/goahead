@@ -25,7 +25,7 @@
 
 #include    "goahead.h"
 
-#if BIT_HAS_PAM && BIT_PAM
+#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
  #include    <security/pam_appl.h>
 #endif
 
@@ -34,9 +34,9 @@
 static WebsHash users = -1;
 static WebsHash roles = -1;
 static char *secret;
-static int autoLogin = BIT_AUTO_LOGIN;
+static int autoLogin = BIT_GOAHEAD_AUTO_LOGIN;
 
-#if BIT_HAS_PAM && BIT_PAM
+#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
 typedef struct {
     char    *name;
     char    *password;
@@ -59,7 +59,7 @@ static void freeUser(WebsUser *up);
 static void logoutServiceProc(Webs *wp);
 static void loginServiceProc(Webs *wp);
 
-#if BIT_JAVASCRIPT && FUTURE
+#if BIT_GOAHEAD_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv);
 #endif
 #if BIT_DIGEST
@@ -68,7 +68,7 @@ static char *createDigestNonce(Webs *wp);
 static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
 #endif
 
-#if BIT_HAS_PAM && BIT_PAM
+#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
 static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data);
 #endif
 
@@ -148,7 +148,7 @@ PUBLIC int websOpenAuth(int minimal)
     if (!minimal) {
         fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
         secret = websMD5(sbuf);
-#if BIT_JAVASCRIPT && FUTURE
+#if BIT_GOAHEAD_JAVASCRIPT && FUTURE
         websJsDefine("can", jsCan);
 #endif
         websDefineAction("login", loginServiceProc);
@@ -522,18 +522,18 @@ static void basicLogin(Webs *wp)
     assure(wp);
     assure(wp->route);
     wfree(wp->authResponse);
-    wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_REALM);
+    wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_GOAHEAD_REALM);
 }
 
 
 PUBLIC bool websVerifyPassword(Webs *wp)
 {
-    char      passbuf[BIT_LIMIT_PASSWORD * 3 + 3];
+    char      passbuf[BIT_GOAHEAD_LIMIT_PASSWORD * 3 + 3];
     bool        success;
 
     assure(wp);
     if (!wp->encoded) {
-        fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_REALM, wp->password);
+        fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_GOAHEAD_REALM, wp->password);
         wfree(wp->password);
         wp->password = websMD5(passbuf);
         wp->encoded = 1;
@@ -559,7 +559,7 @@ PUBLIC bool websVerifyPassword(Webs *wp)
 }
 
 
-#if BIT_JAVASCRIPT && FUTURE
+#if BIT_GOAHEAD_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv)
 {
     assure(jsid >= 0);
@@ -612,7 +612,7 @@ static void digestLogin(Webs *wp)
     opaque = "5ccc069c403ebaf9f0171e9517f40e41";
     wp->authResponse = sfmt(
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
-        BIT_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
+        BIT_GOAHEAD_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
     wfree(nonce);
 }
 
@@ -765,7 +765,7 @@ static bool parseDigestDetails(Webs *wp)
     if (!smatch(secret, secret)) {
         trace(2, "Access denied: Nonce mismatch\n");
         return 0;
-    } else if (!smatch(realm, BIT_REALM)) {
+    } else if (!smatch(realm, BIT_GOAHEAD_REALM)) {
         trace(2, "Access denied: Realm mismatch\n");
         return 0;
     } else if (!smatch(wp->qop, "auth")) {
@@ -796,7 +796,7 @@ static char *createDigestNonce(Webs *wp)
 
     assure(wp);
     assure(wp->route);
-    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_REALM, time(0), next++);
+    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_GOAHEAD_REALM, time(0), next++);
     return websEncode64(nonce);
 }
 
@@ -871,7 +871,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 #endif /* BIT_DIGEST */
 
 
-#if BIT_HAS_PAM && BIT_PAM
+#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
 PUBLIC bool websVerifyPamPassword(Webs *wp)
 {
     WebsBuf             abilities;

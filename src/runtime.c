@@ -311,7 +311,7 @@ PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
 
     assure(buf);
     assure(format);
-    assure(bufsize <= BIT_LIMIT_STRING);
+    assure(bufsize <= BIT_GOAHEAD_LIMIT_STRING);
 
     if (bufsize <= 0) {
         return 0;
@@ -787,7 +787,7 @@ static void outNum(Format *fmt, char *prefix, uint64 value)
 #if BIT_FLOAT
 static void outFloat(Format *fmt, char specChar, double value)
 {
-    char    result[BIT_LIMIT_STRING], *cp;
+    char    result[BIT_GOAHEAD_LIMIT_STRING], *cp;
     int     c, fill, i, len, index;
 
     result[0] = '\0';
@@ -948,7 +948,7 @@ PUBLIC void valueFree(WebsValue* v)
 
 static void defaultTraceHandler(int level, char *buf)
 {
-    char    prefix[BIT_LIMIT_STRING];
+    char    prefix[BIT_GOAHEAD_LIMIT_STRING];
 
     if (traceFd >= 0) {
         if (!(level & WEBS_LOG_RAW)) {
@@ -1047,7 +1047,7 @@ PUBLIC int traceOpen()
 {
     if (!tracePath) {
         /* This defintion comes from main.bit and bit.h */
-        traceSetPath(BIT_TRACE);
+        traceSetPath(BIT_GOAHEAD_TRACE);
     }
     if (smatch(tracePath, "stdout")) {
         traceFd = 1;
@@ -1312,7 +1312,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     assure(bp);
     
     if (initSize <= 0) {
-        initSize = BIT_LIMIT_BUFFER;
+        initSize = BIT_GOAHEAD_LIMIT_BUFFER;
     }
     if (maxsize <= 0) {
         maxsize = initSize;
@@ -2668,8 +2668,8 @@ static char *getAbsolutePath(char *path)
     if (iosDevFind(path, &tail) != NULL && path != tail) {
         return sclone(path);
     }
-    dev = walloc(BIT_LIMIT_FILENAME);
-    getcwd(dev, BIT_LIMIT_FILENAME);
+    dev = walloc(BIT_GOAHEAD_LIMIT_FILENAME);
+    getcwd(dev, BIT_GOAHEAD_LIMIT_FILENAME);
     strcat(dev, "/");
     strcat(dev, path);
     return dev;
@@ -2733,7 +2733,7 @@ static void syslog(int priority, char *fmt, ...)
     void        *event;
     long        errorType;
     ulong       exists;
-    char        *buf, logName[BIT_LIMIT_STRING], *lines[9], *cp, *value;
+    char        *buf, logName[BIT_GOAHEAD_LIMIT_STRING], *lines[9], *cp, *value;
     int         type;
     static int  once = 0;
 
@@ -2819,7 +2819,7 @@ PUBLIC void sleep(int secs)
 #endif
 
 
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
 PUBLIC int fmtValloc(char **sp, int n, char *format, va_list args)
 {
     *sp = sfmtv(format, args);

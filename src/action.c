@@ -23,7 +23,7 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 static bool actionHandler(Webs *wp)
 {
     WebsKey     *sp;
-    char        formBuf[BIT_LIMIT_FILENAME];
+    char        formBuf[BIT_GOAHEAD_LIMIT_FILENAME];
     char        *cp, *formName;
     WebsAction  fn;
 
@@ -52,7 +52,7 @@ static bool actionHandler(Webs *wp)
         fn = (WebsAction) sp->content.value.symbol;
         assure(fn);
         if (fn) {
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
             (*fn)((void*) wp, formName, wp->query);
 #else
             (*fn)((void*) wp);
@@ -95,7 +95,7 @@ PUBLIC void websActionOpen()
 }
 
 
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
 /*
     Don't use these routes. Use websWriteHeaders, websEndHeaders instead.
 

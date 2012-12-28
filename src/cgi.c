@@ -16,7 +16,7 @@
 #include    "goahead.h"
 
 /*********************************** Defines **********************************/
-#if BIT_CGI
+#if BIT_GOAHEAD_CGI
 
 typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     Webs    *wp;                /* Connection object */
@@ -45,7 +45,7 @@ static bool cgiHandler(Webs *wp)
 {
     Cgi         *cgip;
     WebsKey     *s;
-    char        cgiPrefix[BIT_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_LIMIT_FILENAME];
+    char        cgiPrefix[BIT_GOAHEAD_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_GOAHEAD_LIMIT_FILENAME];
     char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath;
     int         n, envpsize, argpsize, pHandle, cid;
 
@@ -63,7 +63,7 @@ static bool cgiHandler(Webs *wp)
     }
     *cgiName++ = '\0';
 
-    getcwd(cwd, BIT_LIMIT_FILENAME);
+    getcwd(cwd, BIT_GOAHEAD_LIMIT_FILENAME);
     dir = wp->route->dir ? wp->route->dir : cwd;
     chdir(dir);
     
@@ -312,7 +312,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
 {
     Webs        *wp;
     WebsStat    sbuf;
-    char        buf[BIT_LIMIT_BUFFER];
+    char        buf[BIT_GOAHEAD_LIMIT_BUFFER];
     ssize       nbytes, skip;
     int         fdout;
 
@@ -325,7 +325,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
              */
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
-            while ((nbytes = read(fdout, buf, BIT_LIMIT_BUFFER)) > 0) {
+            while ((nbytes = read(fdout, buf, BIT_GOAHEAD_LIMIT_BUFFER)) > 0) {
                 trace(5, "cgi: read %d bytes from GI\n", nbytes);
                 skip = (cgip->fplacemark == 0) ? parseCgiHeaders(wp, buf) : 0;
                 trace(5, "cgi: write %d bytes to client\n", nbytes - skip);
@@ -591,9 +591,9 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
  */
 PUBLIC char *websGetCgiCommName()
 {
-    char  *tname, buf[BIT_LIMIT_FILENAME];
+    char  *tname, buf[BIT_GOAHEAD_LIMIT_FILENAME];
 
-    tname = sfmt("%s/%s", getcwd(buf, BIT_LIMIT_FILENAME), tmpnam(NULL));
+    tname = sfmt("%s/%s", getcwd(buf, BIT_GOAHEAD_LIMIT_FILENAME), tmpnam(NULL));
     return tname;
 }
 
@@ -965,7 +965,7 @@ static int checkCgi(int handle)
     return 1;
 }
 #endif /* WIN */
-#endif /* BIT_CGI */
+#endif /* BIT_GOAHEAD_CGI */
 
 /*
     @copy   default

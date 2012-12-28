@@ -947,8 +947,8 @@ typedef int64 WebsDateTime;
 
 //  MOB - sort these out
 #if ECOS
-    #if BIT_CGI
-        #error "Ecos does not support CGI. Disable BIT_CGI"
+    #if BIT_GOAHEAD_CGI
+        #error "Ecos does not support CGI. Disable BIT_GOAHEAD_CGI"
     #endif
 #endif /* ECOS */
 
@@ -1475,7 +1475,7 @@ PUBLIC void bufReset(WebsBuf *bp);
 PUBLIC void bufAddNull(WebsBuf *bp);
 
 /******************************* Malloc Replacement ***************************/
-#if BIT_REPLACE_MALLOC
+#if BIT_GOAHEAD_REPLACE_MALLOC
 /**
     GoAhead allocator memory block 
     Memory block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536.
@@ -1552,13 +1552,13 @@ PUBLIC void wfree(void *blk);
  */
 PUBLIC void *wrealloc(void *blk, ssize newsize);
 
-#else /* !BIT_REPLACE_MALLOC */
+#else /* !BIT_GOAHEAD_REPLACE_MALLOC */
 
     #define WEBS_SHIFT 4
     #define walloc(num) malloc(num)
     #define wfree(p) if (p) { free(p); } else
     #define wrealloc(p, num) realloc(p, num)
-#endif /* BIT_REPLACE_MALLOC */
+#endif /* BIT_GOAHEAD_REPLACE_MALLOC */
 
 //  FUTURE DOC
 PUBLIC ssize mtow(wchar *dest, ssize count, char *src, ssize len);
@@ -2307,7 +2307,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if BIT_UPLOAD
+#if BIT_GOAHEAD_UPLOAD
 
 /**
     File upload structure
@@ -2372,7 +2372,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_SECURE             0x400       /**< Connection uses SSL */
 #define WEBS_UPLOAD             0x800       /**< Multipart-mime file upload */
 #define WEBS_REROUTE            0x1000      /**< Restart route matching */
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
 #define WEBS_LOCAL              0x2000      /**< Request from local system */
 #endif
 
@@ -2476,7 +2476,7 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if BIT_CGI
+#if BIT_GOAHEAD_CGI
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
@@ -2498,7 +2498,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if BIT_UPLOAD
+#if BIT_GOAHEAD_UPLOAD
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -2517,7 +2517,7 @@ typedef struct Webs {
 #endif
 } Webs;
 
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
     #define WEBS_LEGACY_HANDLER 0x1     /* Using legacy calling sequence */
 #endif
 
@@ -2555,7 +2555,7 @@ typedef struct WebsHandler {
  */
 typedef void (*WebsAction)(Webs *wp);
 
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
     typedef void (*WebsProc)(Webs *wp, char *path, char *query);
 #endif
 
@@ -2627,7 +2627,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid);
  */
 PUBLIC int websAlloc(int sid);
 
-#if BIT_CGI
+#if BIT_GOAHEAD_CGI
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -2649,7 +2649,7 @@ PUBLIC int websCgiHandler(Webs *wp);
     @ingroup Webs
  */
 PUBLIC WebsTime websCgiPoll();
-#endif /* BIT_CGI */
+#endif /* BIT_GOAHEAD_CGI */
 
 /**
     Close the core GoAhead web server module
@@ -2801,14 +2801,14 @@ PUBLIC void websFree(Webs *wp);
  */
 PUBLIC int websGetBackground();
 
-#if BIT_CGI
+#if BIT_GOAHEAD_CGI
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
     @ingroup Webs
  */
 PUBLIC char *websGetCgiCommName();
-#endif /* BIT_CGI */
+#endif /* BIT_GOAHEAD_CGI */
 
 /**
     Get the request cookie if supplied
@@ -3078,7 +3078,7 @@ PUBLIC void websNoteRequestActivity(Webs *wp);
 /**
     Open the web server
     @description This initializes the web server and defines the documents directory.
-    @param documents Optional web documents directory. If set to null, the build time BIT_DOCUMENTS value 
+    @param documents Optional web documents directory. If set to null, the build time BIT_GOAHEAD_DOCUMENTS value 
         is used for the documents directory.
     @param routes Optional filename for a route configuration file to load. Additional route or 
         authentication configuration files can be loaded via websLoad.
@@ -3557,7 +3557,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
-#if BIT_UPLOAD
+#if BIT_GOAHEAD_UPLOAD
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
@@ -3574,7 +3574,7 @@ PUBLIC int websProcessUploadData(Webs *wp);
 PUBLIC void websFreeUpload(Webs *wp);
 #endif
 
-#if BIT_CGI
+#if BIT_GOAHEAD_CGI
 /**
     Process CGI request body data.
     @param wp Webs request object
@@ -3584,7 +3584,7 @@ PUBLIC void websFreeUpload(Webs *wp);
 PUBLIC int websProcessCgiData(Webs *wp);
 #endif
 
-#if BIT_JAVASCRIPT
+#if BIT_GOAHEAD_JAVASCRIPT
 /**
     Javascript native function 
     @param jid JavaScript engine ID
@@ -3943,7 +3943,7 @@ PUBLIC int websWriteAuthFile(char *path);
  */
 PUBLIC bool websVerifyPassword(Webs *wp);
 
-#if BIT_HAS_PAM && BIT_PAM
+#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
 /**
     Verify a password using the system PAM password database.
     @param wp Webs request object
@@ -4024,10 +4024,10 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 /*
     Legacy mappings for pre GoAhead 3.X applications
     This is a list of the name changes from GoAhead 2.X to GoAhead 3.x
-    To maximize forward compatibility, It is best to not use BIT_LEGACY except as 
+    To maximize forward compatibility, It is best to not use BIT_GOAHEAD_LEGACY except as 
     a transitional compilation aid.
  */
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
     #define B_L 0
     #define a_assert assure
     #define balloc walloc

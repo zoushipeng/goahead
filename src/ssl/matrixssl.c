@@ -56,8 +56,8 @@ PUBLIC int sslOpen()
         return -1;
     }
     password = 0;
-    if (matrixSslLoadRsaKeys(sslKeys, BIT_CERTIFICATE, BIT_KEY, password,  NULL) < 0) {
-        error(0, "Failed to read certificate %s or key file\n", BIT_CERTIFICATE);
+    if (matrixSslLoadRsaKeys(sslKeys, BIT_GOAHEAD_CERTIFICATE, BIT_GOAHEAD_KEY, password,  NULL) < 0) {
+        error(0, "Failed to read certificate %s or key file\n", BIT_GOAHEAD_CERTIFICATE);
         return -1;
     }
     return 0;

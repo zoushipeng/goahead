@@ -113,11 +113,11 @@ static void fileWriteEvent(Webs *wp)
     /*
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
      */
-    if ((buf = walloc(BIT_LIMIT_BUFFER)) == NULL) {
+    if ((buf = walloc(BIT_GOAHEAD_LIMIT_BUFFER)) == NULL) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
         return;
     }
-    while ((len = websPageReadData(wp, buf, BIT_LIMIT_BUFFER)) > 0) {
+    while ((len = websPageReadData(wp, buf, BIT_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
             break;
         }
@@ -143,7 +143,7 @@ PUBLIC int websProcessPutData(Webs *wp)
 
     nbytes = bufLen(&wp->input);
     wp->putLen += nbytes;
-    if (wp->putLen > BIT_LIMIT_PUT) {
+    if (wp->putLen > BIT_GOAHEAD_LIMIT_PUT) {
         websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Put file too large");
         return -1;
     }

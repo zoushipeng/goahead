@@ -22,11 +22,11 @@
 
 static int finished = 0;
 
-#undef BIT_LISTEN
+#undef BIT_GOAHEAD_LISTEN
 #if BIT_PACK_SSL
-    #define BIT_LISTEN "http://*:8080, https://*:4443, http://[::]:8090, https://[::]:4453"
+    #define BIT_GOAHEAD_LISTEN "http://*:8080, https://*:4443, http://[::]:8090, https://[::]:4453"
 #else
-    #define BIT_LISTEN "http://*:8080, http://[::]:8090"
+    #define BIT_GOAHEAD_LISTEN "http://*:8080, http://[::]:8090"
 #endif
 
 /********************************* Forwards ***********************************/
@@ -36,17 +36,17 @@ static void logHeader();
 static void usage();
 
 static bool testHandler(Webs *wp);
-#if BIT_JAVASCRIPT
+#if BIT_GOAHEAD_JAVASCRIPT
 static int aspTest(int eid, Webs *wp, int argc, char **argv);
 static int bigTest(int eid, Webs *wp, int argc, char **argv);
 #endif
 static void actionTest(Webs *wp, char *path, char *query);
 static void sessionTest(Webs *wp, char *path, char *query);
 static void showTest(Webs *wp, char *path, char *query);
-#if BIT_UPLOAD
+#if BIT_GOAHEAD_UPLOAD
 static void uploadTest(Webs *wp, char *path, char *query);
 #endif
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
 static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
 #endif
 #if BIT_UNIX_LIKE
@@ -103,7 +103,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
-    documents = BIT_DOCUMENTS;
+    documents = BIT_GOAHEAD_DOCUMENTS;
     if (argc > argind) {
         documents = argv[argind++];
     }
@@ -125,7 +125,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     } else {
-        endpoints = sclone(BIT_LISTEN);
+        endpoints = sclone(BIT_GOAHEAD_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
             if (websListen(endpoint) < 0) {
                 return -1;
@@ -136,17 +136,17 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
     websDefineHandler("test", testHandler, 0, 0);
     websAddRoute("/test", "test", 0);
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
     websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);
 #endif
-#if BIT_JAVASCRIPT
+#if BIT_GOAHEAD_JAVASCRIPT
     websDefineJst("aspTest", aspTest);
     websDefineJst("bigTest", bigTest);
 #endif
     websDefineAction("test", actionTest);
     websDefineAction("sessionTest", sessionTest);
     websDefineAction("showTest", showTest);
-#if BIT_UPLOAD
+#if BIT_GOAHEAD_UPLOAD
     websDefineAction("uploadTest", uploadTest);
 #endif
 
@@ -170,7 +170,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
 static void logHeader()
 {
-    char    home[BIT_LIMIT_STRING];
+    char    home[BIT_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
     trace(2, "Configuration for %s\n", BIT_TITLE);
@@ -242,7 +242,7 @@ static bool testHandler(Webs *wp)
 }
 
 
-#if BIT_JAVASCRIPT
+#if BIT_GOAHEAD_JAVASCRIPT
 /*
     Parse the form variables: name, address and echo back
  */
@@ -330,7 +330,7 @@ static void showTest(Webs *wp, char *path, char *query)
 }
 
 
-#if BIT_UPLOAD
+#if BIT_GOAHEAD_UPLOAD
 /*
     Dump the file upload details. Don't actually do anything with the uploaded file.
  */
@@ -366,7 +366,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
 #endif
 
 
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
 /*
     Legacy handler with old parameter sequence
  */

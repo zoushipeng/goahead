@@ -26,12 +26,12 @@
 #	Select required GoAhead features by setting the appropriate flag in DFLAGS. The default values
 #	are defined in the master projects/goahead-*-bit.h header file. 
 #
-#	export DFLAGS += -DBIT_PAM=1		# To enable PAM-based authorization
-#	export DFLAGS += -DBIT_DIGEST=0		# To disable digest authorization
-#	export DFLAGS += -DBIT_CGI=0		# To disable CGI request support
-#	export DFLAGS += -DBIT_JAVASCRIPT=0	# To disable JavaScript
-#	export DFLAGS += -DBIT_UPLOAD=0		# To disable file upload support
-#	export DFLAGS += -DBIT_SSL=0		# To disable SSL
+#	export DFLAGS += -DBIT_GOAHEAD_PAM=1		# To enable PAM-based authorization
+#	export DFLAGS += -DBIT_GOAHEAD_DIGEST=0		# To disable digest authorization
+#	export DFLAGS += -DBIT_GOAHEAD_CGI=0		# To disable CGI request support
+#	export DFLAGS += -DBIT_GOAHEAD_JAVASCRIPT=0	# To disable JavaScript
+#	export DFLAGS += -DBIT_GOAHEAD_UPLOAD=0		# To disable file upload support
+#	export DFLAGS += -DBIT_GOAHEAD_SSL=0		# To disable SSL
 #
 
 NAME    := goahead

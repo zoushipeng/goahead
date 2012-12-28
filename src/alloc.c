@@ -16,7 +16,7 @@
 
 #include    "goahead.h"
 
-#if BIT_REPLACE_MALLOC
+#if BIT_GOAHEAD_REPLACE_MALLOC
 /********************************* Defines ************************************/
 /*
     ROUNDUP4(size) returns the next higher integer value of size that is divisible by 4, or the value of size if size is
@@ -292,7 +292,7 @@ static int wallocGetSize(ssize size, int *q)
 }
 
 
-#else /* !BIT_REPLACE_MALLOC */
+#else /* !BIT_GOAHEAD_REPLACE_MALLOC */
 
 /*
     Stubs
@@ -300,7 +300,7 @@ static int wallocGetSize(ssize size, int *q)
 PUBLIC int wopenAlloc(void *buf, int bufsize, int flags) { return 0; }
 PUBLIC void wcloseAlloc() { }
 
-#endif /* BIT_REPLACE_MALLOC */
+#endif /* BIT_GOAHEAD_REPLACE_MALLOC */
 
 /*
     @copy   default

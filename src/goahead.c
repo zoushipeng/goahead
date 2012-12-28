@@ -92,7 +92,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
-    documents = BIT_DOCUMENTS;
+    documents = BIT_GOAHEAD_DOCUMENTS;
     if (argc > argind) {
         documents = argv[argind++];
     }
@@ -114,7 +114,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     } else {
-        endpoints = sclone(BIT_LISTEN);
+        endpoints = sclone(BIT_GOAHEAD_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
 #if !BIT_PACK_SSL
             if (strstr(endpoint, "https")) continue;
@@ -155,7 +155,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
 static void logHeader()
 {
-    char    home[BIT_LIMIT_STRING];
+    char    home[BIT_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
     trace(2, "Configuration for %s\n", BIT_TITLE);

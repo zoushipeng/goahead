@@ -97,7 +97,7 @@ PUBLIC void websRouteRequest(Webs *wp)
             if (wp->flags & WEBS_FORM) {
                 websSetFormVars(wp);
             }
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
             if (route->handler->flags & WEBS_LEGACY_HANDLER) {
                 if ((*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags)) {
                     return;
@@ -147,7 +147,7 @@ static bool can(Webs *wp, char *ability)
 PUBLIC bool websCan(Webs *wp, WebsHash abilities) 
 {
     WebsKey     *key;
-    char        *ability, *cp, *start, abuf[BIT_LIMIT_STRING];
+    char        *ability, *cp, *start, abuf[BIT_GOAHEAD_LIMIT_STRING];
 
     assure(wp);
     assure(abilities >= 0);
@@ -252,7 +252,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         return 0;
     }
     route->handler = key->content.value.symbol;
-#if BIT_PAM
+#if BIT_GOAHEAD_PAM
     route->verify = websVerifyPamPassword;
 #else
     route->verify = websVerifyPassword;
@@ -568,12 +568,12 @@ static bool redirectHandler(Webs *wp)
 
 
 
-#if BIT_LEGACY
+#if BIT_GOAHEAD_LEGACY
 PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags)
 {
     WebsRoute   *route;
     static int  legacyCount = 0;
-    char        name[BIT_LIMIT_STRING];
+    char        name[BIT_GOAHEAD_LIMIT_STRING];
 
     assure(prefix && *prefix);
     assure(handler);

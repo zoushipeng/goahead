@@ -23,12 +23,12 @@ WebsHash    romTab;                     /* Symbol table for web pages */
 PUBLIC int websRomOpen()
 {
     WebsRomIndex    *wip;
-    char          name[BIT_LIMIT_FILENAME];
+    char          name[BIT_GOAHEAD_LIMIT_FILENAME];
     ssize           len;
 
     romTab = hashCreate(WEBS_HASH_INIT);
     for (wip = websRomPageIndex; wip->path; wip++) {
-        strncpy(name, wip->path, BIT_LIMIT_FILENAME);
+        strncpy(name, wip->path, BIT_GOAHEAD_LIMIT_FILENAME);
         len = strlen(name) - 1;
         if (len > 0 &&
             (name[len] == '/' || name[len] == '\\')) {

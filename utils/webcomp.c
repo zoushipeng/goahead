@@ -64,7 +64,7 @@ static int compile(char *fileList, char *prefix)
     WebsStat        sbuf;
     WebsTime        now;
     FILE            *lp;
-    char            buf[512], file[BIT_LIMIT_FILENAME], *cp, *sl;
+    char            buf[512], file[BIT_GOAHEAD_LIMIT_FILENAME], *cp, *sl;
     uchar           *p;
     ssize           len;
     int             j, i, fd, nFile;

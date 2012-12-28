@@ -70,8 +70,8 @@ PUBLIC int sslOpen()
     /*
           Set the client certificate verification locations
      */
-    caFile = *BIT_CA_FILE ? BIT_CA_FILE : 0;
-    caPath = *BIT_CA_PATH ? BIT_CA_PATH : 0;
+    caFile = *BIT_GOAHEAD_CA_FILE ? BIT_GOAHEAD_CA_FILE : 0;
+    caPath = *BIT_GOAHEAD_CA_PATH ? BIT_GOAHEAD_CA_PATH : 0;
     if (caFile || caPath) {
         if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
             error("Unable to read cert verification locations");
@@ -82,11 +82,11 @@ PUBLIC int sslOpen()
     /*
           Set the server certificate and key files
      */
-    if (*BIT_KEY && sslSetKeyFile(BIT_KEY) < 0) {
+    if (*BIT_GOAHEAD_KEY && sslSetKeyFile(BIT_GOAHEAD_KEY) < 0) {
         sslClose();
         return -1;
     }
-    if (*BIT_CERTIFICATE && sslSetCertFile(BIT_CERTIFICATE) < 0) {
+    if (*BIT_GOAHEAD_CERTIFICATE && sslSetCertFile(BIT_GOAHEAD_CERTIFICATE) < 0) {
         sslClose();
         return -1;
     }
@@ -107,10 +107,10 @@ PUBLIC int sslOpen()
     /*
           Set the certificate authority list for the client
      */
-    if (BIT_CA_FILE && *BIT_CA_FILE) {
-        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_CA_FILE));
+    if (BIT_GOAHEAD_CA_FILE && *BIT_GOAHEAD_CA_FILE) {
+        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_GOAHEAD_CA_FILE));
     }
-    SSL_CTX_set_cipher_list(sslctx, BIT_CIPHERS);
+    SSL_CTX_set_cipher_list(sslctx, BIT_GOAHEAD_CIPHERS);
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
     SSL_CTX_sess_set_cache_size(sslctx, 128);
 #ifdef SSL_OP_NO_TICKET
@@ -175,7 +175,7 @@ PUBLIC void sslFree(Webs *wp)
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     WebsSocket      *sp;
-    char            ebuf[BIT_LIMIT_STRING];
+    char            ebuf[BIT_GOAHEAD_LIMIT_STRING];
     ulong           serror;
     int             rc, error, retries, i;
 
