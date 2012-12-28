@@ -246,7 +246,7 @@
         #define _WIN32_WINNT 0x501
     #endif
     /* 
-        Work-around to allow the windows 7.* SDK to be used with VS 2013 
+        Work-around to allow the windows 7.* SDK to be used with VS 2012 
      */
     #if _MSC_VER >= 1700
         #define SAL_SUPP_H
@@ -581,6 +581,7 @@
 typedef int64 Offset;
 
 #if DOXYGEN
+    /** Size to hold the length of a socket address */
     typedef int Socklen;
 #elif VXWORKS
     typedef int Socklen;
