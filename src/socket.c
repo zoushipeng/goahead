@@ -1123,7 +1123,7 @@ static int ipv6(char *ip)
     Parse address and return the IP address and port components. Handles ipv4 and ipv6 addresses. 
     If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
     If a ":*" port specifier is used, *pport is set to -1;
-    When an address contains an ipv6 port it should be written as
+    When an address contains an ipv6 port it should be written as:
 
         aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii
     or
@@ -1131,6 +1131,7 @@ static int ipv6(char *ip)
 
     If supplied an IPv6 address, the backets are stripped in the returned IP address.
 
+    This routine parses any "https://" prefix.
     Caller must free *pip
  */
 PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)

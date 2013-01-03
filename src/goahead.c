@@ -116,7 +116,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     } else {
         endpoints = sclone(BIT_GOAHEAD_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
-#if !BIT_PACK_SSL
+#if !BIT_SSL
             if (strstr(endpoint, "https")) continue;
 #endif
             if (websListen(endpoint) < 0) {
@@ -174,7 +174,7 @@ static void logHeader()
 
 static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
-        "  %s [options] [documents] [IPaddress][:port]\n\n"
+        "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
 #if BIT_WIN_LIKE && !MACOSX

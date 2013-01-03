@@ -11,6 +11,7 @@
 Bit.load({
     blend: [
         "${BITS}/embedthis.bit",
+        "src/deps/est/est.bit",
         "doc/doc.bit",
     ],
 
@@ -24,18 +25,18 @@ Bit.load({
         company: 'Embedthis',
         version: '3.1.0',
         buildNumber: '0',
-        sync: [ 'bitos' ],
+        sync: [ 'bitos', 'est' ],
         packs: [ 'bits/packs' ],
 
         /*
             Optional packs to search for when configuring
          */
-        '+optional': [ 'doxygen', 'dsi', 'ejs', 'man', 'man2html', 'openssl', 'pmaker', 'ssl', 'utest', 'zip' ],
+        '+optional': [ 'doxygen', 'dsi', 'ejs', 'est', 'man', 'man2html', 'pmaker', 'utest', 'zip' ],
 
         /*
             Packs to disable when using --without all
          */
-        'without-all': ['doxygen', 'dsi', 'ejs', 'man', 'man2html', 'pmaker', 'matrixssl', 'openssl', 'ssl' ],
+        'without-all': ['doxygen', 'dsi', 'ejs', 'est', 'man', 'man2html', 'pmaker', 'matrixssl', 'openssl' ],
 
         goahead: {
             /*
@@ -64,8 +65,8 @@ Bit.load({
             certificate: "server.crt",
 
             /*
-                Cipher suite to use with openssl
-                AES128-SHA
+                Cipher suite for SSL. This is SSL stack dependant:
+                    OpenSSL: AES128-SHA or "HIGH:RC4+SHA",
              */
             ciphers: "HIGH:RC4+SHA",
 
@@ -220,14 +221,14 @@ Bit.load({
             sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
-            depends: [ 'openssl', 'matrixssl' ],
+            depends: [ 'est', 'openssl', 'matrixssl' ],
         },
 
         goahead: {
             type: 'exe',
             sources: [ 'src/goahead.c' ],
             headers: [ 'src/*.h' ],
-            depends: [ 'libgo', 'openssl', 'matrixssl' ],
+            depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasPam && bit.settings.pam) {
@@ -245,7 +246,7 @@ Bit.load({
             type: 'exe',
             sources: [ 'test/test.c' ],
             headers: [ 'src/*.h' ],
-            depends: [ 'libgo', 'openssl', 'matrixssl' ],
+            depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasPam && bit.settings.pam) {
@@ -262,7 +263,7 @@ Bit.load({
             type: 'exe',
             sources: [ 'utils/gopass.c' ],
             headers: [ 'src/*.h' ],
-            depends: [ 'libgo', 'openssl', 'matrixssl' ],
+            depends: [ 'libgo' ],
         },
 
         /*
@@ -272,7 +273,7 @@ Bit.load({
             type: 'exe',
             sources: [ 'utils/webcomp.c' ],
             headers: [ 'src/*.h' ],
-            depends: [ 'openssl', 'matrixssl' ],
+            depends: [ ],
         },
 
         cgitest: {
@@ -329,5 +330,6 @@ Bit.load({
     packs: {
         est: {},
         matrixssl: {},
+        openssl: {},
     },
 })

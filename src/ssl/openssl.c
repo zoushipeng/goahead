@@ -272,8 +272,8 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
  */
 static int sslSetCertFile(char *certFile)
 {
-    assure (sslctx);
-    assure (certFile);
+    assure(sslctx);
+    assure(certFile);
 
     if (sslctx == NULL) {
         return -1;
@@ -300,8 +300,8 @@ static int sslSetCertFile(char *certFile)
  */
 static int sslSetKeyFile(char *keyFile)
 {
-    assure (sslctx);
-    assure (keyFile);
+    assure(sslctx);
+    assure(keyFile);
 
     if (sslctx == NULL) {
         return -1;
