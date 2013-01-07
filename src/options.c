@@ -12,7 +12,7 @@
 
 static bool optionsHandler(Webs *wp)
 {
-    assure(wp);
+    assert(wp);
 
 #if !BIT_GOAHEAD_STEALTH
     if (smatch(wp->method, "OPTIONS")) {

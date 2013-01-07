@@ -80,9 +80,9 @@ PUBLIC bool websAuthenticate(Webs *wp)
     char        *username;
     int         cached;
 
-    assure(wp);
+    assert(wp);
     route = wp->route;
-    assure(route);
+    assert(route);
 
     if (!route || !route->authType || autoLogin) {
         /* Authentication not required */
@@ -137,7 +137,7 @@ PUBLIC int websOpenAuth(int minimal)
 {
     char    sbuf[64];
     
-    assure(minimal == 0 || minimal == 1);
+    assert(minimal == 0 || minimal == 1);
 
     if ((users = hashCreate(-1)) < 0) {
         return -1;
@@ -190,7 +190,7 @@ PUBLIC int websWriteAuthFile(char *path)
     WebsUser    *user;
     char        *tempFile;
 
-    assure(path && *path);
+    assert(path && *path);
 
     tempFile = tempnam(NULL, "tmp");
     if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
@@ -231,8 +231,8 @@ static WebsUser *createUser(char *username, char *password, char *roles)
 {
     WebsUser    *user;
 
-    assure(username && *username);
-    assure(password && *password);
+    assert(username && *username);
+    assert(password && *password);
 
     if ((user = walloc(sizeof(WebsUser))) == 0) {
         return 0;
@@ -272,7 +272,7 @@ PUBLIC int websRemoveUser(char *username)
 {
     WebsKey     *key;
     
-    assure(username && *username);
+    assert(username && *username);
     if ((key = hashLookup(users, username)) != 0) {
         freeUser(key->content.value.symbol);
     }
@@ -282,7 +282,7 @@ PUBLIC int websRemoveUser(char *username)
 
 static void freeUser(WebsUser *up)
 {
-    assure(up);
+    assert(up);
     hashFree(up->abilities);
     wfree(up->name);
     wfree(up->password);
@@ -295,7 +295,7 @@ PUBLIC int websSetUserRoles(char *username, char *roles)
 {
     WebsUser    *user;
 
-    assure(username &&*username);
+    assert(username &&*username);
     if ((user = websLookupUser(username)) == 0) {
         return -1;
     }
@@ -310,7 +310,7 @@ WebsUser *websLookupUser(char *username)
 {
     WebsKey     *key;
 
-    assure(username &&*username);
+    assert(username &&*username);
     if ((key = hashLookup(users, username)) == 0) {
         return 0;
     }
@@ -323,9 +323,9 @@ static void computeAbilities(WebsHash abilities, char *role, int depth)
     WebsRole    *rp;
     WebsKey     *key;
 
-    assure(abilities >= 0);
-    assure(role && *role);
-    assure(depth >= 0);
+    assert(abilities >= 0);
+    assert(role && *role);
+    assert(depth >= 0);
 
     if (depth > 20) {
         error("Recursive ability definition for %s", role);
@@ -348,7 +348,7 @@ static void computeUserAbilities(WebsUser *user)
 {
     char    *ability, *roles, *tok;
 
-    assure(user);
+    assert(user);
     if ((user->abilities = hashCreate(-1)) == 0) {
         return;
     }
@@ -359,12 +359,12 @@ static void computeUserAbilities(WebsUser *user)
 #if BIT_DEBUG
     {
         WebsKey *key;
-        trace(5, "User \"%s\" has abilities: ", user->name);
+        trace(5 | WEBS_RAW_MSG, "User \"%s\" has abilities: ", user->name);
         for (key = hashFirst(user->abilities); key; key = hashNext(user->abilities, key)) {
-            trace(5, "%s ", key->name.value.string);
+            trace(5 | WEBS_RAW_MSG, "%s ", key->name.value.string);
             ability = key->name.value.string;
         }
-        trace(5, "\n");
+        trace(5, "");
     }
 #endif
     wfree(roles);
@@ -411,7 +411,7 @@ WebsRole *websAddRole(char *name, WebsHash abilities)
 
 static void freeRole(WebsRole *rp)
 {
-    assure(rp);
+    assert(rp);
     hashFree(rp->abilities);
     wfree(rp);
 }
@@ -425,7 +425,7 @@ PUBLIC int websRemoveRole(char *name)
     WebsRole    *rp;
     WebsKey     *sym;
 
-    assure(name && *name);
+    assert(name && *name);
     if (roles) {
         if ((sym = hashLookup(roles, name)) == 0) {
             return -1;
@@ -455,10 +455,10 @@ WebsHash websGetRoles()
 
 PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
 {
-    assure(wp);
-    assure(wp->route);
-    assure(username && *username);
-    assure(password);
+    assert(wp);
+    assert(wp->route);
+    assert(username && *username);
+    assert(password);
 
     if (!wp->route || !wp->route->verify) {
         return 0;
@@ -469,7 +469,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
     wp->password = sclone(password);
 
     if (!(wp->route->verify)(wp)) {
-        trace(2, "Password does not match\n");
+        trace(2, "Password does not match");
         return 0;
     }
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
@@ -484,9 +484,9 @@ static void loginServiceProc(Webs *wp)
 {
     WebsRoute   *route;
 
-    assure(wp);
+    assert(wp);
     route = wp->route;
-    assure(route);
+    assert(route);
     
     if (websLoginUser(wp, websGetVar(wp, "username", ""), websGetVar(wp, "password", ""))) {
         /* If the application defines a referrer session var, redirect to that */
@@ -507,7 +507,7 @@ static void loginServiceProc(Webs *wp)
 
 static void logoutServiceProc(Webs *wp)
 {
-    assure(wp);
+    assert(wp);
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
     if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
         websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
@@ -519,8 +519,8 @@ static void logoutServiceProc(Webs *wp)
 
 static void basicLogin(Webs *wp)
 {
-    assure(wp);
-    assure(wp->route);
+    assert(wp);
+    assert(wp->route);
     wfree(wp->authResponse);
     wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_GOAHEAD_REALM);
 }
@@ -531,7 +531,7 @@ PUBLIC bool websVerifyPassword(Webs *wp)
     char      passbuf[BIT_GOAHEAD_LIMIT_PASSWORD * 3 + 3];
     bool        success;
 
-    assure(wp);
+    assert(wp);
     if (!wp->encoded) {
         fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_GOAHEAD_REALM, wp->password);
         wfree(wp->password);
@@ -562,8 +562,8 @@ PUBLIC bool websVerifyPassword(Webs *wp)
 #if BIT_GOAHEAD_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv)
 {
-    assure(jsid >= 0);
-    assure(wp);
+    assert(jsid >= 0);
+    assert(wp);
 
     if (websCanString(wp, argv[0])) {
         //  FUTURE
@@ -578,7 +578,7 @@ static bool parseBasicDetails(Webs *wp)
 {
     char    *cp, *userAuth;
 
-    assure(wp);
+    assert(wp);
     /*
         Split userAuth into userid and password
      */
@@ -604,8 +604,8 @@ static void digestLogin(Webs *wp)
 {
     char  *nonce, *opaque;
 
-    assure(wp);
-    assure(wp->route);
+    assert(wp);
+    assert(wp->route);
 
     nonce = createDigestNonce(wp);
     /* Opaque is unused. Set to anything */
@@ -623,7 +623,7 @@ static bool parseDigestDetails(Webs *wp)
     char        *value, *tok, *key, *dp, *sp, *secret, *realm;
     int         seenComma;
 
-    assure(wp);
+    assert(wp);
     key = sclone(wp->authDetails);
 
     while (*key) {
@@ -763,21 +763,21 @@ static bool parseDigestDetails(Webs *wp)
     when = 0; secret = 0; realm = 0;
     parseDigestNonce(wp->nonce, &secret, &realm, &when);
     if (!smatch(secret, secret)) {
-        trace(2, "Access denied: Nonce mismatch\n");
+        trace(2, "Access denied: Nonce mismatch");
         return 0;
     } else if (!smatch(realm, BIT_GOAHEAD_REALM)) {
-        trace(2, "Access denied: Realm mismatch\n");
+        trace(2, "Access denied: Realm mismatch");
         return 0;
     } else if (!smatch(wp->qop, "auth")) {
-        trace(2, "Access denied: Bad qop\n");
+        trace(2, "Access denied: Bad qop");
         return 0;
     } else if ((when + (5 * 60)) < time(0)) {
-        trace(2, "Access denied: Nonce is stale\n");
+        trace(2, "Access denied: Nonce is stale");
         return 0;
     }
     if (!wp->user) {
         if ((wp->user = websLookupUser(wp->username)) == 0) {
-            trace(2, "Access denied: user is unknown\n");
+            trace(2, "Access denied: user is unknown");
             return 0;
         }
     }
@@ -794,8 +794,8 @@ static char *createDigestNonce(Webs *wp)
     static int64 next = 0;
     char         nonce[256];
 
-    assure(wp);
-    assure(wp->route);
+    assert(wp);
+    assert(wp->route);
     fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_GOAHEAD_REALM, time(0), next++);
     return websEncode64(nonce);
 }
@@ -805,10 +805,10 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *
 {
     char    *tok, *decoded, *whenStr;                                                                      
                                                                                                            
-    assure(nonce && *nonce);
-    assure(secret);
-    assure(realm);
-    assure(when);
+    assert(nonce && *nonce);
+    assert(secret);
+    assert(realm);
+    assert(when);
 
     if ((decoded = websDecode64(nonce)) == 0) {                                                             
         return -1;
@@ -829,9 +829,9 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     char  a1Buf[256], a2Buf[256], digestBuf[256];
     char  *ha1, *ha2, *method, *result;
 
-    assure(wp);
-    assure(username && *username);
-    assure(password);
+    assert(wp);
+    assert(username && *username);
+    assert(password);
 
     /*
         Compute HA1. If username == 0, then the password is already expected to be in the HA1 format 
@@ -881,10 +881,10 @@ PUBLIC bool websVerifyPamPassword(Webs *wp)
     struct group        *gp;
     int                 res, i;
    
-    assure(wp);
-    assure(wp->username && wp->username);
-    assure(wp->password);
-    assure(!wp->encoded);
+    assert(wp);
+    assert(wp->username && wp->username);
+    assert(wp->password);
+    assert(!wp->encoded);
 
     info.name = (char*) wp->username;
     info.password = (char*) wp->password;
@@ -979,8 +979,8 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
     WebsParseAuth parseAuth;
     WebsAskLogin  askLogin;
 
-    assure(route);
-    assure(auth && *auth);
+    assert(route);
+    assert(auth && *auth);
 
     askLogin = 0;
     parseAuth = 0;

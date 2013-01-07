@@ -87,10 +87,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         } else if (smatch(argp, "--log") || smatch(argp, "-l")) {
             if (argind >= argc) usage();
-            traceSetPath(argv[++argind]);
+            logSetPath(argv[++argind]);
 
         } else if (smatch(argp, "--verbose") || smatch(argp, "-v")) {
-            traceSetPath("stdout:2");
+            logSetPath("stdout:2");
 
         } else if (smatch(argp, "--route") || smatch(argp, "-r")) {
             route = argv[++argind];

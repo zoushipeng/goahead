@@ -49,7 +49,7 @@ static bool cgiHandler(Webs *wp)
     char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath;
     int         n, envpsize, argpsize, pHandle, cid;
 
-    assure(websValid(wp));
+    assert(websValid(wp));
     
     websSetEnv(wp);
 
@@ -125,7 +125,7 @@ static bool cgiHandler(Webs *wp)
         websDecodeUrl(query, query, strlen(query));
         for (cp = stok(query, " ", &tok); cp != NULL; ) {
             *(argp+n) = cp;
-            trace(5, "ARG[%d] %s\n", n, argp[n-1]);
+            trace(5, "ARG[%d] %s", n, argp[n-1]);
             n++;
             if (n >= argpsize) {
                 argpsize *= 2;
@@ -150,7 +150,7 @@ static bool cgiHandler(Webs *wp)
             strcmp(s->name.value.string, "REMOTE_HOST") != 0 &&
             strcmp(s->name.value.string, "HTTP_AUTHORIZATION") != 0) {
             envp[n++] = sfmt("%s=%s", s->name.value.string, s->content.value.string);
-            trace(5, "Env[%d] %s\n", n, envp[n-1]);
+            trace(5, "Env[%d] %s", n, envp[n-1]);
             if (n >= envpsize) {
                 envpsize *= 2;
                 envp = wrealloc(envp, envpsize * sizeof(char *));
@@ -219,20 +219,20 @@ PUBLIC int websProcessCgiData(Webs *wp)
     ssize   nbytes;
 
     nbytes = bufLen(&wp->input);
-    trace(5, "cgi: write %d bytes to CGI program\n", nbytes);
+    trace(5, "cgi: write %d bytes to CGI program", nbytes);
     if (write(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR| WEBS_CLOSE, "Can't write to CGI gateway");
         return -1;
     }
     websConsumeInput(wp, nbytes);
-    trace(5, "cgi: write %d bytes to CGI program\n", nbytes);
+    trace(5, "cgi: write %d bytes to CGI program", nbytes);
     return 0;
 }
 
 
 static void writeCgiHeaders(Webs *wp, int status, ssize contentLength, char *location, char *contentType)
 {
-    trace(5, "cgi: Start response headers\n");
+    trace(5, "cgi: Start response headers");
     websSetStatus(wp, status);
     websWriteHeaders(wp, contentLength, location);
     websWriteHeader(wp, "Pragma", "no-cache");
@@ -317,7 +317,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
     int         fdout;
 
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
-        trace(5, "cgi: gather output\n");
+        trace(5, "cgi: gather output");
         if ((fdout = open(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
             /*
                 Check to see if any data is available in the output file and send its contents to the socket.
@@ -326,15 +326,15 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nbytes = read(fdout, buf, BIT_GOAHEAD_LIMIT_BUFFER)) > 0) {
-                trace(5, "cgi: read %d bytes from GI\n", nbytes);
+                trace(5, "cgi: read %d bytes from CGI", nbytes);
                 skip = (cgip->fplacemark == 0) ? parseCgiHeaders(wp, buf) : 0;
-                trace(5, "cgi: write %d bytes to client\n", nbytes - skip);
+                trace(5, "cgi: write %d bytes to client", nbytes - skip);
                 websWriteBlock(wp, &buf[skip], nbytes - skip);
                 cgip->fplacemark += (off_t) nbytes;
             }
             close(fdout);
         } else {
-            trace(5, "cgi: open failed\n");
+            trace(5, "cgi: open failed");
         }
     }
 }
@@ -374,7 +374,7 @@ WebsTime websCgiPoll()
                 if (cgip->fplacemark == 0) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "CGI generated no output");
                 } else {
-                    trace(5, "cgi: Request complete - calling websDone\n");
+                    trace(5, "cgi: Request complete - calling websDone");
                     websDone(wp);
                 }
                 /*
@@ -523,7 +523,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 {
     int pid, fdin, fdout, hstdin, hstdout;
 
-    trace(5, "cgi: run %s\n", cgiPath);
+    trace(5, "cgi: run %s", cgiPath);
     pid = fdin = fdout = hstdin = hstdout = -1;
     if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
             (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
@@ -572,7 +572,7 @@ static int checkCgi(int handle)
         Check to see if the CGI child process has terminated or not yet.
      */
     if ((pid = waitpid(handle, NULL, WNOHANG)) == handle) {
-        trace(5, "cgi: waited for pid %d\n", pid);
+        trace(5, "cgi: waited for pid %d", pid);
         return 0;
     } else {
         return 1;
@@ -784,7 +784,7 @@ static uchar *tableToBlock(char **table)
     size_t  sizeBlock;      /*  Size of table */
     int     index;          /*  Index into string table */
 
-    assure(table);
+    assert(table);
 
     /*  
         Calculate the size of the data block.  Allow for final null byte. 

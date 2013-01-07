@@ -12,7 +12,16 @@
 #include    "bit.h"
 #include    "bitos.h"
 
-//  MOB - sort these out
+#ifndef BIT_GOAHEAD_LOGGING
+    #define BIT_GOAHEAD_LOGGING 1               /**< Default for logging is "on" */
+#endif
+#ifndef BIT_GOAHEAD_TRACING
+    #if BIT_DEBUG
+        #define BIT_GOAHEAD_TRACING 1           /**< Tracing is on in debug builds */
+    #else
+        #define BIT_GOAHEAD_TRACING 0
+    #endif
+#endif
 #if ECOS
     #if BIT_GOAHEAD_CGI
         #error "Ecos does not support CGI. Disable BIT_GOAHEAD_CGI"
@@ -107,47 +116,86 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_ARGS_DEC          char *file, int line
 #define WEBS_ARGS              file, line
 
+PUBLIC int logLevel;
+
+#if BIT_GOAHEAD_TRACING
+        #define trace(l, ...) if ((l) <= logLevel) { traceProc(l, __VA_ARGS__); } else
+#else
+        #define trace(l, ...) if (1) ; else
+#endif
+
+#if BIT_GOAHEAD_LOGGING
+        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else
+#else
+        #define logmsg(l, ...) if (1) ; else
+#endif
+
+/**
+    Standard logging trace levels are 0 to 9 with 0 being the most verbose. These are ored with the error source
+    and type flags. The WEBS_LOG_MASK is used to extract the trace level from a flags word. We expect most apps
+    to run with level 2 trace enabled.
+*/
+#define WEBS_ERROR          1           /**< Hard error trace level */
+#define WEBS_WARN           2           /**< Soft warning trace level */
+#define WEBS_CONFIG         2           /**< Configuration settings trace level. */
+#define WEBS_VERBOSE        9           /**< Highest level of trace */
+#define WEBS_LEVEL_MASK     0xF         /**< Level mask */
+
 /*
-    Log level flags
+    Log message flags
  */
-#define WEBS_LOG_RAW        0x1000
-#define WEBS_LOG_NEWLINE    0x2000
-#define WEBS_LOG_MASK       0xF
+#define WEBS_ASSERT_MSG     0x10        /**< Originated from assert */
+#define WEBS_ERROR_MSG      0x20        /**< Originated from error */
+#if UNUSED && KEEP
+#define WEBS_INFO_MSG       0x40        /**< Originated from info */
+#define WEBS_WARN_MSG       0x80        /**< Originated from warn */
+#endif
+#define WEBS_LOG_MSG        0x100       /**< Originated from logmsg */
+#define WEBS_RAW_MSG        0x200       /**< Raw message output */
+#define WEBS_TRACE_MSG      0x400       /**< Originated from trace */
 
 #if DOXYGEN
+#undef assert
 /**
     Assure that an assert condition is true
     @param cond Boolean result of a conditional test
  */
-extern void assure(bool cond);
-#elif BIT_DEBUG
-    #define assure(C)       if (C) ; else assureError(WEBS_L, "%s", #C)
-    PUBLIC void assureError(WEBS_ARGS_DEC, char *fmt, ...);
+extern void assert(bool cond);
+#elif BIT_GOAHEAD_TRACING
+    #define assert(C)       if (C) ; else assertError(WEBS_L, "%s", #C)
+    PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...);
 #else
-    #define assure(C)       if (1) ; else
+    #define assert(C)       if (1) ; else
 #endif
 
-/*
-    Optimized logging calling sequence. This compiles out for release mode.
- */
-#if BIT_DEBUG
-    #define LOG trace
-#else
-    #define LOG if (0) trace
+//  Deprecated 3.1
+#if DEPRECATED
+#define traceOpen logOpen
+#define traceClose logClose 
+#define WebsTraceHandler WebLogHandler
+#define traceSetPath logSetPath
+#define websGetTraceLevel websGetLogLevel
 #endif
 
 /**
-    Open the trace logging module
+    Emit an error message
+    @return Zero if successful
+    @internal
+*/
+PUBLIC void error(char *fmt, ...);
+
+/**
+    Open the log logging module
     @return Zero if successful
     @internal
  */
-PUBLIC int traceOpen();
+PUBLIC int logOpen();
 
 /**
-    Close the trace logging module
+    Close the log logging module
     @internal
  */
-PUBLIC void traceClose();
+PUBLIC void logClose();
 
 /**
     Callback for emitting trace log output
@@ -156,38 +204,45 @@ PUBLIC void traceClose();
     @return Zero if successful
     @internal
  */
-typedef void (*WebsTraceHandler)(int level, char *msg);
+typedef void (*WebsLogHandler)(int level, char *msg);
 
 /**
-    Set a trace callback
-    @param handler Callback handler function of type WebsTraceHandler
+    Set a log callback
+    @param handler Callback handler function of type WebsLogHandler
     @return The previous callback function
  */
-PUBLIC WebsTraceHandler traceSetHandler(WebsTraceHandler handler);
+PUBLIC WebsLogHandler logSetHandler(WebsLogHandler handler);
 
 /**
     Set the filename to save logging output
     @param path Filename path to use
  */
-PUBLIC void traceSetPath(char *path);
+PUBLIC void logSetPath(char *path);
 
 /**
-    Open the trace logging module
-    @return Zero if successful
-    @internal
-*/
-PUBLIC void error(char *fmt, ...);
-
-/**
-    Emit trace a
+    Emit a message to the log 
     @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
     level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
+    Logging support is enabled by the Bit setting: "logging: true" which creates the BIT_GOAHEAD_LOGGING define in bit.h
     most verbose. Level 2-4 are the most useful for debugging.
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
     @param ... Arguments for the format string
  */
-PUBLIC void trace(int level, char *fmt, ...);
+PUBLIC void logmsgProc(int level, char *fmt, ...);
+
+/**
+    Emit a debug trace message to the log 
+    @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
+    level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
+    most verbose. Level 2-4 are the most useful for debugging.
+    Debug trace support is enabled by the Bit setting: "tracing: true" which creates the BIT_GOAHEAD_TRACING define in
+    bit.h.
+    @param level Integer verbosity level (0-9).
+    @param fmt Printf style format string
+    @param ... Arguments for the format string
+ */
+PUBLIC void traceProc(int level, char *fmt, ...);
 
 /*********************************** HTTP Codes *******************************/
 /*
@@ -721,14 +776,15 @@ PUBLIC WebsKey *hashNext(WebsHash id, WebsKey *last);
  */
 #define SOCKET_EOF              0x1     /**< Seen end of file */
 #define SOCKET_CONNECTING       0x2     /**< Connect in progress */
-#define SOCKET_PENDING          0x4     /**< Message pending on this socket */
-#define SOCKET_RESERVICE        0x8     /**< Socket needs re-servicing */
-#define SOCKET_ASYNC            0x10    /**< Use async connect */
-#define SOCKET_BLOCK            0x20    /**< Use blocking I/O */
-#define SOCKET_LISTENING        0x40    /**< Socket is server listener */
-#define SOCKET_CLOSING          0x80    /**< Socket is closing */
-#define SOCKET_CONNRESET        0x100   /**< Socket connection was reset */
-#define SOCKET_TRACED           0x200   /**< Trace TLS connections */
+#define SOCKET_RESERVICE        0x4     /**< Socket needs re-servicing */
+#define SOCKET_ASYNC            0x8     /**< Use async connect */
+#define SOCKET_BLOCK            0x10    /**< Use blocking I/O */
+#define SOCKET_LISTENING        0x20    /**< Socket is server listener */
+#define SOCKET_CLOSING          0x40    /**< Socket is closing */
+#define SOCKET_CONNRESET        0x80    /**< Socket connection was reset */
+#define SOCKET_HANDSHAKING      0x100   /**< Doing SSL handshake */
+#define SOCKET_BUFFERED_READ    0x200   /**< Message pending on this socket */
+#define SOCKET_BUFFERED_WRITE   0x400   /**< Message pending on this socket */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
 
@@ -925,6 +981,15 @@ PUBLIC int socketGetHandle(int sid);
 PUBLIC int socketGetPort(int sid);
 
 /**
+    Indicate that the application layer has buffered data for the socket. 
+    @description This is used by SSL and other network stacks that buffer pending data
+    @param sp Socket object returned from #mprCreateSocket
+    @param len Length of buffered data in bytes
+    @param dir Buffer direction. Set to MPR_READABLE for buffered read data and MPR_WRITABLE for buffered write data.
+ */
+PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir);
+
+/**
     Get a socket address structure for the specified IP:Port
     @description This returns address details in *family, *protocol, *addr, and *addrlen.
     @param ip IP address to parse
@@ -1047,6 +1112,7 @@ PUBLIC int socketSetBlock(int sid, int on);
     @ingroup WebsSocket
  */
 PUBLIC int socketWaitForEvent(WebsSocket *sp, int mask);
+
 
 /**
     Write data to the socket
@@ -2059,7 +2125,7 @@ PUBLIC char *websGetServerAddressUrl();
     @return Number between 0 and 9
     @ingroup Webs
  */
-PUBLIC int websGetTraceLevel();
+PUBLIC int websGetLogLevel();
 
 /**
     Get the request URI

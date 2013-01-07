@@ -1849,6 +1849,11 @@ extern "C" {
  */
 #define SSL_BUFFER_LEN (SSL_MAX_CONTENT_LEN + 512)
 
+typedef struct EstCipher {
+    char    *name;
+    int     code;
+} EstCipher;
+
 /*
    Supported ciphersuites
  */
@@ -2283,6 +2288,10 @@ extern "C" {
 
     int ssl_parse_finished(ssl_context * ssl);
     int ssl_write_finished(ssl_context * ssl);
+
+#if EMBEDTHIS || 1
+    PUBLIC int *ssl_create_ciphers(cchar *cipherSuite);
+#endif
 
 #ifdef __cplusplus
 }

@@ -78,7 +78,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
         return -1;
     }
     sp = socketList[sid];
-    assure(sp);
+    assert(sp);
 
     /*
         Change null IP address to be an IPv6 endpoint if the system is dual-stack. That way we can listen on
@@ -156,7 +156,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
         return -1;
     }
     sp = socketList[sid];
-    assure(sp);
+    assert(sp);
 
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;       
@@ -250,7 +250,7 @@ static void socketAccept(WebsSocket *sp)
     char                    ipbuf[1024];
     int                     port, newSock, nid;
 
-    assure(sp);
+    assert(sp);
 
     /*
         Accept the connection and prevent inheriting by children (F_SETFD)
@@ -272,7 +272,7 @@ static void socketAccept(WebsSocket *sp)
     if ((nsp = socketList[nid]) == 0) {
         return;
     }
-    assure(nsp);
+    assert(nsp);
     nsp->sock = newSock;
     nsp->flags &= ~SOCKET_LISTENING;
     socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK));
@@ -294,9 +294,15 @@ PUBLIC void socketRegisterInterest(int sid, int handlerMask)
 {
     WebsSocket  *sp;
 
-    assure(socketPtr(sid));
+    assert(socketPtr(sid));
     sp = socketPtr(sid);
     sp->handlerMask = handlerMask;
+    if (sp->flags & SOCKET_BUFFERED_READ) {
+        sp->handlerMask |= SOCKET_READABLE;
+    }
+    if (sp->flags & SOCKET_BUFFERED_WRITE) {
+        sp->handlerMask |= SOCKET_WRITABLE;
+    }
 }
 
 
@@ -307,7 +313,7 @@ PUBLIC int socketWaitForEvent(WebsSocket *sp, int handlerMask)
 {
     int mask;
 
-    assure(sp);
+    assert(sp);
 
     mask = sp->handlerMask;
     sp->handlerMask |= handlerMask;
@@ -326,6 +332,20 @@ PUBLIC int socketWaitForEvent(WebsSocket *sp, int handlerMask)
 }
 
 
+PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir)
+{
+    if (len > 0) {
+        sp->flags |= (dir == SOCKET_READABLE) ? SOCKET_BUFFERED_READ : SOCKET_BUFFERED_WRITE;
+        if (sp->handler) {
+            socketReservice(sp->sid);
+        }
+    } else {
+        sp->flags &= ~((dir == SOCKET_READABLE) ? SOCKET_BUFFERED_READ : SOCKET_BUFFERED_WRITE);
+    }
+}
+
+
+//  MOB - merge both versions into one function
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
@@ -360,21 +380,25 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         if ((sp = socketList[sid]) == NULL) {
             continue;
         }
-        assure(sp);
+        assert(sp);
         /*
-                Set the appropriate bit in the ready masks for the sp->sock.
+            Set the appropriate bit in the ready masks for the sp->sock.
          */
-        if (sp->handlerMask & SOCKET_READABLE) {
+        if (sp->handlerMask & SOCKET_READABLE || sp->flags & SOCKET_BUFFERED_READ) {
             FD_SET(sp->sock, &readFds);
             nEvents++;
         }
-        if (sp->handlerMask & SOCKET_WRITABLE) {
+        if (sp->handlerMask & SOCKET_WRITABLE || sp->flags & SOCKET_BUFFERED_READ) {
             FD_SET(sp->sock, &writeFds);
             nEvents++;
         }
         if (sp->handlerMask & SOCKET_EXCEPTION) {
             FD_SET(sp->sock, &exceptFds);
             nEvents++;
+        }
+        if (sp->flags & SOCKET_RESERVICE) {
+            tv.tv_sec = 0;
+            tv.tv_usec = 0;
         }
         if (! all) {
             break;
@@ -400,7 +424,16 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         if ((sp = socketList[sid]) == NULL) {
             continue;
         }
-        if (FD_ISSET(sp->sock, &readFds) || sp->flags & SOCKET_RESERVICE) {
+        if (sp->flags & SOCKET_RESERVICE) {
+            if (sp->handlerMask & SOCKET_READABLE) {
+                sp->currentEvents |= SOCKET_READABLE;
+            }
+            if (sp->handlerMask & SOCKET_WRITABLE) {
+                sp->currentEvents |= SOCKET_WRITABLE;
+            }
+            sp->flags &= ~SOCKET_RESERVICE;
+        }
+        if (FD_ISSET(sp->sock, &readFds)) {
             sp->currentEvents |= SOCKET_READABLE;
         }
         if (FD_ISSET(sp->sock, &writeFds)) {
@@ -420,7 +453,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
 
 PUBLIC int socketSelect(int sid, WebsTime timeout)
 {
-    WebsSocket        *sp;
+    WebsSocket      *sp;
     struct timeval  tv;
     fd_mask         *readFds, *writeFds, *exceptFds;
     int             all, len, nwords, index, bit, nEvents;
@@ -459,7 +492,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
                 continue;
             }
         }
-        assure(sp);
+        assert(sp);
         /*
             Initialize the ready masks and compute the mask offsets.
          */
@@ -471,10 +504,6 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         if (sp->handlerMask & SOCKET_READABLE) {
             readFds[index] |= bit;
             nEvents++;
-            if (sp->flags & SOCKET_RESERVICE) {
-                tv.tv_sec = 0;
-                tv.tv_usec = 0;
-            }
         }
         if (sp->handlerMask & SOCKET_WRITABLE) {
             writeFds[index] |= bit;
@@ -483,6 +512,10 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         if (sp->handlerMask & SOCKET_EXCEPTION) {
             exceptFds[index] |= bit;
             nEvents++;
+        }
+        if (sp->flags & SOCKET_RESERVICE) {
+            tv.tv_sec = 0;
+            tv.tv_usec = 0;
         }
         if (! all) {
             break;
@@ -508,9 +541,17 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
             index = sp->sock / (NBBY * sizeof(fd_mask));
             bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
 
-            if (readFds[index] & bit || sp->flags & SOCKET_RESERVICE) {
-                sp->currentEvents |= SOCKET_READABLE;
+            if (sp->flags & SOCKET_RESERVICE) {
+                if (sp->handlerMask & SOCKET_READABLE) {
+                    sp->currentEvents |= SOCKET_READABLE;
+                }
+                if (sp->handlerMask & SOCKET_WRITABLE) {
+                    sp->currentEvents |= SOCKET_WRITABLE;
+                }
                 sp->flags &= ~SOCKET_RESERVICE;
+            }
+            if (readFds[index] & bit) {
+                sp->currentEvents |= SOCKET_READABLE;
             }
             if (writeFds[index] & bit) {
                 sp->currentEvents |= SOCKET_WRITABLE;
@@ -550,7 +591,7 @@ static void socketDoEvent(WebsSocket *sp)
 {
     int     sid;
 
-    assure(sp);
+    assert(sp);
 
     sid = sp->sid;
     if (sp->currentEvents & SOCKET_READABLE) {
@@ -585,7 +626,7 @@ PUBLIC int socketSetBlock(int sid, int on)
     int             oldBlock;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        assure(0);
+        assert(0);
         return 0;
     }
     oldBlock = (sp->flags & SOCKET_BLOCK);
@@ -681,8 +722,8 @@ PUBLIC ssize socketRead(int sid, void *buf, ssize bufsize)
     ssize       bytes;
     int         errCode;
 
-    assure(buf);
-    assure(bufsize > 0);
+    assert(buf);
+    assert(bufsize > 0);
 
     if ((sp = socketPtr(sid)) == NULL) {
         return -1;
@@ -836,11 +877,11 @@ PUBLIC void socketFree(int sid)
 WebsSocket *socketPtr(int sid)
 {
     if (sid < 0 || sid >= socketMax || socketList[sid] == NULL) {
-        assure(NULL);
+        assert(NULL);
         errno = EBADF;
         return NULL;
     }
-    assure(socketList[sid]);
+    assert(socketList[sid]);
     return socketList[sid];
 }
 
@@ -893,7 +934,7 @@ PUBLIC int socketGetBlock(int sid)
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        assure(0);
+        assert(0);
         return 0;
     }
     return (sp->flags & SOCKET_BLOCK);
@@ -905,7 +946,7 @@ PUBLIC int socketGetMode(int sid)
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        assure(0);
+        assert(0);
         return 0;
     }
     return sp->flags;
@@ -917,7 +958,7 @@ PUBLIC void socketSetMode(int sid, int mode)
     WebsSocket    *sp;
 
     if ((sp = socketPtr(sid)) == NULL) {
-        assure(0);
+        assert(0);
         return;
     }
     sp->flags = mode;
@@ -947,7 +988,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     char                portBuf[16];
     int                 v6;
 
-    assure(addr);
+    assert(addr);
     memset((char*) &hints, '\0', sizeof(hints));
 
     /*
@@ -1022,7 +1063,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
          */
         sa.sin_addr.s_addr = (ulong) hostGetByName((char*) ip);
         if (sa.sin_addr.s_addr < 0) {
-            assure(0);
+            assert(0);
             return 0;
         }
 #else

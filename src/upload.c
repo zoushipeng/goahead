@@ -36,7 +36,7 @@ static int processUploadHeader(Webs *wp, char *line);
  */
 static bool uploadHandler(Webs *wp)
 {
-    assure(websValid(wp));
+    assert(websValid(wp));
 
     if (!(wp->flags & WEBS_UPLOAD)) {
         return 0;
@@ -403,7 +403,7 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
     char    *cp, *endp;
     char    first;
 
-    assure(buf);
+    assert(buf);
 
     first = *wp->boundary;
     cp = buf;
@@ -456,7 +456,7 @@ PUBLIC void websUploadOpen()
         uploadDir = "/tmp";
 #endif
     }
-    trace(4, "Upload directory is %s\n", uploadDir);
+    trace(4, "Upload directory is %s", uploadDir);
     websDefineHandler("upload", uploadHandler, 0, 0);
 }
 

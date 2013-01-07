@@ -258,7 +258,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     bytes = innerRead(wp, buf, len);
     ms = (Ms*) wp->ms;
     if (ms->more) {
-        wp->flags |= SOCKET_PENDING;
+        wp->flags |= SOCKET_BUFFERED_READ;
         socketReservice(wp->sid);
     }
     return bytes;

@@ -8943,7 +8943,7 @@ static int ssl_parse_client_hello(ssl_context * ssl)
     SSL_DEBUG_MSG(2, ("=> parse client hello"));
 
     if ((ret = ssl_fetch_input(ssl, 5)) != 0) {
-        SSL_DEBUG_RET(1, "ssl_fetch_input", ret);
+        SSL_DEBUG_RET(3, "ssl_fetch_input", ret);
         return (ret);
     }
 
@@ -8989,7 +8989,7 @@ static int ssl_parse_client_hello(ssl_context * ssl)
             ? buf[4] : SSL_MINOR_VERSION_1;
 
         if ((ret = ssl_fetch_input(ssl, 2 + n)) != 0) {
-            SSL_DEBUG_RET(1, "ssl_fetch_input", ret);
+            SSL_DEBUG_RET(3, "ssl_fetch_input", ret);
             return (ret);
         }
 
@@ -9092,7 +9092,8 @@ static int ssl_parse_client_hello(ssl_context * ssl)
         }
 
         if ((ret = ssl_fetch_input(ssl, 5 + n)) != 0) {
-            SSL_DEBUG_RET(1, "ssl_fetch_input", ret);
+            //  MOB - move all this trace into fetch_input
+            SSL_DEBUG_RET(3, "ssl_fetch_input", ret);
             return (ret);
         }
 
@@ -9502,6 +9503,7 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
     SSL_DEBUG_MSG(2, ("=> parse client key exchange"));
 
     if ((ret = ssl_read_record(ssl)) != 0) {
+        //  MOB - move all this trace into ssl_read_record
         SSL_DEBUG_RET(3, "ssl_read_record", ret);
         return (ret);
     }
@@ -9819,6 +9821,126 @@ int ssl_handshake_server(ssl_context * ssl)
 
 #if BIT_EST_SSL
 
+/* 
+    Supported ciphers. Ordered in preference order
+    See: http://www.iana.org/assignments/tls-parameters/tls-parameters.xml
+ */
+static EstCipher cipherList[] = {
+#if BIT_EST_RSA && BIT_EST_AES
+    { "TLS_RSA_WITH_AES_128_CBC_SHA",           TLS_RSA_WITH_AES_128_CBC_SHA            /* 0x2F */ },
+    { "TLS_RSA_WITH_AES_256_CBC_SHA",           TLS_RSA_WITH_AES_256_CBC_SHA            /* 0x35 */ },
+#endif
+#if BIT_EST_RSA && BIT_EST_RC4
+    { "TLS_RSA_WITH_RC4_128_SHA",               TLS_RSA_WITH_RC4_128_SHA                /* 0x05 */ },
+#endif
+#if BIT_EST_RSA && BIT_EST_DES
+    { "TLS_RSA_WITH_3DES_EDE_CBC_SHA",          TLS_RSA_WITH_3DES_EDE_CBC_SHA           /* 0x0A */ },
+#endif
+#if BIT_EST_RSA && BIT_EST_RC4
+    { "TLS_RSA_WITH_RC4_128_MD5",               TLS_RSA_WITH_RC4_128_MD5                /* 0x04 */ },
+#endif
+#if BIT_EST_RSA && BIT_EST_AES
+    { "TLS_DHE_RSA_WITH_AES_256_CBC_SHA",       TLS_DHE_RSA_WITH_AES_256_CBC_SHA        /* 0x39 */ },
+#endif
+#if BIT_EST_RSA && BIT_EST_DES
+    { "TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA",      TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA       /* 0x16 */ },
+#endif
+#if BIT_EST_RSA && BIT_EST_CAMELLIA
+    { "TLS_RSA_WITH_CAMELLIA_128_CBC_SHA",      TLS_RSA_WITH_CAMELLIA_128_CBC_SHA       /* 0x41 */ },
+    { "TLS_RSA_WITH_CAMELLIA_256_CBC_SHA",      TLS_RSA_WITH_CAMELLIA_256_CBC_SHA       /* 0x88 */ },
+    { "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA",  TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA   /* 0x84 */ },
+#endif
+    { 0, 0 },
+};
+
+
+//  MOB - should rename ssl_context vars from ssl to ctx
+char *ssl_get_cipher(ssl_context *ssl)
+{
+    EstCipher   *cp;
+
+    for (cp = cipherList; cp->name; cp++) {
+        if (cp->code == ssl->session->cipher) {
+            return cp->name;
+        }
+    }
+    return 0;
+}
+
+
+//  MOB - move to runtime.c
+static char *stok(char *str, char *delim, char **last)
+{
+    char    *start, *end;
+    ssize   i;
+
+    start = (str || *last == 0) ? str : *last;
+
+    if (start == 0) {
+        if (last) {
+            *last = 0;
+        }
+        return 0;
+    }
+    i = strspn(start, delim);
+    start += i;
+    if (*start == '\0') {
+        if (last) {
+            *last = 0;
+        }
+        return 0;
+    }
+    end = strpbrk(start, delim);
+    if (end) {
+        *end++ = '\0';
+        i = strspn(end, delim);
+        end += i;
+    }
+    if (last) {
+        *last = end;
+    }
+    return start;
+}
+
+
+int *ssl_create_ciphers(cchar *cipherSuite)
+{
+    EstCipher   *cp;
+    char        *suite, *cipher, *next;
+    int         nciphers, i, *ciphers;
+
+    if (!ciphers) {
+        return 0;
+    }
+    nciphers = sizeof(cipherList) / sizeof(EstCipher);
+    ciphers = malloc((nciphers + 1) * sizeof(int));
+   
+    suite = strdup(cipherSuite);
+    i = 0;
+    while ((cipher = stok(suite, ":, \t", &next)) != 0) {
+        for (cp = cipherList; cp->name; cp++) {
+            if (strcmp(cp->name, cipher) == 0) {
+                break;
+            }
+        }
+        if (cp) {
+            ciphers[i++] = cp->code;
+        } else {
+            //  MOB - need some mprError() equivalent
+            // SSL_DEBUG_MSG(0, ("Requested cipher %s is not supported", cipher));
+        }
+        suite = 0;
+    }
+    if (i == 0) {
+        for (i = 0; i < nciphers; i++) {
+            ciphers[i] = ssl_default_ciphers[i];
+        }
+        ciphers[i] = 0;
+    }
+    return ciphers;
+}
+
+
 /*
    Key material generation
  */
@@ -10044,8 +10166,7 @@ int ssl_derive_keys(ssl_context * ssl)
 #endif
 
     default:
-        SSL_DEBUG_MSG(1, ("cipher %s is not available",
-                  ssl_get_cipher(ssl)));
+        SSL_DEBUG_MSG(1, ("cipher %s is not available", ssl_get_cipher(ssl)));
         return (EST_ERR_SSL_FEATURE_UNAVAILABLE);
     }
 
@@ -11163,6 +11284,80 @@ int ssl_parse_finished(ssl_context * ssl)
 }
 
 
+#if EMBEDTHIS || 1
+/*
+    Default single-threaded session mgmt functios
+ */
+static ssl_session *slist = NULL;
+static ssl_session *cur, *prv;
+
+static int getSession(ssl_context *ssl)
+{
+    time_t  t;
+   
+    t = time(NULL);
+
+    if (ssl->resume == 0) {
+        return 1;
+    }
+    cur = slist;
+    prv = NULL;
+
+    while (cur) {
+        prv = cur;
+        cur = cur->next;
+        if (ssl->timeout != 0 && t - prv->start > ssl->timeout) {
+            continue;
+        }
+        if (ssl->session->cipher != prv->cipher || ssl->session->length != prv->length) {
+            continue;
+        }
+        if (memcmp(ssl->session->id, prv->id, prv->length) != 0) {
+            continue;
+        }
+        memcpy(ssl->session->master, prv->master, 48);
+        return 0;
+    }
+    return 1;
+}
+
+static int setSession(ssl_context *ssl)
+{
+    time_t  t;
+   
+    t = time(NULL);
+
+    cur = slist;
+    prv = NULL;
+    while (cur) {
+        if (ssl->timeout != 0 && t - cur->start > ssl->timeout) {
+            /* expired, reuse this slot */
+            break;
+        }
+        if (memcmp(ssl->session->id, cur->id, cur->length) == 0) {
+            /* client reconnected */
+            break;  
+        }
+        prv = cur;
+        cur = cur->next;
+    }
+    if (cur == NULL) {
+        cur = (ssl_session*) malloc(sizeof(ssl_session));
+        if (cur == NULL) {
+            return 1;
+        }
+        if (prv == NULL) {
+            slist = cur;
+        } else {
+            prv->next = cur;
+        }
+    }
+    memcpy(cur, ssl->session, sizeof(ssl_session));
+    return 0;
+}
+#endif
+
+
 /*
    Initialize an SSL context
  */
@@ -11194,6 +11389,11 @@ int ssl_init(ssl_context * ssl)
 
     ssl->hostname = NULL;
     ssl->hostname_len = 0;
+
+#if EMBEDTHIS || 1
+    ssl->s_get = getSession;
+    ssl->s_set = setSession;
+#endif
 
     md5_starts(&ssl->fin_md5);
     sha1_starts(&ssl->fin_sha1);
@@ -11319,6 +11519,7 @@ int ssl_get_verify_result(ssl_context * ssl)
 }
 
 
+#if UNUSED
 char *ssl_get_cipher(ssl_context * ssl)
 {
     switch (ssl->session->cipher) {
@@ -11363,9 +11564,9 @@ char *ssl_get_cipher(ssl_context * ssl)
     default:
         break;
     }
-
     return ("unknown");
 }
+#endif
 
 
 //  MOB - move to top
@@ -11405,6 +11606,9 @@ int ssl_default_ciphers[] = {
  */
 int ssl_handshake(ssl_context * ssl)
 {
+    char    cbuf[4096];
+
+    int old_state = ssl->state;
     int ret = EST_ERR_SSL_FEATURE_UNAVAILABLE;
 
     SSL_DEBUG_MSG(2, ("=> handshake"));
@@ -11419,6 +11623,15 @@ int ssl_handshake(ssl_context * ssl)
         ret = ssl_handshake_server(ssl);
 #endif
     SSL_DEBUG_MSG(2, ("<= handshake"));
+    
+    if (ssl->state == SSL_HANDSHAKE_OVER && old_state != SSL_HANDSHAKE_OVER) {
+        SSL_DEBUG_MSG(1, ("EST using cipher: %s", ssl_get_cipher(ssl)));
+        if (ssl->peer_cert) {
+            SSL_DEBUG_MSG(2, ("Peer certificate: %s", x509parse_cert_info("", cbuf, sizeof(cbuf), ssl->peer_cert)));
+        } else {
+            SSL_DEBUG_MSG(2, ("Peer supplied no certificate"));
+        }
+    }
     return (ret);
 }
 

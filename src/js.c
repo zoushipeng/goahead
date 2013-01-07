@@ -125,7 +125,7 @@ PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
     char      *script, *rs;
     int         fd;
 
-    assure(path && *path);
+    assert(path && *path);
 
     if (emsg) {
         *emsg = NULL;
@@ -209,7 +209,7 @@ PUBLIC char *jsEvalBlock(int jid, char *script, char **emsg)
     char* returnVal;
     int     vid;
 
-    assure(script);
+    assert(script);
 
     vid = jsOpenBlock(jid);
     returnVal = jsEval(jid, script, emsg);
@@ -230,7 +230,7 @@ PUBLIC char *jsEval(int jid, char *script, char **emsg)
     int     loopCounter;
     
     
-    assure(script);
+    assert(script);
 
     if (emsg) {
         *emsg = NULL;
@@ -303,7 +303,7 @@ PUBLIC char *jsEval(int jid, char *script, char **emsg)
  */
 static int parse(Js *ep, int state, int flags)
 {
-    assure(ep);
+    assert(ep);
 
     switch (state) {
     /*
@@ -379,7 +379,7 @@ static int parseStmt(Js *ep, int state, int flags)
     int         done, expectSemi, thenFlags, elseFlags, tid, cond, forFlags;
     int         jsVarType;
 
-    assure(ep);
+    assert(ep);
 
     /*
         Set these to NULL, else we try to free them if an error occurs.
@@ -835,7 +835,7 @@ static int parseDeclaration(Js *ep, int state, int flags)
 {
     int     tid;
 
-    assure(ep);
+    assert(ep);
 
     /*
         Declarations can be of the following forms:
@@ -883,7 +883,7 @@ static int parseFunctionArgs(Js *ep, int state, int flags)
 {
     int     tid, aid;
 
-    assure(ep);
+    assert(ep);
 
     do {
         state = parse(ep, STATE_RELEXP, flags);
@@ -919,7 +919,7 @@ static int parseCond(Js *ep, int state, int flags)
     char  *lhs, *rhs;
     int     tid, operator;
 
-    assure(ep);
+    assert(ep);
 
     setString(&ep->result, "");
     rhs = lhs = NULL;
@@ -978,7 +978,7 @@ static int parseExpr(Js *ep, int state, int flags)
     char  *lhs, *rhs;
     int     rel, tid;
 
-    assure(ep);
+    assert(ep);
 
     setString(&ep->result, "");
     rhs = lhs = NULL;
@@ -1047,9 +1047,9 @@ static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
     char  buf[16];
     int     l, r, lval;
 
-    assure(lhs);
-    assure(rhs);
-    assure(rel > 0);
+    assert(lhs);
+    assert(rhs);
+    assert(rel > 0);
 
     lval = 0;
     if (isdigit((uchar) *lhs) && isdigit((uchar) *rhs)) {
@@ -1087,9 +1087,9 @@ static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
     char  *cp, buf[16];
     int     numeric, l, r, lval;
 
-    assure(lhs);
-    assure(rhs);
-    assure(rel > 0);
+    assert(lhs);
+    assert(rhs);
+    assert(rel > 0);
 
     /*
         All of the characters in the lhs and rhs must be numeric
@@ -1246,8 +1246,8 @@ PUBLIC void jsError(Js *ep, char* fmt, ...)
     JsInput     *ip;
     char      *errbuf, *msgbuf;
 
-    assure(ep);
-    assure(fmt);
+    assert(ep);
+    assert(fmt);
     ip = ep->input;
 
     va_start(args, fmt);
@@ -1265,7 +1265,7 @@ PUBLIC void jsError(Js *ep, char* fmt, ...)
 
 static void clearString(char **ptr)
 {
-    assure(ptr);
+    assert(ptr);
 
     if (*ptr) {
         wfree(*ptr);
@@ -1276,7 +1276,7 @@ static void clearString(char **ptr)
 
 static void setString(char **ptr, char *s)
 {
-    assure(ptr);
+    assert(ptr);
 
     if (*ptr) {
         wfree(*ptr);
@@ -1289,18 +1289,14 @@ static void appendString(char **ptr, char *s)
 {
     ssize   len, oldlen, size;
 
-    assure(ptr);
+    assert(ptr);
 
     if (*ptr) {
         len = strlen(s);
         oldlen = strlen(*ptr);
         size = (len + oldlen + 1) * sizeof(char);
         *ptr = wrealloc(*ptr, size);
-#if WINDOWS
-        strcpy_s(&(*ptr)[oldlen], size - oldlen, s);
-#else
         strcpy(&(*ptr)[oldlen], s);
-#endif
     } else {
         *ptr = sclone(s);
     }
@@ -1407,7 +1403,7 @@ PUBLIC int jsArgs(int argc, char **argv, char *fmt, ...)
             /*
                 Unsupported
              */
-            assure(0);
+            assert(0);
         }
         argn++;
     }
@@ -1480,7 +1476,7 @@ PUBLIC void jsSetVar(int jid, char *var, char *value)
     Js          *ep;
     WebsValue   v;
 
-    assure(var && *var);
+    assert(var && *var);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return;
@@ -1503,7 +1499,7 @@ PUBLIC void jsSetLocalVar(int jid, char *var, char *value)
     Js          *ep;
     WebsValue   v;
 
-    assure(var && *var);
+    assert(var && *var);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return;
@@ -1526,7 +1522,7 @@ PUBLIC void jsSetGlobalVar(int jid, char *var, char *value)
     Js          *ep;
     WebsValue   v;
 
-    assure(var && *var);
+    assert(var && *var);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return;
@@ -1549,8 +1545,8 @@ PUBLIC int jsGetVar(int jid, char *var, char **value)
     WebsKey     *sp;
     int         i;
 
-    assure(var && *var);
-    assure(value);
+    assert(var && *var);
+    assert(value);
 
     if ((ep = jsPtr(jid)) == NULL) {
         return -1;
@@ -1562,7 +1558,7 @@ PUBLIC int jsGetVar(int jid, char *var, char **value)
             return -1;
         }
     }
-    assure(sp->content.type == string);
+    assert(sp->content.type == string);
     *value = sp->content.value.string;
     return i;
 }
@@ -1613,7 +1609,7 @@ static void freeFunc(JsFun *func)
  */
 static Js *jsPtr(int jid)
 {
-    assure(0 <= jid && jid < jsMax);
+    assert(0 <= jid && jid < jsMax);
 
     if (jid < 0 || jid >= jsMax || jsHandles[jid] == NULL) {
         jsError(NULL, "Bad handle %d", jid);
@@ -1652,8 +1648,8 @@ PUBLIC int jsLexOpenScript(Js *ep, char *script)
 {
     JsInput     *ip;
 
-    assure(ep);
-    assure(script);
+    assert(ep);
+    assert(script);
 
     if ((ep->input = walloc(sizeof(JsInput))) == NULL) {
         return -1;
@@ -1661,9 +1657,9 @@ PUBLIC int jsLexOpenScript(Js *ep, char *script)
     ip = ep->input;
     memset(ip, 0, sizeof(*ip));
 
-    assure(ip);
-    assure(ip->putBackToken == NULL);
-    assure(ip->putBackTokenId == 0);
+    assert(ip);
+    assert(ip->putBackToken == NULL);
+    assert(ip->putBackTokenId == 0);
 
     /*
         Create the parse token buffer and script buffer
@@ -1692,10 +1688,10 @@ PUBLIC void jsLexCloseScript(Js *ep)
 {
     JsInput     *ip;
 
-    assure(ep);
+    assert(ep);
 
     ip = ep->input;
-    assure(ip);
+    assert(ip);
 
     if (ip->putBackToken) {
         wfree(ip->putBackToken);
@@ -1717,10 +1713,10 @@ PUBLIC void jsLexSaveInputState(Js *ep, JsInput *state)
 {
     JsInput     *ip;
 
-    assure(ep);
+    assert(ep);
 
     ip = ep->input;
-    assure(ip);
+    assert(ip);
 
     *state = *ip;
     if (ip->putBackToken) {
@@ -1733,10 +1729,10 @@ PUBLIC void jsLexRestoreInputState(Js *ep, JsInput *state)
 {
     JsInput     *ip;
 
-    assure(ep);
+    assert(ep);
 
     ip = ep->input;
-    assure(ip);
+    assert(ip);
 
     ip->tokbuf = state->tokbuf;
     ip->script = state->script;
@@ -1772,9 +1768,9 @@ static int getLexicalToken(Js *ep, int state)
     JsInput     *ip;
     int         done, tid, c, quote, style;
 
-    assure(ep);
+    assert(ep);
     ip = ep->input;
-    assure(ip);
+    assert(ip);
 
     tokq = &ip->tokbuf;
     ep->tid = -1;
@@ -2136,9 +2132,9 @@ PUBLIC void jsLexPutbackToken(Js *ep, int tid, char *string)
 {
     JsInput *ip;
 
-    assure(ep);
+    assert(ep);
     ip = ep->input;
-    assure(ip);
+    assert(ip);
 
     if (ip->putBackToken) {
         wfree(ip->putBackToken);
@@ -2152,9 +2148,9 @@ static int tokenAddChar(Js *ep, int c)
 {
     JsInput *ip;
 
-    assure(ep);
+    assert(ep);
     ip = ep->input;
-    assure(ip);
+    assert(ip);
 
     if (bufPutc(&ip->tokbuf, (char) c) < 0) {
         jsError(ep, "Token too big");
@@ -2173,7 +2169,7 @@ static int inputGetc(Js *ep)
     ssize       len;
     int         c;
 
-    assure(ep);
+    assert(ep);
     ip = ep->input;
 
     if ((len = bufLen(&ip->script)) == 0) {
@@ -2199,7 +2195,7 @@ static void inputPutback(Js *ep, int c)
 {
     JsInput   *ip;
 
-    assure(ep);
+    assert(ep);
 
     ip = ep->input;
     bufInsertc(&ip->script, (char) c);

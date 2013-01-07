@@ -36,7 +36,7 @@ Bit.load({
         /*
             Packs to disable when using --without all
          */
-        'without-all': ['doxygen', 'dsi', 'ejs', 'est', 'man', 'man2html', 'pmaker', 'matrixssl', 'openssl' ],
+        'without-all': ['doxygen', 'dsi', 'ejs', 'est', 'man', 'man2html', 'pmaker' ],
 
         goahead: {
             /*
@@ -50,14 +50,9 @@ Bit.load({
             autoLogin: false,
 
             /*
-                Directory for use when validating client certificates for SSL
-             */
-            caPath: "",
-
-            /*
                 SSL file of certificates 
              */
-            caFile: "",
+            ca: "",
 
             /*
                 Server certificate file for SSL
@@ -129,6 +124,12 @@ Bit.load({
             listen: ["http://*:80", "https://*:443"]
 
             /*
+                Enable application logging
+             */
+            logging: true,
+            logfile: "stderr:0",
+
+            /*
                 Use PAM (Plugable Authentication Module) to store passwords
              */
             pam: false,
@@ -154,15 +155,25 @@ Bit.load({
             stealth: true,
 
             /*
-                Default location for debug log 
+                Enable debug trace and asserts
              */
-            trace: "stderr:0",
+            tracing: true,
 
             /*
                 Upload file support
              */
             upload: true,
             uploadDir: "/tmp",
+
+            /*
+                Verify client certificates
+             */
+            verifyPeer: true,
+
+            /*
+                Verify issuer. If false, allows self-signed certificates for testing purposes.
+             */
+            verifyIssuer: true,
         }
     },
 

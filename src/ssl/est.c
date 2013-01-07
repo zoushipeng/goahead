@@ -16,6 +16,7 @@
 typedef struct EstConfig {
     rsa_context     rsa;
     x509_cert       cert;
+    x509_cert       cabundle;
     int             *ciphers;
     //  MOB - where should this be set from?
     int             verifyPeer;
@@ -28,7 +29,7 @@ typedef struct EstConfig {
 typedef struct EstSocket {
     // MprSocket    *sock;
     havege_state    hs;
-    ssl_context     ssl;
+    ssl_context     ctx;
     ssl_session     session;
 } EstSocket;
 
@@ -48,23 +49,19 @@ static char *dhKey =
 
 /************************************ Forwards ********************************/
 
+static int estHandshake(Webs *wp);
 static void estTrace(void *fp, int level, char *str);
-static int      setSession(ssl_context *ssl);
-static int      getSession(ssl_context *ssl);
 
 /************************************** Code **********************************/
 
 PUBLIC int sslOpen()
 {
-    trace(7, "Initializing EST SSL\n"); 
+    trace(7, "Initializing EST SSL"); 
 
-#if 0
-    //  MOB - use estCreateCiphers when ready
-    estConfig.ciphers = createCiphers(BIT_GOAHEAD_CIPHERS);
-#endif
     /*
-          Set the server certificate and key files
+        Set the server certificate and key files
      */
+    //  MOB - last arg is password
     if (*BIT_GOAHEAD_KEY && x509parse_keyfile(&estConfig.rsa, BIT_GOAHEAD_KEY, 0) < 0) {
         error("EST: Unable to read key file %s", BIT_GOAHEAD_KEY); 
         return -1;
@@ -73,41 +70,13 @@ PUBLIC int sslOpen()
         error("EST: Unable to read certificate %s", BIT_GOAHEAD_CERTIFICATE); 
         return -1;
     }
-
-#if UNUSED
-#if VERIFY_CLIENT
-    if (verifyPeer) {
-        SSL_CTX_set_verify(context, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
-#if FUTURE && KEEP
-        SSL_CTX_set_verify_depth(context, VERIFY_DEPTH);
-#endif
-    } else {
-        SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
-    }
-#else
-    SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
-#endif
-#endif
-
-#if UNUSED
-    /*
-        Set the client certificate verification locations
-     */
-    caFile = *BIT_GOAHEAD_CA_FILE ? BIT_GOAHEAD_CA_FILE : 0;
-    caPath = *BIT_GOAHEAD_CA_PATH ? BIT_GOAHEAD_CA_PATH : 0;
-    if (caFile || caPath) {
-        if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
-            error("Unable to read cert verification locations");
+    if (*BIT_GOAHEAD_CA) {
+        if (x509parse_crtfile(&estConfig.cabundle, BIT_GOAHEAD_CA) != 0) {
+            error("Unable to parse certificate bundle %s", *BIT_GOAHEAD_CA); 
             return -1;
         }
     }
-    /*
-        Set the certificate authority list for the client
-     */
-    if (BIT_GOAHEAD_CA_FILE && *BIT_GOAHEAD_CA_FILE) {
-        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_GOAHEAD_CA_FILE));
-    }
-#endif
+    estConfig.ciphers = ssl_create_ciphers(BIT_GOAHEAD_CIPHERS);
     return 0;
 }
 
@@ -120,82 +89,153 @@ PUBLIC void sslClose()
 
 PUBLIC int sslUpgrade(Webs *wp)
 {
-    EstSocket   *esp;
+    EstSocket   *est;
     WebsSocket  *sp;
 
-    assure(wp);
-    if ((esp = malloc(sizeof(EstSocket))) == 0) {
+    assert(wp);
+    if ((est = malloc(sizeof(EstSocket))) == 0) {
         return -1;
     }
-    wp->est = esp;
+    wp->est = est;
 
-    ssl_free(&esp->ssl);
-    //  MOB - convert to proper entropy source API
-    //  MOB - can't put this in cfg yet as it is not thread safe
-    havege_init(&esp->hs);
-    ssl_init(&esp->ssl);
-	ssl_set_endpoint(&esp->ssl, 1);
-	ssl_set_authmode(&esp->ssl, (estConfig.verifyPeer) ? SSL_VERIFY_REQUIRED : SSL_VERIFY_NO_CHECK);
-    ssl_set_rng(&esp->ssl, havege_rand, &esp->hs);
-	ssl_set_dbg(&esp->ssl, estTrace, NULL);
-
+    ssl_free(&est->ctx);
+    havege_init(&est->hs);
+    ssl_init(&est->ctx);
+	ssl_set_endpoint(&est->ctx, 1);
+	ssl_set_authmode(&est->ctx, BIT_GOAHEAD_VERIFY_PEER ? SSL_VERIFY_OPTIONAL : SSL_VERIFY_NO_CHECK);
+    ssl_set_rng(&est->ctx, havege_rand, &est->hs);
+	ssl_set_dbg(&est->ctx, estTrace, NULL);
     sp = socketPtr(wp->sid);
-	ssl_set_bio(&esp->ssl, net_recv, &sp->sock, net_send, &sp->sock);
+	ssl_set_bio(&est->ctx, net_recv, &sp->sock, net_send, &sp->sock);
+    ssl_set_ciphers(&est->ctx, estConfig.ciphers);
+	ssl_set_session(&est->ctx, 1, 0, &est->session);
+	memset(&est->session, 0, sizeof(ssl_session));
+	ssl_set_ca_chain(&est->ctx, estConfig.cert.next, NULL);
+	ssl_set_own_cert(&est->ctx, &estConfig.cert, &estConfig.rsa);
+	ssl_set_dh_param(&est->ctx, dhKey, dhg);
 
-    //  MOB - better if the API took a handle (esp)
-	ssl_set_scb(&esp->ssl, getSession, setSession);
-
-    ssl_set_ciphers(&esp->ssl, estConfig.ciphers);
-
-    //  MOB
-	ssl_set_session(&esp->ssl, 1, 0, &esp->session);
-	memset(&esp->session, 0, sizeof(ssl_session));
-
-	ssl_set_ca_chain(&esp->ssl, estConfig.cert.next, NULL);
-	ssl_set_own_cert(&esp->ssl, &estConfig.cert, &estConfig.rsa);
-	ssl_set_dh_param(&esp->ssl, dhKey, dhg);
+    if (estHandshake(wp) < 0) {
+        return -1;
+    }
     return 0;
 }
     
 
 PUBLIC void sslFree(Webs *wp)
 {
-    EstSocket   *esp;
+    EstSocket   *est;
 
-    esp = wp->est;
-    ssl_free(&esp->ssl);
+    est = wp->est;
+    ssl_free(&est->ctx);
+}
+
+
+/*
+    Initiate or continue SSL handshaking with the peer. This routine does not block.
+    Return -1 on errors, 0 incomplete and awaiting I/O, 1 if successful
+ */
+static int estHandshake(Webs *wp)
+{
+    WebsSocket  *sp;
+    EstSocket   *est;
+    int         rc, vrc, trusted;
+
+    est = (EstSocket*) wp->est;
+    trusted = 1;
+
+    sp = socketPtr(wp->sid);
+    sp->flags |= SOCKET_HANDSHAKING;
+
+    while (est->ctx.state != SSL_HANDSHAKE_OVER && (rc = ssl_handshake(&est->ctx)) != 0) {
+        if (rc == EST_ERR_NET_TRY_AGAIN) {
+            return 0;
+        }
+        break;
+    }
+    sp->flags &= ~SOCKET_HANDSHAKING;
+
+    /*
+        Analyze the handshake result
+     */
+    if (rc < 0) {
+        logmsg(4, "Cannot handshake: error -0x%x", -rc);
+        sp->flags |= SOCKET_EOF;
+        errno = EPROTO;
+        return -1;
+       
+    } else if ((vrc = ssl_get_verify_result(&est->ctx)) != 0) {
+        if (vrc & BADCERT_EXPIRED) {
+            logmsg(2, "Certificate expired");
+
+        } else if (vrc & BADCERT_REVOKED) {
+            logmsg(2, "Certificate revoked");
+
+        } else if (vrc & BADCERT_CN_MISMATCH) {
+            logmsg(2, "Certificate common name mismatch");
+
+        } else if (vrc & BADCERT_NOT_TRUSTED) {
+            if (est->ctx.peer_cert->next && est->ctx.peer_cert->next->version == 0) {
+                //  MOB - est should have dedicated EST error code for this.
+                logmsg(2, "Self-signed certificate");
+            } else {
+                logmsg(2, "Certificate not trusted");
+            }
+            trusted = 0;
+
+        } else {
+            if (est->ctx.client_auth && !*BIT_GOAHEAD_CERTIFICATE) {
+                logmsg(2, "Server requires a client certificate");
+            } else if (rc == EST_ERR_NET_CONN_RESET) {
+                logmsg(2, "Peer disconnected");
+            } else {
+                logmsg(2, "Cannot handshake: error -0x%x", -rc);
+            }
+        }
+        if (BIT_GOAHEAD_VERIFY_PEER) {
+            /* 
+               If not verifying the issuer, permit certs that are only untrusted (no other error).
+               This allows self-signed certs.
+             */
+            if (!BIT_GOAHEAD_VERIFY_ISSUER && !trusted) {
+                return 1;
+            } else {
+                sp->flags |= SOCKET_EOF;
+                errno = EPROTO;
+                return -1;
+            }
+        }
+    }
+    return 1;
 }
 
 
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     WebsSocket      *sp;
-    EstSocket       *esp;
+    EstSocket       *est;
     int             rc;
 
     if (wp->est) {
-        assure(0);
+        assert(0);
         return -1;
     }
-    esp = (EstSocket*) wp->est;
-    assure(esp);
+    est = (EstSocket*) wp->est;
+    assert(est);
     sp = socketPtr(wp->sid);
 
-    while (esp->ssl.state != SSL_HANDSHAKE_OVER && (rc = ssl_handshake(&esp->ssl)) != 0) {
-        if (rc != EST_ERR_NET_TRY_AGAIN) {
-            trace(2, "EST: readEst: Cannot handshake: %d", rc);
-            sp->flags |= SOCKET_EOF;
-            return -1;
+    if (est->ctx.state != SSL_HANDSHAKE_OVER) {
+        if ((rc = estHandshake(wp)) <= 0) {
+            return rc;
         }
     }
     while (1) {
-        rc = ssl_read(&esp->ssl, buf, (int) len);
+        rc = ssl_read(&est->ctx, buf, (int) len);
         trace(5, "EST: ssl_read %d", rc);
         if (rc < 0) {
             if (rc == EST_ERR_NET_TRY_AGAIN)  {
                 continue;
             } else if (rc == EST_ERR_SSL_PEER_CLOSE_NOTIFY) {
-                trace(5, "EST: connection was closed gracefully\n");
+                trace(5, "EST: connection was closed gracefully");
                 sp->flags |= SOCKET_EOF;
                 return -1;
             } else if (rc == EST_ERR_NET_CONN_RESET) {
@@ -206,44 +246,40 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         }
         break;
     }
-    if (esp->ssl.in_left > 0) {
-        sp->flags |= SOCKET_PENDING;
-        socketReservice(wp->sid);
-    }
+    socketHiddenData(sp, est->ctx.in_left, SOCKET_READABLE);
     return rc;
 }
 
 
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 {
-    EstSocket   *esp;
+    EstSocket   *est;
     ssize       totalWritten;
     int         rc;
 
     if (wp->est == 0 || len <= 0) {
-        assure(0);
+        assert(0);
         return -1;
     }
-    esp = (EstSocket*) wp->est;
-    if (len <= 0) {
-        assure(0);
-        return -1;
+    est = (EstSocket*) wp->est;
+    if (est->ctx.state != SSL_HANDSHAKE_OVER) {
+        if ((rc = estHandshake(wp)) <= 0) {
+            return rc;
+        }
     }
     totalWritten = 0;
-
     do {
-        rc = ssl_write(&esp->ssl, (uchar*) buf, (int) len);
+        rc = ssl_write(&est->ctx, (uchar*) buf, (int) len);
         trace(7, "EST: written %d, requested len %d", rc, len);
         if (rc <= 0) {
             if (rc == EST_ERR_NET_TRY_AGAIN) {                                                          
-                continue;
+                break;
             }
             if (rc == EST_ERR_NET_CONN_RESET) {                                                         
-                printf(" failed\n  ! peer closed the connection\n\n");                                         
-                trace(0, "ssl_write peer closed");
+                trace(4, "ssl_write peer closed");
                 return -1;
-            } else if (rc != EST_ERR_NET_TRY_AGAIN) {                                                          
-                trace(0, "ssl_write failed rc %d", rc);
+            } else {
+                trace(4, "ssl_write failed rc %d", rc);
                 return -1;
             }
         } else {
@@ -253,158 +289,16 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
             trace(7, "EST: write: len %d, written %d, total %d", len, rc, totalWritten);
         }
     } while (len > 0);
+
+    socketHiddenData(socketPtr(wp->sid), est->ctx.in_left, SOCKET_WRITABLE);
     return totalWritten;
-}
-
-
-#if UNUSED
-static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
-{
-    X509            *cert;
-    char            subject[260], issuer[260], peer[260];
-    int             error;
-    
-    subject[0] = issuer[0] = '\0';
-
-    cert = X509_STORE_CTX_get_current_cert(xContext);
-    error = X509_STORE_CTX_get_error(xContext);
-
-    ok = 1;
-    if (X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) - 1) < 0) {
-        ok = 0;
-    }
-    if (X509_NAME_oneline(X509_get_issuer_name(xContext->current_cert), issuer, sizeof(issuer) - 1) < 0) {
-        ok = 0;
-    }
-    if (X509_NAME_get_text_by_NID(X509_get_subject_name(xContext->current_cert), NID_commonName, peer, 
-            sizeof(peer) - 1) < 0) {
-        ok = 0;
-    }
-#if FUTURE && KEEP
-    if (ok && ssl->verifyDepth < depth) {
-        if (error == 0) {
-            error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-        }
-    }
-#endif
-    switch (error) {
-    case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
-        /* Normal self signed certificate */
-    case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-    case X509_V_ERR_CERT_UNTRUSTED:
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-#if FUTURE && KEEP
-        if (ssl->verifyIssuer) {
-            /* Issuer can't be verified */
-            ok = 0;
-        }
-#endif
-        break;
-
-    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
-    case X509_V_ERR_CERT_HAS_EXPIRED:
-    case X509_V_ERR_CERT_NOT_YET_VALID:
-    case X509_V_ERR_CERT_REJECTED:
-    case X509_V_ERR_CERT_SIGNATURE_FAILURE:
-    case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-    case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-    case X509_V_ERR_INVALID_CA:
-    default:
-        ok = 0;
-        break;
-    }
-    if (ok) {
-        trace(3, "OpenSSL: Certificate verified: subject %s", subject);
-        trace(4, "OpenSSL: Issuer: %s", issuer);
-        trace(4, "OpenSSL: Peer: %s", peer);
-    } else {
-        trace(1, "OpenSSL: Certification failed: subject %s (more trace at level 4)", subject);
-        trace(4, "OpenSSL: Issuer: %s", issuer);
-        trace(4, "OpenSSL: Peer: %s", peer);
-        trace(4, "OpenSSL: Error: %d: %s", error, X509_verify_cert_error_string(error));
-    }
-    return ok;
-}
-#endif
-
-/*
-    These session callbacks use a simple chained list to store and retrieve the session information.
- */
-static ssl_session *slist = NULL;
-static ssl_session *cur, *prv;
-
-static int getSession(ssl_context *ssl)
-{
-    time_t  t;
-   
-    t = time(NULL);
-
-    if (ssl->resume == 0) {
-        return 1;
-    }
-    cur = slist;
-    prv = NULL;
-
-    while (cur) {
-        prv = cur;
-        cur = cur->next;
-        if (ssl->timeout != 0 && t - prv->start > ssl->timeout) {
-            continue;
-        }
-        if (ssl->session->cipher != prv->cipher || ssl->session->length != prv->length) {
-            continue;
-        }
-        if (memcmp(ssl->session->id, prv->id, prv->length) != 0) {
-            continue;
-        }
-        memcpy(ssl->session->master, prv->master, 48);
-        return 0;
-    }
-    return 1;
-}
-
-static int setSession(ssl_context *ssl)
-{
-    time_t  t;
-   
-    t = time(NULL);
-
-    cur = slist;
-    prv = NULL;
-    while (cur) {
-        if (ssl->timeout != 0 && t - cur->start > ssl->timeout) {
-            /* expired, reuse this slot */
-            break;
-        }
-        if (memcmp(ssl->session->id, cur->id, cur->length) == 0) {
-            /* client reconnected */
-            break;  
-        }
-        prv = cur;
-        cur = cur->next;
-    }
-    if (cur == NULL) {
-        cur = (ssl_session*) malloc(sizeof(ssl_session));
-        if (cur == NULL) {
-            return 1;
-        }
-        if (prv == NULL) {
-            slist = cur;
-        } else {
-            prv->next = cur;
-        }
-    }
-    memcpy(cur, ssl->session, sizeof(ssl_session));
-    return 0;
 }
 
 
 static void estTrace(void *fp, int level, char *str)
 {
     level += 3;
-    if (level <= websGetTraceLevel()) {
+    if (level <= websGetLogLevel()) {
         str = sclone(str);
         str[slen(str) - 1] = '\0';
         trace(level, "%s", str);

@@ -27,8 +27,8 @@ static bool actionHandler(Webs *wp)
     char        *cp, *formName;
     WebsAction  fn;
 
-    assure(websValid(wp));
-    assure(formSymtab >= 0);
+    assert(websValid(wp));
+    assert(formSymtab >= 0);
 
     /*
         Extract the form name
@@ -50,7 +50,7 @@ static bool actionHandler(Webs *wp)
         websError(wp, HTTP_CODE_NOT_FOUND, "Action %s is not defined", formName);
     } else {
         fn = (WebsAction) sp->content.value.symbol;
-        assure(fn);
+        assert(fn);
         if (fn) {
 #if BIT_GOAHEAD_LEGACY
             (*fn)((void*) wp, formName, wp->query);
@@ -68,8 +68,8 @@ static bool actionHandler(Webs *wp)
  */
 PUBLIC int websDefineAction(char *name, void *fn)
 {
-    assure(name && *name);
-    assure(fn);
+    assert(name && *name);
+    assert(fn);
 
     if (fn == NULL) {
         return -1;
@@ -103,7 +103,7 @@ PUBLIC void websActionOpen()
  */
 PUBLIC void websHeader(Webs *wp)
 {
-    assure(websValid(wp));
+    assert(websValid(wp));
 
     websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
@@ -113,7 +113,7 @@ PUBLIC void websHeader(Webs *wp)
 
 PUBLIC void websFooter(Webs *wp)
 {
-    assure(websValid(wp));
+    assert(websValid(wp));
     websWrite(wp, "</html>\n");
 }
 #endif

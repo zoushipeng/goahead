@@ -28,9 +28,9 @@ static bool fileHandler(Webs *wp)
     ssize           nchars;
     int             code;
 
-    assure(websValid(wp));
-    assure(wp->method);
-    assure(wp->filename && wp->filename[0]);
+    assert(websValid(wp));
+    assert(wp->method);
+    assert(wp->filename && wp->filename[0]);
 
 #if !BIT_ROM
     if (smatch(wp->method, "DELETE")) {
@@ -63,7 +63,7 @@ static bool fileHandler(Webs *wp)
         if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
 #if BIT_DEBUG
             if (wp->referrer) {
-                trace(1, "From %s\n", wp->referrer);
+                trace(1, "From %s", wp->referrer);
             }
 #endif
             websError(wp, HTTP_CODE_NOT_FOUND, "Cannot open document for: %s", wp->path);
@@ -107,8 +107,8 @@ static void fileWriteEvent(Webs *wp)
     char    *buf;
     ssize   len, wrote;
 
-    assure(wp);
-    assure(websValid(wp));
+    assert(wp);
+    assert(websValid(wp));
 
     /*
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
@@ -137,9 +137,9 @@ PUBLIC int websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
 
-    assure(wp);
-    assure(wp->putfd >= 0);
-    assure(wp->input.buf);
+    assert(wp);
+    assert(wp->putfd >= 0);
+    assert(wp->input.buf);
 
     nbytes = bufLen(&wp->input);
     wp->putLen += nbytes;
@@ -192,7 +192,7 @@ PUBLIC char *websGetDocuments()
  */
 PUBLIC void websSetIndex(char *page)
 {
-    assure(page && *page);
+    assert(page && *page);
 
     if (websIndex) {
         wfree(websIndex);
@@ -206,7 +206,7 @@ PUBLIC void websSetIndex(char *page)
  */
 PUBLIC void websSetDocuments(char *dir)
 {
-    assure(dir && *dir);
+    assert(dir && *dir);
     if (websDocuments) {
         wfree(websDocuments);
     }

@@ -152,7 +152,7 @@ typedef struct Format {
 
 #define RINGQ_LEN(bp) ((bp->servp > bp->endp) ? (bp->buflen + (bp->endp - bp->servp)) : (bp->endp - bp->servp))
 
-typedef struct HashTable {                 /* Symbol table descriptor */
+typedef struct HashTable {              /* Symbol table descriptor */
     WebsKey     **hash_table;           /* Allocated at run time */
     int         inuse;                  /* Is this entry in use */
     int         size;                   /* Size of the table below */
@@ -166,16 +166,17 @@ typedef struct HashTable {                 /* Symbol table descriptor */
     static void syslog(int priority, char *fmt, ...);
 #endif
 
+PUBLIC int       logLevel;          /* Log verbosity level */
+
 /************************************* Locals *********************************/
 
-static Callback **callbacks;
-static int      callbackMax;
+static Callback  **callbacks;
+static int       callbackMax;
 
-static HashTable   **sym;              /* List of symbol tables */
-static int      symMax;             /* One past the max symbol table */
-static char     *tracePath;
-static int      traceFd;            /* Log file handle */
-static int      traceLevel;
+static HashTable **sym;             /* List of symbol tables */
+static int       symMax;            /* One past the max symbol table */
+static char      *logPath;
+static int       logFd;             /* Log file handle */
 
 char* embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
 
@@ -185,8 +186,8 @@ static int calcPrime(int size);
 static int getBinBlockSize(int size);
 static int hashIndex(HashTable *tp, char *name);
 static WebsKey *hash(HashTable *tp, char *name);
-static void defaultTraceHandler(int level, char *buf);
-static WebsTraceHandler traceHandler = defaultTraceHandler;
+static void defaultLogHandler(int level, char *buf);
+static WebsLogHandler logHandler = defaultLogHandler;
 
 static int  getState(char c, int state);
 static int  growBuf(Format *fmt);
@@ -205,9 +206,9 @@ static void callEvent(int id)
 {
     Callback    *cp;
 
-    assure(0 <= id && id < callbackMax);
+    assert(0 <= id && id < callbackMax);
     cp = callbacks[id];
-    assure(cp);
+    assert(cp);
 
     (cp->routine)(cp->arg, cp->id);
 }
@@ -292,7 +293,7 @@ PUBLIC char *sfmt(char *format, ...)
     va_list     ap;
     char        *result;
 
-    assure(format);
+    assert(format);
 
     va_start(ap, format);
     result = sprintfCore(NULL, -1, format, ap);
@@ -309,9 +310,9 @@ PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
     va_list     ap;
     char        *result;
 
-    assure(buf);
-    assure(format);
-    assure(bufsize <= BIT_GOAHEAD_LIMIT_STRING);
+    assert(buf);
+    assert(format);
+    assert(bufsize <= BIT_GOAHEAD_LIMIT_STRING);
 
     if (bufsize <= 0) {
         return 0;
@@ -328,7 +329,7 @@ PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
  */
 PUBLIC char *sfmtv(char *fmt, va_list arg)
 {
-    assure(fmt);
+    assert(fmt);
     return sprintfCore(NULL, -1, fmt, arg);
 }
 
@@ -340,10 +341,10 @@ static int getState(char c, int state)
     if (c < ' ' || c > 'z') {
         chrClass = CLASS_NORMAL;
     } else {
-        assure((c - ' ') < (int) sizeof(classMap));
+        assert((c - ' ') < (int) sizeof(classMap));
         chrClass = classMap[(c - ' ')];
     }
-    assure((chrClass * STATE_COUNT + state) < (int) sizeof(stateMap));
+    assert((chrClass * STATE_COUNT + state) < (int) sizeof(stateMap));
     state = stateMap[chrClass * STATE_COUNT + state];
     return state;
 }
@@ -362,7 +363,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
         spec = "";
     }
     if (buf != 0) {
-        assure(maxsize > 0);
+        assert(maxsize > 0);
         fmt.buf = (uchar*) buf;
         fmt.endbuf = &fmt.buf[maxsize];
         fmt.growBy = -1;
@@ -878,9 +879,7 @@ static int growBuf(Format *fmt)
 }
 
 
-/*
-    For easy debug trace
- */
+#if UNUSED
 PUBLIC int print(cchar *fmt, ...)
 {
     va_list     ap;
@@ -891,6 +890,7 @@ PUBLIC int print(cchar *fmt, ...)
     va_end(ap);
     return len;
 }
+#endif
 
 
 WebsValue valueInteger(long value)
@@ -946,18 +946,22 @@ PUBLIC void valueFree(WebsValue* v)
 }
 
 
-static void defaultTraceHandler(int level, char *buf)
+static void defaultLogHandler(int flags, char *buf)
 {
     char    prefix[BIT_GOAHEAD_LIMIT_STRING];
 
-    if (traceFd >= 0) {
-        if (!(level & WEBS_LOG_RAW)) {
-            fmt(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, level & WEBS_LOG_MASK);
-            write(traceFd, prefix, (int) slen(prefix));
-        }
-        write(traceFd, buf, (int) slen(buf));
-        if (level & WEBS_LOG_NEWLINE) {
-            write(traceFd, "\n", 1);
+    if (logFd >= 0) {
+        if (flags & WEBS_RAW_MSG) {
+            write(logFd, buf, (int) slen(buf));
+        } else {
+            fmt(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, flags & WEBS_LEVEL_MASK);
+            write(logFd, prefix, (int) slen(prefix));
+            write(logFd, buf, (int) slen(buf));
+#if BIT_WIN_LIKE || BIT_UNIX_LIKE
+            if (flags & WEBS_ERROR_MSG && websGetBackground()) {
+                syslog(LOG_ERR, "%s", buf);
+            }
+#endif
         }
     }
 }
@@ -966,25 +970,20 @@ static void defaultTraceHandler(int level, char *buf)
 PUBLIC void error(char *fmt, ...)
 {
     va_list     args;
-    char      *message;
+    char        *message;
 
-    if (!traceHandler) {
+    if (!logHandler) {
         return;
     }
     va_start(args, fmt);
     message = sfmtv(fmt, args);
     va_end(args);
-    traceHandler(WEBS_LOG_NEWLINE, message);
-#if BIT_WIN_LIKE || BIT_UNIX_LIKE
-    if (websGetBackground()) {
-        syslog(LOG_ERR, "%s", message);
-    }
-#endif
+    logHandler(WEBS_ERROR_MSG, message);
     wfree(message);
 }
 
 
-PUBLIC void assureError(WEBS_ARGS_DEC, char *fmt, ...)
+PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...)
 {
     va_list     args;
     char        *fmtBuf, *message;
@@ -995,26 +994,23 @@ PUBLIC void assureError(WEBS_ARGS_DEC, char *fmt, ...)
     message = sfmt("Assertion %s, failed at %s %d\n", fmtBuf, WEBS_ARGS); 
     va_end(args);
     wfree(fmtBuf);
-    if (traceHandler) {
-        traceHandler(-1, message);
+    if (logHandler) {
+        logHandler(WEBS_ASSERT_MSG, message);
     }
     wfree(message);
 }
 
 
-/*
-    Trace log. Customize this function to log trace output
- */
-PUBLIC void trace(int level, char *fmt, ...)
+PUBLIC void logmsgProc(int level, char *fmt, ...)
 {
     va_list     args;
     char      *message;
 
-    if ((level & WEBS_LOG_MASK) <= traceLevel) {    
+    if ((level & WEBS_LEVEL_MASK) <= logLevel) {    
         va_start(args, fmt);
         message = sfmtv(fmt, args);
-        if (traceHandler) {
-            traceHandler(level, message);
+        if (logHandler) {
+            logHandler(level | WEBS_LOG_MSG, message);
         }
         wfree(message);
         va_end(args);
@@ -1022,64 +1018,81 @@ PUBLIC void trace(int level, char *fmt, ...)
 }
 
 
-PUBLIC int websGetTraceLevel() 
+PUBLIC void traceProc(int level, char *fmt, ...)
 {
-    return traceLevel;
+    va_list     args;
+    char      *message;
+
+    if ((level & WEBS_LEVEL_MASK) <= logLevel) {    
+        va_start(args, fmt);
+        message = sfmtv(fmt, args);
+        if (logHandler) {
+            logHandler(level | WEBS_TRACE_MSG, message);
+        }
+        wfree(message);
+        va_end(args);
+    }
+}
+
+
+PUBLIC int websGetLogLevel() 
+{
+    return logLevel;
 }
 
 
 /*
     Replace the default trace handler. Return a pointer to the old handler.
  */
-WebsTraceHandler traceSetHandler(WebsTraceHandler handler)
+WebsLogHandler logSetHandler(WebsLogHandler handler)
 {
-    WebsTraceHandler    oldHandler;
+    WebsLogHandler    oldHandler;
 
-    oldHandler = traceHandler;
+    oldHandler = logHandler;
     if (handler) {
-        traceHandler = handler;
+        logHandler = handler;
     }
     return oldHandler;
 }
 
 
-PUBLIC int traceOpen()
+PUBLIC int logOpen()
 {
-    if (!tracePath) {
+    if (!logPath) {
         /* This defintion comes from main.bit and bit.h */
-        traceSetPath(BIT_GOAHEAD_TRACE);
+        logSetPath(BIT_GOAHEAD_LOGFILE);
     }
-    if (smatch(tracePath, "stdout")) {
-        traceFd = 1;
-    } else if (smatch(tracePath, "stderr")) {
-        traceFd = 2;
-    } else if ((traceFd = open(tracePath, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
+    if (smatch(logPath, "stdout")) {
+        logFd = 1;
+    } else if (smatch(logPath, "stderr")) {
+        logFd = 2;
+    } else if ((logFd = open(logPath, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
         return -1;
     }
-    lseek(traceFd, 0, SEEK_END);
-    traceSetHandler(traceHandler);
+    lseek(logFd, 0, SEEK_END);
+    logSetHandler(logHandler);
     return 0;
 }
 
 
-PUBLIC void traceClose()
+PUBLIC void logClose()
 {
-    if (traceFd >= 0) {
-        close(traceFd);                                                                              
-        traceFd = -1;                                                                                
+    if (logFd >= 0) {
+        close(logFd);                                                                              
+        logFd = -1;                                                                                
     }                                                                                                    
 }
 
 
-PUBLIC void traceSetPath(char *path)
+PUBLIC void logSetPath(char *path)
 {
     char  *lp;
     
-    wfree(tracePath);
-    tracePath = sclone(path);
-    if ((lp = strchr(tracePath, ':')) != 0) {
+    wfree(logPath);
+    logPath = sclone(path);
+    if ((lp = strchr(logPath, ':')) != 0) {
         *lp++ = '\0';
-        traceLevel = atoi(lp);
+        logLevel = atoi(lp);
     }
 }
 
@@ -1091,7 +1104,7 @@ PUBLIC char *slower(char *string)
 {
     char  *s;
 
-    assure(string);
+    assert(string);
 
     if (string == NULL) {
         return NULL;
@@ -1115,7 +1128,7 @@ PUBLIC char *supper(char *string)
 {
     char  *s;
 
-    assure(string);
+    assert(string);
     if (string == NULL) {
         return NULL;
     }
@@ -1180,7 +1193,7 @@ PUBLIC int wallocHandle(void *mapArg)
     int     handle, len, memsize, incr;
 
     map = (void***) mapArg;
-    assure(map);
+    assert(map);
 
     if (*map == NULL) {
         incr = H_INCR;
@@ -1237,12 +1250,12 @@ PUBLIC int wfreeHandle(void *mapArg, int handle)
     int     len;
 
     map = (void***) mapArg;
-    assure(map);
+    assert(map);
     mp = &((*(ssize**)map)[-H_OFFSET]);
-    assure(mp[H_LEN] >= H_INCR);
+    assert(mp[H_LEN] >= H_INCR);
 
-    assure(mp[handle + H_OFFSET]);
-    assure(mp[H_USED]);
+    assert(mp[handle + H_OFFSET]);
+    assert(mp[H_USED]);
     mp[handle + H_OFFSET] = 0;
     if (--(mp[H_USED]) == 0) {
         wfree((void*) mp);
@@ -1278,8 +1291,8 @@ PUBLIC int wallocObject(void *listArg, int *max, int size)
     int     id;
 
     list = (void***) listArg;
-    assure(list);
-    assure(max);
+    assert(list);
+    assert(max);
 
     if ((id = wallocHandle(list)) < 0) {
         return -1;
@@ -1289,7 +1302,7 @@ PUBLIC int wallocObject(void *listArg, int *max, int size)
             wfreeHandle(list, id);
             return -1;
         }
-        assure(cp);
+        assert(cp);
         memset(cp, 0, size);
         (*list)[id] = (void*) cp;
     }
@@ -1309,7 +1322,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
 {
     int increment;
 
-    assure(bp);
+    assert(bp);
     
     if (initSize <= 0) {
         initSize = BIT_GOAHEAD_LIMIT_BUFFER;
@@ -1317,7 +1330,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     if (maxsize <= 0) {
         maxsize = initSize;
     }
-    assure(initSize >= 0);
+    assert(initSize >= 0);
 
     increment = getBinBlockSize(initSize);
     if ((bp->buf = walloc((increment))) == NULL) {
@@ -1339,8 +1352,8 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
  */
 PUBLIC void bufFree(WebsBuf *bp)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp == NULL) {
         return;
@@ -1357,8 +1370,8 @@ PUBLIC void bufFree(WebsBuf *bp)
  */
 PUBLIC ssize bufLen(WebsBuf *bp)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp->servp > bp->endp) {
         return bp->buflen + bp->endp - bp->servp;
@@ -1375,8 +1388,8 @@ PUBLIC int bufGetc(WebsBuf *bp)
 {
     char    c, *cp;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp->servp == bp->endp) {
         return -1;
@@ -1400,8 +1413,8 @@ PUBLIC int bufPutc(WebsBuf *bp, char c)
 {
     char *cp;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if ((bufRoom(bp) < (int) sizeof(char)) && !bufGrow(bp, 0)) {
         return -1;
@@ -1423,8 +1436,8 @@ PUBLIC int bufInsertc(WebsBuf *bp, char c)
 {
     char *cp;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) < (int) sizeof(char) && !bufGrow(bp, 0)) {
         return -1;
@@ -1446,9 +1459,9 @@ PUBLIC ssize bufPutStr(WebsBuf *bp, char *str)
 {
     ssize   rc;
 
-    assure(bp);
-    assure(str);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(str);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
     *((char*) bp->endp) = (char) '\0';
@@ -1461,8 +1474,8 @@ PUBLIC ssize bufPutStr(WebsBuf *bp, char *str)
  */
 PUBLIC void bufAddNull(WebsBuf *bp)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) < (int) sizeof(char)) {
         bufGrow(bp, 0);
@@ -1480,8 +1493,8 @@ PUBLIC int bufGetcA(WebsBuf *bp)
 {
     uchar   c;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bp->servp == bp->endp) {
         return -1;
@@ -1501,8 +1514,8 @@ PUBLIC int bufGetcA(WebsBuf *bp)
  */
 PUBLIC int bufPutcA(WebsBuf *bp, char c)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) == 0 && !bufGrow(bp)) {
         return -1;
@@ -1520,8 +1533,8 @@ PUBLIC int bufPutcA(WebsBuf *bp, char c)
  */
 PUBLIC int bufInsertcA(WebsBuf *bp, char c)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     if (bufRoom(bp) == 0 && !bufGrow(bp)) {
         return -1;
@@ -1541,9 +1554,9 @@ PUBLIC int bufPutStrA(WebsBuf *bp, char *str)
 {
     int     rc;
 
-    assure(bp);
-    assure(str);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(str);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     rc = (int) bufPutBlk(bp, str, strlen(str));
     bp->endp[0] = '\0';
@@ -1559,10 +1572,10 @@ PUBLIC ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, added;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
-    assure(buf);
-    assure(0 <= size);
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
+    assert(buf);
+    assert(0 <= size);
 
     /*
         Loop adding the maximum bytes we can add in a single straight line copy
@@ -1596,10 +1609,10 @@ PUBLIC ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
 {
     ssize   this, bytes_read;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
-    assure(buf);
-    assure(0 <= size && size < bp->buflen);
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
+    assert(buf);
+    assert(0 <= size && size < bp->buflen);
 
     /*
         Loop getting the maximum bytes we can get in a single straight line copy
@@ -1633,8 +1646,8 @@ PUBLIC ssize bufRoom(WebsBuf *bp)
 {
     ssize   space, in_a_line;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
     
     space = bp->buflen - RINGQ_LEN(bp) - 1;
     in_a_line = bp->endbuf - bp->endp;
@@ -1651,8 +1664,8 @@ PUBLIC ssize bufGetBlkMax(WebsBuf *bp)
 {
     ssize   len, in_a_line;
 
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
 
     len = RINGQ_LEN(bp);
     in_a_line = bp->endbuf - bp->servp;
@@ -1666,9 +1679,9 @@ PUBLIC ssize bufGetBlkMax(WebsBuf *bp)
  */
 PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
-    assure(0 <= size && size < bp->buflen);
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
+    assert(0 <= size && size < bp->buflen);
 
     bp->endp += size;
     if (bp->endp >= bp->endbuf) {
@@ -1689,9 +1702,9 @@ PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size)
  */
 PUBLIC void bufAdjustStart(WebsBuf *bp, ssize size)
 {
-    assure(bp);
-    assure(bp->buflen == (bp->endbuf - bp->buf));
-    assure(0 <= size && size < bp->buflen);
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
+    assert(0 <= size && size < bp->buflen);
 
     bp->servp += size;
     if (bp->servp >= bp->endbuf) {
@@ -1713,8 +1726,8 @@ PUBLIC void bufAdjustStart(WebsBuf *bp, ssize size)
  */
 PUBLIC void bufFlush(WebsBuf *bp)
 {
-    assure(bp);
-    assure(bp->servp);
+    assert(bp);
+    assert(bp->servp);
 
     if (bp->buf) {
         bp->servp = bp->buf;
@@ -1766,7 +1779,7 @@ PUBLIC bool bufGrow(WebsBuf *bp, ssize room)
     char    *newbuf;
     ssize   len;
 
-    assure(bp);
+    assert(bp);
 
     if (room == 0) {
         if (bp->maxsize >= 0 && bp->buflen >= bp->maxsize) {
@@ -1822,7 +1835,7 @@ WebsHash hashCreate(int size)
     if (size < 0) {
         size = WEBS_SMALL_HASH;
     }
-    assure(size > 2);
+    assert(size > 2);
 
     /*
         Create a new handle for this symbol table
@@ -1842,7 +1855,7 @@ WebsHash hashCreate(int size)
     if (sd >= symMax) {
         symMax = sd + 1;
     }
-    assure(0 <= sd && sd < symMax);
+    assert(0 <= sd && sd < symMax);
     sym[sd] = tp;
 
     /*
@@ -1850,7 +1863,7 @@ WebsHash hashCreate(int size)
      */
     tp->size = calcPrime(size);
     tp->hash_table = (WebsKey**) walloc(tp->size * sizeof(WebsKey*));
-    assure(tp->hash_table);
+    assert(tp->hash_table);
     memset(tp->hash_table, 0, tp->size * sizeof(WebsKey*));
     return sd;
 }
@@ -1869,9 +1882,9 @@ PUBLIC void hashFree(WebsHash sd)
     if (sd < 0) {
         return;
     }
-    assure(0 <= sd && sd < symMax);
+    assert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    assure(tp);
+    assert(tp);
 
     /*
         Free all symbols in the hash table, then the hash table itself.
@@ -1901,9 +1914,9 @@ WebsKey *hashFirst(WebsHash sd)
     WebsKey     *sp;
     int         i;
 
-    assure(0 <= sd && sd < symMax);
+    assert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    assure(tp);
+    assert(tp);
 
     /*
         Find the first symbol in the hashtable and return a pointer to it.
@@ -1926,12 +1939,12 @@ WebsKey *hashNext(WebsHash sd, WebsKey *last)
     WebsKey     *sp;
     int         i;
 
-    assure(0 <= sd && sd < symMax);
+    assert(0 <= sd && sd < symMax);
     if (sd < 0) {
         return 0;
     }
     tp = sym[sd];
-    assure(tp);
+    assert(tp);
     if (last == 0) {
         return hashFirst(sd);
     }
@@ -1956,7 +1969,7 @@ WebsKey *hashLookup(WebsHash sd, char *name)
     WebsKey     *sp;
     char        *cp;
 
-    assure(0 <= sd && sd < symMax);
+    assert(0 <= sd && sd < symMax);
     if (sd < 0 || (tp = sym[sd]) == NULL) {
         return NULL;
     }
@@ -1988,10 +2001,10 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
     char        *cp;
     int         hindex;
 
-    assure(name);
-    assure(0 <= sd && sd < symMax);
+    assert(name);
+    assert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    assure(tp);
+    assert(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
@@ -2066,10 +2079,10 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
     char        *cp;
     int         hindex;
 
-    assure(name && *name);
-    assure(0 <= sd && sd < symMax);
+    assert(name && *name);
+    assert(0 <= sd && sd < symMax);
     tp = sym[sd];
-    assure(tp);
+    assert(tp);
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
@@ -2110,7 +2123,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
  */
 static WebsKey *hash(HashTable *tp, char *name)
 {
-    assure(tp);
+    assert(tp);
 
     return tp->hash_table[hashIndex(tp, name)];
 }
@@ -2125,7 +2138,7 @@ static int hashIndex(HashTable *tp, char *name)
     uint        sum;
     int         i;
 
-    assure(tp);
+    assert(tp);
     /*
         Add in each character shifted up progressively by 7 bits. The shift amount is rounded so as to not shift too
         far. It thus cycles with each new cycle placing character shifted up by one bit.
@@ -2147,7 +2160,7 @@ static int isPrime(int n)
 {
     int     i, max;
 
-    assure(n > 0);
+    assert(n > 0);
 
     max = n / 2;
     for (i = 2; i <= max; i++) {
@@ -2166,7 +2179,7 @@ static int calcPrime(int size)
 {
     int count;
 
-    assure(size > 0);
+    assert(size > 0);
 
     for (count = size; count > 0; count--) {
         if (isPrime(count)) {
@@ -2407,9 +2420,9 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
 {
     ssize      len;
 
-    assure(src);
-    assure(dest);
-    assure(0 < dest && destMax < MAXINT);
+    assert(src);
+    assert(dest);
+    assert(0 < dest && destMax < MAXINT);
 
     len = slen(src);
     if (destMax <= len) {
@@ -2428,11 +2441,11 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
 {
     ssize      len;
 
-    assure(dest);
-    assure(src);
-    assure(src != dest);
-    assure(0 <= count && count < MAXINT);
-    assure(0 < destMax && destMax < MAXINT);
+    assert(dest);
+    assert(src);
+    assert(src != dest);
+    assert(0 <= count && count < MAXINT);
+    assert(0 < destMax && destMax < MAXINT);
 
     //  OPT need snlen(src, count);
     len = slen(src);
@@ -2472,7 +2485,7 @@ PUBLIC int sncmp(char *s1, char *s2, ssize n)
 {
     int     rc;
 
-    assure(0 <= n && n < MAXINT);
+    assert(0 <= n && n < MAXINT);
 
     if (s1 == 0 && s2 == 0) {
         return 0;
@@ -2503,7 +2516,7 @@ PUBLIC int sncaselesscmp(char *s1, char *s2, ssize n)
 {
     int     rc;
 
-    assure(0 <= n && n < MAXINT);
+    assert(0 <= n && n < MAXINT);
 
     if (s1 == 0 || s2 == 0) {
         return -1;

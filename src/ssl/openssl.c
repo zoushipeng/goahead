@@ -43,15 +43,15 @@ PUBLIC int sslOpen()
     RandBuf     randBuf;
     char        *caFile, *caPath;
 
-    trace(7, "Initializing SSL\n"); 
+    trace(7, "Initializing SSL"); 
 
     randBuf.now = time(0);
     randBuf.pid = getpid();
     RAND_seed((void*) &randBuf, sizeof(randBuf));
 #if BIT_UNIX_LIKE
-    trace(6, "OpenSsl: Before calling RAND_load_file\n");
+    trace(6, "OpenSsl: Before calling RAND_load_file");
     RAND_load_file("/dev/urandom", 256);
-    trace(6, "OpenSsl: After calling RAND_load_file\n");
+    trace(6, "OpenSsl: After calling RAND_load_file");
 #endif
 
     CRYPTO_malloc_init(); 
@@ -223,7 +223,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
             sp->flags |= SOCKET_EOF;
         }
     } else if (SSL_pending(wp->ssl) > 0) {
-        sp->flags |= SOCKET_PENDING;
+        sp->flags |= SOCKET_BUFFERED_READ;
         socketReservice(wp->sid);
     }
     return rc;

@@ -43,10 +43,10 @@ PUBLIC void websRouteRequest(Webs *wp)
     char        *documents;
     int         i, count;
 
-    assure(wp);
-    assure(wp->path);
-    assure(wp->method);
-    assure(wp->protocol);
+    assert(wp);
+    assert(wp->path);
+    assert(wp->method);
+    assert(wp->protocol);
 
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
 
@@ -55,11 +55,11 @@ PUBLIC void websRouteRequest(Webs *wp)
 
     for (count = 0, i = 0; i < routeCount; i++) {
         route = routes[i];
-        assure(route->prefix && route->prefixLen > 0);
+        assert(route->prefix && route->prefixLen > 0);
 
         if (plen < route->prefixLen) continue;
         len = min(route->prefixLen, plen);
-        trace(5, "Examine route %s\n", route->prefix);
+        trace(5, "Examine route %s", route->prefix);
         /*
             Match route
          */
@@ -104,7 +104,7 @@ PUBLIC void websRouteRequest(Webs *wp)
                 }
             } else
 #endif
-            assure(route->handler);
+            assert(route->handler);
             trace(5, "Route %s calls handler %s\n", route->prefix, route->handler->name);
             wp->state = WEBS_RUNNING;
             if ((*route->handler->service)(wp)) {                                        
@@ -134,8 +134,8 @@ PUBLIC void websRouteRequest(Webs *wp)
 
 static bool can(Webs *wp, char *ability)
 {
-    assure(wp);
-    assure(ability && *ability);
+    assert(wp);
+    assert(ability && *ability);
 
     if (wp->user && hashLookup(wp->user->abilities, ability)) {
         return 1;
@@ -149,8 +149,8 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
     WebsKey     *key;
     char        *ability, *cp, *start, abuf[BIT_GOAHEAD_LIMIT_STRING];
 
-    assure(wp);
-    assure(abilities >= 0);
+    assert(wp);
+    assert(abilities >= 0);
 
     if (!wp->user) {
         if (wp->authType) {
@@ -168,7 +168,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
         if (!wp->user && wp->username) {
             wp->user = websLookupUser(wp->username);
         }
-        assure(abilities);
+        assert(abilities);
         for (key = hashFirst(abilities); key; key = hashNext(abilities, key)) {
             ability = key->name.value.string;
             if ((cp = strchr(ability, '|')) != 0) {
@@ -273,7 +273,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
 PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
         WebsHash abilities, WebsHash redirects)
 {
-    assure(route);
+    assert(route);
 
     if (dir) {
         route->dir = sclone(dir);
@@ -303,7 +303,7 @@ static int lookupRoute(char *uri)
     WebsRoute   *route;
     int         i;
 
-    assure(uri && *uri);
+    assert(uri && *uri);
 
     for (i = 0; i < routeCount; i++) {
         route = routes[i];
@@ -317,7 +317,7 @@ static int lookupRoute(char *uri)
 
 static void freeRoute(WebsRoute *route)
 {
-    assure(route);
+    assert(route);
 
     if (route->abilities >= 0) {
         hashFree(route->abilities);
@@ -344,7 +344,7 @@ PUBLIC int websRemoveRoute(char *uri)
 {
     int         i;
 
-    assure(uri && *uri);
+    assert(uri && *uri);
 
     if ((i = lookupRoute(uri)) < 0) {
         return -1;
@@ -397,8 +397,8 @@ PUBLIC int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClo
 {
     WebsHandler     *handler;
 
-    assure(name && *name);
-    assure(service);
+    assert(name && *name);
+    assert(service);
 
     if ((handler = walloc(sizeof(WebsHandler))) == 0) {
         return -1;
@@ -447,7 +447,7 @@ PUBLIC int websLoad(char *path)
     char          *name, *redirectUri, *password, *roles;
     WebsHash      abilities, extensions, methods, redirects;
     
-    assure(path && *path);
+    assert(path && *path);
 
     if ((fp = fopen(path, "r" FILE_TEXT)) == 0) {
         error("Can't open route config file %s", path);
@@ -575,8 +575,8 @@ PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHand
     static int  legacyCount = 0;
     char        name[BIT_GOAHEAD_LIMIT_STRING];
 
-    assure(prefix && *prefix);
-    assure(handler);
+    assert(prefix && *prefix);
+    assert(handler);
 
     fmt(name, sizeof(name), "%s-%d", prefix, legacyCount);
     if (websDefineHandler(name, (WebsHandlerProc) handler, 0, WEBS_LEGACY_HANDLER) < 0) {

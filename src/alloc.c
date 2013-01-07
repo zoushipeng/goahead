@@ -185,7 +185,7 @@ PUBLIC void wfree(void *mp)
         return;
     }
     bp = (WebsAlloc*) ((char*) mp - sizeof(WebsAlloc));
-    assure((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
+    assert((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
     if ((bp->flags & WEBS_INTEGRITY_MASK) != WEBS_INTEGRITY) {
         return;
     }
@@ -203,49 +203,6 @@ PUBLIC void wfree(void *mp)
 }
 
 
-#if UNICODE
-/*
-    Duplicate a string, allow NULL pointers and then dup an empty string.
- */
-PUBLIC char *strdupA(char *s)
-{
-    char    *cp;
-    int     len;
-
-    if (s == NULL) {
-        s = "";
-    }
-    len = strlen(s) + 1;
-    if (cp = walloc(len)) {
-        strcpy(cp, s);
-    }
-    return cp;
-}
-
-#endif /* UNICODE */
-
-#if UNUSED && KEEP
-/*
-    Duplicate an ascii string, allow NULL pointers and then dup an empty string. If UNICODE, strdup above works with
-    wide chars, so we need this routine *  for ascii strings. 
- */
-PUBLIC char *strdup(const char *s)
-{
-    char  *cp;
-    ssize   len;
-
-    if (s == NULL) {
-        s = "";
-    }
-    len = strlen(s) + 1;
-    if ((cp = walloc(len * sizeof(char))) != NULL) {
-        strncpy(cp, s, len * sizeof(char));
-    }
-    return cp;
-}
-#endif
-
-
 /*
     Reallocate a block. Allow NULL pointers and just do a malloc. Note: if the realloc fails, we return NULL and the
     previous buffer is preserved.
@@ -259,7 +216,7 @@ PUBLIC void *wrealloc(void *mp, ssize newsize)
         return walloc(newsize);
     }
     bp = (WebsAlloc*) ((char*) mp - sizeof(WebsAlloc));
-    assure((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
+    assert((bp->flags & WEBS_INTEGRITY_MASK) == WEBS_INTEGRITY);
 
     /*
         If the allocated memory already has enough room just return the previously allocated address.
