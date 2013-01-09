@@ -56,7 +56,7 @@
     #define BIT_EST_CAMELLIA 0
 #endif
 #ifndef BIT_EST_DES
-    #define BIT_EST_DES 1
+    #define BIT_EST_DES 0
 #endif
 #ifndef BIT_EST_DHM
     #define BIT_EST_DHM 1
@@ -108,8 +108,12 @@
 #endif
 #ifndef BIT_EST_CLIENT
     #define BIT_EST_CLIENT 1
+    #undef BIT_EST_MD5
+    #define BIT_EST_MD5 1
 #endif
 #ifndef BIT_EST_SERVER
+    #undef BIT_EST_MD5
+    #define BIT_EST_MD5 1
     #define BIT_EST_SERVER 1
 #endif
 #ifndef BIT_EST_TEST_CERTS
@@ -251,12 +255,12 @@ extern "C" {
     /**
      * \brief          Initialize one or more mpi
      */
-    void mpi_init(mpi * X, ...);
+    PUBLIC void mpi_init(mpi * X, ...);
 
     /**
      * \brief          Unallocate one or more mpi
      */
-    void mpi_free(mpi * X, ...);
+    PUBLIC void mpi_free(mpi * X, ...);
 
     /**
      * \brief          Enlarge to the specified number of limbs
@@ -264,7 +268,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_grow(mpi * X, int nblimbs);
+    PUBLIC int mpi_grow(mpi * X, int nblimbs);
 
     /**
      * \brief          Copy the contents of Y into X
@@ -272,12 +276,12 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_copy(mpi * X, mpi * Y);
+    PUBLIC int mpi_copy(mpi * X, mpi * Y);
 
     /**
      * \brief          Swap the contents of X and Y
      */
-    void mpi_swap(mpi * X, mpi * Y);
+    PUBLIC void mpi_swap(mpi * X, mpi * Y);
 
     /**
      * \brief          Set value from integer
@@ -285,22 +289,22 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_lset(mpi * X, int z);
+    PUBLIC int mpi_lset(mpi * X, int z);
 
     /**
      * \brief          Return the number of least significant bits
      */
-    int mpi_lsb(mpi * X);
+    PUBLIC int mpi_lsb(mpi * X);
 
     /**
      * \brief          Return the number of most significant bits
      */
-    int mpi_msb(mpi * X);
+    PUBLIC int mpi_msb(mpi * X);
 
     /**
      * \brief          Return the total size in bytes
      */
-    int mpi_size(mpi * X);
+    PUBLIC int mpi_size(mpi * X);
 
     /**
      * \brief          Import from an ASCII string
@@ -311,7 +315,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_MPI_XXX error code
      */
-    int mpi_read_string(mpi * X, int radix, char *s);
+    PUBLIC int mpi_read_string(mpi * X, int radix, char *s);
 
     /**
      * \brief          Export into an ASCII string
@@ -326,7 +330,7 @@ extern "C" {
      * \note           Call this function with *slen = 0 to obtain the
      *                 minimum required buffer size in *slen.
      */
-    int mpi_write_string(mpi * X, int radix, char *s, int *slen);
+    PUBLIC int mpi_write_string(mpi * X, int radix, char *s, int *slen);
 
     /**
      * \brief          Read X from an opened file
@@ -337,7 +341,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_MPI_XXX error code
      */
-    int mpi_read_file(mpi * X, int radix, FILE * fin);
+    PUBLIC int mpi_read_file(mpi * X, int radix, FILE * fin);
 
     /**
      * \brief          Write X into an opened file, or stdout
@@ -351,7 +355,7 @@ extern "C" {
      *
      * \note           Set fout == NULL to print X on the console.
      */
-    int mpi_write_file(char *p, mpi * X, int radix, FILE * fout);
+    PUBLIC int mpi_write_file(char *p, mpi * X, int radix, FILE * fout);
 
     /**
      * \brief          Import X from unsigned binary data, big endian
@@ -363,7 +367,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_read_binary(mpi * X, uchar *buf, int buflen);
+    PUBLIC int mpi_read_binary(mpi * X, uchar *buf, int buflen);
 
     /**
      * \brief          Export X into unsigned binary data, big endian
@@ -378,7 +382,7 @@ extern "C" {
      * \note           Call this function with *buflen = 0 to obtain the
      *                 minimum required buffer size in *buflen.
      */
-    int mpi_write_binary(mpi * X, uchar *buf, int buflen);
+    PUBLIC int mpi_write_binary(mpi * X, uchar *buf, int buflen);
 
     /**
      * \brief          Left-shift: X <<= count
@@ -386,7 +390,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_shift_l(mpi * X, int count);
+    PUBLIC int mpi_shift_l(mpi * X, int count);
 
     /**
      * \brief          Right-shift: X >>= count
@@ -394,7 +398,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_shift_r(mpi * X, int count);
+    PUBLIC int mpi_shift_r(mpi * X, int count);
 
     /**
      * \brief          Compare unsigned values
@@ -403,7 +407,7 @@ extern "C" {
      *                -1 if |X| is lesser  than |Y| or
      *                 0 if |X| is equal to |Y|
      */
-    int mpi_cmp_abs(mpi * X, mpi * Y);
+    PUBLIC int mpi_cmp_abs(mpi * X, mpi * Y);
 
     /**
      * \brief          Compare signed values
@@ -412,7 +416,7 @@ extern "C" {
      *                -1 if X is lesser  than Y or
      *                 0 if X is equal to Y
      */
-    int mpi_cmp_mpi(mpi * X, mpi * Y);
+    PUBLIC int mpi_cmp_mpi(mpi * X, mpi * Y);
 
     /**
      * \brief          Compare signed values
@@ -421,7 +425,7 @@ extern "C" {
      *                -1 if X is lesser  than z or
      *                 0 if X is equal to z
      */
-    int mpi_cmp_int(mpi * X, int z);
+    PUBLIC int mpi_cmp_int(mpi * X, int z);
 
     /**
      * \brief          Unsigned addition: X = |A| + |B|
@@ -429,7 +433,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_add_abs(mpi * X, mpi * A, mpi * B);
+    PUBLIC int mpi_add_abs(mpi * X, mpi * A, mpi * B);
 
     /**
      * \brief          Unsigned substraction: X = |A| - |B|
@@ -437,7 +441,7 @@ extern "C" {
      * \return         0 if successful,
      *                 EST_ERR_MPI_NEGATIVE_VALUE if B is greater than A
      */
-    int mpi_sub_abs(mpi * X, mpi * A, mpi * B);
+    PUBLIC int mpi_sub_abs(mpi * X, mpi * A, mpi * B);
 
     /**
      * \brief          Signed addition: X = A + B
@@ -445,7 +449,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_add_mpi(mpi * X, mpi * A, mpi * B);
+    PUBLIC int mpi_add_mpi(mpi * X, mpi * A, mpi * B);
 
     /**
      * \brief          Signed substraction: X = A - B
@@ -453,7 +457,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_sub_mpi(mpi * X, mpi * A, mpi * B);
+    PUBLIC int mpi_sub_mpi(mpi * X, mpi * A, mpi * B);
 
     /**
      * \brief          Signed addition: X = A + b
@@ -461,7 +465,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_add_int(mpi * X, mpi * A, int b);
+    PUBLIC int mpi_add_int(mpi * X, mpi * A, int b);
 
     /**
      * \brief          Signed substraction: X = A - b
@@ -469,7 +473,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_sub_int(mpi * X, mpi * A, int b);
+    PUBLIC int mpi_sub_int(mpi * X, mpi * A, int b);
 
     /**
      * \brief          Baseline multiplication: X = A * B
@@ -477,7 +481,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_mul_mpi(mpi * X, mpi * A, mpi * B);
+    PUBLIC int mpi_mul_mpi(mpi * X, mpi * A, mpi * B);
 
     /**
      * \brief          Baseline multiplication: X = A * b
@@ -485,7 +489,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_mul_int(mpi * X, mpi * A, t_int b);
+    PUBLIC int mpi_mul_int(mpi * X, mpi * A, t_int b);
 
     /**
      * \brief          Division by mpi: A = Q * B + R
@@ -496,7 +500,7 @@ extern "C" {
      *
      * \note           Either Q or R can be NULL.
      */
-    int mpi_div_mpi(mpi * Q, mpi * R, mpi * A, mpi * B);
+    PUBLIC int mpi_div_mpi(mpi * Q, mpi * R, mpi * A, mpi * B);
 
     /**
      * \brief          Division by int: A = Q * b + R
@@ -507,7 +511,7 @@ extern "C" {
      *
      * \note           Either Q or R can be NULL.
      */
-    int mpi_div_int(mpi * Q, mpi * R, mpi * A, int b);
+    PUBLIC int mpi_div_int(mpi * Q, mpi * R, mpi * A, int b);
 
     /**
      * \brief          Modulo: R = A mod B
@@ -516,7 +520,7 @@ extern "C" {
      *                 1 if memory allocation failed,
      *                 EST_ERR_MPI_DIVISION_BY_ZERO if B == 0
      */
-    int mpi_mod_mpi(mpi * R, mpi * A, mpi * B);
+    PUBLIC int mpi_mod_mpi(mpi * R, mpi * A, mpi * B);
 
     /**
      * \brief          Modulo: r = A mod b
@@ -525,7 +529,7 @@ extern "C" {
      *                 1 if memory allocation failed,
      *                 EST_ERR_MPI_DIVISION_BY_ZERO if b == 0
      */
-    int mpi_mod_int(t_int * r, mpi * A, int b);
+    PUBLIC int mpi_mod_int(t_int * r, mpi * A, int b);
 
     /**
      * \brief          Sliding-window exponentiation: X = A^E mod N
@@ -538,7 +542,7 @@ extern "C" {
      *                 multiple calls, which speeds up things a bit. It can
      *                 be set to NULL if the extra performance is unneeded.
      */
-    int mpi_exp_mod(mpi * X, mpi * A, mpi * E, mpi * N, mpi * _RR);
+    PUBLIC int mpi_exp_mod(mpi * X, mpi * A, mpi * E, mpi * N, mpi * _RR);
 
     /**
      * \brief          Greatest common divisor: G = gcd(A, B)
@@ -546,7 +550,7 @@ extern "C" {
      * \return         0 if successful,
      *                 1 if memory allocation failed
      */
-    int mpi_gcd(mpi * G, mpi * A, mpi * B);
+    PUBLIC int mpi_gcd(mpi * G, mpi * A, mpi * B);
 
     /**
      * \brief          Modular inverse: X = A^-1 mod N
@@ -556,7 +560,7 @@ extern "C" {
      *                 EST_ERR_MPI_BAD_INPUT_DATA if N is negative or nil
      *                 EST_ERR_MPI_NOT_ACCEPTABLE if A has no inverse mod N
      */
-    int mpi_inv_mod(mpi * X, mpi * A, mpi * N);
+    PUBLIC int mpi_inv_mod(mpi * X, mpi * A, mpi * N);
 
     /**
      * \brief          Miller-Rabin primality test
@@ -565,7 +569,7 @@ extern "C" {
      *                 1 if memory allocation failed,
      *                 EST_ERR_MPI_NOT_ACCEPTABLE if X is not prime
      */
-    int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng);
+    PUBLIC int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng);
 
     /**
      * \brief          Prime number generation
@@ -580,15 +584,14 @@ extern "C" {
      *                 1 if memory allocation failed,
      *                 EST_ERR_MPI_BAD_INPUT_DATA if nbits is < 3
      */
-    int mpi_gen_prime(mpi * X, int nbits, int dh_flag,
-              int (*f_rng) (void *), void *p_rng);
+    PUBLIC int mpi_gen_prime(mpi * X, int nbits, int dh_flag, int (*f_rng) (void *), void *p_rng);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int mpi_self_test(int verbose);
+    PUBLIC int mpi_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -652,7 +655,7 @@ extern "C" {
      *                      EST_ERR_NET_UNKNOWN_HOST,
      *                      EST_ERR_NET_CONNECT_FAILED
      */
-    int net_connect(int *fd, char *host, int port);
+    PUBLIC int net_connect(int *fd, char *host, int port);
 
     /**
      * \brief          Create a listening socket on bind_ip:port.
@@ -663,7 +666,7 @@ extern "C" {
      *                      EST_ERR_NET_BIND_FAILED,
      *                      EST_ERR_NET_LISTEN_FAILED
      */
-    int net_bind(int *fd, char *bind_ip, int port);
+    PUBLIC int net_bind(int *fd, char *bind_ip, int port);
 
     /**
      * \brief          Accept a connection from a remote client
@@ -672,21 +675,21 @@ extern "C" {
      *                 EST_ERR_NET_WOULD_BLOCK is bind_fd was set to
      *                 non-blocking and accept() is blocking.
      */
-    int net_accept(int bind_fd, int *client_fd, void *client_ip);
+    PUBLIC int net_accept(int bind_fd, int *client_fd, void *client_ip);
 
     /**
      * \brief          Set the socket blocking
      *
      * \return         0 if successful, or a non-zero error code
      */
-    int net_set_block(int fd);
+    PUBLIC int net_set_block(int fd);
 
     /**
      * \brief          Set the socket non-blocking
      *
      * \return         0 if successful, or a non-zero error code
      */
-    int net_set_nonblock(int fd);
+    PUBLIC int net_set_nonblock(int fd);
 
     /**
      * \brief          Portable usleep helper
@@ -694,7 +697,7 @@ extern "C" {
      * \note           Real amount of time slept will not be less than
      *                 select()'s timeout granularity (typically, 10ms).
      */
-    void net_usleep(ulong usec);
+    PUBLIC void net_usleep(ulong usec);
 
     /**
      * \brief          Read at most 'len' characters. len is updated to
@@ -704,7 +707,7 @@ extern "C" {
      *                 or a negative error code; EST_ERR_NET_TRY_AGAIN
      *                 indicates read() is blocking.
      */
-    int net_recv(void *ctx, uchar *buf, int len);
+    PUBLIC int net_recv(void *ctx, uchar *buf, int len);
 
     /**
      * \brief          Write at most 'len' characters. len is updated to
@@ -714,12 +717,12 @@ extern "C" {
      *                 or a negative error code; EST_ERR_NET_TRY_AGAIN
      *                 indicates write() is blocking.
      */
-    int net_send(void *ctx, uchar *buf, int len);
+    PUBLIC int net_send(void *ctx, uchar *buf, int len);
 
     /**
      * \brief          Gracefully shutdown the connection
      */
-    void net_close(int fd);
+    PUBLIC void net_close(int fd);
 
 #ifdef __cplusplus
 }
@@ -791,8 +794,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_DHM_XXX error code
      */
-    int dhm_read_params(dhm_context * ctx,
-                uchar **p, uchar *end);
+    PUBLIC int dhm_read_params(dhm_context * ctx, uchar **p, uchar *end);
 
     /**
      * \brief          Setup and write the ServerKeyExchange parameters
@@ -810,9 +812,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_DHM_XXX error code
      */
-    int dhm_make_params(dhm_context * ctx, int s_size,
-                uchar *output, int *olen,
-                int (*f_rng) (void *), void *p_rng);
+    PUBLIC int dhm_make_params(dhm_context * ctx, int s_size, uchar *output, int *olen, int (*f_rng) (void *), void *p_rng);
 
     /**
      * \brief          Import the peer's public value G^Y
@@ -823,7 +823,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_DHM_XXX error code
      */
-    int dhm_read_public(dhm_context * ctx, uchar *input, int ilen);
+    PUBLIC int dhm_read_public(dhm_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          Create own private value X and export G^X
@@ -837,9 +837,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_DHM_XXX error code
      */
-    int dhm_make_public(dhm_context * ctx, int s_size,
-                uchar *output, int olen,
-                int (*f_rng) (void *), void *p_rng);
+    PUBLIC int dhm_make_public(dhm_context * ctx, int s_size, uchar *output, int olen, int (*f_rng) (void *), void *p_rng);
 
     /**
      * \brief          Derive and export the shared secret (G^Y)^X mod P
@@ -850,20 +848,19 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_DHM_XXX error code
      */
-    int dhm_calc_secret(dhm_context * ctx,
-                uchar *output, int *olen);
+    PUBLIC int dhm_calc_secret(dhm_context * ctx, uchar *output, int *olen);
 
     /*
      * \brief          Free the components of a DHM key
      */
-    void dhm_free(dhm_context * ctx);
+    PUBLIC void dhm_free(dhm_context * ctx);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int dhm_self_test(int verbose);
+    PUBLIC int dhm_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -995,9 +992,7 @@ extern "C" {
      * \note           Currently (xyssl-0.8), RSA_PKCS_V21 padding
      *                 is not supported.
      */
-    void rsa_init(rsa_context * ctx,
-              int padding,
-              int hash_id, int (*f_rng) (void *), void *p_rng);
+    PUBLIC void rsa_init(rsa_context * ctx, int padding, int hash_id, int (*f_rng) (void *), void *p_rng);
 
     /**
      * \brief          Generate an RSA keypair
@@ -1011,7 +1006,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_RSA_XXX error code
      */
-    int rsa_gen_key(rsa_context * ctx, int nbits, int exponent);
+    PUBLIC int rsa_gen_key(rsa_context * ctx, int nbits, int exponent);
 
     /**
      * \brief          Check a public RSA key
@@ -1020,7 +1015,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_RSA_XXX error code
      */
-    int rsa_check_pubkey(rsa_context * ctx);
+    PUBLIC int rsa_check_pubkey(rsa_context * ctx);
 
     /**
      * \brief          Check a private RSA key
@@ -1029,7 +1024,7 @@ extern "C" {
      *
      * \return         0 if successful, or an EST_ERR_RSA_XXX error code
      */
-    int rsa_check_privkey(rsa_context * ctx);
+    PUBLIC int rsa_check_privkey(rsa_context * ctx);
 
     /**
      * \brief          Do an RSA public key operation
@@ -1046,8 +1041,7 @@ extern "C" {
      * \note           The input and output buffers must be large
      *                 enough (eg. 128 bytes if RSA-1024 is used).
      */
-    int rsa_public(rsa_context * ctx,
-               uchar *input, uchar *output);
+    PUBLIC int rsa_public(rsa_context * ctx, uchar *input, uchar *output);
 
     /**
      * \brief          Do an RSA private key operation
@@ -1061,8 +1055,7 @@ extern "C" {
      * \note           The input and output buffers must be large
      *                 enough (eg. 128 bytes if RSA-1024 is used).
      */
-    int rsa_private(rsa_context * ctx,
-            uchar *input, uchar *output);
+    PUBLIC int rsa_private(rsa_context * ctx, uchar *input, uchar *output);
 
     /**
      * \brief          Add the message padding, then do an RSA operation
@@ -1078,9 +1071,7 @@ extern "C" {
      * \note           The output buffer must be as large as the size
      *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
      */
-    int rsa_pkcs1_encrypt(rsa_context * ctx,
-                  int mode, int ilen,
-                  uchar *input, uchar *output);
+    PUBLIC int rsa_pkcs1_encrypt(rsa_context * ctx, int mode, int ilen, uchar *input, uchar *output);
 
     /**
      * \brief          Do an RSA operation, then remove the message padding
@@ -1098,10 +1089,7 @@ extern "C" {
      *                 of ctx->N (eg. 128 bytes if RSA-1024 is used) otherwise
      *                 an error is thrown.
      */
-    int rsa_pkcs1_decrypt(rsa_context * ctx,
-                  int mode, int *olen,
-                  uchar *input,
-                  uchar *output, int output_max_len);
+    PUBLIC int rsa_pkcs1_decrypt(rsa_context * ctx, int mode, int *olen, uchar *input, uchar *output, int output_max_len);
 
     /**
      * \brief          Do a private RSA to sign a message digest
@@ -1119,11 +1107,7 @@ extern "C" {
      * \note           The "sig" buffer must be as large as the size
      *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
      */
-    int rsa_pkcs1_sign(rsa_context * ctx,
-               int mode,
-               int hash_id,
-               int hashlen,
-               uchar *hash, uchar *sig);
+    PUBLIC int rsa_pkcs1_sign(rsa_context * ctx, int mode, int hash_id, int hashlen, uchar *hash, uchar *sig);
 
     /**
      * \brief          Do a public RSA and check the message digest
@@ -1141,23 +1125,19 @@ extern "C" {
      * \note           The "sig" buffer must be as large as the size
      *                 of ctx->N (eg. 128 bytes if RSA-1024 is used).
      */
-    int rsa_pkcs1_verify(rsa_context * ctx,
-                 int mode,
-                 int hash_id,
-                 int hashlen,
-                 uchar *hash, uchar *sig);
+    PUBLIC int rsa_pkcs1_verify(rsa_context * ctx, int mode, int hash_id, int hashlen, uchar *hash, uchar *sig);
 
     /**
      * \brief          Free the components of an RSA key
      */
-    void rsa_free(rsa_context * ctx);
+    PUBLIC void rsa_free(rsa_context * ctx);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int rsa_self_test(int verbose);
+    PUBLIC int rsa_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -1219,7 +1199,7 @@ extern "C" {
      *
      * \param ctx      context to be initialized
      */
-    void md5_starts(md5_context * ctx);
+    PUBLIC void md5_starts(md5_context * ctx);
 
     /**
      * \brief          MD5 process buffer
@@ -1228,7 +1208,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void md5_update(md5_context * ctx, uchar *input, int ilen);
+    PUBLIC void md5_update(md5_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          MD5 final digest
@@ -1236,7 +1216,7 @@ extern "C" {
      * \param ctx      MD5 context
      * \param output   MD5 checksum result
      */
-    void md5_finish(md5_context * ctx, uchar output[16]);
+    PUBLIC void md5_finish(md5_context * ctx, uchar output[16]);
 
     /**
      * \brief          Output = MD5( input buffer )
@@ -1245,7 +1225,7 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   MD5 checksum result
      */
-    void md5(uchar *input, int ilen, uchar output[16]);
+    PUBLIC void md5(uchar *input, int ilen, uchar output[16]);
 
     /**
      * \brief          Output = MD5( file contents )
@@ -1256,7 +1236,7 @@ extern "C" {
      * \return         0 if successful, 1 if fopen failed,
      *                 or 2 if fread failed
      */
-    int md5_file(char *path, uchar output[16]);
+    PUBLIC int md5_file(char *path, uchar output[16]);
 
     /**
      * \brief          MD5 HMAC context setup
@@ -1265,7 +1245,7 @@ extern "C" {
      * \param key      HMAC secret key
      * \param keylen   length of the HMAC key
      */
-    void md5_hmac_starts(md5_context * ctx, uchar *key, int keylen);
+    PUBLIC void md5_hmac_starts(md5_context * ctx, uchar *key, int keylen);
 
     /**
      * \brief          MD5 HMAC process buffer
@@ -1274,7 +1254,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void md5_hmac_update(md5_context * ctx, uchar *input, int ilen);
+    PUBLIC void md5_hmac_update(md5_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          MD5 HMAC final digest
@@ -1282,7 +1262,7 @@ extern "C" {
      * \param ctx      HMAC context
      * \param output   MD5 HMAC checksum result
      */
-    void md5_hmac_finish(md5_context * ctx, uchar output[16]);
+    PUBLIC void md5_hmac_finish(md5_context * ctx, uchar output[16]);
 
     /**
      * \brief          Output = HMAC-MD5( hmac key, input buffer )
@@ -1293,15 +1273,14 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   HMAC-MD5 result
      */
-    void md5_hmac(uchar *key, int keylen,
-              uchar *input, int ilen, uchar output[16]);
+    PUBLIC void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16]);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int md5_self_test(int verbose);
+    PUBLIC int md5_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -1363,7 +1342,7 @@ extern "C" {
      *
      * \param ctx      context to be initialized
      */
-    void sha1_starts(sha1_context * ctx);
+    PUBLIC void sha1_starts(sha1_context * ctx);
 
     /**
      * \brief          SHA-1 process buffer
@@ -1372,7 +1351,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void sha1_update(sha1_context * ctx, uchar *input, int ilen);
+    PUBLIC void sha1_update(sha1_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          SHA-1 final digest
@@ -1380,7 +1359,7 @@ extern "C" {
      * \param ctx      SHA-1 context
      * \param output   SHA-1 checksum result
      */
-    void sha1_finish(sha1_context * ctx, uchar output[20]);
+    PUBLIC void sha1_finish(sha1_context * ctx, uchar output[20]);
 
     /**
      * \brief          Output = SHA-1( input buffer )
@@ -1389,7 +1368,7 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   SHA-1 checksum result
      */
-    void sha1(uchar *input, int ilen, uchar output[20]);
+    PUBLIC void sha1(uchar *input, int ilen, uchar output[20]);
 
     /**
      * \brief          Output = SHA-1( file contents )
@@ -1409,8 +1388,7 @@ extern "C" {
      * \param key      HMAC secret key
      * \param keylen   length of the HMAC key
      */
-    void sha1_hmac_starts(sha1_context * ctx, uchar *key,
-                  int keylen);
+    PUBLIC void sha1_hmac_starts(sha1_context * ctx, uchar *key, int keylen);
 
     /**
      * \brief          SHA-1 HMAC process buffer
@@ -1419,8 +1397,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void sha1_hmac_update(sha1_context * ctx, uchar *input,
-                  int ilen);
+    PUBLIC void sha1_hmac_update(sha1_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          SHA-1 HMAC final digest
@@ -1428,7 +1405,7 @@ extern "C" {
      * \param ctx      HMAC context
      * \param output   SHA-1 HMAC checksum result
      */
-    void sha1_hmac_finish(sha1_context * ctx, uchar output[20]);
+    PUBLIC void sha1_hmac_finish(sha1_context * ctx, uchar output[20]);
 
     /**
      * \brief          Output = HMAC-SHA-1( hmac key, input buffer )
@@ -1439,16 +1416,14 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   HMAC-SHA-1 result
      */
-    void sha1_hmac(uchar *key, int keylen,
-               uchar *input, int ilen,
-               uchar output[20]);
+    PUBLIC void sha1_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[20]);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int sha1_self_test(int verbose);
+    PUBLIC int sha1_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -1525,6 +1500,7 @@ extern "C" {
 #define BADCERT_REVOKED                 2
 #define BADCERT_CN_MISMATCH             4
 #define BADCERT_NOT_TRUSTED             8
+#define BADCERT_SELF_SIGNED             0x10
 
 /*
  * DER constants
@@ -1667,7 +1643,7 @@ extern "C" {
      *
      * \return         0 if successful, or a specific X509 error code
      */
-    int x509parse_crt(x509_cert * crt, uchar *buf, int buflen);
+    PUBLIC int x509parse_crt(x509_cert * crt, uchar *buf, int buflen);
 
     /**
      * \brief          Load one or more certificates and add them
@@ -1678,7 +1654,7 @@ extern "C" {
      *
      * \return         0 if successful, or a specific X509 error code
      */
-    int x509parse_crtfile(x509_cert * crt, char *path);
+    PUBLIC int x509parse_crtfile(x509_cert * crt, char *path);
 
     /**
      * \brief          Parse a private RSA key
@@ -1691,9 +1667,7 @@ extern "C" {
      *
      * \return         0 if successful, or a specific X509 error code
      */
-    int x509parse_key(rsa_context * rsa,
-              uchar *buf, int buflen,
-              uchar *pwd, int pwdlen);
+    PUBLIC int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwdlen);
 
     /**
      * \brief          Load and parse a private RSA key
@@ -1704,25 +1678,25 @@ extern "C" {
      *
      * \return         0 if successful, or a specific X509 error code
      */
-    int x509parse_keyfile(rsa_context * rsa, char *path, char *password);
+    PUBLIC int x509parse_keyfile(rsa_context * rsa, char *path, char *password);
 
     /**
      * \brief          Store the certificate DN in printable form into buf;
      *                 no more than (bufsize) characters will be written.
      */
-    int x509parse_dn_gets(char *prefix, char *buf, int bufsize, x509_name *dn);
+    PUBLIC int x509parse_dn_gets(char *prefix, char *buf, int bufsize, x509_name *dn);
 
     /**
      * \brief          Returns an informational string about the
      *                 certificate. 
      */
-    char *x509parse_cert_info(char *prefix, char *buf, int bufsize, x509_cert *crt);
+    PUBLIC char *x509parse_cert_info(char *prefix, char *buf, int bufsize, x509_cert *crt);
 
     /**
      * \brief          Return 0 if the certificate is still valid,
      *                 or BADCERT_EXPIRED
      */
-    int x509parse_expired(x509_cert * crt);
+    PUBLIC int x509parse_expired(x509_cert * crt);
 
     /**
      * \brief          Verify the certificate signature
@@ -1739,24 +1713,24 @@ extern "C" {
      *                      BADCERT_EXPIRED --
      *                      BADCERT_REVOKED --
      *                      BADCERT_CN_MISMATCH --
-     *                      BADCERT_NOT_TRUSTED
+     *                      BADCERT_NOT_TRUSTED --
+     *                      BADCERT_SELF_SIGNED
      *
      * \note           TODO: add two arguments, depth and crl
      */
-    int x509parse_verify(x509_cert * crt,
-                 x509_cert * trust_ca, char *cn, int *flags);
+    PUBLIC int x509parse_verify(x509_cert * crt, x509_cert * trust_ca, char *cn, int *flags);
 
     /**
      * \brief          Unallocate all certificate data
      */
-    void x509_free(x509_cert * crt);
+    PUBLIC void x509_free(x509_cert * crt);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int x509_self_test(int verbose);
+    PUBLIC int x509_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -2056,7 +2030,7 @@ extern "C" {
      *
      * \return         0 if successful, or 1 if memory allocation failed
      */
-    int ssl_init(ssl_context * ssl);
+    PUBLIC int ssl_init(ssl_context * ssl);
 
     /**
      * \brief          Set the current endpoint type
@@ -2064,7 +2038,7 @@ extern "C" {
      * \param ssl      SSL context
      * \param endpoint must be SSL_IS_CLIENT or SSL_IS_SERVER
      */
-    void ssl_set_endpoint(ssl_context * ssl, int endpoint);
+    PUBLIC void ssl_set_endpoint(ssl_context * ssl, int endpoint);
 
     /**
      * \brief          Set the certificate verification mode
@@ -2083,7 +2057,7 @@ extern "C" {
      *  SSL_VERIFY_REQUIRED:  peer *must* present a valid certificate,
      *                        handshake is aborted if verification failed.
      */
-    void ssl_set_authmode(ssl_context * ssl, int authmode);
+    PUBLIC void ssl_set_authmode(ssl_context * ssl, int authmode);
 
     /**
      * \brief          Set the random number generator callback
@@ -2092,7 +2066,7 @@ extern "C" {
      * \param f_rng    RNG function
      * \param p_rng    RNG parameter
      */
-    void ssl_set_rng(ssl_context * ssl, int (*f_rng) (void *), void *p_rng);
+    PUBLIC void ssl_set_rng(ssl_context * ssl, int (*f_rng) (void *), void *p_rng);
 
     /**
      * \brief          Set the debug callback
@@ -2101,7 +2075,7 @@ extern "C" {
      * \param f_dbg    debug function
      * \param p_dbg    debug parameter
      */
-    void ssl_set_dbg(ssl_context * ssl, void (*f_dbg) (void *, int, char *), void *p_dbg);
+    PUBLIC void ssl_set_dbg(ssl_context * ssl, void (*f_dbg) (void *, int, char *), void *p_dbg);
 
     /**
      * \brief          Set the underlying BIO read and write callbacks
@@ -2112,9 +2086,7 @@ extern "C" {
      * \param f_send   write callback
      * \param p_send   write parameter
      */
-    void ssl_set_bio(ssl_context * ssl,
-             int (*f_recv) (void *, uchar *, int),
-             void *p_recv, int (*f_send) (void *, uchar *, int), void *p_send);
+    PUBLIC void ssl_set_bio(ssl_context * ssl, int (*f_recv) (void *, uchar *, int), void *p_recv, int (*f_send) (void *, uchar *, int), void *p_send);
 
     /**
      * \brief          Set the session callbacks (server-side only)
@@ -2123,7 +2095,7 @@ extern "C" {
      * \param s_get    session get callback
      * \param s_set    session set callback
      */
-    void ssl_set_scb(ssl_context * ssl, int (*s_get) (ssl_context *), int (*s_set) (ssl_context *));
+    PUBLIC void ssl_set_scb(ssl_context * ssl, int (*s_get) (ssl_context *), int (*s_set) (ssl_context *));
 
     /**
      * \brief          Set the session resuming flag, timeout and data
@@ -2133,7 +2105,7 @@ extern "C" {
      * \param timeout  session timeout in seconds, or 0 (no timeout)
      * \param session  session context
      */
-    void ssl_set_session(ssl_context * ssl, int resume, int timeout, ssl_session * session);
+    PUBLIC void ssl_set_session(ssl_context * ssl, int resume, int timeout, ssl_session * session);
 
     /**
      * \brief          Set the list of allowed ciphersuites
@@ -2141,7 +2113,7 @@ extern "C" {
      * \param ssl      SSL context
      * \param ciphers  0-terminated list of allowed ciphers
      */
-    void ssl_set_ciphers(ssl_context * ssl, int *ciphers);
+    PUBLIC void ssl_set_ciphers(ssl_context * ssl, int *ciphers);
 
     /**
      * \brief          Set the data required to verify peer certificate
@@ -2152,7 +2124,7 @@ extern "C" {
      *
      * \note           MOB TODO: add two more parameters: depth and crl
      */
-    void ssl_set_ca_chain(ssl_context * ssl, x509_cert * ca_chain, char *peer_cn);
+    PUBLIC void ssl_set_ca_chain(ssl_context * ssl, x509_cert * ca_chain, char *peer_cn);
 
     /**
      * \brief          Set own certificate and private key
@@ -2161,7 +2133,7 @@ extern "C" {
      * \param own_cert own public certificate
      * \param rsa_key  own private RSA key
      */
-    void ssl_set_own_cert(ssl_context * ssl, x509_cert * own_cert, rsa_context * rsa_key);
+    PUBLIC void ssl_set_own_cert(ssl_context * ssl, x509_cert * own_cert, rsa_context * rsa_key);
 
     /**
      * \brief          Set the Diffie-Hellman public P and G values,
@@ -2173,7 +2145,7 @@ extern "C" {
      *
      * \return         0 if successful
      */
-    int ssl_set_dh_param(ssl_context * ssl, char *dhm_P, char *dhm_G);
+    PUBLIC int ssl_set_dh_param(ssl_context * ssl, char *dhm_P, char *dhm_G);
 
     /**
      * \brief          Set hostname for ServerName TLS Extension
@@ -2184,7 +2156,7 @@ extern "C" {
      *
      * \return         0 if successful
      */
-    int ssl_set_hostname(ssl_context * ssl, char *hostname);
+    PUBLIC int ssl_set_hostname(ssl_context * ssl, char *hostname);
 
     /**
      * \brief          Return the number of data bytes available to read
@@ -2193,7 +2165,7 @@ extern "C" {
      *
      * \return         how many bytes are available in the read buffer
      */
-    int ssl_get_bytes_avail(ssl_context * ssl);
+    PUBLIC int ssl_get_bytes_avail(ssl_context * ssl);
 
     /**
      * \brief          Return the result of the certificate verification
@@ -2205,8 +2177,9 @@ extern "C" {
      *                      BADCERT_REVOKED
      *                      BADCERT_CN_MISMATCH
      *                      BADCERT_NOT_TRUSTED
+     *                      BADCERT_SELF_SIGNED
      */
-    int ssl_get_verify_result(ssl_context * ssl);
+    PUBLIC int ssl_get_verify_result(ssl_context * ssl);
 
     /**
      * \brief          Return the name of the current cipher
@@ -2215,7 +2188,7 @@ extern "C" {
      *
      * \return         a string containing the cipher name
      */
-    char *ssl_get_cipher(ssl_context * ssl);
+    PUBLIC char *ssl_get_cipher(ssl_context * ssl);
 
     /**
      * \brief          Perform the SSL handshake
@@ -2225,7 +2198,7 @@ extern "C" {
      * \return         0 if successful, EST_ERR_NET_TRY_AGAIN,
      *                 or a specific SSL error code.
      */
-    int ssl_handshake(ssl_context * ssl);
+    PUBLIC int ssl_handshake(ssl_context * ssl);
 
     /**
      * \brief          Read at most 'len' application data bytes
@@ -2237,7 +2210,7 @@ extern "C" {
      * \return         This function returns the number of bytes read,
      *                 or a negative error code.
      */
-    int ssl_read(ssl_context * ssl, uchar *buf, int len);
+    PUBLIC int ssl_read(ssl_context * ssl, uchar *buf, int len);
 
     /**
      * \brief          Write exactly 'len' application data bytes
@@ -2253,41 +2226,41 @@ extern "C" {
      *                 it must be called later with the *same* arguments,
      *                 until it returns a positive value.
      */
-    int ssl_write(ssl_context * ssl, uchar *buf, int len);
+    PUBLIC int ssl_write(ssl_context * ssl, uchar *buf, int len);
 
     /**
      * \brief          Notify the peer that the connection is being closed
      */
-    int ssl_close_notify(ssl_context * ssl);
+    PUBLIC int ssl_close_notify(ssl_context * ssl);
 
     /**
      * \brief          Free an SSL context
      */
-    void ssl_free(ssl_context * ssl);
+    PUBLIC void ssl_free(ssl_context * ssl);
 
     /*
      * Internal functions (do not call directly)
      */
-    int ssl_handshake_client(ssl_context * ssl);
-    int ssl_handshake_server(ssl_context * ssl);
+    PUBLIC int ssl_handshake_client(ssl_context * ssl);
+    PUBLIC int ssl_handshake_server(ssl_context * ssl);
 
-    int ssl_derive_keys(ssl_context * ssl);
-    void ssl_calc_verify(ssl_context * ssl, uchar hash[36]);
+    PUBLIC int ssl_derive_keys(ssl_context * ssl);
+    PUBLIC void ssl_calc_verify(ssl_context * ssl, uchar hash[36]);
 
-    int ssl_read_record(ssl_context * ssl);
-    int ssl_fetch_input(ssl_context * ssl, int nb_want);
+    PUBLIC int ssl_read_record(ssl_context * ssl);
+    PUBLIC int ssl_fetch_input(ssl_context * ssl, int nb_want);
 
-    int ssl_write_record(ssl_context * ssl);
-    int ssl_flush_output(ssl_context * ssl);
+    PUBLIC int ssl_write_record(ssl_context * ssl);
+    PUBLIC int ssl_flush_output(ssl_context * ssl);
 
-    int ssl_parse_certificate(ssl_context * ssl);
-    int ssl_write_certificate(ssl_context * ssl);
+    PUBLIC int ssl_parse_certificate(ssl_context * ssl);
+    PUBLIC int ssl_write_certificate(ssl_context * ssl);
 
-    int ssl_parse_change_cipher_spec(ssl_context * ssl);
-    int ssl_write_change_cipher_spec(ssl_context * ssl);
+    PUBLIC int ssl_parse_change_cipher_spec(ssl_context * ssl);
+    PUBLIC int ssl_write_change_cipher_spec(ssl_context * ssl);
 
-    int ssl_parse_finished(ssl_context * ssl);
-    int ssl_write_finished(ssl_context * ssl);
+    PUBLIC int ssl_parse_finished(ssl_context * ssl);
+    PUBLIC int ssl_write_finished(ssl_context * ssl);
 
 #if EMBEDTHIS || 1
     PUBLIC int *ssl_create_ciphers(cchar *cipherSuite);
@@ -2355,7 +2328,7 @@ extern "C" {
      * \param key      encryption key
      * \param keysize  must be 128, 192 or 256
      */
-    void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize);
+    PUBLIC void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize);
 
     /**
      * \brief          AES key schedule (decryption)
@@ -2364,7 +2337,7 @@ extern "C" {
      * \param key      decryption key
      * \param keysize  must be 128, 192 or 256
      */
-    void aes_setkey_dec(aes_context * ctx, uchar *key, int keysize);
+    PUBLIC void aes_setkey_dec(aes_context * ctx, uchar *key, int keysize);
 
     /**
      * \brief          AES-ECB block encryption/decryption
@@ -2374,9 +2347,7 @@ extern "C" {
      * \param input    16-byte input block
      * \param output   16-byte output block
      */
-    void aes_crypt_ecb(aes_context * ctx,
-               int mode,
-               uchar input[16], uchar output[16]);
+    PUBLIC void aes_crypt_ecb(aes_context * ctx, int mode, uchar input[16], uchar output[16]);
 
     /**
      * \brief          AES-CBC buffer encryption/decryption
@@ -2388,11 +2359,7 @@ extern "C" {
      * \param input    buffer holding the input data
      * \param output   buffer holding the output data
      */
-    void aes_crypt_cbc(aes_context * ctx,
-               int mode,
-               int length,
-               uchar iv[16],
-               uchar *input, uchar *output);
+    PUBLIC void aes_crypt_cbc(aes_context * ctx, int mode, int length, uchar iv[16], uchar *input, uchar *output);
 
     /**
      * \brief          AES-CFB128 buffer encryption/decryption
@@ -2405,19 +2372,14 @@ extern "C" {
      * \param input    buffer holding the input data
      * \param output   buffer holding the output data
      */
-    void aes_crypt_cfb128(aes_context * ctx,
-                  int mode,
-                  int length,
-                  int *iv_off,
-                  uchar iv[16],
-                  uchar *input, uchar *output);
+    PUBLIC void aes_crypt_cfb128(aes_context * ctx, int mode, int length, int *iv_off, uchar iv[16], uchar *input, uchar *output);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int aes_self_test(int verbose);
+    PUBLIC int aes_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -2478,7 +2440,7 @@ extern "C" {
      * \param key      the secret key
      * \param keylen   length of the key
      */
-    void arc4_setup(arc4_context * ctx, uchar *key, int keylen);
+    PUBLIC void arc4_setup(arc4_context * ctx, uchar *key, int keylen);
 
     /**
      * \brief          ARC4 cipher function
@@ -2487,14 +2449,14 @@ extern "C" {
      * \param buf      buffer to be processed
      * \param buflen   amount of data in buf
      */
-    void arc4_crypt(arc4_context * ctx, uchar *buf, int buflen);
+    PUBLIC void arc4_crypt(arc4_context * ctx, uchar *buf, int buflen);
 
     /*
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int arc4_self_test(int verbose);
+    PUBLIC int arc4_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -2557,8 +2519,7 @@ extern "C" {
      * \note           Call this function with *dlen = 0 to obtain the
      *                 required buffer size in *dlen
      */
-    int base64_encode(uchar *dst, int *dlen,
-              uchar *src, int slen);
+    PUBLIC int base64_encode(uchar *dst, int *dlen, uchar *src, int slen);
 
     /**
      * \brief          Decode a base64-formatted buffer
@@ -2576,15 +2537,14 @@ extern "C" {
      * \note           Call this function with *dlen = 0 to obtain the
      *                 required buffer size in *dlen
      */
-    int base64_decode(uchar *dst, int *dlen,
-              uchar *src, int slen);
+    PUBLIC int base64_decode(uchar *dst, int *dlen, uchar *src, int slen);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int base64_self_test(int verbose);
+    PUBLIC int base64_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -3354,8 +3314,7 @@ extern "C" {
      * \param key      encryption key
      * \param keysize  must be 128, 192 or 256
      */
-    void camellia_setkey_enc(camellia_context * ctx, uchar *key,
-                 int keysize);
+    PUBLIC void camellia_setkey_enc(camellia_context * ctx, uchar *key, int keysize);
 
     /**
      * \brief          CAMELLIA key schedule (decryption)
@@ -3364,8 +3323,7 @@ extern "C" {
      * \param key      decryption key
      * \param keysize  must be 128, 192 or 256
      */
-    void camellia_setkey_dec(camellia_context * ctx, uchar *key,
-                 int keysize);
+    PUBLIC void camellia_setkey_dec(camellia_context * ctx, uchar *key, int keysize);
 
     /**
      * \brief          CAMELLIA-ECB block encryption/decryption
@@ -3375,10 +3333,7 @@ extern "C" {
      * \param input    16-byte input block
      * \param output   16-byte output block
      */
-    void camellia_crypt_ecb(camellia_context * ctx,
-                int mode,
-                uchar input[16],
-                uchar output[16]);
+    PUBLIC void camellia_crypt_ecb(camellia_context * ctx, int mode, uchar input[16], uchar output[16]);
 
     /**
      * \brief          CAMELLIA-CBC buffer encryption/decryption
@@ -3390,11 +3345,7 @@ extern "C" {
      * \param input    buffer holding the input data
      * \param output   buffer holding the output data
      */
-    void camellia_crypt_cbc(camellia_context * ctx,
-                int mode,
-                int length,
-                uchar iv[16],
-                uchar *input, uchar *output);
+    PUBLIC void camellia_crypt_cbc(camellia_context * ctx, int mode, int length, uchar iv[16], uchar *input, uchar *output);
 
     /**
      * \brief          CAMELLIA-CFB128 buffer encryption/decryption
@@ -3407,19 +3358,14 @@ extern "C" {
      * \param input    buffer holding the input data
      * \param output   buffer holding the output data
      */
-    void camellia_crypt_cfb128(camellia_context * ctx,
-                   int mode,
-                   int length,
-                   int *iv_off,
-                   uchar iv[16],
-                   uchar *input, uchar *output);
+    PUBLIC void camellia_crypt_cfb128(camellia_context * ctx, int mode, int length, int *iv_off, uchar iv[16], uchar *input, uchar *output);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int camellia_self_test(int verbose);
+    PUBLIC int camellia_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -3500,13 +3446,11 @@ extern "C" {
     #define LOG(l, ...) if (1) ; else
     #define RET(l, ...) if (1) ; else
 #endif
-
     #define SSL_DEBUG_MSG(level, args)              debug_print_msg(ssl, level, debug_fmt args);
     #define SSL_DEBUG_RET(level, text, ret)         debug_print_ret(ssl, level, text, ret);
     #define SSL_DEBUG_BUF(level, text, buf, len)    debug_print_buf(ssl, level, text, buf, len);
     #define SSL_DEBUG_MPI(level, text, X)           debug_print_mpi(ssl, level, text, X);
     #define SSL_DEBUG_CRT(level, text, crt)         debug_print_crt(ssl, level, text, crt);
-
 #endif
 
 #if BIT_EST_LOGGING
@@ -3516,7 +3460,6 @@ extern "C" {
     #define SSL_DEBUG_MPI(level, text, X)           debug_print_mpi(ssl, level, text, X);
     #define SSL_DEBUG_CRT(level, text, crt)         debug_print_crt(ssl, level, text, crt);
 #else
-
     #define SSL_DEBUG_MSG(level, args)            do {} while(0)
     #define SSL_DEBUG_RET(level, text, ret)       do {} while(0)
     #define SSL_DEBUG_BUF(level, text, buf, len)  do {} while(0)
@@ -3528,13 +3471,13 @@ extern "C" {
 extern "C" {
 #endif
     //  MOB - move to an estDep.h
-    int snfmt(char *buf, ssize bufsize, cchar *fmt, ...);
-    char *debug_fmt(const char *format, ...);
-    void debug_print_msg(ssl_context *ssl, int level, char *text);
-    void debug_print_ret(ssl_context *ssl, int level, char *text, int ret);
-    void debug_print_buf(ssl_context *ssl, int level, char *text, uchar *buf, int len);
-    void debug_print_mpi(ssl_context *ssl, int level, char *text, mpi * X);
-    void debug_print_crt(ssl_context *ssl, int level, char *text, x509_cert * crt);
+    PUBLIC int snfmt(char *buf, ssize bufsize, cchar *fmt, ...);
+    PUBLIC char *debug_fmt(const char *format, ...);
+    PUBLIC void debug_print_msg(ssl_context *ssl, int level, char *text);
+    PUBLIC void debug_print_ret(ssl_context *ssl, int level, char *text, int ret);
+    PUBLIC void debug_print_buf(ssl_context *ssl, int level, char *text, uchar *buf, int len);
+    PUBLIC void debug_print_mpi(ssl_context *ssl, int level, char *text, mpi * X);
+    PUBLIC void debug_print_crt(ssl_context *ssl, int level, char *text, x509_cert * crt);
 
 #ifdef __cplusplus
 }
@@ -3604,7 +3547,7 @@ extern "C" {
      * \param ctx      DES context to be initialized
      * \param key      8-byte secret key
      */
-    void des_setkey_enc(des_context * ctx, uchar key[8]);
+    PUBLIC void des_setkey_enc(des_context * ctx, uchar key[8]);
 
     /**
      * \brief          DES key schedule (56-bit, decryption)
@@ -3612,7 +3555,7 @@ extern "C" {
      * \param ctx      DES context to be initialized
      * \param key      8-byte secret key
      */
-    void des_setkey_dec(des_context * ctx, uchar key[8]);
+    PUBLIC void des_setkey_dec(des_context * ctx, uchar key[8]);
 
     /**
      * \brief          Triple-DES key schedule (112-bit, encryption)
@@ -3620,7 +3563,7 @@ extern "C" {
      * \param ctx      3DES context to be initialized
      * \param key      16-byte secret key
      */
-    void des3_set2key_enc(des3_context * ctx, uchar key[16]);
+    PUBLIC void des3_set2key_enc(des3_context * ctx, uchar key[16]);
 
     /**
      * \brief          Triple-DES key schedule (112-bit, decryption)
@@ -3628,7 +3571,7 @@ extern "C" {
      * \param ctx      3DES context to be initialized
      * \param key      16-byte secret key
      */
-    void des3_set2key_dec(des3_context * ctx, uchar key[16]);
+    PUBLIC void des3_set2key_dec(des3_context * ctx, uchar key[16]);
 
     /**
      * \brief          Triple-DES key schedule (168-bit, encryption)
@@ -3636,7 +3579,7 @@ extern "C" {
      * \param ctx      3DES context to be initialized
      * \param key      24-byte secret key
      */
-    void des3_set3key_enc(des3_context * ctx, uchar key[24]);
+    PUBLIC void des3_set3key_enc(des3_context * ctx, uchar key[24]);
 
     /**
      * \brief          Triple-DES key schedule (168-bit, decryption)
@@ -3644,7 +3587,7 @@ extern "C" {
      * \param ctx      3DES context to be initialized
      * \param key      24-byte secret key
      */
-    void des3_set3key_dec(des3_context * ctx, uchar key[24]);
+    PUBLIC void des3_set3key_dec(des3_context * ctx, uchar key[24]);
 
     /**
      * \brief          DES-ECB block encryption/decryption
@@ -3653,8 +3596,7 @@ extern "C" {
      * \param input    64-bit input block
      * \param output   64-bit output block
      */
-    void des_crypt_ecb(des_context * ctx,
-               uchar input[8], uchar output[8]);
+    PUBLIC void des_crypt_ecb(des_context * ctx, uchar input[8], uchar output[8]);
 
     /**
      * \brief          DES-CBC buffer encryption/decryption
@@ -3666,11 +3608,7 @@ extern "C" {
      * \param input    buffer holding the input data
      * \param output   buffer holding the output data
      */
-    void des_crypt_cbc(des_context * ctx,
-               int mode,
-               int length,
-               uchar iv[8],
-               uchar *input, uchar *output);
+    PUBLIC void des_crypt_cbc(des_context * ctx, int mode, int length, uchar iv[8], uchar *input, uchar *output);
 
     /**
      * \brief          3DES-ECB block encryption/decryption
@@ -3679,8 +3617,7 @@ extern "C" {
      * \param input    64-bit input block
      * \param output   64-bit output block
      */
-    void des3_crypt_ecb(des3_context * ctx,
-                uchar input[8], uchar output[8]);
+    PUBLIC void des3_crypt_ecb(des3_context * ctx, uchar input[8], uchar output[8]);
 
     /**
      * \brief          3DES-CBC buffer encryption/decryption
@@ -3692,18 +3629,14 @@ extern "C" {
      * \param input    buffer holding the input data
      * \param output   buffer holding the output data
      */
-    void des3_crypt_cbc(des3_context * ctx,
-                int mode,
-                int length,
-                uchar iv[8],
-                uchar *input, uchar *output);
+    PUBLIC void des3_crypt_cbc(des3_context * ctx, int mode, int length, uchar iv[8], uchar *input, uchar *output);
 
     /*
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int des_self_test(int verbose);
+    PUBLIC int des_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -3764,7 +3697,7 @@ extern "C" {
      *
      * \param hs       HAVEGE state to be initialized
      */
-    void havege_init(havege_state * hs);
+    PUBLIC void havege_init(havege_state * hs);
 
     /**
      * \brief          HAVEGE rand function
@@ -3773,7 +3706,7 @@ extern "C" {
      *
      * \return         A random int
      */
-    int havege_rand(void *p_rng);
+    PUBLIC int havege_rand(void *p_rng);
 
 #ifdef __cplusplus
 }
@@ -3836,7 +3769,7 @@ extern "C" {
      *
      * \param ctx      context to be initialized
      */
-    void md2_starts(md2_context * ctx);
+    PUBLIC void md2_starts(md2_context * ctx);
 
     /**
      * \brief          MD2 process buffer
@@ -3845,7 +3778,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void md2_update(md2_context * ctx, uchar *input, int ilen);
+    PUBLIC void md2_update(md2_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          MD2 final digest
@@ -3853,7 +3786,7 @@ extern "C" {
      * \param ctx      MD2 context
      * \param output   MD2 checksum result
      */
-    void md2_finish(md2_context * ctx, uchar output[16]);
+    PUBLIC void md2_finish(md2_context * ctx, uchar output[16]);
 
     /**
      * \brief          Output = MD2( input buffer )
@@ -3862,7 +3795,7 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   MD2 checksum result
      */
-    void md2(uchar *input, int ilen, uchar output[16]);
+    PUBLIC void md2(uchar *input, int ilen, uchar output[16]);
 
     /**
      * \brief          Output = MD2( file contents )
@@ -3873,7 +3806,7 @@ extern "C" {
      * \return         0 if successful, 1 if fopen failed,
      *                 or 2 if fread failed
      */
-    int md2_file(char *path, uchar output[16]);
+    PUBLIC int md2_file(char *path, uchar output[16]);
 
     /**
      * \brief          MD2 HMAC context setup
@@ -3882,7 +3815,7 @@ extern "C" {
      * \param key      HMAC secret key
      * \param keylen   length of the HMAC key
      */
-    void md2_hmac_starts(md2_context * ctx, uchar *key, int keylen);
+    PUBLIC void md2_hmac_starts(md2_context * ctx, uchar *key, int keylen);
 
     /**
      * \brief          MD2 HMAC process buffer
@@ -3891,7 +3824,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void md2_hmac_update(md2_context * ctx, uchar *input, int ilen);
+    PUBLIC void md2_hmac_update(md2_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          MD2 HMAC final digest
@@ -3899,7 +3832,7 @@ extern "C" {
      * \param ctx      HMAC context
      * \param output   MD2 HMAC checksum result
      */
-    void md2_hmac_finish(md2_context * ctx, uchar output[16]);
+    PUBLIC void md2_hmac_finish(md2_context * ctx, uchar output[16]);
 
     /**
      * \brief          Output = HMAC-MD2( hmac key, input buffer )
@@ -3910,15 +3843,14 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   HMAC-MD2 result
      */
-    void md2_hmac(uchar *key, int keylen,
-              uchar *input, int ilen, uchar output[16]);
+    PUBLIC void md2_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16]);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int md2_self_test(int verbose);
+    PUBLIC int md2_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -3980,7 +3912,7 @@ extern "C" {
      *
      * \param ctx      context to be initialized
      */
-    void md4_starts(md4_context * ctx);
+    PUBLIC void md4_starts(md4_context * ctx);
 
     /**
      * \brief          MD4 process buffer
@@ -3989,7 +3921,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void md4_update(md4_context * ctx, uchar *input, int ilen);
+    PUBLIC void md4_update(md4_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          MD4 final digest
@@ -3997,7 +3929,7 @@ extern "C" {
      * \param ctx      MD4 context
      * \param output   MD4 checksum result
      */
-    void md4_finish(md4_context * ctx, uchar output[16]);
+    PUBLIC void md4_finish(md4_context * ctx, uchar output[16]);
 
     /**
      * \brief          Output = MD4( input buffer )
@@ -4006,7 +3938,7 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   MD4 checksum result
      */
-    void md4(uchar *input, int ilen, uchar output[16]);
+    PUBLIC void md4(uchar *input, int ilen, uchar output[16]);
 
     /**
      * \brief          Output = MD4( file contents )
@@ -4017,7 +3949,7 @@ extern "C" {
      * \return         0 if successful, 1 if fopen failed,
      *                 or 2 if fread failed
      */
-    int md4_file(char *path, uchar output[16]);
+    PUBLIC int md4_file(char *path, uchar output[16]);
 
     /**
      * \brief          MD4 HMAC context setup
@@ -4026,7 +3958,7 @@ extern "C" {
      * \param key      HMAC secret key
      * \param keylen   length of the HMAC key
      */
-    void md4_hmac_starts(md4_context * ctx, uchar *key, int keylen);
+    PUBLIC void md4_hmac_starts(md4_context * ctx, uchar *key, int keylen);
 
     /**
      * \brief          MD4 HMAC process buffer
@@ -4035,7 +3967,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void md4_hmac_update(md4_context * ctx, uchar *input, int ilen);
+    PUBLIC void md4_hmac_update(md4_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          MD4 HMAC final digest
@@ -4043,7 +3975,7 @@ extern "C" {
      * \param ctx      HMAC context
      * \param output   MD4 HMAC checksum result
      */
-    void md4_hmac_finish(md4_context * ctx, uchar output[16]);
+    PUBLIC void md4_hmac_finish(md4_context * ctx, uchar output[16]);
 
     /**
      * \brief          Output = HMAC-MD4( hmac key, input buffer )
@@ -4054,15 +3986,14 @@ extern "C" {
      * \param ilen     length of the input data
      * \param output   HMAC-MD4 result
      */
-    void md4_hmac(uchar *key, int keylen,
-              uchar *input, int ilen, uchar output[16]);
+    PUBLIC void md4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16]);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int md4_self_test(int verbose);
+    PUBLIC int md4_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -4126,7 +4057,7 @@ extern "C" {
      *
      * \return         1 if CPU has support for the feature, 0 otherwise
      */
-    int padlock_supports(int feature);
+    PUBLIC int padlock_supports(int feature);
 
     /**
      * \brief          PadLock AES-ECB block en(de)cryption
@@ -4138,10 +4069,7 @@ extern "C" {
      *
      * \return         0 if success, 1 if operation failed
      */
-    int padlock_xcryptecb(aes_context * ctx,
-                  int mode,
-                  uchar input[16],
-                  uchar output[16]);
+    PUBLIC int padlock_xcryptecb(aes_context * ctx, int mode, uchar input[16], uchar output[16]);
 
     /**
      * \brief          PadLock AES-CBC buffer en(de)cryption
@@ -4155,11 +4083,7 @@ extern "C" {
      *
      * \return         0 if success, 1 if operation failed
      */
-    int padlock_xcryptcbc(aes_context * ctx,
-                  int mode,
-                  int length,
-                  uchar iv[16],
-                  uchar *input, uchar *output);
+    PUBLIC int padlock_xcryptcbc(aes_context * ctx, int mode, int length, uchar iv[16], uchar *input, uchar *output);
 
 #ifdef __cplusplus
 }
@@ -4224,7 +4148,7 @@ extern "C" {
      * \param ctx      context to be initialized
      * \param is224    0 = use SHA256, 1 = use SHA224
      */
-    void sha2_starts(sha2_context * ctx, int is224);
+    PUBLIC void sha2_starts(sha2_context * ctx, int is224);
 
     /**
      * \brief          SHA-256 process buffer
@@ -4233,7 +4157,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void sha2_update(sha2_context * ctx, uchar *input, int ilen);
+    PUBLIC void sha2_update(sha2_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          SHA-256 final digest
@@ -4241,7 +4165,7 @@ extern "C" {
      * \param ctx      SHA-256 context
      * \param output   SHA-224/256 checksum result
      */
-    void sha2_finish(sha2_context * ctx, uchar output[32]);
+    PUBLIC void sha2_finish(sha2_context * ctx, uchar output[32]);
 
     /**
      * \brief          Output = SHA-256( input buffer )
@@ -4251,8 +4175,7 @@ extern "C" {
      * \param output   SHA-224/256 checksum result
      * \param is224    0 = use SHA256, 1 = use SHA224
      */
-    void sha2(uchar *input, int ilen,
-          uchar output[32], int is224);
+    PUBLIC void sha2(uchar *input, int ilen, uchar output[32], int is224);
 
     /**
      * \brief          Output = SHA-256( file contents )
@@ -4264,7 +4187,7 @@ extern "C" {
      * \return         0 if successful, 1 if fopen failed,
      *                 or 2 if fread failed
      */
-    int sha2_file(char *path, uchar output[32], int is224);
+    PUBLIC int sha2_file(char *path, uchar output[32], int is224);
 
     /**
      * \brief          SHA-256 HMAC context setup
@@ -4274,8 +4197,7 @@ extern "C" {
      * \param keylen   length of the HMAC key
      * \param is224    0 = use SHA256, 1 = use SHA224
      */
-    void sha2_hmac_starts(sha2_context * ctx, uchar *key,
-                  int keylen, int is224);
+    PUBLIC void sha2_hmac_starts(sha2_context * ctx, uchar *key, int keylen, int is224);
 
     /**
      * \brief          SHA-256 HMAC process buffer
@@ -4284,8 +4206,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void sha2_hmac_update(sha2_context * ctx, uchar *input,
-                  int ilen);
+    PUBLIC void sha2_hmac_update(sha2_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          SHA-256 HMAC final digest
@@ -4293,7 +4214,7 @@ extern "C" {
      * \param ctx      HMAC context
      * \param output   SHA-224/256 HMAC checksum result
      */
-    void sha2_hmac_finish(sha2_context * ctx, uchar output[32]);
+    PUBLIC void sha2_hmac_finish(sha2_context * ctx, uchar output[32]);
 
     /**
      * \brief          Output = HMAC-SHA-256( hmac key, input buffer )
@@ -4305,16 +4226,14 @@ extern "C" {
      * \param output   HMAC-SHA-224/256 result
      * \param is224    0 = use SHA256, 1 = use SHA224
      */
-    void sha2_hmac(uchar *key, int keylen,
-               uchar *input, int ilen,
-               uchar output[32], int is224);
+    PUBLIC void sha2_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[32], int is224);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int sha2_self_test(int verbose);
+    PUBLIC int sha2_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -4386,7 +4305,7 @@ extern "C" {
      * \param ctx      context to be initialized
      * \param is384    0 = use SHA512, 1 = use SHA384
      */
-    void sha4_starts(sha4_context * ctx, int is384);
+    PUBLIC void sha4_starts(sha4_context * ctx, int is384);
 
     /**
      * \brief          SHA-512 process buffer
@@ -4395,7 +4314,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void sha4_update(sha4_context * ctx, uchar *input, int ilen);
+    PUBLIC void sha4_update(sha4_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          SHA-512 final digest
@@ -4403,7 +4322,7 @@ extern "C" {
      * \param ctx      SHA-512 context
      * \param output   SHA-384/512 checksum result
      */
-    void sha4_finish(sha4_context * ctx, uchar output[64]);
+    PUBLIC void sha4_finish(sha4_context * ctx, uchar output[64]);
 
     /**
      * \brief          Output = SHA-512( input buffer )
@@ -4413,8 +4332,7 @@ extern "C" {
      * \param output   SHA-384/512 checksum result
      * \param is384    0 = use SHA512, 1 = use SHA384
      */
-    void sha4(uchar *input, int ilen,
-          uchar output[64], int is384);
+    PUBLIC void sha4(uchar *input, int ilen, uchar output[64], int is384);
 
     /**
      * \brief          Output = SHA-512( file contents )
@@ -4426,7 +4344,7 @@ extern "C" {
      * \return         0 if successful, 1 if fopen failed,
      *                 or 2 if fread failed
      */
-    int sha4_file(char *path, uchar output[64], int is384);
+    PUBLIC int sha4_file(char *path, uchar output[64], int is384);
 
     /**
      * \brief          SHA-512 HMAC context setup
@@ -4436,8 +4354,7 @@ extern "C" {
      * \param key      HMAC secret key
      * \param keylen   length of the HMAC key
      */
-    void sha4_hmac_starts(sha4_context * ctx, uchar *key,
-                  int keylen, int is384);
+    PUBLIC void sha4_hmac_starts(sha4_context * ctx, uchar *key, int keylen, int is384);
 
     /**
      * \brief          SHA-512 HMAC process buffer
@@ -4446,8 +4363,7 @@ extern "C" {
      * \param input    buffer holding the  data
      * \param ilen     length of the input data
      */
-    void sha4_hmac_update(sha4_context * ctx, uchar *input,
-                  int ilen);
+    PUBLIC void sha4_hmac_update(sha4_context * ctx, uchar *input, int ilen);
 
     /**
      * \brief          SHA-512 HMAC final digest
@@ -4455,7 +4371,7 @@ extern "C" {
      * \param ctx      HMAC context
      * \param output   SHA-384/512 HMAC checksum result
      */
-    void sha4_hmac_finish(sha4_context * ctx, uchar output[64]);
+    PUBLIC void sha4_hmac_finish(sha4_context * ctx, uchar output[64]);
 
     /**
      * \brief          Output = HMAC-SHA-512( hmac key, input buffer )
@@ -4467,16 +4383,14 @@ extern "C" {
      * \param output   HMAC-SHA-384/512 result
      * \param is384    0 = use SHA512, 1 = use SHA384
      */
-    void sha4_hmac(uchar *key, int keylen,
-               uchar *input, int ilen,
-               uchar output[64], int is384);
+    PUBLIC void sha4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[64], int is384);
 
     /**
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int sha4_self_test(int verbose);
+    PUBLIC int sha4_self_test(int verbose);
 
 #ifdef __cplusplus
 }
@@ -4533,7 +4447,7 @@ extern "C" {
     /**
      * \brief          Return the CPU cycle counter value
      */
-    ulong hardclock(void);
+    PUBLIC ulong hardclock(void);
 
     /**
      * \brief          Return the elapsed time in milliseconds
@@ -4541,19 +4455,19 @@ extern "C" {
      * \param val      points to a timer structure
      * \param reset    if set to 1, the timer is restarted
      */
-    ulong get_timer(struct hr_time *val, int reset);
+    PUBLIC ulong get_timer(struct hr_time *val, int reset);
 
     /**
      * \brief          Setup an alarm clock
      *
      * \param seconds  delay before the "alarmed" flag is set
      */
-    void set_alarm(int seconds);
+    PUBLIC void set_alarm(int seconds);
 
     /**
      * \brief          Sleep for a certain amount of time
      */
-    void m_sleep(int milliseconds);
+    PUBLIC void m_sleep(int milliseconds);
 
 #ifdef __cplusplus
 }
@@ -4614,7 +4528,7 @@ extern "C" {
      * \param ctx      XTEA context to be initialized
      * \param key      the secret key
      */
-    void xtea_setup(xtea_context * ctx, uchar key[16]);
+    PUBLIC void xtea_setup(xtea_context * ctx, uchar key[16]);
 
     /**
      * \brief          XTEA cipher function
@@ -4624,16 +4538,14 @@ extern "C" {
      * \param input    8-byte input block
      * \param output   8-byte output block
      */
-    void xtea_crypt(xtea_context * ctx,
-            int mode,
-            uchar input[8], uchar output[8]);
+    PUBLIC void xtea_crypt(xtea_context * ctx, int mode, uchar input[8], uchar output[8]);
 
     /*
      * \brief          Checkup routine
      *
      * \return         0 if successful, or 1 if the test failed
      */
-    int xtea_self_test(int verbose);
+    PUBLIC int xtea_self_test(int verbose);
 
 #ifdef __cplusplus
 }

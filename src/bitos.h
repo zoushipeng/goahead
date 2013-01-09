@@ -681,13 +681,14 @@ typedef int64 Ticks;
 
 #if BIT_WIN_LIKE
     /*
-        This is the same for static and shared builds so *.exe on windows will have export symbols and
-        GetProcAddress can locate for dynmaic resolution of modules
+        Use PUBLIC on function declarations and definitions (*.c and *.h). 
      */
-    #define PUBLIC      __declspec(dllexport)
+    #define PUBLIC       __declspec(dllexport)
+    #define PUBLIC_DATA __declspec(dllexport)
     #define PRIVATE     static
 #else
     #define PUBLIC
+    #define PUBLIC_DATA extern
     #define PRIVATE     static
 #endif
 
