@@ -3164,7 +3164,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
  */
 #if BIT_GOAHEAD_LEGACY
     #define B_L 0
-    #define a_assert assure
+    #define a_assert assert
     #define balloc walloc
     #define bclose wcloseAlloc
     #define bfree(loc, p) wfree(p)

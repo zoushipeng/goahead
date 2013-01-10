@@ -866,7 +866,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
         Construct command line
      */
     cmdLine = walloc(sizeof(char) * nLen);
-    assure (cmdLine);
+    assert(cmdLine);
     strcpy(cmdLine, "");
 
     pArgs = argp;
