@@ -24,6 +24,9 @@ if ! diff ${CONFIG}/inc/bit.h projects/goahead-${OS}-${PROFILE}-bit.h >/dev/null
 	cp projects/goahead-${OS}-${PROFILE}-bit.h ${CONFIG}/inc/bit.h
 fi
 
+rm -rf ${CONFIG}/bin/ca.crt
+cp -r src/deps/est/ca.crt ${CONFIG}/bin/ca.crt
+
 rm -rf ${CONFIG}/inc/bitos.h
 cp -r src/bitos.h ${CONFIG}/inc/bitos.h
 

@@ -16,7 +16,7 @@ Bit.load({
             ],
         },
 
-        'ca.crt': {
+        'ca-crt': {
             type: 'file',                                                                                  
             files: [ 'ca.crt' ],                                                                       
             path: '${BIN}/ca.crt',                                                                    

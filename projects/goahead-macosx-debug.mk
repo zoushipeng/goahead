@@ -24,6 +24,7 @@ CFLAGS          += $(CFLAGS-$(PROFILE))
 LDFLAGS         += $(LDFLAGS-$(PROFILE))
 
 all: prep \
+        $(CONFIG)/bin/ca.crt \
         $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/bin/goahead \
         $(CONFIG)/bin/goahead-test \
@@ -44,6 +45,7 @@ prep:
 	fi; true
 
 clean:
+	rm -rf $(CONFIG)/bin/ca.crt
 	rm -rf $(CONFIG)/bin/libgo.dylib
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
@@ -78,6 +80,10 @@ clean:
 
 clobber: clean
 	rm -fr ./$(CONFIG)
+
+$(CONFIG)/bin/ca.crt: 
+	rm -fr $(CONFIG)/bin/ca.crt
+	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
 
 $(CONFIG)/inc/bitos.h: 
 	rm -fr $(CONFIG)/inc/bitos.h

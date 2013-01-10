@@ -25,6 +25,7 @@ LIBPATHS = -libpath:$(CONFIG)\bin
 LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
 all: prep \
+        $(CONFIG)\bin\ca.crt \
         $(CONFIG)\bin\libgo.dll \
         $(CONFIG)\bin\goahead.exe \
         $(CONFIG)\bin\goahead-test.exe \
@@ -44,6 +45,7 @@ prep:
 	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
 	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-$(OS)-$(PROFILE)-bit.h $(CONFIG)\inc\bit.h
 clean:
+	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
 	-if exist $(CONFIG)\bin\libgo.dll del /Q $(CONFIG)\bin\libgo.dll
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
@@ -75,6 +77,10 @@ clean:
 	-if exist $(CONFIG)\obj\gopass.obj del /Q $(CONFIG)\obj\gopass.obj
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
+
+$(CONFIG)\bin\ca.crt: 
+	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
+	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
 
 $(CONFIG)\inc\bitos.h: 
 	-if exist $(CONFIG)\inc\bitos.h del /Q $(CONFIG)\inc\bitos.h
