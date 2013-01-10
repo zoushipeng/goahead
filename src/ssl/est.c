@@ -130,6 +130,7 @@ PUBLIC void sslFree(Webs *wp)
     est = wp->ssl;
     if (est) {
         ssl_free(&est->ctx);
+        wp->ssl = 0;
     }
 }
 

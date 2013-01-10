@@ -371,6 +371,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     } else {
         wid = sid = -1;
         timeout = -1;
+        ssl = 0;
     }
     memset(wp, 0, sizeof(Webs));
     wp->flags = flags;
