@@ -116,7 +116,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_ARGS_DEC          char *file, int line
 #define WEBS_ARGS              file, line
 
-PUBLIC int logLevel;
+PUBLIC_DATA int logLevel;
 
 #if BIT_GOAHEAD_TRACING
         #define trace(l, ...) if ((l) <= logLevel) { traceProc(l, __VA_ARGS__); } else
