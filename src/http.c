@@ -357,6 +357,7 @@ PUBLIC void websClose()
 static void initWebs(Webs *wp, int flags, int reuse)
 {
     WebsBuf     rxbuf;
+    void        *ssl;
     int         wid, sid, timeout;
 
     assert(wp);
@@ -366,6 +367,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
         wid = wp->wid;
         sid = wp->sid;
         timeout = wp->timeout;
+        ssl = wp->ssl;
     } else {
         wid = sid = -1;
         timeout = -1;
@@ -381,6 +383,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->txLen = -1;
     wp->rxLen = -1;
     wp->code = HTTP_CODE_OK;
+    wp->ssl = ssl;
 #if BIT_GOAHEAD_CGI
     wp->cgifd = -1;
 #endif
@@ -485,7 +488,9 @@ static void termWebs(Webs *wp, int reuse)
 #endif
     hashFree(wp->vars);
 #if BIT_SSL
-    sslFree(wp);
+    if (!reuse) {
+        sslFree(wp);
+    }
 #endif
 #if BIT_GOAHEAD_UPLOAD
     if (wp->files) {

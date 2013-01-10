@@ -957,6 +957,7 @@ static void defaultLogHandler(int flags, char *buf)
             fmt(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, flags & WEBS_LEVEL_MASK);
             write(logFd, prefix, (int) slen(prefix));
             write(logFd, buf, (int) slen(buf));
+            write(logFd, "\n", 1);
 #if BIT_WIN_LIKE || BIT_UNIX_LIKE
             if (flags & WEBS_ERROR_MSG && websGetBackground()) {
                 syslog(LOG_ERR, "%s", buf);

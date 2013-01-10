@@ -1642,13 +1642,16 @@ typedef struct Webs {
     char            *uploadTmp;         /**< Current temp filename for upload data */
     char            *uploadVar;         /**< Current upload form variable name */
 #endif
+    void            *ssl;               /**< SSL context */
+#if UNUSED
 #if BIT_PACK_EST
-    void            *est;               /**< EST SSL state */
+    void        *est;                   /**< EST SSL state */
 #elif BIT_PACK_OPENSSL
-    void            *ssl;               /**< SSL state */
-    void            *bio;               /**< Buffer for I/O - not used in actual I/O */
+    void        *ssl;                   /**< SSL state */
+    void        *bio;                   /**< Buffer for I/O - not used in actual I/O */
 #elif BIT_PACK_MATRIXSSL
-    void            *ms;                /**< MatrixSSL state */
+    void        *ms;                    /**< MatrixSSL state */
+#endif
 #endif
 } Webs;
 

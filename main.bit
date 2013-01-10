@@ -62,8 +62,9 @@ Bit.load({
             /*
                 Cipher suite for SSL. This is SSL stack dependant:
                     OpenSSL: AES128-SHA or "HIGH:RC4+SHA",
+                    EST:"TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_RC4_128_SHA",
              */
-            ciphers: "HIGH:RC4+SHA",
+            ciphers: "",
 
             /*
                 Build with CGI support and directory for CGI programs.
@@ -168,12 +169,12 @@ Bit.load({
             /*
                 Verify client certificates
              */
-            verifyPeer: true,
+            verifyPeer: false,
 
             /*
                 Verify issuer. If false, allows self-signed certificates for testing purposes.
              */
-            verifyIssuer: true,
+            verifyIssuer: false,
         }
     },
 

@@ -16,7 +16,7 @@
 typedef struct EstConfig {
     rsa_context     rsa;
     x509_cert       cert;
-    x509_cert       cabundle;
+    x509_cert       ca;
     int             *ciphers;
     //  MOB - where should this be set from?
     int             verifyPeer;
@@ -71,12 +71,14 @@ PUBLIC int sslOpen()
         return -1;
     }
     if (*BIT_GOAHEAD_CA) {
-        if (x509parse_crtfile(&estConfig.cabundle, BIT_GOAHEAD_CA) != 0) {
+        if (x509parse_crtfile(&estConfig.ca, BIT_GOAHEAD_CA) != 0) {
             error("Unable to parse certificate bundle %s", *BIT_GOAHEAD_CA); 
             return -1;
         }
     }
-    estConfig.ciphers = ssl_create_ciphers(BIT_GOAHEAD_CIPHERS);
+    if (*BIT_GOAHEAD_CIPHERS) {
+        estConfig.ciphers = ssl_create_ciphers(BIT_GOAHEAD_CIPHERS);
+    }
     return 0;
 }
 
@@ -96,7 +98,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     if ((est = malloc(sizeof(EstSocket))) == 0) {
         return -1;
     }
-    wp->est = est;
+    wp->ssl = est;
 
     ssl_free(&est->ctx);
     havege_init(&est->hs);
@@ -110,8 +112,10 @@ PUBLIC int sslUpgrade(Webs *wp)
     ssl_set_ciphers(&est->ctx, estConfig.ciphers);
 	ssl_set_session(&est->ctx, 1, 0, &est->session);
 	memset(&est->session, 0, sizeof(ssl_session));
-	ssl_set_ca_chain(&est->ctx, estConfig.cert.next, NULL);
-	ssl_set_own_cert(&est->ctx, &estConfig.cert, &estConfig.rsa);
+	ssl_set_ca_chain(&est->ctx, *BIT_GOAHEAD_CA ? &estConfig.ca : NULL, NULL);
+    if (*BIT_GOAHEAD_CERTIFICATE && *BIT_GOAHEAD_KEY) {
+        ssl_set_own_cert(&est->ctx, &estConfig.cert, &estConfig.rsa);
+    }
 	ssl_set_dh_param(&est->ctx, dhKey, dhg);
 
     if (estHandshake(wp) < 0) {
@@ -125,8 +129,10 @@ PUBLIC void sslFree(Webs *wp)
 {
     EstSocket   *est;
 
-    est = wp->est;
-    ssl_free(&est->ctx);
+    est = wp->ssl;
+    if (est) {
+        ssl_free(&est->ctx);
+    }
 }
 
 
@@ -140,7 +146,7 @@ static int estHandshake(Webs *wp)
     EstSocket   *est;
     int         rc, vrc, trusted;
 
-    est = (EstSocket*) wp->est;
+    est = (EstSocket*) wp->ssl;
     trusted = 1;
 
     sp = socketPtr(wp->sid);
@@ -215,11 +221,11 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     EstSocket       *est;
     int             rc;
 
-    if (wp->est) {
+    if (!wp->ssl) {
         assert(0);
         return -1;
     }
-    est = (EstSocket*) wp->est;
+    est = (EstSocket*) wp->ssl;
     assert(est);
     sp = socketPtr(wp->sid);
 
@@ -257,11 +263,11 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
     ssize       totalWritten;
     int         rc;
 
-    if (wp->est == 0 || len <= 0) {
+    if (wp->ssl == 0 || len <= 0) {
         assert(0);
         return -1;
     }
-    est = (EstSocket*) wp->est;
+    est = (EstSocket*) wp->ssl;
     if (est->ctx.state != SSL_HANDSHAKE_OVER) {
         if ((rc = estHandshake(wp)) <= 0) {
             return rc;
