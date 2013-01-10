@@ -93,7 +93,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     /*
         Bind to the socket endpoint and the call listen() to start listening
      */
-    if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
+    if (socketInfo(sip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;
     }
     if ((sp->sock = (int) socket(family, SOCK_STREAM, protocol)) < 0) {

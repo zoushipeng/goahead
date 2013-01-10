@@ -173,17 +173,17 @@ static void logHeader()
     char    home[BIT_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
-    trace(2, "Configuration for %s\n", BIT_TITLE);
-    trace(2, "---------------------------------------------\n");
-    trace(2, "Version:            %s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
-    trace(2, "BuildType:          %s\n", BIT_DEBUG ? "Debug" : "Release");
-    trace(2, "CPU:                %s\n", BIT_CPU);
-    trace(2, "OS:                 %s\n", BIT_OS);
-    trace(2, "Host:               %s\n", websGetServer());
-    trace(2, "Directory:          %s\n", home);
-    trace(2, "Documents:          %s\n", websGetDocuments());
-    trace(2, "Configure:          %s\n", BIT_CONFIG_CMD);
-    trace(2, "---------------------------------------------\n");
+    trace(2, "Configuration for %s", BIT_TITLE);
+    trace(2, "---------------------------------------------");
+    trace(2, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    trace(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
+    trace(2, "CPU:                %s", BIT_CPU);
+    trace(2, "OS:                 %s", BIT_OS);
+    trace(2, "Host:               %s", websGetServer());
+    trace(2, "Directory:          %s", home);
+    trace(2, "Documents:          %s", websGetDocuments());
+    trace(2, "Configure:          %s", BIT_CONFIG_CMD);
+    trace(2, "---------------------------------------------");
 }
 
 

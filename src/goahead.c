@@ -144,7 +144,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
 #endif
     websServiceEvents(&finished);
-    logmsg(1, "Instructed to exit\n");
+    logmsg(1, "Instructed to exit");
     websClose();
 #if WINDOWS
     windowsClose();
@@ -158,17 +158,17 @@ static void logHeader()
     char    home[BIT_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
-    logmsg(2, "Configuration for %s\n", BIT_TITLE);
-    logmsg(2, "---------------------------------------------\n");
-    logmsg(2, "Version:            %s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
-    logmsg(2, "BuildType:          %s\n", BIT_DEBUG ? "Debug" : "Release");
-    logmsg(2, "CPU:                %s\n", BIT_CPU);
-    logmsg(2, "OS:                 %s\n", BIT_OS);
-    logmsg(2, "Host:               %s\n", websGetServer());
-    logmsg(2, "Directory:          %s\n", home);
-    logmsg(2, "Documents:          %s\n", websGetDocuments());
-    logmsg(2, "Configure:          %s\n", BIT_CONFIG_CMD);
-    logmsg(2, "---------------------------------------------\n");
+    logmsg(2, "Configuration for %s", BIT_TITLE);
+    logmsg(2, "---------------------------------------------");
+    logmsg(2, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    logmsg(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
+    logmsg(2, "CPU:                %s", BIT_CPU);
+    logmsg(2, "OS:                 %s", BIT_OS);
+    logmsg(2, "Host:               %s", websGetServer());
+    logmsg(2, "Directory:          %s", home);
+    logmsg(2, "Documents:          %s", websGetDocuments());
+    logmsg(2, "Configure:          %s", BIT_CONFIG_CMD);
+    logmsg(2, "---------------------------------------------");
 }
 
 
