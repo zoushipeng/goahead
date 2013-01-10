@@ -21,11 +21,10 @@
     #define BIT_ROM 0                   /**< Build for execute from ROM */
 #endif
 #ifndef BIT_SSL
-    //  MOB - temporary while new bit is deployed 
-    #if defined(BIT_PACK_EST) || defined(BIT_PACK_OPENSSL) || defined(BIT_PACK_MATRIXSSL) || defined(BIT_PACK_MOCANA)
-        #define BIT_SSL 1                   /**< Build with SSL support */
+    #if BIT_PACK_EST || BIT_PACK_OPENSSL || BIT_PACK_MATRIXSSL || BIT_PACK_MOCANA
+        #define BIT_SSL 1               /**< Build with SSL support */
     #else
-        #define BIT_SSL 0                   /**< Build without SSL support */
+        #define BIT_SSL 0               /**< Build without SSL support */
     #endif
 #endif
 

@@ -101,98 +101,98 @@ $(CONFIG)/obj/action.o: \
         src/action.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/action.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/action.c
+	$(CC) -c -o $(CONFIG)/obj/action.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/action.c
 
 $(CONFIG)/obj/alloc.o: \
         src/alloc.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/alloc.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/alloc.c
+	$(CC) -c -o $(CONFIG)/obj/alloc.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/alloc.c
 
 $(CONFIG)/obj/auth.o: \
         src/auth.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/auth.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/auth.c
+	$(CC) -c -o $(CONFIG)/obj/auth.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/auth.c
 
 $(CONFIG)/obj/cgi.o: \
         src/cgi.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/cgi.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/cgi.c
+	$(CC) -c -o $(CONFIG)/obj/cgi.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/cgi.c
 
 $(CONFIG)/obj/crypt.o: \
         src/crypt.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/crypt.c
+	$(CC) -c -o $(CONFIG)/obj/crypt.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/crypt.c
 
 $(CONFIG)/obj/file.o: \
         src/file.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/file.c
+	$(CC) -c -o $(CONFIG)/obj/file.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/file.c
 
 $(CONFIG)/obj/http.o: \
         src/http.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/http.c
 
 $(CONFIG)/obj/js.o: \
         src/js.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/js.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/js.c
+	$(CC) -c -o $(CONFIG)/obj/js.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/js.c
 
 $(CONFIG)/obj/jst.o: \
         src/jst.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/jst.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/jst.c
+	$(CC) -c -o $(CONFIG)/obj/jst.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/jst.c
 
 $(CONFIG)/obj/options.o: \
         src/options.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/options.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/options.c
+	$(CC) -c -o $(CONFIG)/obj/options.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/options.c
 
 $(CONFIG)/obj/rom-documents.o: \
         src/rom-documents.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/rom-documents.c
+	$(CC) -c -o $(CONFIG)/obj/rom-documents.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/rom-documents.c
 
 $(CONFIG)/obj/rom.o: \
         src/rom.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/rom.c
+	$(CC) -c -o $(CONFIG)/obj/rom.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/rom.c
 
 $(CONFIG)/obj/route.o: \
         src/route.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/route.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/route.c
+	$(CC) -c -o $(CONFIG)/obj/route.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/route.c
 
 $(CONFIG)/obj/runtime.o: \
         src/runtime.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/runtime.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/runtime.c
+	$(CC) -c -o $(CONFIG)/obj/runtime.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/runtime.c
 
 $(CONFIG)/obj/socket.o: \
         src/socket.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/socket.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/socket.c
+	$(CC) -c -o $(CONFIG)/obj/socket.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/socket.c
 
 $(CONFIG)/obj/upload.o: \
         src/upload.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/upload.c
+	$(CC) -c -o $(CONFIG)/obj/upload.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/upload.c
 
 $(CONFIG)/inc/est.h:  \
         $(CONFIG)/inc/bit.h \
@@ -205,20 +205,20 @@ $(CONFIG)/obj/est.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/est.h
-	$(CC) -c -o $(CONFIG)/obj/est.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/ssl/est.c
+	$(CC) -c -o $(CONFIG)/obj/est.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/ssl/est.c
 
 $(CONFIG)/obj/matrixssl.o: \
         src/ssl/matrixssl.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/ssl/matrixssl.c
+	$(CC) -c -o $(CONFIG)/obj/matrixssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/ssl/matrixssl.c
 
 $(CONFIG)/obj/openssl.o: \
         src/ssl/openssl.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/bitos.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/openssl.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/ssl/openssl.c
+	$(CC) -c -o $(CONFIG)/obj/openssl.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/ssl/openssl.c
 
 $(CONFIG)/bin/libgo.dylib:  \
         $(CONFIG)/inc/bitos.h \
@@ -249,7 +249,7 @@ $(CONFIG)/obj/goahead.o: \
         src/goahead.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
+	$(CC) -c -o $(CONFIG)/obj/goahead.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
 
 $(CONFIG)/bin/goahead:  \
         $(CONFIG)/bin/libgo.dylib \
@@ -264,7 +264,7 @@ $(CONFIG)/obj/test.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc test/test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/bin/libgo.dylib \
@@ -278,7 +278,7 @@ $(CONFIG)/obj/gopass.o: \
         utils/gopass.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
+	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
 
 $(CONFIG)/bin/gopass:  \
         $(CONFIG)/bin/libgo.dylib \
@@ -292,7 +292,7 @@ $(CONFIG)/obj/webcomp.o: \
         utils/webcomp.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/bitos.h \
@@ -304,7 +304,7 @@ $(CONFIG)/bin/webcomp:  \
 $(CONFIG)/obj/cgitest.o: \
         test/cgitest.c \
         $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/cgitest.o -arch x86_64 $(CFLAGS) -DEMBEDTHIS=1 $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
+	$(CC) -c -o $(CONFIG)/obj/cgitest.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
 
 test/cgi-bin/cgitest:  \
         $(CONFIG)/inc/bitos.h \
