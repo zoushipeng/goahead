@@ -116,6 +116,7 @@
     <ClCompile Include="..\..\src\runtime.c" />
     <ClCompile Include="..\..\src\socket.c" />
     <ClCompile Include="..\..\src\upload.c" />
+    <ClCompile Include="..\..\src\ssl\est.c" />
     <ClCompile Include="..\..\src\ssl\matrixssl.c" />
     <ClCompile Include="..\..\src\ssl\openssl.c" />
   </ItemGroup>

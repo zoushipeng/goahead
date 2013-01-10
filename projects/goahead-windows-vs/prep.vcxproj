@@ -98,6 +98,7 @@
     <Command>if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
+if not exist "$(IncDir)\bitos.h" copy "..\..\src\bitos.h" "$(IncDir)\bitos.h"
 if not exist "$(IncDir)\bit.h" copy "..\goahead-windows-vs-bit.h" "$(IncDir)\bit.h"</Command>
     <Outputs>..\..\always</Outputs>
   </CustomBuildStep>

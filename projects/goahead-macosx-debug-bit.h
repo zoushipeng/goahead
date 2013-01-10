@@ -5,6 +5,7 @@
     configure or define variables in your Makefile to override these default values.
  */
 
+
 /* Settings */
 #ifndef BIT_BUILD_NUMBER
     #define BIT_BUILD_NUMBER "0"
@@ -15,18 +16,14 @@
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
 #endif
-/* Settings */
 #ifndef BIT_GOAHEAD_ACCESS_LOG
     #define BIT_GOAHEAD_ACCESS_LOG 0
 #endif
 #ifndef BIT_GOAHEAD_AUTO_LOGIN
     #define BIT_GOAHEAD_AUTO_LOGIN 0
 #endif
-#ifndef BIT_GOAHEAD_CA_FILE
-    #define BIT_GOAHEAD_CA_FILE ""
-#endif
-#ifndef BIT_GOAHEAD_CA_PATH
-    #define BIT_GOAHEAD_CA_PATH ""
+#ifndef BIT_GOAHEAD_CA
+    #define BIT_GOAHEAD_CA ""
 #endif
 #ifndef BIT_GOAHEAD_CERTIFICATE
     #define BIT_GOAHEAD_CERTIFICATE "server.crt"
@@ -103,6 +100,12 @@
 #ifndef BIT_GOAHEAD_LISTEN
     #define BIT_GOAHEAD_LISTEN "http://*:80,https://*:443"
 #endif
+#ifndef BIT_GOAHEAD_LOGFILE
+    #define BIT_GOAHEAD_LOGFILE "stderr:0"
+#endif
+#ifndef BIT_GOAHEAD_LOGGING
+    #define BIT_GOAHEAD_LOGGING 1
+#endif
 #ifndef BIT_GOAHEAD_PAM
     #define BIT_GOAHEAD_PAM 0
 #endif
@@ -118,14 +121,20 @@
 #ifndef BIT_GOAHEAD_STEALTH
     #define BIT_GOAHEAD_STEALTH 1
 #endif
-#ifndef BIT_GOAHEAD_TRACE
-    #define BIT_GOAHEAD_TRACE "stderr:0"
+#ifndef BIT_GOAHEAD_TRACING
+    #define BIT_GOAHEAD_TRACING 1
 #endif
 #ifndef BIT_GOAHEAD_UPLOAD
     #define BIT_GOAHEAD_UPLOAD 1
 #endif
 #ifndef BIT_GOAHEAD_UPLOAD_DIR
     #define BIT_GOAHEAD_UPLOAD_DIR "/tmp"
+#endif
+#ifndef BIT_GOAHEAD_VERIFY_ISSUER
+    #define BIT_GOAHEAD_VERIFY_ISSUER 1
+#endif
+#ifndef BIT_GOAHEAD_VERIFY_PEER
+    #define BIT_GOAHEAD_VERIFY_PEER 1
 #endif
 #ifndef BIT_GOAHEAD_XFRAME_HEADER
     #define BIT_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
@@ -164,7 +173,7 @@
     #define BIT_HAS_UNNAMED_UNIONS 1
 #endif
 #ifndef BIT_OPTIONAL
-    #define BIT_OPTIONAL "doxygen,dsi,ejs,man,man2html,openssl,pmaker,ssl,utest,zip"
+    #define BIT_OPTIONAL "doxygen,dsi,ejs,est,man,man2html,pmaker,utest,zip"
 #endif
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
@@ -176,7 +185,7 @@
     #define BIT_REQUIRED "compiler,lib,link"
 #endif
 #ifndef BIT_SYNC
-    #define BIT_SYNC "bitos"
+    #define BIT_SYNC "bitos,est"
 #endif
 #ifndef BIT_TITLE
     #define BIT_TITLE "Embedthis GoAhead"
@@ -191,7 +200,7 @@
     #define BIT_WARN_UNUSED 1
 #endif
 #ifndef BIT_WITHOUT_ALL
-    #define BIT_WITHOUT_ALL "doxygen,dsi,ejs,man,man2html,pmaker,matrixssl,openssl,ssl"
+    #define BIT_WITHOUT_ALL "doxygen,dsi,ejs,est,man,man2html,pmaker"
 #endif
 
 /* Prefixes */
@@ -301,9 +310,6 @@
 #endif
 #ifndef BIT_PACK_PMAKER
     #define BIT_PACK_PMAKER 0
-#endif
-#ifndef BIT_PACK_SSL
-    #define BIT_PACK_SSL 0
 #endif
 #ifndef BIT_PACK_UTEST
     #define BIT_PACK_UTEST 1
