@@ -9889,7 +9889,7 @@ int *ssl_create_ciphers(cchar *cipherSuite)
     nciphers = sizeof(cipherList) / sizeof(EstCipher);
     ciphers = malloc((nciphers + 1) * sizeof(int));
 
-    if (!cipherSuite) {
+    if (!cipherSuite || cipherSuite[0] == '\0') {
         memcpy(ciphers, ssl_default_ciphers, nciphers * sizeof(int));
         ciphers[nciphers] = 0;
         return ciphers;

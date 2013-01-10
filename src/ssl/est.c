@@ -76,9 +76,7 @@ PUBLIC int sslOpen()
             return -1;
         }
     }
-    if (*BIT_GOAHEAD_CIPHERS) {
-        estConfig.ciphers = ssl_create_ciphers(BIT_GOAHEAD_CIPHERS);
-    }
+    estConfig.ciphers = ssl_create_ciphers(BIT_GOAHEAD_CIPHERS);
     return 0;
 }
 
