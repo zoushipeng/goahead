@@ -84,8 +84,8 @@ PUBLIC void sslFree(Webs *wp)
     if ((sp = socketPtr(wp->sid)) == 0) {
         return;
     }
-    if (!sp->flags & SOCKET_EOF && wp->ms) {
-        ms = wp->ms;
+    if (!sp->flags & SOCKET_EOF && wp->ssl) {
+        ms = wp->ssl;
         /*
             Flush data. Append a closure alert to any buffered output data, and try to send it.
             Don't bother retrying or blocking, we're just closing anyway.
@@ -98,7 +98,7 @@ PUBLIC void sslFree(Webs *wp)
             matrixSslDeleteSession(ms->handle);
         }
     }
-    wp->ms = 0;
+    wp->ssl = 0;
 }
 
 
@@ -115,7 +115,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     }
     memset(ms, 0x0, sizeof(Ms));
     ms->handle = handle;
-    wp->ms = ms;
+    wp->ssl = ms;
     return 0;
 }
 
@@ -148,7 +148,7 @@ static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int 
     uint32  dlen;
     int     rc;
 
-    ms = (Ms*) wp->ms;
+    ms = (Ms*) wp->ssl;
     *readMore = 0;
     sofar = 0;
 
@@ -183,7 +183,7 @@ static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int 
             return 0;
 
         case MATRIXSSL_RECEIVED_ALERT:
-            assure(dlen == 2);
+            assert(dlen == 2);
             if (data[0] == SSL_ALERT_LEVEL_FATAL) {
                 return -1;
             } else if (data[1] == SSL_ALERT_CLOSE_NOTIFY) {
@@ -228,7 +228,7 @@ static ssize innerRead(Webs *wp, char *buf, ssize size)
     ssize       nbytes;
     int         msize, readMore;
 
-    ms = (Ms*) wp->ms;
+    ms = (Ms*) wp->ssl;
     do {
         if ((msize = matrixSslGetReadbuf(ms->handle, &mbuf)) < 0) {
             return -1;
@@ -256,7 +256,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         return -1;
     }
     bytes = innerRead(wp, buf, len);
-    ms = (Ms*) wp->ms;
+    ms = (Ms*) wp->ssl;
     if (ms->more) {
         wp->flags |= SOCKET_BUFFERED_READ;
         socketReservice(wp->sid);
@@ -291,7 +291,7 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
     uchar   *obuf;
     ssize   encoded, nbytes, written;
 
-    ms = (Ms*) wp->ms;
+    ms = (Ms*) wp->ssl;
     while (len > 0 || ms->outlen > 0) {
         if ((encoded = matrixSslGetOutdata(ms->handle, &obuf)) <= 0) {
             if (ms->outlen <= 0) {

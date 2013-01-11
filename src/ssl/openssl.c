@@ -41,7 +41,6 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
 PUBLIC int sslOpen()
 {
     RandBuf     randBuf;
-    char        *caFile, *caPath;
 
     trace(7, "Initializing SSL"); 
 
@@ -70,10 +69,8 @@ PUBLIC int sslOpen()
     /*
           Set the client certificate verification locations
      */
-    caFile = *BIT_GOAHEAD_CA_FILE ? BIT_GOAHEAD_CA_FILE : 0;
-    caPath = *BIT_GOAHEAD_CA_PATH ? BIT_GOAHEAD_CA_PATH : 0;
-    if (caFile || caPath) {
-        if ((!SSL_CTX_load_verify_locations(sslctx, caFile, caPath)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
+    if (*BIT_GOAHEAD_CA) {
+        if ((!SSL_CTX_load_verify_locations(sslctx, BIT_GOAHEAD_CA, NULL)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
             error("Unable to read cert verification locations");
             sslClose();
             return -1;
@@ -107,8 +104,8 @@ PUBLIC int sslOpen()
     /*
           Set the certificate authority list for the client
      */
-    if (BIT_GOAHEAD_CA_FILE && *BIT_GOAHEAD_CA_FILE) {
-        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_GOAHEAD_CA_FILE));
+    if (BIT_GOAHEAD_CA && *BIT_GOAHEAD_CA) {
+        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_GOAHEAD_CA));
     }
     SSL_CTX_set_cipher_list(sslctx, BIT_GOAHEAD_CIPHERS);
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
@@ -141,18 +138,19 @@ PUBLIC void sslClose()
 
 PUBLIC int sslUpgrade(Webs *wp)
 {
-    WebsSocket        *sptr;
+    WebsSocket      *sptr;
+    BIO             *bio;
 
-    assure(wp);
+    assert(wp);
 
     sptr = socketPtr(wp->sid);
     if ((wp->ssl = SSL_new(sslctx)) == 0) {
         return -1;
     }
-    if ((wp->bio = BIO_new_socket(sptr->sock, BIO_NOCLOSE)) == 0) {
+    if ((bio = BIO_new_socket(sptr->sock, BIO_NOCLOSE)) == 0) {
         return -1;
     }
-    SSL_set_bio(wp->ssl, wp->bio, wp->bio);
+    SSL_set_bio(wp->ssl, bio, bio);
     SSL_set_accept_state(wp->ssl);
     SSL_set_app_data(wp->ssl, (void*) wp);
     return 0;
@@ -161,14 +159,16 @@ PUBLIC int sslUpgrade(Webs *wp)
 
 PUBLIC void sslFree(Webs *wp)
 {
+    BIO     *bio;
+
     /* 
         Re-use sessions
      */
     if (wp->ssl != NULL) {
         SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
     }
-    if (wp->bio != NULL) {
-        BIO_free_all(wp->bio);
+    if ((bio = SSL_get_rbio(wp->ssl)) != 0) {
+        BIO_free_all(bio);
     }
 }
 
@@ -179,8 +179,8 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     ulong           serror;
     int             rc, error, retries, i;
 
-    if (wp->bio == 0 || wp->ssl == 0 || len <= 0) {
-        assure(0);
+    if (wp->ssl == 0 || len <= 0) {
+        assert(0);
         return -1;
     }
     /*  
@@ -235,8 +235,8 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
     ssize   totalWritten;
     int     rc;
 
-    if (wp->bio == 0 || wp->ssl == 0 || len <= 0) {
-        assure(0);
+    if (wp->ssl == 0 || len <= 0) {
+        assert(0);
         return -1;
     }
     totalWritten = 0;
@@ -272,8 +272,8 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
  */
 static int sslSetCertFile(char *certFile)
 {
-    assure(sslctx);
-    assure(certFile);
+    assert(sslctx);
+    assert(certFile);
 
     if (sslctx == NULL) {
         return -1;
@@ -300,8 +300,8 @@ static int sslSetCertFile(char *certFile)
  */
 static int sslSetKeyFile(char *keyFile)
 {
-    assure(sslctx);
-    assure(keyFile);
+    assert(sslctx);
+    assert(keyFile);
 
     if (sslctx == NULL) {
         return -1;

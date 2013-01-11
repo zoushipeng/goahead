@@ -181,7 +181,6 @@ Bit.load({
     usage: {
         'goahead.accessLog':          'Enable request access log (true|false)',
         'goahead.assert':             'Enable program assertions (true|false)',
-        'goahead.caPath':             'Directory for client certificates (path)',
         'goahead.caFile':             'File of client certificates (path)',
         'goahead.certificate':        'Server certificate for SSL (path)',
         'goahead.ciphers':            'SSL cipher suite (string)',
