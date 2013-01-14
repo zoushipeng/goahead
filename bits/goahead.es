@@ -21,9 +21,9 @@ public function packageSourceFiles() {
     install('configure', pkg, {permissions: 0755})
     install('*.md', pkg, {fold: true, expand: true})
     install(['src/*.c', 'src/*.h'], pkg, {
-        exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp/,
+        exclude: /\.log$|\.lst$|\/utils|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp/,
     })
-    install('utils', pkg, {
+    install('src/utils', pkg, {
         exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp|\.o$|\.obj$|\.so$|\.dylib$/,
     })
     install('test', pkg, {
