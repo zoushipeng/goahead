@@ -32,6 +32,7 @@
 /*
     32-bit integer manipulation macros (little endian)
     MOB - what about 64 bit?
+    MOB - use if/else
  */
 #ifndef GET_ULONG_LE
 #define GET_ULONG_LE(n,b,i)                     \
@@ -169,22 +170,18 @@ static const uchar FSb[256] = {
 static const ulong FT0[256] = { FT };
 
 #undef V
-
 #define V(a,b,c,d) 0x##b##c##d##a
 static const ulong FT1[256] = { FT };
 
 #undef V
-
 #define V(a,b,c,d) 0x##c##d##a##b
 static const ulong FT2[256] = { FT };
 
 #undef V
-
 #define V(a,b,c,d) 0x##d##a##b##c
 static const ulong FT3[256] = { FT };
 
 #undef V
-
 #undef FT
 
 /*
@@ -298,22 +295,18 @@ static const uchar RSb[256] = {
 static const ulong RT0[256] = { RT };
 
 #undef V
-
 #define V(a,b,c,d) 0x##b##c##d##a
 static const ulong RT1[256] = { RT };
 
 #undef V
-
 #define V(a,b,c,d) 0x##c##d##a##b
 static const ulong RT2[256] = { RT };
 
 #undef V
-
 #define V(a,b,c,d) 0x##d##a##b##c
 static const ulong RT3[256] = { RT };
 
 #undef V
-
 #undef RT
 
 /*
@@ -353,9 +346,9 @@ static ulong RCON[10];
 /*
    Tables generation code
  */
-#define ROTL8(x) ( ( x << 8 ) & 0xFFFFFFFF ) | ( x >> 24 )
-#define XTIME(x) ( ( x << 1 ) ^ ( ( x & 0x80 ) ? 0x1B : 0x00 ) )
-#define MUL(x,y) ( ( x && y ) ? pow[(log[x]+log[y]) % 255] : 0 )
+#define ROTL8(x) ((x << 8) & 0xFFFFFFFF) | (x >> 24)
+#define XTIME(x) ((x << 1) ^ ((x & 0x80) ? 0x1B : 0x00))
+#define MUL(x,y) ((x && y) ? pow[(log[x]+log[y]) % 255] : 0)
 
 static int aes_init_done = 0;
 
@@ -373,7 +366,6 @@ static void aes_gen_tables(void)
         log[x] = i;
         x = (x ^ XTIME(x)) & 0xFF;
     }
-
     /*
         Calculate the round constants
      */
@@ -381,7 +373,6 @@ static void aes_gen_tables(void)
         RCON[i] = (ulong)x;
         x = XTIME(x) & 0xFF;
     }
-
     /*
         Generate the forward and reverse S-boxes
      */
@@ -390,7 +381,6 @@ static void aes_gen_tables(void)
 
     for (i = 1; i < 256; i++) {
         x = pow[255 - log[i]];
-
         y = x;
         y = ((y << 1) | (y >> 7)) & 0xFF;
         x ^= y;
@@ -400,7 +390,6 @@ static void aes_gen_tables(void)
         x ^= y;
         y = ((y << 1) | (y >> 7)) & 0xFF;
         x ^= y ^ 0x63;
-
         FSb[i] = (uchar)x;
         RSb[x] = (uchar)i;
     }
@@ -413,19 +402,13 @@ static void aes_gen_tables(void)
         y = XTIME(x) & 0xFF;
         z = (y ^ x) & 0xFF;
 
-        FT0[i] = ((ulong)y) ^
-            ((ulong)x << 8) ^
-            ((ulong)x << 16) ^ ((ulong)z << 24);
-
+        FT0[i] = ((ulong)y) ^ ((ulong)x << 8) ^ ((ulong)x << 16) ^ ((ulong)z << 24);
         FT1[i] = ROTL8(FT0[i]);
         FT2[i] = ROTL8(FT1[i]);
         FT3[i] = ROTL8(FT2[i]);
 
         x = RSb[i];
-
-        RT0[i] = ((ulong)MUL(0x0E, x)) ^
-            ((ulong)MUL(0x09, x) << 8) ^
-            ((ulong)MUL(0x0D, x) << 16) ^
+        RT0[i] = ((ulong)MUL(0x0E, x)) ^ ((ulong)MUL(0x09, x) << 8) ^ ((ulong)MUL(0x0D, x) << 16) ^
             ((ulong)MUL(0x0B, x) << 24);
 
         RT1[i] = ROTL8(RT0[i]);
@@ -464,6 +447,8 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
     default:
         return;
     }
+
+    //  MOB - don't use defined
 #if defined(PADLOCK_ALIGN16)
     ctx->rk = RK = PADLOCK_ALIGN16(ctx->buf);
 #else
@@ -475,7 +460,6 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
     }
     switch (ctx->nr) {
     case 10:
-
         for (i = 0; i < 10; i++, RK += 4) {
             RK[4] = RK[0] ^ RCON[i] ^
                 ((ulong)FSb[(RK[3] >> 8) & 0xFF]) ^
@@ -490,7 +474,6 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
         break;
 
     case 12:
-
         for (i = 0; i < 8; i++, RK += 6) {
             RK[6] = RK[0] ^ RCON[i] ^
                 ((ulong)FSb[(RK[5] >> 8) & 0xFF]) ^
@@ -507,7 +490,6 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
         break;
 
     case 14:
-
         for (i = 0; i < 7; i++, RK += 8) {
             RK[8] = RK[0] ^ RCON[i] ^
                 ((ulong)FSb[(RK[7] >> 8) & 0xFF]) ^
@@ -542,10 +524,9 @@ void aes_setkey_enc(aes_context * ctx, uchar *key, int keysize)
  */
 void aes_setkey_dec(aes_context * ctx, uchar *key, int keysize)
 {
-    int i, j;
+    int         i, j;
     aes_context cty;
-    ulong *RK;
-    ulong *SK;
+    ulong       *RK, *SK;
 
     switch (keysize) {
     case 128:
@@ -561,6 +542,7 @@ void aes_setkey_dec(aes_context * ctx, uchar *key, int keysize)
         return;
     }
 
+    //  MOB - don't use defined
 #if defined(PADLOCK_ALIGN16)
     ctx->rk = RK = PADLOCK_ALIGN16(ctx->buf);
 #else
@@ -644,9 +626,10 @@ void aes_setkey_dec(aes_context * ctx, uchar *key, int keysize)
  */
 void aes_crypt_ecb(aes_context * ctx, int mode, uchar input[16], uchar output[16])
 {
-    int i;
-    ulong *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
+    int     i;
+    ulong   *RK, X0, X1, X2, X3, Y0, Y1, Y2, Y3;
 
+//  MOB - don't use EST_HAVE_X86
 #if BIT_EST_PADLOCK && defined(EST_HAVE_X86)
     if (padlock_supports(PADLOCK_ACE)) {
         if (padlock_xcryptecb(ctx, mode, input, output) == 0) {
@@ -736,8 +719,8 @@ void aes_crypt_ecb(aes_context * ctx, int mode, uchar input[16], uchar output[16
  */
 void aes_crypt_cbc(aes_context *ctx, int mode, int length, uchar iv[16], uchar *input, uchar *output)
 {
-    int i;
-    uchar temp[16];
+    int     i;
+    uchar   temp[16];
 
 #if BIT_EST_PADLOCK && defined(EST_HAVE_X86)
     if (padlock_supports(PADLOCK_ACE)) {
@@ -778,8 +761,9 @@ void aes_crypt_cbc(aes_context *ctx, int mode, int length, uchar iv[16], uchar *
  */
 void aes_crypt_cfb128(aes_context *ctx, int mode, int length, int *iv_off, uchar iv[16], uchar *input, uchar *output)
 {
-    int c, n = *iv_off;
+    int c, n;
 
+    n = *iv_off;
     if (mode == AES_DECRYPT) {
         while (length--) {
             if (n == 0) {
@@ -799,7 +783,6 @@ void aes_crypt_cfb128(aes_context *ctx, int mode, int length, int *iv_off, uchar
             n = (n + 1) & 0x0F;
         }
     }
-
     *iv_off = n;
 }
 
@@ -856,7 +839,7 @@ void aes_crypt_cfb128(aes_context *ctx, int mode, int length, int *iv_off, uchar
 /*
    ARC4 key schedule
  */
-void arc4_setup(arc4_context * ctx, uchar *key, int keylen)
+void arc4_setup(arc4_context *ctx, uchar *key, int keylen)
 {
     int     i, j, k, a;
     uchar   *m;
@@ -869,7 +852,6 @@ void arc4_setup(arc4_context * ctx, uchar *key, int keylen)
         m[i] = (uchar) i;
     }
     j = k = 0;
-
     for (i = 0; i < 256; i++, k++) {
         if (k >= keylen) {
             k = 0;
@@ -885,7 +867,7 @@ void arc4_setup(arc4_context * ctx, uchar *key, int keylen)
 /*
    ARC4 cipher function
  */
-void arc4_crypt(arc4_context * ctx, uchar *buf, int buflen)
+void arc4_crypt(arc4_context *ctx, uchar *buf, int buflen)
 {
     int     i, x, y, a, b;
     uchar   *m;
@@ -1007,7 +989,6 @@ int base64_encode(uchar *dst, int *dlen, uchar *src, int slen)
         C1 = *src++;
         C2 = *src++;
         C3 = *src++;
-
         *p++ = base64_enc_map[(C1 >> 2) & 0x3F];
         *p++ = base64_enc_map[(((C1 & 3) << 4) + (C2 >> 4)) & 0x3F];
         *p++ = base64_enc_map[(((C2 & 15) << 2) + (C3 >> 6)) & 0x3F];
@@ -1030,7 +1011,6 @@ int base64_encode(uchar *dst, int *dlen, uchar *src, int slen)
     }
     *dlen = p - dst;
     *p = 0;
-
     return 0;
 }
 
@@ -1071,7 +1051,6 @@ int base64_decode(uchar *dst, int *dlen, uchar *src, int slen)
         *dlen = n;
         return EST_ERR_BASE64_BUFFER_TOO_SMALL;
     }
-
     for (j = 3, n = x = 0, p = dst; i > 0; i--, src++) {
         if (*src == '\r' || *src == '\n')
             continue;
@@ -1141,11 +1120,11 @@ int base64_decode(uchar *dst, int *dlen, uchar *src, int slen)
 #if BIT_EST_BIGNUM
 
 #define ciL    ((int) sizeof(t_int))    /* chars in limb  */
-#define biL    (ciL << 3)   /* bits  in limb  */
-#define biH    (ciL << 2)   /* half limb size */
+#define biL    (ciL << 3)               /* bits  in limb  */
+#define biH    (ciL << 2)               /* half limb size */
 
 /*
- * Convert between bits/chars and number of limbs
+   Convert between bits/chars and number of limbs
  */
 #define BITS_TO_LIMBS(i)  (((i) + biL - 1) / biL)
 #define CHARS_TO_LIMBS(i) (((i) + ciL - 1) / ciL)
@@ -1153,7 +1132,7 @@ int base64_decode(uchar *dst, int *dlen, uchar *src, int slen)
 /*
     Initialize one or more mpi
  */
-void mpi_init(mpi * X, ...)
+void mpi_init(mpi *X, ...)
 {
     va_list args;
 
@@ -1163,17 +1142,16 @@ void mpi_init(mpi * X, ...)
         X->s = 1;
         X->n = 0;
         X->p = NULL;
-
         X = va_arg(args, mpi *);
     }
-
     va_end(args);
 }
+
 
 /*
     Unallocate one or more mpi
  */
-void mpi_free(mpi * X, ...)
+void mpi_free(mpi *X, ...)
 {
     va_list args;
 
@@ -1184,36 +1162,32 @@ void mpi_free(mpi * X, ...)
             memset(X->p, 0, X->n * ciL);
             free(X->p);
         }
-
         X->s = 1;
         X->n = 0;
         X->p = NULL;
-
         X = va_arg(args, mpi *);
     }
-
     va_end(args);
 }
+
 
 /*
     Enlarge to the specified number of limbs
  */
-int mpi_grow(mpi * X, int nblimbs)
+int mpi_grow(mpi *X, int nblimbs)
 {
     t_int *p;
 
     if (X->n < nblimbs) {
-        if ((p = (t_int *) malloc(nblimbs * ciL)) == NULL)
+        if ((p = (t_int *) malloc(nblimbs * ciL)) == NULL) {
             return 1;
-
+        }
         memset(p, 0, nblimbs * ciL);
-
         if (X->p != NULL) {
             memcpy(p, X->p, X->n * ciL);
             memset(X->p, 0, X->n * ciL);
             free(X->p);
         }
-
         X->n = nblimbs;
         X->p = p;
     }
@@ -1224,27 +1198,25 @@ int mpi_grow(mpi * X, int nblimbs)
 /*
     Copy the contents of Y into X
  */
-int mpi_copy(mpi * X, mpi * Y)
+int mpi_copy(mpi *X, mpi *Y)
 {
     int ret, i;
 
-    if (X == Y)
+    if (X == Y) {
         return 0;
-
-    for (i = Y->n - 1; i > 0; i--)
-        if (Y->p[i] != 0)
+    }
+    for (i = Y->n - 1; i > 0; i--) {
+        if (Y->p[i] != 0) {
             break;
+        }
+    }
     i++;
-
     X->s = Y->s;
-
     MPI_CHK(mpi_grow(X, i));
-
     memset(X->p, 0, X->n * ciL);
     memcpy(X->p, Y->p, i * ciL);
 
 cleanup:
-
     return ret;
 }
 
@@ -1252,9 +1224,9 @@ cleanup:
 /*
     Swap the contents of X and Y
  */
-void mpi_swap(mpi * X, mpi * Y)
+void mpi_swap(mpi *X, mpi *Y)
 {
-    mpi T;
+    mpi     T;
 
     memcpy(&T, X, sizeof(mpi));
     memcpy(X, Y, sizeof(mpi));
@@ -1265,7 +1237,7 @@ void mpi_swap(mpi * X, mpi * Y)
 /*
     Set value from integer
  */
-int mpi_lset(mpi * X, int z)
+int mpi_lset(mpi *X, int z)
 {
     int ret;
 
@@ -1284,7 +1256,7 @@ cleanup:
 /*
     Return the number of least significant bits
  */
-int mpi_lsb(mpi * X)
+int mpi_lsb(mpi *X)
 {
     int i, j, count = 0;
 
@@ -1299,7 +1271,7 @@ int mpi_lsb(mpi * X)
 /*
  * Return the number of most significant bits
  */
-int mpi_msb(mpi * X)
+int mpi_msb(mpi *X)
 {
     int i, j;
 
@@ -1318,7 +1290,7 @@ int mpi_msb(mpi * X)
 /*
     Return the total size in bytes
  */
-int mpi_size(mpi * X)
+int mpi_size(mpi *X)
 {
     return (mpi_msb(X) + 7) >> 3;
 }
@@ -1348,7 +1320,7 @@ static int mpi_get_digit(t_int * d, int radix, char c)
 /*
     Import from an ASCII string
  */
-int mpi_read_string(mpi * X, int radix, char *s)
+int mpi_read_string(mpi *X, int radix, char *s)
 {
     int ret, i, j, n;
     t_int d;
@@ -1398,7 +1370,7 @@ cleanup:
 /*
    Helper to write the digits high-order first
  */
-static int mpi_write_hlp(mpi * X, int radix, char **p)
+static int mpi_write_hlp(mpi *X, int radix, char **p)
 {
     int ret;
     t_int r;
@@ -1426,7 +1398,7 @@ cleanup:
 /*
     Export into an ASCII string
  */
-int mpi_write_string(mpi * X, int radix, char *s, int *slen)
+int mpi_write_string(mpi *X, int radix, char *s, int *slen)
 {
     int ret = 0, n;
     char *p;
@@ -1484,7 +1456,7 @@ cleanup:
 /*
     Read X from an opened file
  */
-int mpi_read_file(mpi * X, int radix, FILE * fin)
+int mpi_read_file(mpi *X, int radix, FILE * fin)
 {
     t_int d;
     int slen;
@@ -1518,7 +1490,7 @@ int mpi_read_file(mpi * X, int radix, FILE * fin)
 /*
     Write X into an opened file (or stdout if fout == NULL)
  */
-int mpi_write_file(char *p, mpi * X, int radix, FILE * fout)
+int mpi_write_file(char *p, mpi *X, int radix, FILE * fout)
 {
     int n, ret;
     size_t slen;
@@ -1555,7 +1527,7 @@ cleanup:
 /*
     Import X from unsigned binary data, big endian
  */
-int mpi_read_binary(mpi * X, uchar *buf, int buflen)
+int mpi_read_binary(mpi *X, uchar *buf, int buflen)
 {
     int ret, i, j, n;
 
@@ -1579,7 +1551,7 @@ cleanup:
 /*
     Export X into unsigned binary data, big endian
  */
-int mpi_write_binary(mpi * X, uchar *buf, int buflen)
+int mpi_write_binary(mpi *X, uchar *buf, int buflen)
 {
     int i, j, n;
 
@@ -1600,7 +1572,7 @@ int mpi_write_binary(mpi * X, uchar *buf, int buflen)
 /*
     Left-shift: X <<= count
  */
-int mpi_shift_l(mpi * X, int count)
+int mpi_shift_l(mpi *X, int count)
 {
     int ret, i, v0, t1;
     t_int r0 = 0, r1;
@@ -1645,7 +1617,7 @@ cleanup:
 /*
     Right-shift: X >>= count
  */
-int mpi_shift_r(mpi * X, int count)
+int mpi_shift_r(mpi *X, int count)
 {
     int i, v0, v1;
     t_int r0 = 0, r1;
@@ -1682,7 +1654,7 @@ int mpi_shift_r(mpi * X, int count)
 /*
     Compare unsigned values
  */
-int mpi_cmp_abs(mpi * X, mpi * Y)
+int mpi_cmp_abs(mpi *X, mpi *Y)
 {
     int i, j;
 
@@ -1715,7 +1687,7 @@ int mpi_cmp_abs(mpi * X, mpi * Y)
 /*
     Compare signed values
  */
-int mpi_cmp_mpi(mpi * X, mpi * Y)
+int mpi_cmp_mpi(mpi *X, mpi *Y)
 {
     int i, j;
 
@@ -1754,7 +1726,7 @@ int mpi_cmp_mpi(mpi * X, mpi * Y)
 /*
     Compare signed values
  */
-int mpi_cmp_int(mpi * X, int z)
+int mpi_cmp_int(mpi *X, int z)
 {
     mpi Y;
     t_int p[1];
@@ -1771,7 +1743,7 @@ int mpi_cmp_int(mpi * X, int z)
 /*
     Unsigned addition: X = |A| + |B|  (HAC 14.7)
  */
-int mpi_add_abs(mpi * X, mpi * A, mpi * B)
+int mpi_add_abs(mpi *X, mpi *A, mpi *B)
 {
     int ret, i, j;
     t_int *o, *p, c;
@@ -1844,7 +1816,7 @@ static void mpi_sub_hlp(int n, t_int * s, t_int * d)
 /*
     Unsigned substraction: X = |A| - |B|  (HAC 14.9)
  */
-int mpi_sub_abs(mpi * X, mpi * A, mpi * B)
+int mpi_sub_abs(mpi *X, mpi *A, mpi *B)
 {
     mpi TB;
     int ret, n;
@@ -1880,7 +1852,7 @@ cleanup:
 /*
     Signed addition: X = A + B
  */
-int mpi_add_mpi(mpi * X, mpi * A, mpi * B)
+int mpi_add_mpi(mpi *X, mpi *A, mpi *B)
 {
     int ret, s = A->s;
 
@@ -1904,7 +1876,7 @@ cleanup:
 /*
     Signed substraction: X = A - B
  */
-int mpi_sub_mpi(mpi * X, mpi * A, mpi * B)
+int mpi_sub_mpi(mpi *X, mpi *A, mpi *B)
 {
     int ret, s = A->s;
 
@@ -1928,7 +1900,7 @@ cleanup:
 /*
     Signed addition: X = A + b
  */
-int mpi_add_int(mpi * X, mpi * A, int b)
+int mpi_add_int(mpi *X, mpi *A, int b)
 {
     mpi     _B;
     t_int   p[1];
@@ -1944,7 +1916,7 @@ int mpi_add_int(mpi * X, mpi * A, int b)
 /*
     Signed substraction: X = A - b
  */
-int mpi_sub_int(mpi * X, mpi * A, int b)
+int mpi_sub_int(mpi *X, mpi *A, int b)
 {
     mpi     _B;
     t_int   p[1];
@@ -2008,7 +1980,7 @@ static void mpi_mul_hlp(int i, t_int * s, t_int * d, t_int b)
 /*
    Baseline multiplication: X = A * B  (HAC 14.12)
  */
-int mpi_mul_mpi(mpi * X, mpi * A, mpi * B)
+int mpi_mul_mpi(mpi *X, mpi *A, mpi *B)
 {
     int     ret, i, j;
     mpi     TA, TB;
@@ -2048,7 +2020,7 @@ cleanup:
 /*
     Baseline multiplication: X = A * b
  */
-int mpi_mul_int(mpi * X, mpi * A, t_int b)
+int mpi_mul_int(mpi *X, mpi *A, t_int b)
 {
     mpi _B;
     t_int p[1];
@@ -2064,7 +2036,7 @@ int mpi_mul_int(mpi * X, mpi * A, t_int b)
 /*
     Division by mpi: A = Q * B + R  (HAC 14.20)
  */
-int mpi_div_mpi(mpi * Q, mpi * R, mpi * A, mpi * B)
+int mpi_div_mpi(mpi *Q, mpi *R, mpi *A, mpi *B)
 {
     int ret, i, n, t, k;
     mpi X, Y, Z, T1, T2;
@@ -2217,7 +2189,7 @@ cleanup:
            1 if memory allocation failed
            EST_ERR_MPI_DIVISION_BY_ZERO if b == 0
  */
-int mpi_div_int(mpi * Q, mpi * R, mpi * A, int b)
+int mpi_div_int(mpi *Q, mpi *R, mpi *A, int b)
 {
     mpi _B;
     t_int p[1];
@@ -2234,7 +2206,7 @@ int mpi_div_int(mpi * Q, mpi * R, mpi * A, int b)
 /*
     Modulo: R = A mod B
  */
-int mpi_mod_mpi(mpi * R, mpi * A, mpi * B)
+int mpi_mod_mpi(mpi *R, mpi *A, mpi *B)
 {
     int ret;
 
@@ -2254,7 +2226,7 @@ cleanup:
 /*
    Modulo: r = A mod b
  */
-int mpi_mod_int(t_int * r, mpi * A, int b)
+int mpi_mod_int(t_int * r, mpi *A, int b)
 {
     int i;
     t_int x, y, z;
@@ -2300,7 +2272,7 @@ int mpi_mod_int(t_int * r, mpi * A, int b)
 /*
     Fast Montgomery initialization (thanks to Tom St Denis)
  */
-static void mpi_montg_init(t_int * mm, mpi * N)
+static void mpi_montg_init(t_int * mm, mpi *N)
 {
     t_int x, m0 = N->p[0];
 
@@ -2322,7 +2294,7 @@ static void mpi_montg_init(t_int * mm, mpi * N)
 /*
     Montgomery multiplication: A = A * B * R^-1 mod N  (HAC 14.36)
  */
-static void mpi_montmul(mpi * A, mpi * B, mpi * N, t_int mm, mpi * T)
+static void mpi_montmul(mpi *A, mpi *B, mpi *N, t_int mm, mpi *T)
 {
     int i, n, m;
     t_int u0, u1, *d;
@@ -2360,7 +2332,7 @@ static void mpi_montmul(mpi * A, mpi * B, mpi * N, t_int mm, mpi * T)
 /*
     Montgomery reduction: A = A * R^-1 mod N
  */
-static void mpi_montred(mpi * A, mpi * N, t_int mm, mpi * T)
+static void mpi_montred(mpi *A, mpi *N, t_int mm, mpi *T)
 {
     t_int z = 1;
     mpi U;
@@ -2375,7 +2347,7 @@ static void mpi_montred(mpi * A, mpi * N, t_int mm, mpi * T)
 /*
     Sliding-window exponentiation: X = A^E mod N  (HAC 14.85)
  */
-int mpi_exp_mod(mpi * X, mpi * A, mpi * E, mpi * N, mpi * _RR)
+int mpi_exp_mod(mpi *X, mpi *A, mpi *E, mpi *N, mpi *_RR)
 {
     int ret, i, j, wsize, wbits;
     int bufsize, nblimbs, nbits;
@@ -2545,7 +2517,7 @@ cleanup:
 /*
     Greatest common divisor: G = gcd(A, B)  (HAC 14.54)
  */
-int mpi_gcd(mpi * G, mpi * A, mpi * B)
+int mpi_gcd(mpi *G, mpi *A, mpi *B)
 {
     int ret, lz, lzt;
     mpi TG, TA, TB;
@@ -2587,12 +2559,12 @@ cleanup:
     return ret;
 }
 
-#if BIT_EST_GEN_PRIME
 
+#if BIT_EST_GEN_PRIME
 /*
     Modular inverse: X = A^-1 mod N  (HAC 14.61 / 14.64)
  */
-int mpi_inv_mod(mpi * X, mpi * A, mpi * N)
+int mpi_inv_mod(mpi *X, mpi *A, mpi *N)
 {
     int ret;
     mpi G, TA, TU, U1, U2, TB, TV, V1, V2;
@@ -2697,7 +2669,7 @@ static const int small_prime[] = {
 /*
     Miller-Rabin primality test  (HAC 4.24)
  */
-int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng)
+int mpi_is_prime(mpi *X, int (*f_rng) (void *), void *p_rng)
 {
     int ret, i, j, n, s, xs;
     mpi W, R, T, A, RR;
@@ -2712,7 +2684,7 @@ int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng)
     X->s = 1;
 
     /*
-     * test trivial factors first
+        test trivial factors first
      */
     if ((X->p[0] & 1) == 0)
         return EST_ERR_MPI_NOT_ACCEPTABLE;
@@ -2720,18 +2692,18 @@ int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng)
     for (i = 0; small_prime[i] > 0; i++) {
         t_int r;
 
-        if (mpi_cmp_int(X, small_prime[i]) <= 0)
+        if (mpi_cmp_int(X, small_prime[i]) <= 0) {
             return 0;
-
+        }
         MPI_CHK(mpi_mod_int(&r, X, small_prime[i]));
-
-        if (r == 0)
+        if (r == 0) {
             return EST_ERR_MPI_NOT_ACCEPTABLE;
+        }
     }
 
     /*
        W = |X| - 1
-       R = W >> lsb( W )
+       R = W >> lsb(W)
      */
     s = mpi_lsb(&W);
     MPI_CHK(mpi_sub_int(&W, X, 1));
@@ -2753,9 +2725,9 @@ int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng)
         MPI_CHK(mpi_grow(&A, X->n));
 
         p = (uchar *)A.p;
-        for (j = 0; j < A.n * ciL; j++)
+        for (j = 0; j < A.n * ciL; j++) {
             *p++ = (uchar)f_rng(p_rng);
-
+        }
         j = mpi_msb(&A) - mpi_msb(&W);
         MPI_CHK(mpi_shift_r(&A, j + 1));
         A.p[0] |= 3;
@@ -2765,9 +2737,9 @@ int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng)
          */
         MPI_CHK(mpi_exp_mod(&A, &A, &R, X, &RR));
 
-        if (mpi_cmp_mpi(&A, &W) == 0 || mpi_cmp_int(&A, 1) == 0)
+        if (mpi_cmp_mpi(&A, &W) == 0 || mpi_cmp_int(&A, 1) == 0) {
             continue;
-
+        }
         j = 1;
         while (j < s && mpi_cmp_mpi(&A, &W) != 0) {
             /*
@@ -2776,9 +2748,9 @@ int mpi_is_prime(mpi * X, int (*f_rng) (void *), void *p_rng)
             MPI_CHK(mpi_mul_mpi(&T, &A, &A));
             MPI_CHK(mpi_mod_mpi(&A, &T, X));
 
-            if (mpi_cmp_int(&A, 1) == 0)
+            if (mpi_cmp_int(&A, 1) == 0) {
                 break;
-
+            }
             j++;
         }
 
@@ -2800,15 +2772,15 @@ cleanup:
 /*
     Prime number generation
  */
-int mpi_gen_prime(mpi * X, int nbits, int dh_flag, int (*f_rng) (void *), void *p_rng)
+int mpi_gen_prime(mpi *X, int nbits, int dh_flag, int (*f_rng) (void *), void *p_rng)
 {
     int ret, k, n;
     uchar *p;
     mpi Y;
 
-    if (nbits < 3)
+    if (nbits < 3) {
         return EST_ERR_MPI_BAD_INPUT_DATA;
-
+    }
     mpi_init(&Y, NULL);
 
     n = BITS_TO_LIMBS(nbits);
@@ -2821,11 +2793,12 @@ int mpi_gen_prime(mpi * X, int nbits, int dh_flag, int (*f_rng) (void *), void *
         *p++ = (uchar)f_rng(p_rng);
 
     k = mpi_msb(X);
-    if (k < nbits)
+    if (k < nbits) {
         MPI_CHK(mpi_shift_l(X, nbits - k));
-    if (k > nbits)
+    }
+    if (k > nbits) {
         MPI_CHK(mpi_shift_r(X, k - nbits));
-
+    }
     X->p[0] |= 3;
 
     if (dh_flag == 0) {
@@ -2838,19 +2811,18 @@ int mpi_gen_prime(mpi * X, int nbits, int dh_flag, int (*f_rng) (void *), void *
     } else {
         MPI_CHK(mpi_sub_int(&Y, X, 1));
         MPI_CHK(mpi_shift_r(&Y, 1));
-
         while (1) {
             if ((ret = mpi_is_prime(X, f_rng, p_rng)) == 0) {
-                if ((ret = mpi_is_prime(&Y, f_rng, p_rng)) == 0)
+                if ((ret = mpi_is_prime(&Y, f_rng, p_rng)) == 0) {
                     break;
-
-                if (ret != EST_ERR_MPI_NOT_ACCEPTABLE)
+                }
+                if (ret != EST_ERR_MPI_NOT_ACCEPTABLE) {
                     goto cleanup;
+                }
             }
-
-            if (ret != EST_ERR_MPI_NOT_ACCEPTABLE)
+            if (ret != EST_ERR_MPI_NOT_ACCEPTABLE) {
                 goto cleanup;
-
+            }
             MPI_CHK(mpi_add_int(&Y, X, 1));
             MPI_CHK(mpi_add_int(X, X, 2));
             MPI_CHK(mpi_shift_r(&Y, 1));
@@ -2904,7 +2876,8 @@ cleanup:
 #if BIT_EST_CAMELLIA
 
 /*
- * 32-bit integer manipulation macros (big endian)
+    32-bit integer manipulation macros (big endian)
+    MOB - use if/else construct
  */
 #ifndef GET_ULONG_BE
 #define GET_ULONG_BE(n,b,i)                     \
@@ -3079,7 +3052,6 @@ static const uchar FSb4[256] = {
 #define SBOX2(n) FSb2[(n)]
 #define SBOX3(n) FSb3[(n)]
 #define SBOX4(n) FSb4[(n)]
-
 #endif
 
 static const uchar shifts[2][4][4] = {
@@ -3207,8 +3179,7 @@ void camellia_feistel(ulong x[2], ulong k[2],
 /*
  * Camellia key schedule (encryption)
  */
-void camellia_setkey_enc(camellia_context * ctx, uchar *key,
-             int keysize)
+void camellia_setkey_enc(camellia_context *ctx, uchar *key, int keysize)
 {
     int i, idx;
     ulong *RK;
@@ -3242,7 +3213,7 @@ void camellia_setkey_enc(camellia_context * ctx, uchar *key,
     }
 
     /*
-     * Prepare SIGMA values
+       Prepare SIGMA values
      */
     ulong SIGMA[6][2];
     for (i = 0; i < 6; i++) {
@@ -3251,8 +3222,8 @@ void camellia_setkey_enc(camellia_context * ctx, uchar *key,
     }
 
     /*
-     * Key storage in KC
-     * Order: KL, KR, KA, KB
+       Key storage in KC
+       Order: KL, KR, KA, KB
      */
     ulong KC[16];
     memset(KC, 0, sizeof(KC));
@@ -3284,7 +3255,7 @@ void camellia_setkey_enc(camellia_context * ctx, uchar *key,
     }
 
     /*
-     * Generating subkeys
+       Generating subkeys
      */
     ulong TK[20];
 
@@ -3312,11 +3283,11 @@ void camellia_setkey_enc(camellia_context * ctx, uchar *key,
     }
 }
 
+
 /*
- * Camellia key schedule (decryption)
+   Camellia key schedule (decryption)
  */
-void camellia_setkey_dec(camellia_context * ctx, uchar *key,
-             int keysize)
+void camellia_setkey_dec(camellia_context *ctx, uchar *key, int keysize)
 {
     int i, idx;
     camellia_context cty;
@@ -3338,9 +3309,7 @@ void camellia_setkey_dec(camellia_context * ctx, uchar *key,
     }
 
     RK = ctx->rk;
-
     camellia_setkey_enc(&cty, key, keysize);
-
     SK = cty.rk + 24 * 2 + 8 * idx * 2;
 
     *RK++ = *SK++;
@@ -3352,23 +3321,19 @@ void camellia_setkey_dec(camellia_context * ctx, uchar *key,
         *RK++ = *SK++;
         *RK++ = *SK++;
     }
-
     SK -= 2;
-
     *RK++ = *SK++;
     *RK++ = *SK++;
     *RK++ = *SK++;
     *RK++ = *SK++;
-
     memset(&cty, 0, sizeof(camellia_context));
 }
 
+
 /*
- * Camellia-ECB block encryption/decryption
+   Camellia-ECB block encryption/decryption
  */
-void camellia_crypt_ecb(camellia_context * ctx,
-            int mode,
-            uchar input[16], uchar output[16])
+void camellia_crypt_ecb(camellia_context *ctx, int mode, uchar input[16], uchar output[16])
 {
     int NR;
     ulong *RK, X[4];
@@ -3408,7 +3373,6 @@ void camellia_crypt_ecb(camellia_context * ctx,
             RK += 2;
         }
     }
-
     X[2] ^= *RK++;
     X[3] ^= *RK++;
     X[0] ^= *RK++;
@@ -3420,14 +3384,11 @@ void camellia_crypt_ecb(camellia_context * ctx,
     PUT_ULONG_BE(X[1], output, 12);
 }
 
+
 /*
- * Camellia-CBC buffer encryption/decryption
+   Camellia-CBC buffer encryption/decryption
  */
-void camellia_crypt_cbc(camellia_context * ctx,
-            int mode,
-            int length,
-            uchar iv[16],
-            uchar *input, uchar *output)
+void camellia_crypt_cbc(camellia_context *ctx, int mode, int length, uchar iv[16], uchar *input, uchar *output)
 {
     int i;
     uchar temp[16];
@@ -3437,23 +3398,21 @@ void camellia_crypt_cbc(camellia_context * ctx,
             memcpy(temp, input, 16);
             camellia_crypt_ecb(ctx, mode, input, output);
 
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < 16; i++) {
                 output[i] = (uchar)(output[i] ^ iv[i]);
-
+            }
             memcpy(iv, temp, 16);
-
             input += 16;
             output += 16;
             length -= 16;
         }
     } else {
         while (length > 0) {
-            for (i = 0; i < 16; i++)
+            for (i = 0; i < 16; i++) {
                 output[i] = (uchar)(input[i] ^ iv[i]);
-
+            }
             camellia_crypt_ecb(ctx, mode, output, output);
             memcpy(iv, output, 16);
-
             input += 16;
             output += 16;
             length -= 16;
@@ -3461,38 +3420,31 @@ void camellia_crypt_cbc(camellia_context * ctx,
     }
 }
 
+
 /*
- * Camellia-CFB128 buffer encryption/decryption
+   Camellia-CFB128 buffer encryption/decryption
  */
-void camellia_crypt_cfb128(camellia_context * ctx,
-               int mode,
-               int length,
-               int *iv_off,
-               uchar iv[16],
-               uchar *input, uchar *output)
+void camellia_crypt_cfb128(camellia_context *ctx, int mode, int length, int *iv_off, uchar iv[16], uchar *input, 
+        uchar *output)
 {
     int c, n = *iv_off;
 
     if (mode == CAMELLIA_DECRYPT) {
         while (length--) {
-            if (n == 0)
-                camellia_crypt_ecb(ctx, CAMELLIA_ENCRYPT, iv,
-                           iv);
-
+            if (n == 0) {
+                camellia_crypt_ecb(ctx, CAMELLIA_ENCRYPT, iv, iv);
+            }
             c = *input++;
             *output++ = (uchar)(c ^ iv[n]);
             iv[n] = (uchar)c;
-
             n = (n + 1) & 0x0F;
         }
     } else {
         while (length--) {
-            if (n == 0)
-                camellia_crypt_ecb(ctx, CAMELLIA_ENCRYPT, iv,
-                           iv);
-
+            if (n == 0) {
+                camellia_crypt_ecb(ctx, CAMELLIA_ENCRYPT, iv, iv);
+            }
             iv[n] = *output++ = (uchar)(iv[n] ^ *input++);
-
             n = (n + 1) & 0x0F;
         }
     }
@@ -3547,6 +3499,7 @@ void camellia_crypt_cfb128(camellia_context * ctx,
  */
 
 
+//  MOB - remove
 #if BIT_EST_TEST_CERTS
 
 char test_ca_crt[] =
@@ -4259,7 +4212,7 @@ static void des_setkey(ulong SK[32], uchar key[8])
     Y &= 0x0FFFFFFF;
 
     /*
-     * calculate subkeys
+       calculate subkeys
      */
     for (i = 0; i < 16; i++) {
         if (i < 2 || i == 8 || i == 15) {
@@ -4269,7 +4222,6 @@ static void des_setkey(ulong SK[32], uchar key[8])
             X = ((X << 2) | (X >> 26)) & 0x0FFFFFFF;
             Y = ((Y << 2) | (Y >> 26)) & 0x0FFFFFFF;
         }
-
         *SK++ = ((X << 4) & 0x24000000) | ((X << 28) & 0x10000000)
             | ((X << 14) & 0x08000000) | ((X << 18) & 0x02080000)
             | ((X << 6) & 0x01000000) | ((X << 9) & 0x00200000)
@@ -4296,10 +4248,11 @@ static void des_setkey(ulong SK[32], uchar key[8])
     }
 }
 
+
 /*
     DES key schedule (56-bit, encryption)
  */
-void des_setkey_enc(des_context * ctx, uchar key[8])
+void des_setkey_enc(des_context *ctx, uchar key[8])
 {
     des_setkey(ctx->sk, key);
 }
@@ -4308,7 +4261,7 @@ void des_setkey_enc(des_context * ctx, uchar key[8])
 /*
     DES key schedule (56-bit, decryption)
  */
-void des_setkey_dec(des_context * ctx, uchar key[8])
+void des_setkey_dec(des_context *ctx, uchar key[8])
 {
     int i;
 
@@ -4346,9 +4299,9 @@ static void des3_set2key(ulong esk[96], ulong dsk[96], uchar key[16])
 /*
     Triple-DES key schedule (112-bit, encryption)
  */
-void des3_set2key_enc(des3_context * ctx, uchar key[16])
+void des3_set2key_enc(des3_context *ctx, uchar key[16])
 {
-    ulong sk[96];
+    ulong   sk[96];
 
     des3_set2key(ctx->sk, sk, key);
     memset(sk, 0, sizeof(sk));
@@ -4358,7 +4311,7 @@ void des3_set2key_enc(des3_context * ctx, uchar key[16])
 /*
     Triple-DES key schedule (112-bit, decryption)
  */
-void des3_set2key_dec(des3_context * ctx, uchar key[16])
+void des3_set2key_dec(des3_context *ctx, uchar key[16])
 {
     ulong sk[96];
 
@@ -4378,10 +4331,8 @@ static void des3_set3key(ulong esk[96], ulong dsk[96], uchar key[24])
     for (i = 0; i < 32; i += 2) {
         dsk[i] = esk[94 - i];
         dsk[i + 1] = esk[95 - i];
-
         esk[i + 32] = dsk[62 - i];
         esk[i + 33] = dsk[63 - i];
-
         dsk[i + 64] = esk[30 - i];
         dsk[i + 65] = esk[31 - i];
     }
@@ -4391,9 +4342,9 @@ static void des3_set3key(ulong esk[96], ulong dsk[96], uchar key[24])
 /*
     Triple-DES key schedule (168-bit, encryption)
  */
-void des3_set3key_enc(des3_context * ctx, uchar key[24])
+void des3_set3key_enc(des3_context *ctx, uchar key[24])
 {
-    ulong sk[96];
+    ulong   sk[96];
 
     des3_set3key(ctx->sk, sk, key);
     memset(sk, 0, sizeof(sk));
@@ -4403,7 +4354,7 @@ void des3_set3key_enc(des3_context * ctx, uchar key[24])
 /*
     Triple-DES key schedule (168-bit, decryption)
  */
-void des3_set3key_dec(des3_context * ctx, uchar key[24])
+void des3_set3key_dec(des3_context *ctx, uchar key[24])
 {
     ulong sk[96];
 
@@ -4415,25 +4366,21 @@ void des3_set3key_dec(des3_context * ctx, uchar key[24])
 /*
     DES-ECB block encryption/decryption
  */
-void des_crypt_ecb(des_context * ctx, uchar input[8], uchar output[8])
+void des_crypt_ecb(des_context *ctx, uchar input[8], uchar output[8])
 {
-    int i;
-    ulong X, Y, T, *SK;
+    ulong   X, Y, T, *SK;
+    int     i;
 
     SK = ctx->sk;
-
     GET_ULONG_BE(X, input, 0);
     GET_ULONG_BE(Y, input, 4);
-
     DES_IP(X, Y);
 
     for (i = 0; i < 8; i++) {
         DES_ROUND(Y, X);
         DES_ROUND(X, Y);
     }
-
     DES_FP(Y, X);
-
     PUT_ULONG_BE(Y, output, 0);
     PUT_ULONG_BE(X, output, 4);
 }
@@ -4442,33 +4389,31 @@ void des_crypt_ecb(des_context * ctx, uchar input[8], uchar output[8])
 /*
     DES-CBC buffer encryption/decryption
  */
-void des_crypt_cbc(des_context * ctx, int mode, int length, uchar iv[8], uchar *input, uchar *output)
+void des_crypt_cbc(des_context *ctx, int mode, int length, uchar iv[8], uchar *input, uchar *output)
 {
     int i;
     uchar temp[8];
 
     if (mode == DES_ENCRYPT) {
         while (length > 0) {
-            for (i = 0; i < 8; i++)
+            for (i = 0; i < 8; i++) {
                 output[i] = (uchar)(input[i] ^ iv[i]);
-
+            }
             des_crypt_ecb(ctx, output, output);
             memcpy(iv, output, 8);
-
             input += 8;
             output += 8;
             length -= 8;
         }
-    } else {        /* DES_DECRYPT */
+    } else {
+        /* DES_DECRYPT */
         while (length > 0) {
             memcpy(temp, input, 8);
             des_crypt_ecb(ctx, input, output);
-
-            for (i = 0; i < 8; i++)
+            for (i = 0; i < 8; i++) {
                 output[i] = (uchar)(output[i] ^ iv[i]);
-
+            }
             memcpy(iv, temp, 8);
-
             input += 8;
             output += 8;
             length -= 8;
@@ -4479,35 +4424,29 @@ void des_crypt_cbc(des_context * ctx, int mode, int length, uchar iv[8], uchar *
 /*
     3DES-ECB block encryption/decryption
  */
-void des3_crypt_ecb(des3_context * ctx, uchar input[8], uchar output[8])
+void des3_crypt_ecb(des3_context *ctx, uchar input[8], uchar output[8])
 {
     int i;
     ulong X, Y, T, *SK;
 
     SK = ctx->sk;
-
     GET_ULONG_BE(X, input, 0);
     GET_ULONG_BE(Y, input, 4);
-
     DES_IP(X, Y);
 
     for (i = 0; i < 8; i++) {
         DES_ROUND(Y, X);
         DES_ROUND(X, Y);
     }
-
     for (i = 0; i < 8; i++) {
         DES_ROUND(X, Y);
         DES_ROUND(Y, X);
     }
-
     for (i = 0; i < 8; i++) {
         DES_ROUND(Y, X);
         DES_ROUND(X, Y);
     }
-
     DES_FP(Y, X);
-
     PUT_ULONG_BE(Y, output, 0);
     PUT_ULONG_BE(X, output, 4);
 }
@@ -4516,33 +4455,31 @@ void des3_crypt_ecb(des3_context * ctx, uchar input[8], uchar output[8])
 /*
     3DES-CBC buffer encryption/decryption
  */
-void des3_crypt_cbc(des3_context * ctx, int mode, int length, uchar iv[8], uchar *input, uchar *output)
+void des3_crypt_cbc(des3_context *ctx, int mode, int length, uchar iv[8], uchar *input, uchar *output)
 {
     int i;
     uchar temp[8];
 
     if (mode == DES_ENCRYPT) {
         while (length > 0) {
-            for (i = 0; i < 8; i++)
+            for (i = 0; i < 8; i++) {
                 output[i] = (uchar)(input[i] ^ iv[i]);
-
+            }
             des3_crypt_ecb(ctx, output, output);
             memcpy(iv, output, 8);
-
             input += 8;
             output += 8;
             length -= 8;
         }
-    } else {        /* DES_DECRYPT */
+    } else {
+        /* DES_DECRYPT */
         while (length > 0) {
             memcpy(temp, input, 8);
             des3_crypt_ecb(ctx, input, output);
-
-            for (i = 0; i < 8; i++)
+            for (i = 0; i < 8; i++) {
                 output[i] = (uchar)(output[i] ^ iv[i]);
-
+            }
             memcpy(iv, temp, 8);
-
             input += 8;
             output += 8;
             length -= 8;
@@ -4597,27 +4534,27 @@ static int dhm_read_bignum(mpi * X, uchar **p, uchar *end)
 {
     int ret, n;
 
-    if (end - *p < 2)
+    if (end - *p < 2) {
         return EST_ERR_DHM_BAD_INPUT_DATA;
-
+    }
     n = ((*p)[0] << 8) | (*p)[1];
     (*p) += 2;
 
-    if ((int)(end - *p) < n)
+    if ((int)(end - *p) < n) {
         return EST_ERR_DHM_BAD_INPUT_DATA;
-
-    if ((ret = mpi_read_binary(X, *p, n)) != 0)
+    }
+    if ((ret = mpi_read_binary(X, *p, n)) != 0) {
         return EST_ERR_DHM_READ_PARAMS_FAILED | ret;
-
+    }
     (*p) += n;
     return 0;
 }
 
 
 /*
-   Parse the ServerKeyExchange parameters
+    Parse the ServerKeyExchange parameters
  */
-int dhm_read_params(dhm_context * ctx, uchar **p, uchar *end)
+int dhm_read_params(dhm_context *ctx, uchar **p, uchar *end)
 {
     int ret, n;
 
@@ -4645,7 +4582,7 @@ int dhm_read_params(dhm_context * ctx, uchar **p, uchar *end)
 /*
    Setup and write the ServerKeyExchange parameters
  */
-int dhm_make_params(dhm_context * ctx, int x_size, uchar *output, int *olen, int (*f_rng) (void *), void *p_rng)
+int dhm_make_params(dhm_context *ctx, int x_size, uchar *output, int *olen, int (*f_rng) (void *), void *p_rng)
 {
     int i, ret, n, n1, n2, n3;
     uchar *p;
@@ -4697,7 +4634,7 @@ cleanup:
 /*
    Import the peer's public value G^Y
  */
-int dhm_read_public(dhm_context * ctx, uchar *input, int ilen)
+int dhm_read_public(dhm_context *ctx, uchar *input, int ilen)
 {
     int ret;
 
@@ -4714,7 +4651,7 @@ int dhm_read_public(dhm_context * ctx, uchar *input, int ilen)
 /*
    Create own private value X and export G^X
  */
-int dhm_make_public(dhm_context * ctx, int x_size, uchar *output, int olen, int (*f_rng) (void *), void *p_rng)
+int dhm_make_public(dhm_context *ctx, int x_size, uchar *output, int olen, int (*f_rng) (void *), void *p_rng)
 {
     int ret, i, n;
     uchar *p;
@@ -4752,7 +4689,7 @@ cleanup:
 /*
     Derive and export the shared secret (G^Y)^X mod P
  */
-int dhm_calc_secret(dhm_context * ctx, uchar *output, int *olen)
+int dhm_calc_secret(dhm_context *ctx, uchar *output, int *olen)
 {
     int ret;
 
@@ -4944,16 +4881,19 @@ static void havege_fill(havege_state * hs)
     WALK = hs->WALK;
     PT1 = hs->PT1;
     PT2 = hs->PT2;
-
     PTX = U1 = 0;
     PTY = U2 = 0;
 
     memset(RES, 0, sizeof(RES));
 
     while (n < COLLECT_SIZE * 4) {
-    ONE_ITERATION ONE_ITERATION ONE_ITERATION ONE_ITERATION} hs->PT1 = PT1;
+        ONE_ITERATION 
+        ONE_ITERATION 
+        ONE_ITERATION 
+        ONE_ITERATION
+    } 
+    hs->PT1 = PT1;
     hs->PT2 = PT2;
-
     hs->offset[0] = 0;
     hs->offset[1] = COLLECT_SIZE / 2;
 }
@@ -4974,8 +4914,8 @@ void havege_init(havege_state * hs)
  */
 int havege_rand(void *p_rng)
 {
-    int ret;
     havege_state *hs = (havege_state *) p_rng;
+    int     ret;
 
     if (hs->offset[1] >= COLLECT_SIZE) {
         havege_fill(hs);
@@ -5062,13 +5002,13 @@ static const uchar PI_SUBST[256] = {
 /*
     MD2 context setup
  */
-void md2_starts(md2_context * ctx)
+void md2_starts(md2_context *ctx)
 {
     memset(ctx, 0, sizeof(md2_context));
 }
 
 
-static void md2_process(md2_context * ctx)
+static void md2_process(md2_context *ctx)
 {
     int     i, j;
     uchar   t = 0;
@@ -5097,16 +5037,16 @@ static void md2_process(md2_context * ctx)
 /*
     MD2 process buffer
  */
-void md2_update(md2_context * ctx, uchar *input, int ilen)
+void md2_update(md2_context *ctx, uchar *input, int ilen)
 {
     int fill;
 
     while (ilen > 0) {
-        if (ctx->left + ilen > 16)
+        if (ctx->left + ilen > 16) {
             fill = 16 - ctx->left;
-        else
+        } else {
             fill = ilen;
-
+        }
         memcpy(ctx->buffer + ctx->left, input, fill);
         ctx->left += fill;
         input += fill;
@@ -5122,16 +5062,15 @@ void md2_update(md2_context * ctx, uchar *input, int ilen)
 /*
     MD2 final digest
  */
-void md2_finish(md2_context * ctx, uchar output[16])
+void md2_finish(md2_context *ctx, uchar output[16])
 {
     uchar   x;
     int     i;
 
     x = (uchar)(16 - ctx->left);
-
-    for (i = ctx->left; i < 16; i++)
+    for (i = ctx->left; i < 16; i++) {
         ctx->buffer[i] = x;
-
+    }
     md2_process(ctx);
     memcpy(ctx->buffer, ctx->cksum, 16);
     md2_process(ctx);
@@ -5163,14 +5102,14 @@ int md2_file(char *path, uchar output[16])
     md2_context ctx;
     uchar       buf[1024];
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
-
+    }
     md2_starts(&ctx);
 
-    while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
+    while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
         md2_update(&ctx, buf, (int)n);
-
+    }
     md2_finish(&ctx, output);
     memset(&ctx, 0, sizeof(md2_context));
 
@@ -5186,7 +5125,7 @@ int md2_file(char *path, uchar output[16])
 /*
     MD2 HMAC context setup
  */
-void md2_hmac_starts(md2_context * ctx, uchar *key, int keylen)
+void md2_hmac_starts(md2_context *ctx, uchar *key, int keylen)
 {
     uchar   sum[16];
     int     i;
@@ -5212,7 +5151,7 @@ void md2_hmac_starts(md2_context * ctx, uchar *key, int keylen)
 /*
     MD2 HMAC process buffer
  */
-void md2_hmac_update(md2_context * ctx, uchar *input, int ilen)
+void md2_hmac_update(md2_context *ctx, uchar *input, int ilen)
 {
     md2_update(ctx, input, ilen);
 }
@@ -5221,7 +5160,7 @@ void md2_hmac_update(md2_context * ctx, uchar *input, int ilen)
 /*
     MD2 HMAC final digest
  */
-void md2_hmac_finish(md2_context * ctx, uchar output[16])
+void md2_hmac_finish(md2_context *ctx, uchar output[16])
 {
     uchar tmpbuf[16];
 
@@ -5457,9 +5396,9 @@ void md4_update(md4_context * ctx, uchar *input, int ilen)
     ctx->total[0] += ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if (ctx->total[0] < (ulong)ilen)
+    if (ctx->total[0] < (ulong) ilen) {
         ctx->total[1]++;
-
+    }
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), (void *)input, fill);
         md4_process(ctx, ctx->buffer);
@@ -5467,13 +5406,11 @@ void md4_update(md4_context * ctx, uchar *input, int ilen)
         ilen -= fill;
         left = 0;
     }
-
     while (ilen >= 64) {
         md4_process(ctx, input);
         input += 64;
         ilen -= 64;
     }
-
     if (ilen > 0) {
         memcpy((void *)(ctx->buffer + left), (void *)input, ilen);
     }
@@ -5497,8 +5434,7 @@ void md4_finish(md4_context * ctx, uchar output[16])
     ulong high, low;
     uchar msglen[8];
 
-    high = (ctx->total[0] >> 29)
-        | (ctx->total[1] << 3);
+    high = (ctx->total[0] >> 29) | (ctx->total[1] << 3);
     low = (ctx->total[0] << 3);
 
     PUT_ULONG_LE(low, msglen, 0);
@@ -5541,16 +5477,15 @@ int md4_file(char *path, uchar output[16])
     md4_context ctx;
     uchar buf[1024];
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return (1);
-
+    }
     md4_starts(&ctx);
 
-    while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
+    while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
         md4_update(&ctx, buf, (int)n);
-
+    }
     md4_finish(&ctx, output);
-
     memset(&ctx, 0, sizeof(md4_context));
 
     if (ferror(f) != 0) {
@@ -5676,30 +5611,30 @@ void md4_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 #if BIT_EST_MD5
 
 /*
- * 32-bit integer manipulation macros (little endian)
+    32-bit integer manipulation macros (little endian)
  */
 #ifndef GET_ULONG_LE
-#define GET_ULONG_LE(n,b,i)                             \
-    {                                                   \
-        (n) = ( (ulong) (b)[(i)    ]       )    \
-            | ( (ulong) (b)[(i) + 1] <<  8 )    \
-            | ( (ulong) (b)[(i) + 2] << 16 )    \
-            | ( (ulong) (b)[(i) + 3] << 24 );   \
+#define GET_ULONG_LE(n,b,i)                     \
+    {                                           \
+        (n) = ((ulong) (b)[(i)    ]      )      \
+            | ((ulong) (b)[(i) + 1] <<  8)      \
+            | ((ulong) (b)[(i) + 2] << 16)      \
+            | ((ulong) (b)[(i) + 3] << 24);     \
     }
 #endif
 
 #ifndef PUT_ULONG_LE
-#define PUT_ULONG_LE(n,b,i)                             \
-    {                                                   \
-        (b)[(i)    ] = (uchar) ( (n)       );   \
-        (b)[(i) + 1] = (uchar) ( (n) >>  8 );   \
-        (b)[(i) + 2] = (uchar) ( (n) >> 16 );   \
-        (b)[(i) + 3] = (uchar) ( (n) >> 24 );   \
+#define PUT_ULONG_LE(n,b,i)                     \
+    {                                           \
+        (b)[(i)    ] = (uchar) ((n)      );     \
+        (b)[(i) + 1] = (uchar) ((n) >>  8);     \
+        (b)[(i) + 2] = (uchar) ((n) >> 16);     \
+        (b)[(i) + 3] = (uchar) ((n) >> 24);     \
     }
 #endif
 
 /*
- * MD5 context setup
+    MD5 context setup
  */
 void md5_starts(md5_context * ctx)
 {
@@ -5835,26 +5770,27 @@ static void md5_process(md5_context * ctx, uchar data[64])
     ctx->state[3] += D;
 }
 
+
 /*
- * MD5 process buffer
+   MD5 process buffer
  */
-void md5_update(md5_context * ctx, uchar *input, int ilen)
+void md5_update(md5_context *ctx, uchar *input, int ilen)
 {
-    int fill;
-    ulong left;
+    ulong   left;
+    int     fill;
 
-    if (ilen <= 0)
+    if (ilen <= 0) {
         return;
-
+    }
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
 
     ctx->total[0] += ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if (ctx->total[0] < (ulong)ilen)
+    if (ctx->total[0] < (ulong)ilen) {
         ctx->total[1]++;
-
+    }
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), (void *)input, fill);
         md5_process(ctx, ctx->buffer);
@@ -5862,13 +5798,11 @@ void md5_update(md5_context * ctx, uchar *input, int ilen)
         ilen -= fill;
         left = 0;
     }
-
     while (ilen >= 64) {
         md5_process(ctx, input);
         input += 64;
         ilen -= 64;
     }
-
     if (ilen > 0) {
         memcpy((void *)(ctx->buffer + left), (void *)input, ilen);
     }
@@ -5881,17 +5815,16 @@ static const uchar md5_padding[64] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
+
 /*
- * MD5 final digest
+    MD5 final digest
  */
-void md5_finish(md5_context * ctx, uchar output[16])
+void md5_finish(md5_context *ctx, uchar output[16])
 {
-    ulong last, padn;
-    ulong high, low;
+    ulong last, padn, high, low;
     uchar msglen[8];
 
-    high = (ctx->total[0] >> 29)
-        | (ctx->total[1] << 3);
+    high = (ctx->total[0] >> 29) | (ctx->total[1] << 3);
     low = (ctx->total[0] << 3);
 
     PUT_ULONG_LE(low, msglen, 0);
@@ -5910,7 +5843,7 @@ void md5_finish(md5_context * ctx, uchar output[16])
 }
 
 /*
-    output = MD5( input buffer )
+    output = MD5(input buffer)
  */
 void md5(uchar *input, int ilen, uchar output[16])
 {
@@ -5925,18 +5858,19 @@ void md5(uchar *input, int ilen, uchar output[16])
 
 
 /*
-    output = MD5( file contents )
+    output = MD5(file contents)
+    MOB - is this used
  */
 int md5_file(char *path, uchar output[16])
 {
-    FILE *f;
-    size_t n;
+    FILE        *f;
+    size_t      n;
     md5_context ctx;
-    uchar buf[1024];
+    uchar       buf[1024];
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
-
+    }
     md5_starts(&ctx);
 
     while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
@@ -5954,20 +5888,20 @@ int md5_file(char *path, uchar output[16])
     return 0;
 }
 
+
 /*
- * MD5 HMAC context setup
+   MD5 HMAC context setup
  */
-void md5_hmac_starts(md5_context * ctx, uchar *key, int keylen)
+void md5_hmac_starts(md5_context *ctx, uchar *key, int keylen)
 {
-    int i;
-    uchar sum[16];
+    uchar   sum[16];
+    int     i;
 
     if (keylen > 64) {
         md5(key, keylen, sum);
         keylen = 16;
         key = sum;
     }
-
     memset(ctx->ipad, 0x36, 64);
     memset(ctx->opad, 0x5C, 64);
 
@@ -5975,25 +5909,25 @@ void md5_hmac_starts(md5_context * ctx, uchar *key, int keylen)
         ctx->ipad[i] = (uchar)(ctx->ipad[i] ^ key[i]);
         ctx->opad[i] = (uchar)(ctx->opad[i] ^ key[i]);
     }
-
     md5_starts(ctx);
     md5_update(ctx, ctx->ipad, 64);
-
     memset(sum, 0, sizeof(sum));
 }
 
+
 /*
- * MD5 HMAC process buffer
+   MD5 HMAC process buffer
  */
-void md5_hmac_update(md5_context * ctx, uchar *input, int ilen)
+void md5_hmac_update(md5_context *ctx, uchar *input, int ilen)
 {
     md5_update(ctx, input, ilen);
 }
 
+
 /*
- * MD5 HMAC final digest
+    MD5 HMAC final digest
  */
-void md5_hmac_finish(md5_context * ctx, uchar output[16])
+void md5_hmac_finish(md5_context *ctx, uchar output[16])
 {
     uchar tmpbuf[16];
 
@@ -6006,11 +5940,11 @@ void md5_hmac_finish(md5_context * ctx, uchar output[16])
     memset(tmpbuf, 0, sizeof(tmpbuf));
 }
 
+
 /*
- * output = HMAC-MD5( hmac key, input buffer )
+    output = HMAC-MD5(hmac key, input buffer)
  */
-void md5_hmac(uchar *key, int keylen, uchar *input, int ilen,
-          uchar output[16])
+void md5_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[16])
 {
     md5_context ctx;
 
@@ -6125,8 +6059,9 @@ int net_connect(int *fd, char *host, int port)
     return 0;
 }
 
+
 /*
- * Create a listening socket on bind_ip:port
+   Create a listening socket on bind_ip:port
  */
 int net_bind(int *fd, char *bind_ip, int port)
 {
@@ -6136,19 +6071,20 @@ int net_bind(int *fd, char *bind_ip, int port)
 #if defined(WIN32) || defined(_WIN32_WCE)
     WSADATA wsaData;
 
+    //  MOB - need some option to bypass WSAStartup. See Mpr.
     if (wsa_init_done == 0) {
-        if (WSAStartup(MAKEWORD(2, 0), &wsaData) == SOCKET_ERROR)
+        if (WSAStartup(MAKEWORD(2, 0), &wsaData) == SOCKET_ERROR) {
             return EST_ERR_NET_SOCKET_FAILED;
-
+        }
         wsa_init_done = 1;
     }
 #else
     signal(SIGPIPE, SIG_IGN);
 #endif
 
-    if ((*fd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) < 0)
+    if ((*fd = socket(AF_INET, SOCK_STREAM, IPPROTO_IP)) < 0) {
         return EST_ERR_NET_SOCKET_FAILED;
-
+    }
     n = 1;
     setsockopt(*fd, SOL_SOCKET, SO_REUSEADDR, (char*) &n, sizeof(n));
 
@@ -6160,17 +6096,15 @@ int net_bind(int *fd, char *bind_ip, int port)
         memset(c, 0, sizeof(c));
         sscanf(bind_ip, "%d.%d.%d.%d", &c[0], &c[1], &c[2], &c[3]);
 
-        for (n = 0; n < 4; n++)
-            if (c[n] < 0 || c[n] > 255)
+        for (n = 0; n < 4; n++) {
+            if (c[n] < 0 || c[n] > 255) {
                 break;
-
-        if (n == 4)
-            server_addr.sin_addr.s_addr =
-                ((ulong)c[0] << 24) |
-                ((ulong)c[1] << 16) |
-                ((ulong)c[2] << 8) | ((ulong)c[3]);
+            }
+        }
+        if (n == 4) {
+            server_addr.sin_addr.s_addr = ((ulong)c[0] << 24) | ((ulong)c[1] << 16) | ((ulong)c[2] << 8) | ((ulong)c[3]);
+        }
     }
-
     if (bind(*fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
         closesocket(*fd);
         return EST_ERR_NET_BIND_FAILED;
@@ -6181,6 +6115,7 @@ int net_bind(int *fd, char *bind_ip, int port)
     }
     return 0;
 }
+
 
 /*
     Check if the current operation is blocking
@@ -6221,13 +6156,14 @@ int net_accept(int bind_fd, int *client_fd, void *client_ip)
     *client_fd = accept(bind_fd, (struct sockaddr *) &client_addr, &n);
 
     if (*client_fd < 0) {
-        if (net_is_blocking() != 0)
+        if (net_is_blocking() != 0) {
             return EST_ERR_NET_TRY_AGAIN;
-
+        }
         return EST_ERR_NET_ACCEPT_FAILED;
     }
-    if (client_ip != NULL)
+    if (client_ip != NULL) {
         memcpy(client_ip, &client_addr.sin_addr.s_addr, sizeof(client_addr.sin_addr.s_addr));
+    }
     return 0;
 }
 
@@ -6276,24 +6212,25 @@ int net_recv(void *ctx, uchar *buf, int len)
 {
     int ret = recv(*((int*)ctx), buf, len, 0);
 
-    if (len > 0 && ret == 0)
+    if (len > 0 && ret == 0) {
         return EST_ERR_NET_CONN_RESET;
-
+    }
     if (ret < 0) {
-        if (net_is_blocking() != 0)
+        if (net_is_blocking() != 0) {
             return EST_ERR_NET_TRY_AGAIN;
-
+        }
 #if defined(WIN32) || defined(_WIN32_WCE)
-        if (WSAGetLastError() == WSAECONNRESET)
+        if (WSAGetLastError() == WSAECONNRESET) {
             return EST_ERR_NET_CONN_RESET;
+        }
 #else
-        if (errno == EPIPE || errno == ECONNRESET)
+        if (errno == EPIPE || errno == ECONNRESET) {
             return EST_ERR_NET_CONN_RESET;
-
-        if (errno == EINTR)
+        }
+        if (errno == EINTR) {
             return EST_ERR_NET_TRY_AGAIN;
+        }
 #endif
-
         return EST_ERR_NET_RECV_FAILED;
     }
     return ret;
@@ -6308,17 +6245,20 @@ int net_send(void *ctx, uchar *buf, int len)
     int ret = send(*((int*)ctx), buf, len, 0);
 
     if (ret < 0) {
-        if (net_is_blocking() != 0)
+        if (net_is_blocking() != 0) {
             return EST_ERR_NET_TRY_AGAIN;
-
+        }
 #if defined(WIN32) || defined(_WIN32_WCE)
-        if (WSAGetLastError() == WSAECONNRESET)
+        if (WSAGetLastError() == WSAECONNRESET) {
             return EST_ERR_NET_CONN_RESET;
+        }
 #else
-        if (errno == EPIPE || errno == ECONNRESET)
+        if (errno == EPIPE || errno == ECONNRESET) {
             return EST_ERR_NET_CONN_RESET;
-        if (errno == EINTR)
+        }
+        if (errno == EINTR) {
             return EST_ERR_NET_TRY_AGAIN;
+        }
 #endif
         return EST_ERR_NET_SEND_FAILED;
     }
@@ -6404,11 +6344,8 @@ asm("movl  %%ebx, %0           \n" "movl  $0xC0000000, %%eax  \n" "cpuid        
  */
 int padlock_xcryptecb(aes_context * ctx, int mode, uchar input[16], uchar output[16])
 {
-    int ebx;
-    ulong *rk;
-    ulong *blk;
-    ulong *ctrl;
-    uchar buf[256];
+    ulong   *rk, *blk, *ctrl, buf[256];
+    int     ebx;
 
     rk = ctx->rk;
     blk = PADLOCK_ALIGN16(buf);
@@ -6431,15 +6368,12 @@ asm("pushfl; popfl         \n" "movl    %%ebx, %0     \n" "movl    $1, %%ecx    
  */
 int padlock_xcryptcbc(aes_context * ctx, int mode, int length, uchar iv[16], uchar *input, uchar *output)
 {
-    int ebx, count;
-    ulong *rk;
-    ulong *iw;
-    ulong *ctrl;
-    uchar buf[256];
+    ulong   *rk, *iw, *ctrl, buf[256];
+    int     ebx, count;
 
-    if (((long)input & 15) != 0 || ((long)output & 15) != 0)
+    if (((long)input & 15) != 0 || ((long)output & 15) != 0) {
         return 1;
-
+    }
     rk = ctx->rk;
     iw = PADLOCK_ALIGN16(buf);
     memcpy(iw, iv, 16);
@@ -6504,14 +6438,11 @@ asm("pushfl; popfl         \n" "movl    %%ebx, %0     \n" "movl    %2, %%ecx    
 /*
     Initialize an RSA context
  */
-void rsa_init(rsa_context * ctx,
-          int padding, int hash_id, int (*f_rng) (void *), void *p_rng)
+void rsa_init(rsa_context *ctx, int padding, int hash_id, int (*f_rng) (void *), void *p_rng)
 {
     memset(ctx, 0, sizeof(rsa_context));
-
     ctx->padding = padding;
     ctx->hash_id = hash_id;
-
     ctx->f_rng = f_rng;
     ctx->p_rng = p_rng;
 }
@@ -6521,14 +6452,14 @@ void rsa_init(rsa_context * ctx,
 /*
     Generate an RSA keypair
  */
-int rsa_gen_key(rsa_context * ctx, int nbits, int exponent)
+int rsa_gen_key(rsa_context *ctx, int nbits, int exponent)
 {
-    int ret;
-    mpi P1, Q1, H, G;
+    mpi     P1, Q1, H, G;
+    int     ret;
 
-    if (ctx->f_rng == NULL || nbits < 128 || exponent < 3)
+    if (ctx->f_rng == NULL || nbits < 128 || exponent < 3) {
         return EST_ERR_RSA_BAD_INPUT_DATA;
-
+    }
     mpi_init(&P1, &Q1, &H, &G, NULL);
 
     /*
@@ -6541,20 +6472,21 @@ int rsa_gen_key(rsa_context * ctx, int nbits, int exponent)
 
         MPI_CHK(mpi_gen_prime(&ctx->Q, (nbits + 1) >> 1, 0, ctx->f_rng, ctx->p_rng));
 
-        if (mpi_cmp_mpi(&ctx->P, &ctx->Q) < 0)
+        if (mpi_cmp_mpi(&ctx->P, &ctx->Q) < 0) {
             mpi_swap(&ctx->P, &ctx->Q);
-
-        if (mpi_cmp_mpi(&ctx->P, &ctx->Q) == 0)
+        }
+        if (mpi_cmp_mpi(&ctx->P, &ctx->Q) == 0) {
             continue;
-
+        }
         MPI_CHK(mpi_mul_mpi(&ctx->N, &ctx->P, &ctx->Q));
-        if (mpi_msb(&ctx->N) != nbits)
+        if (mpi_msb(&ctx->N) != nbits) {
             continue;
-
+        }
         MPI_CHK(mpi_sub_int(&P1, &ctx->P, 1));
         MPI_CHK(mpi_sub_int(&Q1, &ctx->Q, 1));
         MPI_CHK(mpi_mul_mpi(&H, &P1, &Q1));
         MPI_CHK(mpi_gcd(&G, &ctx->E, &H));
+
     } while (mpi_cmp_int(&G, 1) != 0);
 
     /*
@@ -6583,14 +6515,17 @@ cleanup:
 /*
     Check a public RSA key
  */
-int rsa_check_pubkey(rsa_context * ctx)
+int rsa_check_pubkey(rsa_context *ctx)
 {
-    if ((ctx->N.p[0] & 1) == 0 || (ctx->E.p[0] & 1) == 0)
+    if ((ctx->N.p[0] & 1) == 0 || (ctx->E.p[0] & 1) == 0) {
         return EST_ERR_RSA_KEY_CHECK_FAILED;
-    if (mpi_msb(&ctx->N) < 128 || mpi_msb(&ctx->N) > 4096)
+    }
+    if (mpi_msb(&ctx->N) < 128 || mpi_msb(&ctx->N) > 4096) {
         return EST_ERR_RSA_KEY_CHECK_FAILED;
-    if (mpi_msb(&ctx->E) < 2 || mpi_msb(&ctx->E) > 64)
+    }
+    if (mpi_msb(&ctx->E) < 2 || mpi_msb(&ctx->E) > 64) {
         return EST_ERR_RSA_KEY_CHECK_FAILED;
+    }
     return 0;
 }
 
@@ -6598,14 +6533,14 @@ int rsa_check_pubkey(rsa_context * ctx)
 /*
     Check a private RSA key
  */
-int rsa_check_privkey(rsa_context * ctx)
+int rsa_check_privkey(rsa_context *ctx)
 {
     int ret;
     mpi PQ, DE, P1, Q1, H, I, G;
 
-    if ((ret = rsa_check_pubkey(ctx)) != 0)
+    if ((ret = rsa_check_pubkey(ctx)) != 0) {
         return ret;
-
+    }
     mpi_init(&PQ, &DE, &P1, &Q1, &H, &I, &G, NULL);
 
     MPI_CHK(mpi_mul_mpi(&PQ, &ctx->P, &ctx->Q));
@@ -6616,8 +6551,7 @@ int rsa_check_privkey(rsa_context * ctx)
     MPI_CHK(mpi_mod_mpi(&I, &DE, &H));
     MPI_CHK(mpi_gcd(&G, &ctx->E, &H));
 
-    if (mpi_cmp_mpi(&PQ, &ctx->N) == 0 &&
-        mpi_cmp_int(&I, 1) == 0 && mpi_cmp_int(&G, 1) == 0) {
+    if (mpi_cmp_mpi(&PQ, &ctx->N) == 0 && mpi_cmp_int(&I, 1) == 0 && mpi_cmp_int(&G, 1) == 0) {
         mpi_free(&G, &I, &H, &Q1, &P1, &DE, &PQ, NULL);
         return 0;
     }
@@ -6626,10 +6560,11 @@ cleanup:
     return EST_ERR_RSA_KEY_CHECK_FAILED | ret;
 }
 
+
 /*
     Do an RSA public key operation
  */
-int rsa_public(rsa_context * ctx, uchar *input, uchar *output)
+int rsa_public(rsa_context *ctx, uchar *input, uchar *output)
 {
     int ret, olen;
     mpi T;
@@ -6642,7 +6577,6 @@ int rsa_public(rsa_context * ctx, uchar *input, uchar *output)
         mpi_free(&T, NULL);
         return EST_ERR_RSA_BAD_INPUT_DATA;
     }
-
     olen = ctx->len;
     MPI_CHK(mpi_exp_mod(&T, &T, &ctx->E, &ctx->N, &ctx->RN));
     MPI_CHK(mpi_write_binary(&T, output, olen));
@@ -6659,7 +6593,7 @@ cleanup:
 /*
     Do an RSA private key operation
  */
-int rsa_private(rsa_context * ctx, uchar *input, uchar *output)
+int rsa_private(rsa_context *ctx, uchar *input, uchar *output)
 {
     int ret, olen;
     mpi T, T1, T2;
@@ -6667,11 +6601,11 @@ int rsa_private(rsa_context * ctx, uchar *input, uchar *output)
     mpi_init(&T, &T1, &T2, NULL);
 
     MPI_CHK(mpi_read_binary(&T, input, ctx->len));
-
     if (mpi_cmp_mpi(&T, &ctx->N) >= 0) {
         mpi_free(&T, NULL);
         return EST_ERR_RSA_BAD_INPUT_DATA;
     }
+    //  MOB - why ?
 #if 0
     MPI_CHK(mpi_exp_mod(&T, &T, &ctx->D, &ctx->N, &ctx->RN));
 #else
@@ -6713,7 +6647,7 @@ cleanup:
 /*
     Add the message padding, then do an RSA operation
  */
-int rsa_pkcs1_encrypt(rsa_context * ctx, int mode, int ilen, uchar *input, uchar *output)
+int rsa_pkcs1_encrypt(rsa_context *ctx, int mode, int ilen, uchar *input, uchar *output)
 {
     int nb_pad, olen;
     uchar *p = output;
@@ -6723,11 +6657,10 @@ int rsa_pkcs1_encrypt(rsa_context * ctx, int mode, int ilen, uchar *input, uchar
     switch (ctx->padding) {
     case RSA_PKCS_V15:
 
-        if (ilen < 0 || olen < ilen + 11)
+        if (ilen < 0 || olen < ilen + 11) {
             return EST_ERR_RSA_BAD_INPUT_DATA;
-
+        }
         nb_pad = olen - 3 - ilen;
-
         *p++ = 0;
         *p++ = RSA_CRYPT;
 
@@ -6751,7 +6684,7 @@ int rsa_pkcs1_encrypt(rsa_context * ctx, int mode, int ilen, uchar *input, uchar
 /*
     Do an RSA operation, then remove the message padding
  */
-int rsa_pkcs1_decrypt(rsa_context * ctx, int mode, int *olen, uchar *input, uchar *output, int output_max_len)
+int rsa_pkcs1_decrypt(rsa_context *ctx, int mode, int *olen, uchar *input, uchar *output, int output_max_len)
 {
     int ret, ilen;
     uchar *p;
@@ -6759,27 +6692,26 @@ int rsa_pkcs1_decrypt(rsa_context * ctx, int mode, int *olen, uchar *input, ucha
 
     ilen = ctx->len;
 
-    if (ilen < 16 || ilen > (int)sizeof(buf))
+    if (ilen < 16 || ilen > (int)sizeof(buf)) {
         return EST_ERR_RSA_BAD_INPUT_DATA;
+    }
+    ret = (mode == RSA_PUBLIC) ? rsa_public(ctx, input, buf) : rsa_private(ctx, input, buf);
 
-    ret = (mode == RSA_PUBLIC)
-        ? rsa_public(ctx, input, buf)
-        : rsa_private(ctx, input, buf);
-
-    if (ret != 0)
+    if (ret != 0) {
         return ret;
-
+    }
     p = buf;
 
     switch (ctx->padding) {
     case RSA_PKCS_V15:
 
-        if (*p++ != 0 || *p++ != RSA_CRYPT)
+        if (*p++ != 0 || *p++ != RSA_CRYPT) {
             return EST_ERR_RSA_INVALID_PADDING;
-
+        }
         while (*p != 0) {
-            if (p >= buf + ilen - 1)
+            if (p >= buf + ilen - 1) {
                 return EST_ERR_RSA_INVALID_PADDING;
+            }
             p++;
         }
         p++;
@@ -6788,10 +6720,9 @@ int rsa_pkcs1_decrypt(rsa_context * ctx, int mode, int *olen, uchar *input, ucha
     default:
         return EST_ERR_RSA_INVALID_PADDING;
     }
-
-    if (ilen - (int)(p - buf) > output_max_len)
+    if (ilen - (int)(p - buf) > output_max_len) {
         return EST_ERR_RSA_OUTPUT_TO_LARGE;
-
+    }
     *olen = ilen - (int)(p - buf);
     memcpy(output, p, *olen);
     return 0;
@@ -6801,7 +6732,7 @@ int rsa_pkcs1_decrypt(rsa_context * ctx, int mode, int *olen, uchar *input, ucha
 /*
     Do an RSA operation to sign the message digest
  */
-int rsa_pkcs1_sign(rsa_context * ctx, int mode, int hash_id, int hashlen, uchar *hash, uchar *sig)
+int rsa_pkcs1_sign(rsa_context *ctx, int mode, int hash_id, int hashlen, uchar *hash, uchar *sig)
 {
     int nb_pad, olen;
     uchar *p = sig;
@@ -6829,10 +6760,9 @@ int rsa_pkcs1_sign(rsa_context * ctx, int mode, int hash_id, int hashlen, uchar 
         default:
             return EST_ERR_RSA_BAD_INPUT_DATA;
         }
-
-        if (nb_pad < 8)
+        if (nb_pad < 8) {
             return EST_ERR_RSA_BAD_INPUT_DATA;
-
+        }
         *p++ = 0;
         *p++ = RSA_SIGN;
         memset(p, 0xFF, nb_pad);
@@ -6882,32 +6812,28 @@ int rsa_pkcs1_sign(rsa_context * ctx, int mode, int hash_id, int hashlen, uchar 
 /*
     Do an RSA operation and check the message digest
  */
-int rsa_pkcs1_verify(rsa_context * ctx, int mode, int hash_id, int hashlen, uchar *hash, uchar *sig)
+int rsa_pkcs1_verify(rsa_context *ctx, int mode, int hash_id, int hashlen, uchar *hash, uchar *sig)
 {
-    int ret, len, siglen;
-    uchar *p, c;
-    uchar buf[512];
+    uchar   *p, c, buf[512];
+    int     ret, len, siglen;
 
     siglen = ctx->len;
 
-    if (siglen < 16 || siglen > (int)sizeof(buf))
+    if (siglen < 16 || siglen > (int)sizeof(buf)) {
         return EST_ERR_RSA_BAD_INPUT_DATA;
+    }
+    ret = (mode == RSA_PUBLIC) ? rsa_public(ctx, sig, buf) : rsa_private(ctx, sig, buf);
 
-    ret = (mode == RSA_PUBLIC)
-        ? rsa_public(ctx, sig, buf)
-        : rsa_private(ctx, sig, buf);
-
-    if (ret != 0)
+    if (ret != 0) {
         return ret;
-
+    }
     p = buf;
 
     switch (ctx->padding) {
     case RSA_PKCS_V15:
-
-        if (*p++ != 0 || *p++ != RSA_SIGN)
+        if (*p++ != 0 || *p++ != RSA_SIGN) {
             return EST_ERR_RSA_INVALID_PADDING;
-
+        }
         while (*p != 0) {
             if (p >= buf + siglen - 1 || *p != 0xFF)
                 return EST_ERR_RSA_INVALID_PADDING;
@@ -6919,37 +6845,36 @@ int rsa_pkcs1_verify(rsa_context * ctx, int mode, int hash_id, int hashlen, ucha
     default:
         return EST_ERR_RSA_INVALID_PADDING;
     }
-
     len = siglen - (int)(p - buf);
 
     if (len == 34) {
         c = p[13];
         p[13] = 0;
 
-        if (memcmp(p, EST_ASN1_HASH_MDX, 18) != 0)
+        if (memcmp(p, EST_ASN1_HASH_MDX, 18) != 0) {
             return EST_ERR_RSA_VERIFY_FAILED;
-
-        if ((c == 2 && hash_id == RSA_MD2) ||
-            (c == 4 && hash_id == RSA_MD4) ||
-            (c == 5 && hash_id == RSA_MD5)) {
-            if (memcmp(p + 18, hash, 16) == 0)
+        }
+        if ((c == 2 && hash_id == RSA_MD2) || (c == 4 && hash_id == RSA_MD4) || (c == 5 && hash_id == RSA_MD5)) {
+            if (memcmp(p + 18, hash, 16) == 0) {
                 return 0;
-            else
+            } else {
                 return EST_ERR_RSA_VERIFY_FAILED;
+            }
         }
     }
     if (len == 35 && hash_id == RSA_SHA1) {
-        if (memcmp(p, EST_ASN1_HASH_SHA1, 15) == 0 &&
-            memcmp(p + 15, hash, 20) == 0)
+        if (memcmp(p, EST_ASN1_HASH_SHA1, 15) == 0 && memcmp(p + 15, hash, 20) == 0) {
             return 0;
-        else
+        } else {
             return EST_ERR_RSA_VERIFY_FAILED;
+        }
     }
     if (len == hashlen && hash_id == RSA_RAW) {
-        if (memcmp(p, hash, hashlen) == 0)
+        if (memcmp(p, hash, hashlen) == 0) {
             return 0;
-        else
+        } else {
             return EST_ERR_RSA_VERIFY_FAILED;
+        }
     }
     return EST_ERR_RSA_INVALID_PADDING;
 }
@@ -6958,7 +6883,7 @@ int rsa_pkcs1_verify(rsa_context * ctx, int mode, int hash_id, int hashlen, ucha
 /*
     Free the components of an RSA key
  */
-void rsa_free(rsa_context * ctx)
+void rsa_free(rsa_context *ctx)
 {
     mpi_free(&ctx->RQ, &ctx->RP, &ctx->RN, &ctx->QP, &ctx->DQ, &ctx->DP, &ctx->Q, &ctx->P, &ctx->D, &ctx->E, &ctx->N, NULL);
 }
@@ -7031,7 +6956,7 @@ void rsa_free(rsa_context * ctx)
 /*
     SHA-1 context setup
  */
-void sha1_starts(sha1_context * ctx)
+void sha1_starts(sha1_context *ctx)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -7043,7 +6968,7 @@ void sha1_starts(sha1_context * ctx)
 }
 
 
-static void sha1_process(sha1_context * ctx, uchar data[64])
+static void sha1_process(sha1_context *ctx, uchar data[64])
 {
     ulong temp, W[16], A, B, C, D, E;
 
@@ -7069,7 +6994,7 @@ static void sha1_process(sha1_context * ctx, uchar data[64])
 #define R(t)                                            \
     (                                                   \
         temp = W[(t -  3) & 0x0F] ^ W[(t - 8) & 0x0F] ^ \
-        W[(t - 14) & 0x0F] ^ W[ t      & 0x0F],         \
+        W[(t - 14) & 0x0F] ^ W[t & 0x0F],               \
         ( W[t & 0x0F] = S(temp,1) )                     \
         )
 
@@ -7203,23 +7128,23 @@ static void sha1_process(sha1_context * ctx, uchar data[64])
 /*
     SHA-1 process buffer
  */
-void sha1_update(sha1_context * ctx, uchar *input, int ilen)
+void sha1_update(sha1_context *ctx, uchar *input, int ilen)
 {
     int fill;
     ulong left;
 
-    if (ilen <= 0)
+    if (ilen <= 0) {
         return;
-
+    }
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
 
     ctx->total[0] += ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if (ctx->total[0] < (ulong)ilen)
+    if (ctx->total[0] < (ulong) ilen) {
         ctx->total[1]++;
-
+    }
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), (void *)input, fill);
         sha1_process(ctx, ctx->buffer);
@@ -7227,13 +7152,11 @@ void sha1_update(sha1_context * ctx, uchar *input, int ilen)
         ilen -= fill;
         left = 0;
     }
-
     while (ilen >= 64) {
         sha1_process(ctx, input);
         input += 64;
         ilen -= 64;
     }
-
     if (ilen > 0) {
         memcpy((void *)(ctx->buffer + left), (void *)input, ilen);
     }
@@ -7251,10 +7174,9 @@ static const uchar sha1_padding[64] = {
 /*
     SHA-1 final digest
  */
-void sha1_finish(sha1_context * ctx, uchar output[20])
+void sha1_finish(sha1_context *ctx, uchar output[20])
 {
-    ulong last, padn;
-    ulong high, low;
+    ulong last, padn, high, low;
     uchar msglen[8];
 
     high = (ctx->total[0] >> 29) | (ctx->total[1] << 3);
@@ -7301,9 +7223,9 @@ int sha1_file(char *path, uchar output[20])
     sha1_context ctx;
     uchar buf[1024];
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
-
+    }
     sha1_starts(&ctx);
 
     while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
@@ -7324,7 +7246,7 @@ int sha1_file(char *path, uchar output[20])
 /*
     SHA-1 HMAC context setup
  */
-void sha1_hmac_starts(sha1_context * ctx, uchar *key, int keylen)
+void sha1_hmac_starts(sha1_context *ctx, uchar *key, int keylen)
 {
     int i;
     uchar sum[20];
@@ -7350,7 +7272,7 @@ void sha1_hmac_starts(sha1_context * ctx, uchar *key, int keylen)
 /*
     SHA-1 HMAC process buffer
  */
-void sha1_hmac_update(sha1_context * ctx, uchar *input, int ilen)
+void sha1_hmac_update(sha1_context *ctx, uchar *input, int ilen)
 {
     sha1_update(ctx, input, ilen);
 }
@@ -7359,7 +7281,7 @@ void sha1_hmac_update(sha1_context * ctx, uchar *input, int ilen)
 /*
     SHA-1 HMAC final digest
  */
-void sha1_hmac_finish(sha1_context * ctx, uchar output[20])
+void sha1_hmac_finish(sha1_context *ctx, uchar output[20])
 {
     uchar tmpbuf[20];
 
@@ -7460,7 +7382,7 @@ void sha1_hmac(uchar *key, int keylen, uchar *input, int ilen, uchar output[20])
 /*
     SHA-256 context setup
  */
-void sha2_starts(sha2_context * ctx, int is224)
+void sha2_starts(sha2_context *ctx, int is224)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -7491,7 +7413,7 @@ void sha2_starts(sha2_context * ctx, int is224)
 }
 
 
-static void sha2_process(sha2_context * ctx, uchar data[64])
+static void sha2_process(sha2_context *ctx, uchar data[64])
 {
     ulong temp1, temp2, W[64];
     ulong A, B, C, D, E, F, G, H;
@@ -7626,23 +7548,23 @@ static void sha2_process(sha2_context * ctx, uchar data[64])
 /*
     SHA-256 process buffer
  */
-void sha2_update(sha2_context * ctx, uchar *input, int ilen)
+void sha2_update(sha2_context *ctx, uchar *input, int ilen)
 {
     int fill;
     ulong left;
 
-    if (ilen <= 0)
+    if (ilen <= 0) {
         return;
-
+    }
     left = ctx->total[0] & 0x3F;
     fill = 64 - left;
 
     ctx->total[0] += ilen;
     ctx->total[0] &= 0xFFFFFFFF;
 
-    if (ctx->total[0] < (ulong)ilen)
+    if (ctx->total[0] < (ulong) ilen) {
         ctx->total[1]++;
-
+    }
     if (left && ilen >= fill) {
         memcpy((void *)(ctx->buffer + left), (void *)input, fill);
         sha2_process(ctx, ctx->buffer);
@@ -7672,14 +7594,13 @@ static const uchar sha2_padding[64] = {
 /*
     SHA-256 final digest
  */
-void sha2_finish(sha2_context * ctx, uchar output[32])
+void sha2_finish(sha2_context *ctx, uchar output[32])
 {
     ulong last, padn;
     ulong high, low;
     uchar msglen[8];
 
-    high = (ctx->total[0] >> 29)
-        | (ctx->total[1] << 3);
+    high = (ctx->total[0] >> 29) | (ctx->total[1] << 3);
     low = (ctx->total[0] << 3);
 
     PUT_ULONG_BE(high, msglen, 0);
@@ -7728,14 +7649,14 @@ int sha2_file(char *path, uchar output[32], int is224)
     sha2_context ctx;
     uchar buf[1024];
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
-
+    }
     sha2_starts(&ctx, is224);
 
-    while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
+    while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
         sha2_update(&ctx, buf, (int)n);
-
+    }
     sha2_finish(&ctx, output);
     memset(&ctx, 0, sizeof(sha2_context));
     if (ferror(f) != 0) {
@@ -7749,7 +7670,7 @@ int sha2_file(char *path, uchar output[32], int is224)
 /*
     SHA-256 HMAC context setup
  */
-void sha2_hmac_starts(sha2_context * ctx, uchar *key, int keylen, int is224)
+void sha2_hmac_starts(sha2_context *ctx, uchar *key, int keylen, int is224)
 {
     int i;
     uchar sum[32];
@@ -7774,7 +7695,7 @@ void sha2_hmac_starts(sha2_context * ctx, uchar *key, int keylen, int is224)
 /*
     SHA-256 HMAC process buffer
  */
-void sha2_hmac_update(sha2_context * ctx, uchar *input, int ilen)
+void sha2_hmac_update(sha2_context *ctx, uchar *input, int ilen)
 {
     sha2_update(ctx, input, ilen);
 }
@@ -7783,7 +7704,7 @@ void sha2_hmac_update(sha2_context * ctx, uchar *input, int ilen)
 /*
     SHA-256 HMAC final digest
  */
-void sha2_hmac_finish(sha2_context * ctx, uchar output[32])
+void sha2_hmac_finish(sha2_context *ctx, uchar output[32])
 {
     int is224, hlen;
     uchar tmpbuf[32];
@@ -7943,7 +7864,7 @@ static const uint64 K[80] = {
 /*
     SHA-512 context setup
  */
-void sha4_starts(sha4_context * ctx, int is384)
+void sha4_starts(sha4_context *ctx, int is384)
 {
     ctx->total[0] = 0;
     ctx->total[1] = 0;
@@ -8050,7 +7971,7 @@ static void sha4_process(sha4_context *ctx, uchar data[128])
 /*
     SHA-512 process buffer
  */
-void sha4_update(sha4_context * ctx, uchar *input, int ilen)
+void sha4_update(sha4_context *ctx, uchar *input, int ilen)
 {
     int fill;
     uint64 left;
@@ -8099,7 +8020,7 @@ static const uchar sha4_padding[128] = {
 /*
     SHA-512 final digest
  */
-void sha4_finish(sha4_context * ctx, uchar output[64])
+void sha4_finish(sha4_context *ctx, uchar output[64])
 {
     int last, padn;
     uint64 high, low;
@@ -8155,16 +8076,15 @@ int sha4_file(char *path, uchar output[64], int is384)
     sha4_context ctx;
     uchar buf[1024];
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
-
+    }
     sha4_starts(&ctx, is384);
 
-    while ((n = fread(buf, 1, sizeof(buf), f)) > 0)
+    while ((n = fread(buf, 1, sizeof(buf), f)) > 0) {
         sha4_update(&ctx, buf, (int)n);
-
+    }
     sha4_finish(&ctx, output);
-
     memset(&ctx, 0, sizeof(sha4_context));
 
     if (ferror(f) != 0) {
@@ -8179,7 +8099,7 @@ int sha4_file(char *path, uchar output[64], int is384)
 /*
     SHA-512 HMAC context setup
  */
-void sha4_hmac_starts(sha4_context * ctx, uchar *key, int keylen, int is384)
+void sha4_hmac_starts(sha4_context *ctx, uchar *key, int keylen, int is384)
 {
     int i;
     uchar sum[64];
@@ -8204,7 +8124,7 @@ void sha4_hmac_starts(sha4_context * ctx, uchar *key, int keylen, int is384)
 /*
     SHA-512 HMAC process buffer
  */
-void sha4_hmac_update(sha4_context * ctx, uchar *input, int ilen)
+void sha4_hmac_update(sha4_context *ctx, uchar *input, int ilen)
 {
     sha4_update(ctx, input, ilen);
 }
@@ -8213,7 +8133,7 @@ void sha4_hmac_update(sha4_context * ctx, uchar *input, int ilen)
 /*
     SHA-512 HMAC final digest
  */
-void sha4_hmac_finish(sha4_context * ctx, uchar output[64])
+void sha4_hmac_finish(sha4_context *ctx, uchar output[64])
 {
     int is384, hlen;
     uchar tmpbuf[64];
@@ -8327,9 +8247,9 @@ static int ssl_write_client_hello(ssl_context * ssl)
 
     SSL_DEBUG_MSG(3, ("client hello, current time: %lu", t));
 
-    for (i = 28; i > 0; i--)
+    for (i = 28; i > 0; i--) {
         *p++ = (uchar)ssl->f_rng(ssl->p_rng);
-
+    }
     memcpy(ssl->randbytes, buf + 6, 32);
 
     SSL_DEBUG_BUF(3, "client hello, random bytes", buf + 6, 32);
@@ -8344,18 +8264,19 @@ static int ssl_write_client_hello(ssl_context * ssl)
      */
     n = ssl->session->length;
 
-    if (n < 16 || n > 32 || ssl->resume == 0 || t - ssl->session->start > ssl->timeout)
+    if (n < 16 || n > 32 || ssl->resume == 0 || t - ssl->session->start > ssl->timeout) {
         n = 0;
-
+    }
     *p++ = (uchar)n;
 
-    for (i = 0; i < n; i++)
+    for (i = 0; i < n; i++) {
         *p++ = ssl->session->id[i];
-
+    }
     SSL_DEBUG_MSG(3, ("client hello, session id len.: %d", n));
     SSL_DEBUG_BUF(3, "client hello, session id", buf + 39, n);
 
-    for (n = 0; ssl->ciphers[n] != 0; n++) ;
+    for (n = 0; ssl->ciphers[n] != 0; n++) {}
+
     *p++ = (uchar)(n >> 7);
     *p++ = (uchar)(n << 1);
 
@@ -8363,7 +8284,6 @@ static int ssl_write_client_hello(ssl_context * ssl)
 
     for (i = 0; i < n; i++) {
         SSL_DEBUG_MSG(3, ("client hello, add cipher: %2d", ssl->ciphers[i]));
-
         *p++ = (uchar)(ssl->ciphers[i] >> 8);
         *p++ = (uchar)(ssl->ciphers[i]);
     }
@@ -8638,9 +8558,9 @@ static int ssl_parse_certificate_request(ssl_context * ssl)
     ssl->client_auth = 0;
     ssl->state++;
 
-    if (ssl->in_msg[0] == SSL_HS_CERTIFICATE_REQUEST)
+    if (ssl->in_msg[0] == SSL_HS_CERTIFICATE_REQUEST) {
         ssl->client_auth++;
-
+    }
     SSL_DEBUG_MSG(3, ("got %s certificate request", ssl->client_auth ? "a" : "no"));
     SSL_DEBUG_MSG(2, ("<= parse certificate request"));
     return 0;
@@ -8717,9 +8637,9 @@ static int ssl_write_client_key_exchange(ssl_context * ssl)
         ssl->premaster[1] = (uchar)ssl->max_minor_ver;
         ssl->pmslen = 48;
 
-        for (i = 2; i < ssl->pmslen; i++)
+        for (i = 2; i < ssl->pmslen; i++) {
             ssl->premaster[i] = (uchar)ssl->f_rng(ssl->p_rng);
-
+        }
         i = 4;
         n = ssl->peer_cert->rsa.len;
 
@@ -8804,9 +8724,9 @@ int ssl_handshake_client(ssl_context * ssl)
     while (ssl->state != SSL_HANDSHAKE_OVER) {
         SSL_DEBUG_MSG(2, ("client state: %d", ssl->state));
 
-        if ((ret = ssl_flush_output(ssl)) != 0)
+        if ((ret = ssl_flush_output(ssl)) != 0) {
             break;
-
+        }
         switch (ssl->state) {
         case SSL_HELLO_REQUEST:
             ssl->state = SSL_CLIENT_HELLO;
@@ -8847,11 +8767,11 @@ int ssl_handshake_client(ssl_context * ssl)
             break;
 
             /*
-                    ==> ( Certificate/Alert  )
-                              ClientKeyExchange
-                            ( CertificateVerify      )
-                              ChangeCipherSpec
-                              Finished
+                ==> ( Certificate/Alert )
+                      ClientKeyExchange
+                    ( CertificateVerify )
+                      ChangeCipherSpec
+                      Finished
              */
         case SSL_CLIENT_CERTIFICATE:
             ret = ssl_write_certificate(ssl);
@@ -8874,8 +8794,8 @@ int ssl_handshake_client(ssl_context * ssl)
             break;
 
             /*
-                    <==       ChangeCipherSpec
-                              Finished
+                <== ChangeCipherSpec
+                    Finished
              */
         case SSL_SERVER_CHANGE_CIPHER_SPEC:
             ret = ssl_parse_change_cipher_spec(ssl);
@@ -8894,9 +8814,9 @@ int ssl_handshake_client(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("invalid state %d", ssl->state));
             return EST_ERR_SSL_BAD_INPUT_DATA;
         }
-
-        if (ret != 0)
+        if (ret != 0) {
             break;
+        }
     }
     SSL_DEBUG_MSG(2, ("<= handshake client"));
     return ret;
@@ -8958,10 +8878,8 @@ static int ssl_parse_client_hello(ssl_context * ssl)
         SSL_DEBUG_BUF(4, "record header", buf, 5);
 
         SSL_DEBUG_MSG(3, ("client hello v2, message type: %d", buf[2]));
-        SSL_DEBUG_MSG(3, ("client hello v2, message len.: %d",
-                  ((buf[0] & 0x7F) << 8) | buf[1]));
-        SSL_DEBUG_MSG(3, ("client hello v2, max. version: [%d:%d]",
-                  buf[3], buf[4]));
+        SSL_DEBUG_MSG(3, ("client hello v2, message len.: %d", ((buf[0] & 0x7F) << 8) | buf[1]));
+        SSL_DEBUG_MSG(3, ("client hello v2, max. version: [%d:%d]", buf[3], buf[4]));
 
         /*
          * SSLv2 Client Hello
@@ -8973,12 +8891,10 @@ static int ssl_parse_client_hello(ssl_context * ssl)
          *     2  .   2   message type
          *     3  .   4   protocol version
          */
-        if (buf[2] != SSL_HS_CLIENT_HELLO ||
-            buf[3] != SSL_MAJOR_VERSION_3) {
+        if (buf[2] != SSL_HS_CLIENT_HELLO || buf[3] != SSL_MAJOR_VERSION_3) {
             SSL_DEBUG_MSG(1, ("bad client hello message"));
             return EST_ERR_SSL_BAD_HS_CLIENT_HELLO;
         }
-
         n = ((buf[0] << 8) | buf[1]) & 0x7FFF;
 
         if (n < 17 || n > 512) {
@@ -9058,7 +8974,6 @@ static int ssl_parse_client_hello(ssl_context * ssl)
         }
     } else {
         SSL_DEBUG_BUF(4, "record header", buf, 5);
-
         SSL_DEBUG_MSG(3, ("client hello v3, message type: %d", buf[0]));
         SSL_DEBUG_MSG(3, ("client hello v3, message len.: %d", (buf[3] << 8) | buf[4]));
         SSL_DEBUG_MSG(3, ("client hello v3, protocol ver: [%d:%d]", buf[1], buf[2]));
@@ -9119,7 +9034,6 @@ static int ssl_parse_client_hello(ssl_context * ssl)
         }
         ssl->major_ver = SSL_MAJOR_VERSION_3;
         ssl->minor_ver = (buf[5] <= SSL_MINOR_VERSION_1) ? buf[5] : SSL_MINOR_VERSION_1;
-
         ssl->max_major_ver = buf[4];
         ssl->max_minor_ver = buf[5];
 
@@ -9141,7 +9055,6 @@ static int ssl_parse_client_hello(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("bad client hello message"));
             return EST_ERR_SSL_BAD_HS_CLIENT_HELLO;
         }
-
         ssl->session->length = sess_len;
         memset(ssl->session->id, 0, sizeof(ssl->session->id));
         memcpy(ssl->session->id, buf + 39, ssl->session->length);
@@ -9155,7 +9068,6 @@ static int ssl_parse_client_hello(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("bad client hello message"));
             return EST_ERR_SSL_BAD_HS_CLIENT_HELLO;
         }
-
         /*
             Check the compression algorithms length
          */
@@ -9165,7 +9077,6 @@ static int ssl_parse_client_hello(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("bad client hello message"));
             return EST_ERR_SSL_BAD_HS_CLIENT_HELLO;
         }
-
         SSL_DEBUG_BUF(3, "client hello, random bytes", buf + 6, 32);
         SSL_DEBUG_BUF(3, "client hello, session id", buf + 38, sess_len);
         SSL_DEBUG_BUF(3, "client hello, cipherlist", buf + 41 + sess_len, ciph_len);
@@ -9182,20 +9093,17 @@ static int ssl_parse_client_hello(ssl_context * ssl)
             }
         }
     }
-
     SSL_DEBUG_MSG(1, ("got no ciphers in common"));
-
     return EST_ERR_SSL_NO_CIPHER_CHOSEN;
 
 have_cipher:
-
     ssl->session->cipher = ssl->ciphers[i];
     ssl->in_left = 0;
     ssl->state++;
-
     SSL_DEBUG_MSG(2, ("<= parse client hello"));
     return 0;
 }
+
 
 static int ssl_write_server_hello(ssl_context * ssl)
 {
@@ -9228,9 +9136,9 @@ static int ssl_write_server_hello(ssl_context * ssl)
 
     SSL_DEBUG_MSG(3, ("server hello, current time: %lu", t));
 
-    for (i = 28; i > 0; i--)
+    for (i = 28; i > 0; i--) {
         *p++ = (uchar)ssl->f_rng(ssl->p_rng);
-
+    }
     memcpy(ssl->randbytes + 32, buf + 6, 32);
 
     SSL_DEBUG_BUF(3, "server hello, random bytes", buf + 6, 32);
@@ -9251,8 +9159,9 @@ static int ssl_write_server_hello(ssl_context * ssl)
         ssl->resume = 0;
         ssl->state++;
 
-        for (i = 0; i < n; i++)
+        for (i = 0; i < n; i++) {
             ssl->session->id[i] = (uchar)ssl->f_rng(ssl->p_rng);
+        }
     } else {
         /*
          * Found a matching session, resume it
@@ -9286,6 +9195,7 @@ static int ssl_write_server_hello(ssl_context * ssl)
     return ret;
 }
 
+
 static int ssl_write_certificate_request(ssl_context * ssl)
 {
     int ret, n;
@@ -9293,14 +9203,12 @@ static int ssl_write_certificate_request(ssl_context * ssl)
     x509_cert *crt;
 
     SSL_DEBUG_MSG(2, ("=> write certificate request"));
-
     ssl->state++;
 
     if (ssl->authmode == SSL_VERIFY_NO_CHECK) {
         SSL_DEBUG_MSG(2, ("<= skip write certificate request"));
         return 0;
     }
-
     /*
      *     0  .   0   handshake type
      *     1  .   3   handshake length
@@ -9324,9 +9232,9 @@ static int ssl_write_certificate_request(ssl_context * ssl)
     crt = ssl->ca_chain;
 
     while (crt != NULL && crt->next != NULL) {
-        if (p - buf > 4096)
+        if (p - buf > 4096) {
             break;
-
+        }
         n = crt->subject_raw.len;
         *p++ = (uchar)(n >> 8);
         *p++ = (uchar)(n);
@@ -9336,7 +9244,6 @@ static int ssl_write_certificate_request(ssl_context * ssl)
         p += n;
         crt = crt->next;
     }
-
     ssl->out_msglen = n = p - buf;
     ssl->out_msgtype = SSL_MSG_HANDSHAKE;
     ssl->out_msg[0] = SSL_HS_CERTIFICATE_REQUEST;
@@ -9469,17 +9376,14 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
         SSL_DEBUG_RET(3, "ssl_read_record", ret);
         return ret;
     }
-
     if (ssl->in_msgtype != SSL_MSG_HANDSHAKE) {
         SSL_DEBUG_MSG(1, ("bad client key exchange message"));
         return EST_ERR_SSL_BAD_HS_CLIENT_KEY_EXCHANGE;
     }
-
     if (ssl->in_msg[0] != SSL_HS_CLIENT_KEY_EXCHANGE) {
         SSL_DEBUG_MSG(1, ("bad client key exchange message"));
         return EST_ERR_SSL_BAD_HS_CLIENT_KEY_EXCHANGE;
     }
-
     if (ssl->session->cipher == TLS_DHE_RSA_WITH_3DES_EDE_CBC_SHA ||
         ssl->session->cipher == TLS_DHE_RSA_WITH_AES_256_CBC_SHA ||
         ssl->session->cipher == TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA) {
@@ -9488,7 +9392,7 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
         return EST_ERR_SSL_FEATURE_UNAVAILABLE;
 #else
         /*
-         * Receive G^Y mod P, premaster = (G^Y)^X mod P
+           Receive G^Y mod P, premaster = (G^Y)^X mod P
          */
         n = (ssl->in_msg[4] << 8) | ssl->in_msg[5];
 
@@ -9512,7 +9416,7 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
 #endif
     } else {
         /*
-         * Decrypt the premaster using own private RSA key
+           Decrypt the premaster using own private RSA key
          */
         i = 4;
         n = ssl->rsa_key->len;
@@ -9530,34 +9434,28 @@ static int ssl_parse_client_key_exchange(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("bad client key exchange message"));
             return EST_ERR_SSL_BAD_HS_CLIENT_KEY_EXCHANGE;
         }
-
         ret = rsa_pkcs1_decrypt(ssl->rsa_key, RSA_PRIVATE, &ssl->pmslen, ssl->in_msg + i, ssl->premaster,
                 sizeof(ssl->premaster));
 
-        if (ret != 0 || ssl->pmslen != 48 ||
-            ssl->premaster[0] != ssl->max_major_ver ||
-            ssl->premaster[1] != ssl->max_minor_ver) {
+        if (ret != 0 || ssl->pmslen != 48 || ssl->premaster[0] != ssl->max_major_ver ||
+                ssl->premaster[1] != ssl->max_minor_ver) {
             SSL_DEBUG_MSG(1, ("bad client key exchange message"));
 
             /*
-             * Protection against Bleichenbacher's attack:
-             * invalid PKCS#1 v1.5 padding must not cause
-             * the connection to end immediately; instead,
-             * send a bad_record_mac later in the handshake.
+               Protection against Bleichenbacher's attack: invalid PKCS#1 v1.5 padding must not cause
+               the connection to end immediately; instead, send a bad_record_mac later in the handshake.
              */
             ssl->pmslen = 48;
-
-            for (i = 0; i < ssl->pmslen; i++)
-                ssl->premaster[i] =
-                    (uchar)ssl->f_rng(ssl->p_rng);
+            for (i = 0; i < ssl->pmslen; i++) {
+                ssl->premaster[i] = (uchar)ssl->f_rng(ssl->p_rng);
+            }
         }
     }
-
     ssl_derive_keys(ssl);
 
-    if (ssl->s_set != NULL)
+    if (ssl->s_set != NULL) {
         ssl->s_set(ssl);
-
+    }
     ssl->state++;
     SSL_DEBUG_MSG(2, ("<= parse client key exchange"));
     return 0;
@@ -9588,12 +9486,10 @@ static int ssl_parse_certificate_verify(ssl_context * ssl)
         SSL_DEBUG_MSG(1, ("bad certificate verify message"));
         return EST_ERR_SSL_BAD_HS_CERTIFICATE_VERIFY;
     }
-
     if (ssl->in_msg[0] != SSL_HS_CERTIFICATE_VERIFY) {
         SSL_DEBUG_MSG(1, ("bad certificate verify message"));
         return EST_ERR_SSL_BAD_HS_CERTIFICATE_VERIFY;
     }
-
     n1 = ssl->peer_cert->rsa.len;
     n2 = (ssl->in_msg[4] << 8) | ssl->in_msg[5];
 
@@ -9623,28 +9519,28 @@ int ssl_handshake_server(ssl_context * ssl)
     while (ssl->state != SSL_HANDSHAKE_OVER) {
         SSL_DEBUG_MSG(2, ("server state: %d", ssl->state));
 
-        if ((ret = ssl_flush_output(ssl)) != 0)
+        if ((ret = ssl_flush_output(ssl)) != 0) {
             break;
-
+        }
         switch (ssl->state) {
         case SSL_HELLO_REQUEST:
             ssl->state = SSL_CLIENT_HELLO;
             break;
 
-            /*
-             *  <==   ClientHello
-             */
+        /*
+            <==   ClientHello
+         */
         case SSL_CLIENT_HELLO:
             ret = ssl_parse_client_hello(ssl);
             break;
 
-            /*
-             *  ==>   ServerHello
-             *        Certificate
-             *      ( ServerKeyExchange  )
-             *      ( CertificateRequest )
-             *        ServerHelloDone
-             */
+        /*
+            ==>   ServerHello
+                  Certificate
+                ( ServerKeyExchange  )
+                ( CertificateRequest )
+                  ServerHelloDone
+         */
         case SSL_SERVER_HELLO:
             ret = ssl_write_server_hello(ssl);
             break;
@@ -9665,13 +9561,13 @@ int ssl_handshake_server(ssl_context * ssl)
             ret = ssl_write_server_hello_done(ssl);
             break;
 
-            /*
-             *  <== ( Certificate/Alert  )
-             *        ClientKeyExchange
-             *      ( CertificateVerify  )
-             *        ChangeCipherSpec
-             *        Finished
-             */
+        /*
+            <== ( Certificate/Alert  )
+                  ClientKeyExchange
+                ( CertificateVerify  )
+                  ChangeCipherSpec
+                  Finished
+         */
         case SSL_CLIENT_CERTIFICATE:
             ret = ssl_parse_certificate(ssl);
             break;
@@ -9692,10 +9588,10 @@ int ssl_handshake_server(ssl_context * ssl)
             ret = ssl_parse_finished(ssl);
             break;
 
-            /*
-             *  ==>   ChangeCipherSpec
-             *        Finished
-             */
+        /*
+            ==>   ChangeCipherSpec
+                  Finished
+         */
         case SSL_SERVER_CHANGE_CIPHER_SPEC:
             ret = ssl_write_change_cipher_spec(ssl);
             break;
@@ -9713,7 +9609,6 @@ int ssl_handshake_server(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("invalid state %d", ssl->state));
             return EST_ERR_SSL_BAD_INPUT_DATA;
         }
-
         if (ret != 0) {
             break;
         }
@@ -9951,11 +9846,10 @@ static int tls1_prf(uchar *secret, int slen, char *label, uchar *random, int rle
     for (i = 0; i < dlen; i += 16) {
         md5_hmac(S1, hs, 4 + tmp, 16 + nb, h_i);
         md5_hmac(S1, hs, 4 + tmp, 16, 4 + tmp);
-
         k = (i + 16 > dlen) ? dlen % 16 : 16;
-
-        for (j = 0; j < k; j++)
+        for (j = 0; j < k; j++) {
             dstbuf[i + j] = h_i[j];
+        }
     }
 
     /*
@@ -9967,8 +9861,9 @@ static int tls1_prf(uchar *secret, int slen, char *label, uchar *random, int rle
         sha1_hmac(S2, hs, tmp, 20 + nb, h_i);
         sha1_hmac(S2, hs, tmp, 20, tmp);
         k = (i + 20 > dlen) ? dlen % 20 : 20;
-        for (j = 0; j < k; j++)
+        for (j = 0; j < k; j++) {
             dstbuf[i + j] = (uchar)(dstbuf[i + j] ^ h_i[j]);
+        }
     }
     memset(tmp, 0, sizeof(tmp));
     memset(h_i, 0, sizeof(h_i));
@@ -9991,14 +9886,14 @@ int ssl_derive_keys(ssl_context * ssl)
     SSL_DEBUG_MSG(2, ("=> derive keys"));
 
     /*
-     * SSLv3:
-     *   master =
-     *     MD5( premaster + SHA1( 'A'   + premaster + randbytes ) ) +
-     *     MD5( premaster + SHA1( 'BB'  + premaster + randbytes ) ) +
-     *     MD5( premaster + SHA1( 'CCC' + premaster + randbytes ) )
-     *
-     * TLSv1:
-     *   master = PRF( premaster, "master secret", randbytes )[0..47]
+       SSLv3:
+         master =
+           MD5(premaster + SHA1( 'A'   + premaster + randbytes)) +
+           MD5(premaster + SHA1( 'BB'  + premaster + randbytes)) +
+           MD5(premaster + SHA1( 'CCC' + premaster + randbytes))
+      
+       TLSv1:
+         master = PRF( premaster, "master secret", randbytes )[0..47]
      */
     if (ssl->resume == 0) {
         int len = ssl->pmslen;
@@ -10029,7 +9924,7 @@ int ssl_derive_keys(ssl_context * ssl)
     }
 
     /*
-     * Swap the client and server random values.
+       Swap the client and server random values.
      */
     memcpy(tmp, ssl->randbytes, 64);
     memcpy(ssl->randbytes, tmp + 32, 32);
@@ -10037,16 +9932,15 @@ int ssl_derive_keys(ssl_context * ssl)
     memset(tmp, 0, sizeof(tmp));
 
     /*
-     *  SSLv3:
-     *    key block =
-     *      MD5( master + SHA1( 'A'    + master + randbytes ) ) +
-     *      MD5( master + SHA1( 'BB'   + master + randbytes ) ) +
-     *      MD5( master + SHA1( 'CCC'  + master + randbytes ) ) +
-     *      MD5( master + SHA1( 'DDDD' + master + randbytes ) ) +
-     *      ...
-     *
-     *  TLSv1:
-     *    key block = PRF( master, "key expansion", randbytes )
+        SSLv3:
+          key block =
+            MD5( master + SHA1( 'A'    + master + randbytes ) ) +
+            MD5( master + SHA1( 'BB'   + master + randbytes ) ) +
+            MD5( master + SHA1( 'CCC'  + master + randbytes ) ) +
+            MD5( master + SHA1( 'DDDD' + master + randbytes ) ) +
+            ...
+        TLSv1:
+          key block = PRF( master, "key expansion", randbytes )
      */
     if (ssl->minor_ver == SSL_MINOR_VERSION_0) {
         for (i = 0; i < 16; i++) {
@@ -10063,16 +9957,13 @@ int ssl_derive_keys(ssl_context * ssl)
             md5_update(&md5, sha1sum, 20);
             md5_finish(&md5, keyblk + i * 16);
         }
-
         memset(&md5, 0, sizeof(md5));
         memset(&sha1, 0, sizeof(sha1));
-
         memset(padding, 0, sizeof(padding));
         memset(sha1sum, 0, sizeof(sha1sum));
     } else {
         tls1_prf(ssl->session->master, 48, "key expansion", ssl->randbytes, 64, keyblk, 256);
     }
-
     SSL_DEBUG_MSG(3, ("cipher = %s", ssl_get_cipher(ssl)));
     SSL_DEBUG_BUF(3, "master secret", ssl->session->master, 48);
     SSL_DEBUG_BUF(4, "random bytes", ssl->randbytes, 64);
@@ -10149,11 +10040,10 @@ int ssl_derive_keys(ssl_context * ssl)
         return EST_ERR_SSL_FEATURE_UNAVAILABLE;
     }
 
-    SSL_DEBUG_MSG(3, ("keylen: %d, minlen: %d, ivlen: %d, maclen: %d",
-              ssl->keylen, ssl->minlen, ssl->ivlen, ssl->maclen));
+    SSL_DEBUG_MSG(3, ("keylen: %d, minlen: %d, ivlen: %d, maclen: %d", ssl->keylen, ssl->minlen, ssl->ivlen, ssl->maclen));
 
     /*
-     * Finally setup the cipher contexts, IVs and MAC secrets.
+        Finally setup the cipher contexts, IVs and MAC secrets.
      */
     if (ssl->endpoint == SSL_IS_CLIENT) {
         key1 = keyblk + ssl->maclen * 2;
@@ -10163,8 +10053,8 @@ int ssl_derive_keys(ssl_context * ssl)
         memcpy(ssl->mac_dec, keyblk + ssl->maclen, ssl->maclen);
 
         memcpy(ssl->iv_enc, key2 + ssl->keylen, ssl->ivlen);
-        memcpy(ssl->iv_dec, key2 + ssl->keylen + ssl->ivlen,
-               ssl->ivlen);
+        memcpy(ssl->iv_dec, key2 + ssl->keylen + ssl->ivlen, ssl->ivlen);
+
     } else {
         key1 = keyblk + ssl->maclen * 2 + ssl->keylen;
         key2 = keyblk + ssl->maclen * 2;
@@ -10262,14 +10152,14 @@ void ssl_calc_verify(ssl_context * ssl, uchar hash[36])
         sha1_update(&sha1, pad_2, 40);
         sha1_update(&sha1, hash + 16, 20);
         sha1_finish(&sha1, hash + 16);
-    } else {        /* TLSv1 */
+
+    } else {
+        /* TLSv1 */
         md5_finish(&md5, hash);
         sha1_finish(&sha1, hash + 16);
     }
-
     SSL_DEBUG_BUF(3, "calculated verify result", hash, 36);
     SSL_DEBUG_MSG(2, ("<= calc verify"));
-
     return;
 }
 
@@ -10342,7 +10232,7 @@ static int ssl_encrypt_buf(ssl_context * ssl)
     SSL_DEBUG_MSG(2, ("=> encrypt buf"));
 
     /*
-     * Add MAC then encrypt
+        Add MAC then encrypt
      */
     if (ssl->minor_ver == SSL_MINOR_VERSION_0) {
         if (ssl->maclen == 16) {
@@ -10380,12 +10270,12 @@ static int ssl_encrypt_buf(ssl_context * ssl)
 #endif
     } else {
         padlen = ssl->ivlen - (ssl->out_msglen + 1) % ssl->ivlen;
-        if (padlen == ssl->ivlen)
+        if (padlen == ssl->ivlen) {
             padlen = 0;
-
-        for (i = 0; i <= padlen; i++)
+        }
+        for (i = 0; i <= padlen; i++) {
             ssl->out_msg[ssl->out_msglen + i] = (uchar)padlen;
-
+        }
         ssl->out_msglen += padlen + 1;
 
         SSL_DEBUG_MSG(3, ("before encrypt: msglen = %d, " "including %d bytes of padding", ssl->out_msglen, padlen + 1));
@@ -10419,7 +10309,6 @@ static int ssl_encrypt_buf(ssl_context * ssl)
                 break;
             }
 #endif
-
         default:
             return EST_ERR_SSL_FEATURE_UNAVAILABLE;
         }
@@ -10427,6 +10316,7 @@ static int ssl_encrypt_buf(ssl_context * ssl)
     SSL_DEBUG_MSG(2, ("<= encrypt buf"));
     return 0;
 }
+
 
 static int ssl_decrypt_buf(ssl_context * ssl)
 {
@@ -10439,7 +10329,6 @@ static int ssl_decrypt_buf(ssl_context * ssl)
         SSL_DEBUG_MSG(1, ("in_msglen (%d) < minlen (%d)", ssl->in_msglen, ssl->minlen));
         return EST_ERR_SSL_INVALID_MAC;
     }
-
     if (ssl->ivlen == 0) {
 #if BIT_EST_RC4
         padlen = 0;
@@ -10449,13 +10338,12 @@ static int ssl_decrypt_buf(ssl_context * ssl)
 #endif
     } else {
         /*
-         * Decrypt and check the padding
+            Decrypt and check the padding
          */
         if (ssl->in_msglen % ssl->ivlen != 0) {
             SSL_DEBUG_MSG(1, ("msglen (%d) %% ivlen (%d) != 0", ssl->in_msglen, ssl->ivlen));
             return EST_ERR_SSL_INVALID_MAC;
         }
-
         switch (ssl->ivlen) {
 #if BIT_EST_DES
         case 8:
@@ -10484,11 +10372,9 @@ static int ssl_decrypt_buf(ssl_context * ssl)
                 break;
             }
 #endif
-
         default:
             return EST_ERR_SSL_FEATURE_UNAVAILABLE;
         }
-
         padlen = 1 + ssl->in_msg[ssl->in_msglen - 1];
 
         if (ssl->minor_ver == SSL_MINOR_VERSION_0) {
@@ -10498,7 +10384,7 @@ static int ssl_decrypt_buf(ssl_context * ssl)
             }
         } else {
             /*
-             * TLSv1: always check the padding
+                TLSv1: always check the padding
              */
             for (i = 1; i <= padlen; i++) {
                 if (ssl->in_msg[ssl->in_msglen - i] != padlen - 1) {
@@ -10522,15 +10408,17 @@ static int ssl_decrypt_buf(ssl_context * ssl)
     memcpy(tmp, ssl->in_msg + ssl->in_msglen, 20);
 
     if (ssl->minor_ver == SSL_MINOR_VERSION_0) {
-        if (ssl->maclen == 16)
+        if (ssl->maclen == 16) {
             ssl_mac_md5(ssl->mac_dec, ssl->in_msg, ssl->in_msglen, ssl->in_ctr, ssl->in_msgtype);
-        else
+        } else {
             ssl_mac_sha1(ssl->mac_dec, ssl->in_msg, ssl->in_msglen, ssl->in_ctr, ssl->in_msgtype);
+        }
     } else {
-        if (ssl->maclen == 16)
+        if (ssl->maclen == 16) {
             md5_hmac(ssl->mac_dec, 16, ssl->in_ctr, ssl->in_msglen + 13, ssl->in_msg + ssl->in_msglen);
-        else
+        } else {
             sha1_hmac(ssl->mac_dec, 20, ssl->in_ctr, ssl->in_msglen + 13, ssl->in_msg + ssl->in_msglen);
+        }
     }
     SSL_DEBUG_BUF(4, "message  mac", tmp, ssl->maclen);
     SSL_DEBUG_BUF(4, "computed mac", ssl->in_msg + ssl->in_msglen, ssl->maclen);
@@ -10543,12 +10431,12 @@ static int ssl_decrypt_buf(ssl_context * ssl)
     /*
         Finally check the padding length; bad padding will produce the same error as an invalid MAC.
      */
-    if (ssl->ivlen != 0 && padlen == 0)
+    if (ssl->ivlen != 0 && padlen == 0) {
         return EST_ERR_SSL_INVALID_MAC;
+    }
 
     if (ssl->in_msglen == 0) {
         ssl->nb_zero++;
-
         /*
             Three or more empty messages may be a DoS attack (excessive CPU consumption).
          */
@@ -10559,10 +10447,11 @@ static int ssl_decrypt_buf(ssl_context * ssl)
     } else
         ssl->nb_zero = 0;
 
-    for (i = 7; i >= 0; i--)
-        if (++ssl->in_ctr[i] != 0)
+    for (i = 7; i >= 0; i--) {
+        if (++ssl->in_ctr[i] != 0) {
             break;
-
+        }
+    }
     SSL_DEBUG_MSG(2, ("<= decrypt buf"));
     return 0;
 }
@@ -10611,9 +10500,9 @@ int ssl_flush_output(ssl_context * ssl)
         ret = ssl->f_send(ssl->p_send, buf, ssl->out_left);
         SSL_DEBUG_RET(2, "ssl->f_send", ret);
 
-        if (ret <= 0)
+        if (ret <= 0) {
             return ret;
-
+        }
         ssl->out_left -= ret;
     }
     SSL_DEBUG_MSG(2, ("<= flush output"));
@@ -10640,7 +10529,6 @@ int ssl_write_record(ssl_context * ssl)
         ssl->out_msg[1] = (uchar)((len - 4) >> 16);
         ssl->out_msg[2] = (uchar)((len - 4) >> 8);
         ssl->out_msg[3] = (uchar)((len - 4));
-
         md5_update(&ssl->fin_md5, ssl->out_msg, len);
         sha1_update(&ssl->fin_sha1, ssl->out_msg, len);
     }
@@ -10710,7 +10598,6 @@ int ssl_read_record(ssl_context * ssl)
         SSL_DEBUG_RET(3, "ssl_fetch_input", ret);
         return ret;
     }
-
     ssl->in_msgtype = ssl->in_hdr[0];
     ssl->in_msglen = (ssl->in_hdr[3] << 8) | ssl->in_hdr[4];
 
@@ -10721,14 +10608,12 @@ int ssl_read_record(ssl_context * ssl)
         SSL_DEBUG_MSG(1, ("major version mismatch"));
         return EST_ERR_SSL_INVALID_RECORD;
     }
-
     if (ssl->in_hdr[2] != SSL_MINOR_VERSION_0 && ssl->in_hdr[2] != SSL_MINOR_VERSION_1) {
         SSL_DEBUG_MSG(1, ("minor version mismatch"));
         return EST_ERR_SSL_INVALID_RECORD;
     }
-
     /*
-     * Make sure the message length is acceptable
+        Make sure the message length is acceptable
      */
     if (ssl->do_crypt == 0) {
         if (ssl->in_msglen < 1 || ssl->in_msglen > SSL_MAX_CONTENT_LEN) {
@@ -10740,15 +10625,12 @@ int ssl_read_record(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("bad message length"));
             return EST_ERR_SSL_INVALID_RECORD;
         }
-
-        if (ssl->minor_ver == SSL_MINOR_VERSION_0 &&
-            ssl->in_msglen > ssl->minlen + SSL_MAX_CONTENT_LEN) {
+        if (ssl->minor_ver == SSL_MINOR_VERSION_0 && ssl->in_msglen > ssl->minlen + SSL_MAX_CONTENT_LEN) {
             SSL_DEBUG_MSG(1, ("bad message length"));
             return EST_ERR_SSL_INVALID_RECORD;
         }
-
         /*
-         * TLS encrypted messages can have up to 256 bytes of padding
+            TLS encrypted messages can have up to 256 bytes of padding
          */
         if (ssl->minor_ver == SSL_MINOR_VERSION_1 &&
             ssl->in_msglen > ssl->minlen + SSL_MAX_CONTENT_LEN + 256) {
@@ -10763,7 +10645,6 @@ int ssl_read_record(ssl_context * ssl)
         SSL_DEBUG_RET(3, "ssl_fetch_input", ret);
         return ret;
     }
-
     SSL_DEBUG_BUF(4, "input record from network", ssl->in_hdr, 5 + ssl->in_msglen);
 
     if (ssl->do_crypt != 0) {
@@ -10810,8 +10691,7 @@ int ssl_read_record(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("is a fatal alert message"));
             return EST_ERR_SSL_FATAL_ALERT_MESSAGE | ssl->in_msg[1];
         }
-        if (ssl->in_msg[0] == SSL_ALERT_WARNING &&
-            ssl->in_msg[1] == SSL_ALERT_CLOSE_NOTIFY) {
+        if (ssl->in_msg[0] == SSL_ALERT_WARNING && ssl->in_msg[1] == SSL_ALERT_CLOSE_NOTIFY) {
             SSL_DEBUG_MSG(2, ("is a close notify message"));
             return EST_ERR_SSL_PEER_CLOSE_NOTIFY;
         }
@@ -10860,13 +10740,13 @@ int ssl_write_certificate(ssl_context * ssl)
     SSL_DEBUG_CRT(3, "own certificate", ssl->own_cert);
 
     /*
-     *     0  .  0    handshake type
-     *     1  .  3    handshake length
-     *     4  .  6    length of all certs
-     *     7  .  9    length of cert. 1
-     *    10  . n-1   peer certificate
-     *     n  . n+2   length of cert. 2
-     *    n+3 . ...   upper level cert, etc.
+           0  .  0    handshake type
+           1  .  3    handshake length
+           4  .  6    length of all certs
+           7  .  9    length of cert. 1
+          10  . n-1   peer certificate
+           n  . n+2   length of cert. 2
+          n+3 . ...   upper level cert, etc.
      */
     i = 7;
     crt = ssl->own_cert;
@@ -10895,7 +10775,6 @@ int ssl_write_certificate(ssl_context * ssl)
 
 write_msg:
     ssl->state++;
-
     if ((ret = ssl_write_record(ssl)) != 0) {
         SSL_DEBUG_RET(1, "ssl_write_record", ret);
         return ret;
@@ -10923,43 +10802,40 @@ int ssl_parse_certificate(ssl_context * ssl)
     ssl->state++;
 
     /*
-     * Check if the client sent an empty certificate
+       Check if the client sent an empty certificate
      */
-    if (ssl->endpoint == SSL_IS_SERVER &&
-        ssl->minor_ver == SSL_MINOR_VERSION_0) {
+    if (ssl->endpoint == SSL_IS_SERVER && ssl->minor_ver == SSL_MINOR_VERSION_0) {
         if (ssl->in_msglen == 2 &&
             ssl->in_msgtype == SSL_MSG_ALERT &&
             ssl->in_msg[0] == SSL_ALERT_WARNING &&
             ssl->in_msg[1] == SSL_ALERT_NO_CERTIFICATE) {
             SSL_DEBUG_MSG(1, ("SSLv3 client has no certificate"));
 
-            if (ssl->authmode == SSL_VERIFY_OPTIONAL)
+            if (ssl->authmode == SSL_VERIFY_OPTIONAL) {
                 return 0;
-            else
+            } else {
                 return EST_ERR_SSL_NO_CLIENT_CERTIFICATE;
+            }
         }
     }
-
-    if (ssl->endpoint == SSL_IS_SERVER &&
-        ssl->minor_ver != SSL_MINOR_VERSION_0) {
+    if (ssl->endpoint == SSL_IS_SERVER && ssl->minor_ver != SSL_MINOR_VERSION_0) {
         if (ssl->in_hslen == 7 &&
             ssl->in_msgtype == SSL_MSG_HANDSHAKE &&
             ssl->in_msg[0] == SSL_HS_CERTIFICATE &&
             memcmp(ssl->in_msg + 4, "\0\0\0", 3) == 0) {
             SSL_DEBUG_MSG(1, ("TLSv1 client has no certificate"));
 
-            if (ssl->authmode == SSL_VERIFY_REQUIRED)
+            if (ssl->authmode == SSL_VERIFY_REQUIRED) {
                 return EST_ERR_SSL_NO_CLIENT_CERTIFICATE;
-            else
+            } else {
                 return 0;
+            }
         }
     }
-
     if (ssl->in_msgtype != SSL_MSG_HANDSHAKE) {
         SSL_DEBUG_MSG(1, ("bad certificate message"));
         return EST_ERR_SSL_UNEXPECTED_MESSAGE;
     }
-
     if (ssl->in_msg[0] != SSL_HS_CERTIFICATE || ssl->in_hslen < 10) {
         SSL_DEBUG_MSG(1, ("bad certificate message"));
         return EST_ERR_SSL_BAD_HS_CERTIFICATE;
@@ -10974,7 +10850,6 @@ int ssl_parse_certificate(ssl_context * ssl)
         SSL_DEBUG_MSG(1, ("bad certificate message"));
         return EST_ERR_SSL_BAD_HS_CERTIFICATE;
     }
-
     if ((ssl->peer_cert = (x509_cert *) malloc(sizeof(x509_cert))) == NULL) {
         SSL_DEBUG_MSG(1, ("malloc(%d bytes) failed", sizeof(x509_cert)));
         return 1;
@@ -10987,8 +10862,7 @@ int ssl_parse_certificate(ssl_context * ssl)
             SSL_DEBUG_MSG(1, ("bad certificate message"));
             return EST_ERR_SSL_BAD_HS_CERTIFICATE;
         }
-        n = ((uint)ssl->in_msg[i + 1] << 8)
-            | (uint)ssl->in_msg[i + 2];
+        n = ((uint)ssl->in_msg[i + 1] << 8) | (uint)ssl->in_msg[i + 2];
         i += 3;
 
         if (n < 128 || i + n > ssl->in_hslen) {
@@ -11032,7 +10906,6 @@ int ssl_write_change_cipher_spec(ssl_context * ssl)
     ssl->out_msgtype = SSL_MSG_CHANGE_CIPHER_SPEC;
     ssl->out_msglen = 1;
     ssl->out_msg[0] = 1;
-
     ssl->do_crypt = 0;
     ssl->state++;
 
@@ -11081,16 +10954,16 @@ static void ssl_calc_finished(ssl_context * ssl, uchar *buf, int from, md5_conte
     SSL_DEBUG_MSG(2, ("=> calc  finished"));
 
     /*
-     * SSLv3:
-     *   hash =
-     *      MD5( master + pad2 +
-     *          MD5( handshake + sender + master + pad1 ) )
-     *   + SHA1( master + pad2 +
-     *         SHA1( handshake + sender + master + pad1 ) )
-     *
-     * TLSv1:
-     *   hash = PRF( master, finished_label,
-     *               MD5( handshake ) + SHA1( handshake ) )[0..11]
+       SSLv3:
+         hash =
+            MD5( master + pad2 +
+                MD5( handshake + sender + master + pad1 ) )
+         + SHA1( master + pad2 +
+               SHA1( handshake + sender + master + pad1 ) )
+      
+       TLSv1:
+         hash = PRF( master, finished_label,
+                     MD5( handshake ) + SHA1( handshake ) )[0..11]
      */
 
     SSL_DEBUG_BUF(4, "finished  md5 state", (uchar *) md5->state, sizeof(md5->state));
@@ -11163,17 +11036,18 @@ int ssl_write_finished(ssl_context * ssl)
     ssl->out_msg[0] = SSL_HS_FINISHED;
 
     /*
-     * In case of session resuming, invert the client and server
-     * ChangeCipherSpec messages order.
+       In case of session resuming, invert the client and server
+       ChangeCipherSpec messages order.
      */
     if (ssl->resume != 0) {
-        if (ssl->endpoint == SSL_IS_CLIENT)
+        if (ssl->endpoint == SSL_IS_CLIENT) {
             ssl->state = SSL_HANDSHAKE_OVER;
-        else
+        } else {
             ssl->state = SSL_CLIENT_CHANGE_CIPHER_SPEC;
-    } else
+        }
+    } else {
         ssl->state++;
-
+    }
     ssl->do_crypt = 1;
 
     if ((ret = ssl_write_record(ssl)) != 0) {
@@ -11222,14 +11096,15 @@ int ssl_parse_finished(ssl_context * ssl)
     }
 
     if (ssl->resume != 0) {
-        if (ssl->endpoint == SSL_IS_CLIENT)
+        if (ssl->endpoint == SSL_IS_CLIENT) {
             ssl->state = SSL_CLIENT_CHANGE_CIPHER_SPEC;
-
-        if (ssl->endpoint == SSL_IS_SERVER)
+        }
+        if (ssl->endpoint == SSL_IS_SERVER) {
             ssl->state = SSL_HANDSHAKE_OVER;
-    } else
+        }
+    } else {
         ssl->state++;
-
+    }
     SSL_DEBUG_MSG(2, ("<= parse finished"));
     return 0;
 }
@@ -11310,7 +11185,7 @@ static int setSession(ssl_context *ssl)
 
 
 /*
-   Initialize an SSL context
+    Initialize an SSL context
  */
 int ssl_init(ssl_context * ssl)
 {
@@ -11380,6 +11255,7 @@ void ssl_set_dbg(ssl_context * ssl, void (*f_dbg) (void *, int, char *), void *p
     ssl->p_dbg = p_dbg;
 }
 
+//  MOB - should have typedefs for the recv, send args
 void ssl_set_bio(ssl_context * ssl,
      int (*f_recv) (void *, uchar *, int), void *p_recv,
      int (*f_send) (void *, uchar *, int), void *p_send)
@@ -11444,9 +11320,9 @@ int ssl_set_dh_param(ssl_context * ssl, char *dhm_P, char *dhm_G)
 
 int ssl_set_hostname(ssl_context * ssl, char *hostname)
 {
-    if (hostname == NULL)
+    if (hostname == NULL) {
         return EST_ERR_SSL_BAD_INPUT_DATA;
-
+    }
     ssl->hostname_len = strlen(hostname);
     ssl->hostname = (uchar *)malloc(ssl->hostname_len + 1);
     memcpy(ssl->hostname, (uchar *)hostname, ssl->hostname_len);
@@ -11455,7 +11331,7 @@ int ssl_set_hostname(ssl_context * ssl, char *hostname)
 
 
 /*
-   SSL get accessors
+    SSL get accessors
  */
 int ssl_get_bytes_avail(ssl_context * ssl)
 {
@@ -11574,8 +11450,7 @@ int ssl_read(ssl_context * ssl, uchar *buf, int len)
             SSL_DEBUG_RET(3, "ssl_read_record", ret);
             return ret;
         }
-        if (ssl->in_msglen == 0 &&
-            ssl->in_msgtype == SSL_MSG_APPLICATION_DATA) {
+        if (ssl->in_msglen == 0 && ssl->in_msgtype == SSL_MSG_APPLICATION_DATA) {
             /*
                OpenSSL sends empty messages to randomize the IV
                MOB - why does this matter?
@@ -11585,27 +11460,24 @@ int ssl_read(ssl_context * ssl, uchar *buf, int len)
                 return ret;
             }
         }
-
         if (ssl->in_msgtype != SSL_MSG_APPLICATION_DATA) {
             SSL_DEBUG_MSG(1, ("bad application data message"));
             return EST_ERR_SSL_UNEXPECTED_MESSAGE;
         }
-
         ssl->in_offt = ssl->in_msg;
     }
-
     n = (len < ssl->in_msglen) ? len : ssl->in_msglen;
 
     memcpy(buf, ssl->in_offt, n);
     ssl->in_msglen -= n;
 
-    if (ssl->in_msglen == 0)
+    if (ssl->in_msglen == 0) {
         /* all bytes consumed  */
         ssl->in_offt = NULL;
-    else
+    } else {
         /* more data available */
         ssl->in_offt += n;
-
+    }
     SSL_DEBUG_MSG(2, ("<= read"));
     return n;
 }
@@ -12044,29 +11916,30 @@ void m_sleep(int milliseconds)
 #if BIT_EST_X509
 
 /*
- * ASN.1 DER decoding routines
+    ASN.1 DER decoding routines
  */
 static int asn1_get_len(uchar **p, uchar *end, int *len)
 {
-    if ((end - *p) < 1)
+    if ((end - *p) < 1) {
         return EST_ERR_ASN1_OUT_OF_DATA;
+    }
 
-    if ((**p & 0x80) == 0)
+    if ((**p & 0x80) == 0) {
         *len = *(*p)++;
-    else {
+    } else {
         switch (**p & 0x7F) {
         case 1:
-            if ((end - *p) < 2)
+            if ((end - *p) < 2) {
                 return EST_ERR_ASN1_OUT_OF_DATA;
-
+            }
             *len = (*p)[1];
             (*p) += 2;
             break;
 
         case 2:
-            if ((end - *p) < 3)
+            if ((end - *p) < 3) {
                 return EST_ERR_ASN1_OUT_OF_DATA;
-
+            }
             *len = ((*p)[1] << 8) | (*p)[2];
             (*p) += 3;
             break;
@@ -12076,19 +11949,18 @@ static int asn1_get_len(uchar **p, uchar *end, int *len)
             break;
         }
     }
-
-    if (*len > (int)(end - *p))
+    if (*len > (int)(end - *p)) {
         return EST_ERR_ASN1_OUT_OF_DATA;
-
+    }
     return 0;
 }
 
 
 static int asn1_get_tag(uchar **p, uchar *end, int *len, int tag)
 {
-    if ((end - *p) < 1)
+    if ((end - *p) < 1) {
         return EST_ERR_ASN1_OUT_OF_DATA;
-
+    }
     if (**p != tag) {
         return EST_ERR_ASN1_UNEXPECTED_TAG;
     }
@@ -12144,29 +12016,28 @@ static int asn1_get_mpi(uchar **p, uchar *end, mpi * X)
     return ret;
 }
 
+
 /*
- *  Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
+    Version  ::=  INTEGER  {  v1(0), v2(1), v3(2)  }
  */
 static int x509_get_version(uchar **p, uchar *end, int *ver)
 {
     int ret, len;
 
-    if ((ret = asn1_get_tag(p, end, &len,
-                EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_CONSTRUCTED | 0))
-        != 0) {
-        if (ret == EST_ERR_ASN1_UNEXPECTED_TAG)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_CONSTRUCTED | 0)) != 0) {
+        if (ret == EST_ERR_ASN1_UNEXPECTED_TAG) {
             return *ver = 0;
-
+        }
         return ret;
     }
     end = *p + len;
 
-    if ((ret = asn1_get_int(p, end, ver)) != 0)
+    if ((ret = asn1_get_int(p, end, ver)) != 0) {
         return EST_ERR_X509_CERT_INVALID_VERSION | ret;
-
-    if (*p != end)
+    }
+    if (*p != end) {
         return EST_ERR_X509_CERT_INVALID_VERSION | EST_ERR_ASN1_LENGTH_MISMATCH;
-
+    }
     return 0;
 }
 
@@ -12178,69 +12049,72 @@ static int x509_get_serial(uchar **p, uchar *end, x509_buf * serial)
 {
     int ret;
 
-    if ((end - *p) < 1)
+    if ((end - *p) < 1) {
         return EST_ERR_X509_CERT_INVALID_SERIAL | EST_ERR_ASN1_OUT_OF_DATA;
-
-    if (**p != (EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_PRIMITIVE | 2) &&
-        **p != EST_ASN1_INTEGER)
+    }
+    if (**p != (EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_PRIMITIVE | 2) && **p != EST_ASN1_INTEGER) {
         return EST_ERR_X509_CERT_INVALID_SERIAL | EST_ERR_ASN1_UNEXPECTED_TAG;
-
+    }
     serial->tag = *(*p)++;
 
-    if ((ret = asn1_get_len(p, end, &serial->len)) != 0)
+    if ((ret = asn1_get_len(p, end, &serial->len)) != 0) {
         return EST_ERR_X509_CERT_INVALID_SERIAL | ret;
-
+    }
     serial->p = *p;
     *p += serial->len;
     return 0;
 }
 
+
 /*
- *  AlgorithmIdentifier  ::=  SEQUENCE  {
- *       algorithm               OBJECT IDENTIFIER,
- *       parameters              ANY DEFINED BY algorithm OPTIONAL  }
+    AlgorithmIdentifier  ::=  SEQUENCE  {
+         algorithm               OBJECT IDENTIFIER,
+         parameters              ANY DEFINED BY algorithm OPTIONAL  }
  */
 static int x509_get_alg(uchar **p, uchar *end, x509_buf * alg)
 {
     int ret, len;
 
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         return EST_ERR_X509_CERT_INVALID_ALG | ret;
-
+    }
     end = *p + len;
     alg->tag = **p;
 
-    if ((ret = asn1_get_tag(p, end, &alg->len, EST_ASN1_OID)) != 0)
+    if ((ret = asn1_get_tag(p, end, &alg->len, EST_ASN1_OID)) != 0) {
         return EST_ERR_X509_CERT_INVALID_ALG | ret;
-
+    }
     alg->p = *p;
     *p += alg->len;
 
-    if (*p == end)
+    if (*p == end) {
         return 0;
+    }
 
     /*
-     * assume the algorithm parameters must be NULL
+        assume the algorithm parameters must be NULL
      */
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_NULL)) != 0)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_NULL)) != 0) {
         return EST_ERR_X509_CERT_INVALID_ALG | ret;
-
-    if (*p != end)
+    }
+    if (*p != end) {
         return EST_ERR_X509_CERT_INVALID_ALG | EST_ERR_ASN1_LENGTH_MISMATCH;
+    }
     return 0;
 }
 
+
 /*
- *  RelativeDistinguishedName ::=
- *    SET OF AttributeTypeAndValue
- *
- *  AttributeTypeAndValue ::= SEQUENCE {
- *    type     AttributeType,
- *    value    AttributeValue }
- *
- *  AttributeType ::= OBJECT IDENTIFIER
- *
- *  AttributeValue ::= ANY DEFINED BY AttributeType
+    RelativeDistinguishedName ::=
+      SET OF AttributeTypeAndValue
+  
+    AttributeTypeAndValue ::= SEQUENCE {
+      type     AttributeType,
+      value    AttributeValue }
+  
+    AttributeType ::= OBJECT IDENTIFIER
+  
+    AttributeValue ::= ANY DEFINED BY AttributeType
  */
 static int x509_get_name(uchar **p, uchar *end, x509_name * cur)
 {
@@ -12249,55 +12123,57 @@ static int x509_get_name(uchar **p, uchar *end, x509_name * cur)
     x509_buf *oid;
     x509_buf *val;
 
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SET)) != 0)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SET)) != 0) {
         return EST_ERR_X509_CERT_INVALID_NAME | ret;
-
+    }
     end2 = end;
     end = *p + len;
 
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         return EST_ERR_X509_CERT_INVALID_NAME | ret;
-
-    if (*p + len != end)
+    }
+    if (*p + len != end) {
         return EST_ERR_X509_CERT_INVALID_NAME | EST_ERR_ASN1_LENGTH_MISMATCH;
-
+    }
     oid = &cur->oid;
     oid->tag = **p;
 
-    if ((ret = asn1_get_tag(p, end, &oid->len, EST_ASN1_OID)) != 0)
+    if ((ret = asn1_get_tag(p, end, &oid->len, EST_ASN1_OID)) != 0) {
         return EST_ERR_X509_CERT_INVALID_NAME | ret;
-
+    }
     oid->p = *p;
     *p += oid->len;
 
-    if ((end - *p) < 1)
+    if ((end - *p) < 1) {
         return EST_ERR_X509_CERT_INVALID_NAME | EST_ERR_ASN1_OUT_OF_DATA;
-
+    }
     if (**p != EST_ASN1_BMP_STRING && **p != EST_ASN1_UTF8_STRING &&
-        **p != EST_ASN1_T61_STRING && **p != EST_ASN1_PRINTABLE_STRING &&
-        **p != EST_ASN1_IA5_STRING && **p != EST_ASN1_UNIVERSAL_STRING)
+            **p != EST_ASN1_T61_STRING && **p != EST_ASN1_PRINTABLE_STRING &&
+            **p != EST_ASN1_IA5_STRING && **p != EST_ASN1_UNIVERSAL_STRING) {
         return EST_ERR_X509_CERT_INVALID_NAME | EST_ERR_ASN1_UNEXPECTED_TAG;
+    }
 
     val = &cur->val;
     val->tag = *(*p)++;
 
-    if ((ret = asn1_get_len(p, end, &val->len)) != 0)
+    if ((ret = asn1_get_len(p, end, &val->len)) != 0) {
         return EST_ERR_X509_CERT_INVALID_NAME | ret;
-
+    }
     val->p = *p;
     *p += val->len;
 
     cur->next = NULL;
 
-    if (*p != end)
+    if (*p != end) {
         return EST_ERR_X509_CERT_INVALID_NAME | EST_ERR_ASN1_LENGTH_MISMATCH;
+    }
 
     /*
-     * recurse until end of SEQUENCE is reached
+       recurse until end of SEQUENCE is reached
      */
-    if (*p == end2)
+    if (*p == end2) {
         return 0;
-
+    }
     cur->next = (x509_name *) malloc(sizeof(x509_name));
 
     if (cur->next == NULL) {
@@ -12363,56 +12239,55 @@ static int x509_get_dates(uchar **p, uchar *end, x509_time *from, x509_time *to)
 
 
 /*
- *  SubjectPublicKeyInfo  ::=  SEQUENCE  {
- *       algorithm            AlgorithmIdentifier,
- *       subjectPublicKey     BIT STRING }
+    SubjectPublicKeyInfo  ::=  SEQUENCE  {
+         algorithm            AlgorithmIdentifier,
+         subjectPublicKey     BIT STRING }
  */
 static int x509_get_pubkey(uchar **p, uchar *end, x509_buf * pk_alg_oid, mpi * N, mpi * E)
 {
     int ret, len;
     uchar *end2;
 
-    if ((ret = x509_get_alg(p, end, pk_alg_oid)) != 0)
+    if ((ret = x509_get_alg(p, end, pk_alg_oid)) != 0) {
         return ret;
+    }
 
     /*
      * only RSA public keys handled at this time
      */
-    if (pk_alg_oid->len != 9 ||
-        memcmp(pk_alg_oid->p, OID_PKCS1_RSA, 9) != 0)
+    if (pk_alg_oid->len != 9 || memcmp(pk_alg_oid->p, OID_PKCS1_RSA, 9) != 0) {
         return EST_ERR_X509_CERT_UNKNOWN_PK_ALG;
-
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_BIT_STRING)) != 0)
+    }
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_BIT_STRING)) != 0) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | ret;
-
-    if ((end - *p) < 1)
+    }
+    if ((end - *p) < 1) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | EST_ERR_ASN1_OUT_OF_DATA;
-
+    }
     end2 = *p + len;
 
-    if (*(*p)++ != 0)
+    if (*(*p)++ != 0) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY;
+    }
 
     /*
-     *      RSAPublicKey ::= SEQUENCE {
-     *              modulus                   INTEGER,      -- n
-     *              publicExponent    INTEGER       -- e
-     *      }
+            RSAPublicKey ::= SEQUENCE {
+                    modulus                   INTEGER,      -- n
+                    publicExponent    INTEGER       -- e
+            }
      */
-    if ((ret = asn1_get_tag(p, end2, &len,
-                EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0)
+    if ((ret = asn1_get_tag(p, end2, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | ret;
-
-    if (*p + len != end2)
+    }
+    if (*p + len != end2) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | EST_ERR_ASN1_LENGTH_MISMATCH;
-
-    if ((ret = asn1_get_mpi(p, end2, N)) != 0 ||
-        (ret = asn1_get_mpi(p, end2, E)) != 0)
+    }
+    if ((ret = asn1_get_mpi(p, end2, N)) != 0 || (ret = asn1_get_mpi(p, end2, E)) != 0) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | ret;
-
-    if (*p != end)
+    }
+    if (*p != end) {
         return EST_ERR_X509_CERT_INVALID_PUBKEY | EST_ERR_ASN1_LENGTH_MISMATCH;
-
+    }
     return 0;
 }
 
@@ -12423,12 +12298,12 @@ static int x509_get_sig(uchar **p, uchar *end, x509_buf * sig)
 
     sig->tag = **p;
 
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_BIT_STRING)) != 0)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_BIT_STRING)) != 0) {
         return EST_ERR_X509_CERT_INVALID_SIGNATURE | ret;
-
-    if (--len < 1 || *(*p)++ != 0)
+    }
+    if (--len < 1 || *(*p)++ != 0) {
         return EST_ERR_X509_CERT_INVALID_SIGNATURE;
-
+    }
     sig->len = len;
     sig->p = *p;
     *p += len;
@@ -12443,28 +12318,25 @@ static int x509_get_uid(uchar **p, uchar *end, x509_buf * uid, int n)
 {
     int ret;
 
-    if (*p == end)
+    if (*p == end) {
         return 0;
-
+    }
     uid->tag = **p;
 
-    if ((ret = asn1_get_tag(p, end, &uid->len,
-                EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_CONSTRUCTED | n))
-        != 0) {
-        if (ret == EST_ERR_ASN1_UNEXPECTED_TAG)
+    if ((ret = asn1_get_tag(p, end, &uid->len, EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_CONSTRUCTED | n)) != 0) {
+        if (ret == EST_ERR_ASN1_UNEXPECTED_TAG) {
             return 0;
-
+        }
         return ret;
     }
-
     uid->p = *p;
     *p += uid->len;
-
     return 0;
 }
 
+
 /*
- * X.509 v3 extensions (only BasicConstraints are parsed)
+   X.509 v3 extensions (only BasicConstraints are parsed)
  */
 static int x509_get_ext(uchar **p, uchar *end, x509_buf * ext, int *ca_istrue, int *max_pathlen)
 {
@@ -12473,38 +12345,39 @@ static int x509_get_ext(uchar **p, uchar *end, x509_buf * ext, int *ca_istrue, i
     int is_cacert = 0;
     uchar *end2;
 
-    if (*p == end)
+    if (*p == end) {
         return 0;
-
+    }
     ext->tag = **p;
 
     if ((ret = asn1_get_tag(p, end, &ext->len, EST_ASN1_CONTEXT_SPECIFIC | EST_ASN1_CONSTRUCTED | 3)) != 0) {
-        if (ret == EST_ERR_ASN1_UNEXPECTED_TAG)
+        if (ret == EST_ERR_ASN1_UNEXPECTED_TAG) {
             return 0;
+        }
         return ret;
     }
-
     ext->p = *p;
     end = *p + ext->len;
 
     /*
-     * Extensions  ::=      SEQUENCE SIZE (1..MAX) OF Extension
-     *
-     * Extension  ::=  SEQUENCE      {
-     *              extnID          OBJECT IDENTIFIER,
-     *              critical        BOOLEAN DEFAULT FALSE,
-     *              extnValue       OCTET STRING  }
+       Extensions  ::=      SEQUENCE SIZE (1..MAX) OF Extension
+      
+       Extension  ::=  SEQUENCE      {
+                    extnID          OBJECT IDENTIFIER,
+                    critical        BOOLEAN DEFAULT FALSE,
+                    extnValue       OCTET STRING  }
      */
-    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0)
+    if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
-    if (end != *p + len)
+    }
+    if (end != *p + len) {
         return EST_ERR_X509_CERT_INVALID_EXTENSIONS | EST_ERR_ASN1_LENGTH_MISMATCH;
+    }
 
     while (*p < end) {
-        if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0)
+        if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
             return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
+        }
         if (memcmp(*p, "\x06\x03\x55\x1D\x13", 5) != 0) {
             *p += len;
             continue;
@@ -12512,57 +12385,58 @@ static int x509_get_ext(uchar **p, uchar *end, x509_buf * ext, int *ca_istrue, i
 
         *p += 5;
 
-        if ((ret = asn1_get_bool(p, end, &is_critical)) != 0 && (ret != EST_ERR_ASN1_UNEXPECTED_TAG))
+        if ((ret = asn1_get_bool(p, end, &is_critical)) != 0 && (ret != EST_ERR_ASN1_UNEXPECTED_TAG)) {
             return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
-        if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_OCTET_STRING)) != 0)
+        }
+        if ((ret = asn1_get_tag(p, end, &len, EST_ASN1_OCTET_STRING)) != 0) {
             return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
+        }
         /*
-         * BasicConstraints ::= SEQUENCE {
-         *              cA                                              BOOLEAN DEFAULT FALSE,
-         *              pathLenConstraint               INTEGER (0..MAX) OPTIONAL }
+           BasicConstraints ::= SEQUENCE {
+                        cA                                              BOOLEAN DEFAULT FALSE,
+                        pathLenConstraint               INTEGER (0..MAX) OPTIONAL }
          */
         end2 = *p + len;
 
-        if ((ret = asn1_get_tag(p, end2, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0)
+        if ((ret = asn1_get_tag(p, end2, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
             return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
-        if (*p == end2)
-            continue;
-
-        if ((ret = asn1_get_bool(p, end2, &is_cacert)) != 0) {
-            if (ret == EST_ERR_ASN1_UNEXPECTED_TAG)
-                ret = asn1_get_int(p, end2, &is_cacert);
-
-            if (ret != 0)
-                return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
-            if (is_cacert != 0)
-                is_cacert = 1;
         }
-
-        if (*p == end2)
+        if (*p == end2) {
             continue;
-
-        if ((ret = asn1_get_int(p, end2, max_pathlen)) != 0)
+        }
+        if ((ret = asn1_get_bool(p, end2, &is_cacert)) != 0) {
+            if (ret == EST_ERR_ASN1_UNEXPECTED_TAG) {
+                ret = asn1_get_int(p, end2, &is_cacert);
+            }
+            if (ret != 0) {
+                return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
+            }
+            if (is_cacert != 0) {
+                is_cacert = 1;
+            }
+        }
+        if (*p == end2) {
+            continue;
+        }
+        if ((ret = asn1_get_int(p, end2, max_pathlen)) != 0) {
             return EST_ERR_X509_CERT_INVALID_EXTENSIONS | ret;
-
-        if (*p != end2)
+        }
+        if (*p != end2) {
             return EST_ERR_X509_CERT_INVALID_EXTENSIONS | EST_ERR_ASN1_LENGTH_MISMATCH;
-
+        }
         max_pathlen++;
     }
 
-    if (*p != end)
+    if (*p != end) {
         return EST_ERR_X509_CERT_INVALID_EXTENSIONS | EST_ERR_ASN1_LENGTH_MISMATCH;
-
+    }
     *ca_istrue = is_critical & is_cacert;
     return 0;
 }
 
+
 /*
- * Parse one or more certificates and add them to the chained list
+   Parse one or more certificates and add them to the chained list
  */
 int x509parse_crt(x509_cert * chain, uchar *buf, int buflen)
 {
@@ -12578,68 +12452,69 @@ int x509parse_crt(x509_cert * chain, uchar *buf, int buflen)
     }
 
     /*
-     * check if the certificate is encoded in base64
+       check if the certificate is encoded in base64
      */
     s1 = (uchar *)strstr((char *)buf, "-----BEGIN CERTIFICATE-----");
 
     if (s1 != NULL) {
         s2 = (uchar *)strstr((char *)buf, "-----END CERTIFICATE-----");
 
-        if (s2 == NULL || s2 <= s1)
+        if (s2 == NULL || s2 <= s1) {
             return EST_ERR_X509_CERT_INVALID_PEM;
-
+        }
         s1 += 27;
-        if (*s1 == '\r')
+        if (*s1 == '\r') {
             s1++;
-        if (*s1 == '\n')
+        }
+        if (*s1 == '\n') {
             s1++;
-        else
+        } else {
             return EST_ERR_X509_CERT_INVALID_PEM;
+        }
 
         /*
-         * get the DER data length and decode the buffer
+           get the DER data length and decode the buffer
          */
         len = 0;
         ret = base64_decode(NULL, &len, s1, s2 - s1);
 
-        if (ret == EST_ERR_BASE64_INVALID_CHARACTER)
+        if (ret == EST_ERR_BASE64_INVALID_CHARACTER) {
             return EST_ERR_X509_CERT_INVALID_PEM | ret;
-
-        if ((p = (uchar *)malloc(len)) == NULL)
+        }
+        if ((p = (uchar *)malloc(len)) == NULL) {
             return 1;
-
+        }
         if ((ret = base64_decode(p, &len, s1, s2 - s1)) != 0) {
             free(p);
             return EST_ERR_X509_CERT_INVALID_PEM | ret;
         }
 
         /*
-         * update the buffer size and offset
+            update the buffer size and offset
          */
         s2 += 25;
-        if (*s2 == '\r')
+        if (*s2 == '\r') {
             s2++;
-        if (*s2 == '\n')
+        }
+        if (*s2 == '\n') {
             s2++;
-        else {
+        } else {
             free(p);
             return EST_ERR_X509_CERT_INVALID_PEM;
         }
-
         oldbuf = buf;
         buflen -= s2 - buf;
         buf = s2;
+
     } else {
         /*
-         * nope, copy the raw DER data
+           nope, copy the raw DER data
          */
-        p = (uchar *)malloc(len = buflen);
-
-        if (p == NULL)
+        p = (uchar*) malloc(len = buflen);
+        if (p == NULL) {
             return 1;
-
+        }
         memcpy(p, buf, buflen);
-
         oldbuf = buf;
         buflen = 0;
     }
@@ -12649,40 +12524,37 @@ int x509parse_crt(x509_cert * chain, uchar *buf, int buflen)
     end = p + len;
 
     /*
-     * Certificate  ::=      SEQUENCE  {
-     *              tbsCertificate           TBSCertificate,
-     *              signatureAlgorithm       AlgorithmIdentifier,
-     *              signatureValue           BIT STRING      }
+       Certificate  ::=      SEQUENCE  {
+                    tbsCertificate           TBSCertificate,
+                    signatureAlgorithm       AlgorithmIdentifier,
+                    signatureValue           BIT STRING      }
      */
     if ((ret = asn1_get_tag(&p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT;
     }
-
     if (len != (int)(end - p)) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | EST_ERR_ASN1_LENGTH_MISMATCH;
     }
 
     /*
-     * TBSCertificate  ::=  SEQUENCE  {
+       TBSCertificate  ::=  SEQUENCE  {
      */
     crt->tbs.p = p;
-
     if ((ret = asn1_get_tag(&p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | ret;
     }
-
     end = p + len;
     crt->tbs.len = end - crt->tbs.p;
 
     /*
-     * Version      ::=      INTEGER  {      v1(0), v2(1), v3(2)  }
-     *
-     * CertificateSerialNumber      ::=      INTEGER
-     *
-     * signature                    AlgorithmIdentifier
+       Version      ::=      INTEGER  {      v1(0), v2(1), v3(2)  }
+      
+       CertificateSerialNumber      ::=      INTEGER
+      
+       signature                    AlgorithmIdentifier
      */
     if ((ret = x509_get_version(&p, end, &crt->version)) != 0 ||
         (ret = x509_get_serial(&p, end, &crt->serial)) != 0 ||
@@ -12690,14 +12562,11 @@ int x509parse_crt(x509_cert * chain, uchar *buf, int buflen)
         x509_free(crt);
         return ret;
     }
-
     crt->version++;
-
     if (crt->version > 3) {
         x509_free(crt);
         return EST_ERR_X509_CERT_UNKNOWN_VERSION;
     }
-
     if (crt->sig_oid1.len != 9 || memcmp(crt->sig_oid1.p, OID_PKCS1, 8) != 0) {
         x509_free(crt);
 #if UNUSED && MOB
@@ -12708,7 +12577,6 @@ if (buflen > 0) {
 #endif
         return EST_ERR_X509_CERT_UNKNOWN_SIG_ALG;
     }
-
     if (crt->sig_oid1.p[8] < 2 || crt->sig_oid1.p[8] > 5) {
         x509_free(crt);
 #if UNUSED && MOB
@@ -12719,29 +12587,25 @@ if (buflen > 0) {
 #endif
         return EST_ERR_X509_CERT_UNKNOWN_SIG_ALG;
     }
-
     /*
         issuer Name
      */
     crt->issuer_raw.p = p;
-
     if ((ret = asn1_get_tag(&p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | ret;
     }
-
     if ((ret = x509_get_name(&p, p + len, &crt->issuer)) != 0) {
         x509_free(crt);
         return ret;
     }
-
     crt->issuer_raw.len = p - crt->issuer_raw.p;
 
     /*
-     * Validity ::= SEQUENCE {
-     *              notBefore          Time,
-     *              notAfter           Time }
-     *
+       Validity ::= SEQUENCE {
+                    notBefore          Time,
+                    notAfter           Time }
+      
      */
     if ((ret = x509_get_dates(&p, end, &crt->valid_from, &crt->valid_to)) != 0) {
         x509_free(crt);
@@ -12755,7 +12619,7 @@ if (buflen > 0) {
     }
 
     /*
-     * subject                              Name
+        subject Name
      */
     crt->subject_raw.p = p;
 
@@ -12763,43 +12627,38 @@ if (buflen > 0) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | ret;
     }
-
     if ((ret = x509_get_name(&p, p + len, &crt->subject)) != 0) {
         x509_free(crt);
         return ret;
     }
-
     crt->subject_raw.len = p - crt->subject_raw.p;
 
     /*
-     * SubjectPublicKeyInfo  ::=  SEQUENCE
-     *              algorithm                        AlgorithmIdentifier,
-     *              subjectPublicKey         BIT STRING      }
+       SubjectPublicKeyInfo  ::=  SEQUENCE
+            algorithm             AlgorithmIdentifier,
+            subjectPublicKey      BIT STRING      }
      */
     if ((ret = asn1_get_tag(&p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | ret;
     }
-
     if ((ret = x509_get_pubkey(&p, p + len, &crt->pk_oid, &crt->rsa.N, &crt->rsa.E)) != 0) {
         x509_free(crt);
         return ret;
     }
-
     if ((ret = rsa_check_pubkey(&crt->rsa)) != 0) {
         x509_free(crt);
         return ret;
     }
-
     crt->rsa.len = mpi_size(&crt->rsa.N);
 
     /*
-     *      issuerUniqueID  [1]      IMPLICIT UniqueIdentifier OPTIONAL,
-     *                                               -- If present, version shall be v2 or v3
-     *      subjectUniqueID [2]      IMPLICIT UniqueIdentifier OPTIONAL,
-     *                                               -- If present, version shall be v2 or v3
-     *      extensions              [3]      EXPLICIT Extensions OPTIONAL
-     *                                               -- If present, version shall be v3
+        issuerUniqueID  [1]      IMPLICIT UniqueIdentifier OPTIONAL,
+                                 -- If present, version shall be v2 or v3
+        subjectUniqueID [2]      IMPLICIT UniqueIdentifier OPTIONAL,
+                                 -- If present, version shall be v2 or v3
+        extensions      [3]      EXPLICIT Extensions OPTIONAL
+                                 -- If present, version shall be v3
      */
     if (crt->version == 2 || crt->version == 3) {
         ret = x509_get_uid(&p, end, &crt->issuer_id, 1);
@@ -12808,7 +12667,6 @@ if (buflen > 0) {
             return ret;
         }
     }
-
     if (crt->version == 2 || crt->version == 3) {
         ret = x509_get_uid(&p, end, &crt->subject_id, 2);
         if (ret != 0) {
@@ -12816,7 +12674,6 @@ if (buflen > 0) {
             return ret;
         }
     }
-
     if (crt->version == 3) {
         ret = x509_get_ext(&p, end, &crt->v3_ext, &crt->ca_istrue, &crt->max_pathlen);
         if (ret != 0) {
@@ -12824,45 +12681,38 @@ if (buflen > 0) {
             return ret;
         }
     }
-
     if (p != end) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | EST_ERR_ASN1_LENGTH_MISMATCH;
     }
-
     end = crt->raw.p + crt->raw.len;
 
     /*
-     *      signatureAlgorithm       AlgorithmIdentifier,
-     *      signatureValue           BIT STRING
+        signatureAlgorithm       AlgorithmIdentifier,
+        signatureValue           BIT STRING
      */
     if ((ret = x509_get_alg(&p, end, &crt->sig_oid2)) != 0) {
         x509_free(crt);
         return ret;
     }
-
     if (memcmp(crt->sig_oid1.p, crt->sig_oid2.p, 9) != 0) {
         x509_free(crt);
         return EST_ERR_X509_CERT_SIG_MISMATCH;
     }
-
     if ((ret = x509_get_sig(&p, end, &crt->sig)) != 0) {
         x509_free(crt);
         return ret;
     }
-
     if (p != end) {
         x509_free(crt);
         return EST_ERR_X509_CERT_INVALID_FORMAT | EST_ERR_ASN1_LENGTH_MISMATCH;
     }
-
     crt->next = (x509_cert *) malloc(sizeof(x509_cert));
 
     if (crt->next == NULL) {
         x509_free(crt);
         return 1;
     }
-
     crt = crt->next;
     memset(crt, 0, sizeof(x509_cert));
 
@@ -12895,7 +12745,7 @@ error:
 
 
 /*
- * Load one or more certificates and add them to the chained list
+    Load one or more certificates and add them to the chained list
  */
 int x509parse_crtfile(x509_cert * chain, char *path)
 {
@@ -12904,35 +12754,33 @@ int x509parse_crtfile(x509_cert * chain, char *path)
     size_t n;
     uchar *buf;
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
-
+    }
     fseek(f, 0, SEEK_END);
     n = (size_t) ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    if ((buf = (uchar *)malloc(n + 1)) == NULL)
+    if ((buf = (uchar *)malloc(n + 1)) == NULL) {
         return 1;
-
+    }
     if (fread(buf, 1, n, f) != n) {
         fclose(f);
         free(buf);
         return 1;
     }
     buf[n] = '\0';
-
     ret = x509parse_crt(chain, buf, (int)n);
-
     memset(buf, 0, n + 1);
     free(buf);
     fclose(f);
-
     return ret;
 }
 
+
 #if BIT_EST_DES
 /*
- * Read a 16-byte hex string and convert it to binary
+    Read a 16-byte hex string and convert it to binary
  */
 static int x509_get_iv(uchar *s, uchar iv[8])
 {
@@ -12941,29 +12789,27 @@ static int x509_get_iv(uchar *s, uchar iv[8])
     memset(iv, 0, 8);
 
     for (i = 0; i < 16; i++, s++) {
-        if (*s >= '0' && *s <= '9')
+        if (*s >= '0' && *s <= '9') {
             j = *s - '0';
-        else if (*s >= 'A' && *s <= 'F')
+        } else if (*s >= 'A' && *s <= 'F') {
             j = *s - '7';
-        else if (*s >= 'a' && *s <= 'f')
+        } else if (*s >= 'a' && *s <= 'f') {
             j = *s - 'W';
-        else
+        } else {
             return EST_ERR_X509_KEY_INVALID_ENC_IV;
-
+        }
         k = ((i & 1) != 0) ? j : j << 4;
-
         iv[i >> 1] = (uchar)(iv[i >> 1] | k);
     }
 
     return 0;
 }
 
+
 /*
- * Decrypt with 3DES-CBC, using PBKDF1 for key derivation
+    Decrypt with 3DES-CBC, using PBKDF1 for key derivation
  */
-static void x509_des3_decrypt(uchar des3_iv[8],
-                  uchar *buf, int buflen,
-                  uchar *pwd, int pwdlen)
+static void x509_des3_decrypt(uchar des3_iv[8], uchar *buf, int buflen, uchar *pwd, int pwdlen)
 {
     md5_context md5_ctx;
     des3_context des3_ctx;
@@ -12971,8 +12817,8 @@ static void x509_des3_decrypt(uchar des3_iv[8],
     uchar des3_key[24];
 
     /*
-     * 3DES key[ 0..15] = MD5(pwd || IV)
-     *              key[16..23] = MD5(pwd || IV || 3DES key[ 0..15])
+       3DES key[ 0..15] = MD5(pwd || IV)
+            key[16..23] = MD5(pwd || IV || 3DES key[ 0..15])
      */
     md5_starts(&md5_ctx);
     md5_update(&md5_ctx, pwd, pwdlen);
@@ -12997,145 +12843,140 @@ static void x509_des3_decrypt(uchar des3_iv[8],
 }
 #endif
 
+
 /*
- * Parse a private RSA key
+    Parse a private RSA key
  */
 int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwdlen)
 {
-    int ret, len, enc;
-    uchar *s1, *s2;
-    uchar *p, *end;
-    uchar des3_iv[8];
+    int     ret, len, enc;
+    uchar   *s1, *s2, *p, *end;
+#if BIT_EST_DES
+    uchar   des3_iv[8];
+#endif
 
     s1 = (uchar *)strstr((char *)buf, "-----BEGIN RSA PRIVATE KEY-----");
 
     if (s1 != NULL) {
         s2 = (uchar *)strstr((char *)buf, "-----END RSA PRIVATE KEY-----");
 
-        if (s2 == NULL || s2 <= s1)
+        if (s2 == NULL || s2 <= s1) {
             return EST_ERR_X509_KEY_INVALID_PEM;
-
+        }
         s1 += 31;
-        if (*s1 == '\r')
+        if (*s1 == '\r') {
             s1++;
-        if (*s1 == '\n')
+        }
+        if (*s1 == '\n') {
             s1++;
-        else
+        } else {
             return EST_ERR_X509_KEY_INVALID_PEM;
-
+        }
         enc = 0;
 
         if (memcmp(s1, "Proc-Type: 4,ENCRYPTED", 22) == 0) {
 #if BIT_EST_DES
             enc++;
-
             s1 += 22;
-            if (*s1 == '\r')
+            if (*s1 == '\r') {
                 s1++;
-            if (*s1 == '\n')
+            }
+            if (*s1 == '\n') {
                 s1++;
-            else
+            } else {
                 return EST_ERR_X509_KEY_INVALID_PEM;
-
-            if (memcmp(s1, "DEK-Info: DES-EDE3-CBC,", 23) != 0)
+            }
+            if (memcmp(s1, "DEK-Info: DES-EDE3-CBC,", 23) != 0) {
                 return EST_ERR_X509_KEY_UNKNOWN_ENC_ALG;
-
+            }
             s1 += 23;
-            if (x509_get_iv(s1, des3_iv) != 0)
+            if (x509_get_iv(s1, des3_iv) != 0) {
                 return EST_ERR_X509_KEY_INVALID_ENC_IV;
-
+            }
             s1 += 16;
-            if (*s1 == '\r')
+            if (*s1 == '\r') {
                 s1++;
-            if (*s1 == '\n')
+            }
+            if (*s1 == '\n') {
                 s1++;
-            else
+            } else {
                 return EST_ERR_X509_KEY_INVALID_PEM;
+            }
 #else
             return EST_ERR_X509_FEATURE_UNAVAILABLE;
 #endif
         }
-
         len = 0;
         ret = base64_decode(NULL, &len, s1, s2 - s1);
 
-        if (ret == EST_ERR_BASE64_INVALID_CHARACTER)
+        if (ret == EST_ERR_BASE64_INVALID_CHARACTER) {
             return ret | EST_ERR_X509_KEY_INVALID_PEM;
-
-        if ((buf = (uchar *)malloc(len)) == NULL)
+        }
+        if ((buf = (uchar *)malloc(len)) == NULL) {
             return 1;
-
+        }
         if ((ret = base64_decode(buf, &len, s1, s2 - s1)) != 0) {
             free(buf);
             return ret | EST_ERR_X509_KEY_INVALID_PEM;
         }
-
         buflen = len;
 
         if (enc != 0) {
 #if BIT_EST_DES
             if (pwd == NULL) {
                 free(buf);
-                return
-                    (EST_ERR_X509_KEY_PASSWORD_REQUIRED);
+                return EST_ERR_X509_KEY_PASSWORD_REQUIRED;
             }
-
             x509_des3_decrypt(des3_iv, buf, buflen, pwd, pwdlen);
 
-            if (buf[0] != 0x30 || buf[1] != 0x82 ||
-                buf[4] != 0x02 || buf[5] != 0x01) {
+            if (buf[0] != 0x30 || buf[1] != 0x82 || buf[4] != 0x02 || buf[5] != 0x01) {
                 free(buf);
-                return
-                    (EST_ERR_X509_KEY_PASSWORD_MISMATCH);
+                return EST_ERR_X509_KEY_PASSWORD_MISMATCH;
             }
 #else
             return EST_ERR_X509_FEATURE_UNAVAILABLE;
 #endif
         }
     }
-
     memset(rsa, 0, sizeof(rsa_context));
 
     p = buf;
     end = buf + buflen;
 
     /*
-     *      RSAPrivateKey ::= SEQUENCE {
-     *              version                   Version,
-     *              modulus                   INTEGER,      -- n
-     *              publicExponent    INTEGER,      -- e
-     *              privateExponent   INTEGER,      -- d
-     *              prime1                    INTEGER,      -- p
-     *              prime2                    INTEGER,      -- q
-     *              exponent1                 INTEGER,      -- d mod (p-1)
-     *              exponent2                 INTEGER,      -- d mod (q-1)
-     *              coefficient               INTEGER,      -- (inverse of q) mod p
-     *              otherPrimeInfos   OtherPrimeInfos OPTIONAL
-     *      }
+            RSAPrivateKey ::= SEQUENCE {
+                    version                   Version,
+                    modulus                   INTEGER,      -- n
+                    publicExponent    INTEGER,      -- e
+                    privateExponent   INTEGER,      -- d
+                    prime1                    INTEGER,      -- p
+                    prime2                    INTEGER,      -- q
+                    exponent1                 INTEGER,      -- d mod (p-1)
+                    exponent2                 INTEGER,      -- d mod (q-1)
+                    coefficient               INTEGER,      -- (inverse of q) mod p
+                    otherPrimeInfos   OtherPrimeInfos OPTIONAL
+            }
      */
-    if ((ret = asn1_get_tag(&p, end, &len,
-                EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
-        if (s1 != NULL)
+    if ((ret = asn1_get_tag(&p, end, &len, EST_ASN1_CONSTRUCTED | EST_ASN1_SEQUENCE)) != 0) {
+        if (s1 != NULL) {
             free(buf);
-
+        }
         rsa_free(rsa);
         return EST_ERR_X509_KEY_INVALID_FORMAT | ret;
     }
-
     end = p + len;
 
     if ((ret = asn1_get_int(&p, end, &rsa->ver)) != 0) {
-        if (s1 != NULL)
+        if (s1 != NULL) {
             free(buf);
-
+        }
         rsa_free(rsa);
         return EST_ERR_X509_KEY_INVALID_FORMAT | ret;
     }
-
     if (rsa->ver != 0) {
-        if (s1 != NULL)
+        if (s1 != NULL) {
             free(buf);
-
+        }
         rsa_free(rsa);
         return ret | EST_ERR_X509_KEY_INVALID_VERSION;
     }
@@ -13148,9 +12989,9 @@ int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwd
         (ret = asn1_get_mpi(&p, end, &rsa->DP)) != 0 ||
         (ret = asn1_get_mpi(&p, end, &rsa->DQ)) != 0 ||
         (ret = asn1_get_mpi(&p, end, &rsa->QP)) != 0) {
-        if (s1 != NULL)
+        if (s1 != NULL) {
             free(buf);
-
+        }
         rsa_free(rsa);
         return ret | EST_ERR_X509_KEY_INVALID_FORMAT;
     }
@@ -13158,29 +12999,28 @@ int x509parse_key(rsa_context * rsa, uchar *buf, int buflen, uchar *pwd, int pwd
     rsa->len = mpi_size(&rsa->N);
 
     if (p != end) {
-        if (s1 != NULL)
+        if (s1 != NULL) {
             free(buf);
-
+        }
         rsa_free(rsa);
         return EST_ERR_X509_KEY_INVALID_FORMAT | EST_ERR_ASN1_LENGTH_MISMATCH;
     }
-
     if ((ret = rsa_check_privkey(rsa)) != 0) {
-        if (s1 != NULL)
+        if (s1 != NULL) {
             free(buf);
-
+        }
         rsa_free(rsa);
         return ret;
     }
-
-    if (s1 != NULL)
+    if (s1 != NULL) {
         free(buf);
-
+    }
     return 0;
 }
 
+
 /*
- * Load and parse a private RSA key
+    Load and parse a private RSA key
  */
 int x509parse_keyfile(rsa_context * rsa, char *path, char *pwd)
 {
@@ -13189,33 +13029,32 @@ int x509parse_keyfile(rsa_context * rsa, char *path, char *pwd)
     size_t n;
     uchar *buf;
 
-    if ((f = fopen(path, "rb")) == NULL)
+    if ((f = fopen(path, "rb")) == NULL) {
         return 1;
+    }
 
     fseek(f, 0, SEEK_END);
     n = (size_t) ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    if ((buf = (uchar *)malloc(n + 1)) == NULL)
+    if ((buf = (uchar *)malloc(n + 1)) == NULL) {
         return 1;
-
+    }
     if (fread(buf, 1, n, f) != n) {
         fclose(f);
         free(buf);
         return 1;
     }
-
     buf[n] = '\0';
 
-    if (pwd == NULL)
+    if (pwd == NULL) {
         ret = x509parse_key(rsa, buf, (int)n, NULL, 0);
-    else
+    } else {
         ret = x509parse_key(rsa, buf, (int)n, (uchar *)pwd, strlen(pwd));
-
+    }
     memset(buf, 0, n + 1);
     free(buf);
     fclose(f);
-
     return ret;
 }
 
@@ -13231,7 +13070,6 @@ int x509parse_dn_gets(char *prefix, char *buf, int bufsize, x509_name * dn)
     uchar       c;
 
     memset(s, 0, sizeof(s));
-
     name = dn;
     p = buf;
     end = &buf[bufsize];
@@ -13286,10 +13124,11 @@ int x509parse_dn_gets(char *prefix, char *buf, int bufsize, x509_name * dn)
                 break;
             }
             c = name->val.p[i];
-            if (c < 32 || c == 127 || (c > 128 && c < 160))
+            if (c < 32 || c == 127 || (c > 128 && c < 160)) {
                 s[i] = '?';
-            else
+            } else {
                 s[i] = c;
+            }
         }
         s[i] = '\0';
         p += snfmt(p, end - p, "%s", s);
@@ -13401,6 +13240,7 @@ static void x509_hash(uchar *in, int len, int alg, uchar *out)
     }
 }
 
+
 /*
     Verify the certificate validity
  */
@@ -13499,9 +13339,9 @@ void x509_free(x509_cert * crt)
     x509_name *name_cur;
     x509_name *name_prv;
 
-    if (crt == NULL)
+    if (crt == NULL) {
         return;
-
+    }
     do {
         rsa_free(&cert_cur->rsa);
 
@@ -13532,8 +13372,9 @@ void x509_free(x509_cert * crt)
         cert_cur = cert_cur->next;
 
         memset(cert_prv, 0, sizeof(x509_cert));
-        if (cert_prv != crt)
+        if (cert_prv != crt) {
             free(cert_prv);
+        }
     } while (cert_cur != NULL);
 }
 
@@ -13558,11 +13399,12 @@ void x509_free(x509_cert * crt)
 #if BIT_EST_XTEA
 
 /*
- * 32-bit integer manipulation macros (big endian)
+   32-bit integer manipulation macros (big endian)
  */
+//  MOB - use if/else construct
 #ifndef GET_ULONG_BE
-#define GET_ULONG_BE(n,b,i)                             \
-    {                                                   \
+#define GET_ULONG_BE(n,b,i)                     \
+    {                                           \
         (n) = ( (ulong) (b)[(i)    ] << 24 )    \
             | ( (ulong) (b)[(i) + 1] << 16 )    \
             | ( (ulong) (b)[(i) + 2] <<  8 )    \
@@ -13570,9 +13412,11 @@ void x509_free(x509_cert * crt)
     }
 #endif
 
+//  MOB - use if/else construct
+
 #ifndef PUT_ULONG_BE
-#define PUT_ULONG_BE(n,b,i)                             \
-    {                                                   \
+#define PUT_ULONG_BE(n,b,i)                     \
+    {                                           \
         (b)[(i)    ] = (uchar) ( (n) >> 24 );   \
         (b)[(i) + 1] = (uchar) ( (n) >> 16 );   \
         (b)[(i) + 2] = (uchar) ( (n) >>  8 );   \
@@ -13581,29 +13425,27 @@ void x509_free(x509_cert * crt)
 #endif
 
 /*
- * XTEA key schedule
+   XTEA key schedule
  */
-void xtea_setup(xtea_context * ctx, uchar key[16])
+void xtea_setup(xtea_context *ctx, uchar key[16])
 {
     int i;
 
     memset(ctx, 0, sizeof(xtea_context));
-
     for (i = 0; i < 4; i++) {
         GET_ULONG_BE(ctx->k[i], key, i << 2);
     }
 }
 
+
 /*
- * XTEA encrypt function
+   XTEA encrypt function
  */
-void xtea_crypt_ecb(xtea_context * ctx, int mode, uchar input[8],
-            uchar output[8])
+void xtea_crypt_ecb(xtea_context *ctx, int mode, uchar input[8], uchar output[8])
 {
     ulong *k, v0, v1, i;
 
     k = ctx->k;
-
     GET_ULONG_BE(v0, input, 0);
     GET_ULONG_BE(v1, input, 4);
 
@@ -13611,28 +13453,20 @@ void xtea_crypt_ecb(xtea_context * ctx, int mode, uchar input[8],
         ulong sum = 0, delta = 0x9E3779B9;
 
         for (i = 0; i < 32; i++) {
-            v0 +=
-                (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
+            v0 += (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
             sum += delta;
-            v1 +=
-                (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum +
-                                  k[(sum >> 11) &
-                                3]);
+            v1 += (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
         }
-    } else {        /* XTEA_DECRYPT */
+    } else {
+        /* XTEA_DECRYPT */
         ulong delta = 0x9E3779B9, sum = delta * 32;
 
         for (i = 0; i < 32; i++) {
-            v1 -=
-                (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum +
-                                  k[(sum >> 11) &
-                                3]);
+            v1 -= (((v0 << 4) ^ (v0 >> 5)) + v0) ^ (sum + k[(sum >> 11) & 3]);
             sum -= delta;
-            v0 -=
-                (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
+            v0 -= (((v1 << 4) ^ (v1 >> 5)) + v1) ^ (sum + k[sum & 3]);
         }
     }
-
     PUT_ULONG_BE(v0, output, 0);
     PUT_ULONG_BE(v1, output, 4);
 }
