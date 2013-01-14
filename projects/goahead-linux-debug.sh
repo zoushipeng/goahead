@@ -87,11 +87,11 @@ ${CC} -c -o ${CONFIG}/obj/test.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc test/test.c
 
 ${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS} ${LDFLAGS}
 
-${CC} -c -o ${CONFIG}/obj/gopass.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
+${CC} -c -o ${CONFIG}/obj/gopass.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/gopass.c
 
 ${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o -lgo ${LIBS} ${LDFLAGS}
 
-${CC} -c -o ${CONFIG}/obj/webcomp.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
+${CC} -c -o ${CONFIG}/obj/webcomp.o ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/webcomp.c
 
 ${CC} -o ${CONFIG}/bin/webcomp ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/webcomp.o ${LIBS} ${LDFLAGS}
 

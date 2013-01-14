@@ -74,7 +74,7 @@ static bool fileHandler(Webs *wp)
             return 1;
         }
         code = 200;
-        if (info.mtime <= wp->since) {
+        if (wp->since && info.mtime <= wp->since) {
             code = 304;
         }
         websSetStatus(wp, code);
@@ -133,6 +133,7 @@ static void fileWriteEvent(Webs *wp)
 }
 
 
+#if !BIT_ROM
 PUBLIC int websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
@@ -154,6 +155,7 @@ PUBLIC int websProcessPutData(Webs *wp)
     websConsumeInput(wp, nbytes);
     return 0;
 }
+#endif
 
 
 static void fileClose()

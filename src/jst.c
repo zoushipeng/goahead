@@ -217,6 +217,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv)
 
 /*
     Find s2 in s1. We skip leading white space in s1.  Return a pointer to the location in s1 after s2 ends.
+    MOB - move to runtime.c
  */
 static char *strtokcmp(char *s1, char *s2)
 {

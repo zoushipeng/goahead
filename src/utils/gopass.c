@@ -17,6 +17,7 @@
 
 static char *getPassword();
 static void printUsage();
+static int writeAuthFile(char *path);
 
 #if BIT_WIN_LIKE || VXWORKS
 static char *getpass(char *prompt);
@@ -99,10 +100,58 @@ int main(int argc, char *argv[])
     if (websAddUser(username, encodedPassword, roles) < 0) {
         exit(7);
     }
-    if (websWriteAuthFile(authFile) < 0) {
+    if (writeAuthFile(authFile) < 0) {
         exit(6);
     }
     websCloseAuth();
+    return 0;
+}
+
+
+static int writeAuthFile(char *path)
+{
+    FILE        *fp;
+    WebsKey     *kp, *ap;
+    WebsRole    *role;
+    WebsUser    *user;
+    WebsHash    roles, users;
+    char        *tempFile;
+
+    assert(path && *path);
+
+    tempFile = tempnam(NULL, "tmp");
+    if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
+        error("Can't open %s", tempFile);
+        return -1;
+    }
+    fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
+
+    roles = websGetRoles();
+    if (roles >= 0) {
+        for (kp = hashFirst(roles); kp; kp = hashNext(roles, kp)) {
+            role = kp->content.value.symbol;
+            fprintf(fp, "role name=%s abilities=", kp->name.value.string);
+            for (ap = hashFirst(role->abilities); ap; ap = hashNext(role->abilities, ap)) {
+                fprintf(fp, "%s,", ap->name.value.string);
+            }
+            fputc('\n', fp);
+        }
+        fputc('\n', fp);
+    }
+    users = websGetUsers();
+    if (users >= 0) {
+        for (kp = hashFirst(users); kp; kp = hashNext(users, kp)) {
+            user = kp->content.value.symbol;
+            fprintf(fp, "user name=%s password=%s roles=%s", user->name, user->password, user->roles);
+            fputc('\n', fp);
+        }
+    }
+    fclose(fp);
+    unlink(path);
+    if (rename(tempFile, path) < 0) {
+        error("Can't create new %s", path);
+        return -1;
+    }
     return 0;
 }
 

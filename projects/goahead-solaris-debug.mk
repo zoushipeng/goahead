@@ -275,10 +275,10 @@ $(CONFIG)/bin/goahead-test:  \
 	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/gopass.o: \
-        utils/gopass.c \
+        src/utils/gopass.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/gopass.c
+	$(CC) -c -o $(CONFIG)/obj/gopass.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/utils/gopass.c
 
 $(CONFIG)/bin/gopass:  \
         $(CONFIG)/bin/libgo.so \
@@ -289,10 +289,10 @@ $(CONFIG)/bin/gopass:  \
 	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS) $(LDFLAGS)
 
 $(CONFIG)/obj/webcomp.o: \
-        utils/webcomp.c \
+        src/utils/webcomp.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc utils/webcomp.c
+	$(CC) -c -o $(CONFIG)/obj/webcomp.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/utils/webcomp.c
 
 $(CONFIG)/bin/webcomp:  \
         $(CONFIG)/inc/bitos.h \

@@ -1,7 +1,7 @@
 /*
     webcomp -- Compile web pages into C source
 
-    Usage: webcomp prefix filelist >webrom.c
+    Usage: webcomp --prefix prefix filelist >webrom.c
     Where: 
         filelist is a file containing the pathnames of all web pages
         prefix is a path prefix to remove from all the web page pathnames
@@ -77,10 +77,7 @@ static int compile(char *fileList, char *prefix)
     fprintf(stdout, "/*\n   rom-documents.c \n");
     fprintf(stdout, "   Compiled by webcomp: %s */\n\n", ctime(&now));
     fprintf(stdout, "#include \"goahead.h\"\n\n");
-    fprintf(stdout, "#ifndef WEBS_PAGE_ROM\n");
-    fprintf(stdout, "websRomPageIndexType websRomPageIndex[] = {\n");
-    fprintf(stdout, "\t{ 0, 0, 0 }\n};\n");
-    fprintf(stdout, "#else\n");
+    fprintf(stdout, "#if BIT_ROM\n\n");
 
     /*
         Open each input file and compile each web page
@@ -107,14 +104,14 @@ static int compile(char *fileList, char *prefix)
             p = (uchar*)buf;
             for (i = 0; i < len; ) {
                 fprintf(stdout, "\t");
-                for (j = 0; p<(uchar*)(&buf[len]) && j < 16; j++, p++) {
-                    fprintf(stdout, "%3d,", *p);
+                for (j = 0; p< (uchar*)(&buf[len]) && j < 16; j++, p++) {
+                    fprintf(stdout, "%4d,", *p);
                 }
                 i += j;
                 fprintf(stdout, "\n");
             }
         }
-        fprintf(stdout, "\t0 };\n\n");
+        fprintf(stdout, "\t   0\n};\n\n");
         close(fd);
         nFile++;
     }
@@ -123,7 +120,7 @@ static int compile(char *fileList, char *prefix)
     /*
         Output the page index
      */
-    fprintf(stdout, "websRomPageIndexType websRomPageIndex[] = {\n");
+    fprintf(stdout, "WebsRomIndex websRomIndex[] = {\n");
 
     if ((lp = fopen(fileList, "r")) == NULL) {
         fprintf(stderr, "Can't open file list %s\n", fileList);
@@ -153,16 +150,19 @@ static int compile(char *fileList, char *prefix)
         }
 
         if (stat(file, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) {
-            fprintf(stdout, "\t{ T(\"/%s\"), 0, 0 },\n", cp);
+            fprintf(stdout, "\t{ \"%s\", 0, 0 },\n", cp);
             continue;
         }
-        fprintf(stdout, "\t{ T(\"/%s\"), p%d, %d },\n", cp, nFile, (int) sbuf.st_size);
+        fprintf(stdout, "\t{ \"%s\", p%d, %d },\n", cp, nFile, (int) sbuf.st_size);
         nFile++;
     }
     fclose(lp); 
     fprintf(stdout, "\t{ 0, 0, 0 }\n");
     fprintf(stdout, "};\n");
-    fprintf(stdout, "#endif /* WEBS_PAGE_ROM */\n");
+    fprintf(stdout, "#else\n");
+    fprintf(stdout, "WebsRomIndex websRomIndex[] = {\n");
+    fprintf(stdout, "\t{ 0, 0, 0 }\n};\n");
+    fprintf(stdout, "#endif\n");
     fflush(stdout);
     return 0;
 }

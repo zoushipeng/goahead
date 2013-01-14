@@ -13,117 +13,162 @@
 
 #include    "goahead.h"
 
-#if BIT_ROM
 /******************************** Local Data **********************************/
 
+#if BIT_ROM
 WebsHash    romTab;                     /* Symbol table for web pages */
+#endif
 
 /*********************************** Code *************************************/
 
 PUBLIC int websRomOpen()
 {
+#if BIT_ROM
     WebsRomIndex    *wip;
-    char          name[BIT_GOAHEAD_LIMIT_FILENAME];
+    char            name[BIT_GOAHEAD_LIMIT_FILENAME];
     ssize           len;
 
     romTab = hashCreate(WEBS_HASH_INIT);
-    for (wip = websRomPageIndex; wip->path; wip++) {
+    for (wip = websRomIndex; wip->path; wip++) {
         strncpy(name, wip->path, BIT_GOAHEAD_LIMIT_FILENAME);
         len = strlen(name) - 1;
         if (len > 0 &&
             (name[len] == '/' || name[len] == '\\')) {
             name[len] = '\0';
         }
-        hashEnter(romTab, name, valueInteger((int) wip), 0);
+        hashEnter(romTab, name, valueSymbol(wip), 0);
     }
+#endif
     return 0;
 }
 
 
 PUBLIC void websRomClose()
 {
+#if BIT_ROM
     hashFree(romTab);
+#endif
 }
 
 
-PUBLIC int websRomPageOpen(Webs *wp)
+PUBLIC int websOpenFile(char *path, int flags, int mode)
 {
+#if BIT_ROM
     WebsRomIndex    *wip;
-    WebsKey           *sp;
+    WebsKey         *sp;
 
-    assert(websValid(wp));
-    assert(path && *path);
-
-    if ((sp = hashLookup(romTab, wp->path)) == NULL) {
+    if ((sp = hashLookup(romTab, path)) == NULL) {
         return -1;
     }
-    wip = (WebsRomIndex*) sp->content.value.integer;
+    wip = (WebsRomIndex*) sp->content.value.symbol;
     wip->pos = 0;
-    wp->docfd = (int) (wip - websRomPageIndex);
-    return wp->docfd;
+    return (int) (wip - websRomIndex);
+#else
+    return open(path, flags, mode);
+#endif
 }
 
 
-PUBLIC void websRomPageClose(Webs *wp)
+PUBLIC void websCloseFile(int fd)
 {
+    if (fd >= 0) {
+#if !BIT_ROM
+        close(fd);
+#endif
+    }
 }
 
 
-PUBLIC int websRomPageStat(char *path, WebsFileInfo *sbuf)
+//  MOB - should this be sbuf or WebsFileInfo?
+
+PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
 {
+#if BIT_ROM
     WebsRomIndex    *wip;
-    WebsKey                   *sp;
+    WebsKey         *sp;
 
     assert(path && *path);
 
     if ((sp = hashLookup(romTab, path)) == NULL) {
         return -1;
     }
-    wip = (WebsRomIndex*) sp->content.value.integer;
-
+    wip = (WebsRomIndex*) sp->content.value.symbol;
     memset(sbuf, 0, sizeof(WebsFileInfo));
     sbuf->size = wip->size;
     if (wip->page == NULL) {
         sbuf->isDir = 1;
     }
     return 0;
+#else
+    WebsStat    s;
+    if (stat(path, &s) < 0) {
+        return -1;
+    }
+    sbuf->size = (ssize) s.st_size;
+    sbuf->mtime = s.st_mtime;
+    sbuf->isDir = s.st_mode & S_IFDIR;                                                                     
+    return 0;  
+#endif
 }
 
 
-PUBLIC ssize websRomPageReadData(Webs *wp, char *buf, ssize size)
+PUBLIC ssize websReadFile(int fd, char *buf, ssize size)
 {
+#if BIT_ROM
     WebsRomIndex    *wip;
     ssize           len;
 
-    assert(websValid(wp));
     assert(buf);
-    assert(wp->docfd >= 0);
+    assert(fd >= 0);
 
-    wip = &websRomPageIndex[wp->docfd];
+    wip = &websRomIndex[fd];
 
     len = min(wip->size - wip->pos, size);
     memcpy(buf, &wip->page[wip->pos], len);
     wip->pos += len;
     return len;
+#else
+    return read(fd, buf, size);
+#endif
 }
 
 
-long websRomPageSeek(Webs *wp, Offset offset, int origin)
+PUBLIC char *websReadWholeFile(char *path)
 {
+    WebsFileInfo    sbuf;
+    char            *buf;
+    int             fd;
+
+    if (websStatFile(path, &sbuf) < 0) {
+        return 0;
+    }
+    buf = malloc(sbuf.size + 1);
+    if ((fd = websOpenFile(path, O_RDONLY, 0)) < 0) {
+        return 0;
+    }
+    websReadFile(fd, buf, sbuf.size);
+    buf[sbuf.size] = '\0';
+    websCloseFile(fd);
+    return buf;
+}
+
+
+Offset websSeekFile(int fd, Offset offset, int origin)
+{
+#if BIT_ROM
     WebsRomIndex    *wip;
     Offset          pos;
 
-    assert(websValid(wp));
     assert(origin == SEEK_SET || origin == SEEK_CUR || origin == SEEK_END);
-    assert(wp->docfd >= 0);
+    assert(fd >= 0);
 
-    wip = &websRomPageIndex[wp->docfd];
+    wip = &websRomIndex[fd];
 
     if (origin != SEEK_SET && origin != SEEK_CUR && origin != SEEK_END) {
         errno = EINVAL;
         return -1;
     }
-    if (wp->docfd < 0) {
+    if (fd < 0) {
         errno = EBADF;
         return -1;
     }
@@ -143,9 +188,22 @@ long websRomPageSeek(Webs *wp, Offset offset, int origin)
         return -1;
     }
     return (wip->pos = pos);
+#else
+    return lseek(fd, offset, origin);
+#endif
 }
 
-#endif /* BIT_ROM */
+
+PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
+{
+#if BIT_ROM
+    error("Cannot write to a rom file system");
+    return -1;
+#else
+    return write(fd, buf, size);
+#endif
+}
+
 
 /*
     @copy   default

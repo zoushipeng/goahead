@@ -1,31 +1,16 @@
 /*
-    rom-documents.c -- Compiled Web Pages
-
-    Copyright (c) All Rights Reserved. See details at the end of the file.
+   rom-documents.c 
+   Compiled by webcomp: Mon Jan 14 14:13:54 2013
  */
 
 #include "goahead.h"
 
-WebsRomIndex  websRomPageIndex[] = {
-  { 0, 0, 0 },
+#if BIT_ROM
+WebsRomIndex websRomIndex[] = {
+	{ 0, 0, 0 }
 };
-
-/*
-    @copy   default
-
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
-
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
- */
+#else
+WebsRomIndex websRomIndex[] = {
+	{ 0, 0, 0 }
+};
+#endif

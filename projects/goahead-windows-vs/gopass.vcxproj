@@ -100,7 +100,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <ClCompile Include="..\..\utils\gopass.c" />
+    <ClCompile Include="..\..\src\utils\gopass.c" />
   </ItemGroup>
 
   <ItemGroup>

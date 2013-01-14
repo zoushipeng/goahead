@@ -207,6 +207,8 @@ Bit.load({
 
 
         'goahead.listen':             'Addresses to listen to (["http://IP:port", ...])',
+        'goahead.logfile':            'Default location and level for debug log (path:level)',
+        'goahead.logging':            'Enable application logging (true|false)',
         'goahead.pam':                'Enable Unix Pluggable Auth Module (true|false)',
         'goahead.putDir':             'Define the directory for file uploaded via HTTP PUT (path)',
         'goahead.realm':              'Authentication realm (string)',
@@ -214,7 +216,7 @@ Bit.load({
         'goahead.replaceMalloc':      'Replace malloc with non-fragmenting allocator (true|false)',
         'goahead.static':             'Build with static linking (true|false)',
         'goahead.stealth':            'Run in stealth mode. Disable OPTIONS, TRACE (true|false)',
-        'goahead.trace':              'Default location and level for debug log (path:level)',
+        'goahead.tracing':            'Enable debug tracing (true|false)',
         'goahead.tune':               'Optimize (size|speed|balanced)',
         'goahead.upload':             'Enable file upload (true|false)',
         'goahead.uploadDir':          'Define directory for uploaded files (path)',
@@ -272,7 +274,7 @@ Bit.load({
          */
         gopass: {
             type: 'exe',
-            sources: [ 'utils/gopass.c' ],
+            sources: [ 'src/utils/gopass.c' ],
             headers: [ 'src/*.h' ],
             depends: [ 'libgo' ],
         },
@@ -282,7 +284,7 @@ Bit.load({
          */
         webcomp: {
             type: 'exe',
-            sources: [ 'utils/webcomp.c' ],
+            sources: [ 'src/utils/webcomp.c' ],
             headers: [ 'src/*.h' ],
             depends: [ ],
         },
@@ -321,7 +323,7 @@ Bit.load({
         },
         run: {
             action: "
-                run('goahead -v', {noio: true})
+                run('goahead -v', {noio: true, dir: 'src'})
             ",
         },
         package: {
@@ -336,6 +338,11 @@ Bit.load({
             depends: ['build'],
             action: "packageComboFiles()",
         },
+        rom: {
+            action: "
+                Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))
+            ",
+        }
     },
 
     packs: {

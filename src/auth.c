@@ -182,6 +182,7 @@ PUBLIC void websCloseAuth()
 }
 
 
+#if UNUSED
 PUBLIC int websWriteAuthFile(char *path)
 {
     FILE        *fp;
@@ -225,6 +226,7 @@ PUBLIC int websWriteAuthFile(char *path)
     }
     return 0;
 }
+#endif
 
 
 static WebsUser *createUser(char *username, char *password, char *roles)
@@ -439,18 +441,16 @@ PUBLIC int websRemoveRole(char *name)
 }
 
 
-#if UNUSED && KEEP
-WebsHash websGetUsers()
+PUBLIC WebsHash websGetUsers()
 {
     return users;
 }
 
 
-WebsHash websGetRoles()
+PUBLIC WebsHash websGetRoles()
 {
     return roles;
 }
-#endif
 
 
 PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)

@@ -183,7 +183,7 @@ static WebsError websErrors[] = {
 };
 
 //  MOB - should be main.bit
-#if BIT_GOAHEAD_ACCESS_LOG
+#if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
 static char     accessLog[64] = "access.log";       /* Log filename */
 static int      accessFd;                           /* Log file handle */
 #endif
@@ -258,7 +258,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (websOpenRoute() < 0) {
         return -1;
     }
-#if BIT_GOAHEAD_CGI
+#if BIT_GOAHEAD_CGI && !BIT_ROM
     websCgiOpen();
 #endif
     websOptionsOpen();
@@ -273,13 +273,10 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (websOpenAuth(0) < 0) {
         return -1;
     }
-#if BIT_ROM
     websRomOpen();
-#else
     if (websLoad(routeFile) < 0) {
         return -1;
     }
-#endif
     /*
         Create a mime type lookup table for quickly determining the content type
      */
@@ -289,7 +286,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
         hashEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
     }
 
-#if BIT_GOAHEAD_ACCESS_LOG
+#if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
     if ((accessFd = open(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
         error("Can't open access log %s", accessLog);
         return -1;
@@ -342,9 +339,7 @@ PUBLIC void websClose()
         accessFd = -1;
     }
 #endif
-#if BIT_ROM
     websRomClose();
-#endif
     hashFree(websMime);
     socketClose();
     logClose();
@@ -380,11 +375,13 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->sid = sid;
     wp->timeout = timeout;
     wp->docfd = -1;
-    wp->putfd = -1;
     wp->txLen = -1;
     wp->rxLen = -1;
     wp->code = HTTP_CODE_OK;
     wp->ssl = ssl;
+#if !BIT_ROM
+    wp->putfd = -1;
+#endif
 #if BIT_GOAHEAD_CGI
     wp->cgifd = -1;
 #endif
@@ -436,6 +433,7 @@ static void termWebs(Webs *wp, int reuse)
         wp->cgifd = -1;
     }
 #endif
+#if !BIT_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
@@ -444,6 +442,7 @@ static void termWebs(Webs *wp, int reuse)
             error("Can't rename put file from %s to %s", wp->putname, wp->filename);
         }
     }
+#endif
     if (wp->timeout >= 0 && !reuse) {
         websCancelTimeout(wp);
     }
@@ -853,7 +852,6 @@ PUBLIC void websPump(Webs *wp)
 static bool parseIncoming(Webs *wp)
 {
     WebsBuf     *rxbuf;
-    WebsStat    sbuf;
     char        *end, c;
 
     rxbuf = &wp->rxbuf;
@@ -887,6 +885,7 @@ static bool parseIncoming(Webs *wp)
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
     //  MOB Functionalize
+#if !BIT_ROM
 #if BIT_GOAHEAD_CGI
     if (strstr(wp->path, BIT_GOAHEAD_CGI_BIN) != 0) {
         if (smatch(wp->method, "POST")) {
@@ -899,6 +898,7 @@ static bool parseIncoming(Webs *wp)
     }
 #endif
     if (smatch(wp->method, "PUT")) {
+        WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
         wp->putname = tempnam(BIT_GOAHEAD_PUT_DIR, "put-");
         if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
@@ -908,6 +908,7 @@ static bool parseIncoming(Webs *wp)
             return 1;
         }
     }
+#endif
     return 1;
 }
 
@@ -1132,7 +1133,7 @@ static bool processContent(Webs *wp)
     if (!filterChunkData(wp)) {
         return 0;
     }
-#if BIT_GOAHEAD_CGI
+#if BIT_GOAHEAD_CGI && !BIT_ROM
     if (wp->cgifd >= 0 && websProcessCgiData(wp) < 0) {
         return 0;
     }
@@ -1142,9 +1143,11 @@ static bool processContent(Webs *wp)
         return 0;
     }
 #endif
+#if !BIT_ROM
     if (wp->putfd >= 0 && websProcessPutData(wp) < 0) {
         return 0;
     }
+#endif
     if (wp->eof) {
         wp->state = WEBS_READY;
         /* 
@@ -1291,7 +1294,7 @@ PUBLIC void websServiceEvents(int *finished)
         if (socketSelect(-1, delay)) {
             socketProcess();
         }
-#if BIT_GOAHEAD_CGI
+#if BIT_GOAHEAD_CGI && !BIT_ROM
         delay = websCgiPoll();
 #else
         delay = MAXINT;
@@ -1712,10 +1715,12 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
     code &= ~(WEBS_CLOSE | WEBS_NOLOG);
+#if !BIT_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
     }
+#endif
     if (wp->rxRemaining && code != 200 && code != 301 && code != 302 && code != 401) {
         /* Close connection so we don't have to consume remaining content */
         wp->flags &= ~WEBS_KEEP_ALIVE;
@@ -2214,7 +2219,7 @@ PUBLIC void websDecodeUrl(char *decoded, char *token, ssize len)
 }
 
 
-#if BIT_GOAHEAD_ACCESS_LOG
+#if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
 /*
     Output a log message in Common Log Format: See http://httpd.apache.org/docs/1.3/logs.html#common
  */
@@ -3207,11 +3212,7 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
 PUBLIC int websPageOpen(Webs *wp, int mode, int perm)
 {
     assert(websValid(wp));
-#if BIT_ROM
-    return websRomPageOpen(wp);
-#else
-    return (wp->docfd = open(wp->filename, mode, perm));
-#endif
+    return (wp->docfd = websOpenFile(wp->filename, mode, perm));
 }
 
 
@@ -3219,54 +3220,27 @@ PUBLIC void websPageClose(Webs *wp)
 {
     assert(websValid(wp));
 
-#if BIT_ROM
-    websRomPageClose(wp);
-#else
     if (wp->docfd >= 0) {
-        close(wp->docfd);
+        websCloseFile(wp->docfd);
         wp->docfd = -1;
     }
-#endif
 }
 
 
 PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf)
 {
-#if BIT_ROM
-    return websRomPageStat(wp, sbuf);
-#else
-    WebsStat    s;
-
-    if (stat(wp->filename, &s) < 0) {
-        return -1;
-    }
-    sbuf->size = (ssize) s.st_size;
-    sbuf->mtime = s.st_mtime;
-    sbuf->isDir = s.st_mode & S_IFDIR;
-    return 0;
-#endif
+    return websStatFile(wp->filename, sbuf);
 }
 
 
 PUBLIC int websPageIsDirectory(Webs *wp)
 {
-#if BIT_ROM
     WebsFileInfo    sbuf;
 
-    if (websRomPageStat(wp, &sbuf) >= 0) {
+    if (websStatFile(wp->filename, &sbuf) >= 0) {
         return(sbuf.isDir);
-    } else {
-        return 0;
     }
-#else
-    WebsStat    sbuf;
-
-    if (stat(wp->filename, &sbuf) >= 0) {
-        return(sbuf.st_mode & S_IFDIR);
-    } else {
-        return 0;
-    }
-#endif
+    return 0;
 }
 
 
@@ -3276,13 +3250,8 @@ PUBLIC int websPageIsDirectory(Webs *wp)
 PUBLIC ssize websPageReadData(Webs *wp, char *buf, ssize nBytes)
 {
 
-#if BIT_ROM
     assert(websValid(wp));
-    return websRomPageReadData(wp, buf, nBytes);
-#else
-    assert(websValid(wp));
-    return read(wp->docfd, buf, (int) nBytes);
-#endif
+    return websReadFile(wp->docfd, buf, nBytes);
 }
 
 
@@ -3293,11 +3262,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin)
 {
     assert(websValid(wp));
 
-#if BIT_ROM
-    websRomPageSeek(wp, offset, origin);
-#else
-    lseek(wp->docfd, (long) offset, origin);
-#endif
+    websSeekFile(wp->docfd, offset, origin);
 }
 
 

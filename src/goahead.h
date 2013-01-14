@@ -119,7 +119,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 PUBLIC_DATA int logLevel;
 
 #if BIT_GOAHEAD_TRACING
-        #define trace(l, ...) if ((l) <= logLevel) { traceProc(l, __VA_ARGS__); } else
+        #define trace(l, ...) if ((l & WEBS_LEVEL_MASK) <= logLevel) { traceProc(l, __VA_ARGS__); } else
 #else
         #define trace(l, ...) if (1) ; else
 #endif
@@ -1480,7 +1480,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 /********************************** Defines ***********************************/
 
 #define WEBS_MAX_PORT_LEN       10          /* Max digits in port number */
-#define WEBS_HASH_INIT          64          /* Hash size for form table */
+#define WEBS_HASH_INIT          67          /* Hash size for form table */
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
 
@@ -1613,7 +1613,9 @@ typedef struct Webs {
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
+#if !BIT_ROM
     int             putfd;              /**< File handle to write PUT data */
+#endif
     int             docfd;              /**< File descriptor for document being served */
     ssize           written;            /**< Bytes actually transferred */
     ssize           putLen;             /**< Bytes read by a PUT request */
@@ -1741,7 +1743,7 @@ typedef struct WebsRomIndex {
         List of documents to service when built with ROM support
         @ingroup Webs
      */
-    PUBLIC WebsRomIndex websRomPageIndex[];
+    PUBLIC_DATA WebsRomIndex websRomIndex[];
 #endif
 
 #define WEBS_DECODE_TOKEQ 1                 /**< Decode base 64 blocks up to a NULL or equals */
@@ -1756,6 +1758,12 @@ typedef struct WebsRomIndex {
     @ingroup Webs
  */
 PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid);
+
+/**
+    Open the action handler
+    @ingroup Webs
+ */
+PUBLIC void websActionOpen();
 
 /**
     Allocate a new Webs object
@@ -1795,6 +1803,13 @@ PUBLIC WebsTime websCgiPoll();
     @ingroup Webs
  */
 PUBLIC void websClose();
+
+/**
+    Close an open file
+    @param fd Open file handle returned by websOpenFile
+    @ingroup Webs
+ */
+PUBLIC void websCloseFile(int fd);
 
 /**
     Compare a request variable
@@ -2227,6 +2242,14 @@ PUBLIC void websNoteRequestActivity(Webs *wp);
 PUBLIC int websOpen(char *documents, char *routes);
 
 /**
+    Open the web page document for the current request
+    @param path Filename path to open
+    @return Positive file handle if successful, otherwise -1.
+    @ingroup Webs
+ */
+PUBLIC int websOpenFile(char *path, int flags, int mode);
+
+/**
     Open the options handler
     @return Zero if successful, otherwise -1.
     @ingroup Webs
@@ -2235,7 +2258,6 @@ PUBLIC int websOptionsOpen();
 
 /**
     Close the document page
-    @description This provides an interface above the file system or ROM based file system.
     @param wp Webs request object
     @ingroup Webs
  */
@@ -2243,7 +2265,6 @@ PUBLIC void websPageClose(Webs *wp);
 
 /**
     Test if the document page for the request corresponds to a directory 
-    @description This provides an interface above the file system or ROM based file system.
     @param wp Webs request object
     @return True if the filename is a directory
     @ingroup Webs
@@ -2252,7 +2273,6 @@ PUBLIC int websPageIsDirectory(Webs *wp);
 
 /**
     Open a web page document for a request
-    @description This provides an interface above the file system or ROM based file system.
     @param wp Webs request object
     @param mode File open mode. Select from O_RDONLY and O_BINARY. Rom files systems ignore this argument.
     @param perms Ignored
@@ -2283,7 +2303,6 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin);
 
 /**
     Get file status for the current request document
-    @description This provides an interface above the file system or ROM based file system.
     @param wp Webs request object
     @param sbuf File information structure to modify with file status
     @return Zero if successful, otherwise -1.
@@ -2291,6 +2310,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin);
  */
 PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
 
+#if !BIT_ROM
 /**
     Process request PUT body data
     @description This routine is called by the core HTTP engine to process request PUT data.
@@ -2299,6 +2319,7 @@ PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
     @ingroup Webs
  */
 PUBLIC int websProcessPutData(Webs *wp);
+#endif
 
 /**
     Pump the state machine
@@ -2319,10 +2340,22 @@ PUBLIC void websPump(Webs *wp);
 PUBLIC int websDefineAction(char *name, void *fun);
 
 /**
-    Open the action handler
+    Read data from an open file
+    @param fd Open file handle returned by websOpenFile
+    @param buf Buffer for the read data
+    @param size Size of buf
+    @return Count of bytes read if successful, otherwise -1.
     @ingroup Webs
  */
-PUBLIC void websActionOpen();
+PUBLIC ssize websReadFile(int fd, char *buf, ssize size);
+
+/**
+    Read all the data from a file
+    @param path File path to read from
+    @return An allocated buffer containing the file data with an appended null. Caller must free.
+    @ingroup Webs
+ */
+PUBLIC char *websReadWholeFile(char *path);
 
 /**
     Redirect the client to a new URL.
@@ -2367,7 +2400,6 @@ PUBLIC void websResponse(Webs *wp, int status, char *msg);
  */
 PUBLIC int websRewriteRequest(Webs *wp, char *url);
 
-#if BIT_ROM
 /**
     Open the ROM file system
     @return Zero if successful, otherwise -1.
@@ -2382,50 +2414,23 @@ PUBLIC int websRomOpen();
 PUBLIC void websRomClose();
 
 /**
-    Open the web page document for the current request
-    @param wp Webs request object
-    @return Zero if successful, otherwise -1.
-    @ingroup Webs
- */
-PUBLIC int websRomPageOpen(Webs *wp);
-
-/**
-    Close the web page document for the current request
-    @param wp Webs request object
-    @ingroup Webs
- */
-PUBLIC void websRomPageClose(Webs *wp);
-
-/**
-    Read data from ROM for the current request document
-    @param wp Webs request object
-    @param buf Buffer for the read data
-    @param size Size of buf
-    @return Count of bytes read if successful, otherwise -1.
-    @ingroup Webs
- */
-PUBLIC ssize websRomPageReadData(Webs *wp, char *buf, ssize size);
-
-/**
-    Get ROM file status for the current request document
-    @description This provides an interface above the file system or ROM based file system.
-    @param wp Webs request object
-    @param sbuf File information structure to modify with file status
-    @return Zero if successful, otherwise -1.
-    @ingroup Webs
- */
-PUBLIC int websRomPageStat(Webs *wp, WebsFileInfo *sbuf);
-
-/**
     Seek to a position in the current request page document
-    @param wp Webs request object
+    @param fd Open file handle returned by websOpenFile
     @param offset Location in the file to seek to.
     @param origin Set to SEEK_CUR, SEEK_SET or SEEK_END to position relative to the current position, 
         beginning or end of the document.
     @ingroup Webs
  */
-PUBLIC long websRomPageSeek(Webs *wp, Offset offset, int origin);
-#endif
+PUBLIC Offset websSeekFile(int fd, Offset offset, int origin);
+
+/**
+    Get file status for a file
+    @param path Filename path
+    @param sbuf File information structure to modify with file status
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+ */
+PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf);
 
 /**
     One line embedding API.
@@ -2671,6 +2676,16 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...);
     @ingroup Webs
  */
 PUBLIC ssize websWrite(Webs *wp, char *fmt, ...);
+
+/**
+    Write data to the open file
+    @param fd Open file handle returned by websOpenFile
+    @param buf Buffer for the read data
+    @param size Size of buf
+    @return Count of bytes read if successful, otherwise -1.
+    @ingroup Webs
+ */
+PUBLIC ssize websWriteFile(int fd, char *buf, ssize size);
 
 /**
     Write a block of data to the response
@@ -3014,6 +3029,20 @@ PUBLIC void websCloseAuth();
 PUBLIC void websComputeAllUserAbilities();
 
 /**
+    Get the users hash
+    @return The users hash object
+    @ingroup WebsAuth
+ */
+PUBLIC WebsHash websGetUsers();
+
+/**
+    Get the roles hash
+    @return The roles hash object
+    @ingroup WebsAuth
+ */
+PUBLIC WebsHash websGetRoles();
+
+/**
     Login a user by verifying the login credentials.
     @description This may be called by handlers to manually authenticate a user.
     @param wp Webs request object
@@ -3065,6 +3094,7 @@ PUBLIC int websOpenAuth(int minimal);
  */
 PUBLIC int websSetUserRoles(char *username, char *roles);
 
+#if UNUSED
 /**
     Save the authentication file
     @param path Filename to save to
@@ -3072,6 +3102,8 @@ PUBLIC int websSetUserRoles(char *username, char *roles);
     @ingroup WebsAuth
  */
 PUBLIC int websWriteAuthFile(char *path);
+#endif
+
 
 /**
     Standard user password verification routine.
@@ -3309,7 +3341,6 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     typedef Webs websType;
     typedef WebsBuf ringq_t;
     typedef WebsError websErrorType;
-    typedef WebsFileInfo websStatType;
     typedef WebsProc WebsFormProc;
     typedef int (*WebsLegacyHandlerProc)(Webs *wp, char *prefix, char *dir, int flags);
     typedef SocketHandler socketHandler_t;
@@ -3332,7 +3363,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags);
 
 #if BIT_ROM
-    typedef WebsRomIndex websRomPageIndexType;
+    typedef WebsRomIndex websRomIndexType;
 #endif
 #endif
 

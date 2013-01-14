@@ -16,7 +16,7 @@
 #include    "goahead.h"
 
 /*********************************** Defines **********************************/
-#if BIT_GOAHEAD_CGI
+#if BIT_GOAHEAD_CGI && !BIT_ROM
 
 typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     Webs    *wp;                /* Connection object */
@@ -965,7 +965,7 @@ static int checkCgi(int handle)
     return 1;
 }
 #endif /* WIN */
-#endif /* BIT_GOAHEAD_CGI */
+#endif /* BIT_GOAHEAD_CGI && !BIT_ROM */
 
 /*
     @copy   default

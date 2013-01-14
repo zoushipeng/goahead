@@ -91,11 +91,11 @@ cp -r src/deps/est/est.h ${CONFIG}/inc/est.h
 
 "${LD}" -out:${CONFIG}/bin/goahead-test.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.obj libgo.lib ${LIBS}
 
-"${CC}" -c -Fo${CONFIG}/obj/gopass.obj -Fd${CONFIG}/obj/gopass.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/gopass.c
+"${CC}" -c -Fo${CONFIG}/obj/gopass.obj -Fd${CONFIG}/obj/gopass.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/gopass.c
 
 "${LD}" -out:${CONFIG}/bin/gopass.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.obj libgo.lib ${LIBS}
 
-"${CC}" -c -Fo${CONFIG}/obj/webcomp.obj -Fd${CONFIG}/obj/webcomp.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc utils/webcomp.c
+"${CC}" -c -Fo${CONFIG}/obj/webcomp.obj -Fd${CONFIG}/obj/webcomp.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/webcomp.c
 
 "${LD}" -out:${CONFIG}/bin/webcomp.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/webcomp.obj ${LIBS}
 

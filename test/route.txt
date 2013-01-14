@@ -43,7 +43,7 @@ route uri=/auth/form/ auth=form handler=continue abilities=manage redirect=401@/
 #
 #   Standard routes
 #
-route uri=/cgi-bin handler=cgi
+#   route uri=/cgi-bin handler=cgi
 route uri=/action handler=action
 route uri=/ methods=OPTIONS|TRACE handler=options
 route uri=/ extensions=jst,asp handler=jst

@@ -414,7 +414,6 @@ PUBLIC int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClo
 }
 
 
-#if !BIT_ROM
 static void addOption(WebsHash *hash, char *keys, char *value)
 {
     char    *sep, *key, *tok;
@@ -441,21 +440,21 @@ static void addOption(WebsHash *hash, char *keys, char *value)
  */
 PUBLIC int websLoad(char *path)
 {
-    WebsRoute     *route;
-    FILE          *fp;
-    char          buf[512], *line, *kind, *next, *auth, *dir, *handler, *protocol, *uri, *option, *key, *value, *status;
-    char          *name, *redirectUri, *password, *roles;
-    WebsHash      abilities, extensions, methods, redirects;
+    WebsRoute   *route;
+    WebsHash    abilities, extensions, methods, redirects;
+    char        *buf, *line, *kind, *next, *auth, *dir, *handler, *protocol, *uri, *option, *key, *value, *status;
+    char        *name, *redirectUri, *password, *roles, *token;
+    int         rc;
     
     assert(path && *path);
 
-    if ((fp = fopen(path, "r" FILE_TEXT)) == 0) {
-        error("Can't open route config file %s", path);
+    rc = 0;
+    if ((buf = websReadWholeFile(path)) == 0) {
+        error("Can't open config file %s", path);
         return -1;
     }
-    buf[sizeof(buf) - 1] = '\0';
-    while ((line = fgets(buf, sizeof(buf) -1, fp)) != 0) {
-        kind = stok(buf, " \t\r\n", &next);
+    for (line = stok(buf, "\r\n", &token); line; line = stok(NULL, "\r\n", &token)) {
+        kind = stok(line, " \t", &next);
         if (kind == 0 || *kind == '\0' || *kind == '#') {
             continue;
         }
@@ -499,11 +498,13 @@ PUBLIC int websLoad(char *path)
                 }
             }
             if ((route = websAddRoute(uri, handler, -1)) == 0) {
-                return -1;
+                rc = -1;
+                break;
             }
             websSetRouteMatch(route, dir, protocol, methods, extensions, abilities, redirects);
             if (auth && websSetRouteAuth(route, auth) < 0) {
-                return -1;
+                rc = -1;
+                break;
             }
         } else if (smatch(kind, "user")) {
             name = password = roles = 0;
@@ -521,7 +522,8 @@ PUBLIC int websLoad(char *path)
                 }
             }
             if (websAddUser(name, password, roles) == 0) {
-                return -1;
+                rc = -1;
+                break;
             }
         } else if (smatch(kind, "role")) {
             name = 0;
@@ -535,18 +537,19 @@ PUBLIC int websLoad(char *path)
                 }
             }
             if (websAddRole(name, abilities) == 0) {
-                return -1;
+                rc = -1;
+                break;
             }
         } else {
             error("Unknown route keyword %s", kind); 
-            return -1;
+            rc = -1;
+            break;
         }
     }
-    fclose(fp);
+    wfree(buf);
     websComputeAllUserAbilities();
-    return 0;
+    return rc;
 }
-#endif
 
 
 /*

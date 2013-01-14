@@ -1067,10 +1067,14 @@ PUBLIC int logOpen()
         logFd = 1;
     } else if (smatch(logPath, "stderr")) {
         logFd = 2;
-    } else if ((logFd = open(logPath, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
-        return -1;
+#if !BIT_ROM
+    } else {
+        if ((logFd = open(logPath, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
+            return -1;
+        }
+        lseek(logFd, 0, SEEK_END);
+#endif
     }
-    lseek(logFd, 0, SEEK_END);
     logSetHandler(logHandler);
     return 0;
 }
