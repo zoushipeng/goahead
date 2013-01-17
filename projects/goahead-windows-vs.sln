@@ -2,6 +2,11 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prep", "goahead-windows-vs\prep.vcxproj", "{D477AF49-F508-4E2B-A479-0DE0F3750BDD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libest", "goahead-windows-vs\libest.vcxproj", "{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ca-crt", "goahead-windows-vs\ca-crt.vcxproj", "{D2D32497-2BDA-43AD-AC95-827B632FF44D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
@@ -63,6 +68,14 @@ Global
 {D477AF49-F508-4E2B-A479-0DE0F3750BDD}.Release|Win32.Build.0 = Release|Win32
 {D477AF49-F508-4E2B-A479-0DE0F3750BDD}.Release|x64.ActiveCfg = Release|x64
 {D477AF49-F508-4E2B-A479-0DE0F3750BDD}.Release|x64.Build.0 = Release|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|Win32.ActiveCfg = Debug|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|Win32.Build.0 = Debug|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|x64.ActiveCfg = Debug|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|x64.Build.0 = Debug|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|Win32.ActiveCfg = Release|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|Win32.Build.0 = Release|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|x64.ActiveCfg = Release|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|x64.Build.0 = Release|x64
 {D2D32497-2BDA-43AD-AC95-827B632FF44D}.Debug|Win32.ActiveCfg = Debug|Win32
 {D2D32497-2BDA-43AD-AC95-827B632FF44D}.Debug|Win32.Build.0 = Debug|Win32
 {D2D32497-2BDA-43AD-AC95-827B632FF44D}.Debug|x64.ActiveCfg = Debug|x64

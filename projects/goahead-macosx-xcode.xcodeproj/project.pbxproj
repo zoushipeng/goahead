@@ -26,22 +26,23 @@
 				
 			);
 			dependencies = (
-				7B93AF9D7B93EB420000000B /* PBXTargetDependency ca-crt */,
-				7B93AF9D7B93EB420000000C /* PBXTargetDependency libgo */,
-				7B93AF9D7B93EB420000000D /* PBXTargetDependency goahead */,
-				7B93AF9D7B93EB420000000E /* PBXTargetDependency goahead-test */,
-				7B93AF9D7B93EB420000000F /* PBXTargetDependency gopass */,
-				7B93AF9D7B93EB4200000010 /* PBXTargetDependency webcomp */,
-				7B93AF9D7B93EB4200000011 /* PBXTargetDependency cgitest */,
+				7B93AF9D7B93EB420000000B /* PBXTargetDependency libest */,
+				7B93AF9D7B93EB420000000C /* PBXTargetDependency ca-crt */,
+				7B93AF9D7B93EB420000000D /* PBXTargetDependency libgo */,
+				7B93AF9D7B93EB420000000E /* PBXTargetDependency goahead */,
+				7B93AF9D7B93EB420000000F /* PBXTargetDependency goahead-test */,
+				7B93AF9D7B93EB4200000010 /* PBXTargetDependency gopass */,
+				7B93AF9D7B93EB4200000011 /* PBXTargetDependency webcomp */,
+				7B93AF9D7B93EB4200000012 /* PBXTargetDependency cgitest */,
 			);
 			name = All;
 			productName = All;
 		};
-		7B93AF9D7B93EB4200000013 /* Prep */ = {
+		7B93AF9D7B93EB4200000014 /* Prep */ = {
 			isa = PBXAggregateTarget;
-			buildConfigurationList = 7B93AF9D7B93EB4200000012 /* Build configuration list for PBXAggregateTarget "Prep" */;
+			buildConfigurationList = 7B93AF9D7B93EB4200000013 /* Build configuration list for PBXAggregateTarget "Prep" */;
 			buildPhases = (
-				7B93AF9D7B93EB4200000014,
+				7B93AF9D7B93EB4200000015,
 			);
 			dependencies = (
 			);
@@ -51,197 +52,219 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
-		7B93AF9D7B93EB4200000015 /* action.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000016 /* action.c */; };
-		7B93AF9D7B93EB4200000017 /* alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000018 /* alloc.c */; };
-		7B93AF9D7B93EB4200000019 /* auth.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000001A /* auth.c */; };
-		7B93AF9D7B93EB420000001B /* cgi.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000001C /* cgi.c */; };
-		7B93AF9D7B93EB420000001D /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000001E /* crypt.c */; };
-		7B93AF9D7B93EB420000001F /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000020 /* file.c */; };
-		7B93AF9D7B93EB4200000021 /* http.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000022 /* http.c */; };
-		7B93AF9D7B93EB4200000023 /* js.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000024 /* js.c */; };
-		7B93AF9D7B93EB4200000025 /* jst.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000026 /* jst.c */; };
-		7B93AF9D7B93EB4200000027 /* options.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000028 /* options.c */; };
-		7B93AF9D7B93EB4200000029 /* rom-documents.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000002A /* rom-documents.c */; };
-		7B93AF9D7B93EB420000002B /* rom.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000002C /* rom.c */; };
-		7B93AF9D7B93EB420000002D /* route.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000002E /* route.c */; };
-		7B93AF9D7B93EB420000002F /* runtime.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000030 /* runtime.c */; };
-		7B93AF9D7B93EB4200000031 /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000032 /* socket.c */; };
-		7B93AF9D7B93EB4200000033 /* upload.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000034 /* upload.c */; };
-		7B93AF9D7B93EB4200000035 /* est.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000036 /* est.c */; };
-		7B93AF9D7B93EB4200000037 /* matrixssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000038 /* matrixssl.c */; };
-		7B93AF9D7B93EB4200000039 /* openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000003A /* openssl.c */; };
-		7B93AF9D7B93EB420000003B /* goahead.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000003C /* goahead.c */; };
-		7B93AF9D7B93EB420000003D /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000003E /* test.c */; };
-		7B93AF9D7B93EB420000003F /* gopass.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000040 /* gopass.c */; };
-		7B93AF9D7B93EB4200000041 /* webcomp.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000042 /* webcomp.c */; };
-		7B93AF9D7B93EB4200000043 /* cgitest.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000044 /* cgitest.c */; };
-		7B93AF9D7B93EB4200000045 /* libgo.dylib for goahead */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000046; };
-		7B93AF9D7B93EB4200000047 /* libgo.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000046; };
-		7B93AF9D7B93EB4200000048 /* libgo.dylib for gopass */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000046; };
+		7B93AF9D7B93EB4200000016 /* estLib.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000017 /* estLib.c */; };
+		7B93AF9D7B93EB4200000018 /* action.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000019 /* action.c */; };
+		7B93AF9D7B93EB420000001A /* alloc.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000001B /* alloc.c */; };
+		7B93AF9D7B93EB420000001C /* auth.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000001D /* auth.c */; };
+		7B93AF9D7B93EB420000001E /* cgi.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000001F /* cgi.c */; };
+		7B93AF9D7B93EB4200000020 /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000021 /* crypt.c */; };
+		7B93AF9D7B93EB4200000022 /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000023 /* file.c */; };
+		7B93AF9D7B93EB4200000024 /* http.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000025 /* http.c */; };
+		7B93AF9D7B93EB4200000026 /* js.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000027 /* js.c */; };
+		7B93AF9D7B93EB4200000028 /* jst.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000029 /* jst.c */; };
+		7B93AF9D7B93EB420000002A /* options.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000002B /* options.c */; };
+		7B93AF9D7B93EB420000002C /* rom-documents.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000002D /* rom-documents.c */; };
+		7B93AF9D7B93EB420000002E /* rom.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000002F /* rom.c */; };
+		7B93AF9D7B93EB4200000030 /* route.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000031 /* route.c */; };
+		7B93AF9D7B93EB4200000032 /* runtime.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000033 /* runtime.c */; };
+		7B93AF9D7B93EB4200000034 /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000035 /* socket.c */; };
+		7B93AF9D7B93EB4200000036 /* upload.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000037 /* upload.c */; };
+		7B93AF9D7B93EB4200000038 /* est.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000039 /* est.c */; };
+		7B93AF9D7B93EB420000003A /* matrixssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000003B /* matrixssl.c */; };
+		7B93AF9D7B93EB420000003C /* openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000003D /* openssl.c */; };
+		7B93AF9D7B93EB420000003E /* goahead.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000003F /* goahead.c */; };
+		7B93AF9D7B93EB4200000040 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000041 /* test.c */; };
+		7B93AF9D7B93EB4200000042 /* gopass.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000043 /* gopass.c */; };
+		7B93AF9D7B93EB4200000044 /* webcomp.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000045 /* webcomp.c */; };
+		7B93AF9D7B93EB4200000046 /* cgitest.c in Sources */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000047 /* cgitest.c */; };
+		7B93AF9D7B93EB4200000048 /* libest.dylib for libgo */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000049; };
+		7B93AF9D7B93EB420000004A /* libgo.dylib for goahead */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000004B; };
+		7B93AF9D7B93EB420000004C /* libest.dylib for goahead */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000049; };
+		7B93AF9D7B93EB420000004D /* libgo.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000004B; };
+		7B93AF9D7B93EB420000004E /* libest.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000049; };
+		7B93AF9D7B93EB420000004F /* libgo.dylib for gopass */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB420000004B; };
+		7B93AF9D7B93EB4200000050 /* libest.dylib for gopass */ = {isa = PBXBuildFile; fileRef = 7B93AF9D7B93EB4200000049; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		7B93AF9D7B93EB4200000049 /* PBXContainerItemProxy Prep from ca-crt */ = {
+		7B93AF9D7B93EB4200000051 /* PBXContainerItemProxy Prep from libest */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB420000004A /* PBXContainerItemProxy Prep from libgo */ = {
+		7B93AF9D7B93EB4200000052 /* PBXContainerItemProxy Prep from ca-crt */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB420000004B /* PBXContainerItemProxy libgo from goahead */ = {
+		7B93AF9D7B93EB4200000053 /* PBXContainerItemProxy Prep from libgo */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000004C;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
+			remoteInfo = Prep;
+		};
+		7B93AF9D7B93EB4200000054 /* PBXContainerItemProxy libgo from goahead */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000055;
 			remoteInfo = libgo;
 		};
-		7B93AF9D7B93EB420000004D /* PBXContainerItemProxy Prep from goahead */ = {
+		7B93AF9D7B93EB4200000056 /* PBXContainerItemProxy Prep from goahead */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB420000004E /* PBXContainerItemProxy libgo from goahead-test */ = {
+		7B93AF9D7B93EB4200000057 /* PBXContainerItemProxy libgo from goahead-test */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000004C;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000055;
 			remoteInfo = libgo;
 		};
-		7B93AF9D7B93EB420000004F /* PBXContainerItemProxy Prep from goahead-test */ = {
+		7B93AF9D7B93EB4200000058 /* PBXContainerItemProxy Prep from goahead-test */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB4200000050 /* PBXContainerItemProxy libgo from gopass */ = {
+		7B93AF9D7B93EB4200000059 /* PBXContainerItemProxy libgo from gopass */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000004C;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000055;
 			remoteInfo = libgo;
 		};
-		7B93AF9D7B93EB4200000051 /* PBXContainerItemProxy Prep from gopass */ = {
+		7B93AF9D7B93EB420000005A /* PBXContainerItemProxy Prep from gopass */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB4200000052 /* PBXContainerItemProxy Prep from webcomp */ = {
+		7B93AF9D7B93EB420000005B /* PBXContainerItemProxy Prep from webcomp */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB4200000053 /* PBXContainerItemProxy Prep from cgitest */ = {
+		7B93AF9D7B93EB420000005C /* PBXContainerItemProxy Prep from cgitest */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000013;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000014;
 			remoteInfo = Prep;
 		};
-		7B93AF9D7B93EB4200000054 /* PBXContainerItemProxy ca-crt from All */ = {
+		7B93AF9D7B93EB420000005D /* PBXContainerItemProxy libest from All */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 7B93AF9D7B93EB420000005E;
+			remoteInfo = libest;
+		};
+		7B93AF9D7B93EB420000005F /* PBXContainerItemProxy ca-crt from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 7B93AF9D7B93EB4200000006;
 			remoteInfo = ca-crt;
 		};
-		7B93AF9D7B93EB4200000055 /* PBXContainerItemProxy libgo from All */ = {
+		7B93AF9D7B93EB4200000060 /* PBXContainerItemProxy libgo from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000004C;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000055;
 			remoteInfo = libgo;
 		};
-		7B93AF9D7B93EB4200000056 /* PBXContainerItemProxy goahead from All */ = {
+		7B93AF9D7B93EB4200000061 /* PBXContainerItemProxy goahead from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000057;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000062;
 			remoteInfo = goahead;
 		};
-		7B93AF9D7B93EB4200000058 /* PBXContainerItemProxy goahead-test from All */ = {
+		7B93AF9D7B93EB4200000063 /* PBXContainerItemProxy goahead-test from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB4200000059;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000064;
 			remoteInfo = goahead-test;
 		};
-		7B93AF9D7B93EB420000005A /* PBXContainerItemProxy gopass from All */ = {
+		7B93AF9D7B93EB4200000065 /* PBXContainerItemProxy gopass from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000005B;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000066;
 			remoteInfo = gopass;
 		};
-		7B93AF9D7B93EB420000005C /* PBXContainerItemProxy webcomp from All */ = {
+		7B93AF9D7B93EB4200000067 /* PBXContainerItemProxy webcomp from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000005D;
+			remoteGlobalIDString = 7B93AF9D7B93EB4200000068;
 			remoteInfo = webcomp;
 		};
-		7B93AF9D7B93EB420000005E /* PBXContainerItemProxy cgitest from All */ = {
+		7B93AF9D7B93EB4200000069 /* PBXContainerItemProxy cgitest from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 7B93AF9D7B93EB4200000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 7B93AF9D7B93EB420000005F;
+			remoteGlobalIDString = 7B93AF9D7B93EB420000006A;
 			remoteInfo = cgitest;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		7B93AF9D7B93EB4200000016 /* action.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = action.c; path = src/action.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000060 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-xcode/inc/bit.h; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000061 /* goahead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = goahead.h; path = macosx-x64-xcode/inc/goahead.h; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000018 /* alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alloc.c; path = src/alloc.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000001A /* auth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = auth.c; path = src/auth.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000001C /* cgi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgi.c; path = src/cgi.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000001E /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crypt.c; path = src/crypt.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000020 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = src/file.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000022 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/http.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000024 /* js.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = js.c; path = src/js.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000062 /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-xcode/inc/js.h; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000026 /* jst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jst.c; path = src/jst.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000028 /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/options.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000002A /* rom-documents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rom-documents.c; path = src/rom-documents.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000002C /* rom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rom.c; path = src/rom.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000002E /* route.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = route.c; path = src/route.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000030 /* runtime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = runtime.c; path = src/runtime.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000032 /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000034 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000036 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000063 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-xcode/inc/est.h; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000038 /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB420000003A /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000064 /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-xcode/inc/bitos.h; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000046 /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B93AF9D7B93EB420000003C /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000065 /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B93AF9D7B93EB420000003E /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = test/test.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000066 /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B93AF9D7B93EB4200000040 /* gopass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gopass.c; path = src/utils/gopass.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000067 /* gopass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gopass; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B93AF9D7B93EB4200000042 /* webcomp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = webcomp.c; path = src/utils/webcomp.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000068 /* webcomp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = webcomp; sourceTree = BUILT_PRODUCTS_DIR; };
-		7B93AF9D7B93EB4200000044 /* cgitest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgitest.c; path = test/cgitest.c; sourceTree = "<group>"; };
-		7B93AF9D7B93EB4200000069 /* cgitest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cgitest; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB4200000017 /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/deps/est/estLib.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000006B /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-xcode/inc/bit.h; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000006C /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-xcode/inc/est.h; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000049 /* libest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libest.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB4200000019 /* action.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = action.c; path = src/action.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000006D /* goahead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = goahead.h; path = macosx-x64-xcode/inc/goahead.h; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000001B /* alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alloc.c; path = src/alloc.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000001D /* auth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = auth.c; path = src/auth.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000001F /* cgi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgi.c; path = src/cgi.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000021 /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crypt.c; path = src/crypt.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000023 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = src/file.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000025 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/http.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000027 /* js.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = js.c; path = src/js.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000006E /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-xcode/inc/js.h; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000029 /* jst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jst.c; path = src/jst.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000002B /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/options.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000002D /* rom-documents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rom-documents.c; path = src/rom-documents.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000002F /* rom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rom.c; path = src/rom.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000031 /* route.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = route.c; path = src/route.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000033 /* runtime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = runtime.c; path = src/runtime.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000035 /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000037 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000039 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000006F /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = src/deps/est/est.h; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000003B /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000003D /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000070 /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-xcode/inc/bitos.h; sourceTree = "<group>"; };
+		7B93AF9D7B93EB420000004B /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB420000003F /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000071 /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB4200000041 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = test/test.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000072 /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB4200000043 /* gopass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gopass.c; path = src/utils/gopass.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000073 /* gopass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gopass; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB4200000045 /* webcomp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = webcomp.c; path = src/utils/webcomp.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000074 /* webcomp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = webcomp; sourceTree = BUILT_PRODUCTS_DIR; };
+		7B93AF9D7B93EB4200000047 /* cgitest.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgitest.c; path = test/cgitest.c; sourceTree = "<group>"; };
+		7B93AF9D7B93EB4200000075 /* cgitest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = cgitest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		7B93AF9D7B93EB420000006A /* Frameworks and Libraries for libgo */ = {
+		7B93AF9D7B93EB4200000076 /* Frameworks and Libraries for libest */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -249,31 +272,42 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		7B93AF9D7B93EB420000006B /* Frameworks and Libraries for goahead */ = {
+		7B93AF9D7B93EB4200000077 /* Frameworks and Libraries for libgo */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
-				7B93AF9D7B93EB4200000045 /* libgo */,				
+				7B93AF9D7B93EB4200000048 /* libest */,				
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		7B93AF9D7B93EB420000006C /* Frameworks and Libraries for goahead-test */ = {
+		7B93AF9D7B93EB4200000078 /* Frameworks and Libraries for goahead */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
-				7B93AF9D7B93EB4200000047 /* libgo */,				
+				7B93AF9D7B93EB420000004A /* libgo */,
+				7B93AF9D7B93EB420000004C /* libest */,				
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		7B93AF9D7B93EB420000006D /* Frameworks and Libraries for gopass */ = {
+		7B93AF9D7B93EB4200000079 /* Frameworks and Libraries for goahead-test */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
-				7B93AF9D7B93EB4200000048 /* libgo */,				
+				7B93AF9D7B93EB420000004D /* libgo */,
+				7B93AF9D7B93EB420000004E /* libest */,				
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		7B93AF9D7B93EB420000006E /* Frameworks and Libraries for webcomp */ = {
+		7B93AF9D7B93EB420000007A /* Frameworks and Libraries for gopass */ = {
+            isa = PBXFrameworksBuildPhase;
+            buildActionMask = 2147483647;
+            files = (
+				7B93AF9D7B93EB420000004F /* libgo */,
+				7B93AF9D7B93EB4200000050 /* libest */,				
+            );
+            runOnlyForDeploymentPostprocessing = 0;
+        };
+		7B93AF9D7B93EB420000007B /* Frameworks and Libraries for webcomp */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -281,7 +315,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		7B93AF9D7B93EB420000006F /* Frameworks and Libraries for cgitest */ = {
+		7B93AF9D7B93EB420000007C /* Frameworks and Libraries for cgitest */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -292,115 +326,128 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		7B93AF9D7B93EB4200000070 /* Top Group */ = {
+		7B93AF9D7B93EB420000007D /* Top Group */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000071 /* libgo */,
-				7B93AF9D7B93EB4200000072 /* cgitest */,
-				7B93AF9D7B93EB4200000073 /* goahead */,
-				7B93AF9D7B93EB4200000074 /* goahead-test */,
-				7B93AF9D7B93EB4200000075 /* gopass */,
-				7B93AF9D7B93EB4200000076 /* webcomp */,
-				7B93AF9D7B93EB4200000077 /* Products */,
+				7B93AF9D7B93EB420000007E /* libest */,
+				7B93AF9D7B93EB420000007F /* libgo */,
+				7B93AF9D7B93EB4200000080 /* cgitest */,
+				7B93AF9D7B93EB4200000081 /* goahead */,
+				7B93AF9D7B93EB4200000082 /* goahead-test */,
+				7B93AF9D7B93EB4200000083 /* gopass */,
+				7B93AF9D7B93EB4200000084 /* webcomp */,
+				7B93AF9D7B93EB4200000085 /* Products */,
 			);
             sourceTree = "<group>";
         };
-		7B93AF9D7B93EB4200000071 /* libgo */ = {
+		7B93AF9D7B93EB420000007E /* libest */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000060 /* bit.h */,
-				7B93AF9D7B93EB4200000061 /* goahead.h */,
-				7B93AF9D7B93EB4200000062 /* js.h */,
-				7B93AF9D7B93EB4200000063 /* est.h */,
-				7B93AF9D7B93EB4200000064 /* bitos.h */,
-				7B93AF9D7B93EB4200000016 /* action.c */,
-				7B93AF9D7B93EB4200000018 /* alloc.c */,
-				7B93AF9D7B93EB420000001A /* auth.c */,
-				7B93AF9D7B93EB420000001C /* cgi.c */,
-				7B93AF9D7B93EB420000001E /* crypt.c */,
-				7B93AF9D7B93EB4200000020 /* file.c */,
-				7B93AF9D7B93EB4200000022 /* http.c */,
-				7B93AF9D7B93EB4200000024 /* js.c */,
-				7B93AF9D7B93EB4200000026 /* jst.c */,
-				7B93AF9D7B93EB4200000028 /* options.c */,
-				7B93AF9D7B93EB420000002A /* rom-documents.c */,
-				7B93AF9D7B93EB420000002C /* rom.c */,
-				7B93AF9D7B93EB420000002E /* route.c */,
-				7B93AF9D7B93EB4200000030 /* runtime.c */,
-				7B93AF9D7B93EB4200000032 /* socket.c */,
-				7B93AF9D7B93EB4200000034 /* upload.c */,
-				7B93AF9D7B93EB4200000036 /* est.c */,
-				7B93AF9D7B93EB4200000038 /* matrixssl.c */,
-				7B93AF9D7B93EB420000003A /* openssl.c */,
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB420000006C /* est.h */,
+				7B93AF9D7B93EB4200000017 /* estLib.c */,
+			);
+            name = "libest";
+            path = ..;
+            sourceTree = SOURCE_ROOT;
+        };
+		7B93AF9D7B93EB420000007F /* libgo */ = {
+            isa = PBXGroup;
+            children = (
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB420000006D /* goahead.h */,
+				7B93AF9D7B93EB420000006E /* js.h */,
+				7B93AF9D7B93EB420000006F /* est.h */,
+				7B93AF9D7B93EB4200000070 /* bitos.h */,
+				7B93AF9D7B93EB4200000019 /* action.c */,
+				7B93AF9D7B93EB420000001B /* alloc.c */,
+				7B93AF9D7B93EB420000001D /* auth.c */,
+				7B93AF9D7B93EB420000001F /* cgi.c */,
+				7B93AF9D7B93EB4200000021 /* crypt.c */,
+				7B93AF9D7B93EB4200000023 /* file.c */,
+				7B93AF9D7B93EB4200000025 /* http.c */,
+				7B93AF9D7B93EB4200000027 /* js.c */,
+				7B93AF9D7B93EB4200000029 /* jst.c */,
+				7B93AF9D7B93EB420000002B /* options.c */,
+				7B93AF9D7B93EB420000002D /* rom-documents.c */,
+				7B93AF9D7B93EB420000002F /* rom.c */,
+				7B93AF9D7B93EB4200000031 /* route.c */,
+				7B93AF9D7B93EB4200000033 /* runtime.c */,
+				7B93AF9D7B93EB4200000035 /* socket.c */,
+				7B93AF9D7B93EB4200000037 /* upload.c */,
+				7B93AF9D7B93EB4200000039 /* est.c */,
+				7B93AF9D7B93EB420000003B /* matrixssl.c */,
+				7B93AF9D7B93EB420000003D /* openssl.c */,
 			);
             name = "libgo";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		7B93AF9D7B93EB4200000073 /* goahead */ = {
+		7B93AF9D7B93EB4200000081 /* goahead */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000060 /* bit.h */,
-				7B93AF9D7B93EB4200000061 /* goahead.h */,
-				7B93AF9D7B93EB420000003C /* goahead.c */,
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB420000006D /* goahead.h */,
+				7B93AF9D7B93EB420000003F /* goahead.c */,
 			);
             name = "goahead";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		7B93AF9D7B93EB4200000074 /* goahead-test */ = {
+		7B93AF9D7B93EB4200000082 /* goahead-test */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000060 /* bit.h */,
-				7B93AF9D7B93EB4200000061 /* goahead.h */,
-				7B93AF9D7B93EB4200000062 /* js.h */,
-				7B93AF9D7B93EB420000003E /* test.c */,
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB420000006D /* goahead.h */,
+				7B93AF9D7B93EB420000006E /* js.h */,
+				7B93AF9D7B93EB4200000041 /* test.c */,
 			);
             name = "goahead-test";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		7B93AF9D7B93EB4200000075 /* gopass */ = {
+		7B93AF9D7B93EB4200000083 /* gopass */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000060 /* bit.h */,
-				7B93AF9D7B93EB4200000061 /* goahead.h */,
-				7B93AF9D7B93EB4200000040 /* gopass.c */,
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB420000006D /* goahead.h */,
+				7B93AF9D7B93EB4200000043 /* gopass.c */,
 			);
             name = "gopass";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		7B93AF9D7B93EB4200000076 /* webcomp */ = {
+		7B93AF9D7B93EB4200000084 /* webcomp */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000060 /* bit.h */,
-				7B93AF9D7B93EB4200000061 /* goahead.h */,
-				7B93AF9D7B93EB4200000042 /* webcomp.c */,
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB420000006D /* goahead.h */,
+				7B93AF9D7B93EB4200000045 /* webcomp.c */,
 			);
             name = "webcomp";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		7B93AF9D7B93EB4200000072 /* cgitest */ = {
+		7B93AF9D7B93EB4200000080 /* cgitest */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000060 /* bit.h */,
-				7B93AF9D7B93EB4200000044 /* cgitest.c */,
+				7B93AF9D7B93EB420000006B /* bit.h */,
+				7B93AF9D7B93EB4200000047 /* cgitest.c */,
 			);
             name = "cgitest";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		7B93AF9D7B93EB4200000077 /* Products */ = {
+		7B93AF9D7B93EB4200000085 /* Products */ = {
             isa = PBXGroup;
             children = (
-				7B93AF9D7B93EB4200000046 /* libgo */,
-				7B93AF9D7B93EB4200000065 /* goahead */,
-				7B93AF9D7B93EB4200000066 /* goahead-test */,
-				7B93AF9D7B93EB4200000067 /* gopass */,
-				7B93AF9D7B93EB4200000068 /* webcomp */,
-				7B93AF9D7B93EB4200000069 /* cgitest */,
+				7B93AF9D7B93EB4200000049 /* libest */,
+				7B93AF9D7B93EB420000004B /* libgo */,
+				7B93AF9D7B93EB4200000071 /* goahead */,
+				7B93AF9D7B93EB4200000072 /* goahead-test */,
+				7B93AF9D7B93EB4200000073 /* gopass */,
+				7B93AF9D7B93EB4200000074 /* webcomp */,
+				7B93AF9D7B93EB4200000075 /* cgitest */,
 			);
             name = "Products";
             path = ..;
@@ -409,109 +456,126 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7B93AF9D7B93EB420000004C /* libgo */ = {
+		7B93AF9D7B93EB420000005E /* libest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B93AF9D7B93EB4200000079 /* Build configuration list for PBXNativeTarget "libgo" */;
+			buildConfigurationList = 7B93AF9D7B93EB4200000087 /* Build configuration list for PBXNativeTarget "libest" */;
 			buildPhases = (
-				7B93AF9D7B93EB4200000078 /* Sources */,
-				7B93AF9D7B93EB420000006A /* Frameworks */,
+				7B93AF9D7B93EB4200000086 /* Sources */,
+				7B93AF9D7B93EB4200000076 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7B93AF9D7B93EB420000007A /* Prep */,				
+				7B93AF9D7B93EB4200000088 /* Prep */,				
+			);
+			name = libest;
+			productName = goahead;
+			productReference = 7B93AF9D7B93EB4200000049 /* libest */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+		7B93AF9D7B93EB4200000055 /* libgo */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7B93AF9D7B93EB420000008A /* Build configuration list for PBXNativeTarget "libgo" */;
+			buildPhases = (
+				7B93AF9D7B93EB4200000089 /* Sources */,
+				7B93AF9D7B93EB4200000077 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7B93AF9D7B93EB420000008B /* Prep */,				
 			);
 			name = libgo;
 			productName = goahead;
-			productReference = 7B93AF9D7B93EB4200000046 /* libgo */;
+			productReference = 7B93AF9D7B93EB420000004B /* libgo */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		7B93AF9D7B93EB4200000057 /* goahead */ = {
+		7B93AF9D7B93EB4200000062 /* goahead */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B93AF9D7B93EB420000007C /* Build configuration list for PBXNativeTarget "goahead" */;
+			buildConfigurationList = 7B93AF9D7B93EB420000008D /* Build configuration list for PBXNativeTarget "goahead" */;
 			buildPhases = (
-				7B93AF9D7B93EB420000007B /* Sources */,
-				7B93AF9D7B93EB420000006B /* Frameworks */,
+				7B93AF9D7B93EB420000008C /* Sources */,
+				7B93AF9D7B93EB4200000078 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7B93AF9D7B93EB420000007D /* libgo */,
-				7B93AF9D7B93EB420000007E /* Prep */,				
+				7B93AF9D7B93EB420000008E /* libgo */,
+				7B93AF9D7B93EB420000008F /* Prep */,				
 			);
 			name = goahead;
 			productName = goahead;
-			productReference = 7B93AF9D7B93EB4200000065 /* goahead */;
+			productReference = 7B93AF9D7B93EB4200000071 /* goahead */;
 			productType = "com.apple.product-type.tool";
 		};
-		7B93AF9D7B93EB4200000059 /* goahead-test */ = {
+		7B93AF9D7B93EB4200000064 /* goahead-test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B93AF9D7B93EB4200000080 /* Build configuration list for PBXNativeTarget "goahead-test" */;
+			buildConfigurationList = 7B93AF9D7B93EB4200000091 /* Build configuration list for PBXNativeTarget "goahead-test" */;
 			buildPhases = (
-				7B93AF9D7B93EB420000007F /* Sources */,
-				7B93AF9D7B93EB420000006C /* Frameworks */,
+				7B93AF9D7B93EB4200000090 /* Sources */,
+				7B93AF9D7B93EB4200000079 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7B93AF9D7B93EB4200000081 /* libgo */,
-				7B93AF9D7B93EB4200000082 /* Prep */,				
+				7B93AF9D7B93EB4200000092 /* libgo */,
+				7B93AF9D7B93EB4200000093 /* Prep */,				
 			);
 			name = goahead-test;
 			productName = goahead;
-			productReference = 7B93AF9D7B93EB4200000066 /* goahead-test */;
+			productReference = 7B93AF9D7B93EB4200000072 /* goahead-test */;
 			productType = "com.apple.product-type.tool";
 		};
-		7B93AF9D7B93EB420000005B /* gopass */ = {
+		7B93AF9D7B93EB4200000066 /* gopass */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B93AF9D7B93EB4200000084 /* Build configuration list for PBXNativeTarget "gopass" */;
+			buildConfigurationList = 7B93AF9D7B93EB4200000095 /* Build configuration list for PBXNativeTarget "gopass" */;
 			buildPhases = (
-				7B93AF9D7B93EB4200000083 /* Sources */,
-				7B93AF9D7B93EB420000006D /* Frameworks */,
+				7B93AF9D7B93EB4200000094 /* Sources */,
+				7B93AF9D7B93EB420000007A /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7B93AF9D7B93EB4200000085 /* libgo */,
-				7B93AF9D7B93EB4200000086 /* Prep */,				
+				7B93AF9D7B93EB4200000096 /* libgo */,
+				7B93AF9D7B93EB4200000097 /* Prep */,				
 			);
 			name = gopass;
 			productName = goahead;
-			productReference = 7B93AF9D7B93EB4200000067 /* gopass */;
+			productReference = 7B93AF9D7B93EB4200000073 /* gopass */;
 			productType = "com.apple.product-type.tool";
 		};
-		7B93AF9D7B93EB420000005D /* webcomp */ = {
+		7B93AF9D7B93EB4200000068 /* webcomp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B93AF9D7B93EB4200000088 /* Build configuration list for PBXNativeTarget "webcomp" */;
+			buildConfigurationList = 7B93AF9D7B93EB4200000099 /* Build configuration list for PBXNativeTarget "webcomp" */;
 			buildPhases = (
-				7B93AF9D7B93EB4200000087 /* Sources */,
-				7B93AF9D7B93EB420000006E /* Frameworks */,
+				7B93AF9D7B93EB4200000098 /* Sources */,
+				7B93AF9D7B93EB420000007B /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7B93AF9D7B93EB4200000089 /* Prep */,				
+				7B93AF9D7B93EB420000009A /* Prep */,				
 			);
 			name = webcomp;
 			productName = goahead;
-			productReference = 7B93AF9D7B93EB4200000068 /* webcomp */;
+			productReference = 7B93AF9D7B93EB4200000074 /* webcomp */;
 			productType = "com.apple.product-type.tool";
 		};
-		7B93AF9D7B93EB420000005F /* cgitest */ = {
+		7B93AF9D7B93EB420000006A /* cgitest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 7B93AF9D7B93EB420000008B /* Build configuration list for PBXNativeTarget "cgitest" */;
+			buildConfigurationList = 7B93AF9D7B93EB420000009C /* Build configuration list for PBXNativeTarget "cgitest" */;
 			buildPhases = (
-				7B93AF9D7B93EB420000008A /* Sources */,
-				7B93AF9D7B93EB420000006F /* Frameworks */,
+				7B93AF9D7B93EB420000009B /* Sources */,
+				7B93AF9D7B93EB420000007C /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7B93AF9D7B93EB420000008C /* Prep */,				
+				7B93AF9D7B93EB420000009D /* Prep */,				
 			);
 			name = cgitest;
 			productName = goahead;
-			productReference = 7B93AF9D7B93EB4200000069 /* cgitest */;
+			productReference = 7B93AF9D7B93EB4200000075 /* cgitest */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -536,7 +600,7 @@ rm -rf ../../${CFG_DIR}/bin/ca.crt
 cp -r ca.crt ../../${CFG_DIR}/bin/ca.crt
 ";
 		};
-		7B93AF9D7B93EB4200000014 /* ShellScript for Prep */ = {
+		7B93AF9D7B93EB4200000015 /* ShellScript for Prep */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -630,178 +694,197 @@ fi";
 			knownRegions = (
 				en,
 			);
-			mainGroup = 7B93AF9D7B93EB4200000070;
-			productRefGroup = 7B93AF9D7B93EB4200000077 /* Products */;
+			mainGroup = 7B93AF9D7B93EB420000007D;
+			productRefGroup = 7B93AF9D7B93EB4200000085 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				7B93AF9D7B93EB420000000A /* All */,
-				7B93AF9D7B93EB4200000013 /* Prep */,
-				7B93AF9D7B93EB420000004C /* libgo */,
-				7B93AF9D7B93EB420000005F /* cgitest */,
-				7B93AF9D7B93EB4200000057 /* goahead */,
-				7B93AF9D7B93EB4200000059 /* goahead-test */,
-				7B93AF9D7B93EB420000005B /* gopass */,
-				7B93AF9D7B93EB420000005D /* webcomp */,
+				7B93AF9D7B93EB4200000014 /* Prep */,
+				7B93AF9D7B93EB420000005E /* libest */,
+				7B93AF9D7B93EB4200000055 /* libgo */,
+				7B93AF9D7B93EB420000006A /* cgitest */,
+				7B93AF9D7B93EB4200000062 /* goahead */,
+				7B93AF9D7B93EB4200000064 /* goahead-test */,
+				7B93AF9D7B93EB4200000066 /* gopass */,
+				7B93AF9D7B93EB4200000068 /* webcomp */,
 				7B93AF9D7B93EB4200000006 /* ca-crt */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		7B93AF9D7B93EB4200000078 /* libgo Sources */ = {
+		7B93AF9D7B93EB4200000086 /* libest Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B93AF9D7B93EB4200000015 /* action.c in Sources */,
-				7B93AF9D7B93EB4200000017 /* alloc.c in Sources */,
-				7B93AF9D7B93EB4200000019 /* auth.c in Sources */,
-				7B93AF9D7B93EB420000001B /* cgi.c in Sources */,
-				7B93AF9D7B93EB420000001D /* crypt.c in Sources */,
-				7B93AF9D7B93EB420000001F /* file.c in Sources */,
-				7B93AF9D7B93EB4200000021 /* http.c in Sources */,
-				7B93AF9D7B93EB4200000023 /* js.c in Sources */,
-				7B93AF9D7B93EB4200000025 /* jst.c in Sources */,
-				7B93AF9D7B93EB4200000027 /* options.c in Sources */,
-				7B93AF9D7B93EB4200000029 /* rom-documents.c in Sources */,
-				7B93AF9D7B93EB420000002B /* rom.c in Sources */,
-				7B93AF9D7B93EB420000002D /* route.c in Sources */,
-				7B93AF9D7B93EB420000002F /* runtime.c in Sources */,
-				7B93AF9D7B93EB4200000031 /* socket.c in Sources */,
-				7B93AF9D7B93EB4200000033 /* upload.c in Sources */,
-				7B93AF9D7B93EB4200000035 /* est.c in Sources */,
-				7B93AF9D7B93EB4200000037 /* matrixssl.c in Sources */,
-				7B93AF9D7B93EB4200000039 /* openssl.c in Sources */,
+				7B93AF9D7B93EB4200000016 /* estLib.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7B93AF9D7B93EB420000007B /* goahead Sources */ = {
+		7B93AF9D7B93EB4200000089 /* libgo Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B93AF9D7B93EB420000003B /* goahead.c in Sources */,
+				7B93AF9D7B93EB4200000018 /* action.c in Sources */,
+				7B93AF9D7B93EB420000001A /* alloc.c in Sources */,
+				7B93AF9D7B93EB420000001C /* auth.c in Sources */,
+				7B93AF9D7B93EB420000001E /* cgi.c in Sources */,
+				7B93AF9D7B93EB4200000020 /* crypt.c in Sources */,
+				7B93AF9D7B93EB4200000022 /* file.c in Sources */,
+				7B93AF9D7B93EB4200000024 /* http.c in Sources */,
+				7B93AF9D7B93EB4200000026 /* js.c in Sources */,
+				7B93AF9D7B93EB4200000028 /* jst.c in Sources */,
+				7B93AF9D7B93EB420000002A /* options.c in Sources */,
+				7B93AF9D7B93EB420000002C /* rom-documents.c in Sources */,
+				7B93AF9D7B93EB420000002E /* rom.c in Sources */,
+				7B93AF9D7B93EB4200000030 /* route.c in Sources */,
+				7B93AF9D7B93EB4200000032 /* runtime.c in Sources */,
+				7B93AF9D7B93EB4200000034 /* socket.c in Sources */,
+				7B93AF9D7B93EB4200000036 /* upload.c in Sources */,
+				7B93AF9D7B93EB4200000038 /* est.c in Sources */,
+				7B93AF9D7B93EB420000003A /* matrixssl.c in Sources */,
+				7B93AF9D7B93EB420000003C /* openssl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7B93AF9D7B93EB420000007F /* goahead-test Sources */ = {
+		7B93AF9D7B93EB420000008C /* goahead Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B93AF9D7B93EB420000003D /* test.c in Sources */,
+				7B93AF9D7B93EB420000003E /* goahead.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7B93AF9D7B93EB4200000083 /* gopass Sources */ = {
+		7B93AF9D7B93EB4200000090 /* goahead-test Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B93AF9D7B93EB420000003F /* gopass.c in Sources */,
+				7B93AF9D7B93EB4200000040 /* test.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7B93AF9D7B93EB4200000087 /* webcomp Sources */ = {
+		7B93AF9D7B93EB4200000094 /* gopass Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B93AF9D7B93EB4200000041 /* webcomp.c in Sources */,
+				7B93AF9D7B93EB4200000042 /* gopass.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		7B93AF9D7B93EB420000008A /* cgitest Sources */ = {
+		7B93AF9D7B93EB4200000098 /* webcomp Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7B93AF9D7B93EB4200000043 /* cgitest.c in Sources */,
+				7B93AF9D7B93EB4200000044 /* webcomp.c in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7B93AF9D7B93EB420000009B /* cgitest Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7B93AF9D7B93EB4200000046 /* cgitest.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		7B93AF9D7B93EB4200000008 /* PBXTargetDependency ca-crt depends on Prep */ = {
+		7B93AF9D7B93EB4200000088 /* PBXTargetDependency libest depends on Prep */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
-			targetProxy = 7B93AF9D7B93EB4200000049 /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB420000007A /* PBXTargetDependency libgo depends on Prep */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
-			targetProxy = 7B93AF9D7B93EB420000004A /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB420000007D /* PBXTargetDependency goahead depends on libgo */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000004C /* libgo */;
-			targetProxy = 7B93AF9D7B93EB420000004B /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB420000007E /* PBXTargetDependency goahead depends on Prep */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
-			targetProxy = 7B93AF9D7B93EB420000004D /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB4200000081 /* PBXTargetDependency goahead-test depends on libgo */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000004C /* libgo */;
-			targetProxy = 7B93AF9D7B93EB420000004E /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB4200000082 /* PBXTargetDependency goahead-test depends on Prep */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
-			targetProxy = 7B93AF9D7B93EB420000004F /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB4200000085 /* PBXTargetDependency gopass depends on libgo */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000004C /* libgo */;
-			targetProxy = 7B93AF9D7B93EB4200000050 /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB4200000086 /* PBXTargetDependency gopass depends on Prep */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB4200000051 /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB4200000089 /* PBXTargetDependency webcomp depends on Prep */ = {
+		7B93AF9D7B93EB4200000008 /* PBXTargetDependency ca-crt depends on Prep */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB4200000052 /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB420000008C /* PBXTargetDependency cgitest depends on Prep */ = {
+		7B93AF9D7B93EB420000008B /* PBXTargetDependency libgo depends on Prep */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000013 /* Prep */;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB4200000053 /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB420000000B /* PBXTargetDependency All depends on ca-crt */ = {
+		7B93AF9D7B93EB420000008E /* PBXTargetDependency goahead depends on libgo */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000006 /* ca-crt */;
+			target = 7B93AF9D7B93EB4200000055 /* libgo */;
 			targetProxy = 7B93AF9D7B93EB4200000054 /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB420000000C /* PBXTargetDependency All depends on libgo */ = {
+		7B93AF9D7B93EB420000008F /* PBXTargetDependency goahead depends on Prep */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000004C /* libgo */;
-			targetProxy = 7B93AF9D7B93EB4200000055 /* PBXContainerItemProxy */;
-		};
-		7B93AF9D7B93EB420000000D /* PBXTargetDependency All depends on goahead */ = {
-			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000057 /* goahead */;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB4200000056 /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB420000000E /* PBXTargetDependency All depends on goahead-test */ = {
+		7B93AF9D7B93EB4200000092 /* PBXTargetDependency goahead-test depends on libgo */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB4200000059 /* goahead-test */;
+			target = 7B93AF9D7B93EB4200000055 /* libgo */;
+			targetProxy = 7B93AF9D7B93EB4200000057 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB4200000093 /* PBXTargetDependency goahead-test depends on Prep */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB4200000058 /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB420000000F /* PBXTargetDependency All depends on gopass */ = {
+		7B93AF9D7B93EB4200000096 /* PBXTargetDependency gopass depends on libgo */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000005B /* gopass */;
+			target = 7B93AF9D7B93EB4200000055 /* libgo */;
+			targetProxy = 7B93AF9D7B93EB4200000059 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB4200000097 /* PBXTargetDependency gopass depends on Prep */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB420000005A /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB4200000010 /* PBXTargetDependency All depends on webcomp */ = {
+		7B93AF9D7B93EB420000009A /* PBXTargetDependency webcomp depends on Prep */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000005D /* webcomp */;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
+			targetProxy = 7B93AF9D7B93EB420000005B /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB420000009D /* PBXTargetDependency cgitest depends on Prep */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000014 /* Prep */;
 			targetProxy = 7B93AF9D7B93EB420000005C /* PBXContainerItemProxy */;
 		};
-		7B93AF9D7B93EB4200000011 /* PBXTargetDependency All depends on cgitest */ = {
+		7B93AF9D7B93EB420000000B /* PBXTargetDependency All depends on libest */ = {
 			isa = PBXTargetDependency;
-			target = 7B93AF9D7B93EB420000005F /* cgitest */;
-			targetProxy = 7B93AF9D7B93EB420000005E /* PBXContainerItemProxy */;
+			target = 7B93AF9D7B93EB420000005E /* libest */;
+			targetProxy = 7B93AF9D7B93EB420000005D /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB420000000C /* PBXTargetDependency All depends on ca-crt */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000006 /* ca-crt */;
+			targetProxy = 7B93AF9D7B93EB420000005F /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB420000000D /* PBXTargetDependency All depends on libgo */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000055 /* libgo */;
+			targetProxy = 7B93AF9D7B93EB4200000060 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB420000000E /* PBXTargetDependency All depends on goahead */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000062 /* goahead */;
+			targetProxy = 7B93AF9D7B93EB4200000061 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB420000000F /* PBXTargetDependency All depends on goahead-test */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000064 /* goahead-test */;
+			targetProxy = 7B93AF9D7B93EB4200000063 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB4200000010 /* PBXTargetDependency All depends on gopass */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000066 /* gopass */;
+			targetProxy = 7B93AF9D7B93EB4200000065 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB4200000011 /* PBXTargetDependency All depends on webcomp */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB4200000068 /* webcomp */;
+			targetProxy = 7B93AF9D7B93EB4200000067 /* PBXContainerItemProxy */;
+		};
+		7B93AF9D7B93EB4200000012 /* PBXTargetDependency All depends on cgitest */ = {
+			isa = PBXTargetDependency;
+			target = 7B93AF9D7B93EB420000006A /* cgitest */;
+			targetProxy = 7B93AF9D7B93EB4200000069 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -942,7 +1025,28 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB420000008D /* Debug */ = {
+		7B93AF9D7B93EB420000009E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = libest;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+			};
+			name = Debug;
+		};
+		7B93AF9D7B93EB420000009F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = libest;
+
+
+			};
+			name = Release;
+		};
+		7B93AF9D7B93EB42000000A0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = ca-crt;
@@ -954,7 +1058,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB420000008E /* Release */ = {
+		7B93AF9D7B93EB42000000A1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = ca-crt;
@@ -963,11 +1067,15 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB420000008F /* Debug */ = {
+		7B93AF9D7B93EB42000000A2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libgo;
 
+				HEADER_SEARCH_PATHS = (
+					"../src/deps/est",
+					"$(inherited)"
+				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
@@ -975,16 +1083,20 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB4200000090 /* Release */ = {
+		7B93AF9D7B93EB42000000A3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libgo;
 
+				HEADER_SEARCH_PATHS = (
+					"../src/deps/est",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB4200000091 /* Debug */ = {
+		7B93AF9D7B93EB42000000A4 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead;
@@ -996,7 +1108,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB4200000092 /* Release */ = {
+		7B93AF9D7B93EB42000000A5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead;
@@ -1005,7 +1117,7 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB4200000093 /* Debug */ = {
+		7B93AF9D7B93EB42000000A6 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
@@ -1017,7 +1129,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB4200000094 /* Release */ = {
+		7B93AF9D7B93EB42000000A7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
@@ -1026,7 +1138,7 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB4200000095 /* Debug */ = {
+		7B93AF9D7B93EB42000000A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = gopass;
@@ -1038,7 +1150,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB4200000096 /* Release */ = {
+		7B93AF9D7B93EB42000000A9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = gopass;
@@ -1047,7 +1159,7 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB4200000097 /* Debug */ = {
+		7B93AF9D7B93EB42000000AA /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = webcomp;
@@ -1059,7 +1171,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB4200000098 /* Release */ = {
+		7B93AF9D7B93EB42000000AB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = webcomp;
@@ -1068,7 +1180,7 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB4200000099 /* Debug */ = {
+		7B93AF9D7B93EB42000000AC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = cgitest;
@@ -1080,7 +1192,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB420000009A /* Release */ = {
+		7B93AF9D7B93EB42000000AD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = cgitest;
@@ -1089,7 +1201,7 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB420000009B /* Debug */ = {
+		7B93AF9D7B93EB42000000AE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = All;
@@ -1101,7 +1213,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB420000009C /* Release */ = {
+		7B93AF9D7B93EB42000000AF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = All;
@@ -1110,7 +1222,7 @@ fi";
 			};
 			name = Release;
 		};
-		7B93AF9D7B93EB420000009D /* Debug */ = {
+		7B93AF9D7B93EB42000000B0 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -1122,7 +1234,7 @@ fi";
 			};
 			name = Debug;
 		};
-		7B93AF9D7B93EB420000009E /* Release */ = {
+		7B93AF9D7B93EB42000000B1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -1143,65 +1255,74 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		7B93AF9D7B93EB4200000087 /* Build configuration list for PBXNativeTarget "libest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7B93AF9D7B93EB420000009E /* Debug */,
+				7B93AF9D7B93EB420000009F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		7B93AF9D7B93EB4200000005 /* Build configuration list for PBXNativeTarget "ca-crt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB420000008D /* Debug */,
-				7B93AF9D7B93EB420000008E /* Release */,
+				7B93AF9D7B93EB42000000A0 /* Debug */,
+				7B93AF9D7B93EB42000000A1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB4200000079 /* Build configuration list for PBXNativeTarget "libgo" */ = {
+		7B93AF9D7B93EB420000008A /* Build configuration list for PBXNativeTarget "libgo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB420000008F /* Debug */,
-				7B93AF9D7B93EB4200000090 /* Release */,
+				7B93AF9D7B93EB42000000A2 /* Debug */,
+				7B93AF9D7B93EB42000000A3 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB420000007C /* Build configuration list for PBXNativeTarget "goahead" */ = {
+		7B93AF9D7B93EB420000008D /* Build configuration list for PBXNativeTarget "goahead" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB4200000091 /* Debug */,
-				7B93AF9D7B93EB4200000092 /* Release */,
+				7B93AF9D7B93EB42000000A4 /* Debug */,
+				7B93AF9D7B93EB42000000A5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB4200000080 /* Build configuration list for PBXNativeTarget "goahead-test" */ = {
+		7B93AF9D7B93EB4200000091 /* Build configuration list for PBXNativeTarget "goahead-test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB4200000093 /* Debug */,
-				7B93AF9D7B93EB4200000094 /* Release */,
+				7B93AF9D7B93EB42000000A6 /* Debug */,
+				7B93AF9D7B93EB42000000A7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB4200000084 /* Build configuration list for PBXNativeTarget "gopass" */ = {
+		7B93AF9D7B93EB4200000095 /* Build configuration list for PBXNativeTarget "gopass" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB4200000095 /* Debug */,
-				7B93AF9D7B93EB4200000096 /* Release */,
+				7B93AF9D7B93EB42000000A8 /* Debug */,
+				7B93AF9D7B93EB42000000A9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB4200000088 /* Build configuration list for PBXNativeTarget "webcomp" */ = {
+		7B93AF9D7B93EB4200000099 /* Build configuration list for PBXNativeTarget "webcomp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB4200000097 /* Debug */,
-				7B93AF9D7B93EB4200000098 /* Release */,
+				7B93AF9D7B93EB42000000AA /* Debug */,
+				7B93AF9D7B93EB42000000AB /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB420000008B /* Build configuration list for PBXNativeTarget "cgitest" */ = {
+		7B93AF9D7B93EB420000009C /* Build configuration list for PBXNativeTarget "cgitest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB4200000099 /* Debug */,
-				7B93AF9D7B93EB420000009A /* Release */,
+				7B93AF9D7B93EB42000000AC /* Debug */,
+				7B93AF9D7B93EB42000000AD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1209,17 +1330,17 @@ fi";
 		7B93AF9D7B93EB4200000009 /* Build configuration list for PBXNativeTarget "All" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB420000009B /* Debug */,
-				7B93AF9D7B93EB420000009C /* Release */,
+				7B93AF9D7B93EB42000000AE /* Debug */,
+				7B93AF9D7B93EB42000000AF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		7B93AF9D7B93EB4200000012 /* Build configuration list for PBXNativeTarget "Prep" */ = {
+		7B93AF9D7B93EB4200000013 /* Build configuration list for PBXNativeTarget "Prep" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				7B93AF9D7B93EB420000009D /* Debug */,
-				7B93AF9D7B93EB420000009E /* Release */,
+				7B93AF9D7B93EB42000000B0 /* Debug */,
+				7B93AF9D7B93EB42000000B1 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
