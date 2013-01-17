@@ -342,7 +342,7 @@ Bit.load({
             action: "
                 Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))
             ",
-        }
+        },
     },
 
     packs: {

@@ -92,7 +92,7 @@
     #define CPU_ENDIAN BIT_BIG_ENDIAN
 
 #else
-    #error "Cannot determine CPU type in est.h"
+    #error "Cannot determine CPU type in bitos.h"
 #endif
 
 /*
