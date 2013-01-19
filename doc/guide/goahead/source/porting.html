@@ -73,6 +73,7 @@
             <p>GoAhead has been written to maximize the ease of porting to a new environment. The O/S and
             processor-dependent code have been contained while the bulk of the code is cross-platform. Most of this
             dependent code is in the <b>runtime.c</b> source file.</p>
+
             <p><b>NOTE:</b> When attempting a port, you should get the latest copy of the development source 
             rather than using the download source package. You can get the latest development source by checking out a
             copy from the <a href="https://github.com/embedthis/goahead">repository</a>.</p>
@@ -82,49 +83,59 @@
             <a id="newOs"></a>
             <h2>Steps in Porting to a new Operating System</h2>
             <ol>
-                <li>
-                    <h3>Pick a Name</h3>
-                    <p>If you are doing a port for a new operating system, you need to pick a symbolic name that will
+                <li><h3>Pick a Name for the O/S</h3>
+                    <p>If you are porting to a new operating system, you need to pick a symbolic name that will
                     be used in conditional compilation, Makefiles, bit files, and operating system specific 
                     directories. Some existing O/S names are: "linux", "windows", "freebsd", and "macosx".</p>
+                    <p>These names are used as upper-case pre-processor defines and in some cases as lower-case
+                        directory names.</p>
                 </li>
-                <li>
-                    <h3>Select the Base O/S to Copy</h3>
+                <li><h3>Select the base O/S to Copy</h3>
                     <p>The easiest way to port to a new O/S is to find the closest existing supported O/S that the
                     GoAhead software already supports and use it as a base to modify. For example, if you are porting to
-                    QNX, you may want to use the Linux port as a base.</p>
-                    <p>Run configure for this "closest" O/S. You should specify '--without all' to select the minimal
-                    GoAhead feature set. This allows you to first focus on the porting essentials.</p>
-                    <p>Next, copy the output products directory. For example:
-                    if copying Linux on a 32 bit system, configure will create a linux-x32-debug directory. Copy this to
-                    qnx-32-debug.</p>
-                    <p>Next copy the projects/goahead-linux.mk Makefile to projects/goahead-qnx.mk and edit the
-                    appropriate compiler and linker switches. Edit the top level Makefile if required to chain to this
-                    new Makefile.</p>
+                    QNX, you may want to use the Linux port as a base.</p></li>
+
+                <li><h3>Create the output products directory</h3>
+                    <p>You need to create a directory for the build products: objects, binaries etc. This should 
+                    be named OS-ARCH-PROFILE. For example: qnx-x86-debug. Under this directory create the inc, bin and 
+                    obj directories.</p>
+
                     <pre>
-bit --without all configure 
-cp -r linux-x86-debug qnx-x86-debug
+mkdir -p qnx-x86-debug/bin qnx-x86-debug/obj qnx-x86-debug/inc
+</pre>
+                <li><h3>Create the Makefile</h3>
+                <p>Create the Makefile by copying the makefile for the similar O/S. ie. in our example, 
+                Copy the projects/goahead-linux.mk Makefile to projects/goahead-qnx.mk. Then edit the
+                appropriate compiler and linker switches. Edit the top level Makefile if required to chain to this
+                    new Makefile.</p>
+
+                    <pre>
 cp projects/goahead-linux.mk projects/goahead-qnx.mk
+vi projects/goahead-qnx.mk
 </pre>
                 </li>
-                <li>
-                    <h3>Tailor the goahead.h header.</h3>
+
+                <li><h3>Tailor the cross-platform O/S header.</h3>
                     <p>To insulate most of the GoAhead source code from the differences of various operating systems,
-                    the <em>goahead.h</em> header file wraps all the required O/S headers and publishes a
+                    the <em>src/bitos.h</em> header file wraps all the required O/S headers and publishes a
                     consistent set of types and prototypes. None of the source files include normal O/S headers like
                     &lt;string.h&gt;. While this does slow the build by including more headers than are required
                     &mdash; it is barely noticeable on modern CPUs.</p>
-                    <p>When porting the goahead.h, start by copying the sections in goahead.h that pertain to your base copied O/S.
-                    These will be protected by "#if BASEOS" defines. In the example of NEWOS, we would look for, and
-                    copy, any sections with "#if LINUX" and create "#if NEWOS" sections.</p>
+
+                    <p>When porting the bitos.h, start by copying the sections in bitos.h that pertain to your base 
+                    copied O/S.
+                    These will be protected by "#if BASEOS" defines. In the example of QNX, we would look for, and
+                    copy, any sections with "#if LINUX" and create "#if QNX" sections.</p>
+
                     <p><b>DO NOT</b> introduce conditional code in other O/S sections. It is better to copy the entire
                     contents from the base O/S and modify. It is better to isolate the code for each O/S.</p>
                 </li>
-                <li>
-                    <h3>Test the Headers with a Hello World Program.</h3>
-                    <p>Don't use the make system yet. Just create an empty C hello world program and include "goahead.h".
-                    Compile it and shake out the compilation and link issues.</p>
+
+                <li><h3>Test the Headers with a Hello World Program.</h3>
+                    <p>Don't use the make system yet. Just create an empty C hello world program and include "bitos.h".
+                    Compile it and shake out the issues. </p>
                 </li>
+
                 <li>
                     <h3>Port the per O/S runtime source code</h3>
                     <p>Now is the time for the real work. You will need to modify the runtime.c file to support your
@@ -137,7 +148,7 @@ cp projects/goahead-linux.mk projects/goahead-qnx.mk
 make NEWOS-ARCH-debug/obj/runtime.o
 </pre>
                     <p>At this stage of the porting effort, the <b>make</b> command will undoubtedly provoke a stream
-                    of errors. Use this to work out the bugs in goahead.h and runtime.c for your O/S.</p>
+                    of errors. Use this to work out the bugs in bitos.h and runtime.c for your O/S.</p>
                 </li>
                 <li>
                     <h3>Compile the Rest</h3>

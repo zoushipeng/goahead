@@ -80,9 +80,8 @@
             application.</p>
             <p>For example:</p>
             <pre>
-find web -type f -print &gt;fileList
+find web -print &gt;fileList
 webcomp filelist &gt;romFiles.c
-cc -o romFiles.o romFiles.c
 </pre>
             <p>This will create a list of all the web files and then convert these files into C structures in the file
             romFiles.cpp.</p>
@@ -104,15 +103,12 @@ cc -o romFiles.o romFiles.c
             <p>It is important to include some essential GoAhead configuration files into the ROM. These include the
             GoAhead configuration file, the mime.types file, and any authorization database files. The following script
             is used to compile the web pages in three web directories ("sslWeb", "vhostWeb", and "web") and to also
-            compile the essential configuration files.</p>
+            compile the essential configuration files. Note: the files should be relative paths without a "./" prefix.</p>
             <pre>
 find sslWeb vhostWeb web -print &gt;rom.files \
 echo -e '.\ngoahead.conf\nmime.types\nusers.db\ngroups.db' &gt;&gt;rom.files
 webcomp rom.files &gt;romFiles.c
-</pre><a id="php"></a>
-            <h2 class="section">Using ROM with PHP</h2>
-            <p>The ROM facility is supported by the following GoAhead modules and handlers: fileHandler,
-            espHandler and the sslModule.</p>
+</pre>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

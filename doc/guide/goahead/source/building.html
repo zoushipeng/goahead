@@ -105,10 +105,13 @@
             </ol>
             <p>Building with Bit is the most flexible and offers the most control. It requires installing the
             <a href="http://ejscript.org/downloads/ejs/download.ejs">Ejscript Product</a> which includes the
-            <em>bit</em> tool.</p>
-            <p>Building with make or nmake is useful for a minimal build, but you do not have the flexibility to configure
+            <em>bit</em> tool. Using bit is required if you are cross-compiling or using static linking.</p>
+
+            <p>Building with make or nmake is useful for a default (pre-configured)  build, but you do not 
+            have the flexibility to configure
             the product for your system. Similarly, IDE builds are convenient, but are somewhat fixed in the software
             configuration they build. We recommend building with Bit. It is fast, flexible and configurable.</p>
+
             <a id="env"></a>
             <h3>Preparing the Environment</h3>
             <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
@@ -235,6 +238,10 @@
                     <td>Build a release build. This builds an optimized, production-ready build of the software.</td>
                 </tr>
                 <tr>
+                    <td>--static</td>
+                    <td>Configure for static linking.</td>
+                </tr>
+                <tr>
                     <td>--verbose, -v</td>
                     <td>Run verbosely and emit more detailed progress trace.</td>
                 </tr>
@@ -262,34 +269,7 @@
                 </tr>
             </tbody>
             </table>
-            <h3>Feature Options</h3>
-            <table title="options">
-                <thead>
-                    <tr>
-                        <th>Option</th>
-                        <th>Default</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="nowrap">--without all</td>
-                    <td></td>
-                    <td>Disable all non-essential possible packages.</td>
-                </tr>
-                <tr>
-                    <td>--set assert=true</td>
-                    <td>Enabled</td>
-                    <td>Build with debug assert checking on.</td>
-                </tr>
-                <tr>
-                    <td class="nowrap">--set tune=MODE</td>
-                    <td>size</td>
-                    <td>Tune the build to optimize for "size", "speed". You can also select "balanced" for a balance
-                    between speed and size.</td>
-                </tr>
-                </tbody>
-            </table>
+
             <h3>Optional Packages</h3>
             <table title="packages">
                 <thead>
@@ -307,10 +287,107 @@
                 </tr>
                 <tr>
                     <td>--without PACKAGE</td>
-                    <td>Do not include the PACKAGE in the build.</td>
+                    <td>Do not include the PACKAGE in the build.
+                        Use --without all to disable all possible non-essential packages.</td>
+
                 </tr>
                 </tbody>
             </table>
+            <h3>Example Use</h3>
+            <pre>configure --with openssl=/usr/src/openssl</pre>
+
+            <h3>Packages</h3>
+            <p>The following table describes the packages that can extend GoAhead configure. 
+            The use of the Internal/External field states whether the package is shipped internally with the GoAhead source
+            code, or whether it is an external third party package.</p>
+            <table title="env">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Integrated</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>est</td>
+                    <td>Internal</td>
+                    <td>Embedded Security Transport. SSL stack.</td>
+                </tr>
+                <tr>
+                    <td>matrixssl</td>
+                    <td>External</td>
+                    <td>MatrixSSL SSL stack. Requires a commerical license from PeerSec.</td>
+                </tr>
+                <tr>
+                    <td>mocana</td>
+                    <td>External</td>
+                    <td>Mocana NanoSSL stack. Requires a commerical license from Mocana.</td>
+                </tr>
+                <tr>
+                    <td>openssl</td>
+                    <td>External</td>
+                    <td>OpenSSL SSL stack. Requires OpenSSL libraries.</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p>The following table describes the tool packages that can be used when building, running and 
+            managing GoAhead. 
+            The use of the Internal/External field documents whether the package is shipped internally with the GoAhead source
+            code, or whether it is an external third party package.</p>
+            <table title="env">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Integrated</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>doxygen</td>
+                    <td>External</td>
+                    <td>C API documentation generator.</td>
+                </tr>
+                <tr>
+                    <td>dsi</td>
+                    <td>External</td>
+                    <td>Dev Side Includes. Simple static web page templates.</td>
+                </tr>
+                <tr>
+                    <td>http</td>
+                    <td>Internal</td>
+                    <td>Http test client program.</td>
+                </tr>
+                <tr>
+                    <td>man</td>
+                    <td>External</td>
+                    <td>Manual page reader and renderer.</td>
+                </tr>
+                <tr>
+                    <td>man2html</td>
+                    <td>External</td>
+                    <td>Program to convert man pages to HTML.</td>
+                </tr>
+                <tr>
+                    <td>pmaker</td>
+                    <td>External</td>
+                    <td>Native package maker. This resolves to InnoSetup on Windows and PackageMaker on MAC OS X.</td>
+                </tr>
+                <tr>
+                    <td>utest</td>
+                    <td>External</td>
+                    <td>Ejscript unit test framework. See http://ejscript.org.</td>
+                </tr>
+                <tr>
+                    <td>zip</td>
+                    <td>External</td>
+                    <td>Zip compression program. Used when creating installable packages.</td>
+                </tr>
+                </tbody>
+            </table>
+
             <a name="main"></a>
             <h3>Main Configuration Options</h3>
             <p>The main.bit configuration file specifies build-time defaults. Some of the important values
@@ -428,10 +505,7 @@
                     </tr>
                 </tbody>
             </table>
-            <h3>Example Use</h3>
-            <pre>
-configure --with openssl=/usr/src/openssl
-</pre>
+
             <h3>Environment Variables</h3>
             <p>When cross-building, certain environment variables may be passed to the configure script and on to 
             <em>bit</em> to configure the compiler and linker paths and flags. </p>
@@ -486,7 +560,7 @@ CC=/opt/bin/ccarm configure
             <p>To configure without TLS/SSL:</p>
             <pre>configure --without ssl</pre>
             <p>To configure to build for 32-bit X86 (when on a 64-bit system):</p>
-            <pre>configure --emulate x86</pre>
+            <pre>configure --platform linux-x86</pre>
             <p>Use the "--help" switch to see the available options or see the <a
                 href="http://ejscript.org/products/ejs/doc/guide/ejs/users/bit.html">Bit</a> document for more details.</p> 
             
@@ -508,12 +582,9 @@ make                        # Does a bootstrap build
 sudo bit install            # Install so GoAhead can use bit
 </pre></li> 
                 <li>Then, from the GoAhead source directory run the GoAhead configure:
-                <pre>./configure --with ejscript=/path/to/ejscript
-bit           # To build GoAhead with Ejscript support</pre></li>
+                <pre>./configure --with openssl
+bit           # To build GoAhead with OpenSSL support</pre></li>
             </ol>
-            <p>During configuration, the required ejscript libraries and headers will be copied into
-            the GoAhead source tree. NOTE: Ejscript will provide the MPR and HTTP libraries as they must be 
-            common between GoAhead and Ejscript.</p>
             <a id="cross"></a>
             <h2 class="section">Cross Compilation</h2>
             <p>To build a product for platform different to that of the local system is called <em>cross compiling</em>.
@@ -569,23 +640,26 @@ bit rebuild    # Rebuild all targets
 bit install    # Install the built software locally
 bit --help     # Show bit usage</pre>
             
-            <a id="customizing"></a>
-            <h2>Customizing</h2>
-            <p>GoAhead includes the <em>src/customize.h</em> header when building. This file may be used to 
-            customize or override certain GoAhead settings.
-            <ul>
-                <li>#define BLD_SERVER_ROOT &mdash; Path to the GoAhead configuration directory</li>
-                <li>#define BLD_CONFIG_FILE &mdash; Path to the goahead.conf configuration file</li>
-                <li>#define BLD_APPWEB_PATH &mdash; Path to the GoAhead executable image</li>
-            </ul>
-            <p>On VxWorks, it is required to define BLD_APPWEB_PATH so that GoAhead can load modules which
-            are located relative to the GoAhead executable image.</p>
-            <p>Define BLD_CONFIG_FILE and BLD_SERVER_ROOT to set default locations for GoAhead initialization.</p>
+
             <h3>Static Linking</h3>
-            <p>On VxWorks, it is sometimes required to statically link the GoAhead web server. The default bit files
-            are setup to build GoAhead and the loadable modules separately. If you want to
-            statically link GoAhead and the modules together, edit the server/server.bit and uncomment the static
-            property by following the commented instructions.
+            <p>On some platforms, it is desirable to statically link GoAhead. The default bit files
+            are setup to build GoAhead using shared libraries and to build the loadable modules separately. If you want to
+            statically link GoAhead and the modules together, run configure with the <i>--static</i> option and then 
+            rebuild.</p>
+<pre>
+./configure --static
+bit
+</pre>
+            <h3>Serving from ROM</h3>
+            <p>GoAhead supports systems without a file system where web documents are compiled into C code and served from
+            ROM. To enable this, configure with the <em>--rom</em> switch.
+            <pre>
+configure --rom
+</pre>
+            <p>See <a href="../programmers/rom.html">Serving Pages from ROM</a> for more information.</p>
+
+
+<!--
             <a id="installing"></a>
             <h2 class="section">Installing</h2>
             <p>You can install the newly built software via:</p>
@@ -604,12 +678,22 @@ sudo bit uninstall
             you can extract the required GoAhead files from this release archive and include them with your application.
             Alternatively, you can extract them from the staging directory
             under the <em>OS-ARCH[-CPU]-PROFILE/pkg/bin/goahead-VERSION/contents</em> directory. </p>
+-->
+
+
             <a id="repository"></a>
             <h2 class="section">Building from the Source Code Repository</h2>
             <p>You can checkout a copy of the product source code via:</p>
             <pre>
  git clone <a href="https://github.com/embedthis/goahead">https://github.com/embedthis/goahead</a>
 </pre>
+            <p>There are three repository branches that you can select:
+            <ul>
+                <li>stable &mdash; Source code for the most recent release.</li>
+                <li>master &mdash; Most recent, quasi-stable development snapshot.</li>
+                <li>dev &mdash; Current source code under active development. Least stable.</li>
+            </ul>
+
             <p>Once checked out, the normal instructions for building from source apply.</p><a id="keyFiles"></a>
             <h2 class="section">Key Files and Directories</h2>
             <p>Source trees contain the following key directories under the top directory.</p>
