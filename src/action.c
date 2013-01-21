@@ -53,7 +53,7 @@ static bool actionHandler(Webs *wp)
         assert(fn);
         if (fn) {
 #if BIT_GOAHEAD_LEGACY
-            (*fn)((void*) wp, formName, wp->query);
+            (*((WebsProc) fn))((void*) wp, formName, wp->query);
 #else
             (*fn)((void*) wp);
 #endif
