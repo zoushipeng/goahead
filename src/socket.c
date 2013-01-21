@@ -49,7 +49,7 @@ PUBLIC int socketOpen()
     socketHighestFd = -1;
     if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) { 
         hasIPv6 = 1;
-        close(fd);
+        closesocket(fd);
     } else {
         trace(1, "System has only IPv4 support");
     }
