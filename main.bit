@@ -36,12 +36,12 @@ Bit.load({
         /*
             Packs to disable when using --without all
          */
-        'without-all': ['doxygen', 'dsi', 'est', 'man', 'man2html', 'pmaker' ],
+        'without-all': [ 'doxygen', 'dsi', 'est', 'man', 'man2html', 'pmaker' ],
 
         /*
             Packs to disable when using --without default (generating packages)
          */
-        'without-default': ['doxygen', 'dsi', 'man', 'man2html', 'pmaker' ],
+        'without-default': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker' ],
 
         goahead: {
             /*

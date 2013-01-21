@@ -1385,6 +1385,24 @@ extern "C" {
 #define X520_ORG_UNIT                  11
 #define PKCS9_EMAIL                     1
 
+/*
+   MOB
+   Street   9
+   Surname  4
+   Serial   5
+   Title    12
+   Desc     13
+   BusinessCategory 15
+   PostalAddress    16
+   PostCode         17
+   PostOfficeBox         18
+   PhysicalDeliveryOfficeName   19
+   Telephone   20
+   Telex   21
+   TelexID 22
+   Fax  23
+ */
+
 #define X509_OUTPUT_DER              0x01
 #define X509_OUTPUT_PEM              0x02
 #define PEM_LINE_LENGTH                72

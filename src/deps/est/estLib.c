@@ -3869,6 +3869,7 @@ void debug_print_mpi(ssl_context *ssl, int level, char *text, mpi * X)
             ssl->f_dbg(ssl->p_dbg, level, str);
         }
     }
+//  MOB - need to use a raw print
     ssl->f_dbg(ssl->p_dbg, level, "\n");
 }
 

@@ -119,7 +119,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 PUBLIC_DATA int logLevel;
 
 #if BIT_GOAHEAD_TRACING
-        #define trace(l, ...) if ((l & WEBS_LEVEL_MASK) <= logLevel) { traceProc(l, __VA_ARGS__); } else
+        #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= logLevel) { traceProc(l, __VA_ARGS__); } else
 #else
         #define trace(l, ...) if (1) ; else
 #endif
