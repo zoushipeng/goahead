@@ -981,11 +981,26 @@ PUBLIC int socketGetHandle(int sid);
 PUBLIC int socketGetPort(int sid);
 
 /**
+    Indicate if the system has a dual IPv4 and IPv6 stack
+    @return True if IPv4 and IPv6 are supported on a single stack
+    @ingroup WebsSocket
+ */
+PUBLIC bool socketHasDualNetworkStack();
+
+/**
+    Indicate if the system has IPv6 support
+    @return True if IPv6 is supported on this system
+    @ingroup WebsSocket
+ */
+PUBLIC bool socketHasIPv6();
+
+/**
     Indicate that the application layer has buffered data for the socket. 
     @description This is used by SSL and other network stacks that buffer pending data
     @param sp Socket object returned from #mprCreateSocket
     @param len Length of buffered data in bytes
     @param dir Buffer direction. Set to MPR_READABLE for buffered read data and MPR_WRITABLE for buffered write data.
+    @ingroup WebsSocket
  */
 PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir);
 

@@ -40,6 +40,7 @@
 #define BIT_CPU_MIPS        5           /**< Mips */
 #define BIT_CPU_PPC         6           /**< Power PC */
 #define BIT_CPU_SPARC       7           /**< Sparc */
+#define BIT_CPU_TIDSP       8           /**< TI DSP */
 
 /*
     Byte orderings
@@ -90,6 +91,12 @@
     #define BIT_CPU "sparc"
     #define BIT_CPU_ARCH BIT_CPU_SPARC
     #define CPU_ENDIAN BIT_BIG_ENDIAN
+
+#elif defined(_TMS320C6X)
+    #define TIDSP
+    #define BIT_CPU "tidsp"
+    #define BIT_CPU_ARCH BIT_CPU_SPARC
+    #define CPU_ENDIAN BIT_LITTLE_ENDIAN
 
 #else
     #error "Cannot determine CPU type in bitos.h"
@@ -201,6 +208,12 @@
     #define BIT_OS "ecos"
     #define BIT_UNIX_LIKE 0
     #define BIT_WIN_LIKE 0
+
+#elif defined(TIDSP) 
+    #define BIT_OS "tidsp"
+    #define BIT_UNIX_LIKE 0
+    #define BIT_WIN_LIKE 0
+
 #endif
 
 #if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64
@@ -304,7 +317,9 @@
 #if BIT_WIN_LIKE
     #include    <direct.h>
 #else
+#if !BIT_ROM
     #include    <dirent.h>
+#endif
 #if !VXWORKS
     #include    <dlfcn.h>
 #endif
@@ -353,8 +368,10 @@
 #if BIT_UNIX_LIKE
     #include    <syslog.h>
 #endif
+#if !TIDSP
     #include    <sys/stat.h>
     #include    <sys/types.h>
+#endif
 #if BIT_UNIX_LIKE
     #include    <sys/ioctl.h>
     #include    <sys/mman.h>
