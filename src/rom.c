@@ -189,7 +189,7 @@ Offset websSeekFile(int fd, Offset offset, int origin)
     }
     return (wip->pos = pos);
 #else
-    return lseek(fd, offset, origin);
+    return lseek(fd, (long) offset, origin);
 #endif
 }
 
