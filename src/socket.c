@@ -26,6 +26,8 @@ static void socketDoEvent(WebsSocket *sp);
 
 PUBLIC int socketOpen()
 {
+    int     fd;
+
     if (++socketOpenCount > 1) {
         return 0;
     }
@@ -45,8 +47,10 @@ PUBLIC int socketOpen()
     socketList = NULL;
     socketMax = 0;
     socketHighestFd = -1;
-    hasIPv6 = socket(AF_INET6, SOCK_STREAM, 0) != 0;
-    if (!hasIPv6) {
+    if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) { 
+        hasIPv6 = 1;
+        close(fd);
+    } else {
         trace(1, "System has only IPv4 support");
     }
     return 0;
