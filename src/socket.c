@@ -10,10 +10,11 @@
 
 /************************************ Locals **********************************/
 
-WebsSocket    **socketList;           /* List of open sockets */
-PUBLIC int         socketMax;              /* Maximum size of socket */
-PUBLIC int         socketHighestFd = -1;   /* Highest socket fd opened */
-PUBLIC int         socketOpenCount = 0;    /* Number of task using sockets */
+WebsSocket  **socketList;           /* List of open sockets */
+PUBLIC int  socketMax;              /* Maximum size of socket */
+PUBLIC int  socketHighestFd = -1;   /* Highest socket fd opened */
+PUBLIC int  socketOpenCount = 0;    /* Number of task using sockets */
+static int  hasIPv6;                /* System supports IPv6 */
 
 /***************************** Forward Declarations ***************************/
 
@@ -44,6 +45,10 @@ PUBLIC int socketOpen()
     socketList = NULL;
     socketMax = 0;
     socketHighestFd = -1;
+    hasIPv6 = socket(AF_INET6, SOCK_STREAM, 0) != 0;
+    if (!hasIPv6) {
+        trace(1, "System has only IPv4 support");
+    }
     return 0;
 }
 
@@ -60,6 +65,33 @@ PUBLIC void socketClose()
         }
         socketOpenCount = 0;
     }
+}
+
+
+PUBLIC bool socketHasDualNetworkStack() 
+{
+    bool dual;
+
+#if defined(BIT_HAS_SINGLE_STACK) || VXWORKS
+    dual = 0;
+#elif WINDOWS
+    {
+        OSVERSIONINFO info;
+        info.dwOSVersionInfoSize = sizeof(info);
+        GetVersionEx(&info);
+        /* Vista or later */
+        dual = info.dwMajorVersion >= 6;
+    }
+#else
+    dual = hasIPv6;
+#endif
+    return dual;
+}
+
+
+PUBLIC bool socketHasIPv6() 
+{
+    return hasIPv6;
 }
 
 
@@ -84,12 +116,8 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
         Change null IP address to be an IPv6 endpoint if the system is dual-stack. That way we can listen on
         both IPv4 and IPv6
     */
-    sip = ip;
-#if !defined(BIT_HAS_SINGLE_STACK) && !VXWORKS && !(WINDOWS && _WIN32_WINNT < 0x0600)
-    if (ip == 0 || *ip == '\0') {
-        sip = "::";
-    }
-#endif
+    sip = ((ip == 0 || *ip == '\0') && socketHasDualNetworkStack()) ? "::" : ip;
+
     /*
         Bind to the socket endpoint and the call listen() to start listening
      */
@@ -117,12 +145,14 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
         By default, most stacks listen on both IPv6 and IPv4 if ip == 0, except windows which inverts this.
         So we explicitly control.
      */
-    if (ip == 0) {
-        only = 0;
-        setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
-    } else if (ipv6(ip)) {
-        only = 1;
-        setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+    if (hasIPv6) {
+        if (ip == 0) {
+            only = 0;
+            setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+        } else if (ipv6(ip)) {
+            only = 1;
+            setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+        }
     }
 #endif
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
