@@ -584,10 +584,10 @@ static void recycle(Webs *wp, int reuse)
     if (reuse && wp->flags & WEBS_KEEP_ALIVE && wp->rxRemaining == 0) {
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
-        trace(5, "Keep connection alive\n");
+        trace(5, "Keep connection alive");
         return;
     }
-    trace(5, "Close connection\n");
+    trace(5, "Close connection");
     assert(wp->timeout >= 0);
     websCancelTimeout(wp);
     assert(wp->sid >= 0);
@@ -2039,18 +2039,18 @@ PUBLIC bool websFlush(Webs *wp)
     WebsBuf     *op;
     ssize       nbytes, written;
 
-    trace(6, "websFlush\n");
+    trace(6, "websFlush");
     op = &wp->output;
     if (wp->flags & WEBS_CHUNKING) {
-        trace(6, "websFlush chunking finalized %d\n", wp->flags & WEBS_FINALIZED);
+        trace(6, "websFlush chunking finalized %d", wp->flags & WEBS_FINALIZED);
         if (flushChunkData(wp) && wp->flags & WEBS_FINALIZED) {
-            trace(6, "websFlush: write chunk trailer\n");
+            trace(6, "websFlush: write chunk trailer");
             bufPutStr(op, "\r\n0\r\n\r\n");
             bufAddNull(op);
             wp->flags &= ~WEBS_CHUNKING;
         }
     }
-    trace(6, "websFlush: buflen %d\n", bufLen(op));
+    trace(6, "websFlush: buflen %d", bufLen(op));
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
             wp->flags &= ~WEBS_KEEP_ALIVE;
@@ -2060,7 +2060,7 @@ PUBLIC bool websFlush(Webs *wp)
         } else if (written == 0) {
             break;
         }
-        trace(6, "websFlush: wrote %d to socket\n", written);
+        trace(6, "websFlush: wrote %d to socket", written);
         bufAdjustStart(op, written);
         bufCompact(op);
         nbytes = bufLen(op);
@@ -2309,6 +2309,7 @@ static void checkTimeout(void *arg, int id)
     assert(delay > 0);
     websRestartEvent(id, (int) delay);
 }
+
 
 static int setLocalHost()
 {
@@ -3585,7 +3586,7 @@ static void pruneCache()
         }
     }
     if (oldCount != sessionCount || sessionCount) { 
-        trace(4, "Prune %d sessions. Remaining: %d\n", oldCount - sessionCount, sessionCount);
+        trace(4, "Prune %d sessions. Remaining: %d", oldCount - sessionCount, sessionCount);
     }
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
 }
@@ -3647,7 +3648,7 @@ static void setFileLimits()
         }
     }
     getrlimit(RLIMIT_NOFILE, &r);
-    trace(6, "Max files soft %d, max %d\n", r.rlim_cur, r.rlim_max);
+    trace(6, "Max files soft %d, max %d", r.rlim_cur, r.rlim_max);
 #endif
 }
 

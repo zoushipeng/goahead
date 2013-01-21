@@ -267,7 +267,7 @@ WebsTime websRunEvents()
     WebsTime    delay, now, nextEvent;
     int         i;
 
-    nextEvent = MAXINT;
+    nextEvent = (MAXINT / 1000);
     now = time(0);
 
     for (i = 0; i < callbackMax; i++) {

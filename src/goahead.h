@@ -785,6 +785,7 @@ PUBLIC WebsKey *hashNext(WebsHash id, WebsKey *last);
 #define SOCKET_HANDSHAKING      0x100   /**< Doing SSL handshake */
 #define SOCKET_BUFFERED_READ    0x200   /**< Message pending on this socket */
 #define SOCKET_BUFFERED_WRITE   0x400   /**< Message pending on this socket */
+#define SOCKET_NODELAY          0x800   /**< Disable Nagle algorithm */
 
 #define SOCKET_PORT_MAX         0xffff  /* Max Port size */
 
@@ -1118,6 +1119,16 @@ PUBLIC int socketSelect(int sid, WebsTime timeout);
     @ingroup WebsSocket
  */
 PUBLIC int socketSetBlock(int sid, int on);
+
+/**
+    Set the socket delay mode
+    @description This is used to enable or disable the TCP Nagle algorithm
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
+    @param on Set to 1 to disable the Nagle algorithm
+    @return The previous blocking mode
+    @ingroup WebsSocket
+ */
+PUBLIC int socketSetNoDelay(int sid, bool on);
 
 /**
     Wait for a socket I/O event

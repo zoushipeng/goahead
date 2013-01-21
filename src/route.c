@@ -64,19 +64,19 @@ PUBLIC void websRouteRequest(Webs *wp)
             Match route
          */
         if (route->protocol && !smatch(route->protocol, wp->protocol)) {
-            trace(5, "Route %s doesnt match protocol %s\n", route->prefix, wp->protocol);
+            trace(5, "Route %s does not match protocol %s", route->prefix, wp->protocol);
             continue;
         }
         if (route->methods >= 0) {
             if (!hashLookup(route->methods, wp->method)) {
-                trace(5, "Route %s doesnt match method %s\n", route->prefix, wp->method);
+                trace(5, "Route %s doesnt match method %s", route->prefix, wp->method);
                 continue;
             }
         } else if (!safeMethod) {
             continue;
         }
         if (route->extensions >= 0 && (wp->ext == 0 || !hashLookup(route->extensions, &wp->ext[1]))) {
-            trace(5, "Route %s doesn match extension %s\n", route->prefix, wp->ext ? wp->ext : "");
+            trace(5, "Route %s doesn match extension %s", route->prefix, wp->ext ? wp->ext : "");
             continue;
         }
         if (strncmp(wp->path, route->prefix, len) == 0) {
@@ -105,7 +105,7 @@ PUBLIC void websRouteRequest(Webs *wp)
             } else
 #endif
             assert(route->handler);
-            trace(5, "Route %s calls handler %s\n", route->prefix, route->handler->name);
+            trace(5, "Route %s calls handler %s", route->prefix, route->handler->name);
             wp->state = WEBS_RUNNING;
             if ((*route->handler->service)(wp)) {                                        
                 /* Handled */
@@ -120,7 +120,7 @@ PUBLIC void websRouteRequest(Webs *wp)
                 i = 0;
             }
             if (!websValid(wp)) {
-                trace(5, "handler %s called websDone, but didn't return 1\n", route->handler->name);
+                trace(5, "handler %s called websDone, but didn't return 1", route->handler->name);
                 return;
             }
         }
@@ -208,7 +208,7 @@ PUBLIC bool websCanString(Webs *wp, char *abilities)
             return 0;
         }
         if ((user = websLookupUser(wp->username)) == 0) {
-            trace(2, "Can't find user %s\n", wp->username);
+            trace(2, "Can't find user %s", wp->username);
             return 0;
         }
     }

@@ -168,9 +168,12 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
         socketFree(sid);
         return -1;
     }
-    sp->flags |= SOCKET_LISTENING;
+    sp->flags |= SOCKET_LISTENING | SOCKET_NODELAY;
     sp->handlerMask |= SOCKET_READABLE;
     socketSetBlock(sid, (flags & SOCKET_BLOCK));
+    if (sp->flags & SOCKET_NODELAY) {
+        socketSetNoDelay(sid, 1);
+    }
     return sid;
 }
 
@@ -310,6 +313,9 @@ static void socketAccept(WebsSocket *sp)
     nsp->sock = newSock;
     nsp->flags &= ~SOCKET_LISTENING;
     socketSetBlock(nid, (nsp->flags & SOCKET_BLOCK));
+    if (nsp->flags & SOCKET_NODELAY) {
+        socketSetNoDelay(nid, 1);
+    }
 
     /*
         Call the user accept callback. The user must call socketCreateHandler to register for further events of interest.
@@ -485,6 +491,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
 
 #else /* !BIT_WIN_LIKE */
 
+
 PUBLIC int socketSelect(int sid, WebsTime timeout)
 {
     WebsSocket      *sp;
@@ -559,7 +566,6 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         Wait for the event or a timeout. Reset nEvents to be the number of actual events now.
      */
     nEvents = select(socketHighestFd + 1, (fd_set *) readFds, (fd_set *) writeFds, (fd_set *) exceptFds, &tv);
-
     if (nEvents > 0) {
         if (all) {
             sid = 0;
@@ -656,8 +662,8 @@ static void socketDoEvent(WebsSocket *sp)
  */
 PUBLIC int socketSetBlock(int sid, int on)
 {
-    WebsSocket        *sp;
-    int             oldBlock;
+    WebsSocket  *sp;
+    int         oldBlock;
 
     if ((sp = socketPtr(sid)) == NULL) {
         assert(0);
@@ -707,6 +713,41 @@ PUBLIC int socketSetBlock(int sid, int on)
     setsockopt(sp->sock, SOL_SOCKET, SO_NOSIGPIPE, (void*) &iflag, sizeof(iflag));
 #endif
     return oldBlock;
+}
+
+
+/*  
+    Set the TCP delay behavior (nagle algorithm)
+ */
+PUBLIC int socketSetNoDelay(int sid, bool on)
+{
+    WebsSocket  *sp;
+    int         oldDelay;
+
+    if ((sp = socketPtr(sid)) == NULL) {
+        assert(0);
+        return 0;
+    }
+    oldDelay = sp->flags & SOCKET_NODELAY;
+    if (on) {
+        sp->flags |= SOCKET_NODELAY;
+    } else {
+        sp->flags &= ~(SOCKET_NODELAY);
+    }
+#if BIT_WIN_LIKE
+    {
+        BOOL    noDelay;
+        noDelay = on ? 1 : 0;
+        setsockopt(sp->sock, IPPROTO_TCP, TCP_NODELAY, (FAR char*) &noDelay, sizeof(BOOL));
+    }
+#else
+    {
+        int     noDelay;
+        noDelay = on ? 1 : 0;
+        setsockopt(sp->sock, IPPROTO_TCP, TCP_NODELAY, (char*) &noDelay, sizeof(int));
+    }
+#endif /* BIT_WIN_LIKE */
+    return oldDelay;
 }
 
 
@@ -857,7 +898,7 @@ PUBLIC int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
     if (ip) {
         sp->ip = sclone(ip);
     }
-    sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING);
+    sp->flags = flags & (SOCKET_BLOCK | SOCKET_LISTENING | SOCKET_NODELAY);
     return sid;
 }
 

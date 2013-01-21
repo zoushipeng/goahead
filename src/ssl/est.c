@@ -147,6 +147,7 @@ static int estHandshake(Webs *wp)
 
     est = (EstSocket*) wp->ssl;
     trusted = 1;
+    rc = 0;
 
     sp = socketPtr(wp->sid);
     sp->flags |= SOCKET_HANDSHAKING;
