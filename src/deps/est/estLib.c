@@ -13259,10 +13259,17 @@ int x509parse_verify(x509_cert *crt, x509_cert *trust_ca, char *cn, int *flags)
     if (cn != NULL) {
         name = &crt->subject;
         cn_len = strlen(cn);
+
+        //  MOB - should handle ALT_NAMES
         while (name != NULL) {
+            //  MOB - should handle wild cards
             if (memcmp(name->oid.p, OID_CN, 3) == 0 && memcmp(name->val.p, cn, cn_len) == 0 && name->val.len == cn_len) {
                 break;
             }
+#if FUTURE
+            if (name->val.len > 2 && name->val.p[0] == '*' && name->val.p[1] == '.')) {
+            }
+#endif
             name = name->next;
         }
         if (name == NULL) {
