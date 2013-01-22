@@ -28,10 +28,7 @@ all: prep \
         $(CONFIG)/bin/ca.crt \
         $(CONFIG)/bin/libgo.dylib \
         $(CONFIG)/bin/goahead \
-        $(CONFIG)/bin/goahead-test \
-        $(CONFIG)/bin/gopass \
-        $(CONFIG)/bin/webcomp \
-        test/cgi-bin/cgitest
+        $(CONFIG)/bin/goahead-test
 
 .PHONY: prep
 
@@ -51,9 +48,6 @@ clean:
 	rm -rf $(CONFIG)/bin/libgo.dylib
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
-	rm -rf $(CONFIG)/bin/gopass
-	rm -rf $(CONFIG)/bin/webcomp
-	rm -rf test/cgi-bin/cgitest
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
@@ -286,43 +280,4 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/test.o
 	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) -lest
-
-$(CONFIG)/obj/gopass.o: \
-        src/utils/gopass.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/utils/gopass.c
-
-$(CONFIG)/bin/gopass:  \
-        $(CONFIG)/bin/libgo.dylib \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/gopass.o
-	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS) -lest
-
-$(CONFIG)/obj/webcomp.o: \
-        src/utils/webcomp.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/utils/webcomp.c
-
-$(CONFIG)/bin/webcomp:  \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/webcomp.o
-	$(CC) -o $(CONFIG)/bin/webcomp -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS)
-
-$(CONFIG)/obj/cgitest.o: \
-        test/cgitest.c \
-        $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/cgitest.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
-
-test/cgi-bin/cgitest:  \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/cgitest.o
-	$(CC) -o test/cgi-bin/cgitest -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/cgitest.o $(LIBS)
 

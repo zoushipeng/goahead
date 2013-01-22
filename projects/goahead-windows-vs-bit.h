@@ -8,7 +8,7 @@
 
 /* Settings */
 #ifndef BIT_BUILD_NUMBER
-    #define BIT_BUILD_NUMBER "0"
+    #define BIT_BUILD_NUMBER "1"
 #endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
@@ -17,10 +17,13 @@
     #define BIT_DEPTH 1
 #endif
 #ifndef BIT_DISCOVER
-    #define BIT_DISCOVER "doxygen,dsi,ejs,est,man,man2html,pmaker,utest,zip"
+    #define BIT_DISCOVER "doxygen,dsi,est,man,man2html,pmaker,utest,zip"
 #endif
 #ifndef BIT_GOAHEAD_ACCESS_LOG
     #define BIT_GOAHEAD_ACCESS_LOG 0
+#endif
+#ifndef BIT_GOAHEAD_AUTH
+    #define BIT_GOAHEAD_AUTH 1
 #endif
 #ifndef BIT_GOAHEAD_AUTO_LOGIN
     #define BIT_GOAHEAD_AUTO_LOGIN 0
@@ -157,9 +160,6 @@
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
 #endif
-#ifndef BIT_OPTIONAL
-    #define BIT_OPTIONAL ""
-#endif
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
 #endif
@@ -182,10 +182,10 @@
     #define BIT_VERSION "3.1.0"
 #endif
 #ifndef BIT_WITHOUT_ALL
-    #define BIT_WITHOUT_ALL "doxygen,dsi,ejs,est,man,man2html,pmaker"
+    #define BIT_WITHOUT_ALL "doxygen,dsi,est,man,man2html,pmaker"
 #endif
 #ifndef BIT_WITHOUT_DEFAULT
-    #define BIT_WITHOUT_DEFAULT "doxygen,dsi,ejs,man,man2html,pmaker"
+    #define BIT_WITHOUT_DEFAULT "doxygen,dsi,man,man2html,pmaker"
 #endif
 
 /* Prefixes */
@@ -275,9 +275,6 @@
 #ifndef BIT_PACK_DUMPBIN
     #define BIT_PACK_DUMPBIN 0
 #endif
-#ifndef BIT_PACK_EJS
-    #define BIT_PACK_EJS 1
-#endif
 #ifndef BIT_PACK_EST
     #define BIT_PACK_EST 1
 #endif
@@ -322,9 +319,6 @@
 #endif
 #ifndef BIT_PACK_DSI_PATH
     #define BIT_PACK_DSI_PATH "/opt/bin/dsi"
-#endif
-#ifndef BIT_PACK_EJS_PATH
-    #define BIT_PACK_EJS_PATH "/Users/mob/git/ejs/macosx-x64-debug/bin/ejs"
 #endif
 #ifndef BIT_PACK_EST_PATH
     #define BIT_PACK_EST_PATH "/Users/mob/git/goahead/src/deps/est"

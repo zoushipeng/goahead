@@ -95,15 +95,3 @@ cp -r src/js.h ${CONFIG}/inc/js.h
 
 "${LD}" -out:${CONFIG}/bin/goahead-test.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.obj libgo.lib ${LIBS} libest.lib
 
-"${CC}" -c -Fo${CONFIG}/obj/gopass.obj -Fd${CONFIG}/obj/gopass.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/gopass.c
-
-"${LD}" -out:${CONFIG}/bin/gopass.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.obj libgo.lib ${LIBS} libest.lib
-
-"${CC}" -c -Fo${CONFIG}/obj/webcomp.obj -Fd${CONFIG}/obj/webcomp.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/webcomp.c
-
-"${LD}" -out:${CONFIG}/bin/webcomp.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/webcomp.obj ${LIBS}
-
-"${CC}" -c -Fo${CONFIG}/obj/cgitest.obj -Fd${CONFIG}/obj/cgitest.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc test/cgitest.c
-
-"${LD}" -out:test/cgi-bin/cgitest.exe -entry:mainCRTStartup -subsystem:console ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/cgitest.obj ${LIBS}
-

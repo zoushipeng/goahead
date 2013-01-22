@@ -85,21 +85,9 @@ ${CC} -shared -o ${CONFIG}/bin/libgo.so ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/act
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc src/goahead.c
 
-${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS} -lest ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/goahead.o -lgo ${LIBS} -lest -lgo -llxnet -lrt -lsocket -lpthread -lm -ldl -lest ${LDFLAGS}
 
 ${CC} -c -o ${CONFIG}/obj/test.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc test/test.c
 
-${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS} -lest ${LDFLAGS}
-
-${CC} -c -o ${CONFIG}/obj/gopass.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/gopass.c
-
-${CC} -o ${CONFIG}/bin/gopass ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/gopass.o -lgo ${LIBS} -lest ${LDFLAGS}
-
-${CC} -c -o ${CONFIG}/obj/webcomp.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc src/utils/webcomp.c
-
-${CC} -o ${CONFIG}/bin/webcomp ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/webcomp.o ${LIBS} ${LDFLAGS}
-
-${CC} -c -o ${CONFIG}/obj/cgitest.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc test/cgitest.c
-
-${CC} -o test/cgi-bin/cgitest ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/cgitest.o ${LIBS} ${LDFLAGS}
+${CC} -o ${CONFIG}/bin/goahead-test ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/test.o -lgo ${LIBS} -lest -lgo -llxnet -lrt -lsocket -lpthread -lm -ldl -lest ${LDFLAGS}
 

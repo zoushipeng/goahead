@@ -28,10 +28,7 @@ all: prep \
         $(CONFIG)/bin/ca.crt \
         $(CONFIG)/bin/libgo.so \
         $(CONFIG)/bin/goahead \
-        $(CONFIG)/bin/goahead-test \
-        $(CONFIG)/bin/gopass \
-        $(CONFIG)/bin/webcomp \
-        test/cgi-bin/cgitest
+        $(CONFIG)/bin/goahead-test
 
 .PHONY: prep
 
@@ -51,9 +48,6 @@ clean:
 	rm -rf $(CONFIG)/bin/libgo.so
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
-	rm -rf $(CONFIG)/bin/gopass
-	rm -rf $(CONFIG)/bin/webcomp
-	rm -rf test/cgi-bin/cgitest
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
@@ -270,7 +264,7 @@ $(CONFIG)/bin/goahead:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/goahead.o
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS) -lest $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS) -lest -lgo -llxnet -lrt -lsocket -lpthread -lm -ldl -lest $(LDFLAGS)
 
 $(CONFIG)/obj/test.o: \
         test/test.c \
@@ -285,44 +279,5 @@ $(CONFIG)/bin/goahead-test:  \
         $(CONFIG)/inc/goahead.h \
         $(CONFIG)/inc/js.h \
         $(CONFIG)/obj/test.o
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) -lest $(LDFLAGS)
-
-$(CONFIG)/obj/gopass.o: \
-        src/utils/gopass.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/gopass.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/utils/gopass.c
-
-$(CONFIG)/bin/gopass:  \
-        $(CONFIG)/bin/libgo.so \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/gopass.o
-	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o -lgo $(LIBS) -lest $(LDFLAGS)
-
-$(CONFIG)/obj/webcomp.o: \
-        src/utils/webcomp.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/webcomp.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/utils/webcomp.c
-
-$(CONFIG)/bin/webcomp:  \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/webcomp.o
-	$(CC) -o $(CONFIG)/bin/webcomp $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/webcomp.o $(LIBS) $(LDFLAGS)
-
-$(CONFIG)/obj/cgitest.o: \
-        test/cgitest.c \
-        $(CONFIG)/inc/bit.h
-	$(CC) -c -o $(CONFIG)/obj/cgitest.o -fPIC $(LDFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/cgitest.c
-
-test/cgi-bin/cgitest:  \
-        $(CONFIG)/inc/bitos.h \
-        $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h \
-        $(CONFIG)/obj/cgitest.o
-	$(CC) -o test/cgi-bin/cgitest $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/cgitest.o $(LIBS) $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) -lest -lgo -llxnet -lrt -lsocket -lpthread -lm -ldl -lest $(LDFLAGS)
 

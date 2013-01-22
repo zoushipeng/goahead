@@ -29,10 +29,7 @@ all: prep \
         $(CONFIG)\bin\ca.crt \
         $(CONFIG)\bin\libgo.dll \
         $(CONFIG)\bin\goahead.exe \
-        $(CONFIG)\bin\goahead-test.exe \
-        $(CONFIG)\bin\gopass.exe \
-        $(CONFIG)\bin\webcomp.exe \
-        test\cgi-bin\cgitest.exe
+        $(CONFIG)\bin\goahead-test.exe
 
 .PHONY: prep
 
@@ -51,9 +48,6 @@ clean:
 	-if exist $(CONFIG)\bin\libgo.dll del /Q $(CONFIG)\bin\libgo.dll
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
-	-if exist $(CONFIG)\bin\gopass.exe del /Q $(CONFIG)\bin\gopass.exe
-	-if exist $(CONFIG)\bin\webcomp.exe del /Q $(CONFIG)\bin\webcomp.exe
-	-if exist test\cgi-bin\cgitest.exe del /Q test\cgi-bin\cgitest.exe
 	-if exist $(CONFIG)\obj\estLib.obj del /Q $(CONFIG)\obj\estLib.obj
 	-if exist $(CONFIG)\obj\action.obj del /Q $(CONFIG)\obj\action.obj
 	-if exist $(CONFIG)\obj\alloc.obj del /Q $(CONFIG)\obj\alloc.obj
@@ -283,43 +277,4 @@ $(CONFIG)\bin\goahead-test.exe:  \
         $(CONFIG)\inc\js.h \
         $(CONFIG)\obj\test.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj libgo.lib $(LIBS) libest.lib
-
-$(CONFIG)\obj\gopass.obj: \
-        src\utils\gopass.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\utils\gopass.c
-
-$(CONFIG)\bin\gopass.exe:  \
-        $(CONFIG)\bin\libgo.dll \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\gopass.obj
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj libgo.lib $(LIBS) libest.lib
-
-$(CONFIG)\obj\webcomp.obj: \
-        src\utils\webcomp.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\webcomp.obj -Fd$(CONFIG)\obj\webcomp.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\utils\webcomp.c
-
-$(CONFIG)\bin\webcomp.exe:  \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\webcomp.obj
-	"$(LD)" -out:$(CONFIG)\bin\webcomp.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\webcomp.obj $(LIBS)
-
-$(CONFIG)\obj\cgitest.obj: \
-        test\cgitest.c \
-        $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\cgitest.obj -Fd$(CONFIG)\obj\cgitest.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\cgitest.c
-
-test\cgi-bin\cgitest.exe:  \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\cgitest.obj
-	"$(LD)" -out:test\cgi-bin\cgitest.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\cgitest.obj $(LIBS)
 
