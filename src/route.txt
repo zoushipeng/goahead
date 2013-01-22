@@ -39,6 +39,9 @@ route uri=/action handler=action
 route uri=/ extensions=jst handler=jst
 route uri=/ methods=OPTIONS|TRACE handler=options
 
+#   For legacy GoAhead applications using /goform
+route uri=/goform handler=action
+
 #
 #   Catch-all route without authentication for all other URIs
 #
