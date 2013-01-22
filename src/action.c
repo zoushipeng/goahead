@@ -14,7 +14,7 @@
 
 /************************************ Locals **********************************/
 
-static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
+static WebsHash actionTable = -1;            /* Symbol table for actions */
 
 /************************************* Code ***********************************/
 /*
@@ -23,37 +23,37 @@ static WebsHash formSymtab = -1;            /* Symbol table for form handlers */
 static bool actionHandler(Webs *wp)
 {
     WebsKey     *sp;
-    char        formBuf[BIT_GOAHEAD_LIMIT_FILENAME];
-    char        *cp, *formName;
+    char        actionBuf[BIT_GOAHEAD_LIMIT_URI + 1];
+    char        *cp, *actionName;
     WebsAction  fn;
 
     assert(websValid(wp));
-    assert(formSymtab >= 0);
+    assert(actionTable >= 0);
 
     /*
-        Extract the form name
+        Extract the action name
      */
-    scopy(formBuf, sizeof(formBuf), wp->path);
-    if ((formName = strchr(&formBuf[1], '/')) == NULL) {
-        websError(wp, HTTP_CODE_NOT_FOUND, "Missing form name");
+    scopy(actionBuf, sizeof(actionBuf), wp->path);
+    if ((actionName = strchr(&actionBuf[1], '/')) == NULL) {
+        websError(wp, HTTP_CODE_NOT_FOUND, "Missing action name");
         return 1;
     }
-    formName++;
-    if ((cp = strchr(formName, '/')) != NULL) {
+    actionName++;
+    if ((cp = strchr(actionName, '/')) != NULL) {
         *cp = '\0';
     }
     /*
-        Lookup the C form function first and then try tcl (no javascript support yet).
+        Lookup the C action function first and then try tcl (no javascript support yet).
      */
-    sp = hashLookup(formSymtab, formName);
+    sp = hashLookup(actionTable, actionName);
     if (sp == NULL) {
-        websError(wp, HTTP_CODE_NOT_FOUND, "Action %s is not defined", formName);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Action %s is not defined", actionName);
     } else {
         fn = (WebsAction) sp->content.value.symbol;
         assert(fn);
         if (fn) {
 #if BIT_GOAHEAD_LEGACY
-            (*((WebsProc) fn))((void*) wp, formName, wp->query);
+            (*((WebsProc) fn))((void*) wp, actionName, wp->query);
 #else
             (*fn)((void*) wp);
 #endif
@@ -74,23 +74,23 @@ PUBLIC int websDefineAction(char *name, void *fn)
     if (fn == NULL) {
         return -1;
     }
-    hashEnter(formSymtab, name, valueSymbol(fn), 0);
+    hashEnter(actionTable, name, valueSymbol(fn), 0);
     return 0;
 }
 
 
 static void closeAction()
 {
-    if (formSymtab != -1) {
-        hashFree(formSymtab);
-        formSymtab = -1;
+    if (actionTable != -1) {
+        hashFree(actionTable);
+        actionTable = -1;
     }
 }
 
 
 PUBLIC void websActionOpen()
 {
-    formSymtab = hashCreate(WEBS_HASH_INIT);
+    actionTable = hashCreate(WEBS_HASH_INIT);
     websDefineHandler("action", actionHandler, closeAction, 0);
 }
 
@@ -99,7 +99,7 @@ PUBLIC void websActionOpen()
 /*
     Don't use these routes. Use websWriteHeaders, websEndHeaders instead.
 
-    Write a webs header. This is a convenience routine to write a common header for a form back to the browser.
+    Write a webs header. This is a convenience routine to write a common header for an action back to the browser.
  */
 PUBLIC void websHeader(Webs *wp)
 {
