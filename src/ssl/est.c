@@ -18,8 +18,6 @@ typedef struct EstConfig {
     x509_cert       cert;
     x509_cert       ca;
     int             *ciphers;
-    //  MOB - where should this be set from?
-    int             verifyPeer;
     char            *dhKey;
 } EstConfig;
 
@@ -61,14 +59,23 @@ PUBLIC int sslOpen()
     /*
         Set the server certificate and key files
      */
-    //  MOB - last arg is password
-    if (*BIT_GOAHEAD_KEY && x509parse_keyfile(&estConfig.rsa, BIT_GOAHEAD_KEY, 0) < 0) {
-        error("EST: Unable to read key file %s", BIT_GOAHEAD_KEY); 
-        return -1;
+    if (*BIT_GOAHEAD_KEY) {
+        /*
+            Load a decrypted PEM format private key. The last arg is the private key.
+         */
+        if (x509parse_keyfile(&estConfig.rsa, BIT_GOAHEAD_KEY, 0) < 0) {
+            error("EST: Unable to read key file %s", BIT_GOAHEAD_KEY); 
+            return -1;
+        }
     }
-    if (*BIT_GOAHEAD_CERTIFICATE && x509parse_crtfile(&estConfig.cert, BIT_GOAHEAD_CERTIFICATE) < 0) {
-        error("EST: Unable to read certificate %s", BIT_GOAHEAD_CERTIFICATE); 
-        return -1;
+    if (*BIT_GOAHEAD_CERTIFICATE) {
+        /*
+            Load a PEM format certificate file
+         */
+        if (x509parse_crtfile(&estConfig.cert, BIT_GOAHEAD_CERTIFICATE) < 0) {
+            error("EST: Unable to read certificate %s", BIT_GOAHEAD_CERTIFICATE); 
+            return -1;
+        }
     }
     if (*BIT_GOAHEAD_CA) {
         if (x509parse_crtfile(&estConfig.ca, BIT_GOAHEAD_CA) != 0) {
@@ -102,6 +109,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     havege_init(&est->hs);
     ssl_init(&est->ctx);
 	ssl_set_endpoint(&est->ctx, 1);
+
 	ssl_set_authmode(&est->ctx, BIT_GOAHEAD_VERIFY_PEER ? SSL_VERIFY_OPTIONAL : SSL_VERIFY_NO_CHECK);
     ssl_set_rng(&est->ctx, havege_rand, &est->hs);
 	ssl_set_dbg(&est->ctx, estTrace, NULL);
@@ -110,6 +118,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     ssl_set_ciphers(&est->ctx, estConfig.ciphers);
 	ssl_set_session(&est->ctx, 1, 0, &est->session);
 	memset(&est->session, 0, sizeof(ssl_session));
+
 	ssl_set_ca_chain(&est->ctx, *BIT_GOAHEAD_CA ? &estConfig.ca : NULL, NULL);
     if (*BIT_GOAHEAD_CERTIFICATE && *BIT_GOAHEAD_KEY) {
         ssl_set_own_cert(&est->ctx, &estConfig.cert, &estConfig.rsa);
@@ -152,11 +161,13 @@ static int estHandshake(Webs *wp)
     sp = socketPtr(wp->sid);
     sp->flags |= SOCKET_HANDSHAKING;
 
-    while (est->ctx.state != SSL_HANDSHAKE_OVER && (rc = ssl_handshake(&est->ctx)) != 0) {
-        if (rc == EST_ERR_NET_TRY_AGAIN) {
-            return 0;
+    while (est->ctx.state != SSL_HANDSHAKE_OVER) {
+        if ((rc = ssl_handshake(&est->ctx)) != 0) {
+            if (rc == EST_ERR_NET_TRY_AGAIN) {
+                return 0;
+            }
+            break;
         }
-        break;
     }
     sp->flags &= ~SOCKET_HANDSHAKING;
 
@@ -164,7 +175,11 @@ static int estHandshake(Webs *wp)
         Analyze the handshake result
      */
     if (rc < 0) {
-        logmsg(4, "Cannot handshake: error -0x%x", -rc);
+        if (rc == EST_ERR_SSL_PRIVATE_KEY_REQUIRED && !(*BIT_GOAHEAD_KEY || *BIT_GOAHEAD_CERTIFICATE)) {
+            error("Missing required certificate and key");
+        } else {
+            error("Cannot handshake: error -0x%x", -rc);
+        }
         sp->flags |= SOCKET_EOF;
         errno = EPROTO;
         return -1;
@@ -180,8 +195,7 @@ static int estHandshake(Webs *wp)
             logmsg(2, "Certificate common name mismatch");
 
         } else if (vrc & BADCERT_NOT_TRUSTED) {
-            if (est->ctx.peer_cert->next && est->ctx.peer_cert->next->version == 0) {
-                //  MOB - est should have dedicated EST error code for this.
+            if (vrc & BADCERT_SELF_SIGNED) {                                                               
                 logmsg(2, "Self-signed certificate");
             } else {
                 logmsg(2, "Certificate not trusted");
@@ -248,6 +262,10 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
                 trace(5, "EST: connection reset");
                 sp->flags |= SOCKET_EOF;
                 return -1;
+            } else {
+                trace(4, "EST: read error -0x%", -rc);                                                    
+                sp->flags |= SOCKET_EOF;                                                               
+                return -1; 
             }
         }
         break;
