@@ -55,12 +55,12 @@ clean:
 	rm -rf $(CONFIG)/obj/cgi.o
 	rm -rf $(CONFIG)/obj/crypt.o
 	rm -rf $(CONFIG)/obj/file.o
+	rm -rf $(CONFIG)/obj/fs.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/jst.o
 	rm -rf $(CONFIG)/obj/options.o
 	rm -rf $(CONFIG)/obj/rom-documents.o
-	rm -rf $(CONFIG)/obj/rom.o
 	rm -rf $(CONFIG)/obj/route.o
 	rm -rf $(CONFIG)/obj/runtime.o
 	rm -rf $(CONFIG)/obj/socket.o
@@ -146,6 +146,12 @@ $(CONFIG)/obj/file.o: \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/file.c
 
+$(CONFIG)/obj/fs.o: \
+        src/fs.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/fs.c
+
 $(CONFIG)/obj/http.o: \
         src/http.c \
         $(CONFIG)/inc/bit.h \
@@ -176,12 +182,6 @@ $(CONFIG)/obj/rom-documents.o: \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/rom-documents.c
-
-$(CONFIG)/obj/rom.o: \
-        src/rom.c \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/rom.c
 
 $(CONFIG)/obj/route.o: \
         src/route.c \
@@ -237,12 +237,12 @@ $(CONFIG)/bin/libgo.so:  \
         $(CONFIG)/obj/cgi.o \
         $(CONFIG)/obj/crypt.o \
         $(CONFIG)/obj/file.o \
+        $(CONFIG)/obj/fs.o \
         $(CONFIG)/obj/http.o \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/jst.o \
         $(CONFIG)/obj/options.o \
         $(CONFIG)/obj/rom-documents.o \
-        $(CONFIG)/obj/rom.o \
         $(CONFIG)/obj/route.o \
         $(CONFIG)/obj/runtime.o \
         $(CONFIG)/obj/socket.o \
@@ -250,7 +250,7 @@ $(CONFIG)/bin/libgo.so:  \
         $(CONFIG)/obj/est.o \
         $(CONFIG)/obj/matrixssl.o \
         $(CONFIG)/obj/openssl.o
-	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/rom.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
+	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
 
 $(CONFIG)/obj/goahead.o: \
         src/goahead.c \

@@ -55,6 +55,8 @@ ${CC} -c -o ${CONFIG}/obj/crypt.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Is
 
 ${CC} -c -o ${CONFIG}/obj/file.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/file.c
 
+${CC} -c -o ${CONFIG}/obj/fs.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/fs.c
+
 ${CC} -c -o ${CONFIG}/obj/http.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/http.c
 
 ${CC} -c -o ${CONFIG}/obj/js.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/js.c
@@ -64,8 +66,6 @@ ${CC} -c -o ${CONFIG}/obj/jst.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc
 ${CC} -c -o ${CONFIG}/obj/options.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/options.c
 
 ${CC} -c -o ${CONFIG}/obj/rom-documents.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/rom-documents.c
-
-${CC} -c -o ${CONFIG}/obj/rom.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/rom.c
 
 ${CC} -c -o ${CONFIG}/obj/route.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/route.c
 
@@ -81,7 +81,7 @@ ${CC} -c -o ${CONFIG}/obj/matrixssl.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc
 
 ${CC} -c -o ${CONFIG}/obj/openssl.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/ssl/openssl.c
 
-${CC} -shared -o ${CONFIG}/bin/libgo.so ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/action.o ${CONFIG}/obj/alloc.o ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/jst.o ${CONFIG}/obj/options.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/rom.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/upload.o ${CONFIG}/obj/est.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${LIBS} -lest
+${CC} -shared -o ${CONFIG}/bin/libgo.so ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/action.o ${CONFIG}/obj/alloc.o ${CONFIG}/obj/auth.o ${CONFIG}/obj/cgi.o ${CONFIG}/obj/crypt.o ${CONFIG}/obj/file.o ${CONFIG}/obj/fs.o ${CONFIG}/obj/http.o ${CONFIG}/obj/js.o ${CONFIG}/obj/jst.o ${CONFIG}/obj/options.o ${CONFIG}/obj/rom-documents.o ${CONFIG}/obj/route.o ${CONFIG}/obj/runtime.o ${CONFIG}/obj/socket.o ${CONFIG}/obj/upload.o ${CONFIG}/obj/est.o ${CONFIG}/obj/matrixssl.o ${CONFIG}/obj/openssl.o ${LIBS} -lest
 
 ${CC} -c -o ${CONFIG}/obj/goahead.o -fPIC ${LDFLAGS} ${DFLAGS} -I${CONFIG}/inc src/goahead.c
 

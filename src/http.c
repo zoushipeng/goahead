@@ -275,7 +275,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
         return -1;
     }
 #endif
-    websRomOpen();
+    websFsOpen();
     if (websLoad(routeFile) < 0) {
         return -1;
     }
@@ -343,7 +343,7 @@ PUBLIC void websClose()
         accessFd = -1;
     }
 #endif
-    websRomClose();
+    websFsClose();
     hashFree(websMime);
     socketClose();
     logClose();

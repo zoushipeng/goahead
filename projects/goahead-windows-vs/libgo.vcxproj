@@ -106,12 +106,12 @@
     <ClCompile Include="..\..\src\cgi.c" />
     <ClCompile Include="..\..\src\crypt.c" />
     <ClCompile Include="..\..\src\file.c" />
+    <ClCompile Include="..\..\src\fs.c" />
     <ClCompile Include="..\..\src\http.c" />
     <ClCompile Include="..\..\src\js.c" />
     <ClCompile Include="..\..\src\jst.c" />
     <ClCompile Include="..\..\src\options.c" />
     <ClCompile Include="..\..\src\rom-documents.c" />
-    <ClCompile Include="..\..\src\rom.c" />
     <ClCompile Include="..\..\src\route.c" />
     <ClCompile Include="..\..\src\runtime.c" />
     <ClCompile Include="..\..\src\socket.c" />

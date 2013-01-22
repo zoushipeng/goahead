@@ -59,6 +59,8 @@ cp -r src/js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/file.obj -Fd${CONFIG}/obj/file.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/file.c
 
+"${CC}" -c -Fo${CONFIG}/obj/fs.obj -Fd${CONFIG}/obj/fs.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/fs.c
+
 "${CC}" -c -Fo${CONFIG}/obj/http.obj -Fd${CONFIG}/obj/http.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/http.c
 
 "${CC}" -c -Fo${CONFIG}/obj/js.obj -Fd${CONFIG}/obj/js.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/js.c
@@ -68,8 +70,6 @@ cp -r src/js.h ${CONFIG}/inc/js.h
 "${CC}" -c -Fo${CONFIG}/obj/options.obj -Fd${CONFIG}/obj/options.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/options.c
 
 "${CC}" -c -Fo${CONFIG}/obj/rom-documents.obj -Fd${CONFIG}/obj/rom-documents.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/rom-documents.c
-
-"${CC}" -c -Fo${CONFIG}/obj/rom.obj -Fd${CONFIG}/obj/rom.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/rom.c
 
 "${CC}" -c -Fo${CONFIG}/obj/route.obj -Fd${CONFIG}/obj/route.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/route.c
 
@@ -85,7 +85,7 @@ cp -r src/js.h ${CONFIG}/inc/js.h
 
 "${CC}" -c -Fo${CONFIG}/obj/openssl.obj -Fd${CONFIG}/obj/openssl.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc -Isrc/deps/est src/ssl/openssl.c
 
-"${LD}" -dll -out:${CONFIG}/bin/libgo.dll -entry:_DllMainCRTStartup@12 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/action.obj ${CONFIG}/obj/alloc.obj ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/jst.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/rom.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/upload.obj ${CONFIG}/obj/est.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${LIBS} libest.lib
+"${LD}" -dll -out:${CONFIG}/bin/libgo.dll -entry:_DllMainCRTStartup@12 ${LDFLAGS} ${LIBPATHS} ${CONFIG}/obj/action.obj ${CONFIG}/obj/alloc.obj ${CONFIG}/obj/auth.obj ${CONFIG}/obj/cgi.obj ${CONFIG}/obj/crypt.obj ${CONFIG}/obj/file.obj ${CONFIG}/obj/fs.obj ${CONFIG}/obj/http.obj ${CONFIG}/obj/js.obj ${CONFIG}/obj/jst.obj ${CONFIG}/obj/options.obj ${CONFIG}/obj/rom-documents.obj ${CONFIG}/obj/route.obj ${CONFIG}/obj/runtime.obj ${CONFIG}/obj/socket.obj ${CONFIG}/obj/upload.obj ${CONFIG}/obj/est.obj ${CONFIG}/obj/matrixssl.obj ${CONFIG}/obj/openssl.obj ${LIBS} libest.lib
 
 "${CC}" -c -Fo${CONFIG}/obj/goahead.obj -Fd${CONFIG}/obj/goahead.pdb ${CFLAGS} ${DFLAGS} -I${CONFIG}/inc src/goahead.c
 

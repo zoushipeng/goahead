@@ -1,10 +1,5 @@
 /*
-    rom.c -- Support for ROMed page retrieval.
-
-    This module provides web page retrieval from compiled web pages. Use the webcomp program to compile web pages and
-    link into the GoAhead WebServer.  This module uses a hashed symbol table for fast page lookup.
-  
-    Usage: webcomp -f webPageFileList -p Prefix >webrom.c
+    fs.c -- File System support and support for ROM-based file systems.
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
@@ -16,19 +11,19 @@
 /******************************** Local Data **********************************/
 
 #if BIT_ROM
-WebsHash    romTab;                     /* Symbol table for web pages */
+static WebsHash romFs;             /* Symbol table for web pages */
 #endif
 
 /*********************************** Code *************************************/
 
-PUBLIC int websRomOpen()
+PUBLIC int websFsOpen()
 {
 #if BIT_ROM
     WebsRomIndex    *wip;
     char            name[BIT_GOAHEAD_LIMIT_FILENAME];
     ssize           len;
 
-    romTab = hashCreate(WEBS_HASH_INIT);
+    romFs = hashCreate(WEBS_HASH_INIT);
     for (wip = websRomIndex; wip->path; wip++) {
         strncpy(name, wip->path, BIT_GOAHEAD_LIMIT_FILENAME);
         len = strlen(name) - 1;
@@ -36,17 +31,17 @@ PUBLIC int websRomOpen()
             (name[len] == '/' || name[len] == '\\')) {
             name[len] = '\0';
         }
-        hashEnter(romTab, name, valueSymbol(wip), 0);
+        hashEnter(romFs, name, valueSymbol(wip), 0);
     }
 #endif
     return 0;
 }
 
 
-PUBLIC void websRomClose()
+PUBLIC void websFsClose()
 {
 #if BIT_ROM
-    hashFree(romTab);
+    hashFree(romFs);
 #endif
 }
 
@@ -57,7 +52,7 @@ PUBLIC int websOpenFile(char *path, int flags, int mode)
     WebsRomIndex    *wip;
     WebsKey         *sp;
 
-    if ((sp = hashLookup(romTab, path)) == NULL) {
+    if ((sp = hashLookup(romFs, path)) == NULL) {
         return -1;
     }
     wip = (WebsRomIndex*) sp->content.value.symbol;
@@ -89,7 +84,7 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
 
     assert(path && *path);
 
-    if ((sp = hashLookup(romTab, path)) == NULL) {
+    if ((sp = hashLookup(romFs, path)) == NULL) {
         return -1;
     }
     wip = (WebsRomIndex*) sp->content.value.symbol;

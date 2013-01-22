@@ -2415,17 +2415,17 @@ PUBLIC void websResponse(Webs *wp, int status, char *msg);
 PUBLIC int websRewriteRequest(Webs *wp, char *url);
 
 /**
-    Open the ROM file system
+    Open the file system module
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-PUBLIC int websRomOpen();
+PUBLIC int websFsOpen();
 
 /**
-    Close the ROM file system
+    Close the file system module
     @ingroup Webs
  */
-PUBLIC void websRomClose();
+PUBLIC void websFsClose();
 
 /**
     Seek to a position in the current request page document
