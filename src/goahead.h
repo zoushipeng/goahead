@@ -146,10 +146,6 @@ PUBLIC_DATA int logLevel;
  */
 #define WEBS_ASSERT_MSG     0x10        /**< Originated from assert */
 #define WEBS_ERROR_MSG      0x20        /**< Originated from error */
-#if UNUSED && KEEP
-#define WEBS_INFO_MSG       0x40        /**< Originated from info */
-#define WEBS_WARN_MSG       0x80        /**< Originated from warn */
-#endif
 #define WEBS_LOG_MSG        0x100       /**< Originated from logmsg */
 #define WEBS_RAW_MSG        0x200       /**< Raw message output */
 #define WEBS_TRACE_MSG      0x400       /**< Originated from trace */
@@ -998,7 +994,7 @@ PUBLIC bool socketHasIPv6();
 /**
     Indicate that the application layer has buffered data for the socket. 
     @description This is used by SSL and other network stacks that buffer pending data
-    @param sp Socket object returned from #mprCreateSocket
+    @param sp Socket object returned from #socketPtr
     @param len Length of buffered data in bytes
     @param dir Buffer direction. Set to MPR_READABLE for buffered read data and MPR_WRITABLE for buffered write data.
     @ingroup WebsSocket
@@ -1290,9 +1286,9 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src);
 /*
     String trim flags
  */
-#define WEBS_TRIM_START  0x1             /**< Flag for #strim to trim from the start of the string */
-#define WEBS_TRIM_END    0x2             /**< Flag for #strim to trim from the end of the string */
-#define WEBS_TRIM_BOTH   0x3             /**< Flag for #strim to trim from both the start and the end of the string */
+#define WEBS_TRIM_START  0x1             /**< Flag for strim to trim from the start of the string */
+#define WEBS_TRIM_END    0x2             /**< Flag for strim to trim from the end of the string */
+#define WEBS_TRIM_BOTH   0x3             /**< Flag for strim to trim from both the start and the end of the string */
 
 /**
     Format a string. This is a secure verion of printf that can handle null args.
@@ -1671,16 +1667,6 @@ typedef struct Webs {
     char            *uploadVar;         /**< Current upload form variable name */
 #endif
     void            *ssl;               /**< SSL context */
-#if UNUSED
-#if BIT_PACK_EST
-    void        *est;                   /**< EST SSL state */
-#elif BIT_PACK_OPENSSL
-    void        *ssl;                   /**< SSL state */
-    void        *bio;                   /**< Buffer for I/O - not used in actual I/O */
-#elif BIT_PACK_MATRIXSSL
-    void        *ms;                    /**< MatrixSSL state */
-#endif
-#endif
 } Webs;
 
 #if BIT_GOAHEAD_LEGACY
@@ -2270,6 +2256,8 @@ PUBLIC int websOpen(char *documents, char *routes);
 /**
     Open the web page document for the current request
     @param path Filename path to open
+    @param flags File open flags
+    @param mode Permissions mask 
     @return Positive file handle if successful, otherwise -1.
     @ingroup Webs
  */
@@ -2978,6 +2966,7 @@ PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHa
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *authType);
 
 /*************************************** Auth **********************************/
+#if BIT_GOAHEAD_AUTH
 
 #define WEBS_USIZE          128              /* Size of realm:username */
 
@@ -3120,17 +3109,6 @@ PUBLIC int websOpenAuth(int minimal);
  */
 PUBLIC int websSetUserRoles(char *username, char *roles);
 
-#if UNUSED
-/**
-    Save the authentication file
-    @param path Filename to save to
-    @return Zero if successful, otherwise -1.
-    @ingroup WebsAuth
- */
-PUBLIC int websWriteAuthFile(char *path);
-#endif
-
-
 /**
     Standard user password verification routine.
     @param wp Webs request object
@@ -3149,6 +3127,7 @@ PUBLIC bool websVerifyPassword(Webs *wp);
 PUBLIC bool websVerifyPamPassword(Webs *wp);
 #endif
 
+#endif /* BIT_GOAHEAD_AUTH */
 /************************************** Sessions *******************************/
 /**
     Session state storage

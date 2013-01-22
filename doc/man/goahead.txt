@@ -6,7 +6,7 @@ NAME
        goahead- Embedded HTTP Web Server
 
 SYNOPSIS
-       goahead [options] [IP][:port] [documents]
+       goahead [options] [documents] [[IP][:port] ...]
 
        goahead  [--auth  authFile]  [--background] [--debugger] [--home direc-
        tory]  [--log  logSpec]  [--route  routeFile]  [--version]  [--verbose]

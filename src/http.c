@@ -270,9 +270,11 @@ PUBLIC int websOpen(char *documents, char *routeFile)
 #if BIT_GOAHEAD_JAVASCRIPT
     websJstOpen();
 #endif
+#if BIT_GOAHEAD_AUTH
     if (websOpenAuth(0) < 0) {
         return -1;
     }
+#endif
     websRomOpen();
     if (websLoad(routeFile) < 0) {
         return -1;
@@ -304,7 +306,9 @@ PUBLIC void websClose()
     int     i;
 
     websCloseRoute();
+#if BIT_GOAHEAD_AUTH
     websCloseAuth();
+#endif
     if (pruneId >= 0) {
         websStopEvent(pruneId);
         pruneId = -1;

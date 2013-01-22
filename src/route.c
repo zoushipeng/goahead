@@ -81,12 +81,14 @@ PUBLIC void websRouteRequest(Webs *wp)
         }
         if (strncmp(wp->path, route->prefix, len) == 0) {
             wp->route = route;
+#if BIT_GOAHEAD_AUTH
             if (route->authType && !websAuthenticate(wp)) {
                 return;
             }
             if (route->abilities >= 0 && !websCan(wp, route->abilities)) {
                 return;
             }
+#endif
             if (!wp->filename || route->dir) {
                 wfree(wp->filename);
                 wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
@@ -132,6 +134,7 @@ PUBLIC void websRouteRequest(Webs *wp)
 }
 
 
+#if BIT_GOAHEAD_AUTH
 static bool can(Webs *wp, char *ability)
 {
     assert(wp);
@@ -195,6 +198,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
     }
     return 1;
 }
+#endif
 
 
 #if UNUSED && KEEP
@@ -252,10 +256,12 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         return 0;
     }
     route->handler = key->content.value.symbol;
+#if BIT_GOAHEAD_AUTH
 #if BIT_GOAHEAD_PAM
     route->verify = websVerifyPamPassword;
 #else
     route->verify = websVerifyPassword;
+#endif
 #endif
     growRoutes();
     if (pos < 0) {
@@ -443,7 +449,7 @@ PUBLIC int websLoad(char *path)
     WebsRoute   *route;
     WebsHash    abilities, extensions, methods, redirects;
     char        *buf, *line, *kind, *next, *auth, *dir, *handler, *protocol, *uri, *option, *key, *value, *status;
-    char        *name, *redirectUri, *password, *roles, *token;
+    char        *redirectUri, *token;
     int         rc;
     
     assert(path && *path);
@@ -502,11 +508,13 @@ PUBLIC int websLoad(char *path)
                 break;
             }
             websSetRouteMatch(route, dir, protocol, methods, extensions, abilities, redirects);
+#if BIT_GOAHEAD_AUTH
             if (auth && websSetRouteAuth(route, auth) < 0) {
                 rc = -1;
                 break;
             }
         } else if (smatch(kind, "user")) {
+            char *name, *password, *roles;
             name = password = roles = 0;
             while ((option = stok(NULL, " \t\r\n", &next)) != 0) {
                 key = stok(option, "=", &value);
@@ -526,6 +534,7 @@ PUBLIC int websLoad(char *path)
                 break;
             }
         } else if (smatch(kind, "role")) {
+            char *name;
             name = 0;
             abilities = -1;
             while ((option = stok(NULL, " \t\r\n", &next)) != 0) {
@@ -540,6 +549,7 @@ PUBLIC int websLoad(char *path)
                 rc = -1;
                 break;
             }
+#endif
         } else {
             error("Unknown route keyword %s", kind); 
             rc = -1;
@@ -547,7 +557,9 @@ PUBLIC int websLoad(char *path)
         }
     }
     wfree(buf);
+#if BIT_GOAHEAD_AUTH
     websComputeAllUserAbilities();
+#endif
     return rc;
 }
 

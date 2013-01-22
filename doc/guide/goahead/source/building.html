@@ -106,12 +106,10 @@
             <p>Building with Bit is the most flexible and offers the most control. It requires installing the
             <a href="http://ejscript.org/downloads/ejs/download.ejs">Ejscript Product</a> which includes the
             <em>bit</em> tool. Using bit is required if you are cross-compiling or using static linking.</p>
-
             <p>Building with make or nmake is useful for a default (pre-configured)  build, but you do not 
             have the flexibility to configure
             the product for your system. Similarly, IDE builds are convenient, but are somewhat fixed in the software
             configuration they build. We recommend building with Bit. It is fast, flexible and configurable.</p>
-
             <a id="env"></a>
             <h3>Preparing the Environment</h3>
             <p>Before building, you may need to install required tools such as cross-compilers, SDKs, and system
@@ -269,7 +267,6 @@
                 </tr>
             </tbody>
             </table>
-
             <h3>Optional Packages</h3>
             <table title="packages">
                 <thead>
@@ -289,13 +286,11 @@
                     <td>--without PACKAGE</td>
                     <td>Do not include the PACKAGE in the build.
                         Use --without all to disable all possible non-essential packages.</td>
-
                 </tr>
                 </tbody>
             </table>
             <h3>Example Use</h3>
             <pre>configure --with openssl=/usr/src/openssl</pre>
-
             <h3>Packages</h3>
             <p>The following table describes the packages that can extend GoAhead configure. 
             The use of the Internal/External field states whether the package is shipped internally with the GoAhead source
@@ -331,7 +326,6 @@
                 </tr>
                 </tbody>
             </table>
-
             <p>The following table describes the tool packages that can be used when building, running and 
             managing GoAhead. 
             The use of the Internal/External field documents whether the package is shipped internally with the GoAhead source
@@ -387,7 +381,6 @@
                 </tr>
                 </tbody>
             </table>
-
             <a name="main"></a>
             <h3>Main Configuration Options</h3>
             <p>The main.bit configuration file specifies build-time defaults. Some of the important values
@@ -505,7 +498,6 @@
                     </tr>
                 </tbody>
             </table>
-
             <h3>Environment Variables</h3>
             <p>When cross-building, certain environment variables may be passed to the configure script and on to 
             <em>bit</em> to configure the compiler and linker paths and flags. </p>
@@ -640,7 +632,6 @@ bit rebuild    # Rebuild all targets
 bit install    # Install the built software locally
 bit --help     # Show bit usage</pre>
             
-
             <h3>Static Linking</h3>
             <p>On some platforms, it is desirable to statically link GoAhead. The default bit files
             are setup to build GoAhead using shared libraries and to build the loadable modules separately. If you want to
@@ -657,8 +648,6 @@ bit
 configure --rom
 </pre>
             <p>See <a href="../programmers/rom.html">Serving Pages from ROM</a> for more information.</p>
-
-
 <!--
             <a id="installing"></a>
             <h2 class="section">Installing</h2>
@@ -679,8 +668,6 @@ sudo bit uninstall
             Alternatively, you can extract them from the staging directory
             under the <em>OS-ARCH[-CPU]-PROFILE/pkg/bin/goahead-VERSION/contents</em> directory. </p>
 -->
-
-
             <a id="repository"></a>
             <h2 class="section">Building from the Source Code Repository</h2>
             <p>You can checkout a copy of the product source code via:</p>
@@ -693,7 +680,6 @@ sudo bit uninstall
                 <li>master &mdash; Most recent, quasi-stable development snapshot.</li>
                 <li>dev &mdash; Current source code under active development. Least stable.</li>
             </ul>
-
             <p>Once checked out, the normal instructions for building from source apply.</p><a id="keyFiles"></a>
             <h2 class="section">Key Files and Directories</h2>
             <p>Source trees contain the following key directories under the top directory.</p>

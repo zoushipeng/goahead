@@ -50,6 +50,11 @@ Bit.load({
             accessLog: false,
 
             /*
+                User authentication 
+             */
+            auth: true,
+
+            /*
                 Automatically login. Useful for debugging.
              */
             autoLogin: false,
@@ -278,6 +283,7 @@ Bit.load({
             Compiler for web pages into C code
          */
         gopass: {
+            enable: 'bit.settings.auth',
             type: 'exe',
             sources: [ 'src/utils/gopass.c' ],
             headers: [ 'src/*.h' ],
@@ -288,6 +294,7 @@ Bit.load({
             Compiler for web pages into C code
          */
         webcomp: {
+            enable: 'bit.settings.rom',
             type: 'exe',
             sources: [ 'src/utils/webcomp.c' ],
             headers: [ 'src/*.h' ],
@@ -295,6 +302,7 @@ Bit.load({
         },
 
         cgitest: {
+            enable: 'bit.settings.cgi',
             path: 'test/cgi-bin/cgitest${EXE}'
             type: 'exe',
             sources: [ 'test/cgitest.c' ],

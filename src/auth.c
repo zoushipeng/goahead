@@ -25,6 +25,7 @@
 
 #include    "goahead.h"
 
+#if BIT_GOAHEAD_AUTH
 #if BIT_HAS_PAM && BIT_GOAHEAD_PAM
  #include    <security/pam_appl.h>
 #endif
@@ -1000,6 +1001,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
     route->parseAuth = parseAuth;
     return 0;
 }
+#endif /* BIT_GOAHEAD_AUTH */
 
 
 /*
