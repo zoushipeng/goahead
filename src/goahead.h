@@ -3304,7 +3304,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define gunlink unlink
     #define gvsprintf vsprintf
     #define gwrite write
-    #define hAlloc walloc
+    #define hAlloc wallocHandle
     #define hAllocEntry wallocObject
     #define hFree gFree
     #define stritoa gstritoa
