@@ -13247,12 +13247,11 @@ static void x509_hash(uchar *in, int len, int alg, uchar *out)
  */
 int x509parse_verify(x509_cert *crt, x509_cert *trust_ca, char *cn, int *flags)
 {
-    int cn_len;
-    int hash_id;
-    int pathlen;
-    x509_cert *cur;
-    x509_name *name;
-    uchar hash[20];
+    x509_cert   *cur;
+    x509_name   *name;
+    uchar       hash[20];
+    char        *domain, *peer;
+    int         cn_len, hash_id, pathlen;
 
     *flags = x509parse_expired(crt);
 
@@ -13263,13 +13262,23 @@ int x509parse_verify(x509_cert *crt, x509_cert *trust_ca, char *cn, int *flags)
         //  MOB - should handle ALT_NAMES
         while (name != NULL) {
             //  MOB - should handle wild cards
-            if (memcmp(name->oid.p, OID_CN, 3) == 0 && memcmp(name->val.p, cn, cn_len) == 0 && name->val.len == cn_len) {
-                break;
+            if (memcmp(name->oid.p, OID_CN, 3) == 0) {
+                peer = (char*) name->val.p;
+                if (name->val.len == cn_len && memcmp(peer, cn, cn_len) == 0) {
+                    break;
+                }
+                /* 
+                    Cert peer name must be of the form *.domain.tld. i.e. *.com is not valid 
+                 */
+                if (name->val.len > 2 && peer[0] == '*' && peer[1] == '.' && strchr(&peer[2], '.')) {
+                    /* 
+                        Required peer name must have a domain portion. i.e. domain.tld 
+                     */
+                    if ((domain = strchr(cn, '.')) != 0 && strncmp(&peer[2], &domain[1], name->val.len - 2) == 0) {
+                        break;
+                    }
+                }
             }
-#if FUTURE
-            if (name->val.len > 2 && name->val.p[0] == '*' && name->val.p[1] == '.')) {
-            }
-#endif
             name = name->next;
         }
         if (name == NULL) {
