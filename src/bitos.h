@@ -512,6 +512,38 @@
     typedef const void cvoid;
 #endif
 
+#ifndef HAS_INT8
+    #define HAS_INT8 1
+    /**
+        Integer 8 bits data type.
+     */
+    typedef char int8;
+#endif
+
+#ifndef HAS_UINT8
+    #define HAS_UINT8 1
+    /**
+        Unsigned integer 8 bits data type.
+     */
+    typedef unsigned char uint8;
+#endif
+
+#ifndef HAS_INT16
+    #define HAS_INT16 1
+    /**
+        Integer 16 bits data type.
+     */
+    typedef short int16;
+#endif
+
+#ifndef HAS_UINT16
+    #define HAS_UINT16 1
+    /**
+        Unsigned integer 16 bits data type.
+     */
+    typedef unsigned short uint16;
+#endif
+
 #ifndef HAS_INT32
     #define HAS_INT32 1
     /**
