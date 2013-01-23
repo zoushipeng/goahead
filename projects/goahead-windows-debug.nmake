@@ -60,6 +60,7 @@ clean:
 	-if exist $(CONFIG)\obj\js.obj del /Q $(CONFIG)\obj\js.obj
 	-if exist $(CONFIG)\obj\jst.obj del /Q $(CONFIG)\obj\jst.obj
 	-if exist $(CONFIG)\obj\options.obj del /Q $(CONFIG)\obj\options.obj
+	-if exist $(CONFIG)\obj\osdep.obj del /Q $(CONFIG)\obj\osdep.obj
 	-if exist $(CONFIG)\obj\rom-documents.obj del /Q $(CONFIG)\obj\rom-documents.obj
 	-if exist $(CONFIG)\obj\route.obj del /Q $(CONFIG)\obj\route.obj
 	-if exist $(CONFIG)\obj\runtime.obj del /Q $(CONFIG)\obj\runtime.obj
@@ -174,6 +175,12 @@ $(CONFIG)\obj\options.obj: \
         $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\options.c
 
+$(CONFIG)\obj\osdep.obj: \
+        src\osdep.c \
+        $(CONFIG)\inc\bit.h \
+        $(CONFIG)\inc\goahead.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\osdep.c
+
 $(CONFIG)\obj\rom-documents.obj: \
         src\rom-documents.c \
         $(CONFIG)\inc\bit.h \
@@ -239,6 +246,7 @@ $(CONFIG)\bin\libgo.dll:  \
         $(CONFIG)\obj\js.obj \
         $(CONFIG)\obj\jst.obj \
         $(CONFIG)\obj\options.obj \
+        $(CONFIG)\obj\osdep.obj \
         $(CONFIG)\obj\rom-documents.obj \
         $(CONFIG)\obj\route.obj \
         $(CONFIG)\obj\runtime.obj \
@@ -247,7 +255,7 @@ $(CONFIG)\bin\libgo.dll:  \
         $(CONFIG)\obj\est.obj \
         $(CONFIG)\obj\matrixssl.obj \
         $(CONFIG)\obj\openssl.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS) libest.lib
+	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS) libest.lib
 
 $(CONFIG)\obj\goahead.obj: \
         src\goahead.c \

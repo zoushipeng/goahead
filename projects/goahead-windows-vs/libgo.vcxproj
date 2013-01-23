@@ -111,6 +111,7 @@
     <ClCompile Include="..\..\src\js.c" />
     <ClCompile Include="..\..\src\jst.c" />
     <ClCompile Include="..\..\src\options.c" />
+    <ClCompile Include="..\..\src\osdep.c" />
     <ClCompile Include="..\..\src\rom-documents.c" />
     <ClCompile Include="..\..\src\route.c" />
     <ClCompile Include="..\..\src\runtime.c" />

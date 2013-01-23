@@ -60,6 +60,7 @@ clean:
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/jst.o
 	rm -rf $(CONFIG)/obj/options.o
+	rm -rf $(CONFIG)/obj/osdep.o
 	rm -rf $(CONFIG)/obj/rom-documents.o
 	rm -rf $(CONFIG)/obj/route.o
 	rm -rf $(CONFIG)/obj/runtime.o
@@ -177,6 +178,12 @@ $(CONFIG)/obj/options.o: \
         $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/options.c
 
+$(CONFIG)/obj/osdep.o: \
+        src/osdep.c \
+        $(CONFIG)/inc/bit.h \
+        $(CONFIG)/inc/goahead.h
+	$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/osdep.c
+
 $(CONFIG)/obj/rom-documents.o: \
         src/rom-documents.c \
         $(CONFIG)/inc/bit.h \
@@ -242,6 +249,7 @@ $(CONFIG)/bin/libgo.so:  \
         $(CONFIG)/obj/js.o \
         $(CONFIG)/obj/jst.o \
         $(CONFIG)/obj/options.o \
+        $(CONFIG)/obj/osdep.o \
         $(CONFIG)/obj/rom-documents.o \
         $(CONFIG)/obj/route.o \
         $(CONFIG)/obj/runtime.o \
@@ -250,7 +258,7 @@ $(CONFIG)/bin/libgo.so:  \
         $(CONFIG)/obj/est.o \
         $(CONFIG)/obj/matrixssl.o \
         $(CONFIG)/obj/openssl.o
-	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
+	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
 
 $(CONFIG)/obj/goahead.o: \
         src/goahead.c \
