@@ -128,7 +128,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     if (socketInfo(sip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;
     }
-    if ((sp->sock = (int) socket(family, SOCK_STREAM, protocol)) == -1) {
+    if ((sp->sock = socket(family, SOCK_STREAM, protocol)) == SOCKET_ERROR) {
         socketFree(sid);
         return -1;
     }
@@ -159,7 +159,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
         }
     }
 #endif
-    if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) < 0) {
+    if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) == SOCKET_ERROR) {
         error("Can't bind to address %s:%d, errno %d", ip ? ip : "*", port, errno);
         socketFree(sid);
         return -1;
@@ -198,7 +198,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;       
     }
-    if ((sp->sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((sp->sock = socket(AF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR) {
         socketFree(sid);
         return -1;
     }
@@ -282,10 +282,11 @@ static void socketAccept(WebsSocket *sp)
 {
     struct sockaddr_storage addrStorage;
     struct sockaddr         *addr;
-    WebsSocket                *nsp;
+    WebsSocket              *nsp;
+    Socket                  newSock;
     size_t                  len;
     char                    ipbuf[1024];
-    int                     port, newSock, nid;
+    int                     port, nid;
 
     assert(sp);
 
@@ -294,7 +295,7 @@ static void socketAccept(WebsSocket *sp)
      */
     len = sizeof(addrStorage);
     addr = (struct sockaddr*) &addrStorage;
-    if ((newSock = (int) accept(sp->sock, addr, (Socklen*) &len)) < 0) {
+    if ((newSock = accept(sp->sock, addr, (Socklen*) &len)) == SOCKET_ERROR) {
         return;
     }
 #if BIT_HAS_FCNTL

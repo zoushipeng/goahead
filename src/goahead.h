@@ -865,7 +865,7 @@ typedef struct WebsSocket {
     int             sid;                /**< Index into socket[] */
     int             port;               /**< Port to listen on */
     int             flags;              /**< Current state flags */
-    int             sock;               /**< Actual socket handle */
+    Socket          sock;               /**< Actual socket handle */
     int             fileHandle;         /**< ID of the file handler */
     int             interestEvents;     /**< Mask of events to watch for */
     int             currentEvents;      /**< Mask of ready events (FD_xx) */

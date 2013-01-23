@@ -648,6 +648,21 @@ typedef int64 Offset;
     typedef socklen_t Socklen;
 #endif
 
+#if DOXYGEN || BIT_UNIX_LIKE || VXWORKS
+    /** Argument for sockets */
+    typedef int Socket;
+    #define SOCKET_ERROR -1
+#elif BIT_WIN_LIKE
+    typedef SOCKET Socket;
+    #define SOCKET_ERROR INVALID_SOCKET
+#elif TIDSP
+    typedef uint Socket;
+    #define SOCKET_ERROR INVALID_SOCKET
+#else
+    typedef int Socket;
+    #define SOCKET_ERROR -1
+#endif
+
 typedef int64 Time;
 
 /**
@@ -855,7 +870,6 @@ typedef int64 Ticks;
 
 #if BIT_UNIX_LIKE
     #define closesocket(x)  close(x)
-    #define SOCKET_ERROR    -1
     #ifndef PTHREAD_MUTEX_RECURSIVE_NP
         #define PTHREAD_MUTEX_RECURSIVE_NP PTHREAD_MUTEX_RECURSIVE
     #endif
