@@ -319,7 +319,7 @@
     #include    <dirent.h>
 #endif
 #endif
-#if !VXWORKS && !TIDSP
+#if BIT_UNIX_LIKE
     #include    <dlfcn.h>
 #endif
     #include    <fcntl.h>
