@@ -654,9 +654,8 @@ typedef int64 Offset;
     #define SOCKET_ERROR -1
 #elif BIT_WIN_LIKE
     typedef SOCKET Socket;
-    #define SOCKET_ERROR INVALID_SOCKET
 #elif TIDSP
-    typedef uint Socket;
+    typedef SOCKET Socket;
     #define SOCKET_ERROR INVALID_SOCKET
 #else
     typedef int Socket;
