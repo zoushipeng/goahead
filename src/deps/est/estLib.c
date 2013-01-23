@@ -13333,6 +13333,8 @@ int x509parse_verify(x509_cert *crt, x509_cert *trust_ca, char *cn, int *flags)
         }
         trust_ca = trust_ca->next;
     }
+    //  MOB - if can't find root cert above, should set error message
+
     if (*flags & BADCERT_NOT_TRUSTED) {
         if (crt->issuer_raw.len == crt->subject_raw.len && 
                 memcmp(crt->issuer_raw.p, crt->subject_raw.p, crt->issuer_raw.len) == 0) {

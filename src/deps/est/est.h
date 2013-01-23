@@ -1680,6 +1680,7 @@ typedef struct EstCipher {
 
 /*
    Supported ciphersuites
+   MOB - need shorts for two byte ciphers. http://www.iana.org/assignments/tls-parameters/tls-parameters.xml
  */
 #define TLS_RSA_WITH_RC4_128_MD5                0x4
 #define TLS_RSA_WITH_RC4_128_SHA                0x5

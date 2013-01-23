@@ -366,7 +366,6 @@ WebsTime websCgiPoll()
                      */
                     if (cgip->fplacemark == 0) {
 #if WINDOWS
-                        //  MOB - refactor
                         Sleep(10);
 #endif
                     }
@@ -403,12 +402,7 @@ WebsTime websCgiPoll()
 }
 
 
-/*  
-    PLATFORM IMPLEMENTATIONS FOR CGI HELPERS
-        websGetCgiCommName, launchCgi, checkCgi
-*/
-
-#if CE
+#if WINCE
 /*
      Returns a pointer to an allocated qualified unique temporary file name.
      This filename must eventually be deleted with wfree().
@@ -416,10 +410,10 @@ WebsTime websCgiPoll()
 PUBLIC char *websGetCgiCommName()
 {
     /*
-         tmpnam, tempnam, tmpfile not supported for CE 2.12 or lower.  The Win32 API
-         GetTempFileName is scheduled to be part of CE 3.0.
+         tmpnam, tempnam, tmpfile not supported for CE 2.12 or lower. The Win32 API GetTempFileName is scheduled 
+         to be part of CE 3.0.
      */
-#if 0  
+#if NOT_IMPLEMENTED  
     char  *pname1, *pname2;
     pname1 = gtempnam(NULL, "cgi");
     pname2 = sclone(pname1);
@@ -497,7 +491,7 @@ static int checkCgi(int handle)
     }
     return 1;
 }
-#endif /* CE */
+#endif /* WINCE */
 
 
 #if BIT_UNIX_LIKE || QNX
@@ -583,8 +577,8 @@ static int checkCgi(int handle)
 
 
 #if VXWORKS
-static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char
-        *stdOut); 
+static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut); 
+
 /*
      Returns a pointer to an allocated qualified unique temporary file name.
      This filename must eventually be deleted with wfree();

@@ -182,7 +182,6 @@ static WebsError websErrors[] = {
     { 0, NULL }
 };
 
-//  MOB - should be main.bit
 #if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
 static char     accessLog[64] = "access.log";       /* Log filename */
 static int      accessFd;                           /* Log file handle */
@@ -195,6 +194,7 @@ static int      pruneId;                            /* Callback ID */
 /**************************** Forward Declarations ****************************/
 
 static void     checkTimeout(void *arg, int id);
+static WebsTime dateParse(WebsTime tip, char *cmd);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
@@ -202,18 +202,16 @@ static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 static bool     parseIncoming(Webs *wp);
+static void     pruneCache();
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
 static void     setFileLimits();
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void *data);
 static void     writeEvent(Webs *wp);
-
-static void     pruneCache();
 #if BIT_GOAHEAD_ACCESS_LOG
 static void     logRequest(Webs *wp, int code);
 #endif
-static WebsTime dateParse(WebsTime tip, char *cmd);
 
 /*********************************** Code *************************************/
 
@@ -224,17 +222,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     webs = NULL;
     websMax = 0;
 
-    //  MOB - move into osdep
-#if SOLARIS
-    openlog(BIT_PRODUCT, LOG_LOCAL0);
-#elif BIT_UNIX_LIKE
-    openlog(BIT_PRODUCT, 0, LOG_LOCAL0);
-#endif
-#if WINDOWS || VXWORKS
-    rand();
-#else
-    random();
-#endif
+    websOsOpen();
     logOpen();
     setFileLimits();
     socketOpen();
@@ -347,9 +335,7 @@ PUBLIC void websClose()
     hashFree(websMime);
     socketClose();
     logClose();
-#if BIT_UNIX_LIKE
-    closelog();
-#endif
+    websOsClose();
 }
 
 
@@ -2336,6 +2322,18 @@ static int setLocalHost()
     ipaddr = inet_ntoa(eth0_bootp_data.bp_yiaddr);
     websSetIpAddr(ipaddr);
     websSetHost(ipaddr);
+#elif TIDSP
+{
+    struct hostent  *hp;
+    if ((hp = gethostbyname(host)) == NULL) {
+        error("Can't get host address for host %s: errno %d", host, errno);
+        return -1;
+    }
+    memcpy((char*) &intaddr, (char *) hp->h_addr[0], (size_t) hp->h_length);
+    ipaddr = inet_ntoa(intaddr);
+    websSetIpAddr(ipaddr);
+    websSetHost(ipaddr);
+}
 #else
 {
     struct hostent  *hp;
@@ -2343,7 +2341,7 @@ static int setLocalHost()
         error("Can't get host address for host %s: errno %d", host, errno);
         return -1;
     }
-    memcpy((char *) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
+    memcpy((char*) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
     ipaddr = inet_ntoa(intaddr);
     websSetIpAddr(ipaddr);
     websSetHost(ipaddr);

@@ -17,7 +17,7 @@
 #endif
 #ifndef BIT_GOAHEAD_TRACING
     #if BIT_DEBUG
-        #define BIT_GOAHEAD_TRACING 1           /**< Tracing is on in debug builds */
+        #define BIT_GOAHEAD_TRACING 1           /**< Tracing is on in debug builds by default */
     #else
         #define BIT_GOAHEAD_TRACING 0
     #endif
@@ -112,22 +112,46 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 
 /************************************* Error **********************************/
 
-#define WEBS_L                 __FILE__, __LINE__
-#define WEBS_ARGS_DEC          char *file, int line
-#define WEBS_ARGS              file, line
+#define WEBS_L          __FILE__, __LINE__
+#define WEBS_ARGS_DEC   char *file, int line
+#define WEBS_ARGS       file, line
 
 PUBLIC_DATA int logLevel;
 
 #if BIT_GOAHEAD_TRACING
+    #if BIT_HAS_MACRO_VARARGS
         #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= logLevel) { traceProc(l, __VA_ARGS__); } else
+    #else
+        inline trace(int level, cchar *fmt, ...) {
+            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
+                va_list args; va_start(args, fmt);
+                char *message = sfmtv(fmt, args);
+                logHandler(level | WEBS_TRACE_MSG, message);
+                wfree(message);
+                va_end(args);
+            }
+        }
+    #endif
 #else
-        #define trace(l, ...) if (1) ; else
+    #define trace(l, ...) if (1) ; else
 #endif
 
 #if BIT_GOAHEAD_LOGGING
+    #if BIT_HAS_MACRO_VARARGS
         #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else
+    #else
+        inline logmsg(int level, cchar *fmt, ...) {
+            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
+                va_list args; va_start(args, fmt);
+                char *message = sfmtv(fmt, args);
+                logHandler(level | WEBS_TRACE_MSG, message);
+                wfree(message);
+                va_end(args);
+            }
+        }
+    #endif
 #else
-        #define logmsg(l, ...) if (1) ; else
+    #define logmsg(l, ...) if (1) ; else
 #endif
 
 /**
@@ -2252,6 +2276,23 @@ PUBLIC void websNoteRequestActivity(Webs *wp);
     @ingroup Webs
  */
 PUBLIC int websOpen(char *documents, char *routes);
+
+/**
+    Close the O/S dependant code.
+    @description Called from websClose
+    @ingroup Webs
+    @internal
+ */
+PUBLIC void websOsClose();
+
+/**
+    Open the O/S dependant code.
+    @description Called from websOpen
+    @return Positive file handle if successful, otherwise -1.
+    @ingroup Webs
+    @internal
+ */
+PUBLIC int websOsOpen();
 
 /**
     Open the web page document for the current request

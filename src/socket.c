@@ -128,7 +128,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     if (socketInfo(sip, port, &family, &protocol, &addr, &addrlen) < 0) {
         return -1;
     }
-    if ((sp->sock = (int) socket(family, SOCK_STREAM, protocol)) < 0) {
+    if ((sp->sock = (int) socket(family, SOCK_STREAM, protocol)) == -1) {
         socketFree(sid);
         return -1;
     }
@@ -250,7 +250,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
  */
 static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
 {
-#if VXWORKS
+#if VXWORKS || TIDSP
     char *ptr;
 
     ptr = (char*) sockaddr;
@@ -259,7 +259,7 @@ static int tryAlternateConnect(int sock, struct sockaddr *sockaddr)
     return connect(sock, sockaddr, sizeof(struct sockaddr));
 #else
     return -1;
-#endif /* VXWORKS */
+#endif
 }
 #endif
 
@@ -688,6 +688,8 @@ PUBLIC int socketSetBlock(int sid, int on)
 #elif VXWORKS
         int iflag = !on;
         ioctl(sp->sock, FIONBIO, (int) &iflag);
+#elif TIDSP
+        setsockopt((SOCKET)sp->sock, SOL_SOCKET, SO_BLOCKING, &on, sizeof(on));
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) & ~O_NONBLOCK);
 #endif
@@ -703,6 +705,8 @@ PUBLIC int socketSetBlock(int sid, int on)
 #elif VXWORKS
         int iflag = !on;
         ioctl(sp->sock, FIONBIO, (int) &iflag);
+#elif TIDSP
+        setsockopt((SOCKET)sp->sock, SOL_SOCKET, SO_BLOCKING, &on, sizeof(on));
 #else
         fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) | O_NONBLOCK);
 #endif

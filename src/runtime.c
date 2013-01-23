@@ -19,7 +19,6 @@ typedef struct Callback {
     int         id;
 } Callback;
 
-
 /*********************************** Defines **********************************/
 /*
     Class definitions
@@ -162,8 +161,7 @@ typedef struct HashTable {              /* Symbol table descriptor */
     #define LOG_ERR 0
 #endif
 #if BIT_WIN_LIKE
-    static HINSTANCE appInstance;
-    static void syslog(int priority, char *fmt, ...);
+    PUBLIC void syslog(int priority, char *fmt, ...);
 #endif
 
 PUBLIC int       logLevel;          /* Log verbosity level */
@@ -178,7 +176,7 @@ static int       symMax;            /* One past the max symbol table */
 static char      *logPath;
 static int       logFd;             /* Log file handle */
 
-char* embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
+char *embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
 
 /********************************** Forwards **********************************/
 
@@ -879,20 +877,6 @@ static int growBuf(Format *fmt)
 }
 
 
-#if UNUSED
-PUBLIC int print(cchar *fmt, ...)
-{
-    va_list     ap;
-    int         len;
-
-    va_start(ap, fmt);
-    len = vprintf(fmt, ap);
-    va_end(ap);
-    return len;
-}
-#endif
-
-
 WebsValue valueInteger(long value)
 {
     WebsValue v;
@@ -1005,14 +989,12 @@ PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...)
 PUBLIC void logmsgProc(int level, char *fmt, ...)
 {
     va_list     args;
-    char      *message;
+    char        *message;
 
-    if ((level & WEBS_LEVEL_MASK) <= logLevel) {    
+    if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
         va_start(args, fmt);
         message = sfmtv(fmt, args);
-        if (logHandler) {
-            logHandler(level | WEBS_LOG_MSG, message);
-        }
+        logHandler(level | WEBS_LOG_MSG, message);
         wfree(message);
         va_end(args);
     }
@@ -1022,14 +1004,12 @@ PUBLIC void logmsgProc(int level, char *fmt, ...)
 PUBLIC void traceProc(int level, char *fmt, ...)
 {
     va_list     args;
-    char      *message;
+    char        *message;
 
-    if ((level & WEBS_LEVEL_MASK) <= logLevel) {    
+    if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
         va_start(args, fmt);
         message = sfmtv(fmt, args);
-        if (logHandler) {
-            logHandler(level | WEBS_TRACE_MSG, message);
-        }
+        logHandler(level | WEBS_TRACE_MSG, message);
         wfree(message);
         va_end(args);
     }
@@ -2220,8 +2200,6 @@ PUBLIC ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
 #elif BIT_WIN_LIKE
         len = WideCharToMultiByte(CP_ACP, 0, src, count, dest, (DWORD) destCount - 1, NULL, NULL);
 #else
-        //  MOB - does this support dest == NULL?
-        //  MOB - count is ignored
         len = wcstombs(dest, src, destCount - 1);
 #endif
         if (dest) {
@@ -2263,8 +2241,6 @@ PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count)
 #elif BIT_WIN_LIKE
         len = MultiByteToWideChar(CP_ACP, 0, src, count, dest, (DWORD) destCount - 1);
 #else
-        //  MOB - does this support dest == NULL
-        //  MOB - count is ignored
         len = mbstowcs(dest, src, destCount - 1);
 #endif
         if (dest) {
@@ -2418,7 +2394,6 @@ PUBLIC ssize slen(char *s)
 {
     return s ? strlen(s) : 0;
 }
-
 
 
 PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
@@ -2662,179 +2637,6 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
     }
     return argc;
 }
-
-
-#if VXWORKS
-/*
-    Get absolute path.  In VxWorks, functions like chdir, ioctl for mkdir and ioctl for rmdir, require an absolute path.
-    This function will take the path argument and convert it to an absolute path.  It is the caller's responsibility to
-    deallocate the returned string. 
- */
-static char *getAbsolutePath(char *path)
-{
-#if _WRS_VXWORKS_MAJOR >= 6
-    const char  *tail;
-#else
-    char        *tail;
-#endif
-    char  *dev;
-
-    /*
-        Determine if path is relative or absolute.  If relative, prepend the current working directory to the name.
-        Otherwise, use it.  Note the getcwd call below must not be getcwd or else we go into an infinite loop
-    */
-    if (iosDevFind(path, &tail) != NULL && path != tail) {
-        return sclone(path);
-    }
-    dev = walloc(BIT_GOAHEAD_LIMIT_FILENAME);
-    getcwd(dev, BIT_GOAHEAD_LIMIT_FILENAME);
-    strcat(dev, "/");
-    strcat(dev, path);
-    return dev;
-}
-
-
-PUBLIC int vxchdir(char *dirname)
-{
-    char  *path;
-    int     rc;
-
-    path = getAbsolutePath(dirname);
-    #undef chdir
-    rc = chdir(path);
-    wfree(path);
-    return rc;
-}
-
-
-PUBLIC char *tempnam(char *dir, char *pfx)
-{
-    static int count = 0;
-    if (!pfx) {
-        pfx = "tmp";
-    }
-    return sfmt("%s-%d.tmp", pfx, count++);
-}
-#endif
-
-#if ECOS
-PUBLIC int send(int s, const void *buf, size_t len, int flags)
-{
-    return write(s, buf, len);
-}
-
-
-PUBLIC int recv(int s, void *buf, size_t len, int flags)
-{
-    return read(s, buf, len);
-}
-#endif
-
-
-#if BIT_WIN_LIKE
-PUBLIC void websSetInst(HINSTANCE inst)
-{
-    appInstance = inst;
-}
-
-
-HINSTANCE websGetInst()
-{
-    return appInstance;
-}
-
-
-static void syslog(int priority, char *fmt, ...)
-{
-    va_list     args;
-    HKEY        hkey;
-    void        *event;
-    long        errorType;
-    ulong       exists;
-    char        *buf, logName[BIT_GOAHEAD_LIMIT_STRING], *lines[9], *cp, *value;
-    int         type;
-    static int  once = 0;
-
-    va_start(args, fmt);
-    buf = sfmtv(fmt, args);
-    va_end(args);
-
-    cp = &buf[slen(buf) - 1];
-    while (*cp == '\n' && cp > buf) {
-        *cp-- = '\0';
-    }
-    type = EVENTLOG_ERROR_TYPE;
-    lines[0] = buf;
-    lines[1] = 0;
-    lines[2] = lines[3] = lines[4] = lines[5] = 0;
-    lines[6] = lines[7] = lines[8] = 0;
-
-    if (once == 0) {
-        /*  Initialize the registry */
-        once = 1;
-        hkey = 0;
-
-        if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, logName, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &exists) ==
-                ERROR_SUCCESS) {
-            value = "%SystemRoot%\\System32\\netmsg.dll";
-            if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
-                    (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
-                RegCloseKey(hkey);
-                wfree(buf);
-                return;
-            }
-            errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-            if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
-                    ERROR_SUCCESS) {
-                RegCloseKey(hkey);
-                wfree(buf);
-                return;
-            }
-            RegCloseKey(hkey);
-        }
-    }
-    event = RegisterEventSource(0, BIT_PRODUCT);
-    if (event) {
-        ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
-        DeregisterEventSource(event);
-    }
-    wfree(buf);
-}
-#endif
-
-/*
-    "basename" returns a pointer to the last component of a pathname LINUX, LynxOS and Mac OS X have their own basename
-    function 
- */
-
-#if !BIT_UNIX_LIKE
-PUBLIC char *basename(char *name)
-{
-    char  *cp;
-
-#if BIT_WIN_LIKE
-    if (((cp = strrchr(name, '\\')) == NULL) && ((cp = strrchr(name, '/')) == NULL)) {
-        return name;
-#else
-    if ((cp = strrchr(name, '/')) == NULL) {
-        return name;
-#endif
-    } else if (*(cp + 1) == '\0' && cp == name) {
-        return name;
-    } else if (*(cp + 1) == '\0' && cp != name) {
-        return "";
-    } else {
-        return ++cp;
-    }
-}
-#endif
-
-#if BIT_WIN_LIKE
-PUBLIC void sleep(int secs)
-{
-    Sleep(secs / 1000);
-}
-#endif
 
 
 #if BIT_GOAHEAD_LEGACY
