@@ -48,7 +48,7 @@ public function packageComboFiles() {
     let pkg = src.join(s.product + '-' + s.version)
     safeRemove(pkg)
     pkg.makeDir()
-    install('projects/goahead-' + bit.platform.os + '-debug-bit.h', pkg.join('src/deps/goahead/bit.h'))
+    install('projects/goahead-' + bit.platform.os + '-default-bit.h', pkg.join('src/deps/goahead/bit.h'))
     install('package/start-flat.bit', pkg.join('src/deps/goahead/start.bit'))
     install('package/Makefile-flat', pkg.join('src/deps/goahead/Makefile'))
     install(['src/js.h', 'src/goahead.h'], 
