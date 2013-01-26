@@ -10,35 +10,54 @@ See LICENSE.md for details.
 
   See http://embedthis.com/products/goahead/doc/index.html
 
-### Prerequisites:
-    Ejscript (http://www.ejscript.org/downloads/ejs/download.ejs) for the Bit and Utest tools to configure and build.
+### Building
+    You can build with make or with Bit. Bit is quicker and more flexible.
+    To install Bit, download Bit from http://embedthis.com/downloads/bit/download.ejs
 
-### To Build:
+### To build with make:
+
+    make
+
+    You can pass make variables to tailor the build. For a list of variables: 
+
+    make help
+
+### To build with nmake on Windows:
+
+    WinMake
+
+### To build with Bit:
 
     ./configure
     bit
 
-    Alternatively to build without Ejscript:
+    For a list of configure options:
 
-    make
-
-Images are built into */bin. The build configuration is saved in */inc/bit.h.
-
-### To Test:
-
-    bit test
+    ./configure --help
 
 ### To run:
 
     bit run
 
-### To Install:
+### To install:
 
-    bit install
+    sudo make install
 
-### To Create Packages:
+    or 
 
-    bit package
+    sudo bit install
+
+### To uninstall
+
+    sudo make uninstall
+
+    or
+
+    sudo bit uninstall
+
+### To test:
+
+    bit test
 
 Resources
 ---
