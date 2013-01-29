@@ -105,7 +105,7 @@ $(CONFIG)\bin\libest.dll:  \
         $(CONFIG)\obj\estLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
 
-$(CONFIG)\bin\ca.crt: 
+$(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
 	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
 

@@ -30,6 +30,10 @@ CFLAGS          += $(CFLAGS-$(DEBUG))
 DFLAGS          += $(DFLAGS-$(DEBUG))
 LDFLAGS         += $(LDFLAGS-$(DEBUG))
 
+ifeq ($(wildcard $(CONFIG)/inc/.prefixes*),$(CONFIG)/inc/.prefixes)
+    include $(CONFIG)/inc/.prefixes
+endif
+
 all compile: prep \
         $(CONFIG)/bin/libest.so \
         $(CONFIG)/bin/ca.crt \
@@ -107,7 +111,7 @@ $(CONFIG)/bin/libest.so:  \
         $(CONFIG)/obj/estLib.o
 	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS)
 
-$(CONFIG)/bin/ca.crt: 
+$(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
 	rm -fr $(CONFIG)/bin/ca.crt
 	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
 
@@ -298,5 +302,5 @@ $(CONFIG)/bin/goahead-test:  \
 	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) -lest -lgo -llxnet -lrt -lsocket -lpthread -lm -ldl -lest $(LDFLAGS)
 
 version: 
-	@echo 3.1.0-1 
+	@echo 3.1.0-1
 
