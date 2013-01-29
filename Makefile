@@ -27,7 +27,7 @@
 #	environment variables. For example: make BIT_PACK_SQLITE=0. These are converted to DFLAGS and 
 #	will then override the bit.h default values.
 #
-NAME    := appweb
+NAME    := goahead
 OS      := $(shell uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]')
 MAKE    := $(shell if which gmake >/dev/null 2>&1; then echo gmake ; else echo make ; fi) --no-print-directory
 PROFILE := default
