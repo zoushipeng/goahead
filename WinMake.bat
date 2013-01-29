@@ -1,1 +1,1 @@
-projects\windows x86 -f projects/goahead-windows-default.nmake all
+projects\windows -f projects/goahead-windows-default.nmake all
