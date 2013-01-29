@@ -13,6 +13,9 @@
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
 #endif
+#ifndef BIT_DEBUG
+    #define BIT_DEBUG 1
+#endif
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
 #endif
@@ -239,6 +242,9 @@
 #endif
 #ifndef BIT_WEB_PREFIX
     #define BIT_WEB_PREFIX "/var/www/goahead-default"
+#endif
+#ifndef BIT_UBIN_PREFIX
+    #define BIT_UBIN_PREFIX "/usr/local/bin"
 #endif
 
 /* Suffixes */

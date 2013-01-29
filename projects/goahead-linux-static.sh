@@ -12,10 +12,10 @@ OS="linux"
 CONFIG="${OS}-${ARCH}-${PROFILE}"
 CC="/usr/bin/gcc"
 LD="/usr/bin/ld"
-CFLAGS="-fPIC -O2  -w"
-DFLAGS="-D_REENTRANT -DPIC"
+CFLAGS="-fPIC   -w"
+DFLAGS="-D_REENTRANT -DPIC -DBIT_DEBUG"
 IFLAGS="-I${CONFIG}/inc"
-LDFLAGS="-Wl,--enable-new-dtags -Wl,-rpath,\$ORIGIN/ -Wl,-rpath,\$ORIGIN/../bin -rdynamic"
+LDFLAGS="-Wl,--enable-new-dtags -Wl,-rpath,\$ORIGIN/ -Wl,-rpath,\$ORIGIN/../bin -rdynamic -g"
 LIBPATHS="-L${CONFIG}/bin"
 LIBS="-lpthread -lm -lrt -ldl"
 
@@ -33,7 +33,7 @@ cp -r src/bitos.h ${CONFIG}/inc/bitos.h
 rm -rf ${CONFIG}/inc/est.h
 cp -r src/deps/est/est.h ${CONFIG}/inc/est.h
 
-${CC} -c -o ${CONFIG}/obj/estLib.o -fPIC -O2 ${DFLAGS} -I${CONFIG}/inc src/deps/est/estLib.c
+${CC} -c -o ${CONFIG}/obj/estLib.o -fPIC ${DFLAGS} -I${CONFIG}/inc src/deps/est/estLib.c
 
 /usr/bin/ar -cr ${CONFIG}/bin/libest.a ${CONFIG}/obj/estLib.o
 

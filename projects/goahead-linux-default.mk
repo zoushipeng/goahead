@@ -12,23 +12,23 @@ CC              ?= /usr/bin/gcc
 LD              ?= /usr/bin/ld
 CONFIG          ?= $(OS)-$(ARCH)-$(PROFILE)
 
-CFLAGS          += -fPIC -O2  -w
-DFLAGS          += -D_REENTRANT -DPIC$(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
+CFLAGS          += -fPIC   -w
+DFLAGS          += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
 LDFLAGS         += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-Wl,-rpath,$$ORIGIN/../bin' '-rdynamic'
 LIBPATHS        += -L$(CONFIG)/bin
 LIBS            += -lpthread -lm -lrt -ldl
 
-DEBUG           ?= release
+DEBUG           ?= debug
 CFLAGS-debug    := -g
-CFLAGS-release  := -O2
 DFLAGS-debug    := -DBIT_DEBUG
-DFLAGS-release  := 
 LDFLAGS-debug   := -g
+DFLAGS-release  := 
+CFLAGS-release  := -O2
 LDFLAGS-release := 
-CFLAGS          += $(CFLAGS-$(PROFILE))
-DFLAGS          += $(DFLAGS-$(PROFILE))
-LDFLAGS         += $(LDFLAGS-$(PROFILE))
+CFLAGS          += $(CFLAGS-$(DEBUG))
+DFLAGS          += $(DFLAGS-$(DEBUG))
+LDFLAGS         += $(LDFLAGS-$(DEBUG))
 
 all compile: prep \
         $(CONFIG)/bin/libest.so \
@@ -100,7 +100,7 @@ $(CONFIG)/obj/estLib.o: \
         src/deps/est/estLib.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/est.h
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC -O2 $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
 
 $(CONFIG)/bin/libest.so:  \
         $(CONFIG)/inc/est.h \
