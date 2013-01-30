@@ -243,7 +243,7 @@ $(CONFIG)/obj/est.o: \
         src/ssl/est.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/est.h
+        src/deps/est/est.h
 	$(CC) -c -o $(CONFIG)/obj/est.o -arch x86_64 $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/est.c
 
 $(CONFIG)/obj/matrixssl.o: \

@@ -193,37 +193,37 @@
 
 /* Prefixes */
 #ifndef BIT_CFG_PREFIX
-    #define BIT_CFG_PREFIX "C:/Program Files (x86)/Embedthis GoAhead"
+    #define BIT_CFG_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/bin"
+    #define BIT_BIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/inc"
+    #define BIT_INC_PREFIX "C:/Program Files/Embedthis GoAhead/inc"
 #endif
 #ifndef BIT_LOG_PREFIX
-    #define BIT_LOG_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/logs"
+    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/logs"
 #endif
 #ifndef BIT_PRD_PREFIX
-    #define BIT_PRD_PREFIX "C:/Program Files (x86)/Embedthis GoAhead"
+    #define BIT_PRD_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef BIT_SPL_PREFIX
-    #define BIT_SPL_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/tmp"
+    #define BIT_SPL_PREFIX "C:/Program Files/Embedthis GoAhead/tmp"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/src"
+    #define BIT_SRC_PREFIX "C:/Program Files/Embedthis GoAhead/src"
 #endif
 #ifndef BIT_VER_PREFIX
-    #define BIT_VER_PREFIX "C:/Program Files (x86)/Embedthis GoAhead"
+    #define BIT_VER_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef BIT_WEB_PREFIX
-    #define BIT_WEB_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/web"
+    #define BIT_WEB_PREFIX "C:/Program Files/Embedthis GoAhead/web"
 #endif
 #ifndef BIT_UBIN_PREFIX
-    #define BIT_UBIN_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/bin"
+    #define BIT_UBIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
 #endif
 #ifndef BIT_MAN_PREFIX
-    #define BIT_MAN_PREFIX "C:/Program Files (x86)/Embedthis GoAhead/man"
+    #define BIT_MAN_PREFIX "C:/Program Files/Embedthis GoAhead/man"
 #endif
 
 /* Suffixes */
