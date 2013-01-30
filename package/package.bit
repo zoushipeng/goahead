@@ -1,13 +1,13 @@
 /*
-    package.bit
+    package.bit -- Package targets for GoAhead
  */
 
 Bit.load({
     targets: {
         'root-install': {
             home: '${TOP}',
-			action: '',
-			depends: ['compile'],
+            action: '',
+            depends: ['compile'],
             'generate-make': "
                 rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
                 rm -f $(BIT_PRD_PREFIX)/latest
@@ -37,10 +37,10 @@ Bit.load({
 
         'root-uninstall': {
             home: '${TOP}',
-			action: '',
+            action: '',
             'generate-make': "rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)",
             'generate-nmake': "del /Q \"$(BIT_CFG_PREFIX)\" \"$(BIT_PRD_PREFIX)\"",
-		},
+        },
 
         uninstall: {
             home: '${TOP}',

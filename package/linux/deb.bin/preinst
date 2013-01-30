@@ -1,0 +1,83 @@
+#!/bin/sh
+#
+# 	preinst -- Pre install script for GoAhead
+#
+#	Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+#
+
+BIT_PRODUCT=${settings.product}
+BIT_NAME="${settings.title}"
+BIT_CFG_PREFIX="${prefixes.config}"
+
+#
+#	Modify service. Usage:configureService stop|remove
+#
+configureService() {
+	local action=$1
+
+	case $action in
+	stop)
+        #if [ -x /usr/local/bin/appman ] ; then
+        #    appman stop >/dev/null 2>&1 ; true
+        #fi
+        #   Keep this for earlier versions without appman
+		if [ -f /etc/rc.d/init.d/$BIT_PRODUCT ] ; then
+			if which service >/dev/null 2>&1 ; then
+				service $BIT_PRODUCT $action
+			elif which invoke-rc.d >/dev/null 2>&1  ; then
+				invoke-rc.d $BIT_PRODUCT $action || true
+			fi
+        elif [ -f /etc/init.d/$BIT_PRODUCT ] ; then
+            /etc/init.d/$BIT_PRODUCT stop >/dev/null 2>&1
+		fi
+		if [ "`/bin/pidof ${prefixes.bin}/$BIT_PRODUCT`" != "" ] ; then
+            kill -9 `/bin/pidof ${prefixes.bin}/$BIT_PRODUCT`
+        fi
+		rm -rf /var/lock/subsys/$BIT_PRODUCT /var/lock/$BIT_PRODUCT /var/log/$BIT_PRODUCT /var/run/$BIT_PRODUCT
+		;;
+
+	remove)
+        #if [ -x /usr/local/bin/appman ] ; then
+        #    appman uninstall
+        #fi
+        #   Keep this for earlier versions without appman
+		if which chkconfig >/dev/null 2>&1 ; then
+			chkconfig --del $BIT_PRODUCT
+			rm /etc/rc.d/init.d/$BIT_PRODUCT
+		elif which update-rc.d >/dev/null 2>&1 ; then
+			rm -f /etc/init.d/$BIT_PRODUCT
+			update-rc.d $BIT_PRODUCT remove >/dev/null || true
+        elif [ -f /etc/init.d/$BIT_PRODUCT ] ; then
+            ( cd /etc/init.d ; /etc/init.d/$BIT_PRODUCT disable )
+		fi
+        "$BIT_BIN_PREFIX/linkup" Remove /
+		;;
+	esac
+}
+
+###############################################################################
+#
+#	Main
+#
+cd /
+action=$1
+
+case $action in
+	remove|install)					# when new
+		# or conflictor's prerm remove in-favor package new-version
+		oldVersion=$2
+		configureService stop
+		configureService remove
+		;;
+	upgrade)				# when old
+		newVersion=$2
+		configureService stop
+		;;
+	failed-upgrade)			# when new
+		oldVersion=$2
+		;;
+	deconfigure)			# when old
+		# 	deconfigure in-favor package-being-installed version removing 
+		#	conflicting-package version
+esac
+exit 0

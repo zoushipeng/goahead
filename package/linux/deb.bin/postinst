@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+# 	postinst -- Post installation script for GoAhead
+#
+#	Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+#
+
+BIT_PRODUCT=${settings.product}
+BIT_NAME="${settings.title}"
+BIT_BIN_PREFIX="${prefixes.bin}"
+BIT_LIB_PREFIX="${prefixes.lib}"
+BIT_LOG_PREFIX="${prefixes.log}"
+BIT_SPL_PREFIX="${prefixes.spool}"
+
+###############################################################################
+
+setPerms() {
+	local g u
+
+	for u in www-data _www nobody Administrator ; do
+		grep "$u" /etc/passwd >/dev/null
+		if [ $? = 0 ] ; then
+			username=$u
+			break
+		fi
+	done
+	for g in www-data _www nobody nogroup Administrator ; do
+		grep "$g" /etc/group >/dev/null
+		if [ $? = 0 ] ; then
+			groupname=$g
+			break
+		fi
+	done
+	if [ "$username" = "" -o "$groupname" = "" ] ; then
+		echo "Can't find a suitable user/group for $BIT_PRODUCT" 1>&2
+		exit 255
+	fi
+    mkdir -p "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
+    chown $username "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
+    chgrp $groupname "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
+    chmod 755 "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
+}
+
+###############################################################################
+#
+#	Main
+#
+
+cd /
+action=$1
+
+case $action in
+	configure)							# when new
+        setPerms
+		oldVersion=$2
+        "$BIT_BIN_PREFIX/linkup" Install /
+        #appman -v install
+        #if [ "$APPWEB_DONT_START" != 1 ] ; then
+        #    appman enable
+        #    appman start
+        #fi
+        echo
+		echo "$BIT_NAME installation successful."
+		;;
+	abort-upgrade)						# when old
+		;;
+	abort-remove)
+		# 	sometimes conflictor's-postinst abort-remove in-favor package new-version
+		;;
+esac
+exit 0

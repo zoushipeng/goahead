@@ -1,0 +1,16 @@
+Package: ${settings.product}
+Version: ${settings.version}
+Section: web
+Priority: optional
+Architecture: ${platform.mappedCpu}
+Depends: libc6
+Provides: goahead
+Replaces: goahead
+Conflicts: goahead
+Installed-Size: 10
+Maintainer: Embedthis Development <dev@embedthis.com>
+Description: Embedthis GoAhead Web Server
+ GoAhead is the most popular embedded web server.
+ .
+ more information about GoAhead can be found at:
+ <URL:http://embedthis.com>
