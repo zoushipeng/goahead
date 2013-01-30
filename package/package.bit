@@ -24,7 +24,12 @@ Bit.load({
                     done ; \\
                 fi
             ",
-            'generate-nmake': "xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"",
+            'generate-nmake': "
+                xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"
+                del /Q \"$(BIT_BIN_PREFIX)\\*.pdb\"
+                del /Q \"$(BIT_BIN_PREFIX)\\*.exp\"
+                del /Q \"$(BIT_BIN_PREFIX)\\*.lib\"
+            ",
         },
 
         install: {
@@ -39,7 +44,10 @@ Bit.load({
             home: '${TOP}',
             action: '',
             'generate-make': "rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)",
-            'generate-nmake': "del /Q \"$(BIT_CFG_PREFIX)\" \"$(BIT_PRD_PREFIX)\"",
+            'generate-nmake': "
+                if exist \"$(BIT_CFG_PREFIX)\" rd /Q /S \"$(BIT_CFG_PREFIX)\"
+                if exist \"$(BIT_PRD_PREFIX)\" rd /Q /S \"$(BIT_PRD_PREFIX)\"
+            ",
         },
 
         uninstall: {
