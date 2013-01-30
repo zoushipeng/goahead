@@ -191,19 +191,18 @@
 		A98B082EA98B1BEA00000034 /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000036 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000038 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005C /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = src/deps/est/est.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000003A /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000003C /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005D /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-default/inc/bitos.h; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000005C /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-default/inc/bitos.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000044 /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA0000003E /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005E /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
+		A98B082EA98B1BEA0000005D /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA00000040 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = test/test.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005F /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
+		A98B082EA98B1BEA0000005E /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		A98B082EA98B1BEA00000060 /* Frameworks and Libraries for libest */ = {
+		A98B082EA98B1BEA0000005F /* Frameworks and Libraries for libest */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -211,7 +210,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		A98B082EA98B1BEA00000061 /* Frameworks and Libraries for libgo */ = {
+		A98B082EA98B1BEA00000060 /* Frameworks and Libraries for libgo */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -219,7 +218,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		A98B082EA98B1BEA00000062 /* Frameworks and Libraries for goahead */ = {
+		A98B082EA98B1BEA00000061 /* Frameworks and Libraries for goahead */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -228,7 +227,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		A98B082EA98B1BEA00000063 /* Frameworks and Libraries for goahead-test */ = {
+		A98B082EA98B1BEA00000062 /* Frameworks and Libraries for goahead-test */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -240,18 +239,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A98B082EA98B1BEA00000064 /* Top Group */ = {
+		A98B082EA98B1BEA00000063 /* Top Group */ = {
             isa = PBXGroup;
             children = (
-				A98B082EA98B1BEA00000065 /* libest */,
-				A98B082EA98B1BEA00000066 /* libgo */,
-				A98B082EA98B1BEA00000067 /* goahead */,
-				A98B082EA98B1BEA00000068 /* goahead-test */,
-				A98B082EA98B1BEA00000069 /* Products */,
+				A98B082EA98B1BEA00000064 /* libest */,
+				A98B082EA98B1BEA00000065 /* libgo */,
+				A98B082EA98B1BEA00000066 /* goahead */,
+				A98B082EA98B1BEA00000067 /* goahead-test */,
+				A98B082EA98B1BEA00000068 /* Products */,
 			);
             sourceTree = "<group>";
         };
-		A98B082EA98B1BEA00000065 /* libest */ = {
+		A98B082EA98B1BEA00000064 /* libest */ = {
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
@@ -262,14 +261,14 @@
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		A98B082EA98B1BEA00000066 /* libgo */ = {
+		A98B082EA98B1BEA00000065 /* libgo */ = {
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
 				A98B082EA98B1BEA0000005A /* goahead.h */,
 				A98B082EA98B1BEA0000005B /* js.h */,
-				A98B082EA98B1BEA0000005C /* est.h */,
-				A98B082EA98B1BEA0000005D /* bitos.h */,
+				A98B082EA98B1BEA00000059 /* est.h */,
+				A98B082EA98B1BEA0000005C /* bitos.h */,
 				A98B082EA98B1BEA00000016 /* action.c */,
 				A98B082EA98B1BEA00000018 /* alloc.c */,
 				A98B082EA98B1BEA0000001A /* auth.c */,
@@ -295,7 +294,7 @@
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		A98B082EA98B1BEA00000067 /* goahead */ = {
+		A98B082EA98B1BEA00000066 /* goahead */ = {
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
@@ -306,7 +305,7 @@
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		A98B082EA98B1BEA00000068 /* goahead-test */ = {
+		A98B082EA98B1BEA00000067 /* goahead-test */ = {
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
@@ -318,13 +317,13 @@
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		A98B082EA98B1BEA00000069 /* Products */ = {
+		A98B082EA98B1BEA00000068 /* Products */ = {
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000042 /* libest */,
 				A98B082EA98B1BEA00000044 /* libgo */,
-				A98B082EA98B1BEA0000005E /* goahead */,
-				A98B082EA98B1BEA0000005F /* goahead-test */,
+				A98B082EA98B1BEA0000005D /* goahead */,
+				A98B082EA98B1BEA0000005E /* goahead-test */,
 			);
             name = "Products";
             path = ..;
@@ -335,15 +334,15 @@
 /* Begin PBXNativeTarget section */
 		A98B082EA98B1BEA00000051 /* libest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A98B082EA98B1BEA0000006B /* Build configuration list for PBXNativeTarget "libest" */;
+			buildConfigurationList = A98B082EA98B1BEA0000006A /* Build configuration list for PBXNativeTarget "libest" */;
 			buildPhases = (
-				A98B082EA98B1BEA0000006A /* Sources */,
-				A98B082EA98B1BEA00000060 /* Frameworks */,
+				A98B082EA98B1BEA00000069 /* Sources */,
+				A98B082EA98B1BEA0000005F /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				A98B082EA98B1BEA0000006C /* Prep */,				
+				A98B082EA98B1BEA0000006B /* Prep */,				
 			);
 			name = libest;
 			productName = goahead;
@@ -352,15 +351,15 @@
 		};
 		A98B082EA98B1BEA0000004C /* libgo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A98B082EA98B1BEA0000006E /* Build configuration list for PBXNativeTarget "libgo" */;
+			buildConfigurationList = A98B082EA98B1BEA0000006D /* Build configuration list for PBXNativeTarget "libgo" */;
 			buildPhases = (
-				A98B082EA98B1BEA0000006D /* Sources */,
-				A98B082EA98B1BEA00000061 /* Frameworks */,
+				A98B082EA98B1BEA0000006C /* Sources */,
+				A98B082EA98B1BEA00000060 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				A98B082EA98B1BEA0000006F /* Prep */,				
+				A98B082EA98B1BEA0000006E /* Prep */,				
 			);
 			name = libgo;
 			productName = goahead;
@@ -369,38 +368,38 @@
 		};
 		A98B082EA98B1BEA00000055 /* goahead */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A98B082EA98B1BEA00000071 /* Build configuration list for PBXNativeTarget "goahead" */;
+			buildConfigurationList = A98B082EA98B1BEA00000070 /* Build configuration list for PBXNativeTarget "goahead" */;
 			buildPhases = (
-				A98B082EA98B1BEA00000070 /* Sources */,
+				A98B082EA98B1BEA0000006F /* Sources */,
+				A98B082EA98B1BEA00000061 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A98B082EA98B1BEA00000071 /* libgo */,
+				A98B082EA98B1BEA00000072 /* Prep */,				
+			);
+			name = goahead;
+			productName = goahead;
+			productReference = A98B082EA98B1BEA0000005D /* goahead */;
+			productType = "com.apple.product-type.tool";
+		};
+		A98B082EA98B1BEA00000057 /* goahead-test */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A98B082EA98B1BEA00000074 /* Build configuration list for PBXNativeTarget "goahead-test" */;
+			buildPhases = (
+				A98B082EA98B1BEA00000073 /* Sources */,
 				A98B082EA98B1BEA00000062 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				A98B082EA98B1BEA00000072 /* libgo */,
-				A98B082EA98B1BEA00000073 /* Prep */,				
-			);
-			name = goahead;
-			productName = goahead;
-			productReference = A98B082EA98B1BEA0000005E /* goahead */;
-			productType = "com.apple.product-type.tool";
-		};
-		A98B082EA98B1BEA00000057 /* goahead-test */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = A98B082EA98B1BEA00000075 /* Build configuration list for PBXNativeTarget "goahead-test" */;
-			buildPhases = (
-				A98B082EA98B1BEA00000074 /* Sources */,
-				A98B082EA98B1BEA00000063 /* Frameworks */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				A98B082EA98B1BEA00000076 /* libgo */,
-				A98B082EA98B1BEA00000077 /* Prep */,				
+				A98B082EA98B1BEA00000075 /* libgo */,
+				A98B082EA98B1BEA00000076 /* Prep */,				
 			);
 			name = goahead-test;
 			productName = goahead;
-			productReference = A98B082EA98B1BEA0000005F /* goahead-test */;
+			productReference = A98B082EA98B1BEA0000005E /* goahead-test */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -519,8 +518,8 @@ fi";
 			knownRegions = (
 				en,
 			);
-			mainGroup = A98B082EA98B1BEA00000064;
-			productRefGroup = A98B082EA98B1BEA00000069 /* Products */;
+			mainGroup = A98B082EA98B1BEA00000063;
+			productRefGroup = A98B082EA98B1BEA00000068 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -536,7 +535,7 @@ fi";
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		A98B082EA98B1BEA0000006A /* libest Sources */ = {
+		A98B082EA98B1BEA00000069 /* libest Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -544,7 +543,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A98B082EA98B1BEA0000006D /* libgo Sources */ = {
+		A98B082EA98B1BEA0000006C /* libgo Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -571,7 +570,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A98B082EA98B1BEA00000070 /* goahead Sources */ = {
+		A98B082EA98B1BEA0000006F /* goahead Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -579,7 +578,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		A98B082EA98B1BEA00000074 /* goahead-test Sources */ = {
+		A98B082EA98B1BEA00000073 /* goahead-test Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -590,7 +589,7 @@ fi";
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		A98B082EA98B1BEA0000006C /* PBXTargetDependency libest depends on Prep */ = {
+		A98B082EA98B1BEA0000006B /* PBXTargetDependency libest depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = A98B082EA98B1BEA00000011 /* Prep */;
 			targetProxy = A98B082EA98B1BEA00000048 /* PBXContainerItemProxy */;
@@ -600,27 +599,27 @@ fi";
 			target = A98B082EA98B1BEA00000011 /* Prep */;
 			targetProxy = A98B082EA98B1BEA00000049 /* PBXContainerItemProxy */;
 		};
-		A98B082EA98B1BEA0000006F /* PBXTargetDependency libgo depends on Prep */ = {
+		A98B082EA98B1BEA0000006E /* PBXTargetDependency libgo depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = A98B082EA98B1BEA00000011 /* Prep */;
 			targetProxy = A98B082EA98B1BEA0000004A /* PBXContainerItemProxy */;
 		};
-		A98B082EA98B1BEA00000072 /* PBXTargetDependency goahead depends on libgo */ = {
+		A98B082EA98B1BEA00000071 /* PBXTargetDependency goahead depends on libgo */ = {
 			isa = PBXTargetDependency;
 			target = A98B082EA98B1BEA0000004C /* libgo */;
 			targetProxy = A98B082EA98B1BEA0000004B /* PBXContainerItemProxy */;
 		};
-		A98B082EA98B1BEA00000073 /* PBXTargetDependency goahead depends on Prep */ = {
+		A98B082EA98B1BEA00000072 /* PBXTargetDependency goahead depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = A98B082EA98B1BEA00000011 /* Prep */;
 			targetProxy = A98B082EA98B1BEA0000004D /* PBXContainerItemProxy */;
 		};
-		A98B082EA98B1BEA00000076 /* PBXTargetDependency goahead-test depends on libgo */ = {
+		A98B082EA98B1BEA00000075 /* PBXTargetDependency goahead-test depends on libgo */ = {
 			isa = PBXTargetDependency;
 			target = A98B082EA98B1BEA0000004C /* libgo */;
 			targetProxy = A98B082EA98B1BEA0000004E /* PBXContainerItemProxy */;
 		};
-		A98B082EA98B1BEA00000077 /* PBXTargetDependency goahead-test depends on Prep */ = {
+		A98B082EA98B1BEA00000076 /* PBXTargetDependency goahead-test depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = A98B082EA98B1BEA00000011 /* Prep */;
 			targetProxy = A98B082EA98B1BEA0000004F /* PBXContainerItemProxy */;
@@ -793,7 +792,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA00000078 /* Debug */ = {
+		A98B082EA98B1BEA00000077 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libest;
@@ -805,7 +804,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA00000079 /* Release */ = {
+		A98B082EA98B1BEA00000078 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libest;
@@ -814,7 +813,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA0000007A /* Debug */ = {
+		A98B082EA98B1BEA00000079 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = ca-crt;
@@ -826,7 +825,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA0000007B /* Release */ = {
+		A98B082EA98B1BEA0000007A /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = ca-crt;
@@ -835,7 +834,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA0000007C /* Debug */ = {
+		A98B082EA98B1BEA0000007B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libgo;
@@ -851,7 +850,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA0000007D /* Release */ = {
+		A98B082EA98B1BEA0000007C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = libgo;
@@ -864,7 +863,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA0000007E /* Debug */ = {
+		A98B082EA98B1BEA0000007D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead;
@@ -876,7 +875,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA0000007F /* Release */ = {
+		A98B082EA98B1BEA0000007E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead;
@@ -885,7 +884,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA00000080 /* Debug */ = {
+		A98B082EA98B1BEA0000007F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
@@ -897,7 +896,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA00000081 /* Release */ = {
+		A98B082EA98B1BEA00000080 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
@@ -906,7 +905,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA00000082 /* Debug */ = {
+		A98B082EA98B1BEA00000081 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = All;
@@ -918,7 +917,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA00000083 /* Release */ = {
+		A98B082EA98B1BEA00000082 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = All;
@@ -927,7 +926,7 @@ fi";
 			};
 			name = Release;
 		};
-		A98B082EA98B1BEA00000084 /* Debug */ = {
+		A98B082EA98B1BEA00000083 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -939,7 +938,7 @@ fi";
 			};
 			name = Debug;
 		};
-		A98B082EA98B1BEA00000085 /* Release */ = {
+		A98B082EA98B1BEA00000084 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -960,11 +959,11 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A98B082EA98B1BEA0000006B /* Build configuration list for PBXNativeTarget "libest" */ = {
+		A98B082EA98B1BEA0000006A /* Build configuration list for PBXNativeTarget "libest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA00000078 /* Debug */,
-				A98B082EA98B1BEA00000079 /* Release */,
+				A98B082EA98B1BEA00000077 /* Debug */,
+				A98B082EA98B1BEA00000078 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -972,35 +971,35 @@ fi";
 		A98B082EA98B1BEA00000005 /* Build configuration list for PBXNativeTarget "ca-crt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA0000007A /* Debug */,
-				A98B082EA98B1BEA0000007B /* Release */,
+				A98B082EA98B1BEA00000079 /* Debug */,
+				A98B082EA98B1BEA0000007A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A98B082EA98B1BEA0000006E /* Build configuration list for PBXNativeTarget "libgo" */ = {
+		A98B082EA98B1BEA0000006D /* Build configuration list for PBXNativeTarget "libgo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA0000007C /* Debug */,
-				A98B082EA98B1BEA0000007D /* Release */,
+				A98B082EA98B1BEA0000007B /* Debug */,
+				A98B082EA98B1BEA0000007C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A98B082EA98B1BEA00000071 /* Build configuration list for PBXNativeTarget "goahead" */ = {
+		A98B082EA98B1BEA00000070 /* Build configuration list for PBXNativeTarget "goahead" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA0000007E /* Debug */,
-				A98B082EA98B1BEA0000007F /* Release */,
+				A98B082EA98B1BEA0000007D /* Debug */,
+				A98B082EA98B1BEA0000007E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A98B082EA98B1BEA00000075 /* Build configuration list for PBXNativeTarget "goahead-test" */ = {
+		A98B082EA98B1BEA00000074 /* Build configuration list for PBXNativeTarget "goahead-test" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA00000080 /* Debug */,
-				A98B082EA98B1BEA00000081 /* Release */,
+				A98B082EA98B1BEA0000007F /* Debug */,
+				A98B082EA98B1BEA00000080 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1008,8 +1007,8 @@ fi";
 		A98B082EA98B1BEA00000009 /* Build configuration list for PBXNativeTarget "All" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA00000082 /* Debug */,
-				A98B082EA98B1BEA00000083 /* Release */,
+				A98B082EA98B1BEA00000081 /* Debug */,
+				A98B082EA98B1BEA00000082 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1017,8 +1016,8 @@ fi";
 		A98B082EA98B1BEA00000010 /* Build configuration list for PBXNativeTarget "Prep" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				A98B082EA98B1BEA00000084 /* Debug */,
-				A98B082EA98B1BEA00000085 /* Release */,
+				A98B082EA98B1BEA00000083 /* Debug */,
+				A98B082EA98B1BEA00000084 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

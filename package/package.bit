@@ -1,0 +1,109 @@
+/*
+    package.bit
+ */
+
+Bit.load({
+    targets: {
+        'root-install': {
+            home: '${TOP}',
+			action: '',
+			depends: ['compile'],
+            'generate-make': "
+                rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
+                rm -f $(BIT_PRD_PREFIX)/latest
+                for n in goahead; do rm -f $(BIT_UBIN_PREFIX)/$$n ; done
+                install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX)
+                install -m 644 src/auth.txt src/route.txt $(BIT_CFG_PREFIX)
+                cp -R -P ${BIN}/* $(BIT_BIN_PREFIX)
+                rm -f $(BIT_BIN_PREFIX)/goahead-test
+                ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
+                if [ '$(BIT_UBIN_PREFIX)' != '' ] ; then \\
+                    for n in goahead; do \\
+                        rm -f $(BIT_UBIN_PREFIX)/$$n ; \\
+                        ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; \\
+                    done ; \\
+                fi
+            ",
+            'generate-nmake': "xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"",
+        },
+
+        install: {
+            home: '${TOP}',
+            depends: ['compile'],
+            action: "installBinary()",
+            'generate-make': "sudo $(MAKE) -C ${TOP} -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install",
+            'generate-nmake': "nmake -nologo -f ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install",
+        },
+
+        'root-uninstall': {
+            home: '${TOP}',
+			action: '',
+            'generate-make': "rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)",
+            'generate-nmake': "del /Q \"$(BIT_CFG_PREFIX)\" \"$(BIT_PRD_PREFIX)\"",
+		},
+
+        uninstall: {
+            home: '${TOP}',
+            action: "uninstallBinary()"
+            'generate-make': "sudo $(MAKE) -C ${TOP} -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall",
+            'generate-nmake': "nmake -nologo -f ${TOP}/projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall",
+        },
+
+        package: {
+            home: '${TOP}',
+            enable: "'${OS}' == 'linux' || '${OS}' == 'macosx' || '${OS}' == 'windows'",
+            depends: ['packageBinary', 'packageSource', 'packageCombo'],
+        },
+
+        packageBinary: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageBinaryFiles()",
+        },
+
+        packageSource: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageSourceFiles()",
+        },
+
+        packageCombo: {
+            home: '${TOP}',
+            depends: ['build'],
+            action: "packageComboFiles()",
+        },
+
+        testPackage: {
+            type: 'test',
+            action: "
+                let package = packageName()
+                if (!package || !package.exists || bit.settings.depth < 2) {
+                    trace('Test', 'testPackage -- SKIPPED (Runs at depth 2 on windows or macosx)')
+                } else {
+                    if (Config.OS == 'macosx' && App.uid != 0) {
+                        trace('Test', 'testPackage -- SKIPPED (Must run as root)')
+                    } else {
+                        trace('Test', 'testPackage')
+                        if (bit.prefixes.bin.join('uninstall').exists) {
+                            trace('Test', 'Cleanup prior to installation')
+                            uninstallPackage()
+                            checkUninstalled()
+                        }
+                        installPackage()
+                        if (missing = checkInstalled()) {
+                            trace('Test', 'Install is missing files: ' + missing)
+                        }
+                        let s = bit.settings
+                        uninstallPackage()
+                        if (Config.OS == 'windows') App.sleep(1000)
+                        if (existing = checkUninstalled()) {
+                            trace('Warning', 'The uninstall for testPackage was not clean: ' + existing)
+                        } else {
+                            trace('Test', 'Uninstall is clean')
+                        }
+                    }
+                }
+            ",
+        },
+    },
+})

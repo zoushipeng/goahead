@@ -27,7 +27,7 @@
 #	environment variables. For example: make BIT_PACK_SQLITE=0. These are converted to DFLAGS and 
 #	will then override the bit.h default values.
 #
-NAME    := appweb
+NAME    := goahead
 OS      := $(shell uname | sed 's/CYGWIN.*/windows/;s/Darwin/macosx/' | tr '[A-Z]' '[a-z]')
 MAKE    := $(shell if which gmake >/dev/null 2>&1; then echo gmake ; else echo make ; fi) --no-print-directory
 PROFILE := default
@@ -51,11 +51,15 @@ BIN 	:= $(OS)-$(ARCH)-$(PROFILE)/bin
 
 all compile:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
-	@echo ; echo 'You can now run GoAhead via: "make run"'
-	@echo ; echo "To run manually, put $(OS)-$(ARCH)-$(PROFILE)/bin in your path" ; echo
+	@echo ; echo 'You can now install via "sudo make install" or run GoAhead via: "sudo make run"'
+	@echo ; echo "To run locally, put $(OS)-$(ARCH)-$(PROFILE)/bin in your path" ; echo
 
-clean clobber install uninstall run:
+clean clobber uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
+
+install:
+	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
+	@echo ; echo 'You can now run via "sudo goahead -v --home /etc/goahead"'
 
 version:
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@

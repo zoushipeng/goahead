@@ -13,6 +13,7 @@ Bit.load({
         "${BITS}/embedthis.bit",
         "src/deps/est/est.bit",
         "doc/doc.bit",
+        "package/package.bit",
     ],
 
     '+modules': [
@@ -337,18 +338,6 @@ Bit.load({
             action: "
                 run('goahead -v', {noio: true, dir: 'src'})
             ",
-        },
-        package: {
-            enable: "'${OS}' == 'linux' || '${OS}' == 'macosx' || '${OS}' == 'windows'",
-            depends: ['packageSource', 'packageCombo'],
-        },
-        packageSource: {
-            depends: ['build'],
-            action: "packageSourceFiles()",
-        },
-        packageCombo: {
-            depends: ['build'],
-            action: "packageComboFiles()",
         },
         rom: {
             action: "
