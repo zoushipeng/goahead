@@ -56,7 +56,7 @@
     #define BIT_GOAHEAD_KEY "server.key.pem"
 #endif
 #ifndef BIT_GOAHEAD_LEGACY
-    #define BIT_GOAHEAD_LEGACY 0
+    #define BIT_GOAHEAD_LEGACY 1
 #endif
 #ifndef BIT_GOAHEAD_LIMIT_BUFFER
     #define BIT_GOAHEAD_LIMIT_BUFFER 8192

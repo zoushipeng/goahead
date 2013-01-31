@@ -170,9 +170,10 @@
 		A98B082EA98B1BEA00000014 /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/deps/est/estLib.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000058 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-default/inc/bit.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000059 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-default/inc/est.h; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000005A /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-default/inc/bitos.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000042 /* libest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libest.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA00000016 /* action.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = action.c; path = src/action.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005A /* goahead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = goahead.h; path = macosx-x64-default/inc/goahead.h; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000005B /* goahead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = goahead.h; path = macosx-x64-default/inc/goahead.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000018 /* alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alloc.c; path = src/alloc.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000001A /* auth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = auth.c; path = src/auth.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000001C /* cgi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgi.c; path = src/cgi.c; sourceTree = "<group>"; };
@@ -181,7 +182,7 @@
 		A98B082EA98B1BEA00000022 /* fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fs.c; path = src/fs.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000024 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/http.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000026 /* js.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = js.c; path = src/js.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005B /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-default/inc/js.h; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000005C /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-default/inc/js.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000028 /* jst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jst.c; path = src/jst.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000002A /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/options.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000002C /* osdep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = osdep.c; path = src/osdep.c; sourceTree = "<group>"; };
@@ -191,10 +192,9 @@
 		A98B082EA98B1BEA00000034 /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000036 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000038 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005C /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = src/deps/est/est.h; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000005D /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = src/deps/est/est.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000003A /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000003C /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000005D /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-default/inc/bitos.h; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000044 /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA0000003E /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000005E /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -256,6 +256,7 @@
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
 				A98B082EA98B1BEA00000059 /* est.h */,
+				A98B082EA98B1BEA0000005A /* bitos.h */,
 				A98B082EA98B1BEA00000014 /* estLib.c */,
 			);
             name = "libest";
@@ -266,10 +267,10 @@
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
-				A98B082EA98B1BEA0000005A /* goahead.h */,
-				A98B082EA98B1BEA0000005B /* js.h */,
-				A98B082EA98B1BEA0000005C /* est.h */,
-				A98B082EA98B1BEA0000005D /* bitos.h */,
+				A98B082EA98B1BEA0000005B /* goahead.h */,
+				A98B082EA98B1BEA0000005A /* bitos.h */,
+				A98B082EA98B1BEA0000005C /* js.h */,
+				A98B082EA98B1BEA0000005D /* est.h */,
 				A98B082EA98B1BEA00000016 /* action.c */,
 				A98B082EA98B1BEA00000018 /* alloc.c */,
 				A98B082EA98B1BEA0000001A /* auth.c */,
@@ -299,7 +300,8 @@
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
-				A98B082EA98B1BEA0000005A /* goahead.h */,
+				A98B082EA98B1BEA0000005B /* goahead.h */,
+				A98B082EA98B1BEA0000005A /* bitos.h */,
 				A98B082EA98B1BEA0000003E /* goahead.c */,
 			);
             name = "goahead";
@@ -310,8 +312,9 @@
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000058 /* bit.h */,
-				A98B082EA98B1BEA0000005A /* goahead.h */,
-				A98B082EA98B1BEA0000005B /* js.h */,
+				A98B082EA98B1BEA0000005B /* goahead.h */,
+				A98B082EA98B1BEA0000005C /* js.h */,
+				A98B082EA98B1BEA0000005A /* bitos.h */,
 				A98B082EA98B1BEA00000040 /* test.c */,
 			);
             name = "goahead-test";

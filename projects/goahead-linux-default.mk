@@ -103,20 +103,19 @@ clean:
 clobber: clean
 	rm -fr ./$(CONFIG)
 
+$(CONFIG)/inc/est.h: 
+	rm -fr $(CONFIG)/inc/est.h
+	cp -r src/deps/est/est.h $(CONFIG)/inc/est.h
+
 $(CONFIG)/inc/bitos.h: 
 	rm -fr $(CONFIG)/inc/bitos.h
 	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
 
-$(CONFIG)/inc/est.h:  \
-        $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/bitos.h
-	rm -fr $(CONFIG)/inc/est.h
-	cp -r src/deps/est/est.h $(CONFIG)/inc/est.h
-
 $(CONFIG)/obj/estLib.o: \
         src/deps/est/estLib.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/est.h
+        $(CONFIG)/inc/est.h \
+        $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
 
 $(CONFIG)/bin/libest.so:  \
@@ -139,7 +138,8 @@ $(CONFIG)/inc/js.h:
 $(CONFIG)/obj/action.o: \
         src/action.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/action.c
 
 $(CONFIG)/obj/alloc.o: \
@@ -187,7 +187,8 @@ $(CONFIG)/obj/http.o: \
 $(CONFIG)/obj/js.o: \
         src/js.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/js.h
+        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/js.c
 
 $(CONFIG)/obj/jst.o: \
@@ -243,7 +244,8 @@ $(CONFIG)/obj/est.o: \
         src/ssl/est.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
-        src/deps/est/est.h
+        src/deps/est/est.h \
+        $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/est.c
 
 $(CONFIG)/obj/matrixssl.o: \
@@ -288,7 +290,8 @@ $(CONFIG)/bin/libgo.so:  \
 $(CONFIG)/obj/goahead.o: \
         src/goahead.c \
         $(CONFIG)/inc/bit.h \
-        $(CONFIG)/inc/goahead.h
+        $(CONFIG)/inc/goahead.h \
+        $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
 
 $(CONFIG)/bin/goahead:  \
@@ -303,7 +306,8 @@ $(CONFIG)/obj/test.o: \
         test/test.c \
         $(CONFIG)/inc/bit.h \
         $(CONFIG)/inc/goahead.h \
-        $(CONFIG)/inc/js.h
+        $(CONFIG)/inc/js.h \
+        $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
 $(CONFIG)/bin/goahead-test:  \

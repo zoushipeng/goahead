@@ -96,20 +96,19 @@ clean:
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
 
+$(CONFIG)\inc\est.h: 
+	-if exist $(CONFIG)\inc\est.h del /Q $(CONFIG)\inc\est.h
+	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
+
 $(CONFIG)\inc\bitos.h: 
 	-if exist $(CONFIG)\inc\bitos.h del /Q $(CONFIG)\inc\bitos.h
 	copy /Y src\bitos.h $(CONFIG)\inc\bitos.h
 
-$(CONFIG)\inc\est.h:  \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\bitos.h
-	-if exist $(CONFIG)\inc\est.h del /Q $(CONFIG)\inc\est.h
-	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
-
 $(CONFIG)\obj\estLib.obj: \
         src\deps\est\estLib.c \
         $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\est.h
+        $(CONFIG)\inc\est.h \
+        $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\est\estLib.c
 
 $(CONFIG)\bin\libest.dll:  \
@@ -132,7 +131,8 @@ $(CONFIG)\inc\js.h:
 $(CONFIG)\obj\action.obj: \
         src\action.c \
         $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\action.c
 
 $(CONFIG)\obj\alloc.obj: \
@@ -180,7 +180,8 @@ $(CONFIG)\obj\http.obj: \
 $(CONFIG)\obj\js.obj: \
         src\js.c \
         $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\js.h
+        $(CONFIG)\inc\js.h \
+        $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\js.c
 
 $(CONFIG)\obj\jst.obj: \
@@ -236,7 +237,8 @@ $(CONFIG)\obj\est.obj: \
         src\ssl\est.c \
         $(CONFIG)\inc\bit.h \
         $(CONFIG)\inc\goahead.h \
-        src\deps\est\est.h
+        src\deps\est\est.h \
+        $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\est.c
 
 $(CONFIG)\obj\matrixssl.obj: \
@@ -281,7 +283,8 @@ $(CONFIG)\bin\libgo.dll:  \
 $(CONFIG)\obj\goahead.obj: \
         src\goahead.c \
         $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+        $(CONFIG)\inc\goahead.h \
+        $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\goahead.c
 
 $(CONFIG)\bin\goahead.exe:  \
@@ -296,7 +299,8 @@ $(CONFIG)\obj\test.obj: \
         test\test.c \
         $(CONFIG)\inc\bit.h \
         $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h
+        $(CONFIG)\inc\js.h \
+        $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\test.c
 
 $(CONFIG)\bin\goahead-test.exe:  \
@@ -313,13 +317,17 @@ version:
 root-install:  \
         compile
 	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
+	del /Q "$(BIT_BIN_PREFIX)\*.pdb"
+	del /Q "$(BIT_BIN_PREFIX)\*.exp"
+	del /Q "$(BIT_BIN_PREFIX)\*.lib"
 
 install:  \
         compile
 	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
 
 root-uninstall: 
-	del /Q "$(BIT_CFG_PREFIX)" "$(BIT_PRD_PREFIX)"
+	if exist "$(BIT_CFG_PREFIX)" rd /Q /S "$(BIT_CFG_PREFIX)"
+	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
 
 uninstall: 
 	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
