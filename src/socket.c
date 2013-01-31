@@ -10,11 +10,11 @@
 
 /************************************ Locals **********************************/
 
-WebsSocket  **socketList;           /* List of open sockets */
-PUBLIC int  socketMax;              /* Maximum size of socket */
-PUBLIC int  socketHighestFd = -1;   /* Highest socket fd opened */
-PUBLIC int  socketOpenCount = 0;    /* Number of task using sockets */
-static int  hasIPv6;                /* System supports IPv6 */
+WebsSocket      **socketList;           /* List of open sockets */
+PUBLIC int      socketMax;              /* Maximum size of socket */
+PUBLIC Socket   socketHighestFd = -1;   /* Highest socket fd opened */
+PUBLIC int      socketOpenCount = 0;    /* Number of task using sockets */
+static int      hasIPv6;                /* System supports IPv6 */
 
 /***************************** Forward Declarations ***************************/
 
@@ -26,7 +26,7 @@ static void socketDoEvent(WebsSocket *sp);
 
 PUBLIC int socketOpen()
 {
-    int     fd;
+    Socket  fd;
 
     if (++socketOpenCount > 1) {
         return 0;
@@ -995,7 +995,7 @@ PUBLIC int socketGetError()
 /*
     Return the underlying socket handle
  */
-PUBLIC int socketGetHandle(int sid)
+PUBLIC Socket socketGetHandle(int sid)
 {
     WebsSocket    *sp;
 

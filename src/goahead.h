@@ -988,10 +988,10 @@ PUBLIC int socketGetError();
 /**
     Get the underlying socket operating system socket/file handle
     @param sid Socket ID handle returned from socketConnect or socketAccept.
-    @return The integer socket handle
+    @return The socket handle
     @ingroup WebsSocket
  */
-PUBLIC int socketGetHandle(int sid);
+PUBLIC Socket socketGetHandle(int sid);
 
 /**
     Get the IP port associated with this socket.

@@ -123,7 +123,7 @@ PUBLIC ssize websReadFile(int fd, char *buf, ssize size)
     wip->pos += len;
     return len;
 #else
-    return read(fd, buf, (size_t) size);
+    return read(fd, buf, (uint) size);
 #endif
 }
 
@@ -195,7 +195,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
     error("Cannot write to a rom file system");
     return -1;
 #else
-    return write(fd, buf, (size_t) size);
+    return write(fd, buf, (uint) size);
 #endif
 }
 
