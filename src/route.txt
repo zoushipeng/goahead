@@ -1,5 +1,5 @@
 #
-#   XXroute.txt - Route and authorization configuration
+#   route.txt - Route and authorization configuration
 #
 #   Schema
 #       route uri=URI protocol=PROTOCOL methods=METHODS handler=HANDLER redirect=STATUS@URI \
