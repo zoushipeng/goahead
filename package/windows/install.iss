@@ -1,5 +1,5 @@
 ;
-; install.iss -- Inno Setup 5 install configuration file for Embedthis GoAhead
+; install.iss -- Inno Setup 4 install configuration file for Embedthis GoAhead
 ;
 ; Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
 ;
@@ -8,32 +8,35 @@
 AppName=${settings.title}
 AppVerName=${settings.title} ${settings.version}-${settings.buildNumber}
 DefaultDirName={pf}\${settings.title}
-DefaultGroupName=${settings.product}
+DefaultGroupName=${settings.title}
 UninstallDisplayIcon={app}/${settings.product}.exe
 LicenseFile=LICENSE.TXT
+ChangesEnvironment=yes
 ArchitecturesInstallIn64BitMode=x64
 
+[Icons]
+Name: "{group}\${settings.title} shell"; Filename: "{app}/bin/${settings.product}.exe"; Parameters: ""
+Name: "{group}\${settings.title} documentation"; Filename: "{app}/doc/product/index.html"; Parameters: ""
+Name: "{group}\ReadMe"; Filename: "{app}/README.TXT"
+
+[Dirs]
+Name: "{app}/bin"
+
+[UninstallDelete]
+
+[Tasks]
+Name: addpath; Description: Add ${settings.title} to the system PATH variable;
+
 [Code]
-var
-	PortPage: TInputQueryWizardPage;
-	SSLPortPage: TInputQueryWizardPage;
-	WebDirPage: TInputDirWizardPage;
-
-
-procedure InitializeWizard();
+function IsPresent(const file: String): Boolean;
 begin
-
-	WebDirPage := CreateInputDirPage(wpSelectDir, 'Select Web Documents Directory', 'Where should web files be stored?',
-		'Select the folder in which to store web documents, then click Next.', False, '');
-	WebDirPage.Add('');
-	WebDirPage.values[0] := ExpandConstant('{sd}') + '/goahead/web';
-
-	PortPage := CreateInputQueryPage(wpSelectComponents, 'HTTP Port', 'Primary TCP/IP Listen Port for HTTP Connections',
-		'Please specify the TCP/IP port on which GoAhead should listen for HTTP requests.');
-	PortPage.Add('HTTP Port:', False);
-	PortPage.values[0] := '80';
+  file := ExpandConstant(file);
+  if FileExists(file) then begin
+    Result := True;
+  end else begin
+    Result := False;
+  end
 end;
-
 
 //
 //	Initial sample by Jared Breland
@@ -87,32 +90,15 @@ begin
 	RegWriteStringValue(regHive, key, keyName, newPath);
 end;
 
-
 procedure CurStepChanged(CurStep: TSetupStep);
 var
-  path: String;
   bin: String;
-  app: String;
-  rc: Integer;
 begin
-  if CurStep = ssInstall then
-  begin
-   app := ExpandConstant('{app}');
-   
-   path := app + '/bin/goaheadMonitor.exe';
-   if FileExists(path) then
-     Exec(path, '--stop', app, 0, ewWaitUntilTerminated, rc);
-
-   path := app + '/bin/appman.exe';
-   if FileExists(path) then
-     Exec(path, 'stop', app, 0, ewWaitUntilTerminated, rc);
-   end;
-   if CurStep = ssPostInstall then
-     if IsTaskSelected('addpath') then begin
-       bin := ExpandConstant('{app}\bin');      
-       // AddPath('EJSPATH', bin);
-       AddPath('Path', bin);
-    end;
+	if CurStep = ssPostInstall then
+		if IsTaskSelected('addpath') then begin
+			bin := ExpandConstant('{app}\bin');			
+			AddPath('Path', bin);
+	  end;
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
@@ -122,7 +108,6 @@ var
 begin
 	if CurUninstallStep = usUninstall then begin
 	    bin := ExpandConstant('{app}\bin');			
-		// AddPath('EJSPATH', bin);
 		AddPath('Path', bin);
 	end;
 	if CurUninstallStep = usDone then begin
@@ -131,92 +116,10 @@ begin
     end;
 end;
 
-function NextButtonClick(CurPageID: Integer): Boolean;
-begin
-  if (CurPageID = 6) then
-  begin
-    WebDirPage.values[0] := ExpandConstant('{app}') + '/web';
-  end;
-  Result := true;
-end;
-
-function GetWebDir(Param: String): String;
-begin
-  Result := WebDirPage.Values[0];
-end;
-
-
-function GetPort(Param: String): String;
-begin
-  Result := PortPage.Values[0];
-end;
-
-function GetSSL(Param: String): String;
-begin
-  // Result := SSLPortPage.Values[0];
-  Result := '443';
-end;
-
-
-function IsPresent(const file: String): Boolean;
-begin
-  file := ExpandConstant(file);
-  if FileExists(file) then begin
-    Result := True;
-  end else begin
-    Result := False;
-  end
-end;
-
-
-[Icons]
-Name: "{group}\${settings.product}Monitor"; Filename: "{app}/bin/${settings.product}Monitor.exe";
-Name: "{group}\ReadMe"; Filename: "{app}/README.TXT"
-
-[Registry]
-Root: HKLM; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "GoAheadMonitor";
-ValueData: "{app}\bin\goaheadMonitor.exe"
-
-[Dirs]
-Name: "{app}/logs"; Permissions: system-modify;
-Name: "{app}/bin"
-
-[UninstallDelete]
-; Type: files; Name: "{app}/route.txt";
-; Type: files; Name: "{app}/auth.txt";
-Type: files; Name: "{app}/logs/access.log.old";
-Type: files; Name: "{app}/logs/access.log.*";
-Type: files; Name: "{app}/logs/error.log";
-Type: files; Name: "{app}/logs/error.log.old";
-Type: files; Name: "{app}/logs/error.log.*";
-Type: files; Name: "{app}/cache/*.*";
-Type: filesandordirs; Name: "{app}/*.obj";
-
-[Tasks]
-Name: addpath; Description: Add ${settings.title} to the system PATH variable;
-
 [Run]
-Filename: "{app}/bin/${settings.product}Monitor.exe"; Parameters: "--stop"; WorkingDir: "{app}/bin"; Check: IsPresent('{app}/bin/${settings.product}Monitor.exe'); StatusMsg: "Stopping the GoAhead Monitor"; Flags: waituntilterminated;
-
-Filename: "{app}/bin/appman.exe"; Parameters: "uninstall"; WorkingDir: "{app}"; Check: IsPresent('{app}/bin/appman.exe');
-StatusMsg: "Stopping GoAhead"; Flags: waituntilterminated;
-
-Filename: "{app}/bin/setConfig.exe"; Parameters: "--home . --documents ""{code:GetWebDir}"" --logs logs --port
-{code:GetPort} --ssl {code:GetSSL} --cache cache --modules bin goahead.conf"; WorkingDir: "{app}"; StatusMsg: "Updating GoAhead configuration"; Flags: runhidden waituntilterminated; 
-
-Filename: "{app}/bin/appman.exe"; Parameters: "install enable"; WorkingDir: "{app}"; StatusMsg: "Installing GoAhead as a Windows Service"; Flags: waituntilterminated;
-
-Filename: "{app}/bin/appman.exe"; Parameters: "start"; WorkingDir: "{app}"; StatusMsg: "Starting the GoAhead Server"; Flags: waituntilterminated;
-
-Filename: "{app}/bin/${settings.product}Monitor.exe"; Parameters: ""; WorkingDir: "{app}/bin"; StatusMsg: "Starting the
-GoAhead Monitor"; Flags: waituntilidle;
-
-Filename: "http://embedthis.com/products/goahead/doc/index.html"; Description: "View the Documentation"; Flags: skipifsilent waituntilidle shellexec postinstall;
+Filename: "file:///{app}/doc/product/index.html"; Description: "View the Documentation"; Flags: skipifsilent waituntilidle shellexec postinstall; Check: IsPresent('{app}/doc/product/index.html');
 
 [UninstallRun]
-Filename: "{app}/bin/${settings.product}Monitor.exe"; Parameters: "--stop"; WorkingDir: "{app}"; StatusMsg: "Stopping the
-GoAhead Monitor"; Flags: waituntilterminated;
-Filename: "{app}/bin/appman.exe"; Parameters: "uninstall"; WorkingDir: "{app}"; Check: IsPresent('{app}/bin/appman.exe');
 Filename: "{app}/bin/removeFiles.exe"; Parameters: "-r -s 5"; WorkingDir: "{app}"; Flags:
 
 [Files]
