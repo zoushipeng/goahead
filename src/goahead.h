@@ -3259,6 +3259,12 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define emfSchedProcess websRunEvents
     #define emfUnschedCallback websStopEvent
     #define fmtStatic fmt
+    #define gassert assert
+    #define galloc walloc
+    #define gallocEntry wallocObject
+    #define gfree wfree
+    #define gFree wfreeHandle
+    #define grealloc wrealloc
     #define gaccess access
     #define gasctime asctime
     #define gatoi atoi
@@ -3326,7 +3332,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define gwrite write
     #define hAlloc wallocHandle
     #define hAllocEntry wallocObject
-    #define hFree wFreeHandle
+    #define hFree wfreeHandle
     #define stritoa gstritoa
     #define strlower gstrlower
     #define strupper gstrupper
