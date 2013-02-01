@@ -74,6 +74,7 @@ clean:
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
 	rm -rf $(CONFIG)/obj/estLib.o
+	rm -rf $(CONFIG)/obj/removeFiles.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
 	rm -rf $(CONFIG)/obj/auth.o
@@ -321,7 +322,7 @@ $(CONFIG)/bin/goahead-test:  \
 version: 
 	@echo 3.1.0-1
 
-root-install:  \
+install:  \
         compile
 	rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
 	rm -f $(BIT_PRD_PREFIX)/latest
@@ -333,13 +334,6 @@ root-install:  \
 	ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
 	if [ '$(BIT_UBIN_PREFIX)' != '' ] ; then 	for n in goahead; do 	rm -f $(BIT_UBIN_PREFIX)/$$n ; 	ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; 	done ; 	fi
 
-install:  \
-        compile
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-install
-
-root-uninstall: 
-	rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)
-
 uninstall: 
-	sudo $(MAKE) -C . -f projects/$(PRODUCT)-$(OS)-$(PROFILE).mk $(MAKEFLAGS) root-uninstall
+	rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)
 

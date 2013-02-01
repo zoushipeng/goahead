@@ -42,6 +42,7 @@ BIT_MAN_PREFIX  = $(BIT_PRD_PREFIX)/man
 all compile: prep \
         $(CONFIG)\bin\libest.dll \
         $(CONFIG)\bin\ca.crt \
+        $(CONFIG)\bin\removeFiles.exe \
         $(CONFIG)\bin\libgo.dll \
         $(CONFIG)\bin\goahead.exe \
         $(CONFIG)\bin\goahead-test.exe
@@ -66,10 +67,12 @@ prep:
 clean:
 	-if exist $(CONFIG)\bin\libest.dll del /Q $(CONFIG)\bin\libest.dll
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
+	-if exist $(CONFIG)\bin\removeFiles.exe del /Q $(CONFIG)\bin\removeFiles.exe
 	-if exist $(CONFIG)\bin\libgo.dll del /Q $(CONFIG)\bin\libgo.dll
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
 	-if exist $(CONFIG)\obj\estLib.obj del /Q $(CONFIG)\obj\estLib.obj
+	-if exist $(CONFIG)\obj\removeFiles.obj del /Q $(CONFIG)\obj\removeFiles.obj
 	-if exist $(CONFIG)\obj\action.obj del /Q $(CONFIG)\obj\action.obj
 	-if exist $(CONFIG)\obj\alloc.obj del /Q $(CONFIG)\obj\alloc.obj
 	-if exist $(CONFIG)\obj\auth.obj del /Q $(CONFIG)\obj\auth.obj
@@ -119,6 +122,15 @@ $(CONFIG)\bin\libest.dll:  \
 $(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
 	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
+
+$(CONFIG)\obj\removeFiles.obj: \
+        package\windows\removeFiles.c \
+        $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc package\windows\removeFiles.c
+
+$(CONFIG)\bin\removeFiles.exe:  \
+        $(CONFIG)\obj\removeFiles.obj
+	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\goahead.h: 
 	-if exist $(CONFIG)\inc\goahead.h del /Q $(CONFIG)\inc\goahead.h
@@ -314,21 +326,14 @@ $(CONFIG)\bin\goahead-test.exe:  \
 version: 
 	@echo 3.1.0-1
 
-root-install:  \
+install:  \
         compile
 	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
 	del /Q "$(BIT_BIN_PREFIX)\*.pdb"
 	del /Q "$(BIT_BIN_PREFIX)\*.exp"
 	del /Q "$(BIT_BIN_PREFIX)\*.lib"
 
-install:  \
-        compile
-	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-install
-
-root-uninstall: 
+uninstall: 
 	if exist "$(BIT_CFG_PREFIX)" rd /Q /S "$(BIT_CFG_PREFIX)"
 	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
-
-uninstall: 
-	nmake -nologo -f ./projects/$(PRODUCT)-$(OS)-$(PROFILE).nmake root-uninstall
 
