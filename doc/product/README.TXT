@@ -14,10 +14,9 @@ Table of Contents
 * System Requirements
 * Installation Package Formats
 * Development Environment Platform Support
-* Installating the Tar Self-Install Image
-* Removing Embedthis GoAhead
 * Apple MAC OS X  Release Details
 * Windows Release Details
+* Removing GoAhead
 * Running GoAhead
 * Building from the Source Code
 * License and Copyright Information
@@ -27,11 +26,11 @@ System Requirements
 
 Operating System Support
 
-    * Windows XP, Vista, Windows-7 (x86,x86_64)
-    * Mac OS X 10.4, 10.5 (x86,x86_64)
-    * Linux 2.4, 2.6 (x86,,x86_64arm,ppc,sparc,xscale,mips)
+    * Windows XP, Vista, Windows-7 (x86,x64)
+    * Mac OS X 10.4, 10.5 (x86,x64)
+    * Linux 2.4, 2.6 (x86,x64,arm,ppc,sparc,xscale,mips)
     * VxWorks (x86,arm,ppc,sparc,xscale,mips)
-    * Solaris (sparc,x86,x86_64)
+    * Solaris (sparc,x86,x64)
 
 To install GoAhead, your development system will need at least the following:
 
@@ -64,8 +63,7 @@ If you wish to embed GoAhead in your application or build GoAhead from source co
 
     * Linux/Unix/Solaris GNU Tools
 
-    * Windows Visual Studio (Visual Studio 2008 (Express) or the Cygwin UNIX 
-      emulation tools. See www.cygwin.com.
+    * Windows Visual Studio 2010
 
     * WindRiver Tornado Development Tools
 
