@@ -1,5 +1,5 @@
 #
-#   goahead-linux-default.mk -- Makefile to build Embedthis GoAhead for linux
+#   goahead-vxworks-default.mk -- Makefile to build Embedthis GoAhead for vxworks
 #
 
 PRODUCT         := goahead
@@ -7,30 +7,30 @@ VERSION         := 3.1.0
 BUILD_NUMBER    := 1
 PROFILE         := default
 ARCH            := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
-OS              := linux
-CC              := /usr/bin/gcc
+OS              := vxworks
+CC              := ccpentium
 LD              := /usr/bin/ld
 CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
 
 BIT_ROOT_PREFIX := /
-BIT_CFG_PREFIX  := $(BIT_ROOT_PREFIX)etc/goahead
-BIT_PRD_PREFIX  := $(BIT_ROOT_PREFIX)usr/lib/goahead
-BIT_VER_PREFIX  := $(BIT_ROOT_PREFIX)usr/lib/goahead/3.1.0
-BIT_BIN_PREFIX  := $(BIT_VER_PREFIX)/bin
+BIT_CFG_PREFIX  := $(BIT_VER_PREFIX)
+BIT_PRD_PREFIX  := $(BIT_ROOT_PREFIX)deploy
+BIT_VER_PREFIX  := $(BIT_ROOT_PREFIX)deploy
+BIT_BIN_PREFIX  := $(BIT_VER_PREFIX)
 BIT_INC_PREFIX  := $(BIT_VER_PREFIX)/inc
-BIT_LOG_PREFIX  := $(BIT_ROOT_PREFIX)var/log/goahead
-BIT_SPL_PREFIX  := $(BIT_ROOT_PREFIX)var/spool/goahead
+BIT_LOG_PREFIX  := $(BIT_VER_PREFIX)
+BIT_SPL_PREFIX  := $(BIT_VER_PREFIX)
 BIT_SRC_PREFIX  := $(BIT_ROOT_PREFIX)usr/src/goahead-3.1.0
-BIT_WEB_PREFIX  := $(BIT_ROOT_PREFIX)var/www/goahead-default
-BIT_UBIN_PREFIX := $(BIT_ROOT_PREFIX)usr/local/bin
-BIT_MAN_PREFIX  := $(BIT_ROOT_PREFIX)usr/local/share/man/man1
+BIT_WEB_PREFIX  := $(BIT_VER_PREFIX)/web
+BIT_UBIN_PREFIX := $(BIT_VER_PREFIX)
+BIT_MAN_PREFIX  := $(BIT_VER_PREFIX)
 
-CFLAGS          += -fPIC   -w
-DFLAGS          += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
+CFLAGS          += -fno-builtin -fno-defer-pop -fvolatile  -w
+DFLAGS          += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL  -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
-LDFLAGS         += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-Wl,-rpath,$$ORIGIN/../bin' '-rdynamic'
-LIBPATHS        += -L$(CONFIG)/bin
-LIBS            += -lpthread -lm -lrt -ldl
+LDFLAGS         += '-Wl,-r'
+LIBPATHS        += -L$(CONFIG)/bin -L$(CONFIG)/bin
+LIBS            += 
 
 DEBUG           := debug
 CFLAGS-debug    := -g
@@ -46,11 +46,11 @@ LDFLAGS         += $(LDFLAGS-$(DEBUG))
 unexport CDPATH
 
 all compile: prep \
-        $(CONFIG)/bin/libest.so \
+        $(CONFIG)/bin/libest.out \
         $(CONFIG)/bin/ca.crt \
-        $(CONFIG)/bin/libgo.so \
-        $(CONFIG)/bin/goahead \
-        $(CONFIG)/bin/goahead-test
+        $(CONFIG)/bin/libgo.out \
+        $(CONFIG)/bin/goahead.out \
+        $(CONFIG)/bin/goahead-test.out
 
 .PHONY: prep
 
@@ -60,18 +60,18 @@ prep:
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
-	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h ; true
+	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-vxworks-default-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
-	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-linux-default-bit.h >/dev/null ; then\
-		echo cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
-		cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
+	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-vxworks-default-bit.h >/dev/null ; then\
+		echo cp projects/goahead-vxworks-default-bit.h $(CONFIG)/inc/bit.h  ; \
+		cp projects/goahead-vxworks-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
 clean:
-	rm -rf $(CONFIG)/bin/libest.so
+	rm -rf $(CONFIG)/bin/libest.out
 	rm -rf $(CONFIG)/bin/ca.crt
-	rm -rf $(CONFIG)/bin/libgo.so
-	rm -rf $(CONFIG)/bin/goahead
-	rm -rf $(CONFIG)/bin/goahead-test
+	rm -rf $(CONFIG)/bin/libgo.out
+	rm -rf $(CONFIG)/bin/goahead.out
+	rm -rf $(CONFIG)/bin/goahead-test.out
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/removeFiles.o
 	rm -rf $(CONFIG)/obj/action.o
@@ -116,12 +116,12 @@ $(CONFIG)/obj/estLib.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/est.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/estLib.o -fno-builtin -fno-defer-pop -fvolatile $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
 
-$(CONFIG)/bin/libest.so: \
+$(CONFIG)/bin/libest.out: \
     $(CONFIG)/inc/est.h \
     $(CONFIG)/obj/estLib.o
-	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS)
+	$(LIBS)$(CC) -r -o $(CONFIG)/bin/libest.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o 
 
 $(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
 	rm -fr $(CONFIG)/bin/ca.crt
@@ -140,105 +140,105 @@ $(CONFIG)/obj/action.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/action.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/action.c
 
 $(CONFIG)/obj/alloc.o: \
     src/alloc.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/alloc.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/alloc.c
 
 $(CONFIG)/obj/auth.o: \
     src/auth.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/auth.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/auth.c
 
 $(CONFIG)/obj/cgi.o: \
     src/cgi.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/cgi.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/cgi.c
 
 $(CONFIG)/obj/crypt.o: \
     src/crypt.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/crypt.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/crypt.c
 
 $(CONFIG)/obj/file.o: \
     src/file.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/file.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/file.c
 
 $(CONFIG)/obj/fs.o: \
     src/fs.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/fs.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/fs.c
 
 $(CONFIG)/obj/http.o: \
     src/http.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/http.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/http.c
 
 $(CONFIG)/obj/js.o: \
     src/js.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/js.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/js.c
 
 $(CONFIG)/obj/jst.o: \
     src/jst.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/jst.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/jst.c
 
 $(CONFIG)/obj/options.o: \
     src/options.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/options.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/options.c
 
 $(CONFIG)/obj/osdep.o: \
     src/osdep.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/osdep.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/osdep.c
 
 $(CONFIG)/obj/rom-documents.o: \
     src/rom-documents.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/rom-documents.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/rom-documents.c
 
 $(CONFIG)/obj/route.o: \
     src/route.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/route.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/route.c
 
 $(CONFIG)/obj/runtime.o: \
     src/runtime.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/runtime.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/runtime.c
 
 $(CONFIG)/obj/socket.o: \
     src/socket.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/socket.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/socket.c
 
 $(CONFIG)/obj/upload.o: \
     src/upload.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/upload.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/upload.c
 
 $(CONFIG)/obj/est.o: \
     src/ssl/est.c\
@@ -246,22 +246,22 @@ $(CONFIG)/obj/est.o: \
     $(CONFIG)/inc/goahead.h \
     src/deps/est/est.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/est.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/est.c
 
 $(CONFIG)/obj/matrixssl.o: \
     src/ssl/matrixssl.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/matrixssl.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/matrixssl.c
 
 $(CONFIG)/obj/openssl.o: \
     src/ssl/openssl.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/openssl.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/openssl.c
 
-$(CONFIG)/bin/libgo.so: \
+$(CONFIG)/bin/libgo.out: \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h \
@@ -285,22 +285,22 @@ $(CONFIG)/bin/libgo.so: \
     $(CONFIG)/obj/est.o \
     $(CONFIG)/obj/matrixssl.o \
     $(CONFIG)/obj/openssl.o
-	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
+	$(LIBS)$(CC) -r -o $(CONFIG)/bin/libgo.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o 
 
 $(CONFIG)/obj/goahead.o: \
     src/goahead.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
 
-$(CONFIG)/bin/goahead: \
-    $(CONFIG)/bin/libgo.so \
+$(CONFIG)/bin/goahead.out: \
+    $(CONFIG)/bin/libgo.out \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/obj/goahead.o
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o -lgo $(LIBS) -lest -lgo -lpthread -lm -lrt -ldl -lest $(LDFLAGS)
+	$(LIBS)$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LDFLAGS)
 
 $(CONFIG)/obj/test.o: \
     test/test.c\
@@ -308,15 +308,15 @@ $(CONFIG)/obj/test.o: \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
+	$(LIBS)$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
 
-$(CONFIG)/bin/goahead-test: \
-    $(CONFIG)/bin/libgo.so \
+$(CONFIG)/bin/goahead-test.out: \
+    $(CONFIG)/bin/libgo.out \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/obj/test.o
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o -lgo $(LIBS) -lest -lgo -lpthread -lm -lrt -ldl -lest $(LDFLAGS)
+	$(LIBS)$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LDFLAGS)
 
 version: 
 	@echo 3.1.0-1
@@ -331,13 +331,4 @@ deploy: compile
 	ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
 	for n in goaehad gopass webcomp ; do rm -f $(BIT_UBIN_PREFIX)/$$n ; ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; done
 	for n in goahead.1 gopass.1 webcomp.1; do rm -f $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; cp doc/man/$$n $(BIT_VER_PREFIX)/man/man1 ; ln -s $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; done
-
-install: compile deploy
-	
-
-uninstall: 
-	rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)
-	for n in goahead gopass webcmop; do rm -f $(BIT_UBIN_PREFIX)/$$n ; done
-	for n in $(BIT_VER_PREFIX)/man/man1/*.1; do base=`basename $$n` ; rm -f $(BIT_MAN_PREFIX)/$$base ; done
-	rm -fr '$(BIT_CFG_PREFIX)' '$(BIT_PRD_PREFIX)' '$(BIT_WEB_PREFIX)'
 

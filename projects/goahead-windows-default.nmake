@@ -5,39 +5,41 @@
 PRODUCT         = goahead
 VERSION         = 3.1.0
 BUILD_NUMBER    = 1
-PROFILE   = default
-PA        = $(PROCESSOR_ARCHITECTURE)
+PROFILE         = default
+PA              = $(PROCESSOR_ARCHITECTURE)
+
 !IF "$(PA)" == "AMD64"
-ARCH     = x64
-ENTRY    = _DllMainCRTStartup
+ARCH            = x64
+ENTRY           = _DllMainCRTStartup
 !ELSE
-ARCH     = x86
-ENTRY    = _DllMainCRTStartup@12
+ARCH            = x86
+ENTRY           = _DllMainCRTStartup@12
 !ENDIF
 
-OS       = windows
-CONFIG   = $(OS)-$(ARCH)-$(PROFILE)
-CC       = cl
-LD       = link
-RC       = rc
-CFLAGS   = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS   = -D_REENTRANT -D_MT -DBIT_DEBUG
-IFLAGS   = -I$(CONFIG)\inc
-LDFLAGS  = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
-LIBPATHS = -libpath:$(CONFIG)\bin
-LIBS     = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+OS              = windows
+CONFIG          = $(OS)-$(ARCH)-$(PROFILE)
+CC              = cl
+LD              = link
+RC              = rc
+CFLAGS          = -nologo -GR- -W3 -Zi -Od -MDd
+DFLAGS          = -D_REENTRANT -D_MT -DBIT_DEBUG
+IFLAGS          = -I$(CONFIG)\inc
+LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
+LIBPATHS        = -libpath:$(CONFIG)\bin
+LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_PRD_PREFIX  = C:/Program Files/Embedthis GoAhead
-BIT_VER_PREFIX  = $(BIT_PRD_PREFIX)
-BIT_CFG_PREFIX  = $(BIT_PRD_PREFIX)
-BIT_BIN_PREFIX  = $(BIT_PRD_PREFIX)/bin
-BIT_INC_PREFIX  = $(BIT_PRD_PREFIX)/inc
-BIT_LOG_PREFIX  = $(BIT_PRD_PREFIX)/logs
-BIT_SPL_PREFIX  = $(BIT_PRD_PREFIX)/tmp
-BIT_SRC_PREFIX  = $(BIT_PRD_PREFIX)/src
-BIT_WEB_PREFIX  = $(BIT_PRD_PREFIX)/web
-BIT_UBIN_PREFIX = $(BIT_PRD_PREFIX)/bin
-BIT_MAN_PREFIX  = $(BIT_PRD_PREFIX)/man
+BIT_ROOT_PREFIX = C:/
+BIT_PRD_PREFIX  = $(BIT_ROOT_PREFIX)Program Files/Embedthis GoAhead
+BIT_VER_PREFIX  = $(BIT_ROOT_PREFIX)Program Files/Embedthis GoAhead
+BIT_CFG_PREFIX  = $(BIT_VER_PREFIX)
+BIT_BIN_PREFIX  = $(BIT_VER_PREFIX)/bin
+BIT_INC_PREFIX  = $(BIT_VER_PREFIX)/inc
+BIT_LOG_PREFIX  = $(BIT_VER_PREFIX)/logs
+BIT_SPL_PREFIX  = $(BIT_VER_PREFIX)/tmp
+BIT_SRC_PREFIX  = $(BIT_VER_PREFIX)/src
+BIT_WEB_PREFIX  = $(BIT_VER_PREFIX)/web
+BIT_UBIN_PREFIX = $(BIT_VER_PREFIX)/bin
+BIT_MAN_PREFIX  = $(BIT_VER_PREFIX)/man
 
 all compile: prep \
         $(CONFIG)\bin\libest.dll \
@@ -61,9 +63,7 @@ prep:
 	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
 	@if not exist $(CONFIG)\inc md $(CONFIG)\inc
 	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
-	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-$(OS)-$(PROFILE)-bit.h $(CONFIG)\inc\bit.h
-	@echo $(DFLAGS) $(CFLAGS) >projects/.flags
-
+	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-windows-default-bit.h $(CONFIG)\inc\bit.h
 clean:
 	-if exist $(CONFIG)\bin\libest.dll del /Q $(CONFIG)\bin\libest.dll
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
@@ -108,15 +108,15 @@ $(CONFIG)\inc\bitos.h:
 	copy /Y src\bitos.h $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\estLib.obj: \
-        src\deps\est\estLib.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\est.h \
-        $(CONFIG)\inc\bitos.h
+    src\deps\est\estLib.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\est.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\est\estLib.c
 
-$(CONFIG)\bin\libest.dll:  \
-        $(CONFIG)\inc\est.h \
-        $(CONFIG)\obj\estLib.obj
+$(CONFIG)\bin\libest.dll: \
+    $(CONFIG)\inc\est.h \
+    $(CONFIG)\obj\estLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
 
 $(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
@@ -124,12 +124,12 @@ $(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
 	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
 
 $(CONFIG)\obj\removeFiles.obj: \
-        package\windows\removeFiles.c \
-        $(CONFIG)\inc\bit.h
+    package\windows\removeFiles.c\
+    $(CONFIG)\inc\bit.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc package\windows\removeFiles.c
 
-$(CONFIG)\bin\removeFiles.exe:  \
-        $(CONFIG)\obj\removeFiles.obj
+$(CONFIG)\bin\removeFiles.exe: \
+    $(CONFIG)\obj\removeFiles.obj
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\goahead.h: 
@@ -141,199 +141,200 @@ $(CONFIG)\inc\js.h:
 	copy /Y src\js.h $(CONFIG)\inc\js.h
 
 $(CONFIG)\obj\action.obj: \
-        src\action.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\bitos.h
+    src\action.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\action.c
 
 $(CONFIG)\obj\alloc.obj: \
-        src\alloc.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\alloc.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\alloc.c
 
 $(CONFIG)\obj\auth.obj: \
-        src\auth.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\auth.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\auth.c
 
 $(CONFIG)\obj\cgi.obj: \
-        src\cgi.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\cgi.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\cgi.c
 
 $(CONFIG)\obj\crypt.obj: \
-        src\crypt.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\crypt.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\crypt.c
 
 $(CONFIG)\obj\file.obj: \
-        src\file.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\file.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\file.c
 
 $(CONFIG)\obj\fs.obj: \
-        src\fs.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\fs.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\fs.c
 
 $(CONFIG)\obj\http.obj: \
-        src\http.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\http.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\http.c
 
 $(CONFIG)\obj\js.obj: \
-        src\js.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\inc\goahead.h
+    src\js.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\js.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\js.c
 
 $(CONFIG)\obj\jst.obj: \
-        src\jst.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h
+    src\jst.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\js.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\jst.c
 
 $(CONFIG)\obj\options.obj: \
-        src\options.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\options.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\options.c
 
 $(CONFIG)\obj\osdep.obj: \
-        src\osdep.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\osdep.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\osdep.c
 
 $(CONFIG)\obj\rom-documents.obj: \
-        src\rom-documents.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\rom-documents.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\rom-documents.c
 
 $(CONFIG)\obj\route.obj: \
-        src\route.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\route.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\route.c
 
 $(CONFIG)\obj\runtime.obj: \
-        src\runtime.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\runtime.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\runtime.c
 
 $(CONFIG)\obj\socket.obj: \
-        src\socket.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\socket.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\socket.c
 
 $(CONFIG)\obj\upload.obj: \
-        src\upload.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\upload.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\upload.c
 
 $(CONFIG)\obj\est.obj: \
-        src\ssl\est.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h \
-        src\deps\est\est.h \
-        $(CONFIG)\inc\bitos.h
+    src\ssl\est.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    src\deps\est\est.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\est.c
 
 $(CONFIG)\obj\matrixssl.obj: \
-        src\ssl\matrixssl.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h
+    src\ssl\matrixssl.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\matrixssl.c
 
 $(CONFIG)\obj\openssl.obj: \
-        src\ssl\openssl.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h
+    src\ssl\openssl.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\openssl.c
 
-$(CONFIG)\bin\libgo.dll:  \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\action.obj \
-        $(CONFIG)\obj\alloc.obj \
-        $(CONFIG)\obj\auth.obj \
-        $(CONFIG)\obj\cgi.obj \
-        $(CONFIG)\obj\crypt.obj \
-        $(CONFIG)\obj\file.obj \
-        $(CONFIG)\obj\fs.obj \
-        $(CONFIG)\obj\http.obj \
-        $(CONFIG)\obj\js.obj \
-        $(CONFIG)\obj\jst.obj \
-        $(CONFIG)\obj\options.obj \
-        $(CONFIG)\obj\osdep.obj \
-        $(CONFIG)\obj\rom-documents.obj \
-        $(CONFIG)\obj\route.obj \
-        $(CONFIG)\obj\runtime.obj \
-        $(CONFIG)\obj\socket.obj \
-        $(CONFIG)\obj\upload.obj \
-        $(CONFIG)\obj\est.obj \
-        $(CONFIG)\obj\matrixssl.obj \
-        $(CONFIG)\obj\openssl.obj
+$(CONFIG)\bin\libgo.dll: \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\js.h \
+    $(CONFIG)\obj\action.obj \
+    $(CONFIG)\obj\alloc.obj \
+    $(CONFIG)\obj\auth.obj \
+    $(CONFIG)\obj\cgi.obj \
+    $(CONFIG)\obj\crypt.obj \
+    $(CONFIG)\obj\file.obj \
+    $(CONFIG)\obj\fs.obj \
+    $(CONFIG)\obj\http.obj \
+    $(CONFIG)\obj\js.obj \
+    $(CONFIG)\obj\jst.obj \
+    $(CONFIG)\obj\options.obj \
+    $(CONFIG)\obj\osdep.obj \
+    $(CONFIG)\obj\rom-documents.obj \
+    $(CONFIG)\obj\route.obj \
+    $(CONFIG)\obj\runtime.obj \
+    $(CONFIG)\obj\socket.obj \
+    $(CONFIG)\obj\upload.obj \
+    $(CONFIG)\obj\est.obj \
+    $(CONFIG)\obj\matrixssl.obj \
+    $(CONFIG)\obj\openssl.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS) libest.lib
 
 $(CONFIG)\obj\goahead.obj: \
-        src\goahead.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\bitos.h
+    src\goahead.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\goahead.c
 
-$(CONFIG)\bin\goahead.exe:  \
-        $(CONFIG)\bin\libgo.dll \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\goahead.obj
+$(CONFIG)\bin\goahead.exe: \
+    $(CONFIG)\bin\libgo.dll \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\js.h \
+    $(CONFIG)\obj\goahead.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj libgo.lib $(LIBS) libest.lib
 
 $(CONFIG)\obj\test.obj: \
-        test\test.c \
-        $(CONFIG)\inc\bit.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\inc\bitos.h
+    test\test.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\js.h \
+    $(CONFIG)\inc\bitos.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\test.c
 
-$(CONFIG)\bin\goahead-test.exe:  \
-        $(CONFIG)\bin\libgo.dll \
-        $(CONFIG)\inc\bitos.h \
-        $(CONFIG)\inc\goahead.h \
-        $(CONFIG)\inc\js.h \
-        $(CONFIG)\obj\test.obj
+$(CONFIG)\bin\goahead-test.exe: \
+    $(CONFIG)\bin\libgo.dll \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\js.h \
+    $(CONFIG)\obj\test.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj libgo.lib $(LIBS) libest.lib
 
 version: 
 	@echo 3.1.0-1
 
-install:  \
-        compile
+deploy: compile
 	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_BIN_PREFIX)"
 	del /Q "$(BIT_BIN_PREFIX)\*.pdb"
 	del /Q "$(BIT_BIN_PREFIX)\*.exp"
 	del /Q "$(BIT_BIN_PREFIX)\*.lib"
 
+install: compile deploy
+
+
 uninstall: 
-	if exist "$(BIT_CFG_PREFIX)" rd /Q /S "$(BIT_CFG_PREFIX)"
 	if exist "$(BIT_PRD_PREFIX)" rd /Q /S "$(BIT_PRD_PREFIX)"
 

@@ -7,16 +7,13 @@
 require ejs.tar
 require ejs.unix
 
-public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false) {
+public function packageDeploy(minimal = false) {
     let settings = bit.settings
     let bin = bit.dir.pkg.join('bin')
     safeRemove(bit.dir.pkg)
     let vname = settings.product + '-' + settings.version + '-' + settings.buildNumber
     let pkg = bin.join(vname)
-    pkg.makeDir()
-
     let contents = pkg.join('contents')
-
     let prefixes = bit.prefixes;
     let p = {}
     for (prefix in bit.prefixes) {
@@ -24,6 +21,9 @@ public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false)
         p[prefix].makeDir()
     }
     let strip = bit.platform.profile == 'debug'
+
+    trace('Deploy', bit.settings.title)
+    pkg.makeDir()
 
     if (!bit.cross) {
         /* These three files are replicated outside the data directory */
@@ -118,16 +118,86 @@ public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false)
         files = files.map(function(f) Path("/" + f))
         p.productver.join('files.log').append(files.join('\n') + '\n')
     }
-    if (formats && bit.platform.last) {
+}
+
+
+public function packageSourceFiles() {
+    if (bit.cross) {
+        return
+    }
+    let s = bit.settings
+    let src = bit.dir.pkg.join('src')
+    let pkg = src.join(s.product + '-' + s.version)
+    safeRemove(pkg)
+    pkg.makeDir()
+    install(['Makefile', 'start.bit', 'main.bit'], pkg)
+    install('bits', pkg)
+    install('configure', pkg, {permissions: 0755})
+    install('*.md', pkg, {fold: true, expand: true})
+    install(['src/*.c', 'src/*.h'], pkg, {
+        exclude: /\.log$|\.lst$|\/utils|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp/,
+    })
+    install('src/utils', pkg, {
+        exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp|\.o$|\.obj$|\.so$|\.dylib$/,
+    })
+    install('test', pkg, {
+        exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp|\.tdat$|\.o$|\.obj$|\.so$|\.dylib$/,
+    })
+    install('doc', pkg, {
+        exclude: /\/xml\/|\/html\/|Archive|\.mod$|\.so$|\.dylib$|\.o$/,
+    })
+    install('projects', pkg, {
+        exclude: /\/Debug\/|\/Release\/|\.ncb|\.mode1v3|\.pbxuser/,
+    })
+    install('package', pkg, {})
+    package(bit.dir.pkg.join('src'), 'src')
+}
+
+
+public function packageComboFiles() {
+    if (bit.cross) {
+        return
+    }
+    let s = bit.settings
+    let src = bit.dir.pkg.join('src')
+    let pkg = src.join(s.product + '-' + s.version)
+    safeRemove(pkg)
+    pkg.makeDir()
+    install('projects/goahead-' + bit.platform.os + '-default-bit.h', pkg.join('src/deps/goahead/bit.h'))
+    install('package/start-flat.bit', pkg.join('src/deps/goahead/start.bit'))
+    install('package/Makefile-flat', pkg.join('src/deps/goahead/Makefile'))
+    install(['src/js.h', 'src/goahead.h'], 
+        pkg.join('src/deps/goahead/goahead.h'), {
+        cat: true,
+        filter: /^#inc.*goahead.*$/mg,
+        title: bit.settings.title + ' Library Source',
+    })
+    install(['src/*.c'], pkg.join('src/deps/goahead/goaheadLib.c'), {
+        cat: true,
+        filter: /^#inc.*goahead.*$|^#inc.*mpr.*$|^#inc.*http.*$|^#inc.*customize.*$|^#inc.*edi.*$|^#inc.*mdb.*$|^#inc.*esp.*$/mg,
+        exclude: /goahead.c|samples|test.c/,
+        header: '#include \"goahead.h\"',
+        title: bit.settings.title + ' Library Source',
+    })
+    install(['src/goahead.c'], pkg.join('src/deps/goahead/goahead.c'))
+    install(['src/route.txt'], pkg.join('src/deps/goahead/route.txt'))
+    install(['src/auth.txt'], pkg.join('src/deps/goahead/auth.txt'))
+    package(bit.dir.pkg.join('src'), ['combo', 'flat'])
+}
+
+
+public function packageBinaryFiles(formats = ['tar', 'native'], minimal = false) {
+    packageDeploy(minimal)
+    if (bit.platform.last) {
         package(bit.dir.pkg.join('bin'), formats)
     }
 }
+
 
 public function installBinary() {
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use \"sudo bit install\"'
     }
-    packageBinaryFiles(null, true)
     package(bit.dir.pkg.join('bin'), 'install')
     if (!bit.cross) {
         if (Config.OS != 'windows') {
@@ -143,6 +213,7 @@ public function installBinary() {
     trace('Complete', bit.settings.title + ' installed')
 }
 
+
 public function uninstallBinary() {
     if (Config.OS != 'windows' && App.uid != 0) {
         throw 'Must run as root. Use \"sudo bit install\"'
@@ -154,7 +225,7 @@ public function uninstallBinary() {
     let fileslog = bit.prefixes.productver.join('files.log')
     if (fileslog.exists) {
         for each (let file: Path in fileslog.readLines()) {
-            vtrace('Remove', file)
+            strace('Remove', file)
             file.remove()
         }
     }
@@ -163,17 +234,20 @@ public function uninstallBinary() {
         file.remove()
     }
     for each (prefix in bit.prefixes) {
-        if (!prefix.name.contains(bit.settings.product)) {
-            continue
+        if (bit.platform.os == 'windows') {
+            if (!prefix.name.contains(bit.settings.title)) continue
+        } else {
+            if (!prefix.name.contains(bit.settings.product)) continue
         }
         for each (dir in prefix.files('**', {include: /\/$/}).sort().reverse()) {
-            vtrace('Remove', dir)
-            dir.remove()
+            strace('Remove', dir)
+            dir.removeAll()
         }
-        vtrace('Remove', prefix)
-        prefix.remove()
+        strace('Remove', prefix)
+        prefix.removeAll()
     }
     updateLatestLink()
+    trace('Complete', bit.settings.title + ' uninstalled')
 }
 
 /*
@@ -215,69 +289,6 @@ function updateLatestLink() {
     }
 }
 
-
-public function packageSourceFiles() {
-    if (bit.cross) {
-        return
-    }
-    let s = bit.settings
-    let src = bit.dir.pkg.join('src')
-    let pkg = src.join(s.product + '-' + s.version)
-    safeRemove(pkg)
-    pkg.makeDir()
-    install(['Makefile', 'start.bit', 'main.bit'], pkg)
-    install('bits', pkg)
-    install('configure', pkg, {permissions: 0755})
-    install('*.md', pkg, {fold: true, expand: true})
-    install(['src/*.c', 'src/*.h'], pkg, {
-        exclude: /\.log$|\.lst$|\/utils|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp/,
-    })
-    install('src/utils', pkg, {
-        exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp|\.o$|\.obj$|\.so$|\.dylib$/,
-    })
-    install('test', pkg, {
-        exclude: /\.log$|\.lst$|ejs.zip|\.stackdump$|\/cache\/|huge.txt|\.swp$|\.tmp|\.tdat$|\.o$|\.obj$|\.so$|\.dylib$/,
-    })
-    install('doc', pkg, {
-        exclude: /\/xml\/|\/html\/|Archive|\.mod$|\.so$|\.dylib$|\.o$/,
-    })
-    install('projects', pkg, {
-        exclude: /\/Debug\/|\/Release\/|\.ncb|\.mode1v3|\.pbxuser/,
-    })
-    install('package', pkg, {})
-    package(bit.dir.pkg.join('src'), 'src')
-}
-
-public function packageComboFiles() {
-    if (bit.cross) {
-        return
-    }
-    let s = bit.settings
-    let src = bit.dir.pkg.join('src')
-    let pkg = src.join(s.product + '-' + s.version)
-    safeRemove(pkg)
-    pkg.makeDir()
-    install('projects/goahead-' + bit.platform.os + '-default-bit.h', pkg.join('src/deps/goahead/bit.h'))
-    install('package/start-flat.bit', pkg.join('src/deps/goahead/start.bit'))
-    install('package/Makefile-flat', pkg.join('src/deps/goahead/Makefile'))
-    install(['src/js.h', 'src/goahead.h'], 
-        pkg.join('src/deps/goahead/goahead.h'), {
-        cat: true,
-        filter: /^#inc.*goahead.*$/mg,
-        title: bit.settings.title + ' Library Source',
-    })
-    install(['src/*.c'], pkg.join('src/deps/goahead/goaheadLib.c'), {
-        cat: true,
-        filter: /^#inc.*goahead.*$|^#inc.*mpr.*$|^#inc.*http.*$|^#inc.*customize.*$|^#inc.*edi.*$|^#inc.*mdb.*$|^#inc.*esp.*$/mg,
-        exclude: /goahead.c|samples|test.c/,
-        header: '#include \"goahead.h\"',
-        title: bit.settings.title + ' Library Source',
-    })
-    install(['src/goahead.c'], pkg.join('src/deps/goahead/goahead.c'))
-    install(['src/route.txt'], pkg.join('src/deps/goahead/route.txt'))
-    install(['src/auth.txt'], pkg.join('src/deps/goahead/auth.txt'))
-    package(bit.dir.pkg.join('src'), ['combo', 'flat'])
-}
 
 /*
     @copy   default

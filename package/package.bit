@@ -12,25 +12,27 @@ Bit.load({
             platforms: [ 'local' ],
         },
 
-        install: {
+        deploy: {
             home: '${TOP}',
-            action: 'installBinary()',
+            action: 'packageDeploy()',
             depends: ['compile'],
             'generate-make': "
-                rm -f $(BIT_PRD_PREFIX)/latest $(BIT_UBIN_PREFIX)/bit
+                rm -f $(BIT_UBIN_PREFIX)/bit
+                mkdir -p '$(BIT_CFG_PREFIX)' '$(BIT_BIN_PREFIX)' '$(BIT_WEB_PREFIX)' '$(BIT_VER_PREFIX)/man/man1'
+                cp src/auth.txt src/route.txt $(BIT_CFG_PREFIX)
+                cp -R -P ${BIN}/goahead ${BIN}/ca.crt ${BIN}/lib* $(BIT_BIN_PREFIX)
+                cp -R -P src/web/index.html $(BIT_WEB_PREFIX)
                 rm -f $(BIT_PRD_PREFIX)/latest
-                for n in goahead; do rm -f $(BIT_UBIN_PREFIX)/$$n ; done
-                install -d -m 755 $(BIT_CFG_PREFIX) $(BIT_BIN_PREFIX)
-                install -m 644 src/auth.txt src/route.txt $(BIT_CFG_PREFIX)
-                cp -R -P ${BIN}/* $(BIT_BIN_PREFIX)
-                rm -f $(BIT_BIN_PREFIX)/goahead-test
                 ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
-                if [ '$(BIT_UBIN_PREFIX)' != '' ] ; then \\
-                    for n in goahead; do \\
-                        rm -f $(BIT_UBIN_PREFIX)/$$n ; \\
-                        ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; \\
-                    done ; \\
-                fi
+                for n in goaehad gopass webcomp ; do \\
+                    rm -f $(BIT_UBIN_PREFIX)/$$n ; \\
+                    ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; \\
+                done
+                for n in goahead.1 gopass.1 webcomp.1; do \\
+                    rm -f $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; \\
+                    cp doc/man/$$n $(BIT_VER_PREFIX)/man/man1 ; \\
+                    ln -s $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; \\
+                done
             ",
             'generate-nmake': "
                 xcopy /I /S /Y /Q $(CONFIG)\\bin \"$(BIT_BIN_PREFIX)\"
@@ -40,14 +42,28 @@ Bit.load({
             ",
         },
 
+        install: {
+            enable: "bit.platform.like == 'posix' || bit.platform.like == 'windows'",                      
+            home: '${TOP}',
+            action: "installBinary()",
+            depends: ['compile', 'deploy'],
+            'generate': ' ',
+        },
+
         uninstall: {
+            enable: "bit.platform.like == 'posix' || bit.platform.like == 'windows'",                      
             home: '${TOP}',
             action: 'uninstallBinary()',
-            'generate-make': "rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)",
-            'generate-nmake': "
-                if exist \"$(BIT_CFG_PREFIX)\" rd /Q /S \"$(BIT_CFG_PREFIX)\"
-                if exist \"$(BIT_PRD_PREFIX)\" rd /Q /S \"$(BIT_PRD_PREFIX)\"
+            'generate-make': "
+                rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)
+                for n in goahead gopass webcmop; do rm -f $(BIT_UBIN_PREFIX)/$$n ; done
+                for n in $(BIT_VER_PREFIX)/man/man1/*.1; do \\
+                    base=`basename $$n` ; \\
+                    rm -f $(BIT_MAN_PREFIX)/$$base ; \\
+                done
+                rm -fr '$(BIT_CFG_PREFIX)' '$(BIT_PRD_PREFIX)' '$(BIT_WEB_PREFIX)'
             ",
+            'generate-nmake': "if exist \"$(BIT_PRD_PREFIX)\" rd /Q /S \"$(BIT_PRD_PREFIX)\"",
         },
 
         package: {
