@@ -24,7 +24,7 @@ Bit.load({
                 cp -R -P src/web/index.html $(BIT_WEB_PREFIX)
                 rm -f $(BIT_PRD_PREFIX)/latest
                 ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
-                for n in goaehad gopass webcomp ; do \\
+                for n in goahead gopass webcomp ; do \\
                     rm -f $(BIT_UBIN_PREFIX)/$$n ; \\
                     ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; \\
                 done

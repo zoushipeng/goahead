@@ -329,7 +329,7 @@ deploy: compile
 	cp -R -P src/web/index.html $(BIT_WEB_PREFIX)
 	rm -f $(BIT_PRD_PREFIX)/latest
 	ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
-	for n in goaehad gopass webcomp ; do rm -f $(BIT_UBIN_PREFIX)/$$n ; ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; done
+	for n in goahead gopass webcomp ; do rm -f $(BIT_UBIN_PREFIX)/$$n ; ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; done
 	for n in goahead.1 gopass.1 webcomp.1; do rm -f $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; cp doc/man/$$n $(BIT_VER_PREFIX)/man/man1 ; ln -s $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; done
 
 install: compile deploy
