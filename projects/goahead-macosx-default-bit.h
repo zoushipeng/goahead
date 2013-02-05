@@ -269,7 +269,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64-default --without default -configure . -gen make"
+    #define BIT_CONFIG_CMD "bit -d -q -platform macosx-x64-default --without default -configure . -gen xcode"
 #endif
 #ifndef BIT_GOAHEAD_PRODUCT
     #define BIT_GOAHEAD_PRODUCT 1
