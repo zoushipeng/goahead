@@ -32,6 +32,8 @@ static bool fileHandler(Webs *wp)
     assert(wp->method);
     assert(wp->filename && wp->filename[0]);
 
+    printf("@@@@@@ QUERY %s\n", wp->query);
+
 #if !BIT_ROM
     if (smatch(wp->method, "DELETE")) {
         if (unlink(wp->filename) < 0) {

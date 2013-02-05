@@ -11,6 +11,7 @@ OS              := macosx
 CC              := /usr/bin/clang
 LD              := /usr/bin/ld
 CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
+LBIN            := $(CONFIG)/bin
 
 BIT_ROOT_PREFIX := /
 BIT_CFG_PREFIX  := $(BIT_ROOT_PREFIX)etc/goahead
