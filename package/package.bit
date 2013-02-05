@@ -39,6 +39,7 @@ Bit.load({
                 del /Q \"$(BIT_BIN_PREFIX)\\*.pdb\"
                 del /Q \"$(BIT_BIN_PREFIX)\\*.exp\"
                 del /Q \"$(BIT_BIN_PREFIX)\\*.lib\"
+                copy src/auth.txt src/route.txt \"$(BIT_PRD_PREFIX)\"
             ",
         },
 
