@@ -4,14 +4,14 @@
 \margl1440\margr1440\vieww16700\viewh14780\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 
-\f0\b\fs28 \cf0 Embedthis Appweb(TM)
+\f0\b\fs28 \cf0 Embedthis GoAhead(TM)
 \b0\fs24 \
 \
-Welcome to Appweb -- the fastest, little web server.\
+Welcome to GoAhead -- the world's most popular embedded web server.\
 \
-This document contains details regarding the installation procedure for the binary Embedthis Appweb package.  This package contains a pre-built stand-alone web server and an embeddable HTTP library with headers. You can read the documentation for the latest release online at:\
+This document contains details regarding the installation procedure for the binary Embedthis GoAhead package.  This package contains a pre-built stand-alone web server and an embeddable HTTP library with headers. You can read the documentation for the latest release online at:\
 \
-http://embedthis.com/products/appweb/doc/appweb/product/index.html\
+http://embedthis.com/products/goahead/doc/goahead/product/index.html\
 \
 This software is copyrighted and distributed under license. Please read the license.rtf for details.\
 \
@@ -21,10 +21,10 @@ Table of Contents\
 * System Requirements\
 * Installation Package Formats\
 * Development Environment Platform Support\
-* Removing Embedthis Appweb\
+* Removing Embedthis GoAhead\
 * Apple MAC OS X  Release Details\
 * Windows Release Details\
-* Running Appweb\
+* Running GoAhead\
 * Building from the Source Code\
 * License and Copyright Information\
 \
@@ -33,52 +33,51 @@ System Requirements\
 \
 Binary Package Operating System Support\
 \
-    * Windows XP, Vista, Windows-7 (x86,x86_64)\
-    * Mac OS X 10.4, 10.5 (x86,x86_64)\
+    * Windows XP, Vista, Windows-7 (x86,x64)\
+    * Mac OS X 10.4, 10.5 (x86,x64)\
 \
 For other operating systems, download the source package and build then install.\
 Supported operating systems via source code:\
-    * Linux 2.4, 2.6 (x86,,x86_64arm,ppc,sparc,xscale,mips)\
+    * Linux 2.4, 2.6 (x86,x64,arm,ppc,sparc,xscale,mips)\
     * VxWorks (x86,arm,ppc,sparc,xscale,mips)\
-    * Solaris (sparc,x86,x86_64)\
+    * Solaris (sparc,x86,x64)\
 \
-To install Appweb, your development system will need at least the following:\
+To install GoAhead, your development system will need at least the following:\
 \
     * 50 MB Disk\
     * 1 GB RAM\
 \
-To deploy Appweb in an embedded environment, you will need at least the following:\
+To deploy GoAhead in an embedded environment, you will need at least the following:\
 \
     * 2 MB Disk / ROM space\
     * 2 MB RAM\
 \
-To rebuild Appweb from source code on your development system, you will need at least:\
+To rebuild GoAhead from source code on your development system, you will need at least:\
 \
     * 80 MB disk space\
 \
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural
 \cf0 \ul \ulc0 Installation Package Formats\ulnone \
 \
-The Appweb binary installation is published in two formats:\
+The GoAhead binary installation is published in two formats:\
 \
-    * Native Apple MAC OS X DMG/PKG format\
+    * Native Apple MAC OS X PKG format\
     * Native Windows installer format\
 \
 \ul Development Environment Platform Support\ulnone \
 \
-If you wish to embed Appweb in your application or build Appweb from source code, you will need to use a C compiler and associated development tools.  Several development environments are supported.  You may choose any of the following:\
+If you wish to embed GoAhead in your application or build GoAhead from source code, you will need to use a C compiler and associated development tools.  Several development environments are supported.  You may choose any of the following:\
 \
     * Linux/Unix/Solaris GNU Tools\
 \
-    * Windows Visual Studio (Visual Studio 2008 (Express) or the Cygwin UNIX \
-      emulation tools. See www.cygwin.com.\
+    * Windows Visual Studio 2010\
 \
     * WindRiver Tornado Development Tools\
 \
 \
 \ul Apple Mac OS X Release Details\ulnone \
 \
-To install the native MAC OS X DMG image:\
+To install the native MAC OS X PKG image:\
 \
    1. Download the PKG image.\
 \
@@ -91,62 +90,51 @@ To install the native MAC OS X DMG image:\
 \
 To install the Windows Installer image:\
 \
-   1. Login with administrator privileges. This is necessary as the binary \
-      installation needs to install a Windows Service.\
+   1. Login with administrator privileges.\
 \
    2. Use WinZip or equivalent software to extract the installation image. This\
-      will extract the README.md and setup.exe from the zip archive.\
+      will extract the README.TXT and setup.exe from the zip archive.\
 \
    3. Double click on the setup.exe image to run it.\
 \
 \
-\ul Removing Appweb\ulnone \
+\ul Removing GoAhead\ulnone \
 \
-This is the procedure to remove Appweb on all systems except Windows.\
+This is the procedure to remove GoAhead on all systems except Windows.\
 \
-   1. Run the uninstall script in the install directory for Appweb by typing:\
+   1. Run the uninstall script in the install directory for GoAhead by typing:\
 \
-      sudo /usr/lib/appweb/latest/bin/uninstall\
+      sudo /usr/lib/goahead/latest/bin/uninstall\
 \
-If you installed the Appweb Windows Installer image, follow these steps to remove Appweb. If you installed the Tar\
-self-install image, you will need to remove Appweb using the procedure described above. \
+If you installed the GoAhead Windows Installer image, follow these steps to remove GoAhead. I\
 \
    1. Login with administrator privileges\
 \
    2. Run the Add / Remove Programs applet from the control panel.\
 \
-   3. Select the Embedthis Appweb and choose remove.\
+   3. Select the Embedthis GoAhead and choose remove.\
 \
 \
-\ul Running Appweb\ulnone \
+\ul Running GoAhead\ulnone \
 \
-Appweb will start when the Appweb installation procedure completes and on some systems, will launch your browser directed at the Appweb local home page.  Thereafter, Appweb will automatically start if the system is rebooted. If you wish to manually stop Appweb, type:\
+To run goahead:\
 \
-    appman stop\
+    godhead --home /etc/goahead -v\
 \
-To restart Appweb:\
+To get all the options for GoAhead, read the GoAhead man page via\
 \
-    appman start\
-\
-Alternatively, you can run appweb manually:\
-\
-    cd /etc/appweb\
-    appweb -v\
-\
-To get all the options for Appweb, read the Appweb man page via\
-\
-    man appweb\
+    man goahead\
 \
 or get the command help via:\
 \
-    appweb --help\
+    goahead --help\
 \
-Appweb is configured by default to listen on port 80. To test that it is serving pages, point your browser at http://localhost/. \
+GoAhead is configured by default to listen on port 80. To test that it is serving pages, point your browser at http://localhost/. \
 \
 \
 \ul Building from the Source Code\ulnone \
 \
-If you wish to rebuild the Appweb product from the distributed source code, please download the source code distribution from the Embedthis web site. Then read "Building from Source" in the Appweb product documentation for an explanation of the necessary steps to successfully rebuild the product.\
+If you wish to rebuild the GoAhead product from the distributed source code, please download the source code distribution from the Embedthis web site. Then read "Building from Source" in the GoAhead product documentation for an explanation of the necessary steps to successfully rebuild the product.\
 \
 \
 \ul License and Copyright Information\ulnone \
@@ -155,7 +143,7 @@ This software is supplied under license. Both a GNU and commercial license are a
 \
 Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.\
 \
-Embedthis is a trademark of Embedthis Software LLC. Embedthis, Appweb and Ejscript are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.\
+Embedthis is a trademark of Embedthis Software LLC. Embedthis, GoAhead and Ejscript are trademarks of Embedthis Software. All other brand or product names are the trademarks or registered trademarks of their respective holders.\
 \
 \
 Embedthis Software, LLC.\

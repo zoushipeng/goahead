@@ -1,12 +1,12 @@
 Embedthis GoAhead(TM)
 
-Welcome to the GoAhead -- the most popular little web server.
+Welcome to the GoAhead -- the world's most popular embedded web server.
 
 This document contains details regarding the installation procedure for the binary Embedthis GoAhead package.  This package contains pre-built stand-alone web server and an embeddable HTTP library with headers. You can read the documentation for the latest release online at:
 
 http://embedthis.com/products/goahead/doc/index.html
 
-This software is copyrighted and distributed under license. Please read the LICENSE.md for details.
+This software is copyrighted and distributed under license. Please read the LICENSE.TXT for details.
 
 
 Table of Contents
@@ -83,8 +83,7 @@ Windows Release Details
 
 To install the Windows Installer image:
 
-   1. Login with administrator privileges. This is necessary as the binary 
-      installation needs to install a Windows Service.
+   1. Login with administrator privileges. 
 
    2. Use WinZip or equivalent software to extract the installation image. This
       will extract the README.TXT and setup.exe from the zip archive.
@@ -100,8 +99,7 @@ This is the procedure to remove GoAhead on all systems except Windows.
 
       sudo /usr/lib/goahead/latest/bin/uninstall
 
-If you installed the GoAhead Windows Installer image, follow these steps to remove GoAhead. If you installed the Tar
-self-install image, you will need to remove GoAhead using the procedure described above. 
+If you installed the GoAhead Windows Installer image, follow these steps to remove GoAhead.
 
    1. Login with administrator privileges
 
@@ -134,7 +132,7 @@ If you wish to rebuild the GoAhead product from the distributed source code, ple
 
 License and Copyright Information
 
-This software is supplied under license. Both a GNU and commercial license are available. Please read LICENSE.md for details. This documentation and the software described in this document may be used and copied only in accordance with the terms of the accompanying license agreement. Product and technical information in this document is subject to change without notice and does not represent a commitment on the part of Embedthis Software LLC.
+This software is supplied under license. Both a GNU and commercial license are available. Please read LICENSE.TXT for details. This documentation and the software described in this document may be used and copied only in accordance with the terms of the accompanying license agreement. Product and technical information in this document is subject to change without notice and does not represent a commitment on the part of Embedthis Software LLC.
 
 Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
 
