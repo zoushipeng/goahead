@@ -202,7 +202,7 @@
     #define BIT_INC_PREFIX "C:/Program Files/Embedthis GoAhead/inc"
 #endif
 #ifndef BIT_LOG_PREFIX
-    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/logs"
+    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/log"
 #endif
 #ifndef BIT_PRD_PREFIX
     #define BIT_PRD_PREFIX "C:/Program Files/Embedthis GoAhead"
