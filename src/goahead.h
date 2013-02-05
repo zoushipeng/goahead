@@ -463,6 +463,37 @@ typedef struct WebsBuf {
 } WebsBuf;
 
 /**
+    Add a trailing null to the buffer. The end pointer is not changed.
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+PUBLIC void bufAddNull(WebsBuf *bp);
+
+/**
+    Adjust the endp pointer by the specified size.
+    @description This is useful after manually copying data into the buffer and needing to adjust the end pointer.
+    @param bp Buffer reference
+    @param size Size of adjustment. May be positive or negative value.
+    @ingroup WebsBuf
+ */
+PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size);
+
+/**
+    Adjust the start (servp) reference
+    @param bp Buffer reference
+    @param count Number of bytes to adjust
+    @ingroup WebsBuf
+ */
+PUBLIC void bufAdjustStart(WebsBuf *bp, ssize count);
+
+/**
+    Compact the data in the buffer and move to the start of the buffer
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+PUBLIC void bufCompact(WebsBuf *bp);
+
+/**
     Create a buffer
     @param bp Buffer reference
     @param increment Incremental size to grow the buffer. This will be increased by a power of two each time
@@ -474,92 +505,19 @@ typedef struct WebsBuf {
 PUBLIC int bufCreate(WebsBuf *bp, int increment, int maxsize);
 
 /**
+    Flush all data in the buffer and reset the pointers.
+    @param bp Buffer reference
+    @ingroup WebsBuf
+ */
+PUBLIC void bufFlush(WebsBuf *bp);
+
+/**
     Free allocated storage for the buffer
     @param bp Buffer reference
     @return Zero if successful
     @ingroup WebsBuf
  */
 PUBLIC void bufFree(WebsBuf *bp);
-
-/**
-    Get the length of available data in the buffer
-    @param bp Buffer reference
-    @return Size of available data in bytes
-    @ingroup WebsBuf
- */
-PUBLIC ssize bufLen(WebsBuf *bp);
-
-/**
-    Append a character to the buffer at the endp position and increment the endp
-    @param bp Buffer reference
-    @param c Character to append
-    @return Zero if successful
-    @ingroup WebsBuf
- */
-PUBLIC int bufPutc(WebsBuf *bp, char c);
-
-/**
-    Insert a character to the buffer before the servp position and decrement the servp
-    @param bp Buffer reference
-    @param c Character to insert
-    @return Zero if successful
-    @ingroup WebsBuf
- */
-PUBLIC int bufInsertc(WebsBuf *bp, char c);
-
-/**
-    Append a string to the buffer at the endp position and increment the endp
-    @param bp Buffer reference
-    @param str String to append
-    @return Count of characters appended. Returns negative if there is an allocation error.
-    @ingroup WebsBuf
- */
-PUBLIC ssize bufPutStr(WebsBuf *bp, char *str);
-
-/**
-    Get a character from the buffer and increment the servp
-    @param bp Buffer reference
-    @return The next character or -1 if the buffer is empty
-    @ingroup WebsBuf
- */
-PUBLIC int bufGetc(WebsBuf *bp);
-
-/**
-    Grow the buffer by at least the required amount of room
-    @param bp Buffer reference
-    @param room Available size required after growing the buffer 
-    @return True if the buffer can be grown to have the required amount of room.
-    @ingroup WebsBuf
- */
-PUBLIC bool bufGrow(WebsBuf *bp, ssize room);
-
-/**
-    Put a block to the buffer.
-    @param bp Buffer reference
-    @param blk Block to append to the buffer
-    @param len Size of the block
-    @return Length of data appended. Should equal len.
-    @ingroup WebsBuf
- */
-PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
-
-/**
-    Determine the room available in the buffer. 
-    @description This returns the maximum number of bytes the buffer can absorb in a single block copy.
-    @param bp Buffer reference
-    @return Number of bytes of availble space. 
-    @ingroup WebsBuf
- */
-PUBLIC ssize bufRoom(WebsBuf *bp);
-
-/**
-    Adjust the endp pointer by the specified size.
-    @description This is useful after manually copying data into the buffer and needing to adjust the end pointer.
-    @param bp Buffer reference
-    @param size Size of adjustment. May be positive or negative value.
-    @ingroup WebsBuf
- */
-PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size);
 
 /**
     Copy a block of from the buffer and adjust the servp.
@@ -581,26 +539,66 @@ PUBLIC ssize bufGetBlk(WebsBuf *bp, char *blk, ssize len);
 PUBLIC ssize bufGetBlkMax(WebsBuf *bp);
 
 /**
-    Adjust the start (servp) reference
+    Get a character from the buffer and increment the servp
     @param bp Buffer reference
-    @param count Number of bytes to adjust
+    @return The next character or -1 if the buffer is empty
     @ingroup WebsBuf
  */
-PUBLIC void bufAdjustStart(WebsBuf *bp, ssize count);
+PUBLIC int bufGetc(WebsBuf *bp);
 
 /**
-    Flush all data in the buffer and reset the pointers.
+    Grow the buffer by at least the required amount of room
     @param bp Buffer reference
+    @param room Available size required after growing the buffer 
+    @return True if the buffer can be grown to have the required amount of room.
     @ingroup WebsBuf
  */
-PUBLIC void bufFlush(WebsBuf *bp);
+PUBLIC bool bufGrow(WebsBuf *bp, ssize room);
 
 /**
-    Compact the data in the buffer and move to the start of the buffer
+    Get the length of available data in the buffer
     @param bp Buffer reference
+    @return Size of available data in bytes
     @ingroup WebsBuf
  */
-PUBLIC void bufCompact(WebsBuf *bp);
+PUBLIC ssize bufLen(WebsBuf *bp);
+
+/**
+    Insert a character to the buffer before the servp position and decrement the servp
+    @param bp Buffer reference
+    @param c Character to insert
+    @return Zero if successful
+    @ingroup WebsBuf
+ */
+PUBLIC int bufInsertc(WebsBuf *bp, char c);
+
+/**
+    Append a character to the buffer at the endp position and increment the endp
+    @param bp Buffer reference
+    @param c Character to append
+    @return Zero if successful
+    @ingroup WebsBuf
+ */
+PUBLIC int bufPutc(WebsBuf *bp, char c);
+/**
+    Put a block to the buffer.
+    @param bp Buffer reference
+    @param blk Block to append to the buffer
+    @param len Size of the block
+    @return Length of data appended. Should equal len.
+    @ingroup WebsBuf
+ */
+PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
+
+
+/**
+    Append a string to the buffer at the endp position and increment the endp
+    @param bp Buffer reference
+    @param str String to append
+    @return Count of characters appended. Returns negative if there is an allocation error.
+    @ingroup WebsBuf
+ */
+PUBLIC ssize bufPutStr(WebsBuf *bp, char *str);
 
 /**
     Reset the buffer pointers to the start of the buffer if empty
@@ -610,11 +608,21 @@ PUBLIC void bufCompact(WebsBuf *bp);
 PUBLIC void bufReset(WebsBuf *bp);
 
 /**
-    Add a trailing null to the buffer. The end pointer is not changed.
+    Determine the room available in the buffer. 
+    @description This returns the maximum number of bytes the buffer can absorb in a single block copy.
     @param bp Buffer reference
+    @return Number of bytes of availble space. 
     @ingroup WebsBuf
  */
-PUBLIC void bufAddNull(WebsBuf *bp);
+PUBLIC ssize bufRoom(WebsBuf *bp);
+
+/**
+    Get a reference to the start of buffer data
+    @param bp Buffer reference
+    @return A string pointer.
+    @ingroup WebsBuf
+ */
+PUBLIC char *bufStart(WebsBuf *bp);
 
 /******************************* Malloc Replacement ***************************/
 #if BIT_GOAHEAD_REPLACE_MALLOC

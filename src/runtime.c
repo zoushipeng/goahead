@@ -1367,6 +1367,16 @@ PUBLIC ssize bufLen(WebsBuf *bp)
 
 
 /*
+    Return the reference to the start of data in the buffer
+ */
+PUBLIC char *bufStart(WebsBuf *bp)
+{
+    assert(bp);
+    return bp->servp;
+}
+
+
+/*
     Get a byte from the queue
  */
 PUBLIC int bufGetc(WebsBuf *bp)
