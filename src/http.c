@@ -1239,6 +1239,9 @@ static bool filterChunkData(Webs *wp)
             wp->rxChunkSize = chunkSize;
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
+#if BIT_GOAHEAD_LEGACY
+                wp->query = sclone(bufStart(&wp->input));
+#endif
                 wp->eof = 1;
                 return 1;
             }

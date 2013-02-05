@@ -46,7 +46,7 @@
             <h1>Quick Nav</h1>
             <ul>
                 <li><a href="#compatibility">GoAhead 3 Compatibility</a></li>
-                <li><a href="#support">Legacy Support</a></li>
+                <li><a href="#legacy">Legacy Support</a></li>
                 <li><a href="#changes">GoAhead 3 Changes</a></li>
                 <li><a href="#config">Migrating Config Files</a></li>
                 <li><a href="#modules">Migrating Modules</a></li>
@@ -76,14 +76,23 @@
             compatibility breaks we decided to make all the changes in one release. In this way we can ensure
             that GoAhead 3 quickly becomes a stable platform going forward. Please see our <a href=
                 "../../../product/compatibility.html">Compatibility Policy</a>.</p>
-            
-            <!--
-            <a id="support"></a>
-            <h3>Legacy GoAhead Support</h3>
-            <p>To address the needs of users for whom upgrading to GoAhead 3 will take some time, we intend to support
-            GoAhead 3 till the end of 2013 and to continue to issue updates and upgrades for GoAhead 3 during that
-            period. GoAhead 2 is now officially "end-of-life".</p>
-            -->
+
+            <h3>Legacy Support</h3>
+            <p>To aid migrating existing GoAhead 2.X applications, GoAhead 3.X can be built to support the old
+            GoAhead 2.X APIs. This is called legacy mode. In this mode, the old APIs are mapped to new APIs via 
+            compiler defines and shim APIs. For full details of the API mappings, see the BIT_GOAHEAD_LEGACY 
+            section in src/goahead.h.</p>
+
+            <p>GoAhead 3.X is built by default without legacy mode. You can enable legacy mode by configuring via:
+
+                <pre>configure --set goahead.legacy=true</pre>
+
+            or if building via make:
+                <pre>make BIT_GOAHEAD_LEGACY=1</pre>
+
+            <p>This will enable the legacy APIs and type names.  However, You are <span class="warn">strongly 
+                encouraged to fully migrate your application to the GoAhead 3.X APIs</span>
+                and to transition off the old GoAhead 2.X APIs. Note: GoAhead 2 is now officially "end-of-life".</p>
             
             <a id="changes"></a>
             <h2 class="section">Changes in GoAhead 3</h2>
@@ -111,9 +120,13 @@
                 <li>The EMF database has been removed. The new authentication framework does not utilize it.</li>
                 <li>The GoForm facility has been upgrade to the GoAction handler. The calling sequence for GoForms has
                     been modified and simplified.</li>
-                <li>POST request form data is no longer stored in the query field of the Webs structure. Query data and
+                    <li>POST request form data is only stored in the query field of the Webs structure if <a
+                        href="#legacy">Legacy</a> mode is 
+                    enabled. Without legacy mode, query data and
                     form body data are stored separately. Form data is stored in the 'input' field of the Webs structure.
-                    Code that accesses wp->query for GoForms will need to be modified.</li>
+                    Code that accesses wp->query for GoForms will need to be modified.
+                    In legacy mode, the input is also copied to the wp->query field.
+                </li>
                 <li>Request parameter variables are only created for POST requests if the request Content-Type is set to
                     application/x-www-form-urlencoded.</li>
                 <li>The build system is upgraded and simplified. It now uses the Ejscript Bit build system.
@@ -128,25 +141,13 @@
             <p>The internal APIs in GoAhead 3 have been upgraded. Some have been renamed and others modified.
             GoAhead 3 APIs have been renamed/converted on a function by function
             basis to equivalent APIs in GoAhead 2. Often, the APIs have very similar names to the previous counterpart.</p>
-            <p>To enable the old legacy APIs, configure with --set goahead.legacy=true", or "make BIT_GOAHEAD_LEGACY=1". 
-            Legacy APIs are enabled by default, but will be disabled in a future release.</p>
-
-            <h3>Building with Legacy APIs</h3>
-            <p>GoAhead is built by default to support the legacy API names. You can disable this and are encouraged to do so
-            via:
-                <pre>configure --set goahead.legacy=true</pre>
-            or
-                <pre>make BIT_GOAHEAD_LEGACY=0</pre>
-
-            <p>This will disable the legacy APIs and type names. You are strongly encouraged to fully migrate
-            your application fully to the current GoAhead 3 API names.</p>
 
             <p>Here is a partial list of changed APIs in GoAhead 3.X:
             <ul>
                 <li>balloc memory allocation routines renamed to walloc</li>
                 <li>g*() string routines mapped back to standard C library and Posix routines</li>
                 <li>hAlloc*() handle allocation routines mapped to wallocHandle</li>
-                <li>ASP renamed to JSP and websAsp* renamed to websJsp*</li>
+                <li>ASP renamed to JSP and websAsp* renamed to websJst*</li>
                 <li>GoForms renamed to Actions, /goforms renamed to /action</li>
                 <li>ringq*() renamed to buf*</li>
                 <li>sym*() renamed to hash*</li>

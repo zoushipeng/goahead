@@ -517,6 +517,11 @@ td.security {
 	color: #FFFFFF;
 }
 
+.warn {
+	font-weight: bold;
+	color: #FF0000;
+}
+
 table.directive td {
     padding: 6px 10px 6px 10px;
 }
