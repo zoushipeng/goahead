@@ -117,7 +117,7 @@ $(CONFIG)/obj/estLib.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/est.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) -I$(CONFIG)/inc src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 $(CONFIG)/bin/libest.so: \
     $(CONFIG)/inc/est.h \
@@ -141,105 +141,105 @@ $(CONFIG)/obj/action.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/action.c
+	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/action.c
 
 $(CONFIG)/obj/alloc.o: \
     src/alloc.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/alloc.c
+	$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/alloc.c
 
 $(CONFIG)/obj/auth.o: \
     src/auth.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/auth.c
+	$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/auth.c
 
 $(CONFIG)/obj/cgi.o: \
     src/cgi.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/cgi.c
+	$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/cgi.c
 
 $(CONFIG)/obj/crypt.o: \
     src/crypt.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/crypt.c
+	$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/crypt.c
 
 $(CONFIG)/obj/file.o: \
     src/file.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/file.c
+	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/file.c
 
 $(CONFIG)/obj/fs.o: \
     src/fs.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/fs.c
+	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/fs.c
 
 $(CONFIG)/obj/http.o: \
     src/http.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/http.c
 
 $(CONFIG)/obj/js.o: \
     src/js.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/js.c
+	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/js.c
 
 $(CONFIG)/obj/jst.o: \
     src/jst.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h
-	$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/jst.c
+	$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/jst.c
 
 $(CONFIG)/obj/options.o: \
     src/options.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/options.c
+	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/options.c
 
 $(CONFIG)/obj/osdep.o: \
     src/osdep.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/osdep.c
+	$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/osdep.c
 
 $(CONFIG)/obj/rom-documents.o: \
     src/rom-documents.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/rom-documents.c
+	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/rom-documents.c
 
 $(CONFIG)/obj/route.o: \
     src/route.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/route.c
+	$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/route.c
 
 $(CONFIG)/obj/runtime.o: \
     src/runtime.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/runtime.c
+	$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/runtime.c
 
 $(CONFIG)/obj/socket.o: \
     src/socket.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/socket.c
+	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/socket.c
 
 $(CONFIG)/obj/upload.o: \
     src/upload.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/upload.c
+	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/upload.c
 
 $(CONFIG)/obj/est.o: \
     src/ssl/est.c\
@@ -247,20 +247,20 @@ $(CONFIG)/obj/est.o: \
     $(CONFIG)/inc/goahead.h \
     src/deps/est/est.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/est.c
+	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/est.c
 
 $(CONFIG)/obj/matrixssl.o: \
     src/ssl/matrixssl.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/matrixssl.c
+	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/matrixssl.c
 
 $(CONFIG)/obj/openssl.o: \
     src/ssl/openssl.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/bitos.h \
     $(CONFIG)/inc/goahead.h
-	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc -Isrc/deps/est src/ssl/openssl.c
+	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/openssl.c
 
 $(CONFIG)/bin/libgo.so: \
     $(CONFIG)/inc/bitos.h \
@@ -293,7 +293,7 @@ $(CONFIG)/obj/goahead.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc src/goahead.c
+	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/goahead.c
 
 $(CONFIG)/bin/goahead: \
     $(CONFIG)/bin/libgo.so \
@@ -309,7 +309,7 @@ $(CONFIG)/obj/test.o: \
     $(CONFIG)/inc/goahead.h \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) -I$(CONFIG)/inc test/test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) $(IFLAGS) test/test.c
 
 $(CONFIG)/bin/goahead-test: \
     $(CONFIG)/bin/libgo.so \

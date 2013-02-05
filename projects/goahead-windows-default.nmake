@@ -113,7 +113,7 @@ $(CONFIG)\obj\estLib.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\est.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\deps\est\estLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
 $(CONFIG)\bin\libest.dll: \
     $(CONFIG)\inc\est.h \
@@ -127,7 +127,7 @@ $(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
 $(CONFIG)\obj\removeFiles.obj: \
     package\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc package\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
@@ -146,105 +146,105 @@ $(CONFIG)\obj\action.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\action.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\action.c
 
 $(CONFIG)\obj\alloc.obj: \
     src\alloc.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\alloc.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\alloc.c
 
 $(CONFIG)\obj\auth.obj: \
     src\auth.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\auth.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\auth.c
 
 $(CONFIG)\obj\cgi.obj: \
     src\cgi.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\cgi.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\cgi.c
 
 $(CONFIG)\obj\crypt.obj: \
     src\crypt.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\crypt.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\crypt.c
 
 $(CONFIG)\obj\file.obj: \
     src\file.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\file.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\file.c
 
 $(CONFIG)\obj\fs.obj: \
     src\fs.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\fs.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\fs.c
 
 $(CONFIG)\obj\http.obj: \
     src\http.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\http.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\http.c
 
 $(CONFIG)\obj\js.obj: \
     src\js.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\js.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\js.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\js.c
 
 $(CONFIG)\obj\jst.obj: \
     src\jst.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h \
     $(CONFIG)\inc\js.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\jst.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\jst.c
 
 $(CONFIG)\obj\options.obj: \
     src\options.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\options.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\options.c
 
 $(CONFIG)\obj\osdep.obj: \
     src\osdep.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\osdep.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\osdep.c
 
 $(CONFIG)\obj\rom-documents.obj: \
     src\rom-documents.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\rom-documents.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\rom-documents.c
 
 $(CONFIG)\obj\route.obj: \
     src\route.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\route.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\route.c
 
 $(CONFIG)\obj\runtime.obj: \
     src\runtime.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\runtime.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\runtime.c
 
 $(CONFIG)\obj\socket.obj: \
     src\socket.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\socket.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\socket.c
 
 $(CONFIG)\obj\upload.obj: \
     src\upload.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\upload.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\upload.c
 
 $(CONFIG)\obj\est.obj: \
     src\ssl\est.c\
@@ -252,20 +252,20 @@ $(CONFIG)\obj\est.obj: \
     $(CONFIG)\inc\goahead.h \
     src\deps\est\est.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\est.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\est.c
 
 $(CONFIG)\obj\matrixssl.obj: \
     src\ssl\matrixssl.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\matrixssl.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\matrixssl.c
 
 $(CONFIG)\obj\openssl.obj: \
     src\ssl\openssl.c\
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\bitos.h \
     $(CONFIG)\inc\goahead.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc -Isrc\deps\est src\ssl\openssl.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\openssl.c
 
 $(CONFIG)\bin\libgo.dll: \
     $(CONFIG)\inc\bitos.h \
@@ -298,7 +298,7 @@ $(CONFIG)\obj\goahead.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc src\goahead.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\goahead.c
 
 $(CONFIG)\bin\goahead.exe: \
     $(CONFIG)\bin\libgo.dll \
@@ -314,7 +314,7 @@ $(CONFIG)\obj\test.obj: \
     $(CONFIG)\inc\goahead.h \
     $(CONFIG)\inc\js.h \
     $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) -I$(CONFIG)\inc test\test.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) test\test.c
 
 $(CONFIG)\bin\goahead-test.exe: \
     $(CONFIG)\bin\libgo.dll \
