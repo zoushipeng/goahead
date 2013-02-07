@@ -44,6 +44,11 @@ Bit.load({
          */
         'without-default': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker' ],
 
+        /*
+            Set to true for a static link
+         */
+        static: false,
+
         goahead: {
             /*
                 Log for request access logging
@@ -239,8 +244,6 @@ Bit.load({
         libgo: {
             enable: true,
             type: 'lib',
-            /* Xcode projects can't yet handle static builds */
-            _static: 'true',
             sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,

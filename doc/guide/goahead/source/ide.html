@@ -38,20 +38,15 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt; <b>Source Code</b>
+             &gt;<a href="index.html">Source Code</a>&gt; <b>Building with an IDE</b>
         </div>
     </div>
     <div class="content">
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#building">Building</a></li>
-                <li><a href="#porting">Porting</a></li>
-                <li><a href="#get">Getting the Source</a></li>
-                <li><a href="#repository">Repository</a></li>
                 <li><a href="make.html">Building with Make</a></li>
                 <li><a href="bit.html">Building with Bit</a></li>
-                <li><a href="ide.html">Building with an ID</a></li>
             </ul>
 <!-- BeginDsi "dsi/sourceSeeAlso.html" -->
             <h1>See Also</h1>
@@ -69,55 +64,21 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
-            <h1>Working with the GoAhead Source Code</h1>
-            <p>GoAhead releases are available as either a binary or source code distribution. It is your choice which
-            distribution you choose, but the source code distribution has several advantages:</p>
-            <ul>
-                <li>You can recompile GoAhead to optimize it for your specific system environment.</li>
-                <li>You can reconfigure GoAhead via configuration options to select the specific
-                feature set you require.</li>
-                <li>You can minimize the memory footprint and decrease the securable surface area.</li>
-            </ul>
+            <h2 class="section">Building with an IDE</h2>
+            <p>GoAhead provides Visual Studio and Xcode projects. These projects are provide easy access to debug
+            GoAhead using the native system debugger. The projects are somewhat limited in their configurability.</p>
             
-            <a id="building"></a>
-            <h2>Building GoAhead from Source</h2>
-            <p>The GoAhead source distribution contains all the required source files, headers, tools, and test framework
-            to reconfigure, build, and verify GoAhead. For details, see the <a href="building.html">building from
-                source</a> instructions.</p>
-            
-            <a id="porting"></a>
-            <h2>Porting the Source to a New Platform</h2>
-            <p>GoAhead currently runs on a wide variety of operating platforms including: FreeBSD, Linux, MAC OS X and
-            Windows. If your system is not one of these, you may like to try porting GoAhead to your system. See the
-            detailed <a href="porting.html">porting instructions</a> for tips on this process.</p>
-            <a id="get"></a>
-            <h2>Getting the Source Code</h2>
-            <p>With each GoAhead release, a complete source code snapshot is provided. You can get the latest source
-            code from the <a href="http://embedthis.com/downloads/goahead/download.ejs">download</a> site or you can
-            access the <a href="https://github.com/embedthis/goahead">source code repository</a>.</p>
-            <a id="repository"></a>
-            <h3>Source Repository</h3>
-            <p>The GoAhead source code is hosted in a Git repository. We provide open read-only access. Write
-            access is available to regular contributing developers. To check out the source use this command:</p>
-            <pre>
-$ git clone http://github.com/embedthis/goahead
-</pre>
-            <p>You can also view the repository at <a
-                href="https://github.com/embedthis/goahead">https://github.com/embedthis/goahead</a>. This is also a
-            convenient way to get the source code. </p>
-            <h3>Repository Branches</h3>
-            The repository has three branches for various phases of development and release: Master, Dev and Stable. 
-            <h4>Master Branch</h4>
-            The Master branch in the repository source code is the code base for the next minor and major release. It 
-            will contain the latest features and fixes, but it will also contain bugs and issues that have not been 
-            resolved. For this reason use of the repository source code is not recommended for production or development use.  
-            <h4>Dev Branch</h4>
-            <p>The Dev branch is updated when the Master branch is relatively steady and usable, but prior to release.
-            The Dev branch is used to create Beta releases. It is not as bug-free as the Stable branch and yet has most
-            of the features in the master branch.</p>
-            <h4>Stable Branch</h4>
-            <p>The stable branch is for ongoing maintenance of the current stable release.</p>
-
+            <h2>Building with Visual Studio on Windows</h2>
+            <p>To build GoAhead with the Visual Studio project, 
+            run Visual Studio 2010 or later (The Express editions are fine to use). Then open the
+            projects/goahead-windows.sln solution project. Select Build Solution to build. Select GoAhead as the start up
+            project to debug.</p>
+            <h2>Building with Xcode on MAC OS X</h2>
+            <p>To build GoAhead with the Xcode on Mac OSX, run Xcode and open the
+            <em>projects/goahead-macosx.xcodeproj</em> project. Then select Product-&gt;Build to build. 
+            To debug, you will need to create use Product-&gt;Edit Scheme to set the executable to run under the Info tab,
+            and define the working directory under the Options tab. Set the working directory to the "test" directory of the
+            source tree. </p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

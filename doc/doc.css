@@ -148,16 +148,21 @@ div.content ol li {
 
 div.content ul.nav li {
 	font-size: 100%;
-	line-height: 140%; 
+	line-height: 180%; 
 	margin: 0;
     padding: 0;
 }
+
+div.contentRight a {
+    text-decoration: none
+}
+
 
 /*
     Home page
  */
 div.homeLeft {
-	width: 33%;
+	width: 31%;
 	float: left;
 	padding-right: 10px;
 }
@@ -171,11 +176,13 @@ div.contentHome h1 {
 
 div.homeMiddle {
 	min-height: 300px;
+	float: left;
+    width: 32%;
 }
 
 div.homeRight { 
 	width: 31%;
-	float: right;
+	float: left;
 	margin: 0 0 0 10px;
 	padding: 0 10px 0 20px;
 	text-decoration: none;
@@ -184,6 +191,9 @@ div.homeRight {
     background-color: #FFFFFF;
 }
 
+footer {
+    clear: both;
+}
 
 div.contentLeft {
 	width: 75%;
@@ -569,11 +579,13 @@ tt,em,i {
 }
 
 #latestVersion {
+    maring: 0;
     border: none;
-    padding-bottom: 0;
-    margin: 0;
-    width: 60px;
-    height: 13px;
+    padding: 0;
+    width: 80px;
+    height: 16px;
+    vertical-align: text-bottom;
+    display: inline;
 }
 
 .nowrap {
