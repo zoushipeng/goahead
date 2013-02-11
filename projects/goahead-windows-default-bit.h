@@ -175,6 +175,9 @@
 #ifndef BIT_SSL
     #define BIT_SSL 1
 #endif
+#ifndef BIT_STATIC
+    #define BIT_STATIC 0
+#endif
 #ifndef BIT_SYNC
     #define BIT_SYNC "bitos,est"
 #endif
