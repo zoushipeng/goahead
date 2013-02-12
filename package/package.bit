@@ -5,7 +5,7 @@
 Bit.load({
     targets: {
         removeFiles: {
-            enable: bit.platform.like == 'windows',
+            enable: "bit.platform.like == 'windows'",
             type: 'exe',
             rule: 'gui'
             sources: [ 'windows/removeFiles.c' ],

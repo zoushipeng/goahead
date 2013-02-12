@@ -268,7 +268,7 @@ Bit.load({
             Target for unit tests. Includes ASP and form callbacks
          */
         'goahead-test': {
-            enable: bit.settings.profile != 'release',
+            enable: "bit.settings.profile != 'release'",
             type: 'exe',
             sources: [ 'test/test.c' ],
             headers: [ 'src/*.h' ],
