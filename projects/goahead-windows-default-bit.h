@@ -166,6 +166,9 @@
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
 #endif
+#ifndef BIT_PREFIXES
+    #define BIT_PREFIXES "embedthis-prefixes"
+#endif
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"
 #endif
@@ -195,38 +198,56 @@
 #endif
 
 /* Prefixes */
-#ifndef BIT_CFG_PREFIX
-    #define BIT_CFG_PREFIX "C:/Program Files/Embedthis GoAhead"
+#ifndef BIT_ROOT_PREFIX
+    #define BIT_ROOT_PREFIX "/"
+#endif
+#ifndef BIT_BASE_PREFIX
+    #define BIT_BASE_PREFIX "/usr/local"
+#endif
+#ifndef BIT_DATA_PREFIX
+    #define BIT_DATA_PREFIX "/"
+#endif
+#ifndef BIT_STATE_PREFIX
+    #define BIT_STATE_PREFIX "/var"
+#endif
+#ifndef BIT_PRODUCT_PREFIX
+    #define BIT_PRODUCT_PREFIX "/usr/local/lib/goahead"
+#endif
+#ifndef BIT_PRODUCTVER_PREFIX
+    #define BIT_PRODUCTVER_PREFIX "/usr/local/lib/goahead/3.1.0"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
+    #define BIT_BIN_PREFIX "/usr/local/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "C:/Program Files/Embedthis GoAhead/inc"
+    #define BIT_INC_PREFIX "/usr/local/include"
 #endif
-#ifndef BIT_LOG_PREFIX
-    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/log"
-#endif
-#ifndef BIT_PRD_PREFIX
-    #define BIT_PRD_PREFIX "C:/Program Files/Embedthis GoAhead"
-#endif
-#ifndef BIT_SPL_PREFIX
-    #define BIT_SPL_PREFIX "C:/Program Files/Embedthis GoAhead/tmp"
-#endif
-#ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "C:/Program Files/Embedthis GoAhead/src"
-#endif
-#ifndef BIT_VER_PREFIX
-    #define BIT_VER_PREFIX "C:/Program Files/Embedthis GoAhead"
-#endif
-#ifndef BIT_WEB_PREFIX
-    #define BIT_WEB_PREFIX "C:/Program Files/Embedthis GoAhead/web"
-#endif
-#ifndef BIT_UBIN_PREFIX
-    #define BIT_UBIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
+#ifndef BIT_LIB_PREFIX
+    #define BIT_LIB_PREFIX "/usr/local/lib"
 #endif
 #ifndef BIT_MAN_PREFIX
-    #define BIT_MAN_PREFIX "C:/Program Files/Embedthis GoAhead/man"
+    #define BIT_MAN_PREFIX "/usr/local/share/man"
+#endif
+#ifndef BIT_SBIN_PREFIX
+    #define BIT_SBIN_PREFIX "/usr/local/sbin"
+#endif
+#ifndef BIT_ETC_PREFIX
+    #define BIT_ETC_PREFIX "/etc/goahead"
+#endif
+#ifndef BIT_WEB_PREFIX
+    #define BIT_WEB_PREFIX "/var/www/goahead-default"
+#endif
+#ifndef BIT_LOG_PREFIX
+    #define BIT_LOG_PREFIX "/var/log/goahead"
+#endif
+#ifndef BIT_SPOOL_PREFIX
+    #define BIT_SPOOL_PREFIX "/var/spool/goahead"
+#endif
+#ifndef BIT_CACHE_PREFIX
+    #define BIT_CACHE_PREFIX "/var/cache/goahead"
+#endif
+#ifndef BIT_SRC_PREFIX
+    #define BIT_SRC_PREFIX "/usr/local/src/goahead-3.1.0"
 #endif
 
 /* Suffixes */

@@ -17,26 +17,26 @@ LD              := /usr/bin/ld
 CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
 LBIN            := $(CONFIG)/bin
 
-BIT_ROOT_PREFIX := /
-BIT_BASE_PREFIX := $(BIT_ROOT_PREFIX)deploy
-BIT_CFG_PREFIX  := $(BIT_VER_PREFIX)
-BIT_PRD_PREFIX  := $(BIT_BASE_PREFIX)
-BIT_VER_PREFIX  := $(BIT_PRD_PREFIX)
-BIT_BIN_PREFIX  := $(BIT_VER_PREFIX)
-BIT_LIB_PREFIX  := $(BIT_VER_PREFIX)
-BIT_INC_PREFIX  := $(BIT_VER_PREFIX)/inc
-BIT_LOG_PREFIX  := $(BIT_VER_PREFIX)
-BIT_SPL_PREFIX  := $(BIT_VER_PREFIX)
-BIT_SRC_PREFIX  := $(BIT_ROOT_PREFIX)usr/src/$(PRODUCT)-$(VERSION)
-BIT_WEB_PREFIX  := $(BIT_VER_PREFIX)/web
-BIT_UBIN_PREFIX := $(BIT_VER_PREFIX)
-BIT_MAN_PREFIX  := $(BIT_VER_PREFIX)
+BIT_ROOT_PREFIX       := deploy
+BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)
+BIT_CONFIG_PREFIX     := $(BIT_VER_PREFIX)
+BIT_PRODUCT_PREFIX    := $(BIT_BASE_PREFIX)
+BIT_PRODUCTVER_PREFIX := $(BIT_PRD_PREFIX)
+BIT_BIN_PREFIX        := $(BIT_VER_PREFIX)
+BIT_LIB_PREFIX        := $(BIT_VER_PREFIX)
+BIT_INC_PREFIX        := $(BIT_VER_PREFIX)/inc
+BIT_LOG_PREFIX        := $(BIT_VER_PREFIX)
+BIT_SPOOL_PREFIX      := $(BIT_VER_PREFIX)
+BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)usr/src/$(PRODUCT)-$(VERSION)
+BIT_WEB_PREFIX        := $(BIT_VER_PREFIX)/web
+BIT_UBIN_PREFIX       := $(BIT_VER_PREFIX)
+BIT_MAN_PREFIX        := $(BIT_VER_PREFIX)
 
-CFLAGS          += -fno-builtin -fno-defer-pop -fvolatile  -w
-DFLAGS          += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL  -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
+CFLAGS          += -fno-builtin -fno-defer-pop -fvolatile -w
+DFLAGS          += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip
 LDFLAGS         += '-Wl,-r'
-LIBPATHS        += -L$(CONFIG)/bin -L$(CONFIG)/bin
+LIBPATHS        += -L$(CONFIG)/bin
 LIBS            += 
 
 DEBUG           := debug

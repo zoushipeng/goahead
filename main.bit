@@ -26,8 +26,14 @@ Bit.load({
         company: 'Embedthis',
         version: '3.1.0',
         buildNumber: '1',
+        bit: '0.8.1',
         sync: [ 'bitos', 'est' ],
         packs: [ 'bits/packs' ],
+
+        /*
+            Installation prefix set
+         */
+        prefixes: 'embedthis-prefixes',
 
         /*
             Optional packs to automatically discover and configure
@@ -236,6 +242,14 @@ Bit.load({
         'goahead.upload':             'Enable file upload (true|false)',
         'goahead.uploadDir':          'Define directory for uploaded files (path)',
     },
+
+    customize: [
+        /* 
+            The optional custom.bit file is loaded after main.bit is fully processed. It can
+            thus override any setting. Feel free to create and customize. 
+         */
+        'custom.bit',
+    ],
 
     targets: {
         /*
