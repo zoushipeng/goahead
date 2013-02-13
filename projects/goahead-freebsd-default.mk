@@ -17,8 +17,8 @@ BIT_ROOT_PREFIX       := /
 BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)usr/local
 BIT_DATA_PREFIX       := $(BIT_ROOT_PREFIX)
 BIT_STATE_PREFIX      := $(BIT_ROOT_PREFIX)var
-BIT_PRODUCT_PREFIX    := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
-BIT_PRODUCTVER_PREFIX := $(BIT_PRD_PREFIX)/$(VERSION)
+BIT_APP_PREFIX        := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
+BIT_VAPP_PREFIX       := $(BIT_APP_PREFIX)/$(VERSION)
 BIT_BIN_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/bin
 BIT_INC_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/include
 BIT_LIB_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/lib
@@ -62,7 +62,7 @@ all compile: prep \
 
 prep:
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
-	@if [ "$(BIT_PRD_PREFIX)" = "" ] ; then echo WARNING: BIT_PRD_PREFIX not set ; exit 255 ; fi
+	@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
@@ -328,22 +328,22 @@ version:
 	@echo 3.1.0-1
 
 deploy: compile
-	rm -f $(BIT_UBIN_PREFIX)/bit
-	mkdir -p '$(BIT_CFG_PREFIX)' '$(BIT_BIN_PREFIX)' '$(BIT_WEB_PREFIX)' '$(BIT_VER_PREFIX)/man/man1'
-	cp src/auth.txt src/route.txt $(BIT_CFG_PREFIX)
-	cp -R -P ./$(CONFIG)/bin/goahead ./$(CONFIG)/bin/ca.crt ./$(CONFIG)/bin/lib* $(BIT_BIN_PREFIX)
+	rm -f $(BIT_BIN_PREFIX)/bit
+	mkdir -p '$(BIT_ETC_PREFIX)' '$(BIT_VAPP_PREFIX)/bin' '$(BIT_WEB_PREFIX)' '$(BIT_VAPP_PREFIX)/man/man1'
+	cp src/auth.txt src/route.txt $(BIT_ETC_PREFIX)
+	cp -R -P ./$(CONFIG)/bin/goahead ./$(CONFIG)/bin/ca.crt ./$(CONFIG)/bin/lib* $(BIT_VAPP_PREFIX)/bin
 	cp -R -P src/web/index.html $(BIT_WEB_PREFIX)
-	rm -f $(BIT_PRD_PREFIX)/latest
-	ln -s $(VERSION) $(BIT_PRD_PREFIX)/latest
-	for n in goahead gopass webcomp ; do rm -f $(BIT_UBIN_PREFIX)/$$n ; ln -s $(BIT_BIN_PREFIX)/$$n $(BIT_UBIN_PREFIX)/$$n ; done
-	for n in goahead.1 gopass.1 webcomp.1; do rm -f $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; cp doc/man/$$n $(BIT_VER_PREFIX)/man/man1 ; ln -s $(BIT_VER_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/$$n ; done
+	rm -f $(BIT_APP_PREFIX)/latest
+	ln -s $(VERSION) $(BIT_APP_PREFIX)/latest
+	for n in goahead gopass webcomp ; do rm -f $(BIT_BIN_PREFIX)/$$n ; ln -s $(BIT_VAPP_PREFIX)/bin/$$n $(BIT_BIN_PREFIX)/$$n ; done
+	for n in goahead.1 gopass.1 webcomp.1; do rm -f $(BIT_VAPP_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/man1/$$n ; cp doc/man/$$n $(BIT_VAPP_PREFIX)/man/man1 ; ln -s $(BIT_VAPP_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/man1/$$n ; done
 
 install: compile deploy
 	
 
 uninstall: 
-	rm -fr $(BIT_CFG_PREFIX) $(BIT_PRD_PREFIX)
-	for n in goahead gopass webcmop; do rm -f $(BIT_UBIN_PREFIX)/$$n ; done
-	for n in $(BIT_VER_PREFIX)/man/man1/*.1; do base=`basename $$n` ; rm -f $(BIT_MAN_PREFIX)/$$base ; done
-	rm -fr '$(BIT_CFG_PREFIX)' '$(BIT_PRD_PREFIX)' '$(BIT_WEB_PREFIX)'
+	rm -fr $(BIT_ETC_PREFIX) $(BIT_APP_PREFIX)
+	for n in goahead gopass webcmop; do rm -f $(BIT_BIN_PREFIX)/$$n ; done
+	for n in $(BIT_VAPP_PREFIX)/man/man1/*.1; do base=`basename $$n` ; rm -f $(BIT_MAN_PREFIX)/man1/$$base ; done
+	rm -fr '$(BIT_ETC_PREFIX)' '$(BIT_APP_PREFIX)' '$(BIT_WEB_PREFIX)'
 

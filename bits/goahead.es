@@ -40,13 +40,13 @@ public function packageDeploy(minimal = false) {
             if (bit.platform.os == 'windows') {
                 install('package/windows/LICENSE.TXT', binrel, {fold: true, expand: true})
             }
-            install(['doc/licenses/*.txt'], p.product.join('LICENSE.TXT'), {
+            install(['doc/licenses/*.txt'], p.app.join('LICENSE.TXT'), {
                 cat: true,
                 textfile: true,
                 fold: true,
                 title: bit.settings.title + ' Licenses',
             })
-            install('doc/product/README.TXT', p.product, {fold: true, expand: true})
+            install('doc/product/README.TXT', p.app, {fold: true, expand: true})
             install('package/uninstall.sh', pbin.join('uninstall'), {permissions: 0755, expand: true})
             install('package/linkup', pbin, {permissions: 0755})
         }

@@ -7,6 +7,9 @@
 
 
 /* Settings */
+#ifndef BIT_BIT
+    #define BIT_BIT "0.8.1"
+#endif
 #ifndef BIT_BUILD_NUMBER
     #define BIT_BUILD_NUMBER "1"
 #endif
@@ -234,11 +237,11 @@
 #ifndef BIT_STATE_PREFIX
     #define BIT_STATE_PREFIX "/var"
 #endif
-#ifndef BIT_PRODUCT_PREFIX
-    #define BIT_PRODUCT_PREFIX "/usr/local/lib/goahead"
+#ifndef BIT_APP_PREFIX
+    #define BIT_APP_PREFIX "/usr/local/lib/goahead"
 #endif
-#ifndef BIT_PRODUCTVER_PREFIX
-    #define BIT_PRODUCTVER_PREFIX "/usr/local/lib/goahead/3.1.0"
+#ifndef BIT_VAPP_PREFIX
+    #define BIT_VAPP_PREFIX "/usr/local/lib/goahead/3.1.0"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"
