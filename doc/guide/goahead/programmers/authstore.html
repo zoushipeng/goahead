@@ -38,44 +38,66 @@
         <div class="crumbs">
             <a href="../../../index.html">Home</a>
 <!-- EndDsi -->
-             &gt; <b>Programmers Guide</b>
+             &gt; <a href="index.html">Programming Guide</a> &gt; <b>Creating Password Store Verifiers</b>
         </div>
     </div>
     <div class="content">
-        <div class="contentRight"></div>
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#processing">Request Processing</a></li>
+                <li><a href="#responses">Generating Responses</a></li>
+                <li><a href="#errors">Generating Errors</a></li>
+                <li><a href="#redirecting">Redirecting</a></li>
+                <li><a href="#paradigms">Response Paradigms</a></li>
+                <li><a href="#coding">Coding Issues</a></li>
+                <li><a href="#defining">Defining a Handler</a></li>
+                <li><a href="#more">More Info</a></li>
+            </ul>
+<!-- BeginDsi "dsi/progGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/programmers/index.html">Programmers Guide</a></li>
+                <li><a href="../../../guide/goahead/programmers/embedding.html">Embedding GoAhead</a></li>
+                <li><a href="../../../guide/goahead/programmers/handlers.html">Custom Handlers</a></li>
+                <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
+                <li><a href="../../../guide/goahead/programmers/rom.html">ROM Content</a></li>
+                <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
         <div class="contentLeft">
-            <h1>Programmer's Guide</h1>
-            <p>The Programmer's Guide has sections on the following topics</p>
-            <table title="Programmer's Guide">
-                <thead>
-                    <tr>
-                        <th>Topic</th>
-                        <th>Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td><a href="embedding.html">Embedding GoAhead</a></td>
-                        <td>Embedding GoAhead in applications</td>
-                    </tr>
-                    <tr>
-                        <td><a href="handlers.html">GoAhead Handlers</a></td>
-                        <td>Extending GoAhead via Handlers</td>
-                    </tr>
-                    <tr>
-                        <td><a href="authstore.html">Password Store Verifiers</a></td>
-                        <td>Using custom password stores</td>
-                    </tr>
-                    <tr>
-                        <td><a href="migrating.html">Migrating</a></td>
-                        <td>Migrating from earlier versions to GoAhead 3</td>
-                    </tr>
-                    <tr>
-                        <td><a href="rom.html">ROM Content</a></td>
-                        <td>Converting files into C code and serving pages from ROM</td>
-                    </tr>
-                </tbody>
-            </table>
+            <h1>Creating Password Store Verifiers</h1>
+            <p>You can use a custom password store with GoAhead by defining a password verifier routine.
+            and then establishing it via the <a
+                href="../../../api/goahead.html#group___webs_auth_1gac050abeadb21db4a90197eab284b115b">websSetPasswordStoreVerify</a> API.
+
+            <p>Here is a sample verify routine that you can use as a starter:</p>
+            <pre>
+static bool verifyPassword(Webs *wp)
+{
+    char    *password, *roles;
+
+    /*
+        If using Digest auth, compare the digest of the password
+     */
+    password = (wp->digest) ? wp->digest : wp->user->password;
+    if (!CHECK_PASSWORD(wp->username, password, &roles)) {
+        return 0;
+    }
+    /*
+        Create the user inside GoAhead and set the user roles/abilities
+     */
+    if ((wp->user = websLookupUser(wp->username)) == 0) {
+        if ((wp->user = websAddUser(wp->username, 0, roles)) == 0) {
+            return 0;
+        }
+        websSetUserRoles(wp->username, roles);
+    }
+    return 1;
+}
+</pre>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

@@ -1260,6 +1260,12 @@ PREDEFINED             = WIN=1 \
                          BIT_UNIX_LIKE=1 \
                          BIT_ASSERT=1 \
                          BIT_FLOAT=1 \
+                         BIT_GOAHEAD_LOGGING=1 \
+                         BIT_GOAHEAD_TRACING=1 \
+                         BIT_GOAHEAD_CGI=1 \
+                         BIT_GOAHEAD_UPLOAD=1 \
+                         BIT_GOAHEAD_JAVASCRIPT=1 \
+                         BIT_GOAHEAD_AUTH=1 \
                          BIT_PACK_SSL=1 \
                          BIT_PACK_OPENSSL=1 \
                          BIT_PACK_MATRIXSSL=1 \

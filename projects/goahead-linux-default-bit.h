@@ -31,6 +31,9 @@
 #ifndef BIT_GOAHEAD_AUTH
     #define BIT_GOAHEAD_AUTH 1
 #endif
+#ifndef BIT_GOAHEAD_AUTH_STORE
+    #define BIT_GOAHEAD_AUTH_STORE "pam"
+#endif
 #ifndef BIT_GOAHEAD_AUTO_LOGIN
     #define BIT_GOAHEAD_AUTO_LOGIN 0
 #endif
@@ -117,9 +120,6 @@
 #endif
 #ifndef BIT_GOAHEAD_LOGGING
     #define BIT_GOAHEAD_LOGGING 1
-#endif
-#ifndef BIT_GOAHEAD_PAM
-    #define BIT_GOAHEAD_PAM 0
 #endif
 #ifndef BIT_GOAHEAD_PUT_DIR
     #define BIT_GOAHEAD_PUT_DIR "/tmp"

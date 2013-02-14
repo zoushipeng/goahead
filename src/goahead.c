@@ -326,7 +326,6 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 
 #endif
 
-
 /*
     @copy   default
 

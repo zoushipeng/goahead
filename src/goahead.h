@@ -3093,11 +3093,11 @@ PUBLIC void websCloseAuth();
 PUBLIC void websComputeAllUserAbilities();
 
 /**
-    Get the users hash
-    @return The users hash object
+    Set the password store verify callback
+    @return verify WebsVerify callback function
     @ingroup WebsAuth
  */
-PUBLIC WebsHash websGetUsers();
+PUBLIC WebsVerify websGetPasswordStoreVerify();
 
 /**
     Get the roles hash
@@ -3105,6 +3105,13 @@ PUBLIC WebsHash websGetUsers();
     @ingroup WebsAuth
  */
 PUBLIC WebsHash websGetRoles();
+
+/**
+    Get the users hash
+    @return The users hash object
+    @ingroup WebsAuth
+ */
+PUBLIC WebsHash websGetUsers();
 
 /**
     Login a user by verifying the login credentials.
@@ -3150,6 +3157,13 @@ PUBLIC int websRemoveUser(char *name);
 PUBLIC int websOpenAuth(int minimal);
 
 /**
+    Set the password store verify callback
+    @param verify WebsVerify callback function
+    @ingroup WebsAuth
+ */
+PUBLIC void websSetPasswordStoreVerify(WebsVerify verify);
+
+/**
     Define the set of roles for a user
     @param username User name
     @param roles Space separated list of roles or abilities
@@ -3159,21 +3173,29 @@ PUBLIC int websOpenAuth(int minimal);
 PUBLIC int websSetUserRoles(char *username, char *roles);
 
 /**
-    Standard user password verification routine.
+    User password verification routine from a custom password back-end store.
     @param wp Webs request object
     @return True if the user password verifies.
     @ingroup WebsAuth
  */
-PUBLIC bool websVerifyPassword(Webs *wp);
+PUBLIC bool websVerifyPasswordFromCustom(Webs *wp);
 
-#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
+/**
+    User password verification routine from auth.txt
+    @param wp Webs request object
+    @return True if the user password verifies.
+    @ingroup WebsAuth
+ */
+PUBLIC bool websVerifyPasswordFromFile(Webs *wp);
+
+#if BIT_HAS_PAM
 /**
     Verify a password using the system PAM password database.
     @param wp Webs request object
     @return True if the user password verifies.
     @ingroup WebsAuth
  */
-PUBLIC bool websVerifyPamPassword(Webs *wp);
+PUBLIC bool websVerifyPasswordFromPam(Webs *wp);
 #endif
 
 #endif /* BIT_GOAHEAD_AUTH */

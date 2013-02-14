@@ -67,6 +67,11 @@ Bit.load({
             auth: true,
 
             /*
+                Select the password store mechanism. Set to: pam, file, custom
+             */
+            authStore: "pam",
+
+            /*
                 Automatically login. Useful for debugging.
              */
             autoLogin: false,
@@ -151,11 +156,6 @@ Bit.load({
              */
             logging: true,
             logfile: "stderr:0",
-
-            /*
-                Use PAM (Plugable Authentication Module) to store passwords
-             */
-            pam: false,
 
             /*
                 Temporary directory to hold PUT files
@@ -262,6 +262,13 @@ Bit.load({
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
             depends: [ 'est', 'openssl', 'matrixssl' ],
+            scripts: {
+                prebuild: "
+                    if (bit.settings.hasPam && bit.settings.goahead.authStore == 'pam') {
+                        bit.target.libraries.push('pam')
+                    }                                                                                      
+                ",  
+            },
         },
 
         goahead: {
@@ -271,7 +278,7 @@ Bit.load({
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam && bit.settings.pam) {
+                    if (bit.settings.hasPam && bit.settings.goahead.authStore == 'pam') {
                         bit.target.libraries.push('pam')
                     }                                                                                      
                 ",  
@@ -289,7 +296,7 @@ Bit.load({
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam && bit.settings.pam) {
+                    if (bit.settings.hasPam && bit.settings.goahead.authStore == 'pam') {
                         bit.target.libraries.push('pam')
                     }                                                                                      
                 ",  

@@ -105,12 +105,9 @@ nmake -f projects\goahead-windows.nmake
             <pre>$ make <b>BIT_PACK_SQLITE=0</b> </pre>
             <p>To see the list of configurable options, run:</p>
             <pre>$ <b>make help</b>
-
 usage: make [clean, compile, deploy, install, run, uninstall]
-
 With make, the default configuration can be modified by setting make
 variables. Set to 0 to disable and 1 to enable:
-
   PROFILE                         # Select default or static for static linking
   BIT_GOAHEAD_ACCESS_LOG          # Enable request access log (true|false)
   BIT_GOAHEAD_CA_FILE             # File of client certificates (path)
@@ -154,11 +151,8 @@ variables. Set to 0 to disable and 1 to enable:
   BIT_PACK_MATRIXSSL              # Enable the MatrixSSL SSL stack
   BIT_PACK_OPENSSL                # Enable the OpenSSL SSL stack
   BIT_ROM                         # Build for ROM without a file system
-
 For example, to disable CGI:
-
   make BIT_GOAHEAD_CGI=0
-
 Other make variables:
   ARCH               # CPU architecture (x86, x64, ppc, ...)
   OS                 # Operating system (linux, macosx, windows, vxworks, ...)
@@ -173,7 +167,6 @@ Other make variables:
   LIBPATHS           # Add linker library search directories. For example: -L/libraries
   LIBS               # Add linker libraries. For example: -lpthreads
   PROFILE            # Build profile, used in output products directory name
-
 </pre>
             <p>By defining the make variables such as CC and CFLAGS, you can modify the compiler options. This is the
             technique used when cross-compiling. For more details, see <a href="#cross">Cross Compiling</a> below.</p>
@@ -187,7 +180,6 @@ sudo make uninstall
 </pre>
             <p>If you need to capture the build products only, you can deploy to a specific directory via:
             <pre>make BIT_ROOT_DIR=/tmp/output deploy</pre>
-
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for platform different to that of the local system is called <em>cross compiling</em>.

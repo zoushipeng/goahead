@@ -116,7 +116,6 @@
             <p>The generated Bit files are readable Javascript files that contain the settings to control the build
             when Bit is run. When compiling, source code may include the <em>bit.h</em> header to read the 
             GoAhead configuration.</p>
-
             <a id="options"></a>
             <h2 class="section">Configure Options</h2>
             <p>The tables below describe the key configuration options.
@@ -587,7 +586,6 @@ bit clean      # Clean all built targets
 bit rebuild    # Rebuild all targets
 bit install    # Install the built software locally
 bit help       # Show bit usage</pre>
-
             <a name="static"></a>
             <h2 class="section">Static Linking</h2>
             <p>On some platforms, it is desirable to statically link the GoAhead web server. The default GoAhead Bit files
@@ -610,7 +608,6 @@ configure --rom
 bit
 </pre>
             <p>See <a href="../programmers/rom.html">Serving Pages from ROM</a> for more information.</p>
-
             <a id="installing"></a>
             <h2 class="section">Installing</h2>
             <p>You can install the newly built software via bit:</p>
@@ -660,7 +657,6 @@ configure --debug --platform linux-arm-arm7
             <pre>bit package</pre>
             <p>The release packages are placed under the <em>releases</em> directory. The <em>goahead-tar.tgz</em> image is a
             simple compressed tar archive of the binary release.
-
             <p>If you are embedding appweb into another application, you can deploy the required Appweb files to a staging
             directory. If you need to capture the build products only, you can deploy to a specific directory via: 
                 <pre>make BIT_ROOT_DIR=/tmp/output deploy</pre>

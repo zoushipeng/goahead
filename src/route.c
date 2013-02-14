@@ -256,12 +256,9 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         return 0;
     }
     route->handler = key->content.value.symbol;
+
 #if BIT_GOAHEAD_AUTH
-#if BIT_GOAHEAD_PAM
-    route->verify = websVerifyPamPassword;
-#else
-    route->verify = websVerifyPassword;
-#endif
+    route->verify = websGetPasswordStoreVerify();
 #endif
     growRoutes();
     if (pos < 0) {
@@ -580,7 +577,6 @@ static bool redirectHandler(Webs *wp)
 {
     return websRedirectByStatus(wp, 0) == 0;
 }
-
 
 
 #if BIT_GOAHEAD_LEGACY

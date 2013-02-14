@@ -851,6 +851,11 @@ fi";
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				OTHER_LDFLAGS = (
+					"-lpam",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -861,6 +866,11 @@ fi";
 
 				HEADER_SEARCH_PATHS = (
 					"../src/deps/est",
+					"$(inherited)"
+				);
+
+				OTHER_LDFLAGS = (
+					"-lpam",
 					"$(inherited)"
 				);
 
@@ -876,6 +886,11 @@ fi";
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				OTHER_LDFLAGS = (
+					"-lpam",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -884,6 +899,10 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
+				OTHER_LDFLAGS = (
+					"-lpam",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;
@@ -897,6 +916,11 @@ fi";
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
+				OTHER_LDFLAGS = (
+					"-lpam",
+					"$(inherited)"
+				);
+
 			};
 			name = Debug;
 		};
@@ -905,6 +929,10 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
+				OTHER_LDFLAGS = (
+					"-lpam",
+					"$(inherited)"
+				);
 
 			};
 			name = Release;

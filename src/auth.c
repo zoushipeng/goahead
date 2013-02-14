@@ -26,8 +26,9 @@
 #include    "goahead.h"
 
 #if BIT_GOAHEAD_AUTH
-#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
- #include    <security/pam_appl.h>
+
+#if BIT_HAS_PAM
+    #include <security/pam_appl.h>
 #endif
 
 /*********************************** Locals ***********************************/
@@ -36,8 +37,9 @@ static WebsHash users = -1;
 static WebsHash roles = -1;
 static char *secret;
 static int autoLogin = BIT_GOAHEAD_AUTO_LOGIN;
+static WebsVerify verifyPassword = websVerifyPasswordFromFile;
 
-#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
+#if BIT_HAS_PAM
 typedef struct {
     char    *name;
     char    *password;
@@ -69,7 +71,7 @@ static char *createDigestNonce(Webs *wp);
 static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
 #endif
 
-#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
+#if BIT_HAS_PAM
 static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data);
 #endif
 
@@ -154,6 +156,13 @@ PUBLIC int websOpenAuth(int minimal)
 #endif
         websDefineAction("login", loginServiceProc);
         websDefineAction("logout", logoutServiceProc);
+    }
+    if (smatch(BIT_GOAHEAD_AUTH_STORE, "file")) {
+        verifyPassword = websVerifyPasswordFromFile;
+#if BIT_HAS_PAM
+    } else if (smatch(BIT_GOAHEAD_AUTH_STORE, "pam")) {
+        verifyPassword = websVerifyPasswordFromPam;
+#endif
     }
     return 0;
 }
@@ -527,25 +536,38 @@ static void basicLogin(Webs *wp)
 }
 
 
-PUBLIC bool websVerifyPassword(Webs *wp)
+void websSetPasswordStoreVerify(WebsVerify verify)
 {
-    char      passbuf[BIT_GOAHEAD_LIMIT_PASSWORD * 3 + 3];
-    bool        success;
+    verifyPassword = verify;
+}
+
+
+WebsVerify websGetPasswordStoreVerify()
+{
+    return verifyPassword;
+}
+
+
+PUBLIC bool websVerifyPasswordFromFile(Webs *wp)
+{
+    char    passbuf[BIT_GOAHEAD_LIMIT_PASSWORD * 3 + 3];
+    bool    success;
 
     assert(wp);
+    if (!wp->user && (wp->user = websLookupUser(wp->username)) == 0) {
+        trace(5, "verifyUser: Unknown user \"%s\"", wp->username);
+        return 0;
+    }
+    /*
+        Verify the password. If using Digest auth, we compare the digest of the password.
+        Otherwise we encode the plain-text password and compare that
+     */
     if (!wp->encoded) {
         fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_GOAHEAD_REALM, wp->password);
         wfree(wp->password);
         wp->password = websMD5(passbuf);
         wp->encoded = 1;
     }
-    if (!wp->user && (wp->user = websLookupUser(wp->username)) == 0) {
-        trace(5, "verifyUser: Unknown user \"%s\"", wp->username);
-        return 0;
-    }
-    /*
-        Verify the password
-     */
     if (wp->digest) {
         success = smatch(wp->password, wp->digest);
     } else {
@@ -558,6 +580,112 @@ PUBLIC bool websVerifyPassword(Webs *wp)
     }
     return success;
 }
+
+
+#if BIT_HAS_PAM
+/*
+    Copy this routine if creating your own custom password store back end
+ */
+PUBLIC bool websVerifyPasswordFromPam(Webs *wp)
+{
+    WebsBuf             abilities;
+    pam_handle_t        *pamh;
+    UserInfo            info;
+    struct pam_conv     conv = { pamChat, &info };
+    struct group        *gp;
+    int                 res, i;
+   
+    assert(wp);
+    assert(wp->username && wp->username);
+    assert(wp->password);
+    assert(!wp->encoded);
+
+    info.name = (char*) wp->username;
+    info.password = (char*) wp->password;
+    pamh = NULL;
+    if ((res = pam_start("login", info.name, &conv, &pamh)) != PAM_SUCCESS) {
+        return 0;
+    }
+    if ((res = pam_authenticate(pamh, PAM_DISALLOW_NULL_AUTHTOK)) != PAM_SUCCESS) {
+        pam_end(pamh, PAM_SUCCESS);
+        trace(5, "httpPamVerifyUser failed to verify %s", wp->username);
+        return 0;
+    }
+    pam_end(pamh, PAM_SUCCESS);
+    trace(5, "httpPamVerifyUser verified %s", wp->username);
+
+    if (!wp->user) {
+        wp->user = websLookupUser(wp->username);
+    }
+    if (!wp->user) {
+        Gid     groups[32];
+        int     ngroups;
+        /* 
+            Create a temporary user with a abilities set to the groups 
+         */
+        ngroups = sizeof(groups) / sizeof(Gid);
+        if ((i = getgrouplist(wp->username, 99999, groups, &ngroups)) >= 0) {
+            bufCreate(&abilities, 128, -1);
+            for (i = 0; i < ngroups; i++) {
+                if ((gp = getgrgid(groups[i])) != 0) {
+                    bufPutStr(&abilities, gp->gr_name);
+                    bufPutc(&abilities, ' ');
+                }
+            }
+            bufAddNull(&abilities);
+            trace(5, "Create temp user \"%s\" with abilities: %s", wp->username, abilities.servp);
+            if ((wp->user = websAddUser(wp->username, 0, abilities.servp)) == 0) {
+                return 0;
+            }
+            computeUserAbilities(wp->user);
+        }
+    }
+    return 1;
+}
+
+
+/*  
+    Callback invoked by the pam_authenticate function
+ */
+static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data) 
+{
+    UserInfo                *info;
+    struct pam_response     *reply;
+    int                     i;
+    
+    i = 0;
+    reply = 0;
+    info = (UserInfo*) data;
+
+    if (resp == 0 || msg == 0 || info == 0) {
+        return PAM_CONV_ERR;
+    }
+    if ((reply = calloc(msgCount, sizeof(struct pam_response))) == 0) {
+        return PAM_CONV_ERR;
+    }
+    for (i = 0; i < msgCount; i++) {
+        reply[i].resp_retcode = 0;
+        reply[i].resp = 0;
+        
+        switch (msg[i]->msg_style) {
+        case PAM_PROMPT_ECHO_ON:
+            reply[i].resp = sclone(info->name);
+            break;
+
+        case PAM_PROMPT_ECHO_OFF:
+            /* Retrieve the user password and pass onto pam */
+            reply[i].resp = sclone(info->password);
+            break;
+
+        default:
+            free(reply);
+            return PAM_CONV_ERR;
+        }
+    }
+    *resp = reply;
+    return PAM_SUCCESS;
+}
+#endif /* BIT_HAS_PAM */
 
 
 #if BIT_GOAHEAD_JAVASCRIPT && FUTURE
@@ -870,109 +998,6 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     return result;
 }
 #endif /* BIT_DIGEST */
-
-
-#if BIT_HAS_PAM && BIT_GOAHEAD_PAM
-PUBLIC bool websVerifyPamPassword(Webs *wp)
-{
-    WebsBuf             abilities;
-    pam_handle_t        *pamh;
-    UserInfo            info;
-    struct pam_conv     conv = { pamChat, &info };
-    struct group        *gp;
-    int                 res, i;
-   
-    assert(wp);
-    assert(wp->username && wp->username);
-    assert(wp->password);
-    assert(!wp->encoded);
-
-    info.name = (char*) wp->username;
-    info.password = (char*) wp->password;
-    pamh = NULL;
-    if ((res = pam_start("login", info.name, &conv, &pamh)) != PAM_SUCCESS) {
-        return 0;
-    }
-    if ((res = pam_authenticate(pamh, PAM_DISALLOW_NULL_AUTHTOK)) != PAM_SUCCESS) {
-        pam_end(pamh, PAM_SUCCESS);
-        trace(5, "httpPamVerifyUser failed to verify %s", wp->username);
-        return 0;
-    }
-    pam_end(pamh, PAM_SUCCESS);
-    trace(5, "httpPamVerifyUser verified %s", wp->username);
-
-    if (!wp->user) {
-        wp->user = websLookupUser(wp->username);
-    }
-    if (!wp->user) {
-        Gid     groups[32];
-        int     ngroups;
-        /* 
-            Create a temporary user with a abilities set to the groups 
-         */
-        ngroups = sizeof(groups) / sizeof(Gid);
-        if ((i = getgrouplist(wp->username, 99999, groups, &ngroups)) >= 0) {
-            bufCreate(&abilities, 128, -1);
-            for (i = 0; i < ngroups; i++) {
-                if ((gp = getgrgid(groups[i])) != 0) {
-                    bufPutStr(&abilities, gp->gr_name);
-                    bufPutc(&abilities, ' ');
-                }
-            }
-            bufAddNull(&abilities);
-            trace(5, "Create temp user \"%s\" with abilities: %s", wp->username, abilities.servp);
-            if ((wp->user = websAddUser(wp->username, 0, abilities.servp)) == 0) {
-                return 0;
-            }
-            computeUserAbilities(wp->user);
-        }
-    }
-    return 1;
-}
-
-
-/*  
-    Callback invoked by the pam_authenticate function
- */
-static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data) 
-{
-    UserInfo                *info;
-    struct pam_response     *reply;
-    int                     i;
-    
-    i = 0;
-    reply = 0;
-    info = (UserInfo*) data;
-
-    if (resp == 0 || msg == 0 || info == 0) {
-        return PAM_CONV_ERR;
-    }
-    if ((reply = calloc(msgCount, sizeof(struct pam_response))) == 0) {
-        return PAM_CONV_ERR;
-    }
-    for (i = 0; i < msgCount; i++) {
-        reply[i].resp_retcode = 0;
-        reply[i].resp = 0;
-        
-        switch (msg[i]->msg_style) {
-        case PAM_PROMPT_ECHO_ON:
-            reply[i].resp = sclone(info->name);
-            break;
-
-        case PAM_PROMPT_ECHO_OFF:
-            /* Retrieve the user password and pass onto pam */
-            reply[i].resp = sclone(info->password);
-            break;
-
-        default:
-            free(reply);
-            return PAM_CONV_ERR;
-        }
-    }
-    *resp = reply;
-    return PAM_SUCCESS;
-}
-#endif /* BIT_HAS_PAM */
 
 
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
