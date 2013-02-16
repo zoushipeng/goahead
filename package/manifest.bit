@@ -1,0 +1,83 @@
+/*
+    manifest.bit - Install and Package File Manifest for GoAhead
+ */
+
+Bit.load({
+    /*
+        Package manifest instructions
+        The sets used are: binary, doc, dev, package, source
+     */
+    manifest: {
+
+        packages:   {
+            install: {
+                inherit:    'embedthis-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                sets:       [ 'install' ],
+                platforms:  [ 'windows', 'posix' ]
+            },
+            binary: {
+                inherit:    'embedthis-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                formats:    [ 'native', 'tar' ],
+                sets:       [ 'binary', 'doc', 'package' ],
+                platforms:  [ 'windows', 'macosx' ]
+            },
+            source: {
+                inherit:    'embedthis-manifest',
+                prefixes:   [ 'root', 'src'],
+                formats:    [ 'tar' ],
+                sets:       [ 'source' ],
+            },
+        },
+
+        files: [ 
+            /* Binary Set */
+            {   from:   '${BIN}/goahead${EXE}',
+                to:     '${abin}/',
+                linkin: '${bin}',
+                set:    'binary, install',
+
+            },{ from: [
+                    '${BIN}/ca.crt',
+                    '${BIN}/libest${SHOBJ}',
+                    '${BIN}/libgo${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'binary, install',
+
+            },{ from:   ['doc/man/*.1'],
+                to:     '${adoc}/man/man1/',
+                linkin: '${man}/man1',
+                enable: "bit.platform.like == 'posix'",
+                set:    'doc, install',
+
+            },{ from:   'src/web',
+                to:     '${web}/',
+                exclude: /mgmt|bench|test/,
+                subtree: true,
+                set:    'binary, install',
+
+            },{ from:   ['src/auth.txt', 'src/route.txt'],
+                to:     '${etc}/'
+                set:    'binary, install',
+            
+            /* Source Set */
+            },{ from:   [ '*.md' ],
+                to:     '${src}/',
+                fold:   true,
+                expand: true,
+                set:    'source',
+
+            },{ from:   [ 'configure' ],
+                to:     '${src}/',
+                permissions: 0755,     
+                set:    'source',
+
+            },{ from:   [ 'Makefile', 'main.bit', 'bits', 'src', 'doc', 'projects', 'package' ],
+                to:     '${src}/',
+                set:    'source',
+            },
+        ],
+    },
+})

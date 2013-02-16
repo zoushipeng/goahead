@@ -14,22 +14,22 @@ CONFIG          := $(OS)-$(ARCH)-$(PROFILE)
 LBIN            := $(CONFIG)/bin
 
 BIT_ROOT_PREFIX       := /
-BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)usr/local
-BIT_DATA_PREFIX       := $(BIT_ROOT_PREFIX)
-BIT_STATE_PREFIX      := $(BIT_ROOT_PREFIX)var
+BIT_BASE_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local
+BIT_DATA_PREFIX       := $(BIT_ROOT_PREFIX)/
+BIT_STATE_PREFIX      := $(BIT_ROOT_PREFIX)/var
 BIT_APP_PREFIX        := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
 BIT_VAPP_PREFIX       := $(BIT_APP_PREFIX)/$(VERSION)
-BIT_BIN_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/bin
-BIT_INC_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/include
-BIT_LIB_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/lib
-BIT_MAN_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/share/man
-BIT_SBIN_PREFIX       := $(BIT_ROOT_PREFIX)usr/local/sbin
-BIT_ETC_PREFIX        := $(BIT_ROOT_PREFIX)etc/$(PRODUCT)
-BIT_WEB_PREFIX        := $(BIT_ROOT_PREFIX)var/www/$(PRODUCT)-default
-BIT_LOG_PREFIX        := $(BIT_ROOT_PREFIX)var/log/$(PRODUCT)
-BIT_SPOOL_PREFIX      := $(BIT_ROOT_PREFIX)var/spool/$(PRODUCT)
-BIT_CACHE_PREFIX      := $(BIT_ROOT_PREFIX)var/cache/$(PRODUCT)
-BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)usr/local/src/$(PRODUCT)-$(VERSION)
+BIT_BIN_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/bin
+BIT_INC_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/include
+BIT_LIB_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/lib
+BIT_MAN_PREFIX        := $(BIT_ROOT_PREFIX)/usr/local/share/man
+BIT_SBIN_PREFIX       := $(BIT_ROOT_PREFIX)/usr/local/sbin
+BIT_ETC_PREFIX        := $(BIT_ROOT_PREFIX)/etc/$(PRODUCT)
+BIT_WEB_PREFIX        := $(BIT_ROOT_PREFIX)/var/www/$(PRODUCT)-default
+BIT_LOG_PREFIX        := $(BIT_ROOT_PREFIX)/var/log/$(PRODUCT)
+BIT_SPOOL_PREFIX      := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)
+BIT_CACHE_PREFIX      := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)/cache
+BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
 
 CFLAGS          += -fPIC  -w
 DFLAGS          += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
@@ -78,8 +78,8 @@ clean:
 	rm -rf $(CONFIG)/bin/libgo.so
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
-	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/removeFiles.o
+	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
 	rm -rf $(CONFIG)/obj/auth.o
@@ -327,23 +327,54 @@ $(CONFIG)/bin/goahead-test: \
 version: 
 	@echo 3.1.0-1
 
-deploy: compile
-	rm -f $(BIT_BIN_PREFIX)/bit
-	mkdir -p '$(BIT_ETC_PREFIX)' '$(BIT_VAPP_PREFIX)/bin' '$(BIT_WEB_PREFIX)' '$(BIT_VAPP_PREFIX)/man/man1'
-	cp src/auth.txt src/route.txt $(BIT_ETC_PREFIX)
-	cp -R -P ./$(CONFIG)/bin/goahead ./$(CONFIG)/bin/ca.crt ./$(CONFIG)/bin/lib* $(BIT_VAPP_PREFIX)/bin
-	cp -R -P src/web/index.html $(BIT_WEB_PREFIX)
-	rm -f $(BIT_APP_PREFIX)/latest
-	ln -s $(VERSION) $(BIT_APP_PREFIX)/latest
-	for n in goahead gopass webcomp ; do rm -f $(BIT_BIN_PREFIX)/$$n ; ln -s $(BIT_VAPP_PREFIX)/bin/$$n $(BIT_BIN_PREFIX)/$$n ; done
-	for n in goahead.1 gopass.1 webcomp.1; do rm -f $(BIT_VAPP_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/man1/$$n ; cp doc/man/$$n $(BIT_VAPP_PREFIX)/man/man1 ; ln -s $(BIT_VAPP_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/man1/$$n ; done
-
-install: compile deploy
+stop: 
 	
 
-uninstall: 
-	rm -fr $(BIT_ETC_PREFIX) $(BIT_APP_PREFIX)
-	for n in goahead gopass webcmop; do rm -f $(BIT_BIN_PREFIX)/$$n ; done
-	for n in $(BIT_VAPP_PREFIX)/man/man1/*.1; do base=`basename $$n` ; rm -f $(BIT_MAN_PREFIX)/man1/$$base ; done
-	rm -fr '$(BIT_ETC_PREFIX)' '$(BIT_APP_PREFIX)' '$(BIT_WEB_PREFIX)'
+installBinary: stop
+	install -d "$(BIT_VAPP_PREFIX)/bin"
+	install  "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
+	rm -f "$(BIT_BIN_PREFIX)/goahead"
+	install -d "$(BIT_BIN_PREFIX)"
+	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
+	install -d "$(BIT_VAPP_PREFIX)/bin"
+	install  "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
+	install -d "$(BIT_VAPP_PREFIX)/bin"
+	install  "$(CONFIG)/bin/libest.so" "$(BIT_VAPP_PREFIX)/bin/libest.so"
+	install -d "$(BIT_VAPP_PREFIX)/bin"
+	install  "$(CONFIG)/bin/libgo.so" "$(BIT_VAPP_PREFIX)/bin/libgo.so"
+	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
+	install  "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
+	install -d "$(BIT_MAN_PREFIX)/man1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
+	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
+	install  "doc/man/gopass.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
+	install -d "$(BIT_MAN_PREFIX)/man1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
+	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
+	install  "doc/man/webcomp.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
+	install -d "$(BIT_MAN_PREFIX)/man1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
+	install -d "${web}"
+	install  "src/web/index.html" "${web}/index.html"
+	install -d "${etc}"
+	install  "src/auth.txt" "${etc}/auth.txt"
+	install -d "${etc}"
+	install  "src/route.txt" "${etc}/route.txt"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	install -d "$(BIT_APP_PREFIX)"
+	ln -s "3.1.0" "$(BIT_APP_PREFIX)/latest"
+
+
+start: 
+	
+
+install: stop installBinary start
+	
+
+uninstall: stop
+	
+
 

@@ -33,7 +33,7 @@ BIT_SPOOL_PREFIX      := $(BIT_VAPP_PREFIX)
 BIT_CACHE_PREFIX      := $(BIT_VAPP_PREFIX)
 BIT_APP_PREFIX        := $(BIT_BASE_PREFIX)
 BIT_VAPP_PREFIX       := $(BIT_APP_PREFIX)
-BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)usr/src/$(PRODUCT)-$(VERSION)
+BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)/usr/src/$(PRODUCT)-$(VERSION)
 
 CFLAGS          += -fno-builtin -fno-defer-pop -fvolatile -w
 DFLAGS          += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
@@ -82,8 +82,8 @@ clean:
 	rm -rf $(CONFIG)/bin/libgo.out
 	rm -rf $(CONFIG)/bin/goahead.out
 	rm -rf $(CONFIG)/bin/goahead-test.out
-	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/removeFiles.o
+	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
 	rm -rf $(CONFIG)/obj/auth.o
@@ -331,14 +331,20 @@ $(CONFIG)/bin/goahead-test.out: \
 version: 
 	@echo 3.1.0-1
 
-deploy: compile
-	rm -f $(BIT_BIN_PREFIX)/bit
-	mkdir -p '$(BIT_ETC_PREFIX)' '$(BIT_VAPP_PREFIX)/bin' '$(BIT_WEB_PREFIX)' '$(BIT_VAPP_PREFIX)/man/man1'
-	cp src/auth.txt src/route.txt $(BIT_ETC_PREFIX)
-	cp -R -P ./$(CONFIG)/bin/goahead ./$(CONFIG)/bin/ca.crt ./$(CONFIG)/bin/lib* $(BIT_VAPP_PREFIX)/bin
-	cp -R -P src/web/index.html $(BIT_WEB_PREFIX)
-	rm -f $(BIT_APP_PREFIX)/latest
-	ln -s $(VERSION) $(BIT_APP_PREFIX)/latest
-	for n in goahead gopass webcomp ; do rm -f $(BIT_BIN_PREFIX)/$$n ; ln -s $(BIT_VAPP_PREFIX)/bin/$$n $(BIT_BIN_PREFIX)/$$n ; done
-	for n in goahead.1 gopass.1 webcomp.1; do rm -f $(BIT_VAPP_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/man1/$$n ; cp doc/man/$$n $(BIT_VAPP_PREFIX)/man/man1 ; ln -s $(BIT_VAPP_PREFIX)/man/man1/$$n $(BIT_MAN_PREFIX)/man1/$$n ; done
+stop: 
+	
+
+installBinary: stop
+	
+
+
+start: 
+	
+
+install: stop installBinary start
+	
+
+uninstall: stop
+	
+
 

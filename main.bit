@@ -13,11 +13,7 @@ Bit.load({
         "${BITS}/embedthis.bit",
         "src/deps/est/est.bit",
         "doc/doc.bit",
-        "package/package.bit",
-    ],
-
-    '+modules': [
-        'bits/goahead.es',
+        "package/manifest.bit",
     ],
 
     settings: {
@@ -358,15 +354,13 @@ Bit.load({
             ",
             platforms: [ 'local' ],
         },
+
         run: {
-            action: "
-                run('goahead -v', {noio: true, dir: 'src'})
-            ",
+            action: "run('goahead -v', {noio: true, dir: 'src'})",
         },
+
         rom: {
-            action: "
-                Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))
-            ",
+            action: "Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))",
         },
     },
 

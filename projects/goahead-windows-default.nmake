@@ -29,28 +29,27 @@ LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
 LIBS            = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
-BIT_ROOT_PREFIX       = /
-BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)usr/local
-BIT_DATA_PREFIX       = $(BIT_ROOT_PREFIX)
-BIT_STATE_PREFIX      = $(BIT_ROOT_PREFIX)var
-BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
-BIT_VAPP_PREFIX       = $(BIT_APP_PREFIX)/$(VERSION)
-BIT_BIN_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/bin
-BIT_INC_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/include
-BIT_LIB_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/lib
-BIT_MAN_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/share/man
-BIT_SBIN_PREFIX       = $(BIT_ROOT_PREFIX)usr/local/sbin
-BIT_ETC_PREFIX        = $(BIT_ROOT_PREFIX)etc/$(PRODUCT)
-BIT_WEB_PREFIX        = $(BIT_ROOT_PREFIX)var/www/$(PRODUCT)-default
-BIT_LOG_PREFIX        = $(BIT_ROOT_PREFIX)var/log/$(PRODUCT)
-BIT_SPOOL_PREFIX      = $(BIT_ROOT_PREFIX)var/spool/$(PRODUCT)
-BIT_CACHE_PREFIX      = $(BIT_ROOT_PREFIX)var/cache/$(PRODUCT)
-BIT_SRC_PREFIX        = $(BIT_ROOT_PREFIX)usr/local/src/$(PRODUCT)-$(VERSION)
+BIT_ROOT_PREFIX       = C:
+BIT_BASE_PREFIX       = $(BIT_ROOT_PREFIX)\Program Files
+BIT_APP_PREFIX        = $(BIT_BASE_PREFIX)\Embedthis GoAhead
+BIT_VAPP_PREFIX       = $(BIT_APP_PREFIX)
+BIT_DATA_PREFIX       = $(BIT_VAPP_PREFIX)
+BIT_STATE_PREFIX      = $(BIT_VAPP_PREFIX)
+BIT_BIN_PREFIX        = $(BIT_VAPP_PREFIX)\bin
+BIT_INC_PREFIX        = $(BIT_VAPP_PREFIX)\inc
+BIT_LIB_PREFIX        = $(BIT_VAPP_PREFIX)\lib
+BIT_MAN_PREFIX        = $(BIT_VAPP_PREFIX)\man
+BIT_ETC_PREFIX        = $(BIT_VAPP_PREFIX)
+BIT_WEB_PREFIX        = $(BIT_VAPP_PREFIX)\web
+BIT_LOG_PREFIX        = $(BIT_VAPP_PREFIX)\log
+BIT_SPOOL_PREFIX      = $(BIT_VAPP_PREFIX)\tmp
+BIT_CACHE_PREFIX      = $(BIT_VAPP_PREFIX)\cache
+BIT_SRC_PREFIX        = $(BIT_VAPP_PREFIX)\src
 
 all compile: prep \
+        $(CONFIG)\bin\removeFiles.exe \
         $(CONFIG)\bin\libest.dll \
         $(CONFIG)\bin\ca.crt \
-        $(CONFIG)\bin\removeFiles.exe \
         $(CONFIG)\bin\libgo.dll \
         $(CONFIG)\bin\goahead.exe \
         $(CONFIG)\bin\goahead-test.exe
@@ -71,14 +70,14 @@ prep:
 	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
 	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-windows-default-bit.h $(CONFIG)\inc\bit.h
 clean:
+	-if exist $(CONFIG)\bin\removeFiles.exe del /Q $(CONFIG)\bin\removeFiles.exe
 	-if exist $(CONFIG)\bin\libest.dll del /Q $(CONFIG)\bin\libest.dll
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
-	-if exist $(CONFIG)\bin\removeFiles.exe del /Q $(CONFIG)\bin\removeFiles.exe
 	-if exist $(CONFIG)\bin\libgo.dll del /Q $(CONFIG)\bin\libgo.dll
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
-	-if exist $(CONFIG)\obj\estLib.obj del /Q $(CONFIG)\obj\estLib.obj
 	-if exist $(CONFIG)\obj\removeFiles.obj del /Q $(CONFIG)\obj\removeFiles.obj
+	-if exist $(CONFIG)\obj\estLib.obj del /Q $(CONFIG)\obj\estLib.obj
 	-if exist $(CONFIG)\obj\action.obj del /Q $(CONFIG)\obj\action.obj
 	-if exist $(CONFIG)\obj\alloc.obj del /Q $(CONFIG)\obj\alloc.obj
 	-if exist $(CONFIG)\obj\auth.obj del /Q $(CONFIG)\obj\auth.obj
@@ -105,6 +104,15 @@ clean:
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
 
+$(CONFIG)\obj\removeFiles.obj: \
+    ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c\
+    $(CONFIG)\inc\bit.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c
+
+$(CONFIG)\bin\removeFiles.exe: \
+    $(CONFIG)\obj\removeFiles.obj
+	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
+
 $(CONFIG)\inc\est.h: 
 	-if exist $(CONFIG)\inc\est.h del /Q $(CONFIG)\inc\est.h
 	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
@@ -128,15 +136,6 @@ $(CONFIG)\bin\libest.dll: \
 $(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
 	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
 	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
-
-$(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c\
-    $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
-
-$(CONFIG)\bin\removeFiles.exe: \
-    $(CONFIG)\obj\removeFiles.obj
-	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\goahead.h: 
 	-if exist $(CONFIG)\inc\goahead.h del /Q $(CONFIG)\inc\goahead.h
@@ -332,16 +331,41 @@ $(CONFIG)\bin\goahead-test.exe: \
 version: 
 	@echo 3.1.0-1
 
-deploy: compile
-	xcopy /I /S /Y /Q $(CONFIG)\bin "$(BIT_APP_PREFIX)\bin"
-	del /Q "$(BIT_APP_PREFIX)\bin\*.pdb"
-	del /Q "$(BIT_APP_PREFIX)\bin\*.exp"
-	del /Q "$(BIT_APP_PREFIX)\bin\*.lib"
-	copy src/auth.txt src/route.txt "$(BIT_APP_PREFIX)"
-
-install: compile deploy
+stop: 
 
 
-uninstall: 
-	if exist "$(BIT_APP_PREFIX)" rd /Q /S "$(BIT_APP_PREFIX)"
+installBinary: stop
+	if not exist "C:" md "C:"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\goahead.exe" "$(BIT_VAPP_PREFIX)\bin\goahead.exe"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\libest.dll" "$(BIT_VAPP_PREFIX)\bin\libest.dll"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\libgo.dll" "$(BIT_VAPP_PREFIX)\bin\libgo.dll"
+	if not exist "${web}" md "${web}"
+	copy /Y "src\web\index.html" "${web}\index.html"
+	if not exist "${etc}" md "${etc}"
+	copy /Y "src\auth.txt" "${etc}\auth.txt"
+	if not exist "${etc}" md "${etc}"
+	copy /Y "src\route.txt" "${etc}\route.txt"
+
+
+start: 
+
+
+install: stop installBinary start
+
+
+uninstall: stop
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q /S "$(BIT_VAPP_PREFIX)\bin"
+	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q /S "$(BIT_VAPP_PREFIX)\man"
+
 
