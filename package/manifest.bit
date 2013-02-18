@@ -12,13 +12,13 @@ Bit.load({
         packages:   {
             install: {
                 inherit:    'embedthis-manifest',
-                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
                 sets:       [ 'install' ],
                 platforms:  [ 'windows', 'posix' ]
             },
             binary: {
                 inherit:    'embedthis-manifest',
-                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man'],
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
                 formats:    [ 'native', 'tar' ],
                 sets:       [ 'binary', 'doc', 'package' ],
                 platforms:  [ 'windows', 'macosx' ]

@@ -331,17 +331,6 @@ stop:
 	
 
 installBinary: stop
-	install -d "$(BIT_VAPP_PREFIX)/bin"
-	install  "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
-	install -d "$(BIT_BIN_PREFIX)"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
-	install -d "$(BIT_VAPP_PREFIX)/bin"
-	install  "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
-	install -d "$(BIT_VAPP_PREFIX)/bin"
-	install  "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
-	install -d "$(BIT_VAPP_PREFIX)/bin"
-	install  "$(CONFIG)/bin/libgo.dylib" "$(BIT_VAPP_PREFIX)/bin/libgo.dylib"
 	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	install  "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
@@ -357,12 +346,12 @@ installBinary: stop
 	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
 	install -d "$(BIT_MAN_PREFIX)/man1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	install -d "${web}"
-	install  "src/web/index.html" "${web}/index.html"
-	install -d "${etc}"
-	install  "src/auth.txt" "${etc}/auth.txt"
-	install -d "${etc}"
-	install  "src/route.txt" "${etc}/route.txt"
+	install -d "/var/www/goahead-default"
+	install  "src/web/index.html" "/var/www/goahead-default/index.html"
+	install -d "/etc/goahead"
+	install  "src/auth.txt" "/etc/goahead/auth.txt"
+	install -d "/etc/goahead"
+	install  "src/route.txt" "/etc/goahead/route.txt"
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	install -d "$(BIT_APP_PREFIX)"
 	ln -s "3.1.0" "$(BIT_APP_PREFIX)/latest"
@@ -375,7 +364,9 @@ install: stop installBinary start
 	
 
 uninstall: stop
-	rm -fr "$(BIT_APP_PREFIX)"
-	rm -fr "$(BIT_VAPP_PREFIX)"
+	rmdir -p "$(BIT_APP_PREFIX)"
+	rmdir -p "$(BIT_VAPP_PREFIX)"
+	rmdir -p "/etc/goahead"
+	rmdir -p "/var/www/goahead-default"
 
 
