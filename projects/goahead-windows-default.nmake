@@ -107,17 +107,21 @@ clean:
 $(CONFIG)\inc\bit.h: 
 
 $(CONFIG)\obj\removeFiles.obj: \
-    ..\bit\macosx-x64-debug\bin\package\windows\removeFiles.c\
+    ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) ..\bit\macosx-x64-debug\bin\package\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\est.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\deps\est\est.h" "$(CONFIG)\inc\est.h"
 
 $(CONFIG)\inc\bitos.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\bitos.h" "$(CONFIG)\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
     src\deps\est\estLib.c\
@@ -133,10 +137,16 @@ $(CONFIG)\bin\libest.dll: \
 
 $(CONFIG)\bin\ca.crt: \
     src\deps\est\ca.crt
+	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
+	copy /Y "src\deps\est\ca.crt" "$(CONFIG)\bin\ca.crt"
 
 $(CONFIG)\inc\goahead.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\goahead.h" "$(CONFIG)\inc\goahead.h"
 
 $(CONFIG)\inc\js.h: 
+	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
+	copy /Y "src\js.h" "$(CONFIG)\inc\js.h"
 
 $(CONFIG)\obj\action.obj: \
     src\action.c\
@@ -332,18 +342,18 @@ stop:
 
 installBinary: stop
 	if not exist "C:/" md "C:/"
-	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
-	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
-	if not exist "C:\Program Files\Embedthis GoAhead\bin" md "C:\Program Files\Embedthis GoAhead\bin"
-	if not exist "C:\Program Files\Embedthis GoAhead\man" md "C:\Program Files\Embedthis GoAhead\man"
-	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
-	if not exist "C:\Program Files\Embedthis GoAhead\web" md "C:\Program Files\Embedthis GoAhead\web"
-	if not exist "C:\Program Files\Embedthis GoAhead\web" md "C:\Program Files\Embedthis GoAhead\web"
-	if not exist "C:\Program Files\Embedthis GoAhead\web\web" md "C:\Program Files\Embedthis GoAhead\web\web"
-	copy /Y "src\web\index.html" "C:\Program Files\Embedthis GoAhead\web\web\index.html"
-	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
-	copy /Y "src\auth.txt" "C:\Program Files\Embedthis GoAhead\auth.txt"
-	copy /Y "src\route.txt" "C:\Program Files\Embedthis GoAhead\route.txt"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
+	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
+	if not exist "$(BIT_VAPP_PREFIX)\web\web" md "$(BIT_VAPP_PREFIX)\web\web"
+	copy /Y "src\web\index.html" "$(BIT_VAPP_PREFIX)\web\web\index.html"
+	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
+	copy /Y "src\auth.txt" "$(BIT_VAPP_PREFIX)\auth.txt"
+	copy /Y "src\route.txt" "$(BIT_VAPP_PREFIX)\route.txt"
 
 
 start: 
@@ -353,11 +363,11 @@ install: stop installBinary start
 
 
 uninstall: stop
-	if exist "C:\Program Files\Embedthis GoAhead" rd /Q "C:\Program Files\Embedthis GoAhead"
-	if exist "C:\Program Files\Embedthis GoAhead" rd /Q "C:\Program Files\Embedthis GoAhead"
-	if exist "C:\Program Files\Embedthis GoAhead\bin" rd /Q "C:\Program Files\Embedthis GoAhead\bin"
-	if exist "C:\Program Files\Embedthis GoAhead\man" rd /Q "C:\Program Files\Embedthis GoAhead\man"
-	if exist "C:\Program Files\Embedthis GoAhead" rd /Q "C:\Program Files\Embedthis GoAhead"
-	if exist "C:\Program Files\Embedthis GoAhead\web" rd /Q "C:\Program Files\Embedthis GoAhead\web"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
+	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q "$(BIT_VAPP_PREFIX)\web"
 
 
