@@ -85,6 +85,7 @@ clean:
 	-if exist $(CONFIG)\obj\crypt.obj del /Q $(CONFIG)\obj\crypt.obj
 	-if exist $(CONFIG)\obj\file.obj del /Q $(CONFIG)\obj\file.obj
 	-if exist $(CONFIG)\obj\fs.obj del /Q $(CONFIG)\obj\fs.obj
+	-if exist $(CONFIG)\obj\goahead.obj del /Q $(CONFIG)\obj\goahead.obj
 	-if exist $(CONFIG)\obj\http.obj del /Q $(CONFIG)\obj\http.obj
 	-if exist $(CONFIG)\obj\js.obj del /Q $(CONFIG)\obj\js.obj
 	-if exist $(CONFIG)\obj\jst.obj del /Q $(CONFIG)\obj\jst.obj
@@ -98,28 +99,29 @@ clean:
 	-if exist $(CONFIG)\obj\est.obj del /Q $(CONFIG)\obj\est.obj
 	-if exist $(CONFIG)\obj\matrixssl.obj del /Q $(CONFIG)\obj\matrixssl.obj
 	-if exist $(CONFIG)\obj\openssl.obj del /Q $(CONFIG)\obj\openssl.obj
-	-if exist $(CONFIG)\obj\goahead.obj del /Q $(CONFIG)\obj\goahead.obj
 	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
 	-if exist $(CONFIG)\obj\gopass.obj del /Q $(CONFIG)\obj\gopass.obj
 	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
 	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
 
+$(CONFIG)\inc\bit.h: 
+
 $(CONFIG)\obj\removeFiles.obj: \
-    ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c\
+    ..\bit\macosx-x64-debug\bin\package\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) ..\bit\macosx-x64-debug\bin\package\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\est.h: 
-	-if exist $(CONFIG)\inc\est.h del /Q $(CONFIG)\inc\est.h
-	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
+	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
+	copy /Y "src\deps\est\est.h" "\Users\mob\git\goahead\windows-x86-default\inc\est.h"
 
 $(CONFIG)\inc\bitos.h: 
-	-if exist $(CONFIG)\inc\bitos.h del /Q $(CONFIG)\inc\bitos.h
-	copy /Y src\bitos.h $(CONFIG)\inc\bitos.h
+	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
+	copy /Y "src\bitos.h" "\Users\mob\git\goahead\windows-x86-default\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
     src\deps\est\estLib.c\
@@ -133,17 +135,18 @@ $(CONFIG)\bin\libest.dll: \
     $(CONFIG)\obj\estLib.obj
 	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
 
-$(CONFIG)\bin\ca.crt: src/deps/est/ca.crt
-	-if exist $(CONFIG)\bin\ca.crt del /Q $(CONFIG)\bin\ca.crt
-	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
+$(CONFIG)\bin\ca.crt: \
+    src\deps\est\ca.crt
+	if not exist "\Users\mob\git\goahead\windows-x86-default\bin" md "\Users\mob\git\goahead\windows-x86-default\bin"
+	copy /Y "src\deps\est\ca.crt" "\Users\mob\git\goahead\windows-x86-default\bin\ca.crt"
 
 $(CONFIG)\inc\goahead.h: 
-	-if exist $(CONFIG)\inc\goahead.h del /Q $(CONFIG)\inc\goahead.h
-	copy /Y src\goahead.h $(CONFIG)\inc\goahead.h
+	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
+	copy /Y "src\goahead.h" "\Users\mob\git\goahead\windows-x86-default\inc\goahead.h"
 
 $(CONFIG)\inc\js.h: 
-	-if exist $(CONFIG)\inc\js.h del /Q $(CONFIG)\inc\js.h
-	copy /Y src\js.h $(CONFIG)\inc\js.h
+	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
+	copy /Y "src\js.h" "\Users\mob\git\goahead\windows-x86-default\inc\js.h"
 
 $(CONFIG)\obj\action.obj: \
     src\action.c\
@@ -187,6 +190,13 @@ $(CONFIG)\obj\fs.obj: \
     $(CONFIG)\inc\bit.h \
     $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\fs.c
+
+$(CONFIG)\obj\goahead.obj: \
+    src\goahead.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\bitos.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\goahead.c
 
 $(CONFIG)\obj\http.obj: \
     src\http.c\
@@ -250,6 +260,8 @@ $(CONFIG)\obj\upload.obj: \
     $(CONFIG)\inc\goahead.h
 	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\upload.c
 
+src\deps\est\est.h: 
+
 $(CONFIG)\obj\est.obj: \
     src\ssl\est.c\
     $(CONFIG)\inc\bit.h \
@@ -282,6 +294,7 @@ $(CONFIG)\bin\libgo.dll: \
     $(CONFIG)\obj\crypt.obj \
     $(CONFIG)\obj\file.obj \
     $(CONFIG)\obj\fs.obj \
+    $(CONFIG)\obj\goahead.obj \
     $(CONFIG)\obj\http.obj \
     $(CONFIG)\obj\js.obj \
     $(CONFIG)\obj\jst.obj \
@@ -295,14 +308,7 @@ $(CONFIG)\bin\libgo.dll: \
     $(CONFIG)\obj\est.obj \
     $(CONFIG)\obj\matrixssl.obj \
     $(CONFIG)\obj\openssl.obj
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS) libest.lib
-
-$(CONFIG)\obj\goahead.obj: \
-    src\goahead.c\
-    $(CONFIG)\inc\bit.h \
-    $(CONFIG)\inc\goahead.h \
-    $(CONFIG)\inc\bitos.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\goahead.c
+	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS) libest.lib
 
 $(CONFIG)\bin\goahead.exe: \
     $(CONFIG)\bin\libgo.dll \
@@ -335,19 +341,19 @@ stop:
 
 
 installBinary: stop
-	if not exist "C:" md "C:"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
-	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
-	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
-	copy /Y "src\web\index.html" "$(BIT_VAPP_PREFIX)\web\index.html"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	copy /Y "src\auth.txt" "$(BIT_VAPP_PREFIX)\auth.txt"
-	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
-	copy /Y "src\route.txt" "$(BIT_VAPP_PREFIX)\route.txt"
+	if not exist "C:/" md "C:/"
+	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
+	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
+	if not exist "C:\Program Files\Embedthis GoAhead\bin" md "C:\Program Files\Embedthis GoAhead\bin"
+	if not exist "C:\Program Files\Embedthis GoAhead\man" md "C:\Program Files\Embedthis GoAhead\man"
+	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
+	if not exist "C:\Program Files\Embedthis GoAhead\web" md "C:\Program Files\Embedthis GoAhead\web"
+	if not exist "C:\Program Files\Embedthis GoAhead\web\src" md "C:\Program Files\Embedthis GoAhead\web\src"
+	if not exist "C:\Program Files\Embedthis GoAhead\web\src\web" md "C:\Program Files\Embedthis GoAhead\web\src\web"
+	copy /Y "src\web\index.html" "C:\Program Files\Embedthis GoAhead\web\src\web\index.html"
+	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
+	copy /Y "src\auth.txt" "C:\Program Files\Embedthis GoAhead\auth.txt"
+	copy /Y "src\route.txt" "C:\Program Files\Embedthis GoAhead\route.txt"
 
 
 start: 
@@ -357,11 +363,11 @@ install: stop installBinary start
 
 
 uninstall: stop
-	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
-	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
-	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
-	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
-	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
-	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q "$(BIT_VAPP_PREFIX)\web"
+	if exist "C:\Program Files\Embedthis GoAhead" rd /Q "C:\Program Files\Embedthis GoAhead"
+	if exist "C:\Program Files\Embedthis GoAhead" rd /Q "C:\Program Files\Embedthis GoAhead"
+	if exist "C:\Program Files\Embedthis GoAhead\bin" rd /Q "C:\Program Files\Embedthis GoAhead\bin"
+	if exist "C:\Program Files\Embedthis GoAhead\man" rd /Q "C:\Program Files\Embedthis GoAhead\man"
+	if exist "C:\Program Files\Embedthis GoAhead" rd /Q "C:\Program Files\Embedthis GoAhead"
+	if exist "C:\Program Files\Embedthis GoAhead\web" rd /Q "C:\Program Files\Embedthis GoAhead\web"
 
 

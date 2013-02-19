@@ -57,20 +57,21 @@
 		A98B082EA98B1BEA0000001D /* crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000001E /* crypt.c */; };
 		A98B082EA98B1BEA0000001F /* file.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000020 /* file.c */; };
 		A98B082EA98B1BEA00000021 /* fs.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000022 /* fs.c */; };
-		A98B082EA98B1BEA00000023 /* http.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000024 /* http.c */; };
-		A98B082EA98B1BEA00000025 /* js.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000026 /* js.c */; };
-		A98B082EA98B1BEA00000027 /* jst.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000028 /* jst.c */; };
-		A98B082EA98B1BEA00000029 /* options.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000002A /* options.c */; };
-		A98B082EA98B1BEA0000002B /* osdep.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000002C /* osdep.c */; };
-		A98B082EA98B1BEA0000002D /* rom-documents.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000002E /* rom-documents.c */; };
-		A98B082EA98B1BEA0000002F /* route.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000030 /* route.c */; };
-		A98B082EA98B1BEA00000031 /* runtime.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000032 /* runtime.c */; };
-		A98B082EA98B1BEA00000033 /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000034 /* socket.c */; };
-		A98B082EA98B1BEA00000035 /* upload.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000036 /* upload.c */; };
-		A98B082EA98B1BEA00000037 /* est.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000038 /* est.c */; };
-		A98B082EA98B1BEA00000039 /* matrixssl.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000003A /* matrixssl.c */; };
-		A98B082EA98B1BEA0000003B /* openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000003C /* openssl.c */; };
-		A98B082EA98B1BEA0000003D /* goahead.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000003E /* goahead.c */; };
+		A98B082EA98B1BEA00000023 /* goahead.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000024 /* goahead.c */; };
+		A98B082EA98B1BEA00000025 /* http.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000026 /* http.c */; };
+		A98B082EA98B1BEA00000027 /* js.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000028 /* js.c */; };
+		A98B082EA98B1BEA00000029 /* jst.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000002A /* jst.c */; };
+		A98B082EA98B1BEA0000002B /* options.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000002C /* options.c */; };
+		A98B082EA98B1BEA0000002D /* osdep.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000002E /* osdep.c */; };
+		A98B082EA98B1BEA0000002F /* rom-documents.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000030 /* rom-documents.c */; };
+		A98B082EA98B1BEA00000031 /* route.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000032 /* route.c */; };
+		A98B082EA98B1BEA00000033 /* runtime.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000034 /* runtime.c */; };
+		A98B082EA98B1BEA00000035 /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000036 /* socket.c */; };
+		A98B082EA98B1BEA00000037 /* upload.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000038 /* upload.c */; };
+		A98B082EA98B1BEA00000039 /* est.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000003A /* est.c */; };
+		A98B082EA98B1BEA0000003B /* matrixssl.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000003C /* matrixssl.c */; };
+		A98B082EA98B1BEA0000003D /* openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000003E /* openssl.c */; };
+		A98B082EA98B1BEA00000023 /* goahead.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000024 /* goahead.c */; };
 		A98B082EA98B1BEA0000003F /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000040 /* test.c */; };
 		A98B082EA98B1BEA00000041 /* libest.dylib for libgo */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000042; };
 		A98B082EA98B1BEA00000043 /* libgo.dylib for goahead */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000044; };
@@ -180,23 +181,24 @@
 		A98B082EA98B1BEA0000001E /* crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = crypt.c; path = src/crypt.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000020 /* file.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = file.c; path = src/file.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000022 /* fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fs.c; path = src/fs.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000024 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/http.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000026 /* js.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = js.c; path = src/js.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000024 /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000026 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/http.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000028 /* js.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = js.c; path = src/js.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000005C /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-default/inc/js.h; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000028 /* jst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jst.c; path = src/jst.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000002A /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/options.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000002C /* osdep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = osdep.c; path = src/osdep.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000002E /* rom-documents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rom-documents.c; path = src/rom-documents.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000030 /* route.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = route.c; path = src/route.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000032 /* runtime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = runtime.c; path = src/runtime.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000034 /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000036 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA00000038 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000002A /* jst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jst.c; path = src/jst.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000002C /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/options.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000002E /* osdep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = osdep.c; path = src/osdep.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000030 /* rom-documents.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rom-documents.c; path = src/rom-documents.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000032 /* route.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = route.c; path = src/route.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000034 /* runtime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = runtime.c; path = src/runtime.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000036 /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000038 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000003A /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000005D /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = src/deps/est/est.h; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000003A /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000003C /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000003C /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA0000003E /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA00000044 /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
-		A98B082EA98B1BEA0000003E /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
+		A98B082EA98B1BEA00000024 /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000005E /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA00000040 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = test/test.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000005F /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -278,19 +280,20 @@
 				A98B082EA98B1BEA0000001E /* crypt.c */,
 				A98B082EA98B1BEA00000020 /* file.c */,
 				A98B082EA98B1BEA00000022 /* fs.c */,
-				A98B082EA98B1BEA00000024 /* http.c */,
-				A98B082EA98B1BEA00000026 /* js.c */,
-				A98B082EA98B1BEA00000028 /* jst.c */,
-				A98B082EA98B1BEA0000002A /* options.c */,
-				A98B082EA98B1BEA0000002C /* osdep.c */,
-				A98B082EA98B1BEA0000002E /* rom-documents.c */,
-				A98B082EA98B1BEA00000030 /* route.c */,
-				A98B082EA98B1BEA00000032 /* runtime.c */,
-				A98B082EA98B1BEA00000034 /* socket.c */,
-				A98B082EA98B1BEA00000036 /* upload.c */,
-				A98B082EA98B1BEA00000038 /* est.c */,
-				A98B082EA98B1BEA0000003A /* matrixssl.c */,
-				A98B082EA98B1BEA0000003C /* openssl.c */,
+				A98B082EA98B1BEA00000024 /* goahead.c */,
+				A98B082EA98B1BEA00000026 /* http.c */,
+				A98B082EA98B1BEA00000028 /* js.c */,
+				A98B082EA98B1BEA0000002A /* jst.c */,
+				A98B082EA98B1BEA0000002C /* options.c */,
+				A98B082EA98B1BEA0000002E /* osdep.c */,
+				A98B082EA98B1BEA00000030 /* rom-documents.c */,
+				A98B082EA98B1BEA00000032 /* route.c */,
+				A98B082EA98B1BEA00000034 /* runtime.c */,
+				A98B082EA98B1BEA00000036 /* socket.c */,
+				A98B082EA98B1BEA00000038 /* upload.c */,
+				A98B082EA98B1BEA0000003A /* est.c */,
+				A98B082EA98B1BEA0000003C /* matrixssl.c */,
+				A98B082EA98B1BEA0000003E /* openssl.c */,
 			);
             name = "libgo";
             path = ..;
@@ -302,7 +305,7 @@
 				A98B082EA98B1BEA00000058 /* bit.h */,
 				A98B082EA98B1BEA0000005B /* goahead.h */,
 				A98B082EA98B1BEA0000005A /* bitos.h */,
-				A98B082EA98B1BEA0000003E /* goahead.c */,
+				A98B082EA98B1BEA00000024 /* goahead.c */,
 			);
             name = "goahead";
             path = ..;
@@ -558,19 +561,20 @@ fi";
 				A98B082EA98B1BEA0000001D /* crypt.c in Sources */,
 				A98B082EA98B1BEA0000001F /* file.c in Sources */,
 				A98B082EA98B1BEA00000021 /* fs.c in Sources */,
-				A98B082EA98B1BEA00000023 /* http.c in Sources */,
-				A98B082EA98B1BEA00000025 /* js.c in Sources */,
-				A98B082EA98B1BEA00000027 /* jst.c in Sources */,
-				A98B082EA98B1BEA00000029 /* options.c in Sources */,
-				A98B082EA98B1BEA0000002B /* osdep.c in Sources */,
-				A98B082EA98B1BEA0000002D /* rom-documents.c in Sources */,
-				A98B082EA98B1BEA0000002F /* route.c in Sources */,
-				A98B082EA98B1BEA00000031 /* runtime.c in Sources */,
-				A98B082EA98B1BEA00000033 /* socket.c in Sources */,
-				A98B082EA98B1BEA00000035 /* upload.c in Sources */,
-				A98B082EA98B1BEA00000037 /* est.c in Sources */,
-				A98B082EA98B1BEA00000039 /* matrixssl.c in Sources */,
-				A98B082EA98B1BEA0000003B /* openssl.c in Sources */,
+				A98B082EA98B1BEA00000023 /* goahead.c in Sources */,
+				A98B082EA98B1BEA00000025 /* http.c in Sources */,
+				A98B082EA98B1BEA00000027 /* js.c in Sources */,
+				A98B082EA98B1BEA00000029 /* jst.c in Sources */,
+				A98B082EA98B1BEA0000002B /* options.c in Sources */,
+				A98B082EA98B1BEA0000002D /* osdep.c in Sources */,
+				A98B082EA98B1BEA0000002F /* rom-documents.c in Sources */,
+				A98B082EA98B1BEA00000031 /* route.c in Sources */,
+				A98B082EA98B1BEA00000033 /* runtime.c in Sources */,
+				A98B082EA98B1BEA00000035 /* socket.c in Sources */,
+				A98B082EA98B1BEA00000037 /* upload.c in Sources */,
+				A98B082EA98B1BEA00000039 /* est.c in Sources */,
+				A98B082EA98B1BEA0000003B /* matrixssl.c in Sources */,
+				A98B082EA98B1BEA0000003D /* openssl.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -578,7 +582,7 @@ fi";
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A98B082EA98B1BEA0000003D /* goahead.c in Sources */,
+				A98B082EA98B1BEA00000023 /* goahead.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

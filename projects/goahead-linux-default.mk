@@ -87,6 +87,7 @@ clean:
 	rm -rf $(CONFIG)/obj/crypt.o
 	rm -rf $(CONFIG)/obj/file.o
 	rm -rf $(CONFIG)/obj/fs.o
+	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/jst.o
@@ -100,7 +101,6 @@ clean:
 	rm -rf $(CONFIG)/obj/est.o
 	rm -rf $(CONFIG)/obj/matrixssl.o
 	rm -rf $(CONFIG)/obj/openssl.o
-	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/gopass.o
 	rm -rf $(CONFIG)/obj/webcomp.o
@@ -110,12 +110,14 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 $(CONFIG)/inc/est.h: 
-	rm -fr $(CONFIG)/inc/est.h
-	cp -r src/deps/est/est.h $(CONFIG)/inc/est.h
+	mkdir -p "/Users/mob/git/goahead/linux-x86-default/inc"
+	cp "src/deps/est/est.h" "/Users/mob/git/goahead/linux-x86-default/inc/est.h"
+
+$(CONFIG)/inc/bit.h: 
 
 $(CONFIG)/inc/bitos.h: 
-	rm -fr $(CONFIG)/inc/bitos.h
-	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
+	mkdir -p "/Users/mob/git/goahead/linux-x86-default/inc"
+	cp "src/bitos.h" "/Users/mob/git/goahead/linux-x86-default/inc/bitos.h"
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c\
@@ -129,17 +131,18 @@ $(CONFIG)/bin/libest.so: \
     $(CONFIG)/obj/estLib.o
 	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS)
 
-$(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
-	rm -fr $(CONFIG)/bin/ca.crt
-	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
+$(CONFIG)/bin/ca.crt: \
+    src/deps/est/ca.crt
+	mkdir -p "/Users/mob/git/goahead/linux-x86-default/bin"
+	cp "src/deps/est/ca.crt" "/Users/mob/git/goahead/linux-x86-default/bin/ca.crt"
 
 $(CONFIG)/inc/goahead.h: 
-	rm -fr $(CONFIG)/inc/goahead.h
-	cp -r src/goahead.h $(CONFIG)/inc/goahead.h
+	mkdir -p "/Users/mob/git/goahead/linux-x86-default/inc"
+	cp "src/goahead.h" "/Users/mob/git/goahead/linux-x86-default/inc/goahead.h"
 
 $(CONFIG)/inc/js.h: 
-	rm -fr $(CONFIG)/inc/js.h
-	cp -r src/js.h $(CONFIG)/inc/js.h
+	mkdir -p "/Users/mob/git/goahead/linux-x86-default/inc"
+	cp "src/js.h" "/Users/mob/git/goahead/linux-x86-default/inc/js.h"
 
 $(CONFIG)/obj/action.o: \
     src/action.c\
@@ -183,6 +186,13 @@ $(CONFIG)/obj/fs.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/fs.c
+
+$(CONFIG)/obj/goahead.o: \
+    src/goahead.c\
+    $(CONFIG)/inc/bit.h \
+    $(CONFIG)/inc/goahead.h \
+    $(CONFIG)/inc/bitos.h
+	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/goahead.c
 
 $(CONFIG)/obj/http.o: \
     src/http.c\
@@ -246,6 +256,8 @@ $(CONFIG)/obj/upload.o: \
     $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/upload.c
 
+src/deps/est/est.h: 
+
 $(CONFIG)/obj/est.o: \
     src/ssl/est.c\
     $(CONFIG)/inc/bit.h \
@@ -278,6 +290,7 @@ $(CONFIG)/bin/libgo.so: \
     $(CONFIG)/obj/crypt.o \
     $(CONFIG)/obj/file.o \
     $(CONFIG)/obj/fs.o \
+    $(CONFIG)/obj/goahead.o \
     $(CONFIG)/obj/http.o \
     $(CONFIG)/obj/js.o \
     $(CONFIG)/obj/jst.o \
@@ -291,14 +304,7 @@ $(CONFIG)/bin/libgo.so: \
     $(CONFIG)/obj/est.o \
     $(CONFIG)/obj/matrixssl.o \
     $(CONFIG)/obj/openssl.o
-	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
-
-$(CONFIG)/obj/goahead.o: \
-    src/goahead.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/goahead.h \
-    $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/goahead.c
+	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS) -lest
 
 $(CONFIG)/bin/goahead: \
     $(CONFIG)/bin/libgo.so \
@@ -331,30 +337,28 @@ stop:
 	
 
 installBinary: stop
-	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	install  "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	install -d "$(BIT_MAN_PREFIX)/man1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	install  "doc/man/gopass.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	install -d "$(BIT_MAN_PREFIX)/man1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	install -d "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	install  "doc/man/webcomp.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	install -d "$(BIT_MAN_PREFIX)/man1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	install -d "/var/www/goahead-default"
-	install  "src/web/index.html" "/var/www/goahead-default/index.html"
-	install -d "/etc/goahead"
-	install  "src/auth.txt" "/etc/goahead/auth.txt"
-	install -d "/etc/goahead"
-	install  "src/route.txt" "/etc/goahead/route.txt"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	install -d "$(BIT_APP_PREFIX)"
-	ln -s "3.1.0" "$(BIT_APP_PREFIX)/latest"
+	mkdir -p "/usr/local/lib/goahead/3.1.0/doc/man/man1"
+	cp "doc/man/goahead.1" "/usr/local/lib/goahead/3.1.0/doc/man/man1/goahead.1"
+	rm -f "/usr/local/share/man/man1/goahead.1"
+	mkdir -p "/usr/local/share/man/man1"
+	ln -s "/usr/local/lib/goahead/3.1.0/doc/man/man1/goahead.1" "/usr/local/share/man/man1/goahead.1"
+	cp "doc/man/gopass.1" "/usr/local/lib/goahead/3.1.0/doc/man/man1/gopass.1"
+	rm -f "/usr/local/share/man/man1/gopass.1"
+	mkdir -p "/usr/local/share/man/man1"
+	ln -s "/usr/local/lib/goahead/3.1.0/doc/man/man1/gopass.1" "/usr/local/share/man/man1/gopass.1"
+	cp "doc/man/webcomp.1" "/usr/local/lib/goahead/3.1.0/doc/man/man1/webcomp.1"
+	rm -f "/usr/local/share/man/man1/webcomp.1"
+	mkdir -p "/usr/local/share/man/man1"
+	ln -s "/usr/local/lib/goahead/3.1.0/doc/man/man1/webcomp.1" "/usr/local/share/man/man1/webcomp.1"
+	mkdir -p "/var/www/goahead-default/src"
+	mkdir -p "/var/www/goahead-default/src/web"
+	cp "src/web/index.html" "/var/www/goahead-default/src/web/index.html"
+	mkdir -p "/etc/goahead"
+	cp "src/auth.txt" "/etc/goahead/auth.txt"
+	cp "src/route.txt" "/etc/goahead/route.txt"
+	rm -f "/usr/local/lib/goahead/latest"
+	mkdir -p "/usr/local/lib/goahead"
+	ln -s "3.1.0" "/usr/local/lib/goahead/latest"
 
 
 start: 
@@ -364,6 +368,5 @@ install: stop installBinary start
 	
 
 uninstall: stop
-	
 
 

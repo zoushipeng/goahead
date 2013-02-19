@@ -107,6 +107,7 @@
     <ClCompile Include="..\..\src\crypt.c" />
     <ClCompile Include="..\..\src\file.c" />
     <ClCompile Include="..\..\src\fs.c" />
+    <ClCompile Include="..\..\src\goahead.c" />
     <ClCompile Include="..\..\src\http.c" />
     <ClCompile Include="..\..\src\js.c" />
     <ClCompile Include="..\..\src\jst.c" />

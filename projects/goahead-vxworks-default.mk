@@ -91,6 +91,7 @@ clean:
 	rm -rf $(CONFIG)/obj/crypt.o
 	rm -rf $(CONFIG)/obj/file.o
 	rm -rf $(CONFIG)/obj/fs.o
+	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/http.o
 	rm -rf $(CONFIG)/obj/js.o
 	rm -rf $(CONFIG)/obj/jst.o
@@ -104,7 +105,6 @@ clean:
 	rm -rf $(CONFIG)/obj/est.o
 	rm -rf $(CONFIG)/obj/matrixssl.o
 	rm -rf $(CONFIG)/obj/openssl.o
-	rm -rf $(CONFIG)/obj/goahead.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/gopass.o
 	rm -rf $(CONFIG)/obj/webcomp.o
@@ -114,12 +114,14 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 $(CONFIG)/inc/est.h: 
-	rm -fr $(CONFIG)/inc/est.h
-	cp -r src/deps/est/est.h $(CONFIG)/inc/est.h
+	mkdir -p "/Users/mob/git/goahead/vxworks-x86-default/inc"
+	cp "src/deps/est/est.h" "/Users/mob/git/goahead/vxworks-x86-default/inc/est.h"
+
+$(CONFIG)/inc/bit.h: 
 
 $(CONFIG)/inc/bitos.h: 
-	rm -fr $(CONFIG)/inc/bitos.h
-	cp -r src/bitos.h $(CONFIG)/inc/bitos.h
+	mkdir -p "/Users/mob/git/goahead/vxworks-x86-default/inc"
+	cp "src/bitos.h" "/Users/mob/git/goahead/vxworks-x86-default/inc/bitos.h"
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c\
@@ -133,17 +135,18 @@ $(CONFIG)/bin/libest.out: \
     $(CONFIG)/obj/estLib.o
 	$(CC) -r -o $(CONFIG)/bin/libest.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o 
 
-$(CONFIG)/bin/ca.crt: src/deps/est/ca.crt
-	rm -fr $(CONFIG)/bin/ca.crt
-	cp -r src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
+$(CONFIG)/bin/ca.crt: \
+    src/deps/est/ca.crt
+	mkdir -p "/Users/mob/git/goahead/vxworks-x86-default/bin"
+	cp "src/deps/est/ca.crt" "/Users/mob/git/goahead/vxworks-x86-default/bin/ca.crt"
 
 $(CONFIG)/inc/goahead.h: 
-	rm -fr $(CONFIG)/inc/goahead.h
-	cp -r src/goahead.h $(CONFIG)/inc/goahead.h
+	mkdir -p "/Users/mob/git/goahead/vxworks-x86-default/inc"
+	cp "src/goahead.h" "/Users/mob/git/goahead/vxworks-x86-default/inc/goahead.h"
 
 $(CONFIG)/inc/js.h: 
-	rm -fr $(CONFIG)/inc/js.h
-	cp -r src/js.h $(CONFIG)/inc/js.h
+	mkdir -p "/Users/mob/git/goahead/vxworks-x86-default/inc"
+	cp "src/js.h" "/Users/mob/git/goahead/vxworks-x86-default/inc/js.h"
 
 $(CONFIG)/obj/action.o: \
     src/action.c\
@@ -187,6 +190,13 @@ $(CONFIG)/obj/fs.o: \
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/fs.c
+
+$(CONFIG)/obj/goahead.o: \
+    src/goahead.c\
+    $(CONFIG)/inc/bit.h \
+    $(CONFIG)/inc/goahead.h \
+    $(CONFIG)/inc/bitos.h
+	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/goahead.c
 
 $(CONFIG)/obj/http.o: \
     src/http.c\
@@ -250,6 +260,8 @@ $(CONFIG)/obj/upload.o: \
     $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/upload.c
 
+src/deps/est/est.h: 
+
 $(CONFIG)/obj/est.o: \
     src/ssl/est.c\
     $(CONFIG)/inc/bit.h \
@@ -282,6 +294,7 @@ $(CONFIG)/bin/libgo.out: \
     $(CONFIG)/obj/crypt.o \
     $(CONFIG)/obj/file.o \
     $(CONFIG)/obj/fs.o \
+    $(CONFIG)/obj/goahead.o \
     $(CONFIG)/obj/http.o \
     $(CONFIG)/obj/js.o \
     $(CONFIG)/obj/jst.o \
@@ -295,14 +308,7 @@ $(CONFIG)/bin/libgo.out: \
     $(CONFIG)/obj/est.o \
     $(CONFIG)/obj/matrixssl.o \
     $(CONFIG)/obj/openssl.o
-	$(CC) -r -o $(CONFIG)/bin/libgo.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o 
-
-$(CONFIG)/obj/goahead.o: \
-    src/goahead.c\
-    $(CONFIG)/inc/bit.h \
-    $(CONFIG)/inc/goahead.h \
-    $(CONFIG)/inc/bitos.h
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/goahead.c
+	$(CC) -r -o $(CONFIG)/bin/libgo.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o 
 
 $(CONFIG)/bin/goahead.out: \
     $(CONFIG)/bin/libgo.out \
@@ -335,7 +341,6 @@ stop:
 	
 
 installBinary: stop
-	
 
 
 start: 
@@ -345,6 +350,5 @@ install: stop installBinary start
 	
 
 uninstall: stop
-	
 
 
