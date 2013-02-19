@@ -72,13 +72,13 @@ prep:
 		echo cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h  ; \
 		cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
+
 clean:
 	rm -rf $(CONFIG)/bin/libest.dylib
 	rm -rf $(CONFIG)/bin/ca.crt
 	rm -rf $(CONFIG)/bin/libgo.dylib
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
-	rm -rf $(CONFIG)/obj/removeFiles.o
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
@@ -102,9 +102,6 @@ clean:
 	rm -rf $(CONFIG)/obj/matrixssl.o
 	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/test.o
-	rm -rf $(CONFIG)/obj/gopass.o
-	rm -rf $(CONFIG)/obj/webcomp.o
-	rm -rf $(CONFIG)/obj/cgitest.o
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -115,7 +112,8 @@ $(CONFIG)/inc/est.h:
 
 $(CONFIG)/inc/bit.h: 
 
-$(CONFIG)/inc/bitos.h: 
+$(CONFIG)/inc/bitos.h: \
+    $(CONFIG)/inc/bit.h
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
@@ -256,11 +254,14 @@ $(CONFIG)/obj/upload.o: \
     $(CONFIG)/inc/goahead.h
 	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/upload.c
 
+src/deps/est/est.h: 
+
 $(CONFIG)/obj/est.o: \
     src/ssl/est.c\
     $(CONFIG)/inc/bit.h \
     $(CONFIG)/inc/goahead.h \
-    $(CONFIG)/inc/est.h
+    src/deps/est/est.h \
+    $(CONFIG)/inc/bitos.h
 	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/est.c
 
 $(CONFIG)/obj/matrixssl.o: \
@@ -334,14 +335,6 @@ stop:
 	
 
 installBinary: stop
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
-	cp "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
-	mkdir -p "$(BIT_BIN_PREFIX)"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
-	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
-	cp "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
-	cp "$(CONFIG)/bin/libgo.dylib" "$(BIT_VAPP_PREFIX)/bin/libgo.dylib"
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"

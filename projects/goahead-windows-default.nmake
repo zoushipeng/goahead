@@ -69,6 +69,7 @@ prep:
 	@if not exist $(CONFIG)\inc md $(CONFIG)\inc
 	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
 	@if not exist $(CONFIG)\inc\bit.h copy projects\goahead-windows-default-bit.h $(CONFIG)\inc\bit.h
+
 clean:
 	-if exist $(CONFIG)\bin\removeFiles.exe del /Q $(CONFIG)\bin\removeFiles.exe
 	-if exist $(CONFIG)\bin\libest.dll del /Q $(CONFIG)\bin\libest.dll
@@ -100,16 +101,13 @@ clean:
 	-if exist $(CONFIG)\obj\matrixssl.obj del /Q $(CONFIG)\obj\matrixssl.obj
 	-if exist $(CONFIG)\obj\openssl.obj del /Q $(CONFIG)\obj\openssl.obj
 	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
-	-if exist $(CONFIG)\obj\gopass.obj del /Q $(CONFIG)\obj\gopass.obj
-	-if exist $(CONFIG)\obj\webcomp.obj del /Q $(CONFIG)\obj\webcomp.obj
-	-if exist $(CONFIG)\obj\cgitest.obj del /Q $(CONFIG)\obj\cgitest.obj
 
 $(CONFIG)\inc\bit.h: 
 
 $(CONFIG)\obj\removeFiles.obj: \
-    ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c\
+    package\windows\removeFiles.c\
     $(CONFIG)\inc\bit.h
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) ..\bit\macosx-x64-release\bin\package\windows\removeFiles.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 $(CONFIG)\bin\removeFiles.exe: \
     $(CONFIG)\obj\removeFiles.obj
@@ -119,7 +117,8 @@ $(CONFIG)\inc\est.h:
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\est\est.h" "$(CONFIG)\inc\est.h"
 
-$(CONFIG)\inc\bitos.h: 
+$(CONFIG)\inc\bitos.h: \
+    $(CONFIG)\inc\bit.h
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\bitos.h" "$(CONFIG)\inc\bitos.h"
 

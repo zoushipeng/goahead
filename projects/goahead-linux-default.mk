@@ -72,13 +72,13 @@ prep:
 		echo cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
 		cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
+
 clean:
 	rm -rf $(CONFIG)/bin/libest.so
 	rm -rf $(CONFIG)/bin/ca.crt
 	rm -rf $(CONFIG)/bin/libgo.so
 	rm -rf $(CONFIG)/bin/goahead
 	rm -rf $(CONFIG)/bin/goahead-test
-	rm -rf $(CONFIG)/obj/removeFiles.o
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
@@ -102,9 +102,6 @@ clean:
 	rm -rf $(CONFIG)/obj/matrixssl.o
 	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/test.o
-	rm -rf $(CONFIG)/obj/gopass.o
-	rm -rf $(CONFIG)/obj/webcomp.o
-	rm -rf $(CONFIG)/obj/cgitest.o
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -115,7 +112,8 @@ $(CONFIG)/inc/est.h:
 
 $(CONFIG)/inc/bit.h: 
 
-$(CONFIG)/inc/bitos.h: 
+$(CONFIG)/inc/bitos.h: \
+    $(CONFIG)/inc/bit.h
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
