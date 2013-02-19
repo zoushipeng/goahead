@@ -74,7 +74,7 @@ Bit.load({
                 permissions: 0755,     
                 set:    'source',
 
-            },{ from:   [ 'Makefile', 'main.bit', 'bits', 'src', 'doc', 'projects', 'package' ],
+            },{ from:   [ 'Makefile', 'main.bit', 'src', 'doc', 'projects', 'package' ],
                 to:     '${src}/',
                 set:    'source',
             },
