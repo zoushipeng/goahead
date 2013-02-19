@@ -116,12 +116,8 @@ $(CONFIG)\bin\removeFiles.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\est.h: 
-	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
-	copy /Y "src\deps\est\est.h" "windows-x86-default\inc\est.h"
 
 $(CONFIG)\inc\bitos.h: 
-	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
-	copy /Y "src\bitos.h" "windows-x86-default\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
     src\deps\est\estLib.c\
@@ -137,16 +133,10 @@ $(CONFIG)\bin\libest.dll: \
 
 $(CONFIG)\bin\ca.crt: \
     src\deps\est\ca.crt
-	if not exist "windows-x86-default\bin" md "windows-x86-default\bin"
-	copy /Y "src\deps\est\ca.crt" "windows-x86-default\bin\ca.crt"
 
 $(CONFIG)\inc\goahead.h: 
-	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
-	copy /Y "src\goahead.h" "windows-x86-default\inc\goahead.h"
 
 $(CONFIG)\inc\js.h: 
-	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
-	copy /Y "src\js.h" "windows-x86-default\inc\js.h"
 
 $(CONFIG)\obj\action.obj: \
     src\action.c\

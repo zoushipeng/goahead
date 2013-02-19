@@ -114,14 +114,14 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 $(CONFIG)/inc/est.h: 
-	mkdir -p "vxworks-x86-default/inc"
-	cp "src/deps/est/est.h" "vxworks-x86-default/inc/est.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
 $(CONFIG)/inc/bit.h: 
 
 $(CONFIG)/inc/bitos.h: 
-	mkdir -p "vxworks-x86-default/inc"
-	cp "src/bitos.h" "vxworks-x86-default/inc/bitos.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c\
@@ -137,16 +137,16 @@ $(CONFIG)/bin/libest.out: \
 
 $(CONFIG)/bin/ca.crt: \
     src/deps/est/ca.crt
-	mkdir -p "vxworks-x86-default/bin"
-	cp "src/deps/est/ca.crt" "vxworks-x86-default/bin/ca.crt"
+	mkdir -p "$(CONFIG)/bin"
+	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
 $(CONFIG)/inc/goahead.h: 
-	mkdir -p "vxworks-x86-default/inc"
-	cp "src/goahead.h" "vxworks-x86-default/inc/goahead.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/goahead.h" "$(CONFIG)/inc/goahead.h"
 
 $(CONFIG)/inc/js.h: 
-	mkdir -p "vxworks-x86-default/inc"
-	cp "src/js.h" "vxworks-x86-default/inc/js.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/js.h" "$(CONFIG)/inc/js.h"
 
 $(CONFIG)/obj/action.o: \
     src/action.c\

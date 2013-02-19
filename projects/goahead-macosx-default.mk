@@ -110,14 +110,14 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 $(CONFIG)/inc/est.h: 
-	mkdir -p "macosx-x64-default/inc"
-	cp "src/deps/est/est.h" "macosx-x64-default/inc/est.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
 $(CONFIG)/inc/bit.h: 
 
 $(CONFIG)/inc/bitos.h: 
-	mkdir -p "macosx-x64-default/inc"
-	cp "src/bitos.h" "macosx-x64-default/inc/bitos.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c\
@@ -133,16 +133,16 @@ $(CONFIG)/bin/libest.dylib: \
 
 $(CONFIG)/bin/ca.crt: \
     src/deps/est/ca.crt
-	mkdir -p "macosx-x64-default/bin"
-	cp "src/deps/est/ca.crt" "macosx-x64-default/bin/ca.crt"
+	mkdir -p "$(CONFIG)/bin"
+	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
 $(CONFIG)/inc/goahead.h: 
-	mkdir -p "macosx-x64-default/inc"
-	cp "src/goahead.h" "macosx-x64-default/inc/goahead.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/goahead.h" "$(CONFIG)/inc/goahead.h"
 
 $(CONFIG)/inc/js.h: 
-	mkdir -p "macosx-x64-default/inc"
-	cp "src/js.h" "macosx-x64-default/inc/js.h"
+	mkdir -p "$(CONFIG)/inc"
+	cp "src/js.h" "$(CONFIG)/inc/js.h"
 
 $(CONFIG)/obj/action.o: \
     src/action.c\
