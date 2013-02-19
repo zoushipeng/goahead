@@ -110,14 +110,14 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 $(CONFIG)/inc/est.h: 
-	mkdir -p "/Users/mob/git/goahead/freebsd-x86-default/inc"
-	cp "src/deps/est/est.h" "/Users/mob/git/goahead/freebsd-x86-default/inc/est.h"
+	mkdir -p "freebsd-x86-default/inc"
+	cp "src/deps/est/est.h" "freebsd-x86-default/inc/est.h"
 
 $(CONFIG)/inc/bit.h: 
 
 $(CONFIG)/inc/bitos.h: 
-	mkdir -p "/Users/mob/git/goahead/freebsd-x86-default/inc"
-	cp "src/bitos.h" "/Users/mob/git/goahead/freebsd-x86-default/inc/bitos.h"
+	mkdir -p "freebsd-x86-default/inc"
+	cp "src/bitos.h" "freebsd-x86-default/inc/bitos.h"
 
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c\
@@ -133,16 +133,16 @@ $(CONFIG)/bin/libest.so: \
 
 $(CONFIG)/bin/ca.crt: \
     src/deps/est/ca.crt
-	mkdir -p "/Users/mob/git/goahead/freebsd-x86-default/bin"
-	cp "src/deps/est/ca.crt" "/Users/mob/git/goahead/freebsd-x86-default/bin/ca.crt"
+	mkdir -p "freebsd-x86-default/bin"
+	cp "src/deps/est/ca.crt" "freebsd-x86-default/bin/ca.crt"
 
 $(CONFIG)/inc/goahead.h: 
-	mkdir -p "/Users/mob/git/goahead/freebsd-x86-default/inc"
-	cp "src/goahead.h" "/Users/mob/git/goahead/freebsd-x86-default/inc/goahead.h"
+	mkdir -p "freebsd-x86-default/inc"
+	cp "src/goahead.h" "freebsd-x86-default/inc/goahead.h"
 
 $(CONFIG)/inc/js.h: 
-	mkdir -p "/Users/mob/git/goahead/freebsd-x86-default/inc"
-	cp "src/js.h" "/Users/mob/git/goahead/freebsd-x86-default/inc/js.h"
+	mkdir -p "freebsd-x86-default/inc"
+	cp "src/js.h" "freebsd-x86-default/inc/js.h"
 
 $(CONFIG)/obj/action.o: \
     src/action.c\
@@ -350,9 +350,9 @@ installBinary: stop
 	rm -f "/usr/local/share/man/man1/webcomp.1"
 	mkdir -p "/usr/local/share/man/man1"
 	ln -s "/usr/local/lib/goahead/3.1.0/doc/man/man1/webcomp.1" "/usr/local/share/man/man1/webcomp.1"
-	mkdir -p "/var/www/goahead-default/src"
-	mkdir -p "/var/www/goahead-default/src/web"
-	cp "src/web/index.html" "/var/www/goahead-default/src/web/index.html"
+	mkdir -p "/var/www/goahead-default"
+	mkdir -p "/var/www/goahead-default/web"
+	cp "src/web/index.html" "/var/www/goahead-default/web/index.html"
 	mkdir -p "/etc/goahead"
 	cp "src/auth.txt" "/etc/goahead/auth.txt"
 	cp "src/route.txt" "/etc/goahead/route.txt"

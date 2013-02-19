@@ -116,12 +116,12 @@ $(CONFIG)\bin\removeFiles.exe: \
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
 
 $(CONFIG)\inc\est.h: 
-	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
-	copy /Y "src\deps\est\est.h" "\Users\mob\git\goahead\windows-x86-default\inc\est.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\deps\est\est.h" "windows-x86-default\inc\est.h"
 
 $(CONFIG)\inc\bitos.h: 
-	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
-	copy /Y "src\bitos.h" "\Users\mob\git\goahead\windows-x86-default\inc\bitos.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\bitos.h" "windows-x86-default\inc\bitos.h"
 
 $(CONFIG)\obj\estLib.obj: \
     src\deps\est\estLib.c\
@@ -137,16 +137,16 @@ $(CONFIG)\bin\libest.dll: \
 
 $(CONFIG)\bin\ca.crt: \
     src\deps\est\ca.crt
-	if not exist "\Users\mob\git\goahead\windows-x86-default\bin" md "\Users\mob\git\goahead\windows-x86-default\bin"
-	copy /Y "src\deps\est\ca.crt" "\Users\mob\git\goahead\windows-x86-default\bin\ca.crt"
+	if not exist "windows-x86-default\bin" md "windows-x86-default\bin"
+	copy /Y "src\deps\est\ca.crt" "windows-x86-default\bin\ca.crt"
 
 $(CONFIG)\inc\goahead.h: 
-	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
-	copy /Y "src\goahead.h" "\Users\mob\git\goahead\windows-x86-default\inc\goahead.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\goahead.h" "windows-x86-default\inc\goahead.h"
 
 $(CONFIG)\inc\js.h: 
-	if not exist "\Users\mob\git\goahead\windows-x86-default\inc" md "\Users\mob\git\goahead\windows-x86-default\inc"
-	copy /Y "src\js.h" "\Users\mob\git\goahead\windows-x86-default\inc\js.h"
+	if not exist "windows-x86-default\inc" md "windows-x86-default\inc"
+	copy /Y "src\js.h" "windows-x86-default\inc\js.h"
 
 $(CONFIG)\obj\action.obj: \
     src\action.c\
@@ -348,9 +348,9 @@ installBinary: stop
 	if not exist "C:\Program Files\Embedthis GoAhead\man" md "C:\Program Files\Embedthis GoAhead\man"
 	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
 	if not exist "C:\Program Files\Embedthis GoAhead\web" md "C:\Program Files\Embedthis GoAhead\web"
-	if not exist "C:\Program Files\Embedthis GoAhead\web\src" md "C:\Program Files\Embedthis GoAhead\web\src"
-	if not exist "C:\Program Files\Embedthis GoAhead\web\src\web" md "C:\Program Files\Embedthis GoAhead\web\src\web"
-	copy /Y "src\web\index.html" "C:\Program Files\Embedthis GoAhead\web\src\web\index.html"
+	if not exist "C:\Program Files\Embedthis GoAhead\web" md "C:\Program Files\Embedthis GoAhead\web"
+	if not exist "C:\Program Files\Embedthis GoAhead\web\web" md "C:\Program Files\Embedthis GoAhead\web\web"
+	copy /Y "src\web\index.html" "C:\Program Files\Embedthis GoAhead\web\web\index.html"
 	if not exist "C:\Program Files\Embedthis GoAhead" md "C:\Program Files\Embedthis GoAhead"
 	copy /Y "src\auth.txt" "C:\Program Files\Embedthis GoAhead\auth.txt"
 	copy /Y "src\route.txt" "C:\Program Files\Embedthis GoAhead\route.txt"
