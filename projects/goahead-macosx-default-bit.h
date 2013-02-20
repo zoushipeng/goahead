@@ -32,7 +32,7 @@
     #define BIT_GOAHEAD_AUTH 1
 #endif
 #ifndef BIT_GOAHEAD_AUTH_STORE
-    #define BIT_GOAHEAD_AUTH_STORE "pam"
+    #define BIT_GOAHEAD_AUTH_STORE "file"
 #endif
 #ifndef BIT_GOAHEAD_AUTO_LOGIN
     #define BIT_GOAHEAD_AUTO_LOGIN 0
@@ -170,7 +170,7 @@
     #define BIT_HAS_MTUNE 1
 #endif
 #ifndef BIT_HAS_PAM
-    #define BIT_HAS_PAM 1
+    #define BIT_HAS_PAM 0
 #endif
 #ifndef BIT_HAS_STACK_PROTECTOR
     #define BIT_HAS_STACK_PROTECTOR 1

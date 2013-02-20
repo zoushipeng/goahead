@@ -52,7 +52,8 @@ all compile: prep \
         $(CONFIG)\bin\ca.crt \
         $(CONFIG)\bin\libgo.dll \
         $(CONFIG)\bin\goahead.exe \
-        $(CONFIG)\bin\goahead-test.exe
+        $(CONFIG)\bin\goahead-test.exe \
+        $(CONFIG)\bin\gopass.exe
 
 .PHONY: prep
 
@@ -77,6 +78,7 @@ clean:
 	-if exist $(CONFIG)\bin\libgo.dll del /Q $(CONFIG)\bin\libgo.dll
 	-if exist $(CONFIG)\bin\goahead.exe del /Q $(CONFIG)\bin\goahead.exe
 	-if exist $(CONFIG)\bin\goahead-test.exe del /Q $(CONFIG)\bin\goahead-test.exe
+	-if exist $(CONFIG)\bin\gopass.exe del /Q $(CONFIG)\bin\gopass.exe
 	-if exist $(CONFIG)\obj\removeFiles.obj del /Q $(CONFIG)\obj\removeFiles.obj
 	-if exist $(CONFIG)\obj\estLib.obj del /Q $(CONFIG)\obj\estLib.obj
 	-if exist $(CONFIG)\obj\action.obj del /Q $(CONFIG)\obj\action.obj
@@ -101,6 +103,7 @@ clean:
 	-if exist $(CONFIG)\obj\matrixssl.obj del /Q $(CONFIG)\obj\matrixssl.obj
 	-if exist $(CONFIG)\obj\openssl.obj del /Q $(CONFIG)\obj\openssl.obj
 	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
+	-if exist $(CONFIG)\obj\gopass.obj del /Q $(CONFIG)\obj\gopass.obj
 
 $(CONFIG)\inc\bit.h: 
 
@@ -332,6 +335,21 @@ $(CONFIG)\bin\goahead-test.exe: \
     $(CONFIG)\inc\js.h \
     $(CONFIG)\obj\test.obj
 	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj libgo.lib $(LIBS) libest.lib
+
+$(CONFIG)\obj\gopass.obj: \
+    src\utils\gopass.c\
+    $(CONFIG)\inc\bit.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\bitos.h
+	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\utils\gopass.c
+
+$(CONFIG)\bin\gopass.exe: \
+    $(CONFIG)\bin\libgo.dll \
+    $(CONFIG)\inc\bitos.h \
+    $(CONFIG)\inc\goahead.h \
+    $(CONFIG)\inc\js.h \
+    $(CONFIG)\obj\gopass.obj
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj libgo.lib $(LIBS) libest.lib
 
 version: 
 	@echo 3.1.0-1

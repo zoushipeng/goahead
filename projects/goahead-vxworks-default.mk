@@ -60,7 +60,8 @@ all compile: prep \
         $(CONFIG)/bin/ca.crt \
         $(CONFIG)/bin/libgo.out \
         $(CONFIG)/bin/goahead.out \
-        $(CONFIG)/bin/goahead-test.out
+        $(CONFIG)/bin/goahead-test.out \
+        $(CONFIG)/bin/gopass.out
 
 .PHONY: prep
 
@@ -83,6 +84,7 @@ clean:
 	rm -rf $(CONFIG)/bin/libgo.out
 	rm -rf $(CONFIG)/bin/goahead.out
 	rm -rf $(CONFIG)/bin/goahead-test.out
+	rm -rf $(CONFIG)/bin/gopass.out
 	rm -rf $(CONFIG)/obj/estLib.o
 	rm -rf $(CONFIG)/obj/action.o
 	rm -rf $(CONFIG)/obj/alloc.o
@@ -106,6 +108,7 @@ clean:
 	rm -rf $(CONFIG)/obj/matrixssl.o
 	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/test.o
+	rm -rf $(CONFIG)/obj/gopass.o
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -331,6 +334,21 @@ $(CONFIG)/bin/goahead-test.out: \
     $(CONFIG)/inc/js.h \
     $(CONFIG)/obj/test.o
 	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LDFLAGS)
+
+$(CONFIG)/obj/gopass.o: \
+    src/utils/gopass.c\
+    $(CONFIG)/inc/bit.h \
+    $(CONFIG)/inc/goahead.h \
+    $(CONFIG)/inc/bitos.h
+	$(CC) -c -o $(CONFIG)/obj/gopass.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/utils/gopass.c
+
+$(CONFIG)/bin/gopass.out: \
+    $(CONFIG)/bin/libgo.out \
+    $(CONFIG)/inc/bitos.h \
+    $(CONFIG)/inc/goahead.h \
+    $(CONFIG)/inc/js.h \
+    $(CONFIG)/obj/gopass.o
+	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LDFLAGS)
 
 version: 
 	@echo 3.1.0-1
