@@ -64,8 +64,9 @@ Bit.load({
 
             /*
                 Select the password store mechanism. Set to: pam, file, custom
+                If using PAM, must also set authPam to true
              */
-            authStore: "pam",
+            authStore: "file",
 
             /*
                 Automatically login. Useful for debugging.
@@ -247,6 +248,14 @@ Bit.load({
         'custom.bit',
     ],
 
+    scripts: {
+        postconfig: "
+            if (bit.settings.goahead.authStore != 'pam') {
+                bit.settings.hasPam = false
+            }
+        ",
+    },
+
     targets: {
         /*
             Target for the goahead executable
@@ -260,7 +269,7 @@ Bit.load({
             depends: [ 'est', 'openssl', 'matrixssl' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam && bit.settings.goahead.authStore == 'pam') {
+                    if (bit.settings.hasPam) {
                         bit.target.libraries.push('pam')
                     }                                                                                      
                 ",  
@@ -274,7 +283,7 @@ Bit.load({
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam && bit.settings.goahead.authStore == 'pam') {
+                    if (bit.settings.hasPam) {
                         bit.target.libraries.push('pam')
                     }                                                                                      
                 ",  
@@ -292,7 +301,7 @@ Bit.load({
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam && bit.settings.goahead.authStore == 'pam') {
+                    if (bit.settings.hasPam) {
                         bit.target.libraries.push('pam')
                     }                                                                                      
                 ",  
@@ -303,7 +312,7 @@ Bit.load({
             Compiler for web pages into C code
          */
         gopass: {
-            enable: 'bit.settings.auth',
+            enable: 'bit.settings.goahead.auth',
             type: 'exe',
             sources: [ 'src/utils/gopass.c' ],
             headers: [ 'src/*.h' ],
