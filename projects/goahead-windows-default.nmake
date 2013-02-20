@@ -347,7 +347,10 @@ installBinary: stop
 	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
-	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
+	if not exist "$(BIT_VAPP_PREFIX)\web\web\bench" md "$(BIT_VAPP_PREFIX)\web\web\bench"
+	copy /Y "src\web\bench\1b.html" "$(BIT_VAPP_PREFIX)\web\web\bench\1b.html"
+	copy /Y "src\web\bench\4k.html" "$(BIT_VAPP_PREFIX)\web\web\bench\4k.html"
+	copy /Y "src\web\bench\64k.html" "$(BIT_VAPP_PREFIX)\web\web\bench\64k.html"
 	if not exist "$(BIT_VAPP_PREFIX)\web\web" md "$(BIT_VAPP_PREFIX)\web\web"
 	copy /Y "src\web\index.html" "$(BIT_VAPP_PREFIX)\web\web\index.html"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
@@ -368,5 +371,7 @@ uninstall: stop
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q "$(BIT_VAPP_PREFIX)\web"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
 
 
