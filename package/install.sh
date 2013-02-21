@@ -50,6 +50,7 @@ HTTP_PORT=80
 SSL_PORT=443
 
 PATH="$PATH:/sbin:/usr/sbin"
+unset CDPATH
 export CYGWIN=nodosfilewarning
 CYGWIN=nodosfilewarning
 
@@ -57,7 +58,7 @@ CYGWIN=nodosfilewarning
 
 setup() {
     umask 022
-    if [ $OS != WIN -a `id -u` != "0" ] ; then
+    if [ $OS != windows -a `id -u` != "0" ] ; then
         echo "You must be root to install this product."
         exit 255
     fi
@@ -280,13 +281,8 @@ installFiles() {
                 dpkg -i $HOME/$NAME >/dev/null
             elif [ "$FMT" = "tar" ] ; then
                 target=/
-                [ $OS = WIN ] && target=`cygpath ${HOMEDRIVE}/`
-                [ "$headless" != 1 ] && echo cp -rp contents/* $target
-                cp -rp contents/* $target
-
-                cd contents >/dev/null
-                find . -type f >"$VER_PREFIX/files.log"
-                cd - >/dev/null
+                [ $OS = windows ] && target=`cygpath ${HOMEDRIVE}/`
+                (cd contents ; tar cf - . | (cd $target && tar xBf -))
             fi
         fi
     done
@@ -299,20 +295,19 @@ installFiles() {
         fi
     fi
 
-    if [ "$OS" = "FREEBSD" ] ; then
-        LDCONFIG_OPT=-m
-    else
-        LDCONFIG_OPT=-n
-    fi
-    if which ldconfig >/dev/null 2>&1 ; then
-        ldconfig /usr/lib/lib${PRODUCT}.so.?.?.?
-        ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}
-        ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}/modules
-    fi
-    "$BIN_PREFIX/linkup" Install /
+#   if [ "$OS" = "freebsd" ] ; then
+#       LDCONFIG_OPT=-m
+#   else
+#       LDCONFIG_OPT=-n
+#   fi
+#   if which ldconfig >/dev/null 2>&1 ; then
+#       ldconfig /usr/lib/lib${PRODUCT}.so.?.?.?
+#       ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}
+#       ldconfig $LDCONFIG_OPT /usr/lib/${PRODUCT}/modules
+#   fi
 
     [ "$headless" != 1 ] && echo -e "\nSetting file permissions ..."
-    if [ $OS = WIN ] ; then
+    if [ $OS = windows ] ; then
         # Cygwin bug. Chmod fails to stick if not in current directory for paths with spaces
         home=`pwd` >/dev/null
         mkdir -p "$SPL_PREFIX" "$SPL_PREFIX/cache" "$LOG_PREFIX"
@@ -339,7 +334,7 @@ patchConfiguration() {
     if [ ! -f $PRODUCT.conf -a -f "$CFG_PREFIX/new.conf" ] ; then
         cp "$CFG_PREFIX/new.conf" "$CFG_PREFIX/$PRODUCT.conf"
     fi
-    if [ $OS = WIN ] ; then
+    if [ $OS = windows ] ; then
         "$BIN_PREFIX/setConfig" --port ${HTTP_PORT} --ssl ${SSL_PORT} --home "." --logs "logs" \
             --documents "web" --modules "bin" --cache "cache" \
             --user $username --group $groupname "${CFG_PREFIX}/goahead.conf"
@@ -362,9 +357,9 @@ startBrowser() {
     #
     sleep 5
     [ "$headless" != 1 ] && echo -e "Starting browser to view the $NAME Home Page."
-    if [ $OS = WIN ] ; then
+    if [ $OS = windows ] ; then
         cygstart --shownormal http://$SITE:$HTTP_PORT$PAGE 
-    elif [ $OS = MACOSX ] ; then
+    elif [ $OS = macosx ] ; then
         open http://$SITE:$HTTP_PORT$PAGE >/dev/null 2>&1 &
     else
         for f in /usr/bin/htmlview /usr/bin/firefox /usr/bin/mozilla /usr/bin/konqueror 
@@ -386,7 +381,7 @@ askUser
 if [ "$installbin" = "Y" ] ; then
     [ "$headless" != 1 ] && echo "Disable existing service"
     appman stop disable uninstall >/dev/null 2>&1
-    if [ $OS = WIN ] ; then
+    if [ $OS = windows ] ; then
         "$BIN_PREFIX/goaheadMonitor" --stop >/dev/null 2>&1
     fi
 fi
@@ -403,7 +398,7 @@ if [ "$installbin" = "Y" ] ; then
         "$BIN_PREFIX/appman" start
     fi
 fi
-if [ $OS = WIN ] ; then
+if [ $OS = windows ] ; then
     "$BIN_PREFIX/goaheadMonitor" >/dev/null 2>&1 &
 fi
 if [ "$headless" != 1 ] ; then

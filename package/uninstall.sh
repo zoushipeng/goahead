@@ -143,7 +143,7 @@ removeTarFiles() {
     pkg=$1
     [ $pkg = bin ] && prefix="$VER_PREFIX"
     if [ -f "$prefix/files.log" ] ; then
-        if [ $OS = WIN ] ; then
+        if [ $OS = windows ] ; then
             cd ${prefix%%:*}:/
         else
             cd /
@@ -160,7 +160,7 @@ preClean() {
     local cdir=`pwd`
 
     cp "$BIN_PREFIX/linkup" /tmp/linkup$$
-    if [ $OS != WIN ] ; then
+    if [ $OS != windows ] ; then
         rm -f /var/lock/subsys/$PRODUCT /var/lock/$PRODUCT
         rm -fr /var/log/$PRODUCT
         rm -rf /var/run/$PRODUCT
@@ -203,7 +203,7 @@ postClean() {
     cleanDir "${WEB_PREFIX}"
     cleanDir "${SPL_PREFIX}"
 
-    if [ $OS != WIN ] ; then
+    if [ $OS != windows ] ; then
         if [ -x /usr/share/$PRODUCT ] ; then
             cleanDir /usr/share/$PRODUCT
         fi
@@ -280,7 +280,7 @@ removeIntermediateFiles() {
 
 
 setup() {
-    if [ `id -u` != "0" -a $OS != WIN ] ; then
+    if [ `id -u` != "0" -a $OS != windows ] ; then
         echo "You must be root to remove this product."
         exit 255
     fi
