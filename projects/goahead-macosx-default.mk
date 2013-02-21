@@ -353,6 +353,14 @@ stop:
 	
 
 installBinary: stop
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
+	cp "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
+	rm -f "$(BIT_BIN_PREFIX)/goahead"
+	mkdir -p "$(BIT_BIN_PREFIX)"
+	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
+	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
+	cp "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
+	cp "$(CONFIG)/bin/libgo.dylib" "$(BIT_VAPP_PREFIX)/bin/libgo.dylib"
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
@@ -360,11 +368,9 @@ installBinary: stop
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
 	cp "doc/man/gopass.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
 	cp "doc/man/webcomp.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
 	mkdir -p "$(BIT_WEB_PREFIX)/web/bench"
 	cp "src/web/bench/1b.html" "$(BIT_WEB_PREFIX)/web/bench/1b.html"
@@ -390,5 +396,6 @@ uninstall: stop
 	rmdir -p "$(BIT_WEB_PREFIX)"
 	rmdir -p "$(BIT_VAPP_PREFIX)"
 	rmdir -p "$(BIT_APP_PREFIX)"
+	rm -fr "$(BIT_INC_PREFIX)/goahead"
 
 

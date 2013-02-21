@@ -365,6 +365,11 @@ installBinary: stop
 	if not exist "$(BIT_VAPP_PREFIX)\man" md "$(BIT_VAPP_PREFIX)\man"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	if not exist "$(BIT_VAPP_PREFIX)\web" md "$(BIT_VAPP_PREFIX)\web"
+	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
+	copy /Y "$(CONFIG)\bin\goahead.exe" "$(BIT_VAPP_PREFIX)\bin\goahead.exe"
+	copy /Y "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
+	copy /Y "$(CONFIG)\bin\libest.dll" "$(BIT_VAPP_PREFIX)\bin\libest.dll"
+	copy /Y "$(CONFIG)\bin\libgo.dll" "$(BIT_VAPP_PREFIX)\bin\libgo.dll"
 	if not exist "$(BIT_VAPP_PREFIX)\web\web\bench" md "$(BIT_VAPP_PREFIX)\web\web\bench"
 	copy /Y "src\web\bench\1b.html" "$(BIT_VAPP_PREFIX)\web\web\bench\1b.html"
 	copy /Y "src\web\bench\4k.html" "$(BIT_VAPP_PREFIX)\web\web\bench\4k.html"
@@ -391,5 +396,6 @@ uninstall: stop
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q "$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	if exist "$(BIT_VAPP_PREFIX)\inc\goahead" rd /Q /S"$(BIT_VAPP_PREFIX)\inc\goahead"
 
 
