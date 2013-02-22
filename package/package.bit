@@ -1,5 +1,5 @@
 /*
-    manifest.bit - Install and Package File Manifest for GoAhead
+    package.bit - Install and Package File Manifest for GoAhead
  */
 
 Bit.load({
@@ -8,24 +8,23 @@ Bit.load({
         The sets used are: binary, doc, dev, package, source
      */
     manifest: {
-
         packages:   {
             install: {
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
-                sets:       [ 'install' ],
-                platforms:  [ 'windows', 'posix' ]
+                sets:       [ 'core', 'doc' ],
+                platforms:  [ 'posix', 'windows' ]
             },
             binary: {
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
                 formats:    [ 'native', 'tar' ],
-                sets:       [ 'binary', 'doc', 'package' ],
-                platforms:  [ 'windows', 'macosx' ]
+                sets:       [ 'core', 'doc', 'package' ],
+                platforms:  [ 'freebsd', 'linux', 'macosx', 'windows' ]
             },
             source: {
                 inherit:    'embedthis-manifest',
-                prefixes:   [ 'root', 'src'],
+                prefixes:   [ 'root', 'src' ],
                 formats:    [ 'tar' ],
                 sets:       [ 'source' ],
             },
@@ -36,7 +35,7 @@ Bit.load({
             {   from:   '${BIN}/goahead${EXE}',
                 to:     '${abin}/',
                 linkin: '${bin}',
-                set:    'binary, install',
+                set:    'core',
 
             },{ from: [
                     '${BIN}/ca.crt',
@@ -44,23 +43,23 @@ Bit.load({
                     '${BIN}/libgo${SHOBJ}',
                 ],
                 to:     '${abin}/',
-                set:    'binary, install',
+                set:    'core',
 
             },{ from:   ['doc/man/*.1'],
                 to:     '${adoc}/man/man1/',
                 linkin: '${man}/man1',
                 enable: "bit.platform.like == 'posix'",
-                set:    'doc, install',
+                set:    'doc',
 
             },{ from:   'src/web',
                 to:     '${web}/',
                 exclude: /mgmt|bench|test/,
                 subtree: true,
-                set:    'binary, install',
+                set:    'core',
 
             },{ from:   ['src/auth.txt', 'src/route.txt'],
                 to:     '${etc}/'
-                set:    'binary, install',
+                set:    'core',
             
             /* Source Set */
             },{ from:   [ '*.md' ],

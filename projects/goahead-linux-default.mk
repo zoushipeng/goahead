@@ -34,7 +34,7 @@ BIT_SRC_PREFIX        := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
 CFLAGS          += -fPIC   -w
 DFLAGS          += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS)))
 IFLAGS          += -I$(CONFIG)/inc
-LDFLAGS         += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-Wl,-rpath,$$ORIGIN/../bin' '-rdynamic'
+LDFLAGS         += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-rdynamic'
 LIBPATHS        += -L$(CONFIG)/bin
 LIBS            += -lpthread -lm -lrt -ldl
 
@@ -353,6 +353,9 @@ stop:
 	
 
 installBinary: stop
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	mkdir -p "$(BIT_APP_PREFIX)"
+	ln -s "3.1.0" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
 	rm -f "$(BIT_BIN_PREFIX)/goahead"
@@ -390,5 +393,10 @@ install: stop installBinary start
 	
 
 uninstall: stop
+	rm -fr "$(BIT_VAPP_PREFIX)"
+	rmdir -p "$(BIT_ETC_PREFIX)"
+	rmdir -p "$(BIT_WEB_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	rmdir -p "$(BIT_APP_PREFIX)"
 
 
