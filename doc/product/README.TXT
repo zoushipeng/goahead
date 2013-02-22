@@ -27,25 +27,23 @@ System Requirements
 Operating System Support
 
     * Windows XP, Vista, Windows-7 (x86,x64)
-    * Mac OS X 10.4, 10.5 (x86,x64)
+    * Mac OS X 10.6+ (x64)
     * Linux 2.4, 2.6 (x86,x64,arm,ppc,sparc,xscale,mips)
     * VxWorks (x86,arm,ppc,sparc,xscale,mips)
-    * Solaris (sparc,x86,x64)
 
 To install GoAhead, your development system will need at least the following:
 
-    * 50 MB Disk
-    * 1 GB RAM
+    * 5 MB Disk
+    * 512 GB RAM
 
 To deploy GoAhead in an embedded environment, you will need at least the following:
 
-    * 2 MB Disk / ROM space
-    * 2 MB RAM
+    * 1 MB Disk / ROM space
+    * 1 MB RAM
 
 To rebuild GoAhead from source code on your development system, you will need at least:
 
-    * 80 MB disk space
-
+    * 100 MB disk space
 
 Installation Package Formats
 
