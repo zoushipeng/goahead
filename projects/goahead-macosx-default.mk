@@ -124,7 +124,7 @@ clobber: clean
 #   est.h
 #
 $(CONFIG)/inc/est.h: $(DEPS_1)
-	@echo '      [File] macosx-x64-default/inc/est.h'
+	@echo '      [File] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
@@ -139,7 +139,7 @@ $(CONFIG)/inc/bit.h: $(DEPS_2)
 DEPS_3 += $(CONFIG)/inc/bit.h
 
 $(CONFIG)/inc/bitos.h: $(DEPS_3)
-	@echo '      [File] macosx-x64-default/inc/bitos.h'
+	@echo '      [File] $(CONFIG)/inc/bitos.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
@@ -173,7 +173,7 @@ endif
 DEPS_6 += src/deps/est/ca.crt
 
 $(CONFIG)/bin/ca.crt: $(DEPS_6)
-	@echo '      [File] macosx-x64-default/bin/ca.crt'
+	@echo '      [File] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
@@ -181,7 +181,7 @@ $(CONFIG)/bin/ca.crt: $(DEPS_6)
 #   goahead.h
 #
 $(CONFIG)/inc/goahead.h: $(DEPS_7)
-	@echo '      [File] macosx-x64-default/inc/goahead.h'
+	@echo '      [File] $(CONFIG)/inc/goahead.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/goahead.h" "$(CONFIG)/inc/goahead.h"
 
@@ -189,7 +189,7 @@ $(CONFIG)/inc/goahead.h: $(DEPS_7)
 #   js.h
 #
 $(CONFIG)/inc/js.h: $(DEPS_8)
-	@echo '      [File] macosx-x64-default/inc/js.h'
+	@echo '      [File] $(CONFIG)/inc/js.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/js.h" "$(CONFIG)/inc/js.h"
 
@@ -573,21 +573,21 @@ installBinary: $(DEPS_39)
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_ETC_PREFIX)"
 	mkdir -p "$(BIT_WEB_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_APP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
 	ln -s "3.1.0" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
 	mkdir -p "$(BIT_BIN_PREFIX)"
+	rm -f "$(BIT_BIN_PREFIX)/goahead"
 	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
 	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
 	cp "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
 	cp "$(CONFIG)/bin/libgo.dylib" "$(BIT_VAPP_PREFIX)/bin/libgo.dylib"
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
 	mkdir -p "$(BIT_MAN_PREFIX)/man1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
 	cp "doc/man/gopass.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1"
 	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
