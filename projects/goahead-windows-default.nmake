@@ -23,7 +23,7 @@ CC              = cl
 LD              = link
 RC              = rc
 CFLAGS          = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS          = -D_REENTRANT -D_MT -DBIT_DEBUG
+DFLAGS          = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EST=$(BIT_PACK_EST) 
 IFLAGS          = -I$(CONFIG)\inc
 LDFLAGS         = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS        = -libpath:$(CONFIG)\bin
