@@ -63,7 +63,7 @@ TARGETS     = $(TARGETS) $(CONFIG)\bin\gopass.exe
 .SILENT:
 !ENDIF
 
-all compile: prep $(TARGETS)
+all build compile: prep $(TARGETS)
 
 .PHONY: prep
 
