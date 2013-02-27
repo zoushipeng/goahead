@@ -25,7 +25,7 @@ together with other software or hardware of significant value-add.
 "Modifications" means any addition, deletion or change from the substance or structure of the Software or any previous
 Modifications made by Licensee.
 
-"Server ID" means the ÒServerÓ HTTP response header field issued by the Software which contains the text "Server: GoAhead".
+"Server ID" means the "Server" HTTP response header field issued by the Software which contains the text "Server: GoAhead".
 
 "Software" means the Embedthis software including all source code, headers, documentation and data files including any optional maintenance updates and upgrades that have been supplied by Embedthis to Licensee.
 
@@ -35,7 +35,10 @@ a. Use, compile and modify the Software for the purposes of creating Integrated 
 b. Use, demonstrate, distribute, market, promote, reproduce and sell Integrated Products containing the Software in binary form. This does not include the right to sublicense the Software nor does it permit Licensee customers to modify or customize the Software.  
 
 2. Trademark License
-Embedthis hereby grants to Licensee a limited worldwide, royalty-free, non-exclusive license to use the Embedthis GoAhead trade names, trademark and logo (collectively, the "Embedthis Marks") in connection with the activities by Licensee under this Agreement. The use by Licensee of Embedthis Marks shall be in accordance with the Embedthis trademark policies as established at the web site: http://embedthis.com/goahead/, or as otherwise communicated to Licensee by Embedthis at its sole discretion. Licensee understands and agrees that any use of Embedthis Marks in connection with this Agreement shall not create any right, title or interest in or to such Embedthis Marks and that all such use and goodwill associated with Embedthis Marks will inure to the benefit of Embedthis.
+Embedthis hereby grants to Licensee a limited worldwide, royalty-free, non-exclusive license to use the Embedthis GoAhead
+trade names, trademark and logo (collectively, the "Embedthis Marks") in connection with the activities by Licensee under
+this Agreement. The use by Licensee of Embedthis Marks shall be in accordance with the Embedthis trademark policies as
+established at the web site: http://embedthis.com/products/goahead/, or as otherwise communicated to Licensee by Embedthis at its sole discretion. Licensee understands and agrees that any use of Embedthis Marks in connection with this Agreement shall not create any right, title or interest in or to such Embedthis Marks and that all such use and goodwill associated with Embedthis Marks will inure to the benefit of Embedthis.
 
 3. Notification
 Licensee will provide to Embedthis a complete description of the Integrated Product, the product version/ model number, the date on which the Integrated Product initially shipped, and a contact name, phone number and e-mail address for future correspondence. Embedthis will keep confidential all data specifically marked as such.  
