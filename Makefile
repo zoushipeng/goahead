@@ -38,7 +38,7 @@ all compile:
 	@echo ; echo 'You can now install via "sudo make install" or run GoAhead via: "sudo make run"'
 	@echo ; echo "To run locally, put $(OS)-$(ARCH)-$(PROFILE)/bin in your path" ; echo
 
-clean clobber deploy uninstall run:
+clean clobber installBinary uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
 install:
@@ -50,7 +50,7 @@ version:
 
 help:
 	@echo '' >&2
-	@echo 'usage: make [clean, compile, deploy, install, run, uninstall]' >&2
+	@echo 'usage: make [clean, compile, install, run, uninstall]' >&2
 	@echo '' >&2
 	@echo 'With make, the default configuration can be modified by setting make' >&2
 	@echo 'variables. Set to 0 to disable and 1 to enable:' >&2
