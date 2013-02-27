@@ -7,7 +7,7 @@ The Effective Date of this Agreement is the date of the initial download of the 
 
 "Modifications" means any addition, deletion or change from the substance or structure of the Software or any previous Modifications made by Licensee.
 
-"Server ID" means the “Server” HTTP response header field issued by the Software which contains the text “Server: GoAhead”.
+"Server ID" means the "Server" HTTP response header field issued by the Software which contains the text "Server: GoAhead".
 
 "Software" means the Embedthis software including all source code, headers, documentation and data files including any optional maintenance updates and upgrades that have been supplied by Embedthis to Licensee.
 
@@ -54,3 +54,14 @@ Licensee may not assign or otherwise transfer any of the rights or obligations a
 This Agreement will be governed by the laws of the State of Washington, USA and the parties submit to the non-exclusive jurisdiction of the courts of that state. This Agreement contains the entire agreement between Licensee and Embedthis and supersedes all prior agreements, negotiations or other communications between the parties relating to the Software. This Agreement may only be amended or modified by agreement in writing.
 
 - END -
+
+Third Party Components
+
+See LICENSE.md for other licenses. Contributors have provided portions of the software that are covered by the Embedthis
+Contributor license that grants Embedthis sufficient rights to execute this license Agreement.
+
+Trademarks and Copyrights
+
+Copyright (c) 2003-2013 Embedthis Software, LLC. All Rights Reserved.
+Embedthis, Appweb, Ejscript, ESP and Embedthis GoAhead are trademarks of Embedthis Software, LLC. Other brands and their
+products are trademarks of their respective holders.
