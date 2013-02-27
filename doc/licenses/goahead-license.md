@@ -19,15 +19,15 @@ THIS IS A CONTRACT. PLEASE READ THESE TERMS AND CONDITIONS CAREFULLY BEFORE DOWN
 
 The Effective Date of this Agreement is the date of the initial download of the Software. 
 
-. "Integrated Product" means the Licensee's application or device that incorporates the Software in binary form only, 
+"Integrated Product" means the Licensee's application or device that incorporates the Software in binary form only, 
 together with other software or hardware of significant value-add.
 
-. "Modifications" means any addition, deletion or change from the substance or structure of the Software or any previous
+"Modifications" means any addition, deletion or change from the substance or structure of the Software or any previous
 Modifications made by Licensee.
 
-. "Server ID" means the ÒServerÓ HTTP response header field issued by the Software which contains the text "Server: GoAhead".
+"Server ID" means the ÒServerÓ HTTP response header field issued by the Software which contains the text "Server: GoAhead".
 
-. "Software" means the Embedthis software including all source code, headers, documentation and data files including any optional maintenance updates and upgrades that have been supplied by Embedthis to Licensee.
+"Software" means the Embedthis software including all source code, headers, documentation and data files including any optional maintenance updates and upgrades that have been supplied by Embedthis to Licensee.
 
 1. Grant of License
 Subject to the terms and conditions of this Agreement, the Licensee is hereby granted a worldwide, royalty-free, non-exclusive, non-transferable (except as permitted herein) right to:
@@ -68,7 +68,7 @@ The Licensee may terminate this license at any time by providing Embedthis writt
 11. Transfer
 Licensee may not assign or otherwise transfer any of the rights or obligations arising out of this Agreement except to transfer this Agreement to any successor in connection with any transfer of all or substantially all of its assets or to any party that acquires voting control of the Licensee in a merger, acquisition or reorganization.
 
-  12. Applicable Law and General Provisions
+12. Applicable Law and General Provisions
 This Agreement will be governed by the laws of the State of Washington, USA and the parties submit to the non-exclusive jurisdiction of the courts of that state. This Agreement contains the entire agreement between Licensee and Embedthis and supersedes all prior agreements, negotiations or other communications between the parties relating to the Software. This Agreement may only be amended or modified by agreement in writing.
 
 Trademarks and Copyrights
