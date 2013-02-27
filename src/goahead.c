@@ -85,7 +85,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
+            printf("%s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
 
         } else {
