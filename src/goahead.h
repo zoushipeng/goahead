@@ -2845,7 +2845,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
 
 /*************************************** SSL ***********************************/
 
-#if BIT_SSL
+#if BIT_PACK_SSL
 /**
     Open the ssl module
     @return Zero if successful, otherwise -1.
@@ -2894,7 +2894,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len);
     @ingroup Webs
  */
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len);
-#endif /* BIT_SSL */
+#endif /* BIT_PACK_SSL */
 
 /*************************************** Route *********************************/
 /**

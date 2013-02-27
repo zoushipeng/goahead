@@ -32,7 +32,7 @@
     #define BIT_GOAHEAD_AUTH 1
 #endif
 #ifndef BIT_GOAHEAD_AUTH_STORE
-    #define BIT_GOAHEAD_AUTH_STORE "pam"
+    #define BIT_GOAHEAD_AUTH_STORE "file"
 #endif
 #ifndef BIT_GOAHEAD_AUTO_LOGIN
     #define BIT_GOAHEAD_AUTO_LOGIN 0
@@ -196,9 +196,6 @@
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "compiler,lib,link"
 #endif
-#ifndef BIT_SSL
-    #define BIT_SSL 1
-#endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
 #endif
@@ -296,7 +293,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform linux-x86-default --without default -configure . -gen make"
+    #define BIT_CONFIG_CMD "bit -d -q -platform linux-x86-default -configure . --without default -gen make"
 #endif
 #ifndef BIT_GOAHEAD_PRODUCT
     #define BIT_GOAHEAD_PRODUCT 1
@@ -355,6 +352,9 @@
 #endif
 #ifndef BIT_PACK_PMAKER
     #define BIT_PACK_PMAKER 0
+#endif
+#ifndef BIT_PACK_SSL
+    #define BIT_PACK_SSL 1
 #endif
 #ifndef BIT_PACK_UTEST
     #define BIT_PACK_UTEST 1

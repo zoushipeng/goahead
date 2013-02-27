@@ -32,7 +32,7 @@
     #define BIT_GOAHEAD_AUTH 1
 #endif
 #ifndef BIT_GOAHEAD_AUTH_STORE
-    #define BIT_GOAHEAD_AUTH_STORE "pam"
+    #define BIT_GOAHEAD_AUTH_STORE "file"
 #endif
 #ifndef BIT_GOAHEAD_AUTO_LOGIN
     #define BIT_GOAHEAD_AUTO_LOGIN 0
@@ -163,6 +163,9 @@
 #ifndef BIT_HAS_MMU
     #define BIT_HAS_MMU 1
 #endif
+#ifndef BIT_HAS_PAM
+    #define BIT_HAS_PAM 0
+#endif
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
 #endif
@@ -177,9 +180,6 @@
 #endif
 #ifndef BIT_REQUIRED
     #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc"
-#endif
-#ifndef BIT_SSL
-    #define BIT_SSL 1
 #endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
@@ -275,7 +275,7 @@
 
 /* Profile */
 #ifndef BIT_CONFIG_CMD
-    #define BIT_CONFIG_CMD "bit -d -q -platform windows-x86-default --without default -configure . -gen vs"
+    #define BIT_CONFIG_CMD "bit -d -q -platform windows-x86-default -configure . --without default -gen vs"
 #endif
 #ifndef BIT_GOAHEAD_PRODUCT
     #define BIT_GOAHEAD_PRODUCT 1
@@ -340,6 +340,9 @@
 #endif
 #ifndef BIT_PACK_RC
     #define BIT_PACK_RC 1
+#endif
+#ifndef BIT_PACK_SSL
+    #define BIT_PACK_SSL 1
 #endif
 #ifndef BIT_PACK_UTEST
     #define BIT_PACK_UTEST 1

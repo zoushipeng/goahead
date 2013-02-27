@@ -229,7 +229,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (setLocalHost() < 0) {
         return -1;
     }
-#if BIT_SSL
+#if BIT_PACK_SSL
     if (sslOpen() < 0) {
         return -1;
     }
@@ -322,7 +322,7 @@ PUBLIC void websClose()
     wfree(websIpAddrUrl);
     websIpAddrUrl = websHostUrl = NULL;
 
-#if BIT_SSL
+#if BIT_PACK_SSL
     sslClose();
 #endif
 #if BIT_GOAHEAD_ACCESS_LOG
@@ -477,7 +477,7 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->qop);
 #endif
     hashFree(wp->vars);
-#if BIT_SSL
+#if BIT_PACK_SSL
     if (!reuse) {
         sslFree(wp);
     }
@@ -696,7 +696,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
      lp = socketPtr(listenSid);
     trace(4, "New connection from %s:%d to %s:%d", ipaddr, port, wp->ifaddr, lp->port);
 
-#if BIT_SSL
+#if BIT_PACK_SSL
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
         trace(4, "Upgrade connection to TLS");
@@ -750,7 +750,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
     assert(wp);
     assert(buf);
     assert(len > 0);
-#if BIT_SSL
+#if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         return sslRead(wp, buf, len);
     }
@@ -1944,7 +1944,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
     if (wp->flags & WEBS_CLOSED) {
         return -1;
     }
-#if BIT_SSL
+#if BIT_PACK_SSL
     if (wp->flags & WEBS_SECURE) {
         if ((written = sslWrite(wp, buf, size)) < 0) {
             return -1;
