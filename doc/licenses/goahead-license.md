@@ -10,9 +10,6 @@ commercial license to use this software.
 Commercial licenses for this software and support services are available from Embedthis Software at: 
     http://embedthis.com/licensing/index.html
 
-See the Embedthis GoAhead Open Source License at:
-    http://embedthis.com/products/goahead/goahead-license.pdf
-
 Embedthis GoAhead Open Source License
 ===
 
@@ -59,16 +56,13 @@ Licensee hereby grants Embedthis a worldwide, royalty-free, non-exclusive licens
 The Software is owned by Embedthis and is protected by international copyright, trademark and any other applicable laws.
 Licensee acknowledges that the copyright, patent, trade secret and all other intellectual property rights in the Software
 shall remain the exclusive property of Embedthis. Licensee also acknowledges that Embedthis owns the Embedthis and
-Embedthis GoAhead trademarks and logos.
-
-All right and title to Modifications made solely by Licensee to the Software and the right and title to other software that is included by Licensee in an Integrated Product, shall remain the property of Licensee or other third parties.
+Embedthis GoAhead trademarks and logos. All right and title to Modifications made solely by Licensee to the Software and the right and title to other software that is included by Licensee in an Integrated Product, shall remain the property of Licensee or other third parties.
 
 9. Warranty
 Embedthis MAKES NO WARRANTIES IN CONNECTION WITH ANY SOFTWARE PRODUCT, INCLUDING THE SOFTWARE, AND EXPRESSLY DISCLAIMS ANY IMPLIED WARRANTIES OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR USE. IN NO EVENT SHALL EMBEDTHIS'S LIABILITY ARISING OUT OF THIS AGREEMENT EXCEED THE AMOUNT RECEIVED BY EMBEDTHIS FROM LICENSEE HEREUNDER IN ANY ONE-YEAR PERIOD. IN NO EVENT SHALL EMBEDTHIS BE LIABLE FOR COSTS OF PROCUREMENT OF SUBSTITUTE PRODUCTS OR SERVICES, LOST PROFITS OR ANY CONSEQUENTIAL, SPECIAL, INCIDENTAL, OR INDIRECT DAMAGES, HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, INCLUDING NEGLIGENCE OR STRICT LIABILITY, ARISING OUT OF THIS AGREEMENT. LICENSEE ACKNOWLEDGES AND AGREES THAT THE AMOUNTS PAYABLE HEREUNDER BY LICENSEE ARE BASED IN PART UPON THESE LIMITATIONS. LICENSEE AGREES THAT THE ABOVE LIMITATIONS SHALL APPLY NOT-WITHSTANDING ANY FAILURE OF ESSENTIAL PURPOSE. 
 
 10. Termination
 This Agreement shall be effective for three (3) years from the effective date of this Agreement and shall automatically renew unless terminated earlier under the provisions of this Agreement. Either party may terminate this agreement by written notice to the other party if the other party breaches any material provision of this Agreement and such breach is not cured within ninety (90) days after written notice thereof is received by the breaching party.  
-
 The Licensee may terminate this license at any time by providing Embedthis written notice stating the effective date of the termination and immediately ceasing to ship Integrated Products containing the Software. In the event of such termination, the Licensee's right to use Integrated Products that were sold prior to termination is not affected.
 
 11. Transfer
