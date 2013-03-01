@@ -4,7 +4,7 @@
 
 PRODUCT           = goahead
 VERSION           = 3.1.0
-BUILD_NUMBER      = 1
+BUILD_NUMBER      = 2
 PROFILE           = default
 PA                = $(PROCESSOR_ARCHITECTURE)
 
@@ -569,7 +569,7 @@ $(CONFIG)\bin\gopass.exe: $(DEPS_38)
 #   version
 #
 version: $(DEPS_39)
-	@echo 3.1.0-1
+	@echo 3.1.0-2
 
 #
 #   stop

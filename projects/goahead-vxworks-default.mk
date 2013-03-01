@@ -8,7 +8,7 @@ export WIND_PLATFORM := $(WIND_PLATFORM)
 
 PRODUCT           := goahead
 VERSION           := 3.1.0
-BUILD_NUMBER      := 1
+BUILD_NUMBER      := 2
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS                := vxworks
@@ -559,7 +559,7 @@ $(CONFIG)/bin/gopass.out: $(DEPS_36)
 #   version
 #
 version: $(DEPS_37)
-	@echo 3.1.0-1
+	@echo 3.1.0-2
 
 #
 #   stop
