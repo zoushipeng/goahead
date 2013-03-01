@@ -628,8 +628,8 @@ DEPS_42 += stop
 
 uninstall: $(DEPS_42)
 	rm -fr "$(BIT_VAPP_PREFIX)"
-	rmdir -p "$(BIT_ETC_PREFIX)"
-	rmdir -p "$(BIT_WEB_PREFIX)"
+	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true
+	rmdir -p "$(BIT_WEB_PREFIX)" 2>/dev/null ; true
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	rmdir -p "$(BIT_APP_PREFIX)"
+	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
 
