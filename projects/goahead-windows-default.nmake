@@ -620,6 +620,7 @@ install: $(DEPS_43)
 DEPS_44 = $(DEPS_44) stop
 
 uninstall: $(DEPS_44)
+	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q /S"$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S"$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
 	if exist "$(BIT_VAPP_PREFIX)\man" rd /Q "$(BIT_VAPP_PREFIX)\man"
