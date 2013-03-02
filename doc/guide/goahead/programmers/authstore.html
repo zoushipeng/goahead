@@ -72,13 +72,11 @@
             <p>You can use a custom password store with GoAhead by defining a password verifier routine.
             and then establishing it via the <a
                 href="../../../api/goahead.html#group___webs_auth_1gac050abeadb21db4a90197eab284b115b">websSetPasswordStoreVerify</a> API.
-
             <p>Here is a sample verify routine that you can use as a starter:</p>
             <pre>
 static bool verifyPassword(Webs *wp)
 {
     char    *password, *roles;
-
     /*
         If using Digest auth, compare the digest of the password
      */
