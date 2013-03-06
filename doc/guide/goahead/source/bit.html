@@ -251,7 +251,7 @@ configure --with openssl=/usr/src/openssl
                     <td>MatrixSSL SSL stack. Requires a commerical license from PeerSec.</td>
                 </tr>
                 <tr>
-                    <td>mocana</td>
+                    <td>nanossl</td>
                     <td>External</td>
                     <td>Mocana NanoSSL stack. Requires a commerical license from Mocana.</td>
                 </tr>
@@ -544,7 +544,7 @@ Extension Packages (--with PACK):
     man                                    # Manual Page Formatting Tool
     man2html                               # Manual Page to HTML Converter
     matrixssl                              # MatrixSSL (SSL)
-    mocana                                 # Mocana NanoSSL (SSL)
+    nanossl                                # Mocana NanoSSL (SSL)
     openssl                                # OpenSSL (SSL)
     pmaker                                 # Package Maker Tool
     sqlite                                 # SQLite Database
@@ -560,7 +560,7 @@ Extension Packages (--with PACK):
             <ol>
                 <li>Download MatrixSSL from
                 <a href="http://www.peersec.com">http://www.peersec.com</a>. 
-                <li>Build MatrixSSL</li>
+                <li>Build MatrixSSL (See <a href="ssl.html">Building SSL</a> for additional instructions)</li>
                 <li>Then, from the GoAhead source directory run the GoAhead configure:
                 <pre>./configure --with matrixssl=/path/to/matrixssl
 </pre></li>
@@ -657,9 +657,9 @@ configure --debug --platform linux-arm-arm7
             <pre>bit package</pre>
             <p>The release packages are placed under the <em>releases</em> directory. The <em>goahead-tar.tgz</em> image is a
             simple compressed tar archive of the binary release.
-            <p>If you are embedding appweb into another application, you can deploy the required Appweb files to a staging
+            <p>If you are embedding GoAhead into another application, you can deploy the required GoAhead files to a staging
             directory. If you need to capture the build products only, you can deploy to a specific directory via: 
-                <pre>make BIT_ROOT_DIR=/tmp/output deploy</pre>
+                <pre>make BIT_ROOT_DIR=/tmp/output install</pre>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
