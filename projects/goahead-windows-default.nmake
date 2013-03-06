@@ -119,6 +119,7 @@ clean:
 #   bit.h
 #
 $(CONFIG)\inc\bit.h: $(DEPS_1)
+	@echo '      [Copy] $(CONFIG)/inc/bit.h'
 
 #
 #   removeFiles.obj
@@ -143,7 +144,7 @@ $(CONFIG)\bin\removeFiles.exe: $(DEPS_3)
 #   est.h
 #
 $(CONFIG)\inc\est.h: $(DEPS_4)
-	@echo '      [File] $(CONFIG)/inc/est.h'
+	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\deps\est\est.h" "$(CONFIG)\inc\est.h"
 
@@ -153,7 +154,7 @@ $(CONFIG)\inc\est.h: $(DEPS_4)
 DEPS_5 = $(DEPS_5) $(CONFIG)\inc\bit.h
 
 $(CONFIG)\inc\bitos.h: $(DEPS_5)
-	@echo '      [File] $(CONFIG)/inc/bitos.h'
+	@echo '      [Copy] $(CONFIG)/inc/bitos.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\bitos.h" "$(CONFIG)\inc\bitos.h"
 
@@ -187,7 +188,7 @@ $(CONFIG)\bin\libest.dll: $(DEPS_7)
 DEPS_8 = $(DEPS_8) src\deps\est\ca.crt
 
 $(CONFIG)\bin\ca.crt: $(DEPS_8)
-	@echo '      [File] $(CONFIG)/bin/ca.crt'
+	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
 	copy /Y "src\deps\est\ca.crt" "$(CONFIG)\bin\ca.crt"
 
@@ -195,7 +196,7 @@ $(CONFIG)\bin\ca.crt: $(DEPS_8)
 #   goahead.h
 #
 $(CONFIG)\inc\goahead.h: $(DEPS_9)
-	@echo '      [File] $(CONFIG)/inc/goahead.h'
+	@echo '      [Copy] $(CONFIG)/inc/goahead.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\goahead.h" "$(CONFIG)\inc\goahead.h"
 
@@ -203,7 +204,7 @@ $(CONFIG)\inc\goahead.h: $(DEPS_9)
 #   js.h
 #
 $(CONFIG)\inc\js.h: $(DEPS_10)
-	@echo '      [File] $(CONFIG)/inc/js.h'
+	@echo '      [Copy] $(CONFIG)/inc/js.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
 	copy /Y "src\js.h" "$(CONFIG)\inc\js.h"
 
@@ -413,6 +414,7 @@ $(CONFIG)\obj\upload.obj: \
 #   est.h
 #
 src\deps\est\est.h: $(DEPS_29)
+	@echo '      [Copy] src/deps/est/est.h'
 
 #
 #   est.obj

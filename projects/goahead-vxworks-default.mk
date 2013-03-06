@@ -128,7 +128,7 @@ clobber: clean
 #   est.h
 #
 $(CONFIG)/inc/est.h: $(DEPS_1)
-	@echo '      [File] $(CONFIG)/inc/est.h'
+	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/deps/est/est.h" "$(CONFIG)/inc/est.h"
 
@@ -136,6 +136,7 @@ $(CONFIG)/inc/est.h: $(DEPS_1)
 #   bit.h
 #
 $(CONFIG)/inc/bit.h: $(DEPS_2)
+	@echo '      [Copy] $(CONFIG)/inc/bit.h'
 
 #
 #   bitos.h
@@ -143,7 +144,7 @@ $(CONFIG)/inc/bit.h: $(DEPS_2)
 DEPS_3 += $(CONFIG)/inc/bit.h
 
 $(CONFIG)/inc/bitos.h: $(DEPS_3)
-	@echo '      [File] $(CONFIG)/inc/bitos.h'
+	@echo '      [Copy] $(CONFIG)/inc/bitos.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/bitos.h" "$(CONFIG)/inc/bitos.h"
 
@@ -177,7 +178,7 @@ endif
 DEPS_6 += src/deps/est/ca.crt
 
 $(CONFIG)/bin/ca.crt: $(DEPS_6)
-	@echo '      [File] $(CONFIG)/bin/ca.crt'
+	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
 	cp "src/deps/est/ca.crt" "$(CONFIG)/bin/ca.crt"
 
@@ -185,7 +186,7 @@ $(CONFIG)/bin/ca.crt: $(DEPS_6)
 #   goahead.h
 #
 $(CONFIG)/inc/goahead.h: $(DEPS_7)
-	@echo '      [File] $(CONFIG)/inc/goahead.h'
+	@echo '      [Copy] $(CONFIG)/inc/goahead.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/goahead.h" "$(CONFIG)/inc/goahead.h"
 
@@ -193,7 +194,7 @@ $(CONFIG)/inc/goahead.h: $(DEPS_7)
 #   js.h
 #
 $(CONFIG)/inc/js.h: $(DEPS_8)
-	@echo '      [File] $(CONFIG)/inc/js.h'
+	@echo '      [Copy] $(CONFIG)/inc/js.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp "src/js.h" "$(CONFIG)/inc/js.h"
 
@@ -403,6 +404,7 @@ $(CONFIG)/obj/upload.o: \
 #   est.h
 #
 src/deps/est/est.h: $(DEPS_27)
+	@echo '      [Copy] src/deps/est/est.h'
 
 #
 #   est.o
