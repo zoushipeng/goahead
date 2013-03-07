@@ -111,6 +111,7 @@ clean:
 	-if exist $(CONFIG)\obj\upload.obj del /Q $(CONFIG)\obj\upload.obj
 	-if exist $(CONFIG)\obj\est.obj del /Q $(CONFIG)\obj\est.obj
 	-if exist $(CONFIG)\obj\matrixssl.obj del /Q $(CONFIG)\obj\matrixssl.obj
+	-if exist $(CONFIG)\obj\nanossl.obj del /Q $(CONFIG)\obj\nanossl.obj
 	-if exist $(CONFIG)\obj\openssl.obj del /Q $(CONFIG)\obj\openssl.obj
 	-if exist $(CONFIG)\obj\test.obj del /Q $(CONFIG)\obj\test.obj
 	-if exist $(CONFIG)\obj\gopass.obj del /Q $(CONFIG)\obj\gopass.obj
@@ -441,150 +442,161 @@ $(CONFIG)\obj\matrixssl.obj: \
 	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\matrixssl.c
 
 #
-#   openssl.obj
+#   nanossl.obj
 #
 DEPS_32 = $(DEPS_32) $(CONFIG)\inc\bit.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\bitos.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\goahead.h
+
+$(CONFIG)\obj\nanossl.obj: \
+    src\ssl\nanossl.c $(DEPS_32)
+	@echo '   [Compile] src/ssl/nanossl.c'
+	"$(CC)" -c -Fo$(CONFIG)\obj\nanossl.obj -Fd$(CONFIG)\obj\nanossl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\nanossl.c
+
+#
+#   openssl.obj
+#
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bit.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bitos.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\goahead.h
 
 $(CONFIG)\obj\openssl.obj: \
-    src\ssl\openssl.c $(DEPS_32)
+    src\ssl\openssl.c $(DEPS_33)
 	@echo '   [Compile] src/ssl/openssl.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\openssl.c
 
 #
 #   libgo
 #
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bitos.h
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\goahead.h
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\js.h
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\action.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\alloc.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\auth.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\cgi.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\crypt.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\file.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\fs.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\goahead.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\http.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\js.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\jst.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\options.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\osdep.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\rom-documents.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\route.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\runtime.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\socket.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\upload.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\est.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\matrixssl.obj
-DEPS_33 = $(DEPS_33) $(CONFIG)\obj\openssl.obj
-
-!IF "$(BIT_PACK_EST)" == "1"
-LIBS_33 = $(LIBS_33) libest.lib
-!ENDIF
-
-$(CONFIG)\bin\libgo.dll: $(DEPS_33)
-	@echo '      [Link] libgo'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\openssl.obj $(LIBS_33) $(LIBS_33) $(LIBS) libest.lib
-
-#
-#   goahead
-#
-DEPS_34 = $(DEPS_34) $(CONFIG)\bin\libgo.dll
 DEPS_34 = $(DEPS_34) $(CONFIG)\inc\bitos.h
 DEPS_34 = $(DEPS_34) $(CONFIG)\inc\goahead.h
 DEPS_34 = $(DEPS_34) $(CONFIG)\inc\js.h
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\action.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\alloc.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\auth.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\cgi.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\crypt.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\file.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\fs.obj
 DEPS_34 = $(DEPS_34) $(CONFIG)\obj\goahead.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\http.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\js.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\jst.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\options.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\osdep.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\rom-documents.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\route.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\runtime.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\socket.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\upload.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\est.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\matrixssl.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\nanossl.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\openssl.obj
 
-LIBS_34 = $(LIBS_34) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_34 = $(LIBS_34) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\goahead.exe: $(DEPS_34)
+$(CONFIG)\bin\libgo.dll: $(DEPS_34)
+	@echo '      [Link] libgo'
+	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\nanossl.obj $(CONFIG)\obj\openssl.obj $(LIBS_34) $(LIBS_34) $(LIBS) libest.lib
+
+#
+#   goahead
+#
+DEPS_35 = $(DEPS_35) $(CONFIG)\bin\libgo.dll
+DEPS_35 = $(DEPS_35) $(CONFIG)\inc\bitos.h
+DEPS_35 = $(DEPS_35) $(CONFIG)\inc\goahead.h
+DEPS_35 = $(DEPS_35) $(CONFIG)\inc\js.h
+DEPS_35 = $(DEPS_35) $(CONFIG)\obj\goahead.obj
+
+LIBS_35 = $(LIBS_35) libgo.lib
+!IF "$(BIT_PACK_EST)" == "1"
+LIBS_35 = $(LIBS_35) libest.lib
+!ENDIF
+
+$(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] goahead'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj $(LIBS_34) $(LIBS_34) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj $(LIBS_35) $(LIBS_35) $(LIBS) libest.lib
 
 #
 #   test.obj
 #
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\bit.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\goahead.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\js.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\bitos.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bit.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\goahead.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\js.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\test.obj: \
-    test\test.c $(DEPS_35)
+    test\test.c $(DEPS_36)
 	@echo '   [Compile] test/test.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) test\test.c
 
 #
 #   goahead-test
 #
-DEPS_36 = $(DEPS_36) $(CONFIG)\bin\libgo.dll
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bitos.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\goahead.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\js.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\test.obj
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libgo.dll
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\goahead.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\js.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\obj\test.obj
 
-LIBS_36 = $(LIBS_36) libgo.lib
+LIBS_37 = $(LIBS_37) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_36 = $(LIBS_36) libest.lib
+LIBS_37 = $(LIBS_37) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\goahead-test.exe: $(DEPS_36)
+$(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] goahead-test'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj $(LIBS_36) $(LIBS_36) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj $(LIBS_37) $(LIBS_37) $(LIBS) libest.lib
 
 #
 #   gopass.obj
 #
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bit.h
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\goahead.h
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
+DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bit.h
+DEPS_38 = $(DEPS_38) $(CONFIG)\inc\goahead.h
+DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\gopass.obj: \
-    src\utils\gopass.c $(DEPS_37)
+    src\utils\gopass.c $(DEPS_38)
 	@echo '   [Compile] src/utils/gopass.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\utils\gopass.c
 
 #
 #   gopass
 #
-DEPS_38 = $(DEPS_38) $(CONFIG)\bin\libgo.dll
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bitos.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\goahead.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\js.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\obj\gopass.obj
+DEPS_39 = $(DEPS_39) $(CONFIG)\bin\libgo.dll
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bitos.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\goahead.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\js.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\obj\gopass.obj
 
-LIBS_38 = $(LIBS_38) libgo.lib
+LIBS_39 = $(LIBS_39) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_38 = $(LIBS_38) libest.lib
+LIBS_39 = $(LIBS_39) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\gopass.exe: $(DEPS_38)
+$(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] gopass'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj $(LIBS_38) $(LIBS_38) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj $(LIBS_39) $(LIBS_39) $(LIBS) libest.lib
 
 #
 #   version
 #
-version: $(DEPS_39)
+version: $(DEPS_40)
 	@echo 3.1.0-2
 
 #
 #   stop
 #
-stop: $(DEPS_40)
+stop: $(DEPS_41)
 
 
 #
 #   installBinary
 #
-DEPS_41 = $(DEPS_41) stop
+DEPS_42 = $(DEPS_42) stop
 
-installBinary: $(DEPS_41)
+installBinary: $(DEPS_42)
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y "$(CONFIG)\bin\goahead.exe" "$(BIT_VAPP_PREFIX)\bin\goahead.exe"
 	copy /Y "$(CONFIG)\bin\ca.crt" "$(BIT_VAPP_PREFIX)\bin\ca.crt"
@@ -603,25 +615,25 @@ installBinary: $(DEPS_41)
 #
 #   start
 #
-start: $(DEPS_42)
+start: $(DEPS_43)
 
 
 #
 #   install
 #
-DEPS_43 = $(DEPS_43) stop
-DEPS_43 = $(DEPS_43) installBinary
-DEPS_43 = $(DEPS_43) start
+DEPS_44 = $(DEPS_44) stop
+DEPS_44 = $(DEPS_44) installBinary
+DEPS_44 = $(DEPS_44) start
 
-install: $(DEPS_43)
+install: $(DEPS_44)
 
 
 #
 #   uninstall
 #
-DEPS_44 = $(DEPS_44) stop
+DEPS_45 = $(DEPS_45) stop
 
-uninstall: $(DEPS_44)
+uninstall: $(DEPS_45)
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q /S"$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S"$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"

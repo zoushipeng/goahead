@@ -120,6 +120,7 @@
     <ClCompile Include="..\..\src\upload.c" />
     <ClCompile Include="..\..\src\ssl\est.c" />
     <ClCompile Include="..\..\src\ssl\matrixssl.c" />
+    <ClCompile Include="..\..\src\ssl\nanossl.c" />
     <ClCompile Include="..\..\src\ssl\openssl.c" />
   </ItemGroup>
 

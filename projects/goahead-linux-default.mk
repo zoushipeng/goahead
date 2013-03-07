@@ -113,6 +113,7 @@ clean:
 	rm -rf $(CONFIG)/obj/upload.o
 	rm -rf $(CONFIG)/obj/est.o
 	rm -rf $(CONFIG)/obj/matrixssl.o
+	rm -rf $(CONFIG)/obj/nanossl.o
 	rm -rf $(CONFIG)/obj/openssl.o
 	rm -rf $(CONFIG)/obj/test.o
 	rm -rf $(CONFIG)/obj/gopass.o
@@ -427,150 +428,161 @@ $(CONFIG)/obj/matrixssl.o: \
 	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/matrixssl.c
 
 #
-#   openssl.o
+#   nanossl.o
 #
 DEPS_30 += $(CONFIG)/inc/bit.h
-DEPS_30 += $(CONFIG)/inc/bitos.h
-DEPS_30 += $(CONFIG)/inc/goahead.h
+
+$(CONFIG)/obj/nanossl.o: \
+    src/ssl/nanossl.c $(DEPS_30)
+	@echo '   [Compile] src/ssl/nanossl.c'
+	$(CC) -c -o $(CONFIG)/obj/nanossl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/nanossl.c
+
+#
+#   openssl.o
+#
+DEPS_31 += $(CONFIG)/inc/bit.h
+DEPS_31 += $(CONFIG)/inc/bitos.h
+DEPS_31 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/openssl.o: \
-    src/ssl/openssl.c $(DEPS_30)
+    src/ssl/openssl.c $(DEPS_31)
 	@echo '   [Compile] src/ssl/openssl.c'
 	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc/deps/est src/ssl/openssl.c
 
 #
 #   libgo
 #
-DEPS_31 += $(CONFIG)/inc/bitos.h
-DEPS_31 += $(CONFIG)/inc/goahead.h
-DEPS_31 += $(CONFIG)/inc/js.h
-DEPS_31 += $(CONFIG)/obj/action.o
-DEPS_31 += $(CONFIG)/obj/alloc.o
-DEPS_31 += $(CONFIG)/obj/auth.o
-DEPS_31 += $(CONFIG)/obj/cgi.o
-DEPS_31 += $(CONFIG)/obj/crypt.o
-DEPS_31 += $(CONFIG)/obj/file.o
-DEPS_31 += $(CONFIG)/obj/fs.o
-DEPS_31 += $(CONFIG)/obj/goahead.o
-DEPS_31 += $(CONFIG)/obj/http.o
-DEPS_31 += $(CONFIG)/obj/js.o
-DEPS_31 += $(CONFIG)/obj/jst.o
-DEPS_31 += $(CONFIG)/obj/options.o
-DEPS_31 += $(CONFIG)/obj/osdep.o
-DEPS_31 += $(CONFIG)/obj/rom-documents.o
-DEPS_31 += $(CONFIG)/obj/route.o
-DEPS_31 += $(CONFIG)/obj/runtime.o
-DEPS_31 += $(CONFIG)/obj/socket.o
-DEPS_31 += $(CONFIG)/obj/upload.o
-DEPS_31 += $(CONFIG)/obj/est.o
-DEPS_31 += $(CONFIG)/obj/matrixssl.o
-DEPS_31 += $(CONFIG)/obj/openssl.o
-
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_31 += -lest
-endif
-
-$(CONFIG)/bin/libgo.so: $(DEPS_31)
-	@echo '      [Link] libgo'
-	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/openssl.o $(LIBS_31) $(LIBS_31) $(LIBS) -lest
-
-#
-#   goahead
-#
-DEPS_32 += $(CONFIG)/bin/libgo.so
 DEPS_32 += $(CONFIG)/inc/bitos.h
 DEPS_32 += $(CONFIG)/inc/goahead.h
 DEPS_32 += $(CONFIG)/inc/js.h
+DEPS_32 += $(CONFIG)/obj/action.o
+DEPS_32 += $(CONFIG)/obj/alloc.o
+DEPS_32 += $(CONFIG)/obj/auth.o
+DEPS_32 += $(CONFIG)/obj/cgi.o
+DEPS_32 += $(CONFIG)/obj/crypt.o
+DEPS_32 += $(CONFIG)/obj/file.o
+DEPS_32 += $(CONFIG)/obj/fs.o
 DEPS_32 += $(CONFIG)/obj/goahead.o
+DEPS_32 += $(CONFIG)/obj/http.o
+DEPS_32 += $(CONFIG)/obj/js.o
+DEPS_32 += $(CONFIG)/obj/jst.o
+DEPS_32 += $(CONFIG)/obj/options.o
+DEPS_32 += $(CONFIG)/obj/osdep.o
+DEPS_32 += $(CONFIG)/obj/rom-documents.o
+DEPS_32 += $(CONFIG)/obj/route.o
+DEPS_32 += $(CONFIG)/obj/runtime.o
+DEPS_32 += $(CONFIG)/obj/socket.o
+DEPS_32 += $(CONFIG)/obj/upload.o
+DEPS_32 += $(CONFIG)/obj/est.o
+DEPS_32 += $(CONFIG)/obj/matrixssl.o
+DEPS_32 += $(CONFIG)/obj/nanossl.o
+DEPS_32 += $(CONFIG)/obj/openssl.o
 
-LIBS_32 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_32 += -lest
 endif
 
-$(CONFIG)/bin/goahead: $(DEPS_32)
+$(CONFIG)/bin/libgo.so: $(DEPS_32)
+	@echo '      [Link] libgo'
+	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBS_32) $(LIBS_32) $(LIBS) -lest
+
+#
+#   goahead
+#
+DEPS_33 += $(CONFIG)/bin/libgo.so
+DEPS_33 += $(CONFIG)/inc/bitos.h
+DEPS_33 += $(CONFIG)/inc/goahead.h
+DEPS_33 += $(CONFIG)/inc/js.h
+DEPS_33 += $(CONFIG)/obj/goahead.o
+
+LIBS_33 += -lgo
+ifeq ($(BIT_PACK_EST),1)
+    LIBS_33 += -lest
+endif
+
+$(CONFIG)/bin/goahead: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_32) $(LIBS_32) $(LIBS) -lest $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) -lest $(LDFLAGS)
 
 #
 #   test.o
 #
-DEPS_33 += $(CONFIG)/inc/bit.h
-DEPS_33 += $(CONFIG)/inc/goahead.h
-DEPS_33 += $(CONFIG)/inc/js.h
-DEPS_33 += $(CONFIG)/inc/bitos.h
+DEPS_34 += $(CONFIG)/inc/bit.h
+DEPS_34 += $(CONFIG)/inc/goahead.h
+DEPS_34 += $(CONFIG)/inc/js.h
+DEPS_34 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/test.o: \
-    test/test.c $(DEPS_33)
+    test/test.c $(DEPS_34)
 	@echo '   [Compile] test/test.c'
 	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) $(IFLAGS) test/test.c
 
 #
 #   goahead-test
 #
-DEPS_34 += $(CONFIG)/bin/libgo.so
-DEPS_34 += $(CONFIG)/inc/bitos.h
-DEPS_34 += $(CONFIG)/inc/goahead.h
-DEPS_34 += $(CONFIG)/inc/js.h
-DEPS_34 += $(CONFIG)/obj/test.o
+DEPS_35 += $(CONFIG)/bin/libgo.so
+DEPS_35 += $(CONFIG)/inc/bitos.h
+DEPS_35 += $(CONFIG)/inc/goahead.h
+DEPS_35 += $(CONFIG)/inc/js.h
+DEPS_35 += $(CONFIG)/obj/test.o
 
-LIBS_34 += -lgo
+LIBS_35 += -lgo
 ifeq ($(BIT_PACK_EST),1)
-    LIBS_34 += -lest
+    LIBS_35 += -lest
 endif
 
-$(CONFIG)/bin/goahead-test: $(DEPS_34)
+$(CONFIG)/bin/goahead-test: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_34) $(LIBS_34) $(LIBS) -lest $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) -lest $(LDFLAGS)
 
 #
 #   gopass.o
 #
-DEPS_35 += $(CONFIG)/inc/bit.h
-DEPS_35 += $(CONFIG)/inc/goahead.h
-DEPS_35 += $(CONFIG)/inc/bitos.h
+DEPS_36 += $(CONFIG)/inc/bit.h
+DEPS_36 += $(CONFIG)/inc/goahead.h
+DEPS_36 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/gopass.o: \
-    src/utils/gopass.c $(DEPS_35)
+    src/utils/gopass.c $(DEPS_36)
 	@echo '   [Compile] src/utils/gopass.c'
 	$(CC) -c -o $(CONFIG)/obj/gopass.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/utils/gopass.c
 
 #
 #   gopass
 #
-DEPS_36 += $(CONFIG)/bin/libgo.so
-DEPS_36 += $(CONFIG)/inc/bitos.h
-DEPS_36 += $(CONFIG)/inc/goahead.h
-DEPS_36 += $(CONFIG)/inc/js.h
-DEPS_36 += $(CONFIG)/obj/gopass.o
+DEPS_37 += $(CONFIG)/bin/libgo.so
+DEPS_37 += $(CONFIG)/inc/bitos.h
+DEPS_37 += $(CONFIG)/inc/goahead.h
+DEPS_37 += $(CONFIG)/inc/js.h
+DEPS_37 += $(CONFIG)/obj/gopass.o
 
-LIBS_36 += -lgo
+LIBS_37 += -lgo
 ifeq ($(BIT_PACK_EST),1)
-    LIBS_36 += -lest
+    LIBS_37 += -lest
 endif
 
-$(CONFIG)/bin/gopass: $(DEPS_36)
+$(CONFIG)/bin/gopass: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_36) $(LIBS_36) $(LIBS) -lest $(LDFLAGS)
+	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) -lest $(LDFLAGS)
 
 #
 #   version
 #
-version: $(DEPS_37)
+version: $(DEPS_38)
 	@echo 3.1.0-2
 
 #
 #   stop
 #
-stop: $(DEPS_38)
+stop: $(DEPS_39)
 	
 
 #
 #   installBinary
 #
-DEPS_39 += stop
+DEPS_40 += stop
 
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_40)
 	mkdir -p "$(BIT_APP_PREFIX)"
 	mkdir -p "$(BIT_VAPP_PREFIX)"
 	mkdir -p "$(BIT_ETC_PREFIX)"
@@ -610,25 +622,25 @@ installBinary: $(DEPS_39)
 #
 #   start
 #
-start: $(DEPS_40)
+start: $(DEPS_41)
 	
 
 #
 #   install
 #
-DEPS_41 += stop
-DEPS_41 += installBinary
-DEPS_41 += start
+DEPS_42 += stop
+DEPS_42 += installBinary
+DEPS_42 += start
 
-install: $(DEPS_41)
+install: $(DEPS_42)
 	
 
 #
 #   uninstall
 #
-DEPS_42 += stop
+DEPS_43 += stop
 
-uninstall: $(DEPS_42)
+uninstall: $(DEPS_43)
 	rm -fr "$(BIT_WEB_PREFIX)"
 	rm -fr "$(BIT_VAPP_PREFIX)"
 	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true
