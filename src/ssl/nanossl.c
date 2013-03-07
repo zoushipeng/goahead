@@ -65,6 +65,8 @@ static void     DEBUG_PRINTNL(void *where, void *msg);
 PUBLIC int sslOpen()
 {
     sslSettings     *settings;
+    char            *certificate, *key, *cacert;
+    int             rc;
 
     if (MOCANA_initMocana() < 0) {
         error("NanoSSL initialization failed");
@@ -76,56 +78,6 @@ PUBLIC int sslOpen()
         error("SSL_init failed");
         return -1;
     }
-    settings = SSL_sslSettings();
-    settings->sslTimeOutHello = SSL_HELLO_TIMEOUT;
-    settings->sslTimeOutReceive = SSL_RECV_TIMEOUT;
-    return 0;
-}
-
-
-PUBLIC void sslClose() 
-{
-    SSL_releaseTables();
-    MOCANA_freeMocana();
-    CA_MGMT_freeCertificate(&cert);
-}
-
-
-PUBLIC void sslFree(Webs *wp)
-{
-    Nano        *np;
-    WebsSocket  *sp;
-    
-    if ((sp = socketPtr(wp->sid)) == 0) {
-        return;
-    }
-    if (wp->ssl) {
-        np = wp->ssl;
-        if (np->handle) {
-            SSL_closeConnection(np->handle);
-            np->handle = 0;
-        }
-        wp->ssl = 0;
-    }
-}
-
-
-/*
-    Upgrade a standard socket to use TLS
- */
-PUBLIC int sslUpgrade(Webs *wp)
-{
-    Nano        *np;
-    char        *certificate, *key, *cacert;
-    int         rc;
-
-    assert(wp);
-
-    if ((np = walloc(sizeof(Nano))) == 0) {
-        return -1;
-    }
-    wp->ssl = np;
-    memset(np, 0, sizeof(Nano));
 
     certificate = *BIT_GOAHEAD_CERTIFICATE ? BIT_GOAHEAD_CERTIFICATE : 0;
     key = *BIT_GOAHEAD_KEY ? BIT_GOAHEAD_KEY : 0;
@@ -181,6 +133,51 @@ PUBLIC int sslUpgrade(Webs *wp)
         error("SSL_initServerCert failed");
         return -1;
     }
+    settings = SSL_sslSettings();
+    settings->sslTimeOutHello = SSL_HELLO_TIMEOUT;
+    settings->sslTimeOutReceive = SSL_RECV_TIMEOUT;
+    return 0;
+}
+
+
+PUBLIC void sslClose() 
+{
+    SSL_releaseTables();
+    MOCANA_freeMocana();
+    CA_MGMT_freeCertificate(&cert);
+}
+
+
+PUBLIC void sslFree(Webs *wp)
+{
+    Nano        *np;
+    
+    if (wp->ssl) {
+        np = wp->ssl;
+        if (np->handle) {
+            SSL_closeConnection(np->handle);
+            np->handle = 0;
+        }
+        wfree(np);
+        wp->ssl = 0;
+    }
+}
+
+
+/*
+    Upgrade a standard socket to use TLS
+ */
+PUBLIC int sslUpgrade(Webs *wp)
+{
+    Nano        *np;
+
+    assert(wp);
+
+    if ((np = walloc(sizeof(Nano))) == 0) {
+        return -1;
+    }
+    memset(np, 0, sizeof(Nano));
+    wp->ssl = np;
     if ((np->handle = SSL_acceptConnection(socketGetHandle(wp->sid))) < 0) {
         return -1;
     }

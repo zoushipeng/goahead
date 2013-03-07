@@ -157,18 +157,12 @@ PUBLIC int sslUpgrade(Webs *wp)
 
 PUBLIC void sslFree(Webs *wp)
 {
-    BIO     *bio;
-
-    /* 
-        Re-use sessions
-     */
-    if (wp->ssl != NULL) {
+    if (wp->ssl) {
         SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-    }
-    if ((bio = SSL_get_rbio(wp->ssl)) != 0) {
-        BIO_free_all(bio);
+        SSL_free(wp->ssl);
     }
 }
+
 
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {

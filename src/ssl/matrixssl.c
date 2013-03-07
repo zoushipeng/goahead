@@ -85,27 +85,28 @@ PUBLIC void sslFree(Webs *wp)
     uchar       *buf;
     int         len;
     
-    if ((ms = wp->ssl) == 0) {
-        return;
-    }
-    assert(wp->sid >= 0);
-    if ((sp = socketPtr(wp->sid)) == 0) {
-        return;
-    }
-    if (!(sp->flags & SOCKET_EOF)) {
-        /*
-            Flush data. Append a closure alert to any buffered output data, and try to send it.
-            Don't bother retrying or blocking, we're just closing anyway.
-        */
-        matrixSslEncodeClosureAlert(ms->handle);
-        if ((len = matrixSslGetOutdata(ms->handle, &buf)) > 0) {
-            sslWrite(wp, buf, len);
+    ms = wp->ssl;
+    if (ms) {
+        assert(wp->sid >= 0);
+        if ((sp = socketPtr(wp->sid)) == 0) {
+            return;
         }
+        if (!(sp->flags & SOCKET_EOF)) {
+            /*
+                Flush data. Append a closure alert to any buffered output data, and try to send it.
+                Don't bother retrying or blocking, we're just closing anyway.
+            */
+            matrixSslEncodeClosureAlert(ms->handle);
+            if ((len = matrixSslGetOutdata(ms->handle, &buf)) > 0) {
+                sslWrite(wp, buf, len);
+            }
+        }
+        if (ms->handle) {
+            matrixSslDeleteSession(ms->handle);
+        }
+        wfree(ms);
+        wp->ssl = 0;
     }
-    if (ms->handle) {
-        matrixSslDeleteSession(ms->handle);
-    }
-    wp->ssl = 0;
 }
 
 

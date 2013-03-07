@@ -103,6 +103,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     if ((est = malloc(sizeof(EstSocket))) == 0) {
         return -1;
     }
+    memset(est, 0, sizeof(EstSocket));
     wp->ssl = est;
 
     ssl_free(&est->ctx);
@@ -138,6 +139,7 @@ PUBLIC void sslFree(Webs *wp)
     est = wp->ssl;
     if (est) {
         ssl_free(&est->ctx);
+        wfree(est);
         wp->ssl = 0;
     }
 }
