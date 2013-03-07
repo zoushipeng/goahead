@@ -29,6 +29,8 @@ typedef struct RandBuf {
     int         pid;
 } RandBuf;
 
+#define VERIFY_DEPTH 10
+
 /************************************ Forwards ********************************/
 
 static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
@@ -89,25 +91,21 @@ PUBLIC int sslOpen()
     }
     SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
 
-#if VERIFY_CLIENT
-    if (verifyPeer) {
-        SSL_CTX_set_verify(context, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
-#if FUTURE && KEEP
-        SSL_CTX_set_verify_depth(context, VERIFY_DEPTH);
-#endif
+    if (BIT_GOAHEAD_VERIFY_PEER) {
+        SSL_CTX_set_verify(sslctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
+        SSL_CTX_set_verify_depth(sslctx, VERIFY_DEPTH);
     } else {
         SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
     }
-#else
-    SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
-#endif
     /*
           Set the certificate authority list for the client
      */
     if (BIT_GOAHEAD_CA && *BIT_GOAHEAD_CA) {
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_GOAHEAD_CA));
     }
-    SSL_CTX_set_cipher_list(sslctx, BIT_GOAHEAD_CIPHERS);
+    if (BIT_GOAHEAD_CIPHERS && *BIT_GOAHEAD_CIPHERS) {
+        SSL_CTX_set_cipher_list(sslctx, BIT_GOAHEAD_CIPHERS);
+    }
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
     SSL_CTX_sess_set_cache_size(sslctx, 128);
 #ifdef SSL_OP_NO_TICKET
@@ -321,12 +319,13 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
 {
     X509            *cert;
     char            subject[260], issuer[260], peer[260];
-    int             error;
+    int             error, depth;
     
     subject[0] = issuer[0] = '\0';
 
     cert = X509_STORE_CTX_get_current_cert(xContext);
     error = X509_STORE_CTX_get_error(xContext);
+    depth = X509_STORE_CTX_get_error_depth(xContext);
 
     ok = 1;
     if (X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) - 1) < 0) {
@@ -339,25 +338,35 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
             sizeof(peer) - 1) < 0) {
         ok = 0;
     }
-#if FUTURE && KEEP
-    if (ok && ssl->verifyDepth < depth) {
+    if (ok && VERIFY_DEPTH < depth) {
         if (error == 0) {
             error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
         }
     }
-#endif
     switch (error) {
+    case X509_V_OK:
+        break;
     case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
-        /* Normal self signed certificate */
     case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-    case X509_V_ERR_CERT_UNTRUSTED:
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-#if FUTURE && KEEP
-        if (ssl->verifyIssuer) {
-            /* Issuer can't be verified */
+        if (BIT_GOAHEAD_VERIFY_ISSUER) {
+            logmsg(3, "Self-signed certificate");
             ok = 0;
         }
-#endif
+
+    case X509_V_ERR_CERT_UNTRUSTED:
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
+        if (BIT_GOAHEAD_VERIFY_ISSUER) {
+            logmsg(3, "Certificate not trusted");
+            ok = 0;
+        }
+        break;
+
+    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
+    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
+        if (BIT_GOAHEAD_VERIFY_ISSUER) {
+            logmsg(3, "Certificate not trusted");
+            ok = 0;
+        }
         break;
 
     case X509_V_ERR_CERT_CHAIN_TOO_LONG:
@@ -367,23 +376,20 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
     case X509_V_ERR_CERT_SIGNATURE_FAILURE:
     case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
     case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
     case X509_V_ERR_INVALID_CA:
     default:
+        logmsg(3, "Certificate verification error %d", error);
         ok = 0;
         break;
     }
     if (ok) {
         trace(3, "OpenSSL: Certificate verified: subject %s", subject);
-        trace(4, "OpenSSL: Issuer: %s", issuer);
-        trace(4, "OpenSSL: Peer: %s", peer);
     } else {
         trace(1, "OpenSSL: Certification failed: subject %s (more trace at level 4)", subject);
-        trace(4, "OpenSSL: Issuer: %s", issuer);
-        trace(4, "OpenSSL: Peer: %s", peer);
         trace(4, "OpenSSL: Error: %d: %s", error, X509_verify_cert_error_string(error));
     }
+    trace(4, "OpenSSL: Issuer: %s", issuer);
+    trace(4, "OpenSSL: Peer: %s", peer);
     return ok;
 }
 

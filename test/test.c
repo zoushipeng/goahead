@@ -23,7 +23,7 @@
 static int finished = 0;
 
 #undef BIT_GOAHEAD_LISTEN
-#if BIT_SSL
+#if BIT_PACK_SSL
     #define BIT_GOAHEAD_LISTEN "http://127.0.0.1:8080, https://127.0.0.1:4443, http://[::1]:8090, https://[::1]:4453"
 #else
     #define BIT_GOAHEAD_LISTEN "http://127.0.0.1:8080, http://[::1]:8090"

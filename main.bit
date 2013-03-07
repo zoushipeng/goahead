@@ -85,7 +85,7 @@ Bit.load({
             certificate: "server.crt",
 
             /*
-                Cipher suite for SSL. This is SSL stack dependant:
+                Cipher suite for SSL. This is SSL stack dependant and only supported on EST and OpenSSL
                     OpenSSL: AES128-SHA or "HIGH:RC4+SHA",
                     EST:"TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_RC4_128_SHA",
              */
@@ -267,7 +267,7 @@ Bit.load({
             sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
-            depends: [ 'est', 'openssl', 'matrixssl' ],
+            depends: [ 'est', 'openssl', 'matrixssl', 'nanossl' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasPam) {
@@ -378,5 +378,6 @@ Bit.load({
         est: {},
         matrixssl: {},
         openssl: {},
+        nanossl: {},
     },
 })

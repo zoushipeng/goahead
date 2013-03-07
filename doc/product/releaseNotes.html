@@ -48,8 +48,8 @@
                 <li><a href="#licensing">License</a></li>
                 <li><a href="#requirements">System Requirements</a></li>
                 <li><a href="#features">Features</a></li>
+                <li><a href="#issues">Known Issues</a></li>
                 <li><a href="#hints">Helpful Hints</a></li>
-                <li><a href="#resolvedIssues">Resolved Issues</a></li>
             </ul>
 <!-- BeginDsi "dsi/genSeeAlso.html" -->
             <h1>See Also</h1>
@@ -112,12 +112,25 @@
             compile and build samples and source code.</p>
             <ul>
                 <li>Linux GNU tools</li>
-                <li>Windows Visual Studio (Visual Studio 2008 and Visual Studio 2008 Express).</li>
-                <li>Windows XP with Cygwin UNIX emulation tools. See <a href=
-                "http://www.cygwin.com/">www.cygwin.com</a>.</li>
+                <li>Windows Visual Studio (Visual Studio 2010 and Visual Studio 2010 Express).</li>
                 <li>WindRiver Tornado Development Tools.</li>
                 <li>Ejscript including the Built It. Download from (<a href="http://ejscript.org/">Ejscript</a>).</li>
             </ul>
+
+            <h2 class="section">Known Issues</h2>
+            <a id="issues"></a>
+            <ol><li>The Mocana NanoSSL does not support:
+                    <ul>
+                        <li>Client mode SSL</li>
+                        <li>Cipher selection via configure</li>
+                        <li>Client certificate mutual authentication</li>
+                    </ul>
+                </li>
+                <li>The MatrixSSL does not support:
+                <ul>
+                    <li>Cipher selection via configure</li>
+                </ul>
+            </ol>
             <a id="hints"></a>
             <h2 class="section">Helpful Hints</h2>
             <h3>Debug Trace and Logging</h3>
@@ -132,10 +145,7 @@ goahead --log logFile:logLevel
             <pre>
 goahead -v
 </pre>
-            <p>The log level can be from 0 to 9, with 9 being the most verbose level.</p><a id="limitations"></a>
-            <h2 class="section">Limitations and Special Notes</h2><a id="resolvedIssues"></a>
-            <h3>Resolved Issues</h3>
-            <p>See the new features and fixes in the <a href="changeLog.html">Change Log</a> document.</p>
+            <p>The log level can be from 0 to 9, with 9 being the most verbose level.</p>
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

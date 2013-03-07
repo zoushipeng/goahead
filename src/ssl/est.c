@@ -14,26 +14,27 @@
 /************************************* Defines ********************************/
 
 typedef struct EstConfig {
-    rsa_context     rsa;
-    x509_cert       cert;
-    x509_cert       ca;
-    int             *ciphers;
-    char            *dhKey;
+    rsa_context     rsa;                /* RSA context */
+    x509_cert       cert;               /* Certificate (own) */
+    x509_cert       ca;                 /* Certificate authority bundle to verify peer */
+    int             *ciphers;           /* Set of acceptable ciphers */
 } EstConfig;
 
 /*
     Per socket state
  */
 typedef struct EstSocket {
-    // MprSocket    *sock;
-    havege_state    hs;
-    ssl_context     ctx;
-    ssl_session     session;
+    havege_state    hs;                 /* Random HAVEGE state */
+    ssl_context     ctx;                /* SSL state */
+    ssl_session     session;            /* SSL sessions */
 } EstSocket;
 
 static EstConfig estConfig;
 
-//  MOB - GENERATE
+/*
+    Regenerate using: dh_genprime
+    Generated on 1/1/2013
+ */
 static char *dhg = "4";
 static char *dhKey =
     "E4004C1F94182000103D883A448B3F80"
@@ -90,7 +91,6 @@ PUBLIC int sslOpen()
 
 PUBLIC void sslClose()
 {
-    //  MOB - what to do
 }
 
 
@@ -109,7 +109,6 @@ PUBLIC int sslUpgrade(Webs *wp)
     havege_init(&est->hs);
     ssl_init(&est->ctx);
 	ssl_set_endpoint(&est->ctx, 1);
-
 	ssl_set_authmode(&est->ctx, BIT_GOAHEAD_VERIFY_PEER ? SSL_VERIFY_OPTIONAL : SSL_VERIFY_NO_CHECK);
     ssl_set_rng(&est->ctx, havege_rand, &est->hs);
 	ssl_set_dbg(&est->ctx, estTrace, NULL);
@@ -224,6 +223,11 @@ static int estHandshake(Webs *wp)
                 return -1;
             }
         }
+#if UNUSED
+    } else {
+        /* Being emitted when no cert supplied */
+        logmsg(3, "Certificate verified");
+#endif
     }
     return 1;
 }

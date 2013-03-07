@@ -7,9 +7,9 @@
 
 #include    "bit.h"
 
-#if BIT_PACK_MATRIXSSL && !BIT_PACK_OPENSSL
+#if BIT_PACK_MATRIXSSL
 /*
-    Matrixssl defines int32, uint32, int64 and uint64, but does not provide HAS_XXX to disable.
+    Matrixssl defines int*, uint*, but does not provide HAS_XXX to disable.
     So must include matrixsslApi.h first and then workaround. Ugh!
 */
 #if WIN32
@@ -19,6 +19,8 @@
     /* Indent to not create a dependency on this file if not enabled */
     #include    "matrixsslApi.h"
 
+#define     HAS_INT16 1
+#define     HAS_UINT16 1
 #define     HAS_INT32 1
 #define     HAS_UINT32 1
 #define     HAS_INT64 1
@@ -32,7 +34,6 @@
     MatrixSSL per-socket state
  */
 typedef struct Ms {
-    int     fd;
     ssl_t   *handle;
     char    *outbuf;        /* Pending output data */
     ssize   outlen;         /* Length of outbuf */
@@ -46,7 +47,7 @@ static sslKeys_t *sslKeys = NULL;
 
 PUBLIC int sslOpen()
 {
-    char    *password;
+    char    *password, *cert, *key, *ca;
 
     if (matrixSslOpen() < 0) {
         return -1;
@@ -56,8 +57,11 @@ PUBLIC int sslOpen()
         return -1;
     }
     password = 0;
-    if (matrixSslLoadRsaKeys(sslKeys, BIT_GOAHEAD_CERTIFICATE, BIT_GOAHEAD_KEY, password,  NULL) < 0) {
-        error(0, "Failed to read certificate %s or key file\n", BIT_GOAHEAD_CERTIFICATE);
+    cert = *BIT_GOAHEAD_CERTIFICATE ? BIT_GOAHEAD_CERTIFICATE : 0;
+    key = *BIT_GOAHEAD_KEY ? BIT_GOAHEAD_KEY : 0;
+    ca = *BIT_GOAHEAD_CA ? BIT_GOAHEAD_CA: 0;
+    if (matrixSslLoadRsaKeys(sslKeys, cert, key, password, ca) < 0) {
+        error("Failed to read certificate, key or ca file\n");
         return -1;
     }
     return 0;
@@ -77,15 +81,18 @@ PUBLIC void sslClose()
 PUBLIC void sslFree(Webs *wp)
 {
     Ms          *ms;
-    WebsSocket    *sp;
+    WebsSocket  *sp;
     uchar       *buf;
     int         len;
     
+    if ((ms = wp->ssl) == 0) {
+        return;
+    }
+    assert(wp->sid >= 0);
     if ((sp = socketPtr(wp->sid)) == 0) {
         return;
     }
-    if (!sp->flags & SOCKET_EOF && wp->ssl) {
-        ms = wp->ssl;
+    if (!(sp->flags & SOCKET_EOF)) {
         /*
             Flush data. Append a closure alert to any buffered output data, and try to send it.
             Don't bother retrying or blocking, we're just closing anyway.
@@ -94,9 +101,9 @@ PUBLIC void sslFree(Webs *wp)
         if ((len = matrixSslGetOutdata(ms->handle, &buf)) > 0) {
             sslWrite(wp, buf, len);
         }
-        if (ms->handle) {
-            matrixSslDeleteSession(ms->handle);
-        }
+    }
+    if (ms->handle) {
+        matrixSslDeleteSession(ms->handle);
     }
     wp->ssl = 0;
 }
@@ -106,8 +113,11 @@ PUBLIC int sslUpgrade(Webs *wp)
 {
     Ms      *ms;
     ssl_t   *handle;
+    int     flags;
     
-    if (matrixSslNewServerSession(&handle, sslKeys, NULL) < 0) {
+    flags = BIT_GOAHEAD_VERIFY_PEER ? SSL_FLAGS_CLIENT_AUTH : 0;
+    if (matrixSslNewServerSession(&handle, sslKeys, NULL, flags) < 0) {
+        error("Cannot create new matrixssl session");
         return -1;
     }
     if ((ms = walloc(sizeof(Ms))) == 0) {
@@ -169,6 +179,9 @@ static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int 
                 return -1;
             }
             matrixSslSentData(ms->handle, (int) written);
+            if (ms->handle->err != SSL_ALERT_NONE && ms->handle->err != SSL_ALLOW_ANON_CONNECTION) {
+                return -1;
+            }
             *readMore = 1;
             return 0;
 
@@ -189,8 +202,6 @@ static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int 
             } else if (data[1] == SSL_ALERT_CLOSE_NOTIFY) {
                 //  ignore - graceful close
                 return 0;
-            } else {
-                //  ignore
             }
             rc = matrixSslProcessedData(ms->handle, &data, &dlen);
             break;
@@ -234,8 +245,16 @@ static ssize innerRead(Webs *wp, char *buf, ssize size)
             return -1;
         }
         readMore = 0;
-        if ((nbytes = socketRead(wp->sid, mbuf, msize)) > 0) {
-            if ((nbytes = processIncoming(wp, buf, size, nbytes, &readMore)) > 0) {
+        if ((nbytes = socketRead(wp->sid, mbuf, msize)) < 0) {
+            return nbytes;
+        } else if (nbytes > 0) {
+            nbytes = processIncoming(wp, buf, size, nbytes, &readMore);
+            if (nbytes < 0) {
+                sp = socketPtr(wp->sid);
+                sp->flags |= SOCKET_EOF;
+                return nbytes;
+            }
+            if (nbytes > 0) {
                 return nbytes;
             }
         }

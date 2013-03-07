@@ -12,6 +12,9 @@
 #include    "bit.h"
 #include    "bitos.h"
 
+#if (BIT_PACK_EST + BIT_PACK_MATRIXSSL + BIT_PACK_NANOSSL + BIT_PACK_OPENSSL) > 1
+    #error "Cannot have more than one SSL provider configured"
+#endif
 #ifndef BIT_GOAHEAD_LOGGING
     #define BIT_GOAHEAD_LOGGING 1               /**< Default for logging is "on" */
 #endif
@@ -873,6 +876,7 @@ typedef struct WebsSocket {
     int             sid;                /**< Index into socket[] */
     int             port;               /**< Port to listen on */
     int             flags;              /**< Current state flags */
+    //  MOB - rename fd
     Socket          sock;               /**< Actual socket handle */
     int             fileHandle;         /**< ID of the file handler */
     int             interestEvents;     /**< Mask of events to watch for */

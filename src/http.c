@@ -412,6 +412,9 @@ static void termWebs(Webs *wp, int reuse)
     if (!reuse) {
         bufFree(&wp->rxbuf);
         if (wp->sid >= 0) {
+#if BIT_PACK_SSL
+            sslFree(wp);
+#endif
             socketDeleteHandler(wp->sid);
             socketCloseConnection(wp->sid);
             wp->sid = -1;
@@ -477,11 +480,7 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->qop);
 #endif
     hashFree(wp->vars);
-#if BIT_PACK_SSL
-    if (!reuse) {
-        sslFree(wp);
-    }
-#endif
+
 #if BIT_GOAHEAD_UPLOAD
     if (wp->files) {
         websFreeUpload(wp);
@@ -565,7 +564,7 @@ PUBLIC void websDone(Webs *wp)
 }
 
 
-static void recycle(Webs *wp, int reuse) 
+static void complete(Webs *wp, int reuse) 
 {
     assert(wp);
     assert(websValid(wp));
@@ -581,10 +580,13 @@ static void recycle(Webs *wp, int reuse)
     assert(wp->timeout >= 0);
     websCancelTimeout(wp);
     assert(wp->sid >= 0);
+#if BIT_PACK_SSL
+    sslFree(wp);
+#endif
     socketDeleteHandler(wp->sid);
     socketCloseConnection(wp->sid);
-    bufFlush(&wp->rxbuf);
     wp->sid = -1;
+    bufFlush(&wp->rxbuf);
     wp->state = WEBS_BEGIN;
     wp->flags |= WEBS_CLOSED;
 }
@@ -707,7 +709,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
 #endif
     assert(wp->timeout == -1);
-    wp->timeout = websStartEvent(PARSE_TIMEOUT, checkTimeout, (void*) wp);
+    wp->timeout = websStartEvent(/* MOB PARSE_TIMEOUT */ 60 * 1000, checkTimeout, (void*) wp);
     socketEvent(sid, SOCKET_READABLE, wp);
     return 0;
 }
@@ -795,14 +797,14 @@ static void readEvent(Webs *wp)
     }
     if (wp->flags & WEBS_CLOSED) {
         return;
-    } else if (nbytes < 0) {
+    } else if (nbytes < 0 && socketEof(wp->sid)) {
         /* EOF or error. Allow running requests to continue. */
         if (wp->state < WEBS_READY) {
             if (wp->state > WEBS_BEGIN) {
                 websError(wp, HTTP_CODE_COMMS_ERROR, "Read error: connection lost");
                 websPump(wp);
             }
-            recycle(wp, 0);
+            complete(wp, 0);
         }
     } else if (wp->state < WEBS_READY) {
         sp = socketPtr(wp->sid);
@@ -831,7 +833,7 @@ PUBLIC void websPump(Webs *wp)
             /* Nothing to do until websDone is called */
             return;
         case WEBS_COMPLETE:
-            recycle(wp, 1);
+            complete(wp, 1);
             canProceed = bufLen(&wp->rxbuf) != 0;
             break;
         }
@@ -2281,7 +2283,7 @@ static void checkTimeout(void *arg, int id)
     } 
     if (wp->state == WEBS_BEGIN) {
         websError(wp, HTTP_CODE_REQUEST_TIMEOUT | WEBS_CLOSE, "Request exceeded parse timeout");
-        recycle(wp, 0);
+        complete(wp, 0);
         websFree(wp);
         return;
     }
@@ -2293,7 +2295,7 @@ static void checkTimeout(void *arg, int id)
                 websError(wp, HTTP_CODE_REQUEST_TIMEOUT, "Idle connection closed");
             }
         }
-        recycle(wp, 0);
+        complete(wp, 0);
         websFree(wp);
         /* WARNING: wp not valid here */
         return;
