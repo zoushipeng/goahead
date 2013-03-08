@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -48,8 +48,6 @@
                 <li><a href="#compatibility">GoAhead 3 Compatibility</a></li>
                 <li><a href="#legacy">Legacy Support</a></li>
                 <li><a href="#changes">GoAhead 3 Changes</a></li>
-                <li><a href="#config">Migrating Config Files</a></li>
-                <li><a href="#modules">Migrating Modules</a></li>
             </ul>
 <!-- BeginDsi "dsi/progGuideSeeAlso.html" -->
             <h1>See Also</h1>
@@ -76,6 +74,8 @@
             compatibility breaks we decided to make all the changes in one release. In this way we can ensure
             that GoAhead 3 quickly becomes a stable platform going forward. Please see our <a href=
                 "../../../product/compatibility.html">Compatibility Policy</a>.</p>
+
+            <a name="legacy"></a>    
             <h3>Legacy Support</h3>
             <p>To aid migrating existing GoAhead 2.X applications, GoAhead 3.X can be built to support the old
             GoAhead 2.X APIs. This is called legacy mode. In this mode, the old APIs are mapped to new APIs via 
@@ -115,12 +115,11 @@
                 <li>The EMF database has been removed. The new authentication framework does not utilize it.</li>
                 <li>The GoForm facility has been upgrade to the GoAction handler. The calling sequence for GoForms has
                     been modified and simplified.</li>
-                    <li>POST request form data is only stored in the query field of the Webs structure if <a
-                        href="#legacy">Legacy</a> mode is 
-                    enabled. Without legacy mode, query data and
+                <li>POST request form data is only stored in the query field of the Webs structure if 
+                        <a href="#legacy">Legacy</a> mode is enabled. Without legacy mode, query data and
                     form body data are stored separately. Form data is stored in the 'input' field of the Webs structure.
-                    Code that accesses wp->query for GoForms will need to be modified.
-                    In legacy mode, the input is also copied to the wp->query field.
+                    Code that accesses wp-&gt;query for GoForms will need to be modified.
+                    In legacy mode, the input is also copied to the wp-&gt;query field.
                 </li>
                 <li>Request parameter variables are only created for POST requests if the request Content-Type is set to
                     application/x-www-form-urlencoded.</li>
@@ -129,7 +128,7 @@
                 <li>In GoAhead 2, the websHeader routine was used to write a fixes set of HTTP response headers. This was
                     inflexible and did not permit easy custom modification of headers. GoAhead 3 supports user-definable
                     response headers via the new API 
-                    <a href="api/goahead.html#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b">websWriteHeader</a>. Consequently,
+                    <a href="../../../api/goahead.html#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b">websWriteHeader</a>. Consequently,
                      the websHeader and websFooter APIs are removed.</li>
             </ul>
             <h3>Changed APIs</h3>

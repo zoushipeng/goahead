@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -47,8 +47,7 @@
             <ul class="nav">
                 <li><a href="#overview">Overview</a></li>
                 <li><a href="#configuration">Route Configuration</a></li>
-                <li><a href="#directives">Route Directives</a></li>
-                <li><a href="#tokens">Route Tokens</a></li>
+                <li><a href="#keywords">Route Keywords</a></li>
                 <li><a href="#processing">Route Processing</a></li>
                 <li><a href="#examples">Route Examples</a></li>
             </ul>
@@ -79,10 +78,11 @@
             A route may require that further preconditions be met before it is suitable to process the
             request. If the required conditions are not met, the next route in the configuration will be tested. There 
             is always a catch-all route that will process the request if all prior routes fail to qualify.</p>
+
             <a id="configuration"></a>
             <h2 class="section">Route Configuration</h2>
             <p>Routes are defined in the <i>route.txt</i> configuration file via a series of route directives. For 
-            example:
+            example:</p>
 <pre>
 route uri=/cgi-bin dir=cgi-bin handler=cgi
 route uri=/action handler=action
@@ -92,12 +92,13 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             <p>Each line defines a new route. While route directives may have many optional parameters, every route will
             have a <i>uri</i> keyword that defines a URI prefix that qualifying requests must begin with. 
             If a client request has a URI that does not being with the route URI prefix, then the route will 
-            be skipped.
+            be skipped.</p>
             <h3>Route Ordering</h3>
             <p>When multiple routes are defined in the configuration file, the router will test each route 
             in the order in which they are declared in the configuration file. So ordering is very important. 
             For routes with similar leading characters, define the route with the longer URI first in the 
             route.txt file.</p>
+
             <a id="keywords"></a>
             <h2 class="section">Route Keywords</h2>
             <p>A route directive is comprised of a collection of keyword=value pairs. All routes must have a <i>uri</i> 
@@ -105,9 +106,9 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             <a name="abilities"></a>
             <h3>abilities</h3>
             <p>The <i>abilities</i> keyword specifies the required user abilities to access resources described by
-                this route. Multiple abilities are separated using comma. If multiple abilites are specified, all the
-            abilities are requried. For example: 
-                <pre>route uri=/auth/basic/ auth=basic <b>abilities=create,edit,view</b></pre></p>
+                this route. Multiple abilities are separated using comma. If multiple abilities are specified, all the
+            abilities are required. For example: </p>
+            <pre>route uri=/auth/basic/ auth=basic <b>abilities=create,edit,view</b></pre>
             <p>To activate testing the user's abilities, an <i>auth</i> keyword must be specified to enable 
             user authentication and authorization. 
             See <a href="authentication.html">User Authentication</a> for more information.</p>
@@ -118,11 +119,11 @@ route uri=/ methods=OPTIONS|TRACE handler=options
                 determining the user's authorized abilities. Supported authentication schemes are:
                 <i>basic</i> for Basic authentication, <i>digest</i> for Digest authentication and
                 <i>form</i> for web-form based authentication. </p>
-            <p>If the user's credientials cannot be authenticated, the user is redirected to a new URI specified
+            <p>If the user's credentials cannot be authenticated, the user is redirected to a new URI specified
             by the <i>redirect</i> keyword. When authentication fails, GoAhead responds with a HTTP 401 status code
             which means unauthorized access. A redirect keyword with a 401 status code will specify the 
-            redirection target when authentication fails. For example:
-            <pre>route uri=/ <b>auth=form</b> handler=continue redirect=401@/pub/login.html</pre></p>
+            redirection target when authentication fails. For example:</p>
+            <pre>route uri=/ <b>auth=form</b> handler=continue redirect=401@/pub/login.html</pre>
             <p>The required abilities are specified by the <a href="#abilities">abilities</a> keyword.
             See <a href="authentication.html">User Authentication</a> for more information.</p>
             <h3>dir</h3>
@@ -131,34 +132,34 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             appended to this directory to locate the file to serve.</p>
             <h3>extensions</h3>
             <p>The <i>extensions</i> keyword specifies the set of valid filename extensions for documents served
-            by this route. For example:
-                <pre>route uri=/ <b>extension=cgi|fcgi|mycgi</b> handler=cgi</pre> 
-            This will use the CGI handler for any documents with the extensions: cgi, fcgi or mycgi.</p>
+            by this route. For example:</p>
+            <pre>route uri=/ <b>extension=cgi|fcgi|mycgi</b> handler=cgi</pre> 
+            <p>This will use the CGI handler for any documents with the extensions: cgi, fcgi or mycgi.</p>
             <h3>handler</h3>
             <p>The <i>handler</i> keyword specifies the GoAhead handler that will be responsible for generating
             the response. If unspecified, it defaults to the <i>file</i> handler. Valid handler names include:
             action, cgi, file, jst, options and redirect.</p>
             <h3>methods</h3>
             <p>A route can define the a set of acceptable HTTP methods.  Multiple methods should be separated by
-            <i>|</i>. For example: 
-                <pre>route uri=/put/ <b>methods=PUT|DELETE</b></pre>
+            <i>|</i>. For example: </p>
+            <pre>route uri=/put/ <b>methods=PUT|DELETE</b></pre>
                 <p>The standard HTTP methods are: DELETE, GET, OPTIONS, POST, PUT and TRACE. </p>
             <h3>protocol</h3>
             <p>A route can be restricted to a specific protocol such as HTTP or HTTPS via the protocol keyword.
-            For example, this route will only apply to SSL requests:
-                <pre>route uri=/ <b>protocol=https</b></pre></p>
+            For example, this route will only apply to SSL requests:</p>
+            <pre>route uri=/ <b>protocol=https</b></pre>
             <h3>redirect</h3>
             <p>The <i>redirect</i> keyword specifies target URIs to which the client will be redirected based on
-                the response HTTP status code. The format of the <i>redirect</i> keyword value is:
+                the response HTTP status code. The format of the <i>redirect</i> keyword value is: 
                 <i>redirect=STATUS@URI</i>,
-                where STATUS is a valid HTTP status code and URI is a valid target destination URI. For example:
-                <pre>route uri=/old-content/ <b>redirect=404@/upgrade-message.html</b></pre>
-                Unlike other keywords, multiple redirect keywords with different status values
+                where STATUS is a valid HTTP status code and URI is a valid target destination URI. For example:</p>
+            <pre>route uri=/old-content/ <b>redirect=404@/upgrade-message.html</b></pre>
+            <p>Unlike other keywords, multiple redirect keywords with different status values
                 can be present in a single route.  </p> 
             <h3>uri</h3>
             <p>The <i>uri</i> keyword is mandatory for all routes and defines the URI prefix for matching requests.
             All requests URIs that begin with the specified <i>uri</i> value will match. It is good practice to 
-            include a trailing <i>/</i> to match directories. For example:
+            include a trailing <i>/</i> to match directories. For example:</p>
             <pre>route <b>uri=/confidential/</b> auth=form abilities=top-secret</pre>
             <h3>Keyword Value Separators</h3>
             <p>Some keyword values may contain multiple values (abilities, extensions, methods). In these cases, 
@@ -177,7 +178,7 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             <ol>
                 <li><a href="#step-protocol">Protocol Matching</a> &mdash; Test if the request protocol matches.</li>
                 <li><a href="#step-method">Method Matching</a> &mdash; Test if the request method matches.</li>
-                <li><a href="#step-target">Extension Matching</a> &mdash; Test if the request extension matches.</li>
+                <li><a href="#step-extension">Extension Matching</a> &mdash; Test if the request extension matches.</li>
                 <li><a href="#step-uri">URI Matching</a> &mdash; Test if the request URI matches the route URI.</li>
             </ol>
             <a id="step-protocol"></a>
@@ -197,6 +198,7 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             <a id="step-uri"></a>
             <h3>URI Matching</h3>
             <p>URI matching is a mandatory stop. The route URI is tested against the start of the request URI.</p>
+
             <a id="examples"></a>
             <h2 class="section">Route Examples</h2>
             <h3>Redirecting Requests</h3>
@@ -227,9 +229,9 @@ route uri=/partition/ methods=OPTIONS|TRACE handler=options
 route uri=/ extensions=jst,asp handler=jst
 </pre>
             <h3>Catch-All Route</h3>
-            <p>If all prior routes file to match a request, a catch-all route can be used to respond universally.
+            <p>If all prior routes file to match a request, a catch-all route can be used to respond universally.</p>
             <pre>route uri=/</pre>
-            Note: if the handler is not specified, the <i>file</i> handler is used.</p> 
+            <p>Note: if the handler is not specified, the <i>file</i> handler is used.</p> 
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

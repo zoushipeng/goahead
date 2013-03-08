@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -45,8 +45,8 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul class="nav">
-                <li><a href="#errorLog">Error Log</a></li>
-                <li><a href="#accessLog">Access Log</a></li>
+                <li><a href="#sample">Sample Output</a></li>
+                <li><a href="#logs">Log Files</a></li>
             </ul>
 <!-- BeginDsi "dsi/usersGuideSeeAlso.html" -->
             <h1>See Also</h1>
@@ -66,6 +66,7 @@
             The log records the essential GoAhead configuration, details of denied requests, and other trace
             and error information. The log can also record request and response headers and other request details.</p>
             
+            <a name="sample"></a>
             <h2>Sample Output</h2>
             <p>Here is some sample log output.</p>
             <pre>
@@ -87,6 +88,8 @@ goahead: 2: Started https://*:443
 program:logLevel
 </pre>
             <p>The log level is the verbosity level assigned to the trace information by GoAhead.</p>
+
+            <a name="logs"></a>
             <h2>Log Files</h2>
             <p>The default location of the log file is specified at build time via the command:
             <pre>./configure --set trace="file:level"</pre>

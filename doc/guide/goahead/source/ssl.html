@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -45,14 +45,10 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#platforms">Supported Platforms</a></li>
-                <li><a href="#env">Prepare the Environment</a></li>
-                <li><a href="#overview">Build Overview</a></li>
-                <li><a href="#repository">Repository Building</a></li>
-                <li><a href="#directories">Key Directories</a></li>
-                <li><a href="make.html">Building with Make</a></li>
-                <li><a href="bit.html">Building with Bit</a></li>
-                <li><a href="ide.html">Building with an ID</a></li>
+                <li><a href="#est">EST Instructions</a></li>
+                <li><a href="#matrixssl">MatrixSSL Instructions</a></li>
+                <li><a href="#nanossl">NanoSSL Instructions</a></li>
+                <li><a href="#openssl">OpenSSL Instructions</a></li>
             </ul>
 <!-- BeginDsi "dsi/sourceSeeAlso.html" -->
             <h1>See Also</h1>
@@ -72,11 +68,15 @@
         <div class="contentLeft">
             <h1>SSL Provider Build Instructions</h1>
             <p>GoAhead support four SSL providers: OpenSSL, MatrixSSL, Mocana NanoSSL and EST. EST is included with 
-            GoAhead and no additional instructions are required.  
+            GoAhead and no additional instructions are required. </p>
+
+            <a name="est"></a> 
             <h2>EST Build Instructions</h2>
             <p>Full source code for the EST SSL provider is included with GoAhead. There are no additional build
             instructions. Make sure you configure with EST as the default SSL provider is OpenSSL:
             <pre>configure --with est</pre>
+
+            <a name="matrixssl"></a> 
             <h2>MatrixSSL Build Instructions</h2>
             <p>If building MatrixSSL from source code, use the following
             settings in the <em>matrixsslConfig.h</em> configuration header.
@@ -88,6 +88,7 @@
                 <li>SERVER_WILL_ACCEPT_EMPTY_CLIENT_CERT_MSG</li>
                 <li>MATRIX_USE_FILE_SYSTEM</li>
             </ul>
+            <a name="nanossl"></a> 
             <h2>Mocana NanoSSL Build Instructions</h2>
             <p>If building Mocana NanoSSL, define the following flags:
             <ul>
@@ -100,6 +101,7 @@
                 <li>__ENABLE_MOCANA_SSL_MUTUAL_AUTH_SUPPORT__</li>
                 <li>__ENABLE_RFC3546__</li>
             </ul>
+            <a name="openssl"></a> 
             <h2>OpenSSL Build Instructions</h2>
             <p>There are no specific build instructions for OpenSSL. Please follow the OpenSSL documentation for
             guidance.</p>

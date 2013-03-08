@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -48,7 +48,7 @@
                 <li><a href="#configuringCgi">Configuring CGI</a></li>
                 <li><a href="#invoking">Invoking CGI Programs</a></li>
                 <li><a href="#cgiProgramming">CGI Programming</a></li>
-                <li><a href="#environmentVariables">Environment Variables</a></li>
+                <li><a href="#env">Environment Variables</a></li>
                 <li><a href="#cgiProgramming">CGI Programming</a></li>
                 <li><a href="#hints">Hints and Tips</a></li>
                 <li><a href="#otherResources">Other Resources</a></li>
@@ -66,6 +66,7 @@
 <!-- EndDsi -->
         </div>
         <div class="contentLeft">
+            <a name="using"></a>
             <h1>Using CGI Programs</h1>
             <p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web
             servers. CGI was originally developed as part of the NCSA HTTP server and is an old standard for interfacing
@@ -81,20 +82,23 @@
             <p>Embedthis GoAhead supports CGI so that existing CGI applications can be fully supported. GoAhead has a
             high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI
             setup.</p>
-            <a id="configuringCgi"></a>
+
+            <a name="configuringCgi"></a>
             <h2 class="section">Configuring CGI Programs</h2>
             <p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is
-            typically "cgi-bin". Tthe CGI programs and scripts are stored in special CGI directories outside the
+            typically "cgi-bin". The CGI programs and scripts are stored in special CGI directories outside the
             document root.</p>
             <p>When a URI is requested by a browser that includes the "<em>/cgi-bin/</em>" prefix, the 
             script name immediately after "/cgi-bin/" will be run. For example:</p>
 <pre>
 http://www.embedthis.com/cgi-bin/cgitest
 </pre>
+            <a name="invoking"></a>
             <h2 class="section">Invoking CGI Programs</h2>
             <p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program
             via Environment Variables.</p>
             
+            <a name="env"></a>
             <h2 class="section">CGI Environment Variables</h2>
             <p>CGI uses environment variables to send your program additional parameters. The following environment
             variables are defined:</p>

@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -89,10 +89,10 @@ static void buy(Webs *wp)
             looks for a GoAction by NAME. The function bound to NAME is then is invoked to service the request. For
             example:</p>
             <pre>
-/action/buy?name=John&item=candy           
+/action/buy?name=John&amp;item=candy           
 </pre>
             <p>This will invoke the GoAction <i>buy</i> which will run the bound C function. The action handler will
-            automatically decode the querystring "name=John&age=30" and define GoAhead variables called "name" and "age".</p>
+            automatically decode the query string "name=John&amp;age=30" and define GoAhead variables called "name" and "age".</p>
             <p>The GoAction is responsible for writing the HTTP header and HTML document content back to the user's
             browser.</p>
         </div>

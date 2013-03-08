@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -44,16 +44,10 @@
     <div class="content">
         <div class="contentRight">
             <h1>Quick Nav</h1>
+            <!--
             <ul class="nav">
-                <li><a href="#processing">Request Processing</a></li>
-                <li><a href="#responses">Generating Responses</a></li>
-                <li><a href="#errors">Generating Errors</a></li>
-                <li><a href="#redirecting">Redirecting</a></li>
-                <li><a href="#paradigms">Response Paradigms</a></li>
-                <li><a href="#coding">Coding Issues</a></li>
-                <li><a href="#defining">Defining a Handler</a></li>
-                <li><a href="#more">More Info</a></li>
             </ul>
+            -->
 <!-- BeginDsi "dsi/progGuideSeeAlso.html" -->
             <h1>See Also</h1>
             <ul class="nav">
@@ -80,18 +74,18 @@ static bool verifyPassword(Webs *wp)
     /*
         If using Digest auth, compare the digest of the password
      */
-    password = (wp->digest) ? wp->digest : wp->user->password;
-    if (!CHECK_PASSWORD(wp->username, password, &roles)) {
+    password = (wp-&gt;digest) ? wp-&gt;digest : wp-&gt;user-&gt;password;
+    if (!CHECK_PASSWORD(wp-&gt;username, password, &amp;roles)) {
         return 0;
     }
     /*
         Create the user inside GoAhead and set the user roles/abilities
      */
-    if ((wp->user = websLookupUser(wp->username)) == 0) {
-        if ((wp->user = websAddUser(wp->username, 0, roles)) == 0) {
+    if ((wp-&gt;user = websLookupUser(wp-&gt;username)) == 0) {
+        if ((wp-&gt;user = websAddUser(wp-&gt;username, 0, roles)) == 0) {
             return 0;
         }
-        websSetUserRoles(wp->username, roles);
+        websSetUserRoles(wp-&gt;username, roles);
     }
     return 1;
 }

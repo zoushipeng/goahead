@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -46,13 +46,7 @@
             <h1>Quick Nav</h1>
             <ul>
                 <li><a href="#overview">Overview</a></li>
-                <li><a href="#allocator">Allocator</a></li>
-                <li><a href="#errors">Error Handling</a></li>
-                <li><a href="#collector">Garbage Collector</a></li>
-                <li><a href="#phases">Collection Phases</a></li>
-                <li><a href="#marking">Marking Blocks</a></li>
-                <li><a href="#alloc">Allocating Memory</a></li>
-                <li><a href="#managers">Managers</a></li>
+                <li><a href="#enabling">Enabling Allocator</a></li>
             </ul>
             <h1>See Also</h1>
             <ul>
@@ -72,8 +66,8 @@
             deterministic and allocates and frees memory in constant time O(1). </p>
             <p>The allocator is optimized for frequent allocations of small blocks (&lt; 4K). It 
             uses a scheme of buddy free queues for fast allocation. Memory allocations are aligned on 16 byte boundaries on
-            64-bit systems and otherwise on 8 byte boundaries. It will not return chunks of unused memory back to the
-            O/S.</p> 
+            64-bit systems and otherwise on 8 byte boundaries. It will not return chunks of unused memory back to the O/S.</p>
+            <a id="enabling"></a>
             <h3>Enabling the Allocator</h3>
             <p>The allocator is not enabled by default as most operating systems now have suitable malloc implementations.
             To enable, run configure and rebuild:</p>

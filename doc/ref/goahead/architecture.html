@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -69,11 +69,11 @@
         </div>
         <div class="contentLeft">
             <h1>GoAhead Architecture</h1>
-            <p>The GoAhead web server is the worlds most popuplar embedded web server and has been embedded in
+            <p>The GoAhead web server is the worlds most popular embedded web server and has been embedded in
             hundreds of different products and hundreds of millions of devices. GoAhead is a compact and efficient
             webserver with simple clean code and APIs.</p>
            
-            <p>GoAhead has an strong feature set including:
+            <p>GoAhead has an strong feature set including:</p>
             <ul>
                 <li>HTTP/1.1</li>
                 <li>IPv4 and IPv6</li>
@@ -86,7 +86,7 @@
                 <li>Session state storage</li>
                 <li>URI routing and rewriting</li>
                 <li>Logging</li>
-                <li>Security sandboxing.
+                <li>Security sandboxing</li>
             </ul>
             
             <p>GoAhead is extremely efficient. It runs as a single-threaded, event driven, non-blocking process. 
@@ -220,11 +220,11 @@
             <a id="jst"></a>
             <h3>Javascript Templates</h3>
             <p>Javascript Templates (JST) use Javascript code directly embedded in HTML web pages.
-            The Javascript is run on the server and the result when the code executes is substitued back into the
+            The Javascript is run on the server and the result when the code executes is substituted back into the
             web page before it is sent to the client.</p>
             <p>JST allows the binding of C functions to Javascript functions, so that a JST web page can 
             easily access device or system data.</p>
-            See <a href="../../guide/goahead/users/jst.html">Javascript Templates</a> for more details.</p>
+            <p>See <a href="../../guide/goahead/users/jst.html">Javascript Templates</a> for more details.</p>
             <a id="security"></a>
             <h2 class="section">Security</h2>
             <p>GoAhead provides a suite of measures designed to increase the security of your web server:</p>
@@ -252,8 +252,9 @@
             <a id="dirs"></a>
             <h2 class="section">GoAhead Directories</h2>
             <p>Here is the list of top level directories in the GoAhead source code distribution.</p>
-            <table>
+            <table title="dirs">
                 <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+                <tbody>
                 <tr><td>bits</td><td>Directory of scripts for the Bit tool</td></tr>
                 <tr><td>doc</td><td>Documentation</td></tr>
                 <tr><td>package</td><td>Packaging scripts</td></tr>
@@ -266,12 +267,15 @@
                 <tr><td>*/inc</td><td>Master include directory</td></tr>
                 <tr><td>*/bin</td><td>Output for binaries</td></tr>
                 <tr><td>*/obj</td><td>Output directory for objects</td></tr>
+                </tbody>
             </table>
+
             <a id="files"></a>
             <h2 class="section">GoAhead Files</h2>
             <p>Here is a list of the major files in the GoAhead source code distribution.</p>
-            <table>
+            <table title="files">
                 <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+                <tbody>
                 <tr><td>auth.c</td><td>Authorization management</td></tr>
                 <tr><td>cgi.c</td><td>CGI handler</td></tr>
                 <tr><td>crypt.c</td><td>Crypto routines</td></tr>
@@ -292,11 +296,13 @@
                 <tr><td>runtime.c</td><td>Portable runtime layer</td></tr>
                 <tr><td>socket.c</td><td>Socket management</td></tr>
                 <tr><td>upload.c</td><td>File upload handler</td></tr>
+                </tbody>
             </table>
             <a id="additional"></a>
             <h3 class="section">GoAhead Additional Files</h3>
-            <table>
+            <table title="additional">
                 <thead><tr><th>Name</th><th>Purpose</th></tr></thead>
+                <tbody>
                 <tr><td>configure</td><td>Configuration script</td></tr>
                 <tr><td>Makefile</td><td>Top-level Makefile</td></tr>
                 <tr><td>main.bit</td><td>Primary Bit configuration</td></tr>
@@ -304,6 +310,7 @@
                 <tr><td>OS-ARCH.bit</td><td>Generated Bit configuration</td></tr>
                 <tr><td>server.key.pem</td><td>Test SSL private key</td></tr>
                 <tr><td>server.crt</td><td>Test SSL certificate</td></tr>
+                </tbody>
             </table>
         </div>
     </div>

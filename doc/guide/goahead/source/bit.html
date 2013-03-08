@@ -28,7 +28,7 @@
 
 <body>
     <div class="top">
-        <a class="logo" href="http://embedthis.com/products/goahead/goahead-webserver.html">&nbsp;</a>
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
@@ -76,14 +76,14 @@
         <div class="contentLeft">
             <h1>Building with Bit</h1>
             
-            <p>The procedure for building with Bit is the same for all supported platforms.
+            <p>The procedure for building with Bit is the same for all supported platforms.</p>
             
             <a name="download"></a>
             <h3>Download Bit</h3>
             <p>You can download Bit from the 
             <a href="http://embedthis.com/downloads/bit/download.ejs">Embedthis Bit Download</a> download site.
             Packaged installations are provided for Windows and MACOSX. For Linux, use the source distribution.</p>
-            See the <a href="http://embedthis.com/products/bit/doc/">Bit Documentation</a> for information regarding
+            <p>See the <a href="http://embedthis.com/products/bit/doc/">Bit Documentation</a> for information regarding
             installing Bit.</p>
             
             <a id="configuring"></a>
@@ -248,12 +248,12 @@ configure --with openssl=/usr/src/openssl
                 <tr>
                     <td>matrixssl</td>
                     <td>External</td>
-                    <td>MatrixSSL SSL stack. Requires a commerical license from PeerSec.</td>
+                    <td>MatrixSSL SSL stack. Requires a commercial license from PeerSec.</td>
                 </tr>
                 <tr>
                     <td>nanossl</td>
                     <td>External</td>
-                    <td>Mocana NanoSSL stack. Requires a commerical license from Mocana.</td>
+                    <td>Mocana NanoSSL stack. Requires a commercial license from Mocana.</td>
                 </tr>
                 <tr>
                     <td>openssl</td>
@@ -529,7 +529,7 @@ Usage: bit [options] [targets|actions] ...
   --static                                 # Make static without shared libraries
   --unicode                                # Set char size to wide (unicode)
   --unset feature                          # Unset a feature
-  --version                                # Dispay the bit version
+  --version                                # Display the bit version
   --verbose                                # Trace operations
   --with PACK[=PATH]                       # Build with package at PATH
   --without PACK                           # Build without a package
@@ -634,7 +634,7 @@ sudo bit uninstall
             one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86
             Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.
             The CPU field is optional and specifies a CPU to tune for.</p>
-            <p>Configuration options apply to the preceeding platform. If not preceeding platform, the option applies
+            <p>Configuration options apply to the preceding platform. If not preceding platform, the option applies
             to the local platform.
             <pre>configure -with openssl=/path/to/openssl -platform linux-arm -without openssl</pre>
             <p>This will build Ejscript for the local development system, and without Ejscript for the target.</p>
