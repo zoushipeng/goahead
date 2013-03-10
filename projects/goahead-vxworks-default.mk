@@ -7,7 +7,7 @@ export WIND_HOME := $(WIND_BASE)/..
 export WIND_PLATFORM := $(WIND_PLATFORM)
 
 PRODUCT           := goahead
-VERSION           := 3.1.0
+VERSION           := 3.1.1
 BUILD_NUMBER      := 2
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -573,7 +573,7 @@ $(CONFIG)/bin/gopass.out: $(DEPS_37)
 #   version
 #
 version: $(DEPS_38)
-	@echo 3.1.0-2
+	@echo 3.1.1-2
 
 #
 #   stop

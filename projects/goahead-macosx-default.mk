@@ -3,7 +3,7 @@
 #
 
 PRODUCT           := goahead
-VERSION           := 3.1.0
+VERSION           := 3.1.1
 BUILD_NUMBER      := 2
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -166,7 +166,7 @@ DEPS_5 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_5)
 	@echo '      [Link] libest'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 3.1.0 -current_version 3.1.0 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) -compatibility_version 3.1.1 -current_version 3.1.1 $(LIBPATHS) -install_name @rpath/libest.dylib $(CONFIG)/obj/estLib.o $(LIBS)
 endif
 
 #
@@ -569,7 +569,7 @@ $(CONFIG)/bin/gopass: $(DEPS_37)
 #   version
 #
 version: $(DEPS_38)
-	@echo 3.1.0-2
+	@echo 3.1.1-2
 
 #
 #   stop
@@ -589,7 +589,7 @@ installBinary: $(DEPS_40)
 	mkdir -p "$(BIT_WEB_PREFIX)"
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "3.1.0" "$(BIT_APP_PREFIX)/latest"
+	ln -s "3.1.1" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
 	mkdir -p "$(BIT_BIN_PREFIX)"
