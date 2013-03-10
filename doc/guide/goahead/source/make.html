@@ -49,6 +49,7 @@
                 <li><a href="#nmake">Windows Nmake</a></li>
                 <li><a href="#modifying">Modifying Defaults</a></li>
                 <li><a href="#installing">Installing</a></li>
+                <li><a href="#openssl">OpenSSL support</a></li>
                 <li><a href="#cross">Cross Compiling</a></li>
                 <li><a href="#toolchain">Specifying a Tool Chain</a></li>
                 <li><a href="bit.html">Building with Bit</a></li>
@@ -180,6 +181,16 @@ sudo make uninstall
 </pre>
             <p>If you need to capture the build products only, you can deploy to a specific directory via:
             <pre>make BIT_ROOT_DIR=/tmp/output deploy</pre>
+
+            <a name="openssl"></a>
+            <h3>Supporting OpenSSL</h3>
+            <p>GoAhead will build using the EST SSL stack by default. However, if you require the OpenSSL stack instead,
+              you must specify disable EST and enable the OpenSSL libraries and path to 
+              those libraries when you invoke make. For example:</p>
+            <pre>make BIT_PACK_EST=0 BIT_PACK_OPENSSL=1 \
+    LDFLAGS="-L/path/to/libs -lcrypto -lssl -Wl,-rpath,/path/to/libs" \
+    SHOW=1 make clean compile</pre>
+
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for platform different to that of the local system is called <em>cross compiling</em>.
