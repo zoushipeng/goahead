@@ -775,7 +775,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
     len = bufsize;
     sofar = 0;
     while (len > 0) {
-        if ((written = send(sp->sock, &buf[sofar], (int) len, 0)) < 0) {
+        if ((written = send(sp->sock, (char*) buf + sofar, (int) len, 0)) < 0) {
             errCode = socketGetError();
             if (errCode == EINTR) {
                 continue;
