@@ -122,7 +122,7 @@ Bit.load({
             /*
                 Define legacy APIs for compatibility with old GoAhead web server applications
              */
-            legacy: false,
+            legacy: true,
 
             /*
                 Sandbox limits and allocation sizes
