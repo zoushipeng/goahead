@@ -13,7 +13,6 @@ Bit.load({
         "${BITS}/embedthis.bit",
         "src/deps/est/est.bit",
         "doc/doc.bit",
-        "package/package.bit",
     ],
 
     settings: {
@@ -30,6 +29,7 @@ Bit.load({
             Installation prefix set
          */
         prefixes: 'embedthis-prefixes',
+        manifest: 'package/manifest.bit',
 
         /*
             Optional packs to automatically discover and configure
