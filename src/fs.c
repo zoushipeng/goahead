@@ -137,7 +137,7 @@ PUBLIC char *websReadWholeFile(char *path)
     if (websStatFile(path, &sbuf) < 0) {
         return 0;
     }
-    buf = malloc(sbuf.size + 1);
+    buf = walloc(sbuf.size + 1);
     if ((fd = websOpenFile(path, O_RDONLY, 0)) < 0) {
         return 0;
     }
