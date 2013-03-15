@@ -20,8 +20,8 @@ Bit.load({
         title: 'Embedthis GoAhead',
         company: 'Embedthis',
         version: '3.1.1',
-        buildNumber: '2',
-        bit: '0.8.4',
+        buildNumber: '0',
+        bit: '0.8.5',
         sync: [ 'bitos', 'est' ],
         packs: [ 'bits/packs' ],
 
@@ -34,13 +34,13 @@ Bit.load({
         /*
             Optional packs to automatically discover and configure
          */
-        '+discover': [ 'doxygen', 'dsi', 'est', 'man', 'man2html', 'pmaker', 'utest', 'zip' ],
+        '+discover': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'utest', 'zip' ],
         '+required': [ 'compiler' ],
 
         /*
             Packs to disable when using --without all
          */
-        'without-all': [ 'doxygen', 'dsi', 'est', 'man', 'man2html', 'pmaker' ],
+        'without-all': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl' ],
 
         /*
             Packs to disable when using --without default (generating packages)
@@ -372,12 +372,5 @@ Bit.load({
         rom: {
             action: "Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))",
         },
-    },
-
-    packs: {
-        est: {},
-        matrixssl: {},
-        openssl: {},
-        nanossl: {},
     },
 })

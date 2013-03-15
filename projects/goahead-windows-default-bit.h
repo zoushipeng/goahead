@@ -8,7 +8,7 @@
 
 /* Settings */
 #ifndef BIT_BIT
-    #define BIT_BIT "0.8.4"
+    #define BIT_BIT "0.8.5"
 #endif
 #ifndef BIT_BUILD_NUMBER
     #define BIT_BUILD_NUMBER "2"
@@ -23,7 +23,7 @@
     #define BIT_DEPTH 1
 #endif
 #ifndef BIT_DISCOVER
-    #define BIT_DISCOVER "doxygen,dsi,est,man,man2html,pmaker,utest,zip"
+    #define BIT_DISCOVER "doxygen,dsi,man,man2html,pmaker,ssl,utest,zip"
 #endif
 #ifndef BIT_GOAHEAD_ACCESS_LOG
     #define BIT_GOAHEAD_ACCESS_LOG 0
@@ -197,7 +197,7 @@
     #define BIT_VERSION "3.1.1"
 #endif
 #ifndef BIT_WITHOUT_ALL
-    #define BIT_WITHOUT_ALL "doxygen,dsi,est,man,man2html,pmaker"
+    #define BIT_WITHOUT_ALL "doxygen,dsi,man,man2html,pmaker,ssl"
 #endif
 #ifndef BIT_WITHOUT_DEFAULT
     #define BIT_WITHOUT_DEFAULT "doxygen,dsi,man,man2html,pmaker"
@@ -350,8 +350,11 @@
 #ifndef BIT_PACK_UTEST
     #define BIT_PACK_UTEST 1
 #endif
+#ifndef BIT_PACK_VXWORKS
+    #define BIT_PACK_VXWORKS 0
+#endif
 #ifndef BIT_PACK_WINSDK
-    #define BIT_PACK_WINSDK 1
+    #define BIT_PACK_WINSDK 0
 #endif
 #ifndef BIT_PACK_ZIP
     #define BIT_PACK_ZIP 1

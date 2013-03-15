@@ -228,7 +228,7 @@ DEPS_12 = $(DEPS_12) $(CONFIG)\inc\bitos.h
 $(CONFIG)\obj\action.obj: \
     src\action.c $(DEPS_12)
 	@echo '   [Compile] src/action.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\action.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\action.c
 
 #
 #   alloc.obj
@@ -239,7 +239,7 @@ DEPS_13 = $(DEPS_13) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\alloc.obj: \
     src\alloc.c $(DEPS_13)
 	@echo '   [Compile] src/alloc.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\alloc.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\alloc.c
 
 #
 #   auth.obj
@@ -250,7 +250,7 @@ DEPS_14 = $(DEPS_14) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\auth.obj: \
     src\auth.c $(DEPS_14)
 	@echo '   [Compile] src/auth.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\auth.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\auth.c
 
 #
 #   cgi.obj
@@ -261,7 +261,7 @@ DEPS_15 = $(DEPS_15) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\cgi.obj: \
     src\cgi.c $(DEPS_15)
 	@echo '   [Compile] src/cgi.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\cgi.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\cgi.c
 
 #
 #   crypt.obj
@@ -272,7 +272,7 @@ DEPS_16 = $(DEPS_16) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\crypt.obj: \
     src\crypt.c $(DEPS_16)
 	@echo '   [Compile] src/crypt.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\crypt.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\crypt.c
 
 #
 #   file.obj
@@ -283,7 +283,7 @@ DEPS_17 = $(DEPS_17) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\file.obj: \
     src\file.c $(DEPS_17)
 	@echo '   [Compile] src/file.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\file.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\file.c
 
 #
 #   fs.obj
@@ -294,7 +294,7 @@ DEPS_18 = $(DEPS_18) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\fs.obj: \
     src\fs.c $(DEPS_18)
 	@echo '   [Compile] src/fs.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\fs.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\fs.c
 
 #
 #   goahead.obj
@@ -317,7 +317,7 @@ DEPS_20 = $(DEPS_20) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\http.obj: \
     src\http.c $(DEPS_20)
 	@echo '   [Compile] src/http.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\http.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\http.c
 
 #
 #   js.obj
@@ -329,7 +329,7 @@ DEPS_21 = $(DEPS_21) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\js.obj: \
     src\js.c $(DEPS_21)
 	@echo '   [Compile] src/js.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\js.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\js.c
 
 #
 #   jst.obj
@@ -341,7 +341,7 @@ DEPS_22 = $(DEPS_22) $(CONFIG)\inc\js.h
 $(CONFIG)\obj\jst.obj: \
     src\jst.c $(DEPS_22)
 	@echo '   [Compile] src/jst.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\jst.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\jst.c
 
 #
 #   options.obj
@@ -352,7 +352,7 @@ DEPS_23 = $(DEPS_23) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\options.obj: \
     src\options.c $(DEPS_23)
 	@echo '   [Compile] src/options.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\options.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\options.c
 
 #
 #   osdep.obj
@@ -363,7 +363,7 @@ DEPS_24 = $(DEPS_24) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\osdep.obj: \
     src\osdep.c $(DEPS_24)
 	@echo '   [Compile] src/osdep.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\osdep.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\osdep.c
 
 #
 #   rom-documents.obj
@@ -374,7 +374,7 @@ DEPS_25 = $(DEPS_25) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\rom-documents.obj: \
     src\rom-documents.c $(DEPS_25)
 	@echo '   [Compile] src/rom-documents.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\rom-documents.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\rom-documents.c
 
 #
 #   route.obj
@@ -385,7 +385,7 @@ DEPS_26 = $(DEPS_26) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\route.obj: \
     src\route.c $(DEPS_26)
 	@echo '   [Compile] src/route.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\route.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\route.c
 
 #
 #   runtime.obj
@@ -396,7 +396,7 @@ DEPS_27 = $(DEPS_27) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\runtime.obj: \
     src\runtime.c $(DEPS_27)
 	@echo '   [Compile] src/runtime.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\runtime.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\runtime.c
 
 #
 #   socket.obj
@@ -407,7 +407,7 @@ DEPS_28 = $(DEPS_28) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\socket.obj: \
     src\socket.c $(DEPS_28)
 	@echo '   [Compile] src/socket.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\socket.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\socket.c
 
 #
 #   upload.obj
@@ -418,209 +418,202 @@ DEPS_29 = $(DEPS_29) $(CONFIG)\inc\goahead.h
 $(CONFIG)\obj\upload.obj: \
     src\upload.c $(DEPS_29)
 	@echo '   [Compile] src/upload.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\upload.c
-
-#
-#   est.h
-#
-src\deps\est\est.h: $(DEPS_30)
-	@echo '      [Copy] src/deps/est/est.h'
+	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\upload.c
 
 #
 #   est.obj
 #
-DEPS_31 = $(DEPS_31) $(CONFIG)\inc\bit.h
-DEPS_31 = $(DEPS_31) $(CONFIG)\inc\goahead.h
-DEPS_31 = $(DEPS_31) src\deps\est\est.h
-DEPS_31 = $(DEPS_31) $(CONFIG)\inc\bitos.h
+DEPS_30 = $(DEPS_30) $(CONFIG)\inc\bit.h
+DEPS_30 = $(DEPS_30) $(CONFIG)\inc\goahead.h
+DEPS_30 = $(DEPS_30) $(CONFIG)\inc\est.h
 
 $(CONFIG)\obj\est.obj: \
-    src\ssl\est.c $(DEPS_31)
+    src\ssl\est.c $(DEPS_30)
 	@echo '   [Compile] src/ssl/est.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\est.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\ssl\est.c
 
 #
 #   matrixssl.obj
 #
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\bit.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\goahead.h
+DEPS_31 = $(DEPS_31) $(CONFIG)\inc\bit.h
+DEPS_31 = $(DEPS_31) $(CONFIG)\inc\goahead.h
 
 $(CONFIG)\obj\matrixssl.obj: \
-    src\ssl\matrixssl.c $(DEPS_32)
+    src\ssl\matrixssl.c $(DEPS_31)
 	@echo '   [Compile] src/ssl/matrixssl.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\matrixssl.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\ssl\matrixssl.c
 
 #
 #   nanossl.obj
 #
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bit.h
+DEPS_32 = $(DEPS_32) $(CONFIG)\inc\bit.h
 
 $(CONFIG)\obj\nanossl.obj: \
-    src\ssl\nanossl.c $(DEPS_33)
+    src\ssl\nanossl.c $(DEPS_32)
 	@echo '   [Compile] src/ssl/nanossl.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\nanossl.obj -Fd$(CONFIG)\obj\nanossl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\nanossl.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\nanossl.obj -Fd$(CONFIG)\obj\nanossl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\ssl\nanossl.c
 
 #
 #   openssl.obj
 #
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\bit.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\bitos.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\goahead.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bit.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bitos.h
+DEPS_33 = $(DEPS_33) $(CONFIG)\inc\goahead.h
 
 $(CONFIG)\obj\openssl.obj: \
-    src\ssl\openssl.c $(DEPS_34)
+    src\ssl\openssl.c $(DEPS_33)
 	@echo '   [Compile] src/ssl/openssl.c'
-	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) -Isrc\deps\est src\ssl\openssl.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\ssl\openssl.c
 
 #
 #   libgo
 #
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\bitos.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\goahead.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\js.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\action.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\alloc.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\auth.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\cgi.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\crypt.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\file.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\fs.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\goahead.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\http.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\js.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\jst.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\options.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\osdep.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\rom-documents.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\route.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\runtime.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\socket.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\upload.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\est.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\matrixssl.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\nanossl.obj
-DEPS_35 = $(DEPS_35) $(CONFIG)\obj\openssl.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\inc\bitos.h
+DEPS_34 = $(DEPS_34) $(CONFIG)\inc\goahead.h
+DEPS_34 = $(DEPS_34) $(CONFIG)\inc\js.h
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\action.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\alloc.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\auth.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\cgi.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\crypt.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\file.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\fs.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\goahead.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\http.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\js.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\jst.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\options.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\osdep.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\rom-documents.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\route.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\runtime.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\socket.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\upload.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\est.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\matrixssl.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\nanossl.obj
+DEPS_34 = $(DEPS_34) $(CONFIG)\obj\openssl.obj
 
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_35 = $(LIBS_35) libest.lib
+LIBS_34 = $(LIBS_34) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\libgo.dll: $(DEPS_35)
+$(CONFIG)\bin\libgo.dll: $(DEPS_34)
 	@echo '      [Link] libgo'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\nanossl.obj $(CONFIG)\obj\openssl.obj $(LIBS_35) $(LIBS_35) $(LIBS) libest.lib
+	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\nanossl.obj $(CONFIG)\obj\openssl.obj $(LIBS_34) $(LIBS_34) $(LIBS) libest.lib
 
 #
 #   goahead
 #
-DEPS_36 = $(DEPS_36) $(CONFIG)\bin\libgo.dll
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bitos.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\goahead.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\js.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\goahead.obj
+DEPS_35 = $(DEPS_35) $(CONFIG)\bin\libgo.dll
+DEPS_35 = $(DEPS_35) $(CONFIG)\inc\bitos.h
+DEPS_35 = $(DEPS_35) $(CONFIG)\inc\goahead.h
+DEPS_35 = $(DEPS_35) $(CONFIG)\inc\js.h
+DEPS_35 = $(DEPS_35) $(CONFIG)\obj\goahead.obj
 
-LIBS_36 = $(LIBS_36) libgo.lib
+LIBS_35 = $(LIBS_35) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_36 = $(LIBS_36) libest.lib
+LIBS_35 = $(LIBS_35) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\goahead.exe: $(DEPS_36)
+$(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] goahead'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj $(LIBS_36) $(LIBS_36) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj $(LIBS_35) $(LIBS_35) $(LIBS) libest.lib
 
 #
 #   test.obj
 #
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bit.h
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\goahead.h
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\js.h
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bit.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\goahead.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\js.h
+DEPS_36 = $(DEPS_36) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\test.obj: \
-    test\test.c $(DEPS_37)
+    test\test.c $(DEPS_36)
 	@echo '   [Compile] test/test.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) test\test.c
 
 #
 #   goahead-test
 #
-DEPS_38 = $(DEPS_38) $(CONFIG)\bin\libgo.dll
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bitos.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\goahead.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\js.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\obj\test.obj
+DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libgo.dll
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\bitos.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\goahead.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\inc\js.h
+DEPS_37 = $(DEPS_37) $(CONFIG)\obj\test.obj
 
-LIBS_38 = $(LIBS_38) libgo.lib
+LIBS_37 = $(LIBS_37) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_38 = $(LIBS_38) libest.lib
+LIBS_37 = $(LIBS_37) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\goahead-test.exe: $(DEPS_38)
+$(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] goahead-test'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj $(LIBS_38) $(LIBS_38) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj $(LIBS_37) $(LIBS_37) $(LIBS) libest.lib
 
 #
 #   gopass.obj
 #
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bit.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\goahead.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bitos.h
+DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bit.h
+DEPS_38 = $(DEPS_38) $(CONFIG)\inc\goahead.h
+DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\gopass.obj: \
-    src\utils\gopass.c $(DEPS_39)
+    src\utils\gopass.c $(DEPS_38)
 	@echo '   [Compile] src/utils/gopass.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\utils\gopass.c
 
 #
 #   gopass
 #
-DEPS_40 = $(DEPS_40) $(CONFIG)\bin\libgo.dll
-DEPS_40 = $(DEPS_40) $(CONFIG)\inc\bitos.h
-DEPS_40 = $(DEPS_40) $(CONFIG)\inc\goahead.h
-DEPS_40 = $(DEPS_40) $(CONFIG)\inc\js.h
-DEPS_40 = $(DEPS_40) $(CONFIG)\obj\gopass.obj
+DEPS_39 = $(DEPS_39) $(CONFIG)\bin\libgo.dll
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bitos.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\goahead.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\js.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\obj\gopass.obj
 
-LIBS_40 = $(LIBS_40) libgo.lib
+LIBS_39 = $(LIBS_39) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_40 = $(LIBS_40) libest.lib
+LIBS_39 = $(LIBS_39) libest.lib
 !ENDIF
 
-$(CONFIG)\bin\gopass.exe: $(DEPS_40)
+$(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] gopass'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj $(LIBS_40) $(LIBS_40) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj $(LIBS_39) $(LIBS_39) $(LIBS) libest.lib
 
 #
 #   stop
 #
-stop: $(DEPS_41)
+stop: $(DEPS_40)
 
 #
 #   installBinary
 #
-DEPS_42 = $(DEPS_42) stop
+DEPS_41 = $(DEPS_41) stop
 
-installBinary: $(DEPS_42)
+installBinary: $(DEPS_41)
 #  Omit build script installBinary
 
 #
 #   start
 #
-start: $(DEPS_43)
+start: $(DEPS_42)
 
 #
 #   install
 #
-DEPS_44 = $(DEPS_44) stop
-DEPS_44 = $(DEPS_44) installBinary
-DEPS_44 = $(DEPS_44) start
+DEPS_43 = $(DEPS_43) stop
+DEPS_43 = $(DEPS_43) installBinary
+DEPS_43 = $(DEPS_43) start
 
-install: $(DEPS_44)
+install: $(DEPS_43)
 
 
 #
 #   uninstall
 #
-DEPS_45 = $(DEPS_45) stop
+DEPS_44 = $(DEPS_44) stop
 
-uninstall: $(DEPS_45)
+uninstall: $(DEPS_44)
 
 
