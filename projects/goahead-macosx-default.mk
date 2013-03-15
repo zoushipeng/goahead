@@ -4,7 +4,7 @@
 
 PRODUCT           := goahead
 VERSION           := 3.1.1
-BUILD_NUMBER      := 2
+BUILD_NUMBER      := 0
 PROFILE           := default
 ARCH              := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS                := macosx
@@ -81,7 +81,6 @@ prep:
 	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
 	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-macosx-default-bit.h >/dev/null ; then\
-		echo cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h  ; \
 		cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
 
@@ -127,7 +126,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@echo NN 3.1.1-2
+	@echo NN 3.1.1-0
 
 #
 #   est.h

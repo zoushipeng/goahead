@@ -11,7 +11,7 @@
     #define BIT_BIT "0.8.5"
 #endif
 #ifndef BIT_BUILD_NUMBER
-    #define BIT_BUILD_NUMBER "2"
+    #define BIT_BUILD_NUMBER "0"
 #endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
@@ -182,7 +182,7 @@
     #define BIT_PRODUCT "goahead"
 #endif
 #ifndef BIT_REQUIRED
-    #define BIT_REQUIRED "winsdk,compiler,lib,link,dumpbin,rc"
+    #define BIT_REQUIRED "winsdk,compiler,lib,link,rc"
 #endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
@@ -310,9 +310,6 @@
 #endif
 #ifndef BIT_PACK_DSI
     #define BIT_PACK_DSI 0
-#endif
-#ifndef BIT_PACK_DUMPBIN
-    #define BIT_PACK_DUMPBIN 0
 #endif
 #ifndef BIT_PACK_EST
     #define BIT_PACK_EST 1
