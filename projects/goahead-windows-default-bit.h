@@ -181,8 +181,8 @@
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"
 #endif
-#ifndef BIT_REQUIRED
-    #define BIT_REQUIRED "winsdk,compiler,lib,link,rc"
+#ifndef BIT_REQUIRES
+    #define BIT_REQUIRES "winsdk,compiler,lib,link,rc"
 #endif
 #ifndef BIT_STATIC
     #define BIT_STATIC 0
@@ -205,55 +205,58 @@
 
 /* Prefixes */
 #ifndef BIT_ROOT_PREFIX
-    #define BIT_ROOT_PREFIX "/"
+    #define BIT_ROOT_PREFIX "C:"
+#endif
+#ifndef BIT_PROGRAMFILES_PREFIX
+    #define BIT_PROGRAMFILES_PREFIX "C:/Program Files"
+#endif
+#ifndef BIT_PROGRAMFILES32_PREFIX
+    #define BIT_PROGRAMFILES32_PREFIX "C:/Program Files"
 #endif
 #ifndef BIT_BASE_PREFIX
-    #define BIT_BASE_PREFIX "/usr/local"
-#endif
-#ifndef BIT_DATA_PREFIX
-    #define BIT_DATA_PREFIX "/"
-#endif
-#ifndef BIT_STATE_PREFIX
-    #define BIT_STATE_PREFIX "/var"
+    #define BIT_BASE_PREFIX "C:/Program Files"
 #endif
 #ifndef BIT_APP_PREFIX
-    #define BIT_APP_PREFIX "/usr/local/lib/goahead"
+    #define BIT_APP_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "/usr/local/lib/goahead/3.1.1"
+    #define BIT_VAPP_PREFIX "C:/Program Files/Embedthis GoAhead"
+#endif
+#ifndef BIT_DATA_PREFIX
+    #define BIT_DATA_PREFIX "C:/Program Files/Embedthis GoAhead"
+#endif
+#ifndef BIT_STATE_PREFIX
+    #define BIT_STATE_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef BIT_BIN_PREFIX
-    #define BIT_BIN_PREFIX "/usr/local/bin"
+    #define BIT_BIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
 #endif
 #ifndef BIT_INC_PREFIX
-    #define BIT_INC_PREFIX "/usr/local/include"
+    #define BIT_INC_PREFIX "C:/Program Files/Embedthis GoAhead/inc"
 #endif
 #ifndef BIT_LIB_PREFIX
-    #define BIT_LIB_PREFIX "/usr/local/lib"
+    #define BIT_LIB_PREFIX "C:/Program Files/Embedthis GoAhead/lib"
 #endif
 #ifndef BIT_MAN_PREFIX
-    #define BIT_MAN_PREFIX "/usr/local/share/man"
-#endif
-#ifndef BIT_SBIN_PREFIX
-    #define BIT_SBIN_PREFIX "/usr/local/sbin"
+    #define BIT_MAN_PREFIX "C:/Program Files/Embedthis GoAhead/man"
 #endif
 #ifndef BIT_ETC_PREFIX
-    #define BIT_ETC_PREFIX "/etc/goahead"
+    #define BIT_ETC_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef BIT_WEB_PREFIX
-    #define BIT_WEB_PREFIX "/var/www/goahead-default"
+    #define BIT_WEB_PREFIX "C:/Program Files/Embedthis GoAhead/web"
 #endif
 #ifndef BIT_LOG_PREFIX
-    #define BIT_LOG_PREFIX "/var/log/goahead"
+    #define BIT_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/log"
 #endif
 #ifndef BIT_SPOOL_PREFIX
-    #define BIT_SPOOL_PREFIX "/var/spool/goahead"
+    #define BIT_SPOOL_PREFIX "C:/Program Files/Embedthis GoAhead/tmp"
 #endif
 #ifndef BIT_CACHE_PREFIX
-    #define BIT_CACHE_PREFIX "/var/spool/goahead/cache"
+    #define BIT_CACHE_PREFIX "C:/Program Files/Embedthis GoAhead/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "goahead-3.1.1"
+    #define BIT_SRC_PREFIX "C:/Program Files/Embedthis GoAhead/src"
 #endif
 
 /* Suffixes */

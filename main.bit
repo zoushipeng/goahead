@@ -35,7 +35,7 @@ Bit.load({
             Optional packs to automatically discover and configure
          */
         '+discover': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'utest', 'zip' ],
-        '+required': [ 'compiler' ],
+        '+requires': [ 'compiler' ],
 
         /*
             Packs to disable when using --without all

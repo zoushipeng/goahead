@@ -13,10 +13,9 @@ LD                := /usr/bin/ld
 CONFIG            := $(OS)-$(ARCH)-$(PROFILE)
 LBIN              := $(CONFIG)/bin
 
-BIT_PACK_EST      := 1
 
 CFLAGS            += -fPIC  -w
-DFLAGS            += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) 
+DFLAGS            += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) 
 IFLAGS            += -I$(CONFIG)/inc
 LDFLAGS           += '-g'
 LIBPATHS          += -L$(CONFIG)/bin
@@ -52,9 +51,7 @@ BIT_CACHE_PREFIX  := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)/cache
 BIT_SRC_PREFIX    := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
 
 
-ifeq ($(BIT_PACK_EST),1)
 TARGETS           += $(CONFIG)/bin/libest.so
-endif
 TARGETS           += $(CONFIG)/bin/ca.crt
 TARGETS           += $(CONFIG)/bin/libgo.so
 TARGETS           += $(CONFIG)/bin/goahead
@@ -164,7 +161,6 @@ $(CONFIG)/obj/estLib.o: \
 	@echo '   [Compile] src/deps/est/estLib.c'
 	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(LDFLAGS) $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
-ifeq ($(BIT_PACK_EST),1)
 #
 #   libest
 #
@@ -174,7 +170,6 @@ DEPS_6 += $(CONFIG)/obj/estLib.o
 $(CONFIG)/bin/libest.so: $(DEPS_6)
 	@echo '      [Link] libest'
 	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS)
-endif
 
 #
 #   ca-crt
@@ -478,9 +473,7 @@ DEPS_32 += $(CONFIG)/obj/matrixssl.o
 DEPS_32 += $(CONFIG)/obj/nanossl.o
 DEPS_32 += $(CONFIG)/obj/openssl.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_32 += -lest
-endif
+LIBS_32 += -lest
 
 $(CONFIG)/bin/libgo.so: $(DEPS_32)
 	@echo '      [Link] libgo'
@@ -496,9 +489,7 @@ DEPS_33 += $(CONFIG)/inc/js.h
 DEPS_33 += $(CONFIG)/obj/goahead.o
 
 LIBS_33 += -lgo
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_33 += -lest
-endif
+LIBS_33 += -lest
 
 $(CONFIG)/bin/goahead: $(DEPS_33)
 	@echo '      [Link] goahead'
@@ -527,9 +518,7 @@ DEPS_35 += $(CONFIG)/inc/js.h
 DEPS_35 += $(CONFIG)/obj/test.o
 
 LIBS_35 += -lgo
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_35 += -lest
-endif
+LIBS_35 += -lest
 
 $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	@echo '      [Link] goahead-test'
@@ -557,9 +546,7 @@ DEPS_37 += $(CONFIG)/inc/js.h
 DEPS_37 += $(CONFIG)/obj/gopass.o
 
 LIBS_37 += -lgo
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_37 += -lest
-endif
+LIBS_37 += -lest
 
 $(CONFIG)/bin/gopass: $(DEPS_37)
 	@echo '      [Link] gopass'
