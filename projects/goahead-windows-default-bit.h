@@ -342,7 +342,7 @@
     #define BIT_PACK_PMAKER 0
 #endif
 #ifndef BIT_PACK_RC
-    #define BIT_PACK_RC 1
+    #define BIT_PACK_RC 0
 #endif
 #ifndef BIT_PACK_SSL
     #define BIT_PACK_SSL 1
