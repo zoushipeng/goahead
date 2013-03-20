@@ -79,7 +79,7 @@ Bit.load({
              */
             ca: "",
 
-            clientCache: ['jpg', 'png', 'css', 'js' ],
+            clientCache: [ 'css', 'gif', 'ico', 'jpg', 'js', 'png', ],
             clientCacheLifespan: 86400,
 
             /*

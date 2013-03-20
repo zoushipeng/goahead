@@ -76,11 +76,12 @@ static bool fileHandler(Webs *wp)
         code = 200;
         if (wp->since && info.mtime <= wp->since) {
             code = 304;
+            info.size = 0;
         }
         websSetStatus(wp, code);
         websWriteHeaders(wp, info.size, 0);
         if ((date = websGetDateString(&info)) != NULL) {
-            websWriteHeader(wp, "Last-modified", "%s", date);
+            websWriteHeader(wp, "Last-Modified", "%s", date);
             wfree(date);
         }
         websWriteEndHeaders(wp);
@@ -92,7 +93,11 @@ static bool fileHandler(Webs *wp)
             websDone(wp);
             return 1;
         }
-        websSetBackgroundWriter(wp, fileWriteEvent);
+        if (info.size > 0) {
+            websSetBackgroundWriter(wp, fileWriteEvent);
+        } else {
+            websDone(wp);
+        }
     }
     return 1;
 }

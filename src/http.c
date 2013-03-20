@@ -1854,7 +1854,9 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (smatch(wp->method, "HEAD")) {
             websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
         } else if (length >= 0) {                                                                                    
-            websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
+            if (!((100 <= wp->code && wp->code <= 199) || wp->code == 204 || wp->code == 304)) {
+                websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
+            }
         }
         wp->txLen = length;
         if (wp->txLen < 0) {
@@ -1873,17 +1875,16 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (wp->responseCookie) {
             websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
-        } else {
-#if defined(BIT_GOAHEAD_CLIENT_CACHE)
-            if (wp->ext) {
-                char *etok = sfmt("%s,", &wp->ext[1]);
-                if (strstr(BIT_GOAHEAD_CLIENT_CACHE ",", etok)) {
-                    websWriteHeader(wp, "Cache-Control", "max-age=%d", BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN);
-                }
-                wfree(etok);
-            }
-#endif
         }
+#if defined(BIT_GOAHEAD_CLIENT_CACHE)
+        if (wp->ext) {
+            char *etok = sfmt("%s,", &wp->ext[1]);
+            if (strstr(BIT_GOAHEAD_CLIENT_CACHE ",", etok)) {
+                websWriteHeader(wp, "Cache-Control", "public, max-age=%d", BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN);
+            }
+            wfree(etok);
+        }
+#endif
 #ifdef UNUSED_BIT_GOAHEAD_XFRAME_HEADER
         if (*BIT_GOAHEAD_XFRAME_HEADER) {
             websWriteHeader(wp, "X-Frame-Options", "%s", BIT_GOAHEAD_XFRAME_HEADER);
@@ -2445,6 +2446,7 @@ PUBLIC bool websValid(Webs *wp)
 PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
 {
     WebsTime    now;
+    struct tm   tm;
     char        *cp;
 
     if (sbuf == NULL) {
@@ -2452,7 +2454,13 @@ PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
     } else {
         now = sbuf->mtime;
     }
-    if ((cp = ctime(&now)) != NULL) {
+#if BIT_UNIX_LIKE
+    gmtime_r(&now, &tm);
+#else
+    tp = gmtime(&now);
+    tm = *tp;
+#endif
+    if ((cp = asctime(&tm)) != NULL) {
         cp[strlen(cp) - 1] = '\0';
         return sclone(cp);
     }
