@@ -79,6 +79,9 @@ Bit.load({
              */
             ca: "",
 
+            clientCache: ['jpg', 'png', 'css', 'js' ],
+            clientCacheLifespan: 86400,
+
             /*
                 Server certificate file for SSL
              */
@@ -205,6 +208,8 @@ Bit.load({
         'goahead.ciphers':            'SSL cipher suite (string)',
         'goahead.cgi':                'Enable the CGI handler (true|false)',
         'goahead.cgiBin':             'Directory CGI programs (path)',
+        'goahead.clientCache':        'Extensions to cache in the client (Array)',
+        'goahead.clientCacheLifespan':'Lifespan in seconds to cache in the client',
         'goahead.javascript':         'Enable the Javascript JST handler (true|false)',
         'goahead.key':                'Server private key for SSL (path)',
         'goahead.legacy':             'Enable the GoAhead 2.X legacy APIs (true|false)',
