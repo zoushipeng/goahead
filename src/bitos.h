@@ -891,7 +891,7 @@ typedef int64 Ticks;
 #endif
 
 #ifndef BIT_STACK_SIZE
-#if BIT_HAS_MMU
+#if BIT_HAS_MMU && !VXWORKS
     /*
         If the system supports virtual memory, then stack size should use system default. Only used pages will
         actually consume memory

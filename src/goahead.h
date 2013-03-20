@@ -1563,6 +1563,8 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_SECURE             0x400       /**< Connection uses SSL */
 #define WEBS_UPLOAD             0x800       /**< Multipart-mime file upload */
 #define WEBS_REROUTE            0x1000      /**< Restart route matching */
+#define WEBS_VARS_ADDED         0x8000      /**< Query and body form vars added */
+
 #if BIT_GOAHEAD_LEGACY
 #define WEBS_LOCAL              0x2000      /**< Request from local system */
 #endif

@@ -197,6 +197,7 @@ static void     checkTimeout(void *arg, int id);
 static WebsTime dateParse(WebsTime tip, char *cmd);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
+static int      getTimezoneAdjustment();
 static char     *getToken(Webs *wp, char *delim);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
@@ -1371,10 +1372,13 @@ PUBLIC void websSetEnv(Webs *wp)
 
 PUBLIC void websSetFormVars(Webs *wp)
 {
+    char    *data;
+
     if (wp->rxLen > 0 && bufLen(&wp->input) > 0) {
         if (wp->flags & WEBS_FORM) {
-            addFormVars(wp, wp->input.servp);
-            websConsumeInput(wp, wp->rxLen);
+            data = sclone(wp->input.servp);
+            addFormVars(wp, data);
+            wfree(data);
         }
     }
 }
@@ -1869,6 +1873,16 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (wp->responseCookie) {
             websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
+        } else {
+#if defined(BIT_GOAHEAD_CLIENT_CACHE)
+            if (wp->ext) {
+                char *etok = sfmt("%s,", &wp->ext[1]);
+                if (strstr(BIT_GOAHEAD_CLIENT_CACHE ",", etok)) {
+                    websWriteHeader(wp, "Cache-Control", "max-age=%d", BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN);
+                }
+                wfree(etok);
+            }
+#endif
         }
 #ifdef UNUSED_BIT_GOAHEAD_XFRAME_HEADER
         if (*BIT_GOAHEAD_XFRAME_HEADER) {
@@ -2282,7 +2296,7 @@ static void checkTimeout(void *arg, int id)
         return;
     } 
     if (wp->state == WEBS_BEGIN) {
-        websError(wp, HTTP_CODE_REQUEST_TIMEOUT | WEBS_CLOSE, "Request exceeded parse timeout");
+        // Idle connection websError(wp, HTTP_CODE_REQUEST_TIMEOUT | WEBS_CLOSE, "Request exceeded parse timeout");
         complete(wp, 0);
         websFree(wp);
         return;
@@ -2465,7 +2479,6 @@ static WebsTime getTimeSinceMark(Webs *wp)
 }
 
 
-//  MOB - move all into a date.c
 /*  
     These functions are intended to closely mirror the syntax for HTTP-date 
     from RFC 2616 (HTTP/1.1 spec).  This code was submitted by Pete Berstrom.
@@ -2829,6 +2842,7 @@ static WebsTime parseDate3Time(char *buf, int *index)
 {
     /*
         Format of buf is month SP ( 2DIGIT | ( SP 1DIGIT ))
+        Local time
      */
     WebsTime    returnValue;
     int         dayValue, monthValue, yearValue, timeValue, tmpIndex;
@@ -2871,7 +2885,29 @@ static WebsTime parseDate3Time(char *buf, int *index)
         returnValue += timeValue;
         *index = tmpIndex;
     }
+    returnValue += getTimezoneAdjustment();
     return returnValue;
+}
+
+
+static int getTimezoneAdjustment()
+{
+    WebsTime    timer;
+#if WINDOWS
+    DWORD       dwRet;
+    TIME_ZONE_INFORMATION tzi;
+#else
+    struct tm   localt;
+#endif
+
+    time(&timer);
+#if WINDOWS
+    dwRet = GetTimeZoneInformation(&tzi);
+    return +(int) (tzi.Bias * 60);
+#else
+    localtime_r(&timer, &localt);
+    return -(int) localt.tm_gmtoff;
+#endif
 }
 
 
@@ -2891,9 +2927,9 @@ static int parseWeekday(char *buf, int *index)
 {
     /*  
         Format of buf is either
-            "Mon" | "Tue" | "Wed" | "Thu" | "Fri" | "Sat" | "Sun"
+            "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"
         or
-            "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday"
+            "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"
      */
     int tmpIndex, returnValue;
 
@@ -2901,15 +2937,15 @@ static int parseWeekday(char *buf, int *index)
     tmpIndex = *index;
 
     switch (buf[tmpIndex]) {
-        case 'F':
+        case 'f':
             returnValue = FRI;
             *index += getInc(buf, tmpIndex+3, 'd', sizeof("Friday"), 3);
             break;
-        case 'M':
+        case 'm':
             returnValue = MON;
             *index += getInc(buf, tmpIndex+3, 'd', sizeof("Monday"), 3);
             break;
-        case 'S':
+        case 's':
             switch (buf[tmpIndex+1]) {
                 case 'a':
                     returnValue = SAT;
@@ -2921,7 +2957,7 @@ static int parseWeekday(char *buf, int *index)
                     break;
             }
             break;
-        case 'T':
+        case 't':
             switch (buf[tmpIndex+1]) {
                 case 'h':
                     returnValue = THU;
@@ -2933,7 +2969,7 @@ static int parseWeekday(char *buf, int *index)
                     break;
             }
             break;
-        case 'W':
+        case 'w':
             returnValue = WED;
             *index += getInc(buf, tmpIndex+3, 'n', sizeof("Wednesday"), 3);
             break;
@@ -2958,12 +2994,12 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
     if (weekday >= 0) {
         tmpIndex = index;
         dateValue = parseDate1or2(cmd, &tmpIndex);
-        if ((signed) dateValue == -1) {
+        if (dateValue >= 0) {
             index = tmpIndex + 1;
             /*
                 One of these two forms is being used
-                wkday "," SP date1 SP time SP "GMT"
-                weekday "," SP date2 SP time SP "GMT"
+                wkday [","] SP date1 SP time SP "GMT"
+                weekday [","] SP date2 SP time SP "GMT"
              */
             timeValue = parseTime(cmd, &index);
             if (timeValue >= 0) {
@@ -2980,8 +3016,9 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
         } else {
             /* 
                 Try the other form - wkday SP date3 SP time SP 4DIGIT
+                NOTE: local time
              */
-            tmpIndex = index;
+            tmpIndex = ++index;
             parsedValue = parseDate3Time(cmd, &tmpIndex);
         }
     }

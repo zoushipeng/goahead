@@ -93,11 +93,14 @@ PUBLIC void websRouteRequest(Webs *wp)
                 wfree(wp->filename);
                 wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
             }
-            if (wp->query && *wp->query) {
-                websSetQueryVars(wp);
-            }
-            if (wp->flags & WEBS_FORM) {
-                websSetFormVars(wp);
+            if (!(wp->flags & WEBS_VARS_ADDED)) {
+                if (wp->query && *wp->query) {
+                    websSetQueryVars(wp);
+                }
+                if (wp->flags & WEBS_FORM) {
+                    websSetFormVars(wp);
+                }
+                wp->flags |= WEBS_VARS_ADDED;
             }
 #if BIT_GOAHEAD_LEGACY
             if (route->handler->flags & WEBS_LEGACY_HANDLER) {
