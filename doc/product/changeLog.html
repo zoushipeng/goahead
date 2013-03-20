@@ -77,10 +77,23 @@
         
             <a id="r3.1.1"></a>
             <h2 class="section">Changes in 3.1.1</h2>
+            <h2>Minor Features</h2>
+            <ul>
+                <li>Add BIT_GOAHEAD_CLIENT_CACHE and BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN defines
+                    <a href="https://github.com/embedthis/goahead/issues/NN">[issue NN].</a></li>
+            </ul>
             <h3>Fixes</h3>
             <ul>
                 <li>Socket writes to a blocking socket.
                     <a href="https://github.com/embedthis/goahead/issues/43">[issue 43].</a></li>
+                <li>Fix VxWorks default stack size
+                    <a href="https://github.com/embedthis/goahead/issues/44">[issue 44].</a></li>
+                <li>Fix consuming body input for form vars
+                    <a href="https://github.com/embedthis/goahead/issues/45">[issue 45].</a></li>
+                <li>Fix bad "request exceeded parse timeout" message
+                    <a href="https://github.com/embedthis/goahead/issues/46">[issue 46].</a></li>
+                <li>Fix parsing ASC format if-modified dates. Fixes some 304 responses.
+                    <a href="https://github.com/embedthis/goahead/issues/47">[issue 47].</a></li>
             </ul>
 
             <a id="r3.1.0"></a>
@@ -89,10 +102,8 @@
             <ul>
                 <li>Change tunable defines so they can be overridden via configure. These are now all named: BIT_*.
                     <a href="https://github.com/embedthis/goahead/issues/36">[issue 36].</a></li>
-                <!--
                 <li>Add support for the Mocana SSL stack:
                     <a href="https://github.com/embedthis/goahead/issues/32">[issue 32].</a></li>
-                -->
                 <li>Add prototype support for the EST SSL stack:
                     <a href="https://github.com/embedthis/goahead/issues/35">[issue 35].</a></li>
                 <li>Add make install, uninstall
