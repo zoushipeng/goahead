@@ -36,7 +36,7 @@ all compile:
 	fi
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 	@echo ; echo 'You can now install via "sudo make install" or run GoAhead via: "sudo make run"'
-	@echo ; echo "To run locally, put $(OS)-$(ARCH)-$(PROFILE)/bin in your path" ; echo
+	@echo "To run locally, put $(OS)-$(ARCH)-$(PROFILE)/bin in your path" ; echo
 
 clean clobber installBinary uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@

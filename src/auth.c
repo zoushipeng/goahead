@@ -243,8 +243,7 @@ static WebsUser *createUser(char *username, char *password, char *roles)
 {
     WebsUser    *user;
 
-    assert(username && *username);
-    assert(password && *password);
+    assert(username);
 
     if ((user = walloc(sizeof(WebsUser))) == 0) {
         return 0;
@@ -467,7 +466,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
 {
     assert(wp);
     assert(wp->route);
-    assert(username && *username);
+    assert(username);
     assert(password);
 
     if (!wp->route || !wp->route->verify) {

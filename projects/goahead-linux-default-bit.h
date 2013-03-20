@@ -53,7 +53,7 @@
     #define BIT_GOAHEAD_CIPHERS ""
 #endif
 #ifndef BIT_GOAHEAD_CLIENT_CACHE
-    #define BIT_GOAHEAD_CLIENT_CACHE "jpg,png,css,js"
+    #define BIT_GOAHEAD_CLIENT_CACHE "css,gif,ico,jpg,js,png"
 #endif
 #ifndef BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN
     #define BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN 86400
