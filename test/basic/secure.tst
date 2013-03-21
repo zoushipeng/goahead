@@ -23,7 +23,6 @@ if (!Config.SSL) {
     http.verify = false
     http.get(HTTPS + "/index.html")
     assert(http.readString(12) == "<html><head>")
-    assert(http.readString(7) == "<title>")
     http.close()
 
     //  Validate get contents

@@ -2459,8 +2459,11 @@ PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
 #if BIT_UNIX_LIKE
     gmtime_r(&now, &tm);
 #else
-    tp = gmtime(&now);
-    tm = *tp;
+    {
+        struct tm *tp;
+        tp = gmtime(&now);
+        tm = *tp;
+    }
 #endif
     if ((cp = asctime(&tm)) != NULL) {
         cp[strlen(cp) - 1] = '\0';

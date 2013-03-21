@@ -13,7 +13,6 @@ assert(http.status == 200)
 //  Validate get contents
 http.get(HTTP + "/index.html")
 assert(http.readString(12) == "<html><head>")
-assert(http.readString(7) == "<title>")
 
 //  Validate get contents
 http.get(HTTP + "/index.html")
