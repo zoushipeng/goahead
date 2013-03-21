@@ -272,7 +272,7 @@ WebsTime websRunEvents()
         if ((s = callbacks[i]) != NULL) {
             if ((delay = s->at - now) <= 0) {
                 callEvent(i);
-                delay = MAXINT;
+                delay = MAXINT / 1000;
                 /* Rescan incase event scheduled or modified an event */
                 i = -1;
             }

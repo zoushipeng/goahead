@@ -506,10 +506,12 @@ static void loginServiceProc(Webs *wp)
         } else {
             websRedirectByStatus(wp, HTTP_CODE_OK);
         }
+        websSetSessionVar(wp, "loginStatus", "ok");
     } else {
         if (route->askLogin) {
             (route->askLogin)(wp);
         }
+        websSetSessionVar(wp, "loginStatus", "failed");
         websRedirectByStatus(wp, HTTP_CODE_UNAUTHORIZED);
     }
 }
