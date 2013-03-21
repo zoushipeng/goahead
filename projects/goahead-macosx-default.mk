@@ -610,6 +610,8 @@ installBinary: $(DEPS_39)
 	cp "src/web/favicon.ico" "$(BIT_WEB_PREFIX)/web/favicon.ico"
 	cp "src/web/index.html" "$(BIT_WEB_PREFIX)/web/index.html"
 	cp "src/web/penguin.jpg" "$(BIT_WEB_PREFIX)/web/penguin.jpg"
+	mkdir -p "$(BIT_WEB_PREFIX)/web/pub"
+	cp "src/web/pub/login.html" "$(BIT_WEB_PREFIX)/web/pub/login.html"
 	mkdir -p "$(BIT_ETC_PREFIX)"
 	cp "src/auth.txt" "$(BIT_ETC_PREFIX)/auth.txt"
 	cp "src/route.txt" "$(BIT_ETC_PREFIX)/route.txt"

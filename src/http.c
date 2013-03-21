@@ -197,9 +197,6 @@ static void     checkTimeout(void *arg, int id);
 static WebsTime dateParse(WebsTime tip, char *cmd);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
-#if UNUSED
-static int      getTimezoneAdjustment();
-#endif
 static char     *getToken(Webs *wp, char *delim);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
@@ -2898,34 +2895,8 @@ static WebsTime parseDate3Time(char *buf, int *index)
         returnValue += timeValue;
         *index = tmpIndex;
     }
-#if UNUSED
-    returnValue += getTimezoneAdjustment();
-#endif
     return returnValue;
 }
-
-
-#if UNUSED
-static int getTimezoneAdjustment()
-{
-    WebsTime    timer;
-#if WINDOWS
-    DWORD       dwRet;
-    TIME_ZONE_INFORMATION tzi;
-#else
-    struct tm   localt;
-#endif
-
-    time(&timer);
-#if WINDOWS
-    dwRet = GetTimeZoneInformation(&tzi);
-    return +(int) (tzi.Bias * 60);
-#else
-    localtime_r(&timer, &localt);
-    return -(int) localt.tm_gmtoff;
-#endif
-}
-#endif
 
 
 /*

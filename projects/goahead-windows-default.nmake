@@ -19,12 +19,13 @@ ENTRY             = _DllMainCRTStartup@12
 OS                = windows
 CONFIG            = $(OS)-$(ARCH)-$(PROFILE)
 LBIN              = $(CONFIG)\bin
+BIT_PACK_EST      = 1
 
 CC                = cl
 LD                = link
 RC                = rc
 CFLAGS            = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG 
+DFLAGS            = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EST=$(BIT_PACK_EST) 
 IFLAGS            = -I$(CONFIG)\inc
 LDFLAGS           = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS          = -libpath:$(CONFIG)\bin
@@ -49,7 +50,9 @@ BIT_SRC_PREFIX    = $(BIT_VAPP_PREFIX)\src
 
 
 TARGETS           = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
+!IF "$(BIT_PACK_EST)" == "1"
 TARGETS           = $(TARGETS) $(CONFIG)\bin\libest.dll
+!ENDIF
 TARGETS           = $(TARGETS) $(CONFIG)\bin\ca.crt
 TARGETS           = $(TARGETS) $(CONFIG)\bin\libgo.dll
 TARGETS           = $(TARGETS) $(CONFIG)\bin\goahead.exe
@@ -144,7 +147,7 @@ DEPS_4 = $(DEPS_4) $(CONFIG)\obj\removeFiles.obj
 
 $(CONFIG)\bin\removeFiles.exe: $(DEPS_4)
 	@echo '      [Link] removeFiles'
-	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS)
+	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
 
 #
 #   est.h
@@ -176,6 +179,7 @@ $(CONFIG)\obj\estLib.obj: \
 	@echo '   [Compile] src/deps/est/estLib.c'
 	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
 
+!IF "$(BIT_PACK_EST)" == "1"
 #
 #   libest
 #
@@ -184,7 +188,8 @@ DEPS_8 = $(DEPS_8) $(CONFIG)\obj\estLib.obj
 
 $(CONFIG)\bin\libest.dll: $(DEPS_8)
 	@echo '      [Link] libest'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS)
+	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\estLib.obj $(LIBS) 
+!ENDIF
 
 #
 #   ca-crt
@@ -488,11 +493,13 @@ DEPS_34 = $(DEPS_34) $(CONFIG)\obj\matrixssl.obj
 DEPS_34 = $(DEPS_34) $(CONFIG)\obj\nanossl.obj
 DEPS_34 = $(DEPS_34) $(CONFIG)\obj\openssl.obj
 
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_34 = $(LIBS_34) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\libgo.dll: $(DEPS_34)
 	@echo '      [Link] libgo'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\nanossl.obj $(CONFIG)\obj\openssl.obj $(LIBS_34) $(LIBS_34) $(LIBS) libest.lib
+	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\action.obj $(CONFIG)\obj\alloc.obj $(CONFIG)\obj\auth.obj $(CONFIG)\obj\cgi.obj $(CONFIG)\obj\crypt.obj $(CONFIG)\obj\file.obj $(CONFIG)\obj\fs.obj $(CONFIG)\obj\goahead.obj $(CONFIG)\obj\http.obj $(CONFIG)\obj\js.obj $(CONFIG)\obj\jst.obj $(CONFIG)\obj\options.obj $(CONFIG)\obj\osdep.obj $(CONFIG)\obj\rom-documents.obj $(CONFIG)\obj\route.obj $(CONFIG)\obj\runtime.obj $(CONFIG)\obj\socket.obj $(CONFIG)\obj\upload.obj $(CONFIG)\obj\est.obj $(CONFIG)\obj\matrixssl.obj $(CONFIG)\obj\nanossl.obj $(CONFIG)\obj\openssl.obj $(LIBS_34) $(LIBS_34) $(LIBS) 
 
 #
 #   goahead
@@ -504,11 +511,13 @@ DEPS_35 = $(DEPS_35) $(CONFIG)\inc\js.h
 DEPS_35 = $(DEPS_35) $(CONFIG)\obj\goahead.obj
 
 LIBS_35 = $(LIBS_35) libgo.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_35 = $(LIBS_35) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] goahead'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj $(LIBS_35) $(LIBS_35) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\goahead.obj $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   test.obj
@@ -533,11 +542,13 @@ DEPS_37 = $(DEPS_37) $(CONFIG)\inc\js.h
 DEPS_37 = $(DEPS_37) $(CONFIG)\obj\test.obj
 
 LIBS_37 = $(LIBS_37) libgo.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_37 = $(LIBS_37) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] goahead-test'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj $(LIBS_37) $(LIBS_37) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\test.obj $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   gopass.obj
@@ -561,11 +572,13 @@ DEPS_39 = $(DEPS_39) $(CONFIG)\inc\js.h
 DEPS_39 = $(DEPS_39) $(CONFIG)\obj\gopass.obj
 
 LIBS_39 = $(LIBS_39) libgo.lib
+!IF "$(BIT_PACK_EST)" == "1"
 LIBS_39 = $(LIBS_39) libest.lib
+!ENDIF
 
 $(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] gopass'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj $(LIBS_39) $(LIBS_39) $(LIBS) libest.lib
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\gopass.obj $(LIBS_39) $(LIBS_39) $(LIBS) 
 
 #
 #   stop
@@ -591,6 +604,8 @@ installBinary: $(DEPS_41)
 	copy /Y "src\web\favicon.ico" "$(BIT_VAPP_PREFIX)\web\web\favicon.ico"
 	copy /Y "src\web\index.html" "$(BIT_VAPP_PREFIX)\web\web\index.html"
 	copy /Y "src\web\penguin.jpg" "$(BIT_VAPP_PREFIX)\web\web\penguin.jpg"
+	if not exist "$(BIT_VAPP_PREFIX)\web\web\pub" md "$(BIT_VAPP_PREFIX)\web\web\pub"
+	copy /Y "src\web\pub\login.html" "$(BIT_VAPP_PREFIX)\web\web\pub\login.html"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	copy /Y "src\auth.txt" "$(BIT_VAPP_PREFIX)\auth.txt"
 	copy /Y "src\route.txt" "$(BIT_VAPP_PREFIX)\route.txt"
