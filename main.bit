@@ -198,7 +198,12 @@ Bit.load({
                 Verify issuer. If false, allows self-signed certificates for testing purposes.
              */
             verifyIssuer: false,
-        }
+        },
+
+        projects: {
+            est: true,
+            ssl: true,
+        },
     },
 
     usage: {

@@ -1,14 +1,18 @@
 #
-#   goahead-macosx-default.mk -- Makefile to build Embedthis GoAhead for macosx
+#   goahead-vxworks-default.mk -- Makefile to build Embedthis GoAhead for vxworks
 #
+
+export WIND_BASE := $(WIND_BASE)
+export WIND_HOME := $(WIND_BASE)/..
+export WIND_PLATFORM := $(WIND_PLATFORM)
 
 PRODUCT            := goahead
 VERSION            := 3.1.1
 BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
-OS                 := macosx
-CC                 := /usr/bin/clang
+OS                 := vxworks
+CC                 := ccpentium
 LD                 := /usr/bin/ld
 CONFIG             := $(OS)-$(ARCH)-$(PROFILE)
 LBIN               := $(CONFIG)/bin
@@ -16,12 +20,12 @@ LBIN               := $(CONFIG)/bin
 BIT_PACK_EST       := 1
 BIT_PACK_SSL       := 1
 
-CFLAGS             += -w
-DFLAGS             +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
-IFLAGS             += -I$(CONFIG)/inc
-LDFLAGS            += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
+CFLAGS             += -fno-builtin -fno-defer-pop -fvolatile -w
+DFLAGS             += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+IFLAGS             += -I$(CONFIG)/inc -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip
+LDFLAGS            += '-Wl,-r'
 LIBPATHS           += -L$(CONFIG)/bin
-LIBS               += -lpthread -lm -ldl
+LIBS               += 
 
 DEBUG              := debug
 CFLAGS-debug       := -g
@@ -34,33 +38,33 @@ CFLAGS             += $(CFLAGS-$(DEBUG))
 DFLAGS             += $(DFLAGS-$(DEBUG))
 LDFLAGS            += $(LDFLAGS-$(DEBUG))
 
-BIT_ROOT_PREFIX    := 
-BIT_BASE_PREFIX    := $(BIT_ROOT_PREFIX)/usr/local
-BIT_DATA_PREFIX    := $(BIT_ROOT_PREFIX)/
-BIT_STATE_PREFIX   := $(BIT_ROOT_PREFIX)/var
-BIT_APP_PREFIX     := $(BIT_BASE_PREFIX)/lib/$(PRODUCT)
-BIT_VAPP_PREFIX    := $(BIT_APP_PREFIX)/$(VERSION)
-BIT_BIN_PREFIX     := $(BIT_ROOT_PREFIX)/usr/local/bin
-BIT_INC_PREFIX     := $(BIT_ROOT_PREFIX)/usr/local/include
-BIT_LIB_PREFIX     := $(BIT_ROOT_PREFIX)/usr/local/lib
-BIT_MAN_PREFIX     := $(BIT_ROOT_PREFIX)/usr/local/share/man
-BIT_SBIN_PREFIX    := $(BIT_ROOT_PREFIX)/usr/local/sbin
-BIT_ETC_PREFIX     := $(BIT_ROOT_PREFIX)/etc/$(PRODUCT)
-BIT_WEB_PREFIX     := $(BIT_ROOT_PREFIX)/var/www/$(PRODUCT)-default
-BIT_LOG_PREFIX     := $(BIT_ROOT_PREFIX)/var/log/$(PRODUCT)
-BIT_SPOOL_PREFIX   := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)
-BIT_CACHE_PREFIX   := $(BIT_ROOT_PREFIX)/var/spool/$(PRODUCT)/cache
-BIT_SRC_PREFIX     := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
+BIT_ROOT_PREFIX    := deploy
+BIT_BASE_PREFIX    := $(BIT_ROOT_PREFIX)
+BIT_DATA_PREFIX    := $(BIT_VAPP_PREFIX)
+BIT_STATE_PREFIX   := $(BIT_VAPP_PREFIX)
+BIT_BIN_PREFIX     := $(BIT_VAPP_PREFIX)
+BIT_INC_PREFIX     := $(BIT_VAPP_PREFIX)/inc
+BIT_LIB_PREFIX     := $(BIT_VAPP_PREFIX)
+BIT_MAN_PREFIX     := $(BIT_VAPP_PREFIX)
+BIT_SBIN_PREFIX    := $(BIT_VAPP_PREFIX)
+BIT_ETC_PREFIX     := $(BIT_VAPP_PREFIX)
+BIT_WEB_PREFIX     := $(BIT_VAPP_PREFIX)/web
+BIT_LOG_PREFIX     := $(BIT_VAPP_PREFIX)
+BIT_SPOOL_PREFIX   := $(BIT_VAPP_PREFIX)
+BIT_CACHE_PREFIX   := $(BIT_VAPP_PREFIX)
+BIT_APP_PREFIX     := $(BIT_BASE_PREFIX)
+BIT_VAPP_PREFIX    := $(BIT_APP_PREFIX)
+BIT_SRC_PREFIX     := $(BIT_ROOT_PREFIX)/usr/src/$(PRODUCT)-$(VERSION)
 
 
 ifeq ($(BIT_PACK_EST),1)
-TARGETS            += $(CONFIG)/bin/libest.dylib
+TARGETS            += $(CONFIG)/bin/libest.out
 endif
 TARGETS            += $(CONFIG)/bin/ca.crt
-TARGETS            += $(CONFIG)/bin/libgo.dylib
-TARGETS            += $(CONFIG)/bin/goahead
-TARGETS            += $(CONFIG)/bin/goahead-test
-TARGETS            += $(CONFIG)/bin/gopass
+TARGETS            += $(CONFIG)/bin/libgo.out
+TARGETS            += $(CONFIG)/bin/goahead.out
+TARGETS            += $(CONFIG)/bin/goahead-test.out
+TARGETS            += $(CONFIG)/bin/gopass.out
 
 unexport CDPATH
 
@@ -79,19 +83,19 @@ prep:
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
-	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h ; true
+	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-vxworks-default-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
-	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-macosx-default-bit.h >/dev/null ; then\
-		cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h  ; \
+	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-vxworks-default-bit.h >/dev/null ; then\
+		cp projects/goahead-vxworks-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
 
 clean:
-	rm -f "$(CONFIG)/bin/libest.dylib"
+	rm -f "$(CONFIG)/bin/libest.out"
 	rm -f "$(CONFIG)/bin/ca.crt"
-	rm -f "$(CONFIG)/bin/libgo.dylib"
-	rm -f "$(CONFIG)/bin/goahead"
-	rm -f "$(CONFIG)/bin/goahead-test"
-	rm -f "$(CONFIG)/bin/gopass"
+	rm -f "$(CONFIG)/bin/libgo.out"
+	rm -f "$(CONFIG)/bin/goahead.out"
+	rm -f "$(CONFIG)/bin/goahead-test.out"
+	rm -f "$(CONFIG)/bin/gopass.out"
 	rm -f "$(CONFIG)/obj/estLib.o"
 	rm -f "$(CONFIG)/obj/action.o"
 	rm -f "$(CONFIG)/obj/alloc.o"
@@ -163,7 +167,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] src/deps/est/estLib.c'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -fno-builtin -fno-defer-pop -fvolatile $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -172,9 +176,9 @@ ifeq ($(BIT_PACK_EST),1)
 DEPS_6 += $(CONFIG)/inc/est.h
 DEPS_6 += $(CONFIG)/obj/estLib.o
 
-$(CONFIG)/bin/libest.dylib: $(DEPS_6)
+$(CONFIG)/bin/libest.out: $(DEPS_6)
 	@echo '      [Link] libest'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.1.1 -current_version 3.1.1 $(CONFIG)/obj/estLib.o $(LIBS) 
+	$(CC) -r -o $(CONFIG)/bin/libest.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o  
 endif
 
 #
@@ -483,14 +487,14 @@ ifeq ($(BIT_PACK_EST),1)
     LIBS_32 += -lest
 endif
 
-$(CONFIG)/bin/libgo.dylib: $(DEPS_32)
+$(CONFIG)/bin/libgo.out: $(DEPS_32)
 	@echo '      [Link] libgo'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libgo.dylib -compatibility_version 3.1.1 -current_version 3.1.1 $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBS_32) $(LIBS_32) $(LIBS) 
+	$(CC) -r -o $(CONFIG)/bin/libgo.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o  
 
 #
 #   goahead
 #
-DEPS_33 += $(CONFIG)/bin/libgo.dylib
+DEPS_33 += $(CONFIG)/bin/libgo.out
 DEPS_33 += $(CONFIG)/inc/bitos.h
 DEPS_33 += $(CONFIG)/inc/goahead.h
 DEPS_33 += $(CONFIG)/inc/js.h
@@ -501,9 +505,9 @@ ifeq ($(BIT_PACK_EST),1)
     LIBS_33 += -lest
 endif
 
-$(CONFIG)/bin/goahead: $(DEPS_33)
+$(CONFIG)/bin/goahead.out: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LDFLAGS) 
 
 #
 #   test.o
@@ -521,7 +525,7 @@ $(CONFIG)/obj/test.o: \
 #
 #   goahead-test
 #
-DEPS_35 += $(CONFIG)/bin/libgo.dylib
+DEPS_35 += $(CONFIG)/bin/libgo.out
 DEPS_35 += $(CONFIG)/inc/bitos.h
 DEPS_35 += $(CONFIG)/inc/goahead.h
 DEPS_35 += $(CONFIG)/inc/js.h
@@ -532,9 +536,9 @@ ifeq ($(BIT_PACK_EST),1)
     LIBS_35 += -lest
 endif
 
-$(CONFIG)/bin/goahead-test: $(DEPS_35)
+$(CONFIG)/bin/goahead-test.out: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LDFLAGS) 
 
 #
 #   gopass.o
@@ -551,7 +555,7 @@ $(CONFIG)/obj/gopass.o: \
 #
 #   gopass
 #
-DEPS_37 += $(CONFIG)/bin/libgo.dylib
+DEPS_37 += $(CONFIG)/bin/libgo.out
 DEPS_37 += $(CONFIG)/inc/bitos.h
 DEPS_37 += $(CONFIG)/inc/goahead.h
 DEPS_37 += $(CONFIG)/inc/js.h
@@ -562,9 +566,9 @@ ifeq ($(BIT_PACK_EST),1)
     LIBS_37 += -lest
 endif
 
-$(CONFIG)/bin/gopass: $(DEPS_37)
+$(CONFIG)/bin/gopass.out: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LDFLAGS) 
 
 #
 #   stop
@@ -577,45 +581,6 @@ stop: $(DEPS_38)
 DEPS_39 += stop
 
 installBinary: $(DEPS_39)
-	mkdir -p "$(BIT_APP_PREFIX)"
-	mkdir -p "$(BIT_VAPP_PREFIX)"
-	mkdir -p "$(BIT_ETC_PREFIX)"
-	mkdir -p "$(BIT_WEB_PREFIX)"
-	mkdir -p "$(BIT_APP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "3.1.1" "$(BIT_APP_PREFIX)/latest"
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
-	cp "$(CONFIG)/bin/goahead" "$(BIT_VAPP_PREFIX)/bin/goahead"
-	mkdir -p "$(BIT_BIN_PREFIX)"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
-	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
-	cp "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
-	cp "$(CONFIG)/bin/libgo.dylib" "$(BIT_VAPP_PREFIX)/bin/libgo.dylib"
-	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	cp "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	cp "doc/man/gopass.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	cp "doc/man/webcomp.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	mkdir -p "$(BIT_WEB_PREFIX)/web/bench"
-	cp "src/web/bench/1b.html" "$(BIT_WEB_PREFIX)/web/bench/1b.html"
-	cp "src/web/bench/4k.html" "$(BIT_WEB_PREFIX)/web/bench/4k.html"
-	cp "src/web/bench/64k.html" "$(BIT_WEB_PREFIX)/web/bench/64k.html"
-	mkdir -p "$(BIT_WEB_PREFIX)/web"
-	cp "src/web/favicon.ico" "$(BIT_WEB_PREFIX)/web/favicon.ico"
-	cp "src/web/index.html" "$(BIT_WEB_PREFIX)/web/index.html"
-	cp "src/web/penguin.jpg" "$(BIT_WEB_PREFIX)/web/penguin.jpg"
-	mkdir -p "$(BIT_WEB_PREFIX)/web/pub"
-	cp "src/web/pub/login.html" "$(BIT_WEB_PREFIX)/web/pub/login.html"
-	mkdir -p "$(BIT_ETC_PREFIX)"
-	cp "src/auth.txt" "$(BIT_ETC_PREFIX)/auth.txt"
-	cp "src/route.txt" "$(BIT_ETC_PREFIX)/route.txt"
 
 #
 #   start
@@ -638,10 +603,4 @@ install: $(DEPS_41)
 DEPS_42 += stop
 
 uninstall: $(DEPS_42)
-	rm -fr "$(BIT_WEB_PREFIX)"
-	rm -fr "$(BIT_VAPP_PREFIX)"
-	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true
-	rmdir -p "$(BIT_WEB_PREFIX)" 2>/dev/null ; true
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
 

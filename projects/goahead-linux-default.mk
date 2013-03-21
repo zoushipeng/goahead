@@ -1,5 +1,5 @@
 #
-#   goahead-macosx-default.mk -- Makefile to build Embedthis GoAhead for macosx
+#   goahead-linux-default.mk -- Makefile to build Embedthis GoAhead for linux
 #
 
 PRODUCT            := goahead
@@ -7,8 +7,8 @@ VERSION            := 3.1.1
 BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
-OS                 := macosx
-CC                 := /usr/bin/clang
+OS                 := linux
+CC                 := /usr/bin/gcc
 LD                 := /usr/bin/ld
 CONFIG             := $(OS)-$(ARCH)-$(PROFILE)
 LBIN               := $(CONFIG)/bin
@@ -16,12 +16,12 @@ LBIN               := $(CONFIG)/bin
 BIT_PACK_EST       := 1
 BIT_PACK_SSL       := 1
 
-CFLAGS             += -w
-DFLAGS             +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+CFLAGS             += -fPIC   -w
+DFLAGS             += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc
-LDFLAGS            += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
+LDFLAGS            += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-rdynamic'
 LIBPATHS           += -L$(CONFIG)/bin
-LIBS               += -lpthread -lm -ldl
+LIBS               += -lpthread -lm -lrt -ldl
 
 DEBUG              := debug
 CFLAGS-debug       := -g
@@ -54,10 +54,10 @@ BIT_SRC_PREFIX     := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
 
 
 ifeq ($(BIT_PACK_EST),1)
-TARGETS            += $(CONFIG)/bin/libest.dylib
+TARGETS            += $(CONFIG)/bin/libest.so
 endif
 TARGETS            += $(CONFIG)/bin/ca.crt
-TARGETS            += $(CONFIG)/bin/libgo.dylib
+TARGETS            += $(CONFIG)/bin/libgo.so
 TARGETS            += $(CONFIG)/bin/goahead
 TARGETS            += $(CONFIG)/bin/goahead-test
 TARGETS            += $(CONFIG)/bin/gopass
@@ -79,16 +79,16 @@ prep:
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
-	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h ; true
+	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
-	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-macosx-default-bit.h >/dev/null ; then\
-		cp projects/goahead-macosx-default-bit.h $(CONFIG)/inc/bit.h  ; \
+	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-linux-default-bit.h >/dev/null ; then\
+		cp projects/goahead-linux-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
 
 clean:
-	rm -f "$(CONFIG)/bin/libest.dylib"
+	rm -f "$(CONFIG)/bin/libest.so"
 	rm -f "$(CONFIG)/bin/ca.crt"
-	rm -f "$(CONFIG)/bin/libgo.dylib"
+	rm -f "$(CONFIG)/bin/libgo.so"
 	rm -f "$(CONFIG)/bin/goahead"
 	rm -f "$(CONFIG)/bin/goahead-test"
 	rm -f "$(CONFIG)/bin/gopass"
@@ -163,7 +163,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] src/deps/est/estLib.c'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -fPIC $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -172,9 +172,9 @@ ifeq ($(BIT_PACK_EST),1)
 DEPS_6 += $(CONFIG)/inc/est.h
 DEPS_6 += $(CONFIG)/obj/estLib.o
 
-$(CONFIG)/bin/libest.dylib: $(DEPS_6)
+$(CONFIG)/bin/libest.so: $(DEPS_6)
 	@echo '      [Link] libest'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.1.1 -current_version 3.1.1 $(CONFIG)/obj/estLib.o $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS) 
 endif
 
 #
@@ -483,14 +483,14 @@ ifeq ($(BIT_PACK_EST),1)
     LIBS_32 += -lest
 endif
 
-$(CONFIG)/bin/libgo.dylib: $(DEPS_32)
+$(CONFIG)/bin/libgo.so: $(DEPS_32)
 	@echo '      [Link] libgo'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libgo.dylib -compatibility_version 3.1.1 -current_version 3.1.1 $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBS_32) $(LIBS_32) $(LIBS) 
+	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBS_32) $(LIBS_32) $(LIBS) 
 
 #
 #   goahead
 #
-DEPS_33 += $(CONFIG)/bin/libgo.dylib
+DEPS_33 += $(CONFIG)/bin/libgo.so
 DEPS_33 += $(CONFIG)/inc/bitos.h
 DEPS_33 += $(CONFIG)/inc/goahead.h
 DEPS_33 += $(CONFIG)/inc/js.h
@@ -503,7 +503,7 @@ endif
 
 $(CONFIG)/bin/goahead: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) -lest $(LDFLAGS) 
 
 #
 #   test.o
@@ -521,7 +521,7 @@ $(CONFIG)/obj/test.o: \
 #
 #   goahead-test
 #
-DEPS_35 += $(CONFIG)/bin/libgo.dylib
+DEPS_35 += $(CONFIG)/bin/libgo.so
 DEPS_35 += $(CONFIG)/inc/bitos.h
 DEPS_35 += $(CONFIG)/inc/goahead.h
 DEPS_35 += $(CONFIG)/inc/js.h
@@ -534,7 +534,7 @@ endif
 
 $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) -lest $(LDFLAGS) 
 
 #
 #   gopass.o
@@ -551,7 +551,7 @@ $(CONFIG)/obj/gopass.o: \
 #
 #   gopass
 #
-DEPS_37 += $(CONFIG)/bin/libgo.dylib
+DEPS_37 += $(CONFIG)/bin/libgo.so
 DEPS_37 += $(CONFIG)/inc/bitos.h
 DEPS_37 += $(CONFIG)/inc/goahead.h
 DEPS_37 += $(CONFIG)/inc/js.h
@@ -564,7 +564,7 @@ endif
 
 $(CONFIG)/bin/gopass: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) -lest $(LDFLAGS) 
 
 #
 #   stop
@@ -590,8 +590,8 @@ installBinary: $(DEPS_39)
 	rm -f "$(BIT_BIN_PREFIX)/goahead"
 	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
 	cp "$(CONFIG)/bin/ca.crt" "$(BIT_VAPP_PREFIX)/bin/ca.crt"
-	cp "$(CONFIG)/bin/libest.dylib" "$(BIT_VAPP_PREFIX)/bin/libest.dylib"
-	cp "$(CONFIG)/bin/libgo.dylib" "$(BIT_VAPP_PREFIX)/bin/libgo.dylib"
+	cp "$(CONFIG)/bin/libest.so" "$(BIT_VAPP_PREFIX)/bin/libest.so"
+	cp "$(CONFIG)/bin/libgo.so" "$(BIT_VAPP_PREFIX)/bin/libgo.so"
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp "doc/man/goahead.1" "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1"
 	mkdir -p "$(BIT_MAN_PREFIX)/man1"

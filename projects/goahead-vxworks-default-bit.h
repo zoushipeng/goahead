@@ -202,6 +202,12 @@
 #ifndef BIT_PRODUCT
     #define BIT_PRODUCT "goahead"
 #endif
+#ifndef BIT_PROJECTS_EST
+    #define BIT_PROJECTS_EST 1
+#endif
+#ifndef BIT_PROJECTS_SSL
+    #define BIT_PROJECTS_SSL 1
+#endif
 #ifndef BIT_REQUIRES
     #define BIT_REQUIRES "vxworks,compiler,lib,link"
 #endif
