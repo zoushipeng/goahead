@@ -481,6 +481,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
         trace(2, "Password does not match");
         return 0;
     }
+    trace(2, "Login successful for %s", username);
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
     return 1;
 }

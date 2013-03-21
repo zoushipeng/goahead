@@ -197,7 +197,9 @@ static void     checkTimeout(void *arg, int id);
 static WebsTime dateParse(WebsTime tip, char *cmd);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
+#if UNUSED
 static int      getTimezoneAdjustment();
+#endif
 static char     *getToken(Webs *wp, char *delim);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
@@ -2893,11 +2895,14 @@ static WebsTime parseDate3Time(char *buf, int *index)
         returnValue += timeValue;
         *index = tmpIndex;
     }
+#if UNUSED
     returnValue += getTimezoneAdjustment();
+#endif
     return returnValue;
 }
 
 
+#if UNUSED
 static int getTimezoneAdjustment()
 {
     WebsTime    timer;
@@ -2917,6 +2922,7 @@ static int getTimezoneAdjustment()
     return -(int) localt.tm_gmtoff;
 #endif
 }
+#endif
 
 
 /*
@@ -3343,11 +3349,17 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
     } else {
         domain = sclone(cookieDomain);
     }
-    domainAtt = domain ? "; domain=" : "";
-    if (domain && !strchr(domain, '.')) {
-        old = domain;
-        domain = sfmt(".%s", domain);
-        wfree(old);
+    domainAtt = "";
+    if (smatch(domain, "localhost")) {
+        wfree(domain);
+        domain = sclone("");
+    } else {
+        domainAtt = "; domain=";
+        if (!strchr(domain, '.')) {
+            old = domain;
+            domain = sfmt(".%s", domain);
+            wfree(old);
+        }
     }
     if (lifespan > 0) {
         expiresAtt = "; expires=";
