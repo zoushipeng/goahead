@@ -712,7 +712,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
 #endif
     assert(wp->timeout == -1);
-    wp->timeout = websStartEvent(/* MOB PARSE_TIMEOUT */ 60 * 1000, checkTimeout, (void*) wp);
+    wp->timeout = websStartEvent(PARSE_TIMEOUT, checkTimeout, (void*) wp);
     socketEvent(sid, SOCKET_READABLE, wp);
     return 0;
 }
