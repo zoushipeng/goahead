@@ -102,37 +102,37 @@ prep:
 	fi; true
 
 clean:
-	rm -f "$(CONFIG)/bin/libest.so"
-	rm -f "$(CONFIG)/bin/ca.crt"
-	rm -f "$(CONFIG)/bin/libgo.so"
-	rm -f "$(CONFIG)/bin/goahead"
-	rm -f "$(CONFIG)/bin/goahead-test"
-	rm -f "$(CONFIG)/bin/gopass"
-	rm -f "$(CONFIG)/obj/estLib.o"
-	rm -f "$(CONFIG)/obj/action.o"
-	rm -f "$(CONFIG)/obj/alloc.o"
-	rm -f "$(CONFIG)/obj/auth.o"
-	rm -f "$(CONFIG)/obj/cgi.o"
-	rm -f "$(CONFIG)/obj/crypt.o"
-	rm -f "$(CONFIG)/obj/file.o"
-	rm -f "$(CONFIG)/obj/fs.o"
-	rm -f "$(CONFIG)/obj/goahead.o"
-	rm -f "$(CONFIG)/obj/http.o"
-	rm -f "$(CONFIG)/obj/js.o"
-	rm -f "$(CONFIG)/obj/jst.o"
-	rm -f "$(CONFIG)/obj/options.o"
-	rm -f "$(CONFIG)/obj/osdep.o"
-	rm -f "$(CONFIG)/obj/rom-documents.o"
-	rm -f "$(CONFIG)/obj/route.o"
-	rm -f "$(CONFIG)/obj/runtime.o"
-	rm -f "$(CONFIG)/obj/socket.o"
-	rm -f "$(CONFIG)/obj/upload.o"
-	rm -f "$(CONFIG)/obj/est.o"
-	rm -f "$(CONFIG)/obj/matrixssl.o"
-	rm -f "$(CONFIG)/obj/nanossl.o"
-	rm -f "$(CONFIG)/obj/openssl.o"
-	rm -f "$(CONFIG)/obj/test.o"
-	rm -f "$(CONFIG)/obj/gopass.o"
+	rm -fr "$(CONFIG)/bin/libest.so"
+	rm -fr "$(CONFIG)/bin/ca.crt"
+	rm -fr "$(CONFIG)/bin/libgo.so"
+	rm -fr "$(CONFIG)/bin/goahead"
+	rm -fr "$(CONFIG)/bin/goahead-test"
+	rm -fr "$(CONFIG)/bin/gopass"
+	rm -fr "$(CONFIG)/obj/estLib.o"
+	rm -fr "$(CONFIG)/obj/action.o"
+	rm -fr "$(CONFIG)/obj/alloc.o"
+	rm -fr "$(CONFIG)/obj/auth.o"
+	rm -fr "$(CONFIG)/obj/cgi.o"
+	rm -fr "$(CONFIG)/obj/crypt.o"
+	rm -fr "$(CONFIG)/obj/file.o"
+	rm -fr "$(CONFIG)/obj/fs.o"
+	rm -fr "$(CONFIG)/obj/goahead.o"
+	rm -fr "$(CONFIG)/obj/http.o"
+	rm -fr "$(CONFIG)/obj/js.o"
+	rm -fr "$(CONFIG)/obj/jst.o"
+	rm -fr "$(CONFIG)/obj/options.o"
+	rm -fr "$(CONFIG)/obj/osdep.o"
+	rm -fr "$(CONFIG)/obj/rom-documents.o"
+	rm -fr "$(CONFIG)/obj/route.o"
+	rm -fr "$(CONFIG)/obj/runtime.o"
+	rm -fr "$(CONFIG)/obj/socket.o"
+	rm -fr "$(CONFIG)/obj/upload.o"
+	rm -fr "$(CONFIG)/obj/est.o"
+	rm -fr "$(CONFIG)/obj/matrixssl.o"
+	rm -fr "$(CONFIG)/obj/nanossl.o"
+	rm -fr "$(CONFIG)/obj/openssl.o"
+	rm -fr "$(CONFIG)/obj/test.o"
+	rm -fr "$(CONFIG)/obj/gopass.o"
 
 clobber: clean
 	rm -fr ./$(CONFIG)
@@ -519,7 +519,7 @@ endif
 
 $(CONFIG)/bin/goahead: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) -lest $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 
 #
 #   test.o
@@ -550,7 +550,7 @@ endif
 
 $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) -lest $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 
 #
 #   gopass.o
@@ -580,7 +580,7 @@ endif
 
 $(CONFIG)/bin/gopass: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) -lest $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
 
 #
 #   stop
