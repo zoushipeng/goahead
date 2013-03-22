@@ -604,6 +604,7 @@ $(CONFIG)\bin\gopass.exe: $(DEPS_39)
 #   stop
 #
 stop: $(DEPS_40)
+#  Omit build script stop
 
 #
 #   installBinary
@@ -631,6 +632,7 @@ installBinary: $(DEPS_41)
 #   start
 #
 start: $(DEPS_42)
+#  Omit build script start
 
 #
 #   install

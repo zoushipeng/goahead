@@ -43,11 +43,6 @@ Bit.load({
         'without-all': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl' ],
 
         /*
-            Packs to disable when using --without default (generating packages)
-         */
-        'without-default': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker' ],
-
-        /*
             Set to true for a static link
          */
         static: false,
