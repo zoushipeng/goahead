@@ -16,6 +16,22 @@ LBIN               := $(CONFIG)/bin
 BIT_PACK_EST       := 1
 BIT_PACK_SSL       := 1
 
+ifeq ($(BIT_PACK_EST),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_LIB),1)
+    BIT_PACK_COMPILER := 1
+endif
+ifeq ($(BIT_PACK_MATRIXSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_NANOSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_OPENSSL),1)
+    BIT_PACK_SSL := 1
+endif
+
 CFLAGS             += -fPIC  -w
 DFLAGS             += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc
@@ -610,9 +626,6 @@ installBinary: $(DEPS_39)
 	mkdir -p "$(BIT_WEB_PREFIX)/web"
 	cp "src/web/favicon.ico" "$(BIT_WEB_PREFIX)/web/favicon.ico"
 	cp "src/web/index.html" "$(BIT_WEB_PREFIX)/web/index.html"
-	cp "src/web/penguin.jpg" "$(BIT_WEB_PREFIX)/web/penguin.jpg"
-	mkdir -p "$(BIT_WEB_PREFIX)/web/pub"
-	cp "src/web/pub/login.html" "$(BIT_WEB_PREFIX)/web/pub/login.html"
 	mkdir -p "$(BIT_ETC_PREFIX)"
 	cp "src/auth.txt" "$(BIT_ETC_PREFIX)/auth.txt"
 	cp "src/route.txt" "$(BIT_ETC_PREFIX)/route.txt"

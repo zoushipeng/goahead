@@ -20,6 +20,22 @@ LBIN               := $(CONFIG)/bin
 BIT_PACK_EST       := 1
 BIT_PACK_SSL       := 1
 
+ifeq ($(BIT_PACK_EST),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_LIB),1)
+    BIT_PACK_COMPILER := 1
+endif
+ifeq ($(BIT_PACK_MATRIXSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_NANOSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_OPENSSL),1)
+    BIT_PACK_SSL := 1
+endif
+
 CFLAGS             += -fno-builtin -fno-defer-pop -fvolatile -w
 DFLAGS             += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip

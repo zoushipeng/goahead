@@ -22,6 +22,25 @@ LBIN              = $(CONFIG)\bin
 BIT_PACK_EST       = 1
 BIT_PACK_SSL       = 1
 
+ifeq ($(BIT_PACK_EST),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_LIB),1)
+    BIT_PACK_COMPILER := 1
+endif
+ifeq ($(BIT_PACK_MATRIXSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_NANOSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_OPENSSL),1)
+    BIT_PACK_SSL := 1
+endif
+ifeq ($(BIT_PACK_RC),1)
+    BIT_PACK_WINSDK := 1
+endif
+
 CC                = cl
 LD                = link
 RC                = rc
@@ -604,9 +623,6 @@ installBinary: $(DEPS_41)
 	if not exist "$(BIT_VAPP_PREFIX)\web\web" md "$(BIT_VAPP_PREFIX)\web\web"
 	copy /Y "src\web\favicon.ico" "$(BIT_VAPP_PREFIX)\web\web\favicon.ico"
 	copy /Y "src\web\index.html" "$(BIT_VAPP_PREFIX)\web\web\index.html"
-	copy /Y "src\web\penguin.jpg" "$(BIT_VAPP_PREFIX)\web\web\penguin.jpg"
-	if not exist "$(BIT_VAPP_PREFIX)\web\web\pub" md "$(BIT_VAPP_PREFIX)\web\web\pub"
-	copy /Y "src\web\pub\login.html" "$(BIT_VAPP_PREFIX)\web\web\pub\login.html"
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	copy /Y "src\auth.txt" "$(BIT_VAPP_PREFIX)\auth.txt"
 	copy /Y "src\route.txt" "$(BIT_VAPP_PREFIX)\route.txt"
