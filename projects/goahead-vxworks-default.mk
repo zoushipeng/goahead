@@ -104,7 +104,10 @@ prep:
 	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-vxworks-default-bit.h >/dev/null ; then\
 		cp projects/goahead-vxworks-default-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
-
+	@if [ -f "$(CONFIG)/.makeflags" -a "$(MAKEFLAGS)" != " `cat $(CONFIG)/.makeflags`" ] ; then \
+		echo "   [Warning] Make flags have changed since the last build: "`cat $(CONFIG)/.makeflags`"" ; \
+	fi
+	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
 clean:
 	rm -fr "$(CONFIG)/bin/libest.out"
 	rm -fr "$(CONFIG)/bin/ca.crt"
@@ -505,7 +508,7 @@ endif
 
 $(CONFIG)/bin/libgo.out: $(DEPS_32)
 	@echo '      [Link] libgo'
-	$(CC) -r -o $(CONFIG)/bin/libgo.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o  
+	$(CC) -r -o $(CONFIG)/bin/libgo.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/goahead.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o   $(LIBS_32) $(LIBS_32)
 
 #
 #   goahead
@@ -523,7 +526,7 @@ endif
 
 $(CONFIG)/bin/goahead.out: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/goahead.o $(LDFLAGS)  $(LIBS_33) $(LIBS_33)
 
 #
 #   test.o
@@ -554,7 +557,7 @@ endif
 
 $(CONFIG)/bin/goahead-test.out: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/test.o $(LDFLAGS)  $(LIBS_35) $(LIBS_35)
 
 #
 #   gopass.o
@@ -584,7 +587,7 @@ endif
 
 $(CONFIG)/bin/gopass.out: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/gopass.o $(LDFLAGS)  $(LIBS_37) $(LIBS_37)
 
 #
 #   stop
