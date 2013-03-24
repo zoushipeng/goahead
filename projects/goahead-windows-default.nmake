@@ -616,8 +616,6 @@ stop: $(DEPS_40)
 #
 #   installBinary
 #
-DEPS_41 = $(DEPS_41) stop
-
 installBinary: $(DEPS_41)
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y "$(CONFIG)\bin\goahead.exe" "$(BIT_VAPP_PREFIX)\bin\goahead.exe"

@@ -363,7 +363,7 @@
     #define BIT_PACK_OPENSSL 0
 #endif
 #ifndef BIT_PACK_PMAKER
-    #define BIT_PACK_PMAKER 0
+    #define BIT_PACK_PMAKER 1
 #endif
 #ifndef BIT_PACK_SSL
     #define BIT_PACK_SSL 1

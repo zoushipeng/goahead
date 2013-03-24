@@ -12,8 +12,8 @@ BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS                 := vxworks
-CC                 := ccpentium
-LD                 := /usr/bin/ld
+CC                 := cc$(subst x86,pentium,$(ARCH))
+LD                 := link
 CONFIG             := $(OS)-$(ARCH)-$(PROFILE)
 LBIN               := $(CONFIG)/bin
 
@@ -602,8 +602,6 @@ stop: $(DEPS_38)
 #
 #   installBinary
 #
-DEPS_39 += stop
-
 installBinary: $(DEPS_39)
 
 #
