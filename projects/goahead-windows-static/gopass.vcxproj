@@ -126,7 +126,7 @@
 copy /Y src\bitos.h $(IncDir)
 copy /Y src\goahead.h $(IncDir)
 copy /Y src\js.h $(IncDir)
-cd projects\goahead-windows-default</Command>
+cd projects\goahead-windows-static</Command>
     <Outputs>$(BinDir)\gopass.exe</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>

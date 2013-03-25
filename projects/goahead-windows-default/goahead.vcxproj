@@ -3,7 +3,7 @@
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IncDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IncDir);..\..\$(BIT_PACK_OPENSSL_PATH)\include;..\..\$(BIT_PACK_MATRIXSSL_PATH);..\..\$(BIT_PACK_MATRIXSSL_PATH)\matrixssl;..\..\$(BIT_PACK_NANOSSL_PATH)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -117,8 +117,8 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libgo.lib;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <AdditionalDependencies>libest.lib;libeay32.lib;ssleay32.lib;matrixssl.lib;ssls;libgo.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;$(BIT_PACK_OPENSSL_PATH);$(BIT_PACK_MATRIXSSL_PATH);$(BIT_PACK_NANOSSL_PATH)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
   <CustomBuildStep>

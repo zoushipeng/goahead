@@ -1,11 +1,11 @@
 #
-#   goahead-freebsd-default.mk -- Makefile to build Embedthis GoAhead for freebsd
+#   goahead-freebsd-static.mk -- Makefile to build Embedthis GoAhead for freebsd
 #
 
 PRODUCT            := goahead
 VERSION            := 3.1.1
 BUILD_NUMBER       := 0
-PROFILE            := default
+PROFILE            := static
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 OS                 := freebsd
 CC                 := gcc
@@ -86,10 +86,10 @@ BIT_SRC_PREFIX     := $(BIT_ROOT_PREFIX)$(PRODUCT)-$(VERSION)
 
 
 ifeq ($(BIT_PACK_EST),1)
-TARGETS            += $(CONFIG)/bin/libest.so
+TARGETS            += $(CONFIG)/bin/libest.a
 endif
 TARGETS            += $(CONFIG)/bin/ca.crt
-TARGETS            += $(CONFIG)/bin/libgo.so
+TARGETS            += $(CONFIG)/bin/libgo.a
 TARGETS            += $(CONFIG)/bin/goahead
 TARGETS            += $(CONFIG)/bin/goahead-test
 TARGETS            += $(CONFIG)/bin/gopass
@@ -111,13 +111,13 @@ prep:
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
-	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-freebsd-default-bit.h $(CONFIG)/inc/bit.h ; true
+	@[ ! -f $(CONFIG)/inc/bit.h ] && cp projects/goahead-freebsd-static-bit.h $(CONFIG)/inc/bit.h ; true
 	@[ ! -f $(CONFIG)/inc/bitos.h ] && cp src/bitos.h $(CONFIG)/inc/bitos.h ; true
 	@if ! diff $(CONFIG)/inc/bitos.h src/bitos.h >/dev/null ; then\
 		cp src/bitos.h $(CONFIG)/inc/bitos.h  ; \
 	fi; true
-	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-freebsd-default-bit.h >/dev/null ; then\
-		cp projects/goahead-freebsd-default-bit.h $(CONFIG)/inc/bit.h  ; \
+	@if ! diff $(CONFIG)/inc/bit.h projects/goahead-freebsd-static-bit.h >/dev/null ; then\
+		cp projects/goahead-freebsd-static-bit.h $(CONFIG)/inc/bit.h  ; \
 	fi; true
 	@if [ -f "$(CONFIG)/.makeflags" ] ; then \
 		if [ "$(MAKEFLAGS)" != " ` cat $(CONFIG)/.makeflags`" ] ; then \
@@ -126,9 +126,9 @@ prep:
 	fi
 	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
 clean:
-	rm -fr "$(CONFIG)/bin/libest.so"
+	rm -fr "$(CONFIG)/bin/libest.a"
 	rm -fr "$(CONFIG)/bin/ca.crt"
-	rm -fr "$(CONFIG)/bin/libgo.so"
+	rm -fr "$(CONFIG)/bin/libgo.a"
 	rm -fr "$(CONFIG)/bin/goahead"
 	rm -fr "$(CONFIG)/bin/goahead-test"
 	rm -fr "$(CONFIG)/bin/gopass"
@@ -212,9 +212,9 @@ ifeq ($(BIT_PACK_EST),1)
 DEPS_6 += $(CONFIG)/inc/est.h
 DEPS_6 += $(CONFIG)/obj/estLib.o
 
-$(CONFIG)/bin/libest.so: $(DEPS_6)
+$(CONFIG)/bin/libest.a: $(DEPS_6)
 	@echo '      [Link] libest'
-	$(CC) -shared -o $(CONFIG)/bin/libest.so $(LDFLAGS) $(LIBPATHS) $(CONFIG)/obj/estLib.o $(LIBS) 
+	ar -cr $(CONFIG)/bin/libest.a $(CONFIG)/obj/estLib.o
 endif
 
 #
@@ -506,25 +506,9 @@ DEPS_31 += $(CONFIG)/obj/matrixssl.o
 DEPS_31 += $(CONFIG)/obj/nanossl.o
 DEPS_31 += $(CONFIG)/obj/openssl.o
 
-ifeq ($(BIT_PACK_NANOSSL),1)
-    LIBS_31 += -lssls
-endif
-ifeq ($(BIT_PACK_MATRIXSSL),1)
-    LIBS_31 += -lmatrixssl
-endif
-ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_31 += -lcrypto
-endif
-ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_31 += -lssl
-endif
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_31 += -lest
-endif
-
-$(CONFIG)/bin/libgo.so: $(DEPS_31)
+$(CONFIG)/bin/libgo.a: $(DEPS_31)
 	@echo '      [Link] libgo'
-	$(CC) -shared -o $(CONFIG)/bin/libgo.so $(LDFLAGS) $(LIBPATHS) -L$(BIT_PACK_OPENSSL_PATH) -L$(BIT_PACK_MATRIXSSL_PATH) -L$(BIT_PACK_NANOSSL_PATH)/bin $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBS_31) $(LIBS_31) $(LIBS) 
+	ar -cr $(CONFIG)/bin/libgo.a $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o
 
 #
 #   goahead.o
@@ -541,7 +525,7 @@ $(CONFIG)/obj/goahead.o: \
 #
 #   goahead
 #
-DEPS_33 += $(CONFIG)/bin/libgo.so
+DEPS_33 += $(CONFIG)/bin/libgo.a
 DEPS_33 += $(CONFIG)/inc/bitos.h
 DEPS_33 += $(CONFIG)/inc/goahead.h
 DEPS_33 += $(CONFIG)/inc/js.h
@@ -584,7 +568,7 @@ $(CONFIG)/obj/test.o: \
 #
 #   goahead-test
 #
-DEPS_35 += $(CONFIG)/bin/libgo.so
+DEPS_35 += $(CONFIG)/bin/libgo.a
 DEPS_35 += $(CONFIG)/inc/bitos.h
 DEPS_35 += $(CONFIG)/inc/goahead.h
 DEPS_35 += $(CONFIG)/inc/js.h
@@ -626,7 +610,7 @@ $(CONFIG)/obj/gopass.o: \
 #
 #   gopass
 #
-DEPS_37 += $(CONFIG)/bin/libgo.so
+DEPS_37 += $(CONFIG)/bin/libgo.a
 DEPS_37 += $(CONFIG)/inc/bitos.h
 DEPS_37 += $(CONFIG)/inc/goahead.h
 DEPS_37 += $(CONFIG)/inc/js.h
