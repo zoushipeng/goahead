@@ -194,11 +194,6 @@ Bit.load({
              */
             verifyIssuer: false,
         },
-
-        projects: {
-            est: true,
-            ssl: true,
-        },
     },
 
     usage: {
@@ -377,5 +372,10 @@ Bit.load({
         rom: {
             action: "Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))",
         },
+    },
+
+    packDefaults: {
+        est: true,
+        ssl: true,
     },
 })
