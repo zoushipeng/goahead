@@ -937,28 +937,11 @@ fi";
 				PRODUCT_NAME = libgo;
 				EXECUTABLE_EXTENSION = a;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
 				OTHER_LDFLAGS = (
-					"",
-					"",
-					"",
-					"",
 					"",
 					);
 
@@ -973,25 +956,7 @@ fi";
 				PRODUCT_NAME = libgo;
 				EXECUTABLE_EXTENSION = a;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
 				OTHER_LDFLAGS = (
-					"",
-					"",
-					"",
-					"",
 					"",
 					);
 
@@ -1005,28 +970,11 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
 				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lmatrixssl",
-					"-lssls",
 					"-lpam",
 					);
 
@@ -1040,25 +988,7 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
 				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lmatrixssl",
-					"-lssls",
 					"-lpam",
 					);
 
@@ -1072,28 +1002,11 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
 				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lmatrixssl",
-					"-lssls",
 					"-lpam",
 					);
 
@@ -1107,25 +1020,7 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
 				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lmatrixssl",
-					"-lssls",
 					"-lpam",
 					);
 
@@ -1139,29 +1034,11 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = gopass;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = staticlib;
 
@@ -1173,26 +1050,7 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = gopass;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)/include",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)/matrixssl",
-					"../$(BIT_PACK_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(BIT_PACK_OPENSSL_PATH)",
-					"../$(BIT_PACK_MATRIXSSL_PATH)",
-					"../$(BIT_PACK_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lssl",
-					"-lcrypto",
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = staticlib;
 
