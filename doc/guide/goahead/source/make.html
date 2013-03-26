@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.1.0 Documentation</title>
+    <title>Embedthis GoAhead 3.1.1 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.1.0</div>
+                <div class="version">Embedthis GoAhead 3.1.1</div>
             </div>
         </div>
         <div class="crumbs">
@@ -101,9 +101,11 @@ nmake -f projects\goahead-windows.nmake
             <h3>Modifying the Makefile Defaults</h3>
             <p>You do not use the configure program when building via Make, that is used only for building with Bit. 
             Rather, you supply configuration options directly to Make. These options override default values defined by the
-            projects/goahead-OS-default.mk makefile and by the projects/goahead-OS-debug-bit.h file. For example, to disable
-            use of SQLite:</p>
+            projects/goahead-OS-default.mk makefile and by the projects/goahead-OS-debug-bit.h file. For example, to disable use of SQLite:</p>
             <pre>$ make <b>BIT_PACK_SQLITE=0</b> </pre>
+            <p>Extension packs are enabled by setting their corresponing BIT_PACK_NAME option to 1. Disable by setting
+            to zero. Some packs requires a path to locate libraries and headers. Use BIT_PACK_NAME_PATH to define
+            the path to the extension pack.</p>
             <p>To see the list of configurable options, run:</p>
             <pre>$ <b>make help</b>
 usage: make [clean, compile, deploy, install, run, uninstall]
@@ -179,18 +181,29 @@ Other make variables:
             <pre>
 sudo make uninstall
 </pre>
-            <p>If you need to capture the build products only, you can deploy to a specific directory via:
-            <pre>make BIT_ROOT_DIR=/tmp/output deploy</pre>
+            <h3>Warning: Must Use Same Option</h3>
+            <p>It is essential when invoking <em>make install</em>, that you provide the same make flags and options
+                as you did when compiling. This is because the Makefile will conditionally install only the selected
+                components for those options.</p>
+            <p>For example, to build and install OpenSSL:</p>
+                <pre>$ make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> compile
+$ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
+
+            <a name="deploy"></a>
+            <h2>Deploying</h2>
+            <p>If you need to deploy to a different system or capture the build products, you can install to a specific
+            directory via: </p>
+            <pre>make deploy</pre>
+            <p>This will install to the <em>deploy</em> directory under the output platform directory.</p>
 
             <a name="openssl"></a>
             <h3>Supporting OpenSSL</h3>
-            <p>GoAhead will build using the EST SSL stack by default. However, if you require the OpenSSL stack instead,
-              you must specify disable EST and enable the OpenSSL libraries and path to 
-              those libraries when you invoke make. For example:</p>
-            <pre>make BIT_PACK_EST=0 BIT_PACK_OPENSSL=1 \
-    LDFLAGS="-L/path/to/libs -lcrypto -lssl -Wl,-rpath,/path/to/libs" \
-    SHOW=1 make clean compile</pre>
-
+            <p>If OpenSSL is required to provide SSL support, you must specify the path to the OpenSSL source
+              directory. For example:</p>
+            <pre>make BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/path/to/openssl compile</pre>
+            <p>If you are using a binary OpenSSL distribution, provide the path where the OpenSSL libraries are located
+              (typically /usr/lib).</p>
+            <pre>make BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/lib compile</pre>
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for platform different to that of the local system is called <em>cross compiling</em>.
@@ -210,6 +223,11 @@ make -f projects/goahead-vxworks-default.mk ARCH=arm PROFILE=debug
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
             <p>If there is not a makefile for your  target operating system, copy the closest makefile and edit to 
             suit your target platform.</p>
+            <a name="static"></a>
+            <h3>Static Building</h3>
+            <p>If you require a static build without the ability to dynamically load modules, use the <em>static</em>
+                makefile profile. For example:</p>
+                <pre>make PROFILE=static</pre>
             <a name="toolchain"></a>
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.

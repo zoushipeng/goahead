@@ -8,6 +8,7 @@ Bit.load({
         The sets used are: binary, doc, dev, package, source
      */
     manifest: {
+        home: bit.dir.src,
         packages:   {
             install: {
                 inherit:    'embedthis-manifest',

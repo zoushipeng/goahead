@@ -41,6 +41,10 @@ all compile:
 clean clobber installBinary uninstall run:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 
+deploy:
+	@echo '       [Deploy] $(MAKE) BIT_ROOT_PREFIX=$(OS)-$(ARCH)-$(PROFILE)/deploy -f projects/$(NAME)-$(OS)-$(PROFILE).  $(EXT) installBinary'
+	@$(MAKE) BIT_ROOT_PREFIX=$(OS)-$(ARCH)-$(PROFILE)/deploy -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) installBinary
+
 install:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 	@echo ; echo 'You can now run via "sudo goahead -v --home /etc/goahead"'
@@ -50,7 +54,7 @@ version:
 
 help:
 	@echo '' >&2
-	@echo 'usage: make [clean, compile, install, run, uninstall]' >&2
+	@echo 'usage: make [clean, compile, deploy, install, run, uninstall]' >&2
 	@echo '' >&2
 	@echo 'With make, the default configuration can be modified by setting make' >&2
 	@echo 'variables. Set to 0 to disable and 1 to enable:' >&2
