@@ -13,14 +13,14 @@ Bit.load({
             install: {
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
-                sets:       [ 'core', 'doc' ],
+                sets:       [ 'core', 'libs', 'doc' ],
                 platforms:  [ 'unix', 'windows' ]
             },
             binary: {
                 inherit:    'embedthis-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
                 formats:    [ 'native', 'tar' ],
-                sets:       [ 'core', 'doc', 'package' ],
+                sets:       [ 'core', 'libs', 'doc', 'package' ],
                 platforms:  [ 'freebsd', 'linux', 'macosx', 'windows' ]
             },
             source: {
@@ -39,9 +39,15 @@ Bit.load({
                 set:    'core',
 
             },{ from: [
-                    '${BIN}/ca.crt',
                     '${BIN}/libest${SHOBJ}',
                     '${BIN}/libgo${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: '!bit.settings.static',
+
+            },{ from: [
+                    '${BIN}/ca.crt',
                 ],
                 to:     '${abin}/',
                 set:    'core',
