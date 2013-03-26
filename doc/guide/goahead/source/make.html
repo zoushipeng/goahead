@@ -111,49 +111,52 @@ nmake -f projects\goahead-windows.nmake
 usage: make [clean, compile, deploy, install, run, uninstall]
 With make, the default configuration can be modified by setting make
 variables. Set to 0 to disable and 1 to enable:
-  PROFILE                         # Select default or static for static linking
-  BIT_GOAHEAD_ACCESS_LOG          # Enable request access log (true|false)
-  BIT_GOAHEAD_CA_FILE             # File of client certificates (path)
-  BIT_GOAHEAD_CERTIFICATE         # Server certificate for SSL (path)
-  BIT_GOAHEAD_CIPHERS             # SSL cipher suite (string)
-  BIT_GOAHEAD_CGI                 # Enable the CGI handler (true|false)
-  BIT_GOAHEAD_CGI_BIN             # Directory CGI programs (path)
-  BIT_GOAHEAD_JAVASCRIPT          # Enable the Javascript JST handler (true|false)
-  BIT_GOAHEAD_KEY                 # Server private key for SSL (path)
-  BIT_GOAHEAD_LEGACY              # Enable the GoAhead 2.X legacy APIs (true|false)
-  BIT_GOAHEAD_LIMIT_BUFFER        # I/O Buffer size. Also chunk size.
-  BIT_GOAHEAD_LIMIT_FILENAME      # Maximum filename size
-  BIT_GOAHEAD_LIMIT_HEADER        # Maximum HTTP single header size
-  BIT_GOAHEAD_LIMIT_HEADERS       # Maximum HTTP header size
-  BIT_GOAHEAD_LIMIT_NUM_HEADERS   # Maximum number of headers
-  BIT_GOAHEAD_LIMIT_PASSWORD      # Maximum password size
-  BIT_GOAHEAD_LIMIT_PORT          # Maximum POST (and other method) incoming body size
-  BIT_GOAHEAD_LIMIT_PUT           # Maximum PUT body size ~ 200MB
-  BIT_GOAHEAD_LIMIT_SESSION_LIFE  # Session lifespan in seconds (30 mins)
-  BIT_GOAHEAD_LIMIT_SESSION_COUNT # Maximum number of sessions to support
-  BIT_GOAHEAD_LIMIT_STRING        # Default string allocation size
-  BIT_GOAHEAD_LIMIT_TIMEOUT       # Request inactivity timeout in seconds
-  BIT_GOAHEAD_LIMIT_URI           # Maximum URI size
-  BIT_GOAHEAD_LIMIT_UPLOAD        # Maximum upload size ~ 200MB
-  BIT_GOAHEAD_LISTEN              # Addresses to listen to (["http://IP:port", ...])
-  BIT_GOAHEAD_LOGFILE             # Default location and level for debug log (path:level)
-  BIT_GOAHEAD_LOGGING             # Enable application logging (true|false)
-  BIT_GOAHEAD_PAM                 # Enable Unix Pluggable Auth Module (true|false)
-  BIT_GOAHEAD_PUT_DIR             # Define the directory for file uploaded via HTTP PUT (path)
-  BIT_GOAHEAD_REALM               # Authentication realm (string)
-  BIT_GOAHEAD_REPLACE_MALLOC      # Replace malloc with non-fragmenting allocator (true|false)
-  BIT_GOAHEAD_SSL                 # To enable SSL
-  BIT_GOAHEAD_STATIC              # Build with static linking (true|false)
-  BIT_GOAHEAD_STEALTH             # Run in stealth mode. Disable OPTIONS, TRACE (true|false)
-  BIT_GOAHEAD_TRACING             # Enable debug tracing (true|false)
-  BIT_GOAHEAD_TUNE                # Optimize (size|speed|balanced)
-  BIT_GOAHEAD_UPLOAD              # Enable file upload (true|false)
-  BIT_GOAHEAD_UPLOAD_DIR          # Define directory for uploaded files (path)
-  BIT_PACK_EST                    # Enable the EST SSL stack
-  BIT_PACK_MOCANA                 # Enable the Mocana NanoSSL stack
-  BIT_PACK_MATRIXSSL              # Enable the MatrixSSL SSL stack
-  BIT_PACK_OPENSSL                # Enable the OpenSSL SSL stack
-  BIT_ROM                         # Build for ROM without a file system
+  PROFILE                           # Select default or static for static linking
+  BIT_GOAHEAD_ACCESS_LOG            # Enable request access log (true|false)
+  BIT_GOAHEAD_CLIENT_CACHE          # List of extensions to cache in the client
+  BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN # Time in seconds to cache in the client
+  BIT_GOAHEAD_CA_FILE               # File of client certificates (path)
+  BIT_GOAHEAD_CERTIFICATE           # Server certificate for SSL (path)
+  BIT_GOAHEAD_CIPHERS               # SSL cipher suite (string)
+  BIT_GOAHEAD_CGI                   # Enable the CGI handler (true|false)
+  BIT_GOAHEAD_CGI_BIN               # Directory CGI programs (path)
+  BIT_GOAHEAD_JAVASCRIPT            # Enable the Javascript JST handler (true|false)
+  BIT_GOAHEAD_KEY                   # Server private key for SSL (path)
+  BIT_GOAHEAD_LEGACY                # Enable the GoAhead 2.X legacy APIs (true|false)
+  BIT_GOAHEAD_LIMIT_BUFFER          # I/O Buffer size. Also chunk size.
+  BIT_GOAHEAD_LIMIT_FILENAME        # Maximum filename size
+  BIT_GOAHEAD_LIMIT_HEADER          # Maximum HTTP single header size
+  BIT_GOAHEAD_LIMIT_HEADERS         # Maximum HTTP header size
+  BIT_GOAHEAD_LIMIT_NUM_HEADERS     # Maximum number of headers
+  BIT_GOAHEAD_LIMIT_PASSWORD        # Maximum password size
+  BIT_GOAHEAD_LIMIT_POST            # Maximum incoming body size
+  BIT_GOAHEAD_LIMIT_PUT             # Maximum PUT body size ~ 200MB
+  BIT_GOAHEAD_LIMIT_SESSION_LIFE    # Session lifespan in seconds (30 mins)
+  BIT_GOAHEAD_LIMIT_SESSION_COUNT   # Maximum number of sessions to support
+  BIT_GOAHEAD_LIMIT_STRING          # Default string allocation size
+  BIT_GOAHEAD_LIMIT_TIMEOUT         # Request inactivity timeout in seconds
+  BIT_GOAHEAD_LIMIT_URI             # Maximum URI size
+  BIT_GOAHEAD_LIMIT_UPLOAD          # Maximum upload size ~ 200MB
+  BIT_GOAHEAD_LISTEN                # Addresses to listen to (["http://IP:port", ...])
+  BIT_GOAHEAD_LOGFILE               # Default location and level for debug log
+  BIT_GOAHEAD_LOGGING               # Enable application logging (true|false)
+  BIT_GOAHEAD_PAM                   # Enable Unix Pluggable Auth Module (true|false)
+  BIT_GOAHEAD_PUT_DIR               # Define the directory for file uploaded via PUT
+  BIT_GOAHEAD_REALM                 # Authentication realm (string)
+  BIT_GOAHEAD_REPLACE_MALLOC        # Replace malloc with non-fragmenting allocator
+  BIT_GOAHEAD_SSL                   # To enable SSL
+  BIT_GOAHEAD_STATIC                # Build with static linking (true|false)
+  BIT_GOAHEAD_STEALTH               # Run in stealth mode. Disable OPTIONS, TRACE
+  BIT_GOAHEAD_TRACING               # Enable debug tracing (true|false)
+  BIT_GOAHEAD_TUNE                  # Optimize (size|speed|balanced)
+  BIT_GOAHEAD_UPLOAD                # Enable file upload (true|false)
+  BIT_GOAHEAD_UPLOAD_DIR            # Define directory for uploaded files (path)
+  BIT_PACK_EST                      # Enable the EST SSL stack
+  BIT_PACK_NANOSSL                  # Enable the Mocana NanoSSL stack
+  BIT_PACK_MATRIXSSL                # Enable the MatrixSSL SSL stack
+  BIT_PACK_OPENSSL                  # Enable the OpenSSL SSL stack
+  BIT_ROM                           # Build for ROM without a file system
+  BIT_STACK_SIZE                    # Define the VxWorks stack size
 For example, to disable CGI:
   make BIT_GOAHEAD_CGI=0
 Other make variables:
@@ -188,14 +191,12 @@ sudo make uninstall
             <p>For example, to build and install OpenSSL:</p>
                 <pre>$ make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> compile
 $ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
-
             <a name="deploy"></a>
             <h2>Deploying</h2>
             <p>If you need to deploy to a different system or capture the build products, you can install to a specific
             directory via: </p>
             <pre>make deploy</pre>
             <p>This will install to the <em>deploy</em> directory under the output platform directory.</p>
-
             <a name="openssl"></a>
             <h3>Supporting OpenSSL</h3>
             <p>If OpenSSL is required to provide SSL support, you must specify the path to the OpenSSL source

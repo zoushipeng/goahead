@@ -327,6 +327,14 @@ configure --with openssl=/usr/src/openssl
                         <td class="pivot">accessLog</td>
                         <td>Enable request URI logging to an access log</td>
                     </tr>
+                    <t>
+                        <td class="pivot">clientCache</td>
+                        <td>Define the list of extensions to issue Cache-Control headers to the client</td>
+                    </tr>
+                    <t>
+                        <td class="pivot">clientCacheLifespan</td>
+                        <td>Time in seconds to set the max-age in the Cache-Control header. This is the time period during which the client will service locally cached client data and will not contact the server for updated content.</td>
+                    </tr>
                     <tr>
                         <td class="pivot">certificate</td>
                         <td>SSL certificate file</td>
