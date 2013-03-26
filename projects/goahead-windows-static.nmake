@@ -554,22 +554,26 @@ DEPS_35 = $(DEPS_35) $(CONFIG)\obj\goahead.obj
 LIBS_35 = $(LIBS_35) libest.lib
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_35 = $(LIBS_35) liblibeay32.lib.lib
+LIBS_35 = $(LIBS_35) libeay32.lib
+LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_35 = $(LIBS_35) libssleay32.lib.lib
+LIBS_35 = $(LIBS_35) libssleay32.lib
+LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_MATRIXSSL)" == "1"
-LIBS_35 = $(LIBS_35) libmatrixssl.lib.lib
+LIBS_35 = $(LIBS_35) libmatrixssl.lib
+LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_NANOSSL)" == "1"
 LIBS_35 = $(LIBS_35) libssls.lib
+LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
 LIBS_35 = $(LIBS_35) libgo.lib
 
 $(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] goahead'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) -libpath:$(BIT_PACK_OPENSSL_PATH) -libpath:$(BIT_PACK_MATRIXSSL_PATH) -libpath:$(BIT_PACK_NANOSSL_PATH)\bin $(CONFIG)\obj\goahead.obj libeay32.lib ssleay32.lib matrixssl.lib ssls $(LIBS_35) $(LIBS_35) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\goahead.obj $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   test.obj
@@ -597,22 +601,26 @@ DEPS_37 = $(DEPS_37) $(CONFIG)\obj\test.obj
 LIBS_37 = $(LIBS_37) libest.lib
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_37 = $(LIBS_37) liblibeay32.lib.lib
+LIBS_37 = $(LIBS_37) libeay32.lib
+LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_37 = $(LIBS_37) libssleay32.lib.lib
+LIBS_37 = $(LIBS_37) libssleay32.lib
+LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_MATRIXSSL)" == "1"
-LIBS_37 = $(LIBS_37) libmatrixssl.lib.lib
+LIBS_37 = $(LIBS_37) libmatrixssl.lib
+LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_NANOSSL)" == "1"
 LIBS_37 = $(LIBS_37) libssls.lib
+LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
 LIBS_37 = $(LIBS_37) libgo.lib
 
 $(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] goahead-test'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) -libpath:$(BIT_PACK_OPENSSL_PATH) -libpath:$(BIT_PACK_MATRIXSSL_PATH) -libpath:$(BIT_PACK_NANOSSL_PATH)\bin $(CONFIG)\obj\test.obj libeay32.lib ssleay32.lib matrixssl.lib ssls $(LIBS_37) $(LIBS_37) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\test.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   gopass.obj
@@ -639,22 +647,26 @@ DEPS_39 = $(DEPS_39) $(CONFIG)\obj\gopass.obj
 LIBS_39 = $(LIBS_39) libest.lib
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_39 = $(LIBS_39) liblibeay32.lib.lib
+LIBS_39 = $(LIBS_39) libeay32.lib
+LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_39 = $(LIBS_39) libssleay32.lib.lib
+LIBS_39 = $(LIBS_39) libssleay32.lib
+LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_MATRIXSSL)" == "1"
-LIBS_39 = $(LIBS_39) libmatrixssl.lib.lib
+LIBS_39 = $(LIBS_39) libmatrixssl.lib
+LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_NANOSSL)" == "1"
 LIBS_39 = $(LIBS_39) libssls.lib
+LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
 LIBS_39 = $(LIBS_39) libgo.lib
 
 $(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] gopass'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) -libpath:$(BIT_PACK_OPENSSL_PATH) -libpath:$(BIT_PACK_MATRIXSSL_PATH) -libpath:$(BIT_PACK_NANOSSL_PATH)\bin $(CONFIG)\obj\gopass.obj libeay32.lib ssleay32.lib matrixssl.lib ssls $(LIBS_39) $(LIBS_39) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\gopass.obj $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
 
 #
 #   stop

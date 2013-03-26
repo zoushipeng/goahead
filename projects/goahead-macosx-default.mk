@@ -508,15 +508,19 @@ DEPS_31 += $(CONFIG)/obj/openssl.o
 
 ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_31 += -lssls
+    LIBPATHS_31 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 ifeq ($(BIT_PACK_MATRIXSSL),1)
     LIBS_31 += -lmatrixssl
+    LIBPATHS_31 += -L$(BIT_PACK_MATRIXSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_31 += -lcrypto
+    LIBPATHS_31 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_31 += -lssl
+    LIBPATHS_31 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_EST),1)
     LIBS_31 += -lest
@@ -524,7 +528,7 @@ endif
 
 $(CONFIG)/bin/libgo.dylib: $(DEPS_31)
 	@echo '      [Link] libgo'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib $(LDFLAGS) $(LIBPATHS) -L$(BIT_PACK_OPENSSL_PATH) -L$(BIT_PACK_MATRIXSSL_PATH) -L$(BIT_PACK_NANOSSL_PATH)/bin -install_name @rpath/libgo.dylib -compatibility_version 3.1.1 -current_version 3.1.1 $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBS_31) $(LIBS_31) $(LIBS) -lpam 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.1.1 -current_version 3.1.1 $(CONFIG)/obj/action.o $(CONFIG)/obj/alloc.o $(CONFIG)/obj/auth.o $(CONFIG)/obj/cgi.o $(CONFIG)/obj/crypt.o $(CONFIG)/obj/file.o $(CONFIG)/obj/fs.o $(CONFIG)/obj/http.o $(CONFIG)/obj/js.o $(CONFIG)/obj/jst.o $(CONFIG)/obj/options.o $(CONFIG)/obj/osdep.o $(CONFIG)/obj/rom-documents.o $(CONFIG)/obj/route.o $(CONFIG)/obj/runtime.o $(CONFIG)/obj/socket.o $(CONFIG)/obj/upload.o $(CONFIG)/obj/est.o $(CONFIG)/obj/matrixssl.o $(CONFIG)/obj/nanossl.o $(CONFIG)/obj/openssl.o $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -lpam 
 
 #
 #   goahead.o
@@ -552,21 +556,25 @@ ifeq ($(BIT_PACK_EST),1)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_33 += -lssl
+    LIBPATHS_33 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_33 += -lcrypto
+    LIBPATHS_33 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_MATRIXSSL),1)
     LIBS_33 += -lmatrixssl
+    LIBPATHS_33 += -L$(BIT_PACK_MATRIXSSL_PATH)
 endif
 ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_33 += -lssls
+    LIBPATHS_33 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 LIBS_33 += -lgo
 
 $(CONFIG)/bin/goahead: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L$(BIT_PACK_OPENSSL_PATH) -L$(BIT_PACK_MATRIXSSL_PATH) -L$(BIT_PACK_NANOSSL_PATH)/bin $(CONFIG)/obj/goahead.o $(LIBS_33) $(LIBS_33) $(LIBS) -lpam 
+	$(CC) -o $(CONFIG)/bin/goahead -arch x86_64 $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) -lpam 
 
 #
 #   test.o
@@ -595,21 +603,25 @@ ifeq ($(BIT_PACK_EST),1)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_35 += -lssl
+    LIBPATHS_35 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_35 += -lcrypto
+    LIBPATHS_35 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_MATRIXSSL),1)
     LIBS_35 += -lmatrixssl
+    LIBPATHS_35 += -L$(BIT_PACK_MATRIXSSL_PATH)
 endif
 ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_35 += -lssls
+    LIBPATHS_35 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 LIBS_35 += -lgo
 
 $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L$(BIT_PACK_OPENSSL_PATH) -L$(BIT_PACK_MATRIXSSL_PATH) -L$(BIT_PACK_NANOSSL_PATH)/bin $(CONFIG)/obj/test.o $(LIBS_35) $(LIBS_35) $(LIBS) -lpam 
+	$(CC) -o $(CONFIG)/bin/goahead-test -arch x86_64 $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -lpam 
 
 #
 #   gopass.o
@@ -637,21 +649,25 @@ ifeq ($(BIT_PACK_EST),1)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_37 += -lssl
+    LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_37 += -lcrypto
+    LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_MATRIXSSL),1)
     LIBS_37 += -lmatrixssl
+    LIBPATHS_37 += -L$(BIT_PACK_MATRIXSSL_PATH)
 endif
 ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_37 += -lssls
+    LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 LIBS_37 += -lgo
 
 $(CONFIG)/bin/gopass: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS) -L$(BIT_PACK_OPENSSL_PATH) -L$(BIT_PACK_MATRIXSSL_PATH) -L$(BIT_PACK_NANOSSL_PATH)/bin $(CONFIG)/obj/gopass.o $(LIBS_37) $(LIBS_37) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass -arch x86_64 $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   stop
