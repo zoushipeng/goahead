@@ -192,11 +192,12 @@ sudo make uninstall
                 <pre>$ make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> compile
 $ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
             <a name="deploy"></a>
-            <h2>Deploying</h2>
+            <h3>Deploying</h3>
             <p>If you need to deploy to a different system or capture the build products, you can install to a specific
             directory via: </p>
             <pre>make deploy</pre>
             <p>This will install to the <em>deploy</em> directory under the output platform directory.</p>
+
             <a name="openssl"></a>
             <h3>Supporting OpenSSL</h3>
             <p>If OpenSSL is required to provide SSL support, you must specify the path to the OpenSSL source
@@ -224,11 +225,7 @@ make -f projects/goahead-vxworks-default.mk ARCH=arm PROFILE=debug
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
             <p>If there is not a makefile for your  target operating system, copy the closest makefile and edit to 
             suit your target platform.</p>
-            <a name="static"></a>
-            <h3>Static Building</h3>
-            <p>If you require a static build without the ability to dynamically load modules, use the <em>static</em>
-                makefile profile. For example:</p>
-                <pre>make PROFILE=static</pre>
+
             <a name="toolchain"></a>
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
@@ -238,6 +235,27 @@ make -f projects/goahead-vxworks-default.mk ARCH=arm PROFILE=debug
 make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
     -f projects/goahead-vxworks-default.mk 
 </pre>
+
+            <a name="static"></a>
+            <h2>Static Building</h2>
+            <p>If you require a static build without the ability to dynamically load modules, use the <em>static</em>
+                makefile profile. For example:</p>
+                <pre>make PROFILE=static</pre>
+
+            <a name="vxworks"></a>
+            <h2>Building for VxWorks</h2>
+            <p>Before building for VxWorks, you must define the WIND_* environment variables via the 
+              <em>wrenv.sh</em> script provided with VxWorks. This defines the WIND_BASE, WIND_HOST_TYPE and 
+              other required environment variables.</p>
+              <p>The command below runs wrenv.sh and defines the WIND variables
+              in the current shell's environment.</p>
+            <pre>eval `/WindRiver/wrenv.sh -p vxworks-6.8 -o print_env -f sh`</pre>
+            <p>Once defined, you can invoke make.</p>
+            <pre>make OS=vxworks</pre>
+
+            <p>If you require a static build, set the profile to "static".</p>
+<pre>make OS=vxworks PROFILE=static</pre>     
+
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->

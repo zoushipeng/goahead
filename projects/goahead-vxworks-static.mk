@@ -6,7 +6,7 @@ PRODUCT            := goahead
 VERSION            := 3.1.1
 BUILD_NUMBER       := 0
 PROFILE            := static
-ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
+ARCH               := $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')
 OS                 := vxworks
 CC                 := cc$(subst x86,pentium,$(ARCH))
 LD                 := link
@@ -49,16 +49,15 @@ BIT_PACK_UTEST_PATH       := utest
 BIT_PACK_VXWORKS_PATH     := $(WIND_BASE)
 BIT_PACK_ZIP_PATH         := zip
 
-export WIND_BASE := $(WIND_BASE)
-export WIND_HOME := $(WIND_BASE)/..
-export WIND_PLATFORM := $(WIND_PLATFORM)
+export WIND_HOME          := $(WIND_BASE)/..
+export PATH               := $(WIND_GNU_PATH)/$(WIND_HOST_TYPE)/bin:$(PATH)
 
 CFLAGS             += -fno-builtin -fno-defer-pop -fvolatile -w
 DFLAGS             += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip
 LDFLAGS            += '-Wl,-r'
 LIBPATHS           += -L$(CONFIG)/bin
-LIBS               += 
+LIBS               += -lgcc
 
 DEBUG              := debug
 CFLAGS-debug       := -g
@@ -113,6 +112,9 @@ prep:
 	@echo "      [Info] Use "make SHOW=1" to trace executed commands."
 	@if [ "$(CONFIG)" = "" ] ; then echo WARNING: CONFIG not set ; exit 255 ; fi
 	@if [ "$(BIT_APP_PREFIX)" = "" ] ; then echo WARNING: BIT_APP_PREFIX not set ; exit 255 ; fi
+	@if [ "$(WIND_BASE)" = "" ] ; then echo WARNING: WIND_BASE not set. Run wrenv.sh. ; exit 255 ; fi
+	@if [ "$(WIND_HOST_TYPE)" = "" ] ; then echo WARNING: WIND_HOST_TYPE not set. Run wrenv.sh. ; exit 255 ; fi
+	@if [ "$(WIND_GNU_PATH)" = "" ] ; then echo WARNING: WIND_GNU_PATH not set. Run wrenv.sh. ; exit 255 ; fi
 	@[ ! -x $(CONFIG)/bin ] && mkdir -p $(CONFIG)/bin; true
 	@[ ! -x $(CONFIG)/inc ] && mkdir -p $(CONFIG)/inc; true
 	@[ ! -x $(CONFIG)/obj ] && mkdir -p $(CONFIG)/obj; true
@@ -536,9 +538,6 @@ DEPS_33 += $(CONFIG)/inc/goahead.h
 DEPS_33 += $(CONFIG)/inc/js.h
 DEPS_33 += $(CONFIG)/obj/goahead.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_33 += -lest
-endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_33 += -lssl
     LIBPATHS_33 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -555,11 +554,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_33 += -lssls
     LIBPATHS_33 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_33 += -lgo
 
 $(CONFIG)/bin/goahead.out: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LDFLAGS)  $(LIBPATHS_33) $(LIBS_33) $(LIBS_33)
+	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o -lest -lgo $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) $(LDFLAGS) 
 
 #
 #   test.o
@@ -583,9 +581,6 @@ DEPS_35 += $(CONFIG)/inc/goahead.h
 DEPS_35 += $(CONFIG)/inc/js.h
 DEPS_35 += $(CONFIG)/obj/test.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_35 += -lest
-endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_35 += -lssl
     LIBPATHS_35 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -602,11 +597,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_35 += -lssls
     LIBPATHS_35 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_35 += -lgo
 
 $(CONFIG)/bin/goahead-test.out: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LDFLAGS)  $(LIBPATHS_35) $(LIBS_35) $(LIBS_35)
+	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o -lest -lgo $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LDFLAGS) 
 
 #
 #   gopass.o
@@ -629,9 +623,6 @@ DEPS_37 += $(CONFIG)/inc/goahead.h
 DEPS_37 += $(CONFIG)/inc/js.h
 DEPS_37 += $(CONFIG)/obj/gopass.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_37 += -lest
-endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_37 += -lssl
     LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -648,11 +639,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_37 += -lssls
     LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_37 += -lgo
 
 $(CONFIG)/bin/gopass.out: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LDFLAGS)  $(LIBPATHS_37) $(LIBS_37) $(LIBS_37)
+	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o -lest -lgo $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LDFLAGS) 
 
 #
 #   stop
