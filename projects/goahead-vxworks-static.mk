@@ -539,6 +539,9 @@ DEPS_33 += $(CONFIG)/inc/goahead.h
 DEPS_33 += $(CONFIG)/inc/js.h
 DEPS_33 += $(CONFIG)/obj/goahead.o
 
+ifeq ($(BIT_PACK_EST),1)
+    LIBS_33 += -lest
+endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_33 += -lssl
     LIBPATHS_33 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -555,10 +558,11 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_33 += -lssls
     LIBPATHS_33 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
+LIBS_33 += -lgo
 
 $(CONFIG)/bin/goahead.out: $(DEPS_33)
 	@echo '      [Link] goahead'
-	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o -lest -lgo $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) $(LDFLAGS) 
 
 #
 #   test.o
@@ -582,6 +586,9 @@ DEPS_35 += $(CONFIG)/inc/goahead.h
 DEPS_35 += $(CONFIG)/inc/js.h
 DEPS_35 += $(CONFIG)/obj/test.o
 
+ifeq ($(BIT_PACK_EST),1)
+    LIBS_35 += -lest
+endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_35 += -lssl
     LIBPATHS_35 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -598,10 +605,11 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_35 += -lssls
     LIBPATHS_35 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
+LIBS_35 += -lgo
 
 $(CONFIG)/bin/goahead-test.out: $(DEPS_35)
 	@echo '      [Link] goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o -lest -lgo $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LDFLAGS) 
 
 #
 #   gopass.o
@@ -624,6 +632,9 @@ DEPS_37 += $(CONFIG)/inc/goahead.h
 DEPS_37 += $(CONFIG)/inc/js.h
 DEPS_37 += $(CONFIG)/obj/gopass.o
 
+ifeq ($(BIT_PACK_EST),1)
+    LIBS_37 += -lest
+endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_37 += -lssl
     LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -640,10 +651,11 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_37 += -lssls
     LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
+LIBS_37 += -lgo
 
 $(CONFIG)/bin/gopass.out: $(DEPS_37)
 	@echo '      [Link] gopass'
-	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o -lest -lgo $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LDFLAGS) 
 
 #
 #   stop
