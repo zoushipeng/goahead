@@ -481,6 +481,9 @@ $(CONFIG)/obj/openssl.o: \
 #
 #   libgo
 #
+ifeq ($(BIT_PACK_EST),1)
+    DEPS_31 += $(CONFIG)/bin/libest.a
+endif
 DEPS_31 += $(CONFIG)/inc/bitos.h
 DEPS_31 += $(CONFIG)/inc/goahead.h
 DEPS_31 += $(CONFIG)/inc/js.h

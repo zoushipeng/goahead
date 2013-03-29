@@ -545,6 +545,9 @@ $(CONFIG)\obj\openssl.obj: \
 #
 #   libgo
 #
+!IF "$(BIT_PACK_EST)" == "1"
+DEPS_33 = $(DEPS_33) $(CONFIG)\bin\libest.dll
+!ENDIF
 DEPS_33 = $(DEPS_33) $(CONFIG)\inc\bitos.h
 DEPS_33 = $(DEPS_33) $(CONFIG)\inc\goahead.h
 DEPS_33 = $(DEPS_33) $(CONFIG)\inc\js.h

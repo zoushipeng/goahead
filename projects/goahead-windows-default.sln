@@ -21,6 +21,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgo", "goahead-windows-de
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead", "goahead-windows-default\goahead.vcxproj", "{462DB80E-129C-4147-A0DC-405A246B0B6A}"
 	ProjectSection(ProjectDependencies) = postProject
