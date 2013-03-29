@@ -126,12 +126,12 @@ prep:
 	fi
 	@echo $(MAKEFLAGS) >$(CONFIG)/.makeflags
 clean:
-	rm -fr "$(CONFIG)/bin/libest.so"
+	rm -f "$(CONFIG)/bin/libest.so"
 	rm -fr "$(CONFIG)/bin/ca.crt"
-	rm -fr "$(CONFIG)/bin/libgo.so"
-	rm -fr "$(CONFIG)/bin/goahead"
-	rm -fr "$(CONFIG)/bin/goahead-test"
-	rm -fr "$(CONFIG)/bin/gopass"
+	rm -f "$(CONFIG)/bin/libgo.so"
+	rm -f "$(CONFIG)/bin/goahead"
+	rm -f "$(CONFIG)/bin/goahead-test"
+	rm -f "$(CONFIG)/bin/gopass"
 	rm -fr "$(CONFIG)/obj/estLib.o"
 	rm -fr "$(CONFIG)/obj/action.o"
 	rm -fr "$(CONFIG)/obj/alloc.o"
