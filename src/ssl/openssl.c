@@ -399,6 +399,8 @@ static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength)
 }
 
 
+#else
+void opensslDummy() {}
 #endif
 
 /*

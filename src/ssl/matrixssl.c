@@ -341,6 +341,8 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
     return ms->outlen == 0 ? ms->written : 0;
 }
 
+#else
+void matrixsslDummy() {}
 #endif /* BIT_PACK_MATRIXSSL */
 
 /*
