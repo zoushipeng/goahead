@@ -735,3 +735,8 @@ uninstall: $(DEPS_43)
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
 
+#
+#   run
+#
+run: $(DEPS_44)
+		cd src; goahead -v ; cd ..

@@ -703,3 +703,8 @@ DEPS_43 += stop
 
 uninstall: $(DEPS_43)
 
+#
+#   run
+#
+run: $(DEPS_44)
+		cd src; goahead -v ; cd ..

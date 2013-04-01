@@ -777,3 +777,10 @@ uninstall: $(DEPS_45)
 	if exist "$(BIT_VAPP_PREFIX)\latest" del /Q "$(BIT_VAPP_PREFIX)\latest"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
 
+#
+#   run
+#
+run: $(DEPS_46)
+		cd src
+; goahead -v ; 
+cd ..

@@ -366,7 +366,8 @@ Bit.load({
         },
 
         run: {
-            action: "run('goahead -v', {noio: true, dir: 'src'})",
+            home: 'src',
+            run: 'goahead -v',
         },
 
         rom: {
