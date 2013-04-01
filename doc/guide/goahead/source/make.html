@@ -226,6 +226,12 @@ make -f projects/goahead-vxworks-default.mk ARCH=arm PROFILE=debug
             <p>If there is not a makefile for your  target operating system, copy the closest makefile and edit to 
             suit your target platform.</p>
 
+            <h3>Specifying the CPU</h3>
+            <p>The build will generic CPU type within the specified  architecture.
+            To override the default choice and specify a CPU type within an architecture, use the CPU variable.
+            For example:/p>
+            <pre>make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
+
             <a name="toolchain"></a>
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.

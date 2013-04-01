@@ -107,9 +107,9 @@
             <p>During configuration, <em>bit</em> will create:</p>
             <ul>
                 <li>A bit file that specifies the platforms to build named: start.bit</li>
-                <li>A bit file for each platform named: OS-ARCH[-CPU].bit</li>
-                <li>A source header with for the build configuration named: OS-ARCH[-CPU]-PROFILE/inc/bit.h</li>
-                <li>An output products directory for each platform named: OS-ARCH[-CPU]-PROFILE</li>
+                <li>A bit file for each platform named: OS-ARCH-PROFILE.bit</li>
+                <li>A source header with for the build configuration named: OS-ARCH-PROFILE/inc/bit.h</li>
+                <li>An output products directory for each platform named: OS-ARCH-PROFILE</li>
             </ul>
             <p>where OS is the name of the operating system, ARCH is the name of the CPU architecture and PROFILE
             is the build profile name, typically "debug" or "release". For example: linux-x86-debug.</p>
@@ -165,14 +165,18 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <td class="nowrap">--platform OS-ARCH[-CPU]</td>
-                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm". 
+                    <td class="nowrap">--platform OS-ARCH-PROFILE</td>
+                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". 
                         Supported operating systems are: freebsd, linux, macosx, solaris, vxworks and windows. 
                         Supported architectures are: arm, mips, ppc, x64 or x86.
                         If the -platform option is omitted, the local system is added as the target platform.  You may
                         use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
+
+                       <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used
+                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
+
                         <p>The optional CPU component specifies a CPU instance to tune for. The CPU setting is used
-                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm-arm7tdmi".</p>
+                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
                         <p>NOTE: this is not a typical configure --host argument. i.e. The second component is a CPU
                         and not a distribution name.</p>
                     </td>
@@ -499,7 +503,7 @@ CC=/opt/bin/ccarm configure
             <p>To configure using PHP from a specific source location:</p>
             <pre>configure --with php=/path/to/php-source</pre>
             <p>To configure to build for 32-bit X86 (when on a 64-bit system):</p>
-            <pre>configure --platform linux-x86</pre>
+            <pre>configure --platform linux-x86-debug</pre>
             
             <p>To display all configure options:
 <pre class="paper">configure --help
@@ -523,7 +527,7 @@ Usage: bit [options] [targets|actions] ...
   --nocross                                # Build natively
   --overwrite                              # Overwrite existing files
   --out path                               # Save output to a file
-  --platform os-arch[-cpu]                 # Build for specified platform
+  --platform os-arch-profile               # Build for specified platform
   --pre                                    # Pre-process a source file to stdout
   --prefix dir=path                        # Define installation path prefixes
   --profile [debug|release|...]            # Use the build profile
@@ -633,18 +637,20 @@ sudo bit uninstall
             <p>Bit supports cross compiling via the <em>-platform PLATFORM</em> bit configure option. This option adds a
             platform to the list of platforms to be made. Multiple platforms may be
             specified and the 'local' platform alias may be used for the local development platform.</p>
-            <pre>bit -platform linux-arm -configure . </pre>
+            <pre>bit -platform linux-arm-debug -configure . </pre>
             <p>This will create a windows-x64.bit configuration file and a start.es that references it. The
             platform switch does not need to be restated after configuration.</p>
             <h3>Platforms</h3>
-            <p>A platform specification is of the form OS-ARCH, where the
+            <p>A platform specification is of the form OS-ARCH-PROFILE, where the
             supported operating systems are: freebsd, linux, macosx, solaris, vxworks and windows. The ARCH field is
             one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86
-            Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.
-            The CPU field is optional and specifies a CPU to tune for.</p>
+            Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.</p>
+            <p>The ARCH field may contain an optional CPU field to specify a CPU to tune for. This is specified as a
+            <em>:CPU</em> suffix for the ARCH field.</p>
+            
             <p>Configuration options apply to the preceding platform. If not preceding platform, the option applies
             to the local platform.
-            <pre>configure -with openssl=/path/to/openssl -platform linux-arm -without openssl</pre>
+            <pre>configure -with openssl=/path/to/openssl -platform linux-arm-debug -without openssl</pre>
             <p>This will build Ejscript for the local development system, and without Ejscript for the target.</p>
             <h3>Environment Variables</h3>
             <p>When cross compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain.
@@ -658,7 +664,7 @@ sudo bit uninstall
 CC=/opt/bin/cc.exe \
 LD=/opt/bin/cc.exe \
 CFLAGS=-I/opt/include \
-configure --debug --platform linux-arm-arm7
+configure --debug --platform linux-arm:arm7tdi-debug
 </pre>
             <h2 class="section">Create an Installable Release</h2>
             <p>After building, bit can create installable packages of the software:</p>
