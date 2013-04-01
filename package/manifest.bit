@@ -39,11 +39,18 @@ Bit.load({
                 set:    'core',
 
             },{ from: [
-                    '${BIN}/libest${SHOBJ}',
                     '${BIN}/libgo${SHOBJ}',
                 ],
                 to:     '${abin}/',
                 set:    'libs',
+                enable: '!bit.settings.static',
+
+            },{ from: [
+                    '${BIN}/libest${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                packs:  'est',
                 enable: '!bit.settings.static',
 
             },{ from: [
@@ -58,7 +65,7 @@ Bit.load({
                 enable: "bit.platform.like == 'unix'",
                 set:    'doc',
 
-            },{ from:   'src/web',
+            },{ from:   [ 'src/web/index.html', 'src/web/favicon.ico' ],
                 to:     '${web}/',
                 exclude: /mgmt|bench|test/,
                 subtree: true,
