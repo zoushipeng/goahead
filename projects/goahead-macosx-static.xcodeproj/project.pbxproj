@@ -106,12 +106,12 @@
 			remoteGlobalIDString = EF5900FFEF59144B00000012;
 			remoteInfo = Prep;
 		};
-		EF5900FFEF59144B00000052 /* PBXContainerItemProxy libgo from goahead */ = {
+		EF5900FFEF59144B00000052 /* PBXContainerItemProxy libest from libgo */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = EF5900FFEF59144B00000053;
-			remoteInfo = libgo;
+			remoteInfo = libest;
 		};
 		EF5900FFEF59144B00000054 /* PBXContainerItemProxy Prep from goahead */ = {
 			isa = PBXContainerItemProxy;
@@ -120,86 +120,121 @@
 			remoteGlobalIDString = EF5900FFEF59144B00000012;
 			remoteInfo = Prep;
 		};
-		EF5900FFEF59144B00000055 /* PBXContainerItemProxy libgo from goahead-test */ = {
+		EF5900FFEF59144B00000055 /* PBXContainerItemProxy libest from goahead */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = EF5900FFEF59144B00000053;
-			remoteInfo = libgo;
-		};
-		EF5900FFEF59144B00000056 /* PBXContainerItemProxy Prep from goahead-test */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B00000012;
-			remoteInfo = Prep;
-		};
-		EF5900FFEF59144B00000057 /* PBXContainerItemProxy libgo from gopass */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B00000053;
-			remoteInfo = libgo;
-		};
-		EF5900FFEF59144B00000058 /* PBXContainerItemProxy Prep from gopass */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B00000012;
-			remoteInfo = Prep;
-		};
-		EF5900FFEF59144B00000059 /* PBXContainerItemProxy libest from All */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B0000005A;
 			remoteInfo = libest;
 		};
-		EF5900FFEF59144B0000005B /* PBXContainerItemProxy ca-crt from All */ = {
+		EF5900FFEF59144B00000056 /* PBXContainerItemProxy libgo from goahead */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000057;
+			remoteInfo = libgo;
+		};
+		EF5900FFEF59144B00000058 /* PBXContainerItemProxy Prep from goahead-test */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000012;
+			remoteInfo = Prep;
+		};
+		EF5900FFEF59144B00000059 /* PBXContainerItemProxy libest from goahead-test */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000053;
+			remoteInfo = libest;
+		};
+		EF5900FFEF59144B0000005A /* PBXContainerItemProxy libgo from goahead-test */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000057;
+			remoteInfo = libgo;
+		};
+		EF5900FFEF59144B0000005B /* PBXContainerItemProxy Prep from gopass */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000012;
+			remoteInfo = Prep;
+		};
+		EF5900FFEF59144B0000005C /* PBXContainerItemProxy libest from gopass */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000053;
+			remoteInfo = libest;
+		};
+		EF5900FFEF59144B0000005D /* PBXContainerItemProxy libgo from gopass */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000057;
+			remoteInfo = libgo;
+		};
+		EF5900FFEF59144B0000005E /* PBXContainerItemProxy Prep from All */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000012;
+			remoteInfo = Prep;
+		};
+		EF5900FFEF59144B0000005F /* PBXContainerItemProxy libest from All */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EF5900FFEF59144B00000053;
+			remoteInfo = libest;
+		};
+		EF5900FFEF59144B00000060 /* PBXContainerItemProxy ca-crt from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = EF5900FFEF59144B00000006;
 			remoteInfo = ca-crt;
 		};
-		EF5900FFEF59144B0000005C /* PBXContainerItemProxy libgo from All */ = {
+		EF5900FFEF59144B00000061 /* PBXContainerItemProxy libgo from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B00000053;
+			remoteGlobalIDString = EF5900FFEF59144B00000057;
 			remoteInfo = libgo;
 		};
-		EF5900FFEF59144B0000005D /* PBXContainerItemProxy goahead from All */ = {
+		EF5900FFEF59144B00000062 /* PBXContainerItemProxy goahead from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B0000005E;
+			remoteGlobalIDString = EF5900FFEF59144B00000063;
 			remoteInfo = goahead;
 		};
-		EF5900FFEF59144B0000005F /* PBXContainerItemProxy goahead-test from All */ = {
+		EF5900FFEF59144B00000064 /* PBXContainerItemProxy goahead-test from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B00000060;
+			remoteGlobalIDString = EF5900FFEF59144B00000065;
 			remoteInfo = goahead-test;
 		};
-		EF5900FFEF59144B00000061 /* PBXContainerItemProxy gopass from All */ = {
+		EF5900FFEF59144B00000066 /* PBXContainerItemProxy gopass from All */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = EF5900FFEF59144B00000001 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = EF5900FFEF59144B00000062;
+			remoteGlobalIDString = EF5900FFEF59144B00000067;
 			remoteInfo = gopass;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		EF5900FFEF59144B00000015 /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/deps/est/estLib.c; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000063 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-static/inc/bit.h; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000064 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-static/inc/est.h; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000065 /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-static/inc/bitos.h; sourceTree = "<group>"; };
+		EF5900FFEF59144B00000068 /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-static/inc/bit.h; sourceTree = "<group>"; };
+		EF5900FFEF59144B00000069 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-static/inc/est.h; sourceTree = "<group>"; };
+		EF5900FFEF59144B0000006A /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-static/inc/bitos.h; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000047 /* libest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libest.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF5900FFEF59144B00000017 /* action.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = action.c; path = src/action.c; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000066 /* goahead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = goahead.h; path = macosx-x64-static/inc/goahead.h; sourceTree = "<group>"; };
+		EF5900FFEF59144B0000006B /* goahead.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = goahead.h; path = macosx-x64-static/inc/goahead.h; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000019 /* alloc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = alloc.c; path = src/alloc.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B0000001B /* auth.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = auth.c; path = src/auth.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B0000001D /* cgi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = cgi.c; path = src/cgi.c; sourceTree = "<group>"; };
@@ -208,7 +243,7 @@
 		EF5900FFEF59144B00000023 /* fs.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fs.c; path = src/fs.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000025 /* http.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = http.c; path = src/http.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000027 /* js.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = js.c; path = src/js.c; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000067 /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-static/inc/js.h; sourceTree = "<group>"; };
+		EF5900FFEF59144B0000006C /* js.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = js.h; path = macosx-x64-static/inc/js.h; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000029 /* jst.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = jst.c; path = src/jst.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B0000002B /* options.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = options.c; path = src/options.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B0000002D /* osdep.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = osdep.c; path = src/osdep.c; sourceTree = "<group>"; };
@@ -223,15 +258,15 @@
 		EF5900FFEF59144B0000003F /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B0000004A /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF5900FFEF59144B00000041 /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000068 /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF5900FFEF59144B0000006D /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF5900FFEF59144B00000043 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = test/test.c; sourceTree = "<group>"; };
-		EF5900FFEF59144B00000069 /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF5900FFEF59144B0000006E /* goahead-test */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead-test; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF5900FFEF59144B00000045 /* gopass.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gopass.c; path = src/utils/gopass.c; sourceTree = "<group>"; };
-		EF5900FFEF59144B0000006A /* gopass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gopass; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF5900FFEF59144B0000006F /* gopass */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = gopass; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		EF5900FFEF59144B0000006B /* Frameworks and Libraries for libest */ = {
+		EF5900FFEF59144B00000070 /* Frameworks and Libraries for libest */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -239,7 +274,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		EF5900FFEF59144B0000006C /* Frameworks and Libraries for libgo */ = {
+		EF5900FFEF59144B00000071 /* Frameworks and Libraries for libgo */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -247,7 +282,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		EF5900FFEF59144B0000006D /* Frameworks and Libraries for goahead */ = {
+		EF5900FFEF59144B00000072 /* Frameworks and Libraries for goahead */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -256,7 +291,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		EF5900FFEF59144B0000006E /* Frameworks and Libraries for goahead-test */ = {
+		EF5900FFEF59144B00000073 /* Frameworks and Libraries for goahead-test */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -265,7 +300,7 @@
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
-		EF5900FFEF59144B0000006F /* Frameworks and Libraries for gopass */ = {
+		EF5900FFEF59144B00000074 /* Frameworks and Libraries for gopass */ = {
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
@@ -277,38 +312,38 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		EF5900FFEF59144B00000070 /* Top Group */ = {
+		EF5900FFEF59144B00000075 /* Top Group */ = {
             isa = PBXGroup;
             children = (
-				EF5900FFEF59144B00000071 /* libest */,
-				EF5900FFEF59144B00000072 /* libgo */,
-				EF5900FFEF59144B00000073 /* goahead */,
-				EF5900FFEF59144B00000074 /* goahead-test */,
-				EF5900FFEF59144B00000075 /* gopass */,
-				EF5900FFEF59144B00000076 /* Products */,
+				EF5900FFEF59144B00000076 /* libest */,
+				EF5900FFEF59144B00000077 /* libgo */,
+				EF5900FFEF59144B00000078 /* goahead */,
+				EF5900FFEF59144B00000079 /* goahead-test */,
+				EF5900FFEF59144B0000007A /* gopass */,
+				EF5900FFEF59144B0000007B /* Products */,
 			);
             sourceTree = "<group>";
         };
-		EF5900FFEF59144B00000071 /* libest */ = {
+		EF5900FFEF59144B00000076 /* libest */ = {
             isa = PBXGroup;
             children = (
-				EF5900FFEF59144B00000063 /* bit.h */,
-				EF5900FFEF59144B00000064 /* est.h */,
-				EF5900FFEF59144B00000065 /* bitos.h */,
+				EF5900FFEF59144B00000068 /* bit.h */,
+				EF5900FFEF59144B00000069 /* est.h */,
+				EF5900FFEF59144B0000006A /* bitos.h */,
 				EF5900FFEF59144B00000015 /* estLib.c */,
 			);
             name = "libest";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		EF5900FFEF59144B00000072 /* libgo */ = {
+		EF5900FFEF59144B00000077 /* libgo */ = {
             isa = PBXGroup;
             children = (
-				EF5900FFEF59144B00000063 /* bit.h */,
-				EF5900FFEF59144B00000066 /* goahead.h */,
-				EF5900FFEF59144B00000065 /* bitos.h */,
-				EF5900FFEF59144B00000067 /* js.h */,
-				EF5900FFEF59144B00000064 /* est.h */,
+				EF5900FFEF59144B00000068 /* bit.h */,
+				EF5900FFEF59144B0000006B /* goahead.h */,
+				EF5900FFEF59144B0000006A /* bitos.h */,
+				EF5900FFEF59144B0000006C /* js.h */,
+				EF5900FFEF59144B00000069 /* est.h */,
 				EF5900FFEF59144B00000017 /* action.c */,
 				EF5900FFEF59144B00000019 /* alloc.c */,
 				EF5900FFEF59144B0000001B /* auth.c */,
@@ -335,51 +370,51 @@
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		EF5900FFEF59144B00000073 /* goahead */ = {
+		EF5900FFEF59144B00000078 /* goahead */ = {
             isa = PBXGroup;
             children = (
-				EF5900FFEF59144B00000063 /* bit.h */,
-				EF5900FFEF59144B00000066 /* goahead.h */,
-				EF5900FFEF59144B00000065 /* bitos.h */,
+				EF5900FFEF59144B00000068 /* bit.h */,
+				EF5900FFEF59144B0000006B /* goahead.h */,
+				EF5900FFEF59144B0000006A /* bitos.h */,
 				EF5900FFEF59144B00000041 /* goahead.c */,
 			);
             name = "goahead";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		EF5900FFEF59144B00000074 /* goahead-test */ = {
+		EF5900FFEF59144B00000079 /* goahead-test */ = {
             isa = PBXGroup;
             children = (
-				EF5900FFEF59144B00000063 /* bit.h */,
-				EF5900FFEF59144B00000066 /* goahead.h */,
-				EF5900FFEF59144B00000067 /* js.h */,
-				EF5900FFEF59144B00000065 /* bitos.h */,
+				EF5900FFEF59144B00000068 /* bit.h */,
+				EF5900FFEF59144B0000006B /* goahead.h */,
+				EF5900FFEF59144B0000006C /* js.h */,
+				EF5900FFEF59144B0000006A /* bitos.h */,
 				EF5900FFEF59144B00000043 /* test.c */,
 			);
             name = "goahead-test";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		EF5900FFEF59144B00000075 /* gopass */ = {
+		EF5900FFEF59144B0000007A /* gopass */ = {
             isa = PBXGroup;
             children = (
-				EF5900FFEF59144B00000063 /* bit.h */,
-				EF5900FFEF59144B00000066 /* goahead.h */,
-				EF5900FFEF59144B00000065 /* bitos.h */,
+				EF5900FFEF59144B00000068 /* bit.h */,
+				EF5900FFEF59144B0000006B /* goahead.h */,
+				EF5900FFEF59144B0000006A /* bitos.h */,
 				EF5900FFEF59144B00000045 /* gopass.c */,
 			);
             name = "gopass";
             path = ..;
             sourceTree = SOURCE_ROOT;
         };
-		EF5900FFEF59144B00000076 /* Products */ = {
+		EF5900FFEF59144B0000007B /* Products */ = {
             isa = PBXGroup;
             children = (
 				EF5900FFEF59144B00000047 /* libest */,
 				EF5900FFEF59144B0000004A /* libgo */,
-				EF5900FFEF59144B00000068 /* goahead */,
-				EF5900FFEF59144B00000069 /* goahead-test */,
-				EF5900FFEF59144B0000006A /* gopass */,
+				EF5900FFEF59144B0000006D /* goahead */,
+				EF5900FFEF59144B0000006E /* goahead-test */,
+				EF5900FFEF59144B0000006F /* gopass */,
 			);
             name = "Products";
             path = ..;
@@ -388,92 +423,96 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		EF5900FFEF59144B0000005A /* libest */ = {
+		EF5900FFEF59144B00000053 /* libest */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF5900FFEF59144B00000078 /* Build configuration list for PBXNativeTarget "libest" */;
+			buildConfigurationList = EF5900FFEF59144B0000007D /* Build configuration list for PBXNativeTarget "libest" */;
 			buildPhases = (
-				EF5900FFEF59144B00000077 /* Sources */,
-				EF5900FFEF59144B0000006B /* Frameworks */,
+				EF5900FFEF59144B0000007C /* Sources */,
+				EF5900FFEF59144B00000070 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF5900FFEF59144B00000079 /* Prep */,				
+				EF5900FFEF59144B0000007E /* Prep */,				
 			);
 			name = libest;
 			productName = goahead;
 			productReference = EF5900FFEF59144B00000047 /* libest */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		EF5900FFEF59144B00000053 /* libgo */ = {
+		EF5900FFEF59144B00000057 /* libgo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF5900FFEF59144B0000007B /* Build configuration list for PBXNativeTarget "libgo" */;
+			buildConfigurationList = EF5900FFEF59144B00000080 /* Build configuration list for PBXNativeTarget "libgo" */;
 			buildPhases = (
-				EF5900FFEF59144B0000007A /* Sources */,
-				EF5900FFEF59144B0000006C /* Frameworks */,
+				EF5900FFEF59144B0000007F /* Sources */,
+				EF5900FFEF59144B00000071 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF5900FFEF59144B0000007C /* Prep */,				
+				EF5900FFEF59144B00000081 /* Prep */,
+				EF5900FFEF59144B00000082 /* libest */,				
 			);
 			name = libgo;
 			productName = goahead;
 			productReference = EF5900FFEF59144B0000004A /* libgo */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
-		EF5900FFEF59144B0000005E /* goahead */ = {
+		EF5900FFEF59144B00000063 /* goahead */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF5900FFEF59144B0000007E /* Build configuration list for PBXNativeTarget "goahead" */;
+			buildConfigurationList = EF5900FFEF59144B00000084 /* Build configuration list for PBXNativeTarget "goahead" */;
 			buildPhases = (
-				EF5900FFEF59144B0000007D /* Sources */,
-				EF5900FFEF59144B0000006D /* Frameworks */,
+				EF5900FFEF59144B00000083 /* Sources */,
+				EF5900FFEF59144B00000072 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF5900FFEF59144B0000007F /* libgo */,
-				EF5900FFEF59144B00000080 /* Prep */,				
+				EF5900FFEF59144B00000085 /* Prep */,
+				EF5900FFEF59144B00000086 /* libest */,
+				EF5900FFEF59144B00000087 /* libgo */,				
 			);
 			name = goahead;
 			productName = goahead;
-			productReference = EF5900FFEF59144B00000068 /* goahead */;
+			productReference = EF5900FFEF59144B0000006D /* goahead */;
 			productType = "com.apple.product-type.tool";
 		};
-		EF5900FFEF59144B00000060 /* goahead-test */ = {
+		EF5900FFEF59144B00000065 /* goahead-test */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF5900FFEF59144B00000082 /* Build configuration list for PBXNativeTarget "goahead-test" */;
+			buildConfigurationList = EF5900FFEF59144B00000089 /* Build configuration list for PBXNativeTarget "goahead-test" */;
 			buildPhases = (
-				EF5900FFEF59144B00000081 /* Sources */,
-				EF5900FFEF59144B0000006E /* Frameworks */,
+				EF5900FFEF59144B00000088 /* Sources */,
+				EF5900FFEF59144B00000073 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF5900FFEF59144B00000083 /* libgo */,
-				EF5900FFEF59144B00000084 /* Prep */,				
+				EF5900FFEF59144B0000008A /* Prep */,
+				EF5900FFEF59144B0000008B /* libest */,
+				EF5900FFEF59144B0000008C /* libgo */,				
 			);
 			name = goahead-test;
 			productName = goahead;
-			productReference = EF5900FFEF59144B00000069 /* goahead-test */;
+			productReference = EF5900FFEF59144B0000006E /* goahead-test */;
 			productType = "com.apple.product-type.tool";
 		};
-		EF5900FFEF59144B00000062 /* gopass */ = {
+		EF5900FFEF59144B00000067 /* gopass */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EF5900FFEF59144B00000086 /* Build configuration list for PBXNativeTarget "gopass" */;
+			buildConfigurationList = EF5900FFEF59144B0000008E /* Build configuration list for PBXNativeTarget "gopass" */;
 			buildPhases = (
-				EF5900FFEF59144B00000085 /* Sources */,
-				EF5900FFEF59144B0000006F /* Frameworks */,
+				EF5900FFEF59144B0000008D /* Sources */,
+				EF5900FFEF59144B00000074 /* Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				EF5900FFEF59144B00000087 /* libgo */,
-				EF5900FFEF59144B00000088 /* Prep */,				
+				EF5900FFEF59144B0000008F /* Prep */,
+				EF5900FFEF59144B00000090 /* libest */,
+				EF5900FFEF59144B00000091 /* libgo */,				
 			);
 			name = gopass;
 			productName = goahead;
-			productReference = EF5900FFEF59144B0000006A /* gopass */;
+			productReference = EF5900FFEF59144B0000006F /* gopass */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -574,25 +613,25 @@ fi";
 			knownRegions = (
 				en,
 			);
-			mainGroup = EF5900FFEF59144B00000070;
-			productRefGroup = EF5900FFEF59144B00000076 /* Products */;
+			mainGroup = EF5900FFEF59144B00000075;
+			productRefGroup = EF5900FFEF59144B0000007B /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				EF5900FFEF59144B0000000A /* All */,
 				EF5900FFEF59144B00000012 /* Prep */,
-				EF5900FFEF59144B0000005A /* libest */,
-				EF5900FFEF59144B00000053 /* libgo */,
-				EF5900FFEF59144B0000005E /* goahead */,
-				EF5900FFEF59144B00000060 /* goahead-test */,
-				EF5900FFEF59144B00000062 /* gopass */,
+				EF5900FFEF59144B00000053 /* libest */,
+				EF5900FFEF59144B00000057 /* libgo */,
+				EF5900FFEF59144B00000063 /* goahead */,
+				EF5900FFEF59144B00000065 /* goahead-test */,
+				EF5900FFEF59144B00000067 /* gopass */,
 				EF5900FFEF59144B00000006 /* ca-crt */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
-		EF5900FFEF59144B00000077 /* libest Sources */ = {
+		EF5900FFEF59144B0000007C /* libest Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -600,7 +639,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF5900FFEF59144B0000007A /* libgo Sources */ = {
+		EF5900FFEF59144B0000007F /* libgo Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -628,7 +667,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF5900FFEF59144B0000007D /* goahead Sources */ = {
+		EF5900FFEF59144B00000083 /* goahead Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -636,7 +675,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF5900FFEF59144B00000081 /* goahead-test Sources */ = {
+		EF5900FFEF59144B00000088 /* goahead-test Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -644,7 +683,7 @@ fi";
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		EF5900FFEF59144B00000085 /* gopass Sources */ = {
+		EF5900FFEF59144B0000008D /* gopass Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -655,7 +694,7 @@ fi";
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		EF5900FFEF59144B00000079 /* PBXTargetDependency libest depends on Prep */ = {
+		EF5900FFEF59144B0000007E /* PBXTargetDependency libest depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = EF5900FFEF59144B00000012 /* Prep */;
 			targetProxy = EF5900FFEF59144B0000004F /* PBXContainerItemProxy */;
@@ -665,70 +704,95 @@ fi";
 			target = EF5900FFEF59144B00000012 /* Prep */;
 			targetProxy = EF5900FFEF59144B00000050 /* PBXContainerItemProxy */;
 		};
-		EF5900FFEF59144B0000007C /* PBXTargetDependency libgo depends on Prep */ = {
+		EF5900FFEF59144B00000081 /* PBXTargetDependency libgo depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = EF5900FFEF59144B00000012 /* Prep */;
 			targetProxy = EF5900FFEF59144B00000051 /* PBXContainerItemProxy */;
 		};
-		EF5900FFEF59144B0000007F /* PBXTargetDependency goahead depends on libgo */ = {
+		EF5900FFEF59144B00000082 /* PBXTargetDependency libgo depends on libest */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000053 /* libgo */;
+			target = EF5900FFEF59144B00000053 /* libest */;
 			targetProxy = EF5900FFEF59144B00000052 /* PBXContainerItemProxy */;
 		};
-		EF5900FFEF59144B00000080 /* PBXTargetDependency goahead depends on Prep */ = {
+		EF5900FFEF59144B00000085 /* PBXTargetDependency goahead depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = EF5900FFEF59144B00000012 /* Prep */;
 			targetProxy = EF5900FFEF59144B00000054 /* PBXContainerItemProxy */;
 		};
-		EF5900FFEF59144B00000083 /* PBXTargetDependency goahead-test depends on libgo */ = {
+		EF5900FFEF59144B00000086 /* PBXTargetDependency goahead depends on libest */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000053 /* libgo */;
+			target = EF5900FFEF59144B00000053 /* libest */;
 			targetProxy = EF5900FFEF59144B00000055 /* PBXContainerItemProxy */;
 		};
-		EF5900FFEF59144B00000084 /* PBXTargetDependency goahead-test depends on Prep */ = {
+		EF5900FFEF59144B00000087 /* PBXTargetDependency goahead depends on libgo */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000012 /* Prep */;
+			target = EF5900FFEF59144B00000057 /* libgo */;
 			targetProxy = EF5900FFEF59144B00000056 /* PBXContainerItemProxy */;
 		};
-		EF5900FFEF59144B00000087 /* PBXTargetDependency gopass depends on libgo */ = {
-			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000053 /* libgo */;
-			targetProxy = EF5900FFEF59144B00000057 /* PBXContainerItemProxy */;
-		};
-		EF5900FFEF59144B00000088 /* PBXTargetDependency gopass depends on Prep */ = {
+		EF5900FFEF59144B0000008A /* PBXTargetDependency goahead-test depends on Prep */ = {
 			isa = PBXTargetDependency;
 			target = EF5900FFEF59144B00000012 /* Prep */;
 			targetProxy = EF5900FFEF59144B00000058 /* PBXContainerItemProxy */;
 		};
+		EF5900FFEF59144B0000008B /* PBXTargetDependency goahead-test depends on libest */ = {
+			isa = PBXTargetDependency;
+			target = EF5900FFEF59144B00000053 /* libest */;
+			targetProxy = EF5900FFEF59144B00000059 /* PBXContainerItemProxy */;
+		};
+		EF5900FFEF59144B0000008C /* PBXTargetDependency goahead-test depends on libgo */ = {
+			isa = PBXTargetDependency;
+			target = EF5900FFEF59144B00000057 /* libgo */;
+			targetProxy = EF5900FFEF59144B0000005A /* PBXContainerItemProxy */;
+		};
+		EF5900FFEF59144B0000008F /* PBXTargetDependency gopass depends on Prep */ = {
+			isa = PBXTargetDependency;
+			target = EF5900FFEF59144B00000012 /* Prep */;
+			targetProxy = EF5900FFEF59144B0000005B /* PBXContainerItemProxy */;
+		};
+		EF5900FFEF59144B00000090 /* PBXTargetDependency gopass depends on libest */ = {
+			isa = PBXTargetDependency;
+			target = EF5900FFEF59144B00000053 /* libest */;
+			targetProxy = EF5900FFEF59144B0000005C /* PBXContainerItemProxy */;
+		};
+		EF5900FFEF59144B00000091 /* PBXTargetDependency gopass depends on libgo */ = {
+			isa = PBXTargetDependency;
+			target = EF5900FFEF59144B00000057 /* libgo */;
+			targetProxy = EF5900FFEF59144B0000005D /* PBXContainerItemProxy */;
+		};
+		EF5900FFEF59144B00000092 /* PBXTargetDependency All depends on Prep */ = {
+			isa = PBXTargetDependency;
+			target = EF5900FFEF59144B00000012 /* Prep */;
+			targetProxy = EF5900FFEF59144B0000005E /* PBXContainerItemProxy */;
+		};
 		EF5900FFEF59144B0000000B /* PBXTargetDependency All depends on libest */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B0000005A /* libest */;
-			targetProxy = EF5900FFEF59144B00000059 /* PBXContainerItemProxy */;
+			target = EF5900FFEF59144B00000053 /* libest */;
+			targetProxy = EF5900FFEF59144B0000005F /* PBXContainerItemProxy */;
 		};
 		EF5900FFEF59144B0000000C /* PBXTargetDependency All depends on ca-crt */ = {
 			isa = PBXTargetDependency;
 			target = EF5900FFEF59144B00000006 /* ca-crt */;
-			targetProxy = EF5900FFEF59144B0000005B /* PBXContainerItemProxy */;
+			targetProxy = EF5900FFEF59144B00000060 /* PBXContainerItemProxy */;
 		};
 		EF5900FFEF59144B0000000D /* PBXTargetDependency All depends on libgo */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000053 /* libgo */;
-			targetProxy = EF5900FFEF59144B0000005C /* PBXContainerItemProxy */;
+			target = EF5900FFEF59144B00000057 /* libgo */;
+			targetProxy = EF5900FFEF59144B00000061 /* PBXContainerItemProxy */;
 		};
 		EF5900FFEF59144B0000000E /* PBXTargetDependency All depends on goahead */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B0000005E /* goahead */;
-			targetProxy = EF5900FFEF59144B0000005D /* PBXContainerItemProxy */;
+			target = EF5900FFEF59144B00000063 /* goahead */;
+			targetProxy = EF5900FFEF59144B00000062 /* PBXContainerItemProxy */;
 		};
 		EF5900FFEF59144B0000000F /* PBXTargetDependency All depends on goahead-test */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000060 /* goahead-test */;
-			targetProxy = EF5900FFEF59144B0000005F /* PBXContainerItemProxy */;
+			target = EF5900FFEF59144B00000065 /* goahead-test */;
+			targetProxy = EF5900FFEF59144B00000064 /* PBXContainerItemProxy */;
 		};
 		EF5900FFEF59144B00000010 /* PBXTargetDependency All depends on gopass */ = {
 			isa = PBXTargetDependency;
-			target = EF5900FFEF59144B00000062 /* gopass */;
-			targetProxy = EF5900FFEF59144B00000061 /* PBXContainerItemProxy */;
+			target = EF5900FFEF59144B00000067 /* gopass */;
+			targetProxy = EF5900FFEF59144B00000066 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -873,166 +937,11 @@ fi";
 			};
 			name = Release;
 		};
-		EF5900FFEF59144B00000089 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = libest;
-				EXECUTABLE_EXTENSION = a;
-
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Debug;
-		};
-		EF5900FFEF59144B0000008A /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = libest;
-				EXECUTABLE_EXTENSION = a;
-
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Release;
-		};
-		EF5900FFEF59144B0000008B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = ca-crt;
-
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Debug;
-		};
-		EF5900FFEF59144B0000008C /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = ca-crt;
-
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Release;
-		};
-		EF5900FFEF59144B0000008D /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = libgo;
-				EXECUTABLE_EXTENSION = a;
-
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"",
-					);
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Debug;
-		};
-		EF5900FFEF59144B0000008E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = libgo;
-				EXECUTABLE_EXTENSION = a;
-
-				OTHER_LDFLAGS = (
-					"",
-					);
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Release;
-		};
-		EF5900FFEF59144B0000008F /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = goahead;
-
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lpam",
-					);
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Debug;
-		};
-		EF5900FFEF59144B00000090 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = goahead;
-
-				OTHER_LDFLAGS = (
-					"-lpam",
-					);
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Release;
-		};
-		EF5900FFEF59144B00000091 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = goahead-test;
-
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"BIT_DEBUG",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lpam",
-					);
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Debug;
-		};
-		EF5900FFEF59144B00000092 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				PRODUCT_NAME = goahead-test;
-
-				OTHER_LDFLAGS = (
-					"-lpam",
-					);
-
-				MACH_O_TYPE = staticlib;
-
-			};
-			name = Release;
-		};
 		EF5900FFEF59144B00000093 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = gopass;
+				PRODUCT_NAME = libest;
+				EXECUTABLE_EXTENSION = a;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"BIT_DEBUG",
@@ -1048,7 +957,8 @@ fi";
 		EF5900FFEF59144B00000094 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = gopass;
+				PRODUCT_NAME = libest;
+				EXECUTABLE_EXTENSION = a;
 
 				OTHER_LDFLAGS = ();
 
@@ -1060,6 +970,160 @@ fi";
 		EF5900FFEF59144B00000095 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				PRODUCT_NAME = ca-crt;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = ();
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Debug;
+		};
+		EF5900FFEF59144B00000096 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = ca-crt;
+
+				OTHER_LDFLAGS = ();
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Release;
+		};
+		EF5900FFEF59144B00000097 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = libgo;
+				EXECUTABLE_EXTENSION = a;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"",
+					);
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Debug;
+		};
+		EF5900FFEF59144B00000098 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = libgo;
+				EXECUTABLE_EXTENSION = a;
+
+				OTHER_LDFLAGS = (
+					"",
+					);
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Release;
+		};
+		EF5900FFEF59144B00000099 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = goahead;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lpam",
+					);
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Debug;
+		};
+		EF5900FFEF59144B0000009A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = goahead;
+
+				OTHER_LDFLAGS = (
+					"-lpam",
+					);
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Release;
+		};
+		EF5900FFEF59144B0000009B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = goahead-test;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lpam",
+					);
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Debug;
+		};
+		EF5900FFEF59144B0000009C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = goahead-test;
+
+				OTHER_LDFLAGS = (
+					"-lpam",
+					);
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Release;
+		};
+		EF5900FFEF59144B0000009D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = gopass;
+
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"BIT_DEBUG",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = ();
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Debug;
+		};
+		EF5900FFEF59144B0000009E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = gopass;
+
+				OTHER_LDFLAGS = ();
+
+				MACH_O_TYPE = staticlib;
+
+			};
+			name = Release;
+		};
+		EF5900FFEF59144B0000009F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
 				PRODUCT_NAME = All;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1069,7 +1133,7 @@ fi";
 			};
 			name = Debug;
 		};
-		EF5900FFEF59144B00000096 /* Release */ = {
+		EF5900FFEF59144B000000A0 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = All;
@@ -1078,7 +1142,7 @@ fi";
 			};
 			name = Release;
 		};
-		EF5900FFEF59144B00000097 /* Debug */ = {
+		EF5900FFEF59144B000000A1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -1090,7 +1154,7 @@ fi";
 			};
 			name = Debug;
 		};
-		EF5900FFEF59144B00000098 /* Release */ = {
+		EF5900FFEF59144B000000A2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = Prep;
@@ -1111,52 +1175,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EF5900FFEF59144B00000078 /* Build configuration list for PBXNativeTarget "libest" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EF5900FFEF59144B00000089 /* Debug */,
-				EF5900FFEF59144B0000008A /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EF5900FFEF59144B00000005 /* Build configuration list for PBXNativeTarget "ca-crt" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EF5900FFEF59144B0000008B /* Debug */,
-				EF5900FFEF59144B0000008C /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EF5900FFEF59144B0000007B /* Build configuration list for PBXNativeTarget "libgo" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EF5900FFEF59144B0000008D /* Debug */,
-				EF5900FFEF59144B0000008E /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EF5900FFEF59144B0000007E /* Build configuration list for PBXNativeTarget "goahead" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EF5900FFEF59144B0000008F /* Debug */,
-				EF5900FFEF59144B00000090 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EF5900FFEF59144B00000082 /* Build configuration list for PBXNativeTarget "goahead-test" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				EF5900FFEF59144B00000091 /* Debug */,
-				EF5900FFEF59144B00000092 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		EF5900FFEF59144B00000086 /* Build configuration list for PBXNativeTarget "gopass" */ = {
+		EF5900FFEF59144B0000007D /* Build configuration list for PBXNativeTarget "libest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EF5900FFEF59144B00000093 /* Debug */,
@@ -1165,7 +1184,7 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EF5900FFEF59144B00000009 /* Build configuration list for PBXNativeTarget "All" */ = {
+		EF5900FFEF59144B00000005 /* Build configuration list for PBXNativeTarget "ca-crt" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EF5900FFEF59144B00000095 /* Debug */,
@@ -1174,11 +1193,56 @@ fi";
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		EF5900FFEF59144B00000011 /* Build configuration list for PBXNativeTarget "Prep" */ = {
+		EF5900FFEF59144B00000080 /* Build configuration list for PBXNativeTarget "libgo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				EF5900FFEF59144B00000097 /* Debug */,
 				EF5900FFEF59144B00000098 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF5900FFEF59144B00000084 /* Build configuration list for PBXNativeTarget "goahead" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF5900FFEF59144B00000099 /* Debug */,
+				EF5900FFEF59144B0000009A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF5900FFEF59144B00000089 /* Build configuration list for PBXNativeTarget "goahead-test" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF5900FFEF59144B0000009B /* Debug */,
+				EF5900FFEF59144B0000009C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF5900FFEF59144B0000008E /* Build configuration list for PBXNativeTarget "gopass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF5900FFEF59144B0000009D /* Debug */,
+				EF5900FFEF59144B0000009E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF5900FFEF59144B00000009 /* Build configuration list for PBXNativeTarget "All" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF5900FFEF59144B0000009F /* Debug */,
+				EF5900FFEF59144B000000A0 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EF5900FFEF59144B00000011 /* Build configuration list for PBXNativeTarget "Prep" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EF5900FFEF59144B000000A1 /* Debug */,
+				EF5900FFEF59144B000000A2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
