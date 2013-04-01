@@ -825,6 +825,6 @@ uninstall: $(DEPS_44)
 #   run
 #
 run: $(DEPS_45)
-		cd src
-; goahead -v ; 
-cd ..
+	cd src
+	goahead -v
+	cd ..
