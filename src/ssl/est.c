@@ -276,7 +276,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         }
         break;
     }
-    socketHiddenData(sp, est->ctx.in_left, SOCKET_READABLE);
+    socketHiddenData(sp, ssl_get_bytes_avail(&est->ctx), SOCKET_READABLE);
     return rc;
 }
 
