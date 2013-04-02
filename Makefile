@@ -47,7 +47,11 @@ deploy:
 
 install:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
-	@echo ; echo 'You can now run via "sudo goahead -v --home /etc/goahead"'
+ifneq ($(OS),windows)
+	@echo ; echo 'You can now run via "sudo goahead -v --home /etc/goahead /var/www/goahead-default"'
+else
+	@echo ; echo 'You can now run via "goahead -v" in the goahead installation directory.'
+endif
 
 version:
 	@$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
