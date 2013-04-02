@@ -772,9 +772,9 @@ installBinary: $(DEPS_39)
 	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1
 	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
 	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	mkdir -p "$(BIT_WEB_PREFIX)/src/web"
-	cp src/web/index.html $(BIT_WEB_PREFIX)/src/web/index.html
-	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/src/web/favicon.ico
+	mkdir -p "$(BIT_WEB_PREFIX)"
+	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html
+	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico
 	mkdir -p "$(BIT_ETC_PREFIX)"
 	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt
 	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt
