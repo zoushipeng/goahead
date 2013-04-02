@@ -68,7 +68,6 @@ Bit.load({
             },{ from:   [ 'src/web/index.html', 'src/web/favicon.ico' ],
                 to:     '${web}/',
                 exclude: /mgmt|bench|test/,
-                subtree: true,
                 set:    'core',
 
             },{ from:   ['src/auth.txt', 'src/route.txt'],
