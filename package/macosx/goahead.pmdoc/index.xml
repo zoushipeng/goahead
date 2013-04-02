@@ -21,14 +21,11 @@ The binary is linked to:\
 \
 GoAhead can be run via:\
    \
-    sudo goahead -v --home /etc/goahead\
-\
-GoAhead manual page can be viewed via:\
-   \
-    man goahead\
+    cd /etc/goahead\
+    sudo goahead -v /var/www/goahead-default\
 \
 GoAhead documentation is at:\
 \
     http://embedthis.com/products/goahead/doc/\
 \
-}]]></resource></locale></resources><flags/><extra-files/><item type="file">01contents.xml</item><mod>extraFiles</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>properties.anywhereDomain</mod><mod>properties.systemDomain</mod></pkmkdoc>
+}]]></resource></locale></resources><flags/><extra-files/><item type="file">01contents.xml</item><mod>properties.systemDomain</mod><mod>properties.title</mod><mod>properties.customizeOption</mod><mod>properties.anywhereDomain</mod><mod>extraFiles</mod></pkmkdoc>
