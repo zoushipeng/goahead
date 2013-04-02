@@ -1,5 +1,5 @@
 [Setup]
 Lang=default
-Group=Embedthis Appweb
+Group=Embedthis GoAhead
 NoIcons=0
 Components=bin,doc,dev
