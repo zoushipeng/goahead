@@ -539,9 +539,6 @@ ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_31 += -lssl
     LIBPATHS_31 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_31 += -lest
-endif
 
 $(CONFIG)/bin/libgo.out: $(DEPS_31)
 	@echo '      [Link] $(CONFIG)/bin/libgo.out'
@@ -595,9 +592,6 @@ DEPS_33 += $(CONFIG)/obj/openssl.o
 DEPS_33 += $(CONFIG)/bin/libgo.out
 DEPS_33 += $(CONFIG)/obj/goahead.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_33 += -lest
-endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_33 += -lssl
     LIBPATHS_33 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -668,9 +662,6 @@ DEPS_35 += $(CONFIG)/obj/openssl.o
 DEPS_35 += $(CONFIG)/bin/libgo.out
 DEPS_35 += $(CONFIG)/obj/test.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_35 += -lest
-endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_35 += -lssl
     LIBPATHS_35 += -L$(BIT_PACK_OPENSSL_PATH)
@@ -740,9 +731,6 @@ DEPS_37 += $(CONFIG)/obj/openssl.o
 DEPS_37 += $(CONFIG)/bin/libgo.out
 DEPS_37 += $(CONFIG)/obj/gopass.o
 
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_37 += -lest
-endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_37 += -lssl
     LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
