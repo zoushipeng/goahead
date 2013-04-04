@@ -74,7 +74,7 @@ DFLAGS             = -DBIT_DEBUG -D_REENTRANT -D_MT -DBIT_PACK_EST=$(BIT_PACK_ES
 IFLAGS             = -I$(CONFIG)\inc
 LDFLAGS            = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS           = -libpath:$(CONFIG)\bin
-LIBS               = dl ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+LIBS               = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
 BIT_ROOT_PREFIX    = C:
 BIT_BASE_PREFIX    = $(BIT_ROOT_PREFIX)\Program Files
@@ -205,7 +205,7 @@ DEPS_4 = $(DEPS_4) $(CONFIG)\obj\removeFiles.obj
 
 $(CONFIG)\bin\removeFiles.exe: $(DEPS_4)
 	@echo '      [Link] $(CONFIG)/bin/removeFiles.exe'
-	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry: -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
 
 #
 #   est.h
@@ -621,7 +621,7 @@ LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/goahead.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry: -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\goahead.obj $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\goahead.obj $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   test.obj
@@ -695,7 +695,7 @@ LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry: -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\test.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\test.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   gopass.obj
@@ -768,7 +768,7 @@ LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] $(CONFIG)/bin/gopass.exe'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry: -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\gopass.obj $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\gopass.obj $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
 
 #
 #   stop
