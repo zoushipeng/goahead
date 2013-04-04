@@ -1,0 +1,48 @@
+[ ca ]
+default_ca				= httpTestCa
+
+[ httpTestCa ]
+dir						= .						# Where everything is kept
+certificate				= ca.crt				# The CA certificate
+database				= ca.db					# database index file.
+new_certs_dir			= .						# default place for new certs.
+private_key				= ca.key    			# The private key
+serial					= ca.srl 			    # The current serial number
+default_crl_days		= 7						# how long before next CRL
+default_days			= 365					# how long to certify for
+default_md				= md5					# which md to use.
+
+policy					= httpTestPolicy
+x509_extensions			= userCert				# The ext to add to the cert
+
+[ httpTestPolicy ]
+countryName				= supplied
+stateOrProvinceName		= supplied
+organizationName		= supplied
+organizationalUnitName	= supplied
+commonName				= supplied
+emailAddress			= supplied
+
+[ userCert ]
+basicConstraints		= CA:FALSE
+
+[ req ]
+default_bits			= 2048
+default_keyfile 		= ca.key
+default_md				= md5
+prompt					= no
+distinguished_name		= rootCaDistinguishedName
+X509_extensions			= rootCaExtensions
+
+[ rootCaDistinguishedName ]
+countryName				= US
+stateOrProvinceName		= Washington
+localityName			= Seattle
+0.organizationName		= Example.com
+organizationalUnitName	= Licensing
+commonName				= www.example.com
+emailAddress			= licensing@example.com
+
+[ rootCaExtensions]
+basicConstraints 		= CA:true
+
