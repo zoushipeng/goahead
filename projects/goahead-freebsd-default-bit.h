@@ -41,7 +41,7 @@
     #define BIT_GOAHEAD_CA ""
 #endif
 #ifndef BIT_GOAHEAD_CERTIFICATE
-    #define BIT_GOAHEAD_CERTIFICATE "server.crt"
+    #define BIT_GOAHEAD_CERTIFICATE "self.crt"
 #endif
 #ifndef BIT_GOAHEAD_CGI
     #define BIT_GOAHEAD_CGI 1
@@ -65,7 +65,7 @@
     #define BIT_GOAHEAD_JAVASCRIPT 1
 #endif
 #ifndef BIT_GOAHEAD_KEY
-    #define BIT_GOAHEAD_KEY "server.key.pem"
+    #define BIT_GOAHEAD_KEY "self.key"
 #endif
 #ifndef BIT_GOAHEAD_LEGACY
     #define BIT_GOAHEAD_LEGACY 1

@@ -41,7 +41,7 @@
     #define BIT_GOAHEAD_CA ""
 #endif
 #ifndef BIT_GOAHEAD_CERTIFICATE
-    #define BIT_GOAHEAD_CERTIFICATE "server.crt"
+    #define BIT_GOAHEAD_CERTIFICATE "self.crt"
 #endif
 #ifndef BIT_GOAHEAD_CGI
     #define BIT_GOAHEAD_CGI 1
@@ -65,7 +65,7 @@
     #define BIT_GOAHEAD_JAVASCRIPT 1
 #endif
 #ifndef BIT_GOAHEAD_KEY
-    #define BIT_GOAHEAD_KEY "server.key.pem"
+    #define BIT_GOAHEAD_KEY "self.key"
 #endif
 #ifndef BIT_GOAHEAD_LEGACY
     #define BIT_GOAHEAD_LEGACY 1
@@ -158,10 +158,10 @@
     #define BIT_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
 #endif
 #ifndef BIT_HAS_DOUBLE_BRACES
-    #define BIT_HAS_DOUBLE_BRACES 1
+    #define BIT_HAS_DOUBLE_BRACES 0
 #endif
 #ifndef BIT_HAS_DYN_LOAD
-    #define BIT_HAS_DYN_LOAD 1
+    #define BIT_HAS_DYN_LOAD 0
 #endif
 #ifndef BIT_HAS_LIB_EDIT
     #define BIT_HAS_LIB_EDIT 0
@@ -173,7 +173,7 @@
     #define BIT_HAS_MMU 1
 #endif
 #ifndef BIT_HAS_MTUNE
-    #define BIT_HAS_MTUNE 1
+    #define BIT_HAS_MTUNE 0
 #endif
 #ifndef BIT_HAS_PAM
     #define BIT_HAS_PAM 0

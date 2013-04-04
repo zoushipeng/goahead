@@ -78,9 +78,10 @@ Bit.load({
             clientCacheLifespan: 86400,
 
             /*
-                Server certificate file for SSL
+                Server certificate file for SSL. This is a test self-signed certificate.
+                A valid certificate must be obtained or generated.
              */
-            certificate: "server.crt",
+            certificate: "self.crt",
 
             /*
                 Cipher suite for SSL. This is SSL stack dependant and only supported on EST and OpenSSL
@@ -113,9 +114,10 @@ Bit.load({
             javascript: true,
 
             /*
-                Server SSL key
+                Server SSL key. This is by default set to a test key.
+                This must be regenerated.
              */
-            key: "server.key.pem",
+            key: "self.key",
 
             /*
                 Define legacy APIs for compatibility with old GoAhead web server applications

@@ -70,11 +70,11 @@ CC                 = cl
 LD                 = link
 RC                 = rc
 CFLAGS             = -nologo -GR- -W3 -Zi -Od -MDd
-DFLAGS             = -D_REENTRANT -D_MT -DBIT_DEBUG -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+DFLAGS             = -DBIT_DEBUG -D_REENTRANT -D_MT -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             = -I$(CONFIG)\inc
 LDFLAGS            = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
 LIBPATHS           = -libpath:$(CONFIG)\bin
-LIBS               = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
+LIBS               = dl ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
 BIT_ROOT_PREFIX    = C:
 BIT_BASE_PREFIX    = $(BIT_ROOT_PREFIX)\Program Files
@@ -205,7 +205,7 @@ DEPS_4 = $(DEPS_4) $(CONFIG)\obj\removeFiles.obj
 
 $(CONFIG)\bin\removeFiles.exe: $(DEPS_4)
 	@echo '      [Link] $(CONFIG)/bin/removeFiles.exe'
-	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry: -subsystem:Windows $(LDFLAGS) $(LIBPATHS) $(CONFIG)\obj\removeFiles.obj $(LIBS) 
 
 #
 #   est.h
@@ -598,6 +598,7 @@ DEPS_35 = $(DEPS_35) $(CONFIG)\obj\openssl.obj
 DEPS_35 = $(DEPS_35) $(CONFIG)\bin\libgo.lib
 DEPS_35 = $(DEPS_35) $(CONFIG)\obj\goahead.obj
 
+LIBS_35 = $(LIBS_35) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_35 = $(LIBS_35) libest.lib
 !ENDIF
@@ -617,11 +618,10 @@ LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 LIBS_35 = $(LIBS_35) libssls.lib
 LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
-LIBS_35 = $(LIBS_35) libgo.lib
 
 $(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/goahead.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\goahead.obj $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry: -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\goahead.obj $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   test.obj
@@ -672,6 +672,7 @@ DEPS_37 = $(DEPS_37) $(CONFIG)\obj\openssl.obj
 DEPS_37 = $(DEPS_37) $(CONFIG)\bin\libgo.lib
 DEPS_37 = $(DEPS_37) $(CONFIG)\obj\test.obj
 
+LIBS_37 = $(LIBS_37) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_37 = $(LIBS_37) libest.lib
 !ENDIF
@@ -691,11 +692,10 @@ LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 LIBS_37 = $(LIBS_37) libssls.lib
 LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
-LIBS_37 = $(LIBS_37) libgo.lib
 
 $(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\test.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry: -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\test.obj $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   gopass.obj
@@ -745,6 +745,7 @@ DEPS_39 = $(DEPS_39) $(CONFIG)\obj\openssl.obj
 DEPS_39 = $(DEPS_39) $(CONFIG)\bin\libgo.lib
 DEPS_39 = $(DEPS_39) $(CONFIG)\obj\gopass.obj
 
+LIBS_39 = $(LIBS_39) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
 LIBS_39 = $(LIBS_39) libest.lib
 !ENDIF
@@ -764,11 +765,10 @@ LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 LIBS_39 = $(LIBS_39) libssls.lib
 LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
-LIBS_39 = $(LIBS_39) libgo.lib
 
 $(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] $(CONFIG)/bin/gopass.exe'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\gopass.obj $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry: -subsystem:console $(LDFLAGS) $(LIBPATHS)    $(CONFIG)\obj\gopass.obj $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
 
 #
 #   stop
@@ -789,6 +789,8 @@ installBinary: $(DEPS_41)
 	if not exist "$(BIT_VAPP_PREFIX)" md "$(BIT_VAPP_PREFIX)"
 	copy /Y src\auth.txt "$(BIT_VAPP_PREFIX)\auth.txt"
 	copy /Y src\route.txt "$(BIT_VAPP_PREFIX)\route.txt"
+	copy /Y src\self.crt "$(BIT_VAPP_PREFIX)\self.crt"
+	copy /Y src\self.key "$(BIT_VAPP_PREFIX)\self.key"
 
 #
 #   start

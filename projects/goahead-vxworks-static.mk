@@ -54,7 +54,7 @@ export WIND_HOME          := $(WIND_BASE)/..
 export PATH               := $(WIND_GNU_PATH)/$(WIND_HOST_TYPE)/bin:$(PATH)
 
 CFLAGS             += -fno-builtin -fno-defer-pop -fvolatile -w
-DFLAGS             += -D_REENTRANT -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=$(CPU) $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+DFLAGS             += -DVXWORKS -DRW_MULTI_THREAD -D_GNU_TOOL -DCPU=PENTIUM $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip
 LDFLAGS            += '-Wl,-r'
 LIBPATHS           += -L$(CONFIG)/bin
@@ -212,7 +212,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -fno-builtin -fno-defer-pop -fvolatile $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o $(CFLAGS) $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -575,6 +575,7 @@ DEPS_33 += $(CONFIG)/obj/openssl.o
 DEPS_33 += $(CONFIG)/bin/libgo.a
 DEPS_33 += $(CONFIG)/obj/goahead.o
 
+LIBS_33 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_33 += -lest
 endif
@@ -594,11 +595,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_33 += -lssls
     LIBPATHS_33 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_33 += -lgo
 
 $(CONFIG)/bin/goahead.out: $(DEPS_33)
 	@echo '      [Link] $(CONFIG)/bin/goahead.out'
-	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) -Wl,-r 
 
 #
 #   test.o
@@ -649,6 +649,7 @@ DEPS_35 += $(CONFIG)/obj/openssl.o
 DEPS_35 += $(CONFIG)/bin/libgo.a
 DEPS_35 += $(CONFIG)/obj/test.o
 
+LIBS_35 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_35 += -lest
 endif
@@ -668,11 +669,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_35 += -lssls
     LIBPATHS_35 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_35 += -lgo
 
 $(CONFIG)/bin/goahead-test.out: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test.out'
-	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -Wl,-r 
 
 #
 #   gopass.o
@@ -722,6 +722,7 @@ DEPS_37 += $(CONFIG)/obj/openssl.o
 DEPS_37 += $(CONFIG)/bin/libgo.a
 DEPS_37 += $(CONFIG)/obj/gopass.o
 
+LIBS_37 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_37 += -lest
 endif
@@ -741,11 +742,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_37 += -lssls
     LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_37 += -lgo
 
 $(CONFIG)/bin/gopass.out: $(DEPS_37)
 	@echo '      [Link] $(CONFIG)/bin/gopass.out'
-	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) -Wl,-r 
 
 #
 #   stop

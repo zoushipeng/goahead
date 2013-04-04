@@ -70,7 +70,7 @@ Bit.load({
                 exclude: /mgmt|bench|test/,
                 set:    'core',
 
-            },{ from:   ['src/auth.txt', 'src/route.txt'],
+            },{ from:   ['src/auth.txt', 'src/route.txt', 'src/self.crt', 'src/self.key'],
                 to:     '${etc}/'
                 set:    'core',
             

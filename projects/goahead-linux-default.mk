@@ -48,12 +48,12 @@ BIT_PACK_SSL_PATH         := ssl
 BIT_PACK_UTEST_PATH       := utest
 BIT_PACK_ZIP_PATH         := zip
 
-CFLAGS             += -fPIC   -w
-DFLAGS             += -D_REENTRANT -DPIC  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
+CFLAGS             += -fPIC  -w
+DFLAGS             += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += -I$(CONFIG)/inc
-LDFLAGS            += '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/' '-rdynamic'
+LDFLAGS            += '-rdynamic' '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/'
 LIBPATHS           += -L$(CONFIG)/bin
-LIBS               += -lpthread -lm -lrt -ldl
+LIBS               += -lrt -ldl -lpthread -lm
 
 DEBUG              := debug
 CFLAGS-debug       := -g
@@ -515,24 +515,24 @@ DEPS_31 += $(CONFIG)/obj/matrixssl.o
 DEPS_31 += $(CONFIG)/obj/nanossl.o
 DEPS_31 += $(CONFIG)/obj/openssl.o
 
-ifeq ($(BIT_PACK_NANOSSL),1)
-    LIBS_31 += -lssls
-    LIBPATHS_31 += -L$(BIT_PACK_NANOSSL_PATH)/bin
-endif
-ifeq ($(BIT_PACK_MATRIXSSL),1)
-    LIBS_31 += -lmatrixssl
-    LIBPATHS_31 += -L$(BIT_PACK_MATRIXSSL_PATH)
-endif
-ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_31 += -lcrypto
-    LIBPATHS_31 += -L$(BIT_PACK_OPENSSL_PATH)
+ifeq ($(BIT_PACK_EST),1)
+    LIBS_31 += -lest
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
     LIBS_31 += -lssl
     LIBPATHS_31 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
-ifeq ($(BIT_PACK_EST),1)
-    LIBS_31 += -lest
+ifeq ($(BIT_PACK_OPENSSL),1)
+    LIBS_31 += -lcrypto
+    LIBPATHS_31 += -L$(BIT_PACK_OPENSSL_PATH)
+endif
+ifeq ($(BIT_PACK_MATRIXSSL),1)
+    LIBS_31 += -lmatrixssl
+    LIBPATHS_31 += -L$(BIT_PACK_MATRIXSSL_PATH)
+endif
+ifeq ($(BIT_PACK_NANOSSL),1)
+    LIBS_31 += -lssls
+    LIBPATHS_31 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 
 $(CONFIG)/bin/libgo.so: $(DEPS_31)
@@ -587,6 +587,7 @@ DEPS_33 += $(CONFIG)/obj/openssl.o
 DEPS_33 += $(CONFIG)/bin/libgo.so
 DEPS_33 += $(CONFIG)/obj/goahead.o
 
+LIBS_33 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_33 += -lest
 endif
@@ -606,11 +607,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_33 += -lssls
     LIBPATHS_33 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_33 += -lgo
 
 $(CONFIG)/bin/goahead: $(DEPS_33)
 	@echo '      [Link] $(CONFIG)/bin/goahead'
-	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/goahead.o $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) $(LIBS) 
 
 #
 #   test.o
@@ -661,6 +661,7 @@ DEPS_35 += $(CONFIG)/obj/openssl.o
 DEPS_35 += $(CONFIG)/bin/libgo.so
 DEPS_35 += $(CONFIG)/obj/test.o
 
+LIBS_35 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_35 += -lest
 endif
@@ -680,11 +681,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_35 += -lssls
     LIBPATHS_35 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_35 += -lgo
 
 $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/test.o $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LIBS) 
 
 #
 #   gopass.o
@@ -734,6 +734,7 @@ DEPS_37 += $(CONFIG)/obj/openssl.o
 DEPS_37 += $(CONFIG)/bin/libgo.so
 DEPS_37 += $(CONFIG)/obj/gopass.o
 
+LIBS_37 += -lgo
 ifeq ($(BIT_PACK_EST),1)
     LIBS_37 += -lest
 endif
@@ -753,11 +754,10 @@ ifeq ($(BIT_PACK_NANOSSL),1)
     LIBS_37 += -lssls
     LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
-LIBS_37 += -lgo
 
 $(CONFIG)/bin/gopass: $(DEPS_37)
 	@echo '      [Link] $(CONFIG)/bin/gopass'
-	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) -lpthread -lm -lrt -ldl $(LDFLAGS) 
+	$(CC) -o $(CONFIG)/bin/gopass $(LDFLAGS) $(LIBPATHS)    $(CONFIG)/obj/gopass.o $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LIBS) 
 
 #
 #   stop
@@ -802,6 +802,8 @@ endif
 	mkdir -p "$(BIT_ETC_PREFIX)"
 	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt
 	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt
+	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt
+	cp src/self.key $(BIT_ETC_PREFIX)/self.key
 
 #
 #   start

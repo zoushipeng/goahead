@@ -76,12 +76,12 @@
 		A98B082EA98B1BEA00000042 /* test.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000043 /* test.c */; };
 		A98B082EA98B1BEA00000044 /* gopass.c in Sources */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000045 /* gopass.c */; };
 		A98B082EA98B1BEA00000046 /* libest.dylib for libgo */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
-		A98B082EA98B1BEA00000048 /* libest.dylib for goahead */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
-		A98B082EA98B1BEA00000049 /* libgo.dylib for goahead */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000004A; };
-		A98B082EA98B1BEA0000004B /* libest.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
-		A98B082EA98B1BEA0000004C /* libgo.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000004A; };
-		A98B082EA98B1BEA0000004D /* libest.dylib for gopass */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
-		A98B082EA98B1BEA0000004E /* libgo.dylib for gopass */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA0000004A; };
+		A98B082EA98B1BEA00000048 /* libgo.dylib for goahead */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000049; };
+		A98B082EA98B1BEA0000004A /* libest.dylib for goahead */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
+		A98B082EA98B1BEA0000004B /* libgo.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000049; };
+		A98B082EA98B1BEA0000004C /* libest.dylib for goahead-test */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
+		A98B082EA98B1BEA0000004D /* libgo.dylib for gopass */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000049; };
+		A98B082EA98B1BEA0000004E /* libest.dylib for gopass */ = {isa = PBXBuildFile; fileRef = A98B082EA98B1BEA00000047; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -256,7 +256,7 @@
 		A98B082EA98B1BEA0000003B /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000003D /* nanossl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nanossl.c; path = src/ssl/nanossl.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000003F /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
-		A98B082EA98B1BEA0000004A /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		A98B082EA98B1BEA00000049 /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA00000041 /* goahead.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = goahead.c; path = src/goahead.c; sourceTree = "<group>"; };
 		A98B082EA98B1BEA0000006D /* goahead */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = goahead; sourceTree = BUILT_PRODUCTS_DIR; };
 		A98B082EA98B1BEA00000043 /* test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = test.c; path = test/test.c; sourceTree = "<group>"; };
@@ -286,8 +286,8 @@
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
-				A98B082EA98B1BEA00000048 /* libest */,
-				A98B082EA98B1BEA00000049 /* libgo */,				
+				A98B082EA98B1BEA00000048 /* libgo */,
+				A98B082EA98B1BEA0000004A /* libest */,				
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
@@ -295,8 +295,8 @@
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
-				A98B082EA98B1BEA0000004B /* libest */,
-				A98B082EA98B1BEA0000004C /* libgo */,				
+				A98B082EA98B1BEA0000004B /* libgo */,
+				A98B082EA98B1BEA0000004C /* libest */,				
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
@@ -304,8 +304,8 @@
             isa = PBXFrameworksBuildPhase;
             buildActionMask = 2147483647;
             files = (
-				A98B082EA98B1BEA0000004D /* libest */,
-				A98B082EA98B1BEA0000004E /* libgo */,				
+				A98B082EA98B1BEA0000004D /* libgo */,
+				A98B082EA98B1BEA0000004E /* libest */,				
             );
             runOnlyForDeploymentPostprocessing = 0;
         };
@@ -411,7 +411,7 @@
             isa = PBXGroup;
             children = (
 				A98B082EA98B1BEA00000047 /* libest */,
-				A98B082EA98B1BEA0000004A /* libgo */,
+				A98B082EA98B1BEA00000049 /* libgo */,
 				A98B082EA98B1BEA0000006D /* goahead */,
 				A98B082EA98B1BEA0000006E /* goahead-test */,
 				A98B082EA98B1BEA0000006F /* gopass */,
@@ -455,7 +455,7 @@
 			);
 			name = libgo;
 			productName = goahead;
-			productReference = A98B082EA98B1BEA0000004A /* libgo */;
+			productReference = A98B082EA98B1BEA00000049 /* libgo */;
 			productType = "com.apple.product-type.library.dynamic";
 		};
 		A98B082EA98B1BEA00000063 /* goahead */ = {
@@ -858,9 +858,9 @@ fi";
 				OTHER_LDFLAGS = (
 					"-Wl,-rpath,@executable_path/",
 					"-Wl,-rpath,@loader_path/",
+					"-ldl",
 					"-lpthread",
 					"-lm",
-					"-ldl",
 					"$(inherited)"
 				);
 
@@ -928,9 +928,9 @@ fi";
 				OTHER_LDFLAGS = (
 					"-Wl,-rpath,@executable_path/",
 					"-Wl,-rpath,@loader_path/",
+					"-ldl",
 					"-lpthread",
 					"-lm",
-					"-ldl",
 					"$(inherited)"
 				);
 
