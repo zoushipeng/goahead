@@ -21,7 +21,7 @@ Bit.load({
         company: 'Embedthis',
         version: '3.1.1',
         buildNumber: '0',
-        bit: '0.8.5',
+        bit: '0.8.6',
         sync: [ 'bitos', 'est' ],
         packs: [ 'bits/packs' ],
 
