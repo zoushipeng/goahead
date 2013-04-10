@@ -254,7 +254,7 @@ DEPS_8 = $(DEPS_8) $(CONFIG)\obj\estLib.obj
 
 $(CONFIG)\bin\libest.dll: $(DEPS_8)
 	@echo '      [Link] $(CONFIG)/bin/libest.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\estLib.obj" $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\estLib.obj" $(LIBS) 
 !ENDIF
 
 #
@@ -574,7 +574,7 @@ LIBPATHS_33 = $(LIBPATHS_33) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\libgo.dll: $(DEPS_33)
 	@echo '      [Link] $(CONFIG)/bin/libgo.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "" "" "" "$(CONFIG)\obj\action.obj" "$(CONFIG)\obj\alloc.obj" "$(CONFIG)\obj\auth.obj" "$(CONFIG)\obj\cgi.obj" "$(CONFIG)\obj\crypt.obj" "$(CONFIG)\obj\file.obj" "$(CONFIG)\obj\fs.obj" "$(CONFIG)\obj\http.obj" "$(CONFIG)\obj\js.obj" "$(CONFIG)\obj\jst.obj" "$(CONFIG)\obj\options.obj" "$(CONFIG)\obj\osdep.obj" "$(CONFIG)\obj\rom-documents.obj" "$(CONFIG)\obj\route.obj" "$(CONFIG)\obj\runtime.obj" "$(CONFIG)\obj\socket.obj" "$(CONFIG)\obj\upload.obj" "$(CONFIG)\obj\est.obj" "$(CONFIG)\obj\matrixssl.obj" "$(CONFIG)\obj\nanossl.obj" "$(CONFIG)\obj\openssl.obj" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) 
+	"$(LD)" -dll -mob -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\action.obj" "$(CONFIG)\obj\alloc.obj" "$(CONFIG)\obj\auth.obj" "$(CONFIG)\obj\cgi.obj" "$(CONFIG)\obj\crypt.obj" "$(CONFIG)\obj\file.obj" "$(CONFIG)\obj\fs.obj" "$(CONFIG)\obj\http.obj" "$(CONFIG)\obj\js.obj" "$(CONFIG)\obj\jst.obj" "$(CONFIG)\obj\options.obj" "$(CONFIG)\obj\osdep.obj" "$(CONFIG)\obj\rom-documents.obj" "$(CONFIG)\obj\route.obj" "$(CONFIG)\obj\runtime.obj" "$(CONFIG)\obj\socket.obj" "$(CONFIG)\obj\upload.obj" "$(CONFIG)\obj\est.obj" "$(CONFIG)\obj\matrixssl.obj" "$(CONFIG)\obj\nanossl.obj" "$(CONFIG)\obj\openssl.obj" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) 
 
 #
 #   goahead.obj
@@ -647,7 +647,7 @@ LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo '      [Link] $(CONFIG)/bin/goahead.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "" "" "" "$(CONFIG)\obj\goahead.obj" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\goahead.obj" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
 
 #
 #   test.obj
@@ -721,7 +721,7 @@ LIBPATHS_37 = $(LIBPATHS_37) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "" "" "" "$(CONFIG)\obj\test.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\test.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
 #   gopass.obj
@@ -794,7 +794,7 @@ LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 
 $(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo '      [Link] $(CONFIG)/bin/gopass.exe'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "" "" "" "$(CONFIG)\obj\gopass.obj" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\gopass.obj" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
 
 #
 #   stop
