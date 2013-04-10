@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.1.1</div>
+                <div class="version">Embedthis GoAhead 3.1.2</div>
             </div>
         </div>
         <div class="crumbs">
@@ -45,6 +45,7 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
+                <li><a href="#r3.1.2">Release 3.1.2</a></li>
                 <li><a href="#r3.1.1">Release 3.1.1</a></li>
                 <li><a href="#r3.1.0">Release 3.1.0</a></li>
                 <li><a href="#r3.0.0">Release 3.0.0</a></li>
@@ -74,6 +75,28 @@
             Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a> 
             for the official product issue list and for comprehensive CVE dispositions.</p>
         
+            <a id="r3.1.2"></a>
+            <h2 class="section">Changes in 3.1.2</h2>
+            <h3>Minor Features</h3>
+            <ul>
+                <li>Add self-signed cert and enable SSL by default
+                    <a href="https://github.com/embedthis/goahead/issues/59">[issue 59].</a></li>
+                <li>Improve generated makefiles using top level CFLAGS, LDFLAGS
+                    <a href="https://github.com/embedthis/goahead/issues/60">[issue 60].</a></li>
+                <!--
+                <li>Improve and extend samples
+                    <a href="https://github.com/embedthis/goahead/issues/NN">[issue NN].</a></li>
+                -->
+            </ul>
+            <h3>Fixes</h3>
+            <ul>
+                <li>Fix CPU setting in "configure --platform os-arch:CPU"
+                    <a href="https://github.com/embedthis/goahead/issues/61">[issue 61].</a></li>
+                <li>Fix compiling with C++ programs on windows by removing TSZ define
+                    <a href="https://github.com/embedthis/goahead/issues/62">[issue 62].</a></li>
+            </ul>
+
+
             <a id="r3.1.1"></a>
             <h2 class="section">Changes in 3.1.1</h2>
             <h2>Minor Features</h2>
@@ -112,6 +135,8 @@
                 <li>Fix bad memory free using free instead of wfree
                     <a href="https://github.com/embedthis/goahead/issues/58">[issue 58].</a></li>
             </ul>
+
+
             <a id="r3.1.0"></a>
             <h2 class="section">Changes in 3.1.0</h2>
             <h2>Major Features</h2>
