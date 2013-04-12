@@ -161,7 +161,7 @@
     #define BIT_HAS_DOUBLE_BRACES 0
 #endif
 #ifndef BIT_HAS_DYN_LOAD
-    #define BIT_HAS_DYN_LOAD 0
+    #define BIT_HAS_DYN_LOAD 1
 #endif
 #ifndef BIT_HAS_LIB_EDIT
     #define BIT_HAS_LIB_EDIT 0
