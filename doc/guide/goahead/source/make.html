@@ -197,7 +197,6 @@ $ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> ins
             directory via: </p>
             <pre>make deploy</pre>
             <p>This will install to the <em>deploy</em> directory under the output platform directory.</p>
-
             <a name="openssl"></a>
             <h3>Supporting OpenSSL</h3>
             <p>If OpenSSL is required to provide SSL support, you must specify the path to the OpenSSL source
@@ -225,13 +224,11 @@ make -f projects/goahead-vxworks-default.mk ARCH=arm PROFILE=debug
             arm, mips, ppc, x64 and x86. The PROFILE is a descriptive name chosen by you for your configuration.</p>
             <p>If there is not a makefile for your  target operating system, copy the closest makefile and edit to 
             suit your target platform.</p>
-
             <h3>Specifying the CPU</h3>
             <p>The build will generic CPU type within the specified  architecture.
             To override the default choice and specify a CPU type within an architecture, use the CPU variable.
             For example:/p>
             <pre>make OS=vxworks ARCH=arm CPU=arm7tdmi</pre>
-
             <a name="toolchain"></a>
             <h3>Specifying a Tool Chain</h3>
             <p>You may need to specify where Make can locate your cross-compiler and other tools.
@@ -241,13 +238,11 @@ make -f projects/goahead-vxworks-default.mk ARCH=arm PROFILE=debug
 make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
     -f projects/goahead-vxworks-default.mk 
 </pre>
-
             <a name="static"></a>
             <h2>Static Building</h2>
             <p>If you require a static build without the ability to dynamically load modules, use the <em>static</em>
                 makefile profile. For example:</p>
                 <pre>make PROFILE=static</pre>
-
             <a name="vxworks"></a>
             <h2>Building for VxWorks</h2>
             <p>Before building for VxWorks, you must define the WIND_* environment variables via the 
@@ -258,10 +253,8 @@ make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
             <pre>eval `/WindRiver/wrenv.sh -p vxworks-6.8 -o print_env -f sh`</pre>
             <p>Once defined, you can invoke make.</p>
             <pre>make OS=vxworks</pre>
-
             <p>If you require a static build, set the profile to "static".</p>
 <pre>make OS=vxworks PROFILE=static</pre>     
-
         </div>
     </div>
 <!-- BeginDsi "dsi/bottom.html" -->
@@ -282,6 +275,16 @@ make CC=/opt/bin/ccarm.exe LD=/opt/bin/ccarm.exe ARCH=arm PROFILE=release
         options.enableSearchboxOnly("http://embedthis.com/search.html");
         customSearchControl.draw('cse-search-form', options);
       }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
     </script>
 </body>
 </html>

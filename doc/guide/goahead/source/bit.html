@@ -171,10 +171,8 @@
                         Supported architectures are: arm, mips, ppc, x64 or x86.
                         If the -platform option is omitted, the local system is added as the target platform.  You may
                         use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
-
                        <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used
                         in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
-
                         <p>The optional CPU component specifies a CPU instance to tune for. The CPU setting is used
                         in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
                         <p>NOTE: this is not a typical configure --host argument. i.e. The second component is a CPU
@@ -696,6 +694,16 @@ configure --debug --platform linux-arm:arm7tdi-debug
         options.enableSearchboxOnly("http://embedthis.com/search.html");
         customSearchControl.draw('cse-search-form', options);
       }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
     </script>
 </body>
 </html>
