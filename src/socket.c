@@ -138,7 +138,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
     rc = 1;
-#if BIT_UNIX_LIKE
+#if BIT_UNIX_LIKE || VXWORKS
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
 #elif BIT_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR | SO_EXCLUSIVEADDRUSE, (char*) &rc, sizeof(rc));

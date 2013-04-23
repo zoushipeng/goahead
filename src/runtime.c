@@ -173,7 +173,7 @@ static int       callbackMax;
 
 static HashTable **sym;             /* List of symbol tables */
 static int       symMax;            /* One past the max symbol table */
-static char      *logPath;
+static char      *logPath;          /* Log file name */
 static int       logFd;             /* Log file handle */
 
 char *embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
@@ -197,6 +197,20 @@ static void outFloat(Format *fmt, char specChar, double value);
 #endif
 
 /************************************* Code ***********************************/
+
+PUBLIC int websRuntimeOpen()
+{
+    symMax = 0;
+    sym = 0;
+    return 0;
+}
+
+
+PUBLIC void websRuntimeClose()
+{
+}
+
+
 /*
     This function is called when a scheduled process time has come.
  */

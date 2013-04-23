@@ -223,6 +223,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     websMax = 0;
 
     websOsOpen();
+    websRuntimeOpen();
     logOpen();
     setFileLimits();
     socketOpen();
@@ -335,6 +336,7 @@ PUBLIC void websClose()
     hashFree(websMime);
     socketClose();
     logClose();
+    websRuntimeClose();
     websOsClose();
 }
 

@@ -2279,6 +2279,23 @@ PUBLIC char *websNormalizeUriPath(char *path);
 PUBLIC void websNoteRequestActivity(Webs *wp);
 
 /**
+    Close the runtime code.
+    @description Called from websClose
+    @ingroup Webs
+    @internal
+ */
+PUBLIC void websRuntimeClose();
+
+/**
+    Open the runtime code.
+    @description Called from websOpen
+    @return Zero if successful
+    @ingroup Webs
+    @internal
+ */
+PUBLIC int websRuntimeOpen();
+
+/**
     Open the web server
     @description This initializes the web server and defines the documents directory.
     @param documents Optional web documents directory. If set to null, the build time BIT_GOAHEAD_DOCUMENTS value 
@@ -2302,7 +2319,7 @@ PUBLIC void websOsClose();
 /**
     Open the O/S dependant code.
     @description Called from websOpen
-    @return Positive file handle if successful, otherwise -1.
+    @return Zero if successful, otherwise -1.
     @ingroup Webs
     @internal
  */
