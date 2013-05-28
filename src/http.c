@@ -438,6 +438,7 @@ static void termWebs(Webs *wp, int reuse)
         }
     }
 #endif
+    websPageClose(wp);
     if (wp->timeout >= 0 && !reuse) {
         websCancelTimeout(wp);
     }
