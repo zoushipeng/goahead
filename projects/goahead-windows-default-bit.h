@@ -289,6 +289,9 @@
 #ifndef BIT_PROFILE
     #define BIT_PROFILE "default"
 #endif
+#ifndef BIT_TUNE_SIZE
+    #define BIT_TUNE_SIZE 1
+#endif
 
 /* Miscellaneous */
 #ifndef BIT_MAJOR_VERSION
