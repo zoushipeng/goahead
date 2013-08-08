@@ -269,7 +269,7 @@ Bit.load({
             sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
-            depends: [ 'est', 'openssl', 'matrixssl', 'nanossl' ],
+            depends: [ 'ssl' ],
             scripts: {
                 prebuild: "
                     if (bit.settings.hasPam) {
