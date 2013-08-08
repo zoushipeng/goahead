@@ -51,7 +51,7 @@ PUBLIC int socketOpen()
         hasIPv6 = 1;
         closesocket(fd);
     } else {
-        trace(1, "System has only IPv4 support");
+        trace(1, "This system does not have IPv6 support");
     }
     return 0;
 }
