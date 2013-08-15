@@ -157,6 +157,12 @@
 #ifndef BIT_GOAHEAD_XFRAME_HEADER
     #define BIT_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
 #endif
+#ifndef BIT_HAS_ATOMIC
+    #define BIT_HAS_ATOMIC 0
+#endif
+#ifndef BIT_HAS_ATOMIC64
+    #define BIT_HAS_ATOMIC64 0
+#endif
 #ifndef BIT_HAS_DYN_LOAD
     #define BIT_HAS_DYN_LOAD 1
 #endif
@@ -171,6 +177,18 @@
 #endif
 #ifndef BIT_HAS_PAM
     #define BIT_HAS_PAM 0
+#endif
+#ifndef BIT_HAS_STACK_PROTECTOR
+    #define BIT_HAS_STACK_PROTECTOR 0
+#endif
+#ifndef BIT_HAS_SYNC
+    #define BIT_HAS_SYNC 0
+#endif
+#ifndef BIT_HAS_SYNC64
+    #define BIT_HAS_SYNC64 0
+#endif
+#ifndef BIT_HAS_SYNC_CAS
+    #define BIT_HAS_SYNC_CAS 0
 #endif
 #ifndef BIT_HAS_UNNAMED_UNIONS
     #define BIT_HAS_UNNAMED_UNIONS 1
