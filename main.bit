@@ -272,7 +272,7 @@ Bit.load({
             depends: [ 'ssl' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam) {
+                    if (bit.settings.hasPam && bit.settings.goahead.pam) {
                         bit.target.libraries.push('pam')
                     }                                                                                      
                 ",  

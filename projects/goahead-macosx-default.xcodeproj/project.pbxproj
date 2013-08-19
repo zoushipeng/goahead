@@ -984,11 +984,6 @@ fi";
 					"BIT_DEBUG",
 					"$(inherited)"
 				);
-				OTHER_LDFLAGS = (
-					"-lpam",
-					"$(inherited)"
-				);
-
 			};
 			name = Debug;
 		};
@@ -997,10 +992,6 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = libgo;
 
-				OTHER_LDFLAGS = (
-					"-lpam",
-					"$(inherited)"
-				);
 
 			};
 			name = Release;
