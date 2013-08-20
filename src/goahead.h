@@ -50,7 +50,6 @@
 
 #if VXWORKS
     PUBLIC int vxchdir(char *dirname);
-    PUBLIC char *tempnam(char *dir, char *pfx);
 #endif
 
 /**
@@ -1823,6 +1822,15 @@ PUBLIC void websActionOpen();
  */
 PUBLIC int websAlloc(int sid);
 
+/**
+    Cancel the request timeout.
+    @description Handlers may choose to manually manage the request timeout. This routine will disable the
+        centralized management of the timeout for this request.
+    @param wp Webs request object
+    @ingroup Webs
+ */
+PUBLIC void websCancelTimeout(Webs *wp);
+
 #if BIT_GOAHEAD_CGI
 /**
     Open the CGI handler
@@ -2683,13 +2691,15 @@ PUBLIC void websSetVar(Webs *wp, char *name, char *value);
 PUBLIC bool websTestVar(Webs *wp, char *name);
 
 /**
-    Cancel the request timeout.
-    @description Handlers may choose to manually manage the request timeout. This routine will disable the
-        centralized management of the timeout for this request.
-    @param wp Webs request object
+    Create a temporary filename
+    This does not guarantee the filename is unique or that it is not already in use by another application.
+    @param dir Directory to locate the temp file. Defaults to the O/S default temporary directory (usually /tmp)
+    @param prefix Filename prefix
+    @return An allocated filename string
     @ingroup Webs
- */
-PUBLIC void websCancelTimeout(Webs *wp);
+  */
+PUBLIC char *websTempFile(char *dir, char *prefix);
+
 
 /**
     Parse a URL into its components
@@ -3377,7 +3387,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define gstrtok strtok
     #define gstrtol strtol
     #define gstrupper strupper
-    #define gtempnam tempnam
+    #define gtempnam websTempFile
     #define gtolower tolower
     #define gtoupper toupper
     #define gunlink unlink

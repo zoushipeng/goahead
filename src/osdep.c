@@ -41,6 +41,28 @@ PUBLIC void websOsClose()
 }
 
 
+PUBLIC char *websTempFile(char *dir, char *prefix)
+{
+    static int count = 0;
+
+    if (!dir || *dir == '\0') {
+#if WINCE
+        dir = "/Temp";
+#elif BIT_WIN_LIKE
+        dir = getenv("TEMP");
+#elif VXWORKS
+        dir = ".";
+#else
+        dir = "/tmp";
+#endif
+    }
+    if (!prefix) {
+        prefix = "tmp";
+    }
+    return sfmt("%s/%s-%d.tmp", prefix, count++);
+}
+
+
 #if VXWORKS
 /*
     Get absolute path.  In VxWorks, functions like chdir, ioctl for mkdir and ioctl for rmdir, require an absolute path.
@@ -84,14 +106,6 @@ PUBLIC int vxchdir(char *dirname)
 }
 
 
-PUBLIC char *tempnam(char *dir, char *pfx)
-{
-    static int count = 0;
-    if (!pfx) {
-        pfx = "tmp";
-    }
-    return sfmt("%s-%d.tmp", pfx, count++);
-}
 #endif
 
 

@@ -239,7 +239,7 @@ static int processUploadHeader(Webs *wp, char *line)
                 /*  
                     Create the file to hold the uploaded data
                  */
-                if ((wp->uploadTmp = tempnam(uploadDir, "tmp")) == 0) {
+                if ((wp->uploadTmp = websTempFile(uploadDir, "tmp")) == 0) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, 
                         "Can't create upload temp file %s. Check upload temp dir %s", wp->uploadTmp, uploadDir);
                     return -1;

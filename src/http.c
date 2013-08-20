@@ -895,7 +895,7 @@ static bool parseIncoming(Webs *wp)
     if (smatch(wp->method, "PUT")) {
         WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
-        wp->putname = tempnam(BIT_GOAHEAD_PUT_DIR, "put-");
+        wp->putname = websTempFile(BIT_GOAHEAD_PUT_DIR, "put");
         if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
             error("Can't create PUT filename %s", wp->putname);
             websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create the put URI");

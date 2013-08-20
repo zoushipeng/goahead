@@ -402,28 +402,16 @@ WebsTime websCgiPoll()
 }
 
 
-#if WINCE
 /*
-     Returns a pointer to an allocated qualified unique temporary file name.
-     This filename must eventually be deleted with wfree().
+    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with wfree().  
  */
 PUBLIC char *websGetCgiCommName()
 {
-    /*
-         tmpnam, tempnam, tmpfile not supported for CE 2.12 or lower. The Win32 API GetTempFileName is scheduled 
-         to be part of CE 3.0.
-     */
-#if NOT_IMPLEMENTED  
-    char  *pname1, *pname2;
-    pname1 = gtempnam(NULL, "cgi");
-    pname2 = sclone(pname1);
-    wfree(pname1);
-    return pname2;
-#endif
-    return NULL;
+    return sclone(websTempFile(NULL, "cgi"));
 }
 
 
+#if WINCE
 /*
      Launch the CGI process and return a handle to it.  CE note: This function is not complete.  The missing piece is
      the ability to redirect stdout.
@@ -496,21 +484,6 @@ static int checkCgi(int handle)
 
 #if BIT_UNIX_LIKE || QNX
 /*
-     Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
-     with wfree(); 
- */
-PUBLIC char *websGetCgiCommName()
-{
-    char  *pname1, *pname2;
-
-    pname1 = tempnam(NULL, "cgi");
-    pname2 = sclone(pname1);
-    wfree(pname1);
-    return pname2;
-}
-
-
-/*
     Launch the CGI process and return a handle to it.
  */
 static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
@@ -578,20 +551,6 @@ static int checkCgi(int handle)
 
 #if VXWORKS
 static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut); 
-
-/*
-     Returns a pointer to an allocated qualified unique temporary file name.
-     This filename must eventually be deleted with wfree();
- */
-PUBLIC char *websGetCgiCommName()
-{
-    char  *tname, buf[BIT_GOAHEAD_LIMIT_FILENAME];
-
-    tname = sfmt("%s/%s", getcwd(buf, BIT_GOAHEAD_LIMIT_FILENAME), tmpnam(NULL));
-    return tname;
-}
-
-/******************************************************************************/
 /*
     Launch the CGI process and return a handle to it. Process spawning is not supported in VxWorks.  Instead, we spawn a
     "task".  A major difference is that we have to know the entry point for the taskSpawn API.  Also the module may have
@@ -804,21 +763,6 @@ static uchar *tableToBlock(char **table)
         *pEntry = '\0';              
     }
     return pBlock;
-}
-
-
-/*
-    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted
-    with wfree().  
- */
-PUBLIC char *websGetCgiCommName()
-{
-    char  *pname1, *pname2;
-
-    pname1 = tempnam(NULL, "cgi");
-    pname2 = sclone(pname1);
-    wfree(pname1);
-    return pname2;
 }
 
 
