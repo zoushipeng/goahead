@@ -1578,8 +1578,10 @@ PUBLIC void websRedirect(Webs *wp, char *uri)
     secure = strstr(uri, "https://") != 0;
     fullyQualified = strstr(uri, "http://") || strstr(uri, "https://");
     if (!fullyQualified) {
-        secure = 1;
         port = originalPort;
+        if (wp->flags & WEBS_SECURE) {
+            secure = 1;
+        }
     }
     scheme = secure ? "https" : "http";
     if (port <= 0) {
