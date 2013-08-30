@@ -1577,7 +1577,7 @@ PUBLIC void websRedirect(Webs *wp, char *uri)
     }
     secure = strstr(uri, "https://") != 0;
     fullyQualified = strstr(uri, "http://") || strstr(uri, "https://");
-    if (!fullyQualified && wp->flags & WEBS_SECURE) {
+    if (!fullyQualified) {
         secure = 1;
         port = originalPort;
     }
