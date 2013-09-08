@@ -2193,19 +2193,19 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 /*
     Decode a URL (or part thereof). Allows insitu decoding.
  */
-PUBLIC void websDecodeUrl(char *decoded, char *token, ssize len)
+PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len)
 {
     char    *ip,  *op;
     int     num, i, c;
     
     assert(decoded);
-    assert(token);
+    assert(input);
 
     if (len < 0) {
-        len = strlen(token);
+        len = strlen(input);
     }
     op = decoded;
-    for (ip = token; *ip && len > 0; ip++, op++) {
+    for (ip = input; *ip && len > 0; ip++, op++) {
         if (*ip == '+') {
             *op = ' ';
         } else if (*ip == '%' && isxdigit((uchar) ip[1]) && isxdigit((uchar) ip[2])) {

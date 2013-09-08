@@ -1910,13 +1910,13 @@ PUBLIC char *websDecode64Block(char *str, ssize *len, int flags);
 
 /**
     Decode a URL expanding %NN encoding
-    @description Supports insitu decoding. i.e. url may equal decoded.
-    @param url URL to decode
+    @description Supports insitu decoding. i.e. Input and output buffers may be the same.
     @param decoded Buffer to hold the decoded URL
+    @param input Input URL or buffer to decode
     @param len Length of the decoded buffer.
     @ingroup Webs
  */
-PUBLIC void websDecodeUrl(char *url, char *decoded, ssize len);
+PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len);
 
 /**
     Define a request handler
