@@ -850,8 +850,8 @@
       <type>void</type>
       <name>websDecodeUrl</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gab13ddbb7926c63ee72ceb29a1aa9c25f</anchor>
-      <arglist>(char *url, char *decoded, ssize len)</arglist>
+      <anchor>gab121f04477c839b0750fb24db5f25d8b</anchor>
+      <arglist>(char *decoded, char *input, ssize len)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1344,6 +1344,20 @@
       <arglist>(Webs *wp, char *url)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>websRuntimeClose</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gadd9ec8c6a8018426bd08038c5ba23ddf</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websRuntimeOpen</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gabcffeb6cc0a331224e0f945a8a885fc5</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>Offset</type>
       <name>websSeekFile</name>
       <anchorfile>group___webs.html</anchorfile>
@@ -1468,6 +1482,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga889ca9570c6a3bf282b59a5683df9aa7</anchor>
       <arglist>(char *path, WebsFileInfo *sbuf)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>websTempFile</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaab20400e0312e681efcb573fc0087895</anchor>
+      <arglist>(char *dir, char *prefix)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
