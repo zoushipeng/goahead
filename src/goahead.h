@@ -122,7 +122,7 @@ PUBLIC_DATA int logLevel;
 
 #if BIT_GOAHEAD_TRACING
     #if BIT_HAS_MACRO_VARARGS
-        #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= logLevel) { traceProc(l, __VA_ARGS__); } else
+        #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else
     #else
         inline trace(int level, cchar *fmt, ...) {
             if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
