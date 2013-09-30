@@ -74,10 +74,6 @@ static bool fileHandler(Webs *wp)
             return 1;
         }
         code = 200;
-#if UNUSED
-        trace("MTIME %d\n", (int) info.mtime);
-        trace("SINCE %d\n", (int) wp->since);
-#endif
         if (wp->since && info.mtime <= wp->since) {
             code = 304;
             info.size = 0;

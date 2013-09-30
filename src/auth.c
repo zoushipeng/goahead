@@ -192,7 +192,7 @@ PUBLIC void websCloseAuth()
 }
 
 
-#if UNUSED
+#if KEEP
 PUBLIC int websWriteAuthFile(char *path)
 {
     FILE        *fp;

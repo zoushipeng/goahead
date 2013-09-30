@@ -117,7 +117,7 @@ PUBLIC void jsCloseEngine(int jid)
 }
 
 
-#if !ECOS && UNUSED
+#if !ECOS && KEEP
 PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
 {
     WebsStat    sbuf;

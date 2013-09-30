@@ -36,7 +36,6 @@
     #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
 #endif
 
-    //  MOB - needed by GoAhead
 #if MACOSX
     typedef int32_t fd_mask;
 #endif
@@ -875,7 +874,6 @@ typedef struct WebsSocket {
     int             sid;                /**< Index into socket[] */
     int             port;               /**< Port to listen on */
     int             flags;              /**< Current state flags */
-    //  MOB - rename fd
     Socket          sock;               /**< Actual socket handle */
     int             fileHandle;         /**< ID of the file handler */
     int             interestEvents;     /**< Mask of events to watch for */
@@ -1630,8 +1628,6 @@ typedef struct Webs {
     ssize           txChunkPrefixLen;   /**< Length of prefix */
     ssize           txChunkLen;         /**< Length of the chunk */
     int             txChunkState;       /**< Transmit chunk state */
-
-    //  MOB OPT - which of these should be allocated strings and which should be static
 
     char            *authDetails;       /**< Http header auth details */
     char            *authResponse;      /**< Outgoing auth header */

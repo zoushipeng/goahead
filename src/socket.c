@@ -178,7 +178,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
 }
 
 
-#if UNUSED && KEEP
+#if KEEP
 PUBLIC int socketConnect(char *ip, int port, int flags)
 {
     WebsSocket                *sp;
@@ -386,7 +386,6 @@ PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir)
 }
 
 
-//  MOB - merge both versions into one function
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */

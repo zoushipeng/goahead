@@ -125,7 +125,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
         wfree(endpoints);
     }
-#if BIT_ROM && UNUSED
+#if BIT_ROM && KEEP
     /*
         If not using a route/auth config files, then manually create the routes like this:
         If custom matching is required, use websSetRouteMatch. If authentication is required, use websSetRouteAuth.

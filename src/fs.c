@@ -74,8 +74,6 @@ PUBLIC void websCloseFile(int fd)
 }
 
 
-//  MOB - should this be sbuf or WebsFileInfo?
-
 PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
 {
 #if BIT_ROM

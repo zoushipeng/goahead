@@ -60,7 +60,6 @@ static uchar charMatch[256] = {
 
 /*
     Addd entries to the MimeList as required for your content
-    MOB - should remove "." from list
  */
 static WebsMime websMimeList[] = {
     { "application/java", ".class" },
@@ -442,7 +441,6 @@ static void termWebs(Webs *wp, int reuse)
     if (wp->timeout >= 0 && !reuse) {
         websCancelTimeout(wp);
     }
-    //  MOB - OPT reduce allocations
     wfree(wp->authDetails);
     wfree(wp->authResponse);
     wfree(wp->authType);
@@ -879,7 +877,6 @@ static bool parseIncoming(Webs *wp)
     }
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
-    //  MOB Functionalize
 #if !BIT_ROM
 #if BIT_GOAHEAD_CGI
     if (strstr(wp->path, BIT_GOAHEAD_CGI_BIN) != 0) {
@@ -2641,13 +2638,7 @@ static int parseYear(char *buf, int *index)
     The formulas used to build these functions are from "Calendrical Calculations", by Nachum Dershowitz, Edward M.
     Reingold, Cambridge University Press, 1997.  
  */
-
-//  MOB - move to header
-#include <math.h>
-
-//  MOB - static
-const int GregorianEpoch = 1;
-
+static const int GregorianEpoch = 1;
 
 /*
     Determine if year is a leap year
@@ -2715,7 +2706,7 @@ long GregorianYearFromFixed(long fixedDate)
 /* 
     Returns the Gregorian date from a fixed date (not needed for this use, but included for completeness)
  */
-#if UNUSED && KEEP
+#if KEEP
 PUBLIC void GregorianFromFixed(long fixedDate, long *month, long *day, long *year) 
 {
     long priorDays, correction;
@@ -3112,17 +3103,14 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
     }
     if (pext) {
         if ((cp = strrchr(path, '.')) != NULL) {
-            //  MOB - review. See httpCreateUri
             const char* garbage = "/\\";
             ssize length = strcspn(cp, garbage);
             ssize glen = strspn(cp + length, garbage);
             ssize ok = (cp[length + glen] == '\0');
             if (ok) {
                 cp[length] = '\0';
-                //  MOB - skip "."
 #if BIT_WIN_LIKE
                 slower(cp);            
-                //  MOB - don't map extension case. Those who test should use caseless test
 #endif
                 ext = cp;
             }
@@ -3614,7 +3602,6 @@ static void pruneCache()
     WebsKey         *sym, *next;
     int             oldCount;
 
-    //  MOB - should limit size of session cache
     oldCount = sessionCount;
     when = time(0);
     for (sym = hashFirst(sessions); sym; sym = next) {
@@ -3622,8 +3609,6 @@ static void pruneCache()
         sp = (WebsSession*) sym->content.value.symbol;
         if (sp->expires <= when) {
             hashDelete(sessions, sp->id);
-            //  MOB - must make sure that no request is active using sp!!!
-            //  Do we need acquire / release
             sessionCount--;
             freeSession(sp);
         }

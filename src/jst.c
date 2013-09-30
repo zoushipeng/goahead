@@ -120,7 +120,6 @@ static bool jstHandler(Webs *wp)
                          Be careful if the user has called websError() already.
                      */
                     rc = -1;
-                    //  MOB - should not need this now as websFree cant be called
                     if (websValid(wp)) {
                         if (result) {
                             websWrite(wp, "<h2><b>Javascript Error: %s</b></h2>\n", result);
@@ -217,7 +216,6 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv)
 
 /*
     Find s2 in s1. We skip leading white space in s1.  Return a pointer to the location in s1 after s2 ends.
-    MOB - move to runtime.c
  */
 static char *strtokcmp(char *s1, char *s2)
 {

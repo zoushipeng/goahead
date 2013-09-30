@@ -249,14 +249,6 @@ struct hostent* gethostbyname(char *name)
 }
 
 
-#if UNUSED
-struct hostent* gethostbyname2(char *name, int type)
-{
-    return gethostbyname(name);
-}
-#endif
-
-
 ulong hostGetByName(char *name)
 {
     struct _hostent *ent;

@@ -204,7 +204,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
 #endif
 
 
-#if UNUSED && KEEP
+#if KEEP
 PUBLIC bool websCanString(Webs *wp, char *abilities) 
 {
     WebsUser    *user;
