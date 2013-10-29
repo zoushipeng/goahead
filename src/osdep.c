@@ -59,7 +59,7 @@ PUBLIC char *websTempFile(char *dir, char *prefix)
     if (!prefix) {
         prefix = "tmp";
     }
-    return sfmt("%s/%s-%d.tmp", prefix, count++);
+    return sfmt("%s/%s-%d.tmp", dir, prefix, count++);
 }
 
 
