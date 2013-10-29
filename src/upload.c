@@ -115,14 +115,14 @@ PUBLIC int websProcessUploadData(Webs *wp)
                 Parse the next input line
              */
             line = wp->input.servp;
-            stok(line, "\n", &nextTok);
-            if (nextTok == 0) {
+            if ((nextTok = memchr(line, '\n', bufLen(&wp->input))) == 0) {
                 /* Incomplete line */
-                /* done++; */
-                break; 
+                break;
             }
+            *nextTok++ = '\0';
             nbytes = nextTok - line;
             websConsumeInput(wp, nbytes);
+            strim(line, "\r", WEBS_TRIM_END);
             len = strlen(line);
             if (line[len - 1] == '\r') {
                 line[len - 1] = '\0';
