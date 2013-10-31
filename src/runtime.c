@@ -1752,12 +1752,13 @@ PUBLIC void bufCompact(WebsBuf *bp)
     ssize   len;
     
     if (bp->buf) {
-        if (bp->servp < bp->endp && bp->servp > bp->buf) {
-            bufAddNull(bp);
-            len = bufLen(bp) + 1;
-            memmove(bp->buf, bp->servp, len);
-            bp->endp -= bp->servp - bp->buf;
-            bp->servp = bp->buf;
+        if ((len = bufLen(bp)) > 0) {
+            if (bp->servp < bp->endp && bp->servp > bp->buf) {
+                bufAddNull(bp);
+                memmove(bp->buf, bp->servp, len + 1);
+                bp->endp -= bp->servp - bp->buf;
+                bp->servp = bp->buf;
+            }
         } else {
             bp->servp = bp->endp = bp->buf;
             *bp->servp = '\0';
