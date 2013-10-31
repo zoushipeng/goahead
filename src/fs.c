@@ -137,6 +137,7 @@ PUBLIC char *websReadWholeFile(char *path)
     }
     buf = walloc(sbuf.size + 1);
     if ((fd = websOpenFile(path, O_RDONLY, 0)) < 0) {
+        wfree(buf);
         return 0;
     }
     websReadFile(fd, buf, sbuf.size);
