@@ -1,5 +1,5 @@
 /*
-    package.bit - Install and Package File Manifest for GoAhead
+    manifest.bit - Install and Package File Manifest for GoAhead
  */
 
 Bit.load({

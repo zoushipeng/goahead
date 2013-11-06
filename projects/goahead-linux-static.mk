@@ -51,7 +51,7 @@ BIT_PACK_ZIP_PATH         := zip
 
 CFLAGS             += -O2 -fPIC -w
 DFLAGS             += -D_REENTRANT -DPIC $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
-IFLAGS             += -I$(CONFIG)/inc
+IFLAGS             += "-I$(CONFIG)/inc"
 LDFLAGS            += '-rdynamic' '-Wl,--enable-new-dtags' '-Wl,-rpath,$$ORIGIN/'
 LIBPATHS           += -L$(CONFIG)/bin
 LIBS               += -lrt -ldl -lpthread -lm
@@ -205,7 +205,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/estLib.o: \
     src/deps/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -O2 -fPIC $(DFLAGS) "$(IFLAGS)" src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -O2 -fPIC $(DFLAGS) $(IFLAGS) src/deps/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -257,7 +257,7 @@ DEPS_10 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/action.o: \
     src/action.c $(DEPS_10)
 	@echo '   [Compile] $(CONFIG)/obj/action.o'
-	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/action.c
+	$(CC) -c -o $(CONFIG)/obj/action.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/action.c
 
 #
 #   alloc.o
@@ -268,7 +268,7 @@ DEPS_11 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/alloc.o: \
     src/alloc.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/alloc.o'
-	$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/alloc.c
+	$(CC) -c -o $(CONFIG)/obj/alloc.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/alloc.c
 
 #
 #   auth.o
@@ -279,7 +279,7 @@ DEPS_12 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/auth.o: \
     src/auth.c $(DEPS_12)
 	@echo '   [Compile] $(CONFIG)/obj/auth.o'
-	$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/auth.c
+	$(CC) -c -o $(CONFIG)/obj/auth.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/auth.c
 
 #
 #   cgi.o
@@ -290,7 +290,7 @@ DEPS_13 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/cgi.o: \
     src/cgi.c $(DEPS_13)
 	@echo '   [Compile] $(CONFIG)/obj/cgi.o'
-	$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/cgi.c
+	$(CC) -c -o $(CONFIG)/obj/cgi.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/cgi.c
 
 #
 #   crypt.o
@@ -301,7 +301,7 @@ DEPS_14 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/crypt.o: \
     src/crypt.c $(DEPS_14)
 	@echo '   [Compile] $(CONFIG)/obj/crypt.o'
-	$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/crypt.c
+	$(CC) -c -o $(CONFIG)/obj/crypt.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/crypt.c
 
 #
 #   file.o
@@ -312,7 +312,7 @@ DEPS_15 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/file.o: \
     src/file.c $(DEPS_15)
 	@echo '   [Compile] $(CONFIG)/obj/file.o'
-	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/file.c
+	$(CC) -c -o $(CONFIG)/obj/file.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/file.c
 
 #
 #   fs.o
@@ -323,7 +323,7 @@ DEPS_16 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/fs.o: \
     src/fs.c $(DEPS_16)
 	@echo '   [Compile] $(CONFIG)/obj/fs.o'
-	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/fs.c
+	$(CC) -c -o $(CONFIG)/obj/fs.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/fs.c
 
 #
 #   http.o
@@ -334,7 +334,7 @@ DEPS_17 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/http.o: \
     src/http.c $(DEPS_17)
 	@echo '   [Compile] $(CONFIG)/obj/http.o'
-	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/http.c
+	$(CC) -c -o $(CONFIG)/obj/http.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/http.c
 
 #
 #   js.o
@@ -346,7 +346,7 @@ DEPS_18 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/js.o: \
     src/js.c $(DEPS_18)
 	@echo '   [Compile] $(CONFIG)/obj/js.o'
-	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/js.c
+	$(CC) -c -o $(CONFIG)/obj/js.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/js.c
 
 #
 #   jst.o
@@ -358,7 +358,7 @@ DEPS_19 += $(CONFIG)/inc/js.h
 $(CONFIG)/obj/jst.o: \
     src/jst.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/jst.o'
-	$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/jst.c
+	$(CC) -c -o $(CONFIG)/obj/jst.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/jst.c
 
 #
 #   options.o
@@ -369,7 +369,7 @@ DEPS_20 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/options.o: \
     src/options.c $(DEPS_20)
 	@echo '   [Compile] $(CONFIG)/obj/options.o'
-	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/options.c
+	$(CC) -c -o $(CONFIG)/obj/options.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/options.c
 
 #
 #   osdep.o
@@ -380,7 +380,7 @@ DEPS_21 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/osdep.o: \
     src/osdep.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/osdep.o'
-	$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/osdep.c
+	$(CC) -c -o $(CONFIG)/obj/osdep.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/osdep.c
 
 #
 #   rom-documents.o
@@ -391,7 +391,7 @@ DEPS_22 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/rom-documents.o: \
     src/rom-documents.c $(DEPS_22)
 	@echo '   [Compile] $(CONFIG)/obj/rom-documents.o'
-	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/rom-documents.c
+	$(CC) -c -o $(CONFIG)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/rom-documents.c
 
 #
 #   route.o
@@ -402,7 +402,7 @@ DEPS_23 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/route.o: \
     src/route.c $(DEPS_23)
 	@echo '   [Compile] $(CONFIG)/obj/route.o'
-	$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/route.c
+	$(CC) -c -o $(CONFIG)/obj/route.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/route.c
 
 #
 #   runtime.o
@@ -413,7 +413,7 @@ DEPS_24 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/runtime.o: \
     src/runtime.c $(DEPS_24)
 	@echo '   [Compile] $(CONFIG)/obj/runtime.o'
-	$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/runtime.c
+	$(CC) -c -o $(CONFIG)/obj/runtime.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/runtime.c
 
 #
 #   socket.o
@@ -424,7 +424,7 @@ DEPS_25 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/socket.o: \
     src/socket.c $(DEPS_25)
 	@echo '   [Compile] $(CONFIG)/obj/socket.o'
-	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/socket.c
+	$(CC) -c -o $(CONFIG)/obj/socket.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/socket.c
 
 #
 #   upload.o
@@ -435,7 +435,7 @@ DEPS_26 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/upload.o: \
     src/upload.c $(DEPS_26)
 	@echo '   [Compile] $(CONFIG)/obj/upload.o'
-	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/upload.c
+	$(CC) -c -o $(CONFIG)/obj/upload.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/upload.c
 
 #
 #   est.o
@@ -447,7 +447,7 @@ DEPS_27 += $(CONFIG)/inc/est.h
 $(CONFIG)/obj/est.o: \
     src/ssl/est.c $(DEPS_27)
 	@echo '   [Compile] $(CONFIG)/obj/est.o'
-	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/est.c
+	$(CC) -c -o $(CONFIG)/obj/est.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/est.c
 
 #
 #   matrixssl.o
@@ -458,7 +458,7 @@ DEPS_28 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/matrixssl.o: \
     src/ssl/matrixssl.c $(DEPS_28)
 	@echo '   [Compile] $(CONFIG)/obj/matrixssl.o'
-	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/matrixssl.c
+	$(CC) -c -o $(CONFIG)/obj/matrixssl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/matrixssl.c
 
 #
 #   nanossl.o
@@ -468,7 +468,7 @@ DEPS_29 += $(CONFIG)/inc/bit.h
 $(CONFIG)/obj/nanossl.o: \
     src/ssl/nanossl.c $(DEPS_29)
 	@echo '   [Compile] $(CONFIG)/obj/nanossl.o'
-	$(CC) -c -o $(CONFIG)/obj/nanossl.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/nanossl.c
+	$(CC) -c -o $(CONFIG)/obj/nanossl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/nanossl.c
 
 #
 #   openssl.o
@@ -480,7 +480,7 @@ DEPS_30 += $(CONFIG)/inc/goahead.h
 $(CONFIG)/obj/openssl.o: \
     src/ssl/openssl.c $(DEPS_30)
 	@echo '   [Compile] $(CONFIG)/obj/openssl.o'
-	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/openssl.c
+	$(CC) -c -o $(CONFIG)/obj/openssl.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/ssl/openssl.c
 
 #
 #   libgo
@@ -530,7 +530,7 @@ DEPS_32 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/goahead.o: \
     src/goahead.c $(DEPS_32)
 	@echo '   [Compile] $(CONFIG)/obj/goahead.o'
-	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/goahead.c
+	$(CC) -c -o $(CONFIG)/obj/goahead.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/goahead.c
 
 #
 #   goahead
@@ -604,7 +604,7 @@ DEPS_34 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/test.o: \
     test/test.c $(DEPS_34)
 	@echo '   [Compile] $(CONFIG)/obj/test.o'
-	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" test/test.c
+	$(CC) -c -o $(CONFIG)/obj/test.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" test/test.c
 
 #
 #   goahead-test
@@ -677,7 +677,7 @@ DEPS_36 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/gopass.o: \
     src/utils/gopass.c $(DEPS_36)
 	@echo '   [Compile] $(CONFIG)/obj/gopass.o'
-	$(CC) -c -o $(CONFIG)/obj/gopass.o $(CFLAGS) $(DFLAGS) "$(IFLAGS)" "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/utils/gopass.c
+	$(CC) -c -o $(CONFIG)/obj/gopass.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/utils/gopass.c
 
 #
 #   gopass
@@ -749,38 +749,34 @@ stop: $(DEPS_38)
 #   installBinary
 #
 installBinary: $(DEPS_39)
-	mkdir -p "$(BIT_APP_PREFIX)"
-	mkdir -p "$(BIT_VAPP_PREFIX)"
-	mkdir -p "$(BIT_ETC_PREFIX)"
-	mkdir -p "$(BIT_WEB_PREFIX)"
-	mkdir -p "$(BIT_APP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "3.1.3" "$(BIT_APP_PREFIX)/latest"
+	mkdir -p "${app}"
+	rm -f "${app}/latest"
+	ln -s "3.1.3" "${app}/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead
-	mkdir -p "$(BIT_BIN_PREFIX)"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
+	mkdir -p "${bin}"
+	rm -f "${bin}/goahead"
+	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "${bin}/goahead"
 	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
+	mkdir -p "${man}/man1"
+	rm -f "${man}/man1/goahead.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "${man}/man1/goahead.1"
 	cp doc/man/gopass.1 $(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1
-	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
+	rm -f "${man}/man1/gopass.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "${man}/man1/gopass.1"
 	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1
-	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	mkdir -p "$(BIT_WEB_PREFIX)"
-	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html
-	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico
-	mkdir -p "$(BIT_ETC_PREFIX)"
-	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt
-	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt
-	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt
-	cp src/self.key $(BIT_ETC_PREFIX)/self.key
+	rm -f "${man}/man1/webcomp.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "${man}/man1/webcomp.1"
+	mkdir -p "${web}"
+	cp src/web/index.html ${web}/index.html
+	cp src/web/favicon.ico ${web}/favicon.ico
+	mkdir -p "${etc}"
+	cp src/auth.txt ${etc}/auth.txt
+	cp src/route.txt ${etc}/route.txt
+	cp src/self.crt ${etc}/self.crt
+	cp src/self.key ${etc}/self.key
 
 #
 #   start
