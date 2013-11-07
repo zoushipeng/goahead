@@ -1,0 +1,26 @@
+{
+  "name": "goahead",
+  "version": "3.1.2",
+  "homepage": "https://github.com/embedthis/goahead",
+  "authors": [
+    "Embedthis Software <dev@embedthis.com>"
+  ],
+  "description": "Embedthis GoAhead embedded web server",
+  "main": "main.bit",
+  "keywords": [
+    "goahead",
+    "http",
+    "webserver"
+  ],
+  "license": "GPL",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "*-debug",
+    "*-release",
+    "releases"
+  ]
+}
