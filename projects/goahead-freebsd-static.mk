@@ -749,34 +749,34 @@ stop: $(DEPS_38)
 #   installBinary
 #
 installBinary: $(DEPS_39)
-	mkdir -p "${app}"
-	rm -f "${app}/latest"
-	ln -s "3.1.3" "${app}/latest"
+	mkdir -p "$(BIT_APP_PREFIX)"
+	rm -f "$(BIT_APP_PREFIX)/latest"
+	ln -s "3.1.3" "$(BIT_APP_PREFIX)/latest"
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
 	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead
-	mkdir -p "${bin}"
-	rm -f "${bin}/goahead"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "${bin}/goahead"
+	mkdir -p "$(BIT_BIN_PREFIX)"
+	rm -f "$(BIT_BIN_PREFIX)/goahead"
+	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
 	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1
-	mkdir -p "${man}/man1"
-	rm -f "${man}/man1/goahead.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "${man}/man1/goahead.1"
+	mkdir -p "$(BIT_MAN_PREFIX)/man1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
 	cp doc/man/gopass.1 $(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1
-	rm -f "${man}/man1/gopass.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "${man}/man1/gopass.1"
+	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
 	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1
-	rm -f "${man}/man1/webcomp.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "${man}/man1/webcomp.1"
-	mkdir -p "${web}"
-	cp src/web/index.html ${web}/index.html
-	cp src/web/favicon.ico ${web}/favicon.ico
-	mkdir -p "${etc}"
-	cp src/auth.txt ${etc}/auth.txt
-	cp src/route.txt ${etc}/route.txt
-	cp src/self.crt ${etc}/self.crt
-	cp src/self.key ${etc}/self.key
+	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
+	mkdir -p "$(BIT_WEB_PREFIX)"
+	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html
+	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico
+	mkdir -p "$(BIT_ETC_PREFIX)"
+	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt
+	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt
+	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt
+	cp src/self.key $(BIT_ETC_PREFIX)/self.key
 
 #
 #   start
