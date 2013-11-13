@@ -411,9 +411,11 @@
     #include    "sys/cygwin.h"
 #endif
 #if LINUX
-    #include    <sys/epoll.h>
+    #if defined(__NR_epoll_create) || defined(__NR_epoll_create1)
+        #include    <sys/epoll.h>
+#endif
     #include    <sys/prctl.h>
-    #if defined(EFD_NONBLOCK)
+    #if defined(__NR_eventfd)
         #include    <sys/eventfd.h>
     #endif
     #if !__UCLIBC__
