@@ -413,11 +413,12 @@
     #include    "sys/cygwin.h"
 #endif
 #if LINUX
-    #if defined(__NR_epoll_create) || defined(__NR_epoll_create1)
+    #include <linux/version.h>
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
         #include    <sys/epoll.h>
-#endif
+    #endif
     #include    <sys/prctl.h>
-    #if defined(__NR_eventfd)
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
         #include    <sys/eventfd.h>
     #endif
     #if !__UCLIBC__
@@ -883,9 +884,17 @@ typedef int64 Ticks;
 /*
     Old VxWorks can't do array[]
  */
-#define ARRAY_FLEX 0
+    #define ARRAY_FLEX 0
 #else
-#define ARRAY_FLEX
+    #define ARRAY_FLEX
+#endif
+
+#ifdef __GNUC__
+    #define DEPRECATE(fn) fn __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+    #define DEPRECATE(fn) __declspec(deprecated) fn
+#else
+    #define DEPRECATE(fn) fn
 #endif
 
 /********************************** Tunables *********************************/
