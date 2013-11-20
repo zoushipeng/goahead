@@ -2355,6 +2355,20 @@ static int setLocalHost()
     websSetIpAddr(ipaddr);
     websSetHost(ipaddr);
 }
+#elif MACOSX
+{
+    struct hostent  *hp;
+    if ((hp = gethostbyname(host)) == NULL) {
+        if ((hp = gethostbyname(sfmt("%s.local", host))) == NULL) {
+            error("Can't get host address for host %s: errno %d", host, errno);
+            return -1;
+        }
+    }
+    memcpy((char*) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
+    ipaddr = inet_ntoa(intaddr);
+    websSetIpAddr(ipaddr);
+    websSetHost(ipaddr);
+}
 #else
 {
     struct hostent  *hp;
