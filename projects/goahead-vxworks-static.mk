@@ -4,7 +4,7 @@
 
 PRODUCT            := goahead
 VERSION            := 3.1.3
-BUILD_NUMBER       := 0
+BUILD_NUMBER       := 1
 PROFILE            := static
 ARCH               := $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')
 CPU                := $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
@@ -176,7 +176,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@echo 3.1.3-0
+	@echo 3.1.3-1
 
 #
 #   est.h

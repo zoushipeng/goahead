@@ -20,7 +20,7 @@ Bit.load({
         title: 'Embedthis GoAhead',
         company: 'Embedthis',
         version: '3.1.3',
-        buildNumber: '0',
+        buildNumber: '1',
         bit: '0.8.6',
         sync: [ 'bitos', 'est' ],
         packs: [ 'bits/packs' ],

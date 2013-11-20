@@ -11,7 +11,7 @@
     #define BIT_BIT "0.8.6"
 #endif
 #ifndef BIT_BUILD_NUMBER
-    #define BIT_BUILD_NUMBER "0"
+    #define BIT_BUILD_NUMBER "1"
 #endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis"
