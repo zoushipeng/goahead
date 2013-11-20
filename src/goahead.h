@@ -2269,7 +2269,7 @@ PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix);
     Normalize a URI path
     @description This removes "./", "../" and redundant separators.
     @param path URI path to normalize
-    @return A normalized URI path. Caller should not free.
+    @return An allocated normalized URI path. Caller must free.
     @ingroup Webs
  */
 PUBLIC char *websNormalizeUriPath(char *path);

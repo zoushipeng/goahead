@@ -2430,6 +2430,8 @@ PUBLIC int websRewriteRequest(Webs *wp, char *url)
     wfree(wp->url);
     wp->url = sclone(url);
     wfree(wp->path);
+    wp->path = 0;
+
     if (websUrlParse(url, &buf, NULL, NULL, &path, NULL, NULL, NULL, NULL) < 0) {
         return -1;
     }
@@ -3057,7 +3059,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
      */
     url = buf;
     port = portbuf;
-    path = "/";
+    path = 0;
     protocol = "http";
     host = "localhost";
     query = "";
@@ -3115,6 +3117,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
             path = tok;
         }
     }
+    if (path == 0) {
+        path = sclone("/");
+    }
     if (pext) {
         if ((cp = strrchr(path, '.')) != NULL) {
             const char* garbage = "/\\";
@@ -3131,7 +3136,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         }
     }
     /*
-        Only the path and extension is decoded (ext is a reference into the path)
+        Only the path and extension are decoded (ext is a reference into the path)
      */
     websDecodeUrl(path, path, -1);
 
@@ -3174,7 +3179,7 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
     int     firstc, j, i, nseg, len;
 
     if (pathArg == 0 || *pathArg == '\0') {
-        return "";
+        return sclone("");
     }
     len = (int) slen(pathArg);
     if ((dupPath = walloc(len + 2)) == 0) {
