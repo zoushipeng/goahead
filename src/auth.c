@@ -106,7 +106,7 @@ PUBLIC bool websAuthenticate(Webs *wp)
             websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
             return 0;
         }
-        if (wp->authDetails) {
+        if (wp->authDetails && route->parseAuth) {
             if (!(route->parseAuth)(wp)) {
                 return 0;
             }
