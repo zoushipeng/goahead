@@ -713,9 +713,11 @@ static bool parseBasicDetails(Webs *wp)
     /*
         Split userAuth into userid and password
      */
-    userAuth = websDecode64(wp->authDetails);
-    if ((cp = strchr(userAuth, ':')) != NULL) {
-        *cp++ = '\0';
+    cp = 0;
+    if ((userAuth = websDecode64(wp->authDetails)) != 0) {
+        if ((cp = strchr(userAuth, ':')) != NULL) {
+            *cp++ = '\0';
+        }
     }
     if (cp) {
         wp->username = sclone(userAuth);
