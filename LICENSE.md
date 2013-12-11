@@ -1,4 +1,4 @@
-LICENSE.md - Embedthis GoAhead Licenses
+Embedthis GoAhead Licenses
 ===
 
 This file documents the Embedthis Software Licenses. It includes the Embedthis GoAhead Open Source License and licenses for third-party components within GoAhead.
