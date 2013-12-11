@@ -778,9 +778,9 @@ installBinary: $(DEPS_39)
 	rm -f "$(BIT_BIN_PREFIX)/goahead"
 	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
 	cp $(CONFIG)/bin/libgo.so $(BIT_VAPP_PREFIX)/bin/libgo.so
-ifeq ($(BIT_PACK_EST),1)
+	if [ "$(BIT_PACK_EST)" = 1 ]; then 
 	cp $(CONFIG)/bin/libest.so $(BIT_VAPP_PREFIX)/bin/libest.so
-endif
+	fi
 	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
 	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
 	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1
