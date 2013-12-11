@@ -4,7 +4,7 @@
 
 PRODUCT            := goahead
 VERSION            := 3.1.3
-BUILD_NUMBER       := 1
+BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH            := $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -93,6 +93,7 @@ TARGETS            += $(CONFIG)/bin/ca.crt
 TARGETS            += $(CONFIG)/bin/libgo.so
 TARGETS            += $(CONFIG)/bin/goahead
 TARGETS            += $(CONFIG)/bin/goahead-test
+TARGETS            += bower.json
 TARGETS            += $(CONFIG)/bin/gopass
 
 unexport CDPATH
@@ -133,6 +134,7 @@ clean:
 	rm -f "$(CONFIG)/bin/libgo.so"
 	rm -f "$(CONFIG)/bin/goahead"
 	rm -f "$(CONFIG)/bin/goahead-test"
+	rm -f "bower.json"
 	rm -f "$(CONFIG)/bin/gopass"
 	rm -f "$(CONFIG)/obj/estLib.o"
 	rm -f "$(CONFIG)/obj/action.o"
@@ -169,7 +171,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@echo 3.1.3-1
+	echo 3.1.3-0
 
 #
 #   est.h
@@ -688,87 +690,97 @@ $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	$(CC) -o $(CONFIG)/bin/goahead-test $(LIBPATHS)    "$(CONFIG)/obj/test.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) $(LIBS) 
 
 #
+#   bower.json
+#
+DEPS_36 += package.json
+
+bower.json: $(DEPS_36)
+	@echo '      [Copy] bower.json'
+	mkdir -p "."
+	cp package.json bower.json
+
+#
 #   gopass.o
 #
-DEPS_36 += $(CONFIG)/inc/bit.h
-DEPS_36 += $(CONFIG)/inc/goahead.h
-DEPS_36 += $(CONFIG)/inc/bitos.h
+DEPS_37 += $(CONFIG)/inc/bit.h
+DEPS_37 += $(CONFIG)/inc/goahead.h
+DEPS_37 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/gopass.o: \
-    src/utils/gopass.c $(DEPS_36)
+    src/utils/gopass.c $(DEPS_37)
 	@echo '   [Compile] $(CONFIG)/obj/gopass.o'
 	$(CC) -c -o $(CONFIG)/obj/gopass.o $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/utils/gopass.c
 
 #
 #   gopass
 #
-DEPS_37 += $(CONFIG)/inc/est.h
-DEPS_37 += $(CONFIG)/inc/bit.h
-DEPS_37 += $(CONFIG)/inc/bitos.h
-DEPS_37 += $(CONFIG)/obj/estLib.o
+DEPS_38 += $(CONFIG)/inc/est.h
+DEPS_38 += $(CONFIG)/inc/bit.h
+DEPS_38 += $(CONFIG)/inc/bitos.h
+DEPS_38 += $(CONFIG)/obj/estLib.o
 ifeq ($(BIT_PACK_EST),1)
-    DEPS_37 += $(CONFIG)/bin/libest.so
+    DEPS_38 += $(CONFIG)/bin/libest.so
 endif
-DEPS_37 += $(CONFIG)/inc/goahead.h
-DEPS_37 += $(CONFIG)/inc/js.h
-DEPS_37 += $(CONFIG)/obj/action.o
-DEPS_37 += $(CONFIG)/obj/alloc.o
-DEPS_37 += $(CONFIG)/obj/auth.o
-DEPS_37 += $(CONFIG)/obj/cgi.o
-DEPS_37 += $(CONFIG)/obj/crypt.o
-DEPS_37 += $(CONFIG)/obj/file.o
-DEPS_37 += $(CONFIG)/obj/fs.o
-DEPS_37 += $(CONFIG)/obj/http.o
-DEPS_37 += $(CONFIG)/obj/js.o
-DEPS_37 += $(CONFIG)/obj/jst.o
-DEPS_37 += $(CONFIG)/obj/options.o
-DEPS_37 += $(CONFIG)/obj/osdep.o
-DEPS_37 += $(CONFIG)/obj/rom-documents.o
-DEPS_37 += $(CONFIG)/obj/route.o
-DEPS_37 += $(CONFIG)/obj/runtime.o
-DEPS_37 += $(CONFIG)/obj/socket.o
-DEPS_37 += $(CONFIG)/obj/upload.o
-DEPS_37 += $(CONFIG)/obj/est.o
-DEPS_37 += $(CONFIG)/obj/matrixssl.o
-DEPS_37 += $(CONFIG)/obj/nanossl.o
-DEPS_37 += $(CONFIG)/obj/openssl.o
-DEPS_37 += $(CONFIG)/bin/libgo.so
-DEPS_37 += $(CONFIG)/obj/gopass.o
+DEPS_38 += $(CONFIG)/inc/goahead.h
+DEPS_38 += $(CONFIG)/inc/js.h
+DEPS_38 += $(CONFIG)/obj/action.o
+DEPS_38 += $(CONFIG)/obj/alloc.o
+DEPS_38 += $(CONFIG)/obj/auth.o
+DEPS_38 += $(CONFIG)/obj/cgi.o
+DEPS_38 += $(CONFIG)/obj/crypt.o
+DEPS_38 += $(CONFIG)/obj/file.o
+DEPS_38 += $(CONFIG)/obj/fs.o
+DEPS_38 += $(CONFIG)/obj/http.o
+DEPS_38 += $(CONFIG)/obj/js.o
+DEPS_38 += $(CONFIG)/obj/jst.o
+DEPS_38 += $(CONFIG)/obj/options.o
+DEPS_38 += $(CONFIG)/obj/osdep.o
+DEPS_38 += $(CONFIG)/obj/rom-documents.o
+DEPS_38 += $(CONFIG)/obj/route.o
+DEPS_38 += $(CONFIG)/obj/runtime.o
+DEPS_38 += $(CONFIG)/obj/socket.o
+DEPS_38 += $(CONFIG)/obj/upload.o
+DEPS_38 += $(CONFIG)/obj/est.o
+DEPS_38 += $(CONFIG)/obj/matrixssl.o
+DEPS_38 += $(CONFIG)/obj/nanossl.o
+DEPS_38 += $(CONFIG)/obj/openssl.o
+DEPS_38 += $(CONFIG)/bin/libgo.so
+DEPS_38 += $(CONFIG)/obj/gopass.o
 
-LIBS_37 += -lgo
+LIBS_38 += -lgo
 ifeq ($(BIT_PACK_EST),1)
-    LIBS_37 += -lest
+    LIBS_38 += -lest
 endif
 ifeq ($(BIT_PACK_MATRIXSSL),1)
-    LIBS_37 += -lmatrixssl
-    LIBPATHS_37 += -L$(BIT_PACK_MATRIXSSL_PATH)
+    LIBS_38 += -lmatrixssl
+    LIBPATHS_38 += -L$(BIT_PACK_MATRIXSSL_PATH)
 endif
 ifeq ($(BIT_PACK_NANOSSL),1)
-    LIBS_37 += -lssls
-    LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
+    LIBS_38 += -lssls
+    LIBPATHS_38 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_37 += -lssl
-    LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
+    LIBS_38 += -lssl
+    LIBPATHS_38 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_37 += -lcrypto
-    LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
+    LIBS_38 += -lcrypto
+    LIBPATHS_38 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 
-$(CONFIG)/bin/gopass: $(DEPS_37)
+$(CONFIG)/bin/gopass: $(DEPS_38)
 	@echo '      [Link] $(CONFIG)/bin/gopass'
-	$(CC) -o $(CONFIG)/bin/gopass $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) $(LIBS) 
 
 #
 #   stop
 #
-stop: $(DEPS_38)
+stop: $(DEPS_39)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_40)
 	mkdir -p "$(BIT_APP_PREFIX)"
 	rm -f "$(BIT_APP_PREFIX)/latest"
 	ln -s "3.1.3" "$(BIT_APP_PREFIX)/latest"
@@ -805,24 +817,24 @@ installBinary: $(DEPS_39)
 #
 #   start
 #
-start: $(DEPS_40)
+start: $(DEPS_41)
 
 #
 #   install
 #
-DEPS_41 += stop
-DEPS_41 += installBinary
-DEPS_41 += start
+DEPS_42 += stop
+DEPS_42 += installBinary
+DEPS_42 += start
 
-install: $(DEPS_41)
+install: $(DEPS_42)
 	
 
 #
 #   uninstall
 #
-DEPS_42 += stop
+DEPS_43 += stop
 
-uninstall: $(DEPS_42)
+uninstall: $(DEPS_43)
 	rm -fr "$(BIT_WEB_PREFIX)"
 	rm -fr "$(BIT_VAPP_PREFIX)"
 	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true
@@ -833,5 +845,5 @@ uninstall: $(DEPS_42)
 #
 #   run
 #
-run: $(DEPS_43)
+run: $(DEPS_44)
 	cd src; goahead -v ; cd ..
