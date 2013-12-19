@@ -76,7 +76,7 @@ Third Party Licenses
 
 The Software contains licensed third party software under the agreements that follow.
 
-TropicSSL License
+EST License
 ---
 
 The Embedthis EST SSL stack includes code licensed from TropicSSL.

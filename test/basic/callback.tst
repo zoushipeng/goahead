@@ -2,7 +2,7 @@
     callback.tst - Http tests using callbacks
  */
 
-//  MOB - re-enable
+//  TODO - re-enable
 
 if (false) {
     const HTTP = App.config.uris.http || "127.0.0.1:8080"
