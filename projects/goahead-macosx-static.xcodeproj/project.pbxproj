@@ -255,7 +255,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		EF5900FFEF59144B0000001A /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/deps/est/estLib.c; sourceTree = "<group>"; };
+		EF5900FFEF59144B0000001A /* estLib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = estLib.c; path = src/paks/est/estLib.c; sourceTree = "<group>"; };
 		EF5900FFEF59144B0000006F /* bit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bit.h; path = macosx-x64-static/inc/bit.h; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000070 /* est.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = est.h; path = macosx-x64-static/inc/est.h; sourceTree = "<group>"; };
 		EF5900FFEF59144B00000071 /* bitos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = bitos.h; path = macosx-x64-static/inc/bitos.h; sourceTree = "<group>"; };
@@ -551,7 +551,7 @@
 			files = (
 			);
 			inputPaths = (
-../src/deps/est/ca.crt
+../src/paks/est/ca.crt
 			);
 			outputPaths = (
 ../macosx-x64-static/bin/ca.crt
@@ -559,7 +559,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
-cd ../src/deps/est
+cd ../src/paks/est
 rm -rf ../../${OUT_DIR}/bin/ca.crt
 cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ";
@@ -603,8 +603,8 @@ cp -r package.json bower.json
 if ! diff ${INC_DIR}/bit.h goahead-macosx-static-bit.h >/dev/null ; then
 cp goahead-macosx-static-bit.h ${INC_DIR}/bit.h
 fi
-if [ ../src/deps/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
-cp ../src/deps/est/est.h ${OUT_DIR}/inc/est.h
+if [ ../src/paks/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
+cp ../src/paks/est/est.h ${OUT_DIR}/inc/est.h
 fi
 if [ ../src/bitos.h -nt ${OUT_DIR}/inc/bitos.h ] ; then
 cp ../src/bitos.h ${OUT_DIR}/inc/bitos.h

@@ -32,10 +32,21 @@
         "*-release",
         "releases"
     ],
-    "licenses": [{ 
-        "type": "GPL", 
-        "url": "http://www.gnu.org/licenses/gpl-2.0.html"
-    }, {
-        "type": "Commercial", "url": "http://embedthis.com/licensing/"
-    }]
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ],
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+        "bitos": "~0.8",
+        "est": "~0.6"
+    }
 }

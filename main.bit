@@ -11,7 +11,7 @@
 Bit.load({
     blend: [
         "${BITS}/embedthis.bit",
-        "src/deps/est/est.bit",
+        "src/paks/est/est.bit",
         "doc/doc.bit",
     ],
 

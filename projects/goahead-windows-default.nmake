@@ -221,7 +221,7 @@ $(CONFIG)\bin\removeFiles.exe: $(DEPS_4)
 $(CONFIG)\inc\est.h: $(DEPS_5)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
+	copy /Y src\paks\est\est.h $(CONFIG)\inc\est.h
 
 #
 #   bitos.h
@@ -241,9 +241,9 @@ DEPS_7 = $(DEPS_7) $(CONFIG)\inc\est.h
 DEPS_7 = $(DEPS_7) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\estLib.obj: \
-    src\deps\est\estLib.c $(DEPS_7)
+    src\paks\est\estLib.c $(DEPS_7)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c
 
 !IF "$(BIT_PACK_EST)" == "1"
 #
@@ -262,12 +262,12 @@ $(CONFIG)\bin\libest.dll: $(DEPS_8)
 #
 #   ca-crt
 #
-DEPS_9 = $(DEPS_9) src\deps\est\ca.crt
+DEPS_9 = $(DEPS_9) src\paks\est\ca.crt
 
 $(CONFIG)\bin\ca.crt: $(DEPS_9)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
-	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
+	copy /Y src\paks\est\ca.crt $(CONFIG)\bin\ca.crt
 
 #
 #   goahead.h
