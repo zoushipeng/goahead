@@ -370,6 +370,9 @@
     #include    <resolv.h>
 #endif
 #endif
+#if BIT_BSD_LIKE
+    #include    <readpassphrase.h>
+#endif
     #include    <setjmp.h>
     #include    <signal.h>
     #include    <stdarg.h>
