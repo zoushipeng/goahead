@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := goahead
-VERSION            := 3.1.3
+VERSION            := 3.1.4
 BUILD_NUMBER       := 0
 PROFILE            := static
 ARCH               := $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')
@@ -178,7 +178,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	echo 3.1.3-0
+	echo 3.1.4-0
 
 #
 #   est.h

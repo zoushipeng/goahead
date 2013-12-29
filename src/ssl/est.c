@@ -33,7 +33,7 @@ static EstConfig estConfig;
 
 /*
     Regenerate using: dh_genprime
-    Generated on 1/1/2013
+    Generated on 1/1/2014
  */
 static char *dhg = "4";
 static char *dhKey =
@@ -342,7 +342,7 @@ void estDummy() {}
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

@@ -60,7 +60,7 @@ typedef struct stat WebsStat;
     Copyright. The software license requires that this not be modified or removed.
  */
 #define EMBEDTHIS_GOAHEAD_COPYRIGHT \
-    "Copyright (c) Embedthis Software Inc., 1993-2013. All Rights Reserved." \
+    "Copyright (c) Embedthis Software Inc., 1993-2014. All Rights Reserved." \
     "Copyright (c) GoAhead Software Inc., 2003. All Rights Reserved."
 
 /************************************* Main ***********************************/
@@ -3486,7 +3486,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
