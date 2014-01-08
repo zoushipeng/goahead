@@ -814,10 +814,12 @@ $(CONFIG)\bin\gopass.exe: $(DEPS_40)
 stop: $(DEPS_41)
 #  Omit build script stop
 
+	@echo '   [Install] Complete'
 #
 #   installBinary
 #
 installBinary: $(DEPS_42)
+	cd .
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\goahead.exe "$(BIT_VAPP_PREFIX)\bin\goahead.exe"
 	copy /Y $(CONFIG)\bin\libgo.dll "$(BIT_VAPP_PREFIX)\bin\libgo.dll"
@@ -833,6 +835,7 @@ installBinary: $(DEPS_42)
 	copy /Y src\route.txt "$(BIT_VAPP_PREFIX)\route.txt"
 	copy /Y src\self.crt "$(BIT_VAPP_PREFIX)\self.crt"
 	copy /Y src\self.key "$(BIT_VAPP_PREFIX)\self.key"
+	cd .
 
 #
 #   start
@@ -848,7 +851,7 @@ DEPS_44 = $(DEPS_44) installBinary
 DEPS_44 = $(DEPS_44) start
 
 install: $(DEPS_44)
-
+#  Omit build script install
 
 #
 #   uninstall
@@ -856,6 +859,7 @@ install: $(DEPS_44)
 DEPS_45 = $(DEPS_45) stop
 
 uninstall: $(DEPS_45)
+	cd .
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q /S "$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
@@ -864,6 +868,7 @@ uninstall: $(DEPS_45)
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q "$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)\latest" del /Q "$(BIT_VAPP_PREFIX)\latest"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	cd .
 
 #
 #   run

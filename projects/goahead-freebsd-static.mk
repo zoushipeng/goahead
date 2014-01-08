@@ -757,38 +757,42 @@ $(CONFIG)/bin/gopass: $(DEPS_38)
 #
 stop: $(DEPS_39)
 
+	@echo '   [Install] Complete'
 #
 #   installBinary
 #
 installBinary: $(DEPS_40)
-	mkdir -p "$(BIT_APP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "3.1.4" "$(BIT_APP_PREFIX)/latest"
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
-	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead
-	mkdir -p "$(BIT_BIN_PREFIX)"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
-	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
-	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	cp doc/man/gopass.1 $(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1
-	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1
-	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	mkdir -p "$(BIT_WEB_PREFIX)"
-	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html
-	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico
-	mkdir -p "$(BIT_ETC_PREFIX)"
-	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt
-	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt
-	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt
-	cp src/self.key $(BIT_ETC_PREFIX)/self.key
+	( \
+	cd .; \
+	mkdir -p "$(BIT_APP_PREFIX)" ; \
+	rm -f "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "3.1.4" "$(BIT_APP_PREFIX)/latest" ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
+	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead ; \
+	mkdir -p "$(BIT_BIN_PREFIX)" ; \
+	rm -f "$(BIT_BIN_PREFIX)/goahead" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead" ; \
+	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1" ; \
+	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
+	mkdir -p "$(BIT_MAN_PREFIX)/man1" ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1" ; \
+	cp doc/man/gopass.1 $(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1 ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1" ; \
+	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1 ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1" ; \
+	mkdir -p "$(BIT_WEB_PREFIX)" ; \
+	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html ; \
+	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico ; \
+	mkdir -p "$(BIT_ETC_PREFIX)" ; \
+	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt ; \
+	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt ; \
+	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt ; \
+	cp src/self.key $(BIT_ETC_PREFIX)/self.key ; \
+	)
 
 #
 #   start
@@ -810,12 +814,15 @@ install: $(DEPS_42)
 DEPS_43 += stop
 
 uninstall: $(DEPS_43)
-	rm -fr "$(BIT_WEB_PREFIX)"
-	rm -fr "$(BIT_VAPP_PREFIX)"
-	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true
-	rmdir -p "$(BIT_WEB_PREFIX)" 2>/dev/null ; true
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
+	( \
+	cd .; \
+	rm -fr "$(BIT_WEB_PREFIX)" ; \
+	rm -fr "$(BIT_VAPP_PREFIX)" ; \
+	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true ; \
+	rmdir -p "$(BIT_WEB_PREFIX)" 2>/dev/null ; true ; \
+	rm -f "$(BIT_APP_PREFIX)/latest" ; \
+	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true ; \
+	)
 
 #
 #   run
