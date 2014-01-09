@@ -757,7 +757,6 @@ $(CONFIG)/bin/gopass: $(DEPS_38)
 #
 stop: $(DEPS_39)
 
-	@echo '   [Install] Complete'
 #
 #   installBinary
 #
