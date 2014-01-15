@@ -24,10 +24,8 @@
     },
     "ignore": [
         "**/.*",
-        "node_modules",
         "bower_components",
         "test",
-        "tests",
         "*-debug",
         "*-release",
         "releases"
@@ -46,7 +44,7 @@
         "paks": "src/paks"
     },
     "dependencies": {
-        "bitos": "~0.8",
+        "bitos": "~0.9",
         "est": "~0.6"
     }
 }
