@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := goahead
-VERSION            := 3.2.0
+VERSION            := 3.2.1
 BUILD_NUMBER       := 0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
@@ -171,7 +171,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	echo 3.2.0-0
+	echo 3.2.1-0
 
 #
 #   est.h
@@ -785,7 +785,7 @@ installBinary: $(DEPS_40)
 	cd .; \
 	mkdir -p "$(BIT_APP_PREFIX)" ; \
 	rm -f "$(BIT_APP_PREFIX)/latest" ; \
-	ln -s "3.2.0" "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "3.2.1" "$(BIT_APP_PREFIX)/latest" ; \
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
 	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead ; \
 	mkdir -p "$(BIT_BIN_PREFIX)" ; \

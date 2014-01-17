@@ -17,7 +17,7 @@
     #define BIT_COMPANY "Embedthis Software"
 #endif
 #ifndef BIT_COMPATIBLE
-    #define BIT_COMPATIBLE "3.2.0"
+    #define BIT_COMPATIBLE "3.2.1"
 #endif
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 1
@@ -227,7 +227,7 @@
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "3.2.0"
+    #define BIT_VERSION "3.2.1"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 0
@@ -289,7 +289,7 @@
     #define BIT_VAPP_PREFIX "deploy"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "/usr/src/goahead-3.2.0"
+    #define BIT_SRC_PREFIX "/usr/src/goahead-3.2.1"
 #endif
 
 /* Suffixes */
@@ -331,10 +331,10 @@
     #define BIT_MINOR_VERSION 2
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 0
+    #define BIT_PATCH_VERSION 1
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 300020000
+    #define BIT_VNUM 300020001
 #endif
 
 /* Packs */
