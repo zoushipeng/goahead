@@ -57,7 +57,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char    *argp, *auth, *home, *documents, *endpoints, *endpoint, *route, *tok;
+    char    *argp, *auth, *home, *documents, *endpoints, *endpoint, *route, *tok, *lspec;
     int     argind;
 
     route = "route.txt";
@@ -98,6 +98,11 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
+
+        } else if (*argp == '-' && isdigit((uchar) argp[1])) {
+            lspec = sfmt("stdout:%s", &argp[1]);
+            logSetPath(lspec);
+            wfree(lspec);
 
         } else {
             usage();

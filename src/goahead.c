@@ -42,7 +42,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char  *argp, *home, *documents, *endpoints, *endpoint, *route, *auth, *tok;
+    char    *argp, *home, *documents, *endpoints, *endpoint, *route, *auth, *tok, *lspec;
     int     argind;
 
 #if WINDOWS
@@ -87,6 +87,11 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
             printf("%s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
             exit(0);
+
+        } else if (*argp == '-' && isdigit((uchar) argp[1])) {
+            lspec = sfmt("stdout:%s", &argp[1]);
+            logSetPath(lspec);
+            wfree(lspec);
 
         } else {
             usage();
