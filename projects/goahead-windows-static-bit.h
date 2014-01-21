@@ -10,6 +10,9 @@
 #ifndef BIT_BIT
     #define BIT_BIT "0.9.3"
 #endif
+#ifndef BIT_BUILD_NUMBER
+    #define BIT_BUILD_NUMBER 0
+#endif
 #ifndef BIT_COMPANY
     #define BIT_COMPANY "Embedthis Software"
 #endif
