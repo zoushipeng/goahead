@@ -29,7 +29,6 @@ COMPANY="${settings.company}"
 PRODUCT="${settings.product}"
 NAME="${settings.title}"
 VERSION="${settings.version}"
-NUMBER="${settings.buildNumber}"
 OS="${platform.os}"
 CPU="${platform.arch}"
 DIST="${platform.dist}"
@@ -94,7 +93,7 @@ setup() {
     fi
     sleuthPackageFormat
     getAccountDetails
-    [ "$headless" != 1 ] && echo -e "\n$NAME ${VERSION}-${NUMBER} Installation\n"
+    [ "$headless" != 1 ] && echo -e "\n$NAME ${VERSION} Installation\n"
 
 }
 
@@ -204,7 +203,7 @@ askUser() {
 }
 
 createPackageName() {
-    echo ${1}-${VERSION}-${NUMBER}-${DIST}-${OS}-${CPU}
+    echo ${1}-${VERSION}-${DIST}-${OS}-${CPU}
 }
 
 # 

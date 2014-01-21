@@ -96,7 +96,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
+            printf("%s: %s\n", BIT_PRODUCT, BIT_VERSION);
             exit(0);
 
         } else if (*argp == '-' && isdigit((uchar) argp[1])) {
@@ -180,7 +180,7 @@ static void logHeader()
     getcwd(home, sizeof(home));
     trace(2, "Configuration for %s", BIT_TITLE);
     trace(2, "---------------------------------------------");
-    trace(2, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    trace(2, "Version:            %s", BIT_VERSION);
     trace(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
     trace(2, "CPU:                %s", BIT_CPU);
     trace(2, "OS:                 %s", BIT_OS);

@@ -35,7 +35,6 @@ PRODUCT="${settings.product}"
 COMPANY="${settings.company}"
 NAME="${settings.title}"
 VERSION="${settings.version}"
-NUMBER="${settings.buildNumber}"
 OS="${platform.os}"
 
 ROOT_PREFIX="${prefixes.root}"
@@ -271,7 +270,7 @@ setup() {
         exit 0
     fi
     binDir=${binDir:-$APP_PREFIX}
-    [ "$headless" != 1 ] && echo -e "\n$NAME ${VERSION}-${NUMBER} Removal\n"
+    [ "$headless" != 1 ] && echo -e "\n$NAME ${VERSION} Removal\n"
 }
 
 
