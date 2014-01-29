@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#	preflight -- Pre flight script for binary install
+#	preinstall -- Pre install script for binary install
 #
 #	Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 #
