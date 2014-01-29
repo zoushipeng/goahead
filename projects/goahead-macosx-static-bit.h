@@ -7,6 +7,9 @@
 
 
 /* Settings */
+#ifndef BIT_AUTHOR
+    #define BIT_AUTHOR "Embedthis Software"
+#endif
 #ifndef BIT_BIT
     #define BIT_BIT "0.9.3"
 #endif
@@ -14,7 +17,7 @@
     #define BIT_BUILD_NUMBER 0
 #endif
 #ifndef BIT_COMPANY
-    #define BIT_COMPANY "Embedthis Software"
+    #define BIT_COMPANY "embedthis"
 #endif
 #ifndef BIT_COMPATIBLE
     #define BIT_COMPATIBLE "3.2.1"
@@ -24,6 +27,9 @@
 #endif
 #ifndef BIT_DEPTH
     #define BIT_DEPTH 1
+#endif
+#ifndef BIT_DESCRIPTION
+    #define BIT_DESCRIPTION "Embedthis GoAhead Embedded Web Server"
 #endif
 #ifndef BIT_DISCOVER
     #define BIT_DISCOVER "doxygen,dsi,man,man2html,pmaker,ssl,utest,zip"
@@ -205,6 +211,9 @@
 #ifndef BIT_MANIFEST
     #define BIT_MANIFEST "package/manifest.bit"
 #endif
+#ifndef BIT_NAME
+    #define BIT_NAME "goahead"
+#endif
 #ifndef BIT_PACKS
     #define BIT_PACKS "bits/packs"
 #endif
@@ -234,9 +243,6 @@
 #endif
 #ifndef BIT_WARN_UNUSED
     #define BIT_WARN_UNUSED 1
-#endif
-#ifndef BIT_WHO
-    #define BIT_WHO "embedthis"
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "doxygen,dsi,man,man2html,pmaker,ssl"
