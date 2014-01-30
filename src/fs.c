@@ -97,18 +97,15 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
     int         rc;
 #if BIT_WIN_LIKE
     ssize       len = slen(path) - 1;
-    char        c = 0;
 
-    if ((c = path[len]) == '/') {
+    path = sclone(path);
+    if (path[len] == '/') {
         path[len] = '\0';
-    } else if ((c = path[len]) == '\\') {
+    } else if (path[len] == '\\') {
         path[len - 1] = '\0';
     }
     rc = stat(path, &s);
-    if (c) {
-        path[len++] = c;
-        path[len] = '\0';
-    }
+    wfree(path);
 #else
     rc = stat(path, &s);
 #endif
