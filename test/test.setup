@@ -42,7 +42,7 @@ if (test.hostOs == "VXWORKS") {
     let tree = App.dir.parent.portable
     if (!path.startsWith(tree) && !path.startsWith(tree.trimStart('/private'))) {
         let tree = App.dir.parent.portable
-        throw 'Appweb is located outside of the build tree:\ngoahead: ' + path + '\nPATH: ' + 
+        throw 'GoAhead is located outside of the build tree:\ngoahead: ' + path + '\nPATH: ' + 
             App.getenv('PATH').split(App.SearchSeparator)
     }
     service = path + " --log trace.txt:4 web " + listen.join(' ')
