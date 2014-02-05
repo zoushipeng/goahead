@@ -51,7 +51,7 @@ if (test.os == "LINUX" && test.depth >= 4 && valgrind) {
     if (App.config.bit_esp) {
         run(PORT + "/test.esp")
     }
-    //  MOB - re-enable php when php shutdown is clean
+    //  TODO - re-enable php when php shutdown is clean
     if (false && App.config.bit_php) {
         run(PORT + "/test.php")
     }

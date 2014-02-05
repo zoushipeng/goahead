@@ -3,8 +3,7 @@
 #
 
 PRODUCT            := goahead
-VERSION            := 3.1.3
-BUILD_NUMBER       := 0
+VERSION            := 3.2.1
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH            := $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -49,7 +48,7 @@ BIT_PACK_SSL_PATH         := ssl
 BIT_PACK_UTEST_PATH       := utest
 BIT_PACK_ZIP_PATH         := zip
 
-CFLAGS             += -O2  -w
+CFLAGS             += -w
 DFLAGS             +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += "-I$(CONFIG)/inc"
 LDFLAGS            += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
@@ -93,6 +92,7 @@ TARGETS            += $(CONFIG)/bin/ca.crt
 TARGETS            += $(CONFIG)/bin/libgo.dylib
 TARGETS            += $(CONFIG)/bin/goahead
 TARGETS            += $(CONFIG)/bin/goahead-test
+TARGETS            += bower.json
 TARGETS            += $(CONFIG)/bin/gopass
 
 unexport CDPATH
@@ -133,6 +133,7 @@ clean:
 	rm -f "$(CONFIG)/bin/libgo.dylib"
 	rm -f "$(CONFIG)/bin/goahead"
 	rm -f "$(CONFIG)/bin/goahead-test"
+	rm -f "bower.json"
 	rm -f "$(CONFIG)/bin/gopass"
 	rm -f "$(CONFIG)/obj/estLib.o"
 	rm -f "$(CONFIG)/obj/action.o"
@@ -169,7 +170,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	@echo 3.1.3-0
+	echo 3.2.1
 
 #
 #   est.h
@@ -177,7 +178,7 @@ version: $(DEPS_1)
 $(CONFIG)/inc/est.h: $(DEPS_2)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
-	cp src/deps/est/est.h $(CONFIG)/inc/est.h
+	cp src/paks/est/est.h $(CONFIG)/inc/est.h
 
 #
 #   bit.h
@@ -203,9 +204,9 @@ DEPS_5 += $(CONFIG)/inc/est.h
 DEPS_5 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/estLib.o: \
-    src/deps/est/estLib.c $(DEPS_5)
+    src/paks/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) -O2 $(IFLAGS) src/deps/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -218,18 +219,18 @@ DEPS_6 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.1.3 -current_version 3.1.3 "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.2.1 -current_version 3.2.1 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
 #   ca-crt
 #
-DEPS_7 += src/deps/est/ca.crt
+DEPS_7 += src/paks/est/ca.crt
 
 $(CONFIG)/bin/ca.crt: $(DEPS_7)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	mkdir -p "$(CONFIG)/bin"
-	cp src/deps/est/ca.crt $(CONFIG)/bin/ca.crt
+	cp src/paks/est/ca.crt $(CONFIG)/bin/ca.crt
 
 #
 #   goahead.h
@@ -538,7 +539,7 @@ endif
 
 $(CONFIG)/bin/libgo.dylib: $(DEPS_31)
 	@echo '      [Link] $(CONFIG)/bin/libgo.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.1.3 -current_version 3.1.3 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.2.1 -current_version 3.2.1 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
 
 #
 #   goahead.o
@@ -688,150 +689,165 @@ $(CONFIG)/bin/goahead-test: $(DEPS_35)
 	$(CC) -o $(CONFIG)/bin/goahead-test -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/test.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -lpam 
 
 #
+#   bower.json
+#
+DEPS_36 += package.json
+
+bower.json: $(DEPS_36)
+	@echo '      [Copy] bower.json'
+	mkdir -p "."
+	cp package.json bower.json
+
+#
 #   gopass.o
 #
-DEPS_36 += $(CONFIG)/inc/bit.h
-DEPS_36 += $(CONFIG)/inc/goahead.h
-DEPS_36 += $(CONFIG)/inc/bitos.h
+DEPS_37 += $(CONFIG)/inc/bit.h
+DEPS_37 += $(CONFIG)/inc/goahead.h
+DEPS_37 += $(CONFIG)/inc/bitos.h
 
 $(CONFIG)/obj/gopass.o: \
-    src/utils/gopass.c $(DEPS_36)
+    src/utils/gopass.c $(DEPS_37)
 	@echo '   [Compile] $(CONFIG)/obj/gopass.o'
 	$(CC) -c -o $(CONFIG)/obj/gopass.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)/matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)/src" "-I$(BIT_PACK_OPENSSL_PATH)/include" src/utils/gopass.c
 
 #
 #   gopass
 #
-DEPS_37 += $(CONFIG)/inc/est.h
-DEPS_37 += $(CONFIG)/inc/bit.h
-DEPS_37 += $(CONFIG)/inc/bitos.h
-DEPS_37 += $(CONFIG)/obj/estLib.o
+DEPS_38 += $(CONFIG)/inc/est.h
+DEPS_38 += $(CONFIG)/inc/bit.h
+DEPS_38 += $(CONFIG)/inc/bitos.h
+DEPS_38 += $(CONFIG)/obj/estLib.o
 ifeq ($(BIT_PACK_EST),1)
-    DEPS_37 += $(CONFIG)/bin/libest.dylib
+    DEPS_38 += $(CONFIG)/bin/libest.dylib
 endif
-DEPS_37 += $(CONFIG)/inc/goahead.h
-DEPS_37 += $(CONFIG)/inc/js.h
-DEPS_37 += $(CONFIG)/obj/action.o
-DEPS_37 += $(CONFIG)/obj/alloc.o
-DEPS_37 += $(CONFIG)/obj/auth.o
-DEPS_37 += $(CONFIG)/obj/cgi.o
-DEPS_37 += $(CONFIG)/obj/crypt.o
-DEPS_37 += $(CONFIG)/obj/file.o
-DEPS_37 += $(CONFIG)/obj/fs.o
-DEPS_37 += $(CONFIG)/obj/http.o
-DEPS_37 += $(CONFIG)/obj/js.o
-DEPS_37 += $(CONFIG)/obj/jst.o
-DEPS_37 += $(CONFIG)/obj/options.o
-DEPS_37 += $(CONFIG)/obj/osdep.o
-DEPS_37 += $(CONFIG)/obj/rom-documents.o
-DEPS_37 += $(CONFIG)/obj/route.o
-DEPS_37 += $(CONFIG)/obj/runtime.o
-DEPS_37 += $(CONFIG)/obj/socket.o
-DEPS_37 += $(CONFIG)/obj/upload.o
-DEPS_37 += $(CONFIG)/obj/est.o
-DEPS_37 += $(CONFIG)/obj/matrixssl.o
-DEPS_37 += $(CONFIG)/obj/nanossl.o
-DEPS_37 += $(CONFIG)/obj/openssl.o
-DEPS_37 += $(CONFIG)/bin/libgo.dylib
-DEPS_37 += $(CONFIG)/obj/gopass.o
+DEPS_38 += $(CONFIG)/inc/goahead.h
+DEPS_38 += $(CONFIG)/inc/js.h
+DEPS_38 += $(CONFIG)/obj/action.o
+DEPS_38 += $(CONFIG)/obj/alloc.o
+DEPS_38 += $(CONFIG)/obj/auth.o
+DEPS_38 += $(CONFIG)/obj/cgi.o
+DEPS_38 += $(CONFIG)/obj/crypt.o
+DEPS_38 += $(CONFIG)/obj/file.o
+DEPS_38 += $(CONFIG)/obj/fs.o
+DEPS_38 += $(CONFIG)/obj/http.o
+DEPS_38 += $(CONFIG)/obj/js.o
+DEPS_38 += $(CONFIG)/obj/jst.o
+DEPS_38 += $(CONFIG)/obj/options.o
+DEPS_38 += $(CONFIG)/obj/osdep.o
+DEPS_38 += $(CONFIG)/obj/rom-documents.o
+DEPS_38 += $(CONFIG)/obj/route.o
+DEPS_38 += $(CONFIG)/obj/runtime.o
+DEPS_38 += $(CONFIG)/obj/socket.o
+DEPS_38 += $(CONFIG)/obj/upload.o
+DEPS_38 += $(CONFIG)/obj/est.o
+DEPS_38 += $(CONFIG)/obj/matrixssl.o
+DEPS_38 += $(CONFIG)/obj/nanossl.o
+DEPS_38 += $(CONFIG)/obj/openssl.o
+DEPS_38 += $(CONFIG)/bin/libgo.dylib
+DEPS_38 += $(CONFIG)/obj/gopass.o
 
-LIBS_37 += -lgo
+LIBS_38 += -lgo
 ifeq ($(BIT_PACK_EST),1)
-    LIBS_37 += -lest
+    LIBS_38 += -lest
 endif
 ifeq ($(BIT_PACK_MATRIXSSL),1)
-    LIBS_37 += -lmatrixssl
-    LIBPATHS_37 += -L$(BIT_PACK_MATRIXSSL_PATH)
+    LIBS_38 += -lmatrixssl
+    LIBPATHS_38 += -L$(BIT_PACK_MATRIXSSL_PATH)
 endif
 ifeq ($(BIT_PACK_NANOSSL),1)
-    LIBS_37 += -lssls
-    LIBPATHS_37 += -L$(BIT_PACK_NANOSSL_PATH)/bin
+    LIBS_38 += -lssls
+    LIBPATHS_38 += -L$(BIT_PACK_NANOSSL_PATH)/bin
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_37 += -lssl
-    LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
+    LIBS_38 += -lssl
+    LIBPATHS_38 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 ifeq ($(BIT_PACK_OPENSSL),1)
-    LIBS_37 += -lcrypto
-    LIBPATHS_37 += -L$(BIT_PACK_OPENSSL_PATH)
+    LIBS_38 += -lcrypto
+    LIBPATHS_38 += -L$(BIT_PACK_OPENSSL_PATH)
 endif
 
-$(CONFIG)/bin/gopass: $(DEPS_37)
+$(CONFIG)/bin/gopass: $(DEPS_38)
 	@echo '      [Link] $(CONFIG)/bin/gopass'
-	$(CC) -o $(CONFIG)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) 
 
 #
 #   stop
 #
-stop: $(DEPS_38)
+stop: $(DEPS_39)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_39)
-	mkdir -p "$(BIT_APP_PREFIX)"
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	ln -s "3.1.3" "$(BIT_APP_PREFIX)/latest"
-	mkdir -p "$(BIT_VAPP_PREFIX)/bin"
-	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead
-	mkdir -p "$(BIT_BIN_PREFIX)"
-	rm -f "$(BIT_BIN_PREFIX)/goahead"
-	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead"
-	cp $(CONFIG)/bin/libgo.dylib $(BIT_VAPP_PREFIX)/bin/libgo.dylib
-ifeq ($(BIT_PACK_EST),1)
-	cp $(CONFIG)/bin/libest.dylib $(BIT_VAPP_PREFIX)/bin/libest.dylib
-endif
-	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt
-	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1"
-	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1
-	mkdir -p "$(BIT_MAN_PREFIX)/man1"
-	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1"
-	cp doc/man/gopass.1 $(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1
-	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1"
-	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1
-	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1"
-	mkdir -p "$(BIT_WEB_PREFIX)"
-	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html
-	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico
-	mkdir -p "$(BIT_ETC_PREFIX)"
-	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt
-	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt
-	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt
-	cp src/self.key $(BIT_ETC_PREFIX)/self.key
+installBinary: $(DEPS_40)
+	( \
+	cd .; \
+	mkdir -p "$(BIT_APP_PREFIX)" ; \
+	rm -f "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "3.2.1" "$(BIT_APP_PREFIX)/latest" ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
+	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead ; \
+	mkdir -p "$(BIT_BIN_PREFIX)" ; \
+	rm -f "$(BIT_BIN_PREFIX)/goahead" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/bin/goahead" "$(BIT_BIN_PREFIX)/goahead" ; \
+	cp $(CONFIG)/bin/libgo.dylib $(BIT_VAPP_PREFIX)/bin/libgo.dylib ; \
+	if [ "$(BIT_PACK_EST)" = 1 ]; then true ; \
+	cp $(CONFIG)/bin/libest.dylib $(BIT_VAPP_PREFIX)/bin/libest.dylib ; \
+	fi ; \
+	cp $(CONFIG)/bin/ca.crt $(BIT_VAPP_PREFIX)/bin/ca.crt ; \
+	mkdir -p "$(BIT_VAPP_PREFIX)/doc/man/man1" ; \
+	cp doc/man/goahead.1 $(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
+	mkdir -p "$(BIT_MAN_PREFIX)/man1" ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/goahead.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(BIT_MAN_PREFIX)/man1/goahead.1" ; \
+	cp doc/man/gopass.1 $(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1 ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/gopass.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(BIT_MAN_PREFIX)/man1/gopass.1" ; \
+	cp doc/man/webcomp.1 $(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1 ; \
+	rm -f "$(BIT_MAN_PREFIX)/man1/webcomp.1" ; \
+	ln -s "$(BIT_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(BIT_MAN_PREFIX)/man1/webcomp.1" ; \
+	mkdir -p "$(BIT_WEB_PREFIX)" ; \
+	cp src/web/index.html $(BIT_WEB_PREFIX)/index.html ; \
+	cp src/web/favicon.ico $(BIT_WEB_PREFIX)/favicon.ico ; \
+	mkdir -p "$(BIT_ETC_PREFIX)" ; \
+	cp src/auth.txt $(BIT_ETC_PREFIX)/auth.txt ; \
+	cp src/route.txt $(BIT_ETC_PREFIX)/route.txt ; \
+	cp src/self.crt $(BIT_ETC_PREFIX)/self.crt ; \
+	cp src/self.key $(BIT_ETC_PREFIX)/self.key ; \
+	)
 
 #
 #   start
 #
-start: $(DEPS_40)
+start: $(DEPS_41)
 
 #
 #   install
 #
-DEPS_41 += stop
-DEPS_41 += installBinary
-DEPS_41 += start
+DEPS_42 += stop
+DEPS_42 += installBinary
+DEPS_42 += start
 
-install: $(DEPS_41)
-	
+install: $(DEPS_42)
 
 #
 #   uninstall
 #
-DEPS_42 += stop
+DEPS_43 += stop
 
-uninstall: $(DEPS_42)
-	rm -fr "$(BIT_WEB_PREFIX)"
-	rm -fr "$(BIT_VAPP_PREFIX)"
-	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true
-	rmdir -p "$(BIT_WEB_PREFIX)" 2>/dev/null ; true
-	rm -f "$(BIT_APP_PREFIX)/latest"
-	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true
+uninstall: $(DEPS_43)
+	( \
+	cd .; \
+	rm -fr "$(BIT_WEB_PREFIX)" ; \
+	rm -fr "$(BIT_VAPP_PREFIX)" ; \
+	rmdir -p "$(BIT_ETC_PREFIX)" 2>/dev/null ; true ; \
+	rmdir -p "$(BIT_WEB_PREFIX)" 2>/dev/null ; true ; \
+	rm -f "$(BIT_APP_PREFIX)/latest" ; \
+	rmdir -p "$(BIT_APP_PREFIX)" 2>/dev/null ; true ; \
+	)
 
 #
 #   run
 #
-run: $(DEPS_43)
+run: $(DEPS_44)
 	cd src; goahead -v ; cd ..

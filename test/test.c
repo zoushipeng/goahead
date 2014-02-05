@@ -57,7 +57,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char    *argp, *auth, *home, *documents, *endpoints, *endpoint, *route, *tok;
+    char    *argp, *auth, *home, *documents, *endpoints, *endpoint, *route, *tok, *lspec;
     int     argind;
 
     route = "route.txt";
@@ -96,8 +96,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s: %s-%s\n", BIT_PRODUCT, BIT_VERSION, BIT_BUILD_NUMBER);
+            printf("%s: %s\n", BIT_PRODUCT, BIT_VERSION);
             exit(0);
+
+        } else if (*argp == '-' && isdigit((uchar) argp[1])) {
+            lspec = sfmt("stdout:%s", &argp[1]);
+            logSetPath(lspec);
+            wfree(lspec);
 
         } else {
             usage();
@@ -175,7 +180,7 @@ static void logHeader()
     getcwd(home, sizeof(home));
     trace(2, "Configuration for %s", BIT_TITLE);
     trace(2, "---------------------------------------------");
-    trace(2, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    trace(2, "Version:            %s", BIT_VERSION);
     trace(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
     trace(2, "CPU:                %s", BIT_CPU);
     trace(2, "OS:                 %s", BIT_OS);
@@ -188,7 +193,7 @@ static void logHeader()
 
 
 static void usage() {
-    //  MOB - replace
+    //  TODO - replace
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
@@ -386,7 +391,7 @@ static int legacyTest(Webs *wp, char *prefix, char *dir, int flags)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

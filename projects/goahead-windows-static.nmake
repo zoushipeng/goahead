@@ -3,8 +3,7 @@
 #
 
 PRODUCT            = goahead
-VERSION            = 3.1.3
-BUILD_NUMBER       = 0
+VERSION            = 3.2.1
 PROFILE            = static
 PA                 = $(PROCESSOR_ARCHITECTURE)
 
@@ -102,6 +101,7 @@ TARGETS            = $(TARGETS) $(CONFIG)\bin\ca.crt
 TARGETS            = $(TARGETS) $(CONFIG)\bin\libgo.lib
 TARGETS            = $(TARGETS) $(CONFIG)\bin\goahead.exe
 TARGETS            = $(TARGETS) $(CONFIG)\bin\goahead-test.exe
+TARGETS            = $(TARGETS) bower.json
 TARGETS            = $(TARGETS) $(CONFIG)\bin\gopass.exe
 
 !IFNDEF SHOW
@@ -142,6 +142,7 @@ clean:
 	if exist "$(CONFIG)\bin\goahead-test.lib" del /Q "$(CONFIG)\bin\goahead-test.lib"
 	if exist "$(CONFIG)\bin\goahead-test.pdb" del /Q "$(CONFIG)\bin\goahead-test.pdb"
 	if exist "$(CONFIG)\bin\goahead-test.exp" del /Q "$(CONFIG)\bin\goahead-test.exp"
+	if exist "bower.json" del /Q "bower.json"
 	if exist "$(CONFIG)\bin\gopass.exe" del /Q "$(CONFIG)\bin\gopass.exe"
 	if exist "$(CONFIG)\bin\gopass.lib" del /Q "$(CONFIG)\bin\gopass.lib"
 	if exist "$(CONFIG)\bin\gopass.pdb" del /Q "$(CONFIG)\bin\gopass.pdb"
@@ -179,7 +180,7 @@ clean:
 #   version
 #
 version: $(DEPS_1)
-	@echo 3.1.3-0
+	echo 3.2.1
 
 #
 #   bit.h
@@ -213,7 +214,7 @@ $(CONFIG)\bin\removeFiles.exe: $(DEPS_4)
 $(CONFIG)\inc\est.h: $(DEPS_5)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y src\deps\est\est.h $(CONFIG)\inc\est.h
+	copy /Y src\paks\est\est.h $(CONFIG)\inc\est.h
 
 #
 #   bitos.h
@@ -233,9 +234,9 @@ DEPS_7 = $(DEPS_7) $(CONFIG)\inc\est.h
 DEPS_7 = $(DEPS_7) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\estLib.obj: \
-    src\deps\est\estLib.c $(DEPS_7)
+    src\paks\est\estLib.c $(DEPS_7)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\deps\est\estLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c
 
 !IF "$(BIT_PACK_EST)" == "1"
 #
@@ -254,12 +255,12 @@ $(CONFIG)\bin\libest.lib: $(DEPS_8)
 #
 #   ca-crt
 #
-DEPS_9 = $(DEPS_9) src\deps\est\ca.crt
+DEPS_9 = $(DEPS_9) src\paks\est\ca.crt
 
 $(CONFIG)\bin\ca.crt: $(DEPS_9)
 	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
 	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
-	copy /Y src\deps\est\ca.crt $(CONFIG)\bin\ca.crt
+	copy /Y src\paks\est\ca.crt $(CONFIG)\bin\ca.crt
 
 #
 #   goahead.h
@@ -698,88 +699,99 @@ $(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\test.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
+#   bower.json
+#
+DEPS_38 = $(DEPS_38) package.json
+
+bower.json: $(DEPS_38)
+	@echo '      [Copy] bower.json'
+	if not exist "." md "."
+	copy /Y package.json bower.json
+
+#
 #   gopass.obj
 #
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bit.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\goahead.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\bitos.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bit.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\goahead.h
+DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bitos.h
 
 $(CONFIG)\obj\gopass.obj: \
-    src\utils\gopass.c $(DEPS_38)
+    src\utils\gopass.c $(DEPS_39)
 	@echo '   [Compile] $(CONFIG)/obj/gopass.obj'
 	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(BIT_PACK_MATRIXSSL_PATH)" "-I$(BIT_PACK_MATRIXSSL_PATH)\matrixssl" "-I$(BIT_PACK_NANOSSL_PATH)\src" "-I$(BIT_PACK_OPENSSL_PATH)\include" src\utils\gopass.c
 
 #
 #   gopass
 #
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\est.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bit.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\bitos.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\estLib.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\inc\est.h
+DEPS_40 = $(DEPS_40) $(CONFIG)\inc\bit.h
+DEPS_40 = $(DEPS_40) $(CONFIG)\inc\bitos.h
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\estLib.obj
 !IF "$(BIT_PACK_EST)" == "1"
-DEPS_39 = $(DEPS_39) $(CONFIG)\bin\libest.lib
+DEPS_40 = $(DEPS_40) $(CONFIG)\bin\libest.lib
 !ENDIF
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\goahead.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\inc\js.h
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\action.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\alloc.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\auth.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\cgi.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\crypt.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\file.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\fs.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\http.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\js.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\jst.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\options.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\osdep.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\rom-documents.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\route.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\runtime.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\socket.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\upload.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\est.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\matrixssl.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\nanossl.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\openssl.obj
-DEPS_39 = $(DEPS_39) $(CONFIG)\bin\libgo.lib
-DEPS_39 = $(DEPS_39) $(CONFIG)\obj\gopass.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\inc\goahead.h
+DEPS_40 = $(DEPS_40) $(CONFIG)\inc\js.h
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\action.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\alloc.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\auth.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\cgi.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\crypt.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\file.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\fs.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\http.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\js.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\jst.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\options.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\osdep.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\rom-documents.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\route.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\runtime.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\socket.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\upload.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\est.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\matrixssl.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\nanossl.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\openssl.obj
+DEPS_40 = $(DEPS_40) $(CONFIG)\bin\libgo.lib
+DEPS_40 = $(DEPS_40) $(CONFIG)\obj\gopass.obj
 
-LIBS_39 = $(LIBS_39) libgo.lib
+LIBS_40 = $(LIBS_40) libgo.lib
 !IF "$(BIT_PACK_EST)" == "1"
-LIBS_39 = $(LIBS_39) libest.lib
+LIBS_40 = $(LIBS_40) libest.lib
 !ENDIF
 !IF "$(BIT_PACK_MATRIXSSL)" == "1"
-LIBS_39 = $(LIBS_39) libmatrixssl.lib
-LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
+LIBS_40 = $(LIBS_40) libmatrixssl.lib
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(BIT_PACK_MATRIXSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_NANOSSL)" == "1"
-LIBS_39 = $(LIBS_39) libssls.lib
-LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
+LIBS_40 = $(LIBS_40) libssls.lib
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(BIT_PACK_NANOSSL_PATH)/bin
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_39 = $(LIBS_39) libeay32.lib
-LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_OPENSSL_PATH)
+LIBS_40 = $(LIBS_40) libeay32.lib
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 !IF "$(BIT_PACK_OPENSSL)" == "1"
-LIBS_39 = $(LIBS_39) libssleay32.lib
-LIBPATHS_39 = $(LIBPATHS_39) -libpath:$(BIT_PACK_OPENSSL_PATH)
+LIBS_40 = $(LIBS_40) libssleay32.lib
+LIBPATHS_40 = $(LIBPATHS_40) -libpath:$(BIT_PACK_OPENSSL_PATH)
 !ENDIF
 
-$(CONFIG)\bin\gopass.exe: $(DEPS_39)
+$(CONFIG)\bin\gopass.exe: $(DEPS_40)
 	@echo '      [Link] $(CONFIG)/bin/gopass.exe'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\gopass.obj" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
+	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\gopass.obj" $(LIBPATHS_40) $(LIBS_40) $(LIBS_40) $(LIBS) 
 
 #
 #   stop
 #
-stop: $(DEPS_40)
+stop: $(DEPS_41)
 #  Omit build script stop
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_41)
+installBinary: $(DEPS_42)
+	cd .
 	if not exist "$(BIT_VAPP_PREFIX)\bin" md "$(BIT_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\goahead.exe "$(BIT_VAPP_PREFIX)\bin\goahead.exe"
 	copy /Y $(CONFIG)\bin\ca.crt "$(BIT_VAPP_PREFIX)\bin\ca.crt"
@@ -791,29 +803,31 @@ installBinary: $(DEPS_41)
 	copy /Y src\route.txt "$(BIT_VAPP_PREFIX)\route.txt"
 	copy /Y src\self.crt "$(BIT_VAPP_PREFIX)\self.crt"
 	copy /Y src\self.key "$(BIT_VAPP_PREFIX)\self.key"
+	cd .
 
 #
 #   start
 #
-start: $(DEPS_42)
+start: $(DEPS_43)
 #  Omit build script start
 
 #
 #   install
 #
-DEPS_43 = $(DEPS_43) stop
-DEPS_43 = $(DEPS_43) installBinary
-DEPS_43 = $(DEPS_43) start
+DEPS_44 = $(DEPS_44) stop
+DEPS_44 = $(DEPS_44) installBinary
+DEPS_44 = $(DEPS_44) start
 
-install: $(DEPS_43)
-
+install: $(DEPS_44)
+#  Omit build script install
 
 #
 #   uninstall
 #
-DEPS_44 = $(DEPS_44) stop
+DEPS_45 = $(DEPS_45) stop
 
-uninstall: $(DEPS_44)
+uninstall: $(DEPS_45)
+	cd .
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q /S "$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q /S "$(BIT_VAPP_PREFIX)"
 	if exist "$(BIT_VAPP_PREFIX)\bin" rd /Q "$(BIT_VAPP_PREFIX)\bin"
@@ -822,11 +836,12 @@ uninstall: $(DEPS_44)
 	if exist "$(BIT_VAPP_PREFIX)\web" rd /Q "$(BIT_VAPP_PREFIX)\web"
 	if exist "$(BIT_VAPP_PREFIX)\latest" del /Q "$(BIT_VAPP_PREFIX)\latest"
 	if exist "$(BIT_VAPP_PREFIX)" rd /Q "$(BIT_VAPP_PREFIX)"
+	cd .
 
 #
 #   run
 #
-run: $(DEPS_45)
+run: $(DEPS_46)
 	cd src
 	goahead -v
 	cd ..

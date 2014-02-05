@@ -42,7 +42,7 @@ static void sigHandler(int signo);
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
-    char  *argp, *home, *documents, *endpoints, *endpoint, *route, *auth, *tok;
+    char    *argp, *home, *documents, *endpoints, *endpoint, *route, *auth, *tok, *lspec;
     int     argind;
 
 #if WINDOWS
@@ -85,8 +85,13 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s-%s\n", BIT_VERSION, BIT_BUILD_NUMBER);
+            printf("%s\n", BIT_VERSION);
             exit(0);
+
+        } else if (*argp == '-' && isdigit((uchar) argp[1])) {
+            lspec = sfmt("stdout:%s", &argp[1]);
+            logSetPath(lspec);
+            wfree(lspec);
 
         } else {
             usage();
@@ -160,7 +165,7 @@ static void logHeader()
     getcwd(home, sizeof(home));
     logmsg(2, "Configuration for %s", BIT_TITLE);
     logmsg(2, "---------------------------------------------");
-    logmsg(2, "Version:            %s-%s", BIT_VERSION, BIT_BUILD_NUMBER);
+    logmsg(2, "Version:            %s", BIT_VERSION);
     logmsg(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
     logmsg(2, "CPU:                %s", BIT_CPU);
     logmsg(2, "OS:                 %s", BIT_OS);
@@ -329,7 +334,7 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

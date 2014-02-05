@@ -273,7 +273,8 @@
     #undef      _CRT_SECURE_NO_WARNINGS
     #define     _CRT_SECURE_NO_WARNINGS 1
     #ifndef     _WIN32_WINNT
-        #define _WIN32_WINNT 0x501
+        /* Target Windows 7 by default */
+        #define _WIN32_WINNT 0x601
     #endif
     /* 
         Work-around to allow the windows 7.* SDK to be used with VS 2012 
@@ -292,7 +293,9 @@
     #define _GNU_SOURCE 1
     #if !BIT_64
         #define _LARGEFILE64_SOURCE 1
-        #define _FILE_OFFSET_BITS 64
+        #ifdef __USE_FILE_OFFSET64
+            #define _FILE_OFFSET_BITS 64
+        #endif
     #endif
 #endif
 
@@ -368,6 +371,9 @@
     #include    <resolv.h>
 #endif
 #endif
+#if BIT_BSD_LIKE
+    #include    <readpassphrase.h>
+#endif
     #include    <setjmp.h>
     #include    <signal.h>
     #include    <stdarg.h>
@@ -411,9 +417,12 @@
     #include    "sys/cygwin.h"
 #endif
 #if LINUX
-    #include    <sys/epoll.h>
+    #include <linux/version.h>
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,0)
+        #include    <sys/epoll.h>
+    #endif
     #include    <sys/prctl.h>
-    #if defined(EFD_NONBLOCK)
+    #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,22)
         #include    <sys/eventfd.h>
     #endif
     #if !__UCLIBC__
@@ -879,9 +888,17 @@ typedef int64 Ticks;
 /*
     Old VxWorks can't do array[]
  */
-#define ARRAY_FLEX 0
+    #define ARRAY_FLEX 0
 #else
-#define ARRAY_FLEX
+    #define ARRAY_FLEX
+#endif
+
+#ifdef __GNUC__
+    #define DEPRECATE(fn) fn __attribute__ ((deprecated))
+#elif defined(_MSC_VER)
+    #define DEPRECATE(fn) __declspec(deprecated) fn
+#else
+    #define DEPRECATE(fn) fn
 #endif
 
 /********************************** Tunables *********************************/
@@ -1084,7 +1101,9 @@ typedef int64 Ticks;
     #define SHUT_RDWR       2
 
     #define TIME_GENESIS UINT64(11644473600000000)
-    #define va_copy(d, s) ((d) = (s))
+    #ifndef va_copy
+        #define va_copy(d, s) ((d) = (s))
+    #endif
 
     #if !WINCE
     #define access      _access
@@ -1321,7 +1340,7 @@ extern "C" {
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis Open Source license or you may acquire a 

@@ -121,7 +121,7 @@ PUBLIC void websFooter(Webs *wp)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

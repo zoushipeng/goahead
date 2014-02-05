@@ -37,7 +37,7 @@ if (App.config.bit_upload) {
             http.close()
             let uploaded = Path("../web/tmp").join(Path(TESTFILE).basename)
             assert(uploaded.size == size)
-            //  MOB - remove need for diff
+            //  TODO - remove need for diff
             Cmd.sh("diff " + uploaded + " " + TESTFILE)
         }
     } 

@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.1.3 Documentation</title>
+    <title>Embedthis GoAhead 3.2.1 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.1.3</div>
+                <div class="version">Embedthis GoAhead 3.2.1</div>
             </div>
         </div>
         <div class="crumbs">
@@ -45,9 +45,10 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#r3.1.3">Release 3.1.3</a></li>
-                <li><a href="#r3.1.0">Release 3.1.0</a></li>
-                <li><a href="#r3.0.0">Release 3.0.0</a></li>
+                <li><a href="#3.2.1">Release 3.2.1</a></li>
+                <li><a href="#3.1.4">Release 3.1.4</a></li>
+                <li><a href="#3.1.0">Release 3.1.0</a></li>
+                <li><a href="#3.0.0">Release 3.0.0</a></li>
             </ul>
 <!-- BeginDsi "dsi/genSeeAlso.html" -->
             <h1>See Also</h1>
@@ -74,7 +75,48 @@
             Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a> 
             for the official product issue list and for comprehensive CVE dispositions.</p>
         
-            <a id="r3.1.3"></a>
+            <a id="3.2.1"></a>
+            <h2 class="section">Changes in 3.2.1</h2>
+            <h3>Fixes</h3>
+            <ul>
+                <li>Fix redirection for URIs ending in "/" on windows 
+                    <a href="https://github.com/embedthis/goahead/issues/78">[issue 78]</a></li>
+            </ul>
+            
+            <a id="3.2.0"></a>
+            <h2 class="section">Changes in 3.2.0</h2>
+            <h3>Minor Features</h3>
+            <ul>
+                <li>Update license to GPLv2
+                    <a href="https://github.com/embedthis/goahead/issues/70">[issue 70]</a></li>
+            </ul>
+            
+            <a id="3.1.4"></a>
+            <h2 class="section">Changes in 3.1.4</h2>
+            <h3>Minor Features</h3>
+            <ul>
+            <ul>
+                <li>Deprecate Windows XP and Vista
+                    <a href="https://github.com/embedthis/goahead/issues/68">[issue 68]</a></li>
+                <li>Fix Windows 8.1 SDK support for building
+                    <a href="https://github.com/embedthis/goahead/issues/69">[issue 69]</a></li>
+            </ul>
+            <h3>Fixes</h3>
+            <ul>
+                <li>gethostbyname for MAC OS X where .local must be appended.
+                    <a href="https://github.com/embedthis/goahead/issues/71">[issue 71]</a></li>
+                <li>Projects without -O2 for debug builds
+                    <a href="https://github.com/embedthis/goahead/issues/72">[issue 72]</a></li>
+                <li>Fixes building on Linux 2.4 which lacks sendfile64.
+                    <a href="https://github.com/embedthis/goahead/issues/73">[issue 73]</a></li>
+                <li>Fix readpassphrase for BSD
+                    <a href="https://github.com/embedthis/goahead/issues/74">[issue 74]</a></li>
+                <li>FIX: Add uninstall script for bit install
+                    <a href="https://github.com/embedthis/goahead/issues/75">[issue 75]</a></li>
+                <li>Make epoll and eventfd conditional based on linux version
+                    <a href="https://github.com/embedthis/goahead/issues/76">[issue 76]</a></li>
+            </ul>
+            <a id="3.1.3"></a>
             <h2 class="section">Changes in 3.1.3</h2>
             <h3>Fixes</h3>
             <ul>
@@ -83,7 +125,7 @@
                 <li>Fix file upload with incomplete boundaries
                     <a href="https://github.com/embedthis/goahead/issues/66">[issue 66]</a></li>
             </ul>
-            <a id="r3.1.2"></a>
+            <a id="3.1.2"></a>
             <h2 class="section">Changes in 3.1.2</h2>
             <h3>Minor Features</h3>
             <ul>
@@ -103,7 +145,7 @@
                 <li>Fix websDecodeUrl documentation. Had arguments reversed.
                     <a href="https://github.com/embedthis/goahead/issues/64">[issue 64]</a></li>
             </ul>
-            <a id="r3.1.1"></a>
+            <a id="3.1.1"></a>
             <h2 class="section">Changes in 3.1.1</h2>
             <h2>Minor Features</h2>
             <ul>
@@ -141,7 +183,7 @@
                 <li>Fix bad memory free using free instead of wfree
                     <a href="https://github.com/embedthis/goahead/issues/58">[issue 58]</a></li>
             </ul>
-            <a id="r3.1.0"></a>
+            <a id="3.1.0"></a>
             <h2 class="section">Changes in 3.1.0</h2>
             <h2>Major Features</h2>
             <ul>
@@ -168,7 +210,7 @@
                 <li>Optimize socket I/O
                     <a href="https://github.com/embedthis/goahead/issues/42">[issue 42]</a></li>
             </ul>
-            <a id="r3.0.0"></a>
+            <a id="3.0.0"></a>
             <h2 class="section">Changes in 3.0.0</h2>
             <p>This is the first Embedthis edition of the GoAhead web server. </p>
             <h2>Major Features</h2>
@@ -230,7 +272,7 @@
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 
-            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013.
+            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014.
             All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>

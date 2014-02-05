@@ -106,7 +106,7 @@ PUBLIC bool websAuthenticate(Webs *wp)
             websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
             return 0;
         }
-        if (wp->authDetails) {
+        if (wp->authDetails && route->parseAuth) {
             if (!(route->parseAuth)(wp)) {
                 return 0;
             }
@@ -713,9 +713,11 @@ static bool parseBasicDetails(Webs *wp)
     /*
         Split userAuth into userid and password
      */
-    userAuth = websDecode64(wp->authDetails);
-    if ((cp = strchr(userAuth, ':')) != NULL) {
-        *cp++ = '\0';
+    cp = 0;
+    if ((userAuth = websDecode64(wp->authDetails)) != 0) {
+        if ((cp = strchr(userAuth, ':')) != NULL) {
+            *cp++ = '\0';
+        }
     }
     if (cp) {
         wp->username = sclone(userAuth);
@@ -1034,7 +1036,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

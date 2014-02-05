@@ -2355,6 +2355,20 @@ static int setLocalHost()
     websSetIpAddr(ipaddr);
     websSetHost(ipaddr);
 }
+#elif MACOSX
+{
+    struct hostent  *hp;
+    if ((hp = gethostbyname(host)) == NULL) {
+        if ((hp = gethostbyname(sfmt("%s.local", host))) == NULL) {
+            error("Can't get host address for host %s: errno %d", host, errno);
+            return -1;
+        }
+    }
+    memcpy((char*) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
+    ipaddr = inet_ntoa(intaddr);
+    websSetIpAddr(ipaddr);
+    websSetHost(ipaddr);
+}
 #else
 {
     struct hostent  *hp;
@@ -2416,6 +2430,8 @@ PUBLIC int websRewriteRequest(Webs *wp, char *url)
     wfree(wp->url);
     wp->url = sclone(url);
     wfree(wp->path);
+    wp->path = 0;
+
     if (websUrlParse(url, &buf, NULL, NULL, &path, NULL, NULL, NULL, NULL) < 0) {
         return -1;
     }
@@ -3043,7 +3059,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
      */
     url = buf;
     port = portbuf;
-    path = "/";
+    path = 0;
     protocol = "http";
     host = "localhost";
     query = "";
@@ -3101,6 +3117,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
             path = tok;
         }
     }
+    if (path == 0) {
+        path = sclone("/");
+    }
     if (pext) {
         if ((cp = strrchr(path, '.')) != NULL) {
             const char* garbage = "/\\";
@@ -3117,7 +3136,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         }
     }
     /*
-        Only the path and extension is decoded (ext is a reference into the path)
+        Only the path and extension are decoded (ext is a reference into the path)
      */
     websDecodeUrl(path, path, -1);
 
@@ -3160,7 +3179,7 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
     int     firstc, j, i, nseg, len;
 
     if (pathArg == 0 || *pathArg == '\0') {
-        return "";
+        return sclone("");
     }
     len = (int) slen(pathArg);
     if ((dupPath = walloc(len + 2)) == 0) {
@@ -3683,7 +3702,7 @@ static void setFileLimits()
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

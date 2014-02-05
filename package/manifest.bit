@@ -73,6 +73,14 @@ Bit.load({
             },{ from:   ['src/auth.txt', 'src/route.txt', 'src/self.crt', 'src/self.key'],
                 to:     '${etc}/'
                 set:    'core',
+
+           }, {
+                from:       [ 'package/uninstall.sh' ],
+                to:         '${abin}/uninstall',
+                expand:     true,
+                permissions: 0755,
+                set:        'core',
+                enable:     "!bit.generating",
             
             /* Source Set */
             },{ from:   [ '*.md' ],
@@ -86,7 +94,7 @@ Bit.load({
                 permissions: 0755,     
                 set:    'source',
 
-            },{ from:   [ 'Makefile', 'main.bit', 'src', 'doc', 'projects', 'package', 'test' ],
+            },{ from:   [ 'Makefile', 'make.bat', 'main.bit', 'package.json', 'src', 'doc', 'projects', 'package', 'test' ],
                 to:     '${src}/',
                 set:    'source',
             },

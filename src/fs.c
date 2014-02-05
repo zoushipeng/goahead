@@ -94,7 +94,22 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
     return 0;
 #else
     WebsStat    s;
-    if (stat(path, &s) < 0) {
+    int         rc;
+#if BIT_WIN_LIKE
+    ssize       len = slen(path) - 1;
+
+    path = sclone(path);
+    if (path[len] == '/') {
+        path[len] = '\0';
+    } else if (path[len] == '\\') {
+        path[len - 1] = '\0';
+    }
+    rc = stat(path, &s);
+    wfree(path);
+#else
+    rc = stat(path, &s);
+#endif
+    if (rc < 0) {
         return -1;
     }
     sbuf->size = (ssize) s.st_size;
@@ -202,7 +217,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
 /*
     @copy   default
 
-    Copyright (c) Embedthis Software LLC, 2003-2013. All Rights Reserved.
+    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 

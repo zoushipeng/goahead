@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.1.3 Documentation</title>
+    <title>Embedthis GoAhead 3.2.1 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.1.3</div>
+                <div class="version">Embedthis GoAhead 3.2.1</div>
             </div>
         </div>
         <div class="crumbs">
@@ -87,24 +87,24 @@
             <h2 class="section">System Requirements</h2>
             <p>The following operating systems are be supported by compiling GoAhead from source.</p>
             <ul>
-                <li>FreeBSD</li>
-                <li>Linux 2.4 and 2.6</li>
-                <li>MAC OS X</li>
-                <li>VxWorks 5.4 and 6.X</li>
-                <li>Windows</li>
+                <li>FreeBSD 1.X</li>
+                <li>Linux 2.6</li>
+                <li>MAC OS X 10.7 and later</li>
+                <li>VxWorks 6.X</li>
+                <li>Windows 7 and later</li>
             </ul>
             <p>The following CPU architectures are supported: arm, mips, ppc, xscale, x86, x64, sparc.</p>
             <p>The software has also been ported to other operating systems.</p>
             <h2 class="section">Run-time System Requirements</h2>
-            <p>To install GoAhead on a development system, your system will need at least the following:</p>
+            <p>To deploy GoAhead in an embedded environment, you will need at least the following:</p>
+            <ul>
+                <li>500K - 1MB Disk / ROM space</li>
+                <li>400K - 1MB RAM</li>
+            </ul>
+            <p>To install and build GoAhead from source on a development system, your system will need at least the following:</p>
             <ul>
                 <li>60 MB Disk</li>
                 <li>1GB MB RAM</li>
-            </ul>
-            <p>To deploy GoAhead in an embedded environment, you will need at least the following:</p>
-            <ul>
-                <li>500K Disk / ROM space</li>
-                <li>400K RAM</li>
             </ul>
             <h2 class="section">Development Environment</h2>
             <p>To compile GoAhead you will need to use a C compiler and associated
@@ -112,24 +112,10 @@
             compile and build samples and source code.</p>
             <ul>
                 <li>Linux GNU tools</li>
-                <li>Windows Visual Studio (Visual Studio 2010 and Visual Studio 2010 Express).</li>
+                <li>Windows Visual Studio 10 (express editions are fine).</li>
                 <li>WindRiver Tornado Development Tools.</li>
-                <li>Ejscript including the Built It. Download from (<a href="http://ejscript.org/">Ejscript</a>).</li>
+                <li>Mac OS X Xcode.</li>
             </ul>
-            <h2 class="section">Known Issues</h2>
-            <a id="issues"></a>
-            <ol><li>The Mocana NanoSSL does not support:
-                    <ul>
-                        <li>Client mode SSL</li>
-                        <li>Cipher selection via configure</li>
-                        <li>Client certificate mutual authentication</li>
-                    </ul>
-                </li>
-                <li>The MatrixSSL does not support:
-                <ul>
-                    <li>Cipher selection via configure</li>
-                </ul>
-            </ol>
             <a id="hints"></a>
             <h2 class="section">Helpful Hints</h2>
             <h3>Debug Trace and Logging</h3>
@@ -150,7 +136,7 @@ goahead -v
 <!-- BeginDsi "dsi/bottom.html" -->
 	<div class="bottom">
 		<p class="footnote"> 
-            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2013.
+            <a href="../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014.
             All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
 		</p>
 	</div>

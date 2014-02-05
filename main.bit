@@ -11,17 +11,12 @@
 Bit.load({
     blend: [
         "${BITS}/embedthis.bit",
-        "src/deps/est/est.bit",
+        "src/paks/est/est.bit",
         "doc/doc.bit",
     ],
 
     settings: {
-        product: 'goahead',
-        title: 'Embedthis GoAhead',
-        company: 'Embedthis',
-        version: '3.1.3',
-        buildNumber: '0',
-        bit: '0.8.6',
+        bit: '0.9.3',
         sync: [ 'bitos', 'est' ],
         packs: [ 'bits/packs' ],
 
@@ -311,6 +306,12 @@ Bit.load({
             },
         },
 
+        'bower.json': {
+            type: 'file',
+            path: 'bower.json',
+            files: [ 'package.json' ],
+        },
+
         /*
             Compiler for web pages into C code
          */
@@ -374,6 +375,25 @@ Bit.load({
 
         rom: {
             action: "Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))",
+        },
+
+        install: {
+            home: '${TOP}',
+            generate: ' ',
+            depends: [ 'all', 'stop', 'installBinary', 'start' ],
+            action: "
+                trace('Info', bit.settings.title + ' installed at ' + bit.prefixes.vapp)
+                trace('Info', 'Configuration directory ' + bit.prefixes.etc)
+                trace('Info', 'Documents directory ' + bit.prefixes.web)
+                trace('Info', 'Executables directory ' + bit.prefixes.vapp.join('bin'))
+                trace('Info', 'Use \"man goahead\" for usage')
+                trace('Info', 'Run via \"cd ' + bit.prefixes.etc + ' ; sudo goahead -v ' + bit.prefixes.web + '\"')
+                trace('Info', 'Browse to ' + bit.settings.goahead.listen[0].replace('*', 'localhost').replace(':80', '/'))
+                let pid = Cmd.ps('goahead')
+                if (pid && pid.length > 0) {
+                    trace('Info', bit.settings.title + ' PID: ' + pid[0].pid)
+                }
+            ",
         },
     },
 
