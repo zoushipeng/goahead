@@ -1,0 +1,52 @@
+{
+    "name": "goahead",
+    "description": "Embedthis GoAhead Embedded Web Server",
+    "title": "Embedthis GoAhead",
+    "version": "3.3.0",
+    "keywords": [
+        "goahead",
+        "http",
+        "webserver"
+    ],
+    "homepage": "http://embedthis.com/products/goahead/",
+    "author": {
+        "name": "Embedthis Software",
+        "email": "dev@embedthis.com",
+        "url": "http://embedthis.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git://github.com/embedthis/goahead.git"
+    },
+    "bugs": {
+        "email": "dev@embedthis.com",
+        "url": "http://github.com/embedthis/goahead/issues"
+    },
+    "ignore": [
+        "**/.*",
+        "node_modules",
+        "bower_components",
+        "test",
+        "tests",
+        "*-debug",
+        "*-release",
+        "releases"
+    ],
+    "licenses": [
+        {
+            "type": "GPL",
+            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
+        },
+        {
+            "type": "Commercial",
+            "url": "http://embedthis.com/licensing/"
+        }
+    ],
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+        "bitos": "~0.8",
+        "est": "~0.6"
+    }
+}
