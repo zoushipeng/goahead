@@ -864,8 +864,8 @@
       <type>int</type>
       <name>websDefineHandler</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaac26a36fb28e1486fd54443ad59674a5</anchor>
-      <arglist>(char *name, WebsHandlerProc service, WebsHandlerClose close, int flags)</arglist>
+      <anchor>ga89a36e73774a8ed3e33b9088ecbccd89</anchor>
+      <arglist>(char *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -1615,6 +1615,13 @@
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>websRunRequest</name>
+      <anchorfile>group___webs_route.html</anchorfile>
+      <anchor>gafacb74455ee766e5bfb319f3e811b2da</anchor>
+      <arglist>(Webs *wp)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>websSetRouteAuth</name>
       <anchorfile>group___webs_route.html</anchorfile>
@@ -1867,6 +1874,13 @@
       <name>flags</name>
       <anchorfile>struct_webs_handler.html</anchorfile>
       <anchor>a3f48020f7e631f6f9907ede5ec069f96</anchor>
+      <arglist></arglist>
+    </member>
+    <member kind="variable">
+      <type>WebsHandlerProc</type>
+      <name>match</name>
+      <anchorfile>struct_webs_handler.html</anchorfile>
+      <anchor>a2db0b4a1fa8858c65a2fff4e81941cf8</anchor>
       <arglist></arglist>
     </member>
     <member kind="variable">

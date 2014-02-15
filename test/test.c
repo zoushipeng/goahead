@@ -139,7 +139,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         wfree(endpoints);
     }
 
-    websDefineHandler("test", testHandler, 0, 0);
+    websDefineHandler("test", testHandler, 0, 0, 0);
     websAddRoute("/test", "test", 0);
 #if BIT_GOAHEAD_LEGACY
     websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);

@@ -433,7 +433,7 @@ static void termWebs(Webs *wp, int reuse)
         wp->putfd = -1;
         assert(wp->putname && wp->filename);
         if (rename(wp->putname, wp->filename) < 0) {
-            error("Can't rename put file from %s to %s", wp->putname, wp->filename);
+            error("Cannot rename PUT file from %s to %s", wp->putname, wp->filename);
         }
     }
 #endif
@@ -827,7 +827,12 @@ PUBLIC void websPump(Webs *wp)
             canProceed = processContent(wp);
             break;
         case WEBS_READY:
-            websRouteRequest(wp);
+            websRunRequest(wp);
+            if (wp->flags & WEBS_REROUTE) {
+                websRouteRequest(wp);
+                canProceed = 1;
+                continue;
+            }
             canProceed = (wp->state != WEBS_RUNNING);
             break;
         case WEBS_RUNNING:
@@ -877,6 +882,10 @@ static bool parseIncoming(Webs *wp)
     }
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
+    websRouteRequest(wp);
+    if (wp->state == WEBS_COMPLETE) {
+        return 1;
+    }
 #if !BIT_ROM
 #if BIT_GOAHEAD_CGI
     if (strstr(wp->path, BIT_GOAHEAD_CGI_BIN) != 0) {
@@ -1072,6 +1081,8 @@ static void parseHeaders(Webs *wp)
             wp->contentType = sclone(value);
             if (strstr(value, "application/x-www-form-urlencoded")) {
                 wp->flags |= WEBS_FORM;
+            } else if (strstr(value, "application/json")) {
+                wp->flags |= WEBS_JSON;
             } else if (strstr(value, "multipart/form-data")) {
                 wp->flags |= WEBS_UPLOAD;
             }

@@ -49,7 +49,7 @@ route uri=/ methods=OPTIONS|TRACE handler=options
 route uri=/ extensions=jst,asp handler=jst
 
 #
-#   Support PUT and DELETE methods only for the /put directory
+#   Support PUT and DELETE methods only for the BIT_GOAHEAD_PUT_DIR directory
 #
 route uri=/tmp/ methods=PUT|DELETE
 

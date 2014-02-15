@@ -20,7 +20,7 @@
     #define BIT_COMPANY "embedthis"
 #endif
 #ifndef BIT_COMPATIBLE
-    #define BIT_COMPATIBLE "3.2.2"
+    #define BIT_COMPATIBLE "3.3.0"
 #endif
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 1
@@ -137,7 +137,7 @@
     #define BIT_GOAHEAD_LOGGING 1
 #endif
 #ifndef BIT_GOAHEAD_PUT_DIR
-    #define BIT_GOAHEAD_PUT_DIR "/tmp"
+    #define BIT_GOAHEAD_PUT_DIR "."
 #endif
 #ifndef BIT_GOAHEAD_REALM
     #define BIT_GOAHEAD_REALM "example.com"
@@ -230,7 +230,7 @@
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "3.2.2"
+    #define BIT_VERSION "3.3.0"
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "doxygen,dsi,man,man2html,pmaker,ssl"
@@ -328,13 +328,13 @@
     #define BIT_MAJOR_VERSION 3
 #endif
 #ifndef BIT_MINOR_VERSION
-    #define BIT_MINOR_VERSION 2
+    #define BIT_MINOR_VERSION 3
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 2
+    #define BIT_PATCH_VERSION 0
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 300020002
+    #define BIT_VNUM 300030000
 #endif
 
 /* Packs */

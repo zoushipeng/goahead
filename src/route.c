@@ -38,9 +38,9 @@ static bool redirectHandler(Webs *wp);
 PUBLIC void websRouteRequest(Webs *wp)
 {
     WebsRoute   *route;
+    WebsHandler *handler;
     ssize       plen, len;
     bool        safeMethod;
-    char        *documents;
     int         i, count;
 
     assert(wp);
@@ -49,8 +49,6 @@ PUBLIC void websRouteRequest(Webs *wp)
     assert(wp->protocol);
 
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
-
-    documents = websGetDocuments();
     plen = slen(wp->path);
 
     for (count = 0, i = 0; i < routeCount; i++) {
@@ -80,8 +78,8 @@ PUBLIC void websRouteRequest(Webs *wp)
             continue;
         }
         if (strncmp(wp->path, route->prefix, len) == 0) {
-            wp->route = route;
 #if BIT_GOAHEAD_AUTH
+            wp->route = route;
             if (route->authType && !websAuthenticate(wp)) {
                 return;
             }
@@ -89,34 +87,13 @@ PUBLIC void websRouteRequest(Webs *wp)
                 return;
             }
 #endif
-            if (!wp->filename || route->dir) {
-                wfree(wp->filename);
-                wp->filename = sfmt("%s%s", route->dir ? route->dir : documents, wp->path);
+            if ((handler = route->handler) == 0) {
+                continue;
             }
-            if (!(wp->flags & WEBS_VARS_ADDED)) {
-                if (wp->query && *wp->query) {
-                    websSetQueryVars(wp);
-                }
-                if (wp->flags & WEBS_FORM) {
-                    websSetFormVars(wp);
-                }
-                wp->flags |= WEBS_VARS_ADDED;
-            }
-#if BIT_GOAHEAD_LEGACY
-            if (route->handler->flags & WEBS_LEGACY_HANDLER) {
-                if ((*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags)) {
-                    return;
-                }
-            } else
-#endif
-            assert(route->handler);
-            trace(5, "Route %s calls handler %s", route->prefix, route->handler->name);
-            wp->state = WEBS_RUNNING;
-            if ((*route->handler->service)(wp)) {                                        
-                /* Handled */
+            if (!handler->match || (*handler->match)(wp)) {
                 return;
             }
-            wp->state = WEBS_READY;
+            wp->route = 0;
             if (wp->flags & WEBS_REROUTE) {
                 wp->flags &= ~WEBS_REROUTE;
                 if (++count >= WEBS_MAX_ROUTE) {
@@ -124,16 +101,54 @@ PUBLIC void websRouteRequest(Webs *wp)
                 }
                 i = 0;
             }
-            if (!websValid(wp)) {
-                trace(5, "handler %s called websDone, but didn't return 1", route->handler->name);
-                return;
-            }
         }
     }
     if (count >= WEBS_MAX_ROUTE) {
         error("Route loop for %s", wp->url);
     }
     websError(wp, HTTP_CODE_NOT_ACCEPTABLE, "Can't find suitable route for request.");
+}
+
+
+PUBLIC void websRunRequest(Webs *wp)
+{
+    WebsRoute   *route;
+
+    assert(wp);
+    assert(wp->path);
+    assert(wp->method);
+    assert(wp->protocol);
+
+    route = wp->route;
+    assert(route->handler);
+
+    if (!wp->filename || route->dir) {
+        wfree(wp->filename);
+        wp->filename = sfmt("%s%s", route->dir ? route->dir : websGetDocuments(), wp->path);
+    }
+    if (!(wp->flags & WEBS_VARS_ADDED)) {
+        if (wp->query && *wp->query) {
+            websSetQueryVars(wp);
+        }
+        if (wp->flags & WEBS_FORM) {
+            websSetFormVars(wp);
+        }
+        wp->flags |= WEBS_VARS_ADDED;
+    }
+#if BIT_GOAHEAD_LEGACY
+    if (route->handler->flags & WEBS_LEGACY_HANDLER) {
+        if ((*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags)) {
+            return;
+        }
+    } else
+#endif
+    trace(5, "Route %s calls handler %s", route->prefix, route->handler->name);
+    wp->state = WEBS_RUNNING;
+    if (!(*route->handler->service)(wp)) {                                        
+        if (!websValid(wp)) {
+            trace(5, "handler %s called websDone, but didn't return 1", route->handler->name);
+        }
+    }
 }
 
 
@@ -369,8 +384,8 @@ PUBLIC int websOpenRoute(char *path)
     if ((handlers = hashCreate(-1)) < 0) {
         return -1;
     }
-    websDefineHandler("continue", continueHandler, 0, 0);
-    websDefineHandler("redirect", redirectHandler, 0, 0);
+    websDefineHandler("continue", continueHandler, 0, 0, 0);
+    websDefineHandler("redirect", redirectHandler, 0, 0, 0);
     return 0;
 }
 
@@ -399,18 +414,18 @@ PUBLIC void websCloseRoute()
 }
 
 
-PUBLIC int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose close, int flags)
+PUBLIC int websDefineHandler(char *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags)
 {
     WebsHandler     *handler;
 
     assert(name && *name);
-    assert(service);
 
     if ((handler = walloc(sizeof(WebsHandler))) == 0) {
         return -1;
     }
     memset(handler, 0, sizeof(WebsHandler));
     handler->name = sclone(name);
+    handler->match = match;
     handler->service = service;
     handler->close = close;
     handler->flags = flags;
@@ -593,7 +608,7 @@ PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHand
     assert(handler);
 
     fmt(name, sizeof(name), "%s-%d", prefix, legacyCount);
-    if (websDefineHandler(name, (WebsHandlerProc) handler, 0, WEBS_LEGACY_HANDLER) < 0) {
+    if (websDefineHandler(name, 0, (WebsHandlerProc) handler, 0, WEBS_LEGACY_HANDLER) < 0) {
         return -1;
     }
     if ((route = websAddRoute(prefix, name, 0)) == 0) {
