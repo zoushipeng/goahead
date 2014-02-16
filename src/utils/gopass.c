@@ -119,7 +119,7 @@ static int writeAuthFile(char *path)
 
     assert(path && *path);
 
-    tempFile = tempnam(NULL, "tmp");
+    tempFile = websTempFile(NULL, "gp");
     if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
         error("Can't open %s", tempFile);
         return -1;

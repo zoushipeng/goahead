@@ -61,8 +61,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (smatch(argp, "--auth") || smatch(argp, "-a")) {
             auth = argv[++argind];
 
+#if BIT_UNIX_LIKE && !MACOSX
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
+#endif
 
         } else if (smatch(argp, "--debugger") || smatch(argp, "-d") || smatch(argp, "-D")) {
             websSetDebug(1);
@@ -182,7 +184,7 @@ static void usage() {
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
-#if BIT_WIN_LIKE && !MACOSX
+#if BIT_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
 #endif
         "    --debugger             # Run in debug mode\n"
