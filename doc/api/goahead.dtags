@@ -1615,10 +1615,10 @@
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>bool</type>
       <name>websRunRequest</name>
       <anchorfile>group___webs_route.html</anchorfile>
-      <anchor>gafacb74455ee766e5bfb319f3e811b2da</anchor>
+      <anchor>ga13356d1f5c87381edd681495e5187bcd</anchor>
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
