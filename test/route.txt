@@ -58,7 +58,6 @@ route uri=/tmp/ methods=PUT|DELETE
 #
 route uri=/secure/ protocol=https
 
-
 #
 #   Catch-all route without authentication for all other URIs
 #

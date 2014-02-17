@@ -34,6 +34,9 @@ static int lookupRoute(char *uri);
 static bool redirectHandler(Webs *wp);
 
 /************************************ Code ************************************/
+/*
+    Route the request. If wp->route is already set, test routes after that route
+ */
 
 PUBLIC void websRouteRequest(Webs *wp)
 {
@@ -41,7 +44,7 @@ PUBLIC void websRouteRequest(Webs *wp)
     WebsHandler *handler;
     ssize       plen, len;
     bool        safeMethod;
-    int         i, count;
+    int         i;
 
     assert(wp);
     assert(wp->path);
@@ -51,7 +54,26 @@ PUBLIC void websRouteRequest(Webs *wp)
     safeMethod = smatch(wp->method, "POST") || smatch(wp->method, "GET") || smatch(wp->method, "HEAD");
     plen = slen(wp->path);
 
-    for (count = 0, i = 0; i < routeCount; i++) {
+    /*
+        Resume routine from last matched route. This permits the legacy service() callbacks to return false
+        and continue routing.
+     */
+    if (wp->route && !(wp->flags & WEBS_REROUTE)) {
+        for (i = 0; i < routeCount; i++) {
+            if (wp->route == routes[i]) {
+                i++;
+                break;
+            }
+        }
+        if (i >= routeCount) {
+            i = 0;
+        }
+    } else {
+        i = 0;
+    }
+    wp->route = 0;
+
+    for (; i < routeCount; i++) {
         route = routes[i];
         assert(route->prefix && route->prefixLen > 0);
 
@@ -91,26 +113,27 @@ PUBLIC void websRouteRequest(Webs *wp)
                 continue;
             }
             if (!handler->match || (*handler->match)(wp)) {
+                /* Handler matches */
                 return;
             }
             wp->route = 0;
             if (wp->flags & WEBS_REROUTE) {
                 wp->flags &= ~WEBS_REROUTE;
-                if (++count >= WEBS_MAX_ROUTE) {
+                if (++wp->routeCount >= WEBS_MAX_ROUTE) {
                     break;
                 }
                 i = 0;
             }
         }
     }
-    if (count >= WEBS_MAX_ROUTE) {
+    if (wp->routeCount >= WEBS_MAX_ROUTE) {
         error("Route loop for %s", wp->url);
     }
     websError(wp, HTTP_CODE_NOT_ACCEPTABLE, "Can't find suitable route for request.");
 }
 
 
-PUBLIC void websRunRequest(Webs *wp)
+PUBLIC bool websRunRequest(Webs *wp)
 {
     WebsRoute   *route;
 
@@ -135,20 +158,15 @@ PUBLIC void websRunRequest(Webs *wp)
         }
         wp->flags |= WEBS_VARS_ADDED;
     }
+    wp->state = WEBS_RUNNING;
+    trace(5, "Route %s calls handler %s", route->prefix, route->handler->name);
+
 #if BIT_GOAHEAD_LEGACY
     if (route->handler->flags & WEBS_LEGACY_HANDLER) {
-        if ((*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags)) {
-            return;
-        }
+        return (*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags) == 0;
     } else
 #endif
-    trace(5, "Route %s calls handler %s", route->prefix, route->handler->name);
-    wp->state = WEBS_RUNNING;
-    if (!(*route->handler->service)(wp)) {                                        
-        if (!websValid(wp)) {
-            trace(5, "handler %s called websDone, but didn't return 1", route->handler->name);
-        }
-    }
+    return (*route->handler->service)(wp);
 }
 
 

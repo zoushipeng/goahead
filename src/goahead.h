@@ -1666,6 +1666,7 @@ typedef struct Webs {
     int             state;              /**< Current state */
     int             flags;              /**< Current flags -- see above */
     int             code;               /**< Response status code */
+    int             routeCount;         /**< Route count limiter */
     ssize           rxLen;              /**< Rx content length */
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
@@ -3031,12 +3032,13 @@ PUBLIC void websRouteRequest(Webs *wp);
 /**
     Run a request handler
     @description This routine will run the handler and route selected by #websRouteRequest.
-        In the process, authentication and request rewriting may take place.
         This routine is called internally by the request pipeline.
     @param wp Webs request object
+    @return True if the handler serviced the request. Return false to test other routes to handle this request.
+    This is for legacy handlers that do not have a match callback.
     @ingroup WebsRoute
  */
-PUBLIC void websRunRequest(Webs *wp);
+PUBLIC bool websRunRequest(Webs *wp);
 
 /**
     Configure a route by adding matching criteria

@@ -827,9 +827,9 @@ PUBLIC void websPump(Webs *wp)
             canProceed = processContent(wp);
             break;
         case WEBS_READY:
-            websRunRequest(wp);
-            if (wp->flags & WEBS_REROUTE) {
+            if (!websRunRequest(wp)) {
                 websRouteRequest(wp);
+                wp->state = WEBS_READY;
                 canProceed = 1;
                 continue;
             }
@@ -2443,7 +2443,7 @@ PUBLIC int websRewriteRequest(Webs *wp, char *url)
     wfree(wp->path);
     wp->path = 0;
 
-    if (websUrlParse(url, &buf, NULL, NULL, &path, NULL, NULL, NULL, NULL) < 0) {
+    if (websUrlParse(url, &buf, NULL, NULL, NULL, &path, NULL, NULL, NULL) < 0) {
         return -1;
     }
     wp->path = sclone(path);
