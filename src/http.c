@@ -3533,7 +3533,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 
 PUBLIC char *websGetSessionID(Webs *wp)
 {
-    char    *cookies, *cookie, *cp, *value;
+    char    *cookie, *cp, *value;
     ssize   len;
     int     quoted;
 
@@ -3542,8 +3542,8 @@ PUBLIC char *websGetSessionID(Webs *wp)
     if (wp->session) {
         return wp->session->id;
     }
-    cookies = wp->cookie;
-    for (cookie = cookies; cookie && (value = strstr(cookie, WEBS_SESSION)) != 0; cookie = value) {
+    cookie = wp->cookie;
+    if ((value = strstr(cookie, WEBS_SESSION)) != 0) {
         value += strlen(WEBS_SESSION);
         while (isspace((uchar) *value) || *value == '=') {
             value++;
