@@ -3543,7 +3543,7 @@ PUBLIC char *websGetSessionID(Webs *wp)
         return wp->session->id;
     }
     cookie = wp->cookie;
-    if ((value = strstr(cookie, WEBS_SESSION)) != 0) {
+    if (cookie && (value = strstr(cookie, WEBS_SESSION)) != 0) {
         value += strlen(WEBS_SESSION);
         while (isspace((uchar) *value) || *value == '=') {
             value++;
