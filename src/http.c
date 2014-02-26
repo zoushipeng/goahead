@@ -3118,9 +3118,6 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         *cp++ = '\0';
         query = cp;
         path = tok;
-#if UNUSED
-        tok = query;
-#endif
     } 
     /*
         Parse the fragment identifier
