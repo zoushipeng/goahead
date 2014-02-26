@@ -129,7 +129,7 @@ PUBLIC void websRouteRequest(Webs *wp)
     if (wp->routeCount >= WEBS_MAX_ROUTE) {
         error("Route loop for %s", wp->url);
     }
-    websError(wp, HTTP_CODE_NOT_ACCEPTABLE, "Can't find suitable route for request.");
+    websError(wp, HTTP_CODE_NOT_FOUND, "Can't find suitable route for request.");
 }
 
 
