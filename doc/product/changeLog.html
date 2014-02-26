@@ -45,7 +45,8 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#3.2.2">Release 3.2.2</a></li>
+                <li><a href="#3.4.0">Release 3.4.0</a></li>
+                <li><a href="#3.3.0">Release 3.3.0</a></li>
                 <li><a href="#3.1.4">Release 3.1.4</a></li>
                 <li><a href="#3.1.0">Release 3.1.0</a></li>
                 <li><a href="#3.0.0">Release 3.0.0</a></li>
@@ -75,6 +76,23 @@
             Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a> 
             for the official product issue list and for comprehensive CVE dispositions.</p>
         
+            <a id="3.4.0"></a>
+            <h2 class="section">Changes in 3.4.0</h2>
+            <h3>Fixes</h3>
+            <ul>
+                <li>Return 404 if no suitable route found
+                    <a href="https://github.com/embedthis/goahead/issues/83">[issue 83]</a></li>
+                <li>Fix bad memory free in websListen.
+                    <a href="https://github.com/embedthis/goahead/issues/84">[issue 84]</a></li>
+                <li>Fix parsing request URI. 
+                    <a href="https://github.com/embedthis/goahead/issues/84">[issue 84]</a>
+                    <ul>
+                        <li>Fix case when URL has ":" but no port. strncpy with src == dest.</li>
+                        <li>Fix case where query has "#" fragment.</li>
+                        <li>Fix case where invalid URL has no path</li>
+                    </ul>
+                </li>
+            </ul>
             <a id="3.3.0"></a>
             <h2 class="section">Changes in 3.3.0</h2>
             <h3>Minor Features</h3>
