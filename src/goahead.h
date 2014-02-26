@@ -1540,7 +1540,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #endif
 /********************************** Defines ***********************************/
 
-#define WEBS_MAX_PORT_LEN       10          /* Max digits in port number */
+#define WEBS_MAX_PORT_LEN       16          /* Max digits in port number */
 #define WEBS_HASH_INIT          67          /* Hash size for form table */
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */

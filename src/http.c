@@ -3044,7 +3044,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         char **preference, char **pquery)
 {
     char    *tok, *cp, *host, *path, *port, *protocol, *reference, *query, *ext;
-    char    *hostbuf, *portbuf, *buf;
+    char    *hostbuf, *pathbuf, *portbuf, *buf;
     ssize   len, ulen;
     int     c;
 
@@ -3054,20 +3054,19 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
     ulen = strlen(url);
     /*
         We allocate enough to store separate hostname and port number fields.  As there are 3 strings in the one buffer,
-        we need room for 3 null chars.  We allocate WEBS_MAX_PORT_LEN char's for the port number.  
+        we need room for 3 null chars. We allocate WEBS_MAX_PORT_LEN char's for the port number. Plus an extra two incase
+        the URL is missing a path and null.
      */
-    len = ulen * 2 + WEBS_MAX_PORT_LEN + 3;
+    len = ulen * 2 + WEBS_MAX_PORT_LEN + 3 + 2;
     if ((buf = walloc(len * sizeof(char))) == NULL) {
         return -1;
     }
     memset(buf, 0, len * sizeof(char));
-    portbuf = &buf[len - WEBS_MAX_PORT_LEN - 1];
-    hostbuf = &buf[ulen+1];
+    pathbuf = &buf[len - 2];
+    portbuf = &buf[len - 2 - WEBS_MAX_PORT_LEN];
+    hostbuf = &buf[ulen + 1];
     sncopy(buf, len, url, ulen);
 
-    /*
-        Convert the current listen port to a string. We use this if the URL has no explicit port setting
-     */
     url = buf;
     port = portbuf;
     path = 0;
@@ -3099,7 +3098,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
             c = *cp;
             *cp = '\0';
             strncpy(hostbuf, host, ulen);
-            strncpy(portbuf, port, WEBS_MAX_PORT_LEN);
+            if (port != portbuf) {
+                strncpy(portbuf, port, WEBS_MAX_PORT_LEN);
+            }
             *cp = c;
             host = hostbuf;
             port = portbuf;
@@ -3117,7 +3118,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         *cp++ = '\0';
         query = cp;
         path = tok;
+#if UNUSED
         tok = query;
+#endif
     } 
     /*
         Parse the fragment identifier
@@ -3129,11 +3132,13 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         }
     }
     if (path == 0) {
-        path = sclone("/");
+        path = pathbuf;
+        path[0] = '/';
+        path[1] = '\0';
     }
     if (pext) {
         if ((cp = strrchr(path, '.')) != NULL) {
-            const char* garbage = "/\\";
+            cchar *garbage = "/\\";
             ssize length = strcspn(cp, garbage);
             ssize glen = strspn(cp + length, garbage);
             ssize ok = (cp[length + glen] == '\0');
