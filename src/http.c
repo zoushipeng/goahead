@@ -626,7 +626,6 @@ PUBLIC int websListen(char *endpoint)
         ipaddr = "*";
     }
     trace(2, "Started %s://%s:%d", secure ? "https" : "http", ipaddr, port);
-    wfree(ip);
 
     if (!websHostUrl) {
         if (port == 80) {
@@ -642,6 +641,7 @@ PUBLIC int websListen(char *endpoint)
             websIpAddrUrl = sfmt("%s:%d", websIpAddr, port);
         }
     }
+    wfree(ip);
     return sid;
 }
 
