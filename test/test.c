@@ -195,7 +195,6 @@ static void logHeader()
 
 
 static void usage() {
-    //  TODO - replace
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"

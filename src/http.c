@@ -3119,15 +3119,23 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
         *delim++ = '\0';
         tok = delim;
 
-    } else if (*tok && *tok != '/' && *tok != ':') {
-        /* hostname[:port][/path] */
+    } else if (*tok && *tok != '/' && *tok != ':' && (scheme || strchr(tok, ':'))) {
+        /* 
+           Supported forms:
+               scheme://hostname
+               hostname[:port][/path] 
+         */
         host = tok;
         if ((tok = strpbrk(tok, ":/")) == 0) {
             tok = "";
         }
+        /* Don't terminate the hostname yet, need to see if tok is a ':' for a port. */
+        assert(tok);
     }
+
     /* [:port][/path] */
     if (*tok == ':') {
+        /* Terminate hostname */
         *tok++ = '\0';
         port = tok;
         if ((tok = strchr(tok, '/')) == 0) {
@@ -3136,8 +3144,11 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     }
 
     /* [/path] */
-    if (*tok == '/') {
-        /* Temporarily the path is sans leading slash. Inserted if ppath is set */
+    if (*tok) {
+        /* 
+           Terminate hostname. This zeros the leading path slash.
+           This will be repaired before returning if ppath is set 
+         */
         *tok++ = '\0';
         path = tok;
         /* path[.ext[/extra]] */
@@ -3177,6 +3188,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
         if (path == 0) {
             path = "/";
         } else {
+            /* Copy path to reinsert leading slash */
             scopy(&buf2[1], len - 1, path);
             path = buf2;
             *path = '/';
