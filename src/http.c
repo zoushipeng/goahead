@@ -920,7 +920,7 @@ static bool parseIncoming(Webs *wp)
 static void parseFirstLine(Webs *wp)
 {
     char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
-    int     testPort;
+    int     listenPort;
 
     assert(wp);
     assert(websValid(wp));
@@ -983,8 +983,8 @@ static void parseFirstLine(Webs *wp)
         websError(wp, WEBS_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
     }
     wp->protoVersion = sclone(protoVer);
-    if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
-        wp->port = testPort;
+    if ((listenPort = socketGetPort(wp->listenSid)) >= 0) {
+        wp->port = listenPort;
     } else {
         wp->port = atoi(port);
     }
@@ -3037,136 +3037,156 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
 }
 
 
+PUBLIC bool websValidUriChars(char *uri)
+{
+    ssize   pos;
+
+    if (uri == 0 || *uri == 0) {
+        return 1;
+    }
+    pos = strspn(uri, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%");
+    if (pos < slen(uri)) {
+        error("Bad character in URI at \"%s\"", &uri[pos]);
+        return 0;
+    }
+    return 1;
+}
+
+
 /*
-    Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
+    Parse the URL. A single buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
  */
-PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **pport, char **ppath, char **pext, 
+PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, char **pport, char **ppath, char **pext, 
         char **preference, char **pquery)
 {
-    char    *tok, *cp, *host, *path, *port, *protocol, *reference, *query, *ext;
-    char    *hostbuf, *pathbuf, *portbuf, *buf;
-    ssize   len, ulen;
-    int     c;
+    char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
+    ssize   buflen, ulen, len;
+    int     rc;
 
-    assert(url);
     assert(pbuf);
-
-    ulen = strlen(url);
+    if (url == 0) {
+        url = "";
+    }
     /*
-        We allocate enough to store separate hostname and port number fields.  As there are 3 strings in the one buffer,
-        we need room for 3 null chars. We allocate WEBS_MAX_PORT_LEN char's for the port number. Plus an extra two incase
-        the URL is missing a path and null.
+        Allocate twice. Need to null terminate the host so have to copy the path.
      */
-    len = ulen * 2 + WEBS_MAX_PORT_LEN + 3 + 2;
-    if ((buf = walloc(len * sizeof(char))) == NULL) {
+    ulen = strlen(url);
+    len = ulen + 1;
+    buflen = len * 2;
+    if ((buf = walloc(buflen)) == NULL) {
         return -1;
     }
-    memset(buf, 0, len * sizeof(char));
-    pathbuf = &buf[len - 2];
-    portbuf = &buf[len - 2 - WEBS_MAX_PORT_LEN];
-    hostbuf = &buf[ulen + 1];
+    buf2 = &buf[ulen + 1];
     sncopy(buf, len, url, ulen);
-
+    sncopy(buf2, len, url, ulen);
     url = buf;
-    port = portbuf;
-    path = 0;
-    protocol = "http";
-    host = "localhost";
-    query = "";
-    ext = 0;
-    reference = "";
 
-    if (strncmp(url, "http://", 7) == 0) {
-        tok = &url[7];
-        tok[-3] = '\0';
-        protocol = url;
-        host = tok;
-        for (cp = tok; *cp; cp++) {
-            if (*cp == '/') {
-                break;
-            }
-            if (*cp == ':') {
-                *cp++ = '\0';
-                port = cp;
-                tok = cp;
-            }
-        }
-        if ((cp = strchr(tok, '/')) != NULL) {
-            /*
-                If a full URL is supplied, we need to copy the host and port portions into static buffers.
-             */
-            c = *cp;
-            *cp = '\0';
-            strncpy(hostbuf, host, ulen);
-            if (port != portbuf) {
-                strncpy(portbuf, port, WEBS_MAX_PORT_LEN);
-            }
-            *cp = c;
-            host = hostbuf;
-            port = portbuf;
-            path = cp;
-            tok = cp;
-        }
-    } else {
-        path = url;
-        tok = url;
+    scheme = 0;
+    host = 0;
+    port = 0;
+    path = 0;
+    ext = 0;
+    query = 0;
+    reference = 0;
+    tok = buf;
+
+    /*
+        [scheme://][hostname[:port]][/path[.ext]][#ref][?query]
+        First trim query and then reference from the end
+     */
+    if ((query = strchr(tok, '?')) != NULL) {
+        *query++ = '\0';
     }
-    /*
-        Parse the query string
-     */
-    if ((cp = strchr(tok, '?')) != NULL) {
-        *cp++ = '\0';
-        query = cp;
-        path = tok;
-    } 
-    /*
-        Parse the fragment identifier
-     */
     if ((reference = strchr(tok, '#')) != NULL) {
         *reference++ = '\0';
-        if (*query == 0) {
-            path = tok;
+    }
+
+    /*
+        [scheme://][hostname[:port]][/path]
+     */
+    if ((delim = strstr(tok, "://")) != 0) {
+        scheme = tok;
+        *delim = '\0';
+        tok = &delim[3];
+    }
+
+    /*
+        [hostname[:port]][/path]
+     */
+    if (*tok == '[' && ((delim = strchr(tok, ']')) != 0)) {
+        /* IPv6 [::] */
+        host = &tok[1];
+        *delim++ = '\0';
+        tok = delim;
+
+    } else if (*tok && *tok != '/' && *tok != ':') {
+        /* hostname[:port][/path] */
+        host = tok;
+        if ((tok = strpbrk(tok, ":/")) == 0) {
+            tok = "";
         }
     }
-    if (path == 0) {
-        path = pathbuf;
-        path[0] = '/';
-        path[1] = '\0';
+    /* [:port][/path] */
+    if (*tok == ':') {
+        *tok++ = '\0';
+        port = tok;
+        if ((tok = strchr(tok, '/')) == 0) {
+            tok = "";
+        }
     }
-    if (pext) {
-        if ((cp = strrchr(path, '.')) != NULL) {
-            cchar *garbage = "/\\";
-            ssize length = strcspn(cp, garbage);
-            ssize glen = strspn(cp + length, garbage);
-            ssize ok = (cp[length + glen] == '\0');
-            if (ok) {
-                cp[length] = '\0';
-#if BIT_WIN_LIKE
-                slower(cp);            
-#endif
-                ext = cp;
+
+    /* [/path] */
+    if (*tok == '/') {
+        /* Temporarily the path is sans leading slash. Inserted if ppath is set */
+        *tok++ = '\0';
+        path = tok;
+        /* path[.ext[/extra]] */
+        if ((tok = strrchr(path, '.')) != 0) {
+            if (tok[1]) {
+                if ((delim = strrchr(path, '/')) != 0) {
+                    if (delim < tok) {
+                        ext = tok;
+                    }
+                } else {
+                    ext = tok;
+                }
             }
         }
     }
     /*
-        Only the path and extension are decoded (ext is a reference into the path)
+        Pass back the requested fields
      */
-    websDecodeUrl(path, path, -1);
-
-    /*
-        Pass back the fields requested (if not NULL)
-     */
-    if (phost) {
-        *phost = host;
+    rc = 0;
+    *pbuf = buf;
+    if (pscheme) {
+        if (scheme == 0) {
+            scheme = "http";
+        }
+        *pscheme = scheme;
     }
-    if (ppath) {
-        *ppath = path;
+    if (phost) {
+        if (host == 0) {
+            host = "localhost";
+        }
+        *phost = host;
     }
     if (pport) {
         *pport = port;
     }
-    if (pprotocol) {
-        *pprotocol = protocol;
+    if (ppath) {
+        if (path == 0) {
+            path = "/";
+        } else {
+            scopy(&buf2[1], len - 1, path);
+            path = buf2;
+            *path = '/';
+            if (!websValidUriChars(path)) {
+                rc = -1;
+            } else {
+                websDecodeUrl(path, path, -1);
+            }
+        }
+        *ppath = path;
     }
     if (pquery) {
         *pquery = query;
@@ -3175,10 +3195,12 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         *preference = reference;
     }
     if (pext) {
+#if BIT_WIN_LIKE
+        slower(ext);            
+#endif
         *pext = ext;
     }
-    *pbuf = buf;
-    return 0;
+    return rc;
 }
 
 
