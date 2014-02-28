@@ -3,7 +3,7 @@
 #
 
 PRODUCT            = goahead
-VERSION            = 3.3.0-rc1
+VERSION            = 3.3.0
 PROFILE            = default
 PA                 = $(PROCESSOR_ARCHITECTURE)
 
@@ -186,7 +186,7 @@ clean:
 #   version
 #
 version: $(DEPS_1)
-	echo 3.3.0-rc1
+	echo 3.3.0
 
 #
 #   bit.h

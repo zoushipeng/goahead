@@ -230,7 +230,7 @@
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "3.3.0-rc1"
+    #define BIT_VERSION "3.3.0"
 #endif
 #ifndef BIT_WITHOUT_ALL
     #define BIT_WITHOUT_ALL "doxygen,dsi,man,man2html,pmaker,ssl"
@@ -331,10 +331,10 @@
     #define BIT_MINOR_VERSION 3
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 0-rc1
+    #define BIT_PATCH_VERSION 0
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 300030000-rc1
+    #define BIT_VNUM 300030000
 #endif
 
 /* Packs */
