@@ -45,7 +45,6 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#3.4.0">Release 3.4.0</a></li>
                 <li><a href="#3.3.0">Release 3.3.0</a></li>
                 <li><a href="#3.1.4">Release 3.1.4</a></li>
                 <li><a href="#3.1.0">Release 3.1.0</a></li>
@@ -76,8 +75,13 @@
             Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a> 
             for the official product issue list and for comprehensive CVE dispositions.</p>
         
-            <a id="3.4.0"></a>
-            <h2 class="section">Changes in 3.4.0</h2>
+            <a id="3.3.0"></a>
+            <h2 class="section">Changes in 3.3.0</h2>
+            <h3>Minor Features</h3>
+            <ul>
+                <li>Add new handler callback "match" to allow routing before processing body data.
+                    <a href="https://github.com/embedthis/goahead/issues/80">[issue 80]</a></li>
+            </ul>
             <h3>Fixes</h3>
             <ul>
                 <li>Return 404 if no suitable route found
@@ -92,13 +96,6 @@
                         <li>Fix case where invalid URL has no path</li>
                     </ul>
                 </li>
-            </ul>
-            <a id="3.3.0"></a>
-            <h2 class="section">Changes in 3.3.0</h2>
-            <h3>Minor Features</h3>
-            <ul>
-                <li>Add new handler callback "match" to allow routing before processing body data.
-                    <a href="https://github.com/embedthis/goahead/issues/80">[issue 80]</a></li>
             </ul>
             <h3>Incompatible API Changes</h3>
             <ul>
