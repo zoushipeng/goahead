@@ -457,7 +457,7 @@ PUBLIC void websUploadOpen()
 #endif
     }
     trace(4, "Upload directory is %s", uploadDir);
-    websDefineHandler("upload", uploadHandler, 0, 0);
+    websDefineHandler("upload", 0, uploadHandler, 0, 0);
 }
 
 #endif

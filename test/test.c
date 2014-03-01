@@ -72,8 +72,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (argind >= argc) usage();
             auth = argv[++argind];
 
+#if BIT_UNIX_LIKE && !MACOSX
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
+#endif
 
         } else if (smatch(argp, "--debugger") || smatch(argp, "-d") || smatch(argp, "-D")) {
             websSetDebug(1);
@@ -139,7 +141,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         wfree(endpoints);
     }
 
-    websDefineHandler("test", testHandler, 0, 0);
+    websDefineHandler("test", testHandler, 0, 0, 0);
     websAddRoute("/test", "test", 0);
 #if BIT_GOAHEAD_LEGACY
     websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);
@@ -155,7 +157,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websDefineAction("uploadTest", uploadTest);
 #endif
 
-#if BIT_UNIX_LIKE
+#if BIT_UNIX_LIKE && !MACOSX
     /*
         Service events till terminated
     */
@@ -193,12 +195,13 @@ static void logHeader()
 
 
 static void usage() {
-    //  TODO - replace
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
+#if BIT_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
+#endif
         "    --debugger             # Run in debug mode\n"
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"

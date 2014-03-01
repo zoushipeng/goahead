@@ -84,8 +84,8 @@ PUBLIC bool websAuthenticate(Webs *wp)
     int         cached;
 
     assert(wp);
+    assert(wp->route);
     route = wp->route;
-    assert(route);
 
     if (!route || !route->authType || autoLogin) {
         /* Authentication not required */
@@ -103,7 +103,7 @@ PUBLIC bool websAuthenticate(Webs *wp)
     }
     if (!cached) {
         if (wp->authType && !smatch(wp->authType, route->authType)) {
-            websError(wp, HTTP_CODE_BAD_REQUEST, "Access denied. Wrong authentication protocol type.");
+            websError(wp, HTTP_CODE_UNAUTHORIZED, "Access denied. Wrong authentication protocol type.");
             return 0;
         }
         if (wp->authDetails && route->parseAuth) {
@@ -321,7 +321,7 @@ WebsUser *websLookupUser(char *username)
 {
     WebsKey     *key;
 
-    assert(username &&*username);
+    assert(username && *username);
     if ((key = hashLookup(users, username)) == 0) {
         return 0;
     }

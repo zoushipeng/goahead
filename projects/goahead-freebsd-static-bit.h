@@ -20,7 +20,7 @@
     #define BIT_COMPANY "embedthis"
 #endif
 #ifndef BIT_COMPATIBLE
-    #define BIT_COMPATIBLE "3.2.1"
+    #define BIT_COMPATIBLE "3.3.0"
 #endif
 #ifndef BIT_DEBUG
     #define BIT_DEBUG 1
@@ -137,7 +137,7 @@
     #define BIT_GOAHEAD_LOGGING 1
 #endif
 #ifndef BIT_GOAHEAD_PUT_DIR
-    #define BIT_GOAHEAD_PUT_DIR "/tmp"
+    #define BIT_GOAHEAD_PUT_DIR "."
 #endif
 #ifndef BIT_GOAHEAD_REALM
     #define BIT_GOAHEAD_REALM "example.com"
@@ -236,7 +236,7 @@
     #define BIT_TITLE "Embedthis GoAhead"
 #endif
 #ifndef BIT_VERSION
-    #define BIT_VERSION "3.2.1"
+    #define BIT_VERSION "3.3.0"
 #endif
 #ifndef BIT_WARN64TO32
     #define BIT_WARN64TO32 0
@@ -265,7 +265,7 @@
     #define BIT_APP_PREFIX "/usr/local/lib/goahead"
 #endif
 #ifndef BIT_VAPP_PREFIX
-    #define BIT_VAPP_PREFIX "/usr/local/lib/goahead/3.2.1"
+    #define BIT_VAPP_PREFIX "/usr/local/lib/goahead/3.3.0"
 #endif
 #ifndef BIT_BIN_PREFIX
     #define BIT_BIN_PREFIX "/usr/local/bin"
@@ -298,7 +298,7 @@
     #define BIT_CACHE_PREFIX "/var/spool/goahead/cache"
 #endif
 #ifndef BIT_SRC_PREFIX
-    #define BIT_SRC_PREFIX "goahead-3.2.1"
+    #define BIT_SRC_PREFIX "goahead-3.3.0"
 #endif
 
 /* Suffixes */
@@ -337,13 +337,13 @@
     #define BIT_MAJOR_VERSION 3
 #endif
 #ifndef BIT_MINOR_VERSION
-    #define BIT_MINOR_VERSION 2
+    #define BIT_MINOR_VERSION 3
 #endif
 #ifndef BIT_PATCH_VERSION
-    #define BIT_PATCH_VERSION 1
+    #define BIT_PATCH_VERSION 0
 #endif
 #ifndef BIT_VNUM
-    #define BIT_VNUM 300020001
+    #define BIT_VNUM 300030000
 #endif
 
 /* Packs */

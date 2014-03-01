@@ -152,8 +152,9 @@ Bit.load({
 
             /*
                 Temporary directory to hold PUT files
+                This must be on the same filesystem as the web documents directory.
              */
-            putDir: "/tmp",
+            putDir: ".",
 
             /*
                 Authentication realm. Replace with your realm.

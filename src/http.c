@@ -433,7 +433,7 @@ static void termWebs(Webs *wp, int reuse)
         wp->putfd = -1;
         assert(wp->putname && wp->filename);
         if (rename(wp->putname, wp->filename) < 0) {
-            error("Can't rename put file from %s to %s", wp->putname, wp->filename);
+            error("Cannot rename PUT file from %s to %s", wp->putname, wp->filename);
         }
     }
 #endif
@@ -626,7 +626,6 @@ PUBLIC int websListen(char *endpoint)
         ipaddr = "*";
     }
     trace(2, "Started %s://%s:%d", secure ? "https" : "http", ipaddr, port);
-    wfree(ip);
 
     if (!websHostUrl) {
         if (port == 80) {
@@ -642,6 +641,7 @@ PUBLIC int websListen(char *endpoint)
             websIpAddrUrl = sfmt("%s:%d", websIpAddr, port);
         }
     }
+    wfree(ip);
     return sid;
 }
 
@@ -827,7 +827,12 @@ PUBLIC void websPump(Webs *wp)
             canProceed = processContent(wp);
             break;
         case WEBS_READY:
-            websRouteRequest(wp);
+            if (!websRunRequest(wp)) {
+                websRouteRequest(wp);
+                wp->state = WEBS_READY;
+                canProceed = 1;
+                continue;
+            }
             canProceed = (wp->state != WEBS_RUNNING);
             break;
         case WEBS_RUNNING:
@@ -877,6 +882,10 @@ static bool parseIncoming(Webs *wp)
     }
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
+    websRouteRequest(wp);
+    if (wp->state == WEBS_COMPLETE) {
+        return 1;
+    }
 #if !BIT_ROM
 #if BIT_GOAHEAD_CGI
     if (strstr(wp->path, BIT_GOAHEAD_CGI_BIN) != 0) {
@@ -911,7 +920,7 @@ static bool parseIncoming(Webs *wp)
 static void parseFirstLine(Webs *wp)
 {
     char    *op, *protoVer, *url, *host, *query, *path, *port, *ext, *buf;
-    int     testPort;
+    int     listenPort;
 
     assert(wp);
     assert(websValid(wp));
@@ -974,8 +983,8 @@ static void parseFirstLine(Webs *wp)
         websError(wp, WEBS_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
     }
     wp->protoVersion = sclone(protoVer);
-    if ((testPort = socketGetPort(wp->listenSid)) >= 0) {
-        wp->port = testPort;
+    if ((listenPort = socketGetPort(wp->listenSid)) >= 0) {
+        wp->port = listenPort;
     } else {
         wp->port = atoi(port);
     }
@@ -1072,6 +1081,8 @@ static void parseHeaders(Webs *wp)
             wp->contentType = sclone(value);
             if (strstr(value, "application/x-www-form-urlencoded")) {
                 wp->flags |= WEBS_FORM;
+            } else if (strstr(value, "application/json")) {
+                wp->flags |= WEBS_JSON;
             } else if (strstr(value, "multipart/form-data")) {
                 wp->flags |= WEBS_UPLOAD;
             }
@@ -2432,7 +2443,7 @@ PUBLIC int websRewriteRequest(Webs *wp, char *url)
     wfree(wp->path);
     wp->path = 0;
 
-    if (websUrlParse(url, &buf, NULL, NULL, &path, NULL, NULL, NULL, NULL) < 0) {
+    if (websUrlParse(url, &buf, NULL, NULL, NULL, &path, NULL, NULL, NULL) < 0) {
         return -1;
     }
     wp->path = sclone(path);
@@ -3026,134 +3037,168 @@ static WebsTime dateParse(WebsTime tip, char *cmd)
 }
 
 
+PUBLIC bool websValidUriChars(char *uri)
+{
+    ssize   pos;
+
+    if (uri == 0 || *uri == 0) {
+        return 1;
+    }
+    pos = strspn(uri, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&'()*+,;=%");
+    if (pos < slen(uri)) {
+        error("Bad character in URI at \"%s\"", &uri[pos]);
+        return 0;
+    }
+    return 1;
+}
+
+
 /*
-    Parse the URL. A buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
+    Parse the URL. A single buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
  */
-PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, char **pport, char **ppath, char **pext, 
+PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, char **pport, char **ppath, char **pext, 
         char **preference, char **pquery)
 {
-    char    *tok, *cp, *host, *path, *port, *protocol, *reference, *query, *ext;
-    char    *hostbuf, *portbuf, *buf;
-    ssize   len, ulen;
-    int     c;
+    char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
+    ssize   buflen, ulen, len;
+    int     rc;
 
-    assert(url);
     assert(pbuf);
-
-    ulen = strlen(url);
+    if (url == 0) {
+        url = "";
+    }
     /*
-        We allocate enough to store separate hostname and port number fields.  As there are 3 strings in the one buffer,
-        we need room for 3 null chars.  We allocate WEBS_MAX_PORT_LEN char's for the port number.  
+        Allocate twice. Need to null terminate the host so have to copy the path.
      */
-    len = ulen * 2 + WEBS_MAX_PORT_LEN + 3;
-    if ((buf = walloc(len * sizeof(char))) == NULL) {
+    ulen = strlen(url);
+    len = ulen + 1;
+    buflen = len * 2;
+    if ((buf = walloc(buflen)) == NULL) {
         return -1;
     }
-    memset(buf, 0, len * sizeof(char));
-    portbuf = &buf[len - WEBS_MAX_PORT_LEN - 1];
-    hostbuf = &buf[ulen+1];
+    buf2 = &buf[ulen + 1];
     sncopy(buf, len, url, ulen);
-
-    /*
-        Convert the current listen port to a string. We use this if the URL has no explicit port setting
-     */
+    sncopy(buf2, len, url, ulen);
     url = buf;
-    port = portbuf;
-    path = 0;
-    protocol = "http";
-    host = "localhost";
-    query = "";
-    ext = 0;
-    reference = "";
 
-    if (strncmp(url, "http://", 7) == 0) {
-        tok = &url[7];
-        tok[-3] = '\0';
-        protocol = url;
-        host = tok;
-        for (cp = tok; *cp; cp++) {
-            if (*cp == '/') {
-                break;
-            }
-            if (*cp == ':') {
-                *cp++ = '\0';
-                port = cp;
-                tok = cp;
-            }
-        }
-        if ((cp = strchr(tok, '/')) != NULL) {
-            /*
-                If a full URL is supplied, we need to copy the host and port portions into static buffers.
-             */
-            c = *cp;
-            *cp = '\0';
-            strncpy(hostbuf, host, ulen);
-            strncpy(portbuf, port, WEBS_MAX_PORT_LEN);
-            *cp = c;
-            host = hostbuf;
-            port = portbuf;
-            path = cp;
-            tok = cp;
-        }
-    } else {
-        path = url;
-        tok = url;
+    scheme = 0;
+    host = 0;
+    port = 0;
+    path = 0;
+    ext = 0;
+    query = 0;
+    reference = 0;
+    tok = buf;
+
+    /*
+        [scheme://][hostname[:port]][/path[.ext]][#ref][?query]
+        First trim query and then reference from the end
+     */
+    if ((query = strchr(tok, '?')) != NULL) {
+        *query++ = '\0';
     }
-    /*
-        Parse the query string
-     */
-    if ((cp = strchr(tok, '?')) != NULL) {
-        *cp++ = '\0';
-        query = cp;
-        path = tok;
-        tok = query;
-    } 
-    /*
-        Parse the fragment identifier
-     */
     if ((reference = strchr(tok, '#')) != NULL) {
         *reference++ = '\0';
-        if (*query == 0) {
-            path = tok;
+    }
+
+    /*
+        [scheme://][hostname[:port]][/path]
+     */
+    if ((delim = strstr(tok, "://")) != 0) {
+        scheme = tok;
+        *delim = '\0';
+        tok = &delim[3];
+    }
+
+    /*
+        [hostname[:port]][/path]
+     */
+    if (*tok == '[' && ((delim = strchr(tok, ']')) != 0)) {
+        /* IPv6 [::] */
+        host = &tok[1];
+        *delim++ = '\0';
+        tok = delim;
+
+    } else if (*tok && *tok != '/' && *tok != ':' && (scheme || strchr(tok, ':'))) {
+        /* 
+           Supported forms:
+               scheme://hostname
+               hostname[:port][/path] 
+         */
+        host = tok;
+        if ((tok = strpbrk(tok, ":/")) == 0) {
+            tok = "";
+        }
+        /* Don't terminate the hostname yet, need to see if tok is a ':' for a port. */
+        assert(tok);
+    }
+
+    /* [:port][/path] */
+    if (*tok == ':') {
+        /* Terminate hostname */
+        *tok++ = '\0';
+        port = tok;
+        if ((tok = strchr(tok, '/')) == 0) {
+            tok = "";
         }
     }
-    if (path == 0) {
-        path = sclone("/");
-    }
-    if (pext) {
-        if ((cp = strrchr(path, '.')) != NULL) {
-            const char* garbage = "/\\";
-            ssize length = strcspn(cp, garbage);
-            ssize glen = strspn(cp + length, garbage);
-            ssize ok = (cp[length + glen] == '\0');
-            if (ok) {
-                cp[length] = '\0';
-#if BIT_WIN_LIKE
-                slower(cp);            
-#endif
-                ext = cp;
+
+    /* [/path] */
+    if (*tok) {
+        /* 
+           Terminate hostname. This zeros the leading path slash.
+           This will be repaired before returning if ppath is set 
+         */
+        *tok++ = '\0';
+        path = tok;
+        /* path[.ext[/extra]] */
+        if ((tok = strrchr(path, '.')) != 0) {
+            if (tok[1]) {
+                if ((delim = strrchr(path, '/')) != 0) {
+                    if (delim < tok) {
+                        ext = tok;
+                    }
+                } else {
+                    ext = tok;
+                }
             }
         }
     }
     /*
-        Only the path and extension are decoded (ext is a reference into the path)
+        Pass back the requested fields
      */
-    websDecodeUrl(path, path, -1);
-
-    /*
-        Pass back the fields requested (if not NULL)
-     */
-    if (phost) {
-        *phost = host;
+    rc = 0;
+    *pbuf = buf;
+    if (pscheme) {
+        if (scheme == 0) {
+            scheme = "http";
+        }
+        *pscheme = scheme;
     }
-    if (ppath) {
-        *ppath = path;
+    if (phost) {
+        if (host == 0) {
+            host = "localhost";
+        }
+        *phost = host;
     }
     if (pport) {
         *pport = port;
     }
-    if (pprotocol) {
-        *pprotocol = protocol;
+    if (ppath) {
+        if (path == 0) {
+            path = "/";
+        } else {
+            /* Copy path to reinsert leading slash */
+            scopy(&buf2[1], len - 1, path);
+            path = buf2;
+            *path = '/';
+            if (!websValidUriChars(path)) {
+                rc = -1;
+            } else {
+                websDecodeUrl(path, path, -1);
+            }
+        }
+        *ppath = path;
     }
     if (pquery) {
         *pquery = query;
@@ -3162,10 +3207,12 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pprotocol, char **phost, 
         *preference = reference;
     }
     if (pext) {
+#if BIT_WIN_LIKE
+        slower(ext);            
+#endif
         *pext = ext;
     }
-    *pbuf = buf;
-    return 0;
+    return rc;
 }
 
 
@@ -3522,7 +3569,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 
 PUBLIC char *websGetSessionID(Webs *wp)
 {
-    char    *cookies, *cookie, *cp, *value;
+    char    *cookie, *cp, *value;
     ssize   len;
     int     quoted;
 
@@ -3531,8 +3578,8 @@ PUBLIC char *websGetSessionID(Webs *wp)
     if (wp->session) {
         return wp->session->id;
     }
-    cookies = wp->cookie;
-    for (cookie = cookies; cookie && (value = strstr(cookie, WEBS_SESSION)) != 0; cookie = value) {
+    cookie = wp->cookie;
+    if (cookie && (value = strstr(cookie, WEBS_SESSION)) != 0) {
         value += strlen(WEBS_SESSION);
         while (isspace((uchar) *value) || *value == '=') {
             value++;

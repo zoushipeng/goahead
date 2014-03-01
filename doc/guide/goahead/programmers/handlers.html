@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.2.1 Documentation</title>
+    <title>Embedthis GoAhead 3.3.0 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.2.1</div>
+                <div class="version">Embedthis GoAhead 3.3.0</div>
             </div>
         </div>
         <div class="crumbs">
@@ -74,7 +74,7 @@
             supplied with GoAhead are: </p>
             <ul>
                 <li>action &mdash; for GoActions</li>
-                <li>continue &mdash; </li>
+                <li>continue &mdash; Pseuod handler for request rewriting</li>
                 <li>cgi &mdash; for CGI programs</li>
                 <li>file &mdash; for static documents</li>
                 <li>jst &mdash; for Javascript templates </li>
@@ -92,8 +92,13 @@
             the full details for how to process a request including the required handler and required authentication.
             GoAhead matches each route in the route table in-order and selects the first matching route. The route
             specifies the desired handler for requests matching that route.</p>
+            <h3>Matching a Handler</h3>
+            <p>The last step of selecting a route is calling the candidate handler's optional match() callback. If the match
+            callback returns true, the handler will be selected. If it returns false, the handler and route will be skipped
+            and the route selection process continues.</p>
+             
             <h3>Running a Handler</h3>
-            <p>Once the route has been selected, GoAhead engine invokes the handler to process the request and generate
+            <p>Once the route has been selected, GoAhead invokes the handler service callback to process the request and generate
             a response. At this point, request body data will be received and buffered. The handler may choose to not
             handler the request by returning a zero status code. In that case, the router continues matching routes 
             to find a more suitable route and handler combination.
@@ -163,16 +168,21 @@ websDone(wp);
         <p>To define an GoAhead handler, you need to call <a href=
             "../../../api/goahead.html#group___webs_1gaac26a36fb28e1486fd54443ad59674a5">websDefineHandler</a>. For example:
 <pre>
-static bool fooHandler(Webs *wp)
+static bool matchFoo(Webs *wp)
 {
     /* Handle request */
     return 1;
 }
+static bool serviceFoo(Webs *wp)
+{
+    /* Do work here */
+    return 1;
+}
 static void closeFoo() {
-    /* Cleanup */
+    /* Cleanup when goahead is exiting */
 }
 ...
-websDefineHandler("foo", fooHandler, closeFooHandler, 0);
+websDefineHandler("foo", matchFoo, serviceFoo, closeFoo, 0);
 </pre>
         </div>
     </div>

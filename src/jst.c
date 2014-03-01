@@ -176,7 +176,7 @@ PUBLIC int websJstOpen()
 {
     websJstFunctions = hashCreate(WEBS_HASH_INIT * 2);
     websDefineJst("write", websJstWrite);
-    websDefineHandler("jst", jstHandler, closeJst, 0);
+    websDefineHandler("jst", 0, jstHandler, closeJst, 0);
     return 0;
 }
 

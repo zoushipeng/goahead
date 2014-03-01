@@ -20,7 +20,6 @@
 #ifndef BIT_ROM
     #define BIT_ROM 0                   /**< Build for execute from ROM */
 #endif
-
 #ifndef BIT_PACK_SSL
     #define BIT_PACK_SSL 0              /**< Build without SSL support */
 #endif
@@ -75,7 +74,7 @@
     #define BIT_CPU_ARCH BIT_CPU_ITANIUM
     #define CPU_ENDIAN BIT_LITTLE_ENDIAN
 
-#elif defined(__mips__)
+#elif defined(__mips__) || defined(__mips64)
     #define BIT_CPU "mips"
     #define BIT_CPU_ARCH BIT_CPU_MIPS
     #define CPU_ENDIAN BIT_BIG_ENDIAN
@@ -234,7 +233,7 @@
 
 #endif
 
-#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64
+#if __WORDSIZE == 64 || __amd64 || __x86_64 || __x86_64__ || _WIN64 || __mips64
     #define BIT_64 1
     #define BIT_WORDSIZE 64
 #else
@@ -676,8 +675,13 @@ typedef int64 Offset;
 #if DOXYGEN || BIT_UNIX_LIKE || VXWORKS
     /** Argument for sockets */
     typedef int Socket;
+    #ifndef SOCKET_ERROR
+        #define SOCKET_ERROR -1
+    #endif
     #define SOCKET_ERROR -1
-    #define INVALID_SOCKET -1
+    #ifndef INVALID_SOCKET
+        #define INVALID_SOCKET -1
+    #endif
 #elif BIT_WIN_LIKE
     typedef SOCKET Socket;
 #elif TIDSP
@@ -685,8 +689,12 @@ typedef int64 Offset;
     #define SOCKET_ERROR INVALID_SOCKET
 #else
     typedef int Socket;
-    #define SOCKET_ERROR -1
-    #define INVALID_SOCKET -1
+    #ifndef SOCKET_ERROR
+        #define SOCKET_ERROR -1
+    #endif
+    #ifndef INVALID_SOCKET
+        #define INVALID_SOCKET -1
+    #endif
 #endif
 
 typedef int64 Time;
@@ -893,12 +901,13 @@ typedef int64 Ticks;
     #define ARRAY_FLEX
 #endif
 
-#ifdef __GNUC__
-    #define DEPRECATE(fn) fn __attribute__ ((deprecated))
-#elif defined(_MSC_VER)
-    #define DEPRECATE(fn) __declspec(deprecated) fn
+/*
+    Deprecated API warnings
+ */
+#if (__GNUC__ >= 3) || MACOSX
+    #define BIT_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
 #else
-    #define DEPRECATE(fn) fn
+    #define BIT_DEPRECATED(MSG) 
 #endif
 
 /********************************** Tunables *********************************/

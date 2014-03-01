@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.2.1 Documentation</title>
+    <title>Embedthis GoAhead 3.3.0 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.2.1</div>
+                <div class="version">Embedthis GoAhead 3.3.0</div>
             </div>
         </div>
         <div class="crumbs">
@@ -45,7 +45,7 @@
         <div class="contentRight">
             <h1>Quick Nav</h1>
             <ul>
-                <li><a href="#3.2.1">Release 3.2.1</a></li>
+                <li><a href="#3.3.0">Release 3.3.0</a></li>
                 <li><a href="#3.1.4">Release 3.1.4</a></li>
                 <li><a href="#3.1.0">Release 3.1.0</a></li>
                 <li><a href="#3.0.0">Release 3.0.0</a></li>
@@ -75,6 +75,39 @@
             Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a> 
             for the official product issue list and for comprehensive CVE dispositions.</p>
         
+            <a id="3.3.0"></a>
+            <h2 class="section">Changes in 3.3.0</h2>
+            <h3>Minor Features</h3>
+            <ul>
+                <li>Add new handler callback "match" to allow routing before processing body data.
+                    <a href="https://github.com/embedthis/goahead/issues/80">[issue 80]</a></li>
+            </ul>
+            <h3>Fixes</h3>
+            <ul>
+                <li>Return 404 if no suitable route found
+                    <a href="https://github.com/embedthis/goahead/issues/83">[issue 83]</a></li>
+                <li>Fix bad memory free in websListen.
+                    <a href="https://github.com/embedthis/goahead/issues/82">[issue 82]</a></li>
+                <li>Fix parsing request URI. 
+                    <a href="https://github.com/embedthis/goahead/issues/81">[issue 81]</a>
+                    <ul>
+                        <li>Fix case when URL has ":" but no port. strncpy with src == dest.</li>
+                        <li>Fix case where query has "#" fragment.</li>
+                        <li>Fix case where invalid URL has no path</li>
+                    </ul>
+                </li>
+            </ul>
+            <h3>Incompatible API Changes</h3>
+            <ul>
+                <li>websDefineHandler has a new parameter for the optional match callback. Handlers should match requests in
+                    their match callback instead of returning true/false from their service callback.
+                    See: <a href="../api/goahead.html#group___webs_1ga89a36e73774a8ed3e33b9088ecbccd89">webDefineHandler</a>.
+                </li>
+                <li>The GoAhead request router will now select the route for a request, run authentication and then the 
+                invoke the handler match callback. After all request content is received, the the handler service routine
+                will be called. Previously, authentication was run after receiving body content.</li> 
+            </ul>
+            
             <a id="3.2.1"></a>
             <h2 class="section">Changes in 3.2.1</h2>
             <h3>Fixes</h3>

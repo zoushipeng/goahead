@@ -209,7 +209,7 @@ static bool cgiHandler(Webs *wp)
 
 PUBLIC int websCgiOpen()
 {
-    websDefineHandler("cgi", cgiHandler, 0, 0);
+    websDefineHandler("cgi", 0, cgiHandler, 0, 0);
     return 0;
 }
 

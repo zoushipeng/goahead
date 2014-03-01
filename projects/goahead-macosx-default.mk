@@ -3,7 +3,7 @@
 #
 
 PRODUCT            := goahead
-VERSION            := 3.2.1
+VERSION            := 3.3.0
 PROFILE            := default
 ARCH               := $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH            := $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -48,7 +48,7 @@ BIT_PACK_SSL_PATH         := ssl
 BIT_PACK_UTEST_PATH       := utest
 BIT_PACK_ZIP_PATH         := zip
 
-CFLAGS             += -w
+CFLAGS             += -Wunreachable-code -w
 DFLAGS             +=  $(patsubst %,-D%,$(filter BIT_%,$(MAKEFLAGS))) -DBIT_PACK_EST=$(BIT_PACK_EST) -DBIT_PACK_SSL=$(BIT_PACK_SSL) 
 IFLAGS             += "-I$(CONFIG)/inc"
 LDFLAGS            += '-Wl,-rpath,@executable_path/' '-Wl,-rpath,@loader_path/'
@@ -170,7 +170,7 @@ clobber: clean
 #   version
 #
 version: $(DEPS_1)
-	echo 3.2.1
+	echo 3.3.0
 
 #
 #   est.h
@@ -206,7 +206,7 @@ DEPS_5 += $(CONFIG)/inc/bitos.h
 $(CONFIG)/obj/estLib.o: \
     src/paks/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
-	$(CC) -c -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(IFLAGS) src/paks/est/estLib.c
+	$(CC) -c -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) -Wunreachable-code $(IFLAGS) src/paks/est/estLib.c
 
 ifeq ($(BIT_PACK_EST),1)
 #
@@ -219,7 +219,7 @@ DEPS_6 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.2.1 -current_version 3.2.1 "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.3.0 -current_version 3.3.0 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -539,7 +539,7 @@ endif
 
 $(CONFIG)/bin/libgo.dylib: $(DEPS_31)
 	@echo '      [Link] $(CONFIG)/bin/libgo.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.2.1 -current_version 3.2.1 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.3.0 -current_version 3.3.0 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
 
 #
 #   goahead.o
@@ -784,7 +784,7 @@ installBinary: $(DEPS_40)
 	cd .; \
 	mkdir -p "$(BIT_APP_PREFIX)" ; \
 	rm -f "$(BIT_APP_PREFIX)/latest" ; \
-	ln -s "3.2.1" "$(BIT_APP_PREFIX)/latest" ; \
+	ln -s "3.3.0" "$(BIT_APP_PREFIX)/latest" ; \
 	mkdir -p "$(BIT_VAPP_PREFIX)/bin" ; \
 	cp $(CONFIG)/bin/goahead $(BIT_VAPP_PREFIX)/bin/goahead ; \
 	mkdir -p "$(BIT_BIN_PREFIX)" ; \

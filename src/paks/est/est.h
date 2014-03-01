@@ -138,8 +138,9 @@
 #define BIT_EST_SSL 1
 #define BIT_EST_TIMING 1
 
+#if UNUSED
 #define EST_CA_CERT "ca.crt"
-
+#endif
 
 /*
     Include all EST headers
@@ -240,8 +241,7 @@
     #if defined(_MSC_VER) && defined(_M_IX86)
         typedef unsigned __int64 t_dbl;
     #else
-        //  TODO #if BIT_64
-        #if defined(__amd64__) || defined(__x86_64__) || defined(__ppc64__) || defined(__powerpc64__) || \
+        #if defined(__amd64__) || defined(__x86_64__) || defined(__ppc64__) || defined(__powerpc64__) || defined(__mips64) || \
                 defined(__ia64__)  || defined(__alpha__)
             typedef uint t_dbl __attribute__ ((mode(TI)));
         #else

@@ -175,7 +175,7 @@ static void fileClose()
 PUBLIC void websFileOpen()
 {
     websIndex = sclone("index.html");
-    websDefineHandler("file", fileHandler, fileClose, 0);
+    websDefineHandler("file", 0, fileHandler, fileClose, 0);
 }
 
 

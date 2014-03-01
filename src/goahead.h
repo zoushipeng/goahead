@@ -51,6 +51,12 @@
     PUBLIC int vxchdir(char *dirname);
 #endif
 
+#if DOXYGEN
+    typedef int Socket;
+    typedef int Socklen;
+    typedef int64 Offset;
+#endif
+
 /**
     File status structure
  */
@@ -1069,7 +1075,7 @@ PUBLIC int socketListen(char *host, int port, SocketAccept accept, int flags);
 
 /**
     Open the socket module
-    @return Zerof if successful, otherwise -1.
+    @return Zero if successful, otherwise -1.
     @ingroup WebsSocket
  */
 PUBLIC int socketOpen();
@@ -1077,8 +1083,8 @@ PUBLIC int socketOpen();
 /**
     Parse an IP address into its constituent parts.
     @description Parse the IP address and return the IP address and port components. Handles ipv4 and ipv6 addresses.
-    If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
-    If a ":*" port specifier is used, *pport is set to -1;
+    If the IP portion is absent, pip is set to null. If the port portion is absent, port is set to the defaultPort.
+    If a ":*" port specifier is used, pport is set to -1;
     When an address contains an ipv6 port it should be written as
         aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii
     or
@@ -1534,7 +1540,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #endif
 /********************************** Defines ***********************************/
 
-#define WEBS_MAX_PORT_LEN       10          /* Max digits in port number */
+#define WEBS_MAX_PORT_LEN       16          /* Max digits in port number */
 #define WEBS_HASH_INIT          67          /* Hash size for form table */
 #define WEBS_SESSION_HASH       31          /* Hash size for session stores */
 #define WEBS_SESSION_PRUNE      (60*1000)   /* Prune sessions every minute */
@@ -1555,33 +1561,33 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_FORM               0x20        /**< Request is a form (url encoded data) */
 #define WEBS_HEADERS_CREATED    0x40        /**< Headers have been created and buffered */
 #define WEBS_HTTP11             0x80        /**< Request is using HTTP/1.1 */
-#define WEBS_KEEP_ALIVE         0x100       /**< HTTP/1.1 keep alive */
-#define WEBS_RESPONSE_TRACED    0x200       /**< Started tracing the response */
-#define WEBS_SECURE             0x400       /**< Connection uses SSL */
-#define WEBS_UPLOAD             0x800       /**< Multipart-mime file upload */
-#define WEBS_REROUTE            0x1000      /**< Restart route matching */
-#define WEBS_VARS_ADDED         0x8000      /**< Query and body form vars added */
-
+#define WEBS_JSON               0x100       /**< Request has a JSON payload */
+#define WEBS_KEEP_ALIVE         0x200       /**< HTTP/1.1 keep alive */
+#define WEBS_REROUTE            0x400       /**< Restart route matching */
+#define WEBS_RESPONSE_TRACED    0x800       /**< Started tracing the response */
+#define WEBS_SECURE             0x1000      /**< Connection uses SSL */
+#define WEBS_UPLOAD             0x2000      /**< Multipart-mime file upload */
+#define WEBS_VARS_ADDED         0x4000      /**< Query and body form vars added */
 #if BIT_GOAHEAD_LEGACY
-#define WEBS_LOCAL              0x2000      /**< Request from local system */
+#define WEBS_LOCAL              0x8000      /**< Request from local system */
 #endif
 
 /*
     Incoming chunk encoding states. Used for tx and rx chunking.
  */
-#define WEBS_CHUNK_UNCHUNKED  0             /**< Data is not transfer-chunk encoded */
-#define WEBS_CHUNK_START      1             /**< Start of a new chunk */
-#define WEBS_CHUNK_HEADER     2             /**< Preparing tx chunk header */
-#define WEBS_CHUNK_DATA       3             /**< Start of chunk data */
+#define WEBS_CHUNK_UNCHUNKED    0           /**< Data is not transfer-chunk encoded */
+#define WEBS_CHUNK_START        1           /**< Start of a new chunk */
+#define WEBS_CHUNK_HEADER       2           /**< Preparing tx chunk header */
+#define WEBS_CHUNK_DATA         3           /**< Start of chunk data */
 
 /* 
-    Read handler flags and state
+    Webs state
  */
-#define WEBS_BEGIN          0x0             /**< Beginning state */
-#define WEBS_CONTENT        0x1             /**< Ready for body data */
-#define WEBS_READY          0x2             /**< Ready to route and start handler */
-#define WEBS_RUNNING        0x4             /**< Processing request */
-#define WEBS_COMPLETE       0x8             /**< Request complete */
+#define WEBS_BEGIN              0           /**< Beginning state */
+#define WEBS_CONTENT            1           /**< Ready for body data */
+#define WEBS_READY              2           /**< Ready to route and start handler */
+#define WEBS_RUNNING            3           /**< Processing request */
+#define WEBS_COMPLETE           4           /**< Request complete */
 
 /*
     Session names
@@ -1660,6 +1666,7 @@ typedef struct Webs {
     int             state;              /**< Current state */
     int             flags;              /**< Current flags -- see above */
     int             code;               /**< Response status code */
+    int             routeCount;         /**< Route count limiter */
     ssize           rxLen;              /**< Rx content length */
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
@@ -1728,6 +1735,7 @@ typedef void (*WebsHandlerClose)();
  */
 typedef struct WebsHandler {
     char                *name;              /**< Handler name */
+    WebsHandlerProc     match;              /**< Handler match callback */
     WebsHandlerProc     service;            /**< Handler service callback */
     WebsHandlerClose    close;              /**< Handler close callback  */
     int                 flags;              /**< Handler control flags */
@@ -1917,13 +1925,15 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len);
 /**
     Define a request handler
     @param name Name of the handler
-    @param service Handler callback service procedure. Invoked to service each relevant request.
+    @param match Handler callback match procedure. Invoked to match the request with the handler. 
+        The handler should return true to accept the request.
+    @param service Handler callback service procedure. Invoked to service each request.
     @param close Handler callback close procedure. Called when GoAhead is shutting down.
     @param flags Set to WEBS_LEGACY_HANDLER to support the legacy handler API calling sequence.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-PUBLIC int websDefineHandler(char *name, WebsHandlerProc service, WebsHandlerClose close, int flags);
+PUBLIC int websDefineHandler(char *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags);
 
 /**
     Complete a request.
@@ -3013,10 +3023,22 @@ PUBLIC int websRemoveRoute(char *uri);
     Route a request
     @description This routine will select a matching route and will invoke the selected route handler to service
         the request. In the process, authentication and request rewriting may take place.
+        This routine is called internally by the request pipeline.
     @param wp Webs request object
     @ingroup WebsRoute
  */
 PUBLIC void websRouteRequest(Webs *wp);
+
+/**
+    Run a request handler
+    @description This routine will run the handler and route selected by #websRouteRequest.
+        This routine is called internally by the request pipeline.
+    @param wp Webs request object
+    @return True if the handler serviced the request. Return false to test other routes to handle this request.
+    This is for legacy handlers that do not have a match callback.
+    @ingroup WebsRoute
+ */
+PUBLIC bool websRunRequest(Webs *wp);
 
 /**
     Configure a route by adding matching criteria
@@ -3095,6 +3117,7 @@ PUBLIC WebsUser *websAddUser(char *username, char *password, char *roles);
 /**
     Authenticate a user
     @description The user is authenticated if required by the selected request route.
+    @param wp Webs request object
     @return True if the route does not require authentication or the user is authenticated successfully.
     @ingroup WebsAuth
  */
