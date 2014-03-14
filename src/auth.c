@@ -767,7 +767,9 @@ static bool parseDigestDetails(Webs *wp)
         while (*tok && !isspace((uchar) *tok) && *tok != ',' && *tok != '=') {
             tok++;
         }
-        *tok++ = '\0';
+        if (*tok) {
+            *tok++ = '\0';
+        }
 
         while (isspace((uchar) *tok)) {
             tok++;
@@ -785,7 +787,9 @@ static bool parseDigestDetails(Webs *wp)
             }
             seenComma++;
         }
-        *tok++ = '\0';
+        if (*tok) {
+            *tok++ = '\0';
+        }
 
         /*
             Handle back-quoting
