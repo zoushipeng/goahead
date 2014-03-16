@@ -6,9 +6,9 @@
 
 /********************************** Includes **********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_PACK_NANOSSL
+#if ME_PACK_NANOSSL
  #include "goahead.h"
 
  #include "common/moptions.h"
@@ -41,7 +41,7 @@ typedef struct Nano {
     int             connected;
 } Nano;
 
-#if BIT_DEBUG
+#if ME_DEBUG
     #define SSL_HELLO_TIMEOUT   15000
     #define SSL_RECV_TIMEOUT    300000
 #else
@@ -79,9 +79,9 @@ PUBLIC int sslOpen()
         return -1;
     }
 
-    certificate = *BIT_GOAHEAD_CERTIFICATE ? BIT_GOAHEAD_CERTIFICATE : 0;
-    key = *BIT_GOAHEAD_KEY ? BIT_GOAHEAD_KEY : 0;
-    cacert = *BIT_GOAHEAD_CA ? BIT_GOAHEAD_CA: 0;
+    certificate = *ME_GOAHEAD_CERTIFICATE ? ME_GOAHEAD_CERTIFICATE : 0;
+    key = *ME_GOAHEAD_KEY ? ME_GOAHEAD_KEY : 0;
+    cacert = *ME_GOAHEAD_CA ? ME_GOAHEAD_CA: 0;
 
     if (certificate) {
         certDescriptor tmp;
@@ -198,7 +198,7 @@ static int nanoHandshake(Webs *wp)
     np = (Nano*) wp->ssl;
     wp->flags |= SOCKET_HANDSHAKING;
     SSL_getSessionFlags(np->handle, &flags);
-    if (BIT_GOAHEAD_VERIFY_PEER) {
+    if (ME_GOAHEAD_VERIFY_PEER) {
         flags |= SSL_FLAG_REQUIRE_MUTUAL_AUTH;
     } else {
         flags |= SSL_FLAG_NO_MUTUAL_AUTH_REQUEST;
@@ -337,7 +337,7 @@ static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
 
 #else
 void nanosslDummy() {}
-#endif /* BIT_PACK_NANOSSL */
+#endif /* ME_PACK_NANOSSL */
 
 /*
     @copy   default

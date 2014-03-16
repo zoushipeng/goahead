@@ -5,39 +5,39 @@
 #	Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 #
 
-BIT_PRODUCT=${settings.product}
-BIT_NAME="${settings.title}"
-BIT_CFG_PREFIX="${prefixes.config}"
-BIT_LIB_PREFIX="${prefixes.lib}"
+ME_PRODUCT=${settings.product}
+ME_NAME="${settings.title}"
+ME_CFG_PREFIX="${prefixes.config}"
+ME_LIB_PREFIX="${prefixes.lib}"
 
 remove() {
 	local cdir=`pwd`
 
-	if [ -x $BIT_CFG_PREFIX ] ; then
-		cd $BIT_CFG_PREFIX
-		removeIntermediateFiles access.log error.log '*.log.old' .dummy $BIT_PRODUCT.conf .*.log make.log
+	if [ -x $ME_CFG_PREFIX ] ; then
+		cd $ME_CFG_PREFIX
+		removeIntermediateFiles access.log error.log '*.log.old' .dummy $ME_PRODUCT.conf .*.log make.log
 		cleanDir
 		cd $cdir 
-		rmdir $BIT_CFG_PREFIX 2>/dev/null || true
+		rmdir $ME_CFG_PREFIX 2>/dev/null || true
 	fi
-	if [ -x $BIT_LIB_PREFIX ] ; then
-		cd $BIT_LIB_PREFIX
-		removeIntermediateFiles access.log error.log '*.log.old' .dummy $BIT_PRODUCT.conf .*.log make.log
+	if [ -x $ME_LIB_PREFIX ] ; then
+		cd $ME_LIB_PREFIX
+		removeIntermediateFiles access.log error.log '*.log.old' .dummy $ME_PRODUCT.conf .*.log make.log
 		cleanDir
 		cd $cdir 
-		rmdir $BIT_LIB_PREFIX 2>/dev/null || true
+		rmdir $ME_LIB_PREFIX 2>/dev/null || true
 	fi
 }
 
 purge() {
 	local cdir=`pwd`
 	remove
-	if [ -x $BIT_CFG_PREFIX ] ; then
-		cd $BIT_CFG_PREFIX
-		# removeIntermediateFiles $BIT_PRODUCT.conf auth.txt route.txt server.crt server.key server.key.pem users.db
+	if [ -x $ME_CFG_PREFIX ] ; then
+		cd $ME_CFG_PREFIX
+		# removeIntermediateFiles $ME_PRODUCT.conf auth.txt route.txt server.crt server.key server.key.pem users.db
 		cleanDir
 		cd $cdir 
-		rmdir $BIT_CFG_PREFIX 2>/dev/null || true
+		rmdir $ME_CFG_PREFIX 2>/dev/null || true
 	fi
 }
 
@@ -104,5 +104,5 @@ case $action in
 esac
 
 echo
-echo "$BIT_NAME $action successful"
+echo "$ME_NAME $action successful"
 exit 0

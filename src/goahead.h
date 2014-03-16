@@ -9,25 +9,25 @@
 
 /************************************ Defaults ********************************/
 
-#include    "bit.h"
-#include    "bitos.h"
+#include    "me.h"
+#include    "osdep.h"
 
-#if (BIT_PACK_EST + BIT_PACK_MATRIXSSL + BIT_PACK_NANOSSL + BIT_PACK_OPENSSL) > 1
+#if (ME_PACK_EST + ME_PACK_MATRIXSSL + ME_PACK_NANOSSL + ME_PACK_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
 #endif
-#ifndef BIT_GOAHEAD_LOGGING
-    #define BIT_GOAHEAD_LOGGING 1               /**< Default for logging is "on" */
+#ifndef ME_GOAHEAD_LOGGING
+    #define ME_GOAHEAD_LOGGING 1               /**< Default for logging is "on" */
 #endif
-#ifndef BIT_GOAHEAD_TRACING
-    #if BIT_DEBUG
-        #define BIT_GOAHEAD_TRACING 1           /**< Tracing is on in debug builds by default */
+#ifndef ME_GOAHEAD_TRACING
+    #if ME_DEBUG
+        #define ME_GOAHEAD_TRACING 1           /**< Tracing is on in debug builds by default */
     #else
-        #define BIT_GOAHEAD_TRACING 0
+        #define ME_GOAHEAD_TRACING 0
     #endif
 #endif
 #if ECOS
-    #if BIT_GOAHEAD_CGI
-        #error "Ecos does not support CGI. Disable BIT_GOAHEAD_CGI"
+    #if ME_GOAHEAD_CGI
+        #error "Ecos does not support CGI. Disable ME_GOAHEAD_CGI"
     #endif
 #endif /* ECOS */
 
@@ -71,32 +71,32 @@ typedef struct stat WebsStat;
 
 /************************************* Main ***********************************/
 
-#define BIT_MAX_ARGC 32
+#define ME_MAX_ARGC 32
 #if VXWORKS
     #define MAIN(name, _argc, _argv, _envp)  \
         static int innerMain(int argc, char **argv, char **envp); \
         int name(char *arg0, ...) { \
             va_list args; \
-            char *argp, *largv[BIT_MAX_ARGC]; \
+            char *argp, *largv[ME_MAX_ARGC]; \
             int largc = 0; \
             va_start(args, arg0); \
             largv[largc++] = #name; \
             if (arg0) { \
                 largv[largc++] = arg0; \
             } \
-            for (argp = va_arg(args, char*); argp && largc < BIT_MAX_ARGC; argp = va_arg(args, char*)) { \
+            for (argp = va_arg(args, char*); argp && largc < ME_MAX_ARGC; argp = va_arg(args, char*)) { \
                 largv[largc++] = argp; \
             } \
             return innerMain(largc, largv, NULL); \
         } \
         static int innerMain(_argc, _argv, _envp)
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     #define MAIN(name, _argc, _argv, _envp)  \
         APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *command, int junk2) { \
             extern int main(); \
-            char *largv[BIT_MAX_ARGC]; \
+            char *largv[ME_MAX_ARGC]; \
             int largc; \
-            largc = websParseArgs(command, &largv[1], BIT_MAX_ARGC - 1); \
+            largc = websParseArgs(command, &largv[1], ME_MAX_ARGC - 1); \
             largv[0] = #name; \
             main(largc, largv, NULL); \
         } \
@@ -125,8 +125,8 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 
 PUBLIC_DATA int logLevel;
 
-#if BIT_GOAHEAD_TRACING
-    #if BIT_HAS_MACRO_VARARGS
+#if ME_GOAHEAD_TRACING
+    #if ME_HAS_MACRO_VARARGS
         #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else
     #else
         inline trace(int level, cchar *fmt, ...) {
@@ -143,8 +143,8 @@ PUBLIC_DATA int logLevel;
     #define trace(l, ...) if (1) ; else
 #endif
 
-#if BIT_GOAHEAD_LOGGING
-    #if BIT_HAS_MACRO_VARARGS
+#if ME_GOAHEAD_LOGGING
+    #if ME_HAS_MACRO_VARARGS
         #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else
     #else
         inline logmsg(int level, cchar *fmt, ...) {
@@ -188,7 +188,7 @@ PUBLIC_DATA int logLevel;
     @param cond Boolean result of a conditional test
  */
 extern void assert(bool cond);
-#elif BIT_GOAHEAD_TRACING
+#elif ME_GOAHEAD_TRACING
     #define assert(C)       if (C) ; else assertError(WEBS_L, "%s", #C)
     PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...);
 #else
@@ -250,7 +250,7 @@ PUBLIC void logSetPath(char *path);
     Emit a message to the log 
     @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
     level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
-    Logging support is enabled by the Bit setting: "logging: true" which creates the BIT_GOAHEAD_LOGGING define in bit.h
+    Logging support is enabled by the Bit setting: "logging: true" which creates the ME_GOAHEAD_LOGGING define in me.h
     most verbose. Level 2-4 are the most useful for debugging.
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
@@ -263,8 +263,8 @@ PUBLIC void logmsgProc(int level, char *fmt, ...);
     @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
     level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
     most verbose. Level 2-4 are the most useful for debugging.
-    Debug trace support is enabled by the Bit setting: "tracing: true" which creates the BIT_GOAHEAD_TRACING define in
-    bit.h.
+    Debug trace support is enabled by the Bit setting: "tracing: true" which creates the ME_GOAHEAD_TRACING define in
+    me.h.
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
     @param ... Arguments for the format string
@@ -360,7 +360,7 @@ typedef struct WebsValue {
         long    hex;
         long    octal;
         long    big[2];
-#if BIT_FLOAT
+#if ME_FLOAT
         double  floating;
 #endif
         char    *string;
@@ -632,7 +632,7 @@ PUBLIC ssize bufRoom(WebsBuf *bp);
 PUBLIC char *bufStart(WebsBuf *bp);
 
 /******************************* Malloc Replacement ***************************/
-#if BIT_GOAHEAD_REPLACE_MALLOC
+#if ME_GOAHEAD_REPLACE_MALLOC
 /**
     GoAhead allocator memory block 
     Memory block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536.
@@ -709,13 +709,13 @@ PUBLIC void wfree(void *blk);
  */
 PUBLIC void *wrealloc(void *blk, ssize newsize);
 
-#else /* !BIT_GOAHEAD_REPLACE_MALLOC */
+#else /* !ME_GOAHEAD_REPLACE_MALLOC */
 
     #define WEBS_SHIFT 4
     #define walloc(num) malloc(num)
     #define wfree(p) if (p) { free(p); } else
     #define wrealloc(p, num) realloc(p, num)
-#endif /* BIT_GOAHEAD_REPLACE_MALLOC */
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
 //  FUTURE DOC
 PUBLIC ssize mtow(wchar *dest, ssize count, char *src, ssize len);
@@ -1501,7 +1501,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
 
 /**
     File upload structure
@@ -1568,7 +1568,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_SECURE             0x1000      /**< Connection uses SSL */
 #define WEBS_UPLOAD             0x2000      /**< Multipart-mime file upload */
 #define WEBS_VARS_ADDED         0x4000      /**< Query and body form vars added */
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 #define WEBS_LOCAL              0x8000      /**< Request from local system */
 #endif
 
@@ -1671,11 +1671,11 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
-#if !BIT_ROM
+#if !ME_ROM
     int             putfd;              /**< File handle to write PUT data */
 #endif
     int             docfd;              /**< File descriptor for document being served */
@@ -1687,7 +1687,7 @@ typedef struct Webs {
     struct WebsUser *user;              /**< User auth record */
     WebsWriteProc   writeData;          /**< Handler write I/O event callback. Used by fileHandler */
     int             encoded;            /**< True if the password is MD5(username:realm:password) */
-#if BIT_DIGEST
+#if ME_DIGEST
     char            *cnonce;            /**< check nonce */
     char            *digestUri;         /**< URI found in digest header */
     char            *nonce;             /**< opaque-to-client string sent by server */
@@ -1695,7 +1695,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -1709,7 +1709,7 @@ typedef struct Webs {
     void            *ssl;               /**< SSL context */
 } Webs;
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     #define WEBS_LEGACY_HANDLER 0x1     /* Using legacy calling sequence */
 #endif
 
@@ -1748,7 +1748,7 @@ typedef struct WebsHandler {
  */
 typedef void (*WebsAction)(Webs *wp);
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     typedef void (*WebsProc)(Webs *wp, char *path, char *query);
 #endif
 
@@ -1791,7 +1791,7 @@ typedef struct WebsRomIndex {
     Offset          pos;                    /**< Current read position */
 } WebsRomIndex;
 
-#if BIT_ROM
+#if ME_ROM
     /**
         List of documents to service when built with ROM support
         @ingroup Webs
@@ -1835,7 +1835,7 @@ PUBLIC int websAlloc(int sid);
  */
 PUBLIC void websCancelTimeout(Webs *wp);
 
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -1857,7 +1857,7 @@ PUBLIC int websCgiHandler(Webs *wp);
     @ingroup Webs
  */
 PUBLIC WebsTime websCgiPoll();
-#endif /* BIT_GOAHEAD_CGI */
+#endif /* ME_GOAHEAD_CGI */
 
 /**
     Close the core GoAhead web server module
@@ -2018,14 +2018,14 @@ PUBLIC void websFree(Webs *wp);
  */
 PUBLIC int websGetBackground();
 
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
     @ingroup Webs
  */
 PUBLIC char *websGetCgiCommName();
-#endif /* BIT_GOAHEAD_CGI */
+#endif /* ME_GOAHEAD_CGI */
 
 /**
     Get the request cookie if supplied
@@ -2312,7 +2312,7 @@ PUBLIC int websRuntimeOpen();
 /**
     Open the web server
     @description This initializes the web server and defines the documents directory.
-    @param documents Optional web documents directory. If set to null, the build time BIT_GOAHEAD_DOCUMENTS value 
+    @param documents Optional web documents directory. If set to null, the build time ME_GOAHEAD_DOCUMENTS value 
         is used for the documents directory.
     @param routes Optional filename for a route configuration file to load. Additional route or 
         authentication configuration files can be loaded via websLoad.
@@ -2410,7 +2410,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin);
  */
 PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
 
-#if !BIT_ROM
+#if !ME_ROM
 /**
     Process request PUT body data
     @description This routine is called by the core HTTP engine to process request PUT data.
@@ -2812,7 +2812,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
@@ -2829,7 +2829,7 @@ PUBLIC int websProcessUploadData(Webs *wp);
 PUBLIC void websFreeUpload(Webs *wp);
 #endif
 
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
 /**
     Process CGI request body data.
     @param wp Webs request object
@@ -2839,7 +2839,7 @@ PUBLIC void websFreeUpload(Webs *wp);
 PUBLIC int websProcessCgiData(Webs *wp);
 #endif
 
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
 /**
     Javascript native function 
     @param jid JavaScript engine ID
@@ -2884,7 +2884,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
 
 /*************************************** SSL ***********************************/
 
-#if BIT_PACK_SSL
+#if ME_PACK_SSL
 /**
     Open the ssl module
     @return Zero if successful, otherwise -1.
@@ -2933,7 +2933,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len);
     @ingroup Webs
  */
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len);
-#endif /* BIT_PACK_SSL */
+#endif /* ME_PACK_SSL */
 
 /*************************************** Route *********************************/
 /**
@@ -3066,7 +3066,7 @@ PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHa
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *authType);
 
 /*************************************** Auth **********************************/
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
 
 #define WEBS_USIZE          128              /* Size of realm:username */
 
@@ -3240,7 +3240,7 @@ PUBLIC bool websVerifyPasswordFromCustom(Webs *wp);
  */
 PUBLIC bool websVerifyPasswordFromFile(Webs *wp);
 
-#if BIT_HAS_PAM
+#if ME_HAS_PAM
 /**
     Verify a password using the system PAM password database.
     @param wp Webs request object
@@ -3250,7 +3250,7 @@ PUBLIC bool websVerifyPasswordFromFile(Webs *wp);
 PUBLIC bool websVerifyPasswordFromPam(Webs *wp);
 #endif
 
-#endif /* BIT_GOAHEAD_AUTH */
+#endif /* ME_GOAHEAD_AUTH */
 /************************************** Sessions *******************************/
 /**
     Session state storage
@@ -3322,10 +3322,10 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 /*
     Legacy mappings for pre GoAhead 3.X applications
     This is a list of the name changes from GoAhead 2.X to GoAhead 3.x
-    To maximize forward compatibility, It is best to not use BIT_GOAHEAD_LEGACY except as 
+    To maximize forward compatibility, It is best to not use ME_GOAHEAD_LEGACY except as 
     a transitional compilation aid.
  */
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     #define B_L 0
     #define a_assert assert
     #define balloc walloc
@@ -3496,7 +3496,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     PUBLIC void websSetRequestFilename(Webs *wp, char *filename);
     PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags);
 
-#if BIT_ROM
+#if ME_ROM
     typedef WebsRomIndex websRomIndexType;
 #endif
 #endif

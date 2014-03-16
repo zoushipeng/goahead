@@ -1,30 +1,30 @@
 /*
-    manifest.bit - Install and Package File Manifest for GoAhead
+    manifest.me - MakeMe manifest for GoAhead
  */
 
-Bit.load({
+Me.load({
     /*
         Package manifest instructions
         The sets used are: binary, doc, dev, package, source
      */
     manifest: {
-        home: bit.dir.src,
+        home: me.dir.src,
         packages:   {
             install: {
-                inherit:    'embedthis-manifest',
+                inherit:    'package-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
                 sets:       [ 'core', 'libs', 'doc' ],
                 platforms:  [ 'unix', 'windows' ]
             },
             binary: {
-                inherit:    'embedthis-manifest',
+                inherit:    'package-manifest',
                 prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
                 formats:    [ 'native', 'tar' ],
                 sets:       [ 'core', 'libs', 'doc', 'package' ],
                 platforms:  [ 'freebsd', 'linux', 'macosx', 'windows' ]
             },
             source: {
-                inherit:    'embedthis-manifest',
+                inherit:    'package-manifest',
                 prefixes:   [ 'root', 'src' ],
                 formats:    [ 'tar' ],
                 sets:       [ 'source' ],
@@ -43,15 +43,15 @@ Bit.load({
                 ],
                 to:     '${abin}/',
                 set:    'libs',
-                enable: '!bit.settings.static',
+                enable: '!me.settings.static',
 
             },{ from: [
                     '${BIN}/libest${SHOBJ}',
                 ],
-                to:     '${abin}/',
-                set:    'libs',
-                packs:  'est',
-                enable: '!bit.settings.static',
+                to:         '${abin}/',
+                set:        'libs',
+                components: 'est',
+                enable: '!me.settings.static',
 
             },{ from: [
                     '${BIN}/ca.crt',
@@ -62,7 +62,7 @@ Bit.load({
             },{ from:   ['doc/man/*.1'],
                 to:     '${adoc}/man/man1/',
                 linkin: '${man}/man1',
-                enable: "bit.platform.like == 'unix'",
+                enable: "me.platform.like == 'unix'",
                 set:    'doc',
 
             },{ from:   [ 'src/web/index.html', 'src/web/favicon.ico' ],
@@ -80,7 +80,7 @@ Bit.load({
                 expand:     true,
                 permissions: 0755,
                 set:        'core',
-                enable:     "!bit.generating",
+                enable:     "!me.generating",
             
             /* Source Set */
             },{ from:   [ '*.md' ],
@@ -94,7 +94,7 @@ Bit.load({
                 permissions: 0755,     
                 set:    'source',
 
-            },{ from:   [ 'Makefile', 'make.bat', 'main.bit', 'package.json', 'src', 'doc', 'projects', 'package', 'test' ],
+            },{ from:   [ 'Makefile', 'make.bat', 'main.me', 'package.json', 'src', 'doc', 'projects', 'package', 'test' ],
                 to:     '${src}/',
                 set:    'source',
             },

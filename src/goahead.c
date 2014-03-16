@@ -34,7 +34,7 @@ static int windowsInit();
 static LRESULT CALLBACK websWindProc(HWND hwnd, UINT msg, UINT wp, LPARAM lp);
 #endif
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 static void sigHandler(int signo);
 #endif
 
@@ -61,7 +61,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         } else if (smatch(argp, "--auth") || smatch(argp, "-a")) {
             auth = argv[++argind];
 
-#if BIT_UNIX_LIKE && !MACOSX
+#if ME_UNIX_LIKE && !MACOSX
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
 #endif
@@ -87,7 +87,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s\n", BIT_VERSION);
+            printf("%s\n", ME_VERSION);
             exit(0);
 
         } else if (*argp == '-' && isdigit((uchar) argp[1])) {
@@ -99,7 +99,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
-    documents = BIT_GOAHEAD_DOCUMENTS;
+    documents = ME_GOAHEAD_DOCUMENTS;
     if (argc > argind) {
         documents = argv[argind++];
     }
@@ -121,9 +121,9 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     } else {
-        endpoints = sclone(BIT_GOAHEAD_LISTEN);
+        endpoints = sclone(ME_GOAHEAD_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
-#if !BIT_PACK_SSL
+#if !ME_PACK_SSL
             if (strstr(endpoint, "https")) continue;
 #endif
             if (websListen(endpoint) < 0) {
@@ -132,14 +132,14 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
         wfree(endpoints);
     }
-#if BIT_ROM && KEEP
+#if ME_ROM && KEEP
     /*
         If not using a route/auth config files, then manually create the routes like this:
         If custom matching is required, use websSetRouteMatch. If authentication is required, use websSetRouteAuth.
      */
     websAddRoute("/", "file", 0);
 #endif
-#if BIT_UNIX_LIKE && !MACOSX
+#if ME_UNIX_LIKE && !MACOSX
     /*
         Service events till terminated
      */
@@ -162,19 +162,19 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
 static void logHeader()
 {
-    char    home[BIT_GOAHEAD_LIMIT_STRING];
+    char    home[ME_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
-    logmsg(2, "Configuration for %s", BIT_TITLE);
+    logmsg(2, "Configuration for %s", ME_TITLE);
     logmsg(2, "---------------------------------------------");
-    logmsg(2, "Version:            %s", BIT_VERSION);
-    logmsg(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
-    logmsg(2, "CPU:                %s", BIT_CPU);
-    logmsg(2, "OS:                 %s", BIT_OS);
+    logmsg(2, "Version:            %s", ME_VERSION);
+    logmsg(2, "BuildType:          %s", ME_DEBUG ? "Debug" : "Release");
+    logmsg(2, "CPU:                %s", ME_CPU);
+    logmsg(2, "OS:                 %s", ME_OS);
     logmsg(2, "Host:               %s", websGetServer());
     logmsg(2, "Directory:          %s", home);
     logmsg(2, "Documents:          %s", websGetDocuments());
-    logmsg(2, "Configure:          %s", BIT_CONFIG_CMD);
+    logmsg(2, "Configure:          %s", ME_CONFIG_CMD);
     logmsg(2, "---------------------------------------------");
 }
 
@@ -184,7 +184,7 @@ static void usage() {
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
-#if BIT_UNIX_LIKE && !MACOSX
+#if ME_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
 #endif
         "    --debugger             # Run in debug mode\n"
@@ -193,26 +193,26 @@ static void usage() {
         "    --route routeFile      # Route configuration file\n"
         "    --verbose              # Same as --log stderr:2\n"
         "    --version              # Output version information\n\n",
-        BIT_TITLE, BIT_PRODUCT);
+        ME_TITLE, ME_NAME);
     exit(-1);
 }
 
 
 static void initPlatform() 
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     signal(SIGTERM, sigHandler);
     signal(SIGKILL, sigHandler);
     #ifdef SIGPIPE
         signal(SIGPIPE, SIG_IGN);
     #endif
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     _fmode=_O_BINARY;
 #endif
 }
 
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 static void sigHandler(int signo)
 {
     finished = 1;
@@ -240,14 +240,14 @@ static int windowsInit()
     wc.hInstance     = inst;
     wc.hIcon         = NULL;
     wc.lpfnWndProc   = (WNDPROC) websWindProc;
-    wc.lpszMenuName  = wc.lpszClassName = BIT_PRODUCT;
+    wc.lpszMenuName  = wc.lpszClassName = ME_NAME;
     if (! RegisterClass(&wc)) {
         return -1;
     }
     /*
         Create a window just so we can have a taskbar to close this web server
      */
-    hwnd = CreateWindow(BIT_PRODUCT, BIT_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 
+    hwnd = CreateWindow(ME_NAME, ME_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 
         0, 0, 0, NULL, NULL, inst, NULL);
     if (hwnd == NULL) {
         return -1;
@@ -271,7 +271,7 @@ static void windowsClose()
     HINSTANCE   inst;
 
     inst = websGetInst();
-    UnregisterClass(BIT_PRODUCT, inst);
+    UnregisterClass(ME_NAME, inst);
 }
 
 

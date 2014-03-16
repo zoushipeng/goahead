@@ -11,7 +11,7 @@
 
 #include    "goahead.h"
 
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
 /********************************** Defines ***********************************/
 /*
     Constants
@@ -285,7 +285,7 @@ PUBLIC int      jsRemoveGlobalFunction(int jid, char *name);
 PUBLIC int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn);
 PUBLIC void     jsSetUserHandle(int jid, void *handle);
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     typedef Js ej_t;
     typedef JsInput jsinput_t;
     typedef JsFun jsfunc_t;
@@ -324,7 +324,7 @@ PUBLIC void     jsSetUserHandle(int jid, void *handle);
     #define ejEval jsEval
 #endif
 
-#endif /* BIT_GOAHEAD_JAVASCRIPT */
+#endif /* ME_GOAHEAD_JAVASCRIPT */
 #endif /* _h_JS */
 
 /*

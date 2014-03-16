@@ -23,7 +23,7 @@ static WebsHash actionTable = -1;            /* Symbol table for actions */
 static bool actionHandler(Webs *wp)
 {
     WebsKey     *sp;
-    char        actionBuf[BIT_GOAHEAD_LIMIT_URI + 1];
+    char        actionBuf[ME_GOAHEAD_LIMIT_URI + 1];
     char        *cp, *actionName;
     WebsAction  fn;
 
@@ -52,7 +52,7 @@ static bool actionHandler(Webs *wp)
         fn = (WebsAction) sp->content.value.symbol;
         assert(fn);
         if (fn) {
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
             (*((WebsProc) fn))((void*) wp, actionName, wp->query);
 #else
             (*fn)((void*) wp);
@@ -95,7 +95,7 @@ PUBLIC void websActionOpen()
 }
 
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 /*
     Don't use these routes. Use websWriteHeaders, websEndHeaders instead.
 

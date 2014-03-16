@@ -8,7 +8,7 @@
 
 #include    "js.h"
 
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
 /********************************** Defines ***********************************/
 
 #define     OCTAL   8
@@ -2242,7 +2242,7 @@ static int charConvert(Js *ep, int base, int maxDig)
     return lval;
 }
 
-#endif /* BIT_GOAHEAD_JAVASCRIPT */
+#endif /* ME_GOAHEAD_JAVASCRIPT */
 
 /*
     @copy   default

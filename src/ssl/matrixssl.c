@@ -5,9 +5,9 @@
  */
 /************************************ Includes ********************************/
 
-#include    "bit.h"
+#include    "me.h"
 
-#if BIT_PACK_MATRIXSSL
+#if ME_PACK_MATRIXSSL
 /*
     Matrixssl defines int*, uint*, but does not provide HAS_XXX to disable.
     So must include matrixsslApi.h first and then workaround. Ugh!
@@ -57,9 +57,9 @@ PUBLIC int sslOpen()
         return -1;
     }
     password = 0;
-    cert = *BIT_GOAHEAD_CERTIFICATE ? BIT_GOAHEAD_CERTIFICATE : 0;
-    key = *BIT_GOAHEAD_KEY ? BIT_GOAHEAD_KEY : 0;
-    ca = *BIT_GOAHEAD_CA ? BIT_GOAHEAD_CA: 0;
+    cert = *ME_GOAHEAD_CERTIFICATE ? ME_GOAHEAD_CERTIFICATE : 0;
+    key = *ME_GOAHEAD_KEY ? ME_GOAHEAD_KEY : 0;
+    ca = *ME_GOAHEAD_CA ? ME_GOAHEAD_CA: 0;
     if (matrixSslLoadRsaKeys(sslKeys, cert, key, password, ca) < 0) {
         error("Failed to read certificate, key or ca file\n");
         return -1;
@@ -116,7 +116,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     ssl_t   *handle;
     int     flags;
     
-    flags = BIT_GOAHEAD_VERIFY_PEER ? SSL_FLAGS_CLIENT_AUTH : 0;
+    flags = ME_GOAHEAD_VERIFY_PEER ? SSL_FLAGS_CLIENT_AUTH : 0;
     if (matrixSslNewServerSession(&handle, sslKeys, NULL, flags) < 0) {
         error("Cannot create new matrixssl session");
         return -1;
@@ -343,7 +343,7 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 
 #else
 void matrixsslDummy() {}
-#endif /* BIT_PACK_MATRIXSSL */
+#endif /* ME_PACK_MATRIXSSL */
 
 /*
     @copy   default

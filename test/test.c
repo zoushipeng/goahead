@@ -22,11 +22,11 @@
 
 static int finished = 0;
 
-#undef BIT_GOAHEAD_LISTEN
-#if BIT_PACK_SSL
-    #define BIT_GOAHEAD_LISTEN "http://127.0.0.1:8080, https://127.0.0.1:4443, http://[::1]:8090, https://[::1]:4453"
+#undef ME_GOAHEAD_LISTEN
+#if ME_PACK_SSL
+    #define ME_GOAHEAD_LISTEN "http://127.0.0.1:8080, https://127.0.0.1:4443, http://[::1]:8090, https://[::1]:4453"
 #else
-    #define BIT_GOAHEAD_LISTEN "http://127.0.0.1:8080, http://[::1]:8090"
+    #define ME_GOAHEAD_LISTEN "http://127.0.0.1:8080, http://[::1]:8090"
 #endif
 
 /********************************* Forwards ***********************************/
@@ -36,20 +36,20 @@ static void logHeader();
 static void usage();
 
 static bool testHandler(Webs *wp);
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
 static int aspTest(int eid, Webs *wp, int argc, char **argv);
 static int bigTest(int eid, Webs *wp, int argc, char **argv);
 #endif
 static void actionTest(Webs *wp, char *path, char *query);
 static void sessionTest(Webs *wp, char *path, char *query);
 static void showTest(Webs *wp, char *path, char *query);
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
 static void uploadTest(Webs *wp, char *path, char *query);
 #endif
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
 #endif
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 static void sigHandler(int signo);
 #endif
 
@@ -72,7 +72,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (argind >= argc) usage();
             auth = argv[++argind];
 
-#if BIT_UNIX_LIKE && !MACOSX
+#if ME_UNIX_LIKE && !MACOSX
         } else if (smatch(argp, "--background") || smatch(argp, "-b")) {
             websSetBackground(1);
 #endif
@@ -98,7 +98,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s: %s\n", BIT_PRODUCT, BIT_VERSION);
+            printf("%s: %s\n", ME_NAME, ME_VERSION);
             exit(0);
 
         } else if (*argp == '-' && isdigit((uchar) argp[1])) {
@@ -110,7 +110,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             usage();
         }
     }
-    documents = BIT_GOAHEAD_DOCUMENTS;
+    documents = ME_GOAHEAD_DOCUMENTS;
     if (argc > argind) {
         documents = argv[argind++];
     }
@@ -132,7 +132,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             }
         }
     } else {
-        endpoints = sclone(BIT_GOAHEAD_LISTEN);
+        endpoints = sclone(ME_GOAHEAD_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
             if (websListen(endpoint) < 0) {
                 return -1;
@@ -143,21 +143,21 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
     websDefineHandler("test", testHandler, 0, 0, 0);
     websAddRoute("/test", "test", 0);
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     websUrlHandlerDefine("/legacy/", 0, 0, legacyTest, 0);
 #endif
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
     websDefineJst("aspTest", aspTest);
     websDefineJst("bigTest", bigTest);
 #endif
     websDefineAction("test", actionTest);
     websDefineAction("sessionTest", sessionTest);
     websDefineAction("showTest", showTest);
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     websDefineAction("uploadTest", uploadTest);
 #endif
 
-#if BIT_UNIX_LIKE && !MACOSX
+#if ME_UNIX_LIKE && !MACOSX
     /*
         Service events till terminated
     */
@@ -177,19 +177,19 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
 static void logHeader()
 {
-    char    home[BIT_GOAHEAD_LIMIT_STRING];
+    char    home[ME_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
-    trace(2, "Configuration for %s", BIT_TITLE);
+    trace(2, "Configuration for %s", ME_TITLE);
     trace(2, "---------------------------------------------");
-    trace(2, "Version:            %s", BIT_VERSION);
-    trace(2, "BuildType:          %s", BIT_DEBUG ? "Debug" : "Release");
-    trace(2, "CPU:                %s", BIT_CPU);
-    trace(2, "OS:                 %s", BIT_OS);
+    trace(2, "Version:            %s", ME_VERSION);
+    trace(2, "BuildType:          %s", ME_DEBUG ? "Debug" : "Release");
+    trace(2, "CPU:                %s", ME_CPU);
+    trace(2, "OS:                 %s", ME_OS);
     trace(2, "Host:               %s", websGetServer());
     trace(2, "Directory:          %s", home);
     trace(2, "Documents:          %s", websGetDocuments());
-    trace(2, "Configure:          %s", BIT_CONFIG_CMD);
+    trace(2, "Configure:          %s", ME_CONFIG_CMD);
     trace(2, "---------------------------------------------");
 }
 
@@ -199,7 +199,7 @@ static void usage() {
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
-#if BIT_UNIX_LIKE && !MACOSX
+#if ME_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
 #endif
         "    --debugger             # Run in debug mode\n"
@@ -208,27 +208,27 @@ static void usage() {
         "    --route routeFile      # Route configuration file\n"
         "    --verbose              # Same as --log stderr:2\n"
         "    --version              # Output version information\n\n",
-        BIT_TITLE, BIT_PRODUCT);
+        ME_TITLE, ME_NAME);
     exit(-1);
 }
 
 
 void initPlatform() 
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     signal(SIGINT, sigHandler);
     signal(SIGTERM, sigHandler);
     signal(SIGKILL, sigHandler);
     #ifdef SIGPIPE
         signal(SIGPIPE, SIG_IGN);
     #endif
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
     _fmode=_O_BINARY;
 #endif
 }
 
 
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
 static void sigHandler(int signo)
 {
     finished = 1;
@@ -250,7 +250,7 @@ static bool testHandler(Webs *wp)
 }
 
 
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
 /*
     Parse the form variables: name, address and echo back
  */
@@ -338,7 +338,7 @@ static void showTest(Webs *wp, char *path, char *query)
 }
 
 
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
 /*
     Dump the file upload details. Don't actually do anything with the uploaded file.
  */
@@ -374,7 +374,7 @@ static void uploadTest(Webs *wp, char *path, char *query)
 #endif
 
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 /*
     Legacy handler with old parameter sequence
  */

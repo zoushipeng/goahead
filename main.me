@@ -1,41 +1,32 @@
 /*
-    main.bit -- Main Bit file for GoAhead
+    main.me -- Main MakeMe file for GoAhead
 
     This file contains the rules for targets to build and default settings for configuration.
-    The Bit utility (http://ejscript.org) may be used to build GoAhead instead of make. Bit provides
-    for configured builds and generates projects files.
+    The MakeMe utility (http://embedthis.com/products/makeme) may be used to build GoAhead instead of make. 
+    MakeMe provides for configured builds and generates projects files.
 
     Alternatively, build using the "make" utility in which case this file is not used.
  */
 
-Bit.load({
+Me.load({
     blend: [
-        "${BITS}/embedthis.bit",
-        "src/paks/est/est.bit",
-        "doc/doc.bit",
+        "src/paks/*/*.me",
+        "doc/doc.me",
     ],
 
     settings: {
-        bit: '0.9.3',
-        sync: [ 'bitos', 'est' ],
-        packs: [ 'bits/packs' ],
+        makeme: '0.8.0',
 
         /*
             Installation prefix set
          */
-        prefixes: 'embedthis-prefixes',
-        manifest: 'package/manifest.bit',
+        prefixes: 'package-prefixes',
+        manifest: 'package/manifest.me',
 
-        /*
-            Optional packs to automatically discover and configure
-         */
-        '+discover': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'utest', 'zip' ],
-        '+requires': [ 'compiler' ],
-
-        /*
-            Packs to disable when using --without all
-         */
-        'without-all': [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl' ],
+        extensions: {
+            require:  [ 'compiler', 'osdep' ],
+            discover: [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'utest', 'zip' ],
+        },
 
         /*
             Set to true for a static link
@@ -122,7 +113,7 @@ Bit.load({
             /*
                 Sandbox limits and allocation sizes
              */
-            limitBuffer:          8192,    /* I/O Buffer size. Also chunk size. */
+            limitBuffer:          1024,    /* I/O Buffer size. Also chunk size. */
             limitFiles:              0,    /* Maximum files/sockets. Set to zero for unlimited. Unix only */
             limitFilename:         256,    /* Maximum filename size */
             limitHeader:          2048,    /* Maximum HTTP single header size */
@@ -134,7 +125,7 @@ Bit.load({
             limitPut:        204800000,    /* Maximum PUT body size ~ 200MB */
             limitSessionLife:     1800,    /* Session lifespan in seconds (30 mins) */
             limitSessionCount:     512,    /* Maximum number of sessions to support */
-            limitString:          4096,    /* Default string size */
+            limitString:           256,    /* Default string size */
             limitTimeout:           60,    /* Request inactivity timeout in seconds */
             limitUri:             2048,    /* Maximum URI size */
             limitUpload:     204800000,    /* Maximum upload size ~ 200MB */
@@ -241,16 +232,16 @@ Bit.load({
 
     customize: [
         /* 
-            The optional custom.bit file is loaded after main.bit is fully processed. It can
+            The optional custom.me file is loaded after main.me is fully processed. It can
             thus override any setting. Feel free to create and customize. 
          */
-        'custom.bit',
+        'custom.me',
     ],
 
     scripts: {
         postconfig: "
-            if (bit.settings.goahead.authStore != 'pam') {
-                bit.settings.hasPam = false
+            if (me.settings.goahead.authStore != 'pam') {
+                me.settings.hasPam = false
             }
         ",
     },
@@ -268,8 +259,8 @@ Bit.load({
             depends: [ 'ssl' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam && bit.settings.goahead.pam) {
-                        bit.target.libraries.push('pam')
+                    if (me.settings.hasPam && me.settings.goahead.pam) {
+                        me.target.libraries.push('pam')
                     }                                                                                      
                 ",  
             },
@@ -282,8 +273,8 @@ Bit.load({
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam) {
-                        bit.target.libraries.push('pam')
+                    if (me.settings.hasPam) {
+                        me.target.libraries.push('pam')
                     }                                                                                      
                 ",  
             },
@@ -293,31 +284,25 @@ Bit.load({
             Target for unit tests. Includes ASP and form callbacks
          */
         'goahead-test': {
-            enable: "bit.settings.profile != 'release'",
+            enable: "me.settings.profile != 'release'",
             type: 'exe',
             sources: [ 'test/test.c' ],
             headers: [ 'src/*.h' ],
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (bit.settings.hasPam) {
-                        bit.target.libraries.push('pam')
+                    if (me.settings.hasPam) {
+                        me.target.libraries.push('pam')
                     }                                                                                      
                 ",  
             },
-        },
-
-        'bower.json': {
-            type: 'file',
-            path: 'bower.json',
-            files: [ 'package.json' ],
         },
 
         /*
             Compiler for web pages into C code
          */
         gopass: {
-            enable: 'bit.settings.goahead.auth',
+            enable: 'me.settings.goahead.auth',
             type: 'exe',
             sources: [ 'src/utils/gopass.c' ],
             headers: [ 'src/*.h' ],
@@ -328,7 +313,7 @@ Bit.load({
             Compiler for web pages into C code
          */
         webcomp: {
-            enable: 'bit.settings.rom',
+            enable: 'me.settings.rom',
             type: 'exe',
             sources: [ 'src/utils/webcomp.c' ],
             headers: [ 'src/*.h' ],
@@ -336,7 +321,7 @@ Bit.load({
         },
 
         cgitest: {
-            enable: 'bit.settings.cgi',
+            enable: 'me.settings.cgi',
             path: 'test/cgi-bin/cgitest${EXE}'
             type: 'exe',
             sources: [ 'test/cgitest.c' ],
@@ -346,7 +331,7 @@ Bit.load({
         test: {
             action: "
                 let ro = {noio: true, dir: 'test'}
-                let depth = bit.settings.depth
+                let depth = me.settings.depth
                 run('utest -v -i 2 --depth ' + depth, ro)
                 if (depth >= 3) {
                     trace('Test', 'Light load tests')
@@ -383,23 +368,18 @@ Bit.load({
             generate: ' ',
             depends: [ 'all', 'stop', 'installBinary', 'start' ],
             action: "
-                trace('Info', bit.settings.title + ' installed at ' + bit.prefixes.vapp)
-                trace('Info', 'Configuration directory ' + bit.prefixes.etc)
-                trace('Info', 'Documents directory ' + bit.prefixes.web)
-                trace('Info', 'Executables directory ' + bit.prefixes.vapp.join('bin'))
+                trace('Info', me.settings.title + ' installed at ' + me.prefixes.vapp)
+                trace('Info', 'Configuration directory ' + me.prefixes.etc)
+                trace('Info', 'Documents directory ' + me.prefixes.web)
+                trace('Info', 'Executables directory ' + me.prefixes.vapp.join('bin'))
                 trace('Info', 'Use \"man goahead\" for usage')
-                trace('Info', 'Run via \"cd ' + bit.prefixes.etc + ' ; sudo goahead -v ' + bit.prefixes.web + '\"')
-                trace('Info', 'Browse to ' + bit.settings.goahead.listen[0].replace('*', 'localhost').replace(':80', '/'))
+                trace('Info', 'Run via \"cd ' + me.prefixes.etc + ' ; sudo goahead -v ' + me.prefixes.web + '\"')
+                trace('Info', 'Browse to ' + me.settings.goahead.listen[0].replace('*', 'localhost').replace(':80', '/'))
                 let pid = Cmd.ps('goahead')
                 if (pid && pid.length > 0) {
-                    trace('Info', bit.settings.title + ' PID: ' + pid[0].pid)
+                    trace('Info', me.settings.title + ' PID: ' + pid[0].pid)
                 }
             ",
         },
-    },
-
-    packDefaults: {
-        est: true,
-        ssl: true,
     },
 })

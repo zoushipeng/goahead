@@ -16,7 +16,7 @@
 #include    "goahead.h"
 
 /*********************************** Defines **********************************/
-#if BIT_GOAHEAD_CGI && !BIT_ROM
+#if ME_GOAHEAD_CGI && !ME_ROM
 
 typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     Webs    *wp;                /* Connection object */
@@ -45,7 +45,7 @@ static bool cgiHandler(Webs *wp)
 {
     Cgi         *cgip;
     WebsKey     *s;
-    char        cgiPrefix[BIT_GOAHEAD_LIMIT_FILENAME], *stdIn, *stdOut, cwd[BIT_GOAHEAD_LIMIT_FILENAME];
+    char        cgiPrefix[ME_GOAHEAD_LIMIT_FILENAME], *stdIn, *stdOut, cwd[ME_GOAHEAD_LIMIT_FILENAME];
     char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath;
     int         n, envpsize, argpsize, pHandle, cid;
 
@@ -63,7 +63,7 @@ static bool cgiHandler(Webs *wp)
     }
     *cgiName++ = '\0';
 
-    getcwd(cwd, BIT_GOAHEAD_LIMIT_FILENAME);
+    getcwd(cwd, ME_GOAHEAD_LIMIT_FILENAME);
     dir = wp->route->dir ? wp->route->dir : cwd;
     chdir(dir);
     
@@ -95,7 +95,7 @@ static bool cgiHandler(Webs *wp)
             wfree(cgiPath);
             return 1;
         }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         if (strstr(cgiPath, ".exe") == NULL && strstr(cgiPath, ".bat") == NULL)
 #else
         if (access(cgiPath, X_OK) != 0)
@@ -312,7 +312,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
 {
     Webs        *wp;
     WebsStat    sbuf;
-    char        buf[BIT_GOAHEAD_LIMIT_BUFFER];
+    char        buf[ME_GOAHEAD_LIMIT_BUFFER];
     ssize       nbytes, skip;
     int         fdout;
 
@@ -325,7 +325,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
              */
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
-            while ((nbytes = read(fdout, buf, BIT_GOAHEAD_LIMIT_BUFFER)) > 0) {
+            while ((nbytes = read(fdout, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
                 trace(5, "cgi: read %d bytes from CGI", nbytes);
                 skip = (cgip->fplacemark == 0) ? parseCgiHeaders(wp, buf) : 0;
                 trace(5, "cgi: write %d bytes to client", nbytes - skip);
@@ -482,7 +482,7 @@ static int checkCgi(int handle)
 #endif /* WINCE */
 
 
-#if BIT_UNIX_LIKE || QNX
+#if ME_UNIX_LIKE || QNX
 /*
     Launch the CGI process and return a handle to it.
  */
@@ -903,7 +903,7 @@ static int checkCgi(int handle)
     return 1;
 }
 #endif /* WIN */
-#endif /* BIT_GOAHEAD_CGI && !BIT_ROM */
+#endif /* ME_GOAHEAD_CGI && !ME_ROM */
 
 /*
     @copy   default

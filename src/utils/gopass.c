@@ -19,7 +19,7 @@ static char *getPassword();
 static void printUsage();
 static int writeAuthFile(char *path);
 
-#if BIT_WIN_LIKE || VXWORKS
+#if ME_WIN_LIKE || VXWORKS
 static char *getpass(char *prompt);
 #endif
 
@@ -177,7 +177,7 @@ static char *getpass(char *prompt)
     return "NOT-SUPPORTED";
 }
 
-#elif BIT_WIN_LIKE || VXWORKS
+#elif ME_WIN_LIKE || VXWORKS
 static char *getpass(char *prompt)
 {
     static char password[MAX_PASS];
@@ -219,7 +219,7 @@ static char *getpass(char *prompt)
     return sclone(password);
 }
 
-#endif /* BIT_WIN_LIKE */
+#endif /* ME_WIN_LIKE */
  
 /*
     Display the usage

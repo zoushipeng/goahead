@@ -64,7 +64,7 @@ static int compile(char *fileList, char *prefix)
     WebsStat        sbuf;
     WebsTime        now;
     FILE            *lp;
-    char            buf[512], file[BIT_GOAHEAD_LIMIT_FILENAME], *cp, *sl;
+    char            buf[512], file[ME_GOAHEAD_LIMIT_FILENAME], *cp, *sl;
     uchar           *p;
     ssize           len;
     int             j, i, fd, nFile;
@@ -77,7 +77,7 @@ static int compile(char *fileList, char *prefix)
     fprintf(stdout, "/*\n   rom-documents.c \n");
     fprintf(stdout, "   Compiled by webcomp: %s */\n\n", ctime(&now));
     fprintf(stdout, "#include \"goahead.h\"\n\n");
-    fprintf(stdout, "#if BIT_ROM\n\n");
+    fprintf(stdout, "#if ME_ROM\n\n");
 
     /*
         Open each input file and compile each web page

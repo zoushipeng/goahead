@@ -1,15 +1,15 @@
 /*
-    doc.bit -- GoAhead documentation build file
+    doc.me - MakeMe file for GoAhead documentation
  */
 
-Bit.load({
+Me.load({
 
     targets: {
         patch: {
             action: "
                 trace('Patch', 'Patch version string ${settings.version}')
                 let path = Path('product/version.html')
-                let settings = bit.settings
+                let settings = me.settings
                 path.write(path.readString().replace(/<body>.*<.body>/, '<body>' + settings.version + '</body>'))
                 path = Path('dsi/head.html')
                 path.write(path.readString().replace(/<title>.*<.title>/, 
@@ -47,7 +47,7 @@ Bit.load({
 
         'validate-doc': {
             action: "
-                let vdir = bit.dir.cfg.join('validate')
+                let vdir = me.dir.cfg.join('validate')
                 vdir.removeAll()
                 for each (file in Path('.').files('**', { exclude: /\\/$|dsi|Base|Bare/ })) {
                     let out = vdir.join(file)

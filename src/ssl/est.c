@@ -7,7 +7,7 @@
 
 #include    "goahead.h"
 
-#if BIT_PACK_EST
+#if ME_PACK_EST
 
 #include    "est.h"
 
@@ -60,31 +60,31 @@ PUBLIC int sslOpen()
     /*
         Set the server certificate and key files
      */
-    if (*BIT_GOAHEAD_KEY) {
+    if (*ME_GOAHEAD_KEY) {
         /*
             Load a decrypted PEM format private key. The last arg is the private key.
          */
-        if (x509parse_keyfile(&estConfig.rsa, BIT_GOAHEAD_KEY, 0) < 0) {
-            error("EST: Unable to read key file %s", BIT_GOAHEAD_KEY); 
+        if (x509parse_keyfile(&estConfig.rsa, ME_GOAHEAD_KEY, 0) < 0) {
+            error("EST: Unable to read key file %s", ME_GOAHEAD_KEY); 
             return -1;
         }
     }
-    if (*BIT_GOAHEAD_CERTIFICATE) {
+    if (*ME_GOAHEAD_CERTIFICATE) {
         /*
             Load a PEM format certificate file
          */
-        if (x509parse_crtfile(&estConfig.cert, BIT_GOAHEAD_CERTIFICATE) < 0) {
-            error("EST: Unable to read certificate %s", BIT_GOAHEAD_CERTIFICATE); 
+        if (x509parse_crtfile(&estConfig.cert, ME_GOAHEAD_CERTIFICATE) < 0) {
+            error("EST: Unable to read certificate %s", ME_GOAHEAD_CERTIFICATE); 
             return -1;
         }
     }
-    if (*BIT_GOAHEAD_CA) {
-        if (x509parse_crtfile(&estConfig.ca, BIT_GOAHEAD_CA) != 0) {
-            error("Unable to parse certificate bundle %s", *BIT_GOAHEAD_CA); 
+    if (*ME_GOAHEAD_CA) {
+        if (x509parse_crtfile(&estConfig.ca, ME_GOAHEAD_CA) != 0) {
+            error("Unable to parse certificate bundle %s", *ME_GOAHEAD_CA); 
             return -1;
         }
     }
-    estConfig.ciphers = ssl_create_ciphers(BIT_GOAHEAD_CIPHERS);
+    estConfig.ciphers = ssl_create_ciphers(ME_GOAHEAD_CIPHERS);
     return 0;
 }
 
@@ -110,7 +110,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     havege_init(&est->hs);
     ssl_init(&est->ctx);
 	ssl_set_endpoint(&est->ctx, 1);
-	ssl_set_authmode(&est->ctx, BIT_GOAHEAD_VERIFY_PEER ? SSL_VERIFY_OPTIONAL : SSL_VERIFY_NO_CHECK);
+	ssl_set_authmode(&est->ctx, ME_GOAHEAD_VERIFY_PEER ? SSL_VERIFY_OPTIONAL : SSL_VERIFY_NO_CHECK);
     ssl_set_rng(&est->ctx, havege_rand, &est->hs);
 	ssl_set_dbg(&est->ctx, estTrace, NULL);
     sp = socketPtr(wp->sid);
@@ -119,8 +119,8 @@ PUBLIC int sslUpgrade(Webs *wp)
 	ssl_set_session(&est->ctx, 1, 0, &est->session);
 	memset(&est->session, 0, sizeof(ssl_session));
 
-	ssl_set_ca_chain(&est->ctx, *BIT_GOAHEAD_CA ? &estConfig.ca : NULL, NULL);
-    if (*BIT_GOAHEAD_CERTIFICATE && *BIT_GOAHEAD_KEY) {
+	ssl_set_ca_chain(&est->ctx, *ME_GOAHEAD_CA ? &estConfig.ca : NULL, NULL);
+    if (*ME_GOAHEAD_CERTIFICATE && *ME_GOAHEAD_KEY) {
         ssl_set_own_cert(&est->ctx, &estConfig.cert, &estConfig.rsa);
     }
 	ssl_set_dh_param(&est->ctx, dhKey, dhg);
@@ -176,7 +176,7 @@ static int estHandshake(Webs *wp)
         Analyze the handshake result
      */
     if (rc < 0) {
-        if (rc == EST_ERR_SSL_PRIVATE_KEY_REQUIRED && !(*BIT_GOAHEAD_KEY || *BIT_GOAHEAD_CERTIFICATE)) {
+        if (rc == EST_ERR_SSL_PRIVATE_KEY_REQUIRED && !(*ME_GOAHEAD_KEY || *ME_GOAHEAD_CERTIFICATE)) {
             error("Missing required certificate and key");
         } else {
             error("Cannot handshake: error -0x%x", -rc);
@@ -204,7 +204,7 @@ static int estHandshake(Webs *wp)
             trusted = 0;
 
         } else {
-            if (est->ctx.client_auth && !*BIT_GOAHEAD_CERTIFICATE) {
+            if (est->ctx.client_auth && !*ME_GOAHEAD_CERTIFICATE) {
                 logmsg(2, "Server requires a client certificate");
             } else if (rc == EST_ERR_NET_CONN_RESET) {
                 logmsg(2, "Peer disconnected");
@@ -212,12 +212,12 @@ static int estHandshake(Webs *wp)
                 logmsg(2, "Cannot handshake: error -0x%x", -rc);
             }
         }
-        if (BIT_GOAHEAD_VERIFY_PEER) {
+        if (ME_GOAHEAD_VERIFY_PEER) {
             /* 
                If not verifying the issuer, permit certs that are only untrusted (no other error).
                This allows self-signed certs.
              */
-            if (!BIT_GOAHEAD_VERIFY_ISSUER && !trusted) {
+            if (!ME_GOAHEAD_VERIFY_ISSUER && !trusted) {
                 return 1;
             } else {
                 sp->flags |= SOCKET_EOF;
@@ -337,7 +337,7 @@ static void estTrace(void *fp, int level, char *str)
 
 #else
 void estDummy() {}
-#endif /* BIT_PACK_EST */
+#endif /* ME_PACK_EST */
 
 /*
     @copy   default

@@ -10,7 +10,7 @@
 
 /******************************** Local Data **********************************/
 
-#if BIT_ROM
+#if ME_ROM
 static WebsHash romFs;             /* Symbol table for web pages */
 #endif
 
@@ -18,14 +18,14 @@ static WebsHash romFs;             /* Symbol table for web pages */
 
 PUBLIC int websFsOpen()
 {
-#if BIT_ROM
+#if ME_ROM
     WebsRomIndex    *wip;
-    char            name[BIT_GOAHEAD_LIMIT_FILENAME];
+    char            name[ME_GOAHEAD_LIMIT_FILENAME];
     ssize           len;
 
     romFs = hashCreate(WEBS_HASH_INIT);
     for (wip = websRomIndex; wip->path; wip++) {
-        strncpy(name, wip->path, BIT_GOAHEAD_LIMIT_FILENAME);
+        strncpy(name, wip->path, ME_GOAHEAD_LIMIT_FILENAME);
         len = strlen(name) - 1;
         if (len > 0 &&
             (name[len] == '/' || name[len] == '\\')) {
@@ -40,7 +40,7 @@ PUBLIC int websFsOpen()
 
 PUBLIC void websFsClose()
 {
-#if BIT_ROM
+#if ME_ROM
     hashFree(romFs);
 #endif
 }
@@ -48,7 +48,7 @@ PUBLIC void websFsClose()
 
 PUBLIC int websOpenFile(char *path, int flags, int mode)
 {
-#if BIT_ROM
+#if ME_ROM
     WebsRomIndex    *wip;
     WebsKey         *sp;
 
@@ -67,7 +67,7 @@ PUBLIC int websOpenFile(char *path, int flags, int mode)
 PUBLIC void websCloseFile(int fd)
 {
     if (fd >= 0) {
-#if !BIT_ROM
+#if !ME_ROM
         close(fd);
 #endif
     }
@@ -76,7 +76,7 @@ PUBLIC void websCloseFile(int fd)
 
 PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
 {
-#if BIT_ROM
+#if ME_ROM
     WebsRomIndex    *wip;
     WebsKey         *sp;
 
@@ -95,7 +95,7 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
 #else
     WebsStat    s;
     int         rc;
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     ssize       len = slen(path) - 1;
 
     path = sclone(path);
@@ -122,7 +122,7 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
 
 PUBLIC ssize websReadFile(int fd, char *buf, ssize size)
 {
-#if BIT_ROM
+#if ME_ROM
     WebsRomIndex    *wip;
     ssize           len;
 
@@ -164,7 +164,7 @@ PUBLIC char *websReadWholeFile(char *path)
 
 Offset websSeekFile(int fd, Offset offset, int origin)
 {
-#if BIT_ROM
+#if ME_ROM
     WebsRomIndex    *wip;
     Offset          pos;
 
@@ -205,7 +205,7 @@ Offset websSeekFile(int fd, Offset offset, int origin)
 
 PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
 {
-#if BIT_ROM
+#if ME_ROM
     error("Cannot write to a rom file system");
     return -1;
 #else

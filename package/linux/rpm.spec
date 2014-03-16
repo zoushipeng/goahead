@@ -2,14 +2,14 @@
 #	RPM spec file for the Embedthis GoAhead HTTP web server
 #
 Summary: ${settings.title} -- Embeddable HTTP Web Server
-Name: ${settings.product}
+Name: ${settings.name}
 Version: ${settings.version}
 License: Dual Open Source/commercial
 Group: Applications/Internet
 URL: http://embedthis.com
 Distribution: Embedthis
 Vendor: Embedthis Software
-BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}.${platform.mappedCpu}
+BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.name}-${settings.version}.${platform.mappedCpu}
 AutoReqProv: no
 
 %description
@@ -23,8 +23,8 @@ Embedthis GoAhead is a fast, compact and simple to use embedded web server.
     if [ -x /usr/lib/goahead/latest/bin/uninstall ] ; then
         goahead_HEADLESS=1 /usr/lib/goahead/latest/bin/uninstall </dev/null 2>&1 >/dev/null
     fi
-    mkdir -p ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}.${platform.mappedCpu}
-    cp -r ${prefixes.content}/* ${prefixes.rpm}/BUILDROOT/${settings.product}-${settings.version}.${platform.mappedCpu}
+    mkdir -p ${prefixes.rpm}/BUILDROOT/${settings.name}-${settings.version}.${platform.mappedCpu}
+    cp -r ${prefixes.content}/* ${prefixes.rpm}/BUILDROOT/${settings.name}-${settings.version}.${platform.mappedCpu}
 
 %clean
 

@@ -32,7 +32,7 @@ PUBLIC int socketOpen()
         return 0;
     }
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 {
     WSADATA     wsaData;
     if (WSAStartup(MAKEWORD(1,1), &wsaData) != 0) {
@@ -76,7 +76,7 @@ PUBLIC bool socketHasDualNetworkStack()
 {
     bool dual;
 
-#if defined(BIT_HAS_SINGLE_STACK) || VXWORKS
+#if defined(ME_HAS_SINGLE_STACK) || VXWORKS
     dual = 0;
 #elif WINDOWS
     {
@@ -134,13 +134,13 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     }
     socketHighestFd = max(socketHighestFd, sp->sock);
 
-#if BIT_HAS_FCNTL
+#if ME_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
     rc = 1;
-#if BIT_UNIX_LIKE || VXWORKS
+#if ME_UNIX_LIKE || VXWORKS
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
-#elif BIT_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
+#elif ME_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
     setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR | SO_EXCLUSIVEADDRUSE, (char*) &rc, sizeof(rc));
 #endif
 
@@ -204,7 +204,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     }
     socketHighestFd = max(socketHighestFd, sp->sock);
 
-#if BIT_HAS_FCNTL
+#if ME_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
 
@@ -212,7 +212,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
         Connect to the remote server in blocking mode, then go into non-blocking mode if desired.
      */
     if (!(sp->flags & SOCKET_BLOCK)) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         /*
             Set to non-blocking for an async connect
          */
@@ -228,7 +228,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     }
     if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 && 
         (rc = tryAlternateConnect(sp->sock, (struct sockaddr*) &addr)) < 0) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         if (socketGetError() != EWOULDBLOCK) {
             socketFree(sid);
             return -1;
@@ -298,7 +298,7 @@ static void socketAccept(WebsSocket *sp)
     if ((newSock = accept(sp->sock, addr, (Socklen*) &len)) == SOCKET_ERROR) {
         return;
     }
-#if BIT_HAS_FCNTL
+#if ME_HAS_FCNTL
     fcntl(newSock, F_SETFD, FD_CLOEXEC);
 #endif
     socketHighestFd = max(socketHighestFd, newSock);
@@ -389,7 +389,7 @@ PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir)
 /*
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 PUBLIC int socketSelect(int sid, WebsTime timeout)
 {
     struct timeval  tv;
@@ -489,7 +489,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
     return nEvents;
 }
 
-#else /* !BIT_WIN_LIKE */
+#else /* !ME_WIN_LIKE */
 
 
 PUBLIC int socketSelect(int sid, WebsTime timeout)
@@ -678,7 +678,7 @@ PUBLIC int socketSetBlock(int sid, int on)
         Put the socket into block / non-blocking mode
      */
     if (sp->flags & SOCKET_BLOCK) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         ulong flag = !on;
         ioctlsocket(sp->sock, FIONBIO, &flag);
 #elif ECOS
@@ -695,7 +695,7 @@ PUBLIC int socketSetBlock(int sid, int on)
 #endif
 
     } else {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         ulong flag = !on;
         int rc = ioctlsocket(sp->sock, FIONBIO, &flag);
         rc = rc;
@@ -738,7 +738,7 @@ PUBLIC int socketSetNoDelay(int sid, bool on)
     } else {
         sp->flags &= ~(SOCKET_NODELAY);
     }
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     {
         BOOL    noDelay;
         noDelay = on ? 1 : 0;
@@ -750,7 +750,7 @@ PUBLIC int socketSetNoDelay(int sid, bool on)
         noDelay = on ? 1 : 0;
         setsockopt(sp->sock, IPPROTO_TCP, TCP_NODELAY, (char*) &noDelay, sizeof(int));
     }
-#endif /* BIT_WIN_LIKE */
+#endif /* ME_WIN_LIKE */
     return oldDelay;
 }
 
@@ -970,7 +970,7 @@ WebsSocket *socketPtr(int sid)
  */
 PUBLIC int socketGetError()
 {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     switch (WSAGetLastError()) {
     case WSAEWOULDBLOCK:
         return EWOULDBLOCK;
@@ -1055,7 +1055,7 @@ PUBLIC int socketGetPort(int sid)
 }
 
 
-#if BIT_UNIX_LIKE || WINDOWS
+#if ME_UNIX_LIKE || WINDOWS
 /*  
     Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
     prefer the IPv4 address. This routine uses getaddrinfo.
@@ -1171,7 +1171,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
  */
 PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
-#if (BIT_UNIX_LIKE || WINDOWS)
+#if (ME_UNIX_LIKE || WINDOWS)
     char    service[NI_MAXSERV];
 
 #ifdef IN6_IS_ADDR_V4MAPPED

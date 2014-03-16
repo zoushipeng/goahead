@@ -21,7 +21,7 @@
 #
 ###############################################################################
 
-NAME=${settings.product}
+NAME=${settings.name}
 APPWEB_NAME="${settings.title}"
 APPWEB_CMD=${prefixes.bin}/$NAME
 APPWEB_DIR=${prefixes.config}

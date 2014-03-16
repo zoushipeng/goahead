@@ -62,3 +62,4 @@ linux*.bit
 .flags
 /*-*-*/
 goahead.sublime-*
+start.me

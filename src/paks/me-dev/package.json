@@ -1,12 +1,17 @@
 {
-    "name": "est",
-    "description": "Embedthis EST TLS",
-    "title": "Embethis EST",
-    "version": "0.6.1",
+    "name": "me-dev",
+    "description": "Embedthis Development Lifecycle Support",
+    "title": "Embedthis Development",
+    "version": "0.8.0",
+    "dirs": {
+        "paks": "src/paks"
+    },
+    "dependencies": {
+        "me-doc": "~0.8",
+        "me-package": "~0.8"
+    },
     "keywords": [
-        "est",
-        "ssl",
-        "tls"
+        "me-plugin",
     ],
     "author": {
         "name": "Embedthis Software",
@@ -15,11 +20,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/est.git"
+        "url": "git://github.com/embedthis/me-emdev.git"
     },
     "bugs": {
-        "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/est/issues"
+        "url": "http://github.com/embedthis/me-emdev/issues"
     },
     "licenses": [
         {
@@ -30,11 +34,5 @@
             "type": "Commercial",
             "url": "http://embedthis.com/licensing/"
         }
-    ],
-    "dependencies": {
-        "bitos": "~0.8"
-    },
-    "dirs": {
-        "paks": "src/paks"
-    }
+    ]
 }

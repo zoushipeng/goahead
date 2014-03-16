@@ -10,7 +10,7 @@
 
 /*********************************** Defines **********************************/
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     static HINSTANCE appInstance;
     PUBLIC void syslog(int priority, char *fmt, ...);
 #endif
@@ -20,9 +20,9 @@
 PUBLIC int websOsOpen()
 {
 #if SOLARIS
-    openlog(BIT_PRODUCT, LOG_LOCAL0);
-#elif BIT_UNIX_LIKE
-    openlog(BIT_PRODUCT, 0, LOG_LOCAL0);
+    openlog(ME_NAME, LOG_LOCAL0);
+#elif ME_UNIX_LIKE
+    openlog(ME_NAME, 0, LOG_LOCAL0);
 #endif
 #if WINDOWS || VXWORKS || TIDSP
     rand();
@@ -35,7 +35,7 @@ PUBLIC int websOsOpen()
 
 PUBLIC void websOsClose()
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     closelog();
 #endif
 }
@@ -48,7 +48,7 @@ PUBLIC char *websTempFile(char *dir, char *prefix)
     if (!dir || *dir == '\0') {
 #if WINCE
         dir = "/Temp";
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         dir = getenv("TEMP");
 #elif VXWORKS
         dir = ".";
@@ -85,8 +85,8 @@ static char *getAbsolutePath(char *path)
     if (iosDevFind(path, &tail) != NULL && path != tail) {
         return sclone(path);
     }
-    dev = walloc(BIT_GOAHEAD_LIMIT_FILENAME);
-    getcwd(dev, BIT_GOAHEAD_LIMIT_FILENAME);
+    dev = walloc(ME_GOAHEAD_LIMIT_FILENAME);
+    getcwd(dev, ME_GOAHEAD_LIMIT_FILENAME);
     strcat(dev, "/");
     strcat(dev, path);
     return dev;
@@ -123,7 +123,7 @@ PUBLIC int recv(int s, void *buf, size_t len, int flags)
 #endif
 
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
 PUBLIC void websSetInst(HINSTANCE inst)
 {
     appInstance = inst;
@@ -143,7 +143,7 @@ PUBLIC void syslog(int priority, char *fmt, ...)
     void        *event;
     long        errorType;
     ulong       exists;
-    char        *buf, logName[BIT_GOAHEAD_LIMIT_STRING], *lines[9], *cp, *value;
+    char        *buf, logName[ME_GOAHEAD_LIMIT_STRING], *lines[9], *cp, *value;
     int         type;
     static int  once = 0;
 
@@ -185,7 +185,7 @@ PUBLIC void syslog(int priority, char *fmt, ...)
             RegCloseKey(hkey);
         }
     }
-    event = RegisterEventSource(0, BIT_PRODUCT);
+    event = RegisterEventSource(0, ME_NAME);
     if (event) {
         ReportEvent(event, EVENTLOG_ERROR_TYPE, 0, 3299, NULL, sizeof(lines) / sizeof(char*), 0, (LPCSTR*) lines, 0);
         DeregisterEventSource(event);
@@ -203,12 +203,12 @@ PUBLIC void sleep(int secs)
 /*
     "basename" returns a pointer to the last component of a pathname LINUX, LynxOS and Mac OS X have their own basename
  */
-#if !BIT_UNIX_LIKE
+#if !ME_UNIX_LIKE
 PUBLIC char *basename(char *name)
 {
     char  *cp;
 
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     if (((cp = strrchr(name, '\\')) == NULL) && ((cp = strrchr(name, '/')) == NULL)) {
         return name;
 #else
@@ -240,9 +240,9 @@ char *inet_ntoa(struct in_addr addr)
 
 struct hostent* gethostbyname(char *name)
 {
-    static char buffer[BIT_MAX_PATH];
+    static char buffer[ME_MAX_PATH];
 
-    if(!DNSGetHostByName(name, buffer, BIT_MAX_PATH)) {
+    if(!DNSGetHostByName(name, buffer, ME_MAX_PATH)) {
         return 0;
     }
     return (struct hostent*) buffer;

@@ -100,7 +100,7 @@ PUBLIC void websRouteRequest(Webs *wp)
             continue;
         }
         if (strncmp(wp->path, route->prefix, len) == 0) {
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
             wp->route = route;
             if (route->authType && !websAuthenticate(wp)) {
                 return;
@@ -161,7 +161,7 @@ PUBLIC bool websRunRequest(Webs *wp)
     wp->state = WEBS_RUNNING;
     trace(5, "Route %s calls handler %s", route->prefix, route->handler->name);
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     if (route->handler->flags & WEBS_LEGACY_HANDLER) {
         return (*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags) == 0;
     } else
@@ -170,7 +170,7 @@ PUBLIC bool websRunRequest(Webs *wp)
 }
 
 
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
 static bool can(Webs *wp, char *ability)
 {
     assert(wp);
@@ -186,7 +186,7 @@ static bool can(Webs *wp, char *ability)
 PUBLIC bool websCan(Webs *wp, WebsHash abilities) 
 {
     WebsKey     *key;
-    char        *ability, *cp, *start, abuf[BIT_GOAHEAD_LIMIT_STRING];
+    char        *ability, *cp, *start, abuf[ME_GOAHEAD_LIMIT_STRING];
 
     assert(wp);
     assert(abilities >= 0);
@@ -293,7 +293,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     }
     route->handler = key->content.value.symbol;
 
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
     route->verify = websGetPasswordStoreVerify();
 #endif
     growRoutes();
@@ -541,7 +541,7 @@ PUBLIC int websLoad(char *path)
                 break;
             }
             websSetRouteMatch(route, dir, protocol, methods, extensions, abilities, redirects);
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
             if (auth && websSetRouteAuth(route, auth) < 0) {
                 rc = -1;
                 break;
@@ -590,7 +590,7 @@ PUBLIC int websLoad(char *path)
         }
     }
     wfree(buf);
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
     websComputeAllUserAbilities();
 #endif
     return rc;
@@ -615,12 +615,12 @@ static bool redirectHandler(Webs *wp)
 }
 
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags)
 {
     WebsRoute   *route;
     static int  legacyCount = 0;
-    char        name[BIT_GOAHEAD_LIMIT_STRING];
+    char        name[ME_GOAHEAD_LIMIT_STRING];
 
     assert(prefix && *prefix);
     assert(handler);

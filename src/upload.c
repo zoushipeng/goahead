@@ -8,7 +8,7 @@
 
 #include    "goahead.h"
 
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
 /************************************ Locals **********************************/
 /*
     Upload states
@@ -298,8 +298,8 @@ static int writeToFile(Webs *wp, char *data, ssize len)
 
     file = wp->currentFile;
 
-    if ((file->size + len) > BIT_GOAHEAD_LIMIT_UPLOAD) {
-        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %d", (int) BIT_GOAHEAD_LIMIT_UPLOAD);
+    if ((file->size + len) > ME_GOAHEAD_LIMIT_UPLOAD) {
+        websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Uploaded file exceeds maximum %d", (int) ME_GOAHEAD_LIMIT_UPLOAD);
         return -1;
     }
     if (len > 0) {
@@ -448,9 +448,9 @@ WebsHash websGetUpload(Webs *wp)
 
 PUBLIC void websUploadOpen()
 {
-    uploadDir = BIT_GOAHEAD_UPLOAD_DIR;
+    uploadDir = ME_GOAHEAD_UPLOAD_DIR;
     if (*uploadDir == '\0') {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         uploadDir = getenv("TEMP");
 #else
         uploadDir = "/tmp";
