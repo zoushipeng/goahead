@@ -15,7 +15,7 @@
     #define SPECSTRING_SUPP_H
 #endif
 
-#include    "bit.h"
+#include    "me.h"
 
 #include    <stdio.h>
 #include    <direct.h>
