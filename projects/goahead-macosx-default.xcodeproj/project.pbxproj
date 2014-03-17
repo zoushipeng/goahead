@@ -533,7 +533,7 @@
 			shellPath = /bin/bash;
 			shellScript = "PATH=$PATH:/usr/local/bin
 cd ../src/paks/est
-rm -rf ../../${OUT_DIR}/bin/ca.crt
+mkdir -p ../../${OUT_DIR}/bin
 cp -r ca.crt ../../${OUT_DIR}/bin/ca.crt
 ";
 		};
@@ -803,7 +803,7 @@ fi";
 
                 /* Common Settings */
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_ME)";
+                ONLY_ACTIVE_ARCH = YES;
                 CURRENT_PROJECT_VERSION = 3.3.1;
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
@@ -872,7 +872,7 @@ fi";
 
                 /* Common Settings */
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_ME)";
+                ONLY_ACTIVE_ARCH = YES;
                 CURRENT_PROJECT_VERSION = 3.3.1;
                 DYLIB_COMPATIBILITY_VERSION = "$(CURRENT_PROJECT_VERSION)";
                 DYLIB_CURRENT_VERSION = "$(CURRENT_PROJECT_VERSION)";
