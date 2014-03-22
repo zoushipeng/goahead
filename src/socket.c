@@ -76,7 +76,7 @@ PUBLIC bool socketHasDualNetworkStack()
 {
     bool dual;
 
-#if defined(ME_HAS_SINGLE_STACK) || VXWORKS
+#if defined(ME_COMPILER_HAS_SINGLE_STACK) || VXWORKS
     dual = 0;
 #elif WINDOWS
     {
@@ -134,7 +134,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     }
     socketHighestFd = max(socketHighestFd, sp->sock);
 
-#if ME_HAS_FCNTL
+#if ME_COMPILER_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
     rc = 1;
@@ -204,7 +204,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     }
     socketHighestFd = max(socketHighestFd, sp->sock);
 
-#if ME_HAS_FCNTL
+#if ME_COMPILER_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
 
@@ -298,7 +298,7 @@ static void socketAccept(WebsSocket *sp)
     if ((newSock = accept(sp->sock, addr, (Socklen*) &len)) == SOCKET_ERROR) {
         return;
     }
-#if ME_HAS_FCNTL
+#if ME_COMPILER_HAS_FCNTL
     fcntl(newSock, F_SETFD, FD_CLOEXEC);
 #endif
     socketHighestFd = max(socketHighestFd, newSock);

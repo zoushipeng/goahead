@@ -8,7 +8,7 @@
 #   cross-compile, you should use MakeMe.
 #
 #	See projects/$(OS)-$(ARCH)-$(PROFILE)-me.h for configuration default settings. Can override 
-#	via make environment variables. For example: make ME_EXT_SQLITE=0. These are converted to 
+#	via make environment variables. For example: make ME_COM_SQLITE=0. These are converted to 
 #	DFLAGS and will then override the me.h default values. Use "make help" for a list of available 
 #	make variable options.
 #
@@ -113,10 +113,10 @@ help:
 	@echo '  ME_GOAHEAD_TUNE                   # Optimize (size|speed|balanced)' >&2
 	@echo '  ME_GOAHEAD_UPLOAD                 # Enable file upload (true|false)' >&2
 	@echo '  ME_GOAHEAD_UPLOAD_DIR             # Define directory for uploaded files (path)' >&2
-	@echo '  ME_EXT_EST                        # Enable the EST SSL stack' >&2
-	@echo '  ME_EXT_NANOSSL                    # Enable the Mocana NanoSSL stack' >&2
-	@echo '  ME_EXT_MATRIXSSL                  # Enable the MatrixSSL SSL stack' >&2
-	@echo '  ME_EXT_OPENSSL                    # Enable the OpenSSL SSL stack' >&2
+	@echo '  ME_COM_EST                        # Enable the EST SSL stack' >&2
+	@echo '  ME_COM_NANOSSL                    # Enable the Mocana NanoSSL stack' >&2
+	@echo '  ME_COM_MATRIXSSL                  # Enable the MatrixSSL SSL stack' >&2
+	@echo '  ME_COM_OPENSSL                    # Enable the OpenSSL SSL stack' >&2
 	@echo '  ME_ROM                            # Build for ROM without a file system' >&2
 	@echo '  ME_STACK_SIZE                     # Define the VxWorks stack size' >&2
 	@echo '' >&2

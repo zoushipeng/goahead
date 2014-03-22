@@ -1035,6 +1035,12 @@ PUBLIC int websGetLogLevel()
 }
 
 
+WebsLogHandler logGetHandler()
+{
+    return logHandler;
+}
+
+
 /*
     Replace the default trace handler. Return a pointer to the old handler.
  */

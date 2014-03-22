@@ -3,7 +3,7 @@
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IncDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IncDir);..\..\$(ME_COM_MATRIXSSL_PATH);..\..\$(ME_COM_MATRIXSSL_PATH)\matrixssl;..\..\$(ME_COM_NANOSSL_PATH)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -104,10 +104,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ClInclude Include="$(IncDir)\bitos.h" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ClInclude Include="$(IncDir)\goahead.h" />
   </ItemGroup>
 
@@ -117,13 +113,12 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libgo.lib;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <AdditionalDependencies>libgo.lib;libest.lib;matrixssl.lib;ssls;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;$(ME_COM_MATRIXSSL_PATH);$(ME_COM_NANOSSL_PATH)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y src\bitos.h $(IncDir)
 copy /Y src\goahead.h $(IncDir)
 copy /Y src\js.h $(IncDir)
 cd projects\goahead-windows-static</Command>

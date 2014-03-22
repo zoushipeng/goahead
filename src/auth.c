@@ -27,7 +27,7 @@
 
 #if ME_GOAHEAD_AUTH
 
-#if ME_HAS_PAM
+#if ME_COMPILER_HAS_PAM
     #include <security/pam_appl.h>
 #endif
 
@@ -39,7 +39,7 @@ static char *secret;
 static int autoLogin = ME_GOAHEAD_AUTO_LOGIN;
 static WebsVerify verifyPassword = websVerifyPasswordFromFile;
 
-#if ME_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 typedef struct {
     char    *name;
     char    *password;
@@ -71,7 +71,7 @@ static char *createDigestNonce(Webs *wp);
 static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
 #endif
 
-#if ME_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data);
 #endif
 
@@ -159,7 +159,7 @@ PUBLIC int websOpenAuth(int minimal)
     }
     if (smatch(ME_GOAHEAD_AUTH_STORE, "file")) {
         verifyPassword = websVerifyPasswordFromFile;
-#if ME_HAS_PAM
+#if ME_COMPILER_HAS_PAM
     } else if (smatch(ME_GOAHEAD_AUTH_STORE, "pam")) {
         verifyPassword = websVerifyPasswordFromPam;
 #endif
@@ -584,7 +584,7 @@ PUBLIC bool websVerifyPasswordFromFile(Webs *wp)
 }
 
 
-#if ME_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 /*
     Copy this routine if creating your own custom password store back end
  */
@@ -687,7 +687,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     *resp = reply;
     return PAM_SUCCESS;
 }
-#endif /* ME_HAS_PAM */
+#endif /* ME_COMPILER_HAS_PAM */
 
 
 #if ME_GOAHEAD_JAVASCRIPT && FUTURE

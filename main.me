@@ -14,6 +14,11 @@ Me.load({
         "doc/doc.me",
     ],
 
+    configure: {
+        requires:  [ 'osdep' ],
+        discovers: [ 'ssl' ],
+    },
+
     settings: {
         makeme: '0.8.0',
 
@@ -22,11 +27,6 @@ Me.load({
          */
         prefixes: 'package-prefixes',
         manifest: 'package/manifest.me',
-
-        extensions: {
-            require:  [ 'compiler', 'osdep' ],
-            discover: [ 'doxygen', 'dsi', 'man', 'man2html', 'pmaker', 'ssl', 'utest', 'zip' ],
-        },
 
         /*
             Set to true for a static link
@@ -241,7 +241,7 @@ Me.load({
     scripts: {
         postconfig: "
             if (me.settings.goahead.authStore != 'pam') {
-                me.settings.hasPam = false
+                me.settings.compiler.hasPam = false
             }
         ",
     },
@@ -259,7 +259,7 @@ Me.load({
             depends: [ 'ssl' ],
             scripts: {
                 prebuild: "
-                    if (me.settings.hasPam && me.settings.goahead.pam) {
+                    if (me.settings.compiler.hasPam && me.settings.goahead.pam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
                 ",  
@@ -273,7 +273,7 @@ Me.load({
             depends: [ 'libgo' ],
             scripts: {
                 prebuild: "
-                    if (me.settings.hasPam) {
+                    if (me.settings.compiler.hasPam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
                 ",  

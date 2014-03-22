@@ -125,42 +125,6 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 
 PUBLIC_DATA int logLevel;
 
-#if ME_GOAHEAD_TRACING
-    #if ME_HAS_MACRO_VARARGS
-        #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else
-    #else
-        inline trace(int level, cchar *fmt, ...) {
-            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
-                va_list args; va_start(args, fmt);
-                char *message = sfmtv(fmt, args);
-                logHandler(level | WEBS_TRACE_MSG, message);
-                wfree(message);
-                va_end(args);
-            }
-        }
-    #endif
-#else
-    #define trace(l, ...) if (1) ; else
-#endif
-
-#if ME_GOAHEAD_LOGGING
-    #if ME_HAS_MACRO_VARARGS
-        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else
-    #else
-        inline logmsg(int level, cchar *fmt, ...) {
-            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
-                va_list args; va_start(args, fmt);
-                char *message = sfmtv(fmt, args);
-                logHandler(level | WEBS_TRACE_MSG, message);
-                wfree(message);
-                va_end(args);
-            }
-        }
-    #endif
-#else
-    #define logmsg(l, ...) if (1) ; else
-#endif
-
 /**
     Standard logging trace levels are 0 to 9 with 0 being the most verbose. These are ored with the error source
     and type flags. The WEBS_LOG_MASK is used to extract the trace level from a flags word. We expect most apps
@@ -180,6 +144,7 @@ PUBLIC_DATA int logLevel;
 #define WEBS_LOG_MSG        0x100       /**< Originated from logmsg */
 #define WEBS_RAW_MSG        0x200       /**< Raw message output */
 #define WEBS_TRACE_MSG      0x400       /**< Originated from trace */
+
 
 #if DOXYGEN
 #undef assert
@@ -205,6 +170,15 @@ extern void assert(bool cond);
 #endif
 
 /**
+    Callback for emitting trace log output
+    @param level Integer between 0 and 9. Zero is the lowest trace level used for the most important messages.
+    @param msg Message to log
+    @return Zero if successful
+    @internal
+ */
+typedef void (*WebsLogHandler)(int level, char *msg);
+
+/**
     Emit an error message
     @return Zero if successful
     @internal
@@ -225,13 +199,10 @@ PUBLIC int logOpen();
 PUBLIC void logClose();
 
 /**
-    Callback for emitting trace log output
-    @param level Integer between 0 and 9. Zero is the lowest trace level used for the most important messages.
-    @param msg Message to log
-    @return Zero if successful
-    @internal
+    Get the  log callback
+    @return handler Callback handler function of type WebsLogHandler
  */
-typedef void (*WebsLogHandler)(int level, char *msg);
+PUBLIC WebsLogHandler logGetHandler();
 
 /**
     Set a log callback
@@ -3240,7 +3211,7 @@ PUBLIC bool websVerifyPasswordFromCustom(Webs *wp);
  */
 PUBLIC bool websVerifyPasswordFromFile(Webs *wp);
 
-#if ME_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 /**
     Verify a password using the system PAM password database.
     @param wp Webs request object
@@ -3317,6 +3288,46 @@ PUBLIC void websRemoveSessionVar(Webs *wp, char *name);
     @ingroup WebsSession
  */
 PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
+
+/************************************ Macros **********************************/
+
+#if ME_GOAHEAD_TRACING
+    #if ME_COMPILER_HAS_MACRO_VARARGS
+        #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else
+    #else
+        inline void trace(int level, cchar *fmt, ...) {
+            WebsLogHandler logHandler = logGetHandler();
+            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
+                va_list args; va_start(args, fmt);
+                char *message = sfmtv((char*) fmt, args);
+                logHandler(level | WEBS_TRACE_MSG, message);
+                wfree(message);
+                va_end(args);
+            }
+        }
+    #endif
+#else
+    #define trace(l, ...) if (1) ; else
+#endif
+
+#if ME_GOAHEAD_LOGGING
+    #if ME_COMPILER_HAS_MACRO_VARARGS
+        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else
+    #else
+        inline void logmsg(int level, cchar *fmt, ...) {
+            WebsLogHandler logHandler = logGetHandler();
+            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
+                va_list args; va_start(args, fmt);
+                char *message = sfmtv((char*) fmt, args);
+                logHandler(level | WEBS_TRACE_MSG, message);
+                wfree(message);
+                va_end(args);
+            }
+        }
+    #endif
+#else
+    #define logmsg(l, ...) if (1) ; else
+#endif
 
 /************************************ Legacy **********************************/
 /*
