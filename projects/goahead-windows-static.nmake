@@ -722,9 +722,15 @@ $(CONFIG)\bin\removeFiles.exe: $(DEPS_38)
 	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\removeFiles.obj" $(LIBS) 
 
 #
+#   stop
+#
+stop: $(DEPS_39)
+#  Omit build script stop
+
+#
 #   installBinary
 #
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_40)
 	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
 	copy /Y $(CONFIG)\bin\goahead.exe $(ME_VAPP_PREFIX)\bin\goahead.exe
@@ -740,34 +746,44 @@ installBinary: $(DEPS_39)
 	cd .
 
 #
-#   run
-#
-run: $(DEPS_40)
-	cd src
-	goahead -v
-	cd ..
-#
 #   start
 #
 start: $(DEPS_41)
 #  Omit build script start
 
 #
-#   stop
+#   install
 #
-stop: $(DEPS_42)
-#  Omit build script stop
+DEPS_42 = $(DEPS_42) stop
+DEPS_42 = $(DEPS_42) installBinary
+DEPS_42 = $(DEPS_42) start
 
+install: $(DEPS_42)
+#  Omit build script install
+
+#
+#   run
+#
+run: $(DEPS_43)
+	cd src
+	goahead -v
+	cd ..
 #
 #   uninstall
 #
-DEPS_43 = $(DEPS_43) stop
+DEPS_44 = $(DEPS_44) stop
 
-uninstall: $(DEPS_43)
+uninstall: $(DEPS_44)
 	cd .
 	if exist "$(ME_WEB_PREFIX)" rd /Q /S "$(ME_WEB_PREFIX)"
 	if exist "$(ME_VAPP_PREFIX)" rd /Q /S "$(ME_VAPP_PREFIX)"
 	if exist "$(ME_APP_PREFIX)\latest" del /Q "$(ME_APP_PREFIX)\latest"
 	if exist "$(ME_APP_PREFIX)" rd /Q "$(ME_APP_PREFIX)"
 	cd .
+
+#
+#   version
+#
+version: $(DEPS_45)
+#  Omit build script version
 

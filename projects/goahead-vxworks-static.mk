@@ -734,29 +734,43 @@ $(CONFIG)/bin/gopass.out: $(DEPS_36)
 	$(CC) -o $(CONFIG)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) -Wl,-r 
 
 #
-#   installBinary
+#   stop
 #
-installBinary: $(DEPS_37)
+stop: $(DEPS_37)
 
 #
-#   run
+#   installBinary
 #
-run: $(DEPS_38)
-	cd src; goahead -v ; cd ..
+installBinary: $(DEPS_38)
+
 #
 #   start
 #
 start: $(DEPS_39)
 
 #
-#   stop
+#   install
 #
-stop: $(DEPS_40)
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
+install: $(DEPS_40)
+
+#
+#   run
+#
+run: $(DEPS_41)
+	cd src; goahead -v ; cd ..
 #
 #   uninstall
 #
-DEPS_41 += stop
+DEPS_42 += stop
 
-uninstall: $(DEPS_41)
+uninstall: $(DEPS_42)
+
+#
+#   version
+#
+version: $(DEPS_43)
 

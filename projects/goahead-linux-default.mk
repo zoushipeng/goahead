@@ -746,9 +746,14 @@ $(CONFIG)/bin/gopass: $(DEPS_36)
 	$(CC) -o $(CONFIG)/bin/gopass -rdynamic -Wl,--enable-new-dtags -Wl,-rpath,$ORIGIN/ $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) $(LIBS) 
 
 #
+#   stop
+#
+stop: $(DEPS_37)
+
+#
 #   installBinary
 #
-installBinary: $(DEPS_37)
+installBinary: $(DEPS_38)
 	( \
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
@@ -784,26 +789,30 @@ installBinary: $(DEPS_37)
 	)
 
 #
-#   run
-#
-run: $(DEPS_38)
-	cd src; goahead -v ; cd ..
-#
 #   start
 #
 start: $(DEPS_39)
 
 #
-#   stop
+#   install
 #
-stop: $(DEPS_40)
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
+install: $(DEPS_40)
+
+#
+#   run
+#
+run: $(DEPS_41)
+	cd src; goahead -v ; cd ..
 #
 #   uninstall
 #
-DEPS_41 += stop
+DEPS_42 += stop
 
-uninstall: $(DEPS_41)
+uninstall: $(DEPS_42)
 	( \
 	cd .; \
 	rm -fr "$(ME_WEB_PREFIX)" ; \
@@ -813,4 +822,9 @@ uninstall: $(DEPS_41)
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true ; \
 	)
+
+#
+#   version
+#
+version: $(DEPS_43)
 
