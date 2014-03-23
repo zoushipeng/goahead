@@ -204,11 +204,11 @@
 #ifndef ME_GOAHEAD_XFRAME_HEADER
     #define ME_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
 #endif
+#ifndef ME_MAKEME
+    #define ME_MAKEME "0.8.0"
+#endif
 #ifndef ME_MANIFEST
     #define ME_MANIFEST "package/manifest.me"
-#endif
-#ifndef ME_ME
-    #define ME_ME "0.8.0"
 #endif
 #ifndef ME_NAME
     #define ME_NAME "goahead"
@@ -353,5 +353,5 @@
     #define ME_COM_VXWORKS 0
 #endif
 #ifndef ME_COM_WINSDK
-    #define ME_COM_WINSDK 0
+    #define ME_COM_WINSDK 1
 #endif

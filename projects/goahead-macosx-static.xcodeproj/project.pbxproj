@@ -902,25 +902,11 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = mh_execute;
 
@@ -932,22 +918,7 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = mh_execute;
 
@@ -959,25 +930,11 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = mh_execute;
 
@@ -989,22 +946,7 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = goahead-test;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = mh_execute;
 
@@ -1016,25 +958,11 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = gopass;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = mh_execute;
 
@@ -1046,22 +974,7 @@ fi";
 			buildSettings = {
 				PRODUCT_NAME = gopass;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"-lmatrixssl",
-					"-lssls",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = mh_execute;
 
@@ -1104,25 +1017,11 @@ fi";
 				PRODUCT_NAME = libgo;
 				EXECUTABLE_EXTENSION = a;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"",
-					"",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = staticlib;
 
@@ -1135,22 +1034,7 @@ fi";
 				PRODUCT_NAME = libgo;
 				EXECUTABLE_EXTENSION = a;
 
-				HEADER_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_MATRIXSSL_PATH)/matrixssl",
-					"../$(ME_COM_NANOSSL_PATH)/src",
-					"$(inherited)"
-				);
-
-				LIBRARY_SEARCH_PATHS = (
-					"../$(ME_COM_MATRIXSSL_PATH)",
-					"../$(ME_COM_NANOSSL_PATH)/bin",
-					"$(inherited)"
-				);
-				OTHER_LDFLAGS = (
-					"",
-					"",
-					);
+				OTHER_LDFLAGS = ();
 
 				MACH_O_TYPE = staticlib;
 

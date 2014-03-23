@@ -3,7 +3,7 @@
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(IncDir);..\..\$(ME_COM_MATRIXSSL_PATH);..\..\$(ME_COM_MATRIXSSL_PATH)\matrixssl;..\..\$(ME_COM_NANOSSL_PATH)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(IncDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -113,8 +113,8 @@
 
   <ItemDefinitionGroup>
   <Link>
-    <AdditionalDependencies>libgo.lib;libest.lib;matrixssl.lib;ssls;%(AdditionalDependencies)</AdditionalDependencies>
-    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;$(ME_COM_MATRIXSSL_PATH);$(ME_COM_NANOSSL_PATH)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    <AdditionalDependencies>libgo.lib;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    <AdditionalLibraryDirectories>$(OutDir);$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
   </Link>
 
   <CustomBuildStep>
