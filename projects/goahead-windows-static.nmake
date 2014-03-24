@@ -833,5 +833,5 @@ uninstall: $(DEPS_44)
 #   version
 #
 version: $(DEPS_45)
-#  Omit build script version
+	echo 3.3.1
 
