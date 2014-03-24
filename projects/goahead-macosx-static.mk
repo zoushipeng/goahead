@@ -576,7 +576,7 @@ endif
 
 $(CONFIG)/bin/goahead: $(DEPS_32)
 	@echo '      [Link] $(CONFIG)/bin/goahead'
-	$(CC) -o $(CONFIG)/bin/goahead -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS)    "$(CONFIG)/obj/goahead.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/goahead.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
 
 #
 #   test.o
@@ -650,7 +650,7 @@ endif
 
 $(CONFIG)/bin/goahead-test: $(DEPS_34)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS)    "$(CONFIG)/obj/test.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/test.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
 
 #
 #   gopass.o
@@ -723,7 +723,7 @@ endif
 
 $(CONFIG)/bin/gopass: $(DEPS_36)
 	@echo '      [Link] $(CONFIG)/bin/gopass'
-	$(CC) -o $(CONFIG)/bin/gopass -arch $(CC_ARCH) -Wl,-rpath,@executable_path/ -Wl,-rpath,@loader_path/ $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 
 #
 #   stop
