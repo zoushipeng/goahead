@@ -34,7 +34,7 @@ public function deploy(manifest, prefixes, package): Array {
         }
         let prior = App.dir
         if (item.home) {
-            App.chdir(item.home)
+            App.chdir(expand(item.home))
         }
         for (let [key,value] in item) {
             if (value is String && value.contains('${')) {
@@ -109,6 +109,9 @@ public function deploy(manifest, prefixes, package): Array {
                     makeDir(dir, item)
                     strace('Create', dir.relativeTo(me.dir.top))
                 }
+            }
+            if (item.copy) {
+                eval('require ejs.unix\n' + expand(item.copy))
             }
             if (item.from) {
                 copy(item.from, item.to, item)
@@ -349,29 +352,6 @@ public function packagePak() {
         makeSimplePackage(package, prefixes, 'pak')
     }
 }
-
-
-/* UNUSED
-public function packageCombo() {
-    let [manifest, package, prefixes] = setupPackage('combo')
-    if (package) {
-        trace('Package', me.settings.title + ' Combo')
-        deploy(manifest, prefixes, package)
-        makeSimplePackage(package, prefixes, 'combo')
-    }
-}
-
-
-public function packageFlat() {
-    let [manifest, package, prefixes] = setupPackage('flat')
-    if (package) {
-        trace('Package', me.settings.title + ' Flat')
-        deploy(manifest, prefixes, package)
-        flatten()
-        makeSimplePackage(package, prefixes, 'flat')
-    }
-}
-*/
 
 
 function checkRoot() {
