@@ -100,7 +100,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     WebsSocket  *sp;
 
     assert(wp);
-    if ((est = malloc(sizeof(EstSocket))) == 0) {
+    if ((est = walloc(sizeof(EstSocket))) == 0) {
         return -1;
     }
     memset(est, 0, sizeof(EstSocket));
