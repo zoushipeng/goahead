@@ -51,7 +51,7 @@
                 <li><a href="#repository">Repository Building</a></li>
                 <li><a href="#directories">Key Directories</a></li>
                 <li><a href="make.html">Building with Make</a></li>
-                <li><a href="bit.html">Building with Bit</a></li>
+                <li><a href="me.html">Building with MakeMe</a></li>
                 <li><a href="ide.html">Building with an ID</a></li>
             </ul>
 <!-- BeginDsi "dsi/sourceSeeAlso.html" -->
@@ -115,13 +115,13 @@
             Building via <em>make</em> is the simplest and quickest way to build. Use make if you are looking to build
             and move on. Choose make also, if you need to integrate the product into an existing make-based
             build system.</p>
-            <p>Build via <em>bit</em> is the better choice if you are cross-compiling or
-            will be working with the software for a longer period of time. Bit offers a more configurable build and is
+            <p>Build via <em>MakeMe</em> is the better choice if you are cross-compiling or
+            will be working with the software for a longer period of time. MakeMe offers a more configurable build and is
             faster and more flexible than make.  </p>
             <p>Select the appropriate instructions:</p>
             <ul>
                 <li><a href="make.html">How to build with Make</a></li>
-                <li><a href="bit.html">How to build with Bit</a></li>
+                <li><a href="me.html">How to build with MakeMe</a></li>
                 <li><a href="ide.html">How to build with IDE</a></li>
             </ul>
             <a id="repository"></a>
@@ -150,16 +150,6 @@
                     </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>bits</td>
-                    <td></td>
-                    <td>Bit configuration and scripts.</td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>packs</td>
-                    <td>Bit extension packs.</td>
-                </tr>
                 <tr>
                     <td class="nowrap">OS-ARCH-PROFILE</td>
                     <td></td>
@@ -193,7 +183,7 @@
                 <tr>
                     <td>projects</td>
                     <td></td>
-                    <td>Microsoft Visual Studio and Eclipse project and workspace files.</td>
+                    <td>Microsoft Visual Studio and Xcode project and workspace files.</td>
                 </tr>
                 <tr>
                     <td>src</td>
@@ -202,8 +192,8 @@
                 </tr>
                 <tr>
                     <td></td>
-                    <td>deps</td>
-                    <td>Dependant libraries including MPR, Http, Pcre.</td>
+                    <td>paks</td>
+                    <td>Imported packages including OSdep.</td>
                 </tr>
                 <tr>
                     <td>test</td>
@@ -223,24 +213,24 @@
                 <tbody>
                 <tr>
                     <td>configure</td>
-                    <td>Build configuration script to use when building with Bit. This invokes Bit to configure GoAhead on
+                    <td>Build configuration script to use when building with MakeMe. This invokes MakeMe to configure GoAhead on
                         the development system.</td> 
                 </tr>
                 <tr>
-                    <td class="nowrap">OS-ARCH-PROFILE.bit</td>
-                    <td>Platform specific Bit file. There will be one platform bit file for each target platform.</td>
+                    <td class="nowrap">OS-ARCH-PROFILE.me</td>
+                    <td>Platform specific MakeMe file. There will be one platform MakeMe file for each target platform.</td>
                 </tr>
                 <tr>
-                    <td>main.bit</td>
-                    <td>Main Bit file for GoAhead. It specifies the GoAhead key settings and configured options.</td>
+                    <td>main.me</td>
+                    <td>Main MakeMe file for GoAhead. It specifies the GoAhead key settings and configured options.</td>
                 </tr>
                 <tr>
-                    <td>start.bit</td>
-                    <td>Startup bit file for GoAhead. This file refers to the relevant Bit files for platforms.</td>
+                    <td>start.me</td>
+                    <td>Startup MakeMe file for GoAhead. This file refers to the relevant MakeMe files for platforms.</td>
                 </tr>
                 <tr>
-                    <td>*/inc/bit.h</td>
-                    <td>Build header created by Bit and included in all source files.</td>
+                    <td>*/inc/me.h</td>
+                    <td>Build header created by MakeMe and included in all source files.</td>
                 </tr>
                 </tbody>
             </table>
