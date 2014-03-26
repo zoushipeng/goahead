@@ -8,7 +8,7 @@
 #include    "me.h"
 #include    "osdep.h"
 
-#if ME_PACK_OPENSSL
+#if ME_COM_OPENSSL
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE

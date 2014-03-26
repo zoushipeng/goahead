@@ -123,7 +123,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     } else {
         endpoints = sclone(ME_GOAHEAD_LISTEN);
         for (endpoint = stok(endpoints, ", \t", &tok); endpoint; endpoint = stok(NULL, ", \t,", &tok)) {
-#if !ME_PACK_SSL
+#if !ME_COM_SSL
             if (strstr(endpoint, "https")) continue;
 #endif
             if (websListen(endpoint) < 0) {

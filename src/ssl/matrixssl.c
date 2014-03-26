@@ -7,7 +7,7 @@
 
 #include    "me.h"
 
-#if ME_PACK_MATRIXSSL
+#if ME_COM_MATRIXSSL
 /*
     Matrixssl defines int*, uint*, but does not provide HAS_XXX to disable.
     So must include matrixsslApi.h first and then workaround. Ugh!
@@ -343,7 +343,7 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 
 #else
 void matrixsslDummy() {}
-#endif /* ME_PACK_MATRIXSSL */
+#endif /* ME_COM_MATRIXSSL */
 
 /*
     @copy   default

@@ -7,7 +7,7 @@
 
 #include    "goahead.h"
 
-#if ME_PACK_EST
+#if ME_COM_EST
 
 #include    "est.h"
 
@@ -337,7 +337,7 @@ static void estTrace(void *fp, int level, char *str)
 
 #else
 void estDummy() {}
-#endif /* ME_PACK_EST */
+#endif /* ME_COM_EST */
 
 /*
     @copy   default

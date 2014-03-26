@@ -12,7 +12,7 @@
 #include    "me.h"
 #include    "osdep.h"
 
-#if (ME_PACK_EST + ME_PACK_MATRIXSSL + ME_PACK_NANOSSL + ME_PACK_OPENSSL) > 1
+#if (ME_COM_EST + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
 #endif
 #ifndef ME_GOAHEAD_LOGGING
@@ -2855,7 +2855,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
 
 /*************************************** SSL ***********************************/
 
-#if ME_PACK_SSL
+#if ME_COM_SSL
 /**
     Open the ssl module
     @return Zero if successful, otherwise -1.
@@ -2904,7 +2904,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len);
     @ingroup Webs
  */
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len);
-#endif /* ME_PACK_SSL */
+#endif /* ME_COM_SSL */
 
 /*************************************** Route *********************************/
 /**

@@ -8,7 +8,7 @@
 
 #include    "me.h"
 
-#if ME_PACK_NANOSSL
+#if ME_COM_NANOSSL
  #include "goahead.h"
 
  #include "common/moptions.h"
@@ -337,7 +337,7 @@ static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
 
 #else
 void nanosslDummy() {}
-#endif /* ME_PACK_NANOSSL */
+#endif /* ME_COM_NANOSSL */
 
 /*
     @copy   default
