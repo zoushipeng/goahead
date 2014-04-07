@@ -3347,7 +3347,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define brealloc wrealloc
     #define bstrdup sclone
     #define emfReschedCallback websRestartEvent
-    #define emfSchedCallback websStartEVent
+    #define emfSchedCallback websStartEvent
     #define emfSchedProc WebsEventProc
     #define emfSchedProcess websRunEvents
     #define emfUnschedCallback websStopEvent
