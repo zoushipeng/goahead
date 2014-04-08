@@ -77,6 +77,7 @@ ME_CACHE_PREFIX       ?= $(ME_ROOT_PREFIX)/var/spool/$(NAME)/cache
 ME_SRC_PREFIX         ?= $(ME_ROOT_PREFIX)$(NAME)-$(VERSION)
 
 
+TARGETS               += $(CONFIG)/bin/ca.crt
 TARGETS               += $(CONFIG)/bin/goahead
 TARGETS               += $(CONFIG)/bin/goahead-test
 TARGETS               += $(CONFIG)/bin/gopass
@@ -139,6 +140,7 @@ clean:
 	rm -f "$(CONFIG)/obj/socket.o"
 	rm -f "$(CONFIG)/obj/test.o"
 	rm -f "$(CONFIG)/obj/upload.o"
+	rm -f "$(CONFIG)/bin/ca.crt"
 	rm -f "$(CONFIG)/bin/goahead"
 	rm -f "$(CONFIG)/bin/goahead-test"
 	rm -f "$(CONFIG)/bin/gopass"
@@ -149,11 +151,21 @@ clobber: clean
 	rm -fr ./$(CONFIG)
 
 
+#
+#   ca-crt
+#
+DEPS_1 += src/paks/est/ca.crt
+
+$(CONFIG)/bin/ca.crt: $(DEPS_1)
+	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
+	mkdir -p "$(CONFIG)/bin"
+	cp src/paks/est/ca.crt $(CONFIG)/bin/ca.crt
+
 
 #
 #   est.h
 #
-$(CONFIG)/inc/est.h: $(DEPS_1)
+$(CONFIG)/inc/est.h: $(DEPS_2)
 	@echo '      [Copy] $(CONFIG)/inc/est.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/est/est.h $(CONFIG)/inc/est.h
@@ -161,15 +173,15 @@ $(CONFIG)/inc/est.h: $(DEPS_1)
 #
 #   me.h
 #
-$(CONFIG)/inc/me.h: $(DEPS_2)
+$(CONFIG)/inc/me.h: $(DEPS_3)
 	@echo '      [Copy] $(CONFIG)/inc/me.h'
 
 #
 #   osdep.h
 #
-DEPS_3 += $(CONFIG)/inc/me.h
+DEPS_4 += $(CONFIG)/inc/me.h
 
-$(CONFIG)/inc/osdep.h: $(DEPS_3)
+$(CONFIG)/inc/osdep.h: $(DEPS_4)
 	@echo '      [Copy] $(CONFIG)/inc/osdep.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/paks/osdep/osdep.h $(CONFIG)/inc/osdep.h
@@ -177,12 +189,12 @@ $(CONFIG)/inc/osdep.h: $(DEPS_3)
 #
 #   estLib.o
 #
-DEPS_4 += $(CONFIG)/inc/me.h
-DEPS_4 += $(CONFIG)/inc/est.h
-DEPS_4 += $(CONFIG)/inc/osdep.h
+DEPS_5 += $(CONFIG)/inc/me.h
+DEPS_5 += $(CONFIG)/inc/est.h
+DEPS_5 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/estLib.o: \
-    src/paks/est/estLib.c $(DEPS_4)
+    src/paks/est/estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/estLib.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) src/paks/est/estLib.c
 
@@ -190,12 +202,12 @@ ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
-DEPS_5 += $(CONFIG)/inc/est.h
-DEPS_5 += $(CONFIG)/inc/me.h
-DEPS_5 += $(CONFIG)/inc/osdep.h
-DEPS_5 += $(CONFIG)/obj/estLib.o
+DEPS_6 += $(CONFIG)/inc/est.h
+DEPS_6 += $(CONFIG)/inc/me.h
+DEPS_6 += $(CONFIG)/inc/osdep.h
+DEPS_6 += $(CONFIG)/obj/estLib.o
 
-$(CONFIG)/bin/libest.dylib: $(DEPS_5)
+$(CONFIG)/bin/libest.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
 	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.3.1 -current_version 3.3.1 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
@@ -203,7 +215,7 @@ endif
 #
 #   goahead.h
 #
-$(CONFIG)/inc/goahead.h: $(DEPS_6)
+$(CONFIG)/inc/goahead.h: $(DEPS_7)
 	@echo '      [Copy] $(CONFIG)/inc/goahead.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/goahead.h $(CONFIG)/inc/goahead.h
@@ -211,7 +223,7 @@ $(CONFIG)/inc/goahead.h: $(DEPS_6)
 #
 #   js.h
 #
-$(CONFIG)/inc/js.h: $(DEPS_7)
+$(CONFIG)/inc/js.h: $(DEPS_8)
 	@echo '      [Copy] $(CONFIG)/inc/js.h'
 	mkdir -p "$(CONFIG)/inc"
 	cp src/js.h $(CONFIG)/inc/js.h
@@ -219,525 +231,525 @@ $(CONFIG)/inc/js.h: $(DEPS_7)
 #
 #   action.o
 #
-DEPS_8 += $(CONFIG)/inc/me.h
-DEPS_8 += $(CONFIG)/inc/goahead.h
-DEPS_8 += $(CONFIG)/inc/osdep.h
+DEPS_9 += $(CONFIG)/inc/me.h
+DEPS_9 += $(CONFIG)/inc/goahead.h
+DEPS_9 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/action.o: \
-    src/action.c $(DEPS_8)
+    src/action.c $(DEPS_9)
 	@echo '   [Compile] $(CONFIG)/obj/action.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/action.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/action.c
 
 #
 #   alloc.o
 #
-DEPS_9 += $(CONFIG)/inc/me.h
-DEPS_9 += $(CONFIG)/inc/goahead.h
+DEPS_10 += $(CONFIG)/inc/me.h
+DEPS_10 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/alloc.o: \
-    src/alloc.c $(DEPS_9)
+    src/alloc.c $(DEPS_10)
 	@echo '   [Compile] $(CONFIG)/obj/alloc.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/alloc.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/alloc.c
 
 #
 #   auth.o
 #
-DEPS_10 += $(CONFIG)/inc/me.h
-DEPS_10 += $(CONFIG)/inc/goahead.h
+DEPS_11 += $(CONFIG)/inc/me.h
+DEPS_11 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/auth.o: \
-    src/auth.c $(DEPS_10)
+    src/auth.c $(DEPS_11)
 	@echo '   [Compile] $(CONFIG)/obj/auth.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/auth.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/auth.c
 
 #
 #   cgi.o
 #
-DEPS_11 += $(CONFIG)/inc/me.h
-DEPS_11 += $(CONFIG)/inc/goahead.h
+DEPS_12 += $(CONFIG)/inc/me.h
+DEPS_12 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/cgi.o: \
-    src/cgi.c $(DEPS_11)
+    src/cgi.c $(DEPS_12)
 	@echo '   [Compile] $(CONFIG)/obj/cgi.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/cgi.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/cgi.c
 
 #
 #   crypt.o
 #
-DEPS_12 += $(CONFIG)/inc/me.h
-DEPS_12 += $(CONFIG)/inc/goahead.h
+DEPS_13 += $(CONFIG)/inc/me.h
+DEPS_13 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/crypt.o: \
-    src/crypt.c $(DEPS_12)
+    src/crypt.c $(DEPS_13)
 	@echo '   [Compile] $(CONFIG)/obj/crypt.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/crypt.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/crypt.c
 
 #
 #   file.o
 #
-DEPS_13 += $(CONFIG)/inc/me.h
-DEPS_13 += $(CONFIG)/inc/goahead.h
+DEPS_14 += $(CONFIG)/inc/me.h
+DEPS_14 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/file.o: \
-    src/file.c $(DEPS_13)
+    src/file.c $(DEPS_14)
 	@echo '   [Compile] $(CONFIG)/obj/file.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/file.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/file.c
 
 #
 #   fs.o
 #
-DEPS_14 += $(CONFIG)/inc/me.h
-DEPS_14 += $(CONFIG)/inc/goahead.h
+DEPS_15 += $(CONFIG)/inc/me.h
+DEPS_15 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/fs.o: \
-    src/fs.c $(DEPS_14)
+    src/fs.c $(DEPS_15)
 	@echo '   [Compile] $(CONFIG)/obj/fs.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/fs.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/fs.c
 
 #
 #   http.o
 #
-DEPS_15 += $(CONFIG)/inc/me.h
-DEPS_15 += $(CONFIG)/inc/goahead.h
+DEPS_16 += $(CONFIG)/inc/me.h
+DEPS_16 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/http.o: \
-    src/http.c $(DEPS_15)
+    src/http.c $(DEPS_16)
 	@echo '   [Compile] $(CONFIG)/obj/http.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/http.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/http.c
 
 #
 #   js.o
 #
-DEPS_16 += $(CONFIG)/inc/me.h
-DEPS_16 += $(CONFIG)/inc/js.h
-DEPS_16 += $(CONFIG)/inc/goahead.h
+DEPS_17 += $(CONFIG)/inc/me.h
+DEPS_17 += $(CONFIG)/inc/js.h
+DEPS_17 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/js.o: \
-    src/js.c $(DEPS_16)
+    src/js.c $(DEPS_17)
 	@echo '   [Compile] $(CONFIG)/obj/js.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/js.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/js.c
 
 #
 #   jst.o
 #
-DEPS_17 += $(CONFIG)/inc/me.h
-DEPS_17 += $(CONFIG)/inc/goahead.h
-DEPS_17 += $(CONFIG)/inc/js.h
+DEPS_18 += $(CONFIG)/inc/me.h
+DEPS_18 += $(CONFIG)/inc/goahead.h
+DEPS_18 += $(CONFIG)/inc/js.h
 
 $(CONFIG)/obj/jst.o: \
-    src/jst.c $(DEPS_17)
+    src/jst.c $(DEPS_18)
 	@echo '   [Compile] $(CONFIG)/obj/jst.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/jst.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/jst.c
 
 #
 #   options.o
 #
-DEPS_18 += $(CONFIG)/inc/me.h
-DEPS_18 += $(CONFIG)/inc/goahead.h
+DEPS_19 += $(CONFIG)/inc/me.h
+DEPS_19 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/options.o: \
-    src/options.c $(DEPS_18)
+    src/options.c $(DEPS_19)
 	@echo '   [Compile] $(CONFIG)/obj/options.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/options.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/options.c
 
 #
 #   osdep.o
 #
-DEPS_19 += $(CONFIG)/inc/me.h
-DEPS_19 += $(CONFIG)/inc/goahead.h
+DEPS_20 += $(CONFIG)/inc/me.h
+DEPS_20 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/osdep.o: \
-    src/osdep.c $(DEPS_19)
+    src/osdep.c $(DEPS_20)
 	@echo '   [Compile] $(CONFIG)/obj/osdep.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/osdep.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/osdep.c
 
 #
 #   rom-documents.o
 #
-DEPS_20 += $(CONFIG)/inc/me.h
-DEPS_20 += $(CONFIG)/inc/goahead.h
+DEPS_21 += $(CONFIG)/inc/me.h
+DEPS_21 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/rom-documents.o: \
-    src/rom-documents.c $(DEPS_20)
+    src/rom-documents.c $(DEPS_21)
 	@echo '   [Compile] $(CONFIG)/obj/rom-documents.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/rom-documents.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/rom-documents.c
 
 #
 #   route.o
 #
-DEPS_21 += $(CONFIG)/inc/me.h
-DEPS_21 += $(CONFIG)/inc/goahead.h
+DEPS_22 += $(CONFIG)/inc/me.h
+DEPS_22 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/route.o: \
-    src/route.c $(DEPS_21)
+    src/route.c $(DEPS_22)
 	@echo '   [Compile] $(CONFIG)/obj/route.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/route.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/route.c
 
 #
 #   runtime.o
 #
-DEPS_22 += $(CONFIG)/inc/me.h
-DEPS_22 += $(CONFIG)/inc/goahead.h
+DEPS_23 += $(CONFIG)/inc/me.h
+DEPS_23 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/runtime.o: \
-    src/runtime.c $(DEPS_22)
+    src/runtime.c $(DEPS_23)
 	@echo '   [Compile] $(CONFIG)/obj/runtime.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/runtime.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/runtime.c
 
 #
 #   socket.o
 #
-DEPS_23 += $(CONFIG)/inc/me.h
-DEPS_23 += $(CONFIG)/inc/goahead.h
+DEPS_24 += $(CONFIG)/inc/me.h
+DEPS_24 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/socket.o: \
-    src/socket.c $(DEPS_23)
+    src/socket.c $(DEPS_24)
 	@echo '   [Compile] $(CONFIG)/obj/socket.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/socket.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/socket.c
 
 #
 #   upload.o
 #
-DEPS_24 += $(CONFIG)/inc/me.h
-DEPS_24 += $(CONFIG)/inc/goahead.h
+DEPS_25 += $(CONFIG)/inc/me.h
+DEPS_25 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/upload.o: \
-    src/upload.c $(DEPS_24)
+    src/upload.c $(DEPS_25)
 	@echo '   [Compile] $(CONFIG)/obj/upload.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/upload.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/upload.c
 
 #
 #   est.o
 #
-DEPS_25 += $(CONFIG)/inc/me.h
-DEPS_25 += $(CONFIG)/inc/goahead.h
-DEPS_25 += $(CONFIG)/inc/est.h
+DEPS_26 += $(CONFIG)/inc/me.h
+DEPS_26 += $(CONFIG)/inc/goahead.h
+DEPS_26 += $(CONFIG)/inc/est.h
 
 $(CONFIG)/obj/est.o: \
-    src/ssl/est.c $(DEPS_25)
+    src/ssl/est.c $(DEPS_26)
 	@echo '   [Compile] $(CONFIG)/obj/est.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/est.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/ssl/est.c
 
 #
 #   matrixssl.o
 #
-DEPS_26 += $(CONFIG)/inc/me.h
-DEPS_26 += $(CONFIG)/inc/goahead.h
+DEPS_27 += $(CONFIG)/inc/me.h
+DEPS_27 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/matrixssl.o: \
-    src/ssl/matrixssl.c $(DEPS_26)
+    src/ssl/matrixssl.c $(DEPS_27)
 	@echo '   [Compile] $(CONFIG)/obj/matrixssl.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/matrixssl.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/ssl/matrixssl.c
 
 #
 #   nanossl.o
 #
-DEPS_27 += $(CONFIG)/inc/me.h
+DEPS_28 += $(CONFIG)/inc/me.h
 
 $(CONFIG)/obj/nanossl.o: \
-    src/ssl/nanossl.c $(DEPS_27)
+    src/ssl/nanossl.c $(DEPS_28)
 	@echo '   [Compile] $(CONFIG)/obj/nanossl.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/nanossl.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/ssl/nanossl.c
 
 #
 #   openssl.o
 #
-DEPS_28 += $(CONFIG)/inc/me.h
-DEPS_28 += $(CONFIG)/inc/osdep.h
-DEPS_28 += $(CONFIG)/inc/goahead.h
+DEPS_29 += $(CONFIG)/inc/me.h
+DEPS_29 += $(CONFIG)/inc/osdep.h
+DEPS_29 += $(CONFIG)/inc/goahead.h
 
 $(CONFIG)/obj/openssl.o: \
-    src/ssl/openssl.c $(DEPS_28)
+    src/ssl/openssl.c $(DEPS_29)
 	@echo '   [Compile] $(CONFIG)/obj/openssl.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/openssl.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/ssl/openssl.c
 
 #
 #   libgo
 #
-DEPS_29 += $(CONFIG)/inc/est.h
-DEPS_29 += $(CONFIG)/inc/me.h
-DEPS_29 += $(CONFIG)/inc/osdep.h
-DEPS_29 += $(CONFIG)/obj/estLib.o
+DEPS_30 += $(CONFIG)/inc/est.h
+DEPS_30 += $(CONFIG)/inc/me.h
+DEPS_30 += $(CONFIG)/inc/osdep.h
+DEPS_30 += $(CONFIG)/obj/estLib.o
 ifeq ($(ME_COM_EST),1)
-    DEPS_29 += $(CONFIG)/bin/libest.dylib
+    DEPS_30 += $(CONFIG)/bin/libest.dylib
 endif
-DEPS_29 += $(CONFIG)/inc/goahead.h
-DEPS_29 += $(CONFIG)/inc/js.h
-DEPS_29 += $(CONFIG)/obj/action.o
-DEPS_29 += $(CONFIG)/obj/alloc.o
-DEPS_29 += $(CONFIG)/obj/auth.o
-DEPS_29 += $(CONFIG)/obj/cgi.o
-DEPS_29 += $(CONFIG)/obj/crypt.o
-DEPS_29 += $(CONFIG)/obj/file.o
-DEPS_29 += $(CONFIG)/obj/fs.o
-DEPS_29 += $(CONFIG)/obj/http.o
-DEPS_29 += $(CONFIG)/obj/js.o
-DEPS_29 += $(CONFIG)/obj/jst.o
-DEPS_29 += $(CONFIG)/obj/options.o
-DEPS_29 += $(CONFIG)/obj/osdep.o
-DEPS_29 += $(CONFIG)/obj/rom-documents.o
-DEPS_29 += $(CONFIG)/obj/route.o
-DEPS_29 += $(CONFIG)/obj/runtime.o
-DEPS_29 += $(CONFIG)/obj/socket.o
-DEPS_29 += $(CONFIG)/obj/upload.o
-DEPS_29 += $(CONFIG)/obj/est.o
-DEPS_29 += $(CONFIG)/obj/matrixssl.o
-DEPS_29 += $(CONFIG)/obj/nanossl.o
-DEPS_29 += $(CONFIG)/obj/openssl.o
+DEPS_30 += $(CONFIG)/inc/goahead.h
+DEPS_30 += $(CONFIG)/inc/js.h
+DEPS_30 += $(CONFIG)/obj/action.o
+DEPS_30 += $(CONFIG)/obj/alloc.o
+DEPS_30 += $(CONFIG)/obj/auth.o
+DEPS_30 += $(CONFIG)/obj/cgi.o
+DEPS_30 += $(CONFIG)/obj/crypt.o
+DEPS_30 += $(CONFIG)/obj/file.o
+DEPS_30 += $(CONFIG)/obj/fs.o
+DEPS_30 += $(CONFIG)/obj/http.o
+DEPS_30 += $(CONFIG)/obj/js.o
+DEPS_30 += $(CONFIG)/obj/jst.o
+DEPS_30 += $(CONFIG)/obj/options.o
+DEPS_30 += $(CONFIG)/obj/osdep.o
+DEPS_30 += $(CONFIG)/obj/rom-documents.o
+DEPS_30 += $(CONFIG)/obj/route.o
+DEPS_30 += $(CONFIG)/obj/runtime.o
+DEPS_30 += $(CONFIG)/obj/socket.o
+DEPS_30 += $(CONFIG)/obj/upload.o
+DEPS_30 += $(CONFIG)/obj/est.o
+DEPS_30 += $(CONFIG)/obj/matrixssl.o
+DEPS_30 += $(CONFIG)/obj/nanossl.o
+DEPS_30 += $(CONFIG)/obj/openssl.o
 
 ifeq ($(ME_COM_EST),1)
-    LIBS_29 += -lest
+    LIBS_30 += -lest
 endif
 ifeq ($(ME_COM_MATRIXSSL),1)
-    LIBS_29 += -lmatrixssl
-    LIBPATHS_29 += -L$(ME_COM_MATRIXSSL_PATH)
+    LIBS_30 += -lmatrixssl
+    LIBPATHS_30 += -L$(ME_COM_MATRIXSSL_PATH)
 endif
 ifeq ($(ME_COM_NANOSSL),1)
-    LIBS_29 += -lssls
-    LIBPATHS_29 += -L$(ME_COM_NANOSSL_PATH)/bin
+    LIBS_30 += -lssls
+    LIBPATHS_30 += -L$(ME_COM_NANOSSL_PATH)/bin
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lssl
-    LIBPATHS_29 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_30 += -lssl
+    LIBPATHS_30 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lcrypto
-    LIBPATHS_29 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_30 += -lcrypto
+    LIBPATHS_30 += -L$(ME_COM_OPENSSL_PATH)
 endif
 
-$(CONFIG)/bin/libgo.dylib: $(DEPS_29)
+$(CONFIG)/bin/libgo.dylib: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/libgo.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.3.1 -current_version 3.3.1 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.3.1 -current_version 3.3.1 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
 
 #
 #   goahead.o
 #
-DEPS_30 += $(CONFIG)/inc/me.h
-DEPS_30 += $(CONFIG)/inc/goahead.h
-DEPS_30 += $(CONFIG)/inc/osdep.h
+DEPS_31 += $(CONFIG)/inc/me.h
+DEPS_31 += $(CONFIG)/inc/goahead.h
+DEPS_31 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/goahead.o: \
-    src/goahead.c $(DEPS_30)
+    src/goahead.c $(DEPS_31)
 	@echo '   [Compile] $(CONFIG)/obj/goahead.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/goahead.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/goahead.c
 
 #
 #   goahead
 #
-DEPS_31 += $(CONFIG)/inc/est.h
-DEPS_31 += $(CONFIG)/inc/me.h
-DEPS_31 += $(CONFIG)/inc/osdep.h
-DEPS_31 += $(CONFIG)/obj/estLib.o
+DEPS_32 += $(CONFIG)/inc/est.h
+DEPS_32 += $(CONFIG)/inc/me.h
+DEPS_32 += $(CONFIG)/inc/osdep.h
+DEPS_32 += $(CONFIG)/obj/estLib.o
 ifeq ($(ME_COM_EST),1)
-    DEPS_31 += $(CONFIG)/bin/libest.dylib
+    DEPS_32 += $(CONFIG)/bin/libest.dylib
 endif
-DEPS_31 += $(CONFIG)/inc/goahead.h
-DEPS_31 += $(CONFIG)/inc/js.h
-DEPS_31 += $(CONFIG)/obj/action.o
-DEPS_31 += $(CONFIG)/obj/alloc.o
-DEPS_31 += $(CONFIG)/obj/auth.o
-DEPS_31 += $(CONFIG)/obj/cgi.o
-DEPS_31 += $(CONFIG)/obj/crypt.o
-DEPS_31 += $(CONFIG)/obj/file.o
-DEPS_31 += $(CONFIG)/obj/fs.o
-DEPS_31 += $(CONFIG)/obj/http.o
-DEPS_31 += $(CONFIG)/obj/js.o
-DEPS_31 += $(CONFIG)/obj/jst.o
-DEPS_31 += $(CONFIG)/obj/options.o
-DEPS_31 += $(CONFIG)/obj/osdep.o
-DEPS_31 += $(CONFIG)/obj/rom-documents.o
-DEPS_31 += $(CONFIG)/obj/route.o
-DEPS_31 += $(CONFIG)/obj/runtime.o
-DEPS_31 += $(CONFIG)/obj/socket.o
-DEPS_31 += $(CONFIG)/obj/upload.o
-DEPS_31 += $(CONFIG)/obj/est.o
-DEPS_31 += $(CONFIG)/obj/matrixssl.o
-DEPS_31 += $(CONFIG)/obj/nanossl.o
-DEPS_31 += $(CONFIG)/obj/openssl.o
-DEPS_31 += $(CONFIG)/bin/libgo.dylib
-DEPS_31 += $(CONFIG)/obj/goahead.o
+DEPS_32 += $(CONFIG)/inc/goahead.h
+DEPS_32 += $(CONFIG)/inc/js.h
+DEPS_32 += $(CONFIG)/obj/action.o
+DEPS_32 += $(CONFIG)/obj/alloc.o
+DEPS_32 += $(CONFIG)/obj/auth.o
+DEPS_32 += $(CONFIG)/obj/cgi.o
+DEPS_32 += $(CONFIG)/obj/crypt.o
+DEPS_32 += $(CONFIG)/obj/file.o
+DEPS_32 += $(CONFIG)/obj/fs.o
+DEPS_32 += $(CONFIG)/obj/http.o
+DEPS_32 += $(CONFIG)/obj/js.o
+DEPS_32 += $(CONFIG)/obj/jst.o
+DEPS_32 += $(CONFIG)/obj/options.o
+DEPS_32 += $(CONFIG)/obj/osdep.o
+DEPS_32 += $(CONFIG)/obj/rom-documents.o
+DEPS_32 += $(CONFIG)/obj/route.o
+DEPS_32 += $(CONFIG)/obj/runtime.o
+DEPS_32 += $(CONFIG)/obj/socket.o
+DEPS_32 += $(CONFIG)/obj/upload.o
+DEPS_32 += $(CONFIG)/obj/est.o
+DEPS_32 += $(CONFIG)/obj/matrixssl.o
+DEPS_32 += $(CONFIG)/obj/nanossl.o
+DEPS_32 += $(CONFIG)/obj/openssl.o
+DEPS_32 += $(CONFIG)/bin/libgo.dylib
+DEPS_32 += $(CONFIG)/obj/goahead.o
 
-LIBS_31 += -lgo
+LIBS_32 += -lgo
 ifeq ($(ME_COM_EST),1)
-    LIBS_31 += -lest
+    LIBS_32 += -lest
 endif
 ifeq ($(ME_COM_MATRIXSSL),1)
-    LIBS_31 += -lmatrixssl
-    LIBPATHS_31 += -L$(ME_COM_MATRIXSSL_PATH)
+    LIBS_32 += -lmatrixssl
+    LIBPATHS_32 += -L$(ME_COM_MATRIXSSL_PATH)
 endif
 ifeq ($(ME_COM_NANOSSL),1)
-    LIBS_31 += -lssls
-    LIBPATHS_31 += -L$(ME_COM_NANOSSL_PATH)/bin
+    LIBS_32 += -lssls
+    LIBPATHS_32 += -L$(ME_COM_NANOSSL_PATH)/bin
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_31 += -lssl
-    LIBPATHS_31 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_32 += -lssl
+    LIBPATHS_32 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_31 += -lcrypto
-    LIBPATHS_31 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_32 += -lcrypto
+    LIBPATHS_32 += -L$(ME_COM_OPENSSL_PATH)
 endif
 
-$(CONFIG)/bin/goahead: $(DEPS_31)
+$(CONFIG)/bin/goahead: $(DEPS_32)
 	@echo '      [Link] $(CONFIG)/bin/goahead'
-	$(CC) -o $(CONFIG)/bin/goahead -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/goahead.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/goahead.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
 
 #
 #   test.o
 #
-DEPS_32 += $(CONFIG)/inc/me.h
-DEPS_32 += $(CONFIG)/inc/goahead.h
-DEPS_32 += $(CONFIG)/inc/js.h
-DEPS_32 += $(CONFIG)/inc/osdep.h
+DEPS_33 += $(CONFIG)/inc/me.h
+DEPS_33 += $(CONFIG)/inc/goahead.h
+DEPS_33 += $(CONFIG)/inc/js.h
+DEPS_33 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/test.o: \
-    test/test.c $(DEPS_32)
+    test/test.c $(DEPS_33)
 	@echo '   [Compile] $(CONFIG)/obj/test.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/test.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" test/test.c
 
 #
 #   goahead-test
 #
-DEPS_33 += $(CONFIG)/inc/est.h
-DEPS_33 += $(CONFIG)/inc/me.h
-DEPS_33 += $(CONFIG)/inc/osdep.h
-DEPS_33 += $(CONFIG)/obj/estLib.o
+DEPS_34 += $(CONFIG)/inc/est.h
+DEPS_34 += $(CONFIG)/inc/me.h
+DEPS_34 += $(CONFIG)/inc/osdep.h
+DEPS_34 += $(CONFIG)/obj/estLib.o
 ifeq ($(ME_COM_EST),1)
-    DEPS_33 += $(CONFIG)/bin/libest.dylib
+    DEPS_34 += $(CONFIG)/bin/libest.dylib
 endif
-DEPS_33 += $(CONFIG)/inc/goahead.h
-DEPS_33 += $(CONFIG)/inc/js.h
-DEPS_33 += $(CONFIG)/obj/action.o
-DEPS_33 += $(CONFIG)/obj/alloc.o
-DEPS_33 += $(CONFIG)/obj/auth.o
-DEPS_33 += $(CONFIG)/obj/cgi.o
-DEPS_33 += $(CONFIG)/obj/crypt.o
-DEPS_33 += $(CONFIG)/obj/file.o
-DEPS_33 += $(CONFIG)/obj/fs.o
-DEPS_33 += $(CONFIG)/obj/http.o
-DEPS_33 += $(CONFIG)/obj/js.o
-DEPS_33 += $(CONFIG)/obj/jst.o
-DEPS_33 += $(CONFIG)/obj/options.o
-DEPS_33 += $(CONFIG)/obj/osdep.o
-DEPS_33 += $(CONFIG)/obj/rom-documents.o
-DEPS_33 += $(CONFIG)/obj/route.o
-DEPS_33 += $(CONFIG)/obj/runtime.o
-DEPS_33 += $(CONFIG)/obj/socket.o
-DEPS_33 += $(CONFIG)/obj/upload.o
-DEPS_33 += $(CONFIG)/obj/est.o
-DEPS_33 += $(CONFIG)/obj/matrixssl.o
-DEPS_33 += $(CONFIG)/obj/nanossl.o
-DEPS_33 += $(CONFIG)/obj/openssl.o
-DEPS_33 += $(CONFIG)/bin/libgo.dylib
-DEPS_33 += $(CONFIG)/obj/test.o
+DEPS_34 += $(CONFIG)/inc/goahead.h
+DEPS_34 += $(CONFIG)/inc/js.h
+DEPS_34 += $(CONFIG)/obj/action.o
+DEPS_34 += $(CONFIG)/obj/alloc.o
+DEPS_34 += $(CONFIG)/obj/auth.o
+DEPS_34 += $(CONFIG)/obj/cgi.o
+DEPS_34 += $(CONFIG)/obj/crypt.o
+DEPS_34 += $(CONFIG)/obj/file.o
+DEPS_34 += $(CONFIG)/obj/fs.o
+DEPS_34 += $(CONFIG)/obj/http.o
+DEPS_34 += $(CONFIG)/obj/js.o
+DEPS_34 += $(CONFIG)/obj/jst.o
+DEPS_34 += $(CONFIG)/obj/options.o
+DEPS_34 += $(CONFIG)/obj/osdep.o
+DEPS_34 += $(CONFIG)/obj/rom-documents.o
+DEPS_34 += $(CONFIG)/obj/route.o
+DEPS_34 += $(CONFIG)/obj/runtime.o
+DEPS_34 += $(CONFIG)/obj/socket.o
+DEPS_34 += $(CONFIG)/obj/upload.o
+DEPS_34 += $(CONFIG)/obj/est.o
+DEPS_34 += $(CONFIG)/obj/matrixssl.o
+DEPS_34 += $(CONFIG)/obj/nanossl.o
+DEPS_34 += $(CONFIG)/obj/openssl.o
+DEPS_34 += $(CONFIG)/bin/libgo.dylib
+DEPS_34 += $(CONFIG)/obj/test.o
 
-LIBS_33 += -lgo
+LIBS_34 += -lgo
 ifeq ($(ME_COM_EST),1)
-    LIBS_33 += -lest
+    LIBS_34 += -lest
 endif
 ifeq ($(ME_COM_MATRIXSSL),1)
-    LIBS_33 += -lmatrixssl
-    LIBPATHS_33 += -L$(ME_COM_MATRIXSSL_PATH)
+    LIBS_34 += -lmatrixssl
+    LIBPATHS_34 += -L$(ME_COM_MATRIXSSL_PATH)
 endif
 ifeq ($(ME_COM_NANOSSL),1)
-    LIBS_33 += -lssls
-    LIBPATHS_33 += -L$(ME_COM_NANOSSL_PATH)/bin
+    LIBS_34 += -lssls
+    LIBPATHS_34 += -L$(ME_COM_NANOSSL_PATH)/bin
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_33 += -lssl
-    LIBPATHS_33 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_34 += -lssl
+    LIBPATHS_34 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_33 += -lcrypto
-    LIBPATHS_33 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_34 += -lcrypto
+    LIBPATHS_34 += -L$(ME_COM_OPENSSL_PATH)
 endif
 
-$(CONFIG)/bin/goahead-test: $(DEPS_33)
+$(CONFIG)/bin/goahead-test: $(DEPS_34)
 	@echo '      [Link] $(CONFIG)/bin/goahead-test'
-	$(CC) -o $(CONFIG)/bin/goahead-test -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/test.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/goahead-test -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/test.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
 
 #
 #   gopass.o
 #
-DEPS_34 += $(CONFIG)/inc/me.h
-DEPS_34 += $(CONFIG)/inc/goahead.h
-DEPS_34 += $(CONFIG)/inc/osdep.h
+DEPS_35 += $(CONFIG)/inc/me.h
+DEPS_35 += $(CONFIG)/inc/goahead.h
+DEPS_35 += $(CONFIG)/inc/osdep.h
 
 $(CONFIG)/obj/gopass.o: \
-    src/utils/gopass.c $(DEPS_34)
+    src/utils/gopass.c $(DEPS_35)
 	@echo '   [Compile] $(CONFIG)/obj/gopass.o'
 	$(CC) -c $(DFLAGS) -o $(CONFIG)/obj/gopass.o -arch $(CC_ARCH) $(CFLAGS) $(IFLAGS) "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" "-I$(ME_COM_OPENSSL_PATH)/include" src/utils/gopass.c
 
 #
 #   gopass
 #
-DEPS_35 += $(CONFIG)/inc/est.h
-DEPS_35 += $(CONFIG)/inc/me.h
-DEPS_35 += $(CONFIG)/inc/osdep.h
-DEPS_35 += $(CONFIG)/obj/estLib.o
+DEPS_36 += $(CONFIG)/inc/est.h
+DEPS_36 += $(CONFIG)/inc/me.h
+DEPS_36 += $(CONFIG)/inc/osdep.h
+DEPS_36 += $(CONFIG)/obj/estLib.o
 ifeq ($(ME_COM_EST),1)
-    DEPS_35 += $(CONFIG)/bin/libest.dylib
+    DEPS_36 += $(CONFIG)/bin/libest.dylib
 endif
-DEPS_35 += $(CONFIG)/inc/goahead.h
-DEPS_35 += $(CONFIG)/inc/js.h
-DEPS_35 += $(CONFIG)/obj/action.o
-DEPS_35 += $(CONFIG)/obj/alloc.o
-DEPS_35 += $(CONFIG)/obj/auth.o
-DEPS_35 += $(CONFIG)/obj/cgi.o
-DEPS_35 += $(CONFIG)/obj/crypt.o
-DEPS_35 += $(CONFIG)/obj/file.o
-DEPS_35 += $(CONFIG)/obj/fs.o
-DEPS_35 += $(CONFIG)/obj/http.o
-DEPS_35 += $(CONFIG)/obj/js.o
-DEPS_35 += $(CONFIG)/obj/jst.o
-DEPS_35 += $(CONFIG)/obj/options.o
-DEPS_35 += $(CONFIG)/obj/osdep.o
-DEPS_35 += $(CONFIG)/obj/rom-documents.o
-DEPS_35 += $(CONFIG)/obj/route.o
-DEPS_35 += $(CONFIG)/obj/runtime.o
-DEPS_35 += $(CONFIG)/obj/socket.o
-DEPS_35 += $(CONFIG)/obj/upload.o
-DEPS_35 += $(CONFIG)/obj/est.o
-DEPS_35 += $(CONFIG)/obj/matrixssl.o
-DEPS_35 += $(CONFIG)/obj/nanossl.o
-DEPS_35 += $(CONFIG)/obj/openssl.o
-DEPS_35 += $(CONFIG)/bin/libgo.dylib
-DEPS_35 += $(CONFIG)/obj/gopass.o
+DEPS_36 += $(CONFIG)/inc/goahead.h
+DEPS_36 += $(CONFIG)/inc/js.h
+DEPS_36 += $(CONFIG)/obj/action.o
+DEPS_36 += $(CONFIG)/obj/alloc.o
+DEPS_36 += $(CONFIG)/obj/auth.o
+DEPS_36 += $(CONFIG)/obj/cgi.o
+DEPS_36 += $(CONFIG)/obj/crypt.o
+DEPS_36 += $(CONFIG)/obj/file.o
+DEPS_36 += $(CONFIG)/obj/fs.o
+DEPS_36 += $(CONFIG)/obj/http.o
+DEPS_36 += $(CONFIG)/obj/js.o
+DEPS_36 += $(CONFIG)/obj/jst.o
+DEPS_36 += $(CONFIG)/obj/options.o
+DEPS_36 += $(CONFIG)/obj/osdep.o
+DEPS_36 += $(CONFIG)/obj/rom-documents.o
+DEPS_36 += $(CONFIG)/obj/route.o
+DEPS_36 += $(CONFIG)/obj/runtime.o
+DEPS_36 += $(CONFIG)/obj/socket.o
+DEPS_36 += $(CONFIG)/obj/upload.o
+DEPS_36 += $(CONFIG)/obj/est.o
+DEPS_36 += $(CONFIG)/obj/matrixssl.o
+DEPS_36 += $(CONFIG)/obj/nanossl.o
+DEPS_36 += $(CONFIG)/obj/openssl.o
+DEPS_36 += $(CONFIG)/bin/libgo.dylib
+DEPS_36 += $(CONFIG)/obj/gopass.o
 
-LIBS_35 += -lgo
+LIBS_36 += -lgo
 ifeq ($(ME_COM_EST),1)
-    LIBS_35 += -lest
+    LIBS_36 += -lest
 endif
 ifeq ($(ME_COM_MATRIXSSL),1)
-    LIBS_35 += -lmatrixssl
-    LIBPATHS_35 += -L$(ME_COM_MATRIXSSL_PATH)
+    LIBS_36 += -lmatrixssl
+    LIBPATHS_36 += -L$(ME_COM_MATRIXSSL_PATH)
 endif
 ifeq ($(ME_COM_NANOSSL),1)
-    LIBS_35 += -lssls
-    LIBPATHS_35 += -L$(ME_COM_NANOSSL_PATH)/bin
+    LIBS_36 += -lssls
+    LIBPATHS_36 += -L$(ME_COM_NANOSSL_PATH)/bin
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lssl
-    LIBPATHS_35 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_36 += -lssl
+    LIBPATHS_36 += -L$(ME_COM_OPENSSL_PATH)
 endif
 ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_35 += -lcrypto
-    LIBPATHS_35 += -L$(ME_COM_OPENSSL_PATH)
+    LIBS_36 += -lcrypto
+    LIBPATHS_36 += -L$(ME_COM_OPENSSL_PATH)
 endif
 
-$(CONFIG)/bin/gopass: $(DEPS_35)
+$(CONFIG)/bin/gopass: $(DEPS_36)
 	@echo '      [Link] $(CONFIG)/bin/gopass'
-	$(CC) -o $(CONFIG)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+	$(CC) -o $(CONFIG)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)/obj/gopass.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 
 #
 #   stop
 #
-stop: $(DEPS_36)
+stop: $(DEPS_37)
 
 #
 #   installBinary
 #
-installBinary: $(DEPS_37)
+installBinary: $(DEPS_38)
 	( \
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
@@ -750,7 +762,7 @@ installBinary: $(DEPS_37)
 	ln -s "$(ME_VAPP_PREFIX)/bin/goahead" "$(ME_BIN_PREFIX)/goahead" ; \
 	cp $(CONFIG)/bin/libgo.dylib $(ME_VAPP_PREFIX)/bin/libgo.dylib ; \
 	cp $(CONFIG)/bin/libest.dylib $(ME_VAPP_PREFIX)/bin/libest.dylib ; \
-	cp $(CONFIG)/bin/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
+	cp src/paks/est/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
@@ -775,28 +787,28 @@ installBinary: $(DEPS_37)
 #
 #   start
 #
-start: $(DEPS_38)
+start: $(DEPS_39)
 
 #
 #   install
 #
-DEPS_39 += stop
-DEPS_39 += installBinary
-DEPS_39 += start
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
-install: $(DEPS_39)
+install: $(DEPS_40)
 
 #
 #   run
 #
-run: $(DEPS_40)
+run: $(DEPS_41)
 	cd src; goahead -v ; cd ..
 #
 #   uninstall
 #
-DEPS_41 += stop
+DEPS_42 += stop
 
-uninstall: $(DEPS_41)
+uninstall: $(DEPS_42)
 	( \
 	cd .; \
 	rm -fr "$(ME_WEB_PREFIX)" ; \
@@ -810,6 +822,6 @@ uninstall: $(DEPS_41)
 #
 #   version
 #
-version: $(DEPS_42)
+version: $(DEPS_43)
 	echo 3.3.1
 
