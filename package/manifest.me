@@ -52,6 +52,25 @@ Me.load({
                 set:        'libs',
                 components: 'est',
                 enable: '!me.settings.static',
+                ifdef:  'est',
+
+            },{ from: [
+                    '${BIN}/libssl*${SHOBJ}*',
+                    '${BIN}/libcrypto*${SHOBJ}*',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: 'me.platform.os != "windows"',
+                ifdef:  'openssl',
+
+            },{ from: [
+                    '${BIN}/libeay32${SHOBJ}',
+                    '${BIN}/ssleay32${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: 'me.platform.os == "windows"',
+                ifdef:  'openssl',
 
             },{ from: [
                     'src/paks/est/ca.crt',
