@@ -289,7 +289,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-static -static -configure . -gen vs"
+    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-static -static -configure . -with est -gen vs"
 #endif
 #ifndef ME_GOAHEAD_PRODUCT
     #define ME_GOAHEAD_PRODUCT 1

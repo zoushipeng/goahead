@@ -924,7 +924,7 @@ fi";
 		D31EC59CD31ED56800000093 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ca-crt;
+				PRODUCT_NAME = ca.crt;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -936,7 +936,7 @@ fi";
 		D31EC59CD31ED56800000094 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ca-crt;
+				PRODUCT_NAME = ca.crt;
 
 
 			};
@@ -1008,7 +1008,7 @@ fi";
 		D31EC59CD31ED5680000009B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libest;
+				PRODUCT_NAME = libest.dylib;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -1020,7 +1020,7 @@ fi";
 		D31EC59CD31ED5680000009C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libest;
+				PRODUCT_NAME = libest.dylib;
 
 
 			};
@@ -1029,7 +1029,7 @@ fi";
 		D31EC59CD31ED5680000009D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libgo;
+				PRODUCT_NAME = libgo.dylib;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -1041,7 +1041,7 @@ fi";
 		D31EC59CD31ED5680000009E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libgo;
+				PRODUCT_NAME = libgo.dylib;
 
 
 			};
