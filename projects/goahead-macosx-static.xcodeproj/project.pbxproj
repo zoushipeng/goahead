@@ -924,7 +924,7 @@ fi";
 		6A59F7986A5A0ACD00000093 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ca.crt;
+				PRODUCT_NAME = ca-crt;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -940,7 +940,7 @@ fi";
 		6A59F7986A5A0ACD00000094 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = ca.crt;
+				PRODUCT_NAME = ca-crt;
 
 				OTHER_LDFLAGS = ();
 
@@ -1036,7 +1036,7 @@ fi";
 		6A59F7986A5A0ACD0000009B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libest.a;
+				PRODUCT_NAME = libest;
 				EXECUTABLE_EXTENSION = a;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1053,7 +1053,7 @@ fi";
 		6A59F7986A5A0ACD0000009C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libest.a;
+				PRODUCT_NAME = libest;
 				EXECUTABLE_EXTENSION = a;
 
 				OTHER_LDFLAGS = ();
@@ -1066,7 +1066,7 @@ fi";
 		6A59F7986A5A0ACD0000009D /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libgo.a;
+				PRODUCT_NAME = libgo;
 				EXECUTABLE_EXTENSION = a;
 
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1083,7 +1083,7 @@ fi";
 		6A59F7986A5A0ACD0000009E /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				PRODUCT_NAME = libgo.a;
+				PRODUCT_NAME = libgo;
 				EXECUTABLE_EXTENSION = a;
 
 				OTHER_LDFLAGS = ();
