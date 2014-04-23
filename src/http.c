@@ -149,6 +149,7 @@ static WebsMime websMimeList[] = {
     { "video/mpeg", ".mpe" },
     { "video/quicktime", ".qt" },
     { "video/quicktime", ".mov" },
+    { "video/mp4", ".mp4" },
     { "video/x-msvideo", ".avi" },
     { "video/x-sgi-movie", ".movie" },
     { NULL, NULL},
