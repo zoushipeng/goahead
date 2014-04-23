@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.3.1
+VERSION               := 3.3.2
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -209,7 +209,7 @@ DEPS_6 += $(CONFIG)/obj/estLib.o
 
 $(CONFIG)/bin/libest.dylib: $(DEPS_6)
 	@echo '      [Link] $(CONFIG)/bin/libest.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.3.1 -current_version 3.3.1 "$(CONFIG)/obj/estLib.o" $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libest.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) -install_name @rpath/libest.dylib -compatibility_version 3.3 -current_version 3.3 "$(CONFIG)/obj/estLib.o" $(LIBS) 
 endif
 
 #
@@ -519,7 +519,7 @@ endif
 
 $(CONFIG)/bin/libgo.dylib: $(DEPS_30)
 	@echo '      [Link] $(CONFIG)/bin/libgo.dylib'
-	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.3.1 -current_version 3.3.1 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
+	$(CC) -dynamiclib -o $(CONFIG)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)    -install_name @rpath/libgo.dylib -compatibility_version 3.3 -current_version 3.3 "$(CONFIG)/obj/action.o" "$(CONFIG)/obj/alloc.o" "$(CONFIG)/obj/auth.o" "$(CONFIG)/obj/cgi.o" "$(CONFIG)/obj/crypt.o" "$(CONFIG)/obj/file.o" "$(CONFIG)/obj/fs.o" "$(CONFIG)/obj/http.o" "$(CONFIG)/obj/js.o" "$(CONFIG)/obj/jst.o" "$(CONFIG)/obj/options.o" "$(CONFIG)/obj/osdep.o" "$(CONFIG)/obj/rom-documents.o" "$(CONFIG)/obj/route.o" "$(CONFIG)/obj/runtime.o" "$(CONFIG)/obj/socket.o" "$(CONFIG)/obj/upload.o" "$(CONFIG)/obj/est.o" "$(CONFIG)/obj/matrixssl.o" "$(CONFIG)/obj/nanossl.o" "$(CONFIG)/obj/openssl.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
 
 #
 #   goahead.o
@@ -754,7 +754,7 @@ installBinary: $(DEPS_38)
 	cd .; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	ln -s "3.3.1" "$(ME_APP_PREFIX)/latest" ; \
+	ln -s "3.3.2" "$(ME_APP_PREFIX)/latest" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(CONFIG)/bin/goahead $(ME_VAPP_PREFIX)/bin/goahead ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
@@ -829,5 +829,5 @@ uninstall: $(DEPS_42)
 #   version
 #
 version: $(DEPS_43)
-	echo 3.3.1
+	echo 3.3.2
 
