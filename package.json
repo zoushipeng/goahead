@@ -42,7 +42,7 @@
             "url": "http://embedthis.com/licensing/"
         }
     ],
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     },
     "dependencies": {
