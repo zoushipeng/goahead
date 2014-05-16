@@ -8,9 +8,16 @@ NAME
 SYNOPSIS
        goahead [options] [documents] [[IP][:port] ...]
 
-       goahead  [--auth  authFile]  [--background] [--debugger] [--home direc-
-       tory]  [--log  logSpec]  [--route  routeFile]  [--version]  [--verbose]
-       [IP][:port] [documents]
+       goahead
+           --auth authFile
+           --background
+           --debugger
+           --home directory
+           --log logSpec
+           --route routeFile
+           --version
+           --verbose
+           [IP][:port] [documents]
 
 DESCRIPTION
        GoAhead  is  popular,  simple  embedded HTTP web server.  It is a fast,
