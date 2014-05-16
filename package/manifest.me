@@ -1,0 +1,122 @@
+/*
+    manifest.me - MakeMe manifest for GoAhead
+ */
+
+Me.load({
+    /*
+        Package manifest instructions
+        The sets used are: binary, doc, dev, package, source
+     */
+    manifest: {
+        home: me.dir.src,
+        packages:   {
+            install: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
+                sets:       [ 'core', 'libs', 'doc' ],
+                platforms:  [ 'unix', 'windows' ]
+            },
+            binary: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'app', 'vapp', 'bin', 'man', 'web', 'etc'],
+                formats:    [ 'native', 'tar' ],
+                sets:       [ 'core', 'libs', 'doc', 'package' ],
+                platforms:  [ 'freebsd', 'linux', 'macosx', 'windows' ]
+            },
+            source: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'src' ],
+                formats:    [ 'tar' ],
+                sets:       [ 'source' ],
+            },
+        },
+
+        files: [ 
+            /* Binary Set */
+            {   from:   '${BIN}/goahead${EXE}',
+                to:     '${abin}/',
+                linkin: '${bin}',
+                set:    'core',
+
+            },{ from: [
+                    '${BIN}/libgo${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: '!me.settings.static',
+
+            },{ from: [
+                    '${BIN}/libest${SHOBJ}',
+                ],
+                to:         '${abin}/',
+                set:        'libs',
+                components: 'est',
+                enable: '!me.settings.static',
+                ifdef:  'est',
+
+            },{ from: [
+                    '${BIN}/libssl*${SHOBJ}*',
+                    '${BIN}/libcrypto*${SHOBJ}*',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: 'me.platform.os != "windows"',
+                ifdef:  'openssl',
+
+            },{ from: [
+                    '${BIN}/libeay32${SHOBJ}',
+                    '${BIN}/ssleay32${SHOBJ}',
+                ],
+                to:     '${abin}/',
+                set:    'libs',
+                enable: 'me.platform.os == "windows"',
+                ifdef:  'openssl',
+
+            },{ from: [
+                    'src/paks/est/ca.crt',
+                ],
+                to:     '${abin}/',
+                set:    'core',
+
+            },{ from:   ['doc/man/*.1'],
+                to:     '${adoc}/man/man1/',
+                linkin: '${man}/man1',
+                enable: "me.platform.like == 'unix'",
+                set:    'doc',
+
+            },{ from:   [ 'src/web/index.html', 'src/web/favicon.ico' ],
+                to:     '${web}/',
+                exclude: /mgmt|bench|test/,
+                set:    'core',
+
+            },{ from:   ['src/auth.txt', 'src/route.txt', 'src/self.crt', 'src/self.key'],
+                to:     '${etc}/'
+                set:    'core',
+
+           }, {
+                from:       [ 'package/uninstall.sh' ],
+                to:         '${abin}/uninstall',
+                expand:     true,
+                permissions: 0755,
+                set:        'core',
+                enable:     "!me.generating",
+            
+            /* Source Set */
+            },{ from:   [ '*.md' ],
+                to:     '${src}/',
+                fold:   true,
+                expand: true,
+                set:    'source',
+
+            },{ from:   [ 'configure' ],
+                to:     '${src}/',
+                permissions: 0755,     
+                set:    'source',
+
+            },{ from:   [ 'Makefile', 'make.bat', 'main.me', 'package.json', 'src', 'doc', 'projects', 'package', 'test' ],
+                to:     '${src}/',
+                set:    'source',
+            },
+        ],
+    },
+})

@@ -5,10 +5,10 @@
  */
 /************************************ Include *********************************/
 
-#include    "bit.h"
-#include    "bitos.h"
+#include    "me.h"
+#include    "osdep.h"
 
-#if BIT_PACK_OPENSSL
+#if ME_COM_OPENSSL
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
@@ -49,14 +49,14 @@ PUBLIC int sslOpen()
     randBuf.now = time(0);
     randBuf.pid = getpid();
     RAND_seed((void*) &randBuf, sizeof(randBuf));
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     trace(6, "OpenSsl: Before calling RAND_load_file");
     RAND_load_file("/dev/urandom", 256);
     trace(6, "OpenSsl: After calling RAND_load_file");
 #endif
 
     CRYPTO_malloc_init(); 
-#if !BIT_WIN_LIKE
+#if !ME_WIN_LIKE
     OpenSSL_add_all_algorithms();
 #endif
     SSL_library_init();
@@ -71,8 +71,8 @@ PUBLIC int sslOpen()
     /*
           Set the client certificate verification locations
      */
-    if (*BIT_GOAHEAD_CA) {
-        if ((!SSL_CTX_load_verify_locations(sslctx, BIT_GOAHEAD_CA, NULL)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
+    if (*ME_GOAHEAD_CA) {
+        if ((!SSL_CTX_load_verify_locations(sslctx, ME_GOAHEAD_CA, NULL)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
             error("Unable to read cert verification locations");
             sslClose();
             return -1;
@@ -81,17 +81,17 @@ PUBLIC int sslOpen()
     /*
           Set the server certificate and key files
      */
-    if (*BIT_GOAHEAD_KEY && sslSetKeyFile(BIT_GOAHEAD_KEY) < 0) {
+    if (*ME_GOAHEAD_KEY && sslSetKeyFile(ME_GOAHEAD_KEY) < 0) {
         sslClose();
         return -1;
     }
-    if (*BIT_GOAHEAD_CERTIFICATE && sslSetCertFile(BIT_GOAHEAD_CERTIFICATE) < 0) {
+    if (*ME_GOAHEAD_CERTIFICATE && sslSetCertFile(ME_GOAHEAD_CERTIFICATE) < 0) {
         sslClose();
         return -1;
     }
     SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
 
-    if (BIT_GOAHEAD_VERIFY_PEER) {
+    if (ME_GOAHEAD_VERIFY_PEER) {
         SSL_CTX_set_verify(sslctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
         SSL_CTX_set_verify_depth(sslctx, VERIFY_DEPTH);
     } else {
@@ -100,11 +100,11 @@ PUBLIC int sslOpen()
     /*
           Set the certificate authority list for the client
      */
-    if (BIT_GOAHEAD_CA && *BIT_GOAHEAD_CA) {
-        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(BIT_GOAHEAD_CA));
+    if (ME_GOAHEAD_CA && *ME_GOAHEAD_CA) {
+        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(ME_GOAHEAD_CA));
     }
-    if (BIT_GOAHEAD_CIPHERS && *BIT_GOAHEAD_CIPHERS) {
-        SSL_CTX_set_cipher_list(sslctx, BIT_GOAHEAD_CIPHERS);
+    if (ME_GOAHEAD_CIPHERS && *ME_GOAHEAD_CIPHERS) {
+        SSL_CTX_set_cipher_list(sslctx, ME_GOAHEAD_CIPHERS);
     }
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
     SSL_CTX_sess_set_cache_size(sslctx, 128);
@@ -167,7 +167,7 @@ PUBLIC void sslFree(Webs *wp)
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     WebsSocket      *sp;
-    char            ebuf[BIT_GOAHEAD_LIMIT_STRING];
+    char            ebuf[ME_GOAHEAD_LIMIT_STRING];
     ulong           serror;
     int             rc, error, retries, i;
 
@@ -342,14 +342,14 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
         break;
     case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
     case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-        if (BIT_GOAHEAD_VERIFY_ISSUER) {
+        if (ME_GOAHEAD_VERIFY_ISSUER) {
             logmsg(3, "Self-signed certificate");
             ok = 0;
         }
 
     case X509_V_ERR_CERT_UNTRUSTED:
     case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-        if (BIT_GOAHEAD_VERIFY_ISSUER) {
+        if (ME_GOAHEAD_VERIFY_ISSUER) {
             logmsg(3, "Certificate not trusted");
             ok = 0;
         }
@@ -357,7 +357,7 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
 
     case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
     case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-        if (BIT_GOAHEAD_VERIFY_ISSUER) {
+        if (ME_GOAHEAD_VERIFY_ISSUER) {
             logmsg(3, "Certificate not trusted");
             ok = 0;
         }

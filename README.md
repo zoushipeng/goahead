@@ -11,8 +11,8 @@ See LICENSE.md for details.
   See http://embedthis.com/products/goahead/doc/index.html
 
 ### Building
-    You can build with make or with Bit. Bit is quicker and more flexible.
-    To install Bit, download Bit from http://embedthis.com/downloads/bit/download.ejs
+    You can build with make or with MakeMe. MakeMe is quicker and more flexible.
+    To install MakeMe, download it from http://embedthis.com/downloads/makeme/download.esp
 
 ### To build with make:
 
@@ -26,10 +26,10 @@ See LICENSE.md for details.
 
     WinMake
 
-### To build with Bit:
+### To build with MakeMe:
 
     ./configure
-    bit
+    me
 
     For a list of configure options:
 
@@ -37,7 +37,7 @@ See LICENSE.md for details.
 
 ### To run:
 
-    bit run
+    me run
 
 ### To install:
 
@@ -45,7 +45,7 @@ See LICENSE.md for details.
 
     or 
 
-    sudo bit install
+    sudo me install
 
 ### To uninstall
 
@@ -53,11 +53,11 @@ See LICENSE.md for details.
 
     or
 
-    sudo bit uninstall
+    sudo me uninstall
 
 ### To test:
 
-    bit test
+    me test
 
 Resources
 ---

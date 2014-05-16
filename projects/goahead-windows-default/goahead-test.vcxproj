@@ -104,10 +104,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ClInclude Include="$(IncDir)\bitos.h" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ClInclude Include="$(IncDir)\goahead.h" />
   </ItemGroup>
 
@@ -123,7 +119,6 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y src\bitos.h $(IncDir)
 copy /Y src\goahead.h $(IncDir)
 copy /Y src\js.h $(IncDir)
 cd projects\goahead-windows-default</Command>

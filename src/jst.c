@@ -9,7 +9,7 @@
 #include    "goahead.h"
 #include    "js.h"
 
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
 /********************************** Locals ************************************/
 
 static WebsHash websJstFunctions = -1;  /* Symbol table of functions */
@@ -250,7 +250,7 @@ static char *skipWhite(char *s)
     return s;
 }
 
-#endif /* BIT_GOAHEAD_JAVASCRIPT */
+#endif /* ME_GOAHEAD_JAVASCRIPT */
 
 /*
     @copy   default

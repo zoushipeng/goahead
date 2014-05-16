@@ -95,10 +95,10 @@
   </Link>
 
   <CustomBuildStep>
-    <Command>cd ..\..\src\paks\est
+    <Command>cd ..\..
 if exist $(BinDir)\ca.crt del /Q $(BinDir)\ca.crt
-copy /Y ca.crt $(BinDir)\ca.crt
-cd ..\..\..\projects\goahead-windows-static</Command>
+copy /Y src\paks\est\ca.crt $(BinDir)\ca.crt
+cd projects\goahead-windows-static</Command>
     <Outputs>$(BinDir)\ca.crt</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>

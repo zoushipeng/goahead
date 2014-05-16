@@ -5,12 +5,12 @@
 #	Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 #
 
-BIT_PRODUCT=${settings.product}
-BIT_NAME="${settings.title}"
-BIT_BIN_PREFIX="${prefixes.bin}"
-BIT_LIB_PREFIX="${prefixes.lib}"
-BIT_LOG_PREFIX="${prefixes.log}"
-BIT_SPL_PREFIX="${prefixes.spool}"
+ME_PRODUCT=${settings.product}
+ME_NAME="${settings.title}"
+ME_BIN_PREFIX="${prefixes.bin}"
+ME_LIB_PREFIX="${prefixes.lib}"
+ME_LOG_PREFIX="${prefixes.log}"
+ME_SPL_PREFIX="${prefixes.spool}"
 
 ###############################################################################
 
@@ -32,13 +32,13 @@ setPerms() {
 		fi
 	done
 	if [ "$username" = "" -o "$groupname" = "" ] ; then
-		echo "Can't find a suitable user/group for $BIT_PRODUCT" 1>&2
+		echo "Can't find a suitable user/group for $ME_PRODUCT" 1>&2
 		exit 255
 	fi
-    mkdir -p "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
-    chown $username "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
-    chgrp $groupname "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
-    chmod 755 "$BIT_SPL_PREFIX" "$BIT_SPL_PREFIX/cache" "$BIT_LOG_PREFIX"
+    mkdir -p "$ME_SPL_PREFIX" "$ME_SPL_PREFIX/cache" "$ME_LOG_PREFIX"
+    chown $username "$ME_SPL_PREFIX" "$ME_SPL_PREFIX/cache" "$ME_LOG_PREFIX"
+    chgrp $groupname "$ME_SPL_PREFIX" "$ME_SPL_PREFIX/cache" "$ME_LOG_PREFIX"
+    chmod 755 "$ME_SPL_PREFIX" "$ME_SPL_PREFIX/cache" "$ME_LOG_PREFIX"
 }
 
 ###############################################################################
@@ -53,14 +53,14 @@ case $action in
 	configure)							# when new
         setPerms
 		oldVersion=$2
-        "$BIT_BIN_PREFIX/linkup" Install /
+        "$ME_BIN_PREFIX/linkup" Install /
         #appman -v install
         #if [ "$APPWEB_DONT_START" != 1 ] ; then
         #    appman enable
         #    appman start
         #fi
         echo
-		echo "$BIT_NAME installation successful."
+		echo "$ME_NAME installation successful."
 		;;
 	abort-upgrade)						# when old
 		;;

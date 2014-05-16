@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.3.0 Documentation</title>
+    <title>Embedthis GoAhead 3.3.2 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.3.0</div>
+                <div class="version">Embedthis GoAhead 3.3.2</div>
             </div>
         </div>
         <div class="crumbs">
@@ -78,12 +78,12 @@
             <h3>Legacy Support</h3>
             <p>To aid migrating existing GoAhead 2.X applications, GoAhead 3.X can be built to support the old
             GoAhead 2.X APIs. This is called legacy mode. In this mode, the old APIs are mapped to new APIs via 
-            compiler defines and shim APIs. For full details of the API mappings, see the BIT_GOAHEAD_LEGACY 
+            compiler defines and shim APIs. For full details of the API mappings, see the ME_GOAHEAD_LEGACY 
             section in src/goahead.h.</p>
             <p>GoAhead 3.X is built by default without legacy mode. You can enable legacy mode by configuring via:
                 <pre>configure --set goahead.legacy=true</pre>
             or if building via make:
-                <pre>make BIT_GOAHEAD_LEGACY=1</pre>
+                <pre>make ME_GOAHEAD_LEGACY=1</pre>
             <p>This will enable the legacy APIs and type names.  However, You are <span class="warn">strongly 
                 encouraged to fully migrate your application to the GoAhead 3.X APIs</span>
                 and to transition off the old GoAhead 2.X APIs. Note: GoAhead 2 is now officially "end-of-life".</p>
@@ -144,7 +144,7 @@
                 <li>ringq*() renamed to buf*</li>
                 <li>sym*() renamed to hash*</li>
             </ul>
-            <p>For a complete list, see the BIT_GOAHEAD_LEGACY section at the end of goahead.h for a list of all the API name
+            <p>For a complete list, see the ME_GOAHEAD_LEGACY section at the end of goahead.h for a list of all the API name
             mappings. It is strongly recommended that you refactor your application to use the new API naming.</p>
             <h3>Routes</h3>
             <p>GoAhead 3 uses a flexible URI routing mechanism to direct client requests to the appropriate handler.

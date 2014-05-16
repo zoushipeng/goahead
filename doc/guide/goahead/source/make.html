@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.3.0 Documentation</title>
+    <title>Embedthis GoAhead 3.3.2 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.3.0</div>
+                <div class="version">Embedthis GoAhead 3.3.2</div>
             </div>
         </div>
         <div class="crumbs">
@@ -52,7 +52,7 @@
                 <li><a href="#openssl">OpenSSL support</a></li>
                 <li><a href="#cross">Cross Compiling</a></li>
                 <li><a href="#toolchain">Specifying a Tool Chain</a></li>
-                <li><a href="bit.html">Building with Bit</a></li>
+                <li><a href="me.html">Building with MakeMe</a></li>
                 <li><a href="ide.html">Building with an IDE</a></li>
             </ul>
 <!-- BeginDsi "dsi/sourceSeeAlso.html" -->
@@ -99,66 +99,66 @@ nmake -f projects\goahead-windows.nmake
 </pre>
             <a name="modifying"></a>
             <h3>Modifying the Makefile Defaults</h3>
-            <p>You do not use the configure program when building via Make, that is used only for building with Bit. 
+            <p>You do not use the configure program when building via Make, that is used only for building with MakeMe. 
             Rather, you supply configuration options directly to Make. These options override default values defined by the
-            projects/goahead-OS-default.mk makefile and by the projects/goahead-OS-debug-bit.h file. For example, to disable use of SQLite:</p>
-            <pre>$ make <b>BIT_PACK_SQLITE=0</b> </pre>
-            <p>Extension packs are enabled by setting their corresponing BIT_PACK_NAME option to 1. Disable by setting
-            to zero. Some packs requires a path to locate libraries and headers. Use BIT_PACK_NAME_PATH to define
+            projects/goahead-OS-default.mk makefile and by the projects/goahead-OS-debug-me.h file. For example, to disable use of SQLite:</p>
+            <pre>$ make <b>ME_COM_SQLITE=0</b> </pre>
+            <p>Extension packs are enabled by setting their corresponing ME_COM_NAME option to 1. Disable by setting
+            to zero. Some packs requires a path to locate libraries and headers. Use ME_COM_NAME_PATH to define
             the path to the extension pack.</p>
             <p>To see the list of configurable options, run:</p>
             <pre>$ <b>make help</b>
 usage: make [clean, compile, deploy, install, run, uninstall]
 With make, the default configuration can be modified by setting make
 variables. Set to 0 to disable and 1 to enable:
-  PROFILE                           # Select default or static for static linking
-  BIT_GOAHEAD_ACCESS_LOG            # Enable request access log (true|false)
-  BIT_GOAHEAD_CLIENT_CACHE          # List of extensions to cache in the client
-  BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN # Time in seconds to cache in the client
-  BIT_GOAHEAD_CA_FILE               # File of client certificates (path)
-  BIT_GOAHEAD_CERTIFICATE           # Server certificate for SSL (path)
-  BIT_GOAHEAD_CIPHERS               # SSL cipher suite (string)
-  BIT_GOAHEAD_CGI                   # Enable the CGI handler (true|false)
-  BIT_GOAHEAD_CGI_BIN               # Directory CGI programs (path)
-  BIT_GOAHEAD_JAVASCRIPT            # Enable the Javascript JST handler (true|false)
-  BIT_GOAHEAD_KEY                   # Server private key for SSL (path)
-  BIT_GOAHEAD_LEGACY                # Enable the GoAhead 2.X legacy APIs (true|false)
-  BIT_GOAHEAD_LIMIT_BUFFER          # I/O Buffer size. Also chunk size.
-  BIT_GOAHEAD_LIMIT_FILENAME        # Maximum filename size
-  BIT_GOAHEAD_LIMIT_HEADER          # Maximum HTTP single header size
-  BIT_GOAHEAD_LIMIT_HEADERS         # Maximum HTTP header size
-  BIT_GOAHEAD_LIMIT_NUM_HEADERS     # Maximum number of headers
-  BIT_GOAHEAD_LIMIT_PASSWORD        # Maximum password size
-  BIT_GOAHEAD_LIMIT_POST            # Maximum incoming body size
-  BIT_GOAHEAD_LIMIT_PUT             # Maximum PUT body size ~ 200MB
-  BIT_GOAHEAD_LIMIT_SESSION_LIFE    # Session lifespan in seconds (30 mins)
-  BIT_GOAHEAD_LIMIT_SESSION_COUNT   # Maximum number of sessions to support
-  BIT_GOAHEAD_LIMIT_STRING          # Default string allocation size
-  BIT_GOAHEAD_LIMIT_TIMEOUT         # Request inactivity timeout in seconds
-  BIT_GOAHEAD_LIMIT_URI             # Maximum URI size
-  BIT_GOAHEAD_LIMIT_UPLOAD          # Maximum upload size ~ 200MB
-  BIT_GOAHEAD_LISTEN                # Addresses to listen to (["http://IP:port", ...])
-  BIT_GOAHEAD_LOGFILE               # Default location and level for debug log
-  BIT_GOAHEAD_LOGGING               # Enable application logging (true|false)
-  BIT_GOAHEAD_PAM                   # Enable Unix Pluggable Auth Module (true|false)
-  BIT_GOAHEAD_PUT_DIR               # Define the directory for file uploaded via PUT
-  BIT_GOAHEAD_REALM                 # Authentication realm (string)
-  BIT_GOAHEAD_REPLACE_MALLOC        # Replace malloc with non-fragmenting allocator
-  BIT_GOAHEAD_SSL                   # To enable SSL
-  BIT_GOAHEAD_STATIC                # Build with static linking (true|false)
-  BIT_GOAHEAD_STEALTH               # Run in stealth mode. Disable OPTIONS, TRACE
-  BIT_GOAHEAD_TRACING               # Enable debug tracing (true|false)
-  BIT_GOAHEAD_TUNE                  # Optimize (size|speed|balanced)
-  BIT_GOAHEAD_UPLOAD                # Enable file upload (true|false)
-  BIT_GOAHEAD_UPLOAD_DIR            # Define directory for uploaded files (path)
-  BIT_PACK_EST                      # Enable the EST SSL stack
-  BIT_PACK_NANOSSL                  # Enable the Mocana NanoSSL stack
-  BIT_PACK_MATRIXSSL                # Enable the MatrixSSL SSL stack
-  BIT_PACK_OPENSSL                  # Enable the OpenSSL SSL stack
-  BIT_ROM                           # Build for ROM without a file system
-  BIT_STACK_SIZE                    # Define the VxWorks stack size
+  PROFILE                          # Select default or static for static linking
+  ME_GOAHEAD_ACCESS_LOG            # Enable request access log (true|false)
+  ME_GOAHEAD_CLIENT_CACHE          # List of extensions to cache in the client
+  ME_GOAHEAD_CLIENT_CACHE_LIFESPAN # Time in seconds to cache in the client
+  ME_GOAHEAD_CA_FILE               # File of client certificates (path)
+  ME_GOAHEAD_CERTIFICATE           # Server certificate for SSL (path)
+  ME_GOAHEAD_CIPHERS               # SSL cipher suite (string)
+  ME_GOAHEAD_CGI                   # Enable the CGI handler (true|false)
+  ME_GOAHEAD_CGI_BIN               # Directory CGI programs (path)
+  ME_GOAHEAD_JAVASCRIPT            # Enable the Javascript JST handler (true|false)
+  ME_GOAHEAD_KEY                   # Server private key for SSL (path)
+  ME_GOAHEAD_LEGACY                # Enable the GoAhead 2.X legacy APIs (true|false)
+  ME_GOAHEAD_LIMIT_BUFFER          # I/O Buffer size. Also chunk size.
+  ME_GOAHEAD_LIMIT_FILENAME        # Maximum filename size
+  ME_GOAHEAD_LIMIT_HEADER          # Maximum HTTP single header size
+  ME_GOAHEAD_LIMIT_HEADERS         # Maximum HTTP header size
+  ME_GOAHEAD_LIMIT_NUM_HEADERS     # Maximum number of headers
+  ME_GOAHEAD_LIMIT_PASSWORD        # Maximum password size
+  ME_GOAHEAD_LIMIT_POST            # Maximum incoming body size
+  ME_GOAHEAD_LIMIT_PUT             # Maximum PUT body size ~ 200MB
+  ME_GOAHEAD_LIMIT_SESSION_LIFE    # Session lifespan in seconds (30 mins)
+  ME_GOAHEAD_LIMIT_SESSION_COUNT   # Maximum number of sessions to support
+  ME_GOAHEAD_LIMIT_STRING          # Default string allocation size
+  ME_GOAHEAD_LIMIT_TIMEOUT         # Request inactivity timeout in seconds
+  ME_GOAHEAD_LIMIT_URI             # Maximum URI size
+  ME_GOAHEAD_LIMIT_UPLOAD          # Maximum upload size ~ 200MB
+  ME_GOAHEAD_LISTEN                # Addresses to listen to (["http://IP:port", ...])
+  ME_GOAHEAD_LOGFILE               # Default location and level for debug log
+  ME_GOAHEAD_LOGGING               # Enable application logging (true|false)
+  ME_GOAHEAD_PAM                   # Enable Unix Pluggable Auth Module (true|false)
+  ME_GOAHEAD_PUT_DIR               # Define the directory for file uploaded via PUT
+  ME_GOAHEAD_REALM                 # Authentication realm (string)
+  ME_GOAHEAD_REPLACE_MALLOC        # Replace malloc with non-fragmenting allocator
+  ME_GOAHEAD_SSL                   # To enable SSL
+  ME_GOAHEAD_STATIC                # Build with static linking (true|false)
+  ME_GOAHEAD_STEALTH               # Run in stealth mode. Disable OPTIONS, TRACE
+  ME_GOAHEAD_TRACING               # Enable debug tracing (true|false)
+  ME_GOAHEAD_TUNE                  # Optimize (size|speed|balanced)
+  ME_GOAHEAD_UPLOAD                # Enable file upload (true|false)
+  ME_GOAHEAD_UPLOAD_DIR            # Define directory for uploaded files (path)
+  ME_COM_EST                       # Enable the EST SSL stack
+  ME_COM_NANOSSL                   # Enable the Mocana NanoSSL stack
+  ME_COM_MATRIXSSL                 # Enable the MatrixSSL SSL stack
+  ME_COM_OPENSSL                   # Enable the OpenSSL SSL stack
+  ME_ROM                           # Build for ROM without a file system
+  ME_STACK_SIZE                    # Define the VxWorks stack size
 For example, to disable CGI:
-  make BIT_GOAHEAD_CGI=0
+  make ME_GOAHEAD_CGI=0
 Other make variables:
   ARCH               # CPU architecture (x86, x64, ppc, ...)
   OS                 # Operating system (linux, macosx, windows, vxworks, ...)
@@ -189,8 +189,8 @@ sudo make uninstall
                 as you did when compiling. This is because the Makefile will conditionally install only the selected
                 components for those options.</p>
             <p>For example, to build and install OpenSSL:</p>
-                <pre>$ make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> compile
-$ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
+                <pre>$ make <b>ME_COM_OPENSSL=1 ME_COM_OPENSSL_PATH=/usr/src/openssl</b> compile
+$ sudo make <b>ME_COM_OPENSSL=1 ME_COM_OPENSSL_PATH=/usr/src/openssl</b> install</pre>
             <a name="deploy"></a>
             <h3>Deploying</h3>
             <p>If you need to deploy to a different system or capture the build products, you can install to a specific
@@ -201,10 +201,10 @@ $ sudo make <b>BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/src/openssl</b> ins
             <h3>Supporting OpenSSL</h3>
             <p>If OpenSSL is required to provide SSL support, you must specify the path to the OpenSSL source
               directory. For example:</p>
-            <pre>make BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/path/to/openssl compile</pre>
+            <pre>make ME_COM_OPENSSL=1 ME_COM_OPENSSL_PATH=/path/to/openssl compile</pre>
             <p>If you are using a binary OpenSSL distribution, provide the path where the OpenSSL libraries are located
               (typically /usr/lib).</p>
-            <pre>make BIT_PACK_OPENSSL=1 BIT_PACK_OPENSSL_PATH=/usr/lib compile</pre>
+            <pre>make ME_COM_OPENSSL=1 ME_COM_OPENSSL_PATH=/usr/lib compile</pre>
             <a id="cross"></a>
             <h2 class="section">Cross Compiling with Make</h2>
             <p>Building a product for platform different to that of the local system is called <em>cross compiling</em>.

@@ -1,0 +1,73 @@
+/*
+    doc.me - MakeMe file for GoAhead documentation
+ */
+
+Me.load({
+
+    targets: {
+        patch: {
+            action: "
+                trace('Patch', 'Patch version string ${settings.version}')
+                let path = Path('product/version.html')
+                let settings = me.settings
+                path.write(path.readString().replace(/<body>.*<.body>/, '<body>' + settings.version + '</body>'))
+                path = Path('dsi/head.html')
+                path.write(path.readString().replace(/<title>.*<.title>/, 
+                    '<title>' + settings.title + ' ' + settings.version + ' Documentation</title>'))
+
+                trace('Patch', 'Expand DSI')
+                let path = Path('dsi/head.html')
+                path.write(path.readString().replace(/version\">.*</, 'version\">' + 
+                    settings.title + ' ' + settings.version + '<'))
+                for each (path in Path('.').files('**.html', {exclude: /Bare.html|dsi/})) {
+                    vtrace('Patch', path)
+                    Cmd('dsi -v -I. ' + path)
+                }
+            "
+        },
+
+        api: {
+            action: "
+                apidoc('api/goahead.dox', '${SRC}/src/goahead.h', 'GoAhead API', 'api/*.tags')
+                for each (let f: Path in ['api/goahead.html']) {
+                    trace('Generate', f)
+                    apiwrap(f)
+                }
+            ",
+        }, 
+
+        tidy: {
+            action: "
+                for each (path in Path('.').files('**.html', { exclude: /\\/$|dsi|Base|Bare/ })) {
+                    trace('Tidy', path)
+                    Cmd('tidy -q -config tidy.conf ' + path)
+                }
+            ",
+        },
+
+        'validate-doc': {
+            action: "
+                let vdir = me.dir.cfg.join('validate')
+                vdir.removeAll()
+                for each (file in Path('.').files('**', { exclude: /\\/$|dsi|Base|Bare/ })) {
+                    let out = vdir.join(file)
+                    out.dirname.makeDir()
+                    if (file.extension == 'html') {
+                        out.write(file.readString().replace(/<pre>((?!pre>)(?:.|\\s))*pre>/mg, '<pre>DELETED</pre>'))
+                    } else {
+                        out.write(file.readString())
+                    }
+                }
+                trace('Prepare', vdir)
+            ",
+        },
+
+        'clean-doc': {
+            type: 'clean',
+            action: "
+                rmdir(['../doc/api/html', '../doc/api/xml'])
+            "
+        },
+    
+    },
+})

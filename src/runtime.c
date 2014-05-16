@@ -160,7 +160,7 @@ typedef struct HashTable {              /* Symbol table descriptor */
 #ifndef LOG_ERR
     #define LOG_ERR 0
 #endif
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
     PUBLIC void syslog(int priority, char *fmt, ...);
 #endif
 
@@ -192,7 +192,7 @@ static int  growBuf(Format *fmt);
 static char *sprintfCore(char *buf, ssize maxsize, char *fmt, va_list arg);
 static void outNum(Format *fmt, char *prefix, uint64 val);
 static void outString(Format *fmt, char *str, ssize len);
-#if BIT_FLOAT
+#if ME_FLOAT
 static void outFloat(Format *fmt, char specChar, double value);
 #endif
 
@@ -324,7 +324,6 @@ PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
 
     assert(buf);
     assert(format);
-    assert(bufsize <= BIT_GOAHEAD_LIMIT_STRING);
 
     if (bufsize <= 0) {
         return 0;
@@ -487,13 +486,13 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
         case STATE_TYPE:
             switch (c) {
             case 'e':
-#if BIT_FLOAT
+#if ME_FLOAT
             case 'g':
             case 'f':
                 fmt.radix = 10;
                 outFloat(&fmt, c, (double) va_arg(args, double));
                 break;
-#endif /* BIT_FLOAT */
+#endif /* ME_FLOAT */
 
             case 'c':
                 BPUT(&fmt, (char) va_arg(args, int));
@@ -501,7 +500,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
 
             case 'S':
                 /* Safe string */
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                 if (fmt.flags & SPRINTF_LONG) {
                     //  UNICODE - not right wchar
                     safe = websEscapeHtml(va_arg(args, wchar*));
@@ -516,7 +515,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
 
             case 'w':
                 /* Wide string of wchar characters (Same as %ls"). Null terminated. */
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                 outWideString(&fmt, va_arg(args, wchar*), -1);
                 break;
 #else
@@ -525,7 +524,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
 
             case 's':
                 /* Standard string */
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
                 if (fmt.flags & SPRINTF_LONG) {
                     outWideString(&fmt, va_arg(args, wchar*), -1);
                 } else
@@ -562,7 +561,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
 
             case 'X':
                 fmt.flags |= SPRINTF_UPPER_CASE;
-#if BIT_64
+#if ME_64
                 fmt.flags &= ~(SPRINTF_SHORT|SPRINTF_LONG);
                 fmt.flags |= SPRINTF_INT64;
 #else
@@ -619,7 +618,7 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
                 break;
 
             case 'p':       /* Pointer */
-#if BIT_64
+#if ME_64
                 uValue = (uint64) va_arg(args, void*);
 #else
                 uValue = (uint) PTOI(va_arg(args, void*));
@@ -674,7 +673,7 @@ static void outString(Format *fmt, char *str, ssize len)
 }
 
 
-#if BIT_CHAR_LEN > 1 && KEEP
+#if ME_CHAR_LEN > 1 && KEEP
 static void outWideString(Format *fmt, wchar *str, ssize len)
 {
     wchar     *cp;
@@ -797,10 +796,10 @@ static void outNum(Format *fmt, char *prefix, uint64 value)
 }
 
 
-#if BIT_FLOAT
+#if ME_FLOAT
 static void outFloat(Format *fmt, char specChar, double value)
 {
-    char    result[BIT_GOAHEAD_LIMIT_STRING], *cp;
+    char    result[ME_GOAHEAD_LIMIT_STRING], *cp;
     int     c, fill, i, len, index;
 
     result[0] = '\0';
@@ -847,7 +846,7 @@ static void outFloat(Format *fmt, char specChar, double value)
     }
     BPUTNULL(fmt);
 }
-#endif /* BIT_FLOAT */
+#endif /* ME_FLOAT */
 
 
 /*
@@ -946,17 +945,17 @@ PUBLIC void valueFree(WebsValue* v)
 
 static void defaultLogHandler(int flags, char *buf)
 {
-    char    prefix[BIT_GOAHEAD_LIMIT_STRING];
+    char    prefix[ME_GOAHEAD_LIMIT_STRING];
 
     if (logFd >= 0) {
         if (flags & WEBS_RAW_MSG) {
             write(logFd, buf, (int) slen(buf));
         } else {
-            fmt(prefix, sizeof(prefix), "%s: %d: ", BIT_PRODUCT, flags & WEBS_LEVEL_MASK);
+            fmt(prefix, sizeof(prefix), "%s: %d: ", ME_NAME, flags & WEBS_LEVEL_MASK);
             write(logFd, prefix, (int) slen(prefix));
             write(logFd, buf, (int) slen(buf));
             write(logFd, "\n", 1);
-#if BIT_WIN_LIKE || BIT_UNIX_LIKE
+#if ME_WIN_LIKE || ME_UNIX_LIKE
             if (flags & WEBS_ERROR_MSG && websGetBackground()) {
                 syslog(LOG_ERR, "%s", buf);
             }
@@ -1036,6 +1035,12 @@ PUBLIC int websGetLogLevel()
 }
 
 
+WebsLogHandler logGetHandler()
+{
+    return logHandler;
+}
+
+
 /*
     Replace the default trace handler. Return a pointer to the old handler.
  */
@@ -1054,14 +1059,14 @@ WebsLogHandler logSetHandler(WebsLogHandler handler)
 PUBLIC int logOpen()
 {
     if (!logPath) {
-        /* This defintion comes from main.bit and bit.h */
-        logSetPath(BIT_GOAHEAD_LOGFILE);
+        /* This defintion comes from main.bit and me.h */
+        logSetPath(ME_GOAHEAD_LOGFILE);
     }
     if (smatch(logPath, "stdout")) {
         logFd = 1;
     } else if (smatch(logPath, "stderr")) {
         logFd = 2;
-#if !BIT_ROM
+#if !ME_ROM
     } else {
         if ((logFd = open(logPath, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
             return -1;
@@ -1324,7 +1329,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     assert(bp);
     
     if (initSize <= 0) {
-        initSize = BIT_GOAHEAD_LIMIT_BUFFER;
+        initSize = ME_GOAHEAD_LIMIT_BUFFER;
     }
     if (maxsize <= 0) {
         maxsize = initSize;
@@ -2215,13 +2220,13 @@ PUBLIC ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
         destCount = MAXSSIZE;
     }
     if (count > 0) {
-#if BIT_CHAR_LEN == 1
+#if ME_CHAR_LEN == 1
         if (dest) {
             len = scopy(dest, destCount, src);
         } else {
             len = min(slen(src), destCount - 1);
         }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         len = WideCharToMultiByte(CP_ACP, 0, src, count, dest, (DWORD) destCount - 1, NULL, NULL);
 #else
         len = wcstombs(dest, src, destCount - 1);
@@ -2256,13 +2261,13 @@ PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count)
         destCount = MAXSSIZE;
     }
     if (destCount > 0) {
-#if BIT_CHAR_LEN == 1
+#if ME_CHAR_LEN == 1
         if (dest) {
             len = scopy(dest, destCount, src);
         } else {
             len = min(slen(src), destCount - 1);
         }
-#elif BIT_WIN_LIKE
+#elif ME_WIN_LIKE
         len = MultiByteToWideChar(CP_ACP, 0, src, count, dest, (DWORD) destCount - 1);
 #else
         len = mbstowcs(dest, src, destCount - 1);
@@ -2663,7 +2668,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
 }
 
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 PUBLIC int fmtValloc(char **sp, int n, char *format, va_list args)
 {
     *sp = sfmtv(format, args);

@@ -5,7 +5,7 @@
 #
 START=50
 STOP=50
-APPWEB_CMD=${prefixes.bin}/${settings.product}
+APPWEB_CMD=${prefixes.bin}/${settings.name}
 APPWEB_DIR=${prefixes.cfg}
 
 start() {

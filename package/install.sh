@@ -26,7 +26,7 @@ PAGE=/index.html
 
 HOSTNAME=`hostname`
 COMPANY="${settings.company}"
-PRODUCT="${settings.product}"
+PRODUCT="${settings.name}"
 NAME="${settings.title}"
 VERSION="${settings.version}"
 OS="${platform.os}"

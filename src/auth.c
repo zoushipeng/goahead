@@ -25,9 +25,9 @@
 
 #include    "goahead.h"
 
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
 
-#if BIT_HAS_PAM
+#if ME_COMPILER_HAS_PAM
     #include <security/pam_appl.h>
 #endif
 
@@ -36,10 +36,10 @@
 static WebsHash users = -1;
 static WebsHash roles = -1;
 static char *secret;
-static int autoLogin = BIT_GOAHEAD_AUTO_LOGIN;
+static int autoLogin = ME_GOAHEAD_AUTO_LOGIN;
 static WebsVerify verifyPassword = websVerifyPasswordFromFile;
 
-#if BIT_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 typedef struct {
     char    *name;
     char    *password;
@@ -62,16 +62,16 @@ static void freeUser(WebsUser *up);
 static void logoutServiceProc(Webs *wp);
 static void loginServiceProc(Webs *wp);
 
-#if BIT_GOAHEAD_JAVASCRIPT && FUTURE
+#if ME_GOAHEAD_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv);
 #endif
-#if BIT_DIGEST
+#if ME_DIGEST
 static char *calcDigest(Webs *wp, char *username, char *password);
 static char *createDigestNonce(Webs *wp);
 static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
 #endif
 
-#if BIT_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data);
 #endif
 
@@ -151,16 +151,16 @@ PUBLIC int websOpenAuth(int minimal)
     if (!minimal) {
         fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
         secret = websMD5(sbuf);
-#if BIT_GOAHEAD_JAVASCRIPT && FUTURE
+#if ME_GOAHEAD_JAVASCRIPT && FUTURE
         websJsDefine("can", jsCan);
 #endif
         websDefineAction("login", loginServiceProc);
         websDefineAction("logout", logoutServiceProc);
     }
-    if (smatch(BIT_GOAHEAD_AUTH_STORE, "file")) {
+    if (smatch(ME_GOAHEAD_AUTH_STORE, "file")) {
         verifyPassword = websVerifyPasswordFromFile;
-#if BIT_HAS_PAM
-    } else if (smatch(BIT_GOAHEAD_AUTH_STORE, "pam")) {
+#if ME_COMPILER_HAS_PAM
+    } else if (smatch(ME_GOAHEAD_AUTH_STORE, "pam")) {
         verifyPassword = websVerifyPasswordFromPam;
 #endif
     }
@@ -367,7 +367,7 @@ static void computeUserAbilities(WebsUser *user)
     for (ability = stok(roles, " \t,", &tok); ability; ability = stok(NULL, " \t,", &tok)) {
         computeAbilities(user->abilities, ability, 0);
     }
-#if BIT_DEBUG
+#if ME_DEBUG
     {
         WebsKey *key;
         trace(5 | WEBS_RAW_MSG, "User \"%s\" has abilities: ", user->name);
@@ -534,7 +534,7 @@ static void basicLogin(Webs *wp)
     assert(wp);
     assert(wp->route);
     wfree(wp->authResponse);
-    wp->authResponse = sfmt("Basic realm=\"%s\"", BIT_GOAHEAD_REALM);
+    wp->authResponse = sfmt("Basic realm=\"%s\"", ME_GOAHEAD_REALM);
 }
 
 
@@ -552,7 +552,7 @@ WebsVerify websGetPasswordStoreVerify()
 
 PUBLIC bool websVerifyPasswordFromFile(Webs *wp)
 {
-    char    passbuf[BIT_GOAHEAD_LIMIT_PASSWORD * 3 + 3];
+    char    passbuf[ME_GOAHEAD_LIMIT_PASSWORD * 3 + 3];
     bool    success;
 
     assert(wp);
@@ -565,7 +565,7 @@ PUBLIC bool websVerifyPasswordFromFile(Webs *wp)
         Otherwise we encode the plain-text password and compare that
      */
     if (!wp->encoded) {
-        fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, BIT_GOAHEAD_REALM, wp->password);
+        fmt(passbuf, sizeof(passbuf), "%s:%s:%s", wp->username, ME_GOAHEAD_REALM, wp->password);
         wfree(wp->password);
         wp->password = websMD5(passbuf);
         wp->encoded = 1;
@@ -584,7 +584,7 @@ PUBLIC bool websVerifyPasswordFromFile(Webs *wp)
 }
 
 
-#if BIT_HAS_PAM
+#if ME_COMPILER_HAS_PAM
 /*
     Copy this routine if creating your own custom password store back end
  */
@@ -687,10 +687,10 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     *resp = reply;
     return PAM_SUCCESS;
 }
-#endif /* BIT_HAS_PAM */
+#endif /* ME_COMPILER_HAS_PAM */
 
 
-#if BIT_GOAHEAD_JAVASCRIPT && FUTURE
+#if ME_GOAHEAD_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv)
 {
     assert(jsid >= 0);
@@ -732,7 +732,7 @@ static bool parseBasicDetails(Webs *wp)
 }
 
 
-#if BIT_DIGEST
+#if ME_DIGEST
 static void digestLogin(Webs *wp)
 {
     char  *nonce, *opaque;
@@ -745,7 +745,7 @@ static void digestLogin(Webs *wp)
     opaque = "5ccc069c403ebaf9f0171e9517f40e41";
     wp->authResponse = sfmt(
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
-        BIT_GOAHEAD_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
+        ME_GOAHEAD_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
     wfree(nonce);
 }
 
@@ -767,7 +767,9 @@ static bool parseDigestDetails(Webs *wp)
         while (*tok && !isspace((uchar) *tok) && *tok != ',' && *tok != '=') {
             tok++;
         }
-        *tok++ = '\0';
+        if (*tok) {
+            *tok++ = '\0';
+        }
 
         while (isspace((uchar) *tok)) {
             tok++;
@@ -785,7 +787,9 @@ static bool parseDigestDetails(Webs *wp)
             }
             seenComma++;
         }
-        *tok++ = '\0';
+        if (*tok) {
+            *tok++ = '\0';
+        }
 
         /*
             Handle back-quoting
@@ -898,7 +902,7 @@ static bool parseDigestDetails(Webs *wp)
     if (!smatch(secret, secret)) {
         trace(2, "Access denied: Nonce mismatch");
         return 0;
-    } else if (!smatch(realm, BIT_GOAHEAD_REALM)) {
+    } else if (!smatch(realm, ME_GOAHEAD_REALM)) {
         trace(2, "Access denied: Realm mismatch");
         return 0;
     } else if (!smatch(wp->qop, "auth")) {
@@ -929,7 +933,7 @@ static char *createDigestNonce(Webs *wp)
 
     assert(wp);
     assert(wp->route);
-    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, BIT_GOAHEAD_REALM, time(0), next++);
+    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, ME_GOAHEAD_REALM, time(0), next++);
     return websEncode64(nonce);
 }
 
@@ -1001,7 +1005,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     wfree(ha2);
     return result;
 }
-#endif /* BIT_DIGEST */
+#endif /* ME_DIGEST */
 
 
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
@@ -1017,7 +1021,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
     if (smatch(auth, "basic")) {
         askLogin = basicLogin;
         parseAuth = parseBasicDetails;
-#if BIT_DIGEST
+#if ME_DIGEST
     } else if (smatch(auth, "digest")) {
         askLogin = digestLogin;
         parseAuth = parseDigestDetails;
@@ -1030,7 +1034,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
     route->parseAuth = parseAuth;
     return 0;
 }
-#endif /* BIT_GOAHEAD_AUTH */
+#endif /* ME_GOAHEAD_AUTH */
 
 
 /*

@@ -32,7 +32,7 @@ static bool fileHandler(Webs *wp)
     assert(wp->method);
     assert(wp->filename && wp->filename[0]);
 
-#if !BIT_ROM
+#if !ME_ROM
     if (smatch(wp->method, "DELETE")) {
         if (unlink(wp->filename) < 0) {
             websError(wp, HTTP_CODE_NOT_FOUND, "Can't delete the URI");
@@ -45,7 +45,7 @@ static bool fileHandler(Webs *wp)
         websResponse(wp, wp->code, 0);
 
     } else 
-#endif /* !BIT_ROM */
+#endif /* !ME_ROM */
     {
         /*
             If the file is a directory, redirect using the nominated default page
@@ -61,7 +61,7 @@ static bool fileHandler(Webs *wp)
             return 1;
         }
         if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
-#if BIT_DEBUG
+#if ME_DEBUG
             if (wp->referrer) {
                 trace(1, "From %s", wp->referrer);
             }
@@ -118,11 +118,11 @@ static void fileWriteEvent(Webs *wp)
     /*
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
      */
-    if ((buf = walloc(BIT_GOAHEAD_LIMIT_BUFFER)) == NULL) {
+    if ((buf = walloc(ME_GOAHEAD_LIMIT_BUFFER)) == NULL) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
         return;
     }
-    while ((len = websPageReadData(wp, buf, BIT_GOAHEAD_LIMIT_BUFFER)) > 0) {
+    while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
             break;
         }
@@ -138,7 +138,7 @@ static void fileWriteEvent(Webs *wp)
 }
 
 
-#if !BIT_ROM
+#if !ME_ROM
 PUBLIC int websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
@@ -149,7 +149,7 @@ PUBLIC int websProcessPutData(Webs *wp)
 
     nbytes = bufLen(&wp->input);
     wp->putLen += nbytes;
-    if (wp->putLen > BIT_GOAHEAD_LIMIT_PUT) {
+    if (wp->putLen > ME_GOAHEAD_LIMIT_PUT) {
         websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Put file too large");
         return -1;
     }

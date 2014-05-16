@@ -1,0 +1,395 @@
+/*
+    main.me -- Main MakeMe file for GoAhead
+
+    This file contains the rules for targets to build and default settings for configuration.
+    The MakeMe utility (http://embedthis.com/products/makeme) may be used to build GoAhead instead of make. 
+    MakeMe provides for configured builds and generates projects files.
+
+    Alternatively, build using the "make" utility in which case this file is not used.
+ */
+
+Me.load({
+    blend: [
+        "src/paks/*/*.me",
+        "doc/doc.me",
+    ],
+
+    configure: {
+        requires:  [ 'osdep' ],
+        discovers: [ 'est', 'ssl' ],
+    },
+
+    settings: {
+        me: '0.8.0',
+
+        /*
+            Installation prefix set
+         */
+        prefixes: 'package-prefixes',
+        manifest: 'package/manifest.me',
+
+        /*
+            Set to true for a static link
+         */
+        static: false,
+
+        goahead: {
+            /*
+                Log for request access logging
+             */
+            accessLog: false,
+
+            /*
+                User authentication 
+             */
+            auth: true,
+
+            /*
+                Select the password store mechanism. Set to: pam, file, custom
+                If using PAM, must also set authPam to true
+             */
+            authStore: "file",
+
+            /*
+                Automatically login. Useful for debugging.
+             */
+            autoLogin: false,
+
+            /*
+                SSL file of certificates 
+             */
+            ca: "",
+
+            clientCache: [ 'css', 'gif', 'ico', 'jpg', 'js', 'png', ],
+            clientCacheLifespan: 86400,
+
+            /*
+                Server certificate file for SSL. This is a test self-signed certificate.
+                A valid certificate must be obtained or generated.
+             */
+            certificate: "self.crt",
+
+            /*
+                Cipher suite for SSL. This is SSL stack dependant and only supported on EST and OpenSSL
+                    OpenSSL: AES128-SHA or "HIGH:RC4+SHA",
+                    EST:"TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_RC4_128_SHA",
+             */
+            ciphers: "",
+
+            /*
+                Build with CGI support and directory for CGI programs.
+                The cgiBin is a unique path prefix for CGI URIs.
+             */
+            cgi: true,
+            cgiBin: "cgi-bin",
+
+            /*
+                Directory containing web documents to serve
+             */
+            documents: "web",
+
+            /*
+                Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
+                Set to: DENY, SAMEORIGIN, ALLOW uri
+             */
+            xframeHeader: "SAMEORIGIN",
+
+            /*
+                Build with support for javascript web templates
+             */
+            javascript: true,
+
+            /*
+                Server SSL key. This is by default set to a test key.
+                This must be regenerated.
+             */
+            key: "self.key",
+
+            /*
+                Define legacy APIs for compatibility with old GoAhead web server applications
+             */
+            legacy: true,
+
+            /*
+                Sandbox limits and allocation sizes
+             */
+            limitBuffer:          1024,    /* I/O Buffer size. Also chunk size. */
+            limitFiles:              0,    /* Maximum files/sockets. Set to zero for unlimited. Unix only */
+            limitFilename:         256,    /* Maximum filename size */
+            limitHeader:          2048,    /* Maximum HTTP single header size */
+            limitHeaders:         4096,    /* Maximum HTTP header size */
+            limitNumHeaders:        64,    /* Maximum number of headers */
+            limitParseTimeout:       5,    /* Maximum time to parse the request headers */
+            limitPassword:          32,    /* Maximum password size */
+            limitPost:           16384,    /* Maximum POST incoming body size */
+            limitPut:        204800000,    /* Maximum PUT body size ~ 200MB */
+            limitSessionLife:     1800,    /* Session lifespan in seconds (30 mins) */
+            limitSessionCount:     512,    /* Maximum number of sessions to support */
+            limitString:           256,    /* Default string size */
+            limitTimeout:           60,    /* Request inactivity timeout in seconds */
+            limitUri:             2048,    /* Maximum URI size */
+            limitUpload:     204800000,    /* Maximum upload size ~ 200MB */
+
+            /*
+                Addresses to listen on. This specifies the protocol, interface and port.
+             */
+            listen: ["http://*:80", "https://*:443"]
+
+            /*
+                Enable application logging
+             */
+            logging: true,
+            logfile: "stderr:0",
+
+            /*
+                Temporary directory to hold PUT files
+                This must be on the same filesystem as the web documents directory.
+             */
+            putDir: ".",
+
+            /*
+                Authentication realm. Replace with your realm.
+             */
+            realm: "example.com",
+
+            /*
+                Replace malloc with a non-fragmenting allocator
+             */
+            replaceMalloc: false,
+
+            /*
+                Enable stealth options. Disable OPTIONS and TRACE methods.
+             */
+            stealth: true,
+
+            /*
+                Enable debug trace and asserts
+             */
+            tracing: true,
+
+            /*
+                Upload file support
+             */
+            upload: true,
+            uploadDir: "/tmp",
+
+            /*
+                Verify client certificates
+             */
+            verifyPeer: false,
+
+            /*
+                Verify issuer. If false, allows self-signed certificates for testing purposes.
+             */
+            verifyIssuer: false,
+        },
+    },
+
+    usage: {
+        'goahead.accessLog':          'Enable request access log (true|false)',
+        'goahead.caFile':             'File of client certificates (path)',
+        'goahead.certificate':        'Server certificate for SSL (path)',
+        'goahead.ciphers':            'SSL cipher suite (string)',
+        'goahead.cgi':                'Enable the CGI handler (true|false)',
+        'goahead.cgiBin':             'Directory CGI programs (path)',
+        'goahead.clientCache':        'Extensions to cache in the client (Array)',
+        'goahead.clientCacheLifespan':'Lifespan in seconds to cache in the client',
+        'goahead.javascript':         'Enable the Javascript JST handler (true|false)',
+        'goahead.key':                'Server private key for SSL (path)',
+        'goahead.legacy':             'Enable the GoAhead 2.X legacy APIs (true|false)',
+
+        'goahead.limitBuffer':        'I/O Buffer size. Also chunk size.',
+        'goahead.limitFilename':      'Maximum filename size',
+        'goahead.limitHeader':        'Maximum HTTP single header size',
+        'goahead.limitHeaders':       'Maximum HTTP header size',
+        'goahead.limitNumHeaders':    'Maximum number of headers',
+        'goahead.limitPassword':      'Maximum password size',
+        'goahead.limitPost':          'Maximum POST (and other method) incoming body size',
+        'goahead.limitPut':           'Maximum PUT body size ~ 200MB',
+        'goahead.limitSessionLife':   'Session lifespan in seconds (30 mins)',
+        'goahead.limitSessionCount':  'Maximum number of sessions to support',
+        'goahead.limitString':        'Default string allocation size',
+        'goahead.limitTimeout':       'Request inactivity timeout in seconds',
+        'goahead.limitUri':           'Maximum URI size',
+        'goahead.limitUpload':        'Maximum upload size ~ 200MB',
+
+
+        'goahead.listen':             'Addresses to listen to (["http://IP:port", ...])',
+        'goahead.logfile':            'Default location and level for debug log (path:level)',
+        'goahead.logging':            'Enable application logging (true|false)',
+        'goahead.pam':                'Enable Unix Pluggable Auth Module (true|false)',
+        'goahead.putDir':             'Define the directory for file uploaded via HTTP PUT (path)',
+        'goahead.realm':              'Authentication realm (string)',
+
+        'goahead.replaceMalloc':      'Replace malloc with non-fragmenting allocator (true|false)',
+        'goahead.static':             'Build with static linking (true|false)',
+        'goahead.stealth':            'Run in stealth mode. Disable OPTIONS, TRACE (true|false)',
+        'goahead.tracing':            'Enable debug tracing (true|false)',
+        'goahead.tune':               'Optimize (size|speed|balanced)',
+        'goahead.upload':             'Enable file upload (true|false)',
+        'goahead.uploadDir':          'Define directory for uploaded files (path)',
+    },
+
+    customize: [
+        /* 
+            The optional custom.me file is loaded after main.me is fully processed. It can
+            thus override any setting. Feel free to create and customize. 
+         */
+        'custom.me',
+    ],
+
+    scripts: {
+        postconfig: "
+            if (me.settings.goahead.authStore != 'pam') {
+                me.settings.compiler.hasPam = false
+            }
+        ",
+    },
+
+    targets: {
+        /*
+            Target for the goahead executable
+         */
+        libgo: {
+            enable: true,
+            type: 'lib',
+            sources: [ 'src/*.c', 'src/ssl/*.c' ],
+            headers: [ 'src/*.h' ],
+            exclude: /goahead\.c/,
+            depends: [ 'ssl' ],
+            scripts: {
+                prebuild: "
+                    if (me.settings.compiler.hasPam && me.settings.goahead.pam) {
+                        me.target.libraries.push('pam')
+                    }                                                                                      
+                ",  
+            },
+        },
+
+        goahead: {
+            type: 'exe',
+            sources: [ 'src/goahead.c' ],
+            headers: [ 'src/*.h' ],
+            depends: [ 'libgo' ],
+            scripts: {
+                prebuild: "
+                    if (me.settings.compiler.hasPam) {
+                        me.target.libraries.push('pam')
+                    }                                                                                      
+                ",  
+            },
+        },
+
+        'ca-crt': {
+            type: 'file',
+            files: [ 'src/paks/est/ca.crt' ],
+            path: '${BIN}/ca.crt',
+        },
+
+        /*
+            Target for unit tests. Includes ASP and form callbacks
+         */
+        'goahead-test': {
+            enable: "me.settings.profile != 'release'",
+            type: 'exe',
+            sources: [ 'test/test.c' ],
+            headers: [ 'src/*.h' ],
+            depends: [ 'libgo' ],
+            scripts: {
+                prebuild: "
+                    if (me.settings.hasPam) {
+                        me.target.libraries.push('pam')
+                    }                                                                                      
+                ",  
+            },
+        },
+
+        /*
+            Compiler for web pages into C code
+         */
+        gopass: {
+            enable: 'me.settings.goahead.auth',
+            type: 'exe',
+            sources: [ 'src/utils/gopass.c' ],
+            headers: [ 'src/*.h' ],
+            depends: [ 'libgo' ],
+        },
+
+        /*
+            Compiler for web pages into C code
+         */
+        webcomp: {
+            enable: 'me.settings.rom',
+            type: 'exe',
+            sources: [ 'src/utils/webcomp.c' ],
+            headers: [ 'src/*.h' ],
+            depends: [ ],
+        },
+
+        cgitest: {
+            enable: 'me.settings.cgi',
+            path: 'test/cgi-bin/cgitest${EXE}'
+            type: 'exe',
+            sources: [ 'test/cgitest.c' ],
+            headers: [ 'src/*.h' ],
+        },
+
+        test: {
+            action: "
+                let ro = {noio: true, dir: 'test'}
+                let depth = me.settings.depth
+                run('utest -v -i 2 --depth ' + depth, ro)
+                if (depth >= 3) {
+                    trace('Test', 'Light load tests')
+                    run('utest -v -i 20 --depth ' + depth, ro)
+                    for each (t in [2, 4]) {
+                        trace('Test', 'Light thread tests')
+                        run('utest -v -i 20 --depth ' + depth + ' --threads ' + t, ro)
+                    }
+                }
+                if (depth >= 4) {
+                    trace('Test', 'Longevity load tests')
+                    run('utest -v -i 100 --depth ' + depth, ro)
+                    for each (t in [8, 16]) {
+                        trace('Test', 'Light thread tests')
+                        run('utest -v -i 100 --depth ' + depth + ' --threads ' + t, ro)
+                    }
+                }
+                trace('Test', 'Unit tests complete')
+            ",
+            platforms: [ 'local' ],
+        },
+
+        run: {
+            home: 'src',
+            run: 'goahead -v',
+        },
+
+        rom: {
+            action: "Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))",
+        },
+
+        install: {
+            home: '${TOP}',
+            generate: ' ',
+            depends: [ 'all', 'stop', 'installBinary', 'start' ],
+            action: "
+                trace('Info', me.settings.title + ' installed at ' + me.prefixes.vapp)
+                trace('Info', 'Configuration directory ' + me.prefixes.etc)
+                trace('Info', 'Documents directory ' + me.prefixes.web)
+                trace('Info', 'Executables directory ' + me.prefixes.vapp.join('bin'))
+                trace('Info', 'Use \"man goahead\" for usage')
+                trace('Info', 'Run via \"cd ' + me.prefixes.etc + ' ; sudo goahead -v ' + me.prefixes.web + '\"')
+                trace('Info', 'Browse to ' + me.settings.goahead.listen[0].replace('*', 'localhost').replace(':80', '/'))
+                let pid = Cmd.ps('goahead')
+                if (pid && pid.length > 0) {
+                    trace('Info', me.settings.title + ' PID: ' + pid[0].pid)
+                }
+            ",
+        },
+
+        projects: {
+            action: "genProjects('-with est')",
+        },
+    },
+})

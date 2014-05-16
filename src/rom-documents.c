@@ -5,7 +5,7 @@
 
 #include "goahead.h"
 
-#if BIT_ROM
+#if ME_ROM
 WebsRomIndex websRomIndex[] = {
 	{ 0, 0, 0 }
 };

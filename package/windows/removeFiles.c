@@ -15,7 +15,7 @@
     #define SPECSTRING_SUPP_H
 #endif
 
-#include    "bit.h"
+#include    "me.h"
 
 #include    <stdio.h>
 #include    <direct.h>
@@ -23,7 +23,7 @@
 
 /*********************************** Locals ***********************************/
 
-#define PROGRAM         BIT_NAME " Removal Program"
+#define PROGRAM         ME_NAME " Removal Program"
 #define MPR_MAX_FNAME   1024
 
 static char *fileList[] = {
@@ -223,7 +223,7 @@ static char *mprGetDirName(char *buf, int bufsize, const char *path)
 
     cp = strrchr(path, '/');
     if (cp == 0) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         cp = strrchr(path, '\\');
         if (cp == 0)
 #endif

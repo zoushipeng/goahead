@@ -1,0 +1,709 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.3.2 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://embedthis.com/products/goahead/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.3.2</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt;<a href="index.html">Source Code</a>&gt; <b>Building with MakeMe</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#download">Download MakeMe</a></li>
+                <li><a href="#configuring">Configuring the Build</a></li>
+                <li><a href="#options">Configure Options</a></li>
+                <li><a href="#packages">External Packages</a></li>
+                <li><a href="#building">Building with MakeMe</a></li>
+                <li><a href="#static">Static Linking</a></li>
+                <li><a href="#rom">Serving from ROM</a></li>
+                <li><a href="#installing">Installing</a></li>
+                <li><a href="#cross">Cross Compiling</a></li>
+                <li><a href="make.html">Building with Make</a></li>
+                <li><a href="me.html">Building with MakeMe</a></li>
+                <li><a href="ide.html">Building with an IDE</a></li>
+            </ul>
+<!-- BeginDsi "dsi/sourceSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/source/index.html">Working with Source</a></li>
+                <li><a href="../../../guide/goahead/source/building.html">Building From Source</a></li>
+                <li><a href="../../../guide/goahead/source/porting.html">Porting Guide</a></li>
+                <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
+                <li><a href="../../../guide/goahead/programmers/embedding.html">Embedding GoAhead</a></li>
+                <li><a href="../../../guide/goahead/programmers/handlers.html">GoAhead Handlers</a></li>
+                <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+                <li><a href="../../../product/changeLog.html">Change Log</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Building with MakeMe</h1>
+            
+            <p>The procedure for building with MakeMe is the same for all supported platforms.</p>
+            
+            <a name="download"></a>
+            <h3>Download MakeMe</h3>
+            <p>You can download MakeMe from the 
+            <a href="http://embedthis.com/downloads/me/download.esp">Embedthis MakeMe Download</a> download site.
+            Packaged installations are provided for Windows and MACOSX. For Linux, use the source distribution.</p>
+            <p>See the <a href="http://embedthis.com/products/me/doc/">MakeMe Documentation</a> for information regarding
+            installing MakeMe.</p>
+            
+            <a id="configuring"></a>
+            <h3 class="section">Configure GoAhead</h3>
+            <p>Before building with MakeMe, you need to do a one-time <em>configuration</em>.
+            This customizes GoAhead to select features, options, third-party packages available on your system. 
+            The <em>configure</em> script simply invokes <em>me configure</em> and passes all command 
+            line options to MakeMe.</p>
+           
+            <h3>Running Configure</h3>
+            <p>You may run the configure script with no options to accept the defaults &mdash; this is a good
+            starting point:</p> 
+            <pre>./configure</pre>
+            <p>You may also supply options to tailor the build:
+            <pre>
+./configure --release --without all
+</pre>
+            <p>The <em>--release</em> switch instructs MakeMe to build an optimized production release. This will disable
+            debugging code and non-essential logging. The <em>--without all</em> switch will disable non-essential
+            features to create a minimal build.</p>
+            <p>During configuration, <em>me</em> will create:</p>
+            <ul>
+                <li>A MakeMe file that specifies the platforms to build named: start.me</li>
+                <li>A MakeMe file for each platform named: OS-ARCH-PROFILE.me</li>
+                <li>A source header with for the build configuration named: OS-ARCH-PROFILE/inc/me.h</li>
+                <li>An output products directory for each platform named: OS-ARCH-PROFILE</li>
+            </ul>
+            <p>where OS is the name of the operating system, ARCH is the name of the CPU architecture and PROFILE
+            is the build profile name, typically "debug" or "release". For example: linux-x86-debug.</p>
+            <p>The generated MakeMe files are readable Javascript files that contain the settings to control the build
+            when MakeMe is run. When compiling, source code may include the <em>me.h</em> header to read the 
+            GoAhead configuration.</p>
+            <a id="options"></a>
+            <h2 class="section">Configure Options</h2>
+            <p>The tables below describe the key configuration options.
+            <h3>Basic Configure Options</h3>
+            <table title="options">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>--debug</td>
+                    <td>Build a debug build. This builds a development, non-optimized build with debug symbols.</td>
+                </tr>
+                <tr>
+                    <td>--help</td>
+                    <td>Display the MakeMe program usage help.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--set KEY=VALUE</td>
+                    <td>Set the value of a property in the MakeMe <em>settings</em> collection. For example: "--set
+                        mpr.tracing=false".</td>
+                </tr>
+                <tr>
+                    <td>--quiet, -q</td>
+                    <td>Run quietly without progress trace.</td>
+                </tr>
+                <tr>
+                    <td>--release</td>
+                    <td>Build a release build. This builds an optimized, production-ready build of the software.</td>
+                </tr>
+                <tr>
+                    <td>--verbose, -v</td>
+                    <td>Run verbosely and emit more detailed progress trace.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Cross Compiling</h3>
+            <table title="types">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">--platform OS-ARCH-PROFILE</td>
+                    <td><p>Specify the target platform for which to build. For example "-platform linux-arm-debug". 
+                        Supported operating systems are: freebsd, linux, macosx, vxworks and windows. 
+                        Supported architectures are: arm, mips, ppc, x64 or x86.
+                        If the -platform option is omitted, the local system is added as the target platform.  You may
+                        use the 'local' alias to indicate the local platform.  Multiple platforms may be specified. </p>
+                       <p>The ARCH component may specify a CPU instance to tune for. The CPU setting is used
+                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
+                        <p>The optional CPU component specifies a CPU instance to tune for. The CPU setting is used
+                        in a -DCPU=VALUE compiler define. For example: "-platform linux-arm:arm7tdmi-debug".</p>
+                        <p>NOTE: this is not a typical configure --host argument. i.e. The second component is a CPU
+                        and not a distribution name.</p>
+                    </td>
+                </tr>
+            </tbody>
+            </table>
+            <h3>Feature Options</h3>
+            <table title="options">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">--without all</td>
+                    <td></td>
+                    <td>Disable all non-essential possible packages.</td>
+                </tr>
+                <tr>
+                    <td class="nowrap">--set tune=MODE</td>
+                    <td>size</td>
+                    <td>Tune the build to optimize for "size", "speed". You can also select "balanced" for a balance
+                    between speed and size.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Optional Packages</h3>
+            <table title="packages">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td class="nowrap">--with PACKAGE[=dir]</td>
+                    <td>Specify if a PACKAGE should be included in the build. The optional directory is the path to
+                        the source distribution of the package. If the directory is omitted, MakeMe will search the
+                        local system for the package in well known places.</td>
+                </tr>
+                <tr>
+                    <td>--without PACKAGE</td>
+                    <td>Do not include the PACKAGE in the build.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Example Use</h3>
+            <pre>
+configure --with openssl=/usr/src/openssl
+</pre>
+            <h3>Packages</h3>
+            <p>The following table describes the packages that can extend GoAhead configure. 
+            The use of the Integrated field states whether the package is shipped internally with the GoAhead source
+            code, or whether it is an external third party package.</p>
+            <table title="env">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Integrated</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>est</td>
+                    <td>Internal</td>
+                    <td>Embedded Security Transport SSL. (Prototype).</td>
+                </tr>
+                <tr>
+                    <td>matrixssl</td>
+                    <td>External</td>
+                    <td>MatrixSSL SSL stack. Requires a commercial license from PeerSec.</td>
+                </tr>
+                <tr>
+                    <td>nanossl</td>
+                    <td>External</td>
+                    <td>Mocana NanoSSL stack. Requires a commercial license from Mocana.</td>
+                </tr>
+                <tr>
+                    <td>openssl</td>
+                    <td>External</td>
+                    <td>OpenSSL SSL stack. Requires OpenSSL libraries.</td>
+                </tr>
+                </tbody>
+            </table>
+            <p>The following table describes the tool packages that can be used when building, running and 
+            managing GoAhead. 
+            The use of the Internal/External field documents whether the package is shipped internally with the GoAhead source
+            code, or whether it is an external third party package.</p>
+            <table title="env">
+                <thead>
+                    <tr>
+                        <th>Package</th>
+                        <th>Integrated</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>doxygen</td>
+                    <td>External</td>
+                    <td>C API documentation generator.</td>
+                </tr>
+                <tr>
+                    <td>dsi</td>
+                    <td>External</td>
+                    <td>Dev Side Includes. Simple static web page templates.</td>
+                </tr>
+                <tr>
+                    <td>http</td>
+                    <td>Internal</td>
+                    <td>Http test client program.</td>
+                </tr>
+                <tr>
+                    <td>man</td>
+                    <td>External</td>
+                    <td>Manual page reader and renderer.</td>
+                </tr>
+                <tr>
+                    <td>man2html</td>
+                    <td>External</td>
+                    <td>Program to convert man pages to HTML.</td>
+                </tr>
+                <tr>
+                    <td>pmaker</td>
+                    <td>External</td>
+                    <td>Native package maker. This resolves to InnoSetup on Windows and PackageMaker on MAC OS X.</td>
+                </tr>
+                <tr>
+                    <td>utest</td>
+                    <td>External</td>
+                    <td>Unit test framework.</td>
+                </tr>
+                <tr>
+                    <td>zip</td>
+                    <td>External</td>
+                    <td>Zip compression program. Used when creating installable packages.</td>
+                </tr>
+                </tbody>
+            </table>
+            <a name="main"></a>
+            <h3>Main Configuration Options</h3>
+            <p>The main.me configuration file specifies build-time defaults. Some of the important values
+            are listed below:</p>
+            <table title="main">
+                <tbody>
+                    <tr>
+                        <td class="pivot">accessLog</td>
+                        <td>Enable request URI logging to an access log</td>
+                    </tr>
+                    <t>
+                        <td class="pivot">clientCache</td>
+                        <td>Define the list of extensions to issue Cache-Control headers to the client</td>
+                    </tr>
+                    <t>
+                        <td class="pivot">clientCacheLifespan</td>
+                        <td>Time in seconds to set the max-age in the Cache-Control header. This is the time period during which the client will service locally cached client data and will not contact the server for updated content.</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">certificate</td>
+                        <td>SSL certificate file</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">cgi</td>
+                        <td>Set to true to enable the CGI handler</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">javascript</td>
+                        <td>Enable the Javascript template handler</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">key</td>
+                        <td>SSL private key</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">legacy</td>
+                        <td>Enable GoAhead 2.X APIs to improve backward compatibility</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">listens</td>
+                        <td>List of endpoints on which GoAhead will listen</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitBuffer</td>
+                        <td>General I/O buffer size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitFilename</td>
+                        <td>Maximum filename size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitFiles</td>
+                        <td>Maximum number of files/sockets (ulimit)</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitHeader</td>
+                        <td>Maximum size of the request header</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitNumHeaders</td>
+                        <td>Maximum number of header lines in the request</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitParseTimeout</td>
+                        <td>Maximum time to parse the request headers</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPassword</td>
+                        <td>Maximum size of a password</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPost</td>
+                        <td>Maximum size of the incoming request body</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPut</td>
+                        <td>Maximum size of a put request</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSessionLife</td>
+                        <td>Default session lifespan in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSessionCount</td>
+                        <td>Maximum number of sessions</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitString</td>
+                        <td>Default string size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitTimeout</td>
+                        <td>Request inactivity timeout in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUri</td>
+                        <td>Maximum URI size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUpload</td>
+                        <td>Maximum size of a file upload request</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">pam</td>
+                        <td>Build with Unix PAM authentication password support</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">trace</td>
+                        <td>Trace log destination. Uses the form: path:level</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">stealth</td>
+                        <td>Enable stealth mode. Disable OPTIONS and TRACE methods.
+                           Enabled by default.</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">upload</td>
+                        <td>Enable the upload handler</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">uploadDir</td>
+                        <td>Directory to store uploaded files</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>Environment Variables</h3>
+            <p>When cross compiling, certain environment variables may be passed to the configure script and on to 
+            <em>me</em> to configure the compiler and linker paths and flags. </p>
+            <table title="env">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>AR</td>
+                    <td>Path to the archiver program to use to archive libraries for the target system.</td>
+                </tr>
+                <tr>
+                    <td>CC</td>
+                    <td>Path to the C/C++ compiler to use to compile for the target system.</td>
+                </tr>
+                <tr>
+                    <td>CFLAGS</td>
+                    <td>Compiler control flags.</td>
+                </tr>
+                <tr>
+                    <td>DFLAGS</td>
+                    <td>Compiler preprocessor defines.</td>
+                </tr>
+                <tr>
+                    <td>IFLAGS</td>
+                    <td>Include directory options.</td>
+                </tr>
+                <tr>
+                    <td>LD</td>
+                    <td>Path to the linker program to link objects for the target system.</td>
+                </tr>
+                <tr>
+                    <td>LDFLAGS</td>
+                    <td>Linker flags. E.g. -Ldir to specify a non-standard directory for libraries.</td>
+                </tr>
+                </tbody>
+            </table>
+            <h3>Example Use</h3>
+            <pre>
+CC=/opt/bin/ccarm configure
+</pre>
+            
+            <h3>MakeMe Configure Examples</h3>
+            <p>Here are some useful configure command options.</p>
+            <p>To configure for building outside a source tree. This supports building from source from a 
+                read-only file system.</p>
+            <pre>configure --configure /path/to/source</pre>
+            <p>To configure for a debug build with debug symbols:</p>
+            <p>To configure without TLS/SSL:</p>
+            <pre>configure --without ssl</pre>
+            <p>To configure using PHP from a specific source location:</p>
+            <pre>configure --with php=/path/to/php-source</pre>
+            <p>To configure to build for 32-bit X86 (when on a 64-bit system):</p>
+            <pre>configure --platform linux-x86-debug</pre>
+            
+            <p>To display all configure options:
+<pre class="paper">configure --help
+Usage: me [options] [targets|actions] ...
+  Options:
+  --benchmark                              # Measure elapsed time
+  --configure path-to-source               # Configure for building
+  --continue                               # Continue on errors
+  --debug                                  # Same as --profile debug
+  --depth level                            # Set utest depth level
+  --diagnose                               # Emit diagnostic trace 
+  --dump                                   # Dump the full project MakeMe file
+  --endian [big|little]                    # Define the CPU endianness
+  --file file.me                           # Use the specified MakeMe file
+  --force                                  # Override warnings
+  --gen [make|nmake|sh|vs|xcode|main|start]# Generate project file
+  --help                                   # Print help message
+  --import                                 # Import standard MakeMe configuration
+  --keep                                   # Keep intermediate files
+  --log logSpec                            # Save errors to a log file
+  --nocross                                # Build natively
+  --overwrite                              # Overwrite existing files
+  --out path                               # Save output to a file
+  --platform os-arch-profile               # Build for specified platform
+  --pre                                    # Pre-process a source file to stdout
+  --prefix dir=path                        # Define installation path prefixes
+  --profile [debug|release|...]            # Use the build profile
+  --quiet                                  # Quiet operation. Suppress trace 
+  --rebuild                                # Rebuild all specified targets
+  --reconfigure                            # Reconfigure with existing settings
+  --release                                # Same as --profile release
+  --rom                                    # Build for ROM without a file system
+  --set [feature=value]                    # Enable and a feature
+  --show                                   # Show commands executed
+  --static                                 # Make static without shared libraries
+  --unicode                                # Set char size to wide (unicode)
+  --unset feature                          # Unset a feature
+  --version                                # Display the MakeMe version
+  --verbose                                # Trace operations
+  --with PACK[=PATH]                       # Build with package at PATH
+  --without PACK                           # Build without a package
+Feature Selection:
+    --set http.pam=value                   # Enable Unix Pluggable Auth Module (true|false)
+    --set mpr.logging=value                # Enable application logging (true|false)
+    --set mpr.tracing=value                # Enable debug tracing (true|false)
+Extension Packages (--with PACK):
+    doxygen                                # Doxygen Documentation Generator
+    dsi                                    # Developer Server Side Include Tool
+    est                                    # Embedded Security Transport (Prototype)
+    man                                    # Manual Page Formatting Tool
+    man2html                               # Manual Page to HTML Converter
+    matrixssl                              # MatrixSSL (SSL)
+    nanossl                                # Mocana NanoSSL (SSL)
+    openssl                                # OpenSSL (SSL)
+    pmaker                                 # Package Maker Tool
+    sqlite                                 # SQLite Database
+    zip                                    # Zip Compression Tool
+</pre>
+            <a id="packages"></a>
+            <h3>Configuring External Packages</h3>
+            <p>The MakeMe configuration process supports the resolution of external packages that extend and enhance GoAhead, 
+                such as OpenSSL and PHP. By default, GoAhead can locate these packages if the source
+                distributions are installed in standard locations. Otherwise, the packages can be identified by using
+                <em>configure --with PACKAGE=PATH</em> switch. This specifies the path to the package source directory.</p>
+            <p>For example, to build with MatrixSSL, follow these steps:</p>
+            <ol>
+                <li>Download MatrixSSL from
+                <a href="http://www.peersec.com">http://www.peersec.com</a>. 
+                <li>Build MatrixSSL (See <a href="ssl.html">Building SSL</a> for additional instructions)</li>
+                <li>Then, from the GoAhead source directory run the GoAhead configure:
+                <pre>./configure --with matrixssl=/path/to/matrixssl
+</pre></li>
+            </ol>
+            <p>During configuration, the required Matrixssl libraries and headers will be copied into
+            the GoAhead source tree. </p>
+            <a id="building"></a>
+            <h2 class="section">Building GoAhead with MakeMe</h2>
+            <p>After configuring, you may proceed to build the source code by typing:</p>
+            <pre>
+me
+</pre>
+            <p>This will fully build the software. If cross compiling and depending on your configuration, 
+            it may build twice: once for the local system and once for the target platform. This may be necessary
+            to build required tools. If Ejscript is enabled, this is required.</p>
+            <h3>Useful MakeMe options and targets</h3>
+            <p>Here are some useful MakeMe examples:</p>
+            <pre>me --show     # Show actual commands while building
+me --why      # Show why each target is or is not being built 
+me --dump     # Dump the combined MakeMe configuration in one file
+me rebuild    # Rebuild all targets
+me clean      # Clean all built targets
+me rebuild    # Rebuild all targets
+me install    # Install the built software locally
+me help       # Show MakeMe usage</pre>
+            <a name="static"></a>
+            <h2 class="section">Static Linking</h2>
+            <p>On some platforms, it is desirable to statically link the GoAhead web server. The default GoAhead MakeMe files
+            will build GoAhead using shared libraries. 
+            <p>However, if you want to statically link GoAhead and the modules together, run configure with the
+            <i>--static</i> option and then rebuild. Do a clean first or remove the platform outputs directory 
+            to ensure that there are no shared libraries left over. Some linkers will link with old shared libraries
+            in preference to static libraries.</p>
+<pre>
+me clean
+./configure --static
+me
+</pre>
+            <a name="rom"></a>
+            <h2 class="section">Serving from ROM</h2>
+            <p>GoAhead supports systems without a file system where web documents are compiled into C code and served from
+            ROM. To enable this, configure with the <em>--rom</em> switch.
+            <pre>
+configure --rom
+me
+</pre>
+            <p>See <a href="../programmers/rom.html">Serving Pages from ROM</a> for more information.</p>
+            <a id="installing"></a>
+            <h2 class="section">Installing</h2>
+            <p>You can install the newly built software via MakeMe:</p>
+            <pre>sudo me install</pre>
+            <p>You can remove by:</p>
+            <pre>
+sudo me uninstall
+</pre>
+            <a id="cross"></a>
+            <h2 class="section">Cross Compiling</h2>
+            <p>To build a product for platform different to that of the local system is called <em>cross compiling</em>.
+            Sometimes this compiling is just for a different instruction set (say x64 instead of x86). Other
+            times, it is for a completely different operating system and/or CPU architecture. In such cases a
+            cross-compiler is typically required to build for the target platform.</p>
+            <p>MakeMe supports cross compiling via the <em>-platform PLATFORM</em> me configure option. This option adds a
+            platform to the list of platforms to be made. Multiple platforms may be
+            specified and the 'local' platform alias may be used for the local development platform.</p>
+            <pre>me -platform linux-arm-debug -configure . </pre>
+            <p>This will create a windows-x64.me configuration file and a start.es that references it. The
+            platform switch does not need to be restated after configuration.</p>
+            <h3>Platforms</h3>
+            <p>A platform specification is of the form OS-ARCH-PROFILE, where the
+            supported operating systems are: freebsd, linux, macosx, vxworks and windows. The ARCH field is
+            one of arm, mips, ppc, x64 or x86. X64 is the AMD/Intel 64-bit instruction set and x86 is the Intel X86
+            Pentium instruction set. You may also use i386 or i686 for specific Intel X86 instruction sets.</p>
+            <p>The ARCH field may contain an optional CPU field to specify a CPU to tune for. This is specified as a
+            <em>:CPU</em> suffix for the ARCH field.</p>
+            
+            <p>Configuration options apply to the preceding platform. If not preceding platform, the option applies
+            to the local platform.
+            <pre>configure -with openssl=/path/to/openssl -platform linux-arm-debug -without openssl</pre>
+            <p>This will build Ejscript for the local development system, and without Ejscript for the target.</p>
+            <h3>Environment Variables</h3>
+            <p>When cross compiling, you may need to inform <b>configure</b> about your cross-compilation tool chain.
+            MakeMe will do its best to discover the installed cross tool chain and will look in well known
+            directories to locate the compiler, linker and other required tools. If <em>me</em> cannot locate the 
+            tool chain, you can supply the tool chain details via the environment variables: CC, CFLAGS, DFLAGS, IFLAGS
+            LD and LDFLAGS. These will be used to define and configure the cross-compilation tool chain. 
+            <p>For example, here is a cross-compilation <b>configure</b> command line to create a debug build 
+            of GoAhead for Linux on ARM7:</p>
+            <pre>
+CC=/opt/bin/cc.exe \
+LD=/opt/bin/cc.exe \
+CFLAGS=-I/opt/include \
+configure --debug --platform linux-arm:arm7tdi-debug
+</pre>
+            <h2 class="section">Create an Installable Release</h2>
+            <p>After building, MakeMe can create installable packages of the software:</p>
+            <pre>me package</pre>
+            <p>The release packages are placed under the <em>releases</em> directory. The <em>goahead-tar.tgz</em> image is a simple compressed tar archive of the binary release.</p>
+           
+           <h2 class="section">Deploying</h2>
+            <p>If you are embedding Appweb into another application or installing to a target device, you can deploy the required Appweb files to a staging directory.</p>
+            <pre>me --sets core deploy</pre>
+            <p>This will copy the required Appweb files to the <em>deploy directory under the platform output 
+                directory.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

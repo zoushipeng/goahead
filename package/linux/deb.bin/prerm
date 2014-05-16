@@ -5,9 +5,9 @@
 #	Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 #
 
-BIT_PRODUCT=${settings.product}
-BIT_NAME="${settings.title}"
-BIT_CFG_PREFIX="${prefixes.config}"
+ME_PRODUCT=${settings.product}
+ME_NAME="${settings.title}"
+ME_CFG_PREFIX="${prefixes.config}"
 
 ###############################################################################
 #
@@ -22,9 +22,9 @@ case $action in
 		#appman stop >/dev/null 2>&1 ; true
 		# appman disable >/dev/null 2>&1 ; true
 		# appman uninstall >/dev/null 2>&1 ; true
-		pid=`/bin/pidof ${prefixes.bin}/$BIT_PRODUCT; true`
+		pid=`/bin/pidof ${prefixes.bin}/$ME_PRODUCT; true`
 		[ "$pid" != "" ] && kill -9 $pid
-		rm -rf /var/lock/subsys/$BIT_PRODUCT /var/lock/$BIT_PRODUCT /var/log/$BIT_PRODUCT /var/run/$BIT_PRODUCT
+		rm -rf /var/lock/subsys/$ME_PRODUCT /var/lock/$ME_PRODUCT /var/log/$ME_PRODUCT /var/run/$ME_PRODUCT
 		;;
 	upgrade)				# when old
 		newVersion=$2

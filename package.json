@@ -2,7 +2,7 @@
     "name": "goahead",
     "description": "Embedthis GoAhead Embedded Web Server",
     "title": "Embedthis GoAhead",
-    "version": "3.3.0",
+    "version": "3.3.2",
     "keywords": [
         "goahead",
         "http",
@@ -42,11 +42,16 @@
             "url": "http://embedthis.com/licensing/"
         }
     ],
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     },
+    "pak": "~0.9",
     "dependencies": {
-        "bitos": "~0.8",
-        "est": "~0.6"
+        "me-dev": "~0.8",
+        "osdep": "~0.8"
+    },
+    "optionalDependencies": {
+        "est": "~0.6",
+        "me-ssl": "~0.8"
     }
 }

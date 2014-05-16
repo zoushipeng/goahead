@@ -18,8 +18,8 @@ static int websDebug;                   /* Run in debug mode and defeat timeouts
 static int defaultHttpPort;             /* Default port number for http */
 static int defaultSslPort;              /* Default port number for https */
 
-#define WEBS_TIMEOUT (BIT_GOAHEAD_LIMIT_TIMEOUT * 1000)
-#define PARSE_TIMEOUT (BIT_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
+#define WEBS_TIMEOUT (ME_GOAHEAD_LIMIT_TIMEOUT * 1000)
+#define PARSE_TIMEOUT (ME_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
 #define CHUNK_LOW   128                 /* Low water mark for chunking */
 
 /************************************ Locals **********************************/
@@ -149,6 +149,7 @@ static WebsMime websMimeList[] = {
     { "video/mpeg", ".mpe" },
     { "video/quicktime", ".qt" },
     { "video/quicktime", ".mov" },
+    { "video/mp4", ".mp4" },
     { "video/x-msvideo", ".avi" },
     { "video/x-sgi-movie", ".movie" },
     { NULL, NULL},
@@ -181,7 +182,7 @@ static WebsError websErrors[] = {
     { 0, NULL }
 };
 
-#if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
+#if ME_GOAHEAD_ACCESS_LOG && !ME_ROM
 static char     accessLog[64] = "access.log";       /* Log filename */
 static int      accessFd;                           /* Log file handle */
 #endif
@@ -208,7 +209,7 @@ static void     setFileLimits();
 static int      setLocalHost();
 static void     socketEvent(int sid, int mask, void *data);
 static void     writeEvent(Webs *wp);
-#if BIT_GOAHEAD_ACCESS_LOG
+#if ME_GOAHEAD_ACCESS_LOG
 static void     logRequest(Webs *wp, int code);
 #endif
 
@@ -229,7 +230,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (setLocalHost() < 0) {
         return -1;
     }
-#if BIT_PACK_SSL
+#if ME_COM_SSL
     if (sslOpen() < 0) {
         return -1;
     }
@@ -246,19 +247,19 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (websOpenRoute() < 0) {
         return -1;
     }
-#if BIT_GOAHEAD_CGI && !BIT_ROM
+#if ME_GOAHEAD_CGI && !ME_ROM
     websCgiOpen();
 #endif
     websOptionsOpen();
     websActionOpen();
     websFileOpen();
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     websUploadOpen();
 #endif
-#if BIT_GOAHEAD_JAVASCRIPT
+#if ME_GOAHEAD_JAVASCRIPT
     websJstOpen();
 #endif
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
     if (websOpenAuth(0) < 0) {
         return -1;
     }
@@ -276,7 +277,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
         hashEnter(websMime, mt->ext, valueString(mt->type, 0), 0);
     }
 
-#if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
+#if ME_GOAHEAD_ACCESS_LOG && !ME_ROM
     if ((accessFd = open(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
         error("Can't open access log %s", accessLog);
         return -1;
@@ -294,7 +295,7 @@ PUBLIC void websClose()
     int     i;
 
     websCloseRoute();
-#if BIT_GOAHEAD_AUTH
+#if ME_GOAHEAD_AUTH
     websCloseAuth();
 #endif
     if (pruneId >= 0) {
@@ -322,10 +323,10 @@ PUBLIC void websClose()
     wfree(websIpAddrUrl);
     websIpAddrUrl = websHostUrl = NULL;
 
-#if BIT_PACK_SSL
+#if ME_COM_SSL
     sslClose();
 #endif
-#if BIT_GOAHEAD_ACCESS_LOG
+#if ME_GOAHEAD_ACCESS_LOG
     if (accessFd >= 0) {
         close(accessFd);
         accessFd = -1;
@@ -370,13 +371,13 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->rxLen = -1;
     wp->code = HTTP_CODE_OK;
     wp->ssl = ssl;
-#if !BIT_ROM
+#if !ME_ROM
     wp->putfd = -1;
 #endif
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
     wp->cgifd = -1;
 #endif
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     wp->upfd = -1;
 #endif
     if (!reuse) {
@@ -387,14 +388,14 @@ static void initWebs(Webs *wp, int flags, int reuse)
         Ring queues can never be totally full and are short one byte. Better to do even I/O and allocate
         a little more memory than required. The chunkbuf has extra room to fit chunk headers and trailers.
      */
-    assert(BIT_GOAHEAD_LIMIT_BUFFER >= 1024);
-    bufCreate(&wp->output, BIT_GOAHEAD_LIMIT_BUFFER + 1, BIT_GOAHEAD_LIMIT_BUFFER + 1);
-    bufCreate(&wp->chunkbuf, BIT_GOAHEAD_LIMIT_BUFFER + 1, BIT_GOAHEAD_LIMIT_BUFFER * 2);
-    bufCreate(&wp->input, BIT_GOAHEAD_LIMIT_BUFFER + 1, BIT_GOAHEAD_LIMIT_PUT + 1);
+    assert(ME_GOAHEAD_LIMIT_BUFFER >= 1024);
+    bufCreate(&wp->output, ME_GOAHEAD_LIMIT_BUFFER + 1, ME_GOAHEAD_LIMIT_BUFFER + 1);
+    bufCreate(&wp->chunkbuf, ME_GOAHEAD_LIMIT_BUFFER + 1, ME_GOAHEAD_LIMIT_BUFFER * 2);
+    bufCreate(&wp->input, ME_GOAHEAD_LIMIT_BUFFER + 1, ME_GOAHEAD_LIMIT_PUT + 1);
     if (reuse) {
         wp->rxbuf = rxbuf;
     } else {
-        bufCreate(&wp->rxbuf, BIT_GOAHEAD_LIMIT_HEADERS, BIT_GOAHEAD_LIMIT_HEADERS + BIT_GOAHEAD_LIMIT_PUT);
+        bufCreate(&wp->rxbuf, ME_GOAHEAD_LIMIT_HEADERS, ME_GOAHEAD_LIMIT_HEADERS + ME_GOAHEAD_LIMIT_PUT);
     }
     wp->rxbuf = wp->rxbuf;
 }
@@ -413,7 +414,7 @@ static void termWebs(Webs *wp, int reuse)
     if (!reuse) {
         bufFree(&wp->rxbuf);
         if (wp->sid >= 0) {
-#if BIT_PACK_SSL
+#if ME_COM_SSL
             sslFree(wp);
 #endif
             socketDeleteHandler(wp->sid);
@@ -421,13 +422,13 @@ static void termWebs(Webs *wp, int reuse)
             wp->sid = -1;
         }
     }
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
     if (wp->cgifd >= 0) {
         close(wp->cgifd);
         wp->cgifd = -1;
     }
 #endif
-#if !BIT_ROM
+#if !ME_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
@@ -464,15 +465,15 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->url);
     wfree(wp->userAgent);
     wfree(wp->username);
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     wfree(wp->boundary);
     wfree(wp->uploadTmp);
     wfree(wp->uploadVar);
 #endif
-#if BIT_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI
     wfree(wp->cgiStdin);
 #endif
-#if BIT_DIGEST
+#if ME_DIGEST
     wfree(wp->cnonce);
     wfree(wp->digestUri);
     wfree(wp->opaque);
@@ -482,7 +483,7 @@ static void termWebs(Webs *wp, int reuse)
 #endif
     hashFree(wp->vars);
 
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     if (wp->files) {
         websFreeUpload(wp);
     }
@@ -555,7 +556,7 @@ PUBLIC void websDone(Webs *wp)
         sp = socketPtr(wp->sid);
         socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
     }
-#if BIT_GOAHEAD_ACCESS_LOG
+#if ME_GOAHEAD_ACCESS_LOG
     logRequest(wp, wp->code);
 #endif
     websPageClose(wp);
@@ -581,7 +582,7 @@ static void complete(Webs *wp, int reuse)
     assert(wp->timeout >= 0);
     websCancelTimeout(wp);
     assert(wp->sid >= 0);
-#if BIT_PACK_SSL
+#if ME_COM_SSL
     sslFree(wp);
 #endif
     socketDeleteHandler(wp->sid);
@@ -682,7 +683,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
     }
     socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
         operations only for local access 
@@ -699,7 +700,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
      lp = socketPtr(listenSid);
     trace(4, "New connection from %s:%d to %s:%d", ipaddr, port, wp->ifaddr, lp->port);
 
-#if BIT_PACK_SSL
+#if ME_COM_SSL
     if (lp->secure) {
         wp->flags |= WEBS_SECURE;
         trace(4, "Upgrade connection to TLS");
@@ -753,7 +754,7 @@ static ssize websRead(Webs *wp, char *buf, ssize len)
     assert(wp);
     assert(buf);
     assert(len > 0);
-#if BIT_PACK_SSL
+#if ME_COM_SSL
     if (wp->flags & WEBS_SECURE) {
         return sslRead(wp, buf, len);
     }
@@ -781,14 +782,14 @@ static void readEvent(Webs *wp)
     websNoteRequestActivity(wp);
     rxbuf = &wp->rxbuf;
 
-    if (bufRoom(rxbuf) < (BIT_GOAHEAD_LIMIT_BUFFER + 1)) {
-        if (!bufGrow(rxbuf, BIT_GOAHEAD_LIMIT_BUFFER + 1)) {
+    if (bufRoom(rxbuf) < (ME_GOAHEAD_LIMIT_BUFFER + 1)) {
+        if (!bufGrow(rxbuf, ME_GOAHEAD_LIMIT_BUFFER + 1)) {
             websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't grow rxbuf");
             websPump(wp);
             return;
         }
     }
-    if ((nbytes = websRead(wp, (char*) rxbuf->endp, BIT_GOAHEAD_LIMIT_BUFFER)) > 0) {
+    if ((nbytes = websRead(wp, (char*) rxbuf->endp, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         wp->lastRead = nbytes;
         bufAdjustEnd(rxbuf, nbytes);
         bufAddNull(rxbuf);
@@ -857,7 +858,7 @@ static bool parseIncoming(Webs *wp)
         bufGetc(rxbuf);
     }
     if ((end = strstr((char*) wp->rxbuf.servp, "\r\n\r\n")) == 0) {
-        if (bufLen(&wp->rxbuf) >= BIT_GOAHEAD_LIMIT_HEADER) {
+        if (bufLen(&wp->rxbuf) >= ME_GOAHEAD_LIMIT_HEADER) {
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Header too large");
             return 1;
         }
@@ -886,9 +887,9 @@ static bool parseIncoming(Webs *wp)
     if (wp->state == WEBS_COMPLETE) {
         return 1;
     }
-#if !BIT_ROM
-#if BIT_GOAHEAD_CGI
-    if (strstr(wp->path, BIT_GOAHEAD_CGI_BIN) != 0) {
+#if !ME_ROM
+#if ME_GOAHEAD_CGI
+    if (strstr(wp->path, ME_GOAHEAD_CGI_BIN) != 0) {
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
@@ -901,7 +902,7 @@ static bool parseIncoming(Webs *wp)
     if (smatch(wp->method, "PUT")) {
         WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
-        wp->putname = websTempFile(BIT_GOAHEAD_PUT_DIR, "put");
+        wp->putname = websTempFile(ME_GOAHEAD_PUT_DIR, "put");
         if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
             error("Can't create PUT filename %s", wp->putname);
             websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create the put URI");
@@ -940,7 +941,7 @@ static void parseFirstLine(Webs *wp)
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
         return;
     }
-    if (strlen(url) > BIT_GOAHEAD_LIMIT_URI) {
+    if (strlen(url) > ME_GOAHEAD_LIMIT_URI) {
         websError(wp, HTTP_CODE_REQUEST_URL_TOO_LARGE | WEBS_CLOSE, "URI too big");
         return;
     }
@@ -1008,7 +1009,7 @@ static void parseHeaders(Webs *wp)
         modifies the header string directly and tokenizes each line with '\0'.
     */
     for (count = 0; wp->rxbuf.servp[0] != '\r'; count++) {
-        if (count >= BIT_GOAHEAD_LIMIT_NUM_HEADERS) {
+        if (count >= ME_GOAHEAD_LIMIT_NUM_HEADERS) {
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too many headers");
             return;
         }
@@ -1063,12 +1064,12 @@ static void parseHeaders(Webs *wp)
         } else if (strcmp(key, "content-length") == 0) {
             wp->rxLen = atoi(value);
             if (smatch(wp->method, "PUT")) {
-                if (wp->rxLen > BIT_GOAHEAD_LIMIT_PUT) {
+                if (wp->rxLen > ME_GOAHEAD_LIMIT_PUT) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
                     return;
                 }
             } else {
-                if (wp->rxLen > BIT_GOAHEAD_LIMIT_POST) {
+                if (wp->rxLen > ME_GOAHEAD_LIMIT_POST) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
                     return;
                 }
@@ -1136,17 +1137,17 @@ static bool processContent(Webs *wp)
     if (!filterChunkData(wp)) {
         return 0;
     }
-#if BIT_GOAHEAD_CGI && !BIT_ROM
+#if ME_GOAHEAD_CGI && !ME_ROM
     if (wp->cgifd >= 0 && websProcessCgiData(wp) < 0) {
         return 0;
     }
 #endif
-#if BIT_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD
     if ((wp->flags & WEBS_UPLOAD) && websProcessUploadData(wp) < 0) {
         return 0;
     }
 #endif
-#if !BIT_ROM
+#if !ME_ROM
     if (wp->putfd >= 0 && websProcessPutData(wp) < 0) {
         return 0;
     }
@@ -1252,7 +1253,7 @@ static bool filterChunkData(Webs *wp)
             wp->rxChunkSize = chunkSize;
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
                 wp->query = sclone(bufStart(&wp->input));
 #endif
                 wp->eof = 1;
@@ -1300,7 +1301,7 @@ PUBLIC void websServiceEvents(int *finished)
         if (socketSelect(-1, delay)) {
             socketProcess();
         }
-#if BIT_GOAHEAD_CGI && !BIT_ROM
+#if ME_GOAHEAD_CGI && !ME_ROM
         delay = websCgiPoll();
 #else
         delay = MAXINT;
@@ -1376,7 +1377,7 @@ PUBLIC void websSetEnv(Webs *wp)
     websSetVarFmt(wp, "SERVER_PORT", "%d", wp->port);
     websSetVar(wp, "SERVER_PROTOCOL", wp->protoVersion);
     websSetVar(wp, "SERVER_URL", websHostUrl);
-    websSetVarFmt(wp, "SERVER_SOFTWARE", "GoAhead/%s", BIT_VERSION);
+    websSetVarFmt(wp, "SERVER_SOFTWARE", "GoAhead/%s", ME_VERSION);
 }
 
 
@@ -1561,7 +1562,7 @@ static char *makeUri(char *scheme, char *host, int port, char *path)
 PUBLIC void websRedirect(Webs *wp, char *uri)
 {
     char    *message, *location, *uribuf, *scheme, *host, *pstr;
-    char    hostbuf[BIT_GOAHEAD_LIMIT_STRING];
+    char    hostbuf[ME_GOAHEAD_LIMIT_STRING];
     bool    secure, fullyQualified;
     ssize   len;
     int     originalPort, port;
@@ -1726,7 +1727,7 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
     code &= ~(WEBS_CLOSE | WEBS_NOLOG);
-#if !BIT_ROM
+#if !ME_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
@@ -1888,18 +1889,18 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
             websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
         }
-#if defined(BIT_GOAHEAD_CLIENT_CACHE)
+#if defined(ME_GOAHEAD_CLIENT_CACHE)
         if (wp->ext) {
             char *etok = sfmt("%s,", &wp->ext[1]);
-            if (strstr(BIT_GOAHEAD_CLIENT_CACHE ",", etok)) {
-                websWriteHeader(wp, "Cache-Control", "public, max-age=%d", BIT_GOAHEAD_CLIENT_CACHE_LIFESPAN);
+            if (strstr(ME_GOAHEAD_CLIENT_CACHE ",", etok)) {
+                websWriteHeader(wp, "Cache-Control", "public, max-age=%d", ME_GOAHEAD_CLIENT_CACHE_LIFESPAN);
             }
             wfree(etok);
         }
 #endif
-#ifdef UNUSED_BIT_GOAHEAD_XFRAME_HEADER
-        if (*BIT_GOAHEAD_XFRAME_HEADER) {
-            websWriteHeader(wp, "X-Frame-Options", "%s", BIT_GOAHEAD_XFRAME_HEADER);
+#ifdef UNUSED_ME_GOAHEAD_XFRAME_HEADER
+        if (*ME_GOAHEAD_XFRAME_HEADER) {
+            websWriteHeader(wp, "X-Frame-Options", "%s", ME_GOAHEAD_XFRAME_HEADER);
         }
 #endif
     }
@@ -1973,7 +1974,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
     if (wp->flags & WEBS_CLOSED) {
         return -1;
     }
-#if BIT_PACK_SSL
+#if ME_COM_SSL
     if (wp->flags & WEBS_SECURE) {
         if ((written = sslWrite(wp, buf, size)) < 0) {
             return -1;
@@ -2241,7 +2242,7 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len)
 }
 
 
-#if BIT_GOAHEAD_ACCESS_LOG && !BIT_ROM
+#if ME_GOAHEAD_ACCESS_LOG && !ME_ROM
 /*
     Output a log message in Common Log Format: See http://httpd.apache.org/docs/1.3/logs.html#common
  */
@@ -2419,7 +2420,7 @@ PUBLIC void websSetIpAddr(char *ipaddr)
 }
 
 
-#if BIT_GOAHEAD_LEGACY
+#if ME_GOAHEAD_LEGACY
 PUBLIC void websSetRequestFilename(Webs *wp, char *filename)
 {
     assert(websValid(wp));
@@ -2482,7 +2483,7 @@ PUBLIC char *websGetDateString(WebsFileInfo *sbuf)
     } else {
         now = sbuf->mtime;
     }
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     gmtime_r(&now, &tm);
 #else
     {
@@ -3207,7 +3208,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
         *preference = reference;
     }
     if (pext) {
-#if BIT_WIN_LIKE
+#if ME_WIN_LIKE
         slower(ext);            
 #endif
         *pext = ext;
@@ -3539,13 +3540,13 @@ WebsSession *websGetSession(Webs *wp, int create)
                 wfree(id);
                 return 0;
             }
-            if (sessionCount > BIT_GOAHEAD_LIMIT_SESSION_COUNT) {
-                error("Too many sessions %d/%d", sessionCount, BIT_GOAHEAD_LIMIT_SESSION_COUNT);
+            if (sessionCount > ME_GOAHEAD_LIMIT_SESSION_COUNT) {
+                error("Too many sessions %d/%d", sessionCount, ME_GOAHEAD_LIMIT_SESSION_COUNT);
                 wfree(id);
                 return 0;
             }
             sessionCount++;
-            if ((wp->session = websAllocSession(wp, id, BIT_GOAHEAD_LIMIT_SESSION_LIFE)) == 0) {
+            if ((wp->session = websAllocSession(wp, id, ME_GOAHEAD_LIMIT_SESSION_LIFE)) == 0) {
                 wfree(id);
                 return 0;
             }
@@ -3712,11 +3713,11 @@ PUBLIC int websServer(char *endpoint, char *documents)
 
 static void setFileLimits()
 {
-#if BIT_UNIX_LIKE
+#if ME_UNIX_LIKE
     struct rlimit r;
     int           i, limit;
 
-    limit = BIT_GOAHEAD_LIMIT_FILES;
+    limit = ME_GOAHEAD_LIMIT_FILES;
     if (limit == 0) {
         /*
             We need to determine a reasonable maximum possible limit value.

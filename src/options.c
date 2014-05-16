@@ -14,7 +14,7 @@ static bool optionsHandler(Webs *wp)
 {
     assert(wp);
 
-#if !BIT_GOAHEAD_STEALTH
+#if !ME_GOAHEAD_STEALTH
     if (smatch(wp->method, "OPTIONS")) {
         websSetStatus(wp, HTTP_CODE_OK);
         websWriteHeaders(wp, 0, 0);

@@ -1,8 +1,8 @@
 {
     "name": "est",
-    "description": "Embedthis EST TLS",
+    "description": "Embedthis Security Transport",
     "title": "Embethis EST",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "keywords": [
         "est",
         "ssl",
@@ -31,10 +31,13 @@
             "url": "http://embedthis.com/licensing/"
         }
     ],
+    "pak": "~0.9",
     "dependencies": {
-        "bitos": "~0.8"
+        "me-dev": "~0.8",
+        "me-ssl": "~0.8",
+        "osdep": "~0.8"
     },
-    "dirs": {
+    "directories": {
         "paks": "src/paks"
     }
 }
