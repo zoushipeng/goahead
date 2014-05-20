@@ -20,7 +20,7 @@ Me.load({
     },
 
     settings: {
-        me: '0.8.0',
+        me: '~0.8',
 
         /*
             Installation prefix set
@@ -258,11 +258,16 @@ Me.load({
             exclude: /goahead\.c/,
             depends: [ 'ssl' ],
             scripts: {
-                prebuild: "
+                prebuild: `
                     if (me.settings.compiler.hasPam && me.settings.goahead.pam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
-                ",  
+                `
+                postresolve: `
+                    if (me.platform.os == 'macosx') { 
+                        me.target.compiler.push('-Wno-deprecated-declarations')
+                    }
+                `,  
             },
         },
 
