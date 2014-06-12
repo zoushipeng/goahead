@@ -89,12 +89,6 @@ Me.load({
             documents: "web",
 
             /*
-                Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
-                Set to: DENY, SAMEORIGIN, ALLOW uri
-             */
-            xframeHeader: "SAMEORIGIN",
-
-            /*
                 Build with support for javascript web templates
              */
             javascript: true,
@@ -163,11 +157,6 @@ Me.load({
             stealth: true,
 
             /*
-                Enable debug trace and asserts
-             */
-            tracing: true,
-
-            /*
                 Upload file support
              */
             upload: true,
@@ -182,6 +171,12 @@ Me.load({
                 Verify issuer. If false, allows self-signed certificates for testing purposes.
              */
             verifyIssuer: false,
+
+            /*
+                Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
+                Set to: DENY, SAMEORIGIN, ALLOW uri
+             */
+            xframeHeader: "SAMEORIGIN",
         },
     },
 
@@ -223,7 +218,6 @@ Me.load({
 
         'goahead.replaceMalloc':      'Replace malloc with non-fragmenting allocator (true|false)',
         'goahead.stealth':            'Run in stealth mode. Disable OPTIONS, TRACE (true|false)',
-        'goahead.tracing':            'Enable debug tracing (true|false)',
         'goahead.tune':               'Optimize (size|speed|balanced)',
         'goahead.upload':             'Enable file upload (true|false)',
         'goahead.uploadDir':          'Define directory for uploaded files (path)',
