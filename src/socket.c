@@ -1313,6 +1313,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
                 *pport = atoi(cp);
             }
             if (*ip == '*' || *ip == '\0') {
+                wfree(ip);
                 ip = 0;
             }
             
@@ -1331,6 +1332,8 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
     }
     if (pip) {
         *pip = ip;
+    } else if (ip) {
+        wfree(ip);
     }
     return 0;
 }

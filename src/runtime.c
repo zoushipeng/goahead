@@ -873,6 +873,7 @@ static int growBuf(Format *fmt)
     }
     if (fmt->buf) {
         memcpy(newbuf, fmt->buf, buflen);
+        wfree(fmt->buf);
     }
     buflen += fmt->growBy;
     fmt->end = newbuf + (fmt->end - fmt->buf);
