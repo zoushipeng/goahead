@@ -17,6 +17,7 @@ if (!Config.SSL) {
 
     http.verify = false
     http.get(HTTPS + "/index.html")
+    http.wait()
     assert(http.isSecure)
     http.close()
 
