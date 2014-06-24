@@ -20,7 +20,7 @@ Me.load({
     },
 
     settings: {
-        me: '0.8.0',
+        me: '~0.8',
 
         /*
             Installation prefix set
@@ -87,12 +87,6 @@ Me.load({
                 Directory containing web documents to serve
              */
             documents: "web",
-
-            /*
-                Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
-                Set to: DENY, SAMEORIGIN, ALLOW uri
-             */
-            xframeHeader: "SAMEORIGIN",
 
             /*
                 Build with support for javascript web templates
@@ -163,11 +157,6 @@ Me.load({
             stealth: true,
 
             /*
-                Enable debug trace and asserts
-             */
-            tracing: true,
-
-            /*
                 Upload file support
              */
             upload: true,
@@ -182,6 +171,12 @@ Me.load({
                 Verify issuer. If false, allows self-signed certificates for testing purposes.
              */
             verifyIssuer: false,
+
+            /*
+                Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
+                Set to: DENY, SAMEORIGIN, ALLOW uri
+             */
+            xframeHeader: "SAMEORIGIN",
         },
     },
 
@@ -222,9 +217,7 @@ Me.load({
         'goahead.realm':              'Authentication realm (string)',
 
         'goahead.replaceMalloc':      'Replace malloc with non-fragmenting allocator (true|false)',
-        'goahead.static':             'Build with static linking (true|false)',
         'goahead.stealth':            'Run in stealth mode. Disable OPTIONS, TRACE (true|false)',
-        'goahead.tracing':            'Enable debug tracing (true|false)',
         'goahead.tune':               'Optimize (size|speed|balanced)',
         'goahead.upload':             'Enable file upload (true|false)',
         'goahead.uploadDir':          'Define directory for uploaded files (path)',
@@ -258,11 +251,16 @@ Me.load({
             exclude: /goahead\.c/,
             depends: [ 'ssl' ],
             scripts: {
-                prebuild: "
+                prebuild: `
                     if (me.settings.compiler.hasPam && me.settings.goahead.pam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
-                ",  
+                `
+                postresolve: `
+                    if (me.platform.os == 'macosx') { 
+                        me.target.compiler.push('-Wno-deprecated-declarations')
+                    }
+                `,  
             },
         },
 

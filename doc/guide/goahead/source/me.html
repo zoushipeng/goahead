@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Embedthis GoAhead 3.3.2 Documentation</title>
+    <title>Embedthis GoAhead 3.3.3 Documentation</title>
     <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
         embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
     <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
@@ -32,7 +32,7 @@
         <div class="topRight">
             <div class="search">
                 <div id="cse-search-form"></div>
-                <div class="version">Embedthis GoAhead 3.3.2</div>
+                <div class="version">Embedthis GoAhead 3.3.3</div>
             </div>
         </div>
         <div class="crumbs">
@@ -90,8 +90,10 @@
             <h3 class="section">Configure GoAhead</h3>
             <p>Before building with MakeMe, you need to do a one-time <em>configuration</em>.
             This customizes GoAhead to select features, options, third-party packages available on your system. 
-            The <em>configure</em> script simply invokes <em>me configure</em> and passes all command 
-            line options to MakeMe.</p>
+            The <em>configure</em> shell script simply invokes <em>me configure</em> and passes all command
+            line options to <em>me</em>. On windows, you should use <em>me configure</em> instead
+            unless you have cygwin installed.</p>
+            <pre>me configure</pre>
            
             <h3>Running Configure</h3>
             <p>You may run the configure script with no options to accept the defaults &mdash; this is a good
@@ -670,9 +672,10 @@ configure --debug --platform linux-arm:arm7tdi-debug
             <p>The release packages are placed under the <em>releases</em> directory. The <em>goahead-tar.tgz</em> image is a simple compressed tar archive of the binary release.</p>
            
            <h2 class="section">Deploying</h2>
-            <p>If you are embedding Appweb into another application or installing to a target device, you can deploy the required Appweb files to a staging directory.</p>
+            <p>If you are embedding GoAhead into another application or installing to a target device, you can deploy the
+            required GoAhead files to a staging directory.</p>
             <pre>me --sets core deploy</pre>
-            <p>This will copy the required Appweb files to the <em>deploy directory under the platform output 
+            <p>This will copy the required GoAhead files to the <em>deploy directory under the platform output 
                 directory.</p>
         </div>
     </div>
