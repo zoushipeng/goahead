@@ -279,7 +279,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
 
 #if ME_GOAHEAD_ACCESS_LOG && !ME_ROM
     if ((accessFd = open(accessLog, O_CREAT | O_TRUNC | O_APPEND | O_WRONLY, 0666)) < 0) {
-        error("Can't open access log %s", accessLog);
+        error("Cannot open access log %s", accessLog);
         return -1;
     }
     /* Some platforms don't implement O_APPEND (VXWORKS) */
@@ -678,7 +678,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
      */
     len = sizeof(ifAddr);
     if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
-        error("Can't get sockname");
+        error("Cannot get sockname");
         return -1;
     }
     socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
@@ -705,7 +705,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
         wp->flags |= WEBS_SECURE;
         trace(4, "Upgrade connection to TLS");
         if (sslUpgrade(wp) < 0) {
-            error("Can't upgrade to TLS");
+            error("Cannot upgrade to TLS");
             return -1;
         }
     }
@@ -784,7 +784,7 @@ static void readEvent(Webs *wp)
 
     if (bufRoom(rxbuf) < (ME_GOAHEAD_LIMIT_BUFFER + 1)) {
         if (!bufGrow(rxbuf, ME_GOAHEAD_LIMIT_BUFFER + 1)) {
-            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't grow rxbuf");
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot grow rxbuf");
             websPump(wp);
             return;
         }
@@ -884,6 +884,7 @@ static bool parseIncoming(Webs *wp)
     wp->state = (wp->rxChunkState || wp->rxLen > 0) ? WEBS_CONTENT : WEBS_READY;
 
     websRouteRequest(wp);
+
     if (wp->state == WEBS_COMPLETE) {
         return 1;
     }
@@ -893,7 +894,7 @@ static bool parseIncoming(Webs *wp)
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
-                websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Can't open CGI file");
+                websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Cannot open CGI file");
                 return 1;
             }
         }
@@ -904,8 +905,8 @@ static bool parseIncoming(Webs *wp)
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
         wp->putname = websTempFile(ME_GOAHEAD_PUT_DIR, "put");
         if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
-            error("Can't create PUT filename %s", wp->putname);
-            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create the put URI");
+            error("Cannot create PUT filename %s", wp->putname);
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot create the put URI");
             wfree(wp->putname);
             return 1;
         }
@@ -2340,7 +2341,7 @@ static int setLocalHost()
     char            host[128], *ipaddr;
 
     if (gethostname(host, sizeof(host)) < 0) {
-        error("Can't get hostname: errno %d", errno);
+        error("Cannot get hostname: errno %d", errno);
         return -1;
     }
 #if VXWORKS
@@ -2359,7 +2360,7 @@ static int setLocalHost()
 {
     struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
-        error("Can't get host address for host %s: errno %d", host, errno);
+        error("Cannot get host address for host %s: errno %d", host, errno);
         return -1;
     }
     memcpy((char*) &intaddr, (char *) hp->h_addr[0], (size_t) hp->h_length);
@@ -2372,7 +2373,7 @@ static int setLocalHost()
     struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
         if ((hp = gethostbyname(sfmt("%s.local", host))) == NULL) {
-            error("Can't get host address for host %s: errno %d", host, errno);
+            error("Cannot get host address for host %s: errno %d", host, errno);
             return -1;
         }
     }
@@ -2385,7 +2386,7 @@ static int setLocalHost()
 {
     struct hostent  *hp;
     if ((hp = gethostbyname(host)) == NULL) {
-        error("Can't get host address for host %s: errno %d", host, errno);
+        error("Cannot get host address for host %s: errno %d", host, errno);
         return -1;
     }
     memcpy((char*) &intaddr, (char *) hp->h_addr_list[0], (size_t) hp->h_length);
@@ -3695,11 +3696,11 @@ PUBLIC int websServer(char *endpoint, char *documents)
     int     finished = 0;
 
     if (websOpen(documents, "route.txt") < 0) {
-        error("Can't initialize server. Exiting.");
+        error("Cannot initialize server. Exiting.");
         return -1;
     }
     if (websLoad("auth.txt") < 0) {
-        error("Can't load auth.txt");
+        error("Cannot load auth.txt");
         return -1;
     }
     if (websListen(endpoint) < 0) {
@@ -3739,7 +3740,7 @@ static void setFileLimits()
     } else {
         r.rlim_cur = r.rlim_max = limit;
         if (setrlimit(RLIMIT_NOFILE, &r) < 0) {
-            error("Can't set file limit to %d", limit);
+            error("Cannot set file limit to %d", limit);
         }
     }
     getrlimit(RLIMIT_NOFILE, &r);

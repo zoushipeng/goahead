@@ -1799,7 +1799,7 @@ PUBLIC bool bufGrow(WebsBuf *bp, ssize room)
     if (room == 0) {
         if (bp->maxsize >= 0 && bp->buflen >= bp->maxsize) {
 #if BLD_DEBUG
-            error("Can't grow buf. Needed %d, max %d", room, bp->maxsize);
+            error("Cannot grow buf. Needed %d, max %d", room, bp->maxsize);
 #endif
             return 0;
         }
@@ -2620,8 +2620,8 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
     int     quote, argc;
 
     /*
-        Example     "showColors" red 'light blue' "yellow white" 'Can\'t \"render\"'
-        Becomes:    ["showColors", "red", "light blue", "yellow white", "Can't \"render\""]
+        Example     "showColors" red 'light blue' "yellow white" 'Cannot \"render\"'
+        Becomes:    ["showColors", "red", "light blue", "yellow white", "Cannot \"render\""]
      */
     for (argc = 0, src = args; src && *src != '\0' && argc < maxArgc; argc++) {
         while (isspace((uchar) *src)) {

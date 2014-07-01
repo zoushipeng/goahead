@@ -160,7 +160,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     }
 #endif
     if (bind(sp->sock, (struct sockaddr*) &addr, addrlen) == SOCKET_ERROR) {
-        error("Can't bind to address %s:%d, errno %d", ip ? ip : "*", port, errno);
+        error("Cannot bind to address %s:%d, errno %d", ip ? ip : "*", port, errno);
         socketFree(sid);
         return -1;
     }

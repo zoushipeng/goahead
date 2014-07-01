@@ -37,13 +37,13 @@ static bool jstHandler(Webs *wp)
 
     buf = 0;
     if ((jid = jsOpenEngine(wp->vars, websJstFunctions)) < 0) {
-        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't create JavaScript engine");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot create JavaScript engine");
         goto done;
     }
     jsSetUserHandle(jid, wp);
 
     if (websPageStat(wp, &sbuf) < 0) {
-        websError(wp, HTTP_CODE_NOT_FOUND, "Can't stat %s", wp->filename);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Cannot stat %s", wp->filename);
         goto done;
     }
     if (websPageOpen(wp, O_RDONLY | O_BINARY, 0666) < 0) {
@@ -55,7 +55,7 @@ static bool jstHandler(Webs *wp)
      */
     len = sbuf.size;
     if ((buf = walloc(len + 1)) == NULL) {
-        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot get memory");
         goto done;
     }
     buf[len] = '\0';

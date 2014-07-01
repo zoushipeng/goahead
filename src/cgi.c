@@ -221,7 +221,7 @@ PUBLIC int websProcessCgiData(Webs *wp)
     nbytes = bufLen(&wp->input);
     trace(5, "cgi: write %d bytes to CGI program", nbytes);
     if (write(wp->cgifd, wp->input.servp, (int) nbytes) != nbytes) {
-        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR| WEBS_CLOSE, "Can't write to CGI gateway");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR| WEBS_CLOSE, "Cannot write to CGI gateway");
         return -1;
     }
     websConsumeInput(wp, nbytes);
