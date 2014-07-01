@@ -933,6 +933,7 @@ static char *createDigestNonce(Webs *wp)
 
     assert(wp);
     assert(wp->route);
+
     fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, ME_GOAHEAD_REALM, time(0), next++);
     return websEncode64(nonce);
 }
