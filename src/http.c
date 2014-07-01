@@ -2007,7 +2007,10 @@ static bool flushChunkData(Webs *wp)
             Subtract 16 to allow for the final trailer.
          */
         if ((room = bufRoom(&wp->output) - 16) <= CHUNK_LOW) {
-            return 0;
+            bufGrow(&wp->output, CHUNK_LOW - room + 1);
+            if ((room = bufRoom(&wp->output) - 16) <= CHUNK_LOW) {
+                return 0;
+            }
         }
         switch (wp->txChunkState) {
         default:
