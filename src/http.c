@@ -2184,7 +2184,9 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 
     while (size > 0 && wp->state < WEBS_COMPLETE) {  
         if (bufRoom(op) < size) {
-            websFlush(wp);
+            if (!websFlush(wp)) {
+                return -1;
+            }
         }
         if ((room = bufRoom(op)) == 0) {
             break;
