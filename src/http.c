@@ -1631,7 +1631,7 @@ PUBLIC int websRedirectByStatus(Webs *wp, int status)
     assert(wp);
     assert(status >= 0);
 
-    if (wp->route->redirects >= 0) {
+    if (wp->route && wp->route->redirects >= 0) {
         itosbuf(code, sizeof(code), status, 10);
         if ((key = hashLookup(wp->route->redirects, code)) != 0) {
             uri = key->content.value.string;

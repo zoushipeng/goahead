@@ -100,8 +100,8 @@ PUBLIC void websRouteRequest(Webs *wp)
             continue;
         }
         if (strncmp(wp->path, route->prefix, len) == 0) {
-#if ME_GOAHEAD_AUTH
             wp->route = route;
+#if ME_GOAHEAD_AUTH
             if (route->authType && !websAuthenticate(wp)) {
                 return;
             }
@@ -143,6 +143,7 @@ PUBLIC bool websRunRequest(Webs *wp)
     assert(wp->protocol);
 
     route = wp->route;
+    if ((route = wp->route) == 0) {
     assert(route->handler);
 
     if (!wp->filename || route->dir) {
