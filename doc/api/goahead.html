@@ -3129,14 +3129,14 @@ Bytes actually transferred.
   </div>
   <div class="apiDetail">
 <p>Write a block of data to the response.</p>
-    <dl><dt><b>Description</b>:</dt><dd>The data is buffered and will be sent to the client when the buffer is full or websFlush is called.</dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>The data is buffered and will be sent to the client when the buffer is full or websFlush is called. This routine will never return &quot;short&quot;, it will always write all the data unless there are errors.</dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">wp</td><td>Webs request object.</td>
     <tr><td class="param">buf</td><td>Buffer of data to write.</td>
     <tr><td class="param">size</td><td>Length of buf.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>Count of bytes written. This will always equal size if there are not errors.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Count of bytes written or -1. This will always equal size if there are no errors.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>

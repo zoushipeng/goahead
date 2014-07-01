@@ -66,3 +66,4 @@ start.me
 start.me
 macosx-*.me
 /windows-*
+test/web/huge.txt

@@ -2763,11 +2763,11 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size);
 /**
     Write a block of data to the response
     @description The data is buffered and will be sent to the client when the buffer is full or websFlush is
-        called.
+        called. This routine will never return "short", it will always write all the data unless there are errors.
     @param wp Webs request object
     @param buf Buffer of data to write
     @param size Length of buf
-    @return Count of bytes written. This will always equal size if there are not errors.
+    @return Count of bytes written or -1. This will always equal size if there are no errors.
     @ingroup Webs
  */
 PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);

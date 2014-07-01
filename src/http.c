@@ -1992,8 +1992,8 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
 
 
 /*
-    Write some output using transfer chunk encoding if required
-    Returns the number of bytes written. Returns -1 for errors. May return short.
+    Write some output using transfer chunk encoding if required.
+    Returns true if all the data was written. Otherwise return zero.
  */
 static bool flushChunkData(Webs *wp)
 {
@@ -2165,12 +2165,9 @@ PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
-    Buffer data. Will flush as required. May return -1 on write errors.
- */
-
-
-/*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
+    This routine will never return "short". i.e. it will return the requested size to write or -1.
+    Buffer data. Will flush as required. May return -1 on write errors.
  */
 PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 {
