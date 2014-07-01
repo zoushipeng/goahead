@@ -220,7 +220,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.3.3"
+    #define ME_VERSION "3.3.4"
 #endif
 
 /* Prefixes */
@@ -273,7 +273,7 @@
     #define ME_VAPP_PREFIX "deploy"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "/usr/src/goahead-3.3.3"
+    #define ME_SRC_PREFIX "/usr/src/goahead-3.3.4"
 #endif
 
 /* Suffixes */
@@ -315,10 +315,10 @@
     #define ME_MINOR_VERSION 3
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 3
+    #define ME_PATCH_VERSION 4
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 300030003
+    #define ME_VNUM 300030004
 #endif
 
 /* Components */

@@ -3,7 +3,7 @@
 #
 
 NAME                  = goahead
-VERSION               = 3.3.3
+VERSION               = 3.3.4
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -225,7 +225,7 @@ DEPS_5 = $(DEPS_5) $(CONFIG)\inc\osdep.h
 $(CONFIG)\obj\estLib.obj: \
     src\paks\est\estLib.c $(DEPS_5)
 	@echo '   [Compile] $(CONFIG)/obj/estLib.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c
+	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c
 
 !IF "$(ME_COM_EST)" == "1"
 #
@@ -866,5 +866,5 @@ uninstall: $(DEPS_44)
 #   version
 #
 version: $(DEPS_45)
-	echo 3.3.3
+	echo 3.3.4
 
