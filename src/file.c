@@ -35,7 +35,7 @@ static bool fileHandler(Webs *wp)
 #if !ME_ROM
     if (smatch(wp->method, "DELETE")) {
         if (unlink(wp->filename) < 0) {
-            websError(wp, HTTP_CODE_NOT_FOUND, "Can't delete the URI");
+            websError(wp, HTTP_CODE_NOT_FOUND, "Cannot delete the URI");
         } else {
             /* No content */
             websResponse(wp, 204, 0);
@@ -119,7 +119,7 @@ static void fileWriteEvent(Webs *wp)
         Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
      */
     if ((buf = walloc(ME_GOAHEAD_LIMIT_BUFFER)) == NULL) {
-        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Can't get memory");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot get memory");
         return;
     }
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
@@ -154,7 +154,7 @@ PUBLIC int websProcessPutData(Webs *wp)
         return -1;
     }
     if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
-        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR | WEBS_CLOSE, "Can't write to file");
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR | WEBS_CLOSE, "Cannot write to file");
         return -1;
     }
     websConsumeInput(wp, nbytes);

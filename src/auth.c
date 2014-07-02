@@ -205,7 +205,7 @@ PUBLIC int websWriteAuthFile(char *path)
 
     tempFile = websTempFile(NULL, NULL);
     if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
-        error("Can't open %s", tempFile);
+        error("Cannot open %s", tempFile);
         return -1;
     }
     fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
@@ -231,7 +231,7 @@ PUBLIC int websWriteAuthFile(char *path)
     fclose(fp);
     unlink(path);
     if (rename(tempFile, path) < 0) {
-        error("Can't create new %s", path);
+        error("Cannot create new %s", path);
         return -1;
     }
     return 0;
@@ -933,6 +933,7 @@ static char *createDigestNonce(Webs *wp)
 
     assert(wp);
     assert(wp->route);
+
     fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, ME_GOAHEAD_REALM, time(0), next++);
     return websEncode64(nonce);
 }

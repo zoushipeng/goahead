@@ -100,8 +100,8 @@ PUBLIC void websRouteRequest(Webs *wp)
             continue;
         }
         if (strncmp(wp->path, route->prefix, len) == 0) {
-#if ME_GOAHEAD_AUTH
             wp->route = route;
+#if ME_GOAHEAD_AUTH
             if (route->authType && !websAuthenticate(wp)) {
                 return;
             }
@@ -129,7 +129,8 @@ PUBLIC void websRouteRequest(Webs *wp)
     if (wp->routeCount >= WEBS_MAX_ROUTE) {
         error("Route loop for %s", wp->url);
     }
-    websError(wp, HTTP_CODE_NOT_FOUND, "Can't find suitable route for request.");
+    websError(wp, HTTP_CODE_NOT_FOUND, "Cannot find suitable route for request.");
+    assert(wp->route == 0);
 }
 
 
@@ -141,8 +142,12 @@ PUBLIC bool websRunRequest(Webs *wp)
     assert(wp->path);
     assert(wp->method);
     assert(wp->protocol);
+    assert(wp->route);
 
-    route = wp->route;
+    if ((route = wp->route) == 0) {
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no route for request");
+        return 1;
+    }
     assert(route->handler);
 
     if (!wp->filename || route->dir) {
@@ -248,7 +253,7 @@ PUBLIC bool websCanString(Webs *wp, char *abilities)
             return 0;
         }
         if ((user = websLookupUser(wp->username)) == 0) {
-            trace(2, "Can't find user %s", wp->username);
+            trace(2, "Cannot find user %s", wp->username);
             return 0;
         }
     }
@@ -288,7 +293,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
         handler = "file";
     }
     if ((key = hashLookup(handlers, handler)) == 0) {
-        error("Can't find route handler %s", handler);
+        error("Cannot find route handler %s", handler);
         return 0;
     }
     route->handler = key->content.value.symbol;
@@ -331,7 +336,7 @@ static void growRoutes()
     if (routeCount >= routeMax) {
         routeMax += 16;
         if ((routes = wrealloc(routes, sizeof(WebsRoute*) * routeMax)) == 0) {
-            error("Can't grow routes");
+            error("Cannot grow routes");
         }
     }
 }
@@ -489,7 +494,7 @@ PUBLIC int websLoad(char *path)
 
     rc = 0;
     if ((buf = websReadWholeFile(path)) == 0) {
-        error("Can't open config file %s", path);
+        error("Cannot open config file %s", path);
         return -1;
     }
     for (line = stok(buf, "\r\n", &token); line; line = stok(NULL, "\r\n", &token)) {
