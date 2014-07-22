@@ -24,7 +24,11 @@ ENTRY                 = _DllMainCRTStartup@12
 CONFIG                = $(OS)-$(ARCH)-$(PROFILE)
 !ENDIF
 
-LBIN                  = $(CONFIG)\bin
+!IF "$(BUILD)" == ""
+BUILD                 = build\$(CONFIG)
+!ENDIF
+
+LBIN                  = $(BUILD)\bin
 
 !IF "$(ME_COM_EST)" == ""
 ME_COM_EST            = 1
@@ -75,9 +79,9 @@ LD                    = link
 RC                    = rc
 CFLAGS                = -nologo -GR- -W3 -Zi -Od -MDd
 DFLAGS                = -D_REENTRANT -D_MT -DME_COM_EST=$(ME_COM_EST) -DME_COM_MATRIXSSL=$(ME_COM_MATRIXSSL) -DME_COM_NANOSSL=$(ME_COM_NANOSSL) -DME_COM_OPENSSL=$(ME_COM_OPENSSL) -DME_COM_SSL=$(ME_COM_SSL) -DME_COM_VXWORKS=$(ME_COM_VXWORKS) 
-IFLAGS                = -I$(CONFIG)\inc
+IFLAGS                = -Ibuild\$(CONFIG)\inc
 LDFLAGS               = -nologo -nodefaultlib -incremental:no -debug -machine:$(ARCH)
-LIBPATHS              = "-libpath:$(CONFIG)\bin"
+LIBPATHS              = "-libpath:build\$(CONFIG)\bin"
 LIBS                  = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames.lib msvcrt.lib shell32.lib
 
 ME_ROOT_PREFIX        = C:
@@ -98,11 +102,11 @@ ME_CACHE_PREFIX       = $(ME_VAPP_PREFIX)\cache
 ME_SRC_PREFIX         = $(ME_VAPP_PREFIX)\src
 
 
-TARGETS               = $(TARGETS) $(CONFIG)\bin\ca.crt
-TARGETS               = $(TARGETS) $(CONFIG)\bin\goahead.exe
-TARGETS               = $(TARGETS) $(CONFIG)\bin\goahead-test.exe
-TARGETS               = $(TARGETS) $(CONFIG)\bin\gopass.exe
-TARGETS               = $(TARGETS) $(CONFIG)\bin\removeFiles.exe
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ca.crt
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin\goahead.exe
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin\goahead-test.exe
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin\gopass.exe
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin\removeFiles.exe
 
 !IFNDEF SHOW
 .SILENT:
@@ -121,63 +125,63 @@ prep:
 	echo "ME_APP_PREFIX not set."
 	exit 255
 !ENDIF
-	@if not exist $(CONFIG)\bin md $(CONFIG)\bin
-	@if not exist $(CONFIG)\inc md $(CONFIG)\inc
-	@if not exist $(CONFIG)\obj md $(CONFIG)\obj
-	@if not exist $(CONFIG)\inc\me.h copy projects\goahead-windows-default-me.h $(CONFIG)\inc\me.h
+	@if not exist $(BUILD)\bin md $(BUILD)\bin
+	@if not exist $(BUILD)\inc md $(BUILD)\inc
+	@if not exist $(BUILD)\obj md $(BUILD)\obj
+	@if not exist $(BUILD)\inc\me.h copy projects\goahead-windows-default-me.h $(BUILD)\inc\me.h
 
 clean:
-	if exist "$(CONFIG)\obj\action.obj" del /Q "$(CONFIG)\obj\action.obj"
-	if exist "$(CONFIG)\obj\alloc.obj" del /Q "$(CONFIG)\obj\alloc.obj"
-	if exist "$(CONFIG)\obj\auth.obj" del /Q "$(CONFIG)\obj\auth.obj"
-	if exist "$(CONFIG)\obj\cgi.obj" del /Q "$(CONFIG)\obj\cgi.obj"
-	if exist "$(CONFIG)\obj\crypt.obj" del /Q "$(CONFIG)\obj\crypt.obj"
-	if exist "$(CONFIG)\obj\est.obj" del /Q "$(CONFIG)\obj\est.obj"
-	if exist "$(CONFIG)\obj\estLib.obj" del /Q "$(CONFIG)\obj\estLib.obj"
-	if exist "$(CONFIG)\obj\file.obj" del /Q "$(CONFIG)\obj\file.obj"
-	if exist "$(CONFIG)\obj\fs.obj" del /Q "$(CONFIG)\obj\fs.obj"
-	if exist "$(CONFIG)\obj\goahead.obj" del /Q "$(CONFIG)\obj\goahead.obj"
-	if exist "$(CONFIG)\obj\gopass.obj" del /Q "$(CONFIG)\obj\gopass.obj"
-	if exist "$(CONFIG)\obj\http.obj" del /Q "$(CONFIG)\obj\http.obj"
-	if exist "$(CONFIG)\obj\js.obj" del /Q "$(CONFIG)\obj\js.obj"
-	if exist "$(CONFIG)\obj\jst.obj" del /Q "$(CONFIG)\obj\jst.obj"
-	if exist "$(CONFIG)\obj\matrixssl.obj" del /Q "$(CONFIG)\obj\matrixssl.obj"
-	if exist "$(CONFIG)\obj\nanossl.obj" del /Q "$(CONFIG)\obj\nanossl.obj"
-	if exist "$(CONFIG)\obj\openssl.obj" del /Q "$(CONFIG)\obj\openssl.obj"
-	if exist "$(CONFIG)\obj\options.obj" del /Q "$(CONFIG)\obj\options.obj"
-	if exist "$(CONFIG)\obj\osdep.obj" del /Q "$(CONFIG)\obj\osdep.obj"
-	if exist "$(CONFIG)\obj\removeFiles.obj" del /Q "$(CONFIG)\obj\removeFiles.obj"
-	if exist "$(CONFIG)\obj\rom-documents.obj" del /Q "$(CONFIG)\obj\rom-documents.obj"
-	if exist "$(CONFIG)\obj\route.obj" del /Q "$(CONFIG)\obj\route.obj"
-	if exist "$(CONFIG)\obj\runtime.obj" del /Q "$(CONFIG)\obj\runtime.obj"
-	if exist "$(CONFIG)\obj\socket.obj" del /Q "$(CONFIG)\obj\socket.obj"
-	if exist "$(CONFIG)\obj\test.obj" del /Q "$(CONFIG)\obj\test.obj"
-	if exist "$(CONFIG)\obj\upload.obj" del /Q "$(CONFIG)\obj\upload.obj"
-	if exist "$(CONFIG)\bin\ca.crt" del /Q "$(CONFIG)\bin\ca.crt"
-	if exist "$(CONFIG)\bin\goahead.exe" del /Q "$(CONFIG)\bin\goahead.exe"
-	if exist "$(CONFIG)\bin\goahead.lib" del /Q "$(CONFIG)\bin\goahead.lib"
-	if exist "$(CONFIG)\bin\goahead.pdb" del /Q "$(CONFIG)\bin\goahead.pdb"
-	if exist "$(CONFIG)\bin\goahead.exp" del /Q "$(CONFIG)\bin\goahead.exp"
-	if exist "$(CONFIG)\bin\goahead-test.exe" del /Q "$(CONFIG)\bin\goahead-test.exe"
-	if exist "$(CONFIG)\bin\goahead-test.lib" del /Q "$(CONFIG)\bin\goahead-test.lib"
-	if exist "$(CONFIG)\bin\goahead-test.pdb" del /Q "$(CONFIG)\bin\goahead-test.pdb"
-	if exist "$(CONFIG)\bin\goahead-test.exp" del /Q "$(CONFIG)\bin\goahead-test.exp"
-	if exist "$(CONFIG)\bin\gopass.exe" del /Q "$(CONFIG)\bin\gopass.exe"
-	if exist "$(CONFIG)\bin\gopass.lib" del /Q "$(CONFIG)\bin\gopass.lib"
-	if exist "$(CONFIG)\bin\gopass.pdb" del /Q "$(CONFIG)\bin\gopass.pdb"
-	if exist "$(CONFIG)\bin\gopass.exp" del /Q "$(CONFIG)\bin\gopass.exp"
-	if exist "$(CONFIG)\bin\libest.dll" del /Q "$(CONFIG)\bin\libest.dll"
-	if exist "$(CONFIG)\bin\libest.lib" del /Q "$(CONFIG)\bin\libest.lib"
-	if exist "$(CONFIG)\bin\libest.pdb" del /Q "$(CONFIG)\bin\libest.pdb"
-	if exist "$(CONFIG)\bin\libest.exp" del /Q "$(CONFIG)\bin\libest.exp"
-	if exist "$(CONFIG)\bin\libgo.dll" del /Q "$(CONFIG)\bin\libgo.dll"
-	if exist "$(CONFIG)\bin\libgo.lib" del /Q "$(CONFIG)\bin\libgo.lib"
-	if exist "$(CONFIG)\bin\libgo.pdb" del /Q "$(CONFIG)\bin\libgo.pdb"
-	if exist "$(CONFIG)\bin\libgo.exp" del /Q "$(CONFIG)\bin\libgo.exp"
-	if exist "$(CONFIG)\bin\removeFiles.exe" del /Q "$(CONFIG)\bin\removeFiles.exe"
-	if exist "$(CONFIG)\bin\removeFiles.lib" del /Q "$(CONFIG)\bin\removeFiles.lib"
-	if exist "$(CONFIG)\bin\removeFiles.pdb" del /Q "$(CONFIG)\bin\removeFiles.pdb"
-	if exist "$(CONFIG)\bin\removeFiles.exp" del /Q "$(CONFIG)\bin\removeFiles.exp"
+	if exist "build\$(CONFIG)\obj\action.obj" del /Q "build\$(CONFIG)\obj\action.obj"
+	if exist "build\$(CONFIG)\obj\alloc.obj" del /Q "build\$(CONFIG)\obj\alloc.obj"
+	if exist "build\$(CONFIG)\obj\auth.obj" del /Q "build\$(CONFIG)\obj\auth.obj"
+	if exist "build\$(CONFIG)\obj\cgi.obj" del /Q "build\$(CONFIG)\obj\cgi.obj"
+	if exist "build\$(CONFIG)\obj\crypt.obj" del /Q "build\$(CONFIG)\obj\crypt.obj"
+	if exist "build\$(CONFIG)\obj\est.obj" del /Q "build\$(CONFIG)\obj\est.obj"
+	if exist "build\$(CONFIG)\obj\estLib.obj" del /Q "build\$(CONFIG)\obj\estLib.obj"
+	if exist "build\$(CONFIG)\obj\file.obj" del /Q "build\$(CONFIG)\obj\file.obj"
+	if exist "build\$(CONFIG)\obj\fs.obj" del /Q "build\$(CONFIG)\obj\fs.obj"
+	if exist "build\$(CONFIG)\obj\goahead.obj" del /Q "build\$(CONFIG)\obj\goahead.obj"
+	if exist "build\$(CONFIG)\obj\gopass.obj" del /Q "build\$(CONFIG)\obj\gopass.obj"
+	if exist "build\$(CONFIG)\obj\http.obj" del /Q "build\$(CONFIG)\obj\http.obj"
+	if exist "build\$(CONFIG)\obj\js.obj" del /Q "build\$(CONFIG)\obj\js.obj"
+	if exist "build\$(CONFIG)\obj\jst.obj" del /Q "build\$(CONFIG)\obj\jst.obj"
+	if exist "build\$(CONFIG)\obj\matrixssl.obj" del /Q "build\$(CONFIG)\obj\matrixssl.obj"
+	if exist "build\$(CONFIG)\obj\nanossl.obj" del /Q "build\$(CONFIG)\obj\nanossl.obj"
+	if exist "build\$(CONFIG)\obj\openssl.obj" del /Q "build\$(CONFIG)\obj\openssl.obj"
+	if exist "build\$(CONFIG)\obj\options.obj" del /Q "build\$(CONFIG)\obj\options.obj"
+	if exist "build\$(CONFIG)\obj\osdep.obj" del /Q "build\$(CONFIG)\obj\osdep.obj"
+	if exist "build\$(CONFIG)\obj\removeFiles.obj" del /Q "build\$(CONFIG)\obj\removeFiles.obj"
+	if exist "build\$(CONFIG)\obj\rom-documents.obj" del /Q "build\$(CONFIG)\obj\rom-documents.obj"
+	if exist "build\$(CONFIG)\obj\route.obj" del /Q "build\$(CONFIG)\obj\route.obj"
+	if exist "build\$(CONFIG)\obj\runtime.obj" del /Q "build\$(CONFIG)\obj\runtime.obj"
+	if exist "build\$(CONFIG)\obj\socket.obj" del /Q "build\$(CONFIG)\obj\socket.obj"
+	if exist "build\$(CONFIG)\obj\test.obj" del /Q "build\$(CONFIG)\obj\test.obj"
+	if exist "build\$(CONFIG)\obj\upload.obj" del /Q "build\$(CONFIG)\obj\upload.obj"
+	if exist "build\$(CONFIG)\bin\ca.crt" del /Q "build\$(CONFIG)\bin\ca.crt"
+	if exist "build\$(CONFIG)\bin\goahead.exe" del /Q "build\$(CONFIG)\bin\goahead.exe"
+	if exist "build\$(CONFIG)\bin\goahead.lib" del /Q "build\$(CONFIG)\bin\goahead.lib"
+	if exist "build\$(CONFIG)\bin\goahead.pdb" del /Q "build\$(CONFIG)\bin\goahead.pdb"
+	if exist "build\$(CONFIG)\bin\goahead.exp" del /Q "build\$(CONFIG)\bin\goahead.exp"
+	if exist "build\$(CONFIG)\bin\goahead-test.exe" del /Q "build\$(CONFIG)\bin\goahead-test.exe"
+	if exist "build\$(CONFIG)\bin\goahead-test.lib" del /Q "build\$(CONFIG)\bin\goahead-test.lib"
+	if exist "build\$(CONFIG)\bin\goahead-test.pdb" del /Q "build\$(CONFIG)\bin\goahead-test.pdb"
+	if exist "build\$(CONFIG)\bin\goahead-test.exp" del /Q "build\$(CONFIG)\bin\goahead-test.exp"
+	if exist "build\$(CONFIG)\bin\gopass.exe" del /Q "build\$(CONFIG)\bin\gopass.exe"
+	if exist "build\$(CONFIG)\bin\gopass.lib" del /Q "build\$(CONFIG)\bin\gopass.lib"
+	if exist "build\$(CONFIG)\bin\gopass.pdb" del /Q "build\$(CONFIG)\bin\gopass.pdb"
+	if exist "build\$(CONFIG)\bin\gopass.exp" del /Q "build\$(CONFIG)\bin\gopass.exp"
+	if exist "build\$(CONFIG)\bin\libest.dll" del /Q "build\$(CONFIG)\bin\libest.dll"
+	if exist "build\$(CONFIG)\bin\libest.lib" del /Q "build\$(CONFIG)\bin\libest.lib"
+	if exist "build\$(CONFIG)\bin\libest.pdb" del /Q "build\$(CONFIG)\bin\libest.pdb"
+	if exist "build\$(CONFIG)\bin\libest.exp" del /Q "build\$(CONFIG)\bin\libest.exp"
+	if exist "build\$(CONFIG)\bin\libgo.dll" del /Q "build\$(CONFIG)\bin\libgo.dll"
+	if exist "build\$(CONFIG)\bin\libgo.lib" del /Q "build\$(CONFIG)\bin\libgo.lib"
+	if exist "build\$(CONFIG)\bin\libgo.pdb" del /Q "build\$(CONFIG)\bin\libgo.pdb"
+	if exist "build\$(CONFIG)\bin\libgo.exp" del /Q "build\$(CONFIG)\bin\libgo.exp"
+	if exist "build\$(CONFIG)\bin\removeFiles.exe" del /Q "build\$(CONFIG)\bin\removeFiles.exe"
+	if exist "build\$(CONFIG)\bin\removeFiles.lib" del /Q "build\$(CONFIG)\bin\removeFiles.lib"
+	if exist "build\$(CONFIG)\bin\removeFiles.pdb" del /Q "build\$(CONFIG)\bin\removeFiles.pdb"
+	if exist "build\$(CONFIG)\bin\removeFiles.exp" del /Q "build\$(CONFIG)\bin\removeFiles.exp"
 
 
 #
@@ -185,346 +189,346 @@ clean:
 #
 DEPS_1 = $(DEPS_1) src\paks\est\ca.crt
 
-$(CONFIG)\bin\ca.crt: $(DEPS_1)
-	@echo '      [Copy] $(CONFIG)/bin/ca.crt'
-	if not exist "$(CONFIG)\bin" md "$(CONFIG)\bin"
-	copy /Y src\paks\est\ca.crt $(CONFIG)\bin\ca.crt
+build\$(CONFIG)\bin\ca.crt: $(DEPS_1)
+	@echo '      [Copy] build/$(CONFIG)/bin/ca.crt'
+	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
+	copy /Y src\paks\est\ca.crt build\$(CONFIG)\bin\ca.crt
 
 
 #
 #   est.h
 #
-$(CONFIG)\inc\est.h: $(DEPS_2)
-	@echo '      [Copy] $(CONFIG)/inc/est.h'
-	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y src\paks\est\est.h $(CONFIG)\inc\est.h
+build\$(CONFIG)\inc\est.h: $(DEPS_2)
+	@echo '      [Copy] build/$(CONFIG)/inc/est.h'
+	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
+	copy /Y src\paks\est\est.h build\$(CONFIG)\inc\est.h
 
 #
 #   me.h
 #
-$(CONFIG)\inc\me.h: $(DEPS_3)
-	@echo '      [Copy] $(CONFIG)/inc/me.h'
+build\$(CONFIG)\inc\me.h: $(DEPS_3)
+	@echo '      [Copy] build/$(CONFIG)/inc/me.h'
 
 #
 #   osdep.h
 #
-DEPS_4 = $(DEPS_4) $(CONFIG)\inc\me.h
+DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\me.h
 
-$(CONFIG)\inc\osdep.h: $(DEPS_4)
-	@echo '      [Copy] $(CONFIG)/inc/osdep.h'
-	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y src\paks\osdep\osdep.h $(CONFIG)\inc\osdep.h
+build\$(CONFIG)\inc\osdep.h: $(DEPS_4)
+	@echo '      [Copy] build/$(CONFIG)/inc/osdep.h'
+	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
+	copy /Y src\paks\osdep\osdep.h build\$(CONFIG)\inc\osdep.h
 
 #
 #   estLib.obj
 #
-DEPS_5 = $(DEPS_5) $(CONFIG)\inc\me.h
-DEPS_5 = $(DEPS_5) $(CONFIG)\inc\est.h
-DEPS_5 = $(DEPS_5) $(CONFIG)\inc\osdep.h
+DEPS_5 = $(DEPS_5) build\$(CONFIG)\inc\me.h
+DEPS_5 = $(DEPS_5) build\$(CONFIG)\inc\est.h
+DEPS_5 = $(DEPS_5) build\$(CONFIG)\inc\osdep.h
 
-$(CONFIG)\obj\estLib.obj: \
+build\$(CONFIG)\obj\estLib.obj: \
     src\paks\est\estLib.c $(DEPS_5)
-	@echo '   [Compile] $(CONFIG)/obj/estLib.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\estLib.obj -Fd$(CONFIG)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c
+	@echo '   [Compile] build/$(CONFIG)/obj/estLib.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\estLib.obj -Fdbuild\$(CONFIG)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c
 
 !IF "$(ME_COM_EST)" == "1"
 #
 #   libest
 #
-DEPS_6 = $(DEPS_6) $(CONFIG)\inc\est.h
-DEPS_6 = $(DEPS_6) $(CONFIG)\inc\me.h
-DEPS_6 = $(DEPS_6) $(CONFIG)\inc\osdep.h
-DEPS_6 = $(DEPS_6) $(CONFIG)\obj\estLib.obj
+DEPS_6 = $(DEPS_6) build\$(CONFIG)\inc\est.h
+DEPS_6 = $(DEPS_6) build\$(CONFIG)\inc\me.h
+DEPS_6 = $(DEPS_6) build\$(CONFIG)\inc\osdep.h
+DEPS_6 = $(DEPS_6) build\$(CONFIG)\obj\estLib.obj
 
-$(CONFIG)\bin\libest.dll: $(DEPS_6)
-	@echo '      [Link] $(CONFIG)/bin/libest.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\estLib.obj" $(LIBS) 
+build\$(CONFIG)\bin\libest.dll: $(DEPS_6)
+	@echo '      [Link] build/$(CONFIG)/bin/libest.dll'
+	"$(LD)" -dll -out:build\$(CONFIG)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\estLib.obj" $(LIBS) 
 !ENDIF
 
 #
 #   goahead.h
 #
-$(CONFIG)\inc\goahead.h: $(DEPS_7)
-	@echo '      [Copy] $(CONFIG)/inc/goahead.h'
-	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y src\goahead.h $(CONFIG)\inc\goahead.h
+build\$(CONFIG)\inc\goahead.h: $(DEPS_7)
+	@echo '      [Copy] build/$(CONFIG)/inc/goahead.h'
+	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
+	copy /Y src\goahead.h build\$(CONFIG)\inc\goahead.h
 
 #
 #   js.h
 #
-$(CONFIG)\inc\js.h: $(DEPS_8)
-	@echo '      [Copy] $(CONFIG)/inc/js.h'
-	if not exist "$(CONFIG)\inc" md "$(CONFIG)\inc"
-	copy /Y src\js.h $(CONFIG)\inc\js.h
+build\$(CONFIG)\inc\js.h: $(DEPS_8)
+	@echo '      [Copy] build/$(CONFIG)/inc/js.h'
+	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
+	copy /Y src\js.h build\$(CONFIG)\inc\js.h
 
 #
 #   action.obj
 #
-DEPS_9 = $(DEPS_9) $(CONFIG)\inc\me.h
-DEPS_9 = $(DEPS_9) $(CONFIG)\inc\goahead.h
-DEPS_9 = $(DEPS_9) $(CONFIG)\inc\osdep.h
+DEPS_9 = $(DEPS_9) build\$(CONFIG)\inc\me.h
+DEPS_9 = $(DEPS_9) build\$(CONFIG)\inc\goahead.h
+DEPS_9 = $(DEPS_9) build\$(CONFIG)\inc\osdep.h
 
-$(CONFIG)\obj\action.obj: \
+build\$(CONFIG)\obj\action.obj: \
     src\action.c $(DEPS_9)
-	@echo '   [Compile] $(CONFIG)/obj/action.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\action.obj -Fd$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\action.c
+	@echo '   [Compile] build/$(CONFIG)/obj/action.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\action.obj -Fdbuild\$(CONFIG)\obj\action.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\action.c
 
 #
 #   alloc.obj
 #
-DEPS_10 = $(DEPS_10) $(CONFIG)\inc\me.h
-DEPS_10 = $(DEPS_10) $(CONFIG)\inc\goahead.h
+DEPS_10 = $(DEPS_10) build\$(CONFIG)\inc\me.h
+DEPS_10 = $(DEPS_10) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\alloc.obj: \
+build\$(CONFIG)\obj\alloc.obj: \
     src\alloc.c $(DEPS_10)
-	@echo '   [Compile] $(CONFIG)/obj/alloc.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\alloc.obj -Fd$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\alloc.c
+	@echo '   [Compile] build/$(CONFIG)/obj/alloc.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\alloc.obj -Fdbuild\$(CONFIG)\obj\alloc.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\alloc.c
 
 #
 #   auth.obj
 #
-DEPS_11 = $(DEPS_11) $(CONFIG)\inc\me.h
-DEPS_11 = $(DEPS_11) $(CONFIG)\inc\goahead.h
+DEPS_11 = $(DEPS_11) build\$(CONFIG)\inc\me.h
+DEPS_11 = $(DEPS_11) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\auth.obj: \
+build\$(CONFIG)\obj\auth.obj: \
     src\auth.c $(DEPS_11)
-	@echo '   [Compile] $(CONFIG)/obj/auth.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\auth.obj -Fd$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\auth.c
+	@echo '   [Compile] build/$(CONFIG)/obj/auth.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\auth.obj -Fdbuild\$(CONFIG)\obj\auth.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\auth.c
 
 #
 #   cgi.obj
 #
-DEPS_12 = $(DEPS_12) $(CONFIG)\inc\me.h
-DEPS_12 = $(DEPS_12) $(CONFIG)\inc\goahead.h
+DEPS_12 = $(DEPS_12) build\$(CONFIG)\inc\me.h
+DEPS_12 = $(DEPS_12) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\cgi.obj: \
+build\$(CONFIG)\obj\cgi.obj: \
     src\cgi.c $(DEPS_12)
-	@echo '   [Compile] $(CONFIG)/obj/cgi.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\cgi.obj -Fd$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\cgi.c
+	@echo '   [Compile] build/$(CONFIG)/obj/cgi.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\cgi.obj -Fdbuild\$(CONFIG)\obj\cgi.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\cgi.c
 
 #
 #   crypt.obj
 #
-DEPS_13 = $(DEPS_13) $(CONFIG)\inc\me.h
-DEPS_13 = $(DEPS_13) $(CONFIG)\inc\goahead.h
+DEPS_13 = $(DEPS_13) build\$(CONFIG)\inc\me.h
+DEPS_13 = $(DEPS_13) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\crypt.obj: \
+build\$(CONFIG)\obj\crypt.obj: \
     src\crypt.c $(DEPS_13)
-	@echo '   [Compile] $(CONFIG)/obj/crypt.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\crypt.obj -Fd$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\crypt.c
+	@echo '   [Compile] build/$(CONFIG)/obj/crypt.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\crypt.obj -Fdbuild\$(CONFIG)\obj\crypt.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\crypt.c
 
 #
 #   file.obj
 #
-DEPS_14 = $(DEPS_14) $(CONFIG)\inc\me.h
-DEPS_14 = $(DEPS_14) $(CONFIG)\inc\goahead.h
+DEPS_14 = $(DEPS_14) build\$(CONFIG)\inc\me.h
+DEPS_14 = $(DEPS_14) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\file.obj: \
+build\$(CONFIG)\obj\file.obj: \
     src\file.c $(DEPS_14)
-	@echo '   [Compile] $(CONFIG)/obj/file.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\file.obj -Fd$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\file.c
+	@echo '   [Compile] build/$(CONFIG)/obj/file.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\file.obj -Fdbuild\$(CONFIG)\obj\file.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\file.c
 
 #
 #   fs.obj
 #
-DEPS_15 = $(DEPS_15) $(CONFIG)\inc\me.h
-DEPS_15 = $(DEPS_15) $(CONFIG)\inc\goahead.h
+DEPS_15 = $(DEPS_15) build\$(CONFIG)\inc\me.h
+DEPS_15 = $(DEPS_15) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\fs.obj: \
+build\$(CONFIG)\obj\fs.obj: \
     src\fs.c $(DEPS_15)
-	@echo '   [Compile] $(CONFIG)/obj/fs.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\fs.obj -Fd$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\fs.c
+	@echo '   [Compile] build/$(CONFIG)/obj/fs.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\fs.obj -Fdbuild\$(CONFIG)\obj\fs.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\fs.c
 
 #
 #   http.obj
 #
-DEPS_16 = $(DEPS_16) $(CONFIG)\inc\me.h
-DEPS_16 = $(DEPS_16) $(CONFIG)\inc\goahead.h
+DEPS_16 = $(DEPS_16) build\$(CONFIG)\inc\me.h
+DEPS_16 = $(DEPS_16) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\http.obj: \
+build\$(CONFIG)\obj\http.obj: \
     src\http.c $(DEPS_16)
-	@echo '   [Compile] $(CONFIG)/obj/http.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\http.obj -Fd$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\http.c
+	@echo '   [Compile] build/$(CONFIG)/obj/http.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\http.obj -Fdbuild\$(CONFIG)\obj\http.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\http.c
 
 #
 #   js.obj
 #
-DEPS_17 = $(DEPS_17) $(CONFIG)\inc\me.h
-DEPS_17 = $(DEPS_17) $(CONFIG)\inc\js.h
-DEPS_17 = $(DEPS_17) $(CONFIG)\inc\goahead.h
+DEPS_17 = $(DEPS_17) build\$(CONFIG)\inc\me.h
+DEPS_17 = $(DEPS_17) build\$(CONFIG)\inc\js.h
+DEPS_17 = $(DEPS_17) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\js.obj: \
+build\$(CONFIG)\obj\js.obj: \
     src\js.c $(DEPS_17)
-	@echo '   [Compile] $(CONFIG)/obj/js.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\js.obj -Fd$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\js.c
+	@echo '   [Compile] build/$(CONFIG)/obj/js.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\js.obj -Fdbuild\$(CONFIG)\obj\js.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\js.c
 
 #
 #   jst.obj
 #
-DEPS_18 = $(DEPS_18) $(CONFIG)\inc\me.h
-DEPS_18 = $(DEPS_18) $(CONFIG)\inc\goahead.h
-DEPS_18 = $(DEPS_18) $(CONFIG)\inc\js.h
+DEPS_18 = $(DEPS_18) build\$(CONFIG)\inc\me.h
+DEPS_18 = $(DEPS_18) build\$(CONFIG)\inc\goahead.h
+DEPS_18 = $(DEPS_18) build\$(CONFIG)\inc\js.h
 
-$(CONFIG)\obj\jst.obj: \
+build\$(CONFIG)\obj\jst.obj: \
     src\jst.c $(DEPS_18)
-	@echo '   [Compile] $(CONFIG)/obj/jst.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\jst.obj -Fd$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\jst.c
+	@echo '   [Compile] build/$(CONFIG)/obj/jst.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\jst.obj -Fdbuild\$(CONFIG)\obj\jst.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\jst.c
 
 #
 #   options.obj
 #
-DEPS_19 = $(DEPS_19) $(CONFIG)\inc\me.h
-DEPS_19 = $(DEPS_19) $(CONFIG)\inc\goahead.h
+DEPS_19 = $(DEPS_19) build\$(CONFIG)\inc\me.h
+DEPS_19 = $(DEPS_19) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\options.obj: \
+build\$(CONFIG)\obj\options.obj: \
     src\options.c $(DEPS_19)
-	@echo '   [Compile] $(CONFIG)/obj/options.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\options.obj -Fd$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\options.c
+	@echo '   [Compile] build/$(CONFIG)/obj/options.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\options.obj -Fdbuild\$(CONFIG)\obj\options.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\options.c
 
 #
 #   osdep.obj
 #
-DEPS_20 = $(DEPS_20) $(CONFIG)\inc\me.h
-DEPS_20 = $(DEPS_20) $(CONFIG)\inc\goahead.h
+DEPS_20 = $(DEPS_20) build\$(CONFIG)\inc\me.h
+DEPS_20 = $(DEPS_20) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\osdep.obj: \
+build\$(CONFIG)\obj\osdep.obj: \
     src\osdep.c $(DEPS_20)
-	@echo '   [Compile] $(CONFIG)/obj/osdep.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\osdep.obj -Fd$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\osdep.c
+	@echo '   [Compile] build/$(CONFIG)/obj/osdep.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\osdep.obj -Fdbuild\$(CONFIG)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\osdep.c
 
 #
 #   rom-documents.obj
 #
-DEPS_21 = $(DEPS_21) $(CONFIG)\inc\me.h
-DEPS_21 = $(DEPS_21) $(CONFIG)\inc\goahead.h
+DEPS_21 = $(DEPS_21) build\$(CONFIG)\inc\me.h
+DEPS_21 = $(DEPS_21) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\rom-documents.obj: \
+build\$(CONFIG)\obj\rom-documents.obj: \
     src\rom-documents.c $(DEPS_21)
-	@echo '   [Compile] $(CONFIG)/obj/rom-documents.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\rom-documents.obj -Fd$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\rom-documents.c
+	@echo '   [Compile] build/$(CONFIG)/obj/rom-documents.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\rom-documents.obj -Fdbuild\$(CONFIG)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\rom-documents.c
 
 #
 #   route.obj
 #
-DEPS_22 = $(DEPS_22) $(CONFIG)\inc\me.h
-DEPS_22 = $(DEPS_22) $(CONFIG)\inc\goahead.h
+DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\me.h
+DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\route.obj: \
+build\$(CONFIG)\obj\route.obj: \
     src\route.c $(DEPS_22)
-	@echo '   [Compile] $(CONFIG)/obj/route.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\route.obj -Fd$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\route.c
+	@echo '   [Compile] build/$(CONFIG)/obj/route.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\route.obj -Fdbuild\$(CONFIG)\obj\route.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\route.c
 
 #
 #   runtime.obj
 #
-DEPS_23 = $(DEPS_23) $(CONFIG)\inc\me.h
-DEPS_23 = $(DEPS_23) $(CONFIG)\inc\goahead.h
+DEPS_23 = $(DEPS_23) build\$(CONFIG)\inc\me.h
+DEPS_23 = $(DEPS_23) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\runtime.obj: \
+build\$(CONFIG)\obj\runtime.obj: \
     src\runtime.c $(DEPS_23)
-	@echo '   [Compile] $(CONFIG)/obj/runtime.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\runtime.obj -Fd$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\runtime.c
+	@echo '   [Compile] build/$(CONFIG)/obj/runtime.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\runtime.obj -Fdbuild\$(CONFIG)\obj\runtime.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\runtime.c
 
 #
 #   socket.obj
 #
-DEPS_24 = $(DEPS_24) $(CONFIG)\inc\me.h
-DEPS_24 = $(DEPS_24) $(CONFIG)\inc\goahead.h
+DEPS_24 = $(DEPS_24) build\$(CONFIG)\inc\me.h
+DEPS_24 = $(DEPS_24) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\socket.obj: \
+build\$(CONFIG)\obj\socket.obj: \
     src\socket.c $(DEPS_24)
-	@echo '   [Compile] $(CONFIG)/obj/socket.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\socket.obj -Fd$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\socket.c
+	@echo '   [Compile] build/$(CONFIG)/obj/socket.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\socket.obj -Fdbuild\$(CONFIG)\obj\socket.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\socket.c
 
 #
 #   upload.obj
 #
-DEPS_25 = $(DEPS_25) $(CONFIG)\inc\me.h
-DEPS_25 = $(DEPS_25) $(CONFIG)\inc\goahead.h
+DEPS_25 = $(DEPS_25) build\$(CONFIG)\inc\me.h
+DEPS_25 = $(DEPS_25) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\upload.obj: \
+build\$(CONFIG)\obj\upload.obj: \
     src\upload.c $(DEPS_25)
-	@echo '   [Compile] $(CONFIG)/obj/upload.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\upload.obj -Fd$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\upload.c
+	@echo '   [Compile] build/$(CONFIG)/obj/upload.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\upload.obj -Fdbuild\$(CONFIG)\obj\upload.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\upload.c
 
 #
 #   est.obj
 #
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\me.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\goahead.h
-DEPS_26 = $(DEPS_26) $(CONFIG)\inc\est.h
+DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\me.h
+DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\goahead.h
+DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\est.h
 
-$(CONFIG)\obj\est.obj: \
+build\$(CONFIG)\obj\est.obj: \
     src\ssl\est.c $(DEPS_26)
-	@echo '   [Compile] $(CONFIG)/obj/est.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\est.obj -Fd$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\est.c
+	@echo '   [Compile] build/$(CONFIG)/obj/est.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\est.obj -Fdbuild\$(CONFIG)\obj\est.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\est.c
 
 #
 #   matrixssl.obj
 #
-DEPS_27 = $(DEPS_27) $(CONFIG)\inc\me.h
-DEPS_27 = $(DEPS_27) $(CONFIG)\inc\goahead.h
+DEPS_27 = $(DEPS_27) build\$(CONFIG)\inc\me.h
+DEPS_27 = $(DEPS_27) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\matrixssl.obj: \
+build\$(CONFIG)\obj\matrixssl.obj: \
     src\ssl\matrixssl.c $(DEPS_27)
-	@echo '   [Compile] $(CONFIG)/obj/matrixssl.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\matrixssl.obj -Fd$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\matrixssl.c
+	@echo '   [Compile] build/$(CONFIG)/obj/matrixssl.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\matrixssl.obj -Fdbuild\$(CONFIG)\obj\matrixssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\matrixssl.c
 
 #
 #   nanossl.obj
 #
-DEPS_28 = $(DEPS_28) $(CONFIG)\inc\me.h
+DEPS_28 = $(DEPS_28) build\$(CONFIG)\inc\me.h
 
-$(CONFIG)\obj\nanossl.obj: \
+build\$(CONFIG)\obj\nanossl.obj: \
     src\ssl\nanossl.c $(DEPS_28)
-	@echo '   [Compile] $(CONFIG)/obj/nanossl.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\nanossl.obj -Fd$(CONFIG)\obj\nanossl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\nanossl.c
+	@echo '   [Compile] build/$(CONFIG)/obj/nanossl.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\nanossl.obj -Fdbuild\$(CONFIG)\obj\nanossl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\nanossl.c
 
 #
 #   openssl.obj
 #
-DEPS_29 = $(DEPS_29) $(CONFIG)\inc\me.h
-DEPS_29 = $(DEPS_29) $(CONFIG)\inc\osdep.h
-DEPS_29 = $(DEPS_29) $(CONFIG)\inc\goahead.h
+DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\me.h
+DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\osdep.h
+DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\goahead.h
 
-$(CONFIG)\obj\openssl.obj: \
+build\$(CONFIG)\obj\openssl.obj: \
     src\ssl\openssl.c $(DEPS_29)
-	@echo '   [Compile] $(CONFIG)/obj/openssl.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\openssl.obj -Fd$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\openssl.c
+	@echo '   [Compile] build/$(CONFIG)/obj/openssl.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\openssl.obj -Fdbuild\$(CONFIG)\obj\openssl.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\ssl\openssl.c
 
 #
 #   libgo
 #
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\est.h
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\me.h
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\osdep.h
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\estLib.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\inc\est.h
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\inc\me.h
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\inc\osdep.h
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\estLib.obj
 !IF "$(ME_COM_EST)" == "1"
-DEPS_30 = $(DEPS_30) $(CONFIG)\bin\libest.dll
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\bin\libest.dll
 !ENDIF
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\goahead.h
-DEPS_30 = $(DEPS_30) $(CONFIG)\inc\js.h
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\action.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\alloc.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\auth.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\cgi.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\crypt.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\file.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\fs.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\http.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\js.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\jst.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\options.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\osdep.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\rom-documents.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\route.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\runtime.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\socket.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\upload.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\est.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\matrixssl.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\nanossl.obj
-DEPS_30 = $(DEPS_30) $(CONFIG)\obj\openssl.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\inc\goahead.h
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\inc\js.h
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\action.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\alloc.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\auth.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\cgi.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\crypt.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\file.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\fs.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\http.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\js.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\jst.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\options.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\osdep.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\rom-documents.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\route.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\runtime.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\socket.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\upload.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\est.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\matrixssl.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\nanossl.obj
+DEPS_30 = $(DEPS_30) build\$(CONFIG)\obj\openssl.obj
 
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_30 = $(LIBS_30) libeay32.lib
@@ -546,57 +550,57 @@ LIBS_30 = $(LIBS_30) libssls.lib
 LIBPATHS_30 = $(LIBPATHS_30) -libpath:$(ME_COM_NANOSSL_PATH)/bin
 !ENDIF
 
-$(CONFIG)\bin\libgo.dll: $(DEPS_30)
-	@echo '      [Link] $(CONFIG)/bin/libgo.dll'
-	"$(LD)" -dll -out:$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\action.obj" "$(CONFIG)\obj\alloc.obj" "$(CONFIG)\obj\auth.obj" "$(CONFIG)\obj\cgi.obj" "$(CONFIG)\obj\crypt.obj" "$(CONFIG)\obj\file.obj" "$(CONFIG)\obj\fs.obj" "$(CONFIG)\obj\http.obj" "$(CONFIG)\obj\js.obj" "$(CONFIG)\obj\jst.obj" "$(CONFIG)\obj\options.obj" "$(CONFIG)\obj\osdep.obj" "$(CONFIG)\obj\rom-documents.obj" "$(CONFIG)\obj\route.obj" "$(CONFIG)\obj\runtime.obj" "$(CONFIG)\obj\socket.obj" "$(CONFIG)\obj\upload.obj" "$(CONFIG)\obj\est.obj" "$(CONFIG)\obj\matrixssl.obj" "$(CONFIG)\obj\nanossl.obj" "$(CONFIG)\obj\openssl.obj" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
+build\$(CONFIG)\bin\libgo.dll: $(DEPS_30)
+	@echo '      [Link] build/$(CONFIG)/bin/libgo.dll'
+	"$(LD)" -dll -out:build\$(CONFIG)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)    "build\$(CONFIG)\obj\action.obj" "build\$(CONFIG)\obj\alloc.obj" "build\$(CONFIG)\obj\auth.obj" "build\$(CONFIG)\obj\cgi.obj" "build\$(CONFIG)\obj\crypt.obj" "build\$(CONFIG)\obj\file.obj" "build\$(CONFIG)\obj\fs.obj" "build\$(CONFIG)\obj\http.obj" "build\$(CONFIG)\obj\js.obj" "build\$(CONFIG)\obj\jst.obj" "build\$(CONFIG)\obj\options.obj" "build\$(CONFIG)\obj\osdep.obj" "build\$(CONFIG)\obj\rom-documents.obj" "build\$(CONFIG)\obj\route.obj" "build\$(CONFIG)\obj\runtime.obj" "build\$(CONFIG)\obj\socket.obj" "build\$(CONFIG)\obj\upload.obj" "build\$(CONFIG)\obj\est.obj" "build\$(CONFIG)\obj\matrixssl.obj" "build\$(CONFIG)\obj\nanossl.obj" "build\$(CONFIG)\obj\openssl.obj" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) 
 
 #
 #   goahead.obj
 #
-DEPS_31 = $(DEPS_31) $(CONFIG)\inc\me.h
-DEPS_31 = $(DEPS_31) $(CONFIG)\inc\goahead.h
-DEPS_31 = $(DEPS_31) $(CONFIG)\inc\osdep.h
+DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\me.h
+DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\goahead.h
+DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\osdep.h
 
-$(CONFIG)\obj\goahead.obj: \
+build\$(CONFIG)\obj\goahead.obj: \
     src\goahead.c $(DEPS_31)
-	@echo '   [Compile] $(CONFIG)/obj/goahead.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\goahead.obj -Fd$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\goahead.c
+	@echo '   [Compile] build/$(CONFIG)/obj/goahead.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\goahead.obj -Fdbuild\$(CONFIG)\obj\goahead.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\goahead.c
 
 #
 #   goahead
 #
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\est.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\me.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\osdep.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\estLib.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\inc\est.h
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\inc\me.h
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\inc\osdep.h
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\estLib.obj
 !IF "$(ME_COM_EST)" == "1"
-DEPS_32 = $(DEPS_32) $(CONFIG)\bin\libest.dll
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\bin\libest.dll
 !ENDIF
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\goahead.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\inc\js.h
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\action.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\alloc.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\auth.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\cgi.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\crypt.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\file.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\fs.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\http.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\js.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\jst.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\options.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\osdep.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\rom-documents.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\route.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\runtime.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\socket.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\upload.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\est.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\matrixssl.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\nanossl.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\openssl.obj
-DEPS_32 = $(DEPS_32) $(CONFIG)\bin\libgo.dll
-DEPS_32 = $(DEPS_32) $(CONFIG)\obj\goahead.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\inc\goahead.h
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\inc\js.h
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\action.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\alloc.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\auth.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\cgi.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\crypt.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\file.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\fs.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\http.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\js.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\jst.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\options.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\osdep.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\rom-documents.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\route.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\runtime.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\socket.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\upload.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\est.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\matrixssl.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\nanossl.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\openssl.obj
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\bin\libgo.dll
+DEPS_32 = $(DEPS_32) build\$(CONFIG)\obj\goahead.obj
 
 LIBS_32 = $(LIBS_32) libgo.lib
 !IF "$(ME_COM_OPENSSL)" == "1"
@@ -619,58 +623,58 @@ LIBS_32 = $(LIBS_32) libssls.lib
 LIBPATHS_32 = $(LIBPATHS_32) -libpath:$(ME_COM_NANOSSL_PATH)/bin
 !ENDIF
 
-$(CONFIG)\bin\goahead.exe: $(DEPS_32)
-	@echo '      [Link] $(CONFIG)/bin/goahead.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\goahead.obj" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
+build\$(CONFIG)\bin\goahead.exe: $(DEPS_32)
+	@echo '      [Link] build/$(CONFIG)/bin/goahead.exe'
+	"$(LD)" -out:build\$(CONFIG)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "build\$(CONFIG)\obj\goahead.obj" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
 
 #
 #   test.obj
 #
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\me.h
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\goahead.h
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\js.h
-DEPS_33 = $(DEPS_33) $(CONFIG)\inc\osdep.h
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\me.h
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\goahead.h
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\js.h
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\osdep.h
 
-$(CONFIG)\obj\test.obj: \
+build\$(CONFIG)\obj\test.obj: \
     test\test.c $(DEPS_33)
-	@echo '   [Compile] $(CONFIG)/obj/test.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\test.obj -Fd$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" test\test.c
+	@echo '   [Compile] build/$(CONFIG)/obj/test.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\test.obj -Fdbuild\$(CONFIG)\obj\test.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" test\test.c
 
 #
 #   goahead-test
 #
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\est.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\me.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\osdep.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\estLib.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\est.h
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\me.h
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\osdep.h
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\estLib.obj
 !IF "$(ME_COM_EST)" == "1"
-DEPS_34 = $(DEPS_34) $(CONFIG)\bin\libest.dll
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\bin\libest.dll
 !ENDIF
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\goahead.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\inc\js.h
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\action.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\alloc.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\auth.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\cgi.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\crypt.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\file.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\fs.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\http.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\js.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\jst.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\options.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\osdep.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\rom-documents.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\route.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\runtime.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\socket.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\upload.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\est.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\matrixssl.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\nanossl.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\openssl.obj
-DEPS_34 = $(DEPS_34) $(CONFIG)\bin\libgo.dll
-DEPS_34 = $(DEPS_34) $(CONFIG)\obj\test.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\goahead.h
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\js.h
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\action.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\alloc.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\auth.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\cgi.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\crypt.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\file.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\fs.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\http.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\js.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\jst.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\options.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\osdep.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\rom-documents.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\route.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\runtime.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\socket.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\upload.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\est.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\matrixssl.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\nanossl.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\openssl.obj
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\bin\libgo.dll
+DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\test.obj
 
 LIBS_34 = $(LIBS_34) libgo.lib
 !IF "$(ME_COM_OPENSSL)" == "1"
@@ -693,57 +697,57 @@ LIBS_34 = $(LIBS_34) libssls.lib
 LIBPATHS_34 = $(LIBPATHS_34) -libpath:$(ME_COM_NANOSSL_PATH)/bin
 !ENDIF
 
-$(CONFIG)\bin\goahead-test.exe: $(DEPS_34)
-	@echo '      [Link] $(CONFIG)/bin/goahead-test.exe'
-	"$(LD)" -out:$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\test.obj" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
+build\$(CONFIG)\bin\goahead-test.exe: $(DEPS_34)
+	@echo '      [Link] build/$(CONFIG)/bin/goahead-test.exe'
+	"$(LD)" -out:build\$(CONFIG)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "build\$(CONFIG)\obj\test.obj" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) 
 
 #
 #   gopass.obj
 #
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\me.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\goahead.h
-DEPS_35 = $(DEPS_35) $(CONFIG)\inc\osdep.h
+DEPS_35 = $(DEPS_35) build\$(CONFIG)\inc\me.h
+DEPS_35 = $(DEPS_35) build\$(CONFIG)\inc\goahead.h
+DEPS_35 = $(DEPS_35) build\$(CONFIG)\inc\osdep.h
 
-$(CONFIG)\obj\gopass.obj: \
+build\$(CONFIG)\obj\gopass.obj: \
     src\utils\gopass.c $(DEPS_35)
-	@echo '   [Compile] $(CONFIG)/obj/gopass.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\gopass.obj -Fd$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\utils\gopass.c
+	@echo '   [Compile] build/$(CONFIG)/obj/gopass.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\gopass.obj -Fdbuild\$(CONFIG)\obj\gopass.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)\include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)\matrixssl" "-I$(ME_COM_NANOSSL_PATH)\src" src\utils\gopass.c
 
 #
 #   gopass
 #
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\est.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\me.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\osdep.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\estLib.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\inc\est.h
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\inc\me.h
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\inc\osdep.h
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\estLib.obj
 !IF "$(ME_COM_EST)" == "1"
-DEPS_36 = $(DEPS_36) $(CONFIG)\bin\libest.dll
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\bin\libest.dll
 !ENDIF
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\goahead.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\inc\js.h
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\action.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\alloc.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\auth.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\cgi.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\crypt.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\file.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\fs.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\http.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\js.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\jst.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\options.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\osdep.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\rom-documents.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\route.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\runtime.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\socket.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\upload.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\est.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\matrixssl.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\nanossl.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\openssl.obj
-DEPS_36 = $(DEPS_36) $(CONFIG)\bin\libgo.dll
-DEPS_36 = $(DEPS_36) $(CONFIG)\obj\gopass.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\inc\goahead.h
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\inc\js.h
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\action.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\alloc.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\auth.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\cgi.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\crypt.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\file.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\fs.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\http.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\js.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\jst.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\options.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\osdep.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\rom-documents.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\route.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\runtime.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\socket.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\upload.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\est.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\matrixssl.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\nanossl.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\openssl.obj
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\bin\libgo.dll
+DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\gopass.obj
 
 LIBS_36 = $(LIBS_36) libgo.lib
 !IF "$(ME_COM_OPENSSL)" == "1"
@@ -766,29 +770,29 @@ LIBS_36 = $(LIBS_36) libssls.lib
 LIBPATHS_36 = $(LIBPATHS_36) -libpath:$(ME_COM_NANOSSL_PATH)/bin
 !ENDIF
 
-$(CONFIG)\bin\gopass.exe: $(DEPS_36)
-	@echo '      [Link] $(CONFIG)/bin/gopass.exe'
-	"$(LD)" -out:$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "$(CONFIG)\obj\gopass.obj" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
+build\$(CONFIG)\bin\gopass.exe: $(DEPS_36)
+	@echo '      [Link] build/$(CONFIG)/bin/gopass.exe'
+	"$(LD)" -out:build\$(CONFIG)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)    "build\$(CONFIG)\obj\gopass.obj" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 
 #
 #   removeFiles.obj
 #
-DEPS_37 = $(DEPS_37) $(CONFIG)\inc\me.h
+DEPS_37 = $(DEPS_37) build\$(CONFIG)\inc\me.h
 
-$(CONFIG)\obj\removeFiles.obj: \
+build\$(CONFIG)\obj\removeFiles.obj: \
     package\windows\removeFiles.c $(DEPS_37)
-	@echo '   [Compile] $(CONFIG)/obj/removeFiles.obj'
-	"$(CC)" -c -Fo$(CONFIG)\obj\removeFiles.obj -Fd$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
+	@echo '   [Compile] build/$(CONFIG)/obj/removeFiles.obj'
+	"$(CC)" -c -Fobuild\$(CONFIG)\obj\removeFiles.obj -Fdbuild\$(CONFIG)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c
 
 #
 #   removeFiles
 #
-DEPS_38 = $(DEPS_38) $(CONFIG)\inc\me.h
-DEPS_38 = $(DEPS_38) $(CONFIG)\obj\removeFiles.obj
+DEPS_38 = $(DEPS_38) build\$(CONFIG)\inc\me.h
+DEPS_38 = $(DEPS_38) build\$(CONFIG)\obj\removeFiles.obj
 
-$(CONFIG)\bin\removeFiles.exe: $(DEPS_38)
-	@echo '      [Link] $(CONFIG)/bin/removeFiles.exe'
-	"$(LD)" -out:$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows $(LDFLAGS) $(LIBPATHS) "$(CONFIG)\obj\removeFiles.obj" $(LIBS) 
+build\$(CONFIG)\bin\removeFiles.exe: $(DEPS_38)
+	@echo '      [Link] build/$(CONFIG)/bin/removeFiles.exe'
+	"$(LD)" -out:build\$(CONFIG)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows $(LDFLAGS) $(LIBPATHS) "build\$(CONFIG)\obj\removeFiles.obj" $(LIBS) 
 
 #
 #   stop
@@ -802,14 +806,14 @@ stop: $(DEPS_39)
 installBinary: $(DEPS_40)
 	cd .
 	if not exist "$(ME_VAPP_PREFIX)\bin" md "$(ME_VAPP_PREFIX)\bin"
-	copy /Y $(CONFIG)\bin\goahead.exe "$(ME_VAPP_PREFIX)\bin\goahead.exe"
-	copy /Y $(CONFIG)\bin\libgo.dll "$(ME_VAPP_PREFIX)\bin\libgo.dll"
+	copy /Y build\$(CONFIG)\bin\goahead.exe "$(ME_VAPP_PREFIX)\bin\goahead.exe"
+	copy /Y build\$(CONFIG)\bin\libgo.dll "$(ME_VAPP_PREFIX)\bin\libgo.dll"
 !IF "$(ME_COM_EST)" == "1"
-	copy /Y $(CONFIG)\bin\libest.dll "$(ME_VAPP_PREFIX)\bin\libest.dll"
+	copy /Y build\$(CONFIG)\bin\libest.dll "$(ME_VAPP_PREFIX)\bin\libest.dll"
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
-	copy /Y $(CONFIG)\bin\libeay32.dll "$(ME_VAPP_PREFIX)\bin\libeay32.dll"
-	copy /Y $(CONFIG)\bin\ssleay32.dll "$(ME_VAPP_PREFIX)\bin\ssleay32.dll"
+	copy /Y build\$(CONFIG)\bin\libeay32.dll "$(ME_VAPP_PREFIX)\bin\libeay32.dll"
+	copy /Y build\$(CONFIG)\bin\ssleay32.dll "$(ME_VAPP_PREFIX)\bin\ssleay32.dll"
 !ENDIF
 	copy /Y src\paks\est\ca.crt "$(ME_VAPP_PREFIX)\bin\ca.crt"
 	if not exist "$(ME_VAPP_PREFIX)\web" md "$(ME_VAPP_PREFIX)\web"

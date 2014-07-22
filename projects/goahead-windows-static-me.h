@@ -193,7 +193,7 @@
     #define ME_MANIFEST "package/manifest.me"
 #endif
 #ifndef ME_ME
-    #define ME_ME "~0.8"
+    #define ME_ME ">=0.8.2"
 #endif
 #ifndef ME_NAME
     #define ME_NAME "goahead"
