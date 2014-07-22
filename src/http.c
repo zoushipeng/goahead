@@ -2066,7 +2066,6 @@ PUBLIC bool websFlush(Webs *wp)
     WebsBuf     *op;
     ssize       nbytes, written;
 
-    trace(6, "websFlush");
     op = &wp->output;
     if (wp->flags & WEBS_CHUNKING) {
         trace(6, "websFlush chunking finalized %d", wp->flags & WEBS_FINALIZED);
@@ -2185,7 +2184,9 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     while (size > 0 && wp->state < WEBS_COMPLETE) {  
         if (bufRoom(op) < size) {
             if (!websFlush(wp)) {
-                return -1;
+                if (wp->state == WEBS_COMPLETE) {
+                    return -1;
+                }
             }
         }
         if ((room = bufRoom(op)) == 0) {
