@@ -548,11 +548,12 @@ PUBLIC void websDone(Webs *wp)
     if (wp->flags & WEBS_FINALIZED) {
         return;
     }
-    assert(WEBS_BEGIN <= wp->state && wp->state < WEBS_COMPLETE);
+    assert(WEBS_BEGIN <= wp->state && wp->state <= WEBS_COMPLETE);
     wp->flags |= WEBS_FINALIZED;
-
-    if (!websFlush(wp)) {
-        /* Need to wait for output buffer to drain */
+    /*
+        Initiate flush. If not all flushed, wait for output to drain via a socket event.
+     */
+    if (websFlush(wp, 0) == 0) {
         sp = socketPtr(wp->sid);
         socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
     }
@@ -2060,12 +2061,19 @@ static bool flushChunkData(Webs *wp)
 
 /*
     Initiate flushing output buffer. Returns true if all data is written to the socket and the buffer is empty.
+    Returns <  0 for errors
+            == 0 if there is output remaining to be flushed
+            == 1 if the output was fully written to the socket
  */
-PUBLIC bool websFlush(Webs *wp)
+PUBLIC int websFlush(Webs *wp, bool block)
 {
     WebsBuf     *op;
     ssize       nbytes, written;
+    int         wasBlocking;
 
+    if (block) {
+        wasBlocking = socketSetBlock(wp->sid, 1);
+    }
     op = &wp->output;
     if (wp->flags & WEBS_CHUNKING) {
         trace(6, "websFlush chunking finalized %d", wp->flags & WEBS_FINALIZED);
@@ -2077,12 +2085,13 @@ PUBLIC bool websFlush(Webs *wp)
         }
     }
     trace(6, "websFlush: buflen %d", bufLen(op));
+    written = 0;
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
             wp->flags &= ~WEBS_KEEP_ALIVE;
             bufFlush(op);
             wp->state = WEBS_COMPLETE;
-            return 0;
+            break;
         } else if (written == 0) {
             break;
         }
@@ -2095,6 +2104,12 @@ PUBLIC bool websFlush(Webs *wp)
 
     if (bufLen(op) == 0 && wp->flags & WEBS_FINALIZED) {
         wp->state = WEBS_COMPLETE;
+    }
+    if (block) {
+        socketSetBlock(wp->sid, wasBlocking);
+    }
+    if (written < 0) {
+        return -1;
     }
     return bufLen(op) == 0;
 }
@@ -2111,7 +2126,7 @@ static void writeEvent(Webs *wp)
 
     op = &wp->output;
     if (bufLen(op) > 0) {
-        websFlush(wp);
+        websFlush(wp, 0);
     }
     if (bufLen(op) == 0 && wp->writeData) {
         (wp->writeData)(wp);
@@ -2127,7 +2142,7 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
     WebsSocket  *sp;
 
     wp->writeData = proc;
-    if (websFlush(wp)) {
+    if (websFlush(wp, 0) == 0) {
         /* Can call the writeData proc if all output buffered data has been flushed */
         (wp->writeData)(wp);
     }
@@ -2183,10 +2198,11 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
 
     while (size > 0 && wp->state < WEBS_COMPLETE) {  
         if (bufRoom(op) < size) {
-            if (!websFlush(wp)) {
-                if (wp->state == WEBS_COMPLETE) {
-                    return -1;
-                }
+            /*
+                This will do a blocking I/O write. Will only ever fail for I/O errors.
+             */
+            if (websFlush(wp, 1) < 0) {
+                return -1;
             }
         }
         if ((room = bufRoom(op)) == 0) {

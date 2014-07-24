@@ -924,11 +924,11 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>bool</type>
+      <type>int</type>
       <name>websFlush</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gaa722e1c0bc9fb59b5564963b39111cc4</anchor>
-      <arglist>(Webs *wp)</arglist>
+      <anchor>ga6525ac98afd32c69fd0a7985c0b87f5f</anchor>
+      <arglist>(Webs *wp, bool block)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
