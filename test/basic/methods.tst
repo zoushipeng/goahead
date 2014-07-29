@@ -2,7 +2,7 @@
     methods.tst - Test misc Http methods
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:8080"
+const HTTP = App.config.uris.http || "127.0.0.1:4100"
 let http: Http = new Http
 
 /*

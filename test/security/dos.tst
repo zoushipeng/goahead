@@ -2,7 +2,7 @@
     Denial of service testing
  */
 
-const HTTP: Uri = App.config.uris.http || "127.0.0.1:8080"
+const HTTP: Uri = App.config.uris.http || "127.0.0.1:4100"
 
 //  Check server available
 http = new Http

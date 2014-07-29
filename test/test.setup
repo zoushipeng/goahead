@@ -6,7 +6,7 @@ require ejs.unix
 let config      = Config.OS + '-' + Config.CPU + '-' + 'debug'
 const HOST      = (test.hostOs == "VXWORKS") ? "192.168.200.1" : "127.0.0.1"
 const HOSTV6    = '[::1]'
-const HTTP      = "http://"  + HOST   + ":8080"
+const HTTP      = "http://"  + HOST   + ":4100"
 const SSL       = "https://" + HOST   + ":4443"
 const HTTPV6    = "http://[::1]:8090"
 const SSLV6     = "https://[::1]:4453"

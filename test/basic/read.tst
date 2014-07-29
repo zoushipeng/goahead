@@ -2,7 +2,7 @@
     read.tst - Various Http read tests
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:8080"
+const HTTP = App.config.uris.http || "127.0.0.1:4100"
 let http: Http = new Http
 
 //  Test http.read() into a byte array
