@@ -8,6 +8,6 @@ let http: Http = new Http
 http.get(HTTP + "/big.asp")
 ts = new TextStream(http)
 lines = ts.readLines()
-assert(lines.length == 8001)
+assert(lines.length == 801)
 assert(lines[0].contains("aaaaabbb") && lines[0].contains("0 "))
 assert(lines[799].contains("aaaaabbb") && lines[799].contains("799"))

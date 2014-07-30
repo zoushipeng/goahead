@@ -23,7 +23,7 @@
 static int finished = 0;
 
 #undef ME_GOAHEAD_LISTEN
-#if ME_PACK_SSL
+#if ME_COM_SSL
     #define ME_GOAHEAD_LISTEN "http://127.0.0.1:8080, https://127.0.0.1:4443, http://[::1]:8090, https://[::1]:4453"
 #else
     #define ME_GOAHEAD_LISTEN "http://127.0.0.1:8080, http://[::1]:8090"
