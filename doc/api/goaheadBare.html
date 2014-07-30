@@ -162,7 +162,7 @@
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga80307b2df19b5f59a77d1e344a75f9fb" class="nameRef">websErrorMsg</a>(int code)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a message for a HTTP status code.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga28126b9afadd3c20a82b311d5de153bf" class="nameRef">websEscapeHtml</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Escape unsafe characters in a string.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaf92974c51178c68fb23ce1d49b920d82" class="nameRef">websFileOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open and initialize the file handler.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="osdepBare.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_1gaa722e1c0bc9fb59b5564963b39111cc4" class="nameRef">websFlush</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Flush buffered transmit data and compact the transmit buffer to make room for more data.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga6525ac98afd32c69fd0a7985c0b87f5f" class="nameRef">websFlush</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdepBare.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a> block)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Flush buffered transmit data and compact the transmit buffer to make room for more data.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga34a9c871eaf4cba49ff81174318af979" class="nameRef">websFree</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free the webs request object.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga54bd8e9073aca8fe5ac527e0b26ae738" class="nameRef">websFreeUpload</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free file upload data structures.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gabf22d43f1a29726aa8bf1a91d1a709c6" class="nameRef">websFsClose</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the file system module.</td></tr>
@@ -1546,20 +1546,21 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1gaa722e1c0bc9fb59b5564963b39111cc4"></a>
+<a name="group___webs_1ga6525ac98afd32c69fd0a7985c0b87f5f"></a>
 <div class="api">
   <div class="prototype">
-    <a href="osdepBare.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
+    int
     websFlush
-(<a href="#group___webs" class="ref">Webs</a> *wp)
+(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdepBare.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a> block)
   </div>
   <div class="apiDetail">
 <p>Flush buffered transmit data and compact the transmit buffer to make room for more data.</p>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">wp</td><td>Webs request object.</td>
+    <tr><td class="param">block</td><td>Set to true to wait for all data to be written to the socket. Set to false to write whatever the socket can absorb without blocking.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>True if the contents of the transmit buffer are fully written and the buffer is now empty.</dd></dl>
+    <dl><dt>Returns:</dt><dd>-1 for I/O errors. Zero if there is more data remaining in the buffer. Return 1 if the contents of the transmit buffer are fully written and the buffer is now empty.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>

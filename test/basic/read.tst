@@ -2,7 +2,7 @@
     read.tst - Various Http read tests
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:8080"
+const HTTP = App.config.uris.http || "127.0.0.1:4100"
 let http: Http = new Http
 
 //  Test http.read() into a byte array
@@ -12,10 +12,10 @@ count = 0
 while (http.read(buf) > 0) {
     count += buf.length
 }
-if (count != 622891) {
+if (count != 61491) {
     print("COUNT IS " + count + " code " + http.status)
 }
-assert(count == 622891)
+assert(count == 61491)
 http.close()
 
 http.get(HTTP + "/lines.txt")

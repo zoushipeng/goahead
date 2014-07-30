@@ -89,7 +89,7 @@ PUBLIC void websRouteRequest(Webs *wp)
         }
         if (route->methods >= 0) {
             if (!hashLookup(route->methods, wp->method)) {
-                trace(5, "Route %s doesnt match method %s", route->prefix, wp->method);
+                trace(5, "Route %s does not match method %s", route->prefix, wp->method);
                 continue;
             }
         } else if (!safeMethod) {

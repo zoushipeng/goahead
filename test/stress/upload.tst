@@ -2,7 +2,7 @@
     upload.tst - Stress test uploads
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:8080"
+const HTTP = App.config.uris.http || "127.0.0.1:4100"
 const TESTFILE = "upload-" + hashcode(self) + ".tdat"
 
 /* This test requires chunking support */

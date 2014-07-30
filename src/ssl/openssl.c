@@ -114,7 +114,7 @@ PUBLIC int sslOpen()
 #ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION                                                       
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
 #endif                                                                                                     
-    SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY);
+    SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
 
     /* 
@@ -225,7 +225,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 {
     ssize   totalWritten;
-    int     rc;
+    int     error, rc;
 
     if (wp->ssl == 0 || len <= 0) {
         assert(0);
@@ -238,16 +238,19 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
         rc = SSL_write(wp->ssl, buf, (int) len);
         trace(7, "OpenSSL: written %d, requested len %d", rc, len);
         if (rc <= 0) {
-            rc = SSL_get_error(wp->ssl, rc);
-            if (rc == SSL_ERROR_WANT_WRITE) {
-                sleep(0);
-                continue;
-            } else if (rc == SSL_ERROR_WANT_READ) {
+            error = SSL_get_error(wp->ssl, rc);
+            if (error == SSL_ERROR_NONE) {
+                break;
+            } else if (error == SSL_ERROR_WANT_WRITE) {
+                break;
+            } else if (error == SSL_ERROR_WANT_READ) {
                 //  AUTO-RETRY should stop this
                 return -1;
             } else {
+                trace(7, "OpenSSL: error %d", error);
                 return -1;
             }
+            break;
         }
         totalWritten += rc;
         buf = (void*) ((char*) buf + rc);

@@ -1968,10 +1968,13 @@ PUBLIC void websFileOpen();
 /**
     Flush buffered transmit data and compact the transmit buffer to make room for more data
     @param wp Webs request object
-    @return True if the contents of the transmit buffer are fully written and the buffer is now empty
+    @param block Set to true to wait for all data to be written to the socket. Set to false to 
+        write whatever the socket can absorb without blocking. 
+    @return -1 for I/O errors. Zero if there is more data remaining in the buffer. Return 1 if the 
+    contents of the transmit buffer are fully written and the buffer is now empty.
     @ingroup Webs
  */
-PUBLIC bool websFlush(Webs *wp);
+PUBLIC int websFlush(Webs *wp, bool block);
 
 /**
     Free the webs request object. 

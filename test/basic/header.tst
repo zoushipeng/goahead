@@ -2,7 +2,7 @@
     header.tst - Http response header tests
  */
 
-const HTTP = App.config.uris.http || "127.0.0.1:8080"
+const HTTP = App.config.uris.http || "127.0.0.1:4100"
 const URL = HTTP + "/index.html"
 let http: Http = new Http
 
