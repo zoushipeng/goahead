@@ -3,7 +3,7 @@
 #
 
 NAME                  = goahead
-VERSION               = 3.3.5
+VERSION               = 3.3.6
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -870,5 +870,5 @@ uninstall: $(DEPS_44)
 #   version
 #
 version: $(DEPS_45)
-	echo 3.3.5
+	echo 3.3.6
 
