@@ -115,6 +115,18 @@ PUBLIC int sslOpen()
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
 #endif                                                                                                     
     SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
+#ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
+    SSL_CTX_set_options(sslctx, SSL_OP_MSIE_SSLV2_RSA_PADDING);
+#endif
+#ifdef SSL_OP_NO_COMPRESSION
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
+#endif
+#ifdef SSL_MODE_RELEASE_BUFFERS
+    SSL_CTX_set_mode(sslctx, SSL_MODE_RELEASE_BUFFERS);
+#endif
+#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
+    SSL_CTX_set_mode(sslctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+#endif
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
 
     /* 
