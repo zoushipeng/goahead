@@ -566,42 +566,41 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         Wait for the event or a timeout. Reset nEvents to be the number of actual events now.
      */
     nEvents = select(socketHighestFd + 1, (fd_set *) readFds, (fd_set *) writeFds, (fd_set *) exceptFds, &tv);
-    if (nEvents > 0) {
-        if (all) {
-            sid = 0;
+    if (all) {
+        sid = 0;
+    }
+    for (; sid < socketMax; sid++) {
+        if ((sp = socketList[sid]) == NULL) {
+            if (all == 0) {
+                break;
+            } else {
+                continue;
+            }
         }
-        for (; sid < socketMax; sid++) {
-            if ((sp = socketList[sid]) == NULL) {
-                if (all == 0) {
-                    break;
-                } else {
-                    continue;
-                }
-            }
-            index = sp->sock / (NBBY * sizeof(fd_mask));
-            bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
+        index = sp->sock / (NBBY * sizeof(fd_mask));
+        bit = 1 << (sp->sock % (NBBY * sizeof(fd_mask)));
 
-            if (sp->flags & SOCKET_RESERVICE) {
-                if (sp->handlerMask & SOCKET_READABLE) {
-                    sp->currentEvents |= SOCKET_READABLE;
-                }
-                if (sp->handlerMask & SOCKET_WRITABLE) {
-                    sp->currentEvents |= SOCKET_WRITABLE;
-                }
-                sp->flags &= ~SOCKET_RESERVICE;
-            }
-            if (readFds[index] & bit) {
+        if (sp->flags & SOCKET_RESERVICE) {
+            if (sp->handlerMask & SOCKET_READABLE) {
                 sp->currentEvents |= SOCKET_READABLE;
             }
-            if (writeFds[index] & bit) {
+            if (sp->handlerMask & SOCKET_WRITABLE) {
                 sp->currentEvents |= SOCKET_WRITABLE;
             }
-            if (exceptFds[index] & bit) {
-                sp->currentEvents |= SOCKET_EXCEPTION;
-            }
-            if (! all) {
-                break;
-            }
+            sp->flags &= ~SOCKET_RESERVICE;
+            nEvents++;
+        }
+        if (readFds[index] & bit) {
+            sp->currentEvents |= SOCKET_READABLE;
+        }
+        if (writeFds[index] & bit) {
+            sp->currentEvents |= SOCKET_WRITABLE;
+        }
+        if (exceptFds[index] & bit) {
+            sp->currentEvents |= SOCKET_EXCEPTION;
+        }
+        if (! all) {
+            break;
         }
     }
     wfree(readFds);
