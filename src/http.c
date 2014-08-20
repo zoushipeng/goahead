@@ -550,12 +550,15 @@ PUBLIC void websDone(Webs *wp)
     }
     assert(WEBS_BEGIN <= wp->state && wp->state <= WEBS_COMPLETE);
     wp->flags |= WEBS_FINALIZED;
-    /*
-        Initiate flush. If not all flushed, wait for output to drain via a socket event.
-     */
-    if (websFlush(wp, 0) == 0) {
-        sp = socketPtr(wp->sid);
-        socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
+
+    if (wp->state < WEBS_COMPLETE) {
+        /*
+            Initiate flush. If not all flushed, wait for output to drain via a socket event.
+         */
+        if (websFlush(wp, 0) == 0) {
+            sp = socketPtr(wp->sid);
+            socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
+        }
     }
 #if ME_GOAHEAD_ACCESS_LOG
     logRequest(wp, wp->code);
@@ -2193,6 +2196,9 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     assert(buf);
     assert(size >= 0);
 
+    if (wp->state >= WEBS_COMPLETE) {
+        return -1;
+    }
     op = (wp->flags & WEBS_CHUNKING) ? &wp->chunkbuf : &wp->output;
     written = len = 0;
 
@@ -2215,6 +2221,9 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
         written += thisWrite;
     }
     bufAddNull(op);
+    if (wp->state >= WEBS_COMPLETE && written == 0) {
+        return -1;
+    }
     return written;
 }
 
