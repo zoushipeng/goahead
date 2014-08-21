@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.3.5
+VERSION               := 3.3.6
 PROFILE               ?= default
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*//')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
@@ -771,5 +771,5 @@ uninstall: $(DEPS_42)
 #   version
 #
 version: $(DEPS_43)
-	echo 3.3.5
+	echo 3.3.6
 
