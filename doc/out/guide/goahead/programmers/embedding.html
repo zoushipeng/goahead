@@ -1,0 +1,152 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.3.6 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://embedthis.com/goahead/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.3.6</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Programming Guide</a> &gt; <b>Embedding GoAhead</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul>
+                <li><a href="#goaheadProgram">GoAhead Program</a></li>
+                <li><a href="#library">Embed GoAhead Library</a></li>
+                <li><a href="#javascript">Extending Javascript</a></li>
+            </ul>
+<!-- BeginDsi "dsi/progGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/programmers/index.html">Programmers Guide</a></li>
+                <li><a href="../../../guide/goahead/programmers/embedding.html">Embedding GoAhead</a></li>
+                <li><a href="../../../guide/goahead/programmers/handlers.html">Custom Handlers</a></li>
+                <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
+                <li><a href="../../../guide/goahead/programmers/rom.html">ROM Content</a></li>
+                <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1 class="title">Embedding GoAhead</h1>
+            <p>When embedding GoAhead in your application or system, you have two alternatives:</p>
+            <ol>
+                <li>Use the existing GoAhead main program and extend GoAhead via Javascript and goforms.</li>
+                <li>Link the GoAhead library with a custom main program.</li>
+            </ol>
+            <a id="goaheadProgram"></a>
+            <h2 class="section">The GoAhead Program</h2>
+            <p>The GoAhead product includes a fully-featured HTTP server program called <em>goahead</em> that uses the GoAhead HTTP library.
+            You can also modify the <em>goahead.c</em> main program to customize according to your specific requirements.
+            line of code.</p>
+            
+            <a name="library"></a>
+            <h2>Embed the GoAhead Library</h2>
+            <p>You can link the GoAhead library with your application to enable it to listen for HTTP requests and thus
+            become a HTTP server itself. Embedding the GoAhead library is easy and can be done with as little as one
+            line of code.</p>
+            <h3>Linking with the GoAhead Library</h3>
+            <p>To include the GoAhead library in your program you need to do the following things:</p>
+            <ol>
+                <li>Add <b>#include "goahead.h"</b> in your source files.</li>
+                <li>Add the GoAhead library to your Makefiles or Windows project files. This will mean adding
+                    libgo.lib on Windows or libgo.a on Unix.</li>
+                <li>Use one of the embedding APIs to create the HTTP server.</li>
+            </ol>
+            <h3>Full Control API</h3>
+            <p>The GoAhead library also provides an extensive API so you can precisely control how
+            the web server is created and configured.</p>
+            <p>This example creates a web server using the "server.conf" configuration file and will service events
+            until terminated.</p>
+            <pre>
+#include "goahead.h"
+int main(int argc, char **argv)
+{
+    if (websOpen("web", "route.txt") &lt; 0) {
+        error("Can't open the web server runtime");
+        return 0;
+    }
+    if (websListen(":80") &lt; 0) {
+        mprError("Can't listen on port 80");
+        return 0;
+    }
+    websServiceEvents(NULL);
+    websClose();
+    return 0;
+}
+</pre>
+            <a name="javascript"></a>
+            <h2>Extending via Javascript</h2>
+            <p>The GoAhead Javascript web framework allows customization by direct embedding of Javascript code in
+            HTML web pages. This code runs on the server-side before rendering the page to the client. 
+            <h3>API Details</h3>
+            <p>For more details about the embedding API, please consult the <a href="../../../api/goahead.html">GoAhead
+                API</a>.</p>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

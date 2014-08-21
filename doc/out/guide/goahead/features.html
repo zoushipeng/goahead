@@ -1,0 +1,192 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.3.6 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://embedthis.com/goahead/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.3.6</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <b>GoAhead Features</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            
+<!-- BeginDsi "dsi/genSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../guide/goahead/overview.html">GoAhead Overview</a></li>
+                <li><a href="../../guide/goahead/features.html">GoAhead Features</a></li>
+                <li><a href="../../product/releaseNotes.html">Release Notes</a></li>
+                <li><a href="../../product/changeLog.html">Change Log</a></li>
+                <li><a href="../../product/roadmap.html">Roadmap</a></li>
+                <li><a href="../../product/compatibility.html">Compatibility</a></li>
+                <li><a href="../../licenses/index.html">Licensing</a></li>
+                <li><a href="../../guide/goahead/source/building.html">Building GoAhead</a></li>
+                <li><a href="../../guide/goahead/users/gettingStarted.html">Getting Started</a></li>
+                <li><a href="../../guide/goahead/users/index.html">Users Guide</a></li>
+                <li><a href="../../product/project.html">Project Resources</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Embedthis GoAhead&trade; Features</h1><a id="components"></a>
+            <p>The GoAhead product includes the following components:</p>
+            <ul>
+                <li>GoAhead HTTP Server library</li>
+                <li>GoAhead HTTP Server main program</li>
+                <li>Interface to Secure Sockets Layer (SSL/TLS)</li>
+                <li>Documentation</li>
+                <li>Samples</li>
+                <li>Source code</li>
+            </ul>
+            <h2 class="section">Feature Overview</h2>
+            <h3>HTTP Server Engine</h3>
+            <ul>
+                <li>Full HTTP/1.1 support</li>
+                <li>IPv4 and IPv6</li>
+                <li>Single-threaded, event-based server</li>
+                <li>Request routing and rewriting</li>
+                <li>Supports chunked and pipelined requests</li>
+                <li>Error and access Logging (Common Log Format)</li>
+                <li>Sand-box resource limits</li>
+                <li>Session state storage</li>
+            </ul>
+            <h3>Performance</h3>
+            <ul>
+                <li>Request throughput (&gt; 10,000 requests per second)</li>
+                <li>Event-based core for efficient processing of multiple requests</li>
+                <li>Small memory footprint: 115K code</li>
+            </ul>
+            <h3>Modularity</h3>
+            <ul>
+                <li>Conditional build-time options</li>
+                <li>Handlers for CGI, Javascript templates, files, file upload and SSL</li>
+                <li>Configurable request routing</li>
+                <li>Extensible / replaceable authorization</li>
+            </ul>
+            <h3>Security</h3>
+            <ul>
+                <li>Secure Sockets Layer (SSL)</li>
+                <li>Basic, Digest and Form Authentication</li>
+                <li>Route based authorization</li>
+                <li>Sandbox limits</li>
+                <li>Access and access violation logging</li>
+                <li>Safe portable runtime to protect against memory leaks and buffer overflows</li>
+            </ul>
+            <h3>Dynamic Content</h3>
+            <ul>
+                <li>Server-Side JavaScript</li>
+                <li>CGI/1.1</li>
+                <li>GoActions &mdash; In-memory URL actions</li>
+                <li>Custom C Handlers</li>
+            </ul>
+            <h3>Javascript Templates (JST)</h3>
+            <ul>
+                <li>Web page templating engine</li>
+                <li>Embedded Javascript code in HTML pages</li>
+                <li>Fast, automatic reloading of updated web pages</li>
+                <li>Ajax View Controls with jQuery support</li>
+                <li>Session state management</li>
+            </ul>
+            <h3>Developer Support</h3>
+            <ul>
+                <li>HTTP server libraries</li>
+                <li>Shared and static library build options</li>
+                <li>Operate single-threaded or multithreaded (Compile or run-time selectable)</li>
+                <li>Easy, intuitive programming model</li>
+                <li>Extensive C API</li>
+                <li>Extensive debug trace logging</li>
+            </ul>
+            <h3>Documentation</h3>
+            <ul>
+                <li>Full C API Documentation</li>
+                <li>Guides and programmer references</li>
+            </ul>
+            <h3>Platform Support</h3>
+            <ul>
+                <li>Linux (2.6)</li>
+                <li>Windows (7, 8)</li>
+                <li>MAC OSX (Lion)</li>
+                <li>VxWorks (6.x)</li>
+                <li>Free BSD</li>
+                <li>Unix</li>
+                <li>Easily ported to new platforms</li>
+            </ul>
+            <h3>Embedding Support</h3>
+            <ul>
+                <li>Supports ARM, MIPS, X86, PPC and Sparc processors</li>
+                <li>Full cross-compilation support. Use Windows, Linux or Mac as build system</li>
+                <li>Fine-grained control for conditional build and compilation</li>
+                <li>Execute from ROM (XIP)</li>
+            </ul>
+            <h3>Standards</h3>
+            <ul>
+                <li>HTTP/1.1</li>
+                <li>CGI/1.1</li>
+            </ul>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

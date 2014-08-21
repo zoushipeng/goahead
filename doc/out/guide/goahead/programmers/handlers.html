@@ -1,0 +1,219 @@
+<!-- BeginDsi "dsi/head.html" -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Embedthis GoAhead 3.3.6 Documentation</title>
+    <meta name="keywords" content="embedded web server, web server software, embedded HTTP, application web server, 
+        embedded server, small web server, HTTP server, library web server, library HTTP, HTTP library" />
+    <meta name="description" content="Embedthis Sofware provides commercial and open source embedded web servers for 
+        devices and applications." />
+	<meta name="robots" content="index,follow" />
+	<link href="../../../doc.css" rel="stylesheet" type="text/css" />
+	<link href="../../../print.css" rel="stylesheet" type="text/css" media="print"/>
+    <!--[if IE]>
+    <link href="../../../iehacks.css" rel="stylesheet" type="text/css" />
+    <![endif]-->
+    <link href="http://www.google.com/cse/style/look/default.css" type="text/css" rel="stylesheet" />
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</head>
+
+<body>
+    <div class="top">
+        <a class="logo" href="http://embedthis.com/goahead/">&nbsp;</a>
+        <div class="topRight">
+            <div class="search">
+                <div id="cse-search-form"></div>
+                <div class="version">Embedthis GoAhead 3.3.6</div>
+            </div>
+        </div>
+        <div class="crumbs">
+            <a href="../../../index.html">Home</a>
+<!-- EndDsi -->
+             &gt; <a href="index.html">Programming Guide</a> &gt; <b>Creating GoAhead Handlers</b>
+        </div>
+    </div>
+    <div class="content">
+        <div class="contentRight">
+            <h1>Quick Nav</h1>
+            <ul class="nav">
+                <li><a href="#processing">Request Processing</a></li>
+                <li><a href="#responses">Generating Responses</a></li>
+                <li><a href="#errors">Generating Errors</a></li>
+                <li><a href="#redirecting">Redirecting</a></li>
+                <li><a href="#defining">Defining a Handler</a></li>
+            </ul>
+<!-- BeginDsi "dsi/progGuideSeeAlso.html" -->
+            <h1>See Also</h1>
+            <ul class="nav">
+                <li><a href="../../../guide/goahead/programmers/index.html">Programmers Guide</a></li>
+                <li><a href="../../../guide/goahead/programmers/embedding.html">Embedding GoAhead</a></li>
+                <li><a href="../../../guide/goahead/programmers/handlers.html">Custom Handlers</a></li>
+                <li><a href="../../../guide/goahead/programmers/migrating.html">Migrating to GoAhead 3</a></li>
+                <li><a href="../../../guide/goahead/programmers/rom.html">ROM Content</a></li>
+                <li><a href="../../../ref/goahead/index.html">Programmers Reference</a></li>
+                <li><a href="../../../guide/goahead/users/index.html">Users Guide</a></li>
+            </ul>
+<!-- EndDsi -->
+        </div>
+        <div class="contentLeft">
+            <h1>Creating GoAhead Handlers</h1>
+            <p>GoAhead responds to client requests by routing the request to a request handler. The
+            request handler is responsible for generating the response content or redirecting to another
+            more suitable handler.</p>
+            
+            <p>GoAhead provides a suite of handlers for various content types and web frameworks. The standard handlers
+            supplied with GoAhead are: </p>
+            <ul>
+                <li>action &mdash; for GoActions</li>
+                <li>continue &mdash; Pseuod handler for request rewriting</li>
+                <li>cgi &mdash; for CGI programs</li>
+                <li>file &mdash; for static documents</li>
+                <li>jst &mdash; for Javascript templates </li>
+                <li>options &mdash; for Options and Trace methods</li>
+                <li>redirect &mdash; to process route redirects </li>
+                <li>upload &mdash; for file uploads</li>
+            </ul>
+            <p>You can extend GoAhead by creating your own custom handler to process Http requests and perform any
+            processing you desire. Once created handlers are configured via routes in the route table. See <a
+            href="../users/routing.html">Request Routing</a> for more details about Routing.</p>
+            <a id="processing"></a>
+            <h2>Request Processing</h2>
+            <p>When a request is received from the client, GoAhead parses the HTTP request headers and
+            then determines the best GoAhead <a href="../users/routing.html">route</a> for the request. A route contains
+            the full details for how to process a request including the required handler and required authentication.
+            GoAhead matches each route in the route table in-order and selects the first matching route. The route
+            specifies the desired handler for requests matching that route.</p>
+            <h3>Matching a Handler</h3>
+            <p>The last step of selecting a route is calling the candidate handler's optional match() callback. If the match
+            callback returns true, the handler will be selected. If it returns false, the handler and route will be skipped
+            and the route selection process continues.</p>
+             
+            <h3>Running a Handler</h3>
+            <p>Once the route has been selected, GoAhead invokes the handler service callback to process the request and generate
+            a response. At this point, request body data will be received and buffered. The handler may choose to not
+            handler the request by returning a zero status code. In that case, the router continues matching routes 
+            to find a more suitable route and handler combination.
+            
+            <a id="responses"></a>
+            <h2>Generating Responses</h2>
+            <p>An HTTP response consists of a status code, a set of HTTP headers and optionally a response body. If a
+            status is not set, the successful status of 200 will be used. If not custom headers are defined, then a
+          minimal standard set will be generated.</p>
+            <h3>Setting Status and Headers</h3>
+            <p>The response status may be set via:
+                <a href="../../../api/goahead.html#group___webs_1gaef03eccfb6f0d42b34f1a7a90bac62b6">websSetStatus</a>. 
+                The response headers may be set via:
+                <a href="../../../api/goahead.html#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b">websWriteHeaders</a>.
+                For example:</p>
+            <pre>
+websSetStatus(wp, 200);
+websWriteHeaders(wp, contentLength, 0);
+websWriteHeader(wp, "X-MyCustomHeader", "1234");
+websWriteEndHeaders(wp);
+websWriteBlock(wp, buf, len);
+websDone(wp);
+</pre>
+                <p>The websWriteBlock function will buffer written data that will be written to the client in the
+                background.</p>
+            <a id="errors"></a>
+            <h3>Generating an Error Response</h3>
+            <p>If the request has an error, the status and a response message may be set in one step via:
+                <a href="../../../api/goahead.html#group___webs_1ga3a9158494088fc25249543e69481e00e">websError</a>.
+                When websError is called to indicate a request error, the supplied response text is used instead of
+                any partially generated response body and the the connection field <em>conn-&gt;error</em> is set. Once
+                set, pipeline processing is abbreviated and handler callbacks will not be called anymore. Consequently, if
+                you need to continue handler processing, but want to set a non-zero status return code, do <i>not</i>
+                use websError. Rather, use websSetStatus.</p>
+<pre>
+websError(conn, 404, "Can't find %s", path);
+</pre>
+                <h4>Aborting Requests</h4>
+                <p>The status argument to websError can also accept flags to control how the socket connection is
+                managed. If WEBS_CLOSE is supplied, the connection will be closed when the request is completed. 
+                Normally the connection is kept-open for subsequent requests on the same socket.</p>
+<pre>
+websError(conn, 404 | WEBS_CLOSE, "Protocol error");
+</pre>
+            <a id="redirecting"></a>
+            <h3>Redirecting</h3>
+            <p>Sometimes a handler will want to generate a response that will redirect the client to a new URI.
+            Use the 
+            <a href="../../../api/goahead.html#group___webs_1ga2a3e594ef28c12f3be0d7b54461af36e">websRedirect</a> call 
+            to redirect the client. For example:
+            <pre>websRedirect(wp, WEBS_CODE_MOVED_PERMANENTLY, uri);</pre>
+            <h3>Generating Response Body</h3>
+            <p>The simplest way to generate a response is to use 
+            <a href="../../../api/goahead.html#group___webs_1ga8d5489a7fa2a2126bc0b6c703da4b964">websWrite</a>. 
+            The websWrite routine will automatically flush data as required. This routine may block while data drains
+            to the client if the data cannot be buffered. See the <i>main.bit</i> configuration limit:
+            <a href="../../../guide/goahead/source/building.html#main">LimitBuffer</a> for how to control the internal buffer size.
+            When all the data has been written, call:
+            <a href="../../../api/goahead.html#group___webs_1gac2af58b7a686cb33e44eb010cf755ce1">websDone</a>. This
+            finalizes the request.</p>
+        <pre>
+websWrite(p, "Hello World\n");
+websDone(wp);
+</pre>
+        <a id="defining"></a>
+        <h2>Defining a Handler</h2>
+        <p>To define an GoAhead handler, you need to call <a href=
+            "../../../api/goahead.html#group___webs_1gaac26a36fb28e1486fd54443ad59674a5">websDefineHandler</a>. For example:
+<pre>
+static bool matchFoo(Webs *wp)
+{
+    /* Handle request */
+    return 1;
+}
+static bool serviceFoo(Webs *wp)
+{
+    /* Do work here */
+    return 1;
+}
+static void closeFoo() {
+    /* Cleanup when goahead is exiting */
+}
+...
+websDefineHandler("foo", matchFoo, serviceFoo, closeFoo, 0);
+</pre>
+        </div>
+    </div>
+<!-- BeginDsi "dsi/bottom.html" -->
+	<div class="bottom">
+		<p class="footnote"> 
+            <a href="../../../product/copyright.html" >&copy; Embedthis Software LLC, 2003-2014.
+            All rights reserved. Embedthis and Embedthis GoAhead are trademarks of Embedthis Software LLC.</a>
+		</p>
+	</div>
+    <script src="http://www.google.com/jsapi" type="text/javascript"></script>
+    <script type="text/javascript"> 
+      google.load('search', '1', {language : 'en'});
+      google.setOnLoadCallback(function() {
+        var customSearchControl = new google.search.CustomSearchControl(
+          '000262706376373952077:1hs0lhenihk');
+        customSearchControl.setResultSetSize(google.search.Search.FILTERED_CSE_RESULTSET);
+        var options = new google.search.DrawOptions();
+        options.enableSearchboxOnly("http://embedthis.com/search.html");
+        customSearchControl.draw('cse-search-form', options);
+      }, true);
+    </script>
+    <script type="text/javascript">
+        var _gaq = _gaq || [];
+        _gaq.push(['_setAccount', 'UA-179169-5']);
+        _gaq.push(['_trackPageview']);
+        (function() {
+            var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+            var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+        })();
+    </script>
+</body>
+</html>

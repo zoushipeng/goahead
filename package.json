@@ -48,6 +48,7 @@
     "pak": "~0.9",
     "dependencies": {
         "me-dev": "~0.8",
+        "me-doc": "~0.8",
         "osdep": "~0.8"
     },
     "optionalDependencies": {
