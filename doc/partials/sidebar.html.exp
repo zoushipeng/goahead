@@ -1,0 +1,82 @@
+    
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="@@{top}">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="@@{top}index.html">GoAhead Overview</a>
+                <a class="item" href="@@{top}users/features.html">GoAhead Features</a>
+                <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
+                <a class="item" href="@@{top}licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="@@{top}start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="@@{top}start/quick.html">Quick Start</a>
+                <a class="item" href="@@{top}start/installing.html">Installing GoAhead</a>
+                <a class="item" href="@@{top}start/running.html">Running GoAhead</a>
+                <a class="item" href="@@{top}start/releaseNotes.html">Release Notes</a>
+                <a class="item" href="@@{top}start/faq.html">GoAhead FAQ</a>
+                <a class="item" href="@@{top}start/source.html">Building from Source</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="@@{top}users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+                <a class="item" href="@@{top}users/ports.html">Ports and Binding</a>
+                <a class="item" href="@@{top}users/routing.html">Routing Requests</a>
+                <a class="item" href="@@{top}users/goactions.html">GoActions</a>
+                <a class="item" href="@@{top}users/js.html">Embedded Javascript</a>
+                <a class="item" href="@@{top}users/jst.html">Javascript Templates</a>
+                <a class="item" href="@@{top}users/cgi.html">CGI Programs</a>
+                <a class="item" href="@@{top}users/authentication.html">User Authorization</a>
+                <a class="item" href="@@{top}users/logFiles.html">Log Files</a>
+                <a class="item" href="@@{top}users/ssl.html">Secure Sockets (SSL)</a>
+                <a class="item" href="@@{top}users/security.html">Security Considerations</a>
+                <a class="item" href="@@{top}users/man.html">Man Pages</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="@@{top}developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="@@{top}developers/embedding.html">Embedding GoAhead</a>
+                <a class="item" href="@@{top}developers/handlers.html">Creating GoAhead Handlers</a>
+                <a class="item" href="@@{top}developers/authstore.html">Creating Password Verifiers</a>
+                <a class="item" href="@@{top}developers/migrating.html">Migrating to GoAhead 3</a>
+                <a class="item" href="@@{top}developers/rom.html">Serving Pages from ROM</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="@@{top}ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="@@{top}ref/compatibility.html">Compatibility</a>
+                <a class="item" href="@@{top}ref/native.html">API Library</a>
+                <a class="item" href="@@{top}ref/architecture.html">GoAhead Architecture</a>
+                <a class="item" href="@@{top}standards/http.html">HTTP References</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="@@{top}developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/IGbiio">Official GoAhead News</a>
+                <a class="item" href="https://embedthis.com/goahead/">GoAhead Web Site</a>
+                <a class="item" href="https://github.com/embedthis/goahead">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/goahead/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/goahead/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/goahead/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
