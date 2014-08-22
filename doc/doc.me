@@ -7,10 +7,37 @@ Me.load({
         api: {
             action: `
                 apidoc('api/goahead.dox', '${SRC}/src/goahead.h', 'GoAhead', 'api/*.tags')
-                for each (let src: Path in ['api/goahead.html']) {
-                    apiLayout(src, Path('out/ref/appweb').join(src))
+                for each (let src: Path in ['api/goahead.html', 'api/osdep.html']) {
+                    apiLayout(src, Path('final/ref').join(src))
                 }
             `
-        }
+        },
+        validate: {
+            depends: [ 'gen-doc' ],
+            action: `
+                for each (f in Path('final').files('**/*.html')) {
+                    let data = f.readString()
+                    data = data.replace('700|Open', '').
+                        replace(/goahead.download.html/g, 'download/goahead.html').
+                        replace(/pak.download.html/g, 'download/pak.html').
+                        replace(/developers.contributors.html/g, 'scripts/contributors.esp').
+                        replace(/nowrap="nowrap"/g, '').
+                        replace(/https:..embedthis.com.goahead.licensing.html/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.me.doc.guide.me.source.building.htm/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.me.doc.source.building.htm/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.me.doc.source/g, 'https://embedthis.com/').
+                        replace(/https:..embedthis.com.developers./g, 'https://embedthis.com/').
+
+                        replace(/nowrap/g, '')
+                    trace('Patch', f)
+                    f.write(data)
+                }
+                for each (f in Path('final/man').files('*.html')) {
+                    f.write(f.readString().toLowerCase())
+                }
+                trace('Listen', 'exp --nowatch')
+                Cmd.run('exp --nowatch')
+            `
+        },
     },
 })

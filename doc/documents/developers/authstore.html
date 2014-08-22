@@ -1,0 +1,34 @@
+{
+    title:  'Creating Password Verifiers',
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+            <h1>Creating Password Store Verifiers</h1>
+            <p>You can use a custom password store with GoAhead by defining a password verifier routine.
+            and then establishing it via the <a
+                href="../ref/api/goahead.html#group___webs_auth_1gac050abeadb21db4a90197eab284b115b">websSetPasswordStoreVerify</a> API.
+            <p>Here is a sample verify routine that you can use as a starter:</p>
+            <pre class="ui code segment">
+static bool verifyPassword(Webs *wp)
+{
+    char    *password, *roles;
+    /*
+        If using Digest auth, compare the digest of the password
+     */
+    password = (wp-&gt;digest) ? wp-&gt;digest : wp-&gt;user-&gt;password;
+    if (!CHECK_PASSWORD(wp-&gt;username, password, &amp;roles)) {
+        return 0;
+    }
+    /*
+        Create the user inside GoAhead and set the user roles/abilities
+     */
+    if ((wp-&gt;user = websLookupUser(wp-&gt;username)) == 0) {
+        if ((wp-&gt;user = websAddUser(wp-&gt;username, 0, roles)) == 0) {
+            return 0;
+        }
+        websSetUserRoles(wp-&gt;username, roles);
+    }
+    return 1;
+}
+</pre>

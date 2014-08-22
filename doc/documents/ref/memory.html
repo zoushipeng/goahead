@@ -1,0 +1,23 @@
+{
+    title:  "Memory Allocation",
+    crumbs: [
+        { 'Reference Guide': 'index.html' },
+    ],
+}
+            <h1>Memory Allocator</h1>
+            <a id="overview"></a>
+            <h2>Overview</h2>
+            <p>GoAhead provides an application-specific memory allocator to use instead of malloc. This allocator is 
+            useful when the native operating system malloc suffers from excessive fragmentation.
+            It is faster than most general purpose malloc allocators for the GoAhead web server  workload. It is
+            deterministic and allocates and frees memory in constant time O(1). </p>
+            <p>The allocator is optimized for frequent allocations of small blocks (&lt; 4K). It 
+            uses a scheme of buddy free queues for fast allocation. Memory allocations are aligned on 16 byte boundaries on
+            64-bit systems and otherwise on 8 byte boundaries. It will not return chunks of unused memory back to the O/S.</p>
+            <a id="enabling"></a>
+            <h3>Enabling the Allocator</h3>
+            <p>The allocator is not enabled by default as most operating systems now have suitable malloc implementations.
+            To enable, run configure and rebuild:</p>
+            <pre class="ui code segment">configure --set replaceMalloc=true
+me
+</pre>

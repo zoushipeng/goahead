@@ -1,0 +1,35 @@
+AUTH(1)                          User Commands                         AUTH(1)
+
+
+
+NAME
+       gopass - Create and manage passwords
+
+SYNOPSIS
+       gopass [-c] [-p password] authFile realm user roles...
+
+OPTIONS
+       -p password
+              Specifies a password to use to for the user.
+
+       -c     Create the specified file
+
+
+DESCRIPTION
+       The  gopass  program  is  used  to create user passwords in a nominated
+       authentication configuration file.  GoAhead uses the same authorization
+       file  and  format  for  Basic, Digest and web-form authentication. This
+       simplifies administration.
+
+       The optional roles specified define the  abilities  of  the  user.  The
+       roles may those defined in auth.txt file via the "role" keyword. Alter-
+       natively, the roles may be pure ability strings.
+
+REPORTING BUGS
+       Report bugs to <dev@embedthis.com>.
+
+COPYRIGHT
+       Copyright (C) 2003-2014 Embedthis Software.
+
+SEE ALSO
+auth                             February 2014                         AUTH(1)

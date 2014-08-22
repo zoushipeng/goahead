@@ -1,0 +1,60 @@
+{
+    title:  'Embedding GoAhead',
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+            <h1 class="title">Embedding GoAhead</h1>
+            <p>When embedding GoAhead in your application or system, you have two alternatives:</p>
+            <ol>
+                <li>Use the existing GoAhead main program and extend GoAhead via Javascript and goforms.</li>
+                <li>Link the GoAhead library with a custom main program.</li>
+            </ol>
+            <a id="goaheadProgram"></a>
+            <h2 >The GoAhead Program</h2>
+            <p>The GoAhead product includes a fully-featured HTTP server program called <em>goahead</em> that uses the GoAhead HTTP library.
+            You can also modify the <em>goahead.c</em> main program to customize according to your specific requirements.
+            line of code.</p>
+            
+            <a name="library"></a>
+            <h2>Embed the GoAhead Library</h2>
+            <p>You can link the GoAhead library with your application to enable it to listen for HTTP requests and thus
+            become a HTTP server itself. Embedding the GoAhead library is easy and can be done with as little as one
+            line of code.</p>
+            <h3>Linking with the GoAhead Library</h3>
+            <p>To include the GoAhead library in your program you need to do the following things:</p>
+            <ol>
+                <li>Add <b>#include "goahead.h"</b> in your source files.</li>
+                <li>Add the GoAhead library to your Makefiles or Windows project files. This will mean adding
+                    libgo.lib on Windows or libgo.a on Unix.</li>
+                <li>Use one of the embedding APIs to create the HTTP server.</li>
+            </ol>
+            <h3>Full Control API</h3>
+            <p>The GoAhead library also provides an extensive API so you can precisely control how
+            the web server is created and configured.</p>
+            <p>This example creates a web server using the "server.conf" configuration file and will service events
+            until terminated.</p>
+            <pre class="ui code segment">
+#include "goahead.h"
+int main(int argc, char **argv)
+{
+    if (websOpen("web", "route.txt") &lt; 0) {
+        error("Can't open the web server runtime");
+        return 0;
+    }
+    if (websListen(":80") &lt; 0) {
+        mprError("Can't listen on port 80");
+        return 0;
+    }
+    websServiceEvents(NULL);
+    websClose();
+    return 0;
+}
+</pre>
+            <a name="javascript"></a>
+            <h2>Extending via Javascript</h2>
+            <p>The GoAhead Javascript web framework allows customization by direct embedding of Javascript code in
+            HTML web pages. This code runs on the server-side before rendering the page to the client. 
+            <h3>API Details</h3>
+            <p>For more details about the embedding API, please consult the <a href="../ref/api/goahead.html">GoAhead
+                API</a>.</p>

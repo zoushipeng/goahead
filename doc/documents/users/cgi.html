@@ -1,0 +1,334 @@
+{
+    title:  'GI',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+            <h1>Using CGI Programs</h1>
+            <p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web
+            servers. CGI was originally developed as part of the NCSA HTTP server and is an old standard for interfacing
+            external applications with HTTP servers. It still enjoys considerable use.</p> <p>CGI was created to allow
+            dynamic data to be generated in response to HTTP requests and return the results to the clients's browser. Plain
+            HTML documents are typically static, while a CGI program allows the response data to be dynamically created.</p>
+            <p>CGI scripts are written in any language that can read from the standard-input, write to the
+            standard-output, and access environment variables.  This means that virtually any programming language can be
+            used, including C, Perl, or even Unix shell scripting.</p>
+            <p>However, since CGI was first developed, several better means of creating dynamic web pages have been
+            created that are faster and more efficient. Read more about such replacements in 
+            <a href="goactions.html">Using GoActions</a>.</p>
+            <p>Embedthis GoAhead supports CGI so that existing CGI applications can be fully supported. GoAhead has a
+            high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI
+            setup.</p>
+            <a name="configuringCgi"></a>
+            <h2 >Configuring CGI Programs</h2>
+            <p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is
+            typically "cgi-bin". The CGI programs and scripts are stored in special CGI directories outside the
+            document root.</p>
+            <p>When a URI is requested by a browser that includes the "<em>/cgi-bin/</em>" prefix, the 
+            script name immediately after "/cgi-bin/" will be run. For example:</p>
+<pre class="ui code segment">
+http://www.embedthis.com/cgi-bin/cgitest
+</pre>
+            <a name="invoking"></a>
+            <h2 >Invoking CGI Programs</h2>
+            <p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program
+            via Environment Variables.</p>
+            
+            <a name="env"></a>
+            <h2 >CGI Environment Variables</h2>
+            <p>CGI uses environment variables to send your program additional parameters. The following environment
+            variables are defined:</p>
+            <table title="args" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>AUTH_TYPE</td>
+                        <td>Set to the value of the HTTP AUTHORIZATION header. Usually "basic", "digest" or "form".</td>
+                    </tr>
+                    <tr>
+                        <td>CONTENT_LENGTH</td>
+                        <td>Set to the length of any associated posted content.</td>
+                    </tr>
+                    <tr>
+                        <td>CONTENT_TYPE</td>
+                        <td>Set to the content mime type of any associated posted content.</td>
+                    </tr>
+                    <tr>
+                        <td>DOCUMENT_ROOT</td>
+                        <td>Set to the path location of web documents. Defined by the DocumentRoot directive in the
+                        GoAhead configuration file.</td>
+                    </tr>
+                    <tr>
+                        <td>GATEWAY_INTERFACE</td>
+                        <td>Set to "CGI/1.1"</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP_ACCEPT</td>
+                        <td>Set to the value of the HTTP ACCEPT header. This specifies what formats are acceptable
+                        and/or preferable for the client.</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP_CONNECTION</td>
+                        <td>Set to the value of the HTTP CONNECTION header. This specifies how the connection should be
+                        reused when the request completes. (Keep-alive)</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP_HOST</td>
+                        <td>Set to the value of the HTTP HOST header. This specifies the name of the server to process
+                        the request. When using Named virtual hosting, requests to different servers (hosts) may be
+                        processed by a single HTTP server on a single IP address. The HTTP_HOST field permits the
+                        server to determine which virtual host should process the request.</td>
+                    </tr>
+                    <tr>
+                        <td>HTTP_USER_AGENT</td>
+                        <td>Set to the value of the HTTP USER_AGENT header.</td>
+                    </tr>
+                    <tr>
+                        <td>PATH_INFO</td>
+                        <td>The PATH_INFO variable is set to extra path information after the script name.</td>
+                    </tr>
+                    <tr>
+                        <td>PATH_TRANSLATED</td>
+                        <td>The physical on-disk path name corresponding to PATH_INFO.</td>
+                    </tr>
+                    <tr>
+                        <td>QUERY_STRING</td>
+                        <td>The QUERY_STRING variable is set to the URI string portion that follows the first "?" in
+                            the URI. The QUERY_STRING is note decoded.</td>
+                    </tr>
+                    <tr>
+                        <td>REMOTE_ADDR</td>
+                        <td>Set to the IP address of the requesting client.</td>
+                    </tr>
+                    <tr>
+                        <td>REMOTE_HOST</td>
+                        <td>Set to the IP address of the requesting client (same as REMOTE_ADDR).</td>
+                    </tr>
+                    <tr>
+                        <td>REMOTE_USER</td>
+                        <td>Set to the name of the authenticated user.</td>
+                    </tr>
+                    <tr>
+                        <td>REMOTE_METHOD</td>
+                        <td>Set to the HTTP method used by the request. Typical values are: "DELETE", "GET", "HEAD",
+                            "OPTIONS", "POST", "PUT", or "TRACE".</td>
+                    </tr>
+                    <tr>
+                        <td>REQUEST_URI</td>
+                        <td>The complete request URI after the host name portion. It always begins with a leading
+                        "/".</td>
+                    </tr>
+                    <tr>
+                        <td>SCRIPT_NAME</td>
+                        <td>The name of the CGI script being executed in a format suitable for self-referencing URL.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_ADDR</td>
+                        <td>The IP address of the server or virtual host responding to the request.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_HOST</td>
+                        <td>Set to server hostname without port.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_NAME</td>
+                        <td>The server's hostname, alias or IP address as it would appear in self-referencing URLs.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_PORT</td>
+                        <td>The HTTP port of the server or virtual host serving the request.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_PROTOCOL</td>
+                        <td>Set to "HTTP/1.0" or "HTTP/1.1" depending on the protocol used by the client.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_URL</td>
+                        <td>Set to server hostname with port. Suitable for use in a URL.</td>
+                    </tr>
+                    <tr>
+                        <td>SERVER_SOFTWARE</td>
+                        <td>Set to "Embedthis GoAhead/VERSION"</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h4>Example</h4>
+            <p>Consider the following URI which will run the Perl interpreter to execute the "pricelists.pl"
+            script.</p>
+            <pre class="ui code segment">
+http://hostname/cgi-bin/myScript/products/pricelists.pl?id=23&amp;payment=creditCard
+</pre>
+            <p>This URI will cause the following environment settings:</p>
+            <table title="evn" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PATH_INFO</td>
+                        <td>/products/pricelists</td>
+                    </tr>
+                    <tr>
+                        <td>PATH_TRANSLATED</td>
+                        <td>/var/goahead/web/products/pricelists <br/>Where /var/goahead/web is the DocumentRoot</td>
+                    </tr>
+                    <tr>
+                        <td>QUERY_STRING</td>
+                        <td>id=23&amp;payment=credit+Card</td>
+                    </tr>
+                    <tr>
+                        <td>REQUEST_URI</td>
+                        <td>/cgi-bin/myScript/products/pricelists?id=23&amp;payment=credit+Card</td>
+                    </tr>
+                    <tr>
+                        <td>SCRIPT_NAME</td>
+                        <td>myScript</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>This URI below demonstrates some rather cryptic encoding of URIs. 
+            The hex encoding %20, is the encoding for the space
+            character. Once passed to the CGI program, the convention is for CGI variables to be delimited by
+            "&amp;".</p>
+            <pre class="ui code segment">
+http://hostname/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
+</pre>
+            <p>This URI will cause the following environment settings:</p>
+            <table title="env" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>PATH_INFO</td>
+                        <td>/extra/Path</td>
+                    </tr>
+                    <tr>
+                        <td>PATH_TRANSLATED</td>
+                        <td>/var/goahead/web/extra/Path</td>
+                    </tr>
+                    <tr>
+                        <td>QUERY_STRING</td>
+                        <td>var1=a+a&amp;var2=b%20b&amp;var3=c</td>
+                    </tr>
+                    <tr>
+                        <td>REQUEST_URI</td>
+                        <td>/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c</td>
+                    </tr>
+                    <tr>
+                        <td>SCRIPT_NAME</td>
+                        <td>cgiProgram</td>
+                    </tr>
+                </tbody>
+            </table>
+            <h3>URI Encoding</h3>
+            <p>When a URI is sent via HTTP, certain special characters must be escaped so the URI can be processed
+            unambiguously by the server. To escape the special characters, the HTTP client should convert them to their
+            %hex equivalent. Form and query variables are separated by "&amp;". For example: a=1&amp;b=2 defines two
+            form variables "a" and "b" with their values equal to "1" and "2" respectively.</p><a id="cgiProgramming"></a>
+            <h2 >CGI Programming</h2>
+            <p>CGI program can return almost any possible content type back to the client's browser: plain HTML, audio,
+            video or any other format. CGI programs can also control the user's browser and redirect it to another URI.
+            To do this, CGI programs return pseudo-HTTP headers that are interpreted by GoAhead before passing the data
+            on to the client.</p>
+            <p>GoAhead understands the following CGI headers that can be output by the CGI program. They are
+            case-insensitive.</p>
+            <table title="headers" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Header</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="nowrap">Content-type</td>
+                        <td>Nominate the content Mime Type. Typically "text/html". See the mime.types for a list of
+                        possible mime types.</td>
+                    </tr>
+                    <tr>
+                        <td>Status</td>
+                        <td>Set to a HTTP response code. Success is 200. Server error is 500.</td>
+                    </tr>
+                    <tr>
+                        <td>Location</td>
+                        <td>Set to the URI of a new document to which to redirect the client's browser.</td>
+                    </tr>
+                    <tr>
+                        <td>ANY</td>
+                        <td>Pass any other header back to the client.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>For example:</p>
+            <pre class="ui code segment">
+Content-type: text/html
+&lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Sample CGI Output&lt;/TITLE&gt;&lt;/HEAD&gt;
+&lt;BODY&gt;
+&lt;H1&gt;Hello World&lt;/H1&gt;
+&lt;/BODY&gt;&lt;/HTML&gt;
+</pre>
+            <p>To redirect the browser to a new location:</p>
+            <pre class="ui code segment">
+Location: /newUrl.html
+</pre>To signify an error in the server:
+            <pre class="ui code segment">
+Status: 500
+</pre>
+        <h2>CGI for VxWorks</h2>
+        <p>CGI's standard implementation requires that standalone processes be executed and their outputs returned to the
+        browser via the WebServer. In VxWorks, processes are not implemented, but rather tasks are. In addition to
+        understanding the mechanisms used in the implementation of VxWorks CGI tasks, developers of CGI processes must be
+        aware of the differences between processes on other operating systems and tasks on VxWorks.</p>
+        <ul>
+            <li>VxWorks tasks can be spawned using code already loaded in memory. On VxWorks systems with no file system,
+            the CGI task code can be included in the operating system image and is not necessarily contained in a file.</li>
+            <li>If the CGI code is contained in a file, a browser request for it will cause it to be loaded into memory
+            prior to its execution. It will be unloaded and reloaded each time it is invoked, which allows the upgrading to
+            a new version between invocations.</li>
+            <li>The VxWorks taskSpawn API is used to spawn the CGI task.</li>
+            <li> An entry point symbol name must be used to spawn the task. The request for the CGI process can define this
+            entry point name in the request by including the query string keyword=value pair "cgientry=symbolname", where
+            symbolname is a function name in the CGI code that is to be executed. If cgientry is not defined in this way, a
+            default entry name will be searched for in the loaded code. The default name is "basename_cgientry", where
+            basename is the name of the requested CGI process minus any file extension or path information (e.g., if the
+            request is for "cgi-bin/cgitest.out", the default entry point symbol name will be "cgitest_cgientry"). If the
+            entry point symbol name is not found or if the requested module cannot be loaded, the CGI request will fail.</li>
+            <li>The priority of the spawned task will be the same priority at which WebServer is running.</li>
+            <li>The stack size of the spawned task is 20K.</li>
+            <li>The task name will be the same as the entry point name.</li>
+            <li>The standard CGI environment variables are copied to the task environment. They can be retrieved/modified by
+            the getenv/putenv APIs.</li>
+            <li>Command line arguments (if any) are passed to the user's entry point via a (int argc, char **argv) standard
+            convention, where argc is the number of arguments and argv is an array of strings.</li>
+            <li>As in standard CGI processes, the VxWorks CGI task can retrieve additional POST data from the standard input
+            device and must write any output to be returned to the client to the standard output device. These devices are
+            actually temporary files where stdin and stdout have been redirected.</li>
+            <li>User-defined CGI task codes should always be terminated with a return rather than an exit API. This allows
+            environment space and redirected I/O files used by the task to be cleaned up and released back to the operating
+            system appropriately.</li>
+        </ul>
+            <a id="hints"></a>
+            <h2 >Hints and Tips</h2>
+            <p>If you have special data or environment variables that must be passed to your CGI program, you can wrap
+            it with a script that defines that environment before invoking your script.</p><a id="otherResources"></a>
+            <h2 >Other Resources</h2>
+            <p>The following URIs may be helpful in further reading about CGI:</p>
+            <ul>
+                <li>For an introduction to CGI: <a href=
+                "http://en.wikipedia.org/wiki/Common_Gateway_Interface">http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li>
+                <li>For the actual CGI specification: <a href=
+                "http://tools.ietf.org/html/draft-robinson-www-interface-00">http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li>
+                <li>Other CGI resources: <a href="http://www.cgi-resources.com">http://www.cgi-resources.com</a></li>
+            </ul>

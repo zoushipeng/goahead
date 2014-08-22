@@ -1,0 +1,28 @@
+.TH AUTH "1" "February 2014" "auth" "User Commands"
+.SH NAME
+gopass \- Create and manage passwords
+.SH SYNOPSIS
+.B gopass 
+[\fI-c\fR] 
+[\fI-p password\fR] 
+authFile realm user roles...
+.SH OPTIONS
+.TP
+\fB\-p password\fR 
+Specifies a password to use to for the user.
+.TP
+\fB\-c\fR 
+Create the specified file
+.PP
+.SH DESCRIPTION
+The gopass program is used to create user passwords in a nominated authentication configuration file.
+GoAhead uses the same authorization file and format for Basic, Digest and web-form authentication. This simplifies administration.
+.PP
+The optional roles specified define the abilities of the user. The roles may those defined in auth.txt file via
+the "role" keyword. Alternatively, the roles may be pure ability strings.
+.SH "REPORTING BUGS"
+Report bugs to <dev@embedthis.com>.
+.SH COPYRIGHT
+Copyright \(co 2003-2014 Embedthis Software.
+.br
+.SH "SEE ALSO"

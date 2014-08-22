@@ -1,85 +1,91 @@
-<BODY><PRE>
-GOAHEAD(1)                       User Commands                      GOAHEAD(1)
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+<title>Goahead Man Page</title>
+</head>
+<body><pre>
+goahead(1)                       user commands                      goahead(1)
 
-<B>NAME</B>
-       goahead- Embedded HTTP Web Server
+<b>name</b>
+       goahead- embedded http web server
 
-<B>SYNOPSIS</B>
-       <B>goahead [options] [documents] [[IP][:port] ...]</B>
+<b>synopsis</b>
+       <b>goahead [options] [documents] [[ip][:port] ...]</b>
 
-       <B>goahead</B>
-           <B>--auth authFile</B>
-           <B>--background</B>
-           <B>--debugger</B>
-           <B>--home directory</B>
-           <B>--log logSpec</B>
-           <B>--route routeFile</B>
-           <B>--version</B>
-           <B>--verbose</B>
-           <B>[IP][:port] [documents]</B>
+       <b>goahead</b>
+           <b>--auth authfile</b>
+           <b>--background</b>
+           <b>--debugger</b>
+           <b>--home directory</b>
+           <b>--log logspec</b>
+           <b>--route routefile</b>
+           <b>--version</b>
+           <b>--verbose</b>
+           <b>[ip][:port] [documents]</b>
 
-<B>DESCRIPTION</B>
-       GoAhead  is  popular,  simple  embedded HTTP web server.  It is a fast,
+<b>description</b>
+       goahead  is  popular,  simple  embedded http web server.  it is a fast,
        small-footprint,  single-threaded,  standards-based,  portable   server
-       developed  for use by embedded devices and applications.  It can run as
-       a stand-alone web server or the GoAhead  library  can  be  embedded  in
+       developed  for use by embedded devices and applications.  it can run as
+       a stand-alone web server or the goahead  library  can  be  embedded  in
        applications.
 
-       GoAhead  supports HTTP/1.1, SSL, digest, basic and web-form authentica-
+       goahead  supports http/1.1, ssl, digest, basic and web-form authentica-
        tion, chunked transfers, file upload and sandbox security limits.
 
-       When goahead is built, it  is  configured  to  open  a  port  for  HTTP
-       requests  and  optionally  one  for SSL. However, if goahead is invoked
-       with an IP address or port number on the  command  line,  GoAhead  will
-       listen  on these ports instead.  If the PORT component is omitted, GoA-
-       head will listen on port 80. If the IP address is omitted and a port is
-       supplied, GoAhead will listen on all network interfaces.
+       when goahead is built, it  is  configured  to  open  a  port  for  http
+       requests  and  optionally  one  for ssl. however, if goahead is invoked
+       with an ip address or port number on the  command  line,  goahead  will
+       listen  on these ports instead.  if the port component is omitted, goa-
+       head will listen on port 80. if the ip address is omitted and a port is
+       supplied, goahead will listen on all network interfaces.
 
-<B>OPTIONS</B>
-       <B>--auth filename</B>
-              Define  the  name of the authentication configuration file. This
-              is by default <B>auth.txt</B>.  If GoAhead is built  with  PAM  support
-              (Unix  Pluggable Authentication Modules), then passwords will be
+<b>options</b>
+       <b>--auth filename</b>
+              define  the  name of the authentication configuration file. this
+              is by default <b>auth.txt</b>.  if goahead is built  with  pam  support
+              (unix  pluggable authentication modules), then passwords will be
               authenticated from the system password database.
 
-       <B>--debugger</B>
-              Run GoAhead in debug mode and disable all  timeouts.  This  dis-
-              ables  request  and session timeouts.  The <B>-d </B>option is an alias
+       <b>--debugger</b>
+              run goahead in debug mode and disable all  timeouts.  this  dis-
+              ables  request  and session timeouts.  the <b>-d </b>option is an alias
               for --debugger.
 
-       <B>--log logSpec</B>
-              Name the GoAhead log  file.  This  will  override  the  ErrorLog
-              directive  in  the configuration file.  When the maximum size is
-              exceeded, the log file will be rotated to logName.old and a  new
-              log  file  will be started. The <B>-l </B>option is an alias for --log.
-              The syntax is:
+       <b>--log logspec</b>
+              name the goahead log  file.  this  will  override  the  errorlog
+              directive  in  the configuration file.  when the maximum size is
+              exceeded, the log file will be rotated to logname.old and a  new
+              log  file  will be started. the <b>-l </b>option is an alias for --log.
+              the syntax is:
 
-              --log logName[:logLevel][.maxSize]
+              --log logname[:loglevel][.maxsize]
 
-       <B>--home directory</B>
-              Define the server home directory for GoAhead.
+       <b>--home directory</b>
+              define the server home directory for goahead.
 
-       <B>--route routeFile</B>
-              This option overrides the default route configuration file  name
-              of "route.txt". When GoAhead starts, it reads the route configu-
-              ration file to load URI routes. These routes define what actions
+       <b>--route routefile</b>
+              this option overrides the default route configuration file  name
+              of "route.txt". when goahead starts, it reads the route configu-
+              ration file to load uri routes. these routes define what actions
               should be taken when various client requests are received.
 
-       <B>--verbose</B>
-              Shorthand  for  --log  stdout:4.  The  <B>-v </B>option is an alias for
+       <b>--verbose</b>
+              shorthand  for  --log  stdout:4.  the  <b>-v </b>option is an alias for
               --verbose.
 
-       <B>--version</B>
-              Output the product version number.
+       <b>--version</b>
+              output the product version number.
 
-<B>REPORTING BUGS</B>
-       Report bugs to &ltdev@embedthis.com&gt.
+<b>reporting bugs</b>
+       report bugs to &lt;dev@embedthis.com&gt;.
 
-<B>COPYRIGHT</B>
-       Copyright (C) 2003-2014 Embedthis Software.
+<b>copyright</b>
+       copyright (c) 2003-2014 embedthis software.
 
-<B>SEE ALSO</B>
+<b>see also</b>
        gopass, webcomp
 
-goahead                           March 2014                        GOAHEAD(1)
-</PRE></BODY>
+goahead                           march 2014                        goahead(1)
+</pre></body>
+</html>

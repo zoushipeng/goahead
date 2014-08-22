@@ -1,0 +1,30 @@
+{
+    title:  "Compatibility",
+    crumbs: [
+        { 'Reference Guide': 'index.html' },
+    ],
+}
+            <h1>Compatibility</h1>
+            <p>GoAhead supports the following standards:</p>
+            <ul>
+                <li><a href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP/1.1</a></li>
+                <li><a href="http://www.w3.org/CGI/">CGI 1.1</a></li>
+                <li><a href="http://www.ietf.org/rfc/rfc1867.txt">Form-based File Upload in HTML</a></li>
+            </ul><a id="api"></a>
+            <h2 >API Compatibility</h2>
+            <p>The GoAhead APIs are evolving, and are thus subject to change between minor releases. The documentation
+            provides a <a href="stability.html">Stability Classification</a> for each API group that reflects
+            their stability with regard to backwards compatibility.</p>
+            <p>We do <b>not</b> provide a blanket commitment to backward compatibility.  Rather, we adopt a more 
+            surgical approach on an API by API basis.</p>
+            
+            <h2>Migrating to GoAhead 3</h2>
+            <p>GoAhead 3 is major upgrade relative to GoAhead 2. Some APIs have changed and new APIs have
+            been added for increased functionality. Where the APIs have changed, their core functionality and 
+            operation typically remains similar. You can migrate code from GoAhead 2 to GoAhead 3 with 
+            simple refactoring.</p>
+            <a name="legacy"></a>
+            <h3>Legacy API Support</h3> 
+            <p>The configure command has an option to maximize backward 
+            compatibility and assist migration by supporting the legacy APIs. Use 
+            <em>configure --set legacy=true</em> to enable the legacy APIs.</p>

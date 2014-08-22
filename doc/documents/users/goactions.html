@@ -1,0 +1,42 @@
+{
+    title:  'GoActions',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+            <h1>GoActions</h1>
+            <p>The traditional Common Gateway Interface (CGI) is a slow technique for creating dynamic web pages
+            because CGI processing results in the creation of a new process for every request. This is slow and cumbersome.
+            GoAhead provides a high-performance replacement called GoActions&trade; that is a more suitable solution 
+            for embedded systems that demand compact and efficient solutions.</p>
+            <p>GoActions are "C" language functions that are directly bound to specific URIs. They respond to client
+            requests without creating a new process for each request. By sharing the address space with GoAhead, GoActions
+            can directly access the full request context. GoActions are serviced by the <i>action</i> handler.</p>
+            <h2>Defining GoActions</h2>
+            <p>GoActions are defined by the 
+            <i><a href="../ref/api/goahead.html#group___webs_1gabadb35ad9084ca79783d0a63437d4959">websDefineAction</a></i> API.
+            For example:</p>
+<pre class="ui code segment">
+static void buy(Webs *wp)
+{
+    websSetStatus(wp, 200);
+    websWriteHeaders(wp, 0, 0);
+    websWriteEndHeaders(wp);
+    websWrite(wp, "Name %s", websGetVar(wp, "name", "")); 
+    websWrite(wp,  "Age %s", websGetVar(wp, "age", ""));
+    websDone(wp);
+}
+<b>websDefineAction("buy", buy);</b>
+</pre>
+            <h2>Calling GoActions</h2>
+            <p>GoActions are bound to URIs that begin with <i>/action/</i>. 
+            When a client requests a URI <i>/action/NAME</i>, the action handler is invoked which then
+            looks for a GoAction by NAME. The function bound to NAME is then is invoked to service the request. For
+            example:</p>
+            <pre class="ui code segment">
+/action/buy?name=John&amp;item=candy           
+</pre>
+            <p>This will invoke the GoAction <i>buy</i> which will run the bound C function. The action handler will
+            automatically decode the query string "name=John&amp;age=30" and define GoAhead variables called "name" and "age".</p>
+            <p>The GoAction is responsible for writing the HTTP header and HTML document content back to the user's
+            browser.</p>

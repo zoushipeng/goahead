@@ -1,0 +1,71 @@
+{
+    title:  'SSL',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+
+            <h1>Configuring SSL</h1>
+            <p>GoAhead supports the Secure Sockets Layer (SSL) protocol for authenticating systems and encrypting data.
+            Use of this protocol enables secure data transmission to and from clients in a standards-based manner.</p>
+            <p>This document provides step-by-step instructions for configuring SSL in GoAhead. If you are unfamiliar
+            with SSL, please read the <a href="sslOverview.html">SSL Overview</a> first.</p><a id="sslQuickStart"></a>
+            <h2 >SSL Quick Start</h2>
+            <p>The default build of GoAhead will support SSL on port 443 for all network interfaces. You
+            can immediately test SSL access to documents by using the <b>https://</b> scheme and <b>443</b> as the
+            port. For example, to access the home page using SSL, use this URL in your browser:</p>
+            <pre class="ui code segment">
+https://127.0.0.1:443/index.html
+</pre>
+            <h2>Self-Signed Certificate</h2>
+            <p>GoAhead is shipped with a self-signed certificate to identify the web server. This certificate is
+            suitable for testing purposes only and your browser will issue a warning when you access the server. For
+            production use, you should obtain your own service certificate from signing authorities such as <a href=
+            "http://www.verisign.com">Verisign</a>.</p><a id="sslConfigurationDirectives"></a>
+            <h2 >Build-time SSL Configuration Directives</h2>
+            <p>GoAhead uses several <i>main.bit</i> configuration directives to control SSL and manage secure access to the
+            server.
+            <p>The relevant SSL directives are:</p>
+            <ul>
+                <li>key &mdash; SSL public key</li>
+                <li>certificate &mdash; SSL certificate</li>
+                <li>ciphers &mdash; Cipher suite to use for openssl</li>
+                <li>caFile &mdash; File of certificates if verifying client certificates</li>
+                <li>caPath &mdash; Directory of certificates if verifying client certificates</li>
+            </ul>
+            
+            <a id="sslConfigurationExample"></a>
+            
+            <a id="generatingKeys"></a>
+            <h2 >Generating Keys and Certificates</h2>
+            <p>To generate a request file that you can send to a certificate issuing authority such as <a href=
+            "http://www.verisign.com">Verisign</a>, use the following openssl command or equivalent command from your
+            SSL provider:</p>
+            <pre class="ui code segment">
+openssl genrsa -des3 -out server.key 1024
+openssl req -new -key server.key -out server.csr
+</pre>
+            <p>This will generate a server key in the file "server.key" and will generate a certificate request in the
+            file "server.csr" that you can send to the issuing authority. The issuing authority will generate a server
+            certificate for your server and they will sign it with their private key. Subsequently, clients will be
+            able to use the signing authorities public key to decrypt your server certificate and thus verify the
+            identity of your server when negotiating a SSL session. When running these commands, you will be prompted
+            to enter a pass-phrase password to decrypt the server private key. REMEMBER this password.</p>
+            <p><b>SECURITY WARNING</b>: Safeguard the "server.key" private key jealously. If this falls into malicious
+            hands, then your server identity may be hijacked by another site.</p><a id="sslProviders"></a>
+            <h2 >SSL Providers</h2>
+            <p>GoAhead employs an open architecture SSL Provider interface so that customers can select the ideal SSL
+            provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
+            fast and some are extensive in their cipher support.</p>
+            <p>GoAhead supports two SSL implementations:</p>
+            <ul>
+                <li>OpenSSL -- designed for enterprise use. See <a href=
+                    "http://www.openssl.org">http://www.openssl.org</a>.</li>
+<!--
+                <li>PeerSec MatrixSSL -- designed for embedding. See <a href=
+                    "http://www.peersec.com">http://www.peersec.com</a>.</li>
+                <li>Mocana NanoSSL -- designed for embedding. See <a href=
+                    "http://www.mocana.com">http://www.mocana.com</a>.</li>
+-->
+                <li>EST (Prototype) -- designed for embedding. Integrated with GoAhead.</li>
+            </ul>
