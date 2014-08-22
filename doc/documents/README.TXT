@@ -1,6 +1,6 @@
 Embedthis GoAhead(TM)
 
-Welcome to the GoAhead -- the world's most popular embedded web server.
+Welcome to GoAhead -- the world's most popular embedded web server.
 
 This document contains details regarding the installation procedure for the binary Embedthis GoAhead package.  This package contains pre-built stand-alone web server and an embeddable HTTP library with headers. You can read the documentation for the latest release online at:
 

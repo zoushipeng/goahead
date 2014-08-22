@@ -12,7 +12,6 @@
 *.obj
 *.exe
 *.dll
-*.exp
 *.lib
 *.sdf
 *.suo
