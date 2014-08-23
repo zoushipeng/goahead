@@ -249,7 +249,7 @@ Me.load({
             sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
-            depends: [ 'ssl' ],
+            depends: [ 'osdep', 'ssl' ],
             scripts: {
                 prebuild: `
                     if (me.settings.compiler.hasPam && me.settings.goahead.pam) {
