@@ -2146,7 +2146,6 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
 
     wp->writeData = proc;
     if (websFlush(wp, 0) == 0) {
-        /* Can call the writeData proc if all output buffered data has been flushed */
         (wp->writeData)(wp);
     }
     if (wp->state < WEBS_COMPLETE) {
