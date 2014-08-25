@@ -8,7 +8,7 @@ Licensing
 See LICENSE.md for details.
 
 
-  See https://embedthis.com/products/goahead/doc/index.html
+  See https://embedthis.com/goahead/doc/index.html
 
 ### Building
     You can build with make or with MakeMe. MakeMe is quicker and more flexible.

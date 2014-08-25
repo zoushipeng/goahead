@@ -16,7 +16,7 @@ ArchitecturesInstallIn64BitMode=x64
 
 [Icons]
 Name: "{group}\${settings.title} shell"; Filename: "{app}/bin/${settings.name}.exe"; Parameters: ""
-Name: "{group}\${settings.title} documentation"; Filename: "{app}/doc/product/index.html"; Parameters: ""
+Name: "{group}\${settings.title} documentation"; Filename: "{app}/doc/index.html"; Parameters: ""
 Name: "{group}\ReadMe"; Filename: "{app}/README.TXT"
 
 [Dirs]
@@ -117,7 +117,7 @@ begin
 end;
 
 [Run]
-Filename: "file:///{app}/doc/product/index.html"; Description: "View the Documentation"; Flags: skipifsilent waituntilidle shellexec postinstall; Check: IsPresent('{app}/doc/product/index.html');
+Filename: "file:///{app}/doc/index.html"; Description: "View the Documentation"; Flags: skipifsilent waituntilidle shellexec postinstall; Check: IsPresent('{app}/doc/index.html');
 
 [UninstallRun]
 Filename: "{app}/bin/removeFiles.exe"; Parameters: "-r -s 5"; WorkingDir: "{app}"; Flags:
