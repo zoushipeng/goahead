@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <meta name="keywords" content="goahead, embedded web server, embedded, devices, http server, internet of things, appweb" />
     <meta name="description" content="Simple, fast, secure embedded web server" />
-    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,+Sans:300italic,400,300,700'
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
         rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
@@ -27,7 +27,7 @@
             <div class="menu">
                 <a class="item" href="../index.html">GoAhead Overview</a>
                 <a class="item" href="../users/features.html">GoAhead Features</a>
-                <a class="item" href="https://embedthis.com/download/goahead.html">Download</a> 
+                <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
                 <a class="item" href="../licensing/index.html">Licensing</a>
             </div>
         </div>
@@ -88,7 +88,7 @@
                 <a class="item" href="https://github.com/embedthis/goahead/issues">Project Issue Database</a>
                 <a class="item" href="https://github.com/embedthis/goahead/releases">Change Log</a>
                 <a class="item" href="https://github.com/embedthis/goahead/milestones">Roadmap</a>
-                <a class="item" href="https://embedthis.com/scripts/contributors.esp">Contributors Agreement</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
             </div>
         </div>
         <div class="item">
@@ -166,11 +166,11 @@ goahead [options] [IP]:[PORT] [documents]
                             be authenticated from the system password database.</td> 
                     </tr>
                     <tr>
-                        <td class="">--debugger</td>
+                        <td class="nowrap">--debugger</td>
                         <td>Disable timeouts to make it easier to debug.</td>
                     </tr>
                     <tr>
-                        <td class="">--log logSpec</td>
+                        <td class="nowrap">--log logSpec</td>
                         <td>Specify a file to log messages. This will override the ErrorLog directive in the
                         configuration file. The logSpec syntax is logName[:logLevel][.maxSize]. When the maximum size
                         is exceeded, the log file will be rotated to logName.old and a new log file will be started.
@@ -178,12 +178,12 @@ goahead [options] [IP]:[PORT] [documents]
                         alias for --log.</td>
                     </tr>
                     <tr>
-                        <td class="">--home directory</td>
+                        <td class="nowrap">--home directory</td>
                         <td>Specify the starting directory for the root of the server. This directory contains GoAhead
                             configuration file.</td>
                     </tr>
                     <tr>
-                        <td class="">--route routeFile</td>
+                        <td class="nowrap">--route routeFile</td>
                         <td>This option overrides the default route configuration file name of "route.txt". When
                             GoAhead starts, it reads the route configuration file to load URI routes. These routes define
                             what actions should be taken when various client requests are received.</td> 
@@ -201,7 +201,7 @@ goahead [options] [IP]:[PORT] [documents]
     </div>
     <div class="ui basic center aligned segment" id="terms">
         <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
-            Generated on Aug 22, 2014.
+            Generated on Aug 25, 2014.
         </p>
     </div>
 

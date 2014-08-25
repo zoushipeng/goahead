@@ -8,11 +8,11 @@
         "http",
         "webserver"
     ],
-    "homepage": "http://embedthis.com/products/goahead/",
+    "homepage": "https://embedthis.com/goahead/",
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
-        "url": "http://embedthis.com"
+        "url": "https://embedthis.com"
     },
     "repository": {
         "type": "git",
@@ -39,7 +39,7 @@
         },
         {
             "type": "Commercial",
-            "url": "http://embedthis.com/licensing/"
+            "url": "https://embedthis.com/licensing/"
         }
     ],
     "directories": {

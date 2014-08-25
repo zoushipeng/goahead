@@ -6,7 +6,7 @@ Name: ${settings.name}
 Version: ${settings.version}
 License: Dual Open Source/commercial
 Group: Applications/Internet
-URL: http://embedthis.com
+URL: https://embedthis.com
 Distribution: Embedthis
 Vendor: Embedthis Software
 BuildRoot: ${prefixes.rpm}/BUILDROOT/${settings.name}-${settings.version}.${platform.mappedCpu}
