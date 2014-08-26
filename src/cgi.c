@@ -353,7 +353,7 @@ WebsTime websCgiPoll()
     Webs    *wp;
     Cgi     *cgip;
     char    **ep;
-    int     cid, nTries;
+    int     cid;
 
     for (cid = 0; cid < cgiMax; cid++) {
         if ((cgip = cgiList[cid]) != NULL) {
@@ -363,17 +363,23 @@ WebsTime websCgiPoll()
                 /*
                     We get here if the CGI process has terminated. Clean up.
                  */
-                for (nTries = 0; (cgip->fplacemark == 0) && (nTries < 100); nTries++) {
-                    websCgiGatherOutput(cgip);
-                    /*                  
-                         There are some cases when we detect app exit before the file is ready. 
-                     */
-                    if (cgip->fplacemark == 0) {
+                cgip->handle = 0;
+                websCgiGatherOutput(cgip);
+
 #if WINDOWS
-                        Sleep(10);
-#endif
+                /*                  
+                     Windows can have delayed notification through the file system after process exit.
+                 */
+                {
+                    int nTries;
+                    for (nTries = 0; (cgip->fplacemark == 0) && (nTries < 100); nTries++) {
+                        websCgiGatherOutput(cgip);
+                        if (cgip->fplacemark == 0) {
+                            Sleep(10);
+                        }
                     }
                 }
+#endif
                 if (cgip->fplacemark == 0) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "CGI generated no output");
                 } else {
