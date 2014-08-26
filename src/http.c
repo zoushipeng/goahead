@@ -2143,12 +2143,20 @@ static void writeEvent(Webs *wp)
 PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
 {
     WebsSocket  *sp;
+    WebsBuf     *op;
+
+    assert(proc);
 
     wp->writeData = proc;
-    if (websFlush(wp, 0) == 0) {
+    op = &wp->output;
+
+    if (bufLen(op) > 0) {
+        websFlush(wp, 0);
+    }
+    if (bufLen(op) == 0) {
         (wp->writeData)(wp);
     }
-    if (wp->state < WEBS_COMPLETE) {
+    if (wp->sid >= 0 && wp->state < WEBS_COMPLETE) {
         sp = socketPtr(wp->sid);
         socketCreateHandler(wp->sid, sp->handlerMask | SOCKET_WRITABLE, socketEvent, wp);
     }
