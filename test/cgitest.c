@@ -254,7 +254,6 @@ int main(int argc, char **argv, char **envp)
         printf("Connection: close\r\n");
         printf("X-CGI-CustomHeader: Any value at all\r\n");
     }
-
     printf("Content-type: %s\r\n", "text/html");
 
     if (outputHeaderLines) {
@@ -661,5 +660,4 @@ int _exit() {
     c-basic-offset: 4
     End:
     vim: sw=4 ts=4 expandtab
-
-
+*/
