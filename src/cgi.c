@@ -242,6 +242,7 @@ static void writeCgiHeaders(Webs *wp, int status, ssize contentLength, char *loc
     }
 }
 
+
 static ssize parseCgiHeaders(Webs *wp, char *buf)
 {
     char    *end, *cp, *key, *value, *location, *contentType;
@@ -309,29 +310,39 @@ static ssize parseCgiHeaders(Webs *wp, char *buf)
 }
 
 
-/*
-    Any entry in the cgiList need to be checked to see if it has
- */
 PUBLIC void websCgiGatherOutput(Cgi *cgip)
 {
     Webs        *wp;
     WebsStat    sbuf;
-    char        buf[ME_GOAHEAD_LIMIT_BUFFER];
+    char        buf[ME_GOAHEAD_LIMIT_HEADERS + 2];
     ssize       nbytes, skip;
     int         fdout;
 
+    /*
+        OPT - currently polling and doing a stat() each poll. If the CGI process writes partial headers, 
+        this repeatedly reads the data until complete headers are written or more than ME_GOAHEAD_LIMIT_HEADERS 
+        of data is received.
+     */
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
-        trace(5, "cgi: gather output");
         if ((fdout = open(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
             /*
                 Check to see if any data is available in the output file and send its contents to the socket.
-                Write the HTTP header on our first pass.
+                Write the HTTP header on our first pass. The header must fit into ME_GOAHEAD_LIMIT_BUFFER.
              */
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
-            while ((nbytes = read(fdout, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
-                trace(5, "cgi: read %d bytes from CGI", nbytes);
-                skip = (cgip->fplacemark == 0) ? parseCgiHeaders(wp, buf) : 0;
+            while ((nbytes = read(fdout, buf, sizeof(buf))) > 0) {
+                if (!(wp->flags & WEBS_HEADERS_CREATED)) {
+                    if ((skip = parseCgiHeaders(wp, buf)) == 0) {
+                        if (cgip->handle && sbuf.st_size < ME_GOAHEAD_LIMIT_HEADERS) {
+                            trace(5, "cgi: waiting for http headers");
+                            break;
+                        } else {
+                            trace(5, "cgi: missing http headers - create default headers");
+                            writeCgiHeaders(wp, HTTP_CODE_OK, -1, 0, 0);
+                        }
+                    }
+                }
                 trace(5, "cgi: write %d bytes to client", nbytes - skip);
                 websWriteBlock(wp, &buf[skip], nbytes - skip);
                 cgip->fplacemark += (off_t) nbytes;
