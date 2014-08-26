@@ -474,7 +474,7 @@ static int checkCgi(int handle)
         We must close process handle to free up the window resource, but only when we're done with it.
      */
     if ((nReturn == 0) || (exitCode != STILL_ACTIVE)) {
-        CloseHandle((HANDLE)handle);
+        CloseHandle((HANDLE) handle);
         return 0;
     }
     return 1;
@@ -891,13 +891,13 @@ static int checkCgi(int handle)
     DWORD   exitCode;
     int     nReturn;
 
-    nReturn = GetExitCodeProcess((HANDLE)handle, &exitCode);
+    nReturn = GetExitCodeProcess((HANDLE) handle, &exitCode);
     /*
         We must close process handle to free up the window resource, but only
         when we're done with it.
      */
     if ((nReturn == 0) || (exitCode != STILL_ACTIVE)) {
-        CloseHandle((HANDLE)handle);
+        CloseHandle((HANDLE) handle);
         return 0;
     }
     return 1;
