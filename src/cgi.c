@@ -492,8 +492,8 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 
     trace(5, "cgi: run %s", cgiPath);
     pid = fdin = fdout = hstdin = hstdout = -1;
-    if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
-            (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 ||
+    if ((fdin = open(stdIn, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0 ||
+            (fdout = open(stdOut, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0 ||
             (hstdin = dup(0)) == -1 || (hstdout = dup(1)) == -1 ||
             dup2(fdin, 0) == -1 || dup2(fdout, 1) == -1) {
         goto done;
