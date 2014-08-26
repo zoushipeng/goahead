@@ -25,6 +25,9 @@
                 <div class="divider">/</div>
                 <a class="section active" href="<%= meta.basename %>"><%= meta.cookie || meta.title %></a>
             </div>
+            <div class="ui right floated basic segment version">
+                Version: <%= Path('../package.json').readJSON().version %>
+            </div>
         </div>
         <div class="ui black small launch right attached toggle button" style="width: 40px;">
             <i class="icon list layout">

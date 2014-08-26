@@ -72,6 +72,13 @@ body {
   color: #ffffff;
 }
 
+.ui.masthead .version {
+  margin: -0.8rem 0.2rem 0 0;
+  font-size: 0.75rem;
+  color: #ffffff;
+  opacity: 0.75;
+}
+
 .ui.masthead .ui.launch.button {
   margin-top: -15px;
 }
