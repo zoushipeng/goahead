@@ -293,7 +293,11 @@ static ssize parseCgiHeaders(Webs *wp, char *buf)
                 writeCgiHeaders(wp, status, contentLength, location, contentType);
                 doneHeaders = 1;
             }
-            websWriteHeader(wp, key, "%s", value);
+            if (key && value && !strspn(key, "%<>/\\")) {
+                websWriteHeader(wp, key, "%s", value);
+            } else {
+                trace(5, "cgi: bad response http header: \"%s\": \"%s\"", key, value);
+            }
         }
         stok(value, "\r\n", &cp);
     }
