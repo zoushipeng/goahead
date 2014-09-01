@@ -188,11 +188,13 @@ Listen [2001:0db8:85a3:08d3:1319:8a2e:0370:7348]:7777
         $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
         $('.sidebar').first().sidebar('attach events', '.toggle.button');
         $(function() {
-            var active = $('.sidebar a[href$="' + window.location.pathname +'"]');
+            var url = '../' + window.location.pathname.slice(1);
+            var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             var sidebar = $(".sidebar");
             var height = sidebar.height();
-            if (active.offset().top >= height) {
+            var offset = active.offset();
+            if (offset && offset.top >= height) {
                 var diff = height - active.offset().top;
                 sidebar.scrollTop(height);
             }
