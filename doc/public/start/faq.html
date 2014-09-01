@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GoAhead FAQ</title>
+    <!-- Copyright Embedthis Software, LLC, 2003-2014. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="keywords" content="goahead, embedded web server, embedded, devices, http server, internet of things, appweb" />
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../lib/semantic/packaged/css/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+
+</head>
+<body>
+        
+    <div class="ui large left vertical inverted labeled overlay sidebar menu">
+        <div class="item">
+            <a href="/index.html" class="logo">GoAhead Docs</a>
+        </div>
+        <div class="item">
+            <a href="../index.html">
+                <b>General</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../index.html">GoAhead Overview</a>
+                <a class="item" href="../users/features.html">GoAhead Features</a>
+                <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
+                <a class="item" href="../licensing/index.html">Licensing</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../start/index.html">
+                <b>Getting Started</b>
+            </a>
+            <div class="menu">
+                <a class="item" href="../start/quick.html">Quick Start</a>
+                <a class="item" href="../start/installing.html">Installing GoAhead</a>
+                <a class="item" href="../start/running.html">Running GoAhead</a>
+                <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                <a class="item" href="../start/faq.html">GoAhead FAQ</a>
+                <a class="item" href="../start/source.html">Building from Source</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../users/index.html"><b>User's Guide</b></a>
+            <div class="menu">
+                <a class="item" href="../users/ports.html">Ports and Binding</a>
+                <a class="item" href="../users/routing.html">Routing Requests</a>
+                <a class="item" href="../users/goactions.html">GoActions</a>
+                <a class="item" href="../users/js.html">Embedded Javascript</a>
+                <a class="item" href="../users/jst.html">Javascript Templates</a>
+                <a class="item" href="../users/cgi.html">CGI Programs</a>
+                <a class="item" href="../users/authentication.html">User Authorization</a>
+                <a class="item" href="../users/logFiles.html">Log Files</a>
+                <a class="item" href="../users/ssl.html">Secure Sockets (SSL)</a>
+                <a class="item" href="../users/security.html">Security Considerations</a>
+                <a class="item" href="../users/man.html">Man Pages</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/index.html">Developer's Guide</a>
+            <div class="menu">
+                <a class="item" href="../developers/embedding.html">Embedding GoAhead</a>
+                <a class="item" href="../developers/handlers.html">Creating GoAhead Handlers</a>
+                <a class="item" href="../developers/authstore.html">Creating Password Verifiers</a>
+                <a class="item" href="../developers/migrating.html">Migrating to GoAhead 3</a>
+                <a class="item" href="../developers/rom.html">Serving Pages from ROM</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../ref/index.html">Reference Guide</a>
+            <div class="menu">
+                <a class="item" href="../ref/compatibility.html">Compatibility</a>
+                <a class="item" href="../ref/native.html">API Library</a>
+                <a class="item" href="../ref/architecture.html">GoAhead Architecture</a>
+                <a class="item" href="../standards/http.html">HTTP References</a>
+            </div>
+        </div>
+        <div class="item">
+            <a href="../developers/project.html">Project Resources</a>
+            <div class="menu">
+                <a class="item" href="http://goo.gl/IGbiio">Official GoAhead News</a>
+                <a class="item" href="https://embedthis.com/goahead/">GoAhead Web Site</a>
+                <a class="item" href="https://github.com/embedthis/goahead">Source Code Repository</a>
+                <a class="item" href="https://github.com/embedthis/goahead/issues">Project Issue Database</a>
+                <a class="item" href="https://github.com/embedthis/goahead/releases">Change Log</a>
+                <a class="item" href="https://github.com/embedthis/goahead/milestones">Roadmap</a>
+                <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+            </div>
+        </div>
+        <div class="item">
+            <b>Links</b>
+            <div class="menu">
+                <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="ui inverted masthead">
+         
+        <div class="column">
+            <div class="ui inverted menu">
+                <div class="ui black small launch right attached toggle button">
+                    <i class="icon list layout"></i>
+                </div>
+                <div class="right menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/appweb/">Appweb Site</a>
+                    <a class="item" href="http://goo.gl/dGRDl4">Appweb News</a>
+                    <a class="item" href="https://github.com/embedthis/appweb">Repository</a>
+                    <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                    <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+            
+            <div class="ui breadcrumb">
+                <a class="section" href="../">Home</a>
+                
+                <div class="divider">/</div>
+                <a class="section" href="index.html">
+                    Getting Started
+                </a>
+                
+                <div class="divider">/</div>
+                <a class="section active" href="faq.html">GoAhead FAQ</a>
+            </div>
+            
+            <div class="ui right floated basic segment version">
+                v3.4.0
+            </div>
+        </div>
+
+    </div>
+    <div class="content">
+
+            <h1>GoAhead&trade; FAQ</h1>
+            <p>If you don't find the answers you need here, please consult the <a href="../developers/project.html">Project Resources</a>
+             and perhaps submit an issue/bug request on the <a href="https://github.com/embedthis/goahead/issues">GitHub repository</a>.</p>
+
+            <a id="questions"></a>
+            <h2 >Questions</h2>
+            <h3>General Questions</h3>
+            <ul class="questions">
+                <li><a href="#history">Why is Embedthis Software supporting and distributing the GoAhead WebServer?</a></li>
+                <li><a href="#compare">How does the GoAhead WebServer compare with Appweb?</a></li>
+                <li><a href="#runTimeModules">Can I disable features to minimize memory footprint at run-time?</a></li>
+                <li><a href="#upload">How can I upload large files?</a></li>
+            </ul>
+            <h3>Building Questions</h3>
+            <ul class="questions">
+                <li><a href="#disableFeatures">When I build the source, can I disable features at compile
+                time?</a></li>
+            </ul>
+            <h3>Diagnostic Questions</h3>
+            <ul class="questions">
+                <li><a href="#trace">How can I trouble-shoot with trace?</a></li>
+            </ul>
+            <h3>Embedded Questions</h3>
+            <ul class="questions">
+                <li><a href="#minimalFootprint">How small can I make GoAhead?</a></li>
+                <li><a href="#cross">How can I cross compile?</a></li>
+            </ul>
+            <a id="answers"></a>
+            <h2 >Answers</h2>
+            <p class="question"><a id="history"></a>Why is Embedthis Software supporting and distributing 
+                the GoAhead WebServer?</p>
+            <div class="answer">
+                The GoAhead WebServer was originally written by Michael O'Brien, CEO of Embedthis and it remains a very
+                popular to this day. With the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing
+                GoAhead WebServer customers and to offer commercial licenses for the GoAhead WebServer.
+            </div>
+            <a id="compare"></a>
+            <p class="question">How does the GoAhead WebServer compare with Appweb?</p>
+            <div class="answer">
+                <p>The GoAhead WebServer is a simple, compact web server that has been widely ported to many embedded
+                operating systems. Appweb is faster and more powerful &mdash; but requires more memory. If you need a very
+                simple, low end web server and have little memory available, the GoAhead WebServer is ideal. If you need
+                higher performance and extended security, then Appweb is the right choice.</p>
+            </div>
+            <a id="runTimeModules"></a>
+            <p class="question">Can I disable features to minimize memory footprint at run-time?</p>
+            <div class="answer">
+                <p>Yes. GoAhead has build-time configuration settings to select required features and minimize 
+                memory footprint. See <a href="source.html">Building from Source</a> for details of
+                the configuration options.</p> 
+            </div>
+            <p class="question"><a id="upload"></a>How can I upload large files?</p>
+            <div class="answer">
+                <p>You need to increase the LimitRequestBody limit in the goahead.conf file. This imposes a maximum
+                upload file size. Some samples have a MAX_FILE_SIZE input field in the HTML form. This however, is 
+                just a hint to the browser, and is only processed by some browsers.</p>
+            </div>
+            <p class="question"><a id="disableFeatures"></a>When I build from the source, can I
+            disable features at compile time?</p>
+            <div class="answer">
+                <p>Yes. When GoAhead is built from source, a single bld.h header controls exactly what features and
+                modules are built into the server. For example, if you don't require SSL support,
+                and you wish to minimize memory footprint, you can run:</p>
+                <pre>./configure --without ssl</pre>
+            </div><a id="trace"></a>
+            <p class="question">How can I trouble-shoot with trace?</p>
+            <div class="answer">
+                <p>Run goahead or winGoAhead with the logging switch "-l". The logging switch takes the following
+                parameters:</p>
+                <pre>
+goahead -l logName[:logLevel][.maxSize]
+</pre>
+                <p>Where logLevel is a number between 0 and 9. Zero is the least verbose. To debug HTTP requests, a
+                level of 6 provides the detail of all the request / response exchanges. MaxSize is the maximum size of
+                the log file in MB. When the maximum size is exceeded, the log file will be rotated to logName.old and
+                a new log file will be started.</p>
+            </div>
+            <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
+            <div class="answer">
+                <p>GoAhead 3 has about 115K of code. For a minimal footprint on GoAhead, use:</p>
+                <pre>
+./configure --without all --set cgi=false --set javascript=false
+</pre>
+                <p>This will disable most features including CGI and Javascript but still provide a running web server.
+                <p>Things to consider when building small:</p>
+                <ul>
+                    <li>Disable all possible features. In particular, disable the CGI and Javascript handlers</li>
+                    <li>Don't build DEBUG. Use: <em>./configure -release</em></li>
+                    <li>Use a small C-Library such as uClibc on embedded Linux systems</li>
+                </ul>
+            </div>
+            <p class="question"><a id="cross"></a>How can I cross compile?</p>
+            <div class="answer">
+                <p>The GoAhead configure command has switches to specify the <b>build</b> system and the target system
+                that will <b>host</b> GoAhead. For example:</p>
+                <pre>
+./configure --platform vxworks-arm
+</pre>
+                <p>When cross compiling, you also need to tell configure about your cross-compilation tool chain. This
+                means the names of your compiler, library archiver, and other utilities and flags. The configure program
+                listens to the settings of the AR, CC, NM, RANLIB, STRIP, CFLAGS, IFLAGS and LDFLAGS environment
+                variables and will pass their values into the build system. These will be used to define the
+                cross-compilation tool chain. You can also specify an alternate build tool chain by using the same
+                variables but with a BUILD_ prefix. For example:</p>
+                <pre>
+DIR=/path/to/cross-tools ; \
+AR=$DIR/bin/ar.exe \
+CC=$DIR/bin/cc.exe \
+LD=$DIR/bin/cc.exe \
+NM=$DIR/nm.exe \
+RANLIB=$DIR/ranlib.exe \
+STRIP=$DIR/strip.exe \
+CFLAGS="-I$DIR/include \
+./configure --debug --platform linux-arm
+</pre>
+                <p>For more details, please read: <a href="source.html#cross">Cross Compilation</a> in the
+                <a href="source.html">Building from Source</a> guide.</p>
+            </div>
+            <h2 >Need more help?</h2>
+            <p>If you have any further questions, please consult the <a href="../developers/project.html">Project Resources</a>
+             and perhaps submit an issue/bug request on the <a href="https://github.com/embedthis/goahead/issues">GitHub repository</a>.</p>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.
+            Generated on Aug 31, 2014.
+        </p>
+    </div>
+
+     
+    <script src="../lib/jquery/jquery.js"></script>
+    <script src="../lib/semantic/packaged/javascript/semantic.js"></script>
+    <script>
+        $('.sidebar').sidebar({overlay: false}).sidebar('toggle');
+        $('.sidebar').first().sidebar('attach events', '.toggle.button');
+        $(function() {
+            var active = $('.sidebar a[href$="' + window.location.pathname +'"]');
+            active.addClass('active');
+            var sidebar = $(".sidebar");
+            var height = sidebar.height();
+            if (active.offset().top >= height) {
+                var diff = height - active.offset().top;
+                sidebar.scrollTop(height);
+            }
+        });
+    </script>
+
+</body>
+</html>
