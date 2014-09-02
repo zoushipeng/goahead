@@ -83,3 +83,4 @@
             </div>
         </div>
     </div>
+<@ partial('sidebar-scripts') @>
