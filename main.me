@@ -334,7 +334,7 @@ Me.load({
 
         test: {
             action: "
-                let ro = {noio: true, dir: 'test'}
+                let ro = {dir: 'test'}
                 let depth = me.settings.depth
                 run('utest -v -i 2 --depth ' + depth, ro)
                 if (depth >= 3) {
