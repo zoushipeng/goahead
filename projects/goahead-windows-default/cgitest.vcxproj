@@ -119,10 +119,10 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y src\goahead.h $(IncDir)
-copy /Y src\js.h $(IncDir)
+copy /Y /B src\goahead.h $(IncDir)
+copy /Y /B src\js.h $(IncDir)
 cd projects\goahead-windows-default</Command>
-    <Outputs>\Users\mob\git\goahead\projects\goahead-windows-default\..\..\test\cgi-bin\cgitest.exe</Outputs>
+    <Outputs>..\..\test\cgi-bin\cgitest.exe</Outputs>
   </CustomBuildStep>
   </ItemDefinitionGroup>
 

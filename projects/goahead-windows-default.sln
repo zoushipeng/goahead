@@ -6,15 +6,27 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ca-crt", "goahead-windows-d
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{D2D32497-2BDA-43AD-AC95-827B632FF44D} = {D2D32497-2BDA-43AD-AC95-827B632FF44D}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cgitest", "goahead-windows-default\cgitest.vcxproj", "{6770521F-03CB-427F-AE3F-A89E066E16B0}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{6770521F-03CB-427F-AE3F-A89E066E16B0} = {6770521F-03CB-427F-AE3F-A89E066E16B0}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgo", "goahead-windows-default\libgo.vcxproj", "{7C17E307-CDF0-42AB-AC16-79C2B0661E35}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead", "goahead-windows-default\goahead.vcxproj", "{462DB80E-129C-4147-A0DC-405A246B0B6A}"
@@ -22,7 +34,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead", "goahead-windows-
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{462DB80E-129C-4147-A0DC-405A246B0B6A} = {462DB80E-129C-4147-A0DC-405A246B0B6A}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead-test", "goahead-windows-default\goahead-test.vcxproj", "{11E96946-49F4-415D-9B2D-301FEE7BE810}"
@@ -30,7 +48,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead-test", "goahead-win
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{11E96946-49F4-415D-9B2D-301FEE7BE810} = {11E96946-49F4-415D-9B2D-301FEE7BE810}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-default\gopass.vcxproj", "{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}"
@@ -38,17 +62,29 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-d
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D} = {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libest", "goahead-windows-default\libest.vcxproj", "{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "removeFiles", "goahead-windows-default\removeFiles.vcxproj", "{902E2CDF-A7C0-4E70-99D9-7F6DC2B882E8}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{902E2CDF-A7C0-4E70-99D9-7F6DC2B882E8} = {902E2CDF-A7C0-4E70-99D9-7F6DC2B882E8}
 	EndProjectSection
 EndProject
 

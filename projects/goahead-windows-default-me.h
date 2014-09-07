@@ -325,12 +325,6 @@
 #ifndef ME_COM_LINK
     #define ME_COM_LINK 1
 #endif
-#ifndef ME_COM_MATRIXSSL
-    #define ME_COM_MATRIXSSL 0
-#endif
-#ifndef ME_COM_NANOSSL
-    #define ME_COM_NANOSSL 0
-#endif
 #ifndef ME_COM_OPENSSL
     #define ME_COM_OPENSSL 0
 #endif

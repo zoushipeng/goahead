@@ -119,8 +119,8 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y src\goahead.h $(IncDir)
-copy /Y src\js.h $(IncDir)
+copy /Y /B src\goahead.h $(IncDir)
+copy /Y /B src\js.h $(IncDir)
 cd projects\goahead-windows-static</Command>
     <Outputs>$(BinDir)\gopass.exe</Outputs>
   </CustomBuildStep>

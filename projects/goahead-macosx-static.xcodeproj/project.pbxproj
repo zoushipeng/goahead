@@ -72,11 +72,11 @@
 		6A59F7986A5A0ACD00000039 /* route.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD0000003A /* route.c */; };
 		6A59F7986A5A0ACD0000003B /* runtime.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD0000003C /* runtime.c */; };
 		6A59F7986A5A0ACD0000003D /* socket.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD0000003E /* socket.c */; };
-		6A59F7986A5A0ACD0000003F /* upload.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000040 /* upload.c */; };
-		6A59F7986A5A0ACD00000041 /* est.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000042 /* est.c */; };
-		6A59F7986A5A0ACD00000043 /* matrixssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000044 /* matrixssl.c */; };
-		6A59F7986A5A0ACD00000045 /* nanossl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000046 /* nanossl.c */; };
-		6A59F7986A5A0ACD00000047 /* openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000048 /* openssl.c */; };
+		6A59F7986A5A0ACD0000003F /* est.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000040 /* est.c */; };
+		6A59F7986A5A0ACD00000041 /* matrixssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000042 /* matrixssl.c */; };
+		6A59F7986A5A0ACD00000043 /* nanossl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000044 /* nanossl.c */; };
+		6A59F7986A5A0ACD00000045 /* openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000046 /* openssl.c */; };
+		6A59F7986A5A0ACD00000047 /* upload.c in Sources */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD00000048 /* upload.c */; };
 		6A59F7986A5A0ACD00000049 /* libgo.a for goahead */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD0000004A; };
 		6A59F7986A5A0ACD0000004B /* libest.a for goahead */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD0000004C; };
 		6A59F7986A5A0ACD0000004D /* libgo.a for goahead-test */ = {isa = PBXBuildFile; fileRef = 6A59F7986A5A0ACD0000004A; };
@@ -275,11 +275,11 @@
 		6A59F7986A5A0ACD0000003A /* route.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = route.c; path = src/route.c; sourceTree = "<group>"; };
 		6A59F7986A5A0ACD0000003C /* runtime.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = runtime.c; path = src/runtime.c; sourceTree = "<group>"; };
 		6A59F7986A5A0ACD0000003E /* socket.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = socket.c; path = src/socket.c; sourceTree = "<group>"; };
-		6A59F7986A5A0ACD00000040 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
-		6A59F7986A5A0ACD00000042 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
-		6A59F7986A5A0ACD00000044 /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
-		6A59F7986A5A0ACD00000046 /* nanossl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nanossl.c; path = src/ssl/nanossl.c; sourceTree = "<group>"; };
-		6A59F7986A5A0ACD00000048 /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
+		6A59F7986A5A0ACD00000040 /* est.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = est.c; path = src/ssl/est.c; sourceTree = "<group>"; };
+		6A59F7986A5A0ACD00000042 /* matrixssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = matrixssl.c; path = src/ssl/matrixssl.c; sourceTree = "<group>"; };
+		6A59F7986A5A0ACD00000044 /* nanossl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = nanossl.c; path = src/ssl/nanossl.c; sourceTree = "<group>"; };
+		6A59F7986A5A0ACD00000046 /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/ssl/openssl.c; sourceTree = "<group>"; };
+		6A59F7986A5A0ACD00000048 /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
 		6A59F7986A5A0ACD0000004A /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -434,11 +434,11 @@
 				6A59F7986A5A0ACD0000003A /* route.c */,
 				6A59F7986A5A0ACD0000003C /* runtime.c */,
 				6A59F7986A5A0ACD0000003E /* socket.c */,
-				6A59F7986A5A0ACD00000040 /* upload.c */,
-				6A59F7986A5A0ACD00000042 /* est.c */,
-				6A59F7986A5A0ACD00000044 /* matrixssl.c */,
-				6A59F7986A5A0ACD00000046 /* nanossl.c */,
-				6A59F7986A5A0ACD00000048 /* openssl.c */,
+				6A59F7986A5A0ACD00000040 /* est.c */,
+				6A59F7986A5A0ACD00000042 /* matrixssl.c */,
+				6A59F7986A5A0ACD00000044 /* nanossl.c */,
+				6A59F7986A5A0ACD00000046 /* openssl.c */,
+				6A59F7986A5A0ACD00000048 /* upload.c */,
 			);
             name = "libgo";
             path = ..;
@@ -579,7 +579,7 @@
 			files = (
 			);
 			inputPaths = (
-/Users/mob/git/goahead/src/paks/est/ca.crt
+../src/paks/est/ca.crt
 			);
 			outputPaths = (
 ../build/macosx-x64-static/bin/ca.crt
@@ -757,11 +757,11 @@ fi";
 				6A59F7986A5A0ACD00000039 /* route.c in Sources */,
 				6A59F7986A5A0ACD0000003B /* runtime.c in Sources */,
 				6A59F7986A5A0ACD0000003D /* socket.c in Sources */,
-				6A59F7986A5A0ACD0000003F /* upload.c in Sources */,
-				6A59F7986A5A0ACD00000041 /* est.c in Sources */,
-				6A59F7986A5A0ACD00000043 /* matrixssl.c in Sources */,
-				6A59F7986A5A0ACD00000045 /* nanossl.c in Sources */,
-				6A59F7986A5A0ACD00000047 /* openssl.c in Sources */,
+				6A59F7986A5A0ACD0000003F /* est.c in Sources */,
+				6A59F7986A5A0ACD00000041 /* matrixssl.c in Sources */,
+				6A59F7986A5A0ACD00000043 /* nanossl.c in Sources */,
+				6A59F7986A5A0ACD00000045 /* openssl.c in Sources */,
+				6A59F7986A5A0ACD00000047 /* upload.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -927,7 +927,7 @@ fi";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
-					"/Users/mob/git/goahead/build/macosx-x64-static/inc",
+					"../build/macosx-x64-static/inc",
 					"$(inherited)"
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -935,7 +935,7 @@ fi";
 					"$(inherited)"
 				);
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/mob/git/goahead/build/macosx-x64-static/bin",
+					"../build/macosx-x64-static/bin",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
@@ -997,12 +997,12 @@ fi";
 				GCC_OPTIMIZATION_LEVEL = s;
                 GCC_WARN_UNINITIALIZED_AUTOS = NO;
 				HEADER_SEARCH_PATHS = (
-					"/Users/mob/git/goahead/build/macosx-x64-static/inc",
+					"../build/macosx-x64-static/inc",
 					"$(inherited)"
 				);
 
 				LIBRARY_SEARCH_PATHS = (
-					"/Users/mob/git/goahead/build/macosx-x64-static/bin",
+					"../build/macosx-x64-static/bin",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (

@@ -116,11 +116,11 @@
     <ClCompile Include="..\..\src\route.c" />
     <ClCompile Include="..\..\src\runtime.c" />
     <ClCompile Include="..\..\src\socket.c" />
-    <ClCompile Include="..\..\src\upload.c" />
     <ClCompile Include="..\..\src\ssl\est.c" />
     <ClCompile Include="..\..\src\ssl\matrixssl.c" />
     <ClCompile Include="..\..\src\ssl\nanossl.c" />
     <ClCompile Include="..\..\src\ssl\openssl.c" />
+    <ClCompile Include="..\..\src\upload.c" />
   </ItemGroup>
 
   <ItemGroup>
@@ -139,8 +139,8 @@
 
   <CustomBuildStep>
     <Command>cd ..\..
-copy /Y src\goahead.h $(IncDir)
-copy /Y src\js.h $(IncDir)
+copy /Y /B src\goahead.h $(IncDir)
+copy /Y /B src\js.h $(IncDir)
 cd projects\goahead-windows-static</Command>
     <Outputs>$(BinDir)\libgo.lib</Outputs>
   </CustomBuildStep>
