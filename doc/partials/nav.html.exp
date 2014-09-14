@@ -14,8 +14,10 @@
                 <@= name @>
             </a>
             <@ } } @>
+            <@ if (meta.url.path != 'index.html') { @>
             <div class="divider">/</div>
             <a class="active section" href="<@= meta.basename @>"><@= meta.cookie || meta.title @></a>
+            <@ } @>
         </div>
         <@ } @>
         <div class="ui right floated basic segment version">
