@@ -67,3 +67,4 @@ macosx-*.me
 /windows-*
 test/web/huge.txt
 .gitattributes
+/build/
