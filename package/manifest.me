@@ -8,7 +8,7 @@ Me.load({
         The sets used are: binary, doc, dev, package, source
      */
     manifest: {
-        home: me.dir.src,
+        home: me.dir.bin,
         packages:   {
             install: {
                 inherit:    'package-manifest',
@@ -31,92 +31,103 @@ Me.load({
             },
         },
 
-        files: [ 
-            /* Binary Set */
-            {   from:   '${BIN}/goahead${EXE}',
-                to:     '${abin}/',
-                linkin: '${bin}',
-                set:    'core',
+        sets: { 
+            core: [
+                {   
+                    from:       'goahead${EXE}',
+                    to:         '${abin}/',
+                    symlink:    '${bin}',
 
-            },{ from: [
-                    '${BIN}/libgo${SHOBJ}',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: '!me.settings.static',
+                }, { 
+                    from:       '${SRC}/src/paks/est/ca.crt',
+                    to:         '${abin}/',
 
-            },{ from: [
-                    '${BIN}/libest${SHOBJ}',
-                ],
-                to:         '${abin}/',
-                set:        'libs',
-                components: 'est',
-                enable: '!me.settings.static',
-                ifdef:  'est',
+                }, { 
+                    from: [ 
+                                '${SRC}/src/web/index.html', 
+                                '${SRC}/src/web/favicon.ico' 
+                    ],
+                    to:     '${web}/',
+                    exclude: /mgmt|bench|test/,
 
-            },{ from: [
-                    '${BIN}/libssl*${SHOBJ}*',
-                    '${BIN}/libcrypto*${SHOBJ}*',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: 'me.platform.os != "windows"',
-                ifdef:  'openssl',
+                }, { 
+                    from: [
+                                '${SRC}/src/auth.txt', 
+                                '${SRC}/src/route.txt', 
+                                '${SRC}/src/self.crt', 
+                                '${SRC}/src/self.key'
+                    ],
+                    to:         '${etc}/'
+                }
+            ],
+            libs: [
+                { 
+                    from:       'libgo${SHOBJ}',
+                    to:         '${abin}/',
+                    enable:     '!me.settings.static',
 
-            },{ from: [
-                    '${BIN}/libeay32${SHOBJ}',
-                    '${BIN}/ssleay32${SHOBJ}',
-                ],
-                to:     '${abin}/',
-                set:    'libs',
-                enable: 'me.platform.os == "windows"',
-                ifdef:  'openssl',
+                }, { 
+                    from:       'libest${SHOBJ}',
+                    to:         '${abin}/',
+                    components: 'est',
+                    enable:     '!me.settings.static',
+                    ifdef:      'est',
 
-            },{ from: [
-                    'src/paks/est/ca.crt',
-                ],
-                to:     '${abin}/',
-                set:    'core',
+                }, { 
+                    from: [
+                                'libssl*${SHOBJ}*',
+                                'libcrypto*${SHOBJ}*',
+                    ],
+                    to:         '${abin}/',
+                    enable:     'me.platform.os != "windows"',
+                    ifdef:      'openssl',
 
-            },{ from:   ['doc/public/man/*.1'],
-                to:     '${adoc}/man/man1/',
-                linkin: '${man}/man1',
-                enable: "me.platform.like == 'unix'",
-                set:    'doc',
+                }, { 
+                    from: [
+                                'libeay32${SHOBJ}',
+                                'ssleay32${SHOBJ}',
+                    ],
+                    to:         '${abin}/',
+                    enable:     'me.platform.os == "windows"',
+                    ifdef:      'openssl',
+                }
+            ],
+            doc: [
+                { 
+                    from:       '${SRC}/doc/public/man/*.1',
+                    to:         '${adoc}/man/man1/',
+                    symlink:    '${man}/man1',
+                    enable:     "me.platform.like == 'unix'",
+                }
+            ],
+            source: [
+                {
+                    from:       '${SRC}/*.md',
+                    to:         '${src}/',
+                    fold:       true,
+                    patch:      true,
 
-            },{ from:   [ 'src/web/index.html', 'src/web/favicon.ico' ],
-                to:     '${web}/',
-                exclude: /mgmt|bench|test/,
-                set:    'core',
+                }, { 
+                    from:       '${SRC}/configure',
+                    to:         '${src}/',
+                    permissions: 0755,     
 
-            },{ from:   ['src/auth.txt', 'src/route.txt', 'src/self.crt', 'src/self.key'],
-                to:     '${etc}/'
-                set:    'core',
-
-           }, {
-                from:       [ 'package/uninstall.sh' ],
-                to:         '${abin}/uninstall',
-                expand:     true,
-                permissions: 0755,
-                set:        'core',
-                enable:     "!me.generating",
-            
-            /* Source Set */
-            },{ from:   [ '*.md' ],
-                to:     '${src}/',
-                fold:   true,
-                expand: true,
-                set:    'source',
-
-            },{ from:   [ 'configure' ],
-                to:     '${src}/',
-                permissions: 0755,     
-                set:    'source',
-
-            },{ from:   [ 'Makefile', 'make.bat', 'main.me', 'package.json', 'src', 'doc', 'projects', 'package', 'test' ],
-                to:     '${src}/',
-                set:    'source',
-            },
-        ],
+                }, { 
+                    home:       '${SRC}',
+                    from: [ 
+                                'Makefile', 
+                                'make.bat', 
+                                'main.me', 
+                                'package.json', 
+                                'src', 
+                                'doc', 
+                                'projects', 
+                                'package', 
+                                'test' 
+                    ],
+                    to:     '${src}/',
+                },
+            ],
+        }
     },
 })

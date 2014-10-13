@@ -1,6 +1,9 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "prep", "goahead-windows-default\prep.vcxproj", "{D477AF49-F508-4E2B-A479-0DE0F3750BDD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ca-crt", "goahead-windows-default\ca-crt.vcxproj", "{D2D32497-2BDA-43AD-AC95-827B632FF44D}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -23,18 +26,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgo", "goahead-windows-de
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
-		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead", "goahead-windows-default\goahead.vcxproj", "{462DB80E-129C-4147-A0DC-405A246B0B6A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
@@ -48,9 +45,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead-test", "goahead-win
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
-		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
@@ -60,9 +54,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-default\gopass.vcxproj", "{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
@@ -88,14 +79,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "removeFiles", "goahead-wind
 	EndProjectSection
 EndProject
 
-Global
-	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|Win32 = Debug|Win32
-		Debug|x64 = Debug|x64
-		Release|Win32 = Release|Win32
-		Release|x64 = Release|x64
-	EndGlobalSection
-	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+    Global
+        GlobalSection(SolutionConfigurationPlatforms) = preSolution
+            Debug|Win32 = Debug|Win32
+            Debug|x64 = Debug|x64
+            Release|Win32 = Release|Win32
+            Release|x64 = Release|x64
+        EndGlobalSection
+        GlobalSection(ProjectConfigurationPlatforms) = postSolution
 {D477AF49-F508-4E2B-A479-0DE0F3750BDD}.Debug|Win32.ActiveCfg = Debug|Win32
 {D477AF49-F508-4E2B-A479-0DE0F3750BDD}.Debug|Win32.Build.0 = Debug|Win32
 {D477AF49-F508-4E2B-A479-0DE0F3750BDD}.Debug|x64.ActiveCfg = Debug|x64
@@ -170,7 +161,7 @@ Global
 {902E2CDF-A7C0-4E70-99D9-7F6DC2B882E8}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
-  GlobalSection(SolutionProperties) = preSolution
-    HideSolutionNode = FALSE
-  EndGlobalSection
-EndGlobal
+      GlobalSection(SolutionProperties) = preSolution
+        HideSolutionNode = FALSE
+      EndGlobalSection
+    EndGlobal

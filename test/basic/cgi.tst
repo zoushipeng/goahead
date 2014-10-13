@@ -145,6 +145,21 @@ if (App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").exists) {
         match("QVAR a a", "1 1")
         match("QVAR b b", "2 2")
     }
+
+    function cgi() {
+        //  Simple post
+        http.post(HTTP + '/cgi-bin/cgitest', 'Some data')
+        assert(http.status == 200)
+        match('CONTENT_LENGTH', '9')
+
+        //  Simple form
+        http.form(HTTP + '/cgi-bin/cgitest', {name: 'John', address: '700 Park Ave'})
+        ttrue(http.status == 200)
+        match('PVAR name', 'John')
+        match('PVAR address', '700 Park Ave')
+        http.close()
+    }
+
     forms()
     extraPath()
     query()
@@ -152,6 +167,7 @@ if (App.config.bit_cgi && Path(test.top).join("test/cgi-bin/cgitest").exists) {
     status()
     location()
     quoting()
+    post()
 
 } else {
     test.skip("CGI not enabled")
