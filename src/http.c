@@ -897,7 +897,7 @@ static bool parseIncoming(Webs *wp)
     if (strstr(wp->path, ME_GOAHEAD_CGI_BIN) != 0) {
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
-            if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY, 0666)) < 0) {
+            if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY | O_TRUNC, 0666)) < 0) {
                 websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Cannot open CGI file");
                 return 1;
             }
@@ -908,7 +908,7 @@ static bool parseIncoming(Webs *wp)
         WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
         wp->putname = websTempFile(ME_GOAHEAD_PUT_DIR, "put");
-        if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT, 0644)) < 0) {
+        if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT | O_BINARY, 0644)) < 0) {
             error("Cannot create PUT filename %s", wp->putname);
             websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot create the put URI");
             wfree(wp->putname);

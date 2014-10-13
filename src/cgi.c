@@ -319,9 +319,9 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
     int         fdout;
 
     /*
-        OPT - currently polling and doing a stat() each poll. If the CGI process writes partial headers, 
-        this repeatedly reads the data until complete headers are written or more than ME_GOAHEAD_LIMIT_HEADERS 
-        of data is received.
+        OPT - currently polling and doing a stat each poll. Also doing open/close each chunk.
+        If the CGI process writes partial headers, this repeatedly reads the data until complete 
+        headers are written or more than ME_GOAHEAD_LIMIT_HEADERS of data is received.
      */
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
         if ((fdout = open(cgip->stdOut, O_RDONLY | O_BINARY, 0444)) >= 0) {
@@ -513,8 +513,8 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 
     trace(5, "cgi: run %s", cgiPath);
     pid = fdin = fdout = hstdin = hstdout = -1;
-    if ((fdin = open(stdIn, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0 ||
-            (fdout = open(stdOut, O_RDWR | O_CREAT | O_TRUNC, 0666)) < 0 ||
+    if ((fdin = open(stdIn, O_RDWR | O_CREAT | O_BINARY, 0666)) < 0 ||
+            (fdout = open(stdOut, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, 0666)) < 0 ||
             (hstdin = dup(0)) == -1 || (hstdout = dup(1)) == -1 ||
             dup2(fdin, 0) == -1 || dup2(fdout, 1) == -1) {
         goto done;
