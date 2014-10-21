@@ -127,7 +127,12 @@ PUBLIC int sslOpen()
 #ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
     SSL_CTX_set_mode(sslctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
 #endif
+
+    /*
+        Disable both SSLv2 and SSLv3 by default - they are insecure
+     */
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv3);
 
     /* 
         Ensure we generate a new private key for each connection
