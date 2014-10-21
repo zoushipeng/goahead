@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.4.0
+VERSION               := 3.4.1
 PROFILE               ?= static
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -58,7 +58,7 @@ ME_LIB_PREFIX         ?= $(ME_ROOT_PREFIX)/usr/local/lib
 ME_MAN_PREFIX         ?= $(ME_ROOT_PREFIX)/usr/local/share/man
 ME_SBIN_PREFIX        ?= $(ME_ROOT_PREFIX)/usr/local/sbin
 ME_ETC_PREFIX         ?= $(ME_ROOT_PREFIX)/etc/$(NAME)
-ME_WEB_PREFIX         ?= $(ME_ROOT_PREFIX)/var/www/$(NAME)-default
+ME_WEB_PREFIX         ?= $(ME_ROOT_PREFIX)/var/www/$(NAME)
 ME_LOG_PREFIX         ?= $(ME_ROOT_PREFIX)/var/log/$(NAME)
 ME_SPOOL_PREFIX       ?= $(ME_ROOT_PREFIX)/var/spool/$(NAME)
 ME_CACHE_PREFIX       ?= $(ME_ROOT_PREFIX)/var/spool/$(NAME)/cache
@@ -137,10 +137,10 @@ clean:
 clobber: clean
 	rm -fr ./$(BUILD)
 
-
 #
 #   me.h
 #
+
 $(BUILD)/inc/me.h: $(DEPS_1)
 
 #
@@ -232,6 +232,7 @@ $(BUILD)/obj/cgi.o: \
 #
 #   cgitest.o
 #
+
 $(BUILD)/obj/cgitest.o: \
     test/cgitest.c $(DEPS_10)
 	@echo '   [Compile] $(BUILD)/obj/cgitest.o'
@@ -261,6 +262,7 @@ $(BUILD)/obj/est.o: \
 #
 #   est.h
 #
+
 src/paks/est/est.h: $(DEPS_13)
 
 #
@@ -479,7 +481,6 @@ test/cgi-bin/cgitest: $(DEPS_34)
 	@echo '      [Link] test/cgi-bin/cgitest'
 	$(CC) -o test/cgi-bin/cgitest $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/cgitest.o" $(LIBS) $(LIBS) 
 
-
 ifeq ($(ME_COM_EST),1)
 #
 #   libest
@@ -495,6 +496,9 @@ endif
 #
 #   libgo
 #
+ifeq ($(ME_COM_EST),1)
+    DEPS_36 += $(BUILD)/bin/libest.so
+endif
 DEPS_36 += $(BUILD)/inc/goahead.h
 DEPS_36 += $(BUILD)/inc/js.h
 DEPS_36 += $(BUILD)/obj/action.o
@@ -614,44 +618,46 @@ $(BUILD)/bin/gopass: $(DEPS_39)
 #
 #   installBinary
 #
+
 installBinary: $(DEPS_40)
 	( \
-	cd .; \
+	cd ../../.paks/me-package/0.8.4; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	ln -s "3.4.0" "$(ME_APP_PREFIX)/latest" ; \
+	ln -s "3.4.1" "$(ME_APP_PREFIX)/latest" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/goahead $(ME_VAPP_PREFIX)/bin/goahead ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
 	rm -f "$(ME_BIN_PREFIX)/goahead" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/goahead" "$(ME_BIN_PREFIX)/goahead" ; \
-	if [ "$(ME_COM_OPENSSL)" = 1 ]; then true ; \
-	cp $(BUILD)/bin/libssl*.so*,./$(BUILD)/bin/libcrypto*.so* $(ME_VAPP_PREFIX)/bin/libcrypto*.so* ; \
-	fi ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp src/paks/est/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man" ; \
-	cp doc/public/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/goahead.1 ; \
-	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
-	rm -f "$(ME_MAN_PREFIX)/man1/goahead.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/goahead.1" "$(ME_MAN_PREFIX)/man1/goahead.1" ; \
-	cp doc/public/man/gopass.1 $(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/gopass.1 ; \
-	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
-	rm -f "$(ME_MAN_PREFIX)/man1/gopass.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/gopass.1" "$(ME_MAN_PREFIX)/man1/gopass.1" ; \
-	cp doc/public/man/webcomp.1 $(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/webcomp.1 ; \
-	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
-	rm -f "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/doc/public/man/webcomp.1" "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
-	mkdir -p "$(ME_WEB_PREFIX)/src/web" ; \
-	cp src/web/index.html $(ME_WEB_PREFIX)/src/web/index.html ; \
-	cp src/web/favicon.ico $(ME_WEB_PREFIX)/src/web/favicon.ico ; \
+	mkdir -p "$(ME_WEB_PREFIX)" ; \
+	cp src/web/index.html $(ME_WEB_PREFIX)/index.html ; \
+	cp src/web/favicon.ico $(ME_WEB_PREFIX)/favicon.ico ; \
 	mkdir -p "$(ME_ETC_PREFIX)" ; \
 	cp src/auth.txt $(ME_ETC_PREFIX)/auth.txt ; \
 	cp src/route.txt $(ME_ETC_PREFIX)/route.txt ; \
 	cp src/self.crt $(ME_ETC_PREFIX)/self.crt ; \
 	cp src/self.key $(ME_ETC_PREFIX)/self.key ; \
-	cp package/uninstall.sh $(ME_VAPP_PREFIX)/bin/uninstall ; \
-	chmod 755 "$(ME_VAPP_PREFIX)/bin/uninstall" ; \
+	if [ "$(ME_COM_OPENSSL)" = 1 ]; then true ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
+	cp $(BUILD)/bin/libssl*.so* $(ME_VAPP_PREFIX)/bin/libssl*.so* ; \
+	cp $(BUILD)/bin/libcrypto*.so* $(ME_VAPP_PREFIX)/bin/libcrypto*.so* ; \
+	fi ; \
+	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
+	cp doc/public/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
+	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
+	rm -f "$(ME_MAN_PREFIX)/man1/goahead.1" ; \
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(ME_MAN_PREFIX)/man1/goahead.1" ; \
+	cp doc/public/man/gopass.1 $(ME_VAPP_PREFIX)/doc/man/man1/gopass.1 ; \
+	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
+	rm -f "$(ME_MAN_PREFIX)/man1/gopass.1" ; \
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(ME_MAN_PREFIX)/man1/gopass.1" ; \
+	cp doc/public/man/webcomp.1 $(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1 ; \
+	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
+	rm -f "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
 	)
 
 
@@ -671,7 +677,7 @@ DEPS_42 += stop
 
 uninstall: $(DEPS_42)
 	( \
-	cd .; \
+	cd ../../.paks/me-package/0.8.4; \
 	rm -fr "$(ME_WEB_PREFIX)" ; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rmdir -p "$(ME_ETC_PREFIX)" 2>/dev/null ; true ; \
@@ -683,6 +689,7 @@ uninstall: $(DEPS_42)
 #
 #   version
 #
+
 version: $(DEPS_43)
-	echo 3.4.0
+	echo 3.4.1
 

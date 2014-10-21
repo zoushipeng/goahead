@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.4.0
+VERSION               := 3.4.1
 PROFILE               ?= static
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
@@ -143,10 +143,10 @@ clean:
 clobber: clean
 	rm -fr ./$(BUILD)
 
-
 #
 #   me.h
 #
+
 $(BUILD)/inc/me.h: $(DEPS_1)
 
 #
@@ -238,6 +238,7 @@ $(BUILD)/obj/cgi.o: \
 #
 #   cgitest.o
 #
+
 $(BUILD)/obj/cgitest.o: \
     test/cgitest.c $(DEPS_10)
 	@echo '   [Compile] $(BUILD)/obj/cgitest.o'
@@ -267,6 +268,7 @@ $(BUILD)/obj/est.o: \
 #
 #   est.h
 #
+
 src/paks/est/est.h: $(DEPS_13)
 
 #
@@ -485,7 +487,6 @@ test/cgi-bin/cgitest.out: $(DEPS_34)
 	@echo '      [Link] test/cgi-bin/cgitest.out'
 	$(CC) -o test/cgi-bin/cgitest.out $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/cgitest.o" $(LIBS) -Wl,-r 
 
-
 ifeq ($(ME_COM_EST),1)
 #
 #   libest
@@ -501,6 +502,9 @@ endif
 #
 #   libgo
 #
+ifeq ($(ME_COM_EST),1)
+    DEPS_36 += $(BUILD)/bin/libest.out
+endif
 DEPS_36 += $(BUILD)/inc/goahead.h
 DEPS_36 += $(BUILD)/inc/js.h
 DEPS_36 += $(BUILD)/obj/action.o
@@ -605,6 +609,7 @@ $(BUILD)/bin/gopass.out: $(DEPS_39)
 #
 #   installBinary
 #
+
 installBinary: $(DEPS_40)
 
 
@@ -627,6 +632,7 @@ uninstall: $(DEPS_42)
 #
 #   version
 #
+
 version: $(DEPS_43)
-	echo 3.4.0
+	echo 3.4.1
 

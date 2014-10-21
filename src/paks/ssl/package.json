@@ -1,9 +1,11 @@
 {
-    "name": "me-package",
-    "description": "Packaging Targets",
-    "version": "0.8.3",
+    "name": "ssl",
+    "description": "Embedthis SSL Interface",
+    "title": "Embedthis Development",
+    "version": "0.8.0",
     "keywords": [
         "me",
+        "ssl",
     ],
     "author": {
         "name": "Embedthis Software",
@@ -12,10 +14,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-package.git"
+        "url": "git://github.com/embedthis/ssl.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-package/issues"
+        "url": "http://github.com/embedthis/ssl/issues"
     },
     "licenses": [
         {

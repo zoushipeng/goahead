@@ -1,15 +1,10 @@
 {
-    "name": "me-dev",
-    "description": "Embedthis Development Lifecycle Support",
-    "title": "Embedthis Development",
-    "version": "0.8.2",
+    "name": "me-docstyle",
+    "description": "Documentation Style",
+    "version": "0.8.3",
     "keywords": [
         "me",
     ],
-    "dependencies": {
-        "me-doc": "~0.8",
-        "me-package": "~0.8"
-    },
     "author": {
         "name": "Embedthis Software",
         "email": "dev@embedthis.com",
@@ -17,10 +12,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/me-dev.git"
+        "url": "git://github.com/embedthis/me-docstyle.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/me-dev/issues"
+        "url": "http://github.com/embedthis/me-docstyle/issues"
     },
     "licenses": [
         {
@@ -30,6 +25,16 @@
         {
             "type": "Commercial",
             "url": "https://embedthis.com/licensing/"
+        }
+    ],
+    "export": [ {
+            overwrite: true,
+            from: [ "css/*.less" ],
+            to: 'doc/documents',
+        }, {
+            overwrite: true,
+            from: [ "partials/**" ],
+            to: 'doc',
         }
     ]
 }

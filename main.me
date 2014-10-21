@@ -5,18 +5,21 @@
     The MakeMe utility (https://embedthis.com/me) may be used to build GoAhead instead of make. 
     MakeMe provides for configured builds and generates projects files.
 
-    Alternatively, build using the "make" utility in which case this file is not used.
+    Alternatively, build using the 'make' utility in which case this file is not used.
  */
 
 Me.load({
+    plugins: [ 'configuration' ],
+
     blend: [
-        "src/paks/*/*.me",
-        "doc/doc.me",
+        'ssl',
+        'osdep',
+        'doc/doc.me',
     ],
 
     configure: {
         requires:  [ 'osdep' ],
-        discovers: [ 'est', 'ssl' ],
+        discovers: [ 'ssl' ],
     },
 
     settings: {
@@ -48,7 +51,7 @@ Me.load({
                 Select the password store mechanism. Set to: pam, file, custom
                 If using PAM, must also set authPam to true
              */
-            authStore: "file",
+            authStore: 'file',
 
             /*
                 Automatically login. Useful for debugging.
@@ -58,7 +61,7 @@ Me.load({
             /*
                 SSL file of certificates 
              */
-            ca: "",
+            ca: '',
 
             clientCache: [ 'css', 'gif', 'ico', 'jpg', 'js', 'png', ],
             clientCacheLifespan: 86400,
@@ -67,26 +70,26 @@ Me.load({
                 Server certificate file for SSL. This is a test self-signed certificate.
                 A valid certificate must be obtained or generated.
              */
-            certificate: "self.crt",
+            certificate: 'self.crt',
 
             /*
                 Cipher suite for SSL. This is SSL stack dependant and only supported on EST and OpenSSL
-                    OpenSSL: AES128-SHA or "HIGH:RC4+SHA",
-                    EST:"TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_RC4_128_SHA",
+                    OpenSSL: AES128-SHA or 'HIGH:RC4+SHA',
+                    EST:'TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_RC4_128_SHA',
              */
-            ciphers: "",
+            ciphers: '',
 
             /*
                 Build with CGI support and directory for CGI programs.
                 The cgiBin is a unique path prefix for CGI URIs.
              */
             cgi: true,
-            cgiBin: "cgi-bin",
+            cgiBin: 'cgi-bin',
 
             /*
                 Directory containing web documents to serve
              */
-            documents: "web",
+            documents: 'web',
 
             /*
                 Build with support for javascript web templates
@@ -97,7 +100,7 @@ Me.load({
                 Server SSL key. This is by default set to a test key.
                 This must be regenerated.
              */
-            key: "self.key",
+            key: 'self.key',
 
             /*
                 Define legacy APIs for compatibility with old GoAhead web server applications
@@ -127,24 +130,24 @@ Me.load({
             /*
                 Addresses to listen on. This specifies the protocol, interface and port.
              */
-            listen: ["http://*:80", "https://*:443"]
+            listen: ['http://*:80', 'https://*:443']
 
             /*
                 Enable application logging
              */
             logging: true,
-            logfile: "stderr:0",
+            logfile: 'stderr:0',
 
             /*
                 Temporary directory to hold PUT files
                 This must be on the same filesystem as the web documents directory.
              */
-            putDir: ".",
+            putDir: '.',
 
             /*
                 Authentication realm. Replace with your realm.
              */
-            realm: "example.com",
+            realm: 'example.com',
 
             /*
                 Replace malloc with a non-fragmenting allocator
@@ -160,7 +163,7 @@ Me.load({
                 Upload file support
              */
             upload: true,
-            uploadDir: "/tmp",
+            uploadDir: '/tmp',
 
             /*
                 Verify client certificates
@@ -176,7 +179,7 @@ Me.load({
                 Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
                 Set to: DENY, SAMEORIGIN, ALLOW uri
              */
-            xframeHeader: "SAMEORIGIN",
+            xframeHeader: 'SAMEORIGIN',
         },
     },
 
@@ -232,11 +235,11 @@ Me.load({
     ],
 
     scripts: {
-        postconfig: "
+        postconfig: `
             if (me.settings.goahead.authStore != 'pam') {
                 me.settings.compiler.hasPam = false
             }
-        ",
+        `,
     },
 
     targets: {
@@ -244,7 +247,6 @@ Me.load({
             Target for the goahead executable
          */
         libgo: {
-            enable: true,
             type: 'lib',
             sources: [ 'src/*.c', 'src/ssl/*.c' ],
             headers: [ 'src/*.h' ],
@@ -270,11 +272,11 @@ Me.load({
             headers: [ 'src/*.h' ],
             depends: [ 'libgo' ],
             scripts: {
-                prebuild: "
+                prebuild: `
                     if (me.settings.compiler.hasPam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
-                ",  
+                `,  
             },
         },
 
@@ -288,17 +290,17 @@ Me.load({
             Target for unit tests. Includes ASP and form callbacks
          */
         'goahead-test': {
-            enable: "me.settings.profile != 'release'",
+            enable: `me.settings.profile != 'release'`,
             type: 'exe',
             sources: [ 'test/test.c' ],
             headers: [ 'src/*.h' ],
             depends: [ 'libgo' ],
             scripts: {
-                prebuild: "
+                prebuild: `
                     if (me.settings.hasPam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
-                ",  
+                `,  
             },
         },
 
@@ -333,7 +335,7 @@ Me.load({
         },
 
         test: {
-            action: "
+            action: `
                 let ro = {dir: 'test'}
                 let depth = me.settings.depth
                 run('utest -v -i 2 --depth ' + depth, ro)
@@ -354,7 +356,7 @@ Me.load({
                     }
                 }
                 trace('Test', 'Unit tests complete')
-            ",
+            `,
             platforms: [ 'local' ],
         },
 
@@ -364,30 +366,30 @@ Me.load({
         },
 
         rom: {
-            action: "Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))",
+            action: `Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))`,
         },
 
         install: {
             home: '${TOP}',
             generate: ' ',
             depends: [ 'all', 'stop', 'installBinary', 'start' ],
-            action: "
+            action: `
                 trace('Info', me.settings.title + ' installed at ' + me.prefixes.vapp)
                 trace('Info', 'Configuration directory ' + me.prefixes.etc)
                 trace('Info', 'Documents directory ' + me.prefixes.web)
                 trace('Info', 'Executables directory ' + me.prefixes.vapp.join('bin'))
-                trace('Info', 'Use \"man goahead\" for usage')
-                trace('Info', 'Run via \"cd ' + me.prefixes.etc + ' ; sudo goahead -v ' + me.prefixes.web + '\"')
+                trace('Info', 'Use "man goahead" for usage')
+                trace('Info', 'Run via "cd ' + me.prefixes.etc + ' ; sudo goahead -v ' + me.prefixes.web + '"')
                 trace('Info', 'Browse to ' + me.settings.goahead.listen[0].replace('*', 'localhost').replace(':80', '/'))
                 let pid = Cmd.ps('goahead')
                 if (pid && pid.length > 0) {
                     trace('Info', me.settings.title + ' PID: ' + pid[0].pid)
                 }
-            ",
+            `,
         },
 
         projects: {
-            action: "genProjects('-with est')",
+            action: `genProjects('-with est')`,
         },
     },
 })

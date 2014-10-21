@@ -2,7 +2,7 @@
     "name": "goahead",
     "description": "Embedthis GoAhead Embedded Web Server",
     "title": "Embedthis GoAhead",
-    "version": "3.4.0",
+    "version": "3.4.1",
     "keywords": [
         "goahead",
         "http",
@@ -47,13 +47,12 @@
     },
     "pak": "~0.9",
     "dependencies": {
-        "me-dev": "~0.8",
-        "me-doc": "~0.8",
+        "me-docstyle": "~0.8",
         "osdep": "~0.8"
     },
     "import": true,
     "optionalDependencies": {
         "est": "~0.6",
-        "me-ssl": "~0.8"
+        "ssl": "~0.8"
     }
 }

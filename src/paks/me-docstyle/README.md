@@ -1,11 +1,11 @@
-me-package
+me-docstyle
 ===
 
-Pak for me-package
+Pak for me-docstyle
 
 ### To install:
 
-pak install me-package
+pak install me-docstyle
 
 ### Get Pak from
 

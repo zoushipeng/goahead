@@ -193,7 +193,7 @@
     #define ME_MANIFEST "package/manifest.me"
 #endif
 #ifndef ME_ME
-    #define ME_ME ">=0.8.2"
+    #define ME_ME "=0.8.4"
 #endif
 #ifndef ME_NAME
     #define ME_NAME "goahead"
@@ -208,7 +208,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.4.0"
+    #define ME_VERSION "3.4.1"
 #endif
 
 /* Prefixes */
@@ -216,55 +216,55 @@
     #define ME_ROOT_PREFIX "C:"
 #endif
 #ifndef ME_PROGRAMFILES_PREFIX
-    #define ME_PROGRAMFILES_PREFIX "${prefixes.root}Program Files"
+    #define ME_PROGRAMFILES_PREFIX "C:/Program Files"
 #endif
 #ifndef ME_PROGRAMFILES32_PREFIX
-    #define ME_PROGRAMFILES32_PREFIX "${prefixes.root}Program Files"
+    #define ME_PROGRAMFILES32_PREFIX "C:/Program Files"
 #endif
 #ifndef ME_BASE_PREFIX
-    #define ME_BASE_PREFIX "${prefixes.programFiles}"
+    #define ME_BASE_PREFIX "C:/Program Files"
 #endif
 #ifndef ME_APP_PREFIX
-    #define ME_APP_PREFIX "${prefixes.base}/Embedthis GoAhead"
+    #define ME_APP_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef ME_VAPP_PREFIX
-    #define ME_VAPP_PREFIX "${prefixes.app}"
+    #define ME_VAPP_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef ME_DATA_PREFIX
-    #define ME_DATA_PREFIX "${prefixes.app}"
+    #define ME_DATA_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef ME_STATE_PREFIX
-    #define ME_STATE_PREFIX "${prefixes.app}"
+    #define ME_STATE_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef ME_BIN_PREFIX
-    #define ME_BIN_PREFIX "${prefixes.app}/bin"
+    #define ME_BIN_PREFIX "C:/Program Files/Embedthis GoAhead/bin"
 #endif
 #ifndef ME_INC_PREFIX
-    #define ME_INC_PREFIX "${prefixes.app}/inc"
+    #define ME_INC_PREFIX "C:/Program Files/Embedthis GoAhead/inc"
 #endif
 #ifndef ME_LIB_PREFIX
-    #define ME_LIB_PREFIX "${prefixes.app}/lib"
+    #define ME_LIB_PREFIX "C:/Program Files/Embedthis GoAhead/lib"
 #endif
 #ifndef ME_MAN_PREFIX
-    #define ME_MAN_PREFIX "${prefixes.app}/man"
+    #define ME_MAN_PREFIX "C:/Program Files/Embedthis GoAhead/man"
 #endif
 #ifndef ME_ETC_PREFIX
-    #define ME_ETC_PREFIX "${prefixes.app}"
+    #define ME_ETC_PREFIX "C:/Program Files/Embedthis GoAhead"
 #endif
 #ifndef ME_WEB_PREFIX
-    #define ME_WEB_PREFIX "${prefixes.data}/web"
+    #define ME_WEB_PREFIX "C:/Program Files/Embedthis GoAhead/web"
 #endif
 #ifndef ME_LOG_PREFIX
-    #define ME_LOG_PREFIX "${prefixes.state}/log"
+    #define ME_LOG_PREFIX "C:/Program Files/Embedthis GoAhead/log"
 #endif
 #ifndef ME_SPOOL_PREFIX
-    #define ME_SPOOL_PREFIX "${prefixes.state}/tmp"
+    #define ME_SPOOL_PREFIX "C:/Program Files/Embedthis GoAhead/tmp"
 #endif
 #ifndef ME_CACHE_PREFIX
-    #define ME_CACHE_PREFIX "${prefixes.state}/cache"
+    #define ME_CACHE_PREFIX "C:/Program Files/Embedthis GoAhead/cache"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "${prefixes.data}/src"
+    #define ME_SRC_PREFIX "C:/Program Files/Embedthis GoAhead/src"
 #endif
 
 /* Suffixes */
@@ -306,10 +306,10 @@
     #define ME_MINOR_VERSION 4
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 0
+    #define ME_PATCH_VERSION 1
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 300040000
+    #define ME_VNUM 300040001
 #endif
 
 /* Components */

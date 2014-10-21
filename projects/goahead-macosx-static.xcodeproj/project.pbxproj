@@ -582,8 +582,8 @@
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
-mkdir -p build/macosx-x64-static/bin
-cp -r src/paks/est/ca.crt build/macosx-x64-static/bin/ca.crt
+	mkdir -p \"build/macosx-x64-static/bin\"
+	cp src/paks/est/ca.crt build/macosx-x64-static/bin/ca.crt
 ";
     		};
 		6A59F7986A5A0ACD00000016 /* ShellScript for Prep */ = {
@@ -600,7 +600,58 @@ cp -r src/paks/est/ca.crt build/macosx-x64-static/bin/ca.crt
     			runOnlyForDeploymentPostprocessing = 0;
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
-";
+[ ! -x ${INC_DIR} ] && mkdir -p ${INC_DIR} ${OBJ_DIR} ${LIB_DIR} ${BIN_DIR}
+[ ! -f ${INC_DIR}/me.h -a -f cp goahead-macosx-static-me.h ] && cp goahead-macosx-static-me.h ${INC_DIR}/me.h
+if [ -f goahead-macosx-static-me.h ] ; then
+if ! diff ${INC_DIR}/me.h goahead-macosx-static-me.h >/dev/null 2>&1 ; then
+cp goahead-macosx-static-me.h ${INC_DIR}/me.h
+fi
+fi
+if [ ../src/paks/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
+cp ../src/paks/est/est.h ${OUT_DIR}/inc/est.h
+fi
+if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
+cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
+fi
+if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
+cp ../src/js.h ${OUT_DIR}/inc/js.h
+fi
+if [ ../src/paks/osdep/osdep.h -nt ${OUT_DIR}/inc/osdep.h ] ; then
+cp ../src/paks/osdep/osdep.h ${OUT_DIR}/inc/osdep.h
+fi
+if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
+cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
+fi
+if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
+cp ../src/js.h ${OUT_DIR}/inc/js.h
+fi
+if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
+cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
+fi
+if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
+cp ../src/js.h ${OUT_DIR}/inc/js.h
+fi
+if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
+cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
+fi
+if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
+cp ../src/js.h ${OUT_DIR}/inc/js.h
+fi
+if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
+cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
+fi
+if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
+cp ../src/js.h ${OUT_DIR}/inc/js.h
+fi
+if [ ../src/paks/est/est.h -nt ${OUT_DIR}/inc/est.h ] ; then
+cp ../src/paks/est/est.h ${OUT_DIR}/inc/est.h
+fi
+if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
+cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
+fi
+if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
+cp ../src/js.h ${OUT_DIR}/inc/js.h
+fi";
     		};
 /* End PBXShellScriptBuildPhase section */
 

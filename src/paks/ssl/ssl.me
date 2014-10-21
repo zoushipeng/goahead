@@ -1,9 +1,10 @@
 /*
-    ssl.me - SSL support. This is the interface above SSL providers: Embedthis EST, MatrixSSL, Mocana NanoSSL, OpenSSL
+    ssl.me - SSL Plugin. This is the interface above SSL providers.
  */
 
 Me.load({
     blend: [
+        '?est',
         'openssl.me',
     ],
     targets: {
@@ -15,11 +16,12 @@ Me.load({
             config: function (target) {
                 let provider
                 for each (p in target.discovers) {
-                    if (me.targets[p].explicit) {
-                        if (me.targets[p].enable) {
+                    let ptarget = me.targets[p]
+                    if (ptarget.explicit) {
+                        if (ptarget.enable) {
                             provider = p
                             break
-                        } else if (!me.targets[p].without) {
+                        } else if (ptarget.explicit != 'without') {
                             throw 'Required SSL provider "' + p + '" is not enabled'
                         }
                     }
