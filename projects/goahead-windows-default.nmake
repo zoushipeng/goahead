@@ -279,6 +279,7 @@ build\$(CONFIG)\obj\estLib.obj: \
 #
 #   libest
 #
+DEPS_11 = $(DEPS_11) build\$(CONFIG)\inc\osdep.h
 DEPS_11 = $(DEPS_11) build\$(CONFIG)\inc\est.h
 DEPS_11 = $(DEPS_11) build\$(CONFIG)\obj\estLib.obj
 
@@ -505,6 +506,7 @@ build\$(CONFIG)\obj\openssl.obj: \
 #
 #   libgo
 #
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\osdep.h
 !IF "$(ME_COM_EST)" == "1"
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\bin\libest.dll
 !ENDIF

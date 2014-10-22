@@ -491,6 +491,7 @@ ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
+DEPS_35 += $(BUILD)/inc/osdep.h
 DEPS_35 += $(BUILD)/inc/est.h
 DEPS_35 += $(BUILD)/obj/estLib.o
 
@@ -502,6 +503,7 @@ endif
 #
 #   libgo
 #
+DEPS_36 += $(BUILD)/inc/osdep.h
 ifeq ($(ME_COM_EST),1)
     DEPS_36 += $(BUILD)/bin/libest.out
 endif
