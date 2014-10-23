@@ -36,7 +36,7 @@ Me.load({
                 {   
                     from:       'goahead${EXE}',
                     to:         '${abin}/',
-                    symlink:    '${bin}',
+                    symlink:    '${bin}/',
 
                 }, { 
                     from:       '${SRC}/src/paks/est/ca.crt',
@@ -96,7 +96,7 @@ Me.load({
                 { 
                     from:       '${SRC}/doc/public/man/*.1',
                     to:         '${adoc}/man/man1/',
-                    symlink:    '${man}/man1',
+                    symlink:    '${man}/man1/',
                     enable:     "me.platform.like == 'unix'",
                 }
             ],
