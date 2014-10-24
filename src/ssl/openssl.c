@@ -162,7 +162,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     if ((wp->ssl = SSL_new(sslctx)) == 0) {
         return -1;
     }
-    if ((bio = BIO_new_socket(sptr->sock, BIO_NOCLOSE)) == 0) {
+    if ((bio = BIO_new_socket((int) sptr->sock, BIO_NOCLOSE)) == 0) {
         return -1;
     }
     SSL_set_bio(wp->ssl, bio, bio);
