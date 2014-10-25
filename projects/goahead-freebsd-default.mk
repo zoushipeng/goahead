@@ -622,8 +622,6 @@ $(BUILD)/bin/gopass: $(DEPS_39)
 #
 
 installBinary: $(DEPS_40)
-	( \
-	cd ../../.paks/me-package/0.8.4; \
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "3.4.1" "$(ME_APP_PREFIX)/latest" ; \
@@ -665,8 +663,7 @@ installBinary: $(DEPS_40)
 	cp doc/public/man/webcomp.1 $(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
-	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
-	)
+	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(ME_MAN_PREFIX)/man1/webcomp.1"
 
 
 #
@@ -684,15 +681,12 @@ install: $(DEPS_41)
 DEPS_42 += stop
 
 uninstall: $(DEPS_42)
-	( \
-	cd ../../.paks/me-package/0.8.4; \
 	rm -fr "$(ME_WEB_PREFIX)" ; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rmdir -p "$(ME_ETC_PREFIX)" 2>/dev/null ; true ; \
 	rmdir -p "$(ME_WEB_PREFIX)" 2>/dev/null ; true ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true ; \
-	)
+	rmdir -p "$(ME_APP_PREFIX)" 2>/dev/null ; true
 
 #
 #   version
