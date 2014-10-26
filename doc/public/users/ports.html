@@ -52,9 +52,9 @@
                 <div class="menu">
                     <a class="item" href="../users/ports.html">Ports and Binding</a>
                     <a class="item" href="../users/routing.html">Routing Requests</a>
-                    <a class="item" href="../users/goactions.html">GoActions</a>
                     <a class="item" href="../users/js.html">Embedded Javascript</a>
                     <a class="item" href="../users/jst.html">Javascript Templates</a>
+                    <a class="item" href="../users/goactions.html">GoActions</a>
                     <a class="item" href="../users/cgi.html">CGI Programs</a>
                     <a class="item" href="../users/authentication.html">User Authorization</a>
                     <a class="item" href="../users/logFiles.html">Log Files</a>
@@ -149,9 +149,7 @@
     <div class="content">
 
             <h1>Ports and Binding</h1>
-            <p>GoAhead can listen for HTTP requests on multiple IP addresses and ports. By default, GoAhead will listen on
-            all network interfaces in the system. At build time, you can modify which interfaces, IP addresses and ports will
-            be used.</p>
+            <p>GoAhead can listen for HTTP requests on multiple IP addresses and ports. By default, GoAhead will listen on all network interfaces for selected ports. At build time, you can modify which interfaces, IP addresses and ports will be used.</p>
             <pre class="ui code segment">
 ./configure --set listen="http://*:80, https://*:443"
 </pre>

@@ -67,7 +67,7 @@
                 <p>Yes. When GoAhead is built from source, a single bld.h header controls exactly what features and
                 modules are built into the server. For example, if you don't require SSL support,
                 and you wish to minimize memory footprint, you can run:</p>
-                <pre>./configure --without ssl</pre>
+                <pre class="ui code segment">./configure --without ssl</pre>
             </div><a id="trace"></a>
             <p class="question">How can I trouble-shoot with trace?</p>
             <div class="answer">
@@ -84,7 +84,7 @@ goahead -l logName[:logLevel][.maxSize]
             <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
             <div class="answer">
                 <p>GoAhead 3 has about 115K of code. For a minimal footprint on GoAhead, use:</p>
-                <pre>
+                <pre class="ui code segment">
 ./configure --without all --set cgi=false --set javascript=false
 </pre>
                 <p>This will disable most features including CGI and Javascript but still provide a running web server.
@@ -99,7 +99,7 @@ goahead -l logName[:logLevel][.maxSize]
             <div class="answer">
                 <p>The GoAhead configure command has switches to specify the <b>build</b> system and the target system
                 that will <b>host</b> GoAhead. For example:</p>
-                <pre>
+                <pre class="ui code segment">
 ./configure --platform vxworks-arm
 </pre>
                 <p>When cross compiling, you also need to tell configure about your cross-compilation tool chain. This
@@ -108,7 +108,7 @@ goahead -l logName[:logLevel][.maxSize]
                 variables and will pass their values into the build system. These will be used to define the
                 cross-compilation tool chain. You can also specify an alternate build tool chain by using the same
                 variables but with a BUILD_ prefix. For example:</p>
-                <pre>
+                <pre class="ui code segment">
 DIR=/path/to/cross-tools ; \
 AR=$DIR/bin/ar.exe \
 CC=$DIR/bin/cc.exe \
@@ -119,8 +119,9 @@ STRIP=$DIR/strip.exe \
 CFLAGS="-I$DIR/include \
 ./configure --debug --platform linux-arm
 </pre>
-                <p>For more details, please read: <a href="source.html#cross">Cross Compilation</a> in the
-                <a href="source.html">Building from Source</a> guide.</p>
+                <p>For more details, please read: 
+                <a href="https://embedthis.com/makeme/doc/users/cross.html">Cross-Compiling</a> in the MakeMe 
+                online documentation.</p>
             </div>
             <h2 >Need more help?</h2>
             <p>If you have any further questions, please consult the <a href="../developers/project.html">Project Resources</a>

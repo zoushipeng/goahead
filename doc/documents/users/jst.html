@@ -7,15 +7,11 @@
             <h1>Javascript Templates (JST)</h1>
             <p>Javascript Templates (JST) enable the easy creation of dynamic web pages and applications.
             Javascript Templates are HTML web pages that execute <a href="js.html">Embedded Javascript</a> on 
-            the server before rendering the page back to the client.</p>
-
-            <p>JST is an extensible environment and allows the direct binding of C functions to Javascript functions, so
-            that a JST web page can easily access device or system data.</p>
+            the server before rendering the page back to the client.
+            JST is an extensible environment and allows the direct binding of C functions to Javascript functions, so that a JST web page can easily access device or system data.</p>
 
             <h2>JST Handler</h2>
-            <p>A JST document has an <i>.jst</i> extension and is processed by the <i>jst</i> handler. The JST handler
-            executes JST scripts and replaces them with the corresponding script results. The user sees a normal
-            HTML page, but it is one that was dynamically created by the JST handler.</p>
+            <p>A JST document has a <i>.jst</i> extension and is processed by the <i>jst</i> handler. The JST handler executes JST scripts and replaces them with the corresponding script results. The user sees a normal HTML page, but it is one that was dynamically created by the JST handler.</p>
 
             <h2>JST Delimiters</h2>
             <p>To create a JST script field in a JST document, use the <i>&lt;%</i> and <i>%&gt;</i> delimiters. 
@@ -25,10 +21,8 @@
 
             <h2>Scripting Execution</h2>
             <p>When a user's browser requests a JST document, the JST handler is invoked to serve the request.
-            The JST document is read from the file system in a one-pass operation. HTML text before the JST
-            delimiters is copied directly to the client. If JST delimiters are found, the script between the
-            delimiters is executed and the resulting text is written to the client. The process continues until the end of
-            the document.</p>
+            The JST document is read from the file system in a one-pass operation. Text in the document
+            before JST delimiters is copied directly to the client. If JST delimiters are found, the script between the delimiters is executed and the resulting text is written to the client. The process continues until the end of the document.</p>
 
             <h2>Standard Functions</h2>
             <p>JST defines one standard function: <i>write</i>. This function writes data back to the client in 

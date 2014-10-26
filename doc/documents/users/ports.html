@@ -5,9 +5,7 @@
     ],
 }
             <h1>Ports and Binding</h1>
-            <p>GoAhead can listen for HTTP requests on multiple IP addresses and ports. By default, GoAhead will listen on
-            all network interfaces in the system. At build time, you can modify which interfaces, IP addresses and ports will
-            be used.</p>
+            <p>GoAhead can listen for HTTP requests on multiple IP addresses and ports. By default, GoAhead will listen on all network interfaces for selected ports. At build time, you can modify which interfaces, IP addresses and ports will be used.</p>
             <pre class="ui code segment">
 ./configure --set listen="http://*:80, https://*:443"
 </pre>
