@@ -245,7 +245,7 @@ DEPS_7 = $(DEPS_7) build\$(CONFIG)\obj\cgitest.obj
 
 test\cgi-bin\cgitest.exe: $(DEPS_7)
 	@echo ..... [Link] test\cgi-bin\cgitest.exe
-	"$(LD)" -out:test\cgi-bin\cgitest.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\cgitest.obj" $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:test\cgi-bin\cgitest.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\cgitest.obj" $(LIBS)  $(LOG)
 
 #
 #   est.h
@@ -583,7 +583,7 @@ LIBS_35 = $(LIBS_35) libest.lib
 
 build\$(CONFIG)\bin\goahead.exe: $(DEPS_35)
 	@echo ..... [Link] build\$(CONFIG)\bin\goahead.exe
-	"$(LD)" -out:$(BUILD)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\goahead.obj" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\goahead.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\goahead.obj" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS)  $(LOG)
 
 #
 #   test.obj
@@ -619,7 +619,7 @@ LIBS_37 = $(LIBS_37) libest.lib
 
 build\$(CONFIG)\bin\goahead-test.exe: $(DEPS_37)
 	@echo ..... [Link] build\$(CONFIG)\bin\goahead-test.exe
-	"$(LD)" -out:$(BUILD)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\test.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\goahead-test.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\test.obj" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS)  $(LOG)
 
 #
 #   gopass.obj
@@ -654,7 +654,7 @@ LIBS_39 = $(LIBS_39) libest.lib
 
 build\$(CONFIG)\bin\gopass.exe: $(DEPS_39)
 	@echo ..... [Link] build\$(CONFIG)\bin\gopass.exe
-	"$(LD)" -out:$(BUILD)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\gopass.obj" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS)  $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\gopass.obj" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS)  $(LOG)
 
 #
 #   removeFiles.obj
@@ -673,5 +673,5 @@ DEPS_41 = $(DEPS_41) build\$(CONFIG)\obj\removeFiles.obj
 
 build\$(CONFIG)\bin\removeFiles.exe: $(DEPS_41)
 	@echo ..... [Link] build\$(CONFIG)\bin\removeFiles.exe
-	"$(LD)" -out:$(BUILD)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows "$(BUILD)\obj\removeFiles.obj"   $(LOG)
+	"$(LD)" -nologo -out:$(BUILD)\bin\removeFiles.exe -entry:WinMainCRTStartup -subsystem:windows "$(BUILD)\obj\removeFiles.obj"   $(LOG)
 
