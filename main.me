@@ -332,6 +332,7 @@ Me.load({
             type: 'exe',
             sources: [ 'test/cgitest.c' ],
             headers: [ 'src/*.h' ],
+            generate: false,
         },
 
         test: {
@@ -391,5 +392,9 @@ Me.load({
         projects: {
             action: `genProjects('-with est')`,
         },
+
+        mine: {
+            action: `genProjects('-with est', 'mine', Config.OS + '-' + Config.CPU)`,
+        }
     },
 })

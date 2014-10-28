@@ -66,7 +66,6 @@ ME_SRC_PREFIX         ?= $(ME_ROOT_PREFIX)$(NAME)-$(VERSION)
 
 
 TARGETS               += $(BUILD)/bin/ca.crt
-TARGETS               += test/cgi-bin/cgitest
 TARGETS               += $(BUILD)/bin/goahead
 TARGETS               += $(BUILD)/bin/goahead-test
 TARGETS               += $(BUILD)/bin/gopass
@@ -127,7 +126,6 @@ clean:
 	rm -f "$(BUILD)/obj/test.o"
 	rm -f "$(BUILD)/obj/upload.o"
 	rm -f "$(BUILD)/bin/ca.crt"
-	rm -f "test/cgi-bin/cgitest"
 	rm -f "$(BUILD)/bin/goahead"
 	rm -f "$(BUILD)/bin/goahead-test"
 	rm -f "$(BUILD)/bin/gopass"
@@ -470,26 +468,15 @@ $(BUILD)/bin/ca.crt: $(DEPS_33)
 	mkdir -p "$(BUILD)/bin"
 	cp src/paks/est/ca.crt $(BUILD)/bin/ca.crt
 
-#
-#   cgitest
-#
-DEPS_34 += $(BUILD)/inc/goahead.h
-DEPS_34 += $(BUILD)/inc/js.h
-DEPS_34 += $(BUILD)/obj/cgitest.o
-
-test/cgi-bin/cgitest: $(DEPS_34)
-	@echo '      [Link] test/cgi-bin/cgitest'
-	$(CC) -o test/cgi-bin/cgitest -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/cgitest.o" $(LIBS) 
-
 ifeq ($(ME_COM_EST),1)
 #
 #   libest
 #
-DEPS_35 += $(BUILD)/inc/osdep.h
-DEPS_35 += $(BUILD)/inc/est.h
-DEPS_35 += $(BUILD)/obj/estLib.o
+DEPS_34 += $(BUILD)/inc/osdep.h
+DEPS_34 += $(BUILD)/inc/est.h
+DEPS_34 += $(BUILD)/obj/estLib.o
 
-$(BUILD)/bin/libest.dylib: $(DEPS_35)
+$(BUILD)/bin/libest.dylib: $(DEPS_34)
 	@echo '      [Link] $(BUILD)/bin/libest.dylib'
 	ar -cr $(BUILD)/bin/libest.dylib "$(BUILD)/obj/estLib.o"
 endif
@@ -497,34 +484,59 @@ endif
 #
 #   libgo
 #
-DEPS_36 += $(BUILD)/inc/osdep.h
+DEPS_35 += $(BUILD)/inc/osdep.h
 ifeq ($(ME_COM_EST),1)
-    DEPS_36 += $(BUILD)/bin/libest.dylib
+    DEPS_35 += $(BUILD)/bin/libest.dylib
 endif
+DEPS_35 += $(BUILD)/inc/goahead.h
+DEPS_35 += $(BUILD)/inc/js.h
+DEPS_35 += $(BUILD)/obj/action.o
+DEPS_35 += $(BUILD)/obj/alloc.o
+DEPS_35 += $(BUILD)/obj/auth.o
+DEPS_35 += $(BUILD)/obj/cgi.o
+DEPS_35 += $(BUILD)/obj/crypt.o
+DEPS_35 += $(BUILD)/obj/file.o
+DEPS_35 += $(BUILD)/obj/fs.o
+DEPS_35 += $(BUILD)/obj/http.o
+DEPS_35 += $(BUILD)/obj/js.o
+DEPS_35 += $(BUILD)/obj/jst.o
+DEPS_35 += $(BUILD)/obj/options.o
+DEPS_35 += $(BUILD)/obj/osdep.o
+DEPS_35 += $(BUILD)/obj/rom-documents.o
+DEPS_35 += $(BUILD)/obj/route.o
+DEPS_35 += $(BUILD)/obj/runtime.o
+DEPS_35 += $(BUILD)/obj/socket.o
+DEPS_35 += $(BUILD)/obj/upload.o
+DEPS_35 += $(BUILD)/obj/est.o
+DEPS_35 += $(BUILD)/obj/matrixssl.o
+DEPS_35 += $(BUILD)/obj/nanossl.o
+DEPS_35 += $(BUILD)/obj/openssl.o
+
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_35 += -lssl
+    LIBPATHS_35 += -L$(ME_COM_OPENSSL_PATH)
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_35 += -lcrypto
+    LIBPATHS_35 += -L$(ME_COM_OPENSSL_PATH)
+endif
+ifeq ($(ME_COM_EST),1)
+    LIBS_35 += -lest
+endif
+
+$(BUILD)/bin/libgo.dylib: $(DEPS_35)
+	@echo '      [Link] $(BUILD)/bin/libgo.dylib'
+	$(CC) -dynamiclib -o $(BUILD)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libgo.dylib -compatibility_version 3.4 -current_version 3.4 "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" "$(BUILD)/obj/est.o" "$(BUILD)/obj/matrixssl.o" "$(BUILD)/obj/nanossl.o" "$(BUILD)/obj/openssl.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) 
+
+#
+#   goahead
+#
+DEPS_36 += $(BUILD)/bin/libgo.dylib
 DEPS_36 += $(BUILD)/inc/goahead.h
 DEPS_36 += $(BUILD)/inc/js.h
-DEPS_36 += $(BUILD)/obj/action.o
-DEPS_36 += $(BUILD)/obj/alloc.o
-DEPS_36 += $(BUILD)/obj/auth.o
-DEPS_36 += $(BUILD)/obj/cgi.o
-DEPS_36 += $(BUILD)/obj/crypt.o
-DEPS_36 += $(BUILD)/obj/file.o
-DEPS_36 += $(BUILD)/obj/fs.o
-DEPS_36 += $(BUILD)/obj/http.o
-DEPS_36 += $(BUILD)/obj/js.o
-DEPS_36 += $(BUILD)/obj/jst.o
-DEPS_36 += $(BUILD)/obj/options.o
-DEPS_36 += $(BUILD)/obj/osdep.o
-DEPS_36 += $(BUILD)/obj/rom-documents.o
-DEPS_36 += $(BUILD)/obj/route.o
-DEPS_36 += $(BUILD)/obj/runtime.o
-DEPS_36 += $(BUILD)/obj/socket.o
-DEPS_36 += $(BUILD)/obj/upload.o
-DEPS_36 += $(BUILD)/obj/est.o
-DEPS_36 += $(BUILD)/obj/matrixssl.o
-DEPS_36 += $(BUILD)/obj/nanossl.o
-DEPS_36 += $(BUILD)/obj/openssl.o
+DEPS_36 += $(BUILD)/obj/goahead.o
 
+LIBS_36 += -lgo
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_36 += -lssl
     LIBPATHS_36 += -L$(ME_COM_OPENSSL_PATH)
@@ -537,17 +549,17 @@ ifeq ($(ME_COM_EST),1)
     LIBS_36 += -lest
 endif
 
-$(BUILD)/bin/libgo.dylib: $(DEPS_36)
-	@echo '      [Link] $(BUILD)/bin/libgo.dylib'
-	$(CC) -dynamiclib -o $(BUILD)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libgo.dylib -compatibility_version 3.4 -current_version 3.4 "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" "$(BUILD)/obj/est.o" "$(BUILD)/obj/matrixssl.o" "$(BUILD)/obj/nanossl.o" "$(BUILD)/obj/openssl.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
+$(BUILD)/bin/goahead: $(DEPS_36)
+	@echo '      [Link] $(BUILD)/bin/goahead'
+	$(CC) -o $(BUILD)/bin/goahead -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_36) $(LIBS_36) $(LIBS_36) $(LIBS) 
 
 #
-#   goahead
+#   goahead-test
 #
 DEPS_37 += $(BUILD)/bin/libgo.dylib
 DEPS_37 += $(BUILD)/inc/goahead.h
 DEPS_37 += $(BUILD)/inc/js.h
-DEPS_37 += $(BUILD)/obj/goahead.o
+DEPS_37 += $(BUILD)/obj/test.o
 
 LIBS_37 += -lgo
 ifeq ($(ME_COM_OPENSSL),1)
@@ -562,17 +574,17 @@ ifeq ($(ME_COM_EST),1)
     LIBS_37 += -lest
 endif
 
-$(BUILD)/bin/goahead: $(DEPS_37)
-	@echo '      [Link] $(BUILD)/bin/goahead'
-	$(CC) -o $(BUILD)/bin/goahead -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
+$(BUILD)/bin/goahead-test: $(DEPS_37)
+	@echo '      [Link] $(BUILD)/bin/goahead-test'
+	$(CC) -o $(BUILD)/bin/goahead-test -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_37) $(LIBS_37) $(LIBS_37) $(LIBS) 
 
 #
-#   goahead-test
+#   gopass
 #
 DEPS_38 += $(BUILD)/bin/libgo.dylib
 DEPS_38 += $(BUILD)/inc/goahead.h
 DEPS_38 += $(BUILD)/inc/js.h
-DEPS_38 += $(BUILD)/obj/test.o
+DEPS_38 += $(BUILD)/obj/gopass.o
 
 LIBS_38 += -lgo
 ifeq ($(ME_COM_OPENSSL),1)
@@ -587,41 +599,16 @@ ifeq ($(ME_COM_EST),1)
     LIBS_38 += -lest
 endif
 
-$(BUILD)/bin/goahead-test: $(DEPS_38)
-	@echo '      [Link] $(BUILD)/bin/goahead-test'
-	$(CC) -o $(BUILD)/bin/goahead-test -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) 
-
-#
-#   gopass
-#
-DEPS_39 += $(BUILD)/bin/libgo.dylib
-DEPS_39 += $(BUILD)/inc/goahead.h
-DEPS_39 += $(BUILD)/inc/js.h
-DEPS_39 += $(BUILD)/obj/gopass.o
-
-LIBS_39 += -lgo
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_39 += -lssl
-    LIBPATHS_39 += -L$(ME_COM_OPENSSL_PATH)
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_39 += -lcrypto
-    LIBPATHS_39 += -L$(ME_COM_OPENSSL_PATH)
-endif
-ifeq ($(ME_COM_EST),1)
-    LIBS_39 += -lest
-endif
-
-$(BUILD)/bin/gopass: $(DEPS_39)
+$(BUILD)/bin/gopass: $(DEPS_38)
 	@echo '      [Link] $(BUILD)/bin/gopass'
-	$(CC) -o $(BUILD)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_39) $(LIBS_39) $(LIBS_39) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/gopass -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) 
 
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_40)
+installBinary: $(DEPS_39)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "3.4.1" "$(ME_APP_PREFIX)/latest" ; \
@@ -663,18 +650,18 @@ installBinary: $(DEPS_40)
 #
 #   install
 #
-DEPS_41 += stop
-DEPS_41 += installBinary
-DEPS_41 += start
+DEPS_40 += stop
+DEPS_40 += installBinary
+DEPS_40 += start
 
-install: $(DEPS_41)
+install: $(DEPS_40)
 
 #
 #   uninstall
 #
-DEPS_42 += stop
+DEPS_41 += stop
 
-uninstall: $(DEPS_42)
+uninstall: $(DEPS_41)
 	rm -fr "$(ME_WEB_PREFIX)" ; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rmdir -p "$(ME_ETC_PREFIX)" 2>/dev/null ; true ; \
@@ -686,6 +673,6 @@ uninstall: $(DEPS_42)
 #   version
 #
 
-version: $(DEPS_43)
+version: $(DEPS_42)
 	echo 3.4.1
 

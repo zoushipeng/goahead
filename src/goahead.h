@@ -16,7 +16,7 @@
     #error "Cannot have more than one SSL provider configured"
 #endif
 #ifndef ME_GOAHEAD_LOGGING
-    #define ME_GOAHEAD_LOGGING 1               /**< Default for logging is "on" */
+    #define ME_GOAHEAD_LOGGING 1                /**< Default for logging is "on" */
 #endif
 #ifndef ME_GOAHEAD_DEBUG
     #if ME_DEBUG

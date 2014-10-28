@@ -6,7 +6,7 @@
 PRODUCT=goahead
 XCODE=/usr/bin/xcodebuild
 PROFILE=default
-BINARIES="goahead gohead-test gopass"
+BINARIES="goahead goahead-test gopass"
 LIBRARIES="libgo"
 
 # Just for VS
@@ -28,13 +28,14 @@ log() {
 
 if [ -x "${VS}" ] ; then
     log "[Test]" "Building ${PRODUCT} Visual Studio Project"
+    "${VS}" projects/${PRODUCT}-windows-${PROFILE}.sln /upgrade
     "${VS}" projects/${PRODUCT}-windows-${PROFILE}.sln /clean
     "${VS}" projects/${PRODUCT}-windows-${PROFILE}.sln /build
 
     for f in $BINARIES
     do
         echo check $f
-        if [ ! -f projects/${PRODUCT}-x86-default/bin/${f}.exe ] ; then
+        if [ ! -f build/windows-x86-${PROFILE}/bin/${f}.exe ] ; then
             echo "VS IDE build is missing $f.exe"
             exit 255
         fi
@@ -42,7 +43,7 @@ if [ -x "${VS}" ] ; then
     for f in $LIBRARIES
     do
         echo check $f
-        if [ ! -f projects/${PRODUCT}-x86-default/bin/${f}.dll ] ; then
+        if [ ! -f build/windows-x86-${PROFILE}/bin/${f}.dll ] ; then
             echo "VS IDE build is missing $f.dll"
             exit 255
         fi

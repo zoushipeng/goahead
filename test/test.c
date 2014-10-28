@@ -169,7 +169,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
 #endif
     websServiceEvents(&finished);
-    trace(1, "Instructed to exit\n");
+    logmsg(1, "Instructed to exit\n");
     websClose();
     return 0;
 }
@@ -180,17 +180,17 @@ static void logHeader()
     char    home[ME_GOAHEAD_LIMIT_STRING];
 
     getcwd(home, sizeof(home));
-    trace(2, "Configuration for %s", ME_TITLE);
-    trace(2, "---------------------------------------------");
-    trace(2, "Version:            %s", ME_VERSION);
-    trace(2, "BuildType:          %s", ME_DEBUG ? "Debug" : "Release");
-    trace(2, "CPU:                %s", ME_CPU);
-    trace(2, "OS:                 %s", ME_OS);
-    trace(2, "Host:               %s", websGetServer());
-    trace(2, "Directory:          %s", home);
-    trace(2, "Documents:          %s", websGetDocuments());
-    trace(2, "Configure:          %s", ME_CONFIG_CMD);
-    trace(2, "---------------------------------------------");
+    logmsg(2, "Configuration for %s", ME_TITLE);
+    logmsg(2, "---------------------------------------------");
+    logmsg(2, "Version:            %s", ME_VERSION);
+    logmsg(2, "BuildType:          %s", ME_DEBUG ? "Debug" : "Release");
+    logmsg(2, "CPU:                %s", ME_CPU);
+    logmsg(2, "OS:                 %s", ME_OS);
+    logmsg(2, "Host:               %s", websGetServer());
+    logmsg(2, "Directory:          %s", home);
+    logmsg(2, "Documents:          %s", websGetDocuments());
+    logmsg(2, "Configure:          %s", ME_CONFIG_CMD);
+    logmsg(2, "---------------------------------------------");
 }
 
 
