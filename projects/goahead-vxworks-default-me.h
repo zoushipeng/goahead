@@ -186,6 +186,9 @@
 #ifndef ME_GOAHEAD_STEALTH
     #define ME_GOAHEAD_STEALTH 1
 #endif
+#ifndef ME_GOAHEAD_TRACING
+    #define ME_GOAHEAD_TRACING 1
+#endif
 #ifndef ME_GOAHEAD_UPLOAD
     #define ME_GOAHEAD_UPLOAD 1
 #endif
