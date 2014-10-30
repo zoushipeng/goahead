@@ -15,8 +15,12 @@
 #if (ME_COM_EST + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
 #endif
+
 #ifndef ME_GOAHEAD_LOGGING
     #define ME_GOAHEAD_LOGGING 1                /**< Default for logging is "on" */
+#endif
+#ifndef ME_GOAHEAD_TRACING
+    #define ME_GOAHEAD_TRACING 1                /**< Default for tracing "on" */
 #endif
 #ifndef ME_GOAHEAD_DEBUG
     #if ME_DEBUG
@@ -221,7 +225,7 @@ PUBLIC void logSetPath(char *path);
     Emit a message to the log 
     @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
     level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
-    Logging support is enabled by the Bit setting: "logging: true" which creates the ME_GOAHEAD_LOGGING define in me.h
+    Logging support is enabled by the MakeMe setting: "logging: true" which creates the ME_GOAHEAD_LOGGING define in me.h
     most verbose. Level 2-4 are the most useful for debugging.
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
@@ -234,7 +238,7 @@ PUBLIC void logmsgProc(int level, char *fmt, ...);
     @description This emits a message at the specified level. GoAhead filters logging messages by defining a verbosity
     level at startup. Level 0 is the least verbose where only the most important messages will be output. Level 9 is the
     most verbose. Level 2-4 are the most useful for debugging.
-    Debug trace support is enabled by the Bit setting: "tracing: true" which creates the ME_GOAHEAD_DEBUG define in
+    Debug trace support is enabled by the MakeMe setting: "tracing: true" which creates the ME_GOAHEAD_TRACING define in
     me.h.
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
@@ -3294,7 +3298,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 
 /************************************ Macros **********************************/
 
-#if ME_GOAHEAD_DEBUG
+#if ME_GOAHEAD_TRACING
     #if ME_COMPILER_HAS_MACRO_VARARGS
         #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else
     #else

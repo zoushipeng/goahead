@@ -630,7 +630,7 @@ PUBLIC int websListen(char *endpoint)
     } else {
         ipaddr = "*";
     }
-    trace(2, "Started %s://%s:%d", secure ? "https" : "http", ipaddr, port);
+    logmsg(2, "Started %s://%s:%d", secure ? "https" : "http", ipaddr, port);
 
     if (!websHostUrl) {
         if (port == 80) {
@@ -701,7 +701,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
     /*
         Arrange for socketEvent to be called when read data is available
      */
-     lp = socketPtr(listenSid);
+    lp = socketPtr(listenSid);
     trace(4, "New connection from %s:%d to %s:%d", ipaddr, port, wp->ifaddr, lp->port);
 
 #if ME_COM_SSL
