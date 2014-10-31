@@ -603,12 +603,17 @@ $(BUILD)/bin/gopass: $(DEPS_38)
 	@echo '      [Link] $(BUILD)/bin/gopass'
 	$(CC) -o $(BUILD)/bin/gopass $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) $(LIBS) 
 
+#
+#   stop
+#
+
+stop: $(DEPS_39)
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_40)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "3.4.1" "$(ME_APP_PREFIX)/latest" ; \
@@ -652,22 +657,27 @@ installBinary: $(DEPS_39)
 	rm -f "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(ME_MAN_PREFIX)/man1/webcomp.1"
 
+#
+#   start
+#
+
+start: $(DEPS_41)
 
 #
 #   install
 #
-DEPS_40 += stop
-DEPS_40 += installBinary
-DEPS_40 += start
+DEPS_42 += stop
+DEPS_42 += installBinary
+DEPS_42 += start
 
-install: $(DEPS_40)
+install: $(DEPS_42)
 
 #
 #   uninstall
 #
-DEPS_41 += stop
+DEPS_43 += stop
 
-uninstall: $(DEPS_41)
+uninstall: $(DEPS_43)
 	rm -fr "$(ME_WEB_PREFIX)" ; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rmdir -p "$(ME_ETC_PREFIX)" 2>/dev/null ; true ; \
@@ -679,6 +689,6 @@ uninstall: $(DEPS_41)
 #   version
 #
 
-version: $(DEPS_42)
+version: $(DEPS_44)
 	echo 3.4.1
 

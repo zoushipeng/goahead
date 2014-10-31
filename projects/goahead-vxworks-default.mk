@@ -594,34 +594,44 @@ $(BUILD)/bin/gopass.out: $(DEPS_38)
 	@echo '      [Link] $(BUILD)/bin/gopass.out'
 	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS) -Wl,-r 
 
+#
+#   stop
+#
+
+stop: $(DEPS_39)
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_39)
+installBinary: $(DEPS_40)
 
+#
+#   start
+#
+
+start: $(DEPS_41)
 
 #
 #   install
 #
-DEPS_40 += stop
-DEPS_40 += installBinary
-DEPS_40 += start
+DEPS_42 += stop
+DEPS_42 += installBinary
+DEPS_42 += start
 
-install: $(DEPS_40)
+install: $(DEPS_42)
 
 #
 #   uninstall
 #
-DEPS_41 += stop
+DEPS_43 += stop
 
-uninstall: $(DEPS_41)
+uninstall: $(DEPS_43)
 
 #
 #   version
 #
 
-version: $(DEPS_42)
+version: $(DEPS_44)
 	echo 3.4.1
 
