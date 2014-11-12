@@ -1579,7 +1579,8 @@ PUBLIC void websRedirect(Webs *wp, char *uri)
     originalPort = port = 0;
     if ((host = (wp->host ? wp->host : websHostUrl)) != 0) {
         scopy(hostbuf, sizeof(hostbuf), host);
-        pstr = strchr(hostbuf, ']') ? : hostbuf;
+        pstr = strchr(hostbuf, ']');
+        pstr = pstr ? pstr : hostbuf;
         if ((pstr = strchr(pstr, ':')) != 0) {
             *pstr++ = '\0';
             originalPort = atoi(pstr);
