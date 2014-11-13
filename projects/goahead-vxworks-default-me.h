@@ -204,6 +204,9 @@
 #ifndef ME_GOAHEAD_XFRAME_HEADER
     #define ME_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
 #endif
+#ifndef ME_INTEGRATE
+    #define ME_INTEGRATE 1
+#endif
 #ifndef ME_MANIFEST
     #define ME_MANIFEST "package/manifest.me"
 #endif
