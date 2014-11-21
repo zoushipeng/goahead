@@ -18,12 +18,18 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgo", "goahead-windows-de
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead", "goahead-windows-default\goahead.vcxproj", "{462DB80E-129C-4147-A0DC-405A246B0B6A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
@@ -37,6 +43,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead-test", "goahead-win
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
@@ -48,10 +57,21 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-d
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D} = {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libest", "goahead-windows-default\libest.vcxproj", "{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773} = {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}
 	EndProjectSection
 EndProject
 
@@ -111,6 +131,14 @@ EndProject
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|Win32.Build.0 = Release|Win32
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.ActiveCfg = Release|x64
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.Build.0 = Release|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|Win32.ActiveCfg = Debug|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|Win32.Build.0 = Debug|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|x64.ActiveCfg = Debug|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|x64.Build.0 = Debug|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|Win32.ActiveCfg = Release|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|Win32.Build.0 = Release|Win32
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|x64.ActiveCfg = Release|x64
+{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
       GlobalSection(SolutionProperties) = preSolution
