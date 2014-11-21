@@ -1,34 +1,50 @@
 {
-    title:  'Authentication',
+    title:  'User Authentication',
     crumbs: [
         { "User's Guide": 'index.html' },
     ],
 }
-            <h1>Authentication</h1>
-            <p>Authentication is the process by which a client's identity and abilities are verified before granting
-            access to server resources. Authentication is essential when you have content that you wish to protect
-            and you wish to provide access only to specific, approved clients.</p>
-            <p>GoAhead implements a powerful and flexible authorization mechanism that supports Basic, Digest and
-            Web-form ) authentication schemes. GoAhead employs a unified flexible authentication front and back ends
-            that can be mixed and matched to meet most authentication needs.</p>
-            
-            <a name="schemes"></a>
+            <h1>User Authentication</h1>
+            <p>Authentication is the process by which a client's identity and capabilities are verified before granting
+            access to server resources. Authentication is essential when you have content that you wish to protect and
+            provide only to specific, approved clients.</p>
+
+            <p>GoAhead implements a powerful and flexible authentication farmework that verifies username and password and
+            verifies client capabilitiies using a role based authorization mechanismm.</p>
+
             <h2>Authentication Schemes</h2>
-            <p>GoAhead provides several authentication schemes.</p>
+            <p>GoAhead provides several authentication protocol schemes.</p>
             <ul>
-                <li>Basic Authentication</li>
-                <li>Digest Authentication</li>
-                <li>Form Authentication</li>
+                <li><a href="#form">Web Form Authentication</a></li>
+                <li><a href="#basic">Basic Authentication</a></li>
+                <li><a href="#digest">Digest Authentication</a></li>
             </ul>
-            <p>Basic and Digest authentication are HTTP protocol mechanisms defined by the <a href=
+            <p>The Form authentication scheme uses a HTML web form for the user to enter their username and password
+                credentials and HTTP Post requests to submit to the server for verification. It may also be used
+                programmatically va HTTP POST requests.</p>
+            <p>
+
+            <p>The Basic and Digest authentication are HTTP protocol mechanisms defined by the <a href=
             "http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP/1.1 RFC2616</a> specification. Because they operate
-            at the protocol level, they offer a low level of capability and flexibility. When a client attempts to access
+            at the protocol level, they offer a lower level of capability and flexibility. When a client attempts to access
             secured content, the client's browser displays a generic pop-up dialog box to prompt for the user's
-            credentials. When submitted, the GoAhead server consults the appropriate user password store to authenticate the
-            user. While this scheme works, applications increasingly need to utilize an application-level user login
-            mechanism that is more integrated into the overall look-and-feel of the application. Such login facilities
-            are defined using HTTP POST requests from standard web page forms. GoAhead supports this scheme via the
-            Form authentication scheme.</p>
+            credentials.</p>
+
+            <div class="ui icon message">
+                <i class="warning icon"></i>
+                <div class="content">
+                    <div class="header">SECURITY NOTE</div>
+                    <p>You should only use Basic and Digest authentication as a last resort. Basic and Digest authentication
+                    standards employ weak ciphers, repeatedly send credentials over the wire and and are not sufficiently
+                    secure. Basic authentication transmits passwords as clear-text in each and every request. Digest
+                    authentication uses the weak MD5 cipher, and both require use of SSL on all requests to be minimally
+                    secure. Further, both Basic and Digest do not provide a reliable log out mechanism. Logout works on some
+                    browsers but not on others or even different versions of the same browser. We stronly recommend
+                    using Form authentication, with "blowfish" encryption for a more usable, secure and reliable 
+                    solution.</p>
+                </div>
+            </div>
+
             <a name="configuration"></a>
             <h2>Configuration</h2>
             <p>Authentication is controlled by two configuration files:</p>
@@ -41,10 +57,12 @@
             for each specified URI pattern. When client requests are received, they are matched against the URI routes
             to find the required authentication scheme. This enables great flexibility as different requests can use
             different authentication schemes.</p>
+
             <h3>Authorization Configuration</h3>
             <p>The <i>auth.txt</i> file contains <i>user</i> and <i>role</i> definitions to establish an authentication
             database. If running on a Unix system, the standard Unix user database may be used instead of defining users in
             <i>auth.txt</i>.</p>
+
             <h4>User directive</h4>
             <p>Users can be defined via the <i>user</i> directive. This specifies the username, encrypted password
             and the authentication roles played by the user.</p>
@@ -65,36 +83,8 @@ route uri=/cgi-bin handler=cgi
 </pre>
             <p>The <i>auth</i> keyword takes an argument set to <i>digest</i>, <i>basic</i> or <i>form</i>. The 
             <i>abilities</i> keyword takes a comma separated list of ability words.</p>
-            <a name="basic"></a>
-            <h2 >Basic Authentication</h2>
-            <p>Basic authentication was the original HTTP/1.0 authentication scheme. It transmits user names and
-            passwords using a trivial encoding that is no better than using plain text.</p>
-            <p><b>SECURITY WARNING</b>: You should not use Basic Authentication if at all possible. Use Digest
-            Authentication instead if it is supported by your clients. If you must use Basic Authentication, use it over
-            TLS/SSL which will encrypt the password over the wire.</p>
-            <h2>Basic Authentication Directives</h2>
-            <p>GoAhead basic authorization is defined by specifying <i>auth=basic</i> in the required routes in 
-            <i>route.txt</i>. For example:</p>
-<pre class="ui code segment">
-# In auth.txt
-role name=operator abilities=start,stop
-user name=julie password=9d8873a123eb506e7f8e84d1f2a26916 roles=operator
-# In route.txt
-route uri=/machinery auth=basic abilities=start,stop
-</pre>
-            <p>This example restricts access to URIs beginning with "/machinery". It permits access to the users with
-            the <i>start, stop</i> abilities. This means that the user "julie" will be granted access once authenticated.</p>
-            <a id="basicAuthentication"></a>
-            <p>The <i>auth=basic</i>keyword specifies that basic authorization is being
-            used. The Authentication Realm used by Basic and Digest authentication is set when GoAhead is built. 
-            The realm is used in combination with the username and password to encrypt the password.</p>
-            <p>To create passwords, see the section below that describes the <a href="#gopass">gopass</a> utility.</p>
-            <a id="digest"></a>
-            <h2 >Digest Authentication</h2>
-            <p>The Digest authentication scheme is a modern replacement for the Basic authorization scheme. It uses
-            cryptographic techniques to encode passwords and does not transmit sensitive information in clear-text.</p>
-            <p>GoAhead digest authorization is very similar to Basic authentication and is 
-            is controlled by the <i>auth=digest</i> keyword on required routes.</p>
+
+
             <a id="form"></a>
             <h2 >Form Authentication</h2>
             <p>The Form authentication scheme uses a standard web page form that prompts for the user to enter their
@@ -134,11 +124,13 @@ route uri=/ auth=form handler=continue redirect=401@/pub/login.html
             <p>This directive is responsible for redirecting all HTTP traffic over SSL.
             The <i>uri=/</i> defines a URI prefix. Since all URIs start with <i>/</i>, this route will match all requests
             that use http:// and not https://.</p>
-            <h3>Unauthenticated Access to the Login Page</h3>
 
+
+            <h3>Unauthenticated Access to the Login Page</h3>
             <pre class="ui code segment">route uri=/pub/</pre>
             <p>This directive permits unauthenticated access to any documents in the <i>/pub</i> directory. This is 
             where the <i>login.html</i> form and any required CSS or Javascript files should be located.</p>
+
             <h3>The Login Service</h3>
             <pre class="ui code segment">route uri=/proc/login methods=POST handler=proc redirect=200@/ redirect=401@/pub/login.html</pre>
             <p>This directive defines the login service route. The proc handler bind the login service to the URI 
@@ -147,6 +139,7 @@ route uri=/ auth=form handler=continue redirect=401@/pub/login.html
             user is redirected via <i>redirect=200@/</i>. The redirection form is: STATUS@URI. If the user credentials
             cannot be authenticated successfully, the user is redirected back to the login page 
             via: <i>redirect=401@/pub/login.html</i>.</p>
+
             <h3>The Logout Service</h3>
             <pre class="ui code segment">route uri=/proc/logout methods=POST handler=proc redirect=200@/pub/login.html</pre>
             <p>This directive defines the logout service. This simply deletes the user's login session and redirects 
@@ -159,6 +152,7 @@ route uri=/ auth=form handler=continue redirect=401@/pub/login.html
             handler authenticates the user and if the user is successfully authenticated, processing continues on 
             to let other handlers service the request and generate a response. If authentication fails, the user
             is redirected back to the login page.</p>
+
             <h3>Web Form</h3>
             <p>Here is a minimal example login form:</p>
             <pre class="ui code segment">
@@ -177,6 +171,50 @@ route uri=/ auth=form handler=continue redirect=401@/pub/login.html
             <h3>Securing the Password</h3>
             <p><b>SECURITY WARNING:</b> The Form authentication scheme submits the user password as plain text. To secure
             communications, the Form authentication scheme should be used over a secure connection using TLS/SSL.</p>
+
+            <a name="basic"></a>
+            <h2>Basic Authentication</h2>
+            <p>Basic authentication was the original HTTP/1.0 authentication scheme. It captures usernames and
+                passwords via a fixed browser-based popup dialog and then transmits credentials
+                using a trivial encoding that is no better than using plain text.</p>
+            <p><b>SECURITY WARNING</b>: You should not use Basic Authentication if at all possible. It transmits
+                user credentials with each request, has no encryption for the password and does not have a means
+                for users to reliably logout. If you must use Basic Authentication, use it over
+                TLS/SSL which will encrypt the password over the wire.</p>
+
+            <h3>Basic Authentication Directives</h3>
+            <p>GoAhead basic authorization is defined by specifying <i>auth=basic</i> in the required routes in 
+            <i>route.txt</i>. For example:</p>
+<pre class="ui code segment">
+# In auth.txt
+role name=operator abilities=start,stop
+user name=julie password=9d8873a123eb506e7f8e84d1f2a26916 roles=operator
+# In route.txt
+route uri=/machinery auth=basic abilities=start,stop
+</pre>
+            <p>This example restricts access to URIs beginning with "/machinery". It permits access to the users with
+            the <i>start, stop</i> abilities. This means that the user "julie" will be granted access once authenticated.</p>
+
+            <p>The <i>auth=basic</i>keyword specifies that basic authorization is being
+            used. The Authentication Realm used by Basic and Digest authentication is set when GoAhead is built. 
+            The realm is used in combination with the username and password to encrypt the password.</p>
+
+            <a id="digest"></a>
+            <h2>Digest Authentication</h2>
+            <p>The Digest authentication scheme
+            cryptographic techniques is a minor improvement over the Basic scheme. It captures usernames and
+            passwords via a fixed browser-based popup dialog and then transmits credentials
+            using the weak MD5 encoding format.</p>
+
+            <p><b>SECURITY WARNING</b>: You should not use Digest Authentication if at all possible. It transmits
+                user credentials with each request, has weak encryption for the password and does not have a means
+                for users to reliably logout. If you must use Digest Authentication, use it over
+                TLS/SSL which will securely encrypt the credentials over the wire.</p>
+
+            <p>GoAhead digest authorization is very similar to Basic authentication and is 
+            is controlled by the <i>auth=digest</i> keyword on required routes.</p>
+
+
             <a id="stores"></a>
             <h2 >Password Stores</h2>
             <p>GoAhead can be built to retrieve passwords from the Unix system password database or from password text
@@ -184,6 +222,7 @@ route uri=/ auth=form handler=continue redirect=401@/pub/login.html
             The Unix system password database is managed via the <a href="http://kb.iu.edu/data/anpn.html">PAM</a> 
             interface. GoAhead can be configured to use PAM with the command:</p>
             <pre class="ui code segment">configure --set pam=true</pre>
+
             <h3>Determining Abilities with PAM</h3>
             <p>When using PAM, <i>user</i> records are not required in auth.txt. However, to determine the users's
             abilities, the Unix group membership for the user and role definitions are used. For each Unix group that
@@ -195,6 +234,7 @@ route uri=/ auth=form handler=continue redirect=401@/pub/login.html
             <pre class="ui code segment">
 Role staff add,edit,delete
 </pre>
+
             <a name="gopass"></a>
             <h2 >Password Program</h2>
             <p>To create the required encrypted password fields for <i>user</i> definitions, the  <em>gopass</em> program
