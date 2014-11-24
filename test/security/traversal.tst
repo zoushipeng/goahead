@@ -15,12 +15,7 @@ http.close()
 
 /* Test windows '\' delimiter */
 http.get(HTTP + "/..%5Cappweb.conf")
-if (Config.OS == 'windows') {
-    /* for windows, the "..\\" is an invalid filename */
-    assert(http.status == 404)
-} else {
-    assert(http.status == 400)
-}
+assert(http.status == 400)
 http.close()
 
 http.get(HTTP + "/../../../../../.x/.x/.x/.x/.x/.x/etc/passwd")
