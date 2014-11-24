@@ -966,7 +966,7 @@ static void parseFirstLine(Webs *wp)
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         return;
     }
-    if ((wp->path = websNormalizeUriPath(path)) == 0) {
+    if ((wp->path = websValidateUriPath(path)) == 0) {
         error("Cannot normalize URL: %s", url);
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         wfree(buf);
@@ -3100,7 +3100,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 {
     char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
     ssize   buflen, ulen, len;
-    int     rc;
+    int     rc, sep;
 
     assert(pbuf);
     if (url == 0) {
@@ -3128,6 +3128,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     query = 0;
     reference = 0;
     tok = buf;
+    sep = '/';
 
     /*
         [scheme://][hostname[:port]][/path[.ext]][#ref][?query]
@@ -3188,6 +3189,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
            Terminate hostname. This zeros the leading path slash.
            This will be repaired before returning if ppath is set 
          */
+        sep = *tok;
         *tok++ = '\0';
         path = tok;
         /* path[.ext[/extra]] */
@@ -3230,12 +3232,14 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
             /* Copy path to reinsert leading slash */
             scopy(&buf2[1], len - 1, path);
             path = buf2;
-            *path = '/';
+            *path = sep;
+#if UNUSED && MOVED 
             if (!websValidUriChars(path)) {
                 rc = -1;
             } else {
                 websDecodeUrl(path, path, -1);
             }
+#endif
         }
         *ppath = path;
     }
@@ -3256,8 +3260,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 
 
 /*
-    Normalize a URI path to remove "./",  "../" and redundant separators. Note: this does not make an abs path and 
-    does not map separators nor change case. 
+    Normalize a URI path to remove "./",  "../" and redundant separators. 
+    Note: this does not make an abs path and does not map separators nor change case. 
+    This validates the URI and expects it to begin with "/".
  */
 PUBLIC char *websNormalizeUriPath(char *pathArg)
 {
@@ -3296,20 +3301,19 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
         if (sp[0] == '.') {
             if (sp[1] == '\0')  {
                 if ((i+1) == nseg) {
+                    /* Trim trailing "." */
                     segments[j] = "";
                 } else {
                     j--;
                 }
             } else if (sp[1] == '.' && sp[2] == '\0')  {
-                if (i == 1 && *segments[0] == '\0') {
-                    j = 0;
-                } else if ((i+1) == nseg) {
-                    if (--j >= 0) {
-                        segments[j] = "";
-                    }
-                } else {
-                    j = max(j - 2, -1);
+                j = max(j - 2, -1);
+                if ((i+1) == nseg) {
+                    nseg--;
                 }
+            } else {
+                /* .more-chars */
+                segments[j] = segments[i];
             }
         } else {
             segments[j] = segments[i];
@@ -3334,6 +3338,31 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
         return 0;
     }
     return path;
+}
+
+
+/*
+    Validate a URI path for use in a HTTP request line
+    The URI must contain only valid characters and must being with "/" both before and after decoding.
+    A decoded, normalized URI path is returned.
+    The uri is modified.
+ */
+PUBLIC char *websValidateUriPath(char *uri)
+{
+    if (uri == 0 || *uri != '/') {
+        return 0;
+    }
+    if (!websValidUriChars(uri)) {
+        return 0;
+    }
+    websDecodeUrl(uri, uri, -1);
+    if ((uri = websNormalizeUriPath(uri)) == 0) {
+        return 0;
+    }
+    if (*uri != '/' || strchr(uri, '\\')) {
+        return 0;
+    }
+    return uri;
 }
 
 

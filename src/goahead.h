@@ -2714,6 +2714,18 @@ PUBLIC int websUrlParse(char *url, char **buf, char **protocol, char **host, cha
 PUBLIC bool websValid(Webs *wp);
 
 /**
+    Validate a URI path as expected in a HTTP request line
+    @description This expects a URI beginning with "/" and containing only valid URI characters.
+    The URI is decoded, and normalized removing "../" and "." segments.
+    The URI must begin with a "/" both before and after decoding and normalization.
+    @param uri URI to validate.
+    @return A validated, normalized URI path
+    @ingroup Webs
+    @stability Evolving
+ */
+PUBLIC char *websValidateUriPath(char *uri);
+
+/**
     Write a set of standard response headers
     @param wp Webs request object
     @param contentLength Value for the Content-Length header which describes the length of the response body

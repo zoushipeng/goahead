@@ -1,7 +1,7 @@
 /*
     Very large URI test
  */ 
-const HTTP: Uri = App.config.uris.http || "127.0.0.1:4100"
+const HTTP: Uri = App.config.uris.http || "127.0.0.1:8080"
 
 //  This writes a ~100K URI. LimitUri should be less than 100K for this unit test.
 
