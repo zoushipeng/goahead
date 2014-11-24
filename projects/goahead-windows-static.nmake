@@ -114,7 +114,6 @@ ME_CACHE_PREFIX       = $(ME_VAPP_PREFIX)\cache
 ME_SRC_PREFIX         = $(ME_VAPP_PREFIX)\src
 
 
-TARGETS               = $(TARGETS) init
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\ca.crt
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\goahead.exe
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\goahead-test.exe
