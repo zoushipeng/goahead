@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.4.2
+VERSION               := 3.4.3
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -602,7 +602,7 @@ stop: $(DEPS_37)
 installBinary: $(DEPS_38)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
-	ln -s "3.4.2" "$(ME_APP_PREFIX)/latest" ; \
+	ln -s "3.4.3" "$(ME_APP_PREFIX)/latest" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/goahead $(ME_VAPP_PREFIX)/bin/goahead ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
@@ -681,5 +681,5 @@ uninstall: $(DEPS_42)
 #
 
 version: $(DEPS_43)
-	echo 3.4.2
+	echo 3.4.3
 
