@@ -1396,6 +1396,23 @@ PUBLIC int sncmp(char *s1, char *s2, ssize len);
 PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
 
 /**
+    Split a string at a delimiter
+    @description Split a string and return parts. The string is modified.
+        This routiner never returns null. If there are leading delimiters, the empty string will be returned
+        and *last will be set to the portion after the delimiters.
+        If str is null, an empty string will be returned.
+        If there are no characters after the delimiter, then *last will be set to the empty string.
+    @param str String to tokenize.
+    @param delim Set of characters that are used as token separators.
+    @param last Reference to the portion after the delimiters. Will return an empty string if is not trailing portion.
+    @return Returns a pointer to the first part before the delimiters. If the string begins with delimiters, the empty
+        string will be returned.
+    @ingroup WebsRuntime
+    @stability Prototype
+ */
+PUBLIC char *ssplit(char *str, cchar *delim, char **last);
+
+/**
     Tokenize a string
     @description Split a string into tokens.
     @param str String to tokenize.

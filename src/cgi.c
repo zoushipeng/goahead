@@ -274,10 +274,10 @@ static ssize parseCgiHeaders(Webs *wp, char *buf)
         return 0;
     }
     if (strncmp(cp, "HTTP/1.", 7) == 0) {
-        stok(cp, "\r\n", &cp);
+        ssplit(cp, "\r\n", &cp);
     }
-    for (; *cp && (*cp != '\r' && *cp != '\n') && cp < end; ) {
-        key = slower(stok(cp, ":", &value));
+    for (; cp && *cp && (*cp != '\r' && *cp != '\n') && cp < end; ) {
+        key = slower(ssplit(cp, ":", &value));
         if (strcmp(key, "location") == 0) {
             location = value;
         } else if (strcmp(key, "status") == 0) {

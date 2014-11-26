@@ -567,6 +567,13 @@
     </member>
     <member kind="function">
       <type>char *</type>
+      <name>ssplit</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>ga3749b26084eb67b7f76bb7aa48c839d5</anchor>
+      <arglist>(char *str, cchar *delim, char **last)</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
       <name>stok</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
       <anchor>ga08e9661f9903df60b89cccdb523804c4</anchor>

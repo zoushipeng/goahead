@@ -221,7 +221,7 @@ static int processUploadHeader(Webs *wp, char *line)
         while (key && stok(key, ";\r\n", &nextPair)) {
 
             key = strim(key, " ", WEBS_TRIM_BOTH);
-            stok(key, "= ", &value);
+            ssplit(key, "= ", &value);
             value = strim(value, "\"", WEBS_TRIM_BOTH);
 
             if (scaselesscmp(key, "form-data") == 0) {

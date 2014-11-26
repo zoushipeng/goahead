@@ -2554,6 +2554,38 @@ PUBLIC int sncaselesscmp(char *s1, char *s2, ssize n)
 
 
 /*
+    Split a string at a delimiter and return the parts.
+    This differs from stok in that it never returns null. Also, stok eats leading deliminators, whereas
+    ssplit will return an empty string if there are leading deliminators.
+    Note: Modifies the original string and returns the string for chaining.
+ */
+PUBLIC char *ssplit(char *str, cchar *delim, char **last)
+{
+    char    *end;
+
+    if (last) {
+        *last = "";
+    }
+    if (str == 0) {
+        return "";
+    }
+    if (delim == 0 || *delim == '\0') {
+        return str;
+    }
+    if ((end = strpbrk(str, delim)) != 0) {
+        *end++ = '\0';
+        end += strspn(end, delim);
+    } else {
+        end = "";
+    }
+    if (last) {
+        *last = end;
+    }
+    return str;
+}
+
+
+/*
     Note "str" is modifed as per strtok()
     WARNING:  this does not allocate
  */

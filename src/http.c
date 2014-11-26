@@ -1059,7 +1059,7 @@ static void parseHeaders(Webs *wp)
 
         } else if (scaselesscmp(key, "authorization") == 0) {
             wp->authType = sclone(value);
-            stok(wp->authType, " \t", &tok);
+            ssplit(wp->authType, " \t", &tok);
             wp->authDetails = sclone(tok);
             slower(wp->authType);
 
