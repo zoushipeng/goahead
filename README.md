@@ -5,10 +5,10 @@ The most popular little embedded web server.
 
 Licensing
 ---
-See LICENSE.md for details.
+See LICENSE.md for details and read:
 
 
-https://embedthis.com/goahead/doc/index.html
+https://embedthis.com/goahead/licensing.html
 
 ### Building
 
