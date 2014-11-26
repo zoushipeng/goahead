@@ -307,16 +307,20 @@ PUBLIC void websClose()
         sessions = -1;
     }
     for (i = 0; i < listenMax; i++) {
-        socketCloseConnection(listens[i]);
-        listens[i] = -1;
+        if (listens[i] >= 0) {
+            socketCloseConnection(listens[i]);
+            listens[i] = -1;
+        }
     }
     listenMax = 0;
     for (i = websMax; webs && i >= 0; i--) {
         if ((wp = webs[i]) == NULL) {
             continue;
         }
-        socketCloseConnection(wp->sid);
-        wp->sid = -1;
+        if (wp->sid >= 0) {
+            socketCloseConnection(wp->sid);
+            wp->sid = -1;
+        }
         websFree(wp);
     }
     wfree(websHostUrl);
@@ -585,13 +589,14 @@ static void complete(Webs *wp, int reuse)
     trace(5, "Close connection");
     assert(wp->timeout >= 0);
     websCancelTimeout(wp);
-    assert(wp->sid >= 0);
 #if ME_COM_SSL
     sslFree(wp);
 #endif
-    socketDeleteHandler(wp->sid);
-    socketCloseConnection(wp->sid);
-    wp->sid = -1;
+    if (wp->sid >= 0) {
+        socketDeleteHandler(wp->sid);
+        socketCloseConnection(wp->sid);
+        wp->sid = -1;
+    }
     bufFlush(&wp->rxbuf);
     wp->state = WEBS_BEGIN;
     wp->flags |= WEBS_CLOSED;

@@ -416,6 +416,8 @@ WebsTime websCgiPoll()
                 wfree(cgip->stdOut);
                 wfree(cgip);
                 websPump(wp);
+                websFree(wp);
+                /* wp no longer valid */
             }
         }
     }
