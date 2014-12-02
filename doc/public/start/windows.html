@@ -179,20 +179,20 @@ goahead-VERSION-BUILD-MS-WIN-i686.exe.zip
             <p>If you need to do batch or unattended installations, you can install GoAhead silently. Use the
             <b>/silent</b> switch to suppress questions and <b>/verysilent</b> to suppress all visual
             output.</p>
+
             <a name="running"></a>
             <h2 >Running GoAhead</h2>
             <p>To start GoAhead type:</p>
             <pre class="ui code segment">
-sudo goahead --home /etc/goahead
+cd \Program Files\Embedthis GoAhead
+bin\goahead
 </pre>
             <p>GoAhead is configured by default to listen on port 80. To test that it is serving pages, point your
-            browser at http://localhost/.
-            <p>To get all the options for GoAhead read the man page via:</p>
+            browser at http://localhost/.</p>
+
+            <p>To get all the options for GoAhead:</p>
             <pre class="ui code segment">
-man goahead
-</pre>or get the command help via:
-            <pre class="ui code segment">
-goahead --help
+bin\goahead --help
 </pre>
 
     </div>
