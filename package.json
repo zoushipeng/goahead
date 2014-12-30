@@ -47,7 +47,6 @@
         "paks": "src/paks"
     },
     "dependencies": {
-        "me-docstyle": "~0.8",
         "osdep": "~0.8"
     },
     "optionalDependencies": {
