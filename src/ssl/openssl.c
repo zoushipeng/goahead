@@ -232,8 +232,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
             sp->flags |= SOCKET_EOF;
         }
     } else if (SSL_pending(wp->ssl) > 0) {
-        sp->flags |= SOCKET_BUFFERED_READ;
-        socketReservice(wp->sid);
+        socketHiddenData(sp, SSL_pending(wp->ssl), SOCKET_READABLE);
     }
     return rc;
 }

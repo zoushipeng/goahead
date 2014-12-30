@@ -269,8 +269,9 @@ static ssize innerRead(Webs *wp, char *buf, ssize size)
  */
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
-    Ms      *ms;
-    ssize   bytes;
+    Ms          *ms;
+    WebsSocket  *sp;
+    ssize       bytes;
 
     if (len <= 0) {
         return -1;
@@ -278,8 +279,9 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     bytes = innerRead(wp, buf, len);
     ms = (Ms*) wp->ssl;
     if (ms->more) {
-        wp->flags |= SOCKET_BUFFERED_READ;
-        socketReservice(wp->sid);
+        if ((sp = socketPtr(wp->sid)) != 0) {
+            socketHiddenData(sp, ms->more, SOCKET_READABLE);
+        }
     }
     return bytes;
 }

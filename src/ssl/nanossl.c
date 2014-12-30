@@ -251,6 +251,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 
     np = (Nano*) wp->ssl;
     assert(np);
+    sp = socketPtr(wp->sid);
 
     if (!np->connected && (rc = nanoHandshake(wp)) <= 0) {
         return rc;
@@ -263,7 +264,6 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         logmsg(5, "NanoSSL: ssl_read %d", rc);
         if (rc < 0) {
             if (rc != ERR_TCP_READ_ERROR) {
-                sp = socketPtr(wp->sid);
                 sp->flags |= SOCKET_EOF;
             }
             return -1;
@@ -272,7 +272,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     }
     SSL_recvPending(np->handle, &count);
     if (count > 0) {
-        socketReservice(wp->wid);
+        socketHiddenData(sp, count, SOCKET_READABLE);
     }
     return nbytes;
 }
