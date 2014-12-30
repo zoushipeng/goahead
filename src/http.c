@@ -816,6 +816,8 @@ static void readEvent(Webs *wp)
                 websPump(wp);
             }
             complete(wp, 0);
+        } else {
+            socketDeleteHandler(wp->sid);
         }
     } else if (wp->state < WEBS_READY) {
         sp = socketPtr(wp->sid);
@@ -2366,6 +2368,7 @@ static void checkTimeout(void *arg, int id)
                 websError(wp, HTTP_CODE_REQUEST_TIMEOUT, "Idle connection closed");
             }
         }
+        wp->state = WEBS_COMPLETE;
         complete(wp, 0);
         websFree(wp);
         /* WARNING: wp not valid here */
