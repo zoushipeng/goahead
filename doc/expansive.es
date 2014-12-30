@@ -3,12 +3,11 @@ Expansive.load({
         title:       'Embedthis GoAhead Documentation',
         url:         'https://embedthis.com/goahead/doc/',
         _description: 'Simple, fast, secure embedded web server',
-        keywords:    'goahead, embedded web server, embedded, devices, http server, internet of things, appweb',
     },
     expansive: {
         copy:    [ 'images' ],
-        dependencies: { 'css/all.css.less': 'css/*.inc.less' },
-        documents: [ '**', '!css/*.inc.less' ],
+        dependencies: { 'css/all.css.less': '**.less' },
+        documents: [ '**', '!**.less', '**.css.less' ],
         plugins: [ 'less' ],
     }
 })
