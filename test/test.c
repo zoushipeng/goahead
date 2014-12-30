@@ -40,11 +40,11 @@ static bool testHandler(Webs *wp);
 static int aspTest(int eid, Webs *wp, int argc, char **argv);
 static int bigTest(int eid, Webs *wp, int argc, char **argv);
 #endif
-static void actionTest(Webs *wp, char *path, char *query);
-static void sessionTest(Webs *wp, char *path, char *query);
-static void showTest(Webs *wp, char *path, char *query);
+static void actionTest(Webs *wp);
+static void sessionTest(Webs *wp);
+static void showTest(Webs *wp);
 #if ME_GOAHEAD_UPLOAD
-static void uploadTest(Webs *wp, char *path, char *query);
+static void uploadTest(Webs *wp);
 #endif
 #if ME_GOAHEAD_LEGACY
 static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
@@ -290,7 +290,7 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv)
 /*
     Implement /action/actionTest. Parse the form variables: name, address and echo back.
  */
-static void actionTest(Webs *wp, char *path, char *query)
+static void actionTest(Webs *wp)
 {
 	char	*name, *address;
 
@@ -300,11 +300,12 @@ static void actionTest(Webs *wp, char *path, char *query)
     websWriteHeaders(wp, -1, 0);
     websWriteEndHeaders(wp);
 	websWrite(wp, "<html><body><h2>name: %s, address: %s</h2></body></html>\n", name, address);
+    websFlush(wp, 0);
 	websDone(wp);
 }
 
 
-static void sessionTest(Webs *wp, char *path, char *query)
+static void sessionTest(Webs *wp)
 {
 	char	*number;
 
@@ -322,7 +323,7 @@ static void sessionTest(Webs *wp, char *path, char *query)
 }
 
 
-static void showTest(Webs *wp, char *path, char *query)
+static void showTest(Webs *wp)
 {
     WebsKey     *s;
 
@@ -342,7 +343,7 @@ static void showTest(Webs *wp, char *path, char *query)
 /*
     Dump the file upload details. Don't actually do anything with the uploaded file.
  */
-static void uploadTest(Webs *wp, char *path, char *query)
+static void uploadTest(Webs *wp)
 {
     WebsKey         *s;
     WebsUpload  *up;
