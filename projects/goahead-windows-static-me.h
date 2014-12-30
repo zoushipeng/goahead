@@ -103,7 +103,7 @@
     #define ME_GOAHEAD_KEY "self.key"
 #endif
 #ifndef ME_GOAHEAD_LEGACY
-    #define ME_GOAHEAD_LEGACY 1
+    #define ME_GOAHEAD_LEGACY 0
 #endif
 #ifndef ME_GOAHEAD_LIMIT_BUFFER
     #define ME_GOAHEAD_LIMIT_BUFFER 1024
