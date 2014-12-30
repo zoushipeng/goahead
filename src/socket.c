@@ -105,7 +105,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     struct sockaddr_storage addr;
     Socklen                 addrlen;
     char                    *sip;
-    int                     family, protocol, sid, rc, only;
+    int                     family, protocol, sid, enable;
 
     if (port > SOCKET_PORT_MAX) {
         return -1;
@@ -137,11 +137,20 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
 #if ME_COMPILER_HAS_FCNTL
     fcntl(sp->sock, F_SETFD, FD_CLOEXEC);
 #endif
-    rc = 1;
+    enable = 1;
 #if ME_UNIX_LIKE || VXWORKS
-    setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &rc, sizeof(rc));
+    if (setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable)) != 0) {
+        error("Cannot set reuseaddr, errno %d", errno);
+    }
+#if defined(SO_REUSEPORT)
+    if (setsockopt(sp->sock, SOL_SOCKET, SO_REUSEPORT, (char*) &enable, sizeof(enable)) != 0) {
+        error("Cannot set reuseport, errno %d", errno);
+    }
+#endif
 #elif ME_WIN_LIKE && defined(SO_EXCLUSIVEADDRUSE)
-    setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR | SO_EXCLUSIVEADDRUSE, (char*) &rc, sizeof(rc));
+    if (setsockopt(sp->sock, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char*) &enable, sizeof(enable)) != 0) {
+        error("Cannot set exclusiveaddruse, errno %d", WSAGetLastError());
+    }
 #endif
 
 #if defined(IPV6_V6ONLY)
@@ -151,11 +160,11 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
      */
     if (hasIPv6) {
         if (ip == 0) {
-            only = 0;
-            setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+            enable = 0;
+            setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &enable, sizeof(enable));
         } else if (ipv6(ip)) {
-            only = 1;
-            setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &only, sizeof(only));
+            enable = 1;
+            setsockopt(sp->sock, IPPROTO_IPV6, IPV6_V6ONLY, (char*) &enable, sizeof(enable));
         }
     }
 #endif
@@ -424,11 +433,11 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         /*
             Set the appropriate bit in the ready masks for the sp->sock.
          */
-        if (sp->handlerMask & SOCKET_READABLE || sp->flags & SOCKET_BUFFERED_READ) {
+        if (sp->handlerMask & SOCKET_READABLE /* UNUSED || sp->flags & SOCKET_BUFFERED_READ */) {
             FD_SET(sp->sock, &readFds);
             nEvents++;
         }
-        if (sp->handlerMask & SOCKET_WRITABLE || sp->flags & SOCKET_BUFFERED_READ) {
+        if (sp->handlerMask & SOCKET_WRITABLE /* UNUSED || sp->flags & SOCKET_BUFFERED_READ */) {
             FD_SET(sp->sock, &writeFds);
             nEvents++;
         }
