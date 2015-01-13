@@ -1,0 +1,36 @@
+{
+    title:  'Ports and Binding',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+            <h1>Ports and Binding</h1>
+            <p>GoAhead can listen for HTTP requests on multiple IP addresses and ports. By default, GoAhead will listen on all network interfaces for selected ports. At build time, you can modify which interfaces, IP addresses and ports will be used.</p>
+            <pre class="ui code segment">
+./configure --set listen="http://*:80, https://*:443"
+</pre>
+            <p>The IP address and component is optional. If the IP address is
+            absent or set to "*", GoAhead will listen on all network interfaces including the loop-back adapter.
+            <h2 >IPv6</h2>
+            <p>GoAhead can listen on both IPv4 and IPv6 endpoints. To specify IPv6 endpoints you need to use IPv6
+            encoding. IPv6 addresses have eight colon separated segments. For example:</p>
+            <pre class="ui code segment">
+./configure --set listen="http://[2001:0db8:85a3:08d3:1319:8a2e:0370:7348]:8080"
+</pre>
+            <p>Because IPv6 addresses contain a colon character, you need to enclose the IPv6 address in brackets if
+            you want to also specify a network port when using the Listen directive.</p>
+            <pre class="ui code segment">
+Listen [2001:0db8:85a3:08d3:1319:8a2e:0370:7348]:7777
+</pre>
+            <p>These two documents are useful IPv6 references:</p>
+            <ul>
+                <li><a
+                    href="http://www.enterprisenetworkingplanet.com/netsp/article.php/3633211/Understand-IPv6-Addresses.htm">Understand IPv6 Addresses</a></li>
+                <li><a href="http://en.wikipedia.org/wiki/IPv6">Wikipedia IPv6</a></li>
+            </ul>
+            <h2>Running GoAhead</h2>
+            <p>You can override the default port binding via the <em>goahead</em> command line:
+            <pre class="ui code segment">goahead -v ./documents 'http://*:8080'</pre>
+            <p>This will cause GoAhead to run and listen on the port 8080. You can put multiple addresses on the
+            command line including SSL ports by using <em>https</em>. For example:</p>
+            <pre class="ui code segment">goahead ./documents 'http://*:8080' 'https://10.0.0.5'</pre>

@@ -1,0 +1,45 @@
+{
+    title:  'Log Files',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+            <h1>Log Files</h1>
+            <p>GoAhead provides detailed logging regarding client accesses and the operation of GoAhead. 
+            The log records the essential GoAhead configuration, details of denied requests, and other trace
+            and error information. The log can also record request and response headers and other request details.</p>
+            
+            <a name="sample"></a>
+            <h2>Sample Output</h2>
+            <p>Here is some sample log output.</p>
+            <pre class="ui code segment">
+goahead: 2: Configuration for Embedthis GoAhead
+goahead: 2: ---------------------------------------------
+goahead: 2: Version:            3.0.0-0
+goahead: 2: BuildType:          Debug
+goahead: 2: CPU:                x64
+goahead: 2: OS:                 macosx
+goahead: 2: Host:               10.0.0.102
+goahead: 2: Directory:          /Users/mob/git/goahead
+goahead: 2: Configure:          me configure
+goahead: 2: ---------------------------------------------
+goahead: 2: Started http://*:80
+goahead: 2: Started https://*:443
+</pre>
+            <p>Each line in the error log is prefixed with source information. This follows the format:</p>
+            <pre class="ui code segment">
+program:logLevel
+</pre>
+            <p>The log level is the verbosity level assigned to the trace information by GoAhead.</p>
+            <a name="logs"></a>
+            <h2>Log Files</h2>
+            <p>The default location of the log file is specified at build time via the command:
+            <pre class="ui code segment">./configure --set trace="file:level"</pre>
+            <p>The log filename can be set to "stdout" or "stderr".  The debug level specifies the desired trace verbosity.
+            Level 0 is the least verbose and level 9 is the most verbose.</p>
+            <p>Configure will defines a <em>ME_TRACE</em> definition in the <em>me.h</em> configuration header that is used
+            to set the default log location. After building, the trace can be redirected via a <em>goahead</em> command line option.
+            <h3>Command Line Log Option</h3>
+            <p>You may specify the error log file and log level via the GoAhead command line <em>--log</em> option. If you
+            invoke GoAhead with a <em>--log file:level</em>. command line option, it will override the build time
+            defaults.</p>

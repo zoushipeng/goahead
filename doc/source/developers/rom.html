@@ -1,0 +1,53 @@
+{
+    title:  'Serving from ROM',
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+            <h1>Serving Pages from ROM</h1>
+            <p>To enable GoAhead to be used on embedded systems without file systems, GoAhead supports the compilation of
+            web pages and configuration files into C code that can be stored in Read-Only-Memory (ROM) and fetched by
+            GoAhead to respond to relevant requests.</p>
+            <p>GoAhead has a virtual file system interface that allows the run-time switching between serving web pages
+            on a disk-based file system and a compiled ROM based store of web pages.
+            This ROM facility may also be used to enhance security by preventing the modification of web documents,
+            or in performance critical situations were the serving of web pages from memory may be an effective
+            optimization.</p>
+            
+            <a id="compilingWebPages"></a>
+            <h2 >Compiling Web Pages</h2>
+            <p>The GoAhead <b>webcomp</b> program is used to compile web documents, configuration files, and any other
+            files that you would like to be compiled into C code. The webcomp program will parse the files and convert
+            them into C data structures which can then be compiled by your C/C++ compiler and linked into your
+            application.</p>
+            <p>For example:</p>
+            <pre class="ui code segment">
+find web -print &gt;fileList
+webcomp filelist &gt;romFiles.c
+</pre>
+            <p>This will create a list of all the web files and then convert these files into C structures in the file
+            romFiles.cpp.</p>
+            <p>The <b>webcomp</b> program takes one options:</p>
+            <table title="Switches" class="width">
+                <thead>
+                    <tr>
+                        <th>Switch</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>--prefix</td>
+                        <td>Specifies a prefix to remove from each of the compiled file names.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p>It is important to include some essential GoAhead configuration files into the ROM. These include the
+            GoAhead configuration file, the mime.types file, and any authorization database files. The following script
+            is used to compile the web pages in three web directories ("sslWeb", "vhostWeb", and "web") and to also
+            compile the essential configuration files. Note: the files should be relative paths without a "./" prefix.</p>
+            <pre class="ui code segment">
+find sslWeb vhostWeb web -print &gt;rom.files \
+echo -e '.\ngoahead.conf\nmime.types\nusers.db\ngroups.db' &gt;&gt;rom.files
+webcomp rom.files &gt;romFiles.c
+</pre>

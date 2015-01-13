@@ -1,0 +1,128 @@
+{
+    title:  "GoAhead FAQ",
+    crumbs: [
+        { 'Getting Started': 'index.html' },
+    ],
+}
+            <h1>GoAhead&trade; FAQ</h1>
+            <p>If you don't find the answers you need here, please consult the <a href="../developers/project.html">Project Resources</a>
+             and perhaps submit an issue/bug request on the <a href="https://github.com/embedthis/goahead/issues">GitHub repository</a>.</p>
+
+            <a id="questions"></a>
+            <h2 >Questions</h2>
+            <h3>General Questions</h3>
+            <ul class="questions">
+                <li><a href="#history">Why is Embedthis Software supporting and distributing the GoAhead WebServer?</a></li>
+                <li><a href="#compare">How does the GoAhead WebServer compare with Appweb?</a></li>
+                <li><a href="#runTimeModules">Can I disable features to minimize memory footprint at run-time?</a></li>
+                <li><a href="#upload">How can I upload large files?</a></li>
+            </ul>
+            <h3>Building Questions</h3>
+            <ul class="questions">
+                <li><a href="#disableFeatures">When I build the source, can I disable features at compile
+                time?</a></li>
+            </ul>
+            <h3>Diagnostic Questions</h3>
+            <ul class="questions">
+                <li><a href="#trace">How can I trouble-shoot with trace?</a></li>
+            </ul>
+            <h3>Embedded Questions</h3>
+            <ul class="questions">
+                <li><a href="#minimalFootprint">How small can I make GoAhead?</a></li>
+                <li><a href="#cross">How can I cross compile?</a></li>
+            </ul>
+            <a id="answers"></a>
+            <h2 >Answers</h2>
+            <p class="question"><a id="history"></a>Why is Embedthis Software supporting and distributing 
+                the GoAhead WebServer?</p>
+            <div class="answer">
+                The GoAhead WebServer was originally written by Michael O'Brien, CEO of Embedthis and it remains a very
+                popular to this day. With the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing
+                GoAhead WebServer customers and to offer commercial licenses for the GoAhead WebServer.
+            </div>
+            <a id="compare"></a>
+            <p class="question">How does the GoAhead WebServer compare with Appweb?</p>
+            <div class="answer">
+                <p>The GoAhead WebServer is a simple, compact web server that has been widely ported to many embedded
+                operating systems. Appweb is faster and more powerful &mdash; but requires more memory. If you need a very
+                simple, low end web server and have little memory available, the GoAhead WebServer is ideal. If you need
+                higher performance and extended security, then Appweb is the right choice.</p>
+            </div>
+            <a id="runTimeModules"></a>
+            <p class="question">Can I disable features to minimize memory footprint at run-time?</p>
+            <div class="answer">
+                <p>Yes. GoAhead has build-time configuration settings to select required features and minimize 
+                memory footprint. See <a href="source.html">Building from Source</a> for details of
+                the configuration options.</p> 
+            </div>
+            <p class="question"><a id="upload"></a>How can I upload large files?</p>
+            <div class="answer">
+                <p>You need to increase the LimitRequestBody limit in the goahead.conf file. This imposes a maximum
+                upload file size. Some samples have a MAX_FILE_SIZE input field in the HTML form. This however, is 
+                just a hint to the browser, and is only processed by some browsers.</p>
+            </div>
+            <p class="question"><a id="disableFeatures"></a>When I build from the source, can I
+            disable features at compile time?</p>
+            <div class="answer">
+                <p>Yes. When GoAhead is built from source, a single bld.h header controls exactly what features and
+                modules are built into the server. For example, if you don't require SSL support,
+                and you wish to minimize memory footprint, you can run:</p>
+                <pre class="ui code segment">./configure --without ssl</pre>
+            </div><a id="trace"></a>
+            <p class="question">How can I trouble-shoot with trace?</p>
+            <div class="answer">
+                <p>Run goahead or winGoAhead with the logging switch "-l". The logging switch takes the following
+                parameters:</p>
+                <pre>
+goahead -l logName[:logLevel][.maxSize]
+</pre>
+                <p>Where logLevel is a number between 0 and 9. Zero is the least verbose. To debug HTTP requests, a
+                level of 6 provides the detail of all the request / response exchanges. MaxSize is the maximum size of
+                the log file in MB. When the maximum size is exceeded, the log file will be rotated to logName.old and
+                a new log file will be started.</p>
+            </div>
+            <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
+            <div class="answer">
+                <p>GoAhead 3 has about 115K of code. For a minimal footprint on GoAhead, use:</p>
+                <pre class="ui code segment">
+./configure --without all --set cgi=false --set javascript=false
+</pre>
+                <p>This will disable most features including CGI and Javascript but still provide a running web server.
+                <p>Things to consider when building small:</p>
+                <ul>
+                    <li>Disable all possible features. In particular, disable the CGI and Javascript handlers</li>
+                    <li>Don't build DEBUG. Use: <em>./configure -release</em></li>
+                    <li>Use a small C-Library such as uClibc on embedded Linux systems</li>
+                </ul>
+            </div>
+            <p class="question"><a id="cross"></a>How can I cross compile?</p>
+            <div class="answer">
+                <p>The GoAhead configure command has switches to specify the <b>build</b> system and the target system
+                that will <b>host</b> GoAhead. For example:</p>
+                <pre class="ui code segment">
+./configure --platform vxworks-arm
+</pre>
+                <p>When cross compiling, you also need to tell configure about your cross-compilation tool chain. This
+                means the names of your compiler, library archiver, and other utilities and flags. The configure program
+                listens to the settings of the AR, CC, NM, RANLIB, STRIP, CFLAGS, IFLAGS and LDFLAGS environment
+                variables and will pass their values into the build system. These will be used to define the
+                cross-compilation tool chain. You can also specify an alternate build tool chain by using the same
+                variables but with a BUILD_ prefix. For example:</p>
+                <pre class="ui code segment">
+DIR=/path/to/cross-tools ; \
+AR=$DIR/bin/ar.exe \
+CC=$DIR/bin/cc.exe \
+LD=$DIR/bin/cc.exe \
+NM=$DIR/nm.exe \
+RANLIB=$DIR/ranlib.exe \
+STRIP=$DIR/strip.exe \
+CFLAGS="-I$DIR/include \
+./configure --debug --platform linux-arm
+</pre>
+                <p>For more details, please read: 
+                <a href="https://embedthis.com/makeme/doc/users/cross.html">Cross-Compiling</a> in the MakeMe 
+                online documentation.</p>
+            </div>
+            <h2 >Need more help?</h2>
+            <p>If you have any further questions, please consult the <a href="../developers/project.html">Project Resources</a>
+             and perhaps submit an issue/bug request on the <a href="https://github.com/embedthis/goahead/issues">GitHub repository</a>.</p>

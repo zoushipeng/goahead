@@ -8,14 +8,14 @@ Me.load({
             action: `
                 apidoc('api/goahead.dox', '${SRC}/src/goahead.h', 'GoAhead', 'api/*.tags')
                 for each (let src: Path in ['api/goahead.html', 'api/osdep.html']) {
-                    apiLayout(src, Path('public/ref').join(src))
+                    apiLayout(src, Path('documents/ref').join(src))
                 }
             `
         },
         validate: {
             depends: [ 'gen-doc' ],
             action: `
-                for each (f in Path('public').files('**/*.html')) {
+                for each (f in Path('documents').files('**/*.html')) {
                     let data = f.readString()
                     data = data.replace('700|Open', '').
                         replace(/goahead.download.html/g, 'download/goahead.html').
@@ -31,7 +31,7 @@ Me.load({
                     trace('Patch', f)
                     f.write(data)
                 }
-                for each (f in Path('public/man').files('*.html')) {
+                for each (f in Path('documents/man').files('*.html')) {
                     f.write(f.readString().toLowerCase())
                 }
                 trace('Listen', 'exp --nowatch')

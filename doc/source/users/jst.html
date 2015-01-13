@@ -1,0 +1,45 @@
+{
+    title:  'Javascript Templates',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+            <h1>Javascript Templates (JST)</h1>
+            <p>Javascript Templates (JST) enable the easy creation of dynamic web pages and applications.
+            Javascript Templates are HTML web pages that execute <a href="js.html">Embedded Javascript</a> on 
+            the server before rendering the page back to the client.
+            JST is an extensible environment and allows the direct binding of C functions to Javascript functions, so that a JST web page can easily access device or system data.</p>
+
+            <h2>JST Handler</h2>
+            <p>A JST document has a <i>.jst</i> extension and is processed by the <i>jst</i> handler. The JST handler executes JST scripts and replaces them with the corresponding script results. The user sees a normal HTML page, but it is one that was dynamically created by the JST handler.</p>
+
+            <h2>JST Delimiters</h2>
+            <p>To create a JST script field in a JST document, use the <i>&lt;%</i> and <i>%&gt;</i> delimiters. 
+            For example, the following
+            JavaScript will output "Hello World" in place of the JST-delimited field:</p>
+            <pre class="ui code segment">Today is &lt;% write("Hello" + " World"); %&gt;</pre>
+
+            <h2>Scripting Execution</h2>
+            <p>When a user's browser requests a JST document, the JST handler is invoked to serve the request.
+            The JST document is read from the file system in a one-pass operation. Text in the document
+            before JST delimiters is copied directly to the client. If JST delimiters are found, the script between the delimiters is executed and the resulting text is written to the client. The process continues until the end of the document.</p>
+
+            <h2>Standard Functions</h2>
+            <p>JST defines one standard function: <i>write</i>. This function writes data back to the client in 
+            the place of the JST script.</p>
+
+            <h2>Defining JST functions</h2>
+            <p>New JST functions can be created via
+                <a href="../ref/api/goahead.html#group___webs_1gaafb69f988b3093c4981fd7bc94f1a42a">websDefineJst</a>.
+            This binds a C function to a Javascript function. For example:
+            <pre class="ui code segment">
+static getDate(int jid, Webs *wp, int argc, char **argv) {
+    char *date = websGetDate(0);
+    websWrite(wp, "%s", date);
+    gfree(date);
+}
+<b>websDefineJst("date", getDate);</b></pre>
+            <p>Once defined, JST pages can use the new <i>date</i> function:
+            <pre class="ui code segment">
+Today's date is: &lt;% <b>date();</b> %&gt;
+</pre>

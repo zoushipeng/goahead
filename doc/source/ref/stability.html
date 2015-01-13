@@ -1,0 +1,62 @@
+{
+    title:  "API Stability",
+    crumbs: [
+        { 'Reference Guide': 'index.html' },
+    ],
+}
+            <h1>Interface Stability Classification</h1>
+            <p>The programming interfaces and data structures are classified with a stability class. These
+            classifications help developers understand which interfaces may change in future releases and may
+            need&nbsp; to be wrapped within their applications.</p>
+            <p>The version numbering for Embedthis products follows the scheme MAJOR.MINOR.PATCH. For example 2.1.3 is
+            major version 2, minor version 1 and patch version 3.</p>
+            <table title="classification" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Classification</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                    <td>
+                        <p>Mature</p>
+                    </td>
+                    <td>
+                        <p>Must be interoperable across at least two consecutive major releases so that applications
+                        are not required to change. These APIs must be Deprecated before change or removal.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>Stable</p>
+                    </td>
+                    <td>
+                        <p>Will not change between minor releases (e.g. 2.0 to 2.1). May change between major
+                        releases.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>Evolving</p>
+                    </td>
+                    <td>
+                        <p>May change between major or minor releases. May not change between patch releases (e.g.
+                        2.0.0 to 2.0.1) release.<br /></p>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Prototype</td>
+                    <td>May change between any major, minor or patch releases.</td>
+                </tr>
+                <tr>
+                    <td>
+                        <p>Deprecated</p>
+                    </td>
+                    <td>
+                        <p>For use by legacy applications only. Customers are advised that these interfaces may be
+                        removed in the next major or minor release.<br /></p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>

@@ -1,0 +1,43 @@
+{
+    title:  "Mac",
+    crumbs: [
+        { 'Getting Started': 'index.html' },
+        { 'Installing': 'installing.html' },
+    ],
+}
+            <h1>Installing on Mac</h1>
+            <p>The Embedthis GoAhead install distribution for Mac OS X is published as a an installable pkg file.</p>
+            
+            <a id="pkg"></a>
+            <h2 >Installing the PKG Image</h2>
+            <ol>
+                <li>Double click on the PKG image.</li>
+            </ol>
+            
+            <a id="removing"></a>
+            <h2 >Removing GoAhead</h2>
+            <ol>
+                <li>Run a terminal and change directory to the installation directory for GoAhead. This is typically
+                "/etc/goahead".</li>
+                <li>Run the remove script in the install directory for GoAhead by typing
+                </li>
+            </ol>
+<pre class="ui code segment">
+sudo ./uninstall
+</pre>
+            
+            <a id="running"></a>
+            <h2 >Running GoAhead</h2>
+            <p>To start GoAhead type:</p>
+            <pre class="ui code segment">
+sudo goahead --home /etc/goahead
+</pre>
+            <p>GoAhead is configured by default to listen on port 80. To test that it is serving pages, point your
+            browser at http://localhost/.
+            <p>To get all the options for GoAhead read the man page via:</p>
+            <pre class="ui code segment">
+man goahead
+</pre>or get the command help via:
+            <pre class="ui code segment">
+goahead --help
+</pre>

@@ -1,0 +1,95 @@
+{
+    title:  'Migrating to GoAhead 3',
+    crumbs: [
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+            <h1>Migrating to GoAhead 3</h1>
+            <p>GoAhead 3 is a major upgrade from GoAhead 2. It incorporates new features and upgrades
+            to existing capabilities. It also changes many APIs and interfaces.</p>
+            
+            <a id="compatibility"></a>
+            <h2 >Compatibility with GoAhead 3</h2>
+            <p>We make every effort to preserve compatibility, but with GoAhead 3, we needed to make some important
+            improvements that necessitated breaking compatibility with GoAhead 2. Rather than make several ongoing
+            compatibility breaks we decided to make all the changes in one release. In this way we can ensure
+            that GoAhead 3 quickly becomes a stable platform going forward. Please see our <a href=
+                "../ref/compatibility.html">Compatibility Policy</a>.</p>
+            <a name="legacy"></a>    
+            <h3>Legacy Support</h3>
+            <p>To aid migrating existing GoAhead 2.X applications, GoAhead 3.X can be built to support the old
+            GoAhead 2.X APIs. This is called legacy mode. In this mode, the old APIs are mapped to new APIs via 
+            compiler defines and shim APIs. For full details of the API mappings, see the ME_GOAHEAD_LEGACY 
+            section in src/goahead.h.</p>
+            <p>GoAhead 3.X is built by default without legacy mode. You can enable legacy mode by configuring via:
+                <pre class="ui code segment">configure --set goahead.legacy=true</pre>
+            or if building via make:
+                <pre class="ui code segment">make ME_GOAHEAD_LEGACY=1</pre>
+            <p>This will enable the legacy APIs and type names.  However, You are <span class="warn">strongly 
+                encouraged to fully migrate your application to the GoAhead 3.X APIs</span>
+                and to transition off the old GoAhead 2.X APIs. Note: GoAhead 2 is now officially "end-of-life".</p>
+            
+            <a id="changes"></a>
+            <h2 >Changes in GoAhead 3</h2>
+            <p>GoAhead 3 provides equivalent or greater functionality to that in GoAhead 2.
+            While GoAhead 3 may have a different interface or API, the capabilities of GoAhead 2 have been continued 
+            in GoAhead 3, and in many cases, the features have been enhanced.</p>
+            <h3>New Capabilities</h3>
+            <p>The following new capabilities have been added to GoAhead 3 for which there is no equivalent in GoAhead 2.
+            These additions should not require adjustment for applications developed under GoAhead 2.</p>
+            <ul>
+                <li>HTTP 1.1 chunking</li>
+                <li>IPv6</li>
+                <li>PUT, DELETE, OPTIONS and TRACE HTTP methods</li>
+                <li>Request routing</li>
+                <li>New web form-based authentication</li>
+                <li>Session state storage</li>
+                <li>New User/Role/Ability authorization framework</li>
+                <li>Extended security sandbox limits</li>
+                <li>Flexible request tracing and logging</li>
+            </ul>
+            <h3>Changed Capabilities</h3>
+            <p>The following capabilities have been changed and may impact your GoAhead 3 applications.</p>
+            <ul>
+                <li>The GoAhead 2.X User Management authentication has been upgrade to the User/Role/Ability framework</li>
+                <li>The EMF database has been removed. The new authentication framework does not utilize it.</li>
+                <li>The GoForm facility has been upgrade to the GoAction handler. The calling sequence for GoForms has
+                    been modified and simplified.</li>
+                <li>POST request form data is only stored in the query field of the Webs structure if 
+                        <a href="#legacy">Legacy</a> mode is enabled. Without legacy mode, query data and
+                    form body data are stored separately. Form data is stored in the 'input' field of the Webs structure.
+                    Code that accesses wp-&gt;query for GoForms will need to be modified.
+                    In legacy mode, the input is also copied to the wp-&gt;query field.
+                </li>
+                <li>Request parameter variables are only created for POST requests if the request Content-Type is set to
+                    application/x-www-form-urlencoded.</li>
+                <li>The build system is upgraded and simplified. It now uses the MakeMe build system.
+                    New configure options and cross compiling capabilities have been added.</li>
+                <li>In GoAhead 2, the websHeader routine was used to write a fixes set of HTTP response headers. This was
+                    inflexible and did not permit easy custom modification of headers. GoAhead 3 supports user-definable
+                    response headers via the new API 
+                    <a href="../ref/api/goahead.html#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b">websWriteHeader</a>. Consequently,
+                     the websHeader and websFooter APIs are removed.</li>
+            </ul>
+            <h3>Changed APIs</h3>
+            <p>The internal APIs in GoAhead 3 have been upgraded. Some have been renamed and others modified.
+            GoAhead 3 APIs have been renamed/converted on a function by function
+            basis to equivalent APIs in GoAhead 2. Often, the APIs have very similar names to the previous counterpart.</p>
+            <p>Here is a partial list of changed APIs in GoAhead 3.X:
+            <ul>
+                <li>balloc memory allocation routines renamed to walloc</li>
+                <li>g*() string routines mapped back to standard C library and Posix routines</li>
+                <li>hAlloc*() handle allocation routines mapped to wallocHandle</li>
+                <li>ASP renamed to JSP and websAsp* renamed to websJst*</li>
+                <li>GoForms renamed to Actions, /goforms renamed to /action</li>
+                <li>ringq*() renamed to buf*</li>
+                <li>sym*() renamed to hash*</li>
+            </ul>
+            <p>For a complete list, see the ME_GOAHEAD_LEGACY section at the end of goahead.h for a list of all the API name
+            mappings. It is strongly recommended that you refactor your application to use the new API naming.</p>
+            <h3>Routes</h3>
+            <p>GoAhead 3 uses a flexible URI routing mechanism to direct client requests to the appropriate handler.
+            In GoAhead 2, this was done by hard-coded handlers. The routing framework is controlled by the route.txt 
+            configuration file.
+            The routing framework has more flexibility and allows URI parsing and routing. 
+            <p>See <a href="../users/routing.html">Request Routing</a> for more details.</p>

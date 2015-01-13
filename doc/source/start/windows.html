@@ -1,0 +1,48 @@
+{
+    title:  "Windows",
+    crumbs: [
+        { 'Getting Started': 'index.html' },
+        { 'Installing': 'installing.html' },
+    ],
+}
+            <h1>Installing on Windows</h1>
+            <p>The Embedthis GoAhead install package for Windows is an installation executable compressed in a ZIP file
+            called:</p>
+            <pre class="ui code segment">
+goahead-VERSION-BUILD-MS-WIN-i686.exe.zip
+</pre>
+            <p>The distribution image contains the binary distribution, documentation and development headers, and
+            libraries in the one package. During installation you will have the option of installing the full package
+            or portions of the distribution.</p><a id="exe"></a>
+            <h2 >Installing the EXE Image</h2>
+            <ol>
+                <li>Login with administrator privileges.</li>
+                <li>Run winzip and extract the contents of the zipped EXE install image to a folder of your
+                choosing.</li>
+                <li>Browse to the location holding the EXE install image and run it.</li>
+            </ol><a id="removing"></a>
+            <h2 >Removing GoAhead</h2>
+            <ol>
+                <li>Login with administrator privileges.</li>
+                <li>Run the <b>Add / Remove Programs</b> applet from the <b>control panel</b>.</li>
+                <li>Select <b>Embedthis GoAhead</b> and choose remove.</li>
+            </ol><a id="silentInstallation"></a>
+            <h2 >Silent Installation</h2>
+            <p>If you need to do batch or unattended installations, you can install GoAhead silently. Use the
+            <b>/silent</b> switch to suppress questions and <b>/verysilent</b> to suppress all visual
+            output.</p>
+
+            <a name="running"></a>
+            <h2 >Running GoAhead</h2>
+            <p>To start GoAhead type:</p>
+            <pre class="ui code segment">
+cd \Program Files\Embedthis GoAhead
+bin\goahead
+</pre>
+            <p>GoAhead is configured by default to listen on port 80. To test that it is serving pages, point your
+            browser at http://localhost/.</p>
+
+            <p>To get all the options for GoAhead:</p>
+            <pre class="ui code segment">
+bin\goahead --help
+</pre>

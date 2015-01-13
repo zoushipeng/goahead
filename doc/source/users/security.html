@@ -1,0 +1,129 @@
+{
+    title:  'Security',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+
+            <h1>Security Considerations</h1>
+            <p>Securing applications that are accessible to the Internet is not a trivial task. This page outlines some
+            of the issues, and offers tips to help you secure your application using the Embedthis GoAhead
+            product.</p><a id="updates"></a>
+            <h2 >Updates</h2>
+            <p>Even the best application or HTTP server can experience some security vulnerabilities that are
+            discovered after being deployed in the field. It is highly recommended that you stay up to date with the
+            latest version of GoAhead.</p>
+            <p><a href="http://www.embedthis.com/">Embedthis</a> offers a Security Enhancement Service as part of an
+            GoAhead commercial license that will proactively notify you of any security flaws and will expedite fixes or
+            workarounds to minimize the vulnerability.</p>
+            
+            <a id="account"></a>
+            <h2 >GoAhead User Account</h2>
+            <p>It is important that you run GoAhead with the lowest system privilege that will get the job done. If any
+            application is compromised, including GoAhead, then the system will be safest if the compromised application
+            has as few privileges as possible.</p>
+            <a id="directoryPermissions"></a>
+            <h2 >Directory and File Permissions</h2>
+            <p>This section explains the policy should you need to move or modify files and directories.</p>
+            <p>To enhance security you need to consider the directory and file permissions for three classes of
+            content:</p>
+            <ul>
+                <li>Pages served by the HTTP server</li>
+                <li>Scripts run by the HTTP server</li>
+                <li>Configuration and log files used by the HTTP server.</li>
+            </ul>
+            <p>Pages served by the GoAhead server should be owned by root or administrator and should only be readable
+            by the GoAhead user account. Directories containing served pages should be readable and executable only.</p>
+            <p>Scripts run by the GoAhead server should always be outside all directories containing served pages. After
+            all, you don't want prying eyes viewing your scripts! Scripts should be owned by the <b>root</b> or
+            <b>administrator</b> and should only be readable and executable by the GoAhead user account.</p>
+            <p>Configuration and log files used by the GoAhead server should always be outside all directories
+            containing served pages or scripts. The directory containing the log files must be writable by the GoAhead
+            user account.</p>
+            <h3>Home Permissions</h3>
+            <p>The home directory in which GoAhead executes should be owned by <b>root</b> or administrator, and should be
+            in the group <b>root</b> or administrators. They should only be writable by this specific user and group.</p>
+            
+            <a id="authentication"></a>
+            <h2 >Authentication</h2>
+            <p>It is highly recommended that you use Form-based <a href="authentication.html#formAuthentication">Form</a>
+            authentication and not Basic authentication. As implemented in GoAhead, Form authentication over SSL 
+            provides many safeguards against known exploits including; man-in-the-middle attacks, client spoofing, 
+            and replay attacks.</p>
+            
+            <a id="sandBoxing"></a>
+            <h2 >Sandboxing</h2>
+            <p>Sandboxing is the term applied to running GoAhead in a confined environment. When embedding a HTTP server
+            in an application, the profile of client access is often well known. This profile includes the rate of
+            accesses, the length of URLs and the size of pages returned to the user.</p>
+            <p>GoAhead has a set of build time configuration options that allow you to define a sandbox which specifies how
+            GoAhead must be used for a request to be serviced. By using well defined sandbox directives, you can help
+            ensure that your application will not be compromised by malicious requests.</p>
+            <h3>Limit Directives</h3>
+            <p>The limit directives are defined in main.me which is used by <i>MakeMe</i> when configuring GoAhead
+                and generating the <i>bit.h</i> header that is included by GoAhead source code.</p>
+            <table title="sandbox" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Directive</th><th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="pivot">limitBuffer</td>
+                        <td>General I/O buffer size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitFilename</td>
+                        <td>Maximum filename size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitHeader</td>
+                        <td>Maximum size of the request header</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitNumHeaders</td>
+                        <td>Maximum number of header lines in the request</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitParseTimeout</td>
+                        <td>Maximum time to parse the request headers</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPassword</td>
+                        <td>Maximum size of a password</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPost</td>
+                        <td>Maximum size of the incoming POST request body</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitPut</td>
+                        <td>Maximum size of the incoming PUT request body</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSessionLife</td>
+                        <td>Default session lifespan in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitSessionCount</td>
+                        <td>Maximum number of sessions</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitString</td>
+                        <td>Default string size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitTimeout</td>
+                        <td>Request inactivity timeout in seconds</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUri</td>
+                        <td>Maximum URI size</td>
+                    </tr>
+                    <tr>
+                        <td class="pivot">limitUpload</td>
+                        <td>Maximum size of a file upload request</td>
+                    </tr>
+                </tbody>
+            </table>

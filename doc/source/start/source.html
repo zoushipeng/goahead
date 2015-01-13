@@ -1,0 +1,55 @@
+{
+    title:  'Source Code',
+    crumbs: [ 
+        { "Developer's Guide": 'index.html' },
+    ],
+}
+            <h1>Working with the GoAhead Source Code</h1>
+            <p>GoAhead releases are available as either a binary or source code distribution. It is your choice which
+            distribution you choose, but the source code distribution has several advantages:</p>
+            <ul>
+                <li>You can recompile GoAhead to optimize it for your specific system environment.</li>
+                <li>You can reconfigure GoAhead via configuration options to select the specific
+                feature set you require.</li>
+                <li>You can minimize the memory footprint and decrease the securable surface area.</li>
+            </ul>
+            
+            <a id="building"></a>
+            <h2>Building GoAhead from Source</h2>
+            <p>The GoAhead source distribution contains all the required source files, headers, tools, and test framework
+            to reconfigure, build, and verify GoAhead. The software supports three tools for building from source. 
+            <ul>
+                <li>Make</li>
+                <li><a href="https://embedthis.com/makeme/">MakeMe</a></li>
+                <li>Visual Studio or Xcode projects</li>
+            </ul>
+            <p>Building via <em>make</em> is the simplest and quickest way to build. Use <em>make</em> if you want 
+            a default build or if you need to integrate GoAhead with an existing make-based build system.
+            Build with <a href="https://embedthis.com/makeme/">MakeMe</a> if you want to customize or configure the software for your system, or if you need to cross-compile for another operating system or architecture. 
+            Use the IDE projects for Visual Studio or Xcode if you are most comfortable with these tools and want 
+            a default build.</p>
+            <h3>Preferred Approach</h3>
+            <p>We use the MakeMe tool internally for building and to generate the Makefiles, MakeMe and IDE projects. This cool tool generates clean, efficient makefiles and projects. The MakeMe project documents how to configure these generated Makefiles and projects on the MakeMe site. For full details, read on, courtesy of MakeMe:</p>
+            
+            <a class="ui green large right labeled icon button" 
+                href="https://embedthis.com/makeme/doc/source/">
+                <i class="right long arrow icon"></i>Building from Source
+            </a>
+            
+            <a id="get"></a>
+            <h2>Accessing the Source Code</h2>
+            <p>With each GoAhead release, a complete source code snapshot is provided. You can get the latest source
+            code from the <a href="https://embedthis.com/goahead/download.html">download</a> site or you can
+            access the <a href="https://github.com/embedthis/goahead">source code repository</a>.</p>
+
+            <a id="repository"></a>
+            <h3>Source Repository</h3>
+            <p>The GoAhead source code is hosted in a Git repository. We provide open read-only access. Write
+            access is available to regular contributing developers. To check out the source use this command:</p>
+            <pre class="ui code segment">
+$ git clone http://github.com/embedthis/goahead
+</pre>
+            <p>You can also view the repository at <a
+                href="https://github.com/embedthis/goahead">https://github.com/embedthis/goahead</a>. This is also a
+            convenient way to get the source code. Please use the <em>master</em> branch for the most recent stable 
+            snapshot. For daily builds, use the <em>dev</em> branch.</p>
