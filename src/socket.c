@@ -142,7 +142,10 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     if (setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable)) != 0) {
         error("Cannot set reuseaddr, errno %d", errno);
     }
-#if defined(SO_REUSEPORT)
+#if defined(SO_REUSEPORT) && KEEP && UNUSED
+    /*
+        This permits multiple servers listening on the same endpoint
+     */
     if (setsockopt(sp->sock, SOL_SOCKET, SO_REUSEPORT, (char*) &enable, sizeof(enable)) != 0) {
         error("Cannot set reuseport, errno %d", errno);
     }
