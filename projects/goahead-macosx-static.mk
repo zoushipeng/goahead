@@ -608,15 +608,15 @@ installBinary: $(DEPS_37)
 	cp src/self.crt $(ME_ETC_PREFIX)/self.crt ; \
 	cp src/self.key $(ME_ETC_PREFIX)/self.key ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
-	cp doc/public/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
+	cp doc/documents/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/goahead.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/goahead.1" "$(ME_MAN_PREFIX)/man1/goahead.1" ; \
-	cp doc/public/man/gopass.1 $(ME_VAPP_PREFIX)/doc/man/man1/gopass.1 ; \
+	cp doc/documents/man/gopass.1 $(ME_VAPP_PREFIX)/doc/man/man1/gopass.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/gopass.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/gopass.1" "$(ME_MAN_PREFIX)/man1/gopass.1" ; \
-	cp doc/public/man/webcomp.1 $(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1 ; \
+	cp doc/documents/man/webcomp.1 $(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
 	rm -f "$(ME_MAN_PREFIX)/man1/webcomp.1" ; \
 	ln -s "$(ME_VAPP_PREFIX)/doc/man/man1/webcomp.1" "$(ME_MAN_PREFIX)/man1/webcomp.1"
