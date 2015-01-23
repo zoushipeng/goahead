@@ -1,0 +1,8 @@
+{
+    meta: {
+        url:   'https://embedthis.com/goahead/doc',
+    },
+    control: {
+        copy: [ 'images' ],
+    }
+}
