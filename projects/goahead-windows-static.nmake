@@ -169,7 +169,6 @@ clean:
 	if exist "build\$(CONFIG)\obj\openssl.obj" del /Q "build\$(CONFIG)\obj\openssl.obj"
 	if exist "build\$(CONFIG)\obj\options.obj" del /Q "build\$(CONFIG)\obj\options.obj"
 	if exist "build\$(CONFIG)\obj\osdep.obj" del /Q "build\$(CONFIG)\obj\osdep.obj"
-	if exist "build\$(CONFIG)\obj\removeFiles.obj" del /Q "build\$(CONFIG)\obj\removeFiles.obj"
 	if exist "build\$(CONFIG)\obj\rom-documents.obj" del /Q "build\$(CONFIG)\obj\rom-documents.obj"
 	if exist "build\$(CONFIG)\obj\route.obj" del /Q "build\$(CONFIG)\obj\route.obj"
 	if exist "build\$(CONFIG)\obj\runtime.obj" del /Q "build\$(CONFIG)\obj\runtime.obj"
@@ -217,13 +216,13 @@ build\$(CONFIG)\inc\me.h: $(DEPS_2)
 #
 #   osdep.h
 #
-DEPS_3 = $(DEPS_3) src\paks\osdep\osdep.h
+DEPS_3 = $(DEPS_3) paks\osdep\dist\osdep.h
 DEPS_3 = $(DEPS_3) build\$(CONFIG)\inc\me.h
 
 build\$(CONFIG)\inc\osdep.h: $(DEPS_3)
 	@echo ..... [Copy] build\$(CONFIG)\inc\osdep.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\paks\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
+	copy /Y /B paks\osdep\dist\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
 
 #
 #   goahead.h
@@ -260,30 +259,30 @@ build\$(CONFIG)\obj\cgitest.obj: \
 #
 #   est.h
 #
-DEPS_7 = $(DEPS_7) src\paks\est\est.h
+DEPS_7 = $(DEPS_7) paks\est\dist\est.h
 DEPS_7 = $(DEPS_7) build\$(CONFIG)\inc\me.h
 DEPS_7 = $(DEPS_7) build\$(CONFIG)\inc\osdep.h
 
 build\$(CONFIG)\inc\est.h: $(DEPS_7)
 	@echo ..... [Copy] build\$(CONFIG)\inc\est.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\paks\est\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
+	copy /Y /B paks\est\dist\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
 
 #
 #   est.h
 #
 
-src\paks\est\est.h: $(DEPS_8)
+paks\est\dist\est.h: $(DEPS_8)
 
 #
 #   estLib.obj
 #
-DEPS_9 = $(DEPS_9) src\paks\est\est.h
+DEPS_9 = $(DEPS_9) paks\est\dist\est.h
 
 build\$(CONFIG)\obj\estLib.obj: \
-    src\paks\est\estLib.c $(DEPS_9)
+    paks\est\dist\estLib.c $(DEPS_9)
 	@echo .. [Compile] build\$(CONFIG)\obj\estLib.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\estLib.obj -Fd$(BUILD)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) src\paks\est\estLib.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\estLib.obj -Fd$(BUILD)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) paks\est\dist\estLib.c $(LOG)
 
 !IF "$(ME_COM_EST)" == "1"
 #
@@ -673,14 +672,4 @@ LIBS_38 = $(LIBS_38) libest.lib
 build\$(CONFIG)\bin\gopass.exe: $(DEPS_38)
 	@echo ..... [Link] build\$(CONFIG)\bin\gopass.exe
 	"$(LD)" -nologo -out:$(BUILD)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)   "$(BUILD)\obj\gopass.obj" $(LIBPATHS_38) $(LIBS_38) $(LIBS_38) $(LIBS)  $(LOG)
-
-#
-#   removeFiles.obj
-#
-DEPS_39 = $(DEPS_39) build\$(CONFIG)\inc\me.h
-
-build\$(CONFIG)\obj\removeFiles.obj: \
-    package\windows\removeFiles.c $(DEPS_39)
-	@echo .. [Compile] build\$(CONFIG)\obj\removeFiles.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\removeFiles.obj -Fd$(BUILD)\obj\removeFiles.pdb $(CFLAGS) $(DFLAGS) $(IFLAGS) package\windows\removeFiles.c $(LOG)
 
