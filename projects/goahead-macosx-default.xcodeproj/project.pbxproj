@@ -518,8 +518,8 @@ fi
 if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
 cp ../src/js.h ${OUT_DIR}/inc/js.h
 fi
-if [ ../src/paks/osdep/osdep.h -nt ${OUT_DIR}/inc/osdep.h ] ; then
-cp ../src/paks/osdep/osdep.h ${OUT_DIR}/inc/osdep.h
+if [ ../paks/osdep/dist/osdep.h -nt ${OUT_DIR}/inc/osdep.h ] ; then
+cp ../paks/osdep/dist/osdep.h ${OUT_DIR}/inc/osdep.h
 fi
 if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
 cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
@@ -751,10 +751,10 @@ fi";
 
                     OUT_DIR = "../build/macosx-x64-default";
                     BIN_DIR = "../build/macosx-x64-default/bin";
-                    LIB_DIR = "../build/macosx-x64-default/bin";
+                    LIB_DIR = "../lib";
                     INC_DIR = "../build/macosx-x64-default/inc";
                     OBJ_DIR = "../build/macosx-x64-default/obj";
-                    SRC_DIR = "..";
+                    SRC_DIR = "../src";
 
                     CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/goahead-xcode/$(CONFIGURATION)";
                     CONFIGURATION_BUILD_DIR = "$(BIN_DIR)";
@@ -820,10 +820,10 @@ fi";
 
                     OUT_DIR = "../build/macosx-x64-default";
                     BIN_DIR = "../build/macosx-x64-default/bin";
-                    LIB_DIR = "../build/macosx-x64-default/bin";
+                    LIB_DIR = "../lib";
                     INC_DIR = "../build/macosx-x64-default/inc";
                     OBJ_DIR = "../build/macosx-x64-default/obj";
-                    SRC_DIR = "..";
+                    SRC_DIR = "../src";
 
                     CONFIGURATION_TEMP_DIR = "$(OBJ_DIR)/goahead-xcode/$(CONFIGURATION)";
                     CONFIGURATION_BUILD_DIR = "$(BIN_DIR)";
