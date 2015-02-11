@@ -208,6 +208,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga696377149d258256c0f4d3f19128c044" class="nameRef">websListen</a>(char *endpoint)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Listen on a TCP/IP address endpoint.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_route_1ga61b2b64c87e2281781fe44fa7d3f64d2" class="nameRef">websLoad</a>(char *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Load routing tables from the specified filename.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1gab25039c07458532abc0d3e9fd57e8b81" class="nameRef">websLoginUser</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *username, char *password)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Login a user by verifying the login credentials.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1ga2ce714b242d8f8d184daaa82eadb1aaf" class="nameRef">websLogoutUser</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Logout a user and remove the user login session.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#group___webs_upload" class="ref">WebsUpload*</a></td><td><a href="#group___webs_upload_1ga8bb8ede239760e2701c88e701ef1aee1" class="nameRef">websLookupUpload</a>(struct Webs *wp, char *key)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the file upload filter.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_user" class="ref">WebsUser*</a></td><td><a href="#group___webs_auth_1gafeabb8efa06bcf49b12d145c8ae76936" class="nameRef">websLookupUser</a>(char *username)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Lookup if a user exists.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga5a891f5c94d41d2f319bcee2916f298e" class="nameRef">websMD5</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get an MD5 digest of a string.</td></tr>
@@ -266,6 +267,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_session_1gada519ca8dc19a23b20a6a42235df8077" class="nameRef">websSetSessionVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a session variable name value.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaef03eccfb6f0d42b34f1a7a90bac62b6" class="nameRef">websSetStatus</a>(<a href="#group___webs" class="ref">Webs</a> *wp, int status)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the response HTTP status code.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga999bb54215bbc7d71c7d6e828fcf49c8" class="nameRef">websSetTxLength</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> length)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the response body content length.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1ga16a2790e0b9d56c9d748a9cd04b29ea8" class="nameRef">websSetUserPassword</a>(char *username, char *password)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a password for the user.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1ga696e28bbcd0692b8806759a1a1c3ab6e" class="nameRef">websSetUserRoles</a>(char *username, char *roles)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the set of roles for a user.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga4bdea6a000f895b450f81eb8dd2ea9a9" class="nameRef">websSetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a string value.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga12f0360e8d96ccb2b3f71223f06a4519" class="nameRef">websSetVarFmt</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a formatted string value.</td></tr>
@@ -3393,6 +3395,24 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
+<a name="group___webs_auth_1ga2ce714b242d8f8d184daaa82eadb1aaf"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
+    websLogoutUser
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Logout a user and remove the user login session.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if successful.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
 <a name="group___webs_auth_1gafeabb8efa06bcf49b12d145c8ae76936"></a>
 <div class="api">
   <div class="prototype">
@@ -3478,6 +3498,25 @@ Bytes actually transferred.
     <table class="parameters" title="Parameters">
     <tr><td class="param">verify</td><td>WebsVerify callback function.</td>
     </table></dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_auth_1ga16a2790e0b9d56c9d748a9cd04b29ea8"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    websSetUserPassword
+(char *username, char *password)
+  </div>
+  <div class="apiDetail">
+<p>Set a password for the user.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">username</td><td>User name.</td>
+    <tr><td class="param">password</td><td>Null terminated password string.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
