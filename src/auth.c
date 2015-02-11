@@ -302,11 +302,25 @@ static void freeUser(WebsUser *up)
 }
 
 
+PUBLIC int websSetUserPassword(char *username, char *password)
+{
+    WebsUser    *user;
+
+    assert(username && *username);
+    if ((user = websLookupUser(username)) == 0) {
+        return -1;
+    }
+    wfree(user->password);
+    user->password = sclone(password);
+    return 0;
+}
+
+
 PUBLIC int websSetUserRoles(char *username, char *roles)
 {
     WebsUser    *user;
 
-    assert(username &&*username);
+    assert(username && *username);
     if ((user = websLookupUser(username)) == 0) {
         return -1;
     }
@@ -487,6 +501,19 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
 }
 
 
+PUBLIC bool websLogoutUser(Webs *wp)
+{
+    assert(wp);
+    websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
+    if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
+        websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
+        return 0;
+    }
+    websRedirectByStatus(wp, HTTP_CODE_OK);
+    return 1;
+}
+
+
 /*
     Internal login service routine for Form-based auth
  */
@@ -519,13 +546,7 @@ static void loginServiceProc(Webs *wp)
 
 static void logoutServiceProc(Webs *wp)
 {
-    assert(wp);
-    websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
-    if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
-        websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
-        return;
-    }
-    websRedirectByStatus(wp, HTTP_CODE_OK);
+    websLogoutUser(wp);
 }
 
 

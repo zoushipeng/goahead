@@ -1727,6 +1727,13 @@
       <arglist>(Webs *wp, char *username, char *password)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>websLogoutUser</name>
+      <anchorfile>group___webs_auth.html</anchorfile>
+      <anchor>ga2ce714b242d8f8d184daaa82eadb1aaf</anchor>
+      <arglist>(Webs *wp)</arglist>
+    </member>
+    <member kind="function">
       <type>WebsUser *</type>
       <name>websLookupUser</name>
       <anchorfile>group___webs_auth.html</anchorfile>
@@ -1760,6 +1767,13 @@
       <anchorfile>group___webs_auth.html</anchorfile>
       <anchor>gac050abeadb21db4a90197eab284b115b</anchor>
       <arglist>(WebsVerify verify)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websSetUserPassword</name>
+      <anchorfile>group___webs_auth.html</anchorfile>
+      <anchor>ga16a2790e0b9d56c9d748a9cd04b29ea8</anchor>
+      <arglist>(char *username, char *password)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

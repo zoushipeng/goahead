@@ -1,13 +1,10 @@
 {
-    "name": "est",
-    "description": "Embedthis Security Transport",
-    "title": "Embethis EST",
-    "version": "0.6.3",
-    "pak": "~0.10",
+    "name": "osdep",
+    "description": "Embedthis O/S Dependent Layer",
+    "version": "0.8.5",
     "keywords": [
-        "est",
-        "ssl",
-        "tls"
+        "osdep",
+        "me"
     ],
     "author": {
         "name": "Embedthis Software",
@@ -16,11 +13,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/est.git"
+        "url": "https://github.com/embedthis/osdep.git"
     },
     "bugs": {
-        "email": "dev@embedthis.com",
-        "url": "http://github.com/embedthis/est/issues"
+        "url": "http://github.com/embedthis/osdep/issues"
     },
     "licenses": [
         {
@@ -32,11 +28,11 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "dependencies": {
-        "osdep": "~0.8",
-        "ssl": "~0.8"
-    },
-    "directories": {
-        "paks": "src/paks"
+    "files": [
+        "dist/",
+        "doc/api/"
+    ],
+    "pak": {
+        "version": ">=0.10.0"
     }
 }

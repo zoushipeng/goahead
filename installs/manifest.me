@@ -29,6 +29,12 @@ Me.load({
                 formats:    [ 'tar' ],
                 sets:       [ 'source' ],
             },
+            pak: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'src'],
+                formats:    [ 'tar' ],
+                sets:       [ 'pak' ],
+            },
         },
 
         sets: { 
@@ -39,23 +45,23 @@ Me.load({
                     symlink:    '${bin}/',
 
                 }, { 
-                    from:       '${SRC}/src/paks/est/ca.crt',
+                    from:       '${TOP}/paks/est/dist/ca.crt',
                     to:         '${abin}/',
 
                 }, { 
                     from: [ 
-                                '${SRC}/src/web/index.html', 
-                                '${SRC}/src/web/favicon.ico' 
+                                '${TOP}/src/web/index.html', 
+                                '${TOP}/src/web/favicon.ico' 
                     ],
                     to:     '${web}/',
                     exclude: /mgmt|bench|test/,
 
                 }, { 
                     from: [
-                                '${SRC}/src/auth.txt', 
-                                '${SRC}/src/route.txt', 
-                                '${SRC}/src/self.crt', 
-                                '${SRC}/src/self.key'
+                                '${TOP}/src/auth.txt', 
+                                '${TOP}/src/route.txt', 
+                                '${TOP}/src/self.crt', 
+                                '${TOP}/src/self.key'
                     ],
                     to:         '${etc}/'
                 }
@@ -94,7 +100,7 @@ Me.load({
             ],
             doc: [
                 { 
-                    from:       '${SRC}/doc/documents/man/*.1',
+                    from:       '${TOP}/doc/dist/man/*.1',
                     to:         '${adoc}/man/man1/',
                     symlink:    '${man}/man1/',
                     enable:     "me.platform.like == 'unix'",
@@ -102,18 +108,18 @@ Me.load({
             ],
             source: [
                 {
-                    from:       '${SRC}/*.md',
+                    from:       '${TOP}/*.md',
                     to:         '${src}/',
                     fold:       true,
                     patch:      true,
 
                 }, { 
-                    from:       '${SRC}/configure',
+                    from:       '${TOP}/configure',
                     to:         '${src}/',
                     permissions: 0755,     
 
                 }, { 
-                    home:       '${SRC}',
+                    home:       '${TOP}',
                     from: [ 
                                 'Makefile', 
                                 'make.bat', 
@@ -122,7 +128,7 @@ Me.load({
                                 'src', 
                                 'doc', 
                                 'projects', 
-                                'package', 
+                                'installs', 
                                 'test' 
                     ],
                     exclude:    /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/,
@@ -130,6 +136,28 @@ Me.load({
                     flatten:    false,
                 },
             ],
+            pak: [
+                {
+                    from:       '${TOP}/installs/goahead.me',
+                    to:         '${src}/dist/goahead.me',
+
+                }, {
+                    from:       '${TOP}/src/goahead.h',
+                    to:         '${src}/dist/goahead.h',
+                    append:     true,
+                    filter:     /^#inc.*customize.*$/mg,
+
+                }, {
+                    from:       '${TOP}/src/**.c',
+                    exclude:    /\/crt\/|\/mocana\/|\/utils\//,
+                    to:         '${src}/dist/goahead.c',
+                    append:     true,
+                    header:     '/*\n * ${settings.title} Library Source\n */\n\n#include \"goahead.h\"\n\n#if ME_COM_GOAHEAD',
+                    divider:    true,
+                    footer:     '#endif /* ME_COM_GOAHEAD */',
+                    filter:     /^#inc.*goahead.*$|^#inc.*customize.*$/mg,
+                }
+            ]
         }
-    },
+    }
 })
