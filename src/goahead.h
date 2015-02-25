@@ -1679,7 +1679,7 @@ typedef struct Webs {
     struct WebsUser *user;              /**< User auth record */
     WebsWriteProc   writeData;          /**< Handler write I/O event callback. Used by fileHandler */
     int             encoded;            /**< True if the password is MD5(username:realm:password) */
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
     char            *cnonce;            /**< check nonce */
     char            *digestUri;         /**< URI found in digest header */
     char            *nonce;             /**< opaque-to-client string sent by server */

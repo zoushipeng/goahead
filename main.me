@@ -89,6 +89,11 @@ Me.load({
             cgiBin: 'cgi-bin',
 
             /*
+                Build with support for digest authentication
+             */
+            digest: true,
+
+            /*
                 Directory containing web documents to serve
              */
             documents: 'web',
@@ -295,7 +300,7 @@ Me.load({
 
         'ca-crt': {
             type: 'file',
-            files: [ 'src/paks/est/ca.crt' ],
+            files: [ 'src/est/ca.crt' ],
             path: '${BIN}/ca.crt',
         },
 
