@@ -65,7 +65,7 @@ static void loginServiceProc(Webs *wp);
 #if ME_GOAHEAD_JAVASCRIPT && FUTURE
 static int jsCan(int jsid, Webs *wp, int argc, char **argv);
 #endif
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
 static char *calcDigest(Webs *wp, char *username, char *password);
 static char *createDigestNonce(Webs *wp);
 static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
@@ -108,7 +108,7 @@ PUBLIC bool websAuthenticate(Webs *wp)
         }
         if (wp->authDetails && route->parseAuth) {
             if (!(route->parseAuth)(wp)) {
-                return 0;
+                wp->username = 0;
             }
         }
         if (!wp->username || !*wp->username) {
@@ -283,7 +283,7 @@ PUBLIC int websRemoveUser(char *username)
 {
     WebsKey     *key;
     
-    assert(username && *username);
+    assert(username);
     if ((key = hashLookup(users, username)) != 0) {
         freeUser(key->content.value.symbol);
     }
@@ -306,7 +306,7 @@ PUBLIC int websSetUserPassword(char *username, char *password)
 {
     WebsUser    *user;
 
-    assert(username && *username);
+    assert(username);
     if ((user = websLookupUser(username)) == 0) {
         return -1;
     }
@@ -320,7 +320,7 @@ PUBLIC int websSetUserRoles(char *username, char *roles)
 {
     WebsUser    *user;
 
-    assert(username && *username);
+    assert(username);
     if ((user = websLookupUser(username)) == 0) {
         return -1;
     }
@@ -335,7 +335,7 @@ WebsUser *websLookupUser(char *username)
 {
     WebsKey     *key;
 
-    assert(username && *username);
+    assert(username);
     if ((key = hashLookup(users, username)) == 0) {
         return 0;
     }
@@ -753,7 +753,7 @@ static bool parseBasicDetails(Webs *wp)
 }
 
 
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
 static void digestLogin(Webs *wp)
 {
     char  *nonce, *opaque;
@@ -989,7 +989,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     char  *ha1, *ha2, *method, *result;
 
     assert(wp);
-    assert(username && *username);
+    assert(username);
     assert(password);
 
     /*
@@ -1027,7 +1027,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     wfree(ha2);
     return result;
 }
-#endif /* ME_DIGEST */
+#endif /* ME_GOAHEAD_DIGEST */
 
 
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
@@ -1043,7 +1043,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
     if (smatch(auth, "basic")) {
         askLogin = basicLogin;
         parseAuth = parseBasicDetails;
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
     } else if (smatch(auth, "digest")) {
         askLogin = digestLogin;
         parseAuth = parseDigestDetails;
