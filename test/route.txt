@@ -23,8 +23,8 @@
 route uri=/old-alias/ redirect=/alias/atest.html handler=redirect
 
 #
-#   Basic and digest authentication required for these directories
-#   Require the "manage" ability which only "joshua" has
+#   Basic and digest authentication required for these directories.
+#   Require the "manage" ability which only "joshua" has.
 #
 route uri=/auth/basic/  auth=basic abilities=manage
 route uri=/auth/digest/ auth=digest abilities=manage
