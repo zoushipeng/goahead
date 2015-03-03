@@ -107,6 +107,10 @@ PUBLIC int sslOpen()
         SSL_CTX_set_cipher_list(sslctx, ME_GOAHEAD_CIPHERS);
     }
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
+#if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS) && ME_GOAHEAD_TLS_EMPTY_FRAGMENTS
+    /* SSL_OP_ALL enables this. Only needed for ancient browsers like IE-6 */
+    SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+#endif
     SSL_CTX_sess_set_cache_size(sslctx, 128);
 #ifdef SSL_OP_NO_TICKET
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
@@ -133,6 +137,16 @@ PUBLIC int sslOpen()
      */
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv3);
+
+#if defined(SSL_OP_NO_TLSv1) && ME_GOAHEAD_TLS_NO_V1
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1);
+#endif
+#if defined(SSL_OP_NO_TLSv1_1) && ME_GOAHEAD_TLS_NO_V1_1
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_1);
+#endif
+#if defined(SSL_OP_NO_TLSv1_2) && ME_GOAHEAD_TLS_NO_V1_2
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_2);
+#endif
 
     /* 
         Ensure we generate a new private key for each connection
