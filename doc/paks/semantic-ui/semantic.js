@@ -1,5 +1,5 @@
  /*
- * # Semantic UI - 1.10.2
+ * # Semantic UI - 1.9.3
  * https://github.com/Semantic-Org/Semantic-UI
  * http://www.semantic-ui.com/
  *
@@ -1466,18 +1466,10 @@ $.fn.form.settings = {
       return ($(this).filter(':checked').length > 0);
     },
 
-    // value contains text (insensitive)
+    // value contains (text)
     contains: function(value, text) {
-      // escape regex characters
       text = text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-      return (value.search( new RegExp(text, 'i') ) !== -1);
-    },
-
-    // value contains text (case sensitive)
-    containsExactly: function(value, text) {
-      // escape regex characters
-      text = text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-      return (value.search( new RegExp(text) ) !== -1);
+      return (value.search(text) !== -1);
     },
 
     // is most likely an email
@@ -1525,21 +1517,8 @@ $.fn.form.settings = {
       );
     },
 
-    // is value (case insensitive)
+    // is exactly value
     is: function(value, text) {
-      text = (typeof text == 'string')
-        ? text.toLowerCase()
-        : text
-      ;
-      value = (typeof value == 'string')
-        ? value.toLowerCase()
-        : value
-      ;
-      return (value == text);
-    },
-
-    // is value
-    isExactly: function(value, text) {
       return (value == text);
     },
 
@@ -1581,21 +1560,8 @@ $.fn.form.settings = {
       ;
     },
 
-    // value is not value (case insensitive)
+    // value is not exactly notValue
     not: function(value, notValue) {
-      value = (typeof value == 'string')
-        ? value.toLowerCase()
-        : value
-      ;
-      notValue = (typeof notValue == 'string')
-        ? notValue.toLowerCase()
-        : notValue
-      ;
-      return (value != notValue);
-    },
-
-    // value is not value (case sensitive)
-    notExactly: function(value, notValue) {
       return (value != notValue);
     },
 
@@ -9158,12 +9124,12 @@ $.fn.search = function(parameters) {
             var
               result = false
             ;
-            value   = value   || module.get.value();
+            value = value || module.get.value();
             results = results || module.get.results();
             if(settings.type === 'category') {
-              module.debug('Finding result that matches', value);
+              module.debug('Finding result from category results', value);
               $.each(results, function(index, category) {
-                if($.isArray(category.results)) {
+                if(category.results !== undefined) {
                   result = module.search.object(value, category.results)[0];
                   if(result.length > 0) {
                     return true;
@@ -9189,7 +9155,6 @@ $.fn.search = function(parameters) {
           value: function(value) {
             module.verbose('Setting search input value', value);
             $prompt.val(value);
-            module.query();
           },
           buttonPressed: function() {
             $searchButton.addClass(className.pressed);
@@ -9473,9 +9438,7 @@ $.fn.search = function(parameters) {
           if(isProperObject || isProperArray ) {
             if(settings.maxResults > 0) {
               if(isProperObject) {
-                if(settings.type == 'standard') {
-                  module.error(error.maxResults);
-                }
+                module.error(error.maxResults);
               }
               else {
                 response.results = response.results.slice(0, settings.maxResults);
@@ -11109,20 +11072,11 @@ $.fn.sidebar = function(parameters) {
               settings.transition = 'overlay';
             }
             module.refresh();
-            if(module.othersActive()) {
+            if(module.othersActive() && module.get.transition() !== 'overlay') {
               module.debug('Other sidebars currently visible');
+              settings.transition = 'overlay';
               if(settings.exclusive) {
-                // if not overlay queue animation after hide
-                if(settings.transition != 'overlay') {
-                  module.hideOthers(module.show);
-                  return;
-                }
-                else {
-                  module.hideOthers();
-                }
-              }
-              else {
-                settings.transition = 'overlay';
+                module.hideOthers();
               }
             }
             animateMethod(function() {
@@ -11175,7 +11129,8 @@ $.fn.sidebar = function(parameters) {
             sidebarCount   = $otherSidebars.length,
             callbackCount  = 0
           ;
-          callback = callback || function(){};
+          callback       = callback || function(){};
+
           $otherSidebars
             .sidebar('hide', function() {
               callbackCount++;
@@ -13452,7 +13407,7 @@ $.fn.transition = function() {
     returnedValue
   ;
   $allModules
-    .each(function(index) {
+    .each(function() {
       var
         $module  = $(this),
         element  = this,
@@ -13503,12 +13458,7 @@ $.fn.transition = function() {
           // method not invoked, lets run an animation
           if(methodInvoked === false) {
             module.verbose('Converted arguments into settings object', settings);
-            if(settings.interval) {
-              module.delay(settings.animate);
-            }
-            else  {
-              module.animate();
-            }
+            module.animate();
             module.instantiate();
           }
         },
@@ -13552,24 +13502,6 @@ $.fn.transition = function() {
           var
             fakeAssignment = element.offsetWidth
           ;
-        },
-
-        delay: function(interval) {
-          var
-            isReverse = (settings.reverse === true),
-            shouldReverse = (settings.reverse == 'auto' && module.get.direction() == className.outward),
-            delay
-          ;
-          interval = (typeof interval !== undefined)
-            ? interval
-            : settings.interval
-          ;
-          delay = (isReverse || shouldReverse)
-            ? ($allModules.length - index) * settings.interval
-            : index * settings.interval
-          ;
-          module.debug('Delaying animation by', delay);
-          setTimeout(module.animate, delay);
         },
 
         animate: function(overrideSettings) {
@@ -13621,7 +13553,7 @@ $.fn.transition = function() {
           ;
         },
 
-        complete: function (event) {
+        complete: function () {
           module.verbose('CSS animation complete', settings.animation);
           module.remove.animationEndCallback();
           module.remove.failSafe();
@@ -13759,12 +13691,12 @@ $.fn.transition = function() {
                 .addClass(className.transition)
                 .addClass(className.hidden)
               ;
-            }
-            if($module.css('display') !== 'none') {
-              module.verbose('Overriding default display to hide element');
-              $module
-                .css('display', 'none')
-              ;
+              if($module.css('display') !== 'none') {
+                module.verbose('Overriding default display to hide element');
+                $module
+                  .css('display', 'none')
+                ;
+              }
             }
           },
           visible: function() {
@@ -13786,7 +13718,7 @@ $.fn.transition = function() {
           conditions: function() {
             var
               clasName = $module.attr('class') || false,
-              style    = $module.attr('style') || ''
+              style = $module.attr('style') || ''
             ;
             $module.removeClass(settings.animation);
             module.remove.direction();
@@ -13811,7 +13743,6 @@ $.fn.transition = function() {
             }
             if(module.cache.style) {
               module.verbose('Restoring original style attribute', module.cache.style);
-              console.log('restoring cache', module.cache.style);
               $module.attr('style', module.cache.style);
             }
             if(module.is.looping()) {
@@ -13826,9 +13757,7 @@ $.fn.transition = function() {
             var
               duration = module.get.duration()
             ;
-            module.timer = setTimeout(function() {
-              $module.trigger(animationEnd);
-            }, duration + settings.failSafeDelay);
+            module.timer = setTimeout(module.complete, duration + 100);
             module.verbose('Adding fail safe timer', module.timer);
           }
         },
@@ -13927,31 +13856,6 @@ $.fn.transition = function() {
               });
             }
             return $.fn.transition.settings;
-          },
-          direction: function(animation) {
-            // quickest manually specified direction
-            animation = animation || settings.animation;
-            if(typeof animation === 'string') {
-              animation = animation.split(' ');
-              $.each(animation, function(index, word){
-                if(word === className.inward) {
-                  return className.inward;
-                }
-                else if(word === className.outward) {
-                  return className.outward;
-                }
-              });
-            }
-            // slower backup
-            if( !module.can.transition() ) {
-              return 'static';
-            }
-            if($module.is(':visible') && !module.is.hidden()) {
-              return className.outward;
-            }
-            else {
-              return className.inward;
-            }
           },
           duration: function(duration) {
             duration = duration || settings.duration;
@@ -14344,50 +14248,41 @@ $.fn.transition.exists = {};
 $.fn.transition.settings = {
 
   // module info
-  name          : 'Transition',
+  name         : 'Transition',
 
   // debug content outputted to console
-  debug         : false,
+  debug        : false,
 
   // verbose debug output
-  verbose       : true,
+  verbose      : true,
 
   // performance data output
-  performance   : true,
+  performance  : true,
 
   // event namespace
-  namespace     : 'transition',
+  namespace    : 'transition',
 
-  // delay between animations in group
-  interval      : 0,
-
-  // whether group animations should be reversed
-  reverse       : 'auto',
-
-  // animation callback event
-  onStart       : function() {},
-  onComplete    : function() {},
-  onShow        : function() {},
-  onHide        : function() {},
+  // animation complete event
+  onStart      : function() {},
+  onComplete   : function() {},
+  onShow       : function() {},
+  onHide       : function() {},
 
   // whether timeout should be used to ensure callback fires in cases animationend does not
-  useFailSafe   : true,
-
-  // delay in ms for fail safe
-  failSafeDelay : 100,
+  useFailSafe  : true,
 
   // whether EXACT animation can occur twice in a row
-  allowRepeats  : false,
+  allowRepeats : false,
 
   // Override final display type on visible
-  displayType   : false,
+  displayType  : false,
 
   // animation duration
-  animation     : 'fade',
-  duration      : false,
+  animation    : 'fade',
+  duration     : false,
 
   // new animations will occur after previous ones
-  queue         : true,
+  queue       : true,
 
   metadata : {
     displayType: 'display'
@@ -15096,16 +14991,12 @@ $.api = $.fn.api = function(parameters) {
           }
 
           // call beforesend and get any settings changes
-          requestSettings         = module.get.settings();
+          requestSettings = module.get.settings();
 
-          // check if before send cancelled request
+          // check if beforesend cancelled request
           if(requestSettings === false) {
-            module.cancelled = true;
             module.error(error.beforeSend);
             return;
-          }
-          else {
-            module.cancelled = false;
           }
 
           if(settings.url) {
@@ -15177,9 +15068,6 @@ $.api = $.fn.api = function(parameters) {
         },
 
         was: {
-          cancelled: function() {
-            return (module.cancelled || false);
-          },
           succesful: function() {
             return (module.request && module.request.state() == 'resolved');
           },
@@ -16793,18 +16681,10 @@ $.fn.form.settings = {
       return ($(this).filter(':checked').length > 0);
     },
 
-    // value contains text (insensitive)
+    // value contains (text)
     contains: function(value, text) {
-      // escape regex characters
       text = text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-      return (value.search( new RegExp(text, 'i') ) !== -1);
-    },
-
-    // value contains text (case sensitive)
-    containsExactly: function(value, text) {
-      // escape regex characters
-      text = text.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
-      return (value.search( new RegExp(text) ) !== -1);
+      return (value.search(text) !== -1);
     },
 
     // is most likely an email
@@ -16852,21 +16732,8 @@ $.fn.form.settings = {
       );
     },
 
-    // is value (case insensitive)
+    // is exactly value
     is: function(value, text) {
-      text = (typeof text == 'string')
-        ? text.toLowerCase()
-        : text
-      ;
-      value = (typeof value == 'string')
-        ? value.toLowerCase()
-        : value
-      ;
-      return (value == text);
-    },
-
-    // is value
-    isExactly: function(value, text) {
       return (value == text);
     },
 
@@ -16908,21 +16775,8 @@ $.fn.form.settings = {
       ;
     },
 
-    // value is not value (case insensitive)
+    // value is not exactly notValue
     not: function(value, notValue) {
-      value = (typeof value == 'string')
-        ? value.toLowerCase()
-        : value
-      ;
-      notValue = (typeof notValue == 'string')
-        ? notValue.toLowerCase()
-        : notValue
-      ;
-      return (value != notValue);
-    },
-
-    // value is not value (case sensitive)
-    notExactly: function(value, notValue) {
       return (value != notValue);
     },
 
@@ -17133,20 +16987,13 @@ $.fn.state = function(parameters) {
         toggle: {
           state: function() {
             var
-              apiRequest,
-              requestCancelled
+              apiRequest
             ;
             if( module.allows('active') && module.is.enabled() ) {
               module.refresh();
               if($.fn.api !== undefined) {
-                apiRequest       = $module.api('get request');
-                requestCancelled = $module.api('was cancelled');
-                if( requestCancelled ) {
-                  module.debug('API Request cancelled by beforesend');
-                  settings.activateTest   = function(){ return false; };
-                  settings.deactivateTest = function(){ return false; };
-                }
-                else if(apiRequest) {
+                apiRequest = $module.api('get request');
+                if(apiRequest) {
                   module.listenTo(apiRequest);
                   return;
                 }
@@ -17177,6 +17024,11 @@ $.fn.state = function(parameters) {
                 module.change.state();
               })
             ;
+          }
+          // xhr exists but set to false, beforeSend killed the xhr
+          else {
+            settings.activateTest   = function(){ return false; };
+            settings.deactivateTest = function(){ return false; };
           }
         },
 
@@ -17337,7 +17189,7 @@ $.fn.state = function(parameters) {
               }
             }
             else {
-              module.debug('Text is already set, ignoring update', text);
+              module.debug('Text is already sane, ignoring update', text);
             }
           }
         },
@@ -17522,37 +17374,37 @@ $.fn.state = function(parameters) {
 $.fn.state.settings = {
 
   // module info
-  name           : 'State',
+  name : 'State',
 
   // debug output
-  debug          : false,
+  debug      : false,
 
   // verbose debug output
-  verbose        : true,
+  verbose    : true,
 
   // namespace for events
-  namespace      : 'state',
+  namespace  : 'state',
 
   // debug data includes performance
-  performance    : true,
+  performance: true,
 
   // callback occurs on state change
-  onActivate     : function() {},
-  onDeactivate   : function() {},
-  onChange       : function() {},
+  onActivate   : function() {},
+  onDeactivate : function() {},
+  onChange     : function() {},
 
   // state test functions
   activateTest   : function() { return true; },
   deactivateTest : function() { return true; },
 
   // whether to automatically map default states
-  automatic      : true,
+  automatic     : true,
 
   // activate / deactivate changes all elements instantiated at same time
-  sync           : false,
+  sync          : false,
 
   // default flash text duration, used for temporarily changing text of an element
-  flashDuration  : 1000,
+  flashDuration : 1000,
 
   // selector filter
   filter     : {
@@ -17564,8 +17416,7 @@ $.fn.state.settings = {
 
   // error
   error: {
-    beforeSend : 'The before send function has cancelled state change',
-    method     : 'The method you called is not defined.'
+    method : 'The method you called is not defined.'
   },
 
   // metadata
