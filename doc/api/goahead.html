@@ -791,9 +791,6 @@ Pre-chunking data buffer.
     <tr><td class="param">char *</td><td><td>clientFilename</td><td>
 Current file filename.
 </td>
-    <tr><td class="param">char *</td><td><td>cnonce</td><td>
-check nonce.
-</td>
     <tr><td class="param">int</td><td><td>code</td><td>
 Response status code.
 </td>
@@ -811,9 +808,6 @@ Decoded request query.
 </td>
     <tr><td class="param">char *</td><td><td>digest</td><td>
 Password digest.
-</td>
-    <tr><td class="param">char *</td><td><td>digestUri</td><td>
-URI found in digest header.
 </td>
     <tr><td class="param">int</td><td><td>docfd</td><td>
 File descriptor for document being served.
@@ -860,15 +854,6 @@ Listen Socket id.
     <tr><td class="param">char *</td><td><td>method</td><td>
 HTTP request method.
 </td>
-    <tr><td class="param">char *</td><td><td>nc</td><td>
-nonce count.
-</td>
-    <tr><td class="param">char *</td><td><td>nonce</td><td>
-opaque-to-client string sent by server.
-</td>
-    <tr><td class="param">char *</td><td><td>opaque</td><td>
-opaque value passed from server.
-</td>
     <tr><td class="param">WebsBuf</td><td><td>output</td><td>
 Transmit buffer after chunking.
 </td>
@@ -893,9 +878,6 @@ Bytes read by a PUT request.
 </td>
     <tr><td class="param">char *</td><td><td>putname</td><td>
 PUT temporary filename.
-</td>
-    <tr><td class="param">char *</td><td><td>qop</td><td>
-quality operator.
 </td>
     <tr><td class="param">char *</td><td><td>query</td><td>
 Request query. 
