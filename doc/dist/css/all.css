@@ -144,6 +144,9 @@ body.show-sidebar {
   background: #ffffff;
   padding: 1rem 2rem 2rem 2rem;
 }
+.content .floated {
+  overflow: auto;
+}
 .terms {
   margin: 10px 0 26px 0;
   height: 20px;
