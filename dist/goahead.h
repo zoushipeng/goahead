@@ -1679,7 +1679,7 @@ typedef struct Webs {
     struct WebsUser *user;              /**< User auth record */
     WebsWriteProc   writeData;          /**< Handler write I/O event callback. Used by fileHandler */
     int             encoded;            /**< True if the password is MD5(username:realm:password) */
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
     char            *cnonce;            /**< check nonce */
     char            *digestUri;         /**< URI found in digest header */
     char            *nonce;             /**< opaque-to-client string sent by server */
@@ -3184,6 +3184,14 @@ PUBLIC WebsHash websGetUsers();
 PUBLIC bool websLoginUser(Webs *wp, char *username, char *password);
 
 /**
+    Logout a user and remove the user login session.
+    @param wp Webs request object
+    @return True if successful.
+    @ingroup WebsAuth
+ */
+PUBLIC bool websLogoutUser(Webs *wp);
+
+/**
     Lookup if a user exists
     @param username User name to search for
     @return User object or null if the user cannot be found
@@ -3221,6 +3229,16 @@ PUBLIC int websOpenAuth(int minimal);
     @ingroup WebsAuth
  */
 PUBLIC void websSetPasswordStoreVerify(WebsVerify verify);
+
+/**
+    Set a password for the user
+    @param username User name
+    @param password Null terminated password string 
+    @return Zero if successful, otherwise -1.
+    @ingroup WebsAuth
+ */
+PUBLIC int websSetUserPassword(char *username, char *password);
+
 
 /**
     Define the set of roles for a user

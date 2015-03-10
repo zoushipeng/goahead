@@ -148,7 +148,10 @@ Me.load({
                     filter:     /^#inc.*customize.*$/mg,
 
                 }, {
-                    from:       '${TOP}/src/**.c',
+                    from:       [
+                        '${TOP}/src/*.c',
+                        '${TOP}/src/ssl/*.c',
+                    ],
                     exclude:    /\/crt\/|\/mocana\/|\/utils\//,
                     to:         '${src}/dist/goahead.c',
                     append:     true,
