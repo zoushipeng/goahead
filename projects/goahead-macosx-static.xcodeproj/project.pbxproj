@@ -478,7 +478,7 @@
     			files = (
     			);
     			inputPaths = (
-    ../src/paks/est/ca.crt
+    ../src/est/ca.crt
     			);
     			outputPaths = (
     ../build/macosx-x64-static/bin/ca.crt
@@ -488,7 +488,7 @@
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
 	mkdir -p \"build/macosx-x64-static/bin\"
-	cp src/paks/est/ca.crt build/macosx-x64-static/bin/ca.crt
+	cp src/est/ca.crt build/macosx-x64-static/bin/ca.crt
 ";
     		};
 		6A59F7986A5A0ACD00000015 /* ShellScript for Prep */ = {
@@ -518,8 +518,8 @@ fi
 if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
 cp ../src/js.h ${OUT_DIR}/inc/js.h
 fi
-if [ ../paks/osdep/dist/osdep.h -nt ${OUT_DIR}/inc/osdep.h ] ; then
-cp ../paks/osdep/dist/osdep.h ${OUT_DIR}/inc/osdep.h
+if [ ../src/osdep/osdep.h -nt ${OUT_DIR}/inc/osdep.h ] ; then
+cp ../src/osdep/osdep.h ${OUT_DIR}/inc/osdep.h
 fi
 if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
 cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
@@ -751,7 +751,7 @@ fi";
 
                     OUT_DIR = "../build/macosx-x64-static";
                     BIN_DIR = "../build/macosx-x64-static/bin";
-                    LIB_DIR = "../lib";
+                    LIB_DIR = "../src";
                     INC_DIR = "../build/macosx-x64-static/inc";
                     OBJ_DIR = "../build/macosx-x64-static/obj";
                     SRC_DIR = "../src";
@@ -820,7 +820,7 @@ fi";
 
                     OUT_DIR = "../build/macosx-x64-static";
                     BIN_DIR = "../build/macosx-x64-static/bin";
-                    LIB_DIR = "../lib";
+                    LIB_DIR = "../src";
                     INC_DIR = "../build/macosx-x64-static/inc";
                     OBJ_DIR = "../build/macosx-x64-static/obj";
                     SRC_DIR = "../src";

@@ -166,13 +166,13 @@ $(BUILD)/inc/me.h: $(DEPS_2)
 #
 #   osdep.h
 #
-DEPS_3 += paks/osdep/dist/osdep.h
+DEPS_3 += src/osdep/osdep.h
 DEPS_3 += $(BUILD)/inc/me.h
 
 $(BUILD)/inc/osdep.h: $(DEPS_3)
 	@echo '      [Copy] $(BUILD)/inc/osdep.h'
 	mkdir -p "$(BUILD)/inc"
-	cp paks/osdep/dist/osdep.h $(BUILD)/inc/osdep.h
+	cp src/osdep/osdep.h $(BUILD)/inc/osdep.h
 
 #
 #   goahead.h
@@ -455,12 +455,12 @@ $(BUILD)/obj/upload.o: \
 #
 #   ca-crt
 #
-DEPS_31 += src/paks/est/ca.crt
+DEPS_31 += src/est/ca.crt
 
 $(BUILD)/bin/ca.crt: $(DEPS_31)
 	@echo '      [Copy] $(BUILD)/bin/ca.crt'
 	mkdir -p "$(BUILD)/bin"
-	cp src/paks/est/ca.crt $(BUILD)/bin/ca.crt
+	cp src/est/ca.crt $(BUILD)/bin/ca.crt
 
 #
 #   libgo

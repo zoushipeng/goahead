@@ -93,6 +93,9 @@
 #ifndef ME_GOAHEAD_CLIENT_CACHE_LIFESPAN
     #define ME_GOAHEAD_CLIENT_CACHE_LIFESPAN 86400
 #endif
+#ifndef ME_GOAHEAD_DIGEST
+    #define ME_GOAHEAD_DIGEST 1
+#endif
 #ifndef ME_GOAHEAD_DOCUMENTS
     #define ME_GOAHEAD_DOCUMENTS "web"
 #endif
@@ -173,6 +176,18 @@
 #endif
 #ifndef ME_GOAHEAD_STEALTH
     #define ME_GOAHEAD_STEALTH 1
+#endif
+#ifndef ME_GOAHEAD_TLS_EMPTY_FRAGMENTS
+    #define ME_GOAHEAD_TLS_EMPTY_FRAGMENTS 1
+#endif
+#ifndef ME_GOAHEAD_TLS_NO_V1
+    #define ME_GOAHEAD_TLS_NO_V1 0
+#endif
+#ifndef ME_GOAHEAD_TLS_NO_V1_1
+    #define ME_GOAHEAD_TLS_NO_V1_1 0
+#endif
+#ifndef ME_GOAHEAD_TLS_NO_V1_2
+    #define ME_GOAHEAD_TLS_NO_V1_2 0
 #endif
 #ifndef ME_GOAHEAD_TRACING
     #define ME_GOAHEAD_TRACING 1

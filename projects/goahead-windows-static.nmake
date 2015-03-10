@@ -200,12 +200,12 @@ clean:
 #
 #   ca-crt
 #
-DEPS_1 = $(DEPS_1) src\paks\est\ca.crt
+DEPS_1 = $(DEPS_1) src\est\ca.crt
 
 build\$(CONFIG)\bin\ca.crt: $(DEPS_1)
 	@echo ..... [Copy] build\$(CONFIG)\bin\ca.crt
 	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
-	copy /Y /B src\paks\est\ca.crt+modified build\$(CONFIG)\bin\ca.crt $(LOG)
+	copy /Y /B src\est\ca.crt+modified build\$(CONFIG)\bin\ca.crt $(LOG)
 
 #
 #   me.h
@@ -216,13 +216,13 @@ build\$(CONFIG)\inc\me.h: $(DEPS_2)
 #
 #   osdep.h
 #
-DEPS_3 = $(DEPS_3) paks\osdep\dist\osdep.h
+DEPS_3 = $(DEPS_3) src\osdep\osdep.h
 DEPS_3 = $(DEPS_3) build\$(CONFIG)\inc\me.h
 
 build\$(CONFIG)\inc\osdep.h: $(DEPS_3)
 	@echo ..... [Copy] build\$(CONFIG)\inc\osdep.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B paks\osdep\dist\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
+	copy /Y /B src\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
 
 #
 #   goahead.h
@@ -259,30 +259,30 @@ build\$(CONFIG)\obj\cgitest.obj: \
 #
 #   est.h
 #
-DEPS_7 = $(DEPS_7) paks\est\dist\est.h
+DEPS_7 = $(DEPS_7) src\est\est.h
 DEPS_7 = $(DEPS_7) build\$(CONFIG)\inc\me.h
 DEPS_7 = $(DEPS_7) build\$(CONFIG)\inc\osdep.h
 
 build\$(CONFIG)\inc\est.h: $(DEPS_7)
 	@echo ..... [Copy] build\$(CONFIG)\inc\est.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B paks\est\dist\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
+	copy /Y /B src\est\est.h+modified build\$(CONFIG)\inc\est.h $(LOG)
 
 #
 #   est.h
 #
 
-paks\est\dist\est.h: $(DEPS_8)
+src\est\est.h: $(DEPS_8)
 
 #
 #   estLib.obj
 #
-DEPS_9 = $(DEPS_9) paks\est\dist\est.h
+DEPS_9 = $(DEPS_9) src\est\est.h
 
 build\$(CONFIG)\obj\estLib.obj: \
-    paks\est\dist\estLib.c $(DEPS_9)
+    src\est\estLib.c $(DEPS_9)
 	@echo .. [Compile] build\$(CONFIG)\obj\estLib.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\estLib.obj -Fd$(BUILD)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) paks\est\dist\estLib.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\estLib.obj -Fd$(BUILD)\obj\estLib.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) $(IFLAGS) src\est\estLib.c $(LOG)
 
 !IF "$(ME_COM_EST)" == "1"
 #
