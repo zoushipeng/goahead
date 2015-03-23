@@ -12420,8 +12420,6 @@ PUBLIC char *slower(char *string)
 {
     char  *s;
 
-    assert(string);
-
     if (string == NULL) {
         return NULL;
     }
@@ -12444,7 +12442,6 @@ PUBLIC char *supper(char *string)
 {
     char  *s;
 
-    assert(string);
     if (string == NULL) {
         return NULL;
     }
