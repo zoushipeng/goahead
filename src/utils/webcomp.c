@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
 static void usage()
 {
-    fprintf(stderr, "usage: webcomp [--prefix prefix] filelist >output.c\n\
+    fprintf(stdout, "usage: webcomp [--prefix prefix] filelist >output.c\n\
         --prefix specifies is a path prefix to remove from all the web page pathnames\n\
         filelist is a file containing the pathnames of all web pages\n\
         output.c is the resulting C source file to compile and link.\n");
@@ -70,7 +70,7 @@ static int compile(char *fileList, char *prefix)
     int             j, i, fd, nFile;
 
     if ((lp = fopen(fileList, "r")) == NULL) {
-        fprintf(stderr, "Can't open file list %s\n", fileList);
+        fprintf(stderr, "Cannot open file list %s\n", fileList);
         return -1;
     }
     time(&now);
@@ -94,7 +94,7 @@ static int compile(char *fileList, char *prefix)
             continue;
         } 
         if ((fd = open(file, O_RDONLY | O_BINARY, 0644)) < 0) {
-            fprintf(stderr, "Can't open file %s\n", file);
+            fprintf(stderr, "Cannot open file %s\n", file);
             return -1;
         }
         fprintf(stdout, "/* %s */\n", file);
@@ -123,7 +123,7 @@ static int compile(char *fileList, char *prefix)
     fprintf(stdout, "WebsRomIndex websRomIndex[] = {\n");
 
     if ((lp = fopen(fileList, "r")) == NULL) {
-        fprintf(stderr, "Can't open file list %s\n", fileList);
+        fprintf(stderr, "Cannot open file list %s\n", fileList);
         return -1;
     }
     nFile = 0;

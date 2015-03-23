@@ -3479,7 +3479,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
         --home directory       # Change to directory to run
         --log logFile:level    # Log to file file at verbosity level
         --route routeFile      # Route configuration file
-        --verbose              # Same as --log stderr:2
+        --verbose              # Same as --log stdout:2
         --version              # Output version information
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -3651,7 +3651,7 @@ static void logHeader()
 
 
 static void usage() {
-    fprintf(stderr, "\n%s Usage:\n\n"
+    fprintf(stdout, "\n%s Usage:\n\n"
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
@@ -3662,7 +3662,7 @@ static void usage() {
         "    --home directory       # Change to directory to run\n"
         "    --log logFile:level    # Log to file file at verbosity level\n"
         "    --route routeFile      # Route configuration file\n"
-        "    --verbose              # Same as --log stderr:2\n"
+        "    --verbose              # Same as --log stdout:2\n"
         "    --version              # Output version information\n\n",
         ME_TITLE, ME_NAME);
     exit(-1);
