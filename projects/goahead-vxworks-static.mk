@@ -503,7 +503,7 @@ endif
 
 $(BUILD)/bin/libgo.out: $(DEPS_32)
 	@echo '      [Link] $(BUILD)/bin/libgo.out'
-	$(CC) -r -o $(BUILD)/bin/libgo.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" "$(BUILD)/obj/est.o" "$(BUILD)/obj/matrixssl.o" "$(BUILD)/obj/nanossl.o" "$(BUILD)/obj/openssl.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) -lest 
+	$(CC) -r -o $(BUILD)/bin/libgo.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" "$(BUILD)/obj/est.o" "$(BUILD)/obj/matrixssl.o" "$(BUILD)/obj/nanossl.o" "$(BUILD)/obj/openssl.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) 
 
 #
 #   goahead
@@ -526,7 +526,7 @@ endif
 
 $(BUILD)/bin/goahead.out: $(DEPS_33)
 	@echo '      [Link] $(BUILD)/bin/goahead.out'
-	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/goahead.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) -lest -Wl,-r 
+	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/goahead.o" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS) -Wl,-r 
 
 #
 #   goahead-test
@@ -549,7 +549,7 @@ endif
 
 $(BUILD)/bin/goahead-test.out: $(DEPS_34)
 	@echo '      [Link] $(BUILD)/bin/goahead-test.out'
-	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/test.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) -lest -Wl,-r 
+	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/test.o" $(LIBPATHS_34) $(LIBS_34) $(LIBS_34) $(LIBS) -Wl,-r 
 
 #
 #   gopass
@@ -572,7 +572,7 @@ endif
 
 $(BUILD)/bin/gopass.out: $(DEPS_35)
 	@echo '      [Link] $(BUILD)/bin/gopass.out'
-	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/gopass.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -lest -Wl,-r 
+	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)   "$(BUILD)/obj/gopass.o" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS) -Wl,-r 
 
 #
 #   stop

@@ -294,7 +294,7 @@ DEPS_10 = $(DEPS_10) build\$(CONFIG)\obj\estLib.obj
 
 build\$(CONFIG)\bin\libest.dll: $(DEPS_10)
 	@echo ..... [Link] build\$(CONFIG)\bin\libest.dll
-	"lib.exe" -nologo -out:$(BUILD)\bin\libest.dll "$(BUILD)\obj\estLib.obj" $(LOG)
+	"$(LD)" -dll -out:$(BUILD)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\estLib.obj" $(LIBS)  $(LOG)
 !ENDIF
 
 #
