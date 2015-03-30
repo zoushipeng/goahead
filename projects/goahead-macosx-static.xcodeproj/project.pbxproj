@@ -1079,8 +1079,7 @@ fi";
     			isa = XCBuildConfiguration;
     			buildSettings = {
     				PRODUCT_NAME = libgo;
-    				EXECUTABLE_EXTENSION = a;
-
+    
     				HEADER_SEARCH_PATHS = (
 					"../$(ME_COM_OPENSSL_PATH)/include",
 					"$(inherited)"
@@ -1108,8 +1107,7 @@ fi";
     			isa = XCBuildConfiguration;
     			buildSettings = {
     				PRODUCT_NAME = libgo;
-    				EXECUTABLE_EXTENSION = a;
-
+    
     				HEADER_SEARCH_PATHS = (
 					"../$(ME_COM_OPENSSL_PATH)/include",
 					"$(inherited)"
@@ -1141,10 +1139,6 @@ fi";
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = mh_execute;
-
     			};
     			name = Debug;
     		};
@@ -1153,10 +1147,7 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = All;
     
-    				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = mh_execute;
-
+    
     			};
     			name = Release;
     		};
@@ -1169,10 +1160,6 @@ fi";
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = mh_execute;
-
     			};
     			name = Debug;
     		};
@@ -1181,10 +1168,7 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = Prep;
     
-    				OTHER_LDFLAGS = ();
-
-				MACH_O_TYPE = mh_execute;
-
+    
     			};
     			name = Release;
     		};
