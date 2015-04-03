@@ -127,6 +127,7 @@ Expansive.load({
         mappings: {
             'css',
             'min.css'
+            'css.map'
         },
         minify: false,
         dotmin: true,
