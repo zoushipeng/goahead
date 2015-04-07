@@ -10405,8 +10405,6 @@ PUBLIC int vxchdir(char *dirname)
     wfree(path);
     return rc;
 }
-
-
 #endif
 
 
@@ -15683,7 +15681,14 @@ static int processUploadHeader(Webs *wp, char *line)
                     websError(wp, HTTP_CODE_BAD_REQUEST, "Bad upload state. Missing name field");
                     return -1;
                 }
+                value = websNormalizeUriPath(value);
+                if (*value == '.' || !websValidUriChars(value) || strpbrk(value, "\\/:*?<>|~\"'%`^\n\r\t\f")) {
+                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Bad upload client filename");
+                    return -1;
+                }
+                wfree(wp->clientFilename);
                 wp->clientFilename = sclone(value);
+
                 /*  
                     Create the file to hold the uploaded data
                  */

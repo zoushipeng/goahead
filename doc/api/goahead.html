@@ -279,6 +279,7 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_upload_1ga1fc8250d601b18c880422178cfe81fd5" class="nameRef">websUploadOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the file upload filter.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga7c195edbd32a17dc9659ce7e63a51a13" class="nameRef">websUrlParse</a>(char *url, char **buf, char **protocol, char **host, char **port, char **path, char **ext, char **reference, char **query)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Parse a URL into its components.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_1gaebff2db9e8b7a70579082cf92593bcfe" class="nameRef">websValid</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a webs object is valid.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_1ga7572f7cfd751a64189d0fb2076ded84a" class="nameRef">websValidUriChars</a>(char *uri)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a URI is using only valid characters Note this does not test if the URI is fully legal.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga4a6eb4048f367ee15abd9df965339c22" class="nameRef">websValidateUriPath</a>(char *uri)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Validate a URI path as expected in a HTTP request line.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1ga85dd3dca55f2cba94bd02ac206acb70f" class="nameRef">websVerifyPasswordFromCustom</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>User password verification routine from a custom password back-end store.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_auth_1gacf13eed5b4f7dff570f75098a1e34923" class="nameRef">websVerifyPasswordFromFile</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>User password verification routine from auth.txt.</td></tr>
@@ -3052,6 +3053,26 @@ Bytes actually transferred.
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>A validated, normalized URI path.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_1ga7572f7cfd751a64189d0fb2076ded84a"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a>
+    websValidUriChars
+(char *uri)
+  </div>
+  <div class="apiDetail">
+<p>Test if a URI is using only valid characters Note this does not test if the URI is fully legal.</p>
+Some components of the URI have restricted character sets that this routine does not test. This tests if the URI has only characters valid to use in a URI before decoding. i.e. It will permit NN encodings. The set of valid characters is: &quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~:/?#[]@!$&amp;&apos;()*+,;=%&quot;
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">uri</td><td>Uri to test.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>True if the URI string is comprised of legal URI characters.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
