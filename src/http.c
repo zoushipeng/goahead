@@ -1761,18 +1761,13 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
         if (!(code & WEBS_NOLOG)) {
             trace(2, "%s", msg);
         }
-        encoded = websEscapeHtml(msg);
-        wfree(msg);
-        msg = encoded;
         buf = sfmt("\
 <html>\r\n\
     <head><title>Document Error: %s</title></head>\r\n\
     <body>\r\n\
         <h2>Access Error: %s</h2>\r\n\
-        <p>%s</p>\r\n\
     </body>\r\n\
-</html>\r\n", websErrorMsg(code), websErrorMsg(code), msg);
-        wfree(msg);
+</html>\r\n", websErrorMsg(code), websErrorMsg(code));
     } else {
         buf = 0;
     }
