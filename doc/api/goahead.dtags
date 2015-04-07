@@ -1526,6 +1526,13 @@
       <arglist>(char *uri)</arglist>
     </member>
     <member kind="function">
+      <type>bool</type>
+      <name>websValidUriChars</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga7572f7cfd751a64189d0fb2076ded84a</anchor>
+      <arglist>(char *uri)</arglist>
+    </member>
+    <member kind="function">
       <type>ssize</type>
       <name>websWrite</name>
       <anchorfile>group___webs.html</anchorfile>
