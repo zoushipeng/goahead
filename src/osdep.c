@@ -104,8 +104,6 @@ PUBLIC int vxchdir(char *dirname)
     wfree(path);
     return rc;
 }
-
-
 #endif
 
 
