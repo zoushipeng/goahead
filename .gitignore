@@ -68,3 +68,4 @@ macosx-*.me
 test/web/huge.txt
 .gitattributes
 /build/
+.cdrc
