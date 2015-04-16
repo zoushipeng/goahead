@@ -2,7 +2,7 @@
     "name": "goahead",
     "description": "Embedthis GoAhead Embedded Web Server",
     "title": "Embedthis GoAhead",
-    "version": "3.4.4",
+    "version": "3.4.5",
     "keywords": [
         "goahead",
         "http",
@@ -32,7 +32,6 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "dependencies": { },
     "optionalDependencies": {
         "est": "^0.6",
         "ssl": "^0.8"
@@ -43,6 +42,6 @@
     ],
     "pak": {
         "import": true,
-        "version": ">=0.10"
+        "pak": ">=0.10"
     }
 }
