@@ -1,5 +1,8 @@
 {
     meta: {
         url:   'https://embedthis.com/goahead/doc'
+    },
+    control: {
+        listen: '127.0.0.1:5000'
     }
 }
