@@ -69,3 +69,4 @@ test/web/huge.txt
 .gitattributes
 /build/
 .cdrc
+doc/.expansive-lastgen
