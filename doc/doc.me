@@ -35,8 +35,8 @@ Me.load({
                 for each (f in Path('dist/man').files('*.html')) {
                     f.write(f.readString().toLowerCase())
                 }
-                trace('Listen', 'exp --nowatch')
-                Cmd.run('exp --nowatch')
+                trace('Listen', 'expansive --nowatch')
+                Cmd.run('expansive --nowatch')
             `
         },
     },
