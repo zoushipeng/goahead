@@ -3860,8 +3860,8 @@ static int          listenMax;
 static Webs         **webs;                     /* Open connection list head */
 static WebsHash     websMime;                   /* Set of mime types */
 static int          websMax;                    /* List size */
-static char         websHost[64];               /* Host name for the server */
-static char         websIpAddr[64];             /* IP address for the server */
+static char         websHost[ME_MAX_IP];        /* Host name for the server */
+static char         websIpAddr[ME_MAX_IP];      /* IP address for the server */
 static char         *websHostUrl = NULL;        /* URL to access server */
 static char         *websIpAddrUrl = NULL;      /* URL to access server */
 
@@ -4180,6 +4180,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
 {
     WebsBuf     rxbuf;
     void        *ssl;
+    char        ipaddr[ME_MAX_IP], ifaddr[ME_MAX_IP];
     int         wid, sid, timeout;
 
     assert(wp);
@@ -4190,6 +4191,8 @@ static void initWebs(Webs *wp, int flags, int reuse)
         sid = wp->sid;
         timeout = wp->timeout;
         ssl = wp->ssl;
+        scopy(ipaddr, sizeof(ipaddr), wp->ipaddr);
+        scopy(ifaddr, sizeof(ifaddr), wp->ifaddr);
     } else {
         wid = sid = -1;
         timeout = -1;
@@ -4215,7 +4218,10 @@ static void initWebs(Webs *wp, int flags, int reuse)
 #if ME_GOAHEAD_UPLOAD
     wp->upfd = -1;
 #endif
-    if (!reuse) {
+    if (reuse) {
+        scopy(wp->ipaddr, sizeof(wp->ipaddr), ipaddr);
+        scopy(wp->ifaddr, sizeof(wp->ifaddr), ifaddr);
+    } else {
         wp->timeout = -1;
     }
     wp->vars = hashCreate(WEBS_HASH_INIT);

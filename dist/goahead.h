@@ -7,10 +7,18 @@
 #ifndef _h_GOAHEAD
 #define _h_GOAHEAD 1
 
-/************************************ Defaults ********************************/
+/************************************ Overrides *******************************/
+/*
+    Override osdep defaults
+ */
+#define ME_MAX_IP 64                /**< Maximum IP address size */
+
+/************************************ Includes ********************************/
 
 #include    "me.h"
 #include    "osdep.h"
+
+/************************************ Defaults ********************************/
 
 #if (ME_COM_EST + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
@@ -797,7 +805,11 @@ PUBLIC WebsKey *hashNext(WebsHash id, WebsKey *last);
 #define SOCKET_BUFFERED_WRITE   0x400   /**< Message pending on this socket */
 #define SOCKET_NODELAY          0x800   /**< Disable Nagle algorithm */
 
-#define SOCKET_PORT_MAX         0xffff  /* Max Port size */
+#define SOCKET_PORT_MAX         0xffff  /**< Max Port size */
+
+#ifndef ME_MAX_IP
+    #define ME_MAX_IP 64                /**< Maximum IP address size */
+#endif
 
 /*
     Socket error values
@@ -1612,8 +1624,8 @@ typedef struct Webs {
     WebsHash        vars;               /**< CGI standard variables */
     WebsTime        timestamp;          /**< Last transaction with browser */
     int             timeout;            /**< Timeout handle */
-    char            ipaddr[64];         /**< Connecting ipaddress */
-    char            ifaddr[64];         /**< Local interface ipaddress */
+    char            ipaddr[ME_MAX_IP];  /**< Connecting ipaddress */
+    char            ifaddr[ME_MAX_IP];  /**< Local interface ipaddress */
 
     int             rxChunkState;       /**< Rx chunk encoding state */
     ssize           rxChunkSize;        /**< Rx chunk size */
