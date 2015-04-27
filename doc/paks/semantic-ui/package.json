@@ -1,6 +1,6 @@
 {
     "name": "semantic-ui",
-    "version": "1.12.0",
+    "version": "1.9.3",
     "title": "Semantic UI",
     "description": "CSS Only distribution of Semantic UI",
     "homepage": "http://www.semantic-ui.com",
@@ -27,7 +27,6 @@
                     "themes/default/assets/fonts/icons.otf",
                     "themes/default/assets/fonts/icons.ttf",
                     "themes/default/assets/fonts/icons.woff",
-                    "themes/default/assets/fonts/icons.woff2",
                     "themes/default/assets/fonts/icons.eot"
                 ]
             },
