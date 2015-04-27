@@ -639,6 +639,10 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>The requested resource must be accessed via the location proxy.</td></tr>
 <tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1aee091362584fd5f1b74019bee924bfbb" class="nameRef">ME_MAX_IP</a>&nbsp;&nbsp;&nbsp;64</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Maximum IP address size.</td></tr>
+<tr class="apiDef">
 <td>#define</td><td><a href="#goahead_8h_1a85ee14e72ab035c35530a02e9f6a1859" class="nameRef">SOCKET_AGAIN</a>&nbsp;&nbsp;&nbsp;4</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Issue the request again.</td></tr>
@@ -702,6 +706,10 @@
 <td>#define</td><td><a href="#goahead_8h_1ad5ce2512b2ef7ec98f3a3d75388de7fd" class="nameRef">SOCKET_NODELAY</a>&nbsp;&nbsp;&nbsp;0x800</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Disable Nagle algorithm.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ad138fc891e1a07ca7be084c13140a750" class="nameRef">SOCKET_PORT_MAX</a>&nbsp;&nbsp;&nbsp;0xffff</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Max Port size.</td></tr>
 <tr class="apiDef">
 <td>#define</td><td><a href="#goahead_8h_1a8b56e2a409b2468f527d17c5e82cbea6" class="nameRef">SOCKET_READABLE</a>&nbsp;&nbsp;&nbsp;0x2</td>
 </tr>
@@ -992,7 +1000,7 @@ Current flags <ndash/> see above.
     <tr><td class="param">char *</td><td><td>host</td><td>
 Requested host.
 </td>
-    <tr><td class="param">char</td><td><td>ifaddr[64]</td><td>
+    <tr><td class="param">char</td><td><td>ifaddr[ME_MAX_IP]</td><td>
 Local interface ipaddress.
 </td>
     <tr><td class="param">WebsBuf</td><td><td>input</td><td>
@@ -1001,7 +1009,7 @@ Receive buffer after de-chunking.
     <tr><td class="param">char *</td><td><td>inputFile</td><td>
 File name to write input body data.
 </td>
-    <tr><td class="param">char</td><td><td>ipaddr[64]</td><td>
+    <tr><td class="param">char</td><td><td>ipaddr[ME_MAX_IP]</td><td>
 Connecting ipaddress.
 </td>
     <tr><td class="param">ssize</td><td><td>lastRead</td><td>
@@ -6496,19 +6504,6 @@ User roles.
     </script> 
 
         
-    <script>
-        (function() {
-            var r = new XMLHttpRequest();
-            r.onreadystatechange = function() {
-                if (r.readyState >= 3 && r.status == 200) {
-                    window.location.reload();
-                }
-            }
-            r.open("GET", "/reload-service", true);
-            r.send();
-        })();
-    </script>
-    
 
 </body>
 </html>
