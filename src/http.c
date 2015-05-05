@@ -3236,7 +3236,8 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     }
     if (ppath) {
         if (path == 0) {
-            path = "/";
+            scopy(buf2, 1, "/");
+            path = buf2;
         } else {
             /* Copy path to reinsert leading slash */
             scopy(&buf2[1], len - 1, path);
