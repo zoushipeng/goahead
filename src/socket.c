@@ -790,7 +790,13 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
             if (errCode == EINTR) {
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
-                return sofar;
+                if (sofar) {
+                    /* 
+                        If some data was written, we mask the EAGAIN for this time. Caller should recall and then
+                        will get a negative return code with EAGAIN.
+                     */
+                    return sofar;
+                }
             }
             return -errCode;
         }
@@ -1002,6 +1008,16 @@ PUBLIC int socketGetError()
 }
 
 
+PUBLIC void socketSetError(int error)
+{
+#if ME_WIN_LIKE
+    SetLastError(error);
+#elif ME_UNIX_LIKE || VXWORKS
+    errno = error;
+#endif
+}
+
+
 /*
     Return the underlying socket handle
  */
@@ -1182,10 +1198,10 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
  */
 PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
-#if (ME_UNIX_LIKE || WINDOWS)
+#if (ME_UNIX_LIKE || ME_WIN_LIKE)
     char    service[NI_MAXSERV];
 
-#ifdef IN6_IS_ADDR_V4MAPPED
+#if ME_WIN_LIKE || defined(IN6_IS_ADDR_V4MAPPED)
     if (addr->sa_family == AF_INET6) {
         struct sockaddr_in6* addr6 = (struct sockaddr_in6*) addr;
         if (IN6_IS_ADDR_V4MAPPED(&addr6->sin6_addr)) {
