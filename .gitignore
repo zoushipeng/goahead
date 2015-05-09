@@ -70,3 +70,4 @@ test/web/huge.txt
 /build/
 .cdrc
 doc/.expansive-lastgen
+test/cpp.cpp
