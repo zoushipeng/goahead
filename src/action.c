@@ -74,7 +74,6 @@ PUBLIC int websDefineAction(cchar *name, void *fn)
     if (fn == NULL) {
         return -1;
     }
-//  MOB
     hashEnter(actionTable, (char*) name, valueSymbol(fn), 0);
     return 0;
 }
