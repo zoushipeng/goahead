@@ -1,0 +1,20 @@
+/*
+    est.me -- EST Component for GoAhead
+ */
+
+Me.load({ 
+    targets: {
+        est: {
+            configurable: true,
+            path:         '${BIN}/libestssl${ARLIB}',
+            type:         'lib',
+            static:       true,
+            ifdef:        [ 'ssl' ],
+            conflicts:    [ 'openssl', 'matrixssl', 'nanossl' ]
+            libraries:    [ 'estssl' ],
+            sources:      [ '*.c' ],
+            depends:      [ 'libest' ],
+            ifdef:        [ 'ssl' ],
+        }
+    }
+})

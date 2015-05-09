@@ -32,14 +32,19 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "optionalDependencies": {
-        "est": "^0.6",
-        "ssl": "^0.8"
-    },
     "files": [
         "dist/",
         "doc/api/"
     ],
+    "dependencies": {
+        "osdep": "^0.8",
+        "ssl": "^0.9"
+    },
+    "optionalDependencies": {
+        "est": "^0.6",
+        "goahead-est": "^0.1",
+        "goahead-openssl": "^0.1"
+    },
     "pak": {
         "import": true,
         "pak": ">=0.10"

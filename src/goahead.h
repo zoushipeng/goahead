@@ -20,6 +20,10 @@
 
 /************************************ Defaults ********************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if (ME_COM_EST + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
 #endif
@@ -854,7 +858,7 @@ typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
     socketDeletehandler socketReservice socketEof socketGetPort socketInfo socketIsV6
     socketOpen socketListen socketParseAddress socketProcess socketRead socketWrite socketWriteString
     socketSelect socketGetHandle socketSetBlock socketGetBlock socketAlloc socketFree socketGetError
-    socketPtr socketWaitForEvent socketRegisterInterest
+    socketSetError socketPtr socketWaitForEvent socketRegisterInterest
     @defgroup WebsSocket WebsSocket
  */
 typedef struct WebsSocket {
@@ -1143,6 +1147,13 @@ PUBLIC int socketSelect(int sid, WebsTime timeout);
 PUBLIC int socketSetBlock(int sid, int on);
 
 /**
+    Set the error code for the last socket operation on this thread.
+    @param Integer error code. See errno or GetLastError() on windows.
+    @ingroup WebsSocket
+ */
+PUBLIC void socketSetError(int error);
+
+/**
     Set the socket delay mode
     @description This is used to enable or disable the TCP Nagle algorithm
     @param sid Socket ID handle returned from socketConnect or socketAccept.
@@ -1168,7 +1179,8 @@ PUBLIC int socketWaitForEvent(WebsSocket *sp, int mask);
     @param buf Buffer containing data to write
     @param len Size of buf
     @return Count of bytes written. May be less than len if the socket is in non-blocking mode.
-        Returns -1 for errors.
+        Returns -1 for errors and if the socket cannot absorb any more data. If the transport is saturated, 
+        will return a negative error and errno will be set to EAGAIN or EWOULDBLOCK.
     @ingroup WebsSocket
  */
 PUBLIC ssize socketWrite(int sid, void *buf, ssize len);
@@ -2000,11 +2012,14 @@ PUBLIC void websFileOpen();
 
 /**
     Flush buffered transmit data and compact the transmit buffer to make room for more data
+    @description This call initiates sending buffered data. If blocking mode is selected via the block parameter,
+        this call will wait until all the data has been sent to the O/S for transmission to the client.
+        If block is false, the flush will be initiated and the call will return immediately without blocking.
     @param wp Webs request object
     @param block Set to true to wait for all data to be written to the socket. Set to false to 
         write whatever the socket can absorb without blocking. 
-    @return -1 for I/O errors. Zero if there is more data remaining in the buffer. Return 1 if the 
-    contents of the transmit buffer are fully written and the buffer is now empty.
+    @return -1 for I/O errors. Return zero if there is more data remaining in the buffer. Return 1 if the 
+        contents of the transmit buffer are fully written and the buffer is now empty.
     @ingroup Webs
  */
 PUBLIC int websFlush(Webs *wp, bool block);
@@ -2444,7 +2459,7 @@ PUBLIC void websPump(Webs *wp);
     @return Zero if successful, otherwise -1.
     @ingroup Webs
  */
-PUBLIC int websDefineAction(char *name, void *fun);
+PUBLIC int websDefineAction(cchar *name, void *fun);
 
 /**
     Read data from an open file
@@ -2839,7 +2854,9 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
     @param wp Webs request object
     @param buf Buffer of data to write
     @param size Length of buf
-    @return Count of bytes written. Returns -1 on errors. May return having written less than requested.
+    @return Count of bytes written. May be less than len if the socket is in non-blocking mode.
+        Returns -1 for errors and if the socket cannot absorb any more data. If the transport is saturated, 
+        will return a negative error and errno will be set to EAGAIN or EWOULDBLOCK.
     @ingroup Webs
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
@@ -2912,6 +2929,33 @@ PUBLIC int websJstOpen();
     @ingroup Webs
  */
 PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
+#endif
+
+#if FUTURE
+/*
+    Accessors
+ */
+PUBLIC char *websGetCookie(Webs *wp) { return wp->cookie; }
+PUBLIC char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
+PUBLIC int  websGetEof(Webs *wp) { return wp->eof; }
+PUBLIC char *websGetExt(Webs *wp) { return wp->ext; }
+PUBLIC char *websGetFilename(Webs *wp) { return wp->filename; }
+PUBLIC char *websGetHost(Webs *wp) { return wp->host; }
+PUBLIC char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
+PUBLIC char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
+PUBLIC char *websGetMethod(Webs *wp) { return wp->method; }
+PUBLIC char *websGetPassword(Webs *wp) { return wp->password; }
+PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
+PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
+PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
+PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
+PUBLIC char *websGetServer() { return websHost; }
+PUBLIC char *websGetServerAddress() { return websIpAddr; }
+PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; }
+PUBLIC char *websGetServerUrl() { return websHostUrl; }
+PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
+PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
+PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 #endif
 
 /*************************************** SSL ***********************************/
@@ -3526,7 +3570,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define websGetRequestWritten(wp) wp->written
 
     #define websSetDefaultDir websSetDocuments
-    #define websSetDefaultPage websGetIndex
+    #define websSetDefaultPage websSetIndex
     #define websSetRequestLpath websSetRequestFilename
     #define websSetRequestWritten(wp, nbytes) if (1) { wp->written = nbytes; } else
     #define websTimeoutCancel websCancelTimeout

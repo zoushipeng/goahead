@@ -303,7 +303,8 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
         trace(7, "EST: written %d, requested len %d", rc, len);
         if (rc <= 0) {
             if (rc == EST_ERR_NET_TRY_AGAIN) {                                                          
-                break;
+                socketSetError(EAGAIN);
+                return -1;
             }
             if (rc == EST_ERR_NET_CONN_RESET) {                                                         
                 trace(4, "ssl_write peer closed");

@@ -1,14 +1,17 @@
 /*
-    openssl.c - SSL socket layer for OpenSSL
+    openssl.c - OpensSSL socket layer for GoAhead
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 /************************************ Include *********************************/
 
-#include    "me.h"
-#include    "osdep.h"
+#include    "goahead.h"
 
 #if ME_COM_OPENSSL
+
+#if ME_UNIX_LIKE
+    #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
@@ -17,8 +20,6 @@
 #include    <openssl/rand.h>
 #include    <openssl/err.h>
 #include    <openssl/dh.h>
-
-#include    "goahead.h"
 
 /************************************* Defines ********************************/
 
@@ -272,9 +273,9 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
             if (error == SSL_ERROR_NONE) {
                 break;
             } else if (error == SSL_ERROR_WANT_WRITE) {
-                break;
+                socketSetError(EAGAIN);
+                return -1;
             } else if (error == SSL_ERROR_WANT_READ) {
-                //  AUTO-RETRY should stop this
                 return -1;
             } else {
                 trace(7, "OpenSSL: error %d", error);

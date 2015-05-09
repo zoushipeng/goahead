@@ -414,6 +414,13 @@
       <arglist>(int sid, int on)</arglist>
     </member>
     <member kind="function">
+      <type>void</type>
+      <name>socketSetError</name>
+      <anchorfile>group___webs_socket.html</anchorfile>
+      <anchor>ga5c81a3a08f01ced0e6346142663c0bac</anchor>
+      <arglist>(int error)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>socketSetNoDelay</name>
       <anchorfile>group___webs_socket.html</anchorfile>
@@ -864,8 +871,8 @@
       <type>int</type>
       <name>websDefineAction</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>gabadb35ad9084ca79783d0a63437d4959</anchor>
-      <arglist>(char *name, void *fun)</arglist>
+      <anchor>ga16df3436fa7bff9179b1d278c24beef5</anchor>
+      <arglist>(cchar *name, void *fun)</arglist>
     </member>
     <member kind="function">
       <type>int</type>

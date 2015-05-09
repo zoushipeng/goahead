@@ -117,10 +117,6 @@
     <ClCompile Include="..\..\src\runtime.c" />
     <ClCompile Include="..\..\src\socket.c" />
     <ClCompile Include="..\..\src\upload.c" />
-    <ClCompile Include="..\..\src\ssl\est.c" />
-    <ClCompile Include="..\..\src\ssl\matrixssl.c" />
-    <ClCompile Include="..\..\src\ssl\nanossl.c" />
-    <ClCompile Include="..\..\src\ssl\openssl.c" />
   </ItemGroup>
 
       <ItemGroup>
@@ -133,7 +129,7 @@
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>estssl;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
