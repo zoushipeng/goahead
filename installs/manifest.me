@@ -46,7 +46,7 @@ Me.load({
                     symlink:    '${bin}/',
 
                 }, { 
-                    from:       '${TOP}/src/http/ca.crt',
+                    from:       '${TOP}/src/est/ca.crt',
                     to:         '${abin}/',
 
                 }, { 
@@ -152,7 +152,6 @@ Me.load({
                 }, {
                     from:       [
                         '${TOP}/src/*.c',
-                        '${TOP}/src/ssl/*.c',
                     ],
                     exclude:    /\/crt\/|\/mocana\/|\/utils\//,
                     to:         '${src}/dist/goahead.c',
