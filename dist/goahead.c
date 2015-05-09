@@ -17054,8 +17054,7 @@ void nanosslDummy() {}
  */
 /************************************ Include *********************************/
 
-#include    "me.h"
-#include    "osdep.h"
+
 
 #if ME_COM_OPENSSL
 
@@ -17066,8 +17065,6 @@ void nanosslDummy() {}
 #include    <openssl/rand.h>
 #include    <openssl/err.h>
 #include    <openssl/dh.h>
-
-
 
 /************************************* Defines ********************************/
 

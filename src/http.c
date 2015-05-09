@@ -1111,6 +1111,11 @@ static void parseHeaders(Webs *wp)
             wp->cookie = sclone(value);
 
         } else if (strcmp(key, "host") == 0) {
+            if (strspn(value, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.[]:")
+                    < (int) slen(value)) {
+                websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad host header");
+                return;
+            }
             wfree(wp->host);
             wp->host = sclone(value);
 
@@ -1992,12 +1997,12 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
 #if ME_COM_SSL
     if (wp->flags & WEBS_SECURE) {
         if ((written = sslWrite(wp, buf, size)) < 0) {
-            return -1;
+            return written;
         }
     } else 
 #endif
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
-        return -1;
+        return written;
     }
     wp->written += written;
     websNoteRequestActivity(wp);
@@ -2082,7 +2087,7 @@ PUBLIC int websFlush(Webs *wp, bool block)
 {
     WebsBuf     *op;
     ssize       nbytes, written;
-    int         wasBlocking;
+    int         errCode, wasBlocking;
 
     if (block) {
         wasBlocking = socketSetBlock(wp->sid, 1);
@@ -2101,6 +2106,15 @@ PUBLIC int websFlush(Webs *wp, bool block)
     written = 0;
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
+            errCode = socketGetError();
+            if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
+                /* Not an error */
+                written = 0;
+                break;
+            }
+            /*
+                Connection Error
+             */
             wp->flags &= ~WEBS_KEEP_ALIVE;
             bufFlush(op);
             wp->state = WEBS_COMPLETE;
@@ -2122,6 +2136,7 @@ PUBLIC int websFlush(Webs *wp, bool block)
         socketSetBlock(wp->sid, wasBlocking);
     }
     if (written < 0) {
+        /* I/O Error */
         return -1;
     }
     return bufLen(op) == 0;
@@ -2173,6 +2188,7 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
 }
 
 
+#if (UNUSED && MOVED) || 1
 /*
     Accessors
  */
@@ -2197,6 +2213,7 @@ PUBLIC char *websGetServerUrl() { return websHostUrl; }
 PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
 PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
+#endif
 
 /*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.

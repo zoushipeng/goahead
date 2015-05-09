@@ -20,6 +20,10 @@
 
 /************************************ Defaults ********************************/
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #if (ME_COM_EST + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
 #endif

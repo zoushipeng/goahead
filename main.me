@@ -9,11 +9,13 @@
  */
 
 Me.load({
+    makeme: '>=0.8.6',
+
     plugins: [ 'configuration', 'installs' ],
 
     blend: [
-        '?ssl',
-        'osdep',
+        'src/*/*.me',
+        'paks/ssl/*.me',
         'doc/doc.me',
     ],
 
@@ -23,8 +25,6 @@ Me.load({
     },
 
     settings: {
-        me: '=>0.8.4',
-
         integrate: true,
 
         /*
@@ -273,7 +273,7 @@ Me.load({
 
         libgo: {
             type: 'lib',
-            sources: [ 'src/*.c', 'src/ssl/*.c' ],
+            sources: [ 'src/*.c' ],
             headers: [ 'src/*.h' ],
             exclude: /goahead\.c/,
             depends: [ 'osdep', 'ssl' ],
@@ -283,11 +283,6 @@ Me.load({
                         me.target.libraries.push('pam')
                     }                                                                                      
                 `
-                postresolve: `
-                    if (me.platform.os == 'macosx') { 
-                        me.target.compiler.push('-Wno-deprecated-declarations')
-                    }
-                `,  
             },
         },
 
@@ -303,12 +298,6 @@ Me.load({
                     }                                                                                      
                 `,  
             },
-        },
-
-        'ca-crt': {
-            type: 'file',
-            files: [ 'src/est/ca.crt' ],
-            path: '${BIN}/ca.crt',
         },
 
         /*
@@ -419,7 +408,7 @@ Me.load({
         },
 
         mine: {
-            action: `genProjects('-with est', 'mine', Config.OS + '-' + Config.CPU)`,
+            action: `genProjects('-with openssl', 'mine', Config.OS + '-' + Config.CPU)`,
         }
     },
 })

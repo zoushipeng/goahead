@@ -66,7 +66,7 @@ static bool actionHandler(Webs *wp)
 /*
     Define a function in the "action" map space
  */
-PUBLIC int websDefineAction(char *name, void *fn)
+PUBLIC int websDefineAction(cchar *name, void *fn)
 {
     assert(name && *name);
     assert(fn);
@@ -74,7 +74,8 @@ PUBLIC int websDefineAction(char *name, void *fn)
     if (fn == NULL) {
         return -1;
     }
-    hashEnter(actionTable, name, valueSymbol(fn), 0);
+//  MOB
+    hashEnter(actionTable, (char*) name, valueSymbol(fn), 0);
     return 0;
 }
 

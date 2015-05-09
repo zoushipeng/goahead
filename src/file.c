@@ -115,18 +115,13 @@ static void fileWriteEvent(Webs *wp)
     assert(wp);
     assert(websValid(wp));
 
-    /*
-        Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
-     */
     if ((buf = walloc(ME_GOAHEAD_LIMIT_BUFFER)) == NULL) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot get memory");
         return;
     }
-    /*
-        OPT - we could potentially save this buffer so that on short-writes, it does not need to be re-read.
-     */
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
+            /* May be an error or just socket full (EAGAIN) */
             break;
         }
         if (wrote != len) {

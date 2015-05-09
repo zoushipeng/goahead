@@ -225,9 +225,6 @@
 #ifndef ME_MANIFEST
     #define ME_MANIFEST "installs/manifest.me"
 #endif
-#ifndef ME_ME
-    #define ME_ME "=>0.8.4"
-#endif
 #ifndef ME_NAME
     #define ME_NAME "goahead"
 #endif
@@ -351,6 +348,12 @@
 #endif
 #ifndef ME_COM_LIB
     #define ME_COM_LIB 1
+#endif
+#ifndef ME_COM_MATRIXSSL
+    #define ME_COM_MATRIXSSL 0
+#endif
+#ifndef ME_COM_NANOSSL
+    #define ME_COM_NANOSSL 0
 #endif
 #ifndef ME_COM_OPENSSL
     #define ME_COM_OPENSSL 1

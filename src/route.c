@@ -148,8 +148,10 @@ PUBLIC bool websRunRequest(Webs *wp)
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no route for request");
         return 1;
     }
-    assert(route->handler);
-
+    if (!route->handler) {
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no handler for route");
+        return 1;
+    }
     if (!wp->filename || route->dir) {
         wfree(wp->filename);
         wp->filename = sfmt("%s%s", route->dir ? route->dir : websGetDocuments(), wp->path);
@@ -171,6 +173,10 @@ PUBLIC bool websRunRequest(Webs *wp)
         return (*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags) == 0;
     } else
 #endif
+    if (!route->handler->service) {
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no handler service callback");
+        return 1;
+    }
     return (*route->handler->service)(wp);
 }
 
