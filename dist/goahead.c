@@ -79,7 +79,7 @@ static bool actionHandler(Webs *wp)
 /*
     Define a function in the "action" map space
  */
-PUBLIC int websDefineAction(char *name, void *fn)
+PUBLIC int websDefineAction(cchar *name, void *fn)
 {
     assert(name && *name);
     assert(fn);
@@ -87,7 +87,7 @@ PUBLIC int websDefineAction(char *name, void *fn)
     if (fn == NULL) {
         return -1;
     }
-    hashEnter(actionTable, name, valueSymbol(fn), 0);
+    hashEnter(actionTable, (char*) name, valueSymbol(fn), 0);
     return 0;
 }
 
@@ -3095,18 +3095,13 @@ static void fileWriteEvent(Webs *wp)
     assert(wp);
     assert(websValid(wp));
 
-    /*
-        Note: websWriteSocket may return less than we wanted. It will return -1 on a socket error.
-     */
     if ((buf = walloc(ME_GOAHEAD_LIMIT_BUFFER)) == NULL) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot get memory");
         return;
     }
-    /*
-        OPT - we could potentially save this buffer so that on short-writes, it does not need to be re-read.
-     */
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
+            /* May be an error or just socket full (EAGAIN) */
             break;
         }
         if (wrote != len) {
@@ -4942,6 +4937,11 @@ static void parseHeaders(Webs *wp)
             wp->cookie = sclone(value);
 
         } else if (strcmp(key, "host") == 0) {
+            if (strspn(value, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.[]:")
+                    < (int) slen(value)) {
+                websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad host header");
+                return;
+            }
             wfree(wp->host);
             wp->host = sclone(value);
 
@@ -5823,12 +5823,12 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
 #if ME_COM_SSL
     if (wp->flags & WEBS_SECURE) {
         if ((written = sslWrite(wp, buf, size)) < 0) {
-            return -1;
+            return written;
         }
     } else 
 #endif
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
-        return -1;
+        return written;
     }
     wp->written += written;
     websNoteRequestActivity(wp);
@@ -5913,7 +5913,7 @@ PUBLIC int websFlush(Webs *wp, bool block)
 {
     WebsBuf     *op;
     ssize       nbytes, written;
-    int         wasBlocking;
+    int         errCode, wasBlocking;
 
     if (block) {
         wasBlocking = socketSetBlock(wp->sid, 1);
@@ -5932,6 +5932,15 @@ PUBLIC int websFlush(Webs *wp, bool block)
     written = 0;
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
+            errCode = socketGetError();
+            if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
+                /* Not an error */
+                written = 0;
+                break;
+            }
+            /*
+                Connection Error
+             */
             wp->flags &= ~WEBS_KEEP_ALIVE;
             bufFlush(op);
             wp->state = WEBS_COMPLETE;
@@ -5953,6 +5962,7 @@ PUBLIC int websFlush(Webs *wp, bool block)
         socketSetBlock(wp->sid, wasBlocking);
     }
     if (written < 0) {
+        /* I/O Error */
         return -1;
     }
     return bufLen(op) == 0;
@@ -6004,6 +6014,7 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
 }
 
 
+#if (UNUSED && MOVED) || 1
 /*
     Accessors
  */
@@ -6028,6 +6039,7 @@ PUBLIC char *websGetServerUrl() { return websHostUrl; }
 PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
 PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
+#endif
 
 /*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
@@ -7067,7 +7079,8 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     }
     if (ppath) {
         if (path == 0) {
-            path = "/";
+            scopy(buf2, 1, "/");
+            path = buf2;
         } else {
             /* Copy path to reinsert leading slash */
             scopy(&buf2[1], len - 1, path);
@@ -10774,8 +10787,10 @@ PUBLIC bool websRunRequest(Webs *wp)
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no route for request");
         return 1;
     }
-    assert(route->handler);
-
+    if (!route->handler) {
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no handler for route");
+        return 1;
+    }
     if (!wp->filename || route->dir) {
         wfree(wp->filename);
         wp->filename = sfmt("%s%s", route->dir ? route->dir : websGetDocuments(), wp->path);
@@ -10797,6 +10812,10 @@ PUBLIC bool websRunRequest(Webs *wp)
         return (*(WebsLegacyHandlerProc) route->handler->service)(wp, route->prefix, route->dir, route->flags) == 0;
     } else
 #endif
+    if (!route->handler->service) {
+        websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Configuration error - no handler service callback");
+        return 1;
+    }
     return (*route->handler->service)(wp);
 }
 
@@ -14844,7 +14863,13 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
             if (errCode == EINTR) {
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
-                return sofar;
+                if (sofar) {
+                    /* 
+                        If some data was written, we mask the EAGAIN for this time. Caller should recall and then
+                        will get a negative return code with EAGAIN.
+                     */
+                    return sofar;
+                }
             }
             return -errCode;
         }
@@ -15056,6 +15081,16 @@ PUBLIC int socketGetError()
 }
 
 
+PUBLIC void socketSetError(int error)
+{
+#if ME_WIN_LIKE
+    SetLastError(error);
+#elif ME_UNIX_LIKE || VXWORKS
+    errno = error;
+#endif
+}
+
+
 /*
     Return the underlying socket handle
  */
@@ -15236,10 +15271,10 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
  */
 PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
 {
-#if (ME_UNIX_LIKE || WINDOWS)
+#if (ME_UNIX_LIKE || ME_WIN_LIKE)
     char    service[NI_MAXSERV];
 
-#ifdef IN6_IS_ADDR_V4MAPPED
+#if ME_WIN_LIKE || defined(IN6_IS_ADDR_V4MAPPED)
     if (addr->sa_family == AF_INET6) {
         struct sockaddr_in6* addr6 = (struct sockaddr_in6*) addr;
         if (IN6_IS_ADDR_V4MAPPED(&addr6->sin6_addr)) {
@@ -15914,1572 +15949,6 @@ PUBLIC void websUploadOpen()
     websDefineHandler("upload", 0, uploadHandler, 0, 0);
 }
 
-#endif
-
-/*
-    @copy   default
-
-    Copyright (c) Embedthis Software. All Rights Reserved.
-
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
- */
-
-
-
-/********* Start of file ../../../src/ssl/est.c ************/
-
-
-/*
-    est.c - Embedded Secure Transport SSL for GoAhead
-
-    Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-/************************************ Include *********************************/
-
-
-
-#if ME_COM_EST
-
-#include    "est.h"
-
-/************************************* Defines ********************************/
-
-typedef struct EstConfig {
-    rsa_context     rsa;                /* RSA context */
-    x509_cert       cert;               /* Certificate (own) */
-    x509_cert       ca;                 /* Certificate authority bundle to verify peer */
-    int             *ciphers;           /* Set of acceptable ciphers */
-} EstConfig;
-
-/*
-    Per socket state
- */
-typedef struct EstSocket {
-    havege_state    hs;                 /* Random HAVEGE state */
-    ssl_context     ctx;                /* SSL state */
-    ssl_session     session;            /* SSL sessions */
-} EstSocket;
-
-static EstConfig estConfig;
-
-/*
-    Regenerate using: dh_genprime
-    Generated on 1/1/2014
- */
-static char *dhg = "4";
-static char *dhKey =
-    "E4004C1F94182000103D883A448B3F80"
-    "2CE4B44A83301270002C20D0321CFD00"
-    "11CCEF784C26A400F43DFB901BCA7538"
-    "F2C6B176001CF5A0FD16D2C48B1D0C1C"
-    "F6AC8E1DA6BCC3B4E1F96B0564965300"
-    "FFA1D0B601EB2800F489AA512C4B248C"
-    "01F76949A60BB7F00A40B1EAB64BDD48"
-    "E8A700D60B7F1200FA8E77B0A979DABF";
-
-/************************************ Forwards ********************************/
-
-static int estHandshake(Webs *wp);
-static void estTrace(void *fp, int level, char *str);
-
-/************************************** Code **********************************/
-
-PUBLIC int sslOpen()
-{
-    trace(7, "Initializing EST SSL"); 
-
-    /*
-        Set the server certificate and key files
-     */
-    if (*ME_GOAHEAD_KEY) {
-        /*
-            Load a decrypted PEM format private key. The last arg is the private key.
-         */
-        if (x509parse_keyfile(&estConfig.rsa, ME_GOAHEAD_KEY, 0) < 0) {
-            error("EST: Unable to read key file %s", ME_GOAHEAD_KEY); 
-            return -1;
-        }
-    }
-    if (*ME_GOAHEAD_CERTIFICATE) {
-        /*
-            Load a PEM format certificate file
-         */
-        if (x509parse_crtfile(&estConfig.cert, ME_GOAHEAD_CERTIFICATE) < 0) {
-            error("EST: Unable to read certificate %s", ME_GOAHEAD_CERTIFICATE); 
-            return -1;
-        }
-    }
-    if (*ME_GOAHEAD_CA) {
-        if (x509parse_crtfile(&estConfig.ca, ME_GOAHEAD_CA) != 0) {
-            error("Unable to parse certificate bundle %s", *ME_GOAHEAD_CA); 
-            return -1;
-        }
-    }
-    estConfig.ciphers = ssl_create_ciphers(ME_GOAHEAD_CIPHERS);
-    return 0;
-}
-
-
-PUBLIC void sslClose()
-{
-}
-
-
-PUBLIC int sslUpgrade(Webs *wp)
-{
-    EstSocket   *est;
-    WebsSocket  *sp;
-
-    assert(wp);
-    if ((est = walloc(sizeof(EstSocket))) == 0) {
-        return -1;
-    }
-    memset(est, 0, sizeof(EstSocket));
-    wp->ssl = est;
-
-    ssl_free(&est->ctx);
-    havege_init(&est->hs);
-    ssl_init(&est->ctx);
-	ssl_set_endpoint(&est->ctx, 1);
-	ssl_set_authmode(&est->ctx, ME_GOAHEAD_VERIFY_PEER ? SSL_VERIFY_OPTIONAL : SSL_VERIFY_NO_CHECK);
-    ssl_set_rng(&est->ctx, havege_rand, &est->hs);
-	ssl_set_dbg(&est->ctx, estTrace, NULL);
-    sp = socketPtr(wp->sid);
-	ssl_set_bio(&est->ctx, net_recv, &sp->sock, net_send, &sp->sock);
-    ssl_set_ciphers(&est->ctx, estConfig.ciphers);
-	ssl_set_session(&est->ctx, 1, 0, &est->session);
-	memset(&est->session, 0, sizeof(ssl_session));
-
-	ssl_set_ca_chain(&est->ctx, *ME_GOAHEAD_CA ? &estConfig.ca : NULL, NULL);
-    if (*ME_GOAHEAD_CERTIFICATE && *ME_GOAHEAD_KEY) {
-        ssl_set_own_cert(&est->ctx, &estConfig.cert, &estConfig.rsa);
-    }
-	ssl_set_dh_param(&est->ctx, dhKey, dhg);
-
-    if (estHandshake(wp) < 0) {
-        return -1;
-    }
-    return 0;
-}
-    
-
-PUBLIC void sslFree(Webs *wp)
-{
-    EstSocket   *est;
-
-    est = wp->ssl;
-    if (est) {
-        ssl_free(&est->ctx);
-        wfree(est);
-        wp->ssl = 0;
-    }
-}
-
-
-/*
-    Initiate or continue SSL handshaking with the peer. This routine does not block.
-    Return -1 on errors, 0 incomplete and awaiting I/O, 1 if successful
- */
-static int estHandshake(Webs *wp)
-{
-    WebsSocket  *sp;
-    EstSocket   *est;
-    int         rc, vrc, trusted;
-
-    est = (EstSocket*) wp->ssl;
-    trusted = 1;
-    rc = 0;
-
-    sp = socketPtr(wp->sid);
-    sp->flags |= SOCKET_HANDSHAKING;
-
-    while (est->ctx.state != SSL_HANDSHAKE_OVER) {
-        if ((rc = ssl_handshake(&est->ctx)) != 0) {
-            if (rc == EST_ERR_NET_TRY_AGAIN) {
-                return 0;
-            }
-            break;
-        }
-    }
-    sp->flags &= ~SOCKET_HANDSHAKING;
-
-    /*
-        Analyze the handshake result
-     */
-    if (rc < 0) {
-        if (rc == EST_ERR_SSL_PRIVATE_KEY_REQUIRED && !(*ME_GOAHEAD_KEY || *ME_GOAHEAD_CERTIFICATE)) {
-            error("Missing required certificate and key");
-        } else {
-            error("Cannot handshake: error -0x%x", -rc);
-        }
-        sp->flags |= SOCKET_EOF;
-        errno = EPROTO;
-        return -1;
-       
-    } else if ((vrc = ssl_get_verify_result(&est->ctx)) != 0) {
-        if (vrc & BADCERT_EXPIRED) {
-            logmsg(2, "Certificate expired");
-
-        } else if (vrc & BADCERT_REVOKED) {
-            logmsg(2, "Certificate revoked");
-
-        } else if (vrc & BADCERT_CN_MISMATCH) {
-            logmsg(2, "Certificate common name mismatch");
-
-        } else if (vrc & BADCERT_NOT_TRUSTED) {
-            if (vrc & BADCERT_SELF_SIGNED) {                                                               
-                logmsg(2, "Self-signed certificate");
-            } else {
-                logmsg(2, "Certificate not trusted");
-            }
-            trusted = 0;
-
-        } else {
-            if (est->ctx.client_auth && !*ME_GOAHEAD_CERTIFICATE) {
-                logmsg(2, "Server requires a client certificate");
-            } else if (rc == EST_ERR_NET_CONN_RESET) {
-                logmsg(2, "Peer disconnected");
-            } else {
-                logmsg(2, "Cannot handshake: error -0x%x", -rc);
-            }
-        }
-        if (ME_GOAHEAD_VERIFY_PEER) {
-            /* 
-               If not verifying the issuer, permit certs that are only untrusted (no other error).
-               This allows self-signed certs.
-             */
-            if (!ME_GOAHEAD_VERIFY_ISSUER && !trusted) {
-                return 1;
-            } else {
-                sp->flags |= SOCKET_EOF;
-                errno = EPROTO;
-                return -1;
-            }
-        }
-#if UNUSED
-    } else {
-        /* Being emitted when no cert supplied */
-        logmsg(3, "Certificate verified");
-#endif
-    }
-    return 1;
-}
-
-
-PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
-{
-    WebsSocket      *sp;
-    EstSocket       *est;
-    int             rc;
-
-    if (!wp->ssl) {
-        assert(0);
-        return -1;
-    }
-    est = (EstSocket*) wp->ssl;
-    assert(est);
-    sp = socketPtr(wp->sid);
-
-    if (est->ctx.state != SSL_HANDSHAKE_OVER) {
-        if ((rc = estHandshake(wp)) <= 0) {
-            return rc;
-        }
-    }
-    while (1) {
-        rc = ssl_read(&est->ctx, buf, (int) len);
-        trace(5, "EST: ssl_read %d", rc);
-        if (rc < 0) {
-            if (rc == EST_ERR_NET_TRY_AGAIN)  {
-                continue;
-            } else if (rc == EST_ERR_SSL_PEER_CLOSE_NOTIFY) {
-                trace(5, "EST: connection was closed gracefully");
-                sp->flags |= SOCKET_EOF;
-                return -1;
-            } else if (rc == EST_ERR_NET_CONN_RESET) {
-                trace(5, "EST: connection reset");
-                sp->flags |= SOCKET_EOF;
-                return -1;
-            } else {
-                trace(4, "EST: read error -0x%", -rc);                                                    
-                sp->flags |= SOCKET_EOF;                                                               
-                return -1; 
-            }
-        }
-        break;
-    }
-    socketHiddenData(sp, ssl_get_bytes_avail(&est->ctx), SOCKET_READABLE);
-    return rc;
-}
-
-
-PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
-{
-    EstSocket   *est;
-    ssize       totalWritten;
-    int         rc;
-
-    if (wp->ssl == 0 || len <= 0) {
-        assert(0);
-        return -1;
-    }
-    est = (EstSocket*) wp->ssl;
-    if (est->ctx.state != SSL_HANDSHAKE_OVER) {
-        if ((rc = estHandshake(wp)) <= 0) {
-            return rc;
-        }
-    }
-    totalWritten = 0;
-    do {
-        rc = ssl_write(&est->ctx, (uchar*) buf, (int) len);
-        trace(7, "EST: written %d, requested len %d", rc, len);
-        if (rc <= 0) {
-            if (rc == EST_ERR_NET_TRY_AGAIN) {                                                          
-                break;
-            }
-            if (rc == EST_ERR_NET_CONN_RESET) {                                                         
-                trace(4, "ssl_write peer closed");
-                return -1;
-            } else {
-                trace(4, "ssl_write failed rc %d", rc);
-                return -1;
-            }
-        } else {
-            totalWritten += rc;
-            buf = (void*) ((char*) buf + rc);
-            len -= rc;
-            trace(7, "EST: write: len %d, written %d, total %d", len, rc, totalWritten);
-        }
-    } while (len > 0);
-
-    socketHiddenData(socketPtr(wp->sid), est->ctx.in_left, SOCKET_WRITABLE);
-    return totalWritten;
-}
-
-
-static void estTrace(void *fp, int level, char *str)
-{
-    level += 3;
-    if (level <= websGetLogLevel()) {
-        str = sclone(str);
-        str[slen(str) - 1] = '\0';
-        trace(level, "%s", str);
-    }
-}
-
-#else
-void estDummy() {}
-#endif /* ME_COM_EST */
-
-/*
-    @copy   default
-
-    Copyright (c) Embedthis Software. All Rights Reserved.
-
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
- */
-
-
-
-/********* Start of file ../../../src/ssl/matrixssl.c ************/
-
-
-/*
-    matrixssl.c - SSL socket layer for MatrixSSL
-
-    Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-/************************************ Includes ********************************/
-
-#include    "me.h"
-
-#if ME_COM_MATRIXSSL
-/*
-    Matrixssl defines int*, uint*, but does not provide HAS_XXX to disable.
-    So must include matrixsslApi.h first and then workaround. Ugh!
-*/
-#if WIN32
-    #include   <winsock2.h>
-    #include   <windows.h>
-#endif
-    /* Indent to not create a dependency on this file if not enabled */
-    #include    "matrixsslApi.h"
-
-#define     HAS_INT16 1
-#define     HAS_UINT16 1
-#define     HAS_INT32 1
-#define     HAS_UINT32 1
-#define     HAS_INT64 1
-#define     HAS_UINT64 1
-
-
-
-/************************************ Defines *********************************/
-
-/*
-    MatrixSSL per-socket state
- */
-typedef struct Ms {
-    ssl_t   *handle;
-    char    *outbuf;        /* Pending output data */
-    ssize   outlen;         /* Length of outbuf */
-    ssize   written;        /* Number of unencoded bytes written */
-    int     more;           /* MatrixSSL stack has buffered data */
-} Ms;
-
-static sslKeys_t *sslKeys = NULL;
-
-/************************************ Code ************************************/
-
-PUBLIC int sslOpen()
-{
-    char    *password, *cert, *key, *ca;
-
-    if (matrixSslOpen() < 0) {
-        return -1;
-    }
-    if (matrixSslNewKeys(&sslKeys) < 0) {
-        error("Failed to allocate keys in sslOpen\n");
-        return -1;
-    }
-    password = 0;
-    cert = *ME_GOAHEAD_CERTIFICATE ? ME_GOAHEAD_CERTIFICATE : 0;
-    key = *ME_GOAHEAD_KEY ? ME_GOAHEAD_KEY : 0;
-    ca = *ME_GOAHEAD_CA ? ME_GOAHEAD_CA: 0;
-    if (matrixSslLoadRsaKeys(sslKeys, cert, key, password, ca) < 0) {
-        error("Failed to read certificate, key or ca file\n");
-        return -1;
-    }
-    return 0;
-}
-
-
-PUBLIC void sslClose()
-{
-    if (sslKeys) {
-        matrixSslDeleteKeys(sslKeys);
-        sslKeys = 0;
-    }
-    matrixSslClose();
-}
-
-
-PUBLIC void sslFree(Webs *wp)
-{
-    Ms          *ms;
-    WebsSocket  *sp;
-    uchar       *buf;
-    int         len;
-    
-    ms = wp->ssl;
-    if (ms) {
-        assert(wp->sid >= 0);
-        if ((sp = socketPtr(wp->sid)) == 0) {
-            return;
-        }
-        if (!(sp->flags & SOCKET_EOF)) {
-            /*
-                Flush data. Append a closure alert to any buffered output data, and try to send it.
-                Don't bother retrying or blocking, we're just closing anyway.
-            */
-            matrixSslEncodeClosureAlert(ms->handle);
-            if ((len = matrixSslGetOutdata(ms->handle, &buf)) > 0) {
-                sslWrite(wp, buf, len);
-            }
-        }
-        if (ms->handle) {
-            matrixSslDeleteSession(ms->handle);
-        }
-        wfree(ms);
-        wp->ssl = 0;
-    }
-}
-
-
-PUBLIC int sslUpgrade(Webs *wp)
-{
-    Ms      *ms;
-    ssl_t   *handle;
-    int     flags;
-    
-    flags = ME_GOAHEAD_VERIFY_PEER ? SSL_FLAGS_CLIENT_AUTH : 0;
-    if (matrixSslNewServerSession(&handle, sslKeys, NULL, flags) < 0) {
-        error("Cannot create new matrixssl session");
-        return -1;
-    }
-    if ((ms = walloc(sizeof(Ms))) == 0) {
-        return -1;
-    }
-    memset(ms, 0x0, sizeof(Ms));
-    ms->handle = handle;
-    wp->ssl = ms;
-    return 0;
-}
-
-
-static ssize blockingWrite(Webs *wp, void *buf, ssize len)
-{
-    ssize   written, bytes;
-    int     prior;
-
-    prior = socketSetBlock(wp->sid, 1);
-    for (written = 0; len > 0; ) {
-        if ((bytes = socketWrite(wp->sid, buf, len)) < 0) {
-            socketSetBlock(wp->sid, prior);
-            return bytes;
-        }
-        buf += bytes;
-        len -= bytes;
-        written += bytes;
-    }
-    socketSetBlock(wp->sid, prior);
-    return written;
-}
-
-
-static ssize processIncoming(Webs *wp, char *buf, ssize size, ssize nbytes, int *readMore)
-{
-    Ms      *ms;
-    uchar   *data, *obuf;
-    ssize   toWrite, written, copied, sofar;
-    uint32  dlen;
-    int     rc;
-
-    ms = (Ms*) wp->ssl;
-    *readMore = 0;
-    sofar = 0;
-
-    /*
-        Process the received data. If there is application data, it is returned in data/dlen
-     */
-    rc = matrixSslReceivedData(ms->handle, (int) nbytes, &data, &dlen);
-
-    while (1) {
-        switch (rc) {
-        case PS_SUCCESS:
-            return sofar;
-
-        case MATRIXSSL_REQUEST_SEND:
-            toWrite = matrixSslGetOutdata(ms->handle, &obuf);
-            if ((written = blockingWrite(wp, obuf, toWrite)) < 0) {
-                error("MatrixSSL: Error in process");
-                return -1;
-            }
-            matrixSslSentData(ms->handle, (int) written);
-            if (ms->handle->err != SSL_ALERT_NONE && ms->handle->err != SSL_ALLOW_ANON_CONNECTION) {
-                return -1;
-            }
-            *readMore = 1;
-            return 0;
-
-        case MATRIXSSL_REQUEST_RECV:
-            /* Partial read. More read data required */
-            *readMore = 1;
-            ms->more = 1;
-            return 0;
-
-        case MATRIXSSL_HANDSHAKE_COMPLETE:
-            *readMore = 0;
-            return 0;
-
-        case MATRIXSSL_RECEIVED_ALERT:
-            assert(dlen == 2);
-            if (data[0] == SSL_ALERT_LEVEL_FATAL) {
-                return -1;
-            } else if (data[1] == SSL_ALERT_CLOSE_NOTIFY) {
-                //  ignore - graceful close
-                return 0;
-            }
-            rc = matrixSslProcessedData(ms->handle, &data, &dlen);
-            break;
-
-        case MATRIXSSL_APP_DATA:
-            copied = min((ssize) dlen, size);
-            memcpy(buf, data, copied);
-            buf += copied;
-            size -= copied;
-            data += copied;
-            dlen = dlen - (int) copied;
-            sofar += copied;
-            ms->more = ((ssize) dlen > size) ? 1 : 0;
-            if (!ms->more) {
-                /* The MatrixSSL buffer has been consumed, see if we can get more data */
-                rc = matrixSslProcessedData(ms->handle, &data, &dlen);
-                break;
-            }
-            return sofar;
-
-        default:
-            return -1;
-        }
-    }
-}
-
-
-/*
-    Return number of bytes read. Return -1 on errors and EOF.
- */
-static ssize innerRead(Webs *wp, char *buf, ssize size)
-{
-    Ms          *ms;
-    uchar       *mbuf;
-    ssize       nbytes;
-    int         msize, readMore;
-
-    ms = (Ms*) wp->ssl;
-    do {
-        if ((msize = matrixSslGetReadbuf(ms->handle, &mbuf)) < 0) {
-            return -1;
-        }
-        readMore = 0;
-        if ((nbytes = socketRead(wp->sid, mbuf, msize)) < 0) {
-            return nbytes;
-        } else if (nbytes > 0) {
-            nbytes = processIncoming(wp, buf, size, nbytes, &readMore);
-            if (nbytes < 0) {
-                sp = socketPtr(wp->sid);
-                sp->flags |= SOCKET_EOF;
-                return nbytes;
-            }
-            if (nbytes > 0) {
-                return nbytes;
-            }
-        }
-    } while (readMore);
-    return 0;
-}
-
-
-/*
-    Return number of bytes read. Return -1 on errors and EOF.
- */
-PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
-{
-    Ms          *ms;
-    WebsSocket  *sp;
-    ssize       bytes;
-
-    if (len <= 0) {
-        return -1;
-    }
-    bytes = innerRead(wp, buf, len);
-    ms = (Ms*) wp->ssl;
-    if (ms->more) {
-        if ((sp = socketPtr(wp->sid)) != 0) {
-            socketHiddenData(sp, ms->more, SOCKET_READABLE);
-        }
-    }
-    return bytes;
-}
-
-
-/*
-    Non-blocking write data. Return the number of bytes written or -1 on errors.
-    Returns zero if part of the data was written.
-
-    Encode caller's data buffer into an SSL record and write to socket. The encoded data will always be 
-    bigger than the incoming data because of the record header (5 bytes) and MAC (16 bytes MD5 / 20 bytes SHA1)
-    This would be fine if we were using blocking sockets, but non-blocking presents an interesting problem.  Example:
-
-        A 100 byte input record is encoded to a 125 byte SSL record
-        We can send 124 bytes without blocking, leaving one buffered byte
-        We can't return 124 to the caller because it's more than they requested
-        We can't return 100 to the caller because they would assume all data
-        has been written, and we wouldn't get re-called to send the last byte
-
-    We handle the above case by returning 0 to the caller if the entire encoded record could not be sent. Returning 
-    0 will prompt us to select this socket for write events, and we'll be called again when the socket is writable.  
-    We'll use this mechanism to flush the remaining encoded data, ignoring the bytes sent in, as they have already 
-    been encoded.  When it is completely flushed, we return the originally requested length, and resume normal 
-    processing.
- */
-PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
-{
-    Ms      *ms;
-    uchar   *obuf;
-    ssize   encoded, nbytes, written;
-
-    ms = (Ms*) wp->ssl;
-    while (len > 0 || ms->outlen > 0) {
-        if ((encoded = matrixSslGetOutdata(ms->handle, &obuf)) <= 0) {
-            if (ms->outlen <= 0) {
-                ms->outbuf = (char*) buf;
-                ms->outlen = len;
-                ms->written = 0;
-                len = 0;
-            }
-            nbytes = min(ms->outlen, SSL_MAX_PLAINTEXT_LEN);
-            if ((encoded = matrixSslEncodeToOutdata(ms->handle, (uchar*) buf, (int) nbytes)) < 0) {
-                return encoded;
-            }
-            ms->outbuf += nbytes;
-            ms->outlen -= nbytes;
-            ms->written += nbytes;
-        }
-        if ((written = socketWrite(wp->sid, obuf, encoded)) < 0) {
-            return written;
-        } else if (written == 0) {
-            break;
-        }
-        matrixSslSentData(ms->handle, (int) written);
-    }
-    /*
-        Only signify all the data has been written if MatrixSSL has absorbed all the data
-     */
-    return ms->outlen == 0 ? ms->written : 0;
-}
-
-#else
-void matrixsslDummy() {}
-#endif /* ME_COM_MATRIXSSL */
-
-/*
-    @copy   default
-
-    Copyright (c) Embedthis Software. All Rights Reserved.
-
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
-    a commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
- */
-
-
-
-/********* Start of file ../../../src/ssl/nanossl.c ************/
-
-
-/*
-    nanossl.c - Mocana NanoSSL
-
-    Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-
-/********************************** Includes **********************************/
-
-#include    "me.h"
-
-#if ME_COM_NANOSSL
- #include "goahead.h"
-
- #include "common/moptions.h"
- #include "common/mdefs.h"
- #include "common/mtypes.h"
- #include "common/merrors.h"
- #include "common/mrtos.h"
- #include "common/mtcp.h"
- #include "common/mocana.h"
- #include "common/random.h"
- #include "common/vlong.h"
- #include "crypto/hw_accel.h"
- #include "crypto/crypto.h"
- #include "crypto/pubcrypto.h"
- #include "crypto/ca_mgmt.h"
- #include "ssl/ssl.h"
- #include "asn1/oiddefs.h"
-
-/************************************* Defines ********************************/
-
-static certDescriptor  cert;
-static certDescriptor  ca;
-
-/*
-    Per socket state
- */
-typedef struct Nano {
-    int             fd;
-    sbyte4          handle;
-    int             connected;
-} Nano;
-
-#if ME_DEBUG
-    #define SSL_HELLO_TIMEOUT   15000
-    #define SSL_RECV_TIMEOUT    300000
-#else
-    #define SSL_HELLO_TIMEOUT   15000000
-    #define SSL_RECV_TIMEOUT    30000000
-#endif
-
-#define KEY_SIZE                1024
-#define MAX_CIPHERS             16
-
-/***************************** Forward Declarations ***************************/
-
-static void     nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg);
-static void     DEBUG_PRINT(void *where, void *msg);
-static void     DEBUG_PRINTNL(void *where, void *msg);
-
-/************************************* Code ***********************************/
-/*
-    Create the Openssl module. This is called only once
- */
-PUBLIC int sslOpen()
-{
-    sslSettings     *settings;
-    char            *certificate, *key, *cacert;
-    int             rc;
-
-    if (MOCANA_initMocana() < 0) {
-        error("NanoSSL initialization failed");
-        return -1;
-    }
-    MOCANA_initLog(nanoLog);
-
-    if (SSL_init(SOMAXCONN, 0) < 0) {
-        error("SSL_init failed");
-        return -1;
-    }
-
-    certificate = *ME_GOAHEAD_CERTIFICATE ? ME_GOAHEAD_CERTIFICATE : 0;
-    key = *ME_GOAHEAD_KEY ? ME_GOAHEAD_KEY : 0;
-    cacert = *ME_GOAHEAD_CA ? ME_GOAHEAD_CA: 0;
-
-    if (certificate) {
-        certDescriptor tmp;
-        if ((rc = MOCANA_readFile((sbyte*) certificate, &tmp.pCertificate, &tmp.certLength)) < 0) {
-            error("NanoSSL: Unable to read certificate %s", certificate); 
-            CA_MGMT_freeCertificate(&tmp);
-            return -1;
-        }
-        assert(__ENABLE_MOCANA_PEM_CONVERSION__);
-        if ((rc = CA_MGMT_decodeCertificate(tmp.pCertificate, tmp.certLength, &cert.pCertificate, 
-                &cert.certLength)) < 0) {
-            error("NanoSSL: Unable to decode PEM certificate %s", certificate); 
-            CA_MGMT_freeCertificate(&tmp);
-            return -1;
-        }
-        MOCANA_freeReadFile(&tmp.pCertificate);
-    }
-    if (key) {
-        certDescriptor tmp;
-        if ((rc = MOCANA_readFile((sbyte*) key, &tmp.pKeyBlob, &tmp.keyBlobLength)) < 0) {
-            error("NanoSSL: Unable to read key file %s", key); 
-            CA_MGMT_freeCertificate(&cert);
-        }
-        if ((rc = CA_MGMT_convertKeyPEM(tmp.pKeyBlob, tmp.keyBlobLength, 
-                &cert.pKeyBlob, &cert.keyBlobLength)) < 0) {
-            error("NanoSSL: Unable to decode PEM key file %s", key); 
-            CA_MGMT_freeCertificate(&tmp);
-            return -1;
-        }
-        MOCANA_freeReadFile(&tmp.pKeyBlob);    
-    }
-    if (cacert) {
-        certDescriptor tmp;
-        if ((rc = MOCANA_readFile((sbyte*) cacert, &tmp.pCertificate, &tmp.certLength)) < 0) {
-            error("NanoSSL: Unable to read CA certificate file %s", cacert); 
-            CA_MGMT_freeCertificate(&tmp);
-            return -1;
-        }
-        if ((rc = CA_MGMT_decodeCertificate(tmp.pCertificate, tmp.certLength, &ca.pCertificate, 
-                &ca.certLength)) < 0) {
-            error("NanoSSL: Unable to decode PEM certificate %s", cacert); 
-            CA_MGMT_freeCertificate(&tmp);
-            return -1;
-        }
-        MOCANA_freeReadFile(&tmp.pCertificate);
-    }
-
-    if (SSL_initServerCert(&cert, FALSE, 0)) {
-        error("SSL_initServerCert failed");
-        return -1;
-    }
-    settings = SSL_sslSettings();
-    settings->sslTimeOutHello = SSL_HELLO_TIMEOUT;
-    settings->sslTimeOutReceive = SSL_RECV_TIMEOUT;
-    return 0;
-}
-
-
-PUBLIC void sslClose() 
-{
-    SSL_releaseTables();
-    MOCANA_freeMocana();
-    CA_MGMT_freeCertificate(&cert);
-}
-
-
-PUBLIC void sslFree(Webs *wp)
-{
-    Nano        *np;
-    
-    if (wp->ssl) {
-        np = wp->ssl;
-        if (np->handle) {
-            SSL_closeConnection(np->handle);
-            np->handle = 0;
-        }
-        wfree(np);
-        wp->ssl = 0;
-    }
-}
-
-
-/*
-    Upgrade a standard socket to use TLS
- */
-PUBLIC int sslUpgrade(Webs *wp)
-{
-    Nano        *np;
-
-    assert(wp);
-
-    if ((np = walloc(sizeof(Nano))) == 0) {
-        return -1;
-    }
-    memset(np, 0, sizeof(Nano));
-    wp->ssl = np;
-    if ((np->handle = SSL_acceptConnection(socketGetHandle(wp->sid))) < 0) {
-        return -1;
-    }
-    return 0;
-}
-
-
-/*
-    Initiate or continue SSL handshaking with the peer. This routine does not block.
-    Return -1 on errors, 0 incomplete and awaiting I/O, 1 if successful
-*/
-static int nanoHandshake(Webs *wp)
-{
-    Nano        *np;
-    ubyte4      flags;
-    int         rc;
-
-    np = (Nano*) wp->ssl;
-    wp->flags |= SOCKET_HANDSHAKING;
-    SSL_getSessionFlags(np->handle, &flags);
-    if (ME_GOAHEAD_VERIFY_PEER) {
-        flags |= SSL_FLAG_REQUIRE_MUTUAL_AUTH;
-    } else {
-        flags |= SSL_FLAG_NO_MUTUAL_AUTH_REQUEST;
-    }
-    SSL_setSessionFlags(np->handle, flags);
-    rc = 0;
-
-    while (!np->connected) {
-        if ((rc = SSL_negotiateConnection(np->handle)) < 0) {
-            break;
-        }
-        np->connected = 1;
-        break;
-    }
-    wp->flags &= ~SOCKET_HANDSHAKING;
-
-    /*
-        Analyze the handshake result
-    */
-    if (rc < 0) {
-        if (rc == ERR_SSL_UNKNOWN_CERTIFICATE_AUTHORITY) {
-            logmsg(3, "Unknown certificate authority");
-
-        /* Common name mismatch, cert revoked */
-        } else if (rc == ERR_SSL_PROTOCOL_PROCESS_CERTIFICATE) {
-            logmsg(3, "Bad certificate");
-        } else if (rc == ERR_SSL_NO_SELF_SIGNED_CERTIFICATES) {
-            logmsg(3, "Self-signed certificate");
-        } else if (rc == ERR_SSL_CERT_VALIDATION_FAILED) {
-            logmsg(3, "Certificate does not validate");
-        }
-        DISPLAY_ERROR(0, rc); 
-        logmsg(4, "NanoSSL: Cannot handshake: error %d", rc);
-        errno = EPROTO;
-        return -1;
-    }
-    return 1;
-}
-
-
-/*
-    Return the number of bytes read. Return -1 on errors and EOF.
- */
-PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
-{
-    Nano        *np;
-    WebsSocket  *sp;
-    sbyte4      nbytes, count;
-    int         rc;
-
-    np = (Nano*) wp->ssl;
-    assert(np);
-    sp = socketPtr(wp->sid);
-
-    if (!np->connected && (rc = nanoHandshake(wp)) <= 0) {
-        return rc;
-    }
-    while (1) {
-        /*
-            This will do the actual blocking I/O
-         */
-        rc = SSL_recv(np->handle, buf, (sbyte4) len, &nbytes, 0);
-        logmsg(5, "NanoSSL: ssl_read %d", rc);
-        if (rc < 0) {
-            if (rc != ERR_TCP_READ_ERROR) {
-                sp->flags |= SOCKET_EOF;
-            }
-            return -1;
-        }
-        break;
-    }
-    SSL_recvPending(np->handle, &count);
-    if (count > 0) {
-        socketHiddenData(sp, count, SOCKET_READABLE);
-    }
-    return nbytes;
-}
-
-
-/*
-    Write data. Return the number of bytes written or -1 on errors.
- */
-PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
-{
-    Nano        *np;
-    WebsSocket  *sp;
-    ssize       totalWritten;
-    int         rc, count, sent;
-
-    np = (Nano*) wp->ssl;
-    if (len <= 0) {
-        assert(0);
-        return -1;
-    }
-    if (!np->connected && (rc = nanoHandshake(wp)) <= 0) {
-        return rc;
-    }
-    totalWritten = 0;
-    do {
-        rc = sent = SSL_send(np->handle, (sbyte*) buf, (int) len);
-        logmsg(7, "NanoSSL: written %d, requested len %d", sent, len);
-        if (rc <= 0) {
-            logmsg(0, "NanoSSL: SSL_send failed sent %d", rc);
-            sp = socketPtr(wp->sid);
-            sp->flags |= SOCKET_EOF;
-            return -1;
-        }
-        totalWritten += sent;
-        buf = (void*) ((char*) buf + sent);
-        len -= sent;
-        logmsg(7, "NanoSSL: write: len %d, written %d, total %d", len, sent, totalWritten);
-    } while (len > 0);
-
-    SSL_sendPending(np->handle, &count);
-    if (count > 0) {
-        socketReservice(wp->sid);
-    }
-    return totalWritten;
-}
-
-
-static void DEBUG_PRINT(void *where, void *msg)
-{
-    logmsg(2, "%s", msg);
-}
-
-static void DEBUG_PRINTNL(void *where, void *msg)
-{
-    logmsg(2, "%s", msg);
-}
-
-static void nanoLog(sbyte4 module, sbyte4 severity, sbyte *msg)
-{
-    logmsg(3, "%s", (cchar*) msg);
-}
-
-#else
-void nanosslDummy() {}
-#endif /* ME_COM_NANOSSL */
-
-/*
-    @copy   default
-
-    Copyright (c) Embedthis Software. All Rights Reserved.
-
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
-    commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
- */
-
-
-
-/********* Start of file ../../../src/ssl/openssl.c ************/
-
-
-/*
-    openssl.c - SSL socket layer for OpenSSL
-
-    Copyright (c) All Rights Reserved. See details at the end of the file.
- */
-/************************************ Include *********************************/
-
-
-
-#if ME_COM_OPENSSL
-
-/* Clashes with WinCrypt.h */
-#undef OCSP_RESPONSE
-#include    <openssl/ssl.h>
-#include    <openssl/evp.h>
-#include    <openssl/rand.h>
-#include    <openssl/err.h>
-#include    <openssl/dh.h>
-
-/************************************* Defines ********************************/
-
-static SSL_CTX *sslctx = NULL;
-
-typedef struct RandBuf {
-    time_t      now;
-    int         pid;
-} RandBuf;
-
-#define VERIFY_DEPTH 10
-
-/************************************ Forwards ********************************/
-
-static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
-static int sslSetCertFile(char *certFile);
-static int sslSetKeyFile(char *keyFile);
-static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
-
-/************************************** Code **********************************/
-
-PUBLIC int sslOpen()
-{
-    RandBuf     randBuf;
-
-    trace(7, "Initializing SSL"); 
-
-    randBuf.now = time(0);
-    randBuf.pid = getpid();
-    RAND_seed((void*) &randBuf, sizeof(randBuf));
-#if ME_UNIX_LIKE
-    trace(6, "OpenSsl: Before calling RAND_load_file");
-    RAND_load_file("/dev/urandom", 256);
-    trace(6, "OpenSsl: After calling RAND_load_file");
-#endif
-
-    CRYPTO_malloc_init(); 
-#if !ME_WIN_LIKE
-    OpenSSL_add_all_algorithms();
-#endif
-    SSL_library_init();
-    SSL_load_error_strings();
-    SSLeay_add_ssl_algorithms();
-
-    if ((sslctx = SSL_CTX_new(SSLv23_server_method())) == 0) {
-        error("Unable to create SSL context"); 
-        return -1;
-    }
-
-    /*
-          Set the client certificate verification locations
-     */
-    if (*ME_GOAHEAD_CA) {
-        if ((!SSL_CTX_load_verify_locations(sslctx, ME_GOAHEAD_CA, NULL)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
-            error("Unable to read cert verification locations");
-            sslClose();
-            return -1;
-        }
-    }
-    /*
-          Set the server certificate and key files
-     */
-    if (*ME_GOAHEAD_KEY && sslSetKeyFile(ME_GOAHEAD_KEY) < 0) {
-        sslClose();
-        return -1;
-    }
-    if (*ME_GOAHEAD_CERTIFICATE && sslSetCertFile(ME_GOAHEAD_CERTIFICATE) < 0) {
-        sslClose();
-        return -1;
-    }
-    SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
-
-    if (ME_GOAHEAD_VERIFY_PEER) {
-        SSL_CTX_set_verify(sslctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
-        SSL_CTX_set_verify_depth(sslctx, VERIFY_DEPTH);
-    } else {
-        SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
-    }
-    /*
-          Set the certificate authority list for the client
-     */
-    if (ME_GOAHEAD_CA && *ME_GOAHEAD_CA) {
-        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(ME_GOAHEAD_CA));
-    }
-    if (ME_GOAHEAD_CIPHERS && *ME_GOAHEAD_CIPHERS) {
-        SSL_CTX_set_cipher_list(sslctx, ME_GOAHEAD_CIPHERS);
-    }
-    SSL_CTX_set_options(sslctx, SSL_OP_ALL);
-#if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS) && ME_GOAHEAD_TLS_EMPTY_FRAGMENTS
-    /* SSL_OP_ALL enables this. Only needed for ancient browsers like IE-6 */
-    SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
-#endif
-    SSL_CTX_sess_set_cache_size(sslctx, 128);
-#ifdef SSL_OP_NO_TICKET
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
-#endif
-#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION                                                       
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-#endif                                                                                                     
-    SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
-#ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
-    SSL_CTX_set_options(sslctx, SSL_OP_MSIE_SSLV2_RSA_PADDING);
-#endif
-#ifdef SSL_OP_NO_COMPRESSION
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
-#endif
-#ifdef SSL_MODE_RELEASE_BUFFERS
-    SSL_CTX_set_mode(sslctx, SSL_MODE_RELEASE_BUFFERS);
-#endif
-#ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
-    SSL_CTX_set_mode(sslctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
-#endif
-
-    /*
-        Disable both SSLv2 and SSLv3 by default - they are insecure
-     */
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv3);
-
-#if defined(SSL_OP_NO_TLSv1) && ME_GOAHEAD_TLS_NO_V1
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1);
-#endif
-#if defined(SSL_OP_NO_TLSv1_1) && ME_GOAHEAD_TLS_NO_V1_1
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_1);
-#endif
-#if defined(SSL_OP_NO_TLSv1_2) && ME_GOAHEAD_TLS_NO_V1_2
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_2);
-#endif
-
-    /* 
-        Ensure we generate a new private key for each connection
-     */
-    SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_DH_USE);
-    return 0;
-}
-
-
-PUBLIC void sslClose()
-{
-    if (sslctx != NULL) {
-        SSL_CTX_free(sslctx);
-        sslctx = NULL;
-    }
-}
-
-
-PUBLIC int sslUpgrade(Webs *wp)
-{
-    WebsSocket      *sptr;
-    BIO             *bio;
-
-    assert(wp);
-
-    sptr = socketPtr(wp->sid);
-    if ((wp->ssl = SSL_new(sslctx)) == 0) {
-        return -1;
-    }
-    if ((bio = BIO_new_socket((int) sptr->sock, BIO_NOCLOSE)) == 0) {
-        return -1;
-    }
-    SSL_set_bio(wp->ssl, bio, bio);
-    SSL_set_accept_state(wp->ssl);
-    SSL_set_app_data(wp->ssl, (void*) wp);
-    return 0;
-}
-    
-
-PUBLIC void sslFree(Webs *wp)
-{
-    if (wp->ssl) {
-        SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
-        SSL_free(wp->ssl);
-    }
-}
-
-
-PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
-{
-    WebsSocket      *sp;
-    char            ebuf[ME_GOAHEAD_LIMIT_STRING];
-    ulong           serror;
-    int             rc, error, retries, i;
-
-    if (wp->ssl == 0 || len <= 0) {
-        assert(0);
-        return -1;
-    }
-    /*  
-        Limit retries on WANT_READ. If non-blocking and no data, then this can spin forever.
-     */
-    sp = socketPtr(wp->sid);
-    retries = 5;
-    for (i = 0; i < retries; i++) {
-        rc = SSL_read(wp->ssl, buf, (int) len);
-        if (rc < 0) {
-            error = SSL_get_error(wp->ssl, rc);
-            if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_CONNECT || error == SSL_ERROR_WANT_ACCEPT) {
-                continue;
-            }
-            serror = ERR_get_error();
-            ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
-            trace(5, "SSL_read %s", ebuf);
-        }
-        break;
-    }
-    if (rc <= 0) {
-        error = SSL_get_error(wp->ssl, rc);
-        if (error == SSL_ERROR_WANT_READ) {
-            rc = 0;
-        } else if (error == SSL_ERROR_WANT_WRITE) {
-            sleep(0);
-            rc = 0;
-        } else if (error == SSL_ERROR_ZERO_RETURN) {
-            sp->flags |= SOCKET_EOF;
-            rc = -1;
-        } else if (error == SSL_ERROR_SYSCALL) {
-            sp->flags |= SOCKET_EOF;
-            rc = -1;
-        } else if (error != SSL_ERROR_ZERO_RETURN) {
-            /* SSL_ERROR_SSL */
-            serror = ERR_get_error();
-            ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
-            trace(4, "OpenSSL: connection with protocol error: %s", ebuf);
-            rc = -1;
-            sp->flags |= SOCKET_EOF;
-        }
-    } else if (SSL_pending(wp->ssl) > 0) {
-        socketHiddenData(sp, SSL_pending(wp->ssl), SOCKET_READABLE);
-    }
-    return rc;
-}
-
-
-PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
-{
-    ssize   totalWritten;
-    int     error, rc;
-
-    if (wp->ssl == 0 || len <= 0) {
-        assert(0);
-        return -1;
-    }
-    totalWritten = 0;
-    ERR_clear_error();
-
-    do {
-        rc = SSL_write(wp->ssl, buf, (int) len);
-        trace(7, "OpenSSL: written %d, requested len %d", rc, len);
-        if (rc <= 0) {
-            error = SSL_get_error(wp->ssl, rc);
-            if (error == SSL_ERROR_NONE) {
-                break;
-            } else if (error == SSL_ERROR_WANT_WRITE) {
-                break;
-            } else if (error == SSL_ERROR_WANT_READ) {
-                //  AUTO-RETRY should stop this
-                return -1;
-            } else {
-                trace(7, "OpenSSL: error %d", error);
-                return -1;
-            }
-            break;
-        }
-        totalWritten += rc;
-        buf = (void*) ((char*) buf + rc);
-        len -= rc;
-        trace(7, "OpenSSL: write: len %d, written %d, total %d, error %d", len, rc, totalWritten, 
-            SSL_get_error(wp->ssl, rc));
-    } while (len > 0);
-    return totalWritten;
-}
-
-
-/*
-    Set certificate file for SSL context
- */
-static int sslSetCertFile(char *certFile)
-{
-    assert(sslctx);
-    assert(certFile);
-
-    if (sslctx == NULL) {
-        return -1;
-    }
-    if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
-        if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
-            error("Unable to read certificate file: %s", certFile); 
-            return -1;
-        }
-        return -1;
-    }
-    /*        
-          Confirm that the certificate and the private key jive.
-     */
-    if (!SSL_CTX_check_private_key(sslctx)) {
-        return -1;
-    }
-    return 0;
-}
-
-
-/*
-      Set key file for SSL context
- */
-static int sslSetKeyFile(char *keyFile)
-{
-    assert(sslctx);
-    assert(keyFile);
-
-    if (sslctx == NULL) {
-        return -1;
-    }
-    if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
-        if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_ASN1) <= 0) {
-            error("Unable to read private key file: %s", keyFile); 
-            return -1;
-        }
-        return -1;
-    }
-    return 0;
-}
-
-
-static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
-{
-    X509            *cert;
-    char            subject[260], issuer[260], peer[260];
-    int             error, depth;
-    
-    subject[0] = issuer[0] = '\0';
-
-    cert = X509_STORE_CTX_get_current_cert(xContext);
-    error = X509_STORE_CTX_get_error(xContext);
-    depth = X509_STORE_CTX_get_error_depth(xContext);
-
-    ok = 1;
-    if (X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) - 1) < 0) {
-        ok = 0;
-    }
-    if (X509_NAME_oneline(X509_get_issuer_name(xContext->current_cert), issuer, sizeof(issuer) - 1) < 0) {
-        ok = 0;
-    }
-    if (X509_NAME_get_text_by_NID(X509_get_subject_name(xContext->current_cert), NID_commonName, peer, 
-            sizeof(peer) - 1) < 0) {
-        ok = 0;
-    }
-    if (ok && VERIFY_DEPTH < depth) {
-        if (error == 0) {
-            error = X509_V_ERR_CERT_CHAIN_TOO_LONG;
-        }
-    }
-    switch (error) {
-    case X509_V_OK:
-        break;
-    case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
-    case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-        if (ME_GOAHEAD_VERIFY_ISSUER) {
-            logmsg(3, "Self-signed certificate");
-            ok = 0;
-        }
-
-    case X509_V_ERR_CERT_UNTRUSTED:
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-        if (ME_GOAHEAD_VERIFY_ISSUER) {
-            logmsg(3, "Certificate not trusted");
-            ok = 0;
-        }
-        break;
-
-    case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
-    case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-        if (ME_GOAHEAD_VERIFY_ISSUER) {
-            logmsg(3, "Certificate not trusted");
-            ok = 0;
-        }
-        break;
-
-    case X509_V_ERR_CERT_CHAIN_TOO_LONG:
-    case X509_V_ERR_CERT_HAS_EXPIRED:
-    case X509_V_ERR_CERT_NOT_YET_VALID:
-    case X509_V_ERR_CERT_REJECTED:
-    case X509_V_ERR_CERT_SIGNATURE_FAILURE:
-    case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
-    case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
-    case X509_V_ERR_INVALID_CA:
-    default:
-        logmsg(3, "Certificate verification error %d", error);
-        ok = 0;
-        break;
-    }
-    if (ok) {
-        trace(3, "OpenSSL: Certificate verified: subject %s", subject);
-    } else {
-        trace(1, "OpenSSL: Certification failed: subject %s (more trace at level 4)", subject);
-        trace(4, "OpenSSL: Error: %d: %s", error, X509_verify_cert_error_string(error));
-    }
-    trace(4, "OpenSSL: Issuer: %s", issuer);
-    trace(4, "OpenSSL: Peer: %s", peer);
-    return ok;
-}
-
-
-static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength)
-{
-    static RSA *rsaTemp = NULL;
-
-    if (rsaTemp == NULL) {
-        rsaTemp = RSA_generate_key(keyLength, RSA_F4, NULL, NULL);
-    }
-    return rsaTemp;
-}
-
-
-#else
-void opensslDummy() {}
 #endif
 
 /*
