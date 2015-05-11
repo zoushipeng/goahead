@@ -449,6 +449,9 @@ DEPS_29 += $(BUILD)/obj/socket.o
 DEPS_29 += $(BUILD)/obj/upload.o
 
 ifeq ($(ME_COM_EST),1)
+    LIBS_29 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
     LIBS_29 += -lest
 endif
 ifeq ($(ME_COM_OPENSSL),1)
@@ -462,9 +465,6 @@ endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_29 += -lcrypto
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_EST),1)
-    LIBS_29 += -lestssl
 endif
 
 $(BUILD)/bin/libgo.so: $(DEPS_29)
@@ -481,6 +481,9 @@ DEPS_30 += $(BUILD)/obj/goahead.o
 
 LIBS_30 += -lgo
 ifeq ($(ME_COM_EST),1)
+    LIBS_30 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
     LIBS_30 += -lest
 endif
 ifeq ($(ME_COM_OPENSSL),1)
@@ -494,9 +497,6 @@ endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_30 += -lcrypto
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_EST),1)
-    LIBS_30 += -lestssl
 endif
 
 $(BUILD)/bin/goahead: $(DEPS_30)
@@ -513,6 +513,9 @@ DEPS_31 += $(BUILD)/obj/test.o
 
 LIBS_31 += -lgo
 ifeq ($(ME_COM_EST),1)
+    LIBS_31 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
     LIBS_31 += -lest
 endif
 ifeq ($(ME_COM_OPENSSL),1)
@@ -526,9 +529,6 @@ endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_31 += -lcrypto
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_EST),1)
-    LIBS_31 += -lestssl
 endif
 
 $(BUILD)/bin/goahead-test: $(DEPS_31)
@@ -545,6 +545,9 @@ DEPS_32 += $(BUILD)/obj/gopass.o
 
 LIBS_32 += -lgo
 ifeq ($(ME_COM_EST),1)
+    LIBS_32 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
     LIBS_32 += -lest
 endif
 ifeq ($(ME_COM_OPENSSL),1)
@@ -558,9 +561,6 @@ endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_32 += -lcrypto
     LIBPATHS_32 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_EST),1)
-    LIBS_32 += -lestssl
 endif
 
 $(BUILD)/bin/gopass: $(DEPS_32)
