@@ -449,15 +449,15 @@ DEPS_28 += $(BUILD)/obj/socket.o
 DEPS_28 += $(BUILD)/obj/upload.o
 
 ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_28 += -lopenssl
+    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
     LIBS_28 += -lssl
     LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_28 += -lcrypto
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lopenssl
     LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_EST),1)
@@ -477,15 +477,15 @@ DEPS_29 += $(BUILD)/inc/js.h
 DEPS_29 += $(BUILD)/obj/goahead.o
 
 ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_29 += -lopenssl
+    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
     LIBS_29 += -lssl
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_29 += -lcrypto
-    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lopenssl
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_EST),1)
@@ -505,15 +505,15 @@ DEPS_30 += $(BUILD)/inc/js.h
 DEPS_30 += $(BUILD)/obj/test.o
 
 ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_30 += -lopenssl
+    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
     LIBS_30 += -lssl
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_30 += -lcrypto
-    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_30 += -lopenssl
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_EST),1)
@@ -533,15 +533,15 @@ DEPS_31 += $(BUILD)/inc/js.h
 DEPS_31 += $(BUILD)/obj/gopass.o
 
 ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_31 += -lopenssl
+    LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
     LIBS_31 += -lssl
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_31 += -lcrypto
-    LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_31 += -lopenssl
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 ifeq ($(ME_COM_EST),1)

@@ -1148,7 +1148,7 @@ PUBLIC int socketSetBlock(int sid, int on);
 
 /**
     Set the error code for the last socket operation on this thread.
-    @param Integer error code. See errno or GetLastError() on windows.
+    @param error Integer error code. See errno or GetLastError() on windows.
     @ingroup WebsSocket
  */
 PUBLIC void socketSetError(int error);
