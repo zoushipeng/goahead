@@ -117,7 +117,7 @@
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libgo.lib;libest.lib;estssl;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>libgo.lib;libestssl.lib;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
