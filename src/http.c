@@ -1111,7 +1111,7 @@ static void parseHeaders(Webs *wp)
             wp->cookie = sclone(value);
 
         } else if (strcmp(key, "host") == 0) {
-            if (strspn(value, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.[]:")
+            if ((int) strspn(value, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.[]:")
                     < (int) slen(value)) {
                 websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad host header");
                 return;
