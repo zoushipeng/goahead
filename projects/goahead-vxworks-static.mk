@@ -143,7 +143,7 @@ clean:
 	rm -f "$(BUILD)/bin/goahead.out"
 	rm -f "$(BUILD)/bin/goahead-test.out"
 	rm -f "$(BUILD)/bin/gopass.out"
-	rm -f "$(BUILD)/bin/libgo.out"
+	rm -f "$(BUILD)/bin/libgo.a"
 	rm -f "$(BUILD)/bin/libopenssl.a"
 
 clobber: clean
@@ -448,31 +448,25 @@ DEPS_28 += $(BUILD)/obj/runtime.o
 DEPS_28 += $(BUILD)/obj/socket.o
 DEPS_28 += $(BUILD)/obj/upload.o
 
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lopenssl
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lssl
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lcrypto
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-
-$(BUILD)/bin/libgo.out: $(DEPS_28)
-	@echo '      [Link] $(BUILD)/bin/libgo.out'
-	$(CC) -r -o $(BUILD)/bin/libgo.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" -lestssl $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
+$(BUILD)/bin/libgo.a: $(DEPS_28)
+	@echo '      [Link] $(BUILD)/bin/libgo.a'
+	ar -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o"
 
 #
 #   goahead
 #
-DEPS_29 += $(BUILD)/bin/libgo.out
+DEPS_29 += $(BUILD)/bin/libgo.a
 DEPS_29 += $(BUILD)/inc/goahead.h
 DEPS_29 += $(BUILD)/inc/js.h
 DEPS_29 += $(BUILD)/obj/goahead.o
 
+LIBS_29 += -lgo
+ifeq ($(ME_COM_EST),1)
+    LIBS_29 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
+    LIBS_29 += -lest
+endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_29 += -lopenssl
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
@@ -488,16 +482,23 @@ endif
 
 $(BUILD)/bin/goahead.out: $(DEPS_29)
 	@echo '      [Link] $(BUILD)/bin/goahead.out'
-	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -lestssl -Wl,-r 
+	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -Wl,-r 
 
 #
 #   goahead-test
 #
-DEPS_30 += $(BUILD)/bin/libgo.out
+DEPS_30 += $(BUILD)/bin/libgo.a
 DEPS_30 += $(BUILD)/inc/goahead.h
 DEPS_30 += $(BUILD)/inc/js.h
 DEPS_30 += $(BUILD)/obj/test.o
 
+LIBS_30 += -lgo
+ifeq ($(ME_COM_EST),1)
+    LIBS_30 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
+    LIBS_30 += -lest
+endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_30 += -lopenssl
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
@@ -513,16 +514,23 @@ endif
 
 $(BUILD)/bin/goahead-test.out: $(DEPS_30)
 	@echo '      [Link] $(BUILD)/bin/goahead-test.out'
-	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -lestssl -Wl,-r 
+	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -Wl,-r 
 
 #
 #   gopass
 #
-DEPS_31 += $(BUILD)/bin/libgo.out
+DEPS_31 += $(BUILD)/bin/libgo.a
 DEPS_31 += $(BUILD)/inc/goahead.h
 DEPS_31 += $(BUILD)/inc/js.h
 DEPS_31 += $(BUILD)/obj/gopass.o
 
+LIBS_31 += -lgo
+ifeq ($(ME_COM_EST),1)
+    LIBS_31 += -lestssl
+endif
+ifeq ($(ME_COM_EST),1)
+    LIBS_31 += -lest
+endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_31 += -lopenssl
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
@@ -538,7 +546,7 @@ endif
 
 $(BUILD)/bin/gopass.out: $(DEPS_31)
 	@echo '      [Link] $(BUILD)/bin/gopass.out'
-	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -lestssl -Wl,-r 
+	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -Wl,-r 
 
 #
 #   stop

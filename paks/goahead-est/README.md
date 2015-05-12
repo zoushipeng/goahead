@@ -7,11 +7,9 @@ EST SSL stack interface.
 
     pak install goahead-est
 
-
 ## Configuration
 
     ./configure --with est
-
 
 ## Building
 
