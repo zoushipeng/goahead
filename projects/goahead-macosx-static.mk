@@ -132,7 +132,7 @@ clean:
 	rm -f "$(BUILD)/bin/goahead"
 	rm -f "$(BUILD)/bin/goahead-test"
 	rm -f "$(BUILD)/bin/gopass"
-	rm -f "$(BUILD)/bin/libgo.dylib"
+	rm -f "$(BUILD)/bin/libgo.a"
 	rm -f "$(BUILD)/bin/libopenssl.a"
 
 clobber: clean
@@ -437,33 +437,14 @@ DEPS_28 += $(BUILD)/obj/runtime.o
 DEPS_28 += $(BUILD)/obj/socket.o
 DEPS_28 += $(BUILD)/obj/upload.o
 
-ifeq ($(ME_COM_EST),1)
-    LIBS_28 += -lestssl
-endif
-ifeq ($(ME_COM_EST),1)
-    LIBS_28 += -lest
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lopenssl
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lssl
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lcrypto
-    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-
-$(BUILD)/bin/libgo.dylib: $(DEPS_28)
-	@echo '      [Link] $(BUILD)/bin/libgo.dylib'
-	$(CC) -dynamiclib -o $(BUILD)/bin/libgo.dylib -arch $(CC_ARCH) $(LDFLAGS) $(LIBPATHS)  -install_name @rpath/libgo.dylib -compatibility_version 3.4 -current_version 3.4 "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" $(LIBPATHS_28) $(LIBS_28) $(LIBS_28) $(LIBS) 
+$(BUILD)/bin/libgo.a: $(DEPS_28)
+	@echo '      [Link] $(BUILD)/bin/libgo.a'
+	ar -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o"
 
 #
 #   goahead
 #
-DEPS_29 += $(BUILD)/bin/libgo.dylib
+DEPS_29 += $(BUILD)/bin/libgo.a
 DEPS_29 += $(BUILD)/inc/goahead.h
 DEPS_29 += $(BUILD)/inc/js.h
 DEPS_29 += $(BUILD)/obj/goahead.o
@@ -495,7 +476,7 @@ $(BUILD)/bin/goahead: $(DEPS_29)
 #
 #   goahead-test
 #
-DEPS_30 += $(BUILD)/bin/libgo.dylib
+DEPS_30 += $(BUILD)/bin/libgo.a
 DEPS_30 += $(BUILD)/inc/goahead.h
 DEPS_30 += $(BUILD)/inc/js.h
 DEPS_30 += $(BUILD)/obj/test.o
@@ -527,7 +508,7 @@ $(BUILD)/bin/goahead-test: $(DEPS_30)
 #
 #   gopass
 #
-DEPS_31 += $(BUILD)/bin/libgo.dylib
+DEPS_31 += $(BUILD)/bin/libgo.a
 DEPS_31 += $(BUILD)/inc/goahead.h
 DEPS_31 += $(BUILD)/inc/js.h
 DEPS_31 += $(BUILD)/obj/gopass.o
@@ -585,12 +566,6 @@ installBinary: $(DEPS_33)
 	cp src/route.txt $(ME_ETC_PREFIX)/route.txt ; \
 	cp src/self.crt $(ME_ETC_PREFIX)/self.crt ; \
 	cp src/self.key $(ME_ETC_PREFIX)/self.key ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp $(BUILD)/bin/libgo.dylib $(ME_VAPP_PREFIX)/bin/libgo.dylib ; \
-	if [ "$(ME_COM_EST)" = 1 ]; then true ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp $(BUILD)/bin/libest.dylib $(ME_VAPP_PREFIX)/bin/libest.dylib ; \
-	fi ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/dist/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \

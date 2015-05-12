@@ -189,15 +189,9 @@ clean:
 	if exist "build\$(CONFIG)\bin\gopass.lib" del /Q "build\$(CONFIG)\bin\gopass.lib"
 	if exist "build\$(CONFIG)\bin\gopass.pdb" del /Q "build\$(CONFIG)\bin\gopass.pdb"
 	if exist "build\$(CONFIG)\bin\gopass.exp" del /Q "build\$(CONFIG)\bin\gopass.exp"
-	if exist "build\$(CONFIG)\bin\libest.dll" del /Q "build\$(CONFIG)\bin\libest.dll"
 	if exist "build\$(CONFIG)\bin\libest.lib" del /Q "build\$(CONFIG)\bin\libest.lib"
-	if exist "build\$(CONFIG)\bin\libest.pdb" del /Q "build\$(CONFIG)\bin\libest.pdb"
-	if exist "build\$(CONFIG)\bin\libest.exp" del /Q "build\$(CONFIG)\bin\libest.exp"
 	if exist "build\$(CONFIG)\bin\libestssl.lib" del /Q "build\$(CONFIG)\bin\libestssl.lib"
-	if exist "build\$(CONFIG)\bin\libgo.dll" del /Q "build\$(CONFIG)\bin\libgo.dll"
 	if exist "build\$(CONFIG)\bin\libgo.lib" del /Q "build\$(CONFIG)\bin\libgo.lib"
-	if exist "build\$(CONFIG)\bin\libgo.pdb" del /Q "build\$(CONFIG)\bin\libgo.pdb"
-	if exist "build\$(CONFIG)\bin\libgo.exp" del /Q "build\$(CONFIG)\bin\libgo.exp"
 
 #
 #   me.h
@@ -284,9 +278,9 @@ DEPS_9 = $(DEPS_9) build\$(CONFIG)\inc\osdep.h
 DEPS_9 = $(DEPS_9) build\$(CONFIG)\inc\est.h
 DEPS_9 = $(DEPS_9) build\$(CONFIG)\obj\estLib.obj
 
-build\$(CONFIG)\bin\libest.dll: $(DEPS_9)
-	@echo ..... [Link] build\$(CONFIG)\bin\libest.dll
-	"$(LD)" -dll -out:$(BUILD)\bin\libest.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\estLib.obj" $(LIBS)  $(LOG)
+build\$(CONFIG)\bin\libest.lib: $(DEPS_9)
+	@echo ..... [Link] build\$(CONFIG)\bin\libest.lib
+	"lib.exe" -nologo -out:$(BUILD)\bin\libest.lib "$(BUILD)\obj\estLib.obj" $(LOG)
 !ENDIF
 
 #
@@ -304,7 +298,7 @@ build\$(CONFIG)\obj\est.obj: \
 #
 #   libestssl
 #
-DEPS_11 = $(DEPS_11) build\$(CONFIG)\bin\libest.dll
+DEPS_11 = $(DEPS_11) build\$(CONFIG)\bin\libest.lib
 DEPS_11 = $(DEPS_11) build\$(CONFIG)\obj\est.obj
 
 build\$(CONFIG)\bin\libestssl.lib: $(DEPS_11)
@@ -510,28 +504,9 @@ DEPS_29 = $(DEPS_29) build\$(CONFIG)\obj\runtime.obj
 DEPS_29 = $(DEPS_29) build\$(CONFIG)\obj\socket.obj
 DEPS_29 = $(DEPS_29) build\$(CONFIG)\obj\upload.obj
 
-!IF "$(ME_COM_EST)" == "1"
-LIBS_29 = $(LIBS_29) libestssl.lib
-!ENDIF
-!IF "$(ME_COM_EST)" == "1"
-LIBS_29 = $(LIBS_29) libest.lib
-!ENDIF
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_29 = $(LIBS_29) libopenssl.lib
-LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
-!ENDIF
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_29 = $(LIBS_29) libeay32.lib
-LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
-!ENDIF
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_29 = $(LIBS_29) libssleay32.lib
-LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
-!ENDIF
-
-build\$(CONFIG)\bin\libgo.dll: $(DEPS_29)
-	@echo ..... [Link] build\$(CONFIG)\bin\libgo.dll
-	"$(LD)" -dll -out:$(BUILD)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\action.obj" "$(BUILD)\obj\alloc.obj" "$(BUILD)\obj\auth.obj" "$(BUILD)\obj\cgi.obj" "$(BUILD)\obj\crypt.obj" "$(BUILD)\obj\file.obj" "$(BUILD)\obj\fs.obj" "$(BUILD)\obj\http.obj" "$(BUILD)\obj\js.obj" "$(BUILD)\obj\jst.obj" "$(BUILD)\obj\options.obj" "$(BUILD)\obj\osdep.obj" "$(BUILD)\obj\rom-documents.obj" "$(BUILD)\obj\route.obj" "$(BUILD)\obj\runtime.obj" "$(BUILD)\obj\socket.obj" "$(BUILD)\obj\upload.obj" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS)  $(LOG)
+build\$(CONFIG)\bin\libgo.lib: $(DEPS_29)
+	@echo ..... [Link] build\$(CONFIG)\bin\libgo.lib
+	"lib.exe" -nologo -out:$(BUILD)\bin\libgo.lib "$(BUILD)\obj\action.obj" "$(BUILD)\obj\alloc.obj" "$(BUILD)\obj\auth.obj" "$(BUILD)\obj\cgi.obj" "$(BUILD)\obj\crypt.obj" "$(BUILD)\obj\file.obj" "$(BUILD)\obj\fs.obj" "$(BUILD)\obj\http.obj" "$(BUILD)\obj\js.obj" "$(BUILD)\obj\jst.obj" "$(BUILD)\obj\options.obj" "$(BUILD)\obj\osdep.obj" "$(BUILD)\obj\rom-documents.obj" "$(BUILD)\obj\route.obj" "$(BUILD)\obj\runtime.obj" "$(BUILD)\obj\socket.obj" "$(BUILD)\obj\upload.obj" $(LOG)
 
 #
 #   goahead.obj
@@ -546,7 +521,7 @@ build\$(CONFIG)\obj\goahead.obj: \
 #
 #   goahead
 #
-DEPS_31 = $(DEPS_31) build\$(CONFIG)\bin\libgo.dll
+DEPS_31 = $(DEPS_31) build\$(CONFIG)\bin\libgo.lib
 DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\goahead.h
 DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\js.h
 DEPS_31 = $(DEPS_31) build\$(CONFIG)\obj\goahead.obj
@@ -589,7 +564,7 @@ build\$(CONFIG)\obj\test.obj: \
 #
 #   goahead-test
 #
-DEPS_33 = $(DEPS_33) build\$(CONFIG)\bin\libgo.dll
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\bin\libgo.lib
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\goahead.h
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\inc\js.h
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\test.obj
@@ -631,7 +606,7 @@ build\$(CONFIG)\obj\gopass.obj: \
 #
 #   gopass
 #
-DEPS_35 = $(DEPS_35) build\$(CONFIG)\bin\libgo.dll
+DEPS_35 = $(DEPS_35) build\$(CONFIG)\bin\libgo.lib
 DEPS_35 = $(DEPS_35) build\$(CONFIG)\inc\goahead.h
 DEPS_35 = $(DEPS_35) build\$(CONFIG)\inc\js.h
 DEPS_35 = $(DEPS_35) build\$(CONFIG)\obj\gopass.obj
