@@ -41,6 +41,7 @@
         "ssl": "^0.9"
     },
     "optionalDependencies": {
+        "certs": "^0.1",
         "est": "^0.6",
         "goahead-est": "^0.1",
         "goahead-openssl": "^0.1"

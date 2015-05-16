@@ -296,6 +296,7 @@ Me.load({
                     if (me.settings.compiler.hasPam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
+                    cp(['src/certs/self.key', 'src/certs/self.crt'], 'src')
                 `,  
             },
         },
@@ -353,6 +354,7 @@ Me.load({
             action: `
                 let ro = {dir: 'test'}
                 let depth = me.settings.depth
+                cp(['src/certs/self.key', 'src/certs/self.crt'], 'test')
                 run('utest -v -i 2 --depth ' + depth, ro)
                 if (depth >= 3) {
                     trace('Test', 'Light load tests')
