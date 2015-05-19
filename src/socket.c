@@ -1157,7 +1157,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     sa.sin_family = AF_INET;
     sa.sin_port = htons((short) (port & 0xFFFF));
 
-    if (scmp(ip, "") != 0) {
+    if (ip && *ip) {
         sa.sin_addr.s_addr = inet_addr((char*) ip);
     } else {
         sa.sin_addr.s_addr = INADDR_ANY;
