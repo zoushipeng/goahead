@@ -982,14 +982,13 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *
 
 /*
    Get a Digest value using the MD5 algorithm -- See RFC 2617 to understand this code.
-*/
+ */
 static char *calcDigest(Webs *wp, char *username, char *password)
 {
     char  a1Buf[256], a2Buf[256], digestBuf[256];
     char  *ha1, *ha2, *method, *result;
 
     assert(wp);
-    assert(username);
     assert(password);
 
     /*
