@@ -168,10 +168,14 @@ Me.load({
             stealth: true,
 
             tls: {
-                empty_fragments: true,
-                no_v1: false,
-                no_v1_1: false,
-                no_v1_2: false,
+                cache: 512,                 /* Set the session cache size (items) */
+                compression: false,         /* Enable session compression */
+                curve: "prime256v1",        /* OpenSSL elliptic curve name */
+                no_v1: false,               /* Disables TLS V1.0 if true */
+                no_v1_1: false,             /* Disables TLS V1.1 if true */
+                no_v1_2: false,             /* Disables TLS V1.2 if true */
+                renegotiate: true,          /* Enable/Disable SSL renegotiation (defaults to true) */
+                ticket: true,               /* Enable session resumption via ticketing - client side session caching */
             },
 
             /*
