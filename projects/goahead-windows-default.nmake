@@ -123,6 +123,7 @@ ME_SRC_PREFIX         = $(ME_VAPP_PREFIX)\src
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\goahead.exe
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\goahead-test.exe
 TARGETS               = $(TARGETS) build\$(CONFIG)\bin\gopass.exe
+TARGETS               = $(TARGETS) build\$(CONFIG)\bin\roots.crt
 
 !IFNDEF SHOW
 .SILENT:
@@ -198,6 +199,7 @@ clean:
 	if exist "build\$(CONFIG)\bin\libgo.lib" del /Q "build\$(CONFIG)\bin\libgo.lib"
 	if exist "build\$(CONFIG)\bin\libgo.pdb" del /Q "build\$(CONFIG)\bin\libgo.pdb"
 	if exist "build\$(CONFIG)\bin\libgo.exp" del /Q "build\$(CONFIG)\bin\libgo.exp"
+	if exist "build\$(CONFIG)\bin\roots.crt" del /Q "build\$(CONFIG)\bin\roots.crt"
 
 #
 #   me.h
@@ -659,4 +661,14 @@ LIBPATHS_35 = $(LIBPATHS_35) -libpath:$(ME_COM_OPENSSL_PATH)
 build\$(CONFIG)\bin\gopass.exe: $(DEPS_35)
 	@echo ..... [Link] build\$(CONFIG)\bin\gopass.exe
 	"$(LD)" -nologo -out:$(BUILD)\bin\gopass.exe -entry:mainCRTStartup -subsystem:console $(LDFLAGS) $(LIBPATHS)  "$(BUILD)\obj\gopass.obj" $(LIBPATHS_35) $(LIBS_35) $(LIBS_35) $(LIBS)  $(LOG)
+
+#
+#   roots.crt
+#
+DEPS_36 = $(DEPS_36) src\certs\roots.crt
+
+build\$(CONFIG)\bin\roots.crt: $(DEPS_36)
+	@echo ..... [Copy] build\$(CONFIG)\bin\roots.crt
+	if not exist "build\$(CONFIG)\bin" md "build\$(CONFIG)\bin"
+	copy /Y /B src\certs\roots.crt+modified build\$(CONFIG)\bin\roots.crt $(LOG)
 

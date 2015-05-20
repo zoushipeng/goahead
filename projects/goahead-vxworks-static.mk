@@ -85,6 +85,7 @@ ME_SRC_PREFIX         ?= $(ME_ROOT_PREFIX)/usr/src/$(NAME)-$(VERSION)
 TARGETS               += $(BUILD)/bin/goahead.out
 TARGETS               += $(BUILD)/bin/goahead-test.out
 TARGETS               += $(BUILD)/bin/gopass.out
+TARGETS               += $(BUILD)/bin/roots.crt
 
 unexport CDPATH
 
@@ -145,6 +146,7 @@ clean:
 	rm -f "$(BUILD)/bin/gopass.out"
 	rm -f "$(BUILD)/bin/libgo.a"
 	rm -f "$(BUILD)/bin/libopenssl.a"
+	rm -f "$(BUILD)/bin/roots.crt"
 
 clobber: clean
 	rm -fr ./$(BUILD)
@@ -549,37 +551,47 @@ $(BUILD)/bin/gopass.out: $(DEPS_31)
 	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -Wl,-r 
 
 #
+#   roots.crt
+#
+DEPS_32 += src/certs/roots.crt
+
+$(BUILD)/bin/roots.crt: $(DEPS_32)
+	@echo '      [Copy] $(BUILD)/bin/roots.crt'
+	mkdir -p "$(BUILD)/bin"
+	cp src/certs/roots.crt $(BUILD)/bin/roots.crt
+
+#
 #   stop
 #
 
-stop: $(DEPS_32)
+stop: $(DEPS_33)
 
 #
 #   installBinary
 #
 
-installBinary: $(DEPS_33)
+installBinary: $(DEPS_34)
 
 #
 #   start
 #
 
-start: $(DEPS_34)
+start: $(DEPS_35)
 
 #
 #   install
 #
-DEPS_35 += stop
-DEPS_35 += installBinary
-DEPS_35 += start
+DEPS_36 += stop
+DEPS_36 += installBinary
+DEPS_36 += start
 
-install: $(DEPS_35)
+install: $(DEPS_36)
 
 #
 #   installPrep
 #
 
-installPrep: $(DEPS_36)
+installPrep: $(DEPS_37)
 	if [ "`id -u`" != 0 ] ; \
 	then echo "Must run as root. Rerun with "sudo"" ; \
 	exit 255 ; \
@@ -588,14 +600,14 @@ installPrep: $(DEPS_36)
 #
 #   uninstall
 #
-DEPS_37 += stop
+DEPS_38 += stop
 
-uninstall: $(DEPS_37)
+uninstall: $(DEPS_38)
 
 #
 #   version
 #
 
-version: $(DEPS_38)
+version: $(DEPS_39)
 	echo $(VERSION)
 
