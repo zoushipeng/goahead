@@ -15,11 +15,15 @@
 
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
-#include    <openssl/ssl.h>
-#include    <openssl/evp.h>
-#include    <openssl/rand.h>
-#include    <openssl/err.h>
-#include    <openssl/dh.h>
+
+ /*
+    Indent includes to bypass MakeMe dependencies
+  */
+ #include    <openssl/ssl.h>
+ #include    <openssl/evp.h>
+ #include    <openssl/rand.h>
+ #include    <openssl/err.h>
+ #include    <openssl/dh.h>
 
 /************************************* Defines ********************************/
 
@@ -31,6 +35,10 @@ typedef struct RandBuf {
 } RandBuf;
 
 #define VERIFY_DEPTH 10
+
+#ifndef ME_GOAHEAD_CURVE
+    #define ME_GOAHEAD_CURVE "prime256v1"
+#endif
 
 /************************************ Forwards ********************************/
 
@@ -107,30 +115,89 @@ PUBLIC int sslOpen()
     if (ME_GOAHEAD_CIPHERS && *ME_GOAHEAD_CIPHERS) {
         SSL_CTX_set_cipher_list(sslctx, ME_GOAHEAD_CIPHERS);
     }
+
+    /*
+        Elliptic Curve initialization
+     */
+#if SSL_OP_SINGLE_ECDH_USE
+{
+    EC_KEY  *ecdh;
+    cchar   *name;
+    int      nid;
+
+    name = ME_GOAHEAD_CURVE;
+    if ((nid = OBJ_sn2nid(name)) == 0) {
+        error("Unknown curve name \"%s\"", name);
+        SSL_CTX_free(sslctx);
+        return 0;
+    }
+    if ((ecdh = EC_KEY_new_by_curve_name(nid)) == 0) {
+        error("Unable to create curve \"%s\"", name);
+        SSL_CTX_free(sslctx);
+        return 0;
+    }
+    SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_ECDH_USE);
+    SSL_CTX_set_tmp_ecdh(sslctx, ecdh);
+    EC_KEY_free(ecdh);
+}
+#endif
+
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
 #if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS) && ME_GOAHEAD_TLS_EMPTY_FRAGMENTS
     /* SSL_OP_ALL enables this. Only needed for ancient browsers like IE-6 */
     SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
 #endif
-    SSL_CTX_sess_set_cache_size(sslctx, 128);
-#ifdef SSL_OP_NO_TICKET
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
-#endif
-#ifdef SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION                                                       
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-#endif                                                                                                     
     SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 #ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
     SSL_CTX_set_options(sslctx, SSL_OP_MSIE_SSLV2_RSA_PADDING);
-#endif
-#ifdef SSL_OP_NO_COMPRESSION
-    SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
 #endif
 #ifdef SSL_MODE_RELEASE_BUFFERS
     SSL_CTX_set_mode(sslctx, SSL_MODE_RELEASE_BUFFERS);
 #endif
 #ifdef SSL_OP_CIPHER_SERVER_PREFERENCE
     SSL_CTX_set_mode(sslctx, SSL_OP_CIPHER_SERVER_PREFERENCE);
+#endif
+
+    /*
+        Options set via main.me
+     */
+#if defined(ME_GOAHEAD_TICKET) && defined(SSL_OP_NO_TICKET)
+    if (ME_GOAHEAD_TICKET) {
+        SSL_CTX_clear_options(sslctx, SSL_OP_NO_TICKET);
+    } else {
+        SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
+    }
+#endif
+#if defined(ME_GOAHEAD_COMPRESSION) && defined(SSL_OP_NO_COMPRESSION)
+    if (ME_GOAHEAD_COMPRESSION) {
+        SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
+    } else {
+        SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
+    }
+#endif
+#if defined(ME_GOAHEAD_RENEGOTIATE)
+    RAND_bytes(resume, sizeof(resume));
+    SSL_CTX_set_session_id_sslctx(sslctx, resume, sizeof(resume));
+    #if defined(SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION)
+        if (ME_GOAHEAD_RENEGOTIATE) {
+            SSL_CTX_clear_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+        } else {
+            SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
+        }
+    #endif
+#endif
+#if defined(ME_GOAHEAD_TLS_EMPTY_FRAGMENTS)
+    #if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
+        if (ME_GOAHEAD_TLS_EMPTY_FRAGMENTS) {
+            /* SSL_OP_ALL disables empty fragments. Only needed for ancient browsers like IE-6 on SSL-3.0/TLS-1.0 */
+            SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+        } else {
+            SSL_CTX_set_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+        }
+    #endif
+#endif
+#if defined(ME_GOAHEAD_CACHE)
+    SSL_CTX_sess_set_cache_size(sslctx, ME_GOAHEAD_CACHE);
 #endif
 
     /*
@@ -196,6 +263,10 @@ PUBLIC void sslFree(Webs *wp)
 }
 
 
+/*
+    Return the number of bytes read. Return -1 on errors and EOF. Distinguish EOF via mprIsSocketEof.
+    If non-blocking, may return zero if no data or still handshaking.
+ */
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 {
     WebsSocket      *sp;

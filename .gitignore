@@ -61,8 +61,7 @@ linux*.bit
 .flags
 /*-*-*/
 goahead.sublime-*
-start.me
-start.me
+/start.me
 macosx-*.me
 /windows-*
 test/web/huge.txt
