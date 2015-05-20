@@ -89,6 +89,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libestssl", "goahead-window
 		{E79AE46F-3030-4371-A52C-6AF69525B7C3} = {E79AE46F-3030-4371-A52C-6AF69525B7C3}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "roots.crt", "goahead-windows-default\roots.crt.vcxproj", "{DF5150E4-CD23-405E-92F8-CF06D54B26CB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{DF5150E4-CD23-405E-92F8-CF06D54B26CB} = {DF5150E4-CD23-405E-92F8-CF06D54B26CB}
+	EndProjectSection
+EndProject
 
     Global
         GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -154,6 +162,14 @@ EndProject
 {E79AE46F-3030-4371-A52C-6AF69525B7C3}.Release|Win32.Build.0 = Release|Win32
 {E79AE46F-3030-4371-A52C-6AF69525B7C3}.Release|x64.ActiveCfg = Release|x64
 {E79AE46F-3030-4371-A52C-6AF69525B7C3}.Release|x64.Build.0 = Release|x64
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|Win32.ActiveCfg = Debug|Win32
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|Win32.Build.0 = Debug|Win32
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|x64.ActiveCfg = Debug|x64
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|x64.Build.0 = Debug|x64
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|Win32.ActiveCfg = Release|Win32
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|Win32.Build.0 = Release|Win32
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|x64.ActiveCfg = Release|x64
+{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
       GlobalSection(SolutionProperties) = preSolution
