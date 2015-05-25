@@ -122,6 +122,7 @@ static void fileWriteEvent(Webs *wp)
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
             /* May be an error or just socket full (EAGAIN) */
+            websPageSeek(wp, -len, SEEK_CUR);
             break;
         }
         if (wrote != len) {
