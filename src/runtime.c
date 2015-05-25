@@ -2332,6 +2332,9 @@ uint hextoi(char *hexstring)
     char      *h;
     uint        c, v;
 
+    if (!hexstring) {
+        return 0;
+    }
     v = 0;
     h = hexstring;
     if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
