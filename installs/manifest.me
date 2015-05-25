@@ -38,42 +38,40 @@ Me.load({
             },
         },
 
-        sets: { 
+        sets: {
             core: [
-                {   
+                {
                     from:       'goahead${EXE}',
                     to:         '${abin}/',
                     symlink:    '${bin}/',
 
-                }, { 
-                    from:       '${TOP}/src/certs/roots.crt',
+                }, {
+                    from:       '${BIN}/roots.crt',
                     to:         '${abin}/',
 
-                }, { 
-                    from: [ 
-                                '${TOP}/src/web/index.html', 
-                                '${TOP}/src/web/favicon.ico' 
+                }, {
+                    from: [
+                                '${TOP}/src/web/index.html',
+                                '${TOP}/src/web/favicon.ico'
                     ],
                     to:     '${web}/',
                     exclude: /mgmt|bench|test/,
 
-                }, { 
+                }, {
                     from: [
-                                '${TOP}/src/auth.txt', 
-                                '${TOP}/src/route.txt', 
-                                '${TOP}/src/self.crt', 
-                                '${TOP}/src/self.key'
+                                '${TOP}/src/auth.txt',
+                                '${TOP}/src/route.txt'
                     ],
                     to:         '${etc}/'
                 }
             ],
             libs: [
-                { 
+                {
                     from:       'libgo${SHOBJ}',
                     to:         '${abin}/',
                     enable:     '!me.settings.static',
 
-                }, { 
+                }, {
                     from:       'libest${SHOBJ}',
                     to:         '${abin}/',
                     components: 'est',
@@ -82,7 +80,7 @@ Me.load({
                 }
             ],
             doc: [
-                { 
+                {
                     from:       '${TOP}/doc/dist/man/*.1',
                     to:         '${adoc}/man/man1/',
                     symlink:    '${man}/man1/',
@@ -96,24 +94,24 @@ Me.load({
                     fold:       true,
                     patch:      true,
 
-                }, { 
+                }, {
                     from:       '${TOP}/configure',
                     to:         '${src}/',
-                    permissions: 0755,     
+                    permissions: 0755,
 
-                }, { 
+                }, {
                     home:       '${TOP}',
-                    from: [ 
-                                'Makefile', 
-                                'make.bat', 
-                                'main.me', 
-                                'package.json', 
+                    from: [
+                                'Makefile',
+                                'make.bat',
+                                'main.me',
+                                'package.json',
                                 'paks',
-                                'src', 
-                                'doc', 
-                                'projects', 
-                                'installs', 
-                                'test' 
+                                'src',
+                                'doc',
+                                'projects',
+                                'installs',
+                                'test'
                     ],
                     exclude:    /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/,
                     to:         '${src}/',
@@ -135,7 +133,7 @@ Me.load({
                     from:       [
                         '${TOP}/src/*.c',
                     ],
-                    exclude:    /\/crt\/|\/mocana\/|\/utils\//,
+                    exclude:    /\/utils\//,
                     to:         '${src}/dist/goahead.c',
                     append:     true,
                     header:     '/*\n * ${settings.title} Library Source\n */\n\n#include \"goahead.h\"\n\n#if ME_COM_GOAHEAD',

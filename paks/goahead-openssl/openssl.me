@@ -23,7 +23,7 @@ Me.load({
                     } else if (me.options.gen == 'nmake') {
                         result.defines = ['ME_COM_OPENSSL_PATH=']
                     }
-                    if (me.options.gen == 'make' || me.options.gen == 'nmake') {
+                    if (me.options.gen == 'make' || me.options.gen == 'nmake' || me.options.gen == 'xcode') {
                         result.includes.push('$(ME_COM_OPENSSL_PATH)/include')
                         result.libpaths = ['$(ME_COM_OPENSSL_PATH)']
                     }
@@ -73,6 +73,14 @@ Me.load({
                 if (me.platform.os == 'macosx') {
                     me.target.compiler.push('-Wno-deprecated-declarations')
                 }
+            `
+        },
+
+        dhparams: {
+            path: 'dhparams.c',
+            message: 'Generate: Local DH parameters for OpenSSL ... may take a few minutes',
+            action: `
+                TARGET.path.write(Cmd.run('openssl dhparam -C 2048 -out dh.pem') + '\n')
             `
         }
     }
