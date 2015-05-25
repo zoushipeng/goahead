@@ -882,11 +882,13 @@ typedef struct WebsSocket {
 } WebsSocket;
 
 
+#if UNUSED
 /**
     List of open sockets
     @ingroup WebsSocket
  */
 PUBLIC WebsSocket **socketList;         /* List of open sockets */
+#endif
 
 /**
     Extract the numerical IP address and port for the given socket info
@@ -998,6 +1000,13 @@ PUBLIC int socketGetError();
     @ingroup WebsSocket
  */
 PUBLIC Socket socketGetHandle(int sid);
+
+/**
+    Get the list of sockets
+    @return The socket list pointer
+    @ingroup WebsSocket
+ */
+PUBLIC WebsSocket **socketGetList();
 
 /**
     Get the IP port associated with this socket.
