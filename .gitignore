@@ -1,3 +1,4 @@
 cgitest
 test/cpp.cpp
 huge.txt
+*.pem

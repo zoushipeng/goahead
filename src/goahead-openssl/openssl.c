@@ -27,6 +27,12 @@
 
 /************************************* Defines ********************************/
 
+/*
+    Default ciphers from Mozilla (https://wiki.mozilla.org/Security/Server_Side_TLS) without SSLv3 ciphers.
+    TLSv1 and TLSv2 only. Recommended RSA and DH parameter size: 2048 bits.
+ */
+#define OPENSSL_DEFAULT_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-  AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-  SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-   SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!    MD5:!PSK:!RC4:!SSLv3"
+
 static SSL_CTX *sslctx = NULL;
 
 typedef struct RandBuf {
@@ -40,18 +46,25 @@ typedef struct RandBuf {
     #define ME_GOAHEAD_CURVE "prime256v1"
 #endif
 
+static DH *dhKey;
+
 /************************************ Forwards ********************************/
 
-static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength);
+static DH *dhcallback(SSL *handle, int is_export, int keylength);
+static DH *getDhKey(cchar *path);
 static int sslSetCertFile(char *certFile);
 static int sslSetKeyFile(char *keyFile);
-static int verifyX509Certificate(int ok, X509_STORE_CTX *ctx);
+static int verifyPeerCertificate(int ok, X509_STORE_CTX *ctx);
 
 /************************************** Code **********************************/
-
+/*
+    Open the SSL module
+ */
 PUBLIC int sslOpen()
 {
     RandBuf     randBuf;
+    uchar       resume[16];
+    cchar       *ciphers;
 
     trace(7, "Initializing SSL"); 
 
@@ -98,14 +111,19 @@ PUBLIC int sslOpen()
         sslClose();
         return -1;
     }
-    SSL_CTX_set_tmp_rsa_callback(sslctx, rsaCallback);
-
     if (ME_GOAHEAD_VERIFY_PEER) {
-        SSL_CTX_set_verify(sslctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyX509Certificate);
+        SSL_CTX_set_verify(sslctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyPeerCertificate);
         SSL_CTX_set_verify_depth(sslctx, VERIFY_DEPTH);
     } else {
-        SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyX509Certificate);
+        SSL_CTX_set_verify(sslctx, SSL_VERIFY_NONE, verifyPeerCertificate);
     }
+
+    /*
+        Configure DH parameters
+     */
+    dhKey = getDhKey(ME_GOAHEAD_DHPARAMS);
+    SSL_CTX_set_tmp_dh_callback(sslctx, dhcallback);
+
     /*
           Set the certificate authority list for the client
      */
@@ -113,40 +131,63 @@ PUBLIC int sslOpen()
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(ME_GOAHEAD_CA));
     }
     if (ME_GOAHEAD_CIPHERS && *ME_GOAHEAD_CIPHERS) {
-        SSL_CTX_set_cipher_list(sslctx, ME_GOAHEAD_CIPHERS);
+        ciphers = ME_GOAHEAD_CIPHERS;
+    } else {
+        ciphers = OPENSSL_DEFAULT_CIPHERS;
     }
+    trace(4, "Using OpenSSL ciphers: %s", ciphers);
+    if (SSL_CTX_set_cipher_list(sslctx, ciphers) != 1) {
+        error("Unable to set cipher list \"%s\". %s", ciphers);
+        sslClose();
+        return -1;
+    }
+
+    /*
+        Define default OpenSSL options
+     */
+    SSL_CTX_set_options(sslctx, SSL_OP_ALL);
+
+    /* 
+        Ensure we generate a new private key for each connection
+     */
+    SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_DH_USE);
+
+    /*
+        Define a session reuse context
+     */
+    RAND_bytes(resume, sizeof(resume));
+    SSL_CTX_set_session_id_context(sslctx, resume, sizeof(resume));
 
     /*
         Elliptic Curve initialization
      */
 #if SSL_OP_SINGLE_ECDH_USE
-{
-    EC_KEY  *ecdh;
-    cchar   *name;
-    int      nid;
+    #ifdef SSL_CTX_set_ecdh_auto
+        SSL_CTX_set_ecdh_auto(sslctx, 1);
+    #else
+        {
+            EC_KEY  *ecdh;
+            cchar   *name;
+            int      nid;
 
-    name = ME_GOAHEAD_CURVE;
-    if ((nid = OBJ_sn2nid(name)) == 0) {
-        error("Unknown curve name \"%s\"", name);
-        SSL_CTX_free(sslctx);
-        return 0;
-    }
-    if ((ecdh = EC_KEY_new_by_curve_name(nid)) == 0) {
-        error("Unable to create curve \"%s\"", name);
-        SSL_CTX_free(sslctx);
-        return 0;
-    }
-    SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_ECDH_USE);
-    SSL_CTX_set_tmp_ecdh(sslctx, ecdh);
-    EC_KEY_free(ecdh);
-}
+            name = ME_GOAHEAD_CURVE;
+            if ((nid = OBJ_sn2nid(name)) == 0) {
+                error("Unknown curve name \"%s\"", name);
+                sslClose();
+                return -1;
+            }
+            if ((ecdh = EC_KEY_new_by_curve_name(nid)) == 0) {
+                error("Unable to create curve \"%s\"", name);
+                sslClose();
+                return -1;
+            }
+            SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_ECDH_USE);
+            SSL_CTX_set_tmp_ecdh(sslctx, ecdh);
+            EC_KEY_free(ecdh);
+        }
+    #endif
 #endif
 
-    SSL_CTX_set_options(sslctx, SSL_OP_ALL);
-#if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS) && ME_GOAHEAD_TLS_EMPTY_FRAGMENTS
-    /* SSL_OP_ALL enables this. Only needed for ancient browsers like IE-6 */
-    SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
-#endif
     SSL_CTX_set_mode(sslctx, SSL_MODE_ENABLE_PARTIAL_WRITE | SSL_MODE_AUTO_RETRY | SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER);
 #ifdef SSL_OP_MSIE_SSLV2_RSA_PADDING
     SSL_CTX_set_options(sslctx, SSL_OP_MSIE_SSLV2_RSA_PADDING);
@@ -159,48 +200,7 @@ PUBLIC int sslOpen()
 #endif
 
     /*
-        Options set via main.me
-     */
-#if defined(ME_GOAHEAD_TICKET) && defined(SSL_OP_NO_TICKET)
-    if (ME_GOAHEAD_TICKET) {
-        SSL_CTX_clear_options(sslctx, SSL_OP_NO_TICKET);
-    } else {
-        SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
-    }
-#endif
-#if defined(ME_GOAHEAD_COMPRESSION) && defined(SSL_OP_NO_COMPRESSION)
-    if (ME_GOAHEAD_COMPRESSION) {
-        SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
-    } else {
-        SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
-    }
-#endif
-#if defined(ME_GOAHEAD_RENEGOTIATE)
-    RAND_bytes(resume, sizeof(resume));
-    SSL_CTX_set_session_id_sslctx(sslctx, resume, sizeof(resume));
-    #if defined(SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION)
-        if (ME_GOAHEAD_RENEGOTIATE) {
-            SSL_CTX_clear_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-        } else {
-            SSL_CTX_set_options(sslctx, SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION);
-        }
-    #endif
-#endif
-#if defined(ME_GOAHEAD_TLS_EMPTY_FRAGMENTS)
-    #if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
-        if (ME_GOAHEAD_TLS_EMPTY_FRAGMENTS) {
-            /* SSL_OP_ALL disables empty fragments. Only needed for ancient browsers like IE-6 on SSL-3.0/TLS-1.0 */
-            SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
-        } else {
-            SSL_CTX_set_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
-        }
-    #endif
-#endif
-#if defined(ME_GOAHEAD_CACHE)
-    SSL_CTX_sess_set_cache_size(sslctx, ME_GOAHEAD_CACHE);
-#endif
-
-    /*
+        Select the required protocols
         Disable both SSLv2 and SSLv3 by default - they are insecure
      */
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
@@ -216,14 +216,76 @@ PUBLIC int sslOpen()
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_2);
 #endif
 
-    /* 
-        Ensure we generate a new private key for each connection
+
+    /*
+        Options set via main.me mpr.ssl.*
      */
-    SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_DH_USE);
+#if defined(SSL_OP_NO_TICKET)
+    /*
+        Ticket based session reuse is enabled by default
+     */
+    #if defined(ME_GOAHEAD_TLS_TICKET)
+        if (ME_GOAHEAD_TLS_TICKET) {
+            SSL_CTX_clear_options(sslctx, SSL_OP_NO_TICKET);
+        } else {
+            SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
+        }
+    #else
+        SSL_CTX_clear_options(sslctx, SSL_OP_NO_TICKET);
+    #endif
+#endif
+
+#if defined(SSL_OP_NO_COMPRESSION)
+    /*
+        Use of compression is not secure. Disabled by default.
+     */
+    #if defined(ME_GOAHEAD_TLS_COMPRESSION)
+        if (ME_GOAHEAD_TLS_COMPRESSION) {
+            SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
+        } else {
+            SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
+        }
+    #else
+        /*
+            CRIME attack targets compression
+         */
+        SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
+    #endif
+#endif
+
+#if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
+    /*
+        Disables a countermeasure against a SSL 3.0/TLS 1.0 protocol vulnerability affecting CBC ciphers.
+        Defaults to true.
+     */
+    #if defined(ME_GOAHEAD_TLS_EMPTY_FRAGMENTS)
+        if (ME_GOAHEAD_TLS_EMPTY_FRAGMENTS) {
+            /* SSL_OP_ALL disables empty fragments. Only needed for ancient browsers like IE-6 on SSL-3.0/TLS-1.0 */
+            SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+        } else {
+            SSL_CTX_set_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+        }
+    #else
+        SSL_CTX_set_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
+    #endif
+#endif
+
+#if defined(ME_GOAHEAD_TLS_CACHE)
+    /*
+        Set the number of sessions supported. Default in OpenSSL is 20K.
+     */
+    SSL_CTX_sess_set_cache_size(sslctx, ME_GOAHEAD_TLS_CACHE);
+#else
+    SSL_CTX_sess_set_cache_size(sslctx, 256);
+#endif
+
     return 0;
 }
 
 
+/*
+    Close the SSL module
+ */
 PUBLIC void sslClose()
 {
     if (sslctx != NULL) {
@@ -233,6 +295,9 @@ PUBLIC void sslClose()
 }
 
 
+/*
+    Upgrade a socket to use SSL
+ */
 PUBLIC int sslUpgrade(Webs *wp)
 {
     WebsSocket      *sptr;
@@ -244,10 +309,14 @@ PUBLIC int sslUpgrade(Webs *wp)
     if ((wp->ssl = SSL_new(sslctx)) == 0) {
         return -1;
     }
+    /*
+        Create a socket bio. We don't use the BIO except as storage for the fd
+     */
     if ((bio = BIO_new_socket((int) sptr->sock, BIO_NOCLOSE)) == 0) {
         return -1;
     }
     SSL_set_bio(wp->ssl, bio, bio);
+
     SSL_set_accept_state(wp->ssl);
     SSL_set_app_data(wp->ssl, (void*) wp);
     return 0;
@@ -259,6 +328,7 @@ PUBLIC void sslFree(Webs *wp)
     if (wp->ssl) {
         SSL_set_shutdown(wp->ssl, SSL_SENT_SHUTDOWN | SSL_RECEIVED_SHUTDOWN);
         SSL_free(wp->ssl);
+        wp->ssl = 0;
     }
 }
 
@@ -275,7 +345,6 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     int             rc, error, retries, i;
 
     if (wp->ssl == 0 || len <= 0) {
-        assert(0);
         return -1;
     }
     /*  
@@ -301,7 +370,6 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         if (error == SSL_ERROR_WANT_READ) {
             rc = 0;
         } else if (error == SSL_ERROR_WANT_WRITE) {
-            sleep(0);
             rc = 0;
         } else if (error == SSL_ERROR_ZERO_RETURN) {
             sp->flags |= SOCKET_EOF;
@@ -330,10 +398,10 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
     int     error, rc;
 
     if (wp->ssl == 0 || len <= 0) {
-        assert(0);
         return -1;
     }
     totalWritten = 0;
+    error = 0;
     ERR_clear_error();
 
     do {
@@ -341,25 +409,22 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
         trace(7, "OpenSSL: written %d, requested len %d", rc, len);
         if (rc <= 0) {
             error = SSL_get_error(wp->ssl, rc);
-            if (error == SSL_ERROR_NONE) {
+            if (error == SSL_ERROR_NONE || error == SSL_ERROR_WANT_WRITE) {
                 break;
-            } else if (error == SSL_ERROR_WANT_WRITE) {
-                socketSetError(EAGAIN);
-                return -1;
-            } else if (error == SSL_ERROR_WANT_READ) {
-                return -1;
-            } else {
-                trace(7, "OpenSSL: error %d", error);
-                return -1;
             }
-            break;
+            trace(7, "OpenSSL: error %d", error);
+            return -1;
         }
         totalWritten += rc;
         buf = (void*) ((char*) buf + rc);
         len -= rc;
-        trace(7, "OpenSSL: write: len %d, written %d, total %d, error %d", len, rc, totalWritten, 
-            SSL_get_error(wp->ssl, rc));
+        trace(7, "OpenSSL: write: len %d, written %d, total %d", len, rc, totalWritten); 
     } while (len > 0);
+
+    if (totalWritten == 0 && error == SSL_ERROR_WANT_WRITE) {
+        socketSetError(EAGAIN);
+        return -1;
+    }
     return totalWritten;
 }
 
@@ -414,11 +479,11 @@ static int sslSetKeyFile(char *keyFile)
 }
 
 
-static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
+static int verifyPeerCertificate(int ok, X509_STORE_CTX *xContext)
 {
-    X509            *cert;
-    char            subject[260], issuer[260], peer[260];
-    int             error, depth;
+    X509    *cert;
+    char    subject[260], issuer[260], peer[260];
+    int     error, depth;
     
     subject[0] = issuer[0] = '\0';
 
@@ -493,18 +558,78 @@ static int verifyX509Certificate(int ok, X509_STORE_CTX *xContext)
 }
 
 
-static RSA *rsaCallback(SSL *ssl, int isExport, int keyLength)
-{
-    static RSA *rsaTemp = NULL;
+/*
+    Get the DH parameters. This tries to read the 
+    Default DH parameters used if the dh.pem file is not supplied.
 
-    if (rsaTemp == NULL) {
-        rsaTemp = RSA_generate_key(keyLength, RSA_F4, NULL, NULL);
+    Generated via
+        openssl dhparam -C 2048 -out /dev/null >dhparams.h
+
+    Though not essential, you should generate your own local DH parameters 
+    and supply a dh.pem file to make it a bit harder for attackers.
+ */
+
+static DH *getDhKey(cchar *path)
+{
+	static unsigned char dh2048_p[] = {
+		0xDA,0xDD,0x26,0xAA,0xBF,0x0B,0x2D,0xC5,0x83,0x20,0x26,0xD3,
+		0x99,0x62,0x76,0xF6,0xF5,0x55,0x7F,0x84,0xB4,0x6A,0x7F,0x3E,
+		0xBF,0x1C,0xF8,0xB6,0xE9,0xD3,0x40,0x0A,0xBB,0xED,0xD9,0xFF,
+		0x3F,0x51,0x38,0xCC,0xFD,0x89,0x63,0x4C,0x0F,0x6C,0x9E,0x52,
+		0x90,0x14,0xC4,0x55,0x34,0xE8,0xF1,0xD9,0xEB,0x43,0xD4,0xAD,
+		0x27,0x67,0x4C,0x3A,0x0F,0x18,0x86,0x96,0x47,0x1D,0xA1,0x17,
+		0xE3,0x30,0xEF,0x3B,0x7D,0x34,0x45,0x4C,0x11,0x86,0xFB,0x29,
+		0xFC,0xB5,0x05,0x1B,0xC3,0xA8,0x22,0x38,0xC9,0xEA,0xD7,0x2D,
+		0x02,0x96,0x2D,0xD9,0x77,0xF8,0x87,0x31,0x96,0xAA,0x6A,0xFF,
+		0xEA,0xC1,0x78,0xBE,0x12,0xA2,0x78,0xBD,0x9A,0x78,0x7C,0xA5,
+		0x4D,0x2F,0x3B,0xE8,0x6F,0xAD,0xE6,0xBE,0x21,0x3E,0x6C,0x7D,
+		0xB5,0x53,0xE1,0x1E,0x83,0x81,0xBD,0x98,0x54,0x8E,0xE5,0x54,
+		0xEC,0x43,0x09,0x54,0x9A,0xDC,0x7C,0xC8,0xE9,0xBC,0x20,0x50,
+		0x31,0x28,0xE9,0xF5,0x99,0x60,0xE2,0x40,0x48,0x57,0x8D,0xD9,
+		0x29,0xF5,0x8B,0x22,0xDE,0x93,0xE2,0x56,0x0B,0x76,0xE3,0x8B,
+		0xC4,0x37,0x2F,0xD2,0xC1,0x34,0xF5,0x9B,0x12,0xD8,0x2B,0xE2,
+		0x98,0xBA,0x0C,0xBB,0xDC,0x7A,0x65,0x7C,0x2D,0xC2,0x56,0x01,
+		0x94,0x9F,0xB5,0xAE,0xC2,0xAA,0x6B,0x42,0x1B,0x54,0x36,0xE3,
+		0x86,0xAC,0x21,0x93,0xDD,0x8B,0xD1,0x0D,0xEF,0x39,0x20,0x14,
+		0x29,0xA1,0xB1,0xEE,0xE7,0xB1,0xA3,0x29,0x6C,0xD5,0xE6,0xD6,
+		0x23,0x20,0xDC,0xDC,0xFA,0x0A,0x06,0x81,0xB3,0xF4,0xEB,0xCE,
+		0xA6,0xD7,0x23,0x93,
+    };
+	static unsigned char dh2048_g[] = {
+		0x02,
+    };
+	DH      *dh;
+    BIO     *bio;
+
+    dh = 0;
+    if (path && *path) {
+        if ((bio = BIO_new_file(path, "r")) != 0) {
+            dh = PEM_read_bio_DHparams(bio, NULL, NULL, NULL);
+        }
     }
-    return rsaTemp;
+    if (dh == 0) {
+        if ((dh = DH_new()) == 0) {
+            return 0;
+        }
+        dh->p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
+        dh->g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
+        if ((dh->p == 0) || (dh->g == 0)) { 
+            DH_free(dh); 
+            return 0;
+        }
+    }
+	return dh;
 }
 
 
-#else
+/*
+    Set the ephemeral DH key
+ */
+static DH *dhcallback(SSL *handle, int isExport, int keyLength)
+{
+    return dhKey;
+}
+
 void opensslDummy() {}
 #endif
 
