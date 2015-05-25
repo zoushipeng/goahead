@@ -11,12 +11,7 @@
 
 #include    "goahead.h"
 
-/*********************************** Globals **********************************/
-
-static int websBackground;              /* Run as a daemon */
-static int websDebug;                   /* Run in debug mode and defeat timeouts */
-static int defaultHttpPort;             /* Default port number for http */
-static int defaultSslPort;              /* Default port number for https */
+/********************************* Defines ************************************/
 
 #define WEBS_TIMEOUT (ME_GOAHEAD_LIMIT_TIMEOUT * 1000)
 #define PARSE_TIMEOUT (ME_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
@@ -24,8 +19,12 @@ static int defaultSslPort;              /* Default port number for https */
 
 /************************************ Locals **********************************/
 
+static int          websBackground;             /* Run as a daemon */
+static int          websDebug;                  /* Run in debug mode and defeat timeouts */
+static int          defaultHttpPort;            /* Default port number for http */
+static int          defaultSslPort;             /* Default port number for https */
 static int          listens[WEBS_MAX_LISTEN];   /* Listen endpoints */;
-static int          listenMax;
+static int          listenMax;                  /* Max entry in listens */
 static Webs         **webs;                     /* Open connection list head */
 static WebsHash     websMime;                   /* Set of mime types */
 static int          websMax;                    /* List size */
@@ -692,7 +691,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Get the ip address of the interface that accept the connection.
      */
     len = sizeof(ifAddr);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
+    if (getsockname(socketPtr(sid)->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
         error("Cannot get sockname");
         return -1;
     }
