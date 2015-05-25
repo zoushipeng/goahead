@@ -10,11 +10,12 @@
 
 /************************************ Locals **********************************/
 
-WebsSocket      **socketList;           /* List of open sockets */
-PUBLIC int      socketMax;              /* Maximum size of socket */
-PUBLIC Socket   socketHighestFd = -1;   /* Highest socket fd opened */
-PUBLIC int      socketOpenCount = 0;    /* Number of task using sockets */
-static int      hasIPv6;                /* System supports IPv6 */
+PUBLIC WebsSocket   **socketList;           /* List of open sockets */
+PUBLIC int          socketMax;              /* Maximum size of socket */
+PUBLIC Socket       socketHighestFd = -1;   /* Highest socket fd opened */
+PUBLIC int          socketOpenCount = 0;    /* Number of task using sockets */
+
+static int          hasIPv6;                /* System supports IPv6 */
 
 /***************************** Forward Declarations ***************************/
 
@@ -465,7 +466,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         return 0;
     }
     /*
-        Wait for the event or a timeout.
+        Wait for the event or a timeout
      */
     nEvents = select(socketHighestFd + 1, &readFds, &writeFds, &exceptFds, &tv);
 
@@ -1380,6 +1381,12 @@ PUBLIC bool socketIsV6(int sid)
 PUBLIC bool socketAddressIsV6(char *ip)
 {
     return ip && ipv6(ip);
+}
+
+
+PUBLIC WebsSocket **socketGetList() 
+{
+    return socketList;
 }
 
 /*
