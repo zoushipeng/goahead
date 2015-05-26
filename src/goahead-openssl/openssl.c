@@ -1,8 +1,11 @@
 /*
     openssl.c - OpensSSL socket layer for GoAhead
 
+    This is the interface between GoAhead and the OpenSSL stack.
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
+
 /************************************ Include *********************************/
 
 #include    "goahead.h"
@@ -10,6 +13,9 @@
 #if ME_COM_OPENSSL
 
 #if ME_UNIX_LIKE
+    /*
+        Mac OS X OpenSSL stack is deprecated. Suppress those warnings.
+     */
     #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -26,13 +32,15 @@
  #include    <openssl/dh.h>
 
 /************************************* Defines ********************************/
-
 /*
     Default ciphers from Mozilla (https://wiki.mozilla.org/Security/Server_Side_TLS) without SSLv3 ciphers.
     TLSv1 and TLSv2 only. Recommended RSA and DH parameter size: 2048 bits.
  */
 #define OPENSSL_DEFAULT_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-  AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-  SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-   SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!    MD5:!PSK:!RC4:!SSLv3"
 
+/*
+    OpenSSL context (singleton)
+ */
 static SSL_CTX *sslctx = NULL;
 
 typedef struct RandBuf {
@@ -46,6 +54,9 @@ typedef struct RandBuf {
     #define ME_GOAHEAD_CURVE "prime256v1"
 #endif
 
+/*
+    DH parameters
+ */
 static DH *dhKey;
 
 /************************************ Forwards ********************************/
@@ -310,7 +321,7 @@ PUBLIC int sslUpgrade(Webs *wp)
         return -1;
     }
     /*
-        Create a socket bio. We don't use the BIO except as storage for the fd
+        Create a socket bio. We don't use the BIO except as storage for the fd.
      */
     if ((bio = BIO_new_socket((int) sptr->sock, BIO_NOCLOSE)) == 0) {
         return -1;
