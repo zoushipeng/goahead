@@ -74,14 +74,6 @@ Me.load({
                     me.target.compiler.push('-Wno-deprecated-declarations')
                 }
             `
-        },
-
-        dhparams: {
-            path: 'dhparams.c',
-            message: 'Generate: Local DH parameters for OpenSSL ... may take a few minutes',
-            action: `
-                TARGET.path.write(Cmd.run('openssl dhparam -C 2048 -out dh.pem') + '\n')
-            `
         }
     }
 })
