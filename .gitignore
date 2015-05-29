@@ -1,4 +1,8 @@
 cgitest
 test/cpp.cpp
 huge.txt
-*.pem
+src/self.crt
+src/self.key
+test/self.crt
+test/self.key
+dh.pem
