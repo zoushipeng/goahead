@@ -70,6 +70,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-s
 		{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D} = {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "install-certs", "goahead-windows-static\install-certs.vcxproj", "{01D68E96-2914-4012-96A3-2DBAD8659046}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{01D68E96-2914-4012-96A3-2DBAD8659046} = {01D68E96-2914-4012-96A3-2DBAD8659046}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libest", "goahead-windows-static\libest.vcxproj", "{069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
@@ -87,14 +95,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libestssl", "goahead-window
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{E79AE46F-3030-4371-A52C-6AF69525B7C3} = {E79AE46F-3030-4371-A52C-6AF69525B7C3}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "roots.crt", "goahead-windows-static\roots.crt.vcxproj", "{DF5150E4-CD23-405E-92F8-CF06D54B26CB}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{DF5150E4-CD23-405E-92F8-CF06D54B26CB} = {DF5150E4-CD23-405E-92F8-CF06D54B26CB}
 	EndProjectSection
 EndProject
 
@@ -146,6 +146,14 @@ EndProject
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|Win32.Build.0 = Release|Win32
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.ActiveCfg = Release|x64
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.Build.0 = Release|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.ActiveCfg = Debug|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.Build.0 = Debug|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.ActiveCfg = Debug|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.Build.0 = Debug|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.ActiveCfg = Release|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.Build.0 = Release|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.ActiveCfg = Release|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.Build.0 = Release|x64
 {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|Win32.ActiveCfg = Debug|Win32
 {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|Win32.Build.0 = Debug|Win32
 {069C9410-1AD2-4D94-A3F8-7DE8F0B1D773}.Debug|x64.ActiveCfg = Debug|x64
@@ -162,14 +170,6 @@ EndProject
 {E79AE46F-3030-4371-A52C-6AF69525B7C3}.Release|Win32.Build.0 = Release|Win32
 {E79AE46F-3030-4371-A52C-6AF69525B7C3}.Release|x64.ActiveCfg = Release|x64
 {E79AE46F-3030-4371-A52C-6AF69525B7C3}.Release|x64.Build.0 = Release|x64
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|Win32.ActiveCfg = Debug|Win32
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|Win32.Build.0 = Debug|Win32
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|x64.ActiveCfg = Debug|x64
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Debug|x64.Build.0 = Debug|x64
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|Win32.ActiveCfg = Release|Win32
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|Win32.Build.0 = Release|Win32
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|x64.ActiveCfg = Release|x64
-{DF5150E4-CD23-405E-92F8-CF06D54B26CB}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
       GlobalSection(SolutionProperties) = preSolution

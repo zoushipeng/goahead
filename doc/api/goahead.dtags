@@ -302,6 +302,13 @@
       <arglist>(int sid)</arglist>
     </member>
     <member kind="function">
+      <type>WebsSocket **</type>
+      <name>socketGetList</name>
+      <anchorfile>group___webs_socket.html</anchorfile>
+      <anchor>gae1933547259b34a8b457d83f4edf29c9</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>socketGetPort</name>
       <anchorfile>group___webs_socket.html</anchorfile>
@@ -440,13 +447,6 @@
       <anchorfile>group___webs_socket.html</anchorfile>
       <anchor>gab6d98261221e514d69b3f4e411fdea4a</anchor>
       <arglist>(int sid, void *buf, ssize len)</arglist>
-    </member>
-    <member kind="variable">
-      <type>WebsSocket **</type>
-      <name>socketList</name>
-      <anchorfile>group___webs_socket.html</anchorfile>
-      <anchor>ga3b17fcf1369dfefdddec2da7dbbebd50</anchor>
-      <arglist></arglist>
     </member>
   </compound>
   <compound kind="group">

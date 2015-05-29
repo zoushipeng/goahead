@@ -7,17 +7,17 @@
         objects = {
 
 /* Begin PBXAggregateTarget section */
-		15EE374015EE50DE00000006 /* roots.crt */ = {
+		15EE374015EE50DE00000006 /* install-certs */ = {
     			isa = PBXAggregateTarget;
-    			buildConfigurationList = 15EE374015EE50DE00000005 /* Build configuration list for PBXAggregateTarget "roots.crt" */;
+    			buildConfigurationList = 15EE374015EE50DE00000005 /* Build configuration list for PBXAggregateTarget "install-certs" */;
     			buildPhases = (
     				15EE374015EE50DE00000007,
     			);
     			dependencies = (
 				15EE374015EE50DE00000008 /* PBXTargetDependency Prep */,
 			);
-    			name = roots.crt;
-    			productName = roots.crt;
+    			name = install-certs;
+    			productName = install-certs;
     		};
 		15EE374015EE50DE0000000A /* All */ = {
     			isa = PBXAggregateTarget;
@@ -29,9 +29,9 @@
 				15EE374015EE50DE0000000B /* PBXTargetDependency goahead */,
 				15EE374015EE50DE0000000C /* PBXTargetDependency goahead-test */,
 				15EE374015EE50DE0000000D /* PBXTargetDependency gopass */,
-				15EE374015EE50DE0000000E /* PBXTargetDependency libgo */,
-				15EE374015EE50DE0000000F /* PBXTargetDependency openssl */,
-				15EE374015EE50DE00000010 /* PBXTargetDependency roots.crt */,
+				15EE374015EE50DE0000000E /* PBXTargetDependency install-certs */,
+				15EE374015EE50DE0000000F /* PBXTargetDependency libgo */,
+				15EE374015EE50DE00000010 /* PBXTargetDependency openssl */,
 				15EE374015EE50DE00000011 /* PBXTargetDependency All */,
 				15EE374015EE50DE00000012 /* PBXTargetDependency Prep */,
 			);
@@ -142,28 +142,28 @@
     			remoteGlobalIDString = 15EE374015EE50DE00000048;
     			remoteInfo = libgo;
     		};
-		15EE374015EE50DE0000004F /* PBXContainerItemProxy Prep from libgo */ = {
+		15EE374015EE50DE0000004F /* PBXContainerItemProxy Prep from install-certs */ = {
     			isa = PBXContainerItemProxy;
     			containerPortal = 15EE374015EE50DE00000001 /* Project object */;
     			proxyType = 1;
     			remoteGlobalIDString = 15EE374015EE50DE00000014;
     			remoteInfo = Prep;
     		};
-		15EE374015EE50DE00000050 /* PBXContainerItemProxy openssl from libgo */ = {
+		15EE374015EE50DE00000050 /* PBXContainerItemProxy Prep from libgo */ = {
+    			isa = PBXContainerItemProxy;
+    			containerPortal = 15EE374015EE50DE00000001 /* Project object */;
+    			proxyType = 1;
+    			remoteGlobalIDString = 15EE374015EE50DE00000014;
+    			remoteInfo = Prep;
+    		};
+		15EE374015EE50DE00000051 /* PBXContainerItemProxy openssl from libgo */ = {
     			isa = PBXContainerItemProxy;
     			containerPortal = 15EE374015EE50DE00000001 /* Project object */;
     			proxyType = 1;
     			remoteGlobalIDString = 15EE374015EE50DE00000046;
     			remoteInfo = openssl;
     		};
-		15EE374015EE50DE00000051 /* PBXContainerItemProxy Prep from openssl */ = {
-    			isa = PBXContainerItemProxy;
-    			containerPortal = 15EE374015EE50DE00000001 /* Project object */;
-    			proxyType = 1;
-    			remoteGlobalIDString = 15EE374015EE50DE00000014;
-    			remoteInfo = Prep;
-    		};
-		15EE374015EE50DE00000052 /* PBXContainerItemProxy Prep from roots.crt */ = {
+		15EE374015EE50DE00000052 /* PBXContainerItemProxy Prep from openssl */ = {
     			isa = PBXContainerItemProxy;
     			containerPortal = 15EE374015EE50DE00000001 /* Project object */;
     			proxyType = 1;
@@ -212,12 +212,12 @@
     			remoteGlobalIDString = 15EE374015EE50DE0000005B;
     			remoteInfo = gopass;
     		};
-		15EE374015EE50DE0000005C /* PBXContainerItemProxy roots.crt from All */ = {
+		15EE374015EE50DE0000005C /* PBXContainerItemProxy install-certs from All */ = {
     			isa = PBXContainerItemProxy;
     			containerPortal = 15EE374015EE50DE00000001 /* Project object */;
     			proxyType = 1;
     			remoteGlobalIDString = 15EE374015EE50DE00000006;
-    			remoteInfo = roots.crt;
+    			remoteInfo = install-certs;
     		};
 /* End PBXContainerItemProxy section */
 
@@ -480,23 +480,41 @@
 /* End PBXNativeTarget section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		15EE374015EE50DE00000007 /* ShellScript for roots.crt */ = {
+		15EE374015EE50DE00000007 /* ShellScript for install-certs */ = {
     			isa = PBXShellScriptBuildPhase;
     			buildActionMask = 2147483647;
     			files = (
     			);
     			inputPaths = (
-    ../src/certs/roots.crt
+    ../src/certs/samples/ca.crt,
+../src/certs/samples/ca.key,
+../src/certs/samples/dh.pem,
+../src/certs/samples/ec.crt,
+../src/certs/samples/ec.key,
+../src/certs/samples/roots.crt,
+../src/certs/samples/self.crt,
+../src/certs/samples/self.key,
+../src/certs/samples/test.crt,
+../src/certs/samples/test.key
     			);
     			outputPaths = (
-    ../build/macosx-x64-default/bin/roots.crt
+    ../build/macosx-x64-default/bin
     			);
     			runOnlyForDeploymentPostprocessing = 0;
     			shellPath = /bin/bash;
     			shellScript = "PATH=$PATH:/usr/local/bin
 cd ..
 	mkdir -p \"build/macosx-x64-default/bin\"
-	cp src/certs/roots.crt build/macosx-x64-default/bin/roots.crt
+	cp src/certs/samples/ca.crt build/macosx-x64-default/bin/ca.crt
+	cp src/certs/samples/ca.key build/macosx-x64-default/bin/ca.key
+	cp src/certs/samples/dh.pem build/macosx-x64-default/bin/dh.pem
+	cp src/certs/samples/ec.crt build/macosx-x64-default/bin/ec.crt
+	cp src/certs/samples/ec.key build/macosx-x64-default/bin/ec.key
+	cp src/certs/samples/roots.crt build/macosx-x64-default/bin/roots.crt
+	cp src/certs/samples/self.crt build/macosx-x64-default/bin/self.crt
+	cp src/certs/samples/self.key build/macosx-x64-default/bin/self.key
+	cp src/certs/samples/test.crt build/macosx-x64-default/bin/test.crt
+	cp src/certs/samples/test.key build/macosx-x64-default/bin/test.key
 ";
     		};
 		15EE374015EE50DE00000015 /* ShellScript for Prep */ = {
@@ -588,7 +606,7 @@ fi";
 				15EE374015EE50DE00000057 /* goahead */,
 				15EE374015EE50DE00000059 /* goahead-test */,
 				15EE374015EE50DE0000005B /* gopass */,
-				15EE374015EE50DE00000006 /* roots.crt */,
+				15EE374015EE50DE00000006 /* install-certs */,
 			);
     		};
     /* End PBXProject section */
@@ -698,22 +716,22 @@ fi";
     			target = 15EE374015EE50DE00000048 /* libgo */;
     			targetProxy = 15EE374015EE50DE0000004E /* PBXContainerItemProxy */;
     		};
-		15EE374015EE50DE00000080 /* PBXTargetDependency libgo depends on Prep */ = {
+		15EE374015EE50DE00000008 /* PBXTargetDependency install-certs depends on Prep */ = {
     			isa = PBXTargetDependency;
     			target = 15EE374015EE50DE00000014 /* Prep */;
     			targetProxy = 15EE374015EE50DE0000004F /* PBXContainerItemProxy */;
     		};
+		15EE374015EE50DE00000080 /* PBXTargetDependency libgo depends on Prep */ = {
+    			isa = PBXTargetDependency;
+    			target = 15EE374015EE50DE00000014 /* Prep */;
+    			targetProxy = 15EE374015EE50DE00000050 /* PBXContainerItemProxy */;
+    		};
 		15EE374015EE50DE00000081 /* PBXTargetDependency libgo depends on openssl */ = {
     			isa = PBXTargetDependency;
     			target = 15EE374015EE50DE00000046 /* openssl */;
-    			targetProxy = 15EE374015EE50DE00000050 /* PBXContainerItemProxy */;
-    		};
-		15EE374015EE50DE00000084 /* PBXTargetDependency openssl depends on Prep */ = {
-    			isa = PBXTargetDependency;
-    			target = 15EE374015EE50DE00000014 /* Prep */;
     			targetProxy = 15EE374015EE50DE00000051 /* PBXContainerItemProxy */;
     		};
-		15EE374015EE50DE00000008 /* PBXTargetDependency roots.crt depends on Prep */ = {
+		15EE374015EE50DE00000084 /* PBXTargetDependency openssl depends on Prep */ = {
     			isa = PBXTargetDependency;
     			target = 15EE374015EE50DE00000014 /* Prep */;
     			targetProxy = 15EE374015EE50DE00000052 /* PBXContainerItemProxy */;
@@ -723,12 +741,12 @@ fi";
     			target = 15EE374015EE50DE00000014 /* Prep */;
     			targetProxy = 15EE374015EE50DE00000053 /* PBXContainerItemProxy */;
     		};
-		15EE374015EE50DE0000000F /* PBXTargetDependency All depends on openssl */ = {
+		15EE374015EE50DE00000010 /* PBXTargetDependency All depends on openssl */ = {
     			isa = PBXTargetDependency;
     			target = 15EE374015EE50DE00000046 /* openssl */;
     			targetProxy = 15EE374015EE50DE00000054 /* PBXContainerItemProxy */;
     		};
-		15EE374015EE50DE0000000E /* PBXTargetDependency All depends on libgo */ = {
+		15EE374015EE50DE0000000F /* PBXTargetDependency All depends on libgo */ = {
     			isa = PBXTargetDependency;
     			target = 15EE374015EE50DE00000048 /* libgo */;
     			targetProxy = 15EE374015EE50DE00000055 /* PBXContainerItemProxy */;
@@ -748,9 +766,9 @@ fi";
     			target = 15EE374015EE50DE0000005B /* gopass */;
     			targetProxy = 15EE374015EE50DE0000005A /* PBXContainerItemProxy */;
     		};
-		15EE374015EE50DE00000010 /* PBXTargetDependency All depends on roots.crt */ = {
+		15EE374015EE50DE0000000E /* PBXTargetDependency All depends on install-certs */ = {
     			isa = PBXTargetDependency;
-    			target = 15EE374015EE50DE00000006 /* roots.crt */;
+    			target = 15EE374015EE50DE00000006 /* install-certs */;
     			targetProxy = 15EE374015EE50DE0000005C /* PBXContainerItemProxy */;
     		};
 /* End PBXTargetDependency section */
@@ -759,7 +777,8 @@ fi";
     		15EE374015EE50DE00000003 /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    
+    ME_COM_OPENSSL_PATH = "";
+
                     /* Common Settings */
     				ALWAYS_SEARCH_USER_PATHS = NO;
                     ONLY_ACTIVE_ARCH = YES;
@@ -828,7 +847,8 @@ fi";
     		15EE374015EE50DE00000004 /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    
+    ME_COM_OPENSSL_PATH = "";
+
                     /* Common Settings */
     				ALWAYS_SEARCH_USER_PATHS = NO;
                     ONLY_ACTIVE_ARCH = YES;
@@ -897,8 +917,16 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = goahead;
     
-    				GCC_PREPROCESSOR_DEFINITIONS = (
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
+					"$(inherited)"
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
@@ -916,7 +944,16 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = goahead;
     
-    				OTHER_LDFLAGS = (
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
 					"-lopenssl",
 					"-lssl",
 					"-lcrypto",
@@ -931,8 +968,16 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = goahead-test;
     
-    				GCC_PREPROCESSOR_DEFINITIONS = (
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
+					"$(inherited)"
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
@@ -950,7 +995,16 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = goahead-test;
     
-    				OTHER_LDFLAGS = (
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
 					"-lopenssl",
 					"-lssl",
 					"-lcrypto",
@@ -965,8 +1019,16 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = gopass;
     
-    				GCC_PREPROCESSOR_DEFINITIONS = (
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
+					"$(inherited)"
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
@@ -984,7 +1046,16 @@ fi";
     			buildSettings = {
     				PRODUCT_NAME = gopass;
     
-    				OTHER_LDFLAGS = (
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
 					"-lopenssl",
 					"-lssl",
 					"-lcrypto",
@@ -997,53 +1068,47 @@ fi";
 		15EE374015EE50DE0000008B /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = libgo;
+    				PRODUCT_NAME = bin;
     
     				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
-				OTHER_LDFLAGS = (
-					"-lopenssl",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)"
-				);
-
     			};
     			name = Debug;
     		};
     		15EE374015EE50DE0000008C /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = libgo;
+    				PRODUCT_NAME = bin;
     
-    				OTHER_LDFLAGS = (
-					"-lopenssl",
-					"-lssl",
-					"-lcrypto",
-					"$(inherited)"
-				);
-
+    
     			};
     			name = Release;
     		};
 		15EE374015EE50DE0000008D /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = libopenssl;
-    				EXECUTABLE_EXTENSION = a;
-
-    				GCC_PREPROCESSOR_DEFINITIONS = (
+    				PRODUCT_NAME = libgo;
+    
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
 				OTHER_LDFLAGS = (
-					"",
-					"",
-					);
-
-				MACH_O_TYPE = staticlib;
+					"-lopenssl",
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
 
     			};
     			name = Debug;
@@ -1051,15 +1116,23 @@ fi";
     		15EE374015EE50DE0000008E /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = libopenssl;
-    				EXECUTABLE_EXTENSION = a;
+    				PRODUCT_NAME = libgo;
+    
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
 
-    				OTHER_LDFLAGS = (
-					"",
-					"",
-					);
-
-				MACH_O_TYPE = staticlib;
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"-lopenssl",
+					"-lssl",
+					"-lcrypto",
+					"$(inherited)"
+				);
 
     			};
     			name = Release;
@@ -1067,21 +1140,53 @@ fi";
 		15EE374015EE50DE0000008F /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = roots;
-    
-    				GCC_PREPROCESSOR_DEFINITIONS = (
+    				PRODUCT_NAME = libopenssl;
+    				EXECUTABLE_EXTENSION = a;
+
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
 					"$(inherited)"
 				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"",
+					"",
+					);
+
+				MACH_O_TYPE = staticlib;
+
     			};
     			name = Debug;
     		};
     		15EE374015EE50DE00000090 /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = roots;
-    
-    
+    				PRODUCT_NAME = libopenssl;
+    				EXECUTABLE_EXTENSION = a;
+
+    				HEADER_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)/include",
+					"$(inherited)"
+				);
+
+				LIBRARY_SEARCH_PATHS = (
+					"$(ME_COM_OPENSSL_PATH)",
+					"$(inherited)"
+				);
+				OTHER_LDFLAGS = (
+					"",
+					"",
+					);
+
+				MACH_O_TYPE = staticlib;
+
     			};
     			name = Release;
     		};
@@ -1166,7 +1271,7 @@ fi";
     			defaultConfigurationIsVisible = 0;
     			defaultConfigurationName = Release;
     		};
-		15EE374015EE50DE0000007F /* Build configuration list for PBXNativeTarget "libgo" */ = {
+		15EE374015EE50DE00000005 /* Build configuration list for PBXNativeTarget "install-certs" */ = {
     			isa = XCConfigurationList;
     			buildConfigurations = (
     				15EE374015EE50DE0000008B /* Debug */,
@@ -1175,7 +1280,7 @@ fi";
     			defaultConfigurationIsVisible = 0;
     			defaultConfigurationName = Release;
     		};
-		15EE374015EE50DE00000083 /* Build configuration list for PBXNativeTarget "openssl" */ = {
+		15EE374015EE50DE0000007F /* Build configuration list for PBXNativeTarget "libgo" */ = {
     			isa = XCConfigurationList;
     			buildConfigurations = (
     				15EE374015EE50DE0000008D /* Debug */,
@@ -1184,7 +1289,7 @@ fi";
     			defaultConfigurationIsVisible = 0;
     			defaultConfigurationName = Release;
     		};
-		15EE374015EE50DE00000005 /* Build configuration list for PBXNativeTarget "roots.crt" */ = {
+		15EE374015EE50DE00000083 /* Build configuration list for PBXNativeTarget "openssl" */ = {
     			isa = XCConfigurationList;
     			buildConfigurations = (
     				15EE374015EE50DE0000008F /* Debug */,

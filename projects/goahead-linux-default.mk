@@ -33,6 +33,12 @@ endif
 ifeq ($(ME_COM_LIB),1)
     ME_COM_COMPILER := 1
 endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    ME_COM_SSL := 1
+endif
+ifeq ($(ME_COM_NANOSSL),1)
+    ME_COM_SSL := 1
+endif
 ifeq ($(ME_COM_OPENSSL),1)
     ME_COM_SSL := 1
 endif
@@ -78,7 +84,9 @@ TARGETS               += init
 TARGETS               += $(BUILD)/bin/goahead
 TARGETS               += $(BUILD)/bin/goahead-test
 TARGETS               += $(BUILD)/bin/gopass
-TARGETS               += $(BUILD)/bin/roots.crt
+ifeq ($(ME_COM_SSL),1)
+    TARGETS           += $(BUILD)/bin
+endif
 
 unexport CDPATH
 
@@ -134,9 +142,9 @@ clean:
 	rm -f "$(BUILD)/bin/goahead"
 	rm -f "$(BUILD)/bin/goahead-test"
 	rm -f "$(BUILD)/bin/gopass"
+	rm -f "$(BUILD)/bin"
 	rm -f "$(BUILD)/bin/libgo.so"
 	rm -f "$(BUILD)/bin/libopenssl.a"
-	rm -f "$(BUILD)/bin/roots.crt"
 
 clobber: clean
 	rm -fr ./$(BUILD)
@@ -199,7 +207,7 @@ DEPS_6 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/action.o: \
     src/action.c $(DEPS_6)
 	@echo '   [Compile] $(BUILD)/obj/action.o'
-	$(CC) -c -o $(BUILD)/obj/action.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/action.c
+	$(CC) -c -o $(BUILD)/obj/action.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/action.c
 
 #
 #   alloc.o
@@ -209,7 +217,7 @@ DEPS_7 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/alloc.o: \
     src/alloc.c $(DEPS_7)
 	@echo '   [Compile] $(BUILD)/obj/alloc.o'
-	$(CC) -c -o $(BUILD)/obj/alloc.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/alloc.c
+	$(CC) -c -o $(BUILD)/obj/alloc.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/alloc.c
 
 #
 #   auth.o
@@ -219,7 +227,7 @@ DEPS_8 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/auth.o: \
     src/auth.c $(DEPS_8)
 	@echo '   [Compile] $(BUILD)/obj/auth.o'
-	$(CC) -c -o $(BUILD)/obj/auth.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/auth.c
+	$(CC) -c -o $(BUILD)/obj/auth.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/auth.c
 
 #
 #   cgi.o
@@ -229,7 +237,7 @@ DEPS_9 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/cgi.o: \
     src/cgi.c $(DEPS_9)
 	@echo '   [Compile] $(BUILD)/obj/cgi.o'
-	$(CC) -c -o $(BUILD)/obj/cgi.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/cgi.c
+	$(CC) -c -o $(BUILD)/obj/cgi.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/cgi.c
 
 #
 #   cgitest.o
@@ -248,7 +256,7 @@ DEPS_11 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/crypt.o: \
     src/crypt.c $(DEPS_11)
 	@echo '   [Compile] $(BUILD)/obj/crypt.o'
-	$(CC) -c -o $(BUILD)/obj/crypt.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/crypt.c
+	$(CC) -c -o $(BUILD)/obj/crypt.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/crypt.c
 
 #
 #   file.o
@@ -258,7 +266,7 @@ DEPS_12 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/file.o: \
     src/file.c $(DEPS_12)
 	@echo '   [Compile] $(BUILD)/obj/file.o'
-	$(CC) -c -o $(BUILD)/obj/file.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/file.c
+	$(CC) -c -o $(BUILD)/obj/file.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/file.c
 
 #
 #   fs.o
@@ -268,7 +276,7 @@ DEPS_13 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/fs.o: \
     src/fs.c $(DEPS_13)
 	@echo '   [Compile] $(BUILD)/obj/fs.o'
-	$(CC) -c -o $(BUILD)/obj/fs.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/fs.c
+	$(CC) -c -o $(BUILD)/obj/fs.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/fs.c
 
 #
 #   goahead.o
@@ -278,7 +286,7 @@ DEPS_14 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/goahead.o: \
     src/goahead.c $(DEPS_14)
 	@echo '   [Compile] $(BUILD)/obj/goahead.o'
-	$(CC) -c -o $(BUILD)/obj/goahead.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/goahead.c
+	$(CC) -c -o $(BUILD)/obj/goahead.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/goahead.c
 
 #
 #   gopass.o
@@ -288,7 +296,7 @@ DEPS_15 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/gopass.o: \
     src/utils/gopass.c $(DEPS_15)
 	@echo '   [Compile] $(BUILD)/obj/gopass.o'
-	$(CC) -c -o $(BUILD)/obj/gopass.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/utils/gopass.c
+	$(CC) -c -o $(BUILD)/obj/gopass.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/utils/gopass.c
 
 #
 #   http.o
@@ -298,7 +306,7 @@ DEPS_16 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/http.o: \
     src/http.c $(DEPS_16)
 	@echo '   [Compile] $(BUILD)/obj/http.o'
-	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/http.c
+	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/http.c
 
 #
 #   js.o
@@ -308,7 +316,7 @@ DEPS_17 += $(BUILD)/inc/js.h
 $(BUILD)/obj/js.o: \
     src/js.c $(DEPS_17)
 	@echo '   [Compile] $(BUILD)/obj/js.o'
-	$(CC) -c -o $(BUILD)/obj/js.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/js.c
+	$(CC) -c -o $(BUILD)/obj/js.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/js.c
 
 #
 #   jst.o
@@ -319,7 +327,7 @@ DEPS_18 += $(BUILD)/inc/js.h
 $(BUILD)/obj/jst.o: \
     src/jst.c $(DEPS_18)
 	@echo '   [Compile] $(BUILD)/obj/jst.o'
-	$(CC) -c -o $(BUILD)/obj/jst.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/jst.c
+	$(CC) -c -o $(BUILD)/obj/jst.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/jst.c
 
 #
 #   openssl.o
@@ -339,7 +347,7 @@ DEPS_20 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/options.o: \
     src/options.c $(DEPS_20)
 	@echo '   [Compile] $(BUILD)/obj/options.o'
-	$(CC) -c -o $(BUILD)/obj/options.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/options.c
+	$(CC) -c -o $(BUILD)/obj/options.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/options.c
 
 #
 #   osdep.o
@@ -349,7 +357,7 @@ DEPS_21 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/osdep.o: \
     src/osdep.c $(DEPS_21)
 	@echo '   [Compile] $(BUILD)/obj/osdep.o'
-	$(CC) -c -o $(BUILD)/obj/osdep.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/osdep.c
+	$(CC) -c -o $(BUILD)/obj/osdep.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/osdep.c
 
 #
 #   rom-documents.o
@@ -359,7 +367,7 @@ DEPS_22 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/rom-documents.o: \
     src/rom-documents.c $(DEPS_22)
 	@echo '   [Compile] $(BUILD)/obj/rom-documents.o'
-	$(CC) -c -o $(BUILD)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/rom-documents.c
+	$(CC) -c -o $(BUILD)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/rom-documents.c
 
 #
 #   route.o
@@ -369,7 +377,7 @@ DEPS_23 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/route.o: \
     src/route.c $(DEPS_23)
 	@echo '   [Compile] $(BUILD)/obj/route.o'
-	$(CC) -c -o $(BUILD)/obj/route.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/route.c
+	$(CC) -c -o $(BUILD)/obj/route.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/route.c
 
 #
 #   runtime.o
@@ -379,7 +387,7 @@ DEPS_24 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/runtime.o: \
     src/runtime.c $(DEPS_24)
 	@echo '   [Compile] $(BUILD)/obj/runtime.o'
-	$(CC) -c -o $(BUILD)/obj/runtime.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/runtime.c
+	$(CC) -c -o $(BUILD)/obj/runtime.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/runtime.c
 
 #
 #   socket.o
@@ -389,7 +397,7 @@ DEPS_25 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/socket.o: \
     src/socket.c $(DEPS_25)
 	@echo '   [Compile] $(BUILD)/obj/socket.o'
-	$(CC) -c -o $(BUILD)/obj/socket.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/socket.c
+	$(CC) -c -o $(BUILD)/obj/socket.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/socket.c
 
 #
 #   test.o
@@ -400,7 +408,7 @@ DEPS_26 += $(BUILD)/inc/js.h
 $(BUILD)/obj/test.o: \
     test/test.c $(DEPS_26)
 	@echo '   [Compile] $(BUILD)/obj/test.o'
-	$(CC) -c -o $(BUILD)/obj/test.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" test/test.c
+	$(CC) -c -o $(BUILD)/obj/test.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" test/test.c
 
 #
 #   upload.o
@@ -410,7 +418,7 @@ DEPS_27 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/upload.o: \
     src/upload.c $(DEPS_27)
 	@echo '   [Compile] $(BUILD)/obj/upload.o'
-	$(CC) -c -o $(BUILD)/obj/upload.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/upload.c
+	$(CC) -c -o $(BUILD)/obj/upload.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" "-I$(ME_COM_MATRIXSSL_PATH)" "-I$(ME_COM_MATRIXSSL_PATH)/matrixssl" "-I$(ME_COM_NANOSSL_PATH)/src" src/upload.c
 
 ifeq ($(ME_COM_SSL),1)
 #
@@ -450,6 +458,17 @@ DEPS_29 += $(BUILD)/obj/runtime.o
 DEPS_29 += $(BUILD)/obj/socket.o
 DEPS_29 += $(BUILD)/obj/upload.o
 
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_29 += -lnanossl
+    LIBPATHS_29 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_29 += -lmatrixssl
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
 ifeq ($(ME_COM_EST),1)
     LIBS_29 += -lestssl
 endif
@@ -468,10 +487,35 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBS_29 += -lcrypto
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_29 += -lcore_s
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_29 += -lcrypt_s
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_29 += -lssl_s
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_29 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_29 += -llibssls
+    LIBPATHS_29 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
 
 $(BUILD)/bin/libgo.so: $(DEPS_29)
 	@echo '      [Link] $(BUILD)/bin/libgo.so'
-	$(CC) -shared -o $(BUILD)/bin/libgo.so $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) 
+	$(CC) -shared -o $(BUILD)/bin/libgo.so $(LDFLAGS) $(LIBPATHS)       "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -lssls 
 
 #
 #   goahead
@@ -482,6 +526,17 @@ DEPS_30 += $(BUILD)/inc/js.h
 DEPS_30 += $(BUILD)/obj/goahead.o
 
 LIBS_30 += -lgo
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_30 += -lnanossl
+    LIBPATHS_30 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_30 += -lmatrixssl
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
 ifeq ($(ME_COM_EST),1)
     LIBS_30 += -lestssl
 endif
@@ -500,10 +555,35 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBS_30 += -lcrypto
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_30 += -lcore_s
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_30 += -lcrypt_s
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_30 += -lssl_s
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_30 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_30 += -llibssls
+    LIBPATHS_30 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
 
 $(BUILD)/bin/goahead: $(DEPS_30)
 	@echo '      [Link] $(BUILD)/bin/goahead'
-	$(CC) -o $(BUILD)/bin/goahead $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/goahead $(LDFLAGS) $(LIBPATHS)       "$(BUILD)/obj/goahead.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -lssls $(LIBS) -lssls 
 
 #
 #   goahead-test
@@ -514,6 +594,17 @@ DEPS_31 += $(BUILD)/inc/js.h
 DEPS_31 += $(BUILD)/obj/test.o
 
 LIBS_31 += -lgo
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_31 += -lnanossl
+    LIBPATHS_31 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_31 += -lmatrixssl
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
 ifeq ($(ME_COM_EST),1)
     LIBS_31 += -lestssl
 endif
@@ -532,10 +623,35 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBS_31 += -lcrypto
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_31 += -lcore_s
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_31 += -lcrypt_s
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_31 += -lssl_s
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_31 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_31 += -llibssls
+    LIBPATHS_31 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
 
 $(BUILD)/bin/goahead-test: $(DEPS_31)
 	@echo '      [Link] $(BUILD)/bin/goahead-test'
-	$(CC) -o $(BUILD)/bin/goahead-test $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/goahead-test $(LDFLAGS) $(LIBPATHS)       "$(BUILD)/obj/test.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -lssls $(LIBS) -lssls 
 
 #
 #   gopass
@@ -546,6 +662,17 @@ DEPS_32 += $(BUILD)/inc/js.h
 DEPS_32 += $(BUILD)/obj/gopass.o
 
 LIBS_32 += -lgo
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_32 += -lnanossl
+    LIBPATHS_32 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_32 += -lmatrixssl
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
 ifeq ($(ME_COM_EST),1)
     LIBS_32 += -lestssl
 endif
@@ -564,20 +691,65 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBS_32 += -lcrypto
     LIBPATHS_32 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_32 += -lcore_s
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_32 += -lcrypt_s
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_MATRIXSSL),1)
+    LIBS_32 += -lssl_s
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/matrixssl"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/core"
+    LIBPATHS_32 += -L"$(ME_COM_MATRIXSSL_PATH)/crypto"
+endif
+ifeq ($(ME_COM_NANOSSL),1)
+    LIBS_32 += -llibssls
+    LIBPATHS_32 += -L"$(ME_COM_NANOSSL_PATH)/bin"
+endif
 
 $(BUILD)/bin/gopass: $(DEPS_32)
 	@echo '      [Link] $(BUILD)/bin/gopass'
-	$(CC) -o $(BUILD)/bin/gopass $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) $(LIBS) 
+	$(CC) -o $(BUILD)/bin/gopass $(LDFLAGS) $(LIBPATHS)       "$(BUILD)/obj/gopass.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) -lssls $(LIBS) -lssls 
 
+ifeq ($(ME_COM_SSL),1)
 #
-#   roots.crt
+#   install-certs
 #
-DEPS_33 += src/certs/roots.crt
+DEPS_33 += src/certs/samples/ca.crt
+DEPS_33 += src/certs/samples/ca.key
+DEPS_33 += src/certs/samples/dh.pem
+DEPS_33 += src/certs/samples/ec.crt
+DEPS_33 += src/certs/samples/ec.key
+DEPS_33 += src/certs/samples/roots.crt
+DEPS_33 += src/certs/samples/self.crt
+DEPS_33 += src/certs/samples/self.key
+DEPS_33 += src/certs/samples/test.crt
+DEPS_33 += src/certs/samples/test.key
 
-$(BUILD)/bin/roots.crt: $(DEPS_33)
-	@echo '      [Copy] $(BUILD)/bin/roots.crt'
+$(BUILD)/bin: $(DEPS_33)
+	@echo '      [Copy] $(BUILD)/bin'
 	mkdir -p "$(BUILD)/bin"
-	cp src/certs/roots.crt $(BUILD)/bin/roots.crt
+	cp src/certs/samples/ca.crt $(BUILD)/bin/ca.crt
+	cp src/certs/samples/ca.key $(BUILD)/bin/ca.key
+	cp src/certs/samples/dh.pem $(BUILD)/bin/dh.pem
+	cp src/certs/samples/ec.crt $(BUILD)/bin/ec.crt
+	cp src/certs/samples/ec.key $(BUILD)/bin/ec.key
+	cp src/certs/samples/roots.crt $(BUILD)/bin/roots.crt
+	cp src/certs/samples/self.crt $(BUILD)/bin/self.crt
+	cp src/certs/samples/self.key $(BUILD)/bin/self.key
+	cp src/certs/samples/test.crt $(BUILD)/bin/test.crt
+	cp src/certs/samples/test.key $(BUILD)/bin/test.key
+endif
 
 #
 #   stop
@@ -599,15 +771,13 @@ installBinary: $(DEPS_35)
 	rm -f "$(ME_BIN_PREFIX)/goahead" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/goahead" "$(ME_BIN_PREFIX)/goahead" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp src/est/ca.crt $(ME_VAPP_PREFIX)/bin/ca.crt ; \
+	cp $(BUILD)/bin/roots.crt $(ME_VAPP_PREFIX)/bin/roots.crt ; \
 	mkdir -p "$(ME_WEB_PREFIX)" ; \
 	cp src/web/index.html $(ME_WEB_PREFIX)/index.html ; \
 	cp src/web/favicon.ico $(ME_WEB_PREFIX)/favicon.ico ; \
 	mkdir -p "$(ME_ETC_PREFIX)" ; \
 	cp src/auth.txt $(ME_ETC_PREFIX)/auth.txt ; \
 	cp src/route.txt $(ME_ETC_PREFIX)/route.txt ; \
-	cp src/self.crt $(ME_ETC_PREFIX)/self.crt ; \
-	cp src/self.key $(ME_ETC_PREFIX)/self.key ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/libgo.so $(ME_VAPP_PREFIX)/bin/libgo.so ; \
 	if [ "$(ME_COM_EST)" = 1 ]; then true ; \
