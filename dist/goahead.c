@@ -1426,14 +1426,13 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *
 
 /*
    Get a Digest value using the MD5 algorithm -- See RFC 2617 to understand this code.
-*/
+ */
 static char *calcDigest(Webs *wp, char *username, char *password)
 {
     char  a1Buf[256], a2Buf[256], digestBuf[256];
     char  *ha1, *ha2, *method, *result;
 
     assert(wp);
-    assert(username);
     assert(password);
 
     /*
@@ -3102,6 +3101,7 @@ static void fileWriteEvent(Webs *wp)
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
             /* May be an error or just socket full (EAGAIN) */
+            websPageSeek(wp, -len, SEEK_CUR);
             break;
         }
         if (wrote != len) {
@@ -3837,12 +3837,7 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 
 
 
-/*********************************** Globals **********************************/
-
-static int websBackground;              /* Run as a daemon */
-static int websDebug;                   /* Run in debug mode and defeat timeouts */
-static int defaultHttpPort;             /* Default port number for http */
-static int defaultSslPort;              /* Default port number for https */
+/********************************* Defines ************************************/
 
 #define WEBS_TIMEOUT (ME_GOAHEAD_LIMIT_TIMEOUT * 1000)
 #define PARSE_TIMEOUT (ME_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
@@ -3850,8 +3845,12 @@ static int defaultSslPort;              /* Default port number for https */
 
 /************************************ Locals **********************************/
 
+static int          websBackground;             /* Run as a daemon */
+static int          websDebug;                  /* Run in debug mode and defeat timeouts */
+static int          defaultHttpPort;            /* Default port number for http */
+static int          defaultSslPort;             /* Default port number for https */
 static int          listens[WEBS_MAX_LISTEN];   /* Listen endpoints */;
-static int          listenMax;
+static int          listenMax;                  /* Max entry in listens */
 static Webs         **webs;                     /* Open connection list head */
 static WebsHash     websMime;                   /* Set of mime types */
 static int          websMax;                    /* List size */
@@ -4518,7 +4517,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
         Get the ip address of the interface that accept the connection.
      */
     len = sizeof(ifAddr);
-    if (getsockname(socketList[sid]->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
+    if (getsockname(socketPtr(sid)->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
         error("Cannot get sockname");
         return -1;
     }
@@ -13661,6 +13660,9 @@ uint hextoi(char *hexstring)
     char      *h;
     uint        c, v;
 
+    if (!hexstring) {
+        return 0;
+    }
     v = 0;
     h = hexstring;
     if (*h == '0' && (*(h+1) == 'x' || *(h+1) == 'X')) {
@@ -14083,11 +14085,12 @@ PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
 
 /************************************ Locals **********************************/
 
-WebsSocket      **socketList;           /* List of open sockets */
-PUBLIC int      socketMax;              /* Maximum size of socket */
-PUBLIC Socket   socketHighestFd = -1;   /* Highest socket fd opened */
-PUBLIC int      socketOpenCount = 0;    /* Number of task using sockets */
-static int      hasIPv6;                /* System supports IPv6 */
+PUBLIC WebsSocket   **socketList;           /* List of open sockets */
+PUBLIC int          socketMax;              /* Maximum size of socket */
+PUBLIC Socket       socketHighestFd = -1;   /* Highest socket fd opened */
+PUBLIC int          socketOpenCount = 0;    /* Number of task using sockets */
+
+static int          hasIPv6;                /* System supports IPv6 */
 
 /***************************** Forward Declarations ***************************/
 
@@ -14538,7 +14541,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         return 0;
     }
     /*
-        Wait for the event or a timeout.
+        Wait for the event or a timeout
      */
     nEvents = select(socketHighestFd + 1, &readFds, &writeFds, &exceptFds, &tv);
 
@@ -15230,7 +15233,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     sa.sin_family = AF_INET;
     sa.sin_port = htons((short) (port & 0xFFFF));
 
-    if (scmp(ip, "") != 0) {
+    if (ip && *ip) {
         sa.sin_addr.s_addr = inet_addr((char*) ip);
     } else {
         sa.sin_addr.s_addr = INADDR_ANY;
@@ -15453,6 +15456,12 @@ PUBLIC bool socketIsV6(int sid)
 PUBLIC bool socketAddressIsV6(char *ip)
 {
     return ip && ipv6(ip);
+}
+
+
+PUBLIC WebsSocket **socketGetList() 
+{
+    return socketList;
 }
 
 /*
