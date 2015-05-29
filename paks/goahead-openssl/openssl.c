@@ -146,11 +146,13 @@ PUBLIC int sslOpen()
     } else {
         ciphers = OPENSSL_DEFAULT_CIPHERS;
     }
-    trace(4, "Using OpenSSL ciphers: %s", ciphers);
-    if (SSL_CTX_set_cipher_list(sslctx, ciphers) != 1) {
-        error("Unable to set cipher list \"%s\". %s", ciphers);
-        sslClose();
-        return -1;
+    if (ciphers) {
+        trace(5, "Using OpenSSL ciphers: %s", ciphers);
+        if (SSL_CTX_set_cipher_list(sslctx, ciphers) != 1) {
+            error("Unable to set cipher list \"%s\". %s", ciphers);
+            sslClose();
+            return -1;
+        }
     }
 
     /*
