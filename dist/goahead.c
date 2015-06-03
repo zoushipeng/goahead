@@ -479,7 +479,7 @@ PUBLIC void wcloseAlloc() { }
 
 static WebsHash users = -1;
 static WebsHash roles = -1;
-static char *secret;
+static char *masterSecret;
 static int autoLogin = ME_GOAHEAD_AUTO_LOGIN;
 static WebsVerify verifyPassword = websVerifyPasswordFromFile;
 
@@ -594,7 +594,7 @@ PUBLIC int websOpenAuth(int minimal)
     }
     if (!minimal) {
         fmt(sbuf, sizeof(sbuf), "%x:%x", rand(), time(0));
-        secret = websMD5(sbuf);
+        masterSecret = websMD5(sbuf);
 #if ME_GOAHEAD_JAVASCRIPT && FUTURE
         websJsDefine("can", jsCan);
 #endif
@@ -616,7 +616,7 @@ PUBLIC void websCloseAuth()
 {
     WebsKey     *key, *next;
 
-    wfree(secret);
+    wfree(masterSecret);
     if (users >= 0) {
         for (key = hashFirst(users); key; key = next) {
             next = hashNext(users, key);
@@ -1364,7 +1364,7 @@ static bool parseDigestDetails(Webs *wp)
      */
     when = 0; secret = 0; realm = 0;
     parseDigestNonce(wp->nonce, &secret, &realm, &when);
-    if (!smatch(secret, secret)) {
+    if (!smatch(masterSecret, secret)) {
         trace(2, "Access denied: Nonce mismatch");
         return 0;
     } else if (!smatch(realm, ME_GOAHEAD_REALM)) {
@@ -1399,7 +1399,7 @@ static char *createDigestNonce(Webs *wp)
     assert(wp);
     assert(wp->route);
 
-    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", secret, ME_GOAHEAD_REALM, time(0), next++);
+    fmt(nonce, sizeof(nonce), "%s:%s:%x:%x", masterSecret, ME_GOAHEAD_REALM, time(0), next++);
     return websEncode64(nonce);
 }
 
@@ -1420,6 +1420,7 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *
     *realm = stok(NULL, ":", &tok);
     whenStr = stok(NULL, ":", &tok);
     *when = hextoi(whenStr);
+    wfree(decoded);
     return 0;
 }
 
