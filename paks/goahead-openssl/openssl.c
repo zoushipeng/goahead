@@ -61,11 +61,11 @@ static DH *dhKey;
 
 /************************************ Forwards ********************************/
 
-static DH *dhcallback(SSL *handle, int is_export, int keylength);
-static DH *getDhKey(cchar *path);
-static int sslSetCertFile(char *certFile);
-static int sslSetKeyFile(char *keyFile);
-static int verifyPeerCertificate(int ok, X509_STORE_CTX *ctx);
+static DH   *dhcallback(SSL *handle, int is_export, int keylength);
+static DH   *getDhKey(cchar *path);
+static int  sslSetCertFile(char *certFile);
+static int  sslSetKeyFile(char *keyFile);
+static int  verifyPeerCertificate(int ok, X509_STORE_CTX *ctx);
 
 /************************************** Code **********************************/
 /*
