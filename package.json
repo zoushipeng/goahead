@@ -37,8 +37,6 @@
         "doc/api/"
     ],
     "dependencies": {
-        "goahead-matrixssl": "^0.1",
-        "goahead-nanossl": "^0.1",
         "osdep": "^0.8",
         "ssl": "^0.9"
     },
