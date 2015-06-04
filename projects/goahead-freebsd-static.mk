@@ -403,6 +403,7 @@ $(BUILD)/obj/upload.o: \
 	$(CC) -c $(DFLAGS) -o $(BUILD)/obj/upload.o $(LDFLAGS) -DME_COM_OPENSSL_PATH="$(ME_COM_OPENSSL_PATH)" $(IFLAGS) "-I$(ME_COM_OPENSSL_PATH)/include" src/upload.c
 
 ifeq ($(ME_COM_SSL),1)
+ifeq ($(ME_COM_OPENSSL),1)
 #
 #   openssl
 #
@@ -411,6 +412,7 @@ DEPS_27 += $(BUILD)/obj/openssl.o
 $(BUILD)/bin/libopenssl.a: $(DEPS_27)
 	@echo '      [Link] $(BUILD)/bin/libopenssl.a'
 	ar -cr $(BUILD)/bin/libopenssl.a "$(BUILD)/obj/openssl.o"
+endif
 endif
 
 #
