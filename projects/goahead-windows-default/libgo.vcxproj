@@ -133,7 +133,7 @@
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libestssl.lib;libest.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>openssl;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
