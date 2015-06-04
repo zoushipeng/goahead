@@ -104,7 +104,6 @@ if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
 if not exist "$(IncDir)\me.h" copy "..\goahead-windows-default-me.h" "$(IncDir)\me.h"
-copy /Y /B ..\..\src\est\est.h $(IncDir)
 copy /Y /B ..\..\src\goahead.h $(IncDir)
 copy /Y /B ..\..\src\js.h $(IncDir)
 copy /Y /B ..\..\src\osdep\osdep.h $(IncDir)
