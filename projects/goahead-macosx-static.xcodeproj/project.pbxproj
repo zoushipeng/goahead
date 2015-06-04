@@ -1074,7 +1074,7 @@ fi";
 		8D77B7268D77D3460000008B /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = bin;
+    				PRODUCT_NAME = install-certs;
     
     				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -1090,7 +1090,7 @@ fi";
     		8D77B7268D77D3460000008C /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = bin;
+    				PRODUCT_NAME = install-certs;
     
     				OTHER_LDFLAGS = ();
 
