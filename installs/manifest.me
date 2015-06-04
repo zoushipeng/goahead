@@ -70,13 +70,6 @@ Me.load({
                     from:       'libgo${SHOBJ}',
                     to:         '${abin}/',
                     enable:     '!me.settings.static',
-
-                }, {
-                    from:       'libest${SHOBJ}',
-                    to:         '${abin}/',
-                    components: 'est',
-                    enable:     '!me.settings.static',
-                    ifdef:      'est',
                 }
             ],
             doc: [
