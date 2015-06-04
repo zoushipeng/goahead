@@ -612,10 +612,6 @@ installBinary: $(DEPS_34)
 	cp src/route.txt $(ME_ETC_PREFIX)/route.txt ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/libgo.dylib $(ME_VAPP_PREFIX)/bin/libgo.dylib ; \
-	if [ "$(ME_COM_EST)" = 1 ]; then true ; \
-	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
-	cp $(BUILD)/bin/libest.dylib $(ME_VAPP_PREFIX)/bin/libest.dylib ; \
-	fi ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/doc/man/man1" ; \
 	cp doc/dist/man/goahead.1 $(ME_VAPP_PREFIX)/doc/man/man1/goahead.1 ; \
 	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
