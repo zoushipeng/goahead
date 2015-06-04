@@ -1068,7 +1068,7 @@ fi";
 		530C07F8530C23300000008B /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = bin;
+    				PRODUCT_NAME = install-certs;
     
     				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ME_DEBUG",
@@ -1080,7 +1080,7 @@ fi";
     		530C07F8530C23300000008C /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = bin;
+    				PRODUCT_NAME = install-certs;
     
     
     			};
