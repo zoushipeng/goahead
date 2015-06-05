@@ -355,9 +355,6 @@
 #ifndef ME_COM_CC
     #define ME_COM_CC 1
 #endif
-#ifndef ME_COM_EST
-    #define ME_COM_EST 0
-#endif
 #ifndef ME_COM_LIB
     #define ME_COM_LIB 1
 #endif
