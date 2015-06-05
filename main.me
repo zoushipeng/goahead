@@ -305,7 +305,7 @@ Me.load({
                     if (me.settings.compiler.hasPam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
-                    cp(['${BIN}/self.key', '${BIN}/self.crt', '${BIN}/dh.pem'], 'src')
+                    cp(['${BIN}/self.key', '${BIN}/self.crt'], 'src')
                 `,  
             },
         },
