@@ -136,7 +136,7 @@ clean:
 	rm -f "$(BUILD)/bin/gopass"
 	rm -f "$(BUILD)/.install-certs-modified"
 	rm -f "$(BUILD)/bin/libgo.dylib"
-	rm -f "$(BUILD)/bin/libopenssl.a"
+	rm -f "$(BUILD)/bin/libgoahead-openssl.a"
 
 clobber: clean
 	rm -fr ./$(BUILD)
@@ -409,9 +409,9 @@ ifeq ($(ME_COM_OPENSSL),1)
 #
 DEPS_27 += $(BUILD)/obj/openssl.o
 
-$(BUILD)/bin/libopenssl.a: $(DEPS_27)
-	@echo '      [Link] $(BUILD)/bin/libopenssl.a'
-	ar -cr $(BUILD)/bin/libopenssl.a "$(BUILD)/obj/openssl.o"
+$(BUILD)/bin/libgoahead-openssl.a: $(DEPS_27)
+	@echo '      [Link] $(BUILD)/bin/libgoahead-openssl.a'
+	ar -cr $(BUILD)/bin/libgoahead-openssl.a "$(BUILD)/obj/openssl.o"
 endif
 endif
 
@@ -421,7 +421,7 @@ endif
 DEPS_28 += $(BUILD)/inc/osdep.h
 ifeq ($(ME_COM_SSL),1)
 ifeq ($(ME_COM_OPENSSL),1)
-    DEPS_28 += $(BUILD)/bin/libopenssl.a
+    DEPS_28 += $(BUILD)/bin/libgoahead-openssl.a
 endif
 endif
 DEPS_28 += $(BUILD)/inc/goahead.h
@@ -445,10 +445,8 @@ DEPS_28 += $(BUILD)/obj/socket.o
 DEPS_28 += $(BUILD)/obj/upload.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_28 += -lopenssl
+    LIBS_28 += -lgoahead-openssl
     LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
@@ -458,6 +456,10 @@ endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_28 += -lcrypto
+    LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_28 += -lgoahead-openssl
     LIBPATHS_28 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 
@@ -474,10 +476,8 @@ DEPS_29 += $(BUILD)/inc/js.h
 DEPS_29 += $(BUILD)/obj/goahead.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lopenssl
+    LIBS_29 += -lgoahead-openssl
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
@@ -490,6 +490,10 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 LIBS_29 += -lgo
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_29 += -lgoahead-openssl
+    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
 
 $(BUILD)/bin/goahead: $(DEPS_29)
 	@echo '      [Link] $(BUILD)/bin/goahead'
@@ -504,10 +508,8 @@ DEPS_30 += $(BUILD)/inc/js.h
 DEPS_30 += $(BUILD)/obj/test.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_30 += -lopenssl
+    LIBS_30 += -lgoahead-openssl
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
@@ -520,6 +522,10 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 LIBS_30 += -lgo
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_30 += -lgoahead-openssl
+    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
 
 $(BUILD)/bin/goahead-test: $(DEPS_30)
 	@echo '      [Link] $(BUILD)/bin/goahead-test'
@@ -534,10 +540,8 @@ DEPS_31 += $(BUILD)/inc/js.h
 DEPS_31 += $(BUILD)/obj/gopass.o
 
 ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_31 += -lopenssl
+    LIBS_31 += -lgoahead-openssl
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 endif
 ifeq ($(ME_COM_OPENSSL),1)
 ifeq ($(ME_COM_SSL),1)
@@ -550,6 +554,10 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 LIBS_31 += -lgo
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_31 += -lgoahead-openssl
+    LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
 
 $(BUILD)/bin/gopass: $(DEPS_31)
 	@echo '      [Link] $(BUILD)/bin/gopass'

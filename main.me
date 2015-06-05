@@ -64,7 +64,7 @@ Me.load({
             autoLogin: false,
 
             /*
-                SSL file of certificates 
+                List of root certificates for verifying client certificates.
              */
             ca: '',
 
@@ -78,11 +78,9 @@ Me.load({
             certificate: 'self.crt',
 
             /*
-                Recommended Cipher suite for OpenSSL (Mozilla) 
-                This is SSL stack dependant and only supported on EST and OpenSSL
-                    EST:'TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_RC4_128_SHA',
+                Override cipher suite for SSL.
              */
-            ciphers: 'ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4',
+            ciphers: '',
 
             /*
                 Build with CGI support and directory for CGI programs.
@@ -90,11 +88,6 @@ Me.load({
              */
             cgi: true,
             cgiBin: 'cgi-bin',
-
-            /*
-                DH parameter files for SSL.
-             */
-            dhparams: 'dh.pem',
 
             /*
                 Build with support for digest authentication
@@ -171,13 +164,17 @@ Me.load({
             replaceMalloc: false,
 
             /*
+                List of revoked client certificates
+             */
+            revoke: '',
+
+            /*
                 Enable stealth options. Disable OPTIONS and TRACE methods.
              */
             stealth: true,
 
             tls: {
                 cache: 512,                 /* Set the session cache size (items) */
-                compression: false,         /* Enable session compression */
                 curve: "prime256v1",        /* OpenSSL elliptic curve name */
                 no_v1: false,               /* Disables TLS V1.0 if true */
                 no_v1_1: false,             /* Disables TLS V1.1 if true */
@@ -198,7 +195,7 @@ Me.load({
             verifyPeer: false,
 
             /*
-                Verify issuer. If false, allows self-signed certificates for testing purposes.
+                Verify issuer of client certificate. If false, allows self-signed certificates for testing purposes.
              */
             verifyIssuer: false,
 

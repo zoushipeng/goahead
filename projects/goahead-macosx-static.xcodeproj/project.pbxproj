@@ -249,7 +249,7 @@
 		8D77B7268D77D3460000003D /* upload.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = upload.c; path = src/upload.c; sourceTree = "<group>"; };
 		8D77B7268D77D34600000041 /* libgo */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgo.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		8D77B7268D77D3460000003F /* openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = openssl.c; path = src/goahead-openssl/openssl.c; sourceTree = "<group>"; };
-		8D77B7268D77D34600000062 /* openssl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libopenssl.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		8D77B7268D77D34600000062 /* openssl */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = libgoahead-openssl.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -930,7 +930,7 @@ fi";
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
-					"-lopenssl",
+					"-lgoahead-openssl",
 					"-lssl",
 					"-lcrypto",
 					);
@@ -955,7 +955,7 @@ fi";
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
-					"-lopenssl",
+					"-lgoahead-openssl",
 					"-lssl",
 					"-lcrypto",
 					);
@@ -983,7 +983,7 @@ fi";
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
-					"-lopenssl",
+					"-lgoahead-openssl",
 					"-lssl",
 					"-lcrypto",
 					);
@@ -1008,7 +1008,7 @@ fi";
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
-					"-lopenssl",
+					"-lgoahead-openssl",
 					"-lssl",
 					"-lcrypto",
 					);
@@ -1036,7 +1036,7 @@ fi";
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
-					"-lopenssl",
+					"-lgoahead-openssl",
 					"-lssl",
 					"-lcrypto",
 					);
@@ -1061,7 +1061,7 @@ fi";
 					"$(inherited)"
 				);
 				OTHER_LDFLAGS = (
-					"-lopenssl",
+					"-lgoahead-openssl",
 					"-lssl",
 					"-lcrypto",
 					);
@@ -1157,7 +1157,7 @@ fi";
 		8D77B7268D77D3460000008F /* Debug */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = libopenssl;
+    				PRODUCT_NAME = libgoahead-openssl;
     				EXECUTABLE_EXTENSION = a;
 
     				HEADER_SEARCH_PATHS = (
@@ -1185,7 +1185,7 @@ fi";
     		8D77B7268D77D34600000090 /* Release */ = {
     			isa = XCBuildConfiguration;
     			buildSettings = {
-    				PRODUCT_NAME = libopenssl;
+    				PRODUCT_NAME = libgoahead-openssl;
     				EXECUTABLE_EXTENSION = a;
 
     				HEADER_SEARCH_PATHS = (
