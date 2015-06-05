@@ -1464,6 +1464,28 @@ PUBLIC int bufInsertc(WebsBuf *bp, char c)
 }
 
 
+PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...)
+{
+    va_list     ap;
+    char        *str;
+    ssize       rc;
+
+    assert(bp);
+    assert(bp->buflen == (bp->endbuf - bp->buf));
+
+    if (fmt == 0) {
+        return 0;
+    }
+    va_start(ap, fmt);
+    str = sfmtv(fmt, ap);
+    va_end(ap);
+
+    rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
+    *((char*) bp->endp) = (char) '\0';
+    return rc;
+}
+
+
 /*
     Add a string to the queue. Add a trailing null (maybe two nulls)
  */
