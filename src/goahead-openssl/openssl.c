@@ -713,7 +713,8 @@ static char *mapCipherNames(char *ciphers)
         return 0;
     }
     bufCreate(&buf, 0, 0);
-    for (next = sclone(ciphers); (cipher = stok(next, ":, \t", &next)) != 0; ) {
+    ciphers = sclone(ciphers);
+    for (next = ciphers; (cipher = stok(next, ":, \t", &next)) != 0; ) {
         for (cp = cipherMap; cp->name; cp++) {
             if (smatch(cp->name, cipher)) {
                 bufPut(&buf, "%s:", cp->ossName);
@@ -724,6 +725,7 @@ static char *mapCipherNames(char *ciphers)
             bufPut(&buf, "%s:", cipher);
         }
     }
+    wfree(ciphers);
     str = sclone(bufStart(&buf));
     bufFree(&buf);
     return str;
