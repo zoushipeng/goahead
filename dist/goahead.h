@@ -584,6 +584,15 @@ PUBLIC int bufPutc(WebsBuf *bp, char c);
  */
 PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
 
+/**
+    Append a formatted string to the buffer at the endp position and increment the endp
+    @param bp Buffer reference
+    @param fmt Printf style format string
+    @param ... Variable arguments for the format string
+    @return Count of characters appended. Returns negative if there is an allocation error.
+    @ingroup WebsBuf
+ */
+PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
 /**
     Append a string to the buffer at the endp position and increment the endp

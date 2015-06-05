@@ -195,7 +195,7 @@ clean:
 	if exist "build\$(CONFIG)\bin\libgo.lib" del /Q "build\$(CONFIG)\bin\libgo.lib"
 	if exist "build\$(CONFIG)\bin\libgo.pdb" del /Q "build\$(CONFIG)\bin\libgo.pdb"
 	if exist "build\$(CONFIG)\bin\libgo.exp" del /Q "build\$(CONFIG)\bin\libgo.exp"
-	if exist "build\$(CONFIG)\bin\libopenssl.lib" del /Q "build\$(CONFIG)\bin\libopenssl.lib"
+	if exist "build\$(CONFIG)\bin\libgoahead-openssl.lib" del /Q "build\$(CONFIG)\bin\libgoahead-openssl.lib"
 
 #
 #   me.h
@@ -263,9 +263,9 @@ build\$(CONFIG)\obj\openssl.obj: \
 #
 DEPS_7 = $(DEPS_7) build\$(CONFIG)\obj\openssl.obj
 
-build\$(CONFIG)\bin\libopenssl.lib: $(DEPS_7)
-	@echo ..... [Link] build\$(CONFIG)\bin\libopenssl.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libopenssl.lib "$(BUILD)\obj\openssl.obj" $(LOG)
+build\$(CONFIG)\bin\libgoahead-openssl.lib: $(DEPS_7)
+	@echo ..... [Link] build\$(CONFIG)\bin\libgoahead-openssl.lib
+	"lib.exe" -nologo -out:$(BUILD)\bin\libgoahead-openssl.lib "$(BUILD)\obj\openssl.obj" $(LOG)
 !ENDIF
 !ENDIF
 
@@ -446,7 +446,7 @@ build\$(CONFIG)\obj\upload.obj: \
 DEPS_25 = $(DEPS_25) build\$(CONFIG)\inc\osdep.h
 !IF "$(ME_COM_SSL)" == "1"
 !IF "$(ME_COM_OPENSSL)" == "1"
-DEPS_25 = $(DEPS_25) build\$(CONFIG)\bin\libopenssl.lib
+DEPS_25 = $(DEPS_25) build\$(CONFIG)\bin\libgoahead-openssl.lib
 !ENDIF
 !ENDIF
 DEPS_25 = $(DEPS_25) build\$(CONFIG)\inc\goahead.h
@@ -470,10 +470,12 @@ DEPS_25 = $(DEPS_25) build\$(CONFIG)\obj\socket.obj
 DEPS_25 = $(DEPS_25) build\$(CONFIG)\obj\upload.obj
 
 !IF "$(ME_COM_OPENSSL)" == "1"
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_25 = $(LIBS_25) libopenssl.lib
+LIBS_25 = $(LIBS_25) libgoahead-openssl.lib
 LIBPATHS_25 = $(LIBPATHS_25) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_25 = $(LIBS_25) libgdi32.lib
+LIBPATHS_25 = $(LIBPATHS_25) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_25 = $(LIBS_25) libeay32.lib
@@ -481,6 +483,10 @@ LIBPATHS_25 = $(LIBPATHS_25) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_25 = $(LIBS_25) libssleay32.lib
+LIBPATHS_25 = $(LIBPATHS_25) -libpath:$(ME_COM_OPENSSL_PATH)
+!ENDIF
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_25 = $(LIBS_25) libgoahead-openssl.lib
 LIBPATHS_25 = $(LIBPATHS_25) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 
@@ -507,10 +513,12 @@ DEPS_27 = $(DEPS_27) build\$(CONFIG)\inc\js.h
 DEPS_27 = $(DEPS_27) build\$(CONFIG)\obj\goahead.obj
 
 !IF "$(ME_COM_OPENSSL)" == "1"
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_27 = $(LIBS_27) libopenssl.lib
+LIBS_27 = $(LIBS_27) libgoahead-openssl.lib
 LIBPATHS_27 = $(LIBPATHS_27) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_27 = $(LIBS_27) libgdi32.lib
+LIBPATHS_27 = $(LIBPATHS_27) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_27 = $(LIBS_27) libeay32.lib
@@ -521,6 +529,10 @@ LIBS_27 = $(LIBS_27) libssleay32.lib
 LIBPATHS_27 = $(LIBPATHS_27) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_27 = $(LIBS_27) libgo.lib
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_27 = $(LIBS_27) libgoahead-openssl.lib
+LIBPATHS_27 = $(LIBPATHS_27) -libpath:$(ME_COM_OPENSSL_PATH)
+!ENDIF
 
 build\$(CONFIG)\bin\goahead.exe: $(DEPS_27)
 	@echo ..... [Link] build\$(CONFIG)\bin\goahead.exe
@@ -546,10 +558,12 @@ DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\js.h
 DEPS_29 = $(DEPS_29) build\$(CONFIG)\obj\test.obj
 
 !IF "$(ME_COM_OPENSSL)" == "1"
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_29 = $(LIBS_29) libopenssl.lib
+LIBS_29 = $(LIBS_29) libgoahead-openssl.lib
 LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_29 = $(LIBS_29) libgdi32.lib
+LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_29 = $(LIBS_29) libeay32.lib
@@ -560,6 +574,10 @@ LIBS_29 = $(LIBS_29) libssleay32.lib
 LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_29 = $(LIBS_29) libgo.lib
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_29 = $(LIBS_29) libgoahead-openssl.lib
+LIBPATHS_29 = $(LIBPATHS_29) -libpath:$(ME_COM_OPENSSL_PATH)
+!ENDIF
 
 build\$(CONFIG)\bin\goahead-test.exe: $(DEPS_29)
 	@echo ..... [Link] build\$(CONFIG)\bin\goahead-test.exe
@@ -584,10 +602,12 @@ DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\js.h
 DEPS_31 = $(DEPS_31) build\$(CONFIG)\obj\gopass.obj
 
 !IF "$(ME_COM_OPENSSL)" == "1"
-!IF "$(ME_COM_OPENSSL)" == "1"
-LIBS_31 = $(LIBS_31) libopenssl.lib
+LIBS_31 = $(LIBS_31) libgoahead-openssl.lib
 LIBPATHS_31 = $(LIBPATHS_31) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_31 = $(LIBS_31) libgdi32.lib
+LIBPATHS_31 = $(LIBPATHS_31) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 !IF "$(ME_COM_OPENSSL)" == "1"
 LIBS_31 = $(LIBS_31) libeay32.lib
@@ -598,6 +618,10 @@ LIBS_31 = $(LIBS_31) libssleay32.lib
 LIBPATHS_31 = $(LIBPATHS_31) -libpath:$(ME_COM_OPENSSL_PATH)
 !ENDIF
 LIBS_31 = $(LIBS_31) libgo.lib
+!IF "$(ME_COM_OPENSSL)" == "1"
+LIBS_31 = $(LIBS_31) libgoahead-openssl.lib
+LIBPATHS_31 = $(LIBPATHS_31) -libpath:$(ME_COM_OPENSSL_PATH)
+!ENDIF
 
 build\$(CONFIG)\bin\gopass.exe: $(DEPS_31)
 	@echo ..... [Link] build\$(CONFIG)\bin\gopass.exe

@@ -97,6 +97,13 @@
     </member>
     <member kind="function">
       <type>ssize</type>
+      <name>bufPut</name>
+      <anchorfile>group___webs_buf.html</anchorfile>
+      <anchor>ga67d36aae9ea560feb0680822e44bb364</anchor>
+      <arglist>(WebsBuf *bp, char *fmt,...) PRINTF_ATTRIBUTE(2</arglist>
+    </member>
+    <member kind="function">
+      <type>ssize</type>
       <name>bufPutBlk</name>
       <anchorfile>group___webs_buf.html</anchorfile>
       <anchor>ga419d75c03c567d76446620184f3a4c3b</anchor>
@@ -110,10 +117,10 @@
       <arglist>(WebsBuf *bp, char c)</arglist>
     </member>
     <member kind="function">
-      <type>ssize</type>
+      <type>ssize ssize</type>
       <name>bufPutStr</name>
       <anchorfile>group___webs_buf.html</anchorfile>
-      <anchor>gab2cc7762352180cf3334b0395c0026e3</anchor>
+      <anchor>ga3da34ee90e40df9da9fd3fb0b3790f8b</anchor>
       <arglist>(WebsBuf *bp, char *str)</arglist>
     </member>
     <member kind="function">

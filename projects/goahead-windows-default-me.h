@@ -94,16 +94,13 @@
     #define ME_GOAHEAD_CGI_BIN "cgi-bin"
 #endif
 #ifndef ME_GOAHEAD_CIPHERS
-    #define ME_GOAHEAD_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
+    #define ME_GOAHEAD_CIPHERS ""
 #endif
 #ifndef ME_GOAHEAD_CLIENT_CACHE
     #define ME_GOAHEAD_CLIENT_CACHE "css,gif,ico,jpg,js,png"
 #endif
 #ifndef ME_GOAHEAD_CLIENT_CACHE_LIFESPAN
     #define ME_GOAHEAD_CLIENT_CACHE_LIFESPAN 86400
-#endif
-#ifndef ME_GOAHEAD_DHPARAMS
-    #define ME_GOAHEAD_DHPARAMS "dh.pem"
 #endif
 #ifndef ME_GOAHEAD_DIGEST
     #define ME_GOAHEAD_DIGEST 1
@@ -186,14 +183,14 @@
 #ifndef ME_GOAHEAD_REPLACE_MALLOC
     #define ME_GOAHEAD_REPLACE_MALLOC 0
 #endif
+#ifndef ME_GOAHEAD_REVOKE
+    #define ME_GOAHEAD_REVOKE ""
+#endif
 #ifndef ME_GOAHEAD_STEALTH
     #define ME_GOAHEAD_STEALTH 1
 #endif
 #ifndef ME_GOAHEAD_TLS_CACHE
     #define ME_GOAHEAD_TLS_CACHE 512
-#endif
-#ifndef ME_GOAHEAD_TLS_COMPRESSION
-    #define ME_GOAHEAD_TLS_COMPRESSION 0
 #endif
 #ifndef ME_GOAHEAD_TLS_CURVE
     #define ME_GOAHEAD_TLS_CURVE "prime256v1"
@@ -325,7 +322,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . -with openssl -gen vs"
+    #define ME_CONFIG_CMD "me -d -q -platform windows-x86-default -configure . -without ssl -gen vs"
 #endif
 #ifndef ME_GOAHEAD_PRODUCT
     #define ME_GOAHEAD_PRODUCT 1
@@ -355,26 +352,11 @@
 #ifndef ME_COM_CC
     #define ME_COM_CC 1
 #endif
-#ifndef ME_COM_EST
-    #define ME_COM_EST 0
-#endif
 #ifndef ME_COM_LIB
     #define ME_COM_LIB 1
 #endif
 #ifndef ME_COM_LINK
     #define ME_COM_LINK 1
-#endif
-#ifndef ME_COM_MATRIXSSL
-    #define ME_COM_MATRIXSSL 0
-#endif
-#ifndef ME_COM_MBEDTLS
-    #define ME_COM_MBEDTLS 0
-#endif
-#ifndef ME_COM_NANOSSL
-    #define ME_COM_NANOSSL 0
-#endif
-#ifndef ME_COM_OPENSSL
-    #define ME_COM_OPENSSL 1
 #endif
 #ifndef ME_COM_OSDEP
     #define ME_COM_OSDEP 1
@@ -383,7 +365,7 @@
     #define ME_COM_RC 1
 #endif
 #ifndef ME_COM_SSL
-    #define ME_COM_SSL 1
+    #define ME_COM_SSL 0
 #endif
 #ifndef ME_COM_VXWORKS
     #define ME_COM_VXWORKS 0

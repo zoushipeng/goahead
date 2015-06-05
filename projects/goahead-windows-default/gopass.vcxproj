@@ -117,7 +117,7 @@
 
       <ItemDefinitionGroup>
       <Link>
-        <AdditionalDependencies>libgo.lib;openssl;libeay32.lib;ssleay32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        <AdditionalDependencies>libgo.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
 
