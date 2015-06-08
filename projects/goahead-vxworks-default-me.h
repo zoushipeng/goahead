@@ -361,9 +361,6 @@
 #ifndef ME_COM_CC
     #define ME_COM_CC 1
 #endif
-#ifndef ME_COM_EST
-    #define ME_COM_EST 0
-#endif
 #ifndef ME_COM_LIB
     #define ME_COM_LIB 1
 #endif
@@ -372,9 +369,6 @@
 #endif
 #ifndef ME_COM_MATRIXSSL
     #define ME_COM_MATRIXSSL 0
-#endif
-#ifndef ME_COM_MBEDTLS
-    #define ME_COM_MBEDTLS 0
 #endif
 #ifndef ME_COM_NANOSSL
     #define ME_COM_NANOSSL 0
