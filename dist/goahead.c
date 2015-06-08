@@ -512,7 +512,7 @@ static int jsCan(int jsid, Webs *wp, int argc, char **argv);
 #if ME_GOAHEAD_DIGEST
 static char *calcDigest(Webs *wp, char *username, char *password);
 static char *createDigestNonce(Webs *wp);
-static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
+static char *parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when);
 #endif
 
 #if ME_COMPILER_HAS_PAM
@@ -1218,7 +1218,7 @@ static void digestLogin(Webs *wp)
 static bool parseDigestDetails(Webs *wp)
 {
     WebsTime    when;
-    char        *value, *tok, *key, *dp, *sp, *secret, *realm;
+    char        *decoded, *value, *tok, *key, *dp, *sp, *secret, *realm;
     int         seenComma;
 
     assert(wp);
@@ -1363,26 +1363,32 @@ static bool parseDigestDetails(Webs *wp)
         Validate the nonce value - prevents replay attacks
      */
     when = 0; secret = 0; realm = 0;
-    parseDigestNonce(wp->nonce, &secret, &realm, &when);
+    decoded = parseDigestNonce(wp->nonce, &secret, &realm, &when);
     if (!smatch(masterSecret, secret)) {
         trace(2, "Access denied: Nonce mismatch");
+        wfree(decoded);
         return 0;
     } else if (!smatch(realm, ME_GOAHEAD_REALM)) {
         trace(2, "Access denied: Realm mismatch");
+        wfree(decoded);
         return 0;
     } else if (!smatch(wp->qop, "auth")) {
         trace(2, "Access denied: Bad qop");
+        wfree(decoded);
         return 0;
     } else if ((when + (5 * 60)) < time(0)) {
         trace(2, "Access denied: Nonce is stale");
+        wfree(decoded);
         return 0;
     }
     if (!wp->user) {
         if ((wp->user = websLookupUser(wp->username)) == 0) {
             trace(2, "Access denied: user is unknown");
+            wfree(decoded);
             return 0;
         }
     }
+    wfree(decoded);
     wp->digest = calcDigest(wp, 0, wp->user->password);
     return 1;
 }
@@ -1404,7 +1410,7 @@ static char *createDigestNonce(Webs *wp)
 }
 
 
-static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when)
+static char *parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when)
 {
     char    *tok, *decoded, *whenStr;                                                                      
                                                                                                            
@@ -1414,14 +1420,13 @@ static int parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *
     assert(when);
 
     if ((decoded = websDecode64(nonce)) == 0) {                                                             
-        return -1;
+        return 0;
     }                                                                                                      
     *secret = stok(decoded, ":", &tok);
     *realm = stok(NULL, ":", &tok);
     whenStr = stok(NULL, ":", &tok);
     *when = hextoi(whenStr);
-    wfree(decoded);
-    return 0;
+    return decoded;
 }
 
 
