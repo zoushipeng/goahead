@@ -349,13 +349,13 @@ PUBLIC int sslOpen()
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv3);
 
-#if defined(SSL_OP_NO_TLSv1) && ME_GOAHEAD_TLS_NO_V1
+#if defined(SSL_OP_NO_TLSv1) && ME_GOAHEAD_SSL_NO_V1
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1);
 #endif
-#if defined(SSL_OP_NO_TLSv1_1) && ME_GOAHEAD_TLS_NO_V1_1
+#if defined(SSL_OP_NO_TLSv1_1) && ME_GOAHEAD_SSL_NO_V1_1
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_1);
 #endif
-#if defined(SSL_OP_NO_TLSv1_2) && ME_GOAHEAD_TLS_NO_V1_2
+#if defined(SSL_OP_NO_TLSv1_2) && ME_GOAHEAD_SSL_NO_V1_2
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_2);
 #endif
 
@@ -364,8 +364,8 @@ PUBLIC int sslOpen()
     /*
         Ticket based session reuse is enabled by default
      */
-    #if defined(ME_GOAHEAD_TLS_TICKET)
-        if (ME_GOAHEAD_TLS_TICKET) {
+    #if defined(ME_GOAHEAD_SSL_TICKET)
+        if (ME_GOAHEAD_SSL_TICKET) {
             SSL_CTX_clear_options(sslctx, SSL_OP_NO_TICKET);
         } else {
             SSL_CTX_set_options(sslctx, SSL_OP_NO_TICKET);
@@ -377,20 +377,9 @@ PUBLIC int sslOpen()
 
 #if defined(SSL_OP_NO_COMPRESSION)
     /*
-        Use of compression is not secure. Disabled by default.
+        CRIME attack targets compression
      */
-    #if defined(ME_GOAHEAD_TLS_COMPRESSION)
-        if (ME_GOAHEAD_TLS_COMPRESSION) {
-            SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
-        } else {
-            SSL_CTX_set_options(sslctx, SSL_OP_NO_COMPRESSION);
-        }
-    #else
-        /*
-            CRIME attack targets compression
-         */
-        SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
-    #endif
+    SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
 #endif
 
 #if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
@@ -398,8 +387,8 @@ PUBLIC int sslOpen()
         Disables a countermeasure against a SSL 3.0/TLS 1.0 protocol vulnerability affecting CBC ciphers.
         Defaults to true.
      */
-    #if defined(ME_GOAHEAD_TLS_EMPTY_FRAGMENTS)
-        if (ME_GOAHEAD_TLS_EMPTY_FRAGMENTS) {
+    #if defined(ME_GOAHEAD_SSL_EMPTY_FRAGMENTS)
+        if (ME_GOAHEAD_SSL_EMPTY_FRAGMENTS) {
             /* SSL_OP_ALL disables empty fragments. Only needed for ancient browsers like IE-6 on SSL-3.0/TLS-1.0 */
             SSL_CTX_clear_options(sslctx, SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS);
         } else {
@@ -410,11 +399,11 @@ PUBLIC int sslOpen()
     #endif
 #endif
 
-#if defined(ME_GOAHEAD_TLS_CACHE)
+#if defined(ME_GOAHEAD_SSL_CACHE)
     /*
         Set the number of sessions supported. Default in OpenSSL is 20K.
      */
-    SSL_CTX_sess_set_cache_size(sslctx, ME_GOAHEAD_TLS_CACHE);
+    SSL_CTX_sess_set_cache_size(sslctx, ME_GOAHEAD_SSL_CACHE);
 #else
     SSL_CTX_sess_set_cache_size(sslctx, 256);
 #endif

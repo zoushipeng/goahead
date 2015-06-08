@@ -207,20 +207,17 @@
 #ifndef ME_GOAHEAD_TLS_CURVE
     #define ME_GOAHEAD_TLS_CURVE "prime256v1"
 #endif
-#ifndef ME_GOAHEAD_TLS_NO_V1
-    #define ME_GOAHEAD_TLS_NO_V1 0
-#endif
-#ifndef ME_GOAHEAD_TLS_NO_V1_1
-    #define ME_GOAHEAD_TLS_NO_V1_1 0
-#endif
-#ifndef ME_GOAHEAD_TLS_NO_V1_2
-    #define ME_GOAHEAD_TLS_NO_V1_2 0
+#ifndef ME_GOAHEAD_TLS_LOG_LEVEL
+    #define ME_GOAHEAD_TLS_LOG_LEVEL 3
 #endif
 #ifndef ME_GOAHEAD_TLS_RENEGOTIATE
     #define ME_GOAHEAD_TLS_RENEGOTIATE 1
 #endif
 #ifndef ME_GOAHEAD_TLS_TICKET
     #define ME_GOAHEAD_TLS_TICKET 1
+#endif
+#ifndef ME_GOAHEAD_TLS_TIMEOUT
+    #define ME_GOAHEAD_TLS_TIMEOUT 86400
 #endif
 #ifndef ME_GOAHEAD_TRACING
     #define ME_GOAHEAD_TRACING 1

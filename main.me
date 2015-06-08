@@ -174,13 +174,12 @@ Me.load({
             stealth: true,
 
             tls: {
-                cache: 512,                 /* Set the session cache size (items) */
-                curve: "prime256v1",        /* OpenSSL elliptic curve name */
-                no_v1: false,               /* Disables TLS V1.0 if true */
-                no_v1_1: false,             /* Disables TLS V1.1 if true */
-                no_v1_2: false,             /* Disables TLS V1.2 if true */
-                renegotiate: true,          /* Enable/Disable SSL renegotiation (defaults to true) */
-                ticket: true,               /* Enable session resumption via ticketing - client side session caching */
+                cache: 512,             /* Set the session cache size (items) */
+                curve: "prime256v1",    /* OpenSSL elliptic curve name */
+                logLevel: 3             /* Starting logging level for SSL messages */
+                renegotiate: true,      /* Enable/Disable SSL renegotiation (defaults to true) */
+                ticket: true,           /* Enable session resumption via ticketing - client side session caching */
+                timeout: 86400,         /* Session and ticketing duration in seconds */
             },
 
             /*
