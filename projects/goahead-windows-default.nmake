@@ -3,7 +3,7 @@
 #
 
 NAME                  = goahead
-VERSION               = 3.4.6
+VERSION               = 3.4.7
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
