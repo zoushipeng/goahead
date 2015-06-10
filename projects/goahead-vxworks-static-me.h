@@ -93,20 +93,11 @@
 #ifndef ME_GOAHEAD_AUTO_LOGIN
     #define ME_GOAHEAD_AUTO_LOGIN 0
 #endif
-#ifndef ME_GOAHEAD_CA
-    #define ME_GOAHEAD_CA ""
-#endif
-#ifndef ME_GOAHEAD_CERTIFICATE
-    #define ME_GOAHEAD_CERTIFICATE "self.crt"
-#endif
 #ifndef ME_GOAHEAD_CGI
     #define ME_GOAHEAD_CGI 1
 #endif
 #ifndef ME_GOAHEAD_CGI_BIN
     #define ME_GOAHEAD_CGI_BIN "cgi-bin"
-#endif
-#ifndef ME_GOAHEAD_CIPHERS
-    #define ME_GOAHEAD_CIPHERS ""
 #endif
 #ifndef ME_GOAHEAD_CLIENT_CACHE
     #define ME_GOAHEAD_CLIENT_CACHE "css,gif,ico,jpg,js,png"
@@ -122,9 +113,6 @@
 #endif
 #ifndef ME_GOAHEAD_JAVASCRIPT
     #define ME_GOAHEAD_JAVASCRIPT 1
-#endif
-#ifndef ME_GOAHEAD_KEY
-    #define ME_GOAHEAD_KEY "self.key"
 #endif
 #ifndef ME_GOAHEAD_LEGACY
     #define ME_GOAHEAD_LEGACY 0
@@ -195,23 +183,41 @@
 #ifndef ME_GOAHEAD_REPLACE_MALLOC
     #define ME_GOAHEAD_REPLACE_MALLOC 0
 #endif
-#ifndef ME_GOAHEAD_REVOKE
-    #define ME_GOAHEAD_REVOKE ""
+#ifndef ME_GOAHEAD_SSL_AUTHORITY
+    #define ME_GOAHEAD_SSL_AUTHORITY ""
 #endif
 #ifndef ME_GOAHEAD_SSL_CACHE
     #define ME_GOAHEAD_SSL_CACHE 512
 #endif
+#ifndef ME_GOAHEAD_SSL_CERTIFICATE
+    #define ME_GOAHEAD_SSL_CERTIFICATE "self.crt"
+#endif
+#ifndef ME_GOAHEAD_SSL_CIPHERS
+    #define ME_GOAHEAD_SSL_CIPHERS ""
+#endif
+#ifndef ME_GOAHEAD_SSL_KEY
+    #define ME_GOAHEAD_SSL_KEY "self.key"
+#endif
 #ifndef ME_GOAHEAD_SSL_LOG_LEVEL
-    #define ME_GOAHEAD_SSL_LOG_LEVEL 3
+    #define ME_GOAHEAD_SSL_LOG_LEVEL 5
 #endif
 #ifndef ME_GOAHEAD_SSL_RENEGOTIATE
     #define ME_GOAHEAD_SSL_RENEGOTIATE 1
+#endif
+#ifndef ME_GOAHEAD_SSL_REVOKE
+    #define ME_GOAHEAD_SSL_REVOKE ""
 #endif
 #ifndef ME_GOAHEAD_SSL_TICKET
     #define ME_GOAHEAD_SSL_TICKET 1
 #endif
 #ifndef ME_GOAHEAD_SSL_TIMEOUT
     #define ME_GOAHEAD_SSL_TIMEOUT 86400
+#endif
+#ifndef ME_GOAHEAD_SSL_VERIFY_ISSUER
+    #define ME_GOAHEAD_SSL_VERIFY_ISSUER 0
+#endif
+#ifndef ME_GOAHEAD_SSL_VERIFY_PEER
+    #define ME_GOAHEAD_SSL_VERIFY_PEER 0
 #endif
 #ifndef ME_GOAHEAD_STEALTH
     #define ME_GOAHEAD_STEALTH 1
@@ -224,12 +230,6 @@
 #endif
 #ifndef ME_GOAHEAD_UPLOAD_DIR
     #define ME_GOAHEAD_UPLOAD_DIR "/tmp"
-#endif
-#ifndef ME_GOAHEAD_VERIFY_ISSUER
-    #define ME_GOAHEAD_VERIFY_ISSUER 0
-#endif
-#ifndef ME_GOAHEAD_VERIFY_PEER
-    #define ME_GOAHEAD_VERIFY_PEER 0
 #endif
 #ifndef ME_GOAHEAD_XFRAME_HEADER
     #define ME_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"
@@ -256,7 +256,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.4.6"
+    #define ME_VERSION "3.4.7"
 #endif
 
 /* Prefixes */
@@ -309,7 +309,7 @@
     #define ME_VAPP_PREFIX "deploy"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "/usr/src/goahead-3.4.6"
+    #define ME_SRC_PREFIX "/usr/src/goahead-3.4.7"
 #endif
 
 /* Suffixes */
@@ -351,10 +351,10 @@
     #define ME_MINOR_VERSION 4
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 6
+    #define ME_PATCH_VERSION 7
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 300040006
+    #define ME_VNUM 300040007
 #endif
 
 /* Components */
