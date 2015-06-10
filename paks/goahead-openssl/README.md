@@ -7,13 +7,9 @@ OpenSSL stack interface.
 
     pak install goahead-openssl
 
-## Configuration
+## Build
 
-    ./configure --with openssl
-
-## Building
-
-    me
+    ./configure --with openssl build
 
 ## Get Pak
 

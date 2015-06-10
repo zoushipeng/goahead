@@ -166,8 +166,11 @@ typedef struct RandBuf {
 
 #define VERIFY_DEPTH 10
 
-#ifndef ME_GOAHEAD_CURVE
-    #define ME_GOAHEAD_CURVE "prime256v1"
+/*
+    Used for OpenSSL versions < 1.0.2
+ */
+#ifndef ME_GOAHEAD_SSL_CURVE
+    #define ME_GOAHEAD_SSL_CURVE "prime256v1"
 #endif
 
 /*
@@ -222,16 +225,16 @@ PUBLIC int sslOpen()
     /*
           Set the server certificate and key files
      */
-    if (*ME_GOAHEAD_KEY && sslSetKeyFile(ME_GOAHEAD_KEY) < 0) {
+    if (*ME_GOAHEAD_SSL_KEY && sslSetKeyFile(ME_GOAHEAD_SSL_KEY) < 0) {
         sslClose();
         return -1;
     }
-    if (*ME_GOAHEAD_CERTIFICATE && sslSetCertFile(ME_GOAHEAD_CERTIFICATE) < 0) {
+    if (*ME_GOAHEAD_SSL_CERTIFICATE && sslSetCertFile(ME_GOAHEAD_SSL_CERTIFICATE) < 0) {
         sslClose();
         return -1;
     }
 
-    if (ME_GOAHEAD_VERIFY_PEER) {
+    if (ME_GOAHEAD_SSL_VERIFY_PEER) {
         SSL_CTX_set_verify(sslctx, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, verifyClientCertificate);
         SSL_CTX_set_verify_depth(sslctx, VERIFY_DEPTH);
     } else {
@@ -240,8 +243,9 @@ PUBLIC int sslOpen()
     /*
           Set the client certificate verification locations
      */
-    if (ME_GOAHEAD_CA && *ME_GOAHEAD_CA) {
-        if ((!SSL_CTX_load_verify_locations(sslctx, ME_GOAHEAD_CA, NULL)) || (!SSL_CTX_set_default_verify_paths(sslctx))) {
+    if (ME_GOAHEAD_SSL_AUTHORITY && *ME_GOAHEAD_SSL_AUTHORITY) {
+        if ((!SSL_CTX_load_verify_locations(sslctx, ME_GOAHEAD_SSL_AUTHORITY, NULL)) || 
+            (!SSL_CTX_set_default_verify_paths(sslctx))) {
             error("Unable to read cert verification locations");
             sslClose();
             return -1;
@@ -250,12 +254,12 @@ PUBLIC int sslOpen()
             Define the list of CA certificates to send to the client before they send their client 
             certificate for validation
          */
-        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(ME_GOAHEAD_CA));
+        SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(ME_GOAHEAD_SSL_AUTHORITY));
     }
-    if (ME_GOAHEAD_REVOKE && *ME_GOAHEAD_REVOKE) {
+    if (ME_GOAHEAD_SSL_REVOKE && *ME_GOAHEAD_SSL_REVOKE) {
         store = SSL_CTX_get_cert_store(sslctx);
-        if (!X509_STORE_load_locations(store, ME_GOAHEAD_REVOKE, 0)) {
-            error("Cannot load certificate revoke list: %s", ME_GOAHEAD_REVOKE);
+        if (!X509_STORE_load_locations(store, ME_GOAHEAD_SSL_REVOKE, 0)) {
+            error("Cannot load certificate revoke list: %s", ME_GOAHEAD_SSL_REVOKE);
             sslClose();
             return -1;
         }
@@ -270,8 +274,8 @@ PUBLIC int sslOpen()
     /*
         Configure cipher suite
      */
-    if (ME_GOAHEAD_CIPHERS && *ME_GOAHEAD_CIPHERS) {
-        ciphers = ME_GOAHEAD_CIPHERS;
+    if (ME_GOAHEAD_SSL_CIPHERS && *ME_GOAHEAD_SSL_CIPHERS) {
+        ciphers = ME_GOAHEAD_SSL_CIPHERS;
     } else {
         ciphers = OPENSSL_DEFAULT_CIPHERS;
     }
@@ -313,7 +317,7 @@ PUBLIC int sslOpen()
             cchar   *name;
             int      nid;
 
-            name = ME_GOAHEAD_CURVE;
+            name = ME_GOAHEAD_SSL_CURVE;
             if ((nid = OBJ_sn2nid(name)) == 0) {
                 error("Unknown curve name \"%s\"", name);
                 sslClose();
@@ -643,14 +647,14 @@ static int verifyClientCertificate(int ok, X509_STORE_CTX *xContext)
         break;
     case X509_V_ERR_DEPTH_ZERO_SELF_SIGNED_CERT:
     case X509_V_ERR_SELF_SIGNED_CERT_IN_CHAIN:
-        if (ME_GOAHEAD_VERIFY_ISSUER) {
+        if (ME_GOAHEAD_SSL_VERIFY_ISSUER) {
             logmsg(3, "Self-signed certificate");
             ok = 0;
         }
 
     case X509_V_ERR_CERT_UNTRUSTED:
     case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT_LOCALLY:
-        if (ME_GOAHEAD_VERIFY_ISSUER) {
+        if (ME_GOAHEAD_SSL_VERIFY_ISSUER) {
             logmsg(3, "Certificate not trusted");
             ok = 0;
         }
@@ -658,7 +662,7 @@ static int verifyClientCertificate(int ok, X509_STORE_CTX *xContext)
 
     case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
     case X509_V_ERR_UNABLE_TO_VERIFY_LEAF_SIGNATURE:
-        if (ME_GOAHEAD_VERIFY_ISSUER) {
+        if (ME_GOAHEAD_SSL_VERIFY_ISSUER) {
             logmsg(3, "Certificate not trusted");
             ok = 0;
         }
