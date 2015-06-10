@@ -186,26 +186,23 @@
 #ifndef ME_GOAHEAD_REVOKE
     #define ME_GOAHEAD_REVOKE ""
 #endif
+#ifndef ME_GOAHEAD_SSL_CACHE
+    #define ME_GOAHEAD_SSL_CACHE 512
+#endif
+#ifndef ME_GOAHEAD_SSL_LOG_LEVEL
+    #define ME_GOAHEAD_SSL_LOG_LEVEL 3
+#endif
+#ifndef ME_GOAHEAD_SSL_RENEGOTIATE
+    #define ME_GOAHEAD_SSL_RENEGOTIATE 1
+#endif
+#ifndef ME_GOAHEAD_SSL_TICKET
+    #define ME_GOAHEAD_SSL_TICKET 1
+#endif
+#ifndef ME_GOAHEAD_SSL_TIMEOUT
+    #define ME_GOAHEAD_SSL_TIMEOUT 86400
+#endif
 #ifndef ME_GOAHEAD_STEALTH
     #define ME_GOAHEAD_STEALTH 1
-#endif
-#ifndef ME_GOAHEAD_TLS_CACHE
-    #define ME_GOAHEAD_TLS_CACHE 512
-#endif
-#ifndef ME_GOAHEAD_TLS_CURVE
-    #define ME_GOAHEAD_TLS_CURVE "prime256v1"
-#endif
-#ifndef ME_GOAHEAD_TLS_LOG_LEVEL
-    #define ME_GOAHEAD_TLS_LOG_LEVEL 3
-#endif
-#ifndef ME_GOAHEAD_TLS_RENEGOTIATE
-    #define ME_GOAHEAD_TLS_RENEGOTIATE 1
-#endif
-#ifndef ME_GOAHEAD_TLS_TICKET
-    #define ME_GOAHEAD_TLS_TICKET 1
-#endif
-#ifndef ME_GOAHEAD_TLS_TIMEOUT
-    #define ME_GOAHEAD_TLS_TIMEOUT 86400
 #endif
 #ifndef ME_GOAHEAD_TRACING
     #define ME_GOAHEAD_TRACING 1
@@ -230,6 +227,9 @@
 #endif
 #ifndef ME_MANIFEST
     #define ME_MANIFEST "installs/manifest.me"
+#endif
+#ifndef ME_MBEDTLS_COMPACT
+    #define ME_MBEDTLS_COMPACT 1
 #endif
 #ifndef ME_NAME
     #define ME_NAME "goahead"

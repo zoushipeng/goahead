@@ -9,7 +9,7 @@
  */
 
 Me.load({
-    makeme: '>=0.8.6',
+    makeme: '>=0.8.8',
 
     plugins: [ 'configuration', 'installs' ],
 
@@ -63,24 +63,8 @@ Me.load({
              */
             autoLogin: false,
 
-            /*
-                List of root certificates for verifying client certificates.
-             */
-            ca: '',
-
             clientCache: [ 'css', 'gif', 'ico', 'jpg', 'js', 'png', ],
             clientCacheLifespan: 86400,
-
-            /*
-                Server certificate file for SSL. This is a test self-signed certificate.
-                A valid certificate must be obtained or generated.
-             */
-            certificate: 'self.crt',
-
-            /*
-                Override cipher suite for SSL.
-             */
-            ciphers: '',
 
             /*
                 Build with CGI support and directory for CGI programs.
@@ -103,12 +87,6 @@ Me.load({
                 Build with support for javascript web templates
              */
             javascript: true,
-
-            /*
-                Server SSL key. This is by default set to a test key.
-                This must be regenerated.
-             */
-            key: 'self.key',
 
             /*
                 Define legacy APIs for compatibility with old GoAhead web server applications
@@ -164,22 +142,24 @@ Me.load({
             replaceMalloc: false,
 
             /*
-                List of revoked client certificates
-             */
-            revoke: '',
-
-            /*
                 Enable stealth options. Disable OPTIONS and TRACE methods.
              */
             stealth: true,
 
-            tls: {
-                cache: 512,             /* Set the session cache size (items) */
-                curve: "prime256v1",    /* OpenSSL elliptic curve name */
-                logLevel: 3             /* Starting logging level for SSL messages */
-                renegotiate: true,      /* Enable/Disable SSL renegotiation (defaults to true) */
-                ticket: true,           /* Enable session resumption via ticketing - client side session caching */
-                timeout: 86400,         /* Session and ticketing duration in seconds */
+            ssl: {
+                authority: '',           /* Root certificates for verifying client certificates */
+                cache: 512,              /* Set the session cache size (items) */
+                certificate: 'self.crt', /* Server certificate file. A valid certificate must be obtained */
+                ciphers: '',             /* Override cipher suite for SSL.  */
+                key: 'self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
+                logLevel: 5              /* Starting logging level for SSL messages */
+                renegotiate: true,       /* Enable/Disable SSL renegotiation (defaults to true) */
+                revoke: '',              /* List of revoked client certificates */
+                ticket: true,            /* Enable session resumption via ticketing - client side session caching */
+                timeout: 86400,          /* Session and ticketing duration in seconds */
+                verifyIssuer: false,     /* Verify issuer of client certificate */
+                verifyPeer: false,       /* Verify client certificates */
+
             },
 
             /*
@@ -189,20 +169,14 @@ Me.load({
             uploadDir: '/tmp',
 
             /*
-                Verify client certificates
-             */
-            verifyPeer: false,
-
-            /*
-                Verify issuer of client certificate. If false, allows self-signed certificates for testing purposes.
-             */
-            verifyIssuer: false,
-
-            /*
                 Enable X-Frame-Origin to prevent clickjacking. Set to empty to disable.
                 Set to: DENY, SAMEORIGIN, ALLOW uri
              */
             xframeHeader: 'SAMEORIGIN',
+        },
+
+        mbedtls: {
+            compact: true,      /* Compact edition - Disable non-essential ciphers and features */
         },
     },
 
@@ -233,16 +207,19 @@ Me.load({
         'goahead.limitTimeout':       'Request inactivity timeout in seconds',
         'goahead.limitUri':           'Maximum URI size',
         'goahead.limitUpload':        'Maximum upload size ~ 200MB',
-
-
         'goahead.listen':             'Addresses to listen to (["http://IP:port", ...])',
         'goahead.logfile':            'Default location and level for debug log (path:level)',
         'goahead.logging':            'Enable application logging (true|false)',
         'goahead.pam':                'Enable Unix Pluggable Auth Module (true|false)',
         'goahead.putDir':             'Define the directory for file uploaded via HTTP PUT (path)',
         'goahead.realm':              'Authentication realm (string)',
-
+        'goahead.revoke':             'List of revoked client certificates',
         'goahead.replaceMalloc':      'Replace malloc with non-fragmenting allocator (true|false)',
+        'goahead.ssl.cache':          'Set the session cache size (items)',
+        'goahead.ssl.logLevel':       'Starting logging level for SSL messages',
+        'goahead.ssl.renegotiate':    'Enable/Disable SSL renegotiation (defaults to true)',
+        'goahead.ssl.ticket':         'Enable session resumption via ticketing - client side session caching',
+        'goahead.ssl.timeout':        'Session and ticketing duration in seconds',
         'goahead.stealth':            'Run in stealth mode. Disable OPTIONS, TRACE (true|false)',
         'goahead.tune':               'Optimize (size|speed|balanced)',
         'goahead.upload':             'Enable file upload (true|false)',
@@ -419,6 +396,11 @@ Me.load({
 
         mine: {
             action: `genProjects('-with openssl', 'mine', Config.OS + '-' + Config.CPU)`,
+        },
+
+        mgen: {
+            //  TODO remove when mbedtls is fully supported
+            action: `genProjects('-with mbedtls', 'mine', Config.OS + '-' + Config.CPU)`,
         }
     },
 })
