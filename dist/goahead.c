@@ -7192,9 +7192,6 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
     }
     wfree(dupPath);
     wfree(segments);
-    if ((path[0] != '/') || strchr(path, '\\')) {
-        return 0;
-    }
     return path;
 }
 
