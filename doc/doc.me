@@ -7,9 +7,13 @@ Me.load({
         api: {
             action: `
                 apidoc('api/goahead.dox', '${SRC}/goahead.h', 'GoAhead')
-                let files = Path().files(['api/goahead.html', me.dir.paks.join('*/doc/api/*.html')])
+                apiLayout('api/goahead.html', 'dist/ref/api/goahead.html')
+
+                let base = me.dir.paks.join('*/doc')
+                let files = Path().files(base.join('api/*.html'))
                 for each (src in files) {
-                    apiLayout(src, Path('dist/ref').join(src))
+                    let dest = src.trimComponents(base.components.length)
+                    apiLayout(src, Path('dist/ref').join(dest))
                 }
             `
         },
