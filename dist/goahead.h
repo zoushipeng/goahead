@@ -24,7 +24,7 @@
 extern "C" {
 #endif
 
-#if (ME_COM_EST + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
+#if (ME_COM_MBEDTLS + ME_COM_MATRIXSSL + ME_COM_NANOSSL + ME_COM_OPENSSL) > 1
     #error "Cannot have more than one SSL provider configured"
 #endif
 
@@ -2979,6 +2979,46 @@ PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 /*************************************** SSL ***********************************/
 
 #if ME_COM_SSL
+/*
+    Default MakeMe settings
+ */
+#ifndef ME_GOAHEAD_SSL_AUTHORITY
+    #define ME_GOAHEAD_SSL_AUTHORITY ""
+#endif
+#ifndef ME_GOAHEAD_SSL_CACHE
+    #define ME_GOAHEAD_SSL_CACHE 512
+#endif
+#ifndef ME_GOAHEAD_SSL_CERTIFICATE
+    #define ME_GOAHEAD_SSL_CERTIFICATE ""
+#endif
+#ifndef ME_GOAHEAD_SSL_CIPHERS
+    #define ME_GOAHEAD_SSL_CIPHERS ""
+#endif
+#ifndef ME_GOAHEAD_SSL_KEY
+    #define ME_GOAHEAD_SSL_KEY ""
+#endif
+#ifndef ME_GOAHEAD_SSL_LOG_LEVEL
+    #define ME_GOAHEAD_SSL_LOG_LEVEL 4
+#endif
+#ifndef ME_GOAHEAD_SSL_RENEGOTIATE
+    #define ME_GOAHEAD_SSL_RENEGOTIATE 1
+#endif
+#ifndef ME_GOAHEAD_SSL_REVOKE
+    #define ME_GOAHEAD_SSL_REVOKE ""
+#endif
+#ifndef ME_GOAHEAD_SSL_TICKET
+    #define ME_GOAHEAD_SSL_TICKET 1
+#endif
+#ifndef ME_GOAHEAD_SSL_TIMEOUT
+    #define ME_GOAHEAD_SSL_TIMEOUT 86400
+#endif
+#ifndef ME_GOAHEAD_SSL_VERIFY
+    #define ME_GOAHEAD_SSL_VERIFY 0
+#endif
+#ifndef ME_GOAHEAD_SSL_VERIFY_ISSUER
+    #define ME_GOAHEAD_SSL_VERIFY_ISSUER 0
+#endif
+
 /**
     Open the ssl module
     @return Zero if successful, otherwise -1.
