@@ -187,9 +187,10 @@ ALIASES                = "reminder=\xrefitem reminders \"Reminder\" \"Reminders\
                          "library=\par \b Library:\n" \
                          "options=\par \b Options:\n" \
                          "description=\par \b Description:\n" \
-                         "elements=\par \b Elements:\n" \
                          "example=\par \b Example:\n" \
-                         "stability=\par \b API Stability:\n"
+                         "elements=\par \b Elements:\n" \
+                         "stability=\par \b API Stability:\n" \
+                         "examples=\par \b Examples:\n"
 
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
