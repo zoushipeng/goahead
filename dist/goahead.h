@@ -3964,6 +3964,10 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 #endif
 #endif
 
+#if ME_CUSTOMIZE
+ #include "customize.h"
+#endif
+
 #ifdef __cplusplus
 }
 #endif
