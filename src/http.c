@@ -482,7 +482,7 @@ static void termWebs(Webs *wp, int reuse)
 #if ME_GOAHEAD_CGI
     wfree(wp->cgiStdin);
 #endif
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
     wfree(wp->cnonce);
     wfree(wp->digestUri);
     wfree(wp->opaque);
