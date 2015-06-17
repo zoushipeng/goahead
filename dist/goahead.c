@@ -1218,11 +1218,11 @@ static void digestLogin(Webs *wp)
 static bool parseDigestDetails(Webs *wp)
 {
     WebsTime    when;
-    char        *decoded, *value, *tok, *key, *dp, *sp, *secret, *realm;
+    char        *decoded, *value, *tok, *key, *keyBuf, *dp, *sp, *secret, *realm;
     int         seenComma;
 
     assert(wp);
-    key = sclone(wp->authDetails);
+    key = keyBuf = sclone(wp->authDetails);
 
     while (*key) {
         while (*key && isspace((uchar) *key)) {
@@ -1350,6 +1350,8 @@ static bool parseDigestDetails(Webs *wp)
             }
         }
     }
+    wfree(keyBuf);
+
     if (wp->username == 0 || wp->realm == 0 || wp->nonce == 0 || wp->route == 0 || wp->password == 0) {
         return 0;
     }
@@ -4314,7 +4316,7 @@ static void termWebs(Webs *wp, int reuse)
 #if ME_GOAHEAD_CGI
     wfree(wp->cgiStdin);
 #endif
-#if ME_DIGEST
+#if ME_GOAHEAD_DIGEST
     wfree(wp->cnonce);
     wfree(wp->digestUri);
     wfree(wp->opaque);
