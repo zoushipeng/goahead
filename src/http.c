@@ -1765,11 +1765,12 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
     wfree(wp->url);
     wp->url = encoded;
     if (fmt) {
-        va_start(args, fmt);
-        msg = sfmtv(fmt, args);
-        va_end(args);
         if (!(code & WEBS_NOLOG)) {
+            va_start(args, fmt);
+            msg = sfmtv(fmt, args);
+            va_end(args);
             trace(2, "%s", msg);
+            wfree(msg);
         }
         buf = sfmt("\
 <html>\r\n\
