@@ -205,7 +205,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv)
             return -1;
         }
         if (++i < argc) {
-            if (websWriteBlock(wp, " ", 2) < 0) {
+            if (websWriteBlock(wp, " ", 1) < 0) {
                 return -1;
             }
         }
