@@ -146,7 +146,6 @@ clean:
 	rm -f "$(BUILD)/bin/gopass.out"
 	rm -f "$(BUILD)/.install-certs-modified"
 	rm -f "$(BUILD)/bin/libgo.a"
-	rm -f "$(BUILD)/bin/libgoahead-openssl.a"
 
 clobber: clean
 	rm -fr ./$(BUILD)
@@ -199,7 +198,7 @@ DEPS_5 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/action.o: \
     src/action.c $(DEPS_5)
 	@echo '   [Compile] $(BUILD)/obj/action.o'
-	$(CC) -c -o $(BUILD)/obj/action.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/action.c
+	$(CC) -c -o $(BUILD)/obj/action.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/action.c
 
 #
 #   alloc.o
@@ -209,7 +208,7 @@ DEPS_6 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/alloc.o: \
     src/alloc.c $(DEPS_6)
 	@echo '   [Compile] $(BUILD)/obj/alloc.o'
-	$(CC) -c -o $(BUILD)/obj/alloc.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/alloc.c
+	$(CC) -c -o $(BUILD)/obj/alloc.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/alloc.c
 
 #
 #   auth.o
@@ -219,7 +218,7 @@ DEPS_7 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/auth.o: \
     src/auth.c $(DEPS_7)
 	@echo '   [Compile] $(BUILD)/obj/auth.o'
-	$(CC) -c -o $(BUILD)/obj/auth.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/auth.c
+	$(CC) -c -o $(BUILD)/obj/auth.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/auth.c
 
 #
 #   cgi.o
@@ -229,7 +228,7 @@ DEPS_8 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/cgi.o: \
     src/cgi.c $(DEPS_8)
 	@echo '   [Compile] $(BUILD)/obj/cgi.o'
-	$(CC) -c -o $(BUILD)/obj/cgi.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/cgi.c
+	$(CC) -c -o $(BUILD)/obj/cgi.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/cgi.c
 
 #
 #   cgitest.o
@@ -248,7 +247,7 @@ DEPS_10 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/crypt.o: \
     src/crypt.c $(DEPS_10)
 	@echo '   [Compile] $(BUILD)/obj/crypt.o'
-	$(CC) -c -o $(BUILD)/obj/crypt.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/crypt.c
+	$(CC) -c -o $(BUILD)/obj/crypt.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/crypt.c
 
 #
 #   file.o
@@ -258,7 +257,7 @@ DEPS_11 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/file.o: \
     src/file.c $(DEPS_11)
 	@echo '   [Compile] $(BUILD)/obj/file.o'
-	$(CC) -c -o $(BUILD)/obj/file.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/file.c
+	$(CC) -c -o $(BUILD)/obj/file.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/file.c
 
 #
 #   fs.o
@@ -268,7 +267,7 @@ DEPS_12 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/fs.o: \
     src/fs.c $(DEPS_12)
 	@echo '   [Compile] $(BUILD)/obj/fs.o'
-	$(CC) -c -o $(BUILD)/obj/fs.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/fs.c
+	$(CC) -c -o $(BUILD)/obj/fs.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/fs.c
 
 #
 #   goahead.o
@@ -278,7 +277,7 @@ DEPS_13 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/goahead.o: \
     src/goahead.c $(DEPS_13)
 	@echo '   [Compile] $(BUILD)/obj/goahead.o'
-	$(CC) -c -o $(BUILD)/obj/goahead.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/goahead.c
+	$(CC) -c -o $(BUILD)/obj/goahead.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/goahead.c
 
 #
 #   gopass.o
@@ -288,7 +287,7 @@ DEPS_14 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/gopass.o: \
     src/utils/gopass.c $(DEPS_14)
 	@echo '   [Compile] $(BUILD)/obj/gopass.o'
-	$(CC) -c -o $(BUILD)/obj/gopass.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/utils/gopass.c
+	$(CC) -c -o $(BUILD)/obj/gopass.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/utils/gopass.c
 
 #
 #   http.o
@@ -298,7 +297,7 @@ DEPS_15 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/http.o: \
     src/http.c $(DEPS_15)
 	@echo '   [Compile] $(BUILD)/obj/http.o'
-	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/http.c
+	$(CC) -c -o $(BUILD)/obj/http.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/http.c
 
 #
 #   js.o
@@ -308,7 +307,7 @@ DEPS_16 += $(BUILD)/inc/js.h
 $(BUILD)/obj/js.o: \
     src/js.c $(DEPS_16)
 	@echo '   [Compile] $(BUILD)/obj/js.o'
-	$(CC) -c -o $(BUILD)/obj/js.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/js.c
+	$(CC) -c -o $(BUILD)/obj/js.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/js.c
 
 #
 #   jst.o
@@ -319,7 +318,7 @@ DEPS_17 += $(BUILD)/inc/js.h
 $(BUILD)/obj/jst.o: \
     src/jst.c $(DEPS_17)
 	@echo '   [Compile] $(BUILD)/obj/jst.o'
-	$(CC) -c -o $(BUILD)/obj/jst.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/jst.c
+	$(CC) -c -o $(BUILD)/obj/jst.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/jst.c
 
 #
 #   openssl.o
@@ -339,7 +338,7 @@ DEPS_19 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/options.o: \
     src/options.c $(DEPS_19)
 	@echo '   [Compile] $(BUILD)/obj/options.o'
-	$(CC) -c -o $(BUILD)/obj/options.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/options.c
+	$(CC) -c -o $(BUILD)/obj/options.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/options.c
 
 #
 #   osdep.o
@@ -349,7 +348,7 @@ DEPS_20 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/osdep.o: \
     src/osdep.c $(DEPS_20)
 	@echo '   [Compile] $(BUILD)/obj/osdep.o'
-	$(CC) -c -o $(BUILD)/obj/osdep.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/osdep.c
+	$(CC) -c -o $(BUILD)/obj/osdep.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/osdep.c
 
 #
 #   rom-documents.o
@@ -359,7 +358,7 @@ DEPS_21 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/rom-documents.o: \
     src/rom-documents.c $(DEPS_21)
 	@echo '   [Compile] $(BUILD)/obj/rom-documents.o'
-	$(CC) -c -o $(BUILD)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/rom-documents.c
+	$(CC) -c -o $(BUILD)/obj/rom-documents.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/rom-documents.c
 
 #
 #   route.o
@@ -369,7 +368,7 @@ DEPS_22 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/route.o: \
     src/route.c $(DEPS_22)
 	@echo '   [Compile] $(BUILD)/obj/route.o'
-	$(CC) -c -o $(BUILD)/obj/route.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/route.c
+	$(CC) -c -o $(BUILD)/obj/route.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/route.c
 
 #
 #   runtime.o
@@ -379,7 +378,7 @@ DEPS_23 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/runtime.o: \
     src/runtime.c $(DEPS_23)
 	@echo '   [Compile] $(BUILD)/obj/runtime.o'
-	$(CC) -c -o $(BUILD)/obj/runtime.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/runtime.c
+	$(CC) -c -o $(BUILD)/obj/runtime.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/runtime.c
 
 #
 #   socket.o
@@ -389,7 +388,7 @@ DEPS_24 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/socket.o: \
     src/socket.c $(DEPS_24)
 	@echo '   [Compile] $(BUILD)/obj/socket.o'
-	$(CC) -c -o $(BUILD)/obj/socket.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/socket.c
+	$(CC) -c -o $(BUILD)/obj/socket.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/socket.c
 
 #
 #   test.o
@@ -400,7 +399,7 @@ DEPS_25 += $(BUILD)/inc/js.h
 $(BUILD)/obj/test.o: \
     test/test.c $(DEPS_25)
 	@echo '   [Compile] $(BUILD)/obj/test.o'
-	$(CC) -c -o $(BUILD)/obj/test.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" test/test.c
+	$(CC) -c -o $(BUILD)/obj/test.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" test/test.c
 
 #
 #   upload.o
@@ -410,7 +409,7 @@ DEPS_26 += $(BUILD)/inc/goahead.h
 $(BUILD)/obj/upload.o: \
     src/upload.c $(DEPS_26)
 	@echo '   [Compile] $(BUILD)/obj/upload.o'
-	$(CC) -c -o $(BUILD)/obj/upload.o $(CFLAGS) $(DFLAGS) -DME_COM_OPENSSL_PATH=$(ME_COM_OPENSSL_PATH) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" "-I$(ME_COM_OPENSSL_PATH)/include" src/upload.c
+	$(CC) -c -o $(BUILD)/obj/upload.o $(CFLAGS) $(DFLAGS) "-I$(BUILD)/inc" "-I$(WIND_BASE)/target/h" "-I$(WIND_BASE)/target/h/wrn/coreip" src/upload.c
 
 ifeq ($(ME_COM_SSL),1)
 ifeq ($(ME_COM_OPENSSL),1)
@@ -481,14 +480,10 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 LIBS_29 += -lgo
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lgoahead-openssl
-    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 
 $(BUILD)/bin/goahead.out: $(DEPS_29)
 	@echo '      [Link] $(BUILD)/bin/goahead.out'
-	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -Wl,-r 
+	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/goahead.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -Wl,-r 
 
 #
 #   goahead-test
@@ -513,14 +508,10 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 LIBS_30 += -lgo
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_30 += -lgoahead-openssl
-    LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 
 $(BUILD)/bin/goahead-test.out: $(DEPS_30)
 	@echo '      [Link] $(BUILD)/bin/goahead-test.out'
-	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -Wl,-r 
+	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/test.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -Wl,-r 
 
 #
 #   gopass
@@ -545,14 +536,10 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 LIBS_31 += -lgo
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_31 += -lgoahead-openssl
-    LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
 
 $(BUILD)/bin/gopass.out: $(DEPS_31)
 	@echo '      [Link] $(BUILD)/bin/gopass.out'
-	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -Wl,-r 
+	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS) "$(BUILD)/obj/gopass.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -Wl,-r 
 
 ifeq ($(ME_COM_SSL),1)
 #
