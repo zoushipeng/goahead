@@ -181,7 +181,7 @@ Listen [2001:0db8:85a3:08d3:1319:8a2e:0370:7348]:7777
 
     </div>
     <div class="terms ui basic center aligned segment">
-        <p>&copy; Embedthis Software, 2003-2014. All rights reserved.</p>
+        <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
     </div>
 
     <script src="../jquery/jquery.min.js"></script>
@@ -198,12 +198,11 @@ Listen [2001:0db8:85a3:08d3:1319:8a2e:0370:7348]:7777
                 $('.sidebar').css('visibility', 'hidden');
             }
         });
-        // $('.sidebar-launch').trigger('click');
         $('.sidebar a.item').click(function(e) {
             sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
         });
         $(function() {
-            var url = '../users/ports.html';
+            var url = '..users/ports.html';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));
