@@ -46,6 +46,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-d
 		{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D} = {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "install-certs", "goahead-windows-default\install-certs.vcxproj", "{01D68E96-2914-4012-96A3-2DBAD8659046}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{01D68E96-2914-4012-96A3-2DBAD8659046} = {01D68E96-2914-4012-96A3-2DBAD8659046}
+	EndProjectSection
+EndProject
 
     Global
         GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +103,14 @@ EndProject
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|Win32.Build.0 = Release|Win32
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.ActiveCfg = Release|x64
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.Build.0 = Release|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.ActiveCfg = Debug|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.Build.0 = Debug|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.ActiveCfg = Debug|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.Build.0 = Debug|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.ActiveCfg = Release|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.Build.0 = Release|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.ActiveCfg = Release|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
       GlobalSection(SolutionProperties) = preSolution

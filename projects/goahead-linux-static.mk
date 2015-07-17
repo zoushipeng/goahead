@@ -75,9 +75,7 @@ TARGETS               += init
 TARGETS               += $(BUILD)/bin/goahead
 TARGETS               += $(BUILD)/bin/goahead-test
 TARGETS               += $(BUILD)/bin/gopass
-ifeq ($(ME_COM_SSL),1)
-    TARGETS           += $(BUILD)/.install-certs-modified
-endif
+TARGETS               += $(BUILD)/.install-certs-modified
 
 unexport CDPATH
 
@@ -554,7 +552,6 @@ $(BUILD)/bin/gopass: $(DEPS_32)
 	@echo '      [Link] $(BUILD)/bin/gopass'
 	$(CC) -o $(BUILD)/bin/gopass $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) $(LIBS) 
 
-ifeq ($(ME_COM_SSL),1)
 #
 #   install-certs
 #
@@ -581,7 +578,6 @@ $(BUILD)/.install-certs-modified: $(DEPS_33)
 	cp src/certs/samples/test.crt $(BUILD)/bin/test.crt
 	cp src/certs/samples/test.key $(BUILD)/bin/test.key
 	touch "$(BUILD)/.install-certs-modified"
-endif
 
 #
 #   stop
