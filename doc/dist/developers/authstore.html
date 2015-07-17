@@ -200,7 +200,7 @@ static bool verifyPassword(Webs *wp)
             sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
         });
         $(function() {
-            var url = '..developers/authstore.html';
+            var url = '../developers/authstore.html';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));

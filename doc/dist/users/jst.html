@@ -211,7 +211,7 @@ Today's date is: &lt;% <b>date();</b> %&gt;
             sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
         });
         $(function() {
-            var url = '..users/jst.html';
+            var url = '../users/jst.html';
             var active = $('.sidebar a[href="' + url +'"]');
             active.addClass('active');
             $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));
