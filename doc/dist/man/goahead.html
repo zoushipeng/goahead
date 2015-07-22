@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="eng">
+<head>
+<title>Goahead Man Page</title>
+</head>
+<BODY><PRE>
+GOAHEAD(1)                       User Commands                      GOAHEAD(1)
+
+<B>NAME</B>
+       goahead- Embedded HTTP Web Server
+
+<B>SYNOPSIS</B>
+       <B>goahead [options] [documents] [[IP][:port] ...]</B>
+
+       <B>goahead</B>
+           <B>--auth authFile</B>
+           <B>--background</B>
+           <B>--debugger</B>
+           <B>--home directory</B>
+           <B>--log logSpec</B>
+           <B>--route routeFile</B>
+           <B>--version</B>
+           <B>--verbose</B>
+           <B>[IP][:port] [documents]</B>
+
+<B>DESCRIPTION</B>
+       GoAhead  is  popular,  simple  embedded HTTP web server.  It is a fast,
+       small-footprint,  single-threaded,  standards-based,  portable   server
+       developed  for use by embedded devices and applications.  It can run as
+       a stand-alone web server or the GoAhead  library  can  be  embedded  in
+       applications.
+
+       GoAhead  supports HTTP/1.1, SSL, digest, basic and web-form authentica-
+       tion, chunked transfers, file upload and sandbox security limits.
+
+       When goahead is built, it  is  configured  to  open  a  port  for  HTTP
+       requests  and  optionally  one  for SSL. However, if goahead is invoked
+       with an IP address or port number on the  command  line,  GoAhead  will
+       listen  on these ports instead.  If the PORT component is omitted, GoA-
+       head will listen on port 80. If the IP address is omitted and a port is
+       supplied, GoAhead will listen on all network interfaces.
+
+<B>OPTIONS</B>
+       <B>--auth filename</B>
+              Define  the  name of the authentication configuration file. This
+              is by default <B>auth.txt</B>.  If GoAhead is built  with  PAM  support
+              (Unix  Pluggable Authentication Modules), then passwords will be
+              authenticated from the system password database.
+
+       <B>--debugger</B>
+              Run GoAhead in debug mode and disable all  timeouts.  This  dis-
+              ables  request  and session timeouts.  The <B>-d </B>option is an alias
+              for --debugger.
+
+       <B>--log logSpec</B>
+              Name the GoAhead log  file.  This  will  override  the  ErrorLog
+              directive  in  the configuration file.  When the maximum size is
+              exceeded, the log file will be rotated to logName.old and a  new
+              log  file  will be started. The <B>-l </B>option is an alias for --log.
+              The syntax is:
+
+              --log logName[:logLevel][.maxSize]
+
+       <B>--home directory</B>
+              Define the server home directory for GoAhead.
+
+       <B>--route routeFile</B>
+              This option overrides the default route configuration file  name
+              of "route.txt". When GoAhead starts, it reads the route configu-
+              ration file to load URI routes. These routes define what actions
+              should be taken when various client requests are received.
+
+       <B>--verbose</B>
+              Shorthand  for  --log  stdout:4.  The  <B>-v </B>option is an alias for
+              --verbose.
+
+       <B>--version</B>
+              Output the product version number.
+
+<B>REPORTING BUGS</B>
+       Report bugs to &lt;dev@embedthis.com&gt;.
+
+<B>COPYRIGHT</B>
+       Copyright (C) Embedthis Software.
+
+<B>SEE ALSO</B>
+       gopass, webcomp
+
+goahead                           March 2014                        GOAHEAD(1)
+</PRE></BODY>
+</html>
