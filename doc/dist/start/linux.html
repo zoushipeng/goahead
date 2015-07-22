@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Linux</title>
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../semantic-ui/semantic.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.css" rel="stylesheet" type="text/css" />
+    
+
+</head>
+<body class="show-sidebar">
+        <div class="sidebar">
+        <div class="ui large left vertical inverted labeled menu">
+            <div class="item">
+                <a href="../index.html" class="logo">GoAhead Docs</a>
+            </div>
+            <div class="item">
+                <a href="../index.html">
+                    <b>General</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../index.html">GoAhead Overview</a>
+                    <a class="item" href="../users/features.html">GoAhead Features</a>
+                    <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
+                    <a class="item" href="../licensing/index.html">Licensing</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../start/index.html">
+                    <b>Getting Started</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../start/quick.html">Quick Start</a>
+                    <a class="item" href="../start/installing.html">Installing GoAhead</a>
+                    <a class="item" href="../start/running.html">Running GoAhead</a>
+                    <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                    <a class="item" href="../start/faq.html">GoAhead FAQ</a>
+                    <a class="item" href="../start/source.html">Building from Source</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../users/index.html"><b>User's Guide</b></a>
+                <div class="menu">
+                    <a class="item" href="../users/ports.html">Ports and Binding</a>
+                    <a class="item" href="../users/routing.html">Routing Requests</a>
+                    <a class="item" href="../users/js.html">Embedded Javascript</a>
+                    <a class="item" href="../users/jst.html">Javascript Templates</a>
+                    <a class="item" href="../users/goactions.html">GoActions</a>
+                    <a class="item" href="../users/cgi.html">CGI Programs</a>
+                    <a class="item" href="../users/authentication.html">User Authentication</a>
+                    <a class="item" href="../users/logFiles.html">Log Files</a>
+                    <a class="item" href="../users/ssl.html">Secure Sockets (SSL)</a>
+                    <a class="item" href="../users/security.html">Security Considerations</a>
+                    <a class="item" href="../users/man.html">Man Pages</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/index.html">Developer's Guide</a>
+                <div class="menu">
+                    <a class="item" href="../developers/embedding.html">Embedding GoAhead</a>
+                    <a class="item" href="../developers/handlers.html">Creating GoAhead Handlers</a>
+                    <a class="item" href="../developers/authstore.html">Creating Password Verifiers</a>
+                    <a class="item" href="../developers/migrating.html">Migrating to GoAhead 3</a>
+                    <a class="item" href="../developers/rom.html">Serving Pages from ROM</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../ref/index.html">Reference Guide</a>
+                <div class="menu">
+                    <a class="item" href="../ref/compatibility.html">Compatibility</a>
+                    <a class="item" href="../ref/native.html">API Library</a>
+                    <a class="item" href="../ref/architecture.html">GoAhead Architecture</a>
+                    <a class="item" href="../standards/http.html">HTTP References</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/project.html">Project Resources</a>
+                <div class="menu">
+                    <a class="item" href="http://goo.gl/IGbiio">Official GoAhead News</a>
+                    <a class="item" href="https://embedthis.com/goahead/">GoAhead Web Site</a>
+                    <a class="item" href="https://github.com/embedthis/goahead">Source Code Repository</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/issues/99">GoAhead Security Alerts</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/issues">Project Issue Database</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/releases">Change Log</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/milestones">Roadmap</a>
+                    <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                </div>
+            </div>
+            <div class="item">
+                <b>Links</b>
+                <div class="menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                    <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                    <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui inverted masthead">
+         
+        <div class="ui fixed inverted menu">
+            <div class="ui sidebar-launch button">
+                <i class="icon list layout"></i>
+            </div>
+            <div class="right menu">
+                 
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/goahead/">GoAhead Site</a>
+                    <span class="desktop-only">
+                        <a class="item" href="http://goo.gl/9bL9rM">GoAhead News</a>
+                        <a class="item" href="https://github.com/embedthis/goahead">Repository</a>
+                        <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                        <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                    </span>
+
+            </div>
+        </div>
+        
+        <div class="ui breadcrumb">
+            <a class="section" href="../">Home</a>
+            
+            <div class="divider">/</div>
+            <a class="section" href="index.html">
+                Getting Started
+            </a>
+            
+            <div class="divider">/</div>
+            <a class="section" href="installing.html">
+                Installing
+            </a>
+            
+            
+            <div class="divider">/</div>
+            <a class="active section" href="linux.html">Linux</a>
+            
+        </div>
+        
+        <iframe class="version desktop-only" src="../version.html"></iframe>
+
+    </div>
+    <div class="content">
+
+            <h1>Installing on Linux</h1>
+            <p>Running GoAhead on Linux is supported by building from source code. </p>
+            <p>Please see instructions at <a href="source.html">Building from Source</a>.</p>
+<!--
+            <p>The GoAhead install distribution for LINUX is published in three formats:</p>
+            <ul>
+                <li>Native RPM format for RPM based systems such as Fedora</li>
+                <li>Native Debian format for Debian based systems such as Ubuntu</li>
+                <li>Tar format for custom/self installs</li>
+            </ul>
+            <p>It is recommended that you use either the native formats (if your system supports it) as these will
+            register the software installation with the system's software manager. The self-install format consists of
+            tar archives that you can manually extract for maximum control over the placement of the product files.</p>
+            <p>All formats contain a binary distribution, documentation and development headers and libraries in the
+            one package. During installation you will have the option of installing the full distribution or just
+            portions.</p><a id="native"></a>
+            <h2 >Installing the RPM or Debian Images</h2>
+            <ol>
+                <li>Uncompress and extract the image:
+                    <pre class="ui code segment">
+tar xvfz goahead-VERSION-DIST-LINUX-CPU.FMT.tgz
+</pre>
+                    <p>Where VERSION is the current version (e.g. 1.2.3-1), and DIST is the name of the Linux
+                    distribution (e.g. fedora), and FMT is either <b>rpm</b> or <b>deb</b>.</p>
+                </li>
+                <li>Then start the installation with administrator privilege:
+                    <pre class="ui code segment">
+sudo ./install
+</pre>
+                </li>
+            </ol><a id="self"></a>
+            <h2 >Installing the Self-Install Image</h2>
+            <ol>
+                <li>Uncompress and extract the image:
+                    <pre class="ui code segment">
+tar xvfz goahead-VERSION-DIST-LINUX-CPU.tgz
+</pre>
+                </li>
+                <li>Then start the installation with administrator privilege:
+                    <pre class="ui code segment">
+sudo ./install
+</pre>
+                </li>
+            </ol><a id="removing"></a>
+            <h2 >Removing GoAhead</h2>
+            <ol>
+                <li>Change directory to the installation directory for GoAhead. This is usually
+                <b>/usr/lib/goahead</b></li>
+                <li>Run the uninstall script in the install directory for goahead:
+                    <pre class="ui code segment">
+sudo ./uninstall
+</pre>
+                </li>
+            </ol>
+-->
+            <a id="running"></a>
+            <h2 >Running GoAhead</h2>
+            <p>To start GoAhead type:</p>
+            <pre class="ui code segment">
+sudo goahead --home /etc/goahead
+</pre>
+            <p>GoAhead is configured by default to listen on port 80. To test that it is serving pages, point your
+            browser at http://localhost/.
+            <p>To get all the options for GoAhead read the man page via:</p>
+            <pre class="ui code segment">
+man goahead
+</pre>or get the command help via:
+            <pre class="ui code segment">
+goahead --help
+</pre>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
+    </div>
+
+    <script src="../jquery/jquery.min.js"></script>
+    <script src="../semantic-ui/semantic.js"></script>
+    <script>
+        var sl = $('.sidebar-launch');
+        $('.sidebar-launch').click(function() {
+            var body = $('body');
+            if (!body.hasClass('show-sidebar')) {
+                body.addClass('show-sidebar');
+                $('.sidebar').css('visibility', 'visible');
+            } else {
+                body.removeClass('show-sidebar');
+                $('.sidebar').css('visibility', 'hidden');
+            }
+        });
+        $('.sidebar a.item').click(function(e) {
+            sessionStorage.setItem('scroll-top', $('.sidebar').scrollTop());
+        });
+        $(function() {
+            var url = '../start/linux.html';
+            var active = $('.sidebar a[href="' + url +'"]');
+            active.addClass('active');
+            $('.sidebar').scrollTop(sessionStorage.getItem('scroll-top'));
+        });
+    </script> 
+
+        
+
+</body>
+</html>

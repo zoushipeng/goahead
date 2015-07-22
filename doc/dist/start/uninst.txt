@@ -1,0 +1,38 @@
+The uninstaller program (unins???.exe) accepts optional command line parameters. These can be useful to system administrators, and to other programs calling the uninstaller program.
+
+
+/SILENT, /VERYSILENT 
+
+When specified, the uninstaller will not ask the user for startup confirmation or display a message stating that uninstall is complete. Shared files that are no longer in use are deleted automatically without prompting. Any critical error messages will still be shown on the screen. When '/VERYSILENT' is specified, the uninstallation progress window is not displayed.
+
+
+If a restart is necessary and the '/NORESTART' command isn't used (see below) and '/VERYSILENT' is specified, the uninstaller will reboot without asking.
+
+
+/SUPPRESSMSGBOXES 
+
+Instructs the uninstaller to suppress message boxes. Only has an effect when combined with '/SILENT' and '/VERYSILENT'. See '/SUPPRESSMSGBOXES' under Setup Command Line Parameters for more details.
+
+
+/LOG 
+
+Causes Uninstall to create a log file in the user's TEMP directory detailing file uninstallation and [UninstallRun] actions taken during the uninstallation process. This can be a helpful debugging aid.
+
+
+The log file is created with a unique name based on the current date. (It will not overwrite or append to existing files.)
+
+
+The information contained in the log file is technical in nature and therefore not intended to be understandable by end users. Nor is it designed to be machine-parseable; the format of the file is subject to change without notice.
+
+
+/LOG="filename" 
+
+Same as /LOG, except it allows you to specify a fixed path/filename to use for the log file. If a file with the specified name already exists it will be overwritten. If the file cannot be created, Uninstall will abort with an error message.
+
+
+
+/NORESTART 
+
+Instructs the uninstaller not to reboot even if it's necessary.
+
+
