@@ -13740,9 +13740,7 @@ uint strtoi(char *s)
 
 PUBLIC int scaselesscmp(char *s1, char *s2)
 {
-    if (s1 == 0 || s2 == 0) {
-        return -1;
-    } else if (s1 == 0) {
+    if (s1 == 0) {
         return -1;
     } else if (s2 == 0) {
         return 1;
@@ -13884,9 +13882,7 @@ PUBLIC int sncaselesscmp(char *s1, char *s2, ssize n)
 
     assert(0 <= n && n < MAXINT);
 
-    if (s1 == 0 || s2 == 0) {
-        return -1;
-    } else if (s1 == 0) {
+    if (s1 == 0) {
         return -1;
     } else if (s2 == 0) {
         return 1;
