@@ -1,5 +1,5 @@
 /*
-    openssl.c - OpensSSL socket layer for GoAhead
+    goahead-openssl.c - OpensSSL socket layer for GoAhead
 
     This is the interface between GoAhead and the OpenSSL stack.
 
