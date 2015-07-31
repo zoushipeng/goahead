@@ -243,9 +243,6 @@
 #ifndef ME_MBEDTLS_COMPACT
     #define ME_MBEDTLS_COMPACT 1
 #endif
-#ifndef ME_MBEDTLS_LOGGING
-    #define ME_MBEDTLS_LOGGING 0
-#endif
 #ifndef ME_NAME
     #define ME_NAME "goahead"
 #endif
