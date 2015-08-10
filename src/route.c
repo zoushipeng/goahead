@@ -385,7 +385,6 @@ static void freeRoute(WebsRoute *route)
     wfree(route->dir);
     wfree(route->protocol);
     wfree(route->authType);
-    wfree(route->handler);
     wfree(route);
 }
 
