@@ -485,6 +485,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
                 sp->currentEvents |= SOCKET_WRITABLE;
             }
             sp->flags &= ~SOCKET_RESERVICE;
+            nEvents++;
         }
         if (FD_ISSET(sp->sock, &readFds)) {
             sp->currentEvents |= SOCKET_READABLE;
@@ -557,15 +558,12 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
          */
         if (sp->handlerMask & SOCKET_READABLE) {
             readFds[index] |= bit;
-            nEvents++;
         }
         if (sp->handlerMask & SOCKET_WRITABLE) {
             writeFds[index] |= bit;
-            nEvents++;
         }
         if (sp->handlerMask & SOCKET_EXCEPTION) {
             exceptFds[index] |= bit;
-            nEvents++;
         }
         if (sp->flags & SOCKET_RESERVICE) {
             tv.tv_sec = 0;
@@ -576,7 +574,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         }
     }
     /*
-        Wait for the event or a timeout. Reset nEvents to be the number of actual events now.
+        Wait for the event or a timeout
      */
     nEvents = select(socketHighestFd + 1, (fd_set *) readFds, (fd_set *) writeFds, (fd_set *) exceptFds, &tv);
     if (all) {
