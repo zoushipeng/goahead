@@ -1060,7 +1060,7 @@ WebsLogHandler logSetHandler(WebsLogHandler handler)
 PUBLIC int logOpen()
 {
     if (!logPath) {
-        /* This defintion comes from main.bit and me.h */
+        /* This defintion comes from main.me goahead.logfile */
         logSetPath(ME_GOAHEAD_LOGFILE);
     }
     if (smatch(logPath, "stdout")) {
