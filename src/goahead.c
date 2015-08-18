@@ -59,6 +59,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             break;
 
         } else if (smatch(argp, "--auth") || smatch(argp, "-a")) {
+            if (argind >= argc) usage();
             auth = argv[++argind];
 
 #if ME_UNIX_LIKE && !MACOSX
@@ -180,7 +181,7 @@ static void logHeader()
 
 
 static void usage() {
-    fprintf(stdout, "\n%s Usage:\n\n"
+    fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
         "    --auth authFile        # User and role configuration\n"
