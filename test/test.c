@@ -84,7 +84,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (argind >= argc) usage();
             home = argv[++argind];
             if (chdir(home) < 0) {
-                error("Can't change directory to %s", home);
+                error("Cannot change directory to %s", home);
                 exit(-1);
             }
         } else if (smatch(argp, "--log") || smatch(argp, "-l")) {
@@ -98,7 +98,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             route = argv[++argind];
 
         } else if (smatch(argp, "--version") || smatch(argp, "-V")) {
-            printf("%s: %s\n", ME_NAME, ME_VERSION);
+            printf("%s\n", ME_VERSION);
             exit(0);
 
         } else if (*argp == '-' && isdigit((uchar) argp[1])) {
@@ -116,12 +116,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
     }
     initPlatform();
     if (websOpen(documents, route) < 0) {
-        error("Can't initialize server. Exiting.");
+        error("Cannot initialize server. Exiting.");
         return -1;
     }
     logHeader();
     if (websLoad(auth) < 0) {
-        error("Can't load %s", auth);
+        error("Cannot load %s", auth);
         return -1;
     }
     if (argind < argc) {
@@ -163,7 +163,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     */
     if (websGetBackground()) {
         if (daemon(0, 0) < 0) {
-            error("Can't run as daemon");
+            error("Cannot run as daemon");
             return -1;
         }
     }
