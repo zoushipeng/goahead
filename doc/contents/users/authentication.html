@@ -196,8 +196,9 @@ route uri=/machinery auth=basic abilities=start,stop
             the <i>start, stop</i> abilities. This means that the user "julie" will be granted access once authenticated.</p>
 
             <p>The <i>auth=basic</i>keyword specifies that basic authorization is being
-            used. The Authentication Realm used by Basic and Digest authentication is set when GoAhead is built. 
-            The realm is used in combination with the username and password to encrypt the password.</p>
+            used. The Authentication Realm used by Basic and Digest authentication is set when GoAhead is built via
+            the <em>realm</em> property in the main.me configuration file.  The realm is used in combination with 
+            the username and password to encrypt the password.</p>
 
             <a id="digest"></a>
             <h2>Digest Authentication</h2>
@@ -246,9 +247,11 @@ gopass [-c] [-p passWord] authFile realm username roles...
             <p>The authFile parameter specifies the name of the authentication file which is typically "auth.txt".. 
             If the -p password option is not used, gopass will prompt for the password. The -c option will
             cause gopass to create the authentication file if it does not already exist. Otherwise it will update the
-            nominated file. The Realm is the name used when GoAhead was built. It defaults to: "Please Login". You may
-            set this to any string you like. If you are using Basic or Digest authentication, this string will be displayed
-            at the top of the login popup dialog. If using Form authentication, it is never displayed to the user and is
-            only used to salt the encryption of the passwords.</p>
+            nominated file. The realm is the name specified by the <em>realm</em> property in the main.me configuration
+            file when GoAhead was built. It defaults to: "example.com". You may set this to any string you like. 
+            If you are using Basic or Digest authentication, this string will be displayed at the top of the login 
+            popup dialog. If using Form authentication, it is never displayed to the user and is only used to salt 
+            the encryption of the passwords.</p>
+
             <p><b>SECURITY WARNING</b>: it is essential that the authentication file be stored outside
             the DocumentRoot or any directory serving content.</p>
