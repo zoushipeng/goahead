@@ -77,6 +77,8 @@ int main(int argc, char *argv[])
         }
     }
     roles = sclone(buf.servp);
+
+    logOpen();
     websOpenAuth(1);
     
     if (!create) {
@@ -84,11 +86,11 @@ int main(int argc, char *argv[])
             exit(2);
         }
         if (access(authFile, W_OK) < 0) {
-            error("Can't write to %s", authFile);
+            error("Cannot write to %s", authFile);
             exit(4);
         }
-    } else if (access(authFile, R_OK) < 0) {
-        error("Can't create %s, already exists", authFile);
+    } else if (access(authFile, R_OK) == 0) {
+        error("Cannot create %s, already exists", authFile);
         exit(5);
     }
     if (!password && (password = getPassword()) == 0) {
@@ -121,7 +123,7 @@ static int writeAuthFile(char *path)
 
     tempFile = websTempFile(NULL, "gp");
     if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
-        error("Can't open %s", tempFile);
+        error("Cannot open %s", tempFile);
         return -1;
     }
     fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
@@ -149,7 +151,7 @@ static int writeAuthFile(char *path)
     fclose(fp);
     unlink(path);
     if (rename(tempFile, path) < 0) {
-        error("Can't create new %s", path);
+        error("Cannot create new %s", path);
         return -1;
     }
     return 0;
