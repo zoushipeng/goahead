@@ -45,70 +45,19 @@ To rebuild GoAhead from source code on your development system, you will need at
 
     * 100 MB disk space
 
-Installation Package Formats
-
-The GoAhead binary installation is published in two formats:
-
-    * Native Apple MAC OS X PKG format
-    * Native Windows installer format
-
-For other platforms, you will need to download the source code distribution and build then install. The product documentation describes how to build from source. 
-
-
 Development Environment Platform Support
 
 If you wish to embed GoAhead in your application or build GoAhead from source code, you will need to use a C compiler and associated development tools.  Several development environments are supported.  You may choose any of the following:
 
     * Linux/Unix GNU Tools
 
-    * Windows Visual Studio 2010 or later
+    * Windows Visual Studio 2013 or later
 
-    * WindRiver Tornado Development Tools
+    * WindRiver Development Tools
 
-
-Apple Mac OS X Release Details
-
-To install the native MAC OS X PKG image:
-
-   1. Download the PKG image.
-
-   2. Double click on the PKG file image.
-
-   3. Answer the questions as prompted.
-
-
-Windows Release Details
-
-To install the Windows Installer image:
-
-   1. Login with administrator privileges. 
-
-   2. Use WinZip or equivalent software to extract the installation image. This
-      will extract the README.TXT and setup.exe from the zip archive.
-
-   3. Double click on the setup.exe image to run it.
-
-
-Removing GoAhead
-
-This is the procedure to remove GoAhead on all systems except Windows.
-
-   1. Run the uninstall script in the install directory for GoAhead by typing:
-
-      sudo /usr/lib/goahead/latest/bin/uninstall
-
-If you installed the GoAhead Windows Installer image, follow these steps to remove GoAhead.
-
-   1. Login with administrator privileges
-
-   2. Run the Add / Remove Programs applet from the control panel.
-
-   3. Select the Embedthis GoAhead and choose remove.
-
+To build GoAhead, please download the source code distribution from the http://embedthis.com/goahead/download.html and read "Building from Source" in the GoAhead product documentation.
 
 Running GoAhead
-
-To run goahead:
 
     goahead --home /etc/goahead -v
 
@@ -121,11 +70,6 @@ or get the command help via:
     goahead --help
 
 GoAhead is configured by default to listen on port 80. To test that it is serving pages, point your browser at http://localhost/. 
-
-
-Building from the Source Code
-
-If you wish to rebuild the GoAhead product from the distributed source code, please download the source code distribution from the Embedthis web site. Then read "Building from Source" in the GoAhead product documentation for an explanation of the necessary steps to successfully rebuild the product.
 
 
 License and Copyright Information
