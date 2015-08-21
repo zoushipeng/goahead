@@ -199,13 +199,13 @@ int myAspProcedure(Webs wp, int argc, char **argv) {
 }
 </pre>
              <p>Javascript procedures are registered by using the <a
-                 href="../ref/api/goahead.html#group___webs_1ga4db3f71301ed08e4f8d3c466d3632ea1">websJstDefine</a> API. 
+                 href="../ref/api/goahead.html#group___webs_1ga4db3f71301ed08e4f8d3c466d3632ea1">websDefineJst</a> API. 
              This publishes a C procedure as a Javascript global function. For example:</p>
              <pre class="ui code segment">
 extern int outputMyTable(int ejid, Webs wp, int argc, char **argv);
-websJstDefine("outputTable", outputMyTable);
+websDefineJst("outputTable", outputMyTable);
 </pre>
-             <p>The websJstDefine call publishes the Javascript command "outputTable" and links it to the
+             <p>The websDefineJst call publishes the Javascript command "outputTable" and links it to the
              outputMyTable C procedure. When an JST page is requested by the user's browser, any JST
              Javascript which uses the outputTable command will cause the outputMyTable to be called with
              the relevant arguments.
