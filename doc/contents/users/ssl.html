@@ -10,6 +10,35 @@
             Use of this protocol enables secure data transmission to and from clients in a standards-based manner.</p>
             <p>This document provides step-by-step instructions for configuring SSL in GoAhead. If you are unfamiliar
             with SSL, please read the <a href="sslOverview.html">SSL Overview</a> first.</p><a id="sslQuickStart"></a>
+
+            <h2 >SSL Providers</h2>
+            <p>GoAhead employs an open architecture SSL Provider interface so that customers can select the ideal SSL
+            provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
+            fast and some are extensive in their cipher support.</p>
+
+            <p>GoAhead supports multiple SSL implementations. The OpenSSL interface is included with the GoAhead 
+            product, other SSL interfaces s are installed using the 
+            <a href="http://embedthis.com/pak/">Pak Package manager</a>.</p>
+
+            <ul>
+                <li>OpenSSL &mdash; large and complete. 
+                    See <a href= "http://www.openssl.org">http://www.openssl.org</a>.</li>
+                <li>MbedTLS &mdash; designed for embedded use. See 
+                    <a href="https://embedthis.com/catalog/#/?keywords=goahead-mbedtls">goahead-mbedtls</a>.
+                    Install via <em>pak install goahead-mbedtls</em>.</li>
+                <li>MatrixSSL &mdash; designed for embedded use. See 
+                    <a href="https://embedthis.com/catalog/#/?keywords=goahead-matrixssl">goahead-matrixssl</a>.
+                    Install via <em>pak install goahead-matrixssl</em>.</li>
+                <li>Mocana NanoSSL &mdash; designed for embedded use. See 
+                    <a href="https://embedthis.com/catalog/#/?keywords=goahead-nanossl">goahead-nanossl</a>.
+                    Install via <em>pak install goahead-nanossl</em>.</li>
+            </ul>
+
+            <p>Note that GoAhead includes only the interface to the SSL stack and not the SSL library itself. You need to 
+            build your required SSL stack and then configure GoAhead to use that SSL stack. See 
+            <a href="http://l:5000/start/source.html">Building From Source</a> for details on configuring GoAhead to 
+            use SSL.</p>
+
             <h2 >SSL Quick Start</h2>
             <p>The default build of GoAhead will support SSL on port 443 for all network interfaces. You
             can immediately test SSL access to documents by using the <b>https://</b> scheme and <b>443</b> as the
@@ -52,20 +81,5 @@ openssl req -new -key server.key -out server.csr
             identity of your server when negotiating a SSL session. When running these commands, you will be prompted
             to enter a pass-phrase password to decrypt the server private key. REMEMBER this password.</p>
             <p><b>SECURITY WARNING</b>: Safeguard the "server.key" private key jealously. If this falls into malicious
-            hands, then your server identity may be hijacked by another site.</p><a id="sslProviders"></a>
-            <h2 >SSL Providers</h2>
-            <p>GoAhead employs an open architecture SSL Provider interface so that customers can select the ideal SSL
-            provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
-            fast and some are extensive in their cipher support.</p>
-            <p>GoAhead supports two SSL implementations:</p>
-            <ul>
-                <li>OpenSSL -- designed for enterprise use. See <a href=
-                    "http://www.openssl.org">http://www.openssl.org</a>.</li>
-<!--
-                <li>PeerSec MatrixSSL -- designed for embedding. See <a href=
-                    "http://www.peersec.com">http://www.peersec.com</a>.</li>
-                <li>Mocana NanoSSL -- designed for embedding. See <a href=
-                    "http://www.mocana.com">http://www.mocana.com</a>.</li>
--->
-                <li>EST (Prototype) -- designed for embedding. Integrated with GoAhead.</li>
-            </ul>
+            hands, then your server identity may be hijacked by another site.</p>
+
