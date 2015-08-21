@@ -79,14 +79,6 @@ PUBLIC bool socketHasDualNetworkStack()
 
 #if defined(ME_COMPILER_HAS_SINGLE_STACK) || VXWORKS
     dual = 0;
-#elif WINDOWS
-    {
-        OSVERSIONINFO info;
-        info.dwOSVersionInfoSize = sizeof(info);
-        GetVersionEx(&info);
-        /* Vista or later */
-        dual = info.dwMajorVersion >= 6;
-    }
 #else
     dual = hasIPv6;
 #endif
