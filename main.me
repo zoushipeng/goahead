@@ -337,7 +337,7 @@ Me.load({
         test: {
             action: `
                 let ro = {dir: 'test'}
-                let depth = me.settings.depth
+                let depth = me.settings.depth || 2
                 cp(['${BIN}/self.key', '${BIN}/self.crt', '${BIN}/dh.pem'], 'test')
                 run('utest -v -i 2 --depth ' + depth, ro)
                 if (depth >= 3) {
