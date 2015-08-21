@@ -25,7 +25,7 @@ typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     char    *cgiPath;           /* Path to executable process file */
     char    **argp;             /* Pointer to buf containing argv tokens */
     char    **envp;             /* Pointer to array of environment strings */
-    int     handle;             /* Process handle of the task */
+    int64   handle;             /* Process handle of the task */
     off_t   fplacemark;         /* Seek location for CGI output file */
 } Cgi;
 
@@ -34,8 +34,8 @@ static int      cgiMax;         /* Size of walloc list */
 
 /************************************ Forwards ********************************/
 
-static int checkCgi(int handle);
-static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
+static int checkCgi(int64 handle);
+static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
 
 /************************************* Code ***********************************/
 /*
@@ -46,8 +46,9 @@ static bool cgiHandler(Webs *wp)
     Cgi         *cgip;
     WebsKey     *s;
     char        cgiPrefix[ME_GOAHEAD_LIMIT_FILENAME], *stdIn, *stdOut, cwd[ME_GOAHEAD_LIMIT_FILENAME];
-    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath;
-    int         n, envpsize, argpsize, pHandle, cid;
+    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath, *exe;
+    int64       pHandle;
+    int         n, envpsize, argpsize, cid;
 
     assert(websValid(wp));
     
@@ -90,10 +91,16 @@ static bool cgiHandler(Webs *wp)
     {
         WebsStat sbuf;
         if (stat(cgiPath, &sbuf) != 0 || (sbuf.st_mode & S_IFREG) == 0) {
-            error("Cannot find CGI program: ", cgiPath);
-            websError(wp, HTTP_CODE_NOT_FOUND | WEBS_NOLOG, "CGI program file does not exist");
-            wfree(cgiPath);
-            return 1;
+            exe = sfmt("%s.exe", cgiPath);
+            if (stat(exe, &sbuf) == 0 && (sbuf.st_mode & S_IFREG)) {
+                wfree(cgiPath);
+                cgiPath = exe;
+            } else {
+                error("Cannot find CGI program: ", cgiPath);
+                websError(wp, HTTP_CODE_NOT_FOUND | WEBS_NOLOG, "CGI program file does not exist");
+                wfree(cgiPath);
+                return 1;
+            }
         }
 #if ME_WIN_LIKE
         if (strstr(cgiPath, ".exe") == NULL && strstr(cgiPath, ".bat") == NULL)
@@ -439,7 +446,7 @@ PUBLIC char *websGetCgiCommName()
      Launch the CGI process and return a handle to it.  CE note: This function is not complete.  The missing piece is
      the ability to redirect stdout.
  */
-static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     PROCESS_INFORMATION procinfo;       /*  Information about created proc   */
     DWORD               dwCreateFlags;
@@ -487,7 +494,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int handle)
+static int checkCgi(int64 handle)
 {
     int     nReturn;
     DWORD   exitCode;
@@ -509,7 +516,7 @@ static int checkCgi(int handle)
 /*
     Launch the CGI process and return a handle to it.
  */
-static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     int pid, fdin, fdout, hstdin, hstdout;
 
@@ -554,7 +561,7 @@ done:
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int handle)
+static int checkCgi(int64 handle)
 {
     int     pid;
     
@@ -594,7 +601,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
         open and redirect stdin and stdout to stdIn and stdOut, and then it will call the user entry.
     6.  Return the taskSpawn return value.
  */
-static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     SYM_TYPE    ptype;
     char      *p, *basename, *pEntry, *pname, *entryAddr, **pp;
@@ -731,7 +738,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argp, 
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int handle)
+static int checkCgi(int64 handle)
 {
     STATUS stat;
 
@@ -792,7 +799,7 @@ static uchar *tableToBlock(char **table)
 /*
     Create a temporary stdout file and launch the CGI process. Returns a handle to the spawned CGI process.
  */
-static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     STARTUPINFO         newinfo;
     SECURITY_ATTRIBUTES security;
@@ -833,7 +840,9 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     pArgs = argp;
     while (pArgs && *pArgs && **pArgs) {
         strcat(cmdLine, *pArgs);
-        strcat(cmdLine, " ");
+        if (pArgs[1]) {
+            strcat(cmdLine, " ");
+        }
         pArgs++;
     }
 
@@ -901,7 +910,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
     if (bReturn == 0) {
         return -1;
     } else {
-        return (int) procinfo.hProcess;
+        return (int64) procinfo.hProcess;
     }
 }
 
@@ -909,7 +918,7 @@ static int launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char 
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int handle)
+static int checkCgi(int64 handle)
 {
     DWORD   exitCode;
     int     nReturn;
