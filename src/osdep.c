@@ -44,12 +44,16 @@ PUBLIC void websOsClose()
 PUBLIC char *websTempFile(char *dir, char *prefix)
 {
     static int count = 0;
+    char   sep;
 
+    sep = '/';
     if (!dir || *dir == '\0') {
 #if WINCE
         dir = "/Temp";
+        sep = '\\';
 #elif ME_WIN_LIKE
         dir = getenv("TEMP");
+        sep = '\\';
 #elif VXWORKS
         dir = ".";
 #else
@@ -59,7 +63,7 @@ PUBLIC char *websTempFile(char *dir, char *prefix)
     if (!prefix) {
         prefix = "tmp";
     }
-    return sfmt("%s/%s-%d.tmp", dir, prefix, count++);
+    return sfmt("%s%c%s-%d.tmp", dir, sep, prefix, count++);
 }
 
 
