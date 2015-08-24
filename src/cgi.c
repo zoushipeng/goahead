@@ -18,6 +18,12 @@
 /*********************************** Defines **********************************/
 #if ME_GOAHEAD_CGI && !ME_ROM
 
+#if ME_WIN_LIKE
+    typedef HANDLE CgiPid;
+#else
+    typedef pid_t CgiPid;
+#endif
+
 typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     Webs    *wp;                /* Connection object */
     char    *stdIn;             /* File desc. for task's temp input fd */
@@ -25,7 +31,7 @@ typedef struct Cgi {            /* Struct for CGI tasks which have completed */
     char    *cgiPath;           /* Path to executable process file */
     char    **argp;             /* Pointer to buf containing argv tokens */
     char    **envp;             /* Pointer to array of environment strings */
-    int64   handle;             /* Process handle of the task */
+    CgiPid  handle;             /* Process handle of the task */
     off_t   fplacemark;         /* Seek location for CGI output file */
 } Cgi;
 
@@ -34,8 +40,8 @@ static int      cgiMax;         /* Size of walloc list */
 
 /************************************ Forwards ********************************/
 
-static int checkCgi(int64 handle);
-static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
+static int checkCgi(CgiPid handle);
+static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut);
 
 /************************************* Code ***********************************/
 /*
@@ -47,7 +53,7 @@ static bool cgiHandler(Webs *wp)
     WebsKey     *s;
     char        cgiPrefix[ME_GOAHEAD_LIMIT_FILENAME], *stdIn, *stdOut, cwd[ME_GOAHEAD_LIMIT_FILENAME];
     char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath, *exe;
-    int64       pHandle;
+    CgiPid      pHandle;
     int         n, envpsize, argpsize, cid;
 
     assert(websValid(wp));
@@ -175,11 +181,16 @@ static bool cgiHandler(Webs *wp)
     } 
     stdIn = wp->cgiStdin;
     stdOut = websGetCgiCommName();
+    if (wp->cgifd >= 0) {
+        close(wp->cgifd);
+        wp->cgifd = -1;
+    }
+
     /*
         Now launch the process.  If not successful, do the cleanup of resources.  If successful, the cleanup will be
         done after the process completes.  
      */
-    if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == -1) {
+    if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == (CgiPid) -1) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "failed to spawn CGI task");
         for (ep = envp; *ep != NULL; ep++) {
             wfree(*ep);
@@ -273,7 +284,7 @@ static ssize parseCgiHeaders(Webs *wp, char *buf)
     } else {
         len = 4;
     }
-    end[len - 1] = '\0';
+    *end = '\0';
     end += len;
     cp = buf;
     if (!strchr(cp, ':')) {
@@ -339,6 +350,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
             while ((nbytes = read(fdout, buf, sizeof(buf))) > 0) {
+                skip = 0;
                 if (!(wp->flags & WEBS_HEADERS_CREATED)) {
                     if ((skip = parseCgiHeaders(wp, buf)) == 0) {
                         if (cgip->handle && sbuf.st_size < ME_GOAHEAD_LIMIT_HEADERS) {
@@ -420,7 +432,6 @@ WebsTime websCgiPoll()
                 wfree(cgip->cgiPath);
                 wfree(cgip->argp);
                 wfree(cgip->envp);
-                wfree(cgip->stdOut);
                 wfree(cgip);
                 websPump(wp);
                 websFree(wp);
@@ -433,7 +444,8 @@ WebsTime websCgiPoll()
 
 
 /*
-    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with wfree().  
+    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with 
+    wfree().  
  */
 PUBLIC char *websGetCgiCommName()
 {
@@ -446,7 +458,7 @@ PUBLIC char *websGetCgiCommName()
      Launch the CGI process and return a handle to it.  CE note: This function is not complete.  The missing piece is
      the ability to redirect stdout.
  */
-static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     PROCESS_INFORMATION procinfo;       /*  Information about created proc   */
     DWORD               dwCreateFlags;
@@ -494,7 +506,7 @@ static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, cha
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int64 handle)
+static int checkCgi(CgiPid handle)
 {
     int     nReturn;
     DWORD   exitCode;
@@ -516,38 +528,42 @@ static int checkCgi(int64 handle)
 /*
     Launch the CGI process and return a handle to it.
  */
-static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
-    int pid, fdin, fdout, hstdin, hstdout;
+    int     fdin, fdout, pid;
 
     trace(5, "cgi: run %s", cgiPath);
-    pid = fdin = fdout = hstdin = hstdout = -1;
-    if ((fdin = open(stdIn, O_RDWR | O_CREAT | O_BINARY, 0666)) < 0 ||
-            (fdout = open(stdOut, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, 0666)) < 0 ||
-            (hstdin = dup(0)) == -1 || (hstdout = dup(1)) == -1 ||
-            dup2(fdin, 0) == -1 || dup2(fdout, 1) == -1) {
-        goto done;
+
+    if ((fdin = open(stdIn, O_RDWR | O_CREAT | O_BINARY, 0666)) < 0) {
+        error("Cannot open CGI stdin: ", cgiPath);
+        return -1;
+    }
+    if ((fdout = open(stdOut, O_RDWR | O_CREAT | O_TRUNC | O_BINARY, 0666)) < 0) {
+        error("Cannot open CGI stdout: ", cgiPath);
+        return -1;
     }
 
     pid = vfork();
     if (pid == 0) {
         /*
-            if pid == 0, then we are in the child process
+            Child
          */
-        if (execve(cgiPath, argp, envp) == -1) {
+        if (dup2(fdin, 0) < 0) {
+            printf("content-type: text/html\n\nDup of stdin failed\n");
+            _exit(1);
+
+        } else if (dup2(fdout, 1) < 0) {
+            printf("content-type: text/html\n\nDup of stdout failed\n");
+            _exit(1);
+
+        } else if (execve(cgiPath, argp, envp) == -1) {
             printf("content-type: text/html\n\nExecution of cgi process failed\n");
         }
         _exit(0);
     }
-done:
-    if (hstdout >= 0) {
-        dup2(hstdout, 1);
-        close(hstdout);
-    }
-    if (hstdin >= 0) {
-        dup2(hstdin, 0);
-        close(hstdin);
-    }
+    /* 
+        Parent
+     */
     if (fdout >= 0) {
         close(fdout);
     }
@@ -561,14 +577,14 @@ done:
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int64 handle)
+static int checkCgi(CgiPid handle)
 {
     int     pid;
     
     /*
         Check to see if the CGI child process has terminated or not yet.
      */
-    if ((pid = waitpid(handle, NULL, WNOHANG)) == handle) {
+    if ((pid = waitpid((CgiPid) handle, NULL, WNOHANG)) == handle) {
         trace(5, "cgi: waited for pid %d", pid);
         return 0;
     } else {
@@ -601,7 +617,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
         open and redirect stdin and stdout to stdIn and stdOut, and then it will call the user entry.
     6.  Return the taskSpawn return value.
  */
-static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     SYM_TYPE    ptype;
     char      *p, *basename, *pEntry, *pname, *entryAddr, **pp;
@@ -738,7 +754,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argp, 
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int64 handle)
+static int checkCgi(CgiPid handle)
 {
     STATUS stat;
 
@@ -797,9 +813,10 @@ static uchar *tableToBlock(char **table)
 
 
 /*
+    Windows launchCgi
     Create a temporary stdout file and launch the CGI process. Returns a handle to the spawned CGI process.
  */
-static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
+static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
     STARTUPINFO         newinfo;
     SECURITY_ATTRIBUTES security;
@@ -867,12 +884,22 @@ static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, cha
      */
     newinfo.hStdInput = CreateFile(stdIn, GENERIC_READ, FILE_SHARE_READ, &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
             NULL); 
+    if (newinfo.hStdOutput == (HANDLE) -1) {
+        error("Cannot open CGI stdin file");
+        return (CgiPid) -1;
+    }
+
     /*
         Stdout file is created and file pointer is reset to start.
      */
     newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE, 
             &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
-    SetFilePointer (newinfo.hStdOutput, 0, NULL, FILE_END);
+    if (newinfo.hStdOutput == (HANDLE) -1) {
+        error("Cannot create CGI stdout file");
+        CloseHandle(newinfo.hStdInput);
+        return (CgiPid) -1;
+    }
+    SetFilePointer(newinfo.hStdOutput, 0, NULL, FILE_END);
     newinfo.hStdError = newinfo.hStdOutput;
 
     dwCreateFlags = CREATE_NEW_CONSOLE;
@@ -880,7 +907,7 @@ static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, cha
 
     /*
         CreateProcess returns errors sometimes, even when the process was started correctly.  The cause is not evident.
-        For now: we detect an error by checking the value of procinfo.hProcess after the call.
+        Detect an error by checking the value of procinfo.hProcess after the call.
     */
     procinfo.hProcess = NULL;
     bReturn = CreateProcess(
@@ -908,9 +935,9 @@ static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, cha
     wfree(cmdLine);
 
     if (bReturn == 0) {
-        return -1;
+        return (CgiPid) -1;
     } else {
-        return (int64) procinfo.hProcess;
+        return procinfo.hProcess;
     }
 }
 
@@ -918,7 +945,7 @@ static int64 launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, cha
 /*
     Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
  */
-static int checkCgi(int64 handle)
+static int checkCgi(CgiPid handle)
 {
     DWORD   exitCode;
     int     nReturn;

@@ -137,7 +137,6 @@ int main(int argc, char **argv, char **envp)
     _setmode(1, O_BINARY);
     _setmode(2, O_BINARY);
 #endif
-
     if (strstr(argv[0], "nph-") != 0) {
         nonParsedHeader++;
     }
@@ -482,7 +481,7 @@ static int getPostData(char **bufp, size_t *lenp)
         limit = INT_MAX;
     }
     if ((buf = malloc(size + 1)) == 0) {
-        error("Couldn't allocate memory to read post data");
+        error("Cannot allocate memory to read post data");
         return -1;
     }
     bufsize = size + 1;
@@ -491,14 +490,14 @@ static int getPostData(char **bufp, size_t *lenp)
     while (len < limit) {
         if ((len + size + 1) > bufsize) {
             if ((buf = realloc(buf, len + size + 1)) == 0) {
-                error("Couldn't allocate memory to read post data");
+                error("Cannot allocate memory to read post data");
                 return -1;
             }
             bufsize = len + size + 1;
         }
         bytes = read(0, &buf[len], (int) size);
         if (bytes < 0) {
-            error("Couldn't read CGI input %d", errno);
+            error("Cannot read CGI input error=%d, len %d, %d", (int) errno, (int) len, (int) limit);
             return -1;
         } else if (bytes == 0) {
             /* EOF */
