@@ -335,30 +335,23 @@ Me.load({
         },
 
         test: {
-            action: `
-                let ro = {dir: 'test'}
-                let depth = me.settings.depth || 2
-                cp(['${BIN}/self.key', '${BIN}/self.crt', '${BIN}/dh.pem'], 'test')
-                run('utest -v -i 2 --depth ' + depth, ro)
-                if (depth >= 3) {
-                    trace('Test', 'Light load tests')
-                    run('utest -v -i 20 --depth ' + depth, ro)
-                    for each (t in [2, 4]) {
-                        trace('Test', 'Light thread tests')
-                        run('utest -v -i 20 --depth ' + depth + ' --threads ' + t, ro)
-                    }
-                }
-                if (depth >= 4) {
-                    trace('Test', 'Longevity load tests')
-                    run('utest -v -i 100 --depth ' + depth, ro)
-                    for each (t in [8, 16]) {
-                        trace('Test', 'Light thread tests')
-                        run('utest -v -i 100 --depth ' + depth + ' --threads ' + t, ro)
-                    }
-                }
-                trace('Test', 'Unit tests complete')
-            `,
+            action: `run('testme --depth ' + me.settings.depth)`,
             platforms: [ 'local' ],
+            depends: [ 'test-prep' ],
+            generate: false,
+        },
+
+       'test-prep': {
+            platforms: [ 'local' ],
+            depends: [ 'clean-test', 'build', 'cgitest' ],
+            generate: false,
+        },
+
+        'clean-test': {
+            type: 'clean',
+            action: `
+                Cmd.run('testme --clean')
+            `
         },
 
         run: {
