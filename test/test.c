@@ -362,7 +362,9 @@ static void uploadTest(Webs *wp)
             websWrite(wp, "TYPE=%s\r\n", up->contentType);
             websWrite(wp, "SIZE=%d\r\n", up->size);
             upfile = sfmt("%s/tmp/%s", websGetDocuments(), up->clientFilename);
-            rename(up->filename, upfile);
+            if (rename(up->filename, upfile) < 0) {
+                error("Cannot rename uploaded file: %s to %s, errno %d", up->filename, upfile, errno);
+            }
             wfree(upfile);
         }
         websWrite(wp, "\r\nVARS:\r\n");
