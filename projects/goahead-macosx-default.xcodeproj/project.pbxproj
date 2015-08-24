@@ -328,6 +328,7 @@
 		530C07F8530C233000000071 /* gopass */ = {
                 isa = PBXGroup;
                 children = (
+				530C07F8530C233000000062 /* goahead.h */,
 				530C07F8530C23300000001B /* gopass.c */,
 			);
                 name = "gopass";
@@ -543,18 +544,6 @@ cp ../src/js.h ${OUT_DIR}/inc/js.h
 fi
 if [ ../src/osdep/osdep.h -nt ${OUT_DIR}/inc/osdep.h ] ; then
 cp ../src/osdep/osdep.h ${OUT_DIR}/inc/osdep.h
-fi
-if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
-cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
-fi
-if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
-cp ../src/js.h ${OUT_DIR}/inc/js.h
-fi
-if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
-cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h
-fi
-if [ ../src/js.h -nt ${OUT_DIR}/inc/js.h ] ; then
-cp ../src/js.h ${OUT_DIR}/inc/js.h
 fi
 if [ ../src/goahead.h -nt ${OUT_DIR}/inc/goahead.h ] ; then
 cp ../src/goahead.h ${OUT_DIR}/inc/goahead.h

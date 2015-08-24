@@ -229,7 +229,7 @@
     #define ME_GOAHEAD_UPLOAD 1
 #endif
 #ifndef ME_GOAHEAD_UPLOAD_DIR
-    #define ME_GOAHEAD_UPLOAD_DIR "/tmp"
+    #define ME_GOAHEAD_UPLOAD_DIR "tmp"
 #endif
 #ifndef ME_GOAHEAD_XFRAME_HEADER
     #define ME_GOAHEAD_XFRAME_HEADER "SAMEORIGIN"

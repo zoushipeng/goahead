@@ -186,18 +186,27 @@ clean:
 	if exist "build\$(CONFIG)\bin\libgo.lib" del /Q "build\$(CONFIG)\bin\libgo.lib"
 
 #
+#   cgitest.obj
+#
+
+build\$(CONFIG)\obj\cgitest.obj: \
+    test\cgitest.c $(DEPS_1)
+	@echo .. [Compile] build\$(CONFIG)\obj\cgitest.obj
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\cgitest.obj -Fd$(BUILD)\obj\cgitest.pdb $(CFLAGS) $(IFLAGS) test\cgitest.c $(LOG)
+
+#
 #   me.h
 #
 
-build\$(CONFIG)\inc\me.h: $(DEPS_1)
+build\$(CONFIG)\inc\me.h: $(DEPS_2)
 
 #
 #   osdep.h
 #
-DEPS_2 = $(DEPS_2) src\osdep\osdep.h
-DEPS_2 = $(DEPS_2) build\$(CONFIG)\inc\me.h
+DEPS_3 = $(DEPS_3) src\osdep\osdep.h
+DEPS_3 = $(DEPS_3) build\$(CONFIG)\inc\me.h
 
-build\$(CONFIG)\inc\osdep.h: $(DEPS_2)
+build\$(CONFIG)\inc\osdep.h: $(DEPS_3)
 	@echo ..... [Copy] build\$(CONFIG)\inc\osdep.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
 	copy /Y /B src\osdep\osdep.h+modified build\$(CONFIG)\inc\osdep.h $(LOG)
@@ -205,42 +214,22 @@ build\$(CONFIG)\inc\osdep.h: $(DEPS_2)
 #
 #   goahead.h
 #
-DEPS_3 = $(DEPS_3) src\goahead.h
-DEPS_3 = $(DEPS_3) build\$(CONFIG)\inc\me.h
-DEPS_3 = $(DEPS_3) build\$(CONFIG)\inc\osdep.h
+DEPS_4 = $(DEPS_4) src\goahead.h
+DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\me.h
+DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\osdep.h
 
-build\$(CONFIG)\inc\goahead.h: $(DEPS_3)
+build\$(CONFIG)\inc\goahead.h: $(DEPS_4)
 	@echo ..... [Copy] build\$(CONFIG)\inc\goahead.h
 	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
 	copy /Y /B src\goahead.h+modified build\$(CONFIG)\inc\goahead.h $(LOG)
 
 #
-#   js.h
-#
-DEPS_4 = $(DEPS_4) src\js.h
-DEPS_4 = $(DEPS_4) build\$(CONFIG)\inc\goahead.h
-
-build\$(CONFIG)\inc\js.h: $(DEPS_4)
-	@echo ..... [Copy] build\$(CONFIG)\inc\js.h
-	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
-	copy /Y /B src\js.h+modified build\$(CONFIG)\inc\js.h $(LOG)
-
-#
-#   cgitest.obj
-#
-
-build\$(CONFIG)\obj\cgitest.obj: \
-    test\cgitest.c $(DEPS_5)
-	@echo .. [Compile] build\$(CONFIG)\obj\cgitest.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\cgitest.obj -Fd$(BUILD)\obj\cgitest.pdb $(CFLAGS) $(IFLAGS) test\cgitest.c $(LOG)
-
-#
 #   goahead-openssl.obj
 #
-DEPS_6 = $(DEPS_6) build\$(CONFIG)\inc\goahead.h
+DEPS_5 = $(DEPS_5) build\$(CONFIG)\inc\goahead.h
 
 build\$(CONFIG)\obj\goahead-openssl.obj: \
-    src\goahead-openssl\goahead-openssl.c $(DEPS_6)
+    src\goahead-openssl\goahead-openssl.c $(DEPS_5)
 	@echo .. [Compile] build\$(CONFIG)\obj\goahead-openssl.obj
 	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\goahead-openssl.obj -Fd$(BUILD)\obj\goahead-openssl.pdb $(CFLAGS) $(IFLAGS) src\goahead-openssl\goahead-openssl.c $(LOG)
 
@@ -248,12 +237,23 @@ build\$(CONFIG)\obj\goahead-openssl.obj: \
 #
 #   libgoahead-openssl
 #
-DEPS_7 = $(DEPS_7) build\$(CONFIG)\obj\goahead-openssl.obj
+DEPS_6 = $(DEPS_6) build\$(CONFIG)\obj\goahead-openssl.obj
 
-build\$(CONFIG)\bin\libgoahead-openssl.lib: $(DEPS_7)
+build\$(CONFIG)\bin\libgoahead-openssl.lib: $(DEPS_6)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgoahead-openssl.lib
 	"lib.exe" -nologo -out:$(BUILD)\bin\libgoahead-openssl.lib "$(BUILD)\obj\goahead-openssl.obj" $(LOG)
 !ENDIF
+
+#
+#   js.h
+#
+DEPS_7 = $(DEPS_7) src\js.h
+DEPS_7 = $(DEPS_7) build\$(CONFIG)\inc\goahead.h
+
+build\$(CONFIG)\inc\js.h: $(DEPS_7)
+	@echo ..... [Copy] build\$(CONFIG)\inc\js.h
+	if not exist "build\$(CONFIG)\inc" md "build\$(CONFIG)\inc"
+	copy /Y /B src\js.h+modified build\$(CONFIG)\inc\js.h $(LOG)
 
 #
 #   action.obj
@@ -511,8 +511,6 @@ build\$(CONFIG)\obj\test.obj: \
 #   goahead-test
 #
 DEPS_29 = $(DEPS_29) build\$(CONFIG)\bin\libgo.lib
-DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\goahead.h
-DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\js.h
 DEPS_29 = $(DEPS_29) build\$(CONFIG)\obj\test.obj
 
 !IF "$(ME_COM_OPENSSL)" == "1"

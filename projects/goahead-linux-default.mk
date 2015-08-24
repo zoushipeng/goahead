@@ -502,8 +502,6 @@ $(BUILD)/bin/goahead: $(DEPS_30)
 #   goahead-test
 #
 DEPS_31 += $(BUILD)/bin/libgo.so
-DEPS_31 += $(BUILD)/inc/goahead.h
-DEPS_31 += $(BUILD)/inc/js.h
 DEPS_31 += $(BUILD)/obj/test.o
 
 ifeq ($(ME_COM_OPENSSL),1)

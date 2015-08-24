@@ -107,14 +107,6 @@
     <ClCompile Include="..\..\test\test.c" />
   </ItemGroup>
 
-      <ItemGroup>
-    <ClInclude Include="$(IncDir)\goahead.h" />
-  </ItemGroup>
-
-      <ItemGroup>
-    <ClInclude Include="$(IncDir)\js.h" />
-  </ItemGroup>
-
       <ItemDefinitionGroup>
         
 
@@ -122,14 +114,6 @@
         <AdditionalDependencies>libgo.lib;%(AdditionalDependencies)</AdditionalDependencies>
         <AdditionalLibraryDirectories>$(OutDir);build\$(Cfg)\bin;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       </Link>
-
-      <CustomBuildStep>
-        <Command>cd ..\..
-copy /Y /B src\goahead.h $(IncDir)
-copy /Y /B src\js.h $(IncDir)
-cd projects\goahead-windows-default</Command>
-        <Outputs>$(BinDir)\goahead-test.exe</Outputs>
-      </CustomBuildStep>
   </ItemDefinitionGroup>
 
     <ItemGroup>
