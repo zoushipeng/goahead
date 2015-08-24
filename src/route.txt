@@ -16,9 +16,6 @@
 #   Universally redirect http to https for secure communications
 #       route uri=/ protocol=http redirect=*@https handler=redirect
 #
-#   Require TLS to access anything under /secure
-#       route uri=/secure/ protocol=https
-#
 #   Form based login pattern. 
 #       route uri=/pub/
 #       route uri=/action/login methods=POST handler=action redirect=200@/ redirect=401@/pub/login.html
