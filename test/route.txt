@@ -26,8 +26,10 @@ route uri=/old-alias/ redirect=/alias/atest.html handler=redirect
 #   Basic and digest authentication required for these directories.
 #   Require the "manage" ability which only "joshua" has.
 #
-route uri=/auth/basic/  auth=basic abilities=manage
-route uri=/auth/digest/ auth=digest abilities=manage
+route uri=/auth/basic/admin/  auth=basic abilities=manage
+route uri=/auth/digest/admin/ auth=digest abilities=manage
+route uri=/auth/basic/  auth=basic abilities=view
+route uri=/auth/digest/ auth=digest abilities=view
 
 #
 #   Form-based authentication for content under /auth/form
@@ -35,17 +37,11 @@ route uri=/auth/digest/ auth=digest abilities=manage
 #   Everything else under /auth/form is secured and requires the "manage" ability 
 #
 route uri=/auth/form/login.html
+
+# MOB -- why two redirects?
 route uri=/action/login methods=POST handler=action redirect=200@/auth/form/index.html redirect=401@/auth/form/login.html
 route uri=/action/logout methods=GET|POST handler=action redirect=200@/auth/form/login.html
 route uri=/auth/form/ auth=form handler=continue abilities=manage redirect=401@/auth/form/login.html
-
-#
-#   Standard routes
-#
-route uri=/cgi-bin handler=cgi
-route uri=/action handler=action
-route uri=/ methods=OPTIONS|TRACE handler=options
-route uri=/ extensions=jst,asp handler=jst
 
 #
 #   Support PUT and DELETE methods only for the BIT_GOAHEAD_PUT_DIR directory
@@ -55,7 +51,15 @@ route uri=/tmp/ methods=PUT|DELETE
 #
 #   Require TLS to access anything under /secure
 #
-route uri=/secure/ protocol=https
+route uri=/secure/ protocol=http redirect=https handler=redirect
+
+#
+#   Standard routes
+#
+route uri=/cgi-bin handler=cgi
+route uri=/action handler=action
+route uri=/ methods=OPTIONS|TRACE handler=options
+route uri=/ extensions=jst,asp handler=jst
 
 #
 #   Catch-all route without authentication for all other URIs

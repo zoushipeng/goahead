@@ -67,8 +67,8 @@
 
 /*********************************** Locals ***********************************/
 
-#define CMD_VXWORKS_EOF     "_ _EOF_ _"
-#define CMD_VXWORKS_EOF_LEN 9
+#define CMD_VXWORKS_EOF         "_ _EOF_ _"
+#define CMD_VXWORKS_EOF_LEN     9
 #define MAX_ARGV                64
 
 static char     *argvList[MAX_ARGV];
@@ -320,8 +320,9 @@ int main(int argc, char **argv, char **envp)
  */
 static int getArgv(int *pargc, char ***pargv, int originalArgc, char **originalArgv)
 {
-    char    *switches, *next, sbuf[1024];
-    int     i;
+    static char sbuf[1024];
+    char        *switches, *next;
+    int         i;
 
     *pargc = 0;
     if (getQueryString(&queryBuf, &queryLen) < 0) {
@@ -438,6 +439,8 @@ static void printPost(char *buf, size_t len)
 
     } else if (buf) {
         if (len < (50 * 1000)) {
+            printf("<H2>Post Data %d bytes found (data below)</H2>\r\n", (int) len);
+            fflush(stdout);
             if (write(1, buf, (int) len) != len) {}
         } else {
             printf("<H2>Post Data %d bytes found</H2>\r\n", (int) len);
