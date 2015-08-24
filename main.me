@@ -15,6 +15,7 @@ Me.load({
 
     blend: [
         'src/*/*.me',
+        'test/test.me',
         'paks/ssl/*.me',
         'doc/doc.me',
     ],
@@ -286,24 +287,6 @@ Me.load({
         },
 
         /*
-            Target for unit tests. Includes ASP and form callbacks
-         */
-        'goahead-test': {
-            enable: `me.settings.profile != 'release'`,
-            type: 'exe',
-            sources: [ 'test/test.c' ],
-            headers: [ 'src/*.h' ],
-            depends: [ 'libgo' ],
-            scripts: {
-                prebuild: `
-                    if (me.settings.hasPam) {
-                        me.target.libraries.push('pam')
-                    }                                                                                      
-                `,  
-            },
-        },
-
-        /*
             Compiler for web pages into C code
          */
         gopass: {
@@ -323,35 +306,6 @@ Me.load({
             sources: [ 'src/utils/webcomp.c' ],
             headers: [ 'src/*.h' ],
             depends: [ ],
-        },
-
-        cgitest: {
-            enable: 'me.settings.goahead.cgi',
-            path: 'test/cgi-bin/cgitest${EXE}'
-            type: 'exe',
-            sources: [ 'test/cgitest.c' ],
-            headers: [ 'src/*.h' ],
-            generate: false,
-        },
-
-        test: {
-            action: `run('testme --depth ' + me.settings.depth)`,
-            platforms: [ 'local' ],
-            depends: [ 'test-prep' ],
-            generate: false,
-        },
-
-       'test-prep': {
-            platforms: [ 'local' ],
-            depends: [ 'clean-test', 'build', 'cgitest' ],
-            generate: false,
-        },
-
-        'clean-test': {
-            type: 'clean',
-            action: `
-                Cmd.run('testme --clean')
-            `
         },
 
         run: {
