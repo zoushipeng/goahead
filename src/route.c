@@ -83,6 +83,9 @@ PUBLIC void websRouteRequest(Webs *wp)
         /*
             Match route
          */
+        if (strncmp(wp->path, route->prefix, len) != 0) {
+            continue;
+        }
         if (route->protocol && !smatch(route->protocol, wp->protocol)) {
             trace(5, "Route %s does not match protocol %s", route->prefix, wp->protocol);
             continue;
@@ -99,31 +102,30 @@ PUBLIC void websRouteRequest(Webs *wp)
             trace(5, "Route %s doesn match extension %s", route->prefix, wp->ext ? wp->ext : "");
             continue;
         }
-        if (strncmp(wp->path, route->prefix, len) == 0) {
-            wp->route = route;
+
+        wp->route = route;
 #if ME_GOAHEAD_AUTH
-            if (route->authType && !websAuthenticate(wp)) {
-                return;
-            }
-            if (route->abilities >= 0 && !websCan(wp, route->abilities)) {
-                return;
-            }
+        if (route->authType && !websAuthenticate(wp)) {
+            return;
+        }
+        if (route->abilities >= 0 && !websCan(wp, route->abilities)) {
+            return;
+        }
 #endif
-            if ((handler = route->handler) == 0) {
-                continue;
+        if ((handler = route->handler) == 0) {
+            continue;
+        }
+        if (!handler->match || (*handler->match)(wp)) {
+            /* Handler matches */
+            return;
+        }
+        wp->route = 0;
+        if (wp->flags & WEBS_REROUTE) {
+            wp->flags &= ~WEBS_REROUTE;
+            if (++wp->routeCount >= WEBS_MAX_ROUTE) {
+                break;
             }
-            if (!handler->match || (*handler->match)(wp)) {
-                /* Handler matches */
-                return;
-            }
-            wp->route = 0;
-            if (wp->flags & WEBS_REROUTE) {
-                wp->flags &= ~WEBS_REROUTE;
-                if (++wp->routeCount >= WEBS_MAX_ROUTE) {
-                    break;
-                }
-                i = 0;
-            }
+            i = 0;
         }
     }
     if (wp->routeCount >= WEBS_MAX_ROUTE) {
