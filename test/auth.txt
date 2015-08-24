@@ -2,10 +2,9 @@
 #   auth.txt - Authorization data
 #
 
-role name=user abilities=view,person,
-role name=person abilities=breathe,
-role name=administrator abilities=user,manage,
-role name=admin abilities=user,manage,
+role name=person abilities=breathe
+role name=user abilities=view,person
+role name=administrator abilities=user,manage
 
 user name=julie password=9d8873a123eb506e7f8e84d1f2a26916 roles=user
 user name=joshua password=2fd6e47ff9bb70c0465fd2f5c8e5305e roles=administrator,purchase
