@@ -52,6 +52,7 @@
                 <div class="menu">
                     <a class="item" href="../users/ports.html">Ports and Binding</a>
                     <a class="item" href="../users/routing.html">Routing Requests</a>
+                    <a class="item" href="../users/handlers.html">Request Handlers</a>
                     <a class="item" href="../users/js.html">Embedded Javascript</a>
                     <a class="item" href="../users/jst.html">Javascript Templates</a>
                     <a class="item" href="../users/goactions.html">GoActions</a>
@@ -162,6 +163,10 @@
                         <td>Configuring request routes.</td>
                     </tr>
                     <tr>
+                        <td><a href="handlers.html">Request Handlers</a></td>
+                        <td>Using request handlers.</td>
+                    </tr>
+                    <tr>
                         <td class="nowrap"><a href="jst.html">Javascript Templates</a></td>
                         <td>Using Javascript Templates for dynamic content</td>
                     </tr>
@@ -227,19 +232,6 @@
     </script> 
 
         
-    <script>
-        (function() {
-            var r = new XMLHttpRequest();
-            r.onreadystatechange = function() {
-                if (r.readyState >= 3 && r.status == 200) {
-                    window.location.reload();
-                }
-            }
-            r.open("GET", "/reload-service", true);
-            r.send();
-        })();
-    </script>
-    
 
 </body>
 </html>

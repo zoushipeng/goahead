@@ -9,38 +9,17 @@
             request handler is responsible for generating the response content or redirecting to another
             more suitable handler.</p>
             
-            <p>GoAhead provides a suite of handlers for various content types and web frameworks. The standard handlers
-            supplied with GoAhead are: </p>
-            <ul>
-                <li>action &mdash; for GoActions</li>
-                <li>continue &mdash; Pseudo handler for request rewriting</li>
-                <li>cgi &mdash; for CGI programs</li>
-                <li>file &mdash; for static documents</li>
-                <li>jst &mdash; for Javascript templates </li>
-                <li>options &mdash; for Options and Trace methods</li>
-                <li>redirect &mdash; to process route redirects </li>
-                <li>upload &mdash; for file uploads</li>
-            </ul>
-            <p>You can extend GoAhead by creating your own custom handler to process Http requests and perform any
-            processing you desire. Once created handlers are configured via routes in the route table. See <a
-            href="../users/routing.html">Request Routing</a> for more details about Routing.</p>
+            <p>GoAhead provides a suite of handlers for standard content types and web frameworks. But you can also create your own custom handler to process Http requests and perform any processing you desire. Once created handlers are configured via routes in the route table. See <a href="../users/routing.html">Request Routing</a> for more details about Routing.</p>
+
             <a id="processing"></a>
             <h2>Request Processing</h2>
-            <p>When a request is received from the client, GoAhead parses the HTTP request headers and
-            then determines the best GoAhead <a href="../users/routing.html">route</a> for the request. A route contains
-            the full details for how to process a request including the required handler and required authentication.
-            GoAhead matches each route in the route table in-order and selects the first matching route. The route
-            specifies the desired handler for requests matching that route.</p>
+            <p>When a request is received from the client, GoAhead parses the HTTP request headers and then determines the best GoAhead <a href="../users/routing.html">route</a> for the request. A route contains the full details for how to process a request including the required handler and required authentication. GoAhead matches each route in the route table in-order and selects the first matching route. The route specifies the desired handler for requests matching that route.</p>
+            
             <h3>Matching a Handler</h3>
-            <p>The last step of selecting a route is calling the candidate handler's optional match() callback. If the match
-            callback returns true, the handler will be selected. If it returns false, the handler and route will be skipped
-            and the route selection process continues.</p>
+            <p>The last step of selecting a route is calling the candidate handler's optional match() callback. If the match callback returns true, the handler will be selected. If it returns false, the handler and route will be skipped and the route selection process continues.</p>
              
             <h3>Running a Handler</h3>
-            <p>Once the route has been selected, GoAhead invokes the handler service callback to process the request 
-            and generate a response. At this point, request body data will be received and buffered. The handler may 
-            choose to not handler the request by returning a zero status code. In that case, the router continues 
-            matching routes to find a more suitable route and handler combination.</p>
+            <p>Once the route has been selected, GoAhead invokes the handler service callback to process the request and generate a response. At this point, request body data will be received and buffered. The handler may choose to not handler the request by returning a zero status code. In that case, the router continues matching routes to find a more suitable route and handler combination.</p>
             
             <a id="responses"></a>
             <h2>Generating Responses</h2>

@@ -52,6 +52,7 @@
                 <div class="menu">
                     <a class="item" href="../users/ports.html">Ports and Binding</a>
                     <a class="item" href="../users/routing.html">Routing Requests</a>
+                    <a class="item" href="../users/handlers.html">Request Handlers</a>
                     <a class="item" href="../users/js.html">Embedded Javascript</a>
                     <a class="item" href="../users/jst.html">Javascript Templates</a>
                     <a class="item" href="../users/goactions.html">GoActions</a>
@@ -204,19 +205,6 @@
     </script> 
 
         
-    <script>
-        (function() {
-            var r = new XMLHttpRequest();
-            r.onreadystatechange = function() {
-                if (r.readyState >= 3 && r.status == 200) {
-                    window.location.reload();
-                }
-            }
-            r.open("GET", "/reload-service", true);
-            r.send();
-        })();
-    </script>
-    
 
 </body>
 </html>
