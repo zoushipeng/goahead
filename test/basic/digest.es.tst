@@ -33,7 +33,7 @@ if (thas('ME_GOAHEAD_AUTH')) {
     if (Config.OS == "windows") {
         // Case won't matter 
         http.setCredentials("joshua", "pass1")
-        http.get(HTTP + "/diGEST/diGEST.hTMl")
+        http.get(HTTP + "/auth/diGEST/diGEST.hTMl")
         ttrue(http.status == 200)
     }
 }
