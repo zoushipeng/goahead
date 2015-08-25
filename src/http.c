@@ -906,7 +906,7 @@ static bool parseIncoming(Webs *wp)
     }
 #if !ME_ROM
 #if ME_GOAHEAD_CGI
-    if (strstr(wp->path, ME_GOAHEAD_CGI_BIN) != 0) {
+    if (wp->route && wp->route->handler && wp->route->handler->service == cgiHandler) {
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY | O_TRUNC, 0666)) < 0) {
