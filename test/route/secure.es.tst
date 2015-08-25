@@ -12,11 +12,9 @@ http.get(HTTP + "/secure/index.html")
 ttrue(http.status == 302)
 http.close()
 
-/*
 //  Will be admitted
 http.verify = false
 http.get(HTTPS + "/secure/index.html")
 ttrue(http.status == 200)
 ttrue(http.response.contains("Hello secure world"))
 http.close()
-*/
