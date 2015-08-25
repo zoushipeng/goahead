@@ -13,12 +13,23 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libgo", "goahead-windows-st
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "install-certs", "goahead-windows-static\install-certs.vcxproj", "{01D68E96-2914-4012-96A3-2DBAD8659046}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{01D68E96-2914-4012-96A3-2DBAD8659046} = {01D68E96-2914-4012-96A3-2DBAD8659046}
+	EndProjectSection
+EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead", "goahead-windows-static\goahead.vcxproj", "{462DB80E-129C-4147-A0DC-405A246B0B6A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{01D68E96-2914-4012-96A3-2DBAD8659046} = {01D68E96-2914-4012-96A3-2DBAD8659046}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{462DB80E-129C-4147-A0DC-405A246B0B6A} = {462DB80E-129C-4147-A0DC-405A246B0B6A}
@@ -30,6 +41,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "goahead-test", "goahead-win
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{7C17E307-CDF0-42AB-AC16-79C2B0661E35} = {7C17E307-CDF0-42AB-AC16-79C2B0661E35}
+	EndProjectSection
+	ProjectSection(ProjectDependencies) = postProject
+		{01D68E96-2914-4012-96A3-2DBAD8659046} = {01D68E96-2914-4012-96A3-2DBAD8659046}
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{11E96946-49F4-415D-9B2D-301FEE7BE810} = {11E96946-49F4-415D-9B2D-301FEE7BE810}
@@ -44,14 +58,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gopass", "goahead-windows-s
 	EndProjectSection
 	ProjectSection(ProjectDependencies) = postProject
 		{EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D} = {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "install-certs", "goahead-windows-static\install-certs.vcxproj", "{01D68E96-2914-4012-96A3-2DBAD8659046}"
-	ProjectSection(ProjectDependencies) = postProject
-		{D477AF49-F508-4E2B-A479-0DE0F3750BDD} = {D477AF49-F508-4E2B-A479-0DE0F3750BDD}
-	EndProjectSection
-	ProjectSection(ProjectDependencies) = postProject
-		{01D68E96-2914-4012-96A3-2DBAD8659046} = {01D68E96-2914-4012-96A3-2DBAD8659046}
 	EndProjectSection
 EndProject
 
@@ -79,6 +85,14 @@ EndProject
 {7C17E307-CDF0-42AB-AC16-79C2B0661E35}.Release|Win32.Build.0 = Release|Win32
 {7C17E307-CDF0-42AB-AC16-79C2B0661E35}.Release|x64.ActiveCfg = Release|x64
 {7C17E307-CDF0-42AB-AC16-79C2B0661E35}.Release|x64.Build.0 = Release|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.ActiveCfg = Debug|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.Build.0 = Debug|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.ActiveCfg = Debug|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.Build.0 = Debug|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.ActiveCfg = Release|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.Build.0 = Release|Win32
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.ActiveCfg = Release|x64
+{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.Build.0 = Release|x64
 {462DB80E-129C-4147-A0DC-405A246B0B6A}.Debug|Win32.ActiveCfg = Debug|Win32
 {462DB80E-129C-4147-A0DC-405A246B0B6A}.Debug|Win32.Build.0 = Debug|Win32
 {462DB80E-129C-4147-A0DC-405A246B0B6A}.Debug|x64.ActiveCfg = Debug|x64
@@ -103,14 +117,6 @@ EndProject
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|Win32.Build.0 = Release|Win32
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.ActiveCfg = Release|x64
 {EB7BB2AF-A65B-4660-A6CA-3F42BEA8D19D}.Release|x64.Build.0 = Release|x64
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.ActiveCfg = Debug|Win32
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|Win32.Build.0 = Debug|Win32
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.ActiveCfg = Debug|x64
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Debug|x64.Build.0 = Debug|x64
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.ActiveCfg = Release|Win32
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|Win32.Build.0 = Release|Win32
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.ActiveCfg = Release|x64
-{01D68E96-2914-4012-96A3-2DBAD8659046}.Release|x64.Build.0 = Release|x64
 EndGlobalSection
 
       GlobalSection(SolutionProperties) = preSolution
