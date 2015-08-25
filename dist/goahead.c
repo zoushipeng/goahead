@@ -1584,7 +1584,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-static bool cgiHandler(Webs *wp)
+PUBLIC bool cgiHandler(Webs *wp)
 {
     Cgi         *cgip;
     WebsKey     *s;
@@ -4777,7 +4777,7 @@ static bool parseIncoming(Webs *wp)
     }
 #if !ME_ROM
 #if ME_GOAHEAD_CGI
-    if (strstr(wp->path, ME_GOAHEAD_CGI_BIN) != 0) {
+    if (wp->route && wp->route->handler && wp->route->handler->service == cgiHandler) {
         if (smatch(wp->method, "POST")) {
             wp->cgiStdin = websGetCgiCommName();
             if ((wp->cgifd = open(wp->cgiStdin, O_CREAT | O_WRONLY | O_BINARY | O_TRUNC, 0666)) < 0) {
@@ -12554,7 +12554,7 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix)
     }
     if (buf < cp) {
         /* Move the null too */
-        memmove(buf, cp, end - cp + 1);
+        memmove(buf, cp, end - cp);
     }
     return buf;
 }
