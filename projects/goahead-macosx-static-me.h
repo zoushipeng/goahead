@@ -96,9 +96,6 @@
 #ifndef ME_GOAHEAD_CGI
     #define ME_GOAHEAD_CGI 1
 #endif
-#ifndef ME_GOAHEAD_CGI_BIN
-    #define ME_GOAHEAD_CGI_BIN "cgi-bin"
-#endif
 #ifndef ME_GOAHEAD_CLIENT_CACHE
     #define ME_GOAHEAD_CLIENT_CACHE "css,gif,ico,jpg,js,png"
 #endif
