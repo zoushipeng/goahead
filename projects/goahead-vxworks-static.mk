@@ -79,7 +79,6 @@ ME_SRC_PREFIX         ?= $(ME_ROOT_PREFIX)/usr/src/$(NAME)-$(VERSION)
 TARGETS               += $(BUILD)/bin/goahead.out
 TARGETS               += $(BUILD)/bin/goahead-test.out
 TARGETS               += $(BUILD)/bin/gopass.out
-TARGETS               += $(BUILD)/.install-certs-modified
 
 unexport CDPATH
 
@@ -449,37 +448,40 @@ $(BUILD)/bin/libgo.a: $(DEPS_28)
 	arundefined -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/upload.o"
 
 #
+#   install-certs
+#
+DEPS_29 += src/certs/samples/ca.crt
+DEPS_29 += src/certs/samples/ca.key
+DEPS_29 += src/certs/samples/ec.crt
+DEPS_29 += src/certs/samples/ec.key
+DEPS_29 += src/certs/samples/roots.crt
+DEPS_29 += src/certs/samples/self.crt
+DEPS_29 += src/certs/samples/self.key
+DEPS_29 += src/certs/samples/test.crt
+DEPS_29 += src/certs/samples/test.key
+
+$(BUILD)/.install-certs-modified: $(DEPS_29)
+	@echo '      [Copy] $(BUILD)/bin'
+	mkdir -p "$(BUILD)/bin"
+	cp src/certs/samples/ca.crt $(BUILD)/bin/ca.crt
+	cp src/certs/samples/ca.key $(BUILD)/bin/ca.key
+	cp src/certs/samples/ec.crt $(BUILD)/bin/ec.crt
+	cp src/certs/samples/ec.key $(BUILD)/bin/ec.key
+	cp src/certs/samples/roots.crt $(BUILD)/bin/roots.crt
+	cp src/certs/samples/self.crt $(BUILD)/bin/self.crt
+	cp src/certs/samples/self.key $(BUILD)/bin/self.key
+	cp src/certs/samples/test.crt $(BUILD)/bin/test.crt
+	cp src/certs/samples/test.key $(BUILD)/bin/test.key
+	touch "$(BUILD)/.install-certs-modified"
+
+#
 #   goahead
 #
-DEPS_29 += $(BUILD)/bin/libgo.a
-DEPS_29 += $(BUILD)/inc/goahead.h
-DEPS_29 += $(BUILD)/inc/js.h
-DEPS_29 += $(BUILD)/obj/goahead.o
-
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lgoahead-openssl
-endif
-LIBS_29 += -lgo
-ifeq ($(ME_COM_OPENSSL),1)
-ifeq ($(ME_COM_SSL),1)
-    LIBS_29 += -lssl
-    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-endif
-ifeq ($(ME_COM_OPENSSL),1)
-    LIBS_29 += -lcrypto
-    LIBPATHS_29 += -L"$(ME_COM_OPENSSL_PATH)"
-endif
-
-$(BUILD)/bin/goahead.out: $(DEPS_29)
-	@echo '      [Link] $(BUILD)/bin/goahead.out'
-	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_29) $(LIBS_29) $(LIBS_29) $(LIBS) -Wl,-r 
-
-#
-#   goahead-test
-#
 DEPS_30 += $(BUILD)/bin/libgo.a
-DEPS_30 += $(BUILD)/obj/test.o
+DEPS_30 += $(BUILD)/.install-certs-modified
+DEPS_30 += $(BUILD)/inc/goahead.h
+DEPS_30 += $(BUILD)/inc/js.h
+DEPS_30 += $(BUILD)/obj/goahead.o
 
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_30 += -lgoahead-openssl
@@ -496,17 +498,16 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_30 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 
-$(BUILD)/bin/goahead-test.out: $(DEPS_30)
-	@echo '      [Link] $(BUILD)/bin/goahead-test.out'
-	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -Wl,-r 
+$(BUILD)/bin/goahead.out: $(DEPS_30)
+	@echo '      [Link] $(BUILD)/bin/goahead.out'
+	$(CC) -o $(BUILD)/bin/goahead.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/goahead.o" $(LIBPATHS_30) $(LIBS_30) $(LIBS_30) $(LIBS) -Wl,-r 
 
 #
-#   gopass
+#   goahead-test
 #
 DEPS_31 += $(BUILD)/bin/libgo.a
-DEPS_31 += $(BUILD)/inc/goahead.h
-DEPS_31 += $(BUILD)/inc/js.h
-DEPS_31 += $(BUILD)/obj/gopass.o
+DEPS_31 += $(BUILD)/.install-certs-modified
+DEPS_31 += $(BUILD)/obj/test.o
 
 ifeq ($(ME_COM_OPENSSL),1)
     LIBS_31 += -lgoahead-openssl
@@ -523,36 +524,36 @@ ifeq ($(ME_COM_OPENSSL),1)
     LIBPATHS_31 += -L"$(ME_COM_OPENSSL_PATH)"
 endif
 
-$(BUILD)/bin/gopass.out: $(DEPS_31)
+$(BUILD)/bin/goahead-test.out: $(DEPS_31)
+	@echo '      [Link] $(BUILD)/bin/goahead-test.out'
+	$(CC) -o $(BUILD)/bin/goahead-test.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/test.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -Wl,-r 
+
+#
+#   gopass
+#
+DEPS_32 += $(BUILD)/bin/libgo.a
+DEPS_32 += $(BUILD)/inc/goahead.h
+DEPS_32 += $(BUILD)/inc/js.h
+DEPS_32 += $(BUILD)/obj/gopass.o
+
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_32 += -lgoahead-openssl
+endif
+LIBS_32 += -lgo
+ifeq ($(ME_COM_OPENSSL),1)
+ifeq ($(ME_COM_SSL),1)
+    LIBS_32 += -lssl
+    LIBPATHS_32 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+endif
+ifeq ($(ME_COM_OPENSSL),1)
+    LIBS_32 += -lcrypto
+    LIBPATHS_32 += -L"$(ME_COM_OPENSSL_PATH)"
+endif
+
+$(BUILD)/bin/gopass.out: $(DEPS_32)
 	@echo '      [Link] $(BUILD)/bin/gopass.out'
-	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_31) $(LIBS_31) $(LIBS_31) $(LIBS) -Wl,-r 
-
-#
-#   install-certs
-#
-DEPS_32 += src/certs/samples/ca.crt
-DEPS_32 += src/certs/samples/ca.key
-DEPS_32 += src/certs/samples/ec.crt
-DEPS_32 += src/certs/samples/ec.key
-DEPS_32 += src/certs/samples/roots.crt
-DEPS_32 += src/certs/samples/self.crt
-DEPS_32 += src/certs/samples/self.key
-DEPS_32 += src/certs/samples/test.crt
-DEPS_32 += src/certs/samples/test.key
-
-$(BUILD)/.install-certs-modified: $(DEPS_32)
-	@echo '      [Copy] $(BUILD)/bin'
-	mkdir -p "$(BUILD)/bin"
-	cp src/certs/samples/ca.crt $(BUILD)/bin/ca.crt
-	cp src/certs/samples/ca.key $(BUILD)/bin/ca.key
-	cp src/certs/samples/ec.crt $(BUILD)/bin/ec.crt
-	cp src/certs/samples/ec.key $(BUILD)/bin/ec.key
-	cp src/certs/samples/roots.crt $(BUILD)/bin/roots.crt
-	cp src/certs/samples/self.crt $(BUILD)/bin/self.crt
-	cp src/certs/samples/self.key $(BUILD)/bin/self.key
-	cp src/certs/samples/test.crt $(BUILD)/bin/test.crt
-	cp src/certs/samples/test.key $(BUILD)/bin/test.key
-	touch "$(BUILD)/.install-certs-modified"
+	$(CC) -o $(BUILD)/bin/gopass.out $(LDFLAGS) $(LIBPATHS)  "$(BUILD)/obj/gopass.o" $(LIBPATHS_32) $(LIBS_32) $(LIBS_32) $(LIBS) -Wl,-r 
 
 #
 #   stop
