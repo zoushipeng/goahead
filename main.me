@@ -280,6 +280,7 @@ Me.load({
                         me.target.libraries.push('pam')
                     }                                                                                      
                     cp(['${BIN}/self.key', '${BIN}/self.crt'], 'src')
+                    cp(['${BIN}/self.key', '${BIN}/self.crt'], 'test')
                 `,  
             },
         },
