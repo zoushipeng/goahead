@@ -1,0 +1,76 @@
+{
+    title:  'Creating Handlers',
+    crumbs: [
+        { "User's Guide": 'index.html' },
+    ],
+}
+        <h1>GoAhead Handlers</h1>
+        <p>GoAhead responds to client requests by routing the request to a request handler. The
+        request handler is responsible for generating the response content or redirecting to another
+        more suitable handler.</p>
+        
+        <p>GoAhead provides a suite of standard handlers for various content types and web frameworks. 
+        The standard handlers supplied with GoAhead are: </p>
+        <table class="ui celled table">
+            <thead><tr><th>Name</th><th>Description</th></tr></thead>
+            <tbody>
+                <tr><td>action</td><td>Handler to serve C functions bound to URLs</td></tr>
+                <tr><td>continue</td><td>Pseudo handler for request rewriting</td></tr>
+                <tr><td>cgi</td><td>Handler to serve CGI programs</td></tr>
+                <tr><td>file</td><td>Handler to serve web pages, images and static resources</td></tr>
+                <tr><td>jst</td><td>Handler to serve Javascript templates for dynamic content</td></tr>
+                <tr><td>options</td><td>Handler to serve HTTP Options and Trace methods</td></tr>
+                <tr><td>redirect</td><td>Handler to process route redirects </td></tr>
+                <tr><td>upload</td><td>Handler to process file uploads</td></tr>
+            </tbody>
+        </table>
+
+        <p>You can extend GoAhead by creating your own custom handler to process Http requests and perform any processing you desire. Once created handlers are configured via routes in the route table. See <a href="../developers/handlers.html">Creating Handlers</a> in the <a href="../developers/index.html">Developer's Guide</a>, and <a href="../users/routing.html">Request Routing</a> for more details.</p>
+
+        <a id="processing"></a>
+        <h2>Request Processing</h2> 
+        <p>When a request is received from the client, GoAhead parses the HTTP request headers and then determines the best GoAhead <a href="../users/routing.html">route</a> for the request. A route contains the full details for how to process a request including the required handler and required authentication. GoAhead matches each route in the route table in-order and selects the first matching route. The route specifies the desired handler for requests matching that route.</p> 
+
+        <p>The last step of selecting a route is calling the candidate handler's optional match() callback. If the match callback returns true, the handler will be selected. If it returns false, the handler and route will be skipped and the route selection process continues.</p>
+         
+        <p>Once the route has been selected, GoAhead invokes the handler service callback to process the request and generate a response. At this point, request body data will be received and buffered. The handler may choose to not handler the request by returning a zero status code. In that case, the router continues matching routes to find a more suitable route and handler combination.</p>
+    
+        <h2>Standard Handlers</h2>
+        <p>GoAhead includes a suite of handlers that process standard content.</p>
+
+        <h3>Action Handler</h3>
+        <p>The Action handler maps URLs to simple C functions. Handler to serve C functions bound to URLs. Here is an example route directive to configure the <em>action</em> handler for URLs that begin with <em>/action</em>.</p>
+
+        <code>route uri=/action handler=action</code>
+
+        <p>See <a href="goactions.html">GoActions</a> for more details.</p>
+
+        <h3>Continue Handler</h3>
+        <p>The Continue handler is a pseudo handler that performs nothing. It simply continues routing by proceeding to examine the next route in the routing table. The Continue handler is typically used when performing authentication which must be checked before proceeding to serve the request using the appropriate content handler. Here is a route directive that redirects to a login page if not authenticated. If the user is already authenticated, routing <em>continues</em> to examine the next route directive in the route table.</p>
+        <code>route uri=/ auth=form handler=continue redirect=401@/login.html</code>
+        <p>See <a href="authentication.html">User Authentication</a> for more examples.</p>
+
+        <h3>CGI Handler</h3>
+        <p>Handler to serve CGI programs See <a href="cgi.html">CGI Programs</a> for more information. For example:</p>
+        <code>route uri=/cgi-bin handler=cgi</code>
+
+        <h3>File Handler</h3>
+        <p>Handler to serve web pages, images and static resources. The <em>file</em> handler is the default handler
+        and will be used by route directives if another handler is not specified.</p>
+
+        <h3>JST Handler</h3>
+        <p>Handler to serve Javascript templates for dynamic content. See <a href="jst.html">Javascript Templates</a> for more information. For example:</p>
+        <code>route uri=/ extensions=jst handler=asp,jst</code>
+        <p>This will use the JST handler for all requests that have an <em>asp</em> or <em>jst</em> URI extension. Note: you can also create multiple routes using the same handler. </p>
+
+        <h3>Options Handler</h3>
+        <p>Handler to serve HTTP Options and Trace methods. The HTTP OPTIONS and TRACE methods are somewhat special in that they are handled centrally by the server instead of by the corresponding content handler. For example:</p>
+        <code>route uri=/ methods=OPTIONS|TRACE handler=options</code>
+
+        <h3>Redirect Handler</h3>
+        <p>Handler to process route redirects. The Redirect handler is used to redirect the client to alternate content. It is also used during login authentication to redirect the client to a login, logout or logged in page. For example:</p>
+        <code>route uri=/ protocol=http redirect=*@https handler=redirect</code>
+        <p>This will redirect all HTTP requests to use SSL</p>
+
+        <h3>Upload Handler</h3>
+        <p>Handler to process file uploads. The upload handler is a special case that filters uploaded files. It is not a "terminal" handler and can be used with another handler to actually handle generating the response. The Upload handler is automatically configured and does not need to be defined in the route table.</p>
