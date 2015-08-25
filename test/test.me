@@ -13,12 +13,13 @@ Me.load({
             enable: `me.settings.profile != 'release'`,
             type: 'exe',
             sources: [ 'test.c' ],
-            depends: [ 'libgo' ],
+            depends: [ 'libgo', 'install-certs' ],
             scripts: {
                 prebuild: `
                     if (me.settings.hasPam) {
                         me.target.libraries.push('pam')
                     }                                                                                      
+                    cp(['${BIN}/self.key', '${BIN}/self.crt'], '.')
                 `,  
             },
         },

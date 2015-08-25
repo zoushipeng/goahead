@@ -273,7 +273,7 @@ Me.load({
             type: 'exe',
             sources: [ 'src/goahead.c' ],
             headers: [ 'src/*.h' ],
-            depends: [ 'libgo' ],
+            depends: [ 'libgo', 'install-certs' ],
             scripts: {
                 prebuild: `
                     if (me.settings.compiler.hasPam) {
