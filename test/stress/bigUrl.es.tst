@@ -24,16 +24,26 @@ for (iter in depth) {
 
     // Test /index.html
     http.get(HTTP + "/index.html?" + query)
-    if (query.length < 2000) {
-        ttrue(http.status == 200)
-        ttrue(http.response.contains("Hello /index.html"))
-    } else {
-        if (http.status != 413) {
-            print('STATUS', http.status)
-            dump('HEADERS', http.headers)
-            print('response', http.response)
+
+    /*
+        On windows, may get a connection reset as the server may respond before reading all the URL data
+     */
+    let status
+    try {
+        status = http.status
+        if (query.length < 2000) {
+            ttrue(http.status == 200)
+            ttrue(http.response.contains("Hello /index.html"))
+        } else {
+            if (http.status != 413) {
+                print('STATUS', http.status)
+                dump('HEADERS', http.headers)
+                print('response', http.response)
+            }
+            ttrue(http.status == 413)
         }
-        ttrue(http.status == 413)
+    } catch (e) {
+        ttrue(e.message.contains('Connection reset'))
     }
+    http.close()
 }
-http.close()
