@@ -2011,6 +2011,10 @@ PUBLIC int websCgiHandler(Webs *wp);
     @stability Evolving
  */
 PUBLIC WebsTime websCgiPoll();
+
+/* Internal */
+PUBLIC bool cgiHandler(Webs *wp);
+
 #endif /* ME_GOAHEAD_CGI */
 
 /**

@@ -47,7 +47,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 /*
     Process a form request. Returns 1 always to indicate it handled the URL
  */
-static bool cgiHandler(Webs *wp)
+PUBLIC bool cgiHandler(Webs *wp)
 {
     Cgi         *cgip;
     WebsKey     *s;
