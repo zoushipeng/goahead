@@ -105,7 +105,6 @@ case "$1" in
         stop
         ;;
     status)
-        // TODO status ${MANAGER_CMD}
         ;;
     restart|reload|force-reload)
         stop
