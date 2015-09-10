@@ -43,10 +43,10 @@
     "optionalDependencies": {
         "certs": "~0.1",
         "goahead-matrixssl": "~0.1",
-        "goahead-mbedtls": "~0.1",
+        "goahead-mbedtls": "~0.2",
         "goahead-nanossl": "~0.1",
         "goahead-openssl": "~0.1",
-        "mbedtls": "~1.3"
+        "mbedtls": "~2.1"
     },
     "devDependencies": {
         "makeme": ">=0.9.0",
