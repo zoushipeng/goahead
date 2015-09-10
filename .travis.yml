@@ -1,0 +1,31 @@
+language: c
+os:
+    - osx
+    - linux
+compiler:
+    - clang
+    - gcc
+install: 
+    - mkdir -p build
+    - cd build
+    - wget -q http://embedthis.com/software/makeme-0.9.3-src.tgz -O makeme.tgz
+    - tar xvfz makeme.tgz
+    - cd makeme-*
+    - make boot 
+    - sudo make install
+script:
+    - ./configure
+    - me
+    - make test
+
+notifications:
+
+#addons:
+#  ssh_known_hosts:
+#  - git.example.com
+#  - 111.22.33.44
+
+# after_success:
+# - me package
+# - me upload
+
