@@ -10,7 +10,7 @@ install:
     - ls
     - mkdir -p build
     - cd build
-    - wget -q http://embedthis.com/software/makeme-0.9.3-src.tgz -O makeme.tgz
+    - wget -q http://embedthis.com/software/makeme-0.10.0-src.tgz -O makeme.tgz
     - tar xvfz makeme.tgz
     - cd makeme-*
     - make boot 
