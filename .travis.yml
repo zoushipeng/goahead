@@ -15,7 +15,7 @@ install:
     - cd makeme-*
     - make boot 
     - sudo make install
-    - cd ..
+    - cd ../..
     - pwd
     - which me
 script:
