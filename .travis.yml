@@ -1,11 +1,13 @@
 language: c
 os:
     - osx
-    - linux
+#    - linux
 compiler:
     - clang
-    - gcc
+#   - gcc
 install: 
+    - pwd
+    - ls
     - mkdir -p build
     - cd build
     - wget -q http://embedthis.com/software/makeme-0.9.3-src.tgz -O makeme.tgz
@@ -14,13 +16,17 @@ install:
     - make boot 
     - sudo make install
     - cd ..
-    - type me
+    - pwd
+    - which me
 script:
+    - echo SCRIPT
+    - pwd
+    - ls
     - ./configure
     - me
     - me test
 
-notifications:
+# notifications:
 
 #addons:
 #  ssh_known_hosts:
