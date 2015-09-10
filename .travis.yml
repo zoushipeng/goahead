@@ -2,9 +2,6 @@ language: c
 os:
     - osx
     - linux
-#compiler:
-#    - clang
-#   - gcc
 install: 
     - mkdir -p build
     - cd build
@@ -18,16 +15,3 @@ script:
     - ./configure
     - me -s
     - me test
-
-# notifications:
-
-
-#addons:
-#  ssh_known_hosts:
-#  - git.example.com
-#  - 111.22.33.44
-
-# after_success:
-# - me package
-# - me upload
-
