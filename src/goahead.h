@@ -174,7 +174,7 @@ extern void assert(bool cond);
     #define assert(C)       if (C) ; else assertError(WEBS_L, "%s", #C)
     PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...);
 #else
-    #define assert(C)       if (1) ; else ((void*)0)
+    #define assert(C)       if (1) ; else {}
 #endif
 
 //  Deprecated 3.1
@@ -746,7 +746,7 @@ PUBLIC void *wrealloc(void *blk, ssize newsize);
 
     #define WEBS_SHIFT 4
     #define walloc(num) malloc(num)
-    #define wfree(p) if (p) { free(p); } else ((void*)0)
+    #define wfree(p) if (p) { free(p); } else {}
     #define wrealloc(p, num) realloc(p, num)
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
@@ -3749,7 +3749,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 
 #if ME_GOAHEAD_TRACING
     #if ME_COMPILER_HAS_MACRO_VARARGS
-      #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else ((void*)0)
+      #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else {}
     #else
         inline void trace(int level, cchar *fmt, ...) {
             WebsLogHandler logHandler = logGetHandler();
@@ -3763,12 +3763,12 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
         }
     #endif
 #else
-    #define trace(l, ...) if (1) ; else ((void*)0)
+    #define trace(l, ...) if (1) ; else {}
 #endif
 
 #if ME_GOAHEAD_LOGGING
     #if ME_COMPILER_HAS_MACRO_VARARGS
-        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else ((void*)0)
+        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else {}
     #else
         inline void logmsg(int level, cchar *fmt, ...) {
             WebsLogHandler logHandler = logGetHandler();
@@ -3782,7 +3782,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
         }
     #endif
 #else
-    #define logmsg(l, ...) if (1) ; else ((void*)0)
+    #define logmsg(l, ...) if (1) ; else {}
 #endif
 
 /************************************ Legacy **********************************/
@@ -3905,7 +3905,7 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     #define websSetDefaultDir websSetDocuments
     #define websSetDefaultPage websSetIndex
     #define websSetRequestLpath websSetRequestFilename
-    #define websSetRequestWritten(wp, nbytes) if (1) { wp->written = nbytes; } else ((void*)0)
+    #define websSetRequestWritten(wp, nbytes) if (1) { wp->written = nbytes; } else {}
     #define websTimeoutCancel websCancelTimeout
     #define websWriteDataNonBlock websWriteRaw
 
