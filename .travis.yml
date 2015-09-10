@@ -1,9 +1,9 @@
 language: c
 os:
     - osx
-#    - linux
-compiler:
-    - clang
+    - linux
+#compiler:
+#    - clang
 #   - gcc
 install: 
     - pwd
