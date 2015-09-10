@@ -255,7 +255,7 @@ DEPS_7 = $(DEPS_7) src\mbedtls\mbedtls.h
 build\$(CONFIG)\obj\mbedtls.obj: \
     src\mbedtls\mbedtls.c $(DEPS_7)
 	@echo .. [Compile] build\$(CONFIG)\obj\mbedtls.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\mbedtls.obj -Fd$(BUILD)\obj\mbedtls.pdb -nologo -GR- -Zi -Od -MDd -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\mbedtls\mbedtls.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\mbedtls.obj -Fd$(BUILD)\obj\mbedtls.pdb -nologo -GR- -Zi -Od -MDd -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\mbedtls\mbedtls.c $(LOG)
 
 !IF "$(ME_COM_MBEDTLS)" == "1"
 #
@@ -291,7 +291,7 @@ DEPS_10 = $(DEPS_10) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\goahead-mbedtls.obj: \
     src\goahead-mbedtls\goahead-mbedtls.c $(DEPS_10)
 	@echo .. [Compile] build\$(CONFIG)\obj\goahead-mbedtls.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\goahead-mbedtls.obj -Fd$(BUILD)\obj\goahead-mbedtls.pdb -nologo -GR- -Zi -Od -MDd -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\goahead-mbedtls\goahead-mbedtls.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\goahead-mbedtls.obj -Fd$(BUILD)\obj\goahead-mbedtls.pdb -nologo -GR- -Zi -Od -MDd -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\goahead-mbedtls\goahead-mbedtls.c $(LOG)
 
 !IF "$(ME_COM_MBEDTLS)" == "1"
 #
@@ -345,7 +345,7 @@ DEPS_15 = $(DEPS_15) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\action.obj: \
     src\action.c $(DEPS_15)
 	@echo .. [Compile] build\$(CONFIG)\obj\action.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\action.obj -Fd$(BUILD)\obj\action.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\action.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\action.obj -Fd$(BUILD)\obj\action.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\action.c $(LOG)
 
 #
 #   alloc.obj
@@ -355,7 +355,7 @@ DEPS_16 = $(DEPS_16) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\alloc.obj: \
     src\alloc.c $(DEPS_16)
 	@echo .. [Compile] build\$(CONFIG)\obj\alloc.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\alloc.obj -Fd$(BUILD)\obj\alloc.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\alloc.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\alloc.obj -Fd$(BUILD)\obj\alloc.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\alloc.c $(LOG)
 
 #
 #   auth.obj
@@ -365,7 +365,7 @@ DEPS_17 = $(DEPS_17) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\auth.obj: \
     src\auth.c $(DEPS_17)
 	@echo .. [Compile] build\$(CONFIG)\obj\auth.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\auth.obj -Fd$(BUILD)\obj\auth.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\auth.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\auth.obj -Fd$(BUILD)\obj\auth.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\auth.c $(LOG)
 
 #
 #   cgi.obj
@@ -375,7 +375,7 @@ DEPS_18 = $(DEPS_18) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\cgi.obj: \
     src\cgi.c $(DEPS_18)
 	@echo .. [Compile] build\$(CONFIG)\obj\cgi.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\cgi.obj -Fd$(BUILD)\obj\cgi.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\cgi.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\cgi.obj -Fd$(BUILD)\obj\cgi.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\cgi.c $(LOG)
 
 #
 #   crypt.obj
@@ -385,7 +385,7 @@ DEPS_19 = $(DEPS_19) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\crypt.obj: \
     src\crypt.c $(DEPS_19)
 	@echo .. [Compile] build\$(CONFIG)\obj\crypt.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\crypt.obj -Fd$(BUILD)\obj\crypt.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\crypt.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\crypt.obj -Fd$(BUILD)\obj\crypt.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\crypt.c $(LOG)
 
 #
 #   file.obj
@@ -395,7 +395,7 @@ DEPS_20 = $(DEPS_20) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\file.obj: \
     src\file.c $(DEPS_20)
 	@echo .. [Compile] build\$(CONFIG)\obj\file.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\file.obj -Fd$(BUILD)\obj\file.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\file.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\file.obj -Fd$(BUILD)\obj\file.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\file.c $(LOG)
 
 #
 #   fs.obj
@@ -405,7 +405,7 @@ DEPS_21 = $(DEPS_21) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\fs.obj: \
     src\fs.c $(DEPS_21)
 	@echo .. [Compile] build\$(CONFIG)\obj\fs.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\fs.obj -Fd$(BUILD)\obj\fs.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\fs.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\fs.obj -Fd$(BUILD)\obj\fs.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\fs.c $(LOG)
 
 #
 #   http.obj
@@ -415,7 +415,7 @@ DEPS_22 = $(DEPS_22) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\http.obj: \
     src\http.c $(DEPS_22)
 	@echo .. [Compile] build\$(CONFIG)\obj\http.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\http.obj -Fd$(BUILD)\obj\http.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\http.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\http.obj -Fd$(BUILD)\obj\http.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\http.c $(LOG)
 
 #
 #   js.obj
@@ -425,7 +425,7 @@ DEPS_23 = $(DEPS_23) build\$(CONFIG)\inc\js.h
 build\$(CONFIG)\obj\js.obj: \
     src\js.c $(DEPS_23)
 	@echo .. [Compile] build\$(CONFIG)\obj\js.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\js.obj -Fd$(BUILD)\obj\js.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\js.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\js.obj -Fd$(BUILD)\obj\js.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\js.c $(LOG)
 
 #
 #   jst.obj
@@ -436,7 +436,7 @@ DEPS_24 = $(DEPS_24) build\$(CONFIG)\inc\js.h
 build\$(CONFIG)\obj\jst.obj: \
     src\jst.c $(DEPS_24)
 	@echo .. [Compile] build\$(CONFIG)\obj\jst.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\jst.obj -Fd$(BUILD)\obj\jst.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\jst.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\jst.obj -Fd$(BUILD)\obj\jst.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\jst.c $(LOG)
 
 #
 #   options.obj
@@ -446,7 +446,7 @@ DEPS_25 = $(DEPS_25) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\options.obj: \
     src\options.c $(DEPS_25)
 	@echo .. [Compile] build\$(CONFIG)\obj\options.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\options.obj -Fd$(BUILD)\obj\options.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\options.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\options.obj -Fd$(BUILD)\obj\options.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\options.c $(LOG)
 
 #
 #   osdep.obj
@@ -456,7 +456,7 @@ DEPS_26 = $(DEPS_26) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\osdep.obj: \
     src\osdep.c $(DEPS_26)
 	@echo .. [Compile] build\$(CONFIG)\obj\osdep.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\osdep.obj -Fd$(BUILD)\obj\osdep.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\osdep.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\osdep.obj -Fd$(BUILD)\obj\osdep.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\osdep.c $(LOG)
 
 #
 #   rom-documents.obj
@@ -466,7 +466,7 @@ DEPS_27 = $(DEPS_27) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\rom-documents.obj: \
     src\rom-documents.c $(DEPS_27)
 	@echo .. [Compile] build\$(CONFIG)\obj\rom-documents.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\rom-documents.obj -Fd$(BUILD)\obj\rom-documents.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\rom-documents.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\rom-documents.obj -Fd$(BUILD)\obj\rom-documents.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\rom-documents.c $(LOG)
 
 #
 #   route.obj
@@ -476,7 +476,7 @@ DEPS_28 = $(DEPS_28) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\route.obj: \
     src\route.c $(DEPS_28)
 	@echo .. [Compile] build\$(CONFIG)\obj\route.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\route.obj -Fd$(BUILD)\obj\route.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\route.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\route.obj -Fd$(BUILD)\obj\route.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\route.c $(LOG)
 
 #
 #   runtime.obj
@@ -486,7 +486,7 @@ DEPS_29 = $(DEPS_29) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\runtime.obj: \
     src\runtime.c $(DEPS_29)
 	@echo .. [Compile] build\$(CONFIG)\obj\runtime.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\runtime.obj -Fd$(BUILD)\obj\runtime.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\runtime.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\runtime.obj -Fd$(BUILD)\obj\runtime.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\runtime.c $(LOG)
 
 #
 #   socket.obj
@@ -496,7 +496,7 @@ DEPS_30 = $(DEPS_30) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\socket.obj: \
     src\socket.c $(DEPS_30)
 	@echo .. [Compile] build\$(CONFIG)\obj\socket.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\socket.obj -Fd$(BUILD)\obj\socket.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\socket.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\socket.obj -Fd$(BUILD)\obj\socket.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\socket.c $(LOG)
 
 #
 #   upload.obj
@@ -506,7 +506,7 @@ DEPS_31 = $(DEPS_31) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\upload.obj: \
     src\upload.c $(DEPS_31)
 	@echo .. [Compile] build\$(CONFIG)\obj\upload.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\upload.obj -Fd$(BUILD)\obj\upload.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\upload.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\upload.obj -Fd$(BUILD)\obj\upload.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\upload.c $(LOG)
 
 #
 #   libgo
@@ -593,7 +593,7 @@ DEPS_34 = $(DEPS_34) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\goahead.obj: \
     src\goahead.c $(DEPS_34)
 	@echo .. [Compile] build\$(CONFIG)\obj\goahead.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\goahead.obj -Fd$(BUILD)\obj\goahead.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\goahead.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\goahead.obj -Fd$(BUILD)\obj\goahead.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\goahead.c $(LOG)
 
 #
 #   goahead
@@ -634,7 +634,7 @@ DEPS_36 = $(DEPS_36) build\$(CONFIG)\inc\js.h
 build\$(CONFIG)\obj\test.obj: \
     test\test.c $(DEPS_36)
 	@echo .. [Compile] build\$(CONFIG)\obj\test.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\test.obj -Fd$(BUILD)\obj\test.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) test\test.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\test.obj -Fd$(BUILD)\obj\test.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) test\test.c $(LOG)
 
 #
 #   goahead-test
@@ -672,7 +672,7 @@ DEPS_38 = $(DEPS_38) build\$(CONFIG)\inc\goahead.h
 build\$(CONFIG)\obj\gopass.obj: \
     src\utils\gopass.c $(DEPS_38)
 	@echo .. [Compile] build\$(CONFIG)\obj\gopass.obj
-	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\gopass.obj -Fd$(BUILD)\obj\gopass.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE="embedtls.h" $(IFLAGS) src\utils\gopass.c $(LOG)
+	"$(CC)" -c $(DFLAGS) -Fo$(BUILD)\obj\gopass.obj -Fd$(BUILD)\obj\gopass.pdb $(CFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\utils\gopass.c $(LOG)
 
 #
 #   gopass
