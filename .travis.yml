@@ -13,10 +13,12 @@ install:
     - cd makeme-*
     - make boot 
     - sudo make install
+    - cd ..
+    - type me
 script:
     - ./configure
     - me
-    - make test
+    - me test
 
 notifications:
 
