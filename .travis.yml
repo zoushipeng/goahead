@@ -6,8 +6,6 @@ os:
 #    - clang
 #   - gcc
 install: 
-    - pwd
-    - ls
     - mkdir -p build
     - cd build
     - wget -q http://embedthis.com/software/makeme-0.10.0-src.tgz -O makeme.tgz
@@ -16,12 +14,7 @@ install:
     - make boot 
     - sudo make install
     - cd ../..
-    - pwd
-    - which me
 script:
-    - echo SCRIPT
-    - pwd
-    - ls
     - ./configure
     - me
     - me test
