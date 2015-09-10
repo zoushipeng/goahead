@@ -336,11 +336,11 @@ Me.load({
         },
 
         projects: {
-            action: `genProjects('-with openssl')`,
+            action: `genProjects('')`,
         },
 
         mine: {
-            action: `genProjects('-with openssl', 'mine', Config.OS + '-' + Config.CPU)`,
+            action: `genProjects('', 'mine', Config.OS + '-' + Config.CPU)`,
         },
 
         mgen: {

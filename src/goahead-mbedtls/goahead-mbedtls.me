@@ -1,0 +1,52 @@
+/*
+    goahead-mbedtls.me -- MbedTLS Component for the MPR
+ */
+
+Me.load({
+    settings: {
+        mbedtls: {
+            /* Enable debug logging */
+            logging: false,
+        }
+    },
+    usage: {
+        'mbedtls.logging': 'Enable trace logging (true|false)',
+    },
+
+    targets: {
+        mbedtls: {
+            description: 'MbedTLS Support',
+            configurable: true,
+            ifdef:        [ 'ssl' ],
+            conflicts:    [ 'openssl', 'matrixssl', 'nanossl' ]
+            depends:      [ 'libgoahead-mbedtls' ],
+            location:     '${SRC}/goahead-mbedtls',
+            '-compiler': [
+                '-Wall',
+                '-Wshorten-64-to-32',
+                '-W3',
+            ],
+            '+defines': [
+                '-D_FILE_OFFSET_BITS=64'
+            ]
+        },
+
+        'libgoahead-mbedtls': {
+            description:  'GoAhead MbedTLS Interface',
+            type:         'lib',
+            static:       true,
+            path:         '${BIN}/libgoahead-mbedtls${ARLIB}',
+            ifdef:        [ 'mbedtls' ],
+            sources:      [ '*.c' ],
+            depends:      [ 'libmbedtls' ],
+            '-compiler':  [
+                '-Wall',
+                '-Wshorten-64-to-32',
+                '-W3',
+            ],
+            '+defines': [
+                '-D_FILE_OFFSET_BITS=64'
+            ]
+        }
+    }
+})
