@@ -16,7 +16,7 @@ install:
     - cd ../..
 script:
     - ./configure
-    - me
+    - me -s
     - me test
 
 # notifications:
