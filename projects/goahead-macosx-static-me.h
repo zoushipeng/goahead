@@ -331,7 +331,7 @@
 
 /* Profile */
 #ifndef ME_CONFIG_CMD
-    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-static -static -configure . -with openssl -gen xcode"
+    #define ME_CONFIG_CMD "me -d -q -platform macosx-x64-static -static -configure . -gen xcode"
 #endif
 #ifndef ME_GOAHEAD_PRODUCT
     #define ME_GOAHEAD_PRODUCT 1
@@ -368,13 +368,13 @@
     #define ME_COM_MATRIXSSL 0
 #endif
 #ifndef ME_COM_MBEDTLS
-    #define ME_COM_MBEDTLS 0
+    #define ME_COM_MBEDTLS 1
 #endif
 #ifndef ME_COM_NANOSSL
     #define ME_COM_NANOSSL 0
 #endif
 #ifndef ME_COM_OPENSSL
-    #define ME_COM_OPENSSL 1
+    #define ME_COM_OPENSSL 0
 #endif
 #ifndef ME_COM_OSDEP
     #define ME_COM_OSDEP 1
