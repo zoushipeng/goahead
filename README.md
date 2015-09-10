@@ -1,6 +1,8 @@
 Embedthis GoAhead 3.X
 ===
 
+[![Build Status](https://travis-ci.org/embedthis/goahead.png)](https://travis-ci.org/embedthis/goahead)
+
 The most popular little embedded web server.
 
 Licensing
