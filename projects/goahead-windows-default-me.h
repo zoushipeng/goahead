@@ -22,7 +22,7 @@
     #define ME_COMPANY "embedthis"
 #endif
 #ifndef ME_COMPATIBLE
-    #define ME_COMPATIBLE "3.4"
+    #define ME_COMPATIBLE "3.5"
 #endif
 #ifndef ME_COMPILER_HAS_ATOMIC
     #define ME_COMPILER_HAS_ATOMIC 0
@@ -241,7 +241,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.4.12"
+    #define ME_VERSION "3.5.0"
 #endif
 
 /* Prefixes */
@@ -336,13 +336,13 @@
     #define ME_MAJOR_VERSION 3
 #endif
 #ifndef ME_MINOR_VERSION
-    #define ME_MINOR_VERSION 4
+    #define ME_MINOR_VERSION 5
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 12
+    #define ME_PATCH_VERSION 0
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 3000400012
+    #define ME_VNUM 300050000
 #endif
 
 /* Components */
