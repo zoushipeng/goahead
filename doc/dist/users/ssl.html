@@ -161,16 +161,16 @@
             provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
             fast and some are extensive in their cipher support.</p>
 
-            <p>GoAhead supports multiple SSL implementations. The OpenSSL interface is included with the GoAhead 
-            product, other SSL interfaces s are installed using the 
+            <p>GoAhead supports multiple SSL implementations. The MbedTLS and OpenSSL interface are included with 
+            GoAhead. Other SSL interfaces are installed using the 
             <a href="http://embedthis.com/pak/">Pak Package manager</a>.</p>
 
             <ul>
-                <li>OpenSSL &mdash; large and complete. 
-                    See <a href= "http://www.openssl.org">http://www.openssl.org</a>.</li>
                 <li>MbedTLS &mdash; designed for embedded use. See 
                     <a href="https://embedthis.com/catalog/#/?keywords=goahead-mbedtls">goahead-mbedtls</a>.
-                    Install via <em>pak install goahead-mbedtls</em>.</li>
+                    Integrated with GoAhead and enabled by default</em>.</li>
+                <li>OpenSSL &mdash; large and complete. Designed for enterprise use.
+                    See <a href= "http://www.openssl.org">http://www.openssl.org</a>.</li>
                 <li>MatrixSSL &mdash; designed for embedded use. See 
                     <a href="https://embedthis.com/catalog/#/?keywords=goahead-matrixssl">goahead-matrixssl</a>.
                     Install via <em>pak install goahead-matrixssl</em>.</li>
@@ -179,8 +179,9 @@
                     Install via <em>pak install goahead-nanossl</em>.</li>
             </ul>
 
-            <p>Note that GoAhead includes only the interface to the SSL stack and not the SSL library itself. You need to 
-            build your required SSL stack and then configure GoAhead to use that SSL stack. See 
+            <p>Except for the MbedTLS stack which is integrated, GoAhead includes only the interface to the SSL 
+            stack and not the SSL library itself. You need to build your required SSL stack and then configure 
+            GoAhead to use that SSL stack. See 
             <a href="http://l:5000/start/source.html">Building From Source</a> for details on configuring GoAhead to 
             use SSL.</p>
 

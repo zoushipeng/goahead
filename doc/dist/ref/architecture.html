@@ -230,7 +230,7 @@
                 <tr>
                     <td>Secure Sockets Layer (SSL)</td>
                     <td>Secure Socket Layer protocol stack. This is a virtual interface that can selectively support a
-                    variety of SSL providers including: the MatrixSSL and OpenSSL stacks.</td>
+                    variety of SSL providers including: the MbedTLS and OpenSSL stacks.</td>
                 </tr>
                 </tbody>
             </table>
@@ -316,8 +316,10 @@
                 <li>Secure portable runtime</li>
             </ul>
             <h3>Secure Sockets</h3>
-            <p>GoAhead supports the OpenSSL and MatrixSSL SSL stacks. You can configure both server and/or client
-            authentication of certificates. SSL and TLS are supported.</p>
+            <p>GoAhead supports the MbedTLS and OpenSSL stacks. You can configure both server and/or client
+            authentication of certificates. SSL and TLS are supported. Other 3rd party SSL stacks are also available
+            via the <a href="http://embedthis.com/catalog/">Pak online catalog</a></p>
+
             <h3>Authentication</h3>GoAhead provides Basic, Digest and Web-Form based authentication mechanisms. It
             supports both file and PAM-based password backends.
             <h3>Sandboxing</h3>
@@ -366,7 +368,6 @@
                 <tr><td>js.c</td><td>GoAhead Javascript language</td></tr>
                 <tr><td>js.h</td><td>Javascript header</td></tr>
                 <tr><td>jst.c</td><td>Javascript Templates handler</td></tr>
-                <tr><td>openssl.c</td><td>OpenSSL interface</td></tr>
                 <tr><td>options.c</td><td>Options and Trace method handlers</td></tr>
                 <tr><td>rom-documents.c</td><td>Compiled web pages into C code</td></tr>
                 <tr><td>rom.c</td><td>ROM file system</td></tr>
