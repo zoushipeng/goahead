@@ -3,16 +3,6 @@
  */
 
 Me.load({
-    settings: {
-        mbedtls: {
-            /* Enable debug logging */
-            logging: false,
-        }
-    },
-    usage: {
-        'mbedtls.logging': 'Enable trace logging (true|false)',
-    },
-
     targets: {
         mbedtls: {
             description: 'MbedTLS Support',
@@ -48,5 +38,17 @@ Me.load({
                 '-D_FILE_OFFSET_BITS=64'
             ]
         }
+    },
+    usage: {
+        'mbedtls.compact':      'Build a compact edition of MbedTLS',
+        'mbedtls.aesRomTables': 'Put AES tables in rom',
+        'mbedtls.arc4':         'Enable/Disable ARC4 ciphers',
+        'mbedtls.camellia':     'Enable/Disable Camellia ciphers',
+        'mbedtls.cbc':          'Enable/Disable CBC ciphers',
+        'mbedtls.ccm':          'Enable/Disable CCM ciphers',
+        'mbedtls.des':          'Enable/Disable DES ciphers',
+        'mbedtls.padlock':      'Enable/Disable Padlock support',
+        'mbedtls.psk':          'Enable/Disable Pre-Shared Keys',
+        'mbedtls.xtea':         'Enable/Disable XTEA',
     }
 })
