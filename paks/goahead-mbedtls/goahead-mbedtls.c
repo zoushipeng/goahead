@@ -46,7 +46,8 @@ static int          mbedLogLevel = ME_GOAHEAD_SSL_LOG_LEVEL;
 /************************************ Forwards ********************************/
 
 static int *getCipherSuite(char *ciphers, int *len);
-static int mbedHandshake(Webs *wp);
+static int  mbedHandshake(Webs *wp);
+static void merror(int rc, char *fmt, ...);
 static char *replaceHyphen(char *cipher, char from, char to);
 static void traceMbed(void *context, int level, cchar *file, int line, cchar *str);
 
@@ -74,8 +75,10 @@ PUBLIC int sslOpen()
     mbedtls_x509_crt_init(&cfg.cert);
     mbedtls_ssl_ticket_init(&cfg.tickets);
 
-    rc = 0;
-    rc += mbedtls_ctr_drbg_seed(&cfg.ctr, mbedtls_entropy_func, &cfg.entropy, (cuchar*) ME_NAME, slen(ME_NAME));
+    if ((rc = mbedtls_ctr_drbg_seed(&cfg.ctr, mbedtls_entropy_func, &cfg.entropy, (cuchar*) ME_NAME, slen(ME_NAME))) < 0) {
+        merror(rc, "Cannot seed rng");
+        return -1;
+    }
 
     /*
         Set the server certificate and key files
@@ -117,13 +120,20 @@ PUBLIC int sslOpen()
         cfg.ciphers = getCipherSuite(ME_GOAHEAD_SSL_CIPHERS, NULL);
     }
 
-    rc += mbedtls_ssl_config_defaults(conf, MBEDTLS_SSL_IS_SERVER, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
+    if ((rc = mbedtls_ssl_config_defaults(conf, MBEDTLS_SSL_IS_SERVER, MBEDTLS_SSL_TRANSPORT_STREAM, 
+            MBEDTLS_SSL_PRESET_DEFAULT)) < 0) {
+        merror(rc, "Cannot set mbedtls defaults");
+        return -1;
+    }
     mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, &cfg.ctr);
 
     /*
         Configure larger DH parameters
      */
-    rc += mbedtls_ssl_conf_dh_param(conf, MBEDTLS_DHM_RFC5114_MODP_2048_P, MBEDTLS_DHM_RFC5114_MODP_2048_G);
+    if ((rc = mbedtls_ssl_conf_dh_param(conf, MBEDTLS_DHM_RFC5114_MODP_2048_P, MBEDTLS_DHM_RFC5114_MODP_2048_G)) < 0) {
+        merror(rc, "Cannot set DH params");
+        return -1;
+    }
 
     /*
         Set auth mode if peer cert should be verified
@@ -134,8 +144,11 @@ PUBLIC int sslOpen()
         Configure ticket-based sessions
      */
     if (ME_GOAHEAD_SSL_TICKET) {
-        rc += mbedtls_ssl_ticket_setup(&cfg.tickets, mbedtls_ctr_drbg_random, &cfg.ctr,
-            MBEDTLS_CIPHER_AES_256_GCM, ME_GOAHEAD_SSL_TIMEOUT);
+        if ((rc = mbedtls_ssl_ticket_setup(&cfg.tickets, mbedtls_ctr_drbg_random, &cfg.ctr,
+                MBEDTLS_CIPHER_AES_256_GCM, ME_GOAHEAD_SSL_TIMEOUT)) < 0) {
+            merror(rc, "Cannot setup ticketing sessions");
+            return -1;
+        }
         mbedtls_ssl_conf_session_tickets_cb(conf, mbedtls_ssl_ticket_write, mbedtls_ssl_ticket_parse, &cfg.tickets);
     }
 
@@ -164,11 +177,10 @@ PUBLIC int sslOpen()
         Configure server cert and key
      */
     if (*ME_GOAHEAD_SSL_KEY && *ME_GOAHEAD_SSL_CERTIFICATE) {
-        rc += mbedtls_ssl_conf_own_cert(conf, &cfg.cert, &cfg.pkey);
-    }
-    if (rc < 0) {
-        error("Cannot initialize MbedTLS");
-        return -1;
+        if ((rc = mbedtls_ssl_conf_own_cert(conf, &cfg.cert, &cfg.pkey)) < 0) {
+            merror(rc, "Cannot define certificate and private key");
+            return -1;
+        }
     }
     if (websGetLogLevel() >= 5) {
         char    cipher[80];
@@ -459,6 +471,18 @@ static void traceMbed(void *context, int level, cchar *file, int line, cchar *st
         trace(level, "%s", buf);
         wfree(buf);
     }
+}
+
+
+static void merror(int rc, char *fmt, ...)
+{
+    va_list     ap;
+    char        ebuf[ME_MAX_BUFFER];
+
+    va_start(ap, fmt);
+    mbedtls_strerror(-rc, ebuf, sizeof(ebuf));
+    error("mbedtls", "mbedtls error: 0x%x %s %s", rc, sfmtv(fmt, ap), ebuf);
+    va_end(ap);
 }
 
 
