@@ -501,9 +501,14 @@ static int getPostData(char **bufp, size_t *lenp)
             return -1;
         } else if (bytes == 0) {
             /* EOF */
+#if UNUSED
+            /*
+                If using multipart-mime, the CONTENT_LENGTH won't match the length of the data actually received
+             */
             if (contentLength && len != limit) {
                 error("Missing content data (Content-Length: %s)", contentLength ? contentLength : "unspecified");
             }
+#endif
             break;
         }
         len += bytes;
