@@ -7678,6 +7678,31 @@ static void setFileLimits()
 }
 
 /*
+    Accessors
+ */
+PUBLIC char *websGetCookie(Webs *wp) { return wp->cookie; }
+PUBLIC char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
+PUBLIC int  websGetEof(Webs *wp) { return wp->eof; }
+PUBLIC char *websGetExt(Webs *wp) { return wp->ext; }
+PUBLIC char *websGetFilename(Webs *wp) { return wp->filename; }
+PUBLIC char *websGetHost(Webs *wp) { return wp->host; }
+PUBLIC char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
+PUBLIC char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
+PUBLIC char *websGetMethod(Webs *wp) { return wp->method; }
+PUBLIC char *websGetPassword(Webs *wp) { return wp->password; }
+PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
+PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
+PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
+PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
+PUBLIC char *websGetServer() { return websHost; } 
+PUBLIC char *websGetServerAddress() { return websIpAddr; } 
+PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; } 
+PUBLIC char *websGetServerUrl() { return websHostUrl; }
+PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
+PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
+PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
+
+/*
     @copy   default
 
     Copyright (c) Embedthis Software. All Rights Reserved.
@@ -14244,7 +14269,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     if (setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable)) != 0) {
         error("Cannot set reuseaddr, errno %d", errno);
     }
-#if defined(SO_REUSEPORT) && KEEP && UNUSED
+#if defined(SO_REUSEPORT) && KEEP
     /*
         This permits multiple servers listening on the same endpoint
      */
@@ -14538,11 +14563,11 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         /*
             Set the appropriate bit in the ready masks for the sp->sock.
          */
-        if (sp->handlerMask & SOCKET_READABLE /* UNUSED || sp->flags & SOCKET_BUFFERED_READ */) {
+        if (sp->handlerMask & SOCKET_READABLE) {
             FD_SET(sp->sock, &readFds);
             nEvents++;
         }
-        if (sp->handlerMask & SOCKET_WRITABLE /* UNUSED || sp->flags & SOCKET_BUFFERED_READ */) {
+        if (sp->handlerMask & SOCKET_WRITABLE) {
             FD_SET(sp->sock, &writeFds);
             nEvents++;
         }
