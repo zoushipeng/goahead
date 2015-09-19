@@ -1918,11 +1918,6 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
             wfree(etok);
         }
 #endif
-#ifdef UNUSED_ME_GOAHEAD_XFRAME_HEADER
-        if (*ME_GOAHEAD_XFRAME_HEADER) {
-            websWriteHeader(wp, "X-Frame-Options", "%s", ME_GOAHEAD_XFRAME_HEADER);
-        }
-#endif
     }
 }
 
@@ -2187,33 +2182,6 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc)
     }
 }
 
-
-#if (UNUSED && MOVED) || 1
-/*
-    Accessors
- */
-PUBLIC char *websGetCookie(Webs *wp) { return wp->cookie; }
-PUBLIC char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
-PUBLIC int  websGetEof(Webs *wp) { return wp->eof; }
-PUBLIC char *websGetExt(Webs *wp) { return wp->ext; }
-PUBLIC char *websGetFilename(Webs *wp) { return wp->filename; }
-PUBLIC char *websGetHost(Webs *wp) { return wp->host; }
-PUBLIC char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
-PUBLIC char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
-PUBLIC char *websGetMethod(Webs *wp) { return wp->method; }
-PUBLIC char *websGetPassword(Webs *wp) { return wp->password; }
-PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
-PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
-PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
-PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
-PUBLIC char *websGetServer() { return websHost; } 
-PUBLIC char *websGetServerAddress() { return websIpAddr; } 
-PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; } 
-PUBLIC char *websGetServerUrl() { return websHostUrl; }
-PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
-PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
-PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
-#endif
 
 /*
     Write a block of data of length to the user's browser. Output is buffered and flushed via websFlush.
@@ -3260,13 +3228,6 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
             scopy(&buf2[1], len - 1, path);
             path = buf2;
             *path = sep;
-#if UNUSED && MOVED 
-            if (!websValidUriChars(path)) {
-                rc = -1;
-            } else {
-                websDecodeUrl(path, path, -1);
-            }
-#endif
         }
         *ppath = path;
     }
@@ -3837,6 +3798,31 @@ static void setFileLimits()
     trace(6, "Max files soft %d, max %d", r.rlim_cur, r.rlim_max);
 #endif
 }
+
+/*
+    Accessors
+ */
+PUBLIC char *websGetCookie(Webs *wp) { return wp->cookie; }
+PUBLIC char *websGetDir(Webs *wp) { return wp->route && wp->route->dir ? wp->route->dir : websGetDocuments(); }
+PUBLIC int  websGetEof(Webs *wp) { return wp->eof; }
+PUBLIC char *websGetExt(Webs *wp) { return wp->ext; }
+PUBLIC char *websGetFilename(Webs *wp) { return wp->filename; }
+PUBLIC char *websGetHost(Webs *wp) { return wp->host; }
+PUBLIC char *websGetIfaddr(Webs *wp) { return wp->ifaddr; }
+PUBLIC char *websGetIpaddr(Webs *wp) { return wp->ipaddr; }
+PUBLIC char *websGetMethod(Webs *wp) { return wp->method; }
+PUBLIC char *websGetPassword(Webs *wp) { return wp->password; }
+PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
+PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
+PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
+PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
+PUBLIC char *websGetServer() { return websHost; } 
+PUBLIC char *websGetServerAddress() { return websIpAddr; } 
+PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; } 
+PUBLIC char *websGetServerUrl() { return websHostUrl; }
+PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
+PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
+PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
     @copy   default

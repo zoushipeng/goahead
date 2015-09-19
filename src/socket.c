@@ -135,7 +135,7 @@ PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
     if (setsockopt(sp->sock, SOL_SOCKET, SO_REUSEADDR, (char*) &enable, sizeof(enable)) != 0) {
         error("Cannot set reuseaddr, errno %d", errno);
     }
-#if defined(SO_REUSEPORT) && KEEP && UNUSED
+#if defined(SO_REUSEPORT) && KEEP
     /*
         This permits multiple servers listening on the same endpoint
      */
@@ -429,11 +429,11 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
         /*
             Set the appropriate bit in the ready masks for the sp->sock.
          */
-        if (sp->handlerMask & SOCKET_READABLE /* UNUSED || sp->flags & SOCKET_BUFFERED_READ */) {
+        if (sp->handlerMask & SOCKET_READABLE) {
             FD_SET(sp->sock, &readFds);
             nEvents++;
         }
-        if (sp->handlerMask & SOCKET_WRITABLE /* UNUSED || sp->flags & SOCKET_BUFFERED_READ */) {
+        if (sp->handlerMask & SOCKET_WRITABLE) {
             FD_SET(sp->sock, &writeFds);
             nEvents++;
         }
