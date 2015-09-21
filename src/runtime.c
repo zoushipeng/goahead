@@ -2071,8 +2071,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
         /*
             Not found so allocate and append to the daisy-chain
          */
-        sp = (WebsKey*) walloc(sizeof(WebsKey));
-        if (sp == NULL) {
+        if ((sp = (WebsKey*) walloc(sizeof(WebsKey))) == 0) {
             return NULL;
         }
         sp->name = valueString(name, VALUE_ALLOCATE);
@@ -2086,8 +2085,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
         /*
             Daisy chain is empty so we need to start the chain
          */
-        sp = (WebsKey*) walloc(sizeof(WebsKey));
-        if (sp == NULL) {
+        if ((sp = (WebsKey*) walloc(sizeof(WebsKey))) == 0) {
             return NULL;
         }
         tp->hash_table[hindex] = sp;
@@ -2385,8 +2383,9 @@ PUBLIC char *sclone(char *s)
     if (s == NULL) {
         s = "";
     }
-    buf = walloc(strlen(s) + 1);
+    if ((buf = walloc(strlen(s) + 1)) != 0) {
     strcpy(buf, s);
+    }
     return buf;
 }
 
