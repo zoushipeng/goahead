@@ -997,7 +997,7 @@ static void parseFirstLine(Webs *wp)
     } else if (smatch(protoVer, "HTTP/1.0")) {
         wp->flags &= ~(WEBS_HTTP11);
     } else {
-        protoVer = sclone("HTTP/1.1");
+        protoVer = "HTTP/1.1";
         websError(wp, WEBS_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
     }
     wp->protoVersion = sclone(protoVer);
