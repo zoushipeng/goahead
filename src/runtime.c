@@ -1864,7 +1864,7 @@ static int  getBinBlockSize(int size)
 WebsHash hashCreate(int size)
 {
     WebsHash    sd;
-    HashTable      *tp;
+    HashTable   *tp;
 
     if (size < 0) {
         size = WEBS_SMALL_HASH;
@@ -1913,7 +1913,7 @@ WebsHash hashCreate(int size)
  */
 PUBLIC void hashFree(WebsHash sd)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp, *forw;
     int         i;
 
@@ -1948,7 +1948,7 @@ PUBLIC void hashFree(WebsHash sd)
  */
 WebsKey *hashFirst(WebsHash sd)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp;
     int         i;
 
@@ -1973,7 +1973,7 @@ WebsKey *hashFirst(WebsHash sd)
  */
 WebsKey *hashNext(WebsHash sd, WebsKey *last)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp;
     int         i;
 
@@ -2003,7 +2003,7 @@ WebsKey *hashNext(WebsHash sd, WebsKey *last)
  */
 WebsKey *hashLookup(WebsHash sd, char *name)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp;
     char        *cp;
 
@@ -2045,7 +2045,7 @@ void *hashLookupSymbol(WebsHash sd, char *name)
  */
 WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp, *last;
     char        *cp;
     int         hindex;
@@ -2121,7 +2121,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
  */
 PUBLIC int hashDelete(WebsHash sd, char *name)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp, *last;
     char        *cp;
     int         hindex;
@@ -2399,7 +2399,7 @@ PUBLIC char *sclone(char *s)
         s = "";
     }
     if ((buf = walloc(strlen(s) + 1)) != 0) {
-    strcpy(buf, s);
+        strcpy(buf, s);
     }
     return buf;
 }
