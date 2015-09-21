@@ -1896,7 +1896,11 @@ WebsHash hashCreate(int size)
         Now create the hash table for fast indexing.
      */
     tp->size = calcPrime(size);
-    tp->hash_table = (WebsKey**) walloc(tp->size * sizeof(WebsKey*));
+    if ((tp->hash_table = (WebsKey**) walloc(tp->size * sizeof(WebsKey*))) == 0) {
+        wfreeHandle(&sym, sd);
+        wfree(tp);
+        return -1;
+    }
     assert(tp->hash_table);
     memset(tp->hash_table, 0, tp->size * sizeof(WebsKey*));
     return sd;
@@ -2020,6 +2024,17 @@ WebsKey *hashLookup(WebsHash sd, char *name)
         }
     }
     return sp;
+}
+
+
+void *hashLookupSymbol(WebsHash sd, char *name)
+{
+    WebsKey     *kp;
+
+    if ((kp = hashLookup(sd, name)) == 0) {
+        return 0;
+    }
+    return kp->content.value.symbol;
 }
 
 
@@ -2387,6 +2402,18 @@ PUBLIC char *sclone(char *s)
     strcpy(buf, s);
     }
     return buf;
+}
+
+
+PUBLIC bool snumber(cchar *s)
+{
+    if (!s) {
+        return 0;
+    }
+    if (*s == '-' || *s == '+') {
+        s++;
+    }
+    return s && *s && strspn(s, "1234567890") == strlen(s);
 }
 
 
