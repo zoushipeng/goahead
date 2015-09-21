@@ -121,6 +121,7 @@
     <ClCompile Include="..\..\src\route.c" />
     <ClCompile Include="..\..\src\runtime.c" />
     <ClCompile Include="..\..\src\socket.c" />
+    <ClCompile Include="..\..\src\time.c" />
     <ClCompile Include="..\..\src\upload.c" />
   </ItemGroup>
 
