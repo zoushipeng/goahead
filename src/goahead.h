@@ -336,7 +336,7 @@ typedef enum WebsType {
 } WebsType;
 
 /**
-    System native time type
+    System native time type. This is the time in seconds.
  */
 typedef time_t WebsTime;
 
@@ -804,6 +804,16 @@ PUBLIC void hashFree(WebsHash id);
     @stability Evolving
  */
 PUBLIC WebsKey *hashLookup(WebsHash id, char *name);
+
+/**
+    Lookup a name in the hash table and return a symbol reference
+    @param sd Hash table id returned by hashCreate
+    @param name Key name to search for
+    @return Reference to the symbole
+    @ingroup WebsHash
+    @stability Prototype
+ */
+PUBLIC void *hashLookupSymbol(WebsHash sd, char *name);
 
 /**
     Enter a new key and value into the hash table
@@ -1530,6 +1540,15 @@ PUBLIC int sncmp(char *s1, char *s2, ssize len);
  */
 PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
 
+/*
+    Test if a string is a radix 10 number.
+    @description The supported format is: [(+|-)][DIGITS]
+    @return true if all characters are digits or '+' or '-'
+    @ingroup WebsRuntime
+    @stability Stable
+ */
+PUBLIC bool snumber(cchar *s);
+
 /**
     Split a string at a delimiter
     @description Split a string and return parts. The string is modified.
@@ -1736,6 +1755,7 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 /*
     WebsDone flags
  */
+#define WEBS_CODE_MASK      0xFFFF      /**< Mask valid status codes */
 #define WEBS_CLOSE          0x20000     /**< Close connection */
 #define WEBS_NOLOG          0x40000     /**< Don't write error to log */
 
@@ -2958,6 +2978,32 @@ PUBLIC bool websTestVar(Webs *wp, char *name);
   */
 PUBLIC char *websTempFile(char *dir, char *prefix);
 
+/**
+    Open the date/time parsing module
+    @return Zero if successful, otherwise -1.
+    @ingroup Webs
+    @stability Prototype
+ */
+PUBLIC int websTimeOpen();
+
+/**
+    Close the date/time parsing module
+    @ingroup Webs
+    @stability Prototype
+*/
+PUBLIC void websTimeClose();
+
+/**
+    Parse a date/time string
+    This is a tolerant parser. It is not validating and will do its best to parse any possible date string.
+    @param time Reference to a 
+    @param date Date/time string to parse
+    @param defaults Optionally supply missing components for the date/time. Set to NULL if not used.
+    @return Zero if successful, otherwise -1
+    @ingroup Webs
+    @stability Prototype
+  */
+PUBLIC int websParseDateTime(WebsTime *time, char *date, struct tm *defaults);
 
 /**
     Parse a URL into its components
