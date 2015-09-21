@@ -192,6 +192,13 @@
       <arglist>(WebsHash id, char *name)</arglist>
     </member>
     <member kind="function">
+      <type>void *</type>
+      <name>hashLookupSymbol</name>
+      <anchorfile>group___webs_hash.html</anchorfile>
+      <anchor>ga31d4fa42da39f07cb4e4d7e1ab5d8371</anchor>
+      <arglist>(WebsHash sd, char *name)</arglist>
+    </member>
+    <member kind="function">
       <type>WebsKey *</type>
       <name>hashNext</name>
       <anchorfile>group___webs_hash.html</anchorfile>
@@ -1310,6 +1317,13 @@
     </member>
     <member kind="function">
       <type>int</type>
+      <name>websParseDateTime</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gaff9d3f2f19119d5b42ae0e35a55781d3</anchor>
+      <arglist>(WebsTime *time, char *date, struct tm *defaults)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
       <name>websProcessCgiData</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gac2b3fb36265e574114d52d2cb37b62b9</anchor>
@@ -1524,6 +1538,20 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga58d6c3612158fe5471c16998478ea31c</anchor>
       <arglist>(Webs *wp, char *name)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websTimeClose</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga110a18fc07ebc245606771f3f8a9c622</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websTimeOpen</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga51222aacffda84d537d28a3f705995d2</anchor>
+      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>int</type>

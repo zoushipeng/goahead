@@ -4064,7 +4064,6 @@ static int      pruneId;                            /* Callback ID */
 /**************************** Forward Declarations ****************************/
 
 static void     checkTimeout(void *arg, int id);
-static WebsTime dateParse(WebsTime tip, char *cmd);
 static bool     filterChunkData(Webs *wp);
 static WebsTime getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
@@ -4094,6 +4093,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
 
     websOsOpen();
     websRuntimeOpen();
+    websTimeOpen();
     logOpen();
     setFileLimits();
     socketOpen();
@@ -4210,6 +4210,7 @@ PUBLIC void websClose()
     hashFree(websMime);
     socketClose();
     logClose();
+    websTimeClose();
     websRuntimeClose();
     websOsClose();
 }
@@ -4868,7 +4869,7 @@ static void parseFirstLine(Webs *wp)
     } else if (smatch(protoVer, "HTTP/1.0")) {
         wp->flags &= ~(WEBS_HTTP11);
     } else {
-        protoVer = sclone("HTTP/1.1");
+        protoVer = "HTTP/1.1";
         websError(wp, WEBS_CLOSE | HTTP_CODE_NOT_ACCEPTABLE, "Unsupported HTTP protocol");
     }
     wp->protoVersion = sclone(protoVer);
@@ -4990,15 +4991,10 @@ static void parseHeaders(Webs *wp)
             wp->host = sclone(value);
 
         } else if (strcmp(key, "if-modified-since") == 0) {
-            char     *cmd;
-            WebsTime tip = 0;
-
             if ((cp = strchr(value, ';')) != NULL) {
                 *cp = '\0';
             }
-            cmd = sfmt("%s", value);
-            wp->since = dateParse(tip, cmd);
-            wfree(cmd);
+            websParseDateTime(&wp->since, value, 0);
 
         /*
             Yes Veronica, the HTTP spec does misspell Referrer
@@ -5616,19 +5612,20 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
     va_list     args;
     char        *msg, *buf;
     char        *encoded;
+    int         status;
 
     assert(wp);
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
-    code &= ~(WEBS_CLOSE | WEBS_NOLOG);
+    status = code & WEBS_CODE_MASK;
 #if !ME_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
     }
 #endif
-    if (wp->rxRemaining && code != 200 && code != 301 && code != 302 && code != 401) {
+    if (wp->rxRemaining && status != 200 && status != 301 && status != 302 && status != 401) {
         /* Close connection so we don't have to consume remaining content */
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
@@ -5666,6 +5663,7 @@ PUBLIC char *websErrorMsg(int code)
     WebsError   *ep;
 
     assert(code >= 0);
+    code &= WEBS_CODE_MASK;
     for (ep = websErrors; ep->code; ep++) {
         if (code == ep->code) {
             return ep->msg;
@@ -5719,7 +5717,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 
 PUBLIC void websSetStatus(Webs *wp, int code)
 {
-    wp->code = code & ~WEBS_CLOSE;
+    wp->code = (code & WEBS_CODE_MASK);
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
@@ -6422,525 +6420,6 @@ static WebsTime getTimeSinceMark(Webs *wp)
 }
 
 
-/*  
-    These functions are intended to closely mirror the syntax for HTTP-date 
-    from RFC 2616 (HTTP/1.1 spec).  This code was submitted by Pete Berstrom.
-    
-    RFC1123Date = wkday "," SP date1 SP time SP "GMT"
-    RFC850Date  = weekday "," SP date2 SP time SP "GMT"
-    ASCTimeDate = wkday SP date3 SP time SP 4DIGIT
-  
-    Each of these functions tries to parse the value and update the index to 
-    the point it leaves off parsing.
- */
-
-typedef enum { JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC } MonthEnumeration;
-typedef enum { SUN, MON, TUE, WED, THU, FRI, SAT } WeekdayEnumeration;
-
-/*  
-    Parse an N-digit value
- */
-
-static int parseNDIGIT(char *buf, int digits, int *index) 
-{
-    int tmpIndex, returnValue;
-
-    returnValue = 0;
-    for (tmpIndex = *index; tmpIndex < *index+digits; tmpIndex++) {
-        if (isdigit((uchar) buf[tmpIndex])) {
-            returnValue = returnValue * 10 + (buf[tmpIndex] - '0');
-        }
-    }
-    *index = tmpIndex;
-    return returnValue;
-}
-
-
-/*
-    Return an index into the month array
- */
-
-static int parseMonth(char *buf, int *index) 
-{
-    /*  
-        "jan" | "feb" | "mar" | "apr" | "may" | "jun" | 
-        "jul" | "aug" | "sep" | "oct" | "nov" | "dec"
-     */
-    int tmpIndex, returnValue;
-    returnValue = -1;
-    tmpIndex = *index;
-
-    switch (buf[tmpIndex]) {
-        case 'a':
-            switch (buf[tmpIndex+1]) {
-                case 'p':
-                    returnValue = APR;
-                    break;
-                case 'u':
-                    returnValue = AUG;
-                    break;
-            }
-            break;
-        case 'd':
-            returnValue = DEC;
-            break;
-        case 'f':
-            returnValue = FEB;
-            break;
-        case 'j':
-            switch (buf[tmpIndex+1]) {
-                case 'a':
-                    returnValue = JAN;
-                    break;
-                case 'u':
-                    switch (buf[tmpIndex+2]) {
-                        case 'l':
-                            returnValue = JUL;
-                            break;
-                        case 'n':
-                            returnValue = JUN;
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 'm':
-            switch (buf[tmpIndex+1]) {
-                case 'a':
-                    switch (buf[tmpIndex+2]) {
-                        case 'r':
-                            returnValue = MAR;
-                            break;
-                        case 'y':
-                            returnValue = MAY;
-                            break;
-                    }
-                    break;
-            }
-            break;
-        case 'n':
-            returnValue = NOV;
-            break;
-        case 'o':
-            returnValue = OCT;
-            break;
-        case 's':
-            returnValue = SEP;
-            break;
-    }
-    if (returnValue >= 0) {
-        *index += 3;
-    }
-    return returnValue;
-}
-
-
-/* 
-    Parse a year value (either 2 or 4 digits)
- */
-static int parseYear(char *buf, int *index) 
-{
-    int tmpIndex, returnValue;
-
-    tmpIndex = *index;
-    returnValue = parseNDIGIT(buf, 4, &tmpIndex);
-
-    if (returnValue >= 0) {
-        *index = tmpIndex;
-    } else {
-        returnValue = parseNDIGIT(buf, 2, &tmpIndex);
-        if (returnValue >= 0) {
-            /*
-                Assume that any year earlier than the start of the epoch for WebsTime (1970) specifies 20xx
-             */
-            if (returnValue < 70) {
-                returnValue += 2000;
-            } else {
-                returnValue += 1900;
-            }
-            *index = tmpIndex;
-        }
-    }
-    return returnValue;
-}
-
-
-/* 
-    The formulas used to build these functions are from "Calendrical Calculations", by Nachum Dershowitz, Edward M.
-    Reingold, Cambridge University Press, 1997.  
- */
-static const int GregorianEpoch = 1;
-
-/*
-    Determine if year is a leap year
- */
-PUBLIC int GregorianLeapYearP(long year) 
-{
-    long    tmp;
-    
-    tmp = year % 400;
-    return (year % 4 == 0) && (tmp != 100) && (tmp != 200) && (tmp != 300);
-}
-
-
-/*
-    Return the fixed date from the gregorian date
- */
-long FixedFromGregorian(long month, long day, long year) 
-{
-    long fixedDate;
-
-    fixedDate = (long)(GregorianEpoch - 1 + 365 * (year - 1) + 
-        floor((year - 1) / 4.0) -
-        floor((double)(year - 1) / 100.0) + 
-        floor((double)(year - 1) / 400.0) + 
-        floor((367.0 * ((double)month) - 362.0) / 12.0));
-
-    if (month <= 2) {
-        fixedDate += 0;
-    } else if (GregorianLeapYearP(year)) {
-        fixedDate += -1;
-    } else {
-        fixedDate += -2;
-    }
-    fixedDate += day;
-    return fixedDate;
-}
-
-
-/*
-    Return the gregorian year from a fixed date
- */
-long GregorianYearFromFixed(long fixedDate) 
-{
-    long result, d0, n400, d1, n100, d2, n4, d3, n1, year;
-
-    d0 =    fixedDate - GregorianEpoch;
-    n400 =  (long)(floor((double)d0 / (double)146097));
-    d1 =    d0 % 146097;
-    n100 =  (long)(floor((double)d1 / (double)36524));
-    d2 =    d1 % 36524;
-    n4 =    (long)(floor((double)d2 / (double)1461));
-    d3 =    d2 % 1461;
-    n1 =    (long)(floor((double)d3 / (double)365));
-    year =  400 * n400 + 100 * n100 + 4 * n4 + n1;
-
-    if ((n100 == 4) || (n1 == 4)) {
-        result = year;
-    } else {
-        result = year + 1;
-    }
-    return result;
-}
-
-
-/* 
-    Returns the Gregorian date from a fixed date (not needed for this use, but included for completeness)
- */
-#if KEEP
-PUBLIC void GregorianFromFixed(long fixedDate, long *month, long *day, long *year) 
-{
-    long priorDays, correction;
-
-    *year =         GregorianYearFromFixed(fixedDate);
-    priorDays =     fixedDate - FixedFromGregorian(1, 1, *year);
-
-    if (fixedDate < FixedFromGregorian(3,1,*year)) {
-        correction = 0;
-    } else if (true == GregorianLeapYearP(*year)) {
-        correction = 1;
-    } else {
-        correction = 2;
-    }
-    *month = (long)(floor((12.0 * (double)(priorDays + correction) + 373.0) / 367.0));
-    *day = fixedDate - FixedFromGregorian(*month, 1, *year);
-}
-#endif
-
-
-/* 
-    Returns the difference between two Gregorian dates
- */
-long GregorianDateDifferenc(long month1, long day1, long year1, long month2, long day2, long year2) 
-{
-    return FixedFromGregorian(month2, day2, year2) - FixedFromGregorian(month1, day1, year1);
-}
-
-
-/*
-    Return the number of seconds into the current day
- */
-static int parseTime(char *buf, int *index) 
-{
-    /*  
-        Format of buf is - 2DIGIT ":" 2DIGIT ":" 2DIGIT
-     */
-    int returnValue, tmpIndex, hourValue, minuteValue, secondValue;
-
-    hourValue = minuteValue = secondValue = -1;
-    returnValue = -1;
-    tmpIndex = *index;
-
-    hourValue = parseNDIGIT(buf, 2, &tmpIndex);
-
-    if (hourValue >= 0) {
-        tmpIndex++;
-        minuteValue = parseNDIGIT(buf, 2, &tmpIndex);
-        if (minuteValue >= 0) {
-            tmpIndex++;
-            secondValue = parseNDIGIT(buf, 2, &tmpIndex);
-        }
-    }
-    if ((hourValue >= 0) && (minuteValue >= 0) && (secondValue >= 0)) {
-        returnValue = (((hourValue * 60) + minuteValue) * 60) + secondValue;
-        *index = tmpIndex;
-    }
-    return returnValue;
-}
-
-
-#define SECONDS_PER_DAY 24*60*60
-
-/*
-    Return the equivalent of time() given a gregorian date
- */
-static WebsTime dateToTimet(int year, int month, int day) 
-{
-    long    dayDifference;
-
-    dayDifference = FixedFromGregorian(month + 1, day, year) - FixedFromGregorian(1, 1, 1970);
-    return dayDifference * SECONDS_PER_DAY;
-}
-
-
-/*
-    Return the number of seconds between Jan 1, 1970 and the parsed date (corresponds to documentation for time() function)
- */
-static WebsTime parseDate1or2(char *buf, int *index) 
-{
-    /*  
-        Format of buf is either
-            2DIGIT SP month SP 4DIGIT
-        or
-            2DIGIT "-" month "-" 2DIGIT
-     */
-    WebsTime    returnValue;
-    int         dayValue, monthValue, yearValue, tmpIndex;
-
-    returnValue = (WebsTime) -1;
-    tmpIndex = *index;
-
-    dayValue = monthValue = yearValue = -1;
-
-    if (buf[tmpIndex] == ',') {
-        /* 
-            Skip over the ", " 
-         */
-        tmpIndex += 2; 
-
-        dayValue = parseNDIGIT(buf, 2, &tmpIndex);
-        if (dayValue >= 0) {
-            /*
-                Skip over the space or hyphen
-             */
-            tmpIndex++; 
-            monthValue = parseMonth(buf, &tmpIndex);
-            if (monthValue >= 0) {
-                /*
-                    Skip over the space or hyphen
-                 */
-                tmpIndex++; 
-                yearValue = parseYear(buf, &tmpIndex);
-            }
-        }
-
-        if ((dayValue >= 0) &&
-            (monthValue >= 0) &&
-            (yearValue >= 0)) {
-            if (yearValue < 1970) {
-                /*              
-                    Allow for Microsoft IE's year 1601 dates 
-                 */
-                returnValue = 0; 
-            } else {
-                returnValue = dateToTimet(yearValue, monthValue, dayValue);
-            }
-            *index = tmpIndex;
-        }
-    }
-    return returnValue;
-}
-
-
-/*
-    Return the number of seconds between Jan 1, 1970 and the parsed date
- */
-static WebsTime parseDate3Time(char *buf, int *index) 
-{
-    /*
-        Format of buf is month SP ( 2DIGIT | ( SP 1DIGIT ))
-        Local time
-     */
-    WebsTime    returnValue;
-    int         dayValue, monthValue, yearValue, timeValue, tmpIndex;
-
-    returnValue = (WebsTime) -1;
-    tmpIndex = *index;
-
-    dayValue = monthValue = yearValue = timeValue = -1;
-
-    monthValue = parseMonth(buf, &tmpIndex);
-    if (monthValue >= 0) {
-        /*      
-            Skip over the space 
-         */
-        tmpIndex++; 
-        if (buf[tmpIndex] == ' ') {
-            /*
-                Skip over this space too 
-             */
-            tmpIndex++; 
-            dayValue = parseNDIGIT(buf, 1, &tmpIndex);
-        } else {
-            dayValue = parseNDIGIT(buf, 2, &tmpIndex);
-        }
-        /*      
-            Now get the time and time SP 4DIGIT
-         */
-        tmpIndex++;
-        timeValue = parseTime(buf, &tmpIndex);
-        if (timeValue >= 0) {
-            /*          
-                Now grab the 4DIGIT year value
-             */
-            tmpIndex++;
-            yearValue = parseYear(buf, &tmpIndex);
-        }
-    }
-    if ((dayValue >= 0) && (monthValue >= 0) && (yearValue >= 0)) {
-        returnValue = dateToTimet(yearValue, monthValue, dayValue);
-        returnValue += timeValue;
-        *index = tmpIndex;
-    }
-    return returnValue;
-}
-
-
-/*
-    This calculates the buffer index by comparing with a testChar
- */
-static int getInc(char *buf, int testIndex, char testChar, int foundIncrement, int notfoundIncrement) 
-{
-    return (buf[testIndex] == testChar) ? foundIncrement : notfoundIncrement;
-}
-
-
-/*
-    Return an index into a logical weekday array
- */
-static int parseWeekday(char *buf, int *index) 
-{
-    /*  
-        Format of buf is either
-            "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun"
-        or
-            "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"
-     */
-    int tmpIndex, returnValue;
-
-    returnValue = -1;
-    tmpIndex = *index;
-
-    switch (buf[tmpIndex]) {
-        case 'f':
-            returnValue = FRI;
-            *index += getInc(buf, tmpIndex+3, 'd', sizeof("Friday"), 3);
-            break;
-        case 'm':
-            returnValue = MON;
-            *index += getInc(buf, tmpIndex+3, 'd', sizeof("Monday"), 3);
-            break;
-        case 's':
-            switch (buf[tmpIndex+1]) {
-                case 'a':
-                    returnValue = SAT;
-                    *index += getInc(buf, tmpIndex+3, 'u', sizeof("Saturday"), 3);
-                    break;
-                case 'u':
-                    returnValue = SUN;
-                    *index += getInc(buf, tmpIndex+3, 'd', sizeof("Sunday"), 3);
-                    break;
-            }
-            break;
-        case 't':
-            switch (buf[tmpIndex+1]) {
-                case 'h':
-                    returnValue = THU;
-                    *index += getInc(buf, tmpIndex+3, 'r', sizeof("Thursday"), 3);
-                    break;
-                case 'u':
-                    returnValue = TUE;
-                    *index += getInc(buf, tmpIndex+3, 's', sizeof("Tuesday"), 3);
-                    break;
-            }
-            break;
-        case 'w':
-            returnValue = WED;
-            *index += getInc(buf, tmpIndex+3, 'n', sizeof("Wednesday"), 3);
-            break;
-    }
-    return returnValue;
-}
-
-
-/*
-    Parse the date and time string
- */
-static WebsTime dateParse(WebsTime tip, char *cmd)
-{
-    WebsTime    parsedValue, dateValue;
-    int         index, tmpIndex, weekday, timeValue;
-
-    slower(cmd);
-    parsedValue = (WebsTime) 0;
-    index = timeValue = 0;
-    weekday = parseWeekday(cmd, &index);
-
-    if (weekday >= 0) {
-        tmpIndex = index;
-        dateValue = parseDate1or2(cmd, &tmpIndex);
-        if (dateValue >= 0) {
-            index = tmpIndex + 1;
-            /*
-                One of these two forms is being used
-                wkday [","] SP date1 SP time SP "GMT"
-                weekday [","] SP date2 SP time SP "GMT"
-             */
-            timeValue = parseTime(cmd, &index);
-            if (timeValue >= 0) {
-                /*              
-                    Now match up that "GMT" string for completeness
-                    Compute the final value if there were no problems in the parse
-                 */
-                if ((weekday >= 0) &&
-                    (dateValue >= 0) &&
-                    (timeValue >= 0)) {
-                    parsedValue = dateValue + timeValue;
-                }
-            }
-        } else {
-            /* 
-                Try the other form - wkday SP date3 SP time SP 4DIGIT
-                NOTE: local time
-             */
-            tmpIndex = ++index;
-            parsedValue = parseDate3Time(cmd, &tmpIndex);
-        }
-    }
-    return parsedValue;
-}
-
-
 PUBLIC bool websValidUriChars(char *uri)
 {
     ssize   pos;
@@ -6965,7 +6444,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 {
     char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
     ssize   buflen, ulen, len;
-    int     rc, sep;
+    int     sep;
 
     assert(pbuf);
     if (url == 0) {
@@ -7073,7 +6552,6 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     /*
         Pass back the requested fields
      */
-    rc = 0;
     *pbuf = buf;
     if (pscheme) {
         if (scheme == 0) {
@@ -7099,13 +6577,6 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
             scopy(&buf2[1], len - 1, path);
             path = buf2;
             *path = sep;
-#if UNUSED && MOVED 
-            if (!websValidUriChars(path)) {
-                rc = -1;
-            } else {
-                websDecodeUrl(path, path, -1);
-            }
-#endif
         }
         *ppath = path;
     }
@@ -7121,7 +6592,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 #endif
         *pext = ext;
     }
-    return rc;
+    return 0;
 }
 
 
@@ -7355,6 +6826,9 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
 }
 
 
+/*
+    Return the next token in the input stream. Does not allocate
+ */
 static char *getToken(Webs *wp, char *delim)
 {
     WebsBuf     *buf;
@@ -13233,7 +12707,7 @@ static int  getBinBlockSize(int size)
 WebsHash hashCreate(int size)
 {
     WebsHash    sd;
-    HashTable      *tp;
+    HashTable   *tp;
 
     if (size < 0) {
         size = WEBS_SMALL_HASH;
@@ -13265,7 +12739,11 @@ WebsHash hashCreate(int size)
         Now create the hash table for fast indexing.
      */
     tp->size = calcPrime(size);
-    tp->hash_table = (WebsKey**) walloc(tp->size * sizeof(WebsKey*));
+    if ((tp->hash_table = (WebsKey**) walloc(tp->size * sizeof(WebsKey*))) == 0) {
+        wfreeHandle(&sym, sd);
+        wfree(tp);
+        return -1;
+    }
     assert(tp->hash_table);
     memset(tp->hash_table, 0, tp->size * sizeof(WebsKey*));
     return sd;
@@ -13278,7 +12756,7 @@ WebsHash hashCreate(int size)
  */
 PUBLIC void hashFree(WebsHash sd)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp, *forw;
     int         i;
 
@@ -13313,7 +12791,7 @@ PUBLIC void hashFree(WebsHash sd)
  */
 WebsKey *hashFirst(WebsHash sd)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp;
     int         i;
 
@@ -13338,7 +12816,7 @@ WebsKey *hashFirst(WebsHash sd)
  */
 WebsKey *hashNext(WebsHash sd, WebsKey *last)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp;
     int         i;
 
@@ -13368,7 +12846,7 @@ WebsKey *hashNext(WebsHash sd, WebsKey *last)
  */
 WebsKey *hashLookup(WebsHash sd, char *name)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp;
     char        *cp;
 
@@ -13392,6 +12870,17 @@ WebsKey *hashLookup(WebsHash sd, char *name)
 }
 
 
+void *hashLookupSymbol(WebsHash sd, char *name)
+{
+    WebsKey     *kp;
+
+    if ((kp = hashLookup(sd, name)) == 0) {
+        return 0;
+    }
+    return kp->content.value.symbol;
+}
+
+
 /*
     Enter a symbol into the table. If already there, update its value.  Always succeeds if memory available. We allocate
     a copy of "name" here so it can be a volatile variable. The value "v" is just a copy of the passed in value, so it
@@ -13399,7 +12888,7 @@ WebsKey *hashLookup(WebsHash sd, char *name)
  */
 WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp, *last;
     char        *cp;
     int         hindex;
@@ -13440,8 +12929,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
         /*
             Not found so allocate and append to the daisy-chain
          */
-        sp = (WebsKey*) walloc(sizeof(WebsKey));
-        if (sp == NULL) {
+        if ((sp = (WebsKey*) walloc(sizeof(WebsKey))) == 0) {
             return NULL;
         }
         sp->name = valueString(name, VALUE_ALLOCATE);
@@ -13455,8 +12943,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
         /*
             Daisy chain is empty so we need to start the chain
          */
-        sp = (WebsKey*) walloc(sizeof(WebsKey));
-        if (sp == NULL) {
+        if ((sp = (WebsKey*) walloc(sizeof(WebsKey))) == 0) {
             return NULL;
         }
         tp->hash_table[hindex] = sp;
@@ -13477,7 +12964,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
  */
 PUBLIC int hashDelete(WebsHash sd, char *name)
 {
-    HashTable      *tp;
+    HashTable   *tp;
     WebsKey     *sp, *last;
     char        *cp;
     int         hindex;
@@ -13754,9 +13241,22 @@ PUBLIC char *sclone(char *s)
     if (s == NULL) {
         s = "";
     }
-    buf = walloc(strlen(s) + 1);
-    strcpy(buf, s);
+    if ((buf = walloc(strlen(s) + 1)) != 0) {
+        strcpy(buf, s);
+    }
     return buf;
+}
+
+
+PUBLIC bool snumber(cchar *s)
+{
+    if (!s) {
+        return 0;
+    }
+    if (*s == '-' || *s == '+') {
+        s++;
+    }
+    return s && *s && strspn(s, "1234567890") == strlen(s);
 }
 
 
@@ -15521,6 +15021,621 @@ PUBLIC WebsSocket **socketGetList()
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire 
     a commercial license from Embedthis Software. You agree to be fully bound
+    by the terms of either license. Consult the LICENSE.md distributed with
+    this software for full details and other copyrights.
+
+    Local variables:
+    tab-width: 4
+    c-basic-offset: 4
+    End:
+    vim: sw=4 ts=4 expandtab
+
+    @end
+ */
+
+
+
+/********* Start of file ../../../src/time.c ************/
+
+
+/**
+    time.c - Date and Time handling
+ 
+    Copyright (c) All Rights Reserved. See details at the end of the file.
+ */
+
+/********************************* Includes ***********************************/
+
+
+
+/********************************** Defines ***********************************/
+
+#define SEC_PER_MIN  (60)
+#define SEC_PER_HOUR (60 * 60)
+#define SEC_PER_DAY  (86400)
+#define SEC_PER_YEAR (INT64(31556952))
+
+/*
+    Token types or'd into the TimeToken value
+ */
+#define TOKEN_DAY       0x01000000
+#define TOKEN_MONTH     0x02000000
+#define TOKEN_ZONE      0x04000000
+#define TOKEN_OFFSET    0x08000000
+#define TOKEN_MASK      0xFF000000
+
+typedef struct TimeToken {
+    char    *name;
+    int     value;
+} TimeToken;
+
+static WebsHash timeTokens = -1;
+
+static TimeToken days[] = {
+    { "sun",  0 | TOKEN_DAY },
+    { "mon",  1 | TOKEN_DAY },
+    { "tue",  2 | TOKEN_DAY },
+    { "wed",  3 | TOKEN_DAY },
+    { "thu",  4 | TOKEN_DAY },
+    { "fri",  5 | TOKEN_DAY },
+    { "sat",  6 | TOKEN_DAY },
+    { 0, 0 },
+};
+
+static TimeToken fullDays[] = {
+    { "sunday",     0 | TOKEN_DAY },
+    { "monday",     1 | TOKEN_DAY },
+    { "tuesday",    2 | TOKEN_DAY },
+    { "wednesday",  3 | TOKEN_DAY },
+    { "thursday",   4 | TOKEN_DAY },
+    { "friday",     5 | TOKEN_DAY },
+    { "saturday",   6 | TOKEN_DAY },
+    { 0, 0 },
+};
+
+/*
+    Make origin 1 to correspond to user date entries 10/28/2014
+ */
+static TimeToken months[] = {
+    { "jan",  1 | TOKEN_MONTH },
+    { "feb",  2 | TOKEN_MONTH },
+    { "mar",  3 | TOKEN_MONTH },
+    { "apr",  4 | TOKEN_MONTH },
+    { "may",  5 | TOKEN_MONTH },
+    { "jun",  6 | TOKEN_MONTH },
+    { "jul",  7 | TOKEN_MONTH },
+    { "aug",  8 | TOKEN_MONTH },
+    { "sep",  9 | TOKEN_MONTH },
+    { "oct", 10 | TOKEN_MONTH },
+    { "nov", 11 | TOKEN_MONTH },
+    { "dec", 12 | TOKEN_MONTH },
+    { 0, 0 },
+};
+
+static TimeToken fullMonths[] = {
+    { "january",    1 | TOKEN_MONTH },
+    { "february",   2 | TOKEN_MONTH },
+    { "march",      3 | TOKEN_MONTH },
+    { "april",      4 | TOKEN_MONTH },
+    { "may",        5 | TOKEN_MONTH },
+    { "june",       6 | TOKEN_MONTH },
+    { "july",       7 | TOKEN_MONTH },
+    { "august",     8 | TOKEN_MONTH },
+    { "september",  9 | TOKEN_MONTH },
+    { "october",   10 | TOKEN_MONTH },
+    { "november",  11 | TOKEN_MONTH },
+    { "december",  12 | TOKEN_MONTH },
+    { 0, 0 }
+};
+
+static TimeToken ampm[] = {
+    { "am", 0 | TOKEN_OFFSET },
+    { "pm", (12 * 3600) | TOKEN_OFFSET },
+    { 0, 0 },
+};
+
+
+static TimeToken zones[] = {
+    { "ut",      0 | TOKEN_ZONE},
+    { "utc",     0 | TOKEN_ZONE},
+    { "gmt",     0 | TOKEN_ZONE},
+    { "edt",  -240 | TOKEN_ZONE},
+    { "est",  -300 | TOKEN_ZONE},
+    { "cdt",  -300 | TOKEN_ZONE},
+    { "cst",  -360 | TOKEN_ZONE},
+    { "mdt",  -360 | TOKEN_ZONE},
+    { "mst",  -420 | TOKEN_ZONE},
+    { "pdt",  -420 | TOKEN_ZONE},
+    { "pst",  -480 | TOKEN_ZONE},
+    { 0, 0 },
+};
+
+
+static TimeToken offsets[] = {
+    { "tomorrow",    86400 | TOKEN_OFFSET},
+    { "yesterday",  -86400 | TOKEN_OFFSET},
+    { "next week",   (86400 * 7) | TOKEN_OFFSET},
+    { "last week",  -(86400 * 7) | TOKEN_OFFSET},
+    { 0, 0 },
+};
+
+static int timeSep = ':';
+
+static int normalMonthStart[] = {
+    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 0,
+};
+static int leapMonthStart[] = {
+    0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 0
+};
+
+static int leapYear(int year);
+static void validateTime(struct tm *tm, struct tm *defaults);
+
+/************************************ Code ************************************/
+
+PUBLIC int websTimeOpen()
+{
+    TimeToken           *tt;
+
+    timeTokens = hashCreate(59);
+    for (tt = days; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    for (tt = fullDays; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    for (tt = months; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    for (tt = fullMonths; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    for (tt = ampm; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    for (tt = zones; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    for (tt = offsets; tt->name; tt++) {
+        hashEnter(timeTokens, tt->name, valueSymbol(tt), 0);
+    }
+    return 0;
+}
+
+
+PUBLIC void websTimeClose()
+{
+    if (timeTokens >= 0) {
+        hashFree(timeTokens);
+        timeTokens = -1;
+    }
+}
+
+
+static int leapYear(int year)
+{
+    if (year % 4) {
+        return 0;
+    } else if (year % 400 == 0) {
+        return 1;
+    } else if (year % 100 == 0) {
+        return 0;
+    }
+    return 1;
+}
+
+
+static WebsTime daysSinceEpoch(int year)
+{
+    WebsTime     days;
+
+    days = ((WebsTime) 365) * (year - 1970);
+    days += ((year-1) / 4) - (1970 / 4);
+    days -= ((year-1) / 100) - (1970 / 100);
+    days += ((year-1) / 400) - (1970 / 400);
+    return days;
+}
+
+
+static WebsTime makeTime(struct tm *tp)
+{
+    WebsTime    days;
+    int         year, month;
+
+    year = tp->tm_year + 1900 + tp->tm_mon / 12;
+    month = tp->tm_mon % 12;
+    if (month < 0) {
+        month += 12;
+        --year;
+    }
+    days = daysSinceEpoch(year);
+    days += leapYear(year) ? leapMonthStart[month] : normalMonthStart[month];
+    days += tp->tm_mday - 1;
+    return (days * SEC_PER_DAY) + ((((((tp->tm_hour * 60)) + tp->tm_min) * 60) + tp->tm_sec));
+}
+
+
+static int lookupSym(char *token, int kind)
+{
+    TimeToken   *tt;
+
+    if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) == 0) {
+        return -1;
+    }
+    if (kind != (tt->value & TOKEN_MASK)) {
+        return -1;
+    }
+    return tt->value & ~TOKEN_MASK;
+}
+
+
+static int getNum(char **token, int sep)
+{
+    int     num;
+
+    if (*token == 0) {
+        return 0;
+    }
+
+    num = atoi(*token);
+    *token = strchr(*token, sep);
+    if (*token) {
+        *token += 1;
+    }
+    return num;
+}
+
+
+static int getNumOrSym(char **token, int sep, int kind, int *isAlpah)
+{
+    char    *cp;
+    int     num;
+
+    assert(token && *token);
+
+    if (*token == 0) {
+        return 0;
+    }
+    if (isalpha((uchar) **token)) {
+        *isAlpah = 1;
+        cp = strchr(*token, sep);
+        if (cp) {
+            *cp++ = '\0';
+        }
+        num = lookupSym(*token, kind);
+        *token = cp;
+        return num;
+    }
+    num = atoi(*token);
+    *token = strchr(*token, sep);
+    if (*token) {
+        *token += 1;
+    }
+    *isAlpah = 0;
+    return num;
+}
+
+
+static void swapDayMonth(struct tm *tp)
+{
+    int     tmp;
+
+    tmp = tp->tm_mday;
+    tp->tm_mday = tp->tm_mon;
+    tp->tm_mon = tmp;
+}
+
+
+/*
+    Parse the a date/time string and return the result in *time. Missing date items may be provided 
+    via the defaults argument. This is a tolerant parser. It is not validating and will do its best 
+    to parse any possible date string.
+ */ 
+PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaults)
+{
+    TimeToken       *tt;
+    struct tm       tm;
+    char            *str, *next, *token, *cp, *sep;
+    int64           value;
+    int             kind, hour, min, negate, value1, value2, value3, alpha, alpha2, alpha3;
+    int             dateSep, offset, zoneOffset, explicitZone, fullYear;
+
+    if (!dateString) {
+        dateString = "";
+    }
+    offset = 0;
+    zoneOffset = 0;
+    explicitZone = 0;
+    sep = ", \t";
+    cp = 0;
+    next = 0;
+    fullYear = 0;
+
+    /*
+        Set these mandatory values to -1 so we can tell if they are set to valid values
+        WARNING: all the calculations use tm_year with origin 0, not 1900. It is fixed up below.
+     */
+    tm.tm_year = -MAXINT;
+    tm.tm_mon = tm.tm_mday = tm.tm_hour = tm.tm_sec = tm.tm_min = tm.tm_wday = -1;
+    tm.tm_min = tm.tm_sec = tm.tm_yday = -1;
+
+#if ME_UNIX_LIKE && !CYGWIN
+    tm.tm_gmtoff = 0;
+    tm.tm_zone = 0;
+#endif
+
+    /*
+        Set to -1 to try to determine if DST is in effect
+     */
+    tm.tm_isdst = -1;
+    str = slower(dateString);
+
+    /*
+        Handle ISO dates: "2009-05-21t16:06:05.000z
+     */
+    if (strchr(str, ' ') == 0 && strchr(str, '-') && str[slen(str) - 1] == 'z') {
+        for (cp = str; *cp; cp++) {
+            if (*cp == '-') {
+                *cp = '/';
+            } else if (*cp == 't' && cp > str && isdigit((uchar) cp[-1]) && isdigit((uchar) cp[1]) ) {
+                *cp = ' ';
+            }
+        }
+    }
+    token = stok(str, sep, &next);
+
+    while (token && *token) {
+        if (snumber(token)) {
+            /*
+                Parse either day of month or year. Priority to day of month. Format: <29> Jan <15> <2014>
+             */ 
+            value = atoi(token);
+            if (value > 3000) {
+                *time = value;
+                return 0;
+            } else if (value > 32 || (tm.tm_mday >= 0 && tm.tm_year == -MAXINT)) {
+                if (value >= 1000) {
+                    fullYear = 1;
+                }
+                tm.tm_year = (int) value - 1900;
+            } else if (tm.tm_mday < 0) {
+                tm.tm_mday = (int) value;
+            }
+
+        } else if ((*token == '+') || (*token == '-') ||
+                ((strncmp(token, "gmt", 3) == 0 || strncmp(token, "utc", 3) == 0) &&
+                ((cp = strchr(&token[3], '+')) != 0 || (cp = strchr(&token[3], '-')) != 0))) {
+            /*
+                Timezone. Format: [GMT|UTC][+-]NN[:]NN
+             */
+            if (!isalpha((uchar) *token)) {
+                cp = token;
+            }
+            negate = *cp == '-' ? -1 : 1;
+            cp++;
+            hour = getNum(&cp, timeSep);
+            if (hour >= 100) {
+                hour /= 100;
+            }
+            min = getNum(&cp, timeSep);
+            zoneOffset = negate * (hour * 60 + min);
+            explicitZone = 1;
+
+        } else if (isalpha((uchar) *token)) {
+            if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) != 0) {
+                kind = tt->value & TOKEN_MASK;
+                value = tt->value & ~TOKEN_MASK; 
+                switch (kind) {
+
+                case TOKEN_DAY:
+                    tm.tm_wday = (int) value;
+                    break;
+
+                case TOKEN_MONTH:
+                    tm.tm_mon = (int) value;
+                    break;
+
+                case TOKEN_OFFSET:
+                    /* Named timezones or symbolic names like: tomorrow, yesterday, next week ... */ 
+                    /* Units are seconds */
+                    offset += (int) value;
+                    break;
+
+                case TOKEN_ZONE:
+                    zoneOffset = (int) value;
+                    explicitZone = 1;
+                    break;
+
+                default:
+                    /* Just ignore unknown values */
+                    break;
+                }
+            }
+
+        } else if ((cp = strchr(token, timeSep)) != 0 && isdigit((uchar) token[0])) {
+            /*
+                Time:  10:52[:23]
+                Must not parse GMT-07:30
+             */
+            tm.tm_hour = getNum(&token, timeSep);
+            tm.tm_min = getNum(&token, timeSep);
+            tm.tm_sec = getNum(&token, timeSep);
+
+        } else {
+            dateSep = '/';
+            if (strchr(token, dateSep) == 0) {
+                dateSep = '-';
+                if (strchr(token, dateSep) == 0) {
+                    dateSep = '.';
+                    if (strchr(token, dateSep) == 0) {
+                        dateSep = 0;
+                    }
+                }
+            }
+            if (dateSep) {
+                /*
+                    Date:  07/28/2014, 07/28/08, Jan/28/2014, Jaunuary-28-2014, 28-jan-2014
+                    Support order: dd/mm/yy, mm/dd/yy and yyyy/mm/dd
+                    Support separators "/", ".", "-"
+                 */
+                value1 = getNumOrSym(&token, dateSep, TOKEN_MONTH, &alpha);
+                value2 = getNumOrSym(&token, dateSep, TOKEN_MONTH, &alpha2);
+                value3 = getNumOrSym(&token, dateSep, TOKEN_MONTH, &alpha3);
+
+                if (value1 > 31) {
+                    /* yy/mm/dd */
+                    tm.tm_year = value1;
+                    tm.tm_mon = value2;
+                    tm.tm_mday = value3;
+
+                } else if (value1 > 12 || alpha2) {
+                    /* 
+                        dd/mm/yy 
+                        Cannot detect 01/02/03  This will be evaluated as Jan 2 2003 below.
+                     */
+                    tm.tm_mday = value1;
+                    tm.tm_mon = value2;
+                    tm.tm_year = value3;
+
+                } else {
+                    /*
+                        The default to parse is mm/dd/yy unless the mm value is out of range
+                     */
+                    tm.tm_mon = value1;
+                    tm.tm_mday = value2;
+                    tm.tm_year = value3;
+                }
+            }
+        }
+        token = stok(NULL, sep, &next);
+    }
+
+    /*
+        Y2K fix and rebias
+     */
+    if (0 <= tm.tm_year && tm.tm_year < 100 && !fullYear) {
+        if (tm.tm_year < 50) {
+            tm.tm_year += 2000;
+        } else {
+            tm.tm_year += 1900;
+        }
+    }
+    if (tm.tm_year >= 1900) {
+        tm.tm_year -= 1900;
+    }
+
+    /*
+        Convert back to origin 0 for months
+     */
+    if (tm.tm_mon > 0) {
+        tm.tm_mon--;
+    }
+
+    /*
+        Validate and fill in missing items with defaults
+     */
+    validateTime(&tm, defaults);
+    *time = makeTime(&tm);
+    *time += -(zoneOffset * SEC_PER_MIN);
+    *time += offset;
+    return 0;
+}
+
+
+static void validateTime(struct tm *tp, struct tm *defaults)
+{
+    struct tm   empty;
+
+    /*
+        Fix apparent day-mon-year ordering issues. Cannot fix everything!
+     */
+    if ((12 <= tp->tm_mon && tp->tm_mon <= 31) && 0 <= tp->tm_mday && tp->tm_mday <= 11) {
+        /*
+            Looks like day month are swapped
+         */
+        swapDayMonth(tp);
+    }
+
+    if (tp->tm_year != -MAXINT && tp->tm_mon >= 0 && tp->tm_mday >= 0 && tp->tm_hour >= 0) {
+        /*  Everything defined */
+        return;
+    }
+
+    /*
+        Use empty time if missing
+     */
+    if (defaults == NULL) {
+        memset(&empty, 0, sizeof(empty));
+        defaults = &empty;
+        empty.tm_mday = 1;
+        empty.tm_year = 70;
+    }
+    if (tp->tm_hour < 0 && tp->tm_min < 0 && tp->tm_sec < 0) {
+        tp->tm_hour = defaults->tm_hour;
+        tp->tm_min = defaults->tm_min;
+        tp->tm_sec = defaults->tm_sec;
+    }
+
+    /*
+        Get weekday, if before today then make next week
+     */
+    if (tp->tm_wday >= 0 && tp->tm_year == -MAXINT && tp->tm_mon < 0 && tp->tm_mday < 0) {
+        tp->tm_mday = defaults->tm_mday + (tp->tm_wday - defaults->tm_wday + 7) % 7;
+        tp->tm_mon = defaults->tm_mon;
+        tp->tm_year = defaults->tm_year;
+    }
+
+    /*
+        Get month, if before this month then make next year
+     */
+    if (tp->tm_mon >= 0 && tp->tm_mon <= 11 && tp->tm_mday < 0) {
+        if (tp->tm_year == -MAXINT) {
+            tp->tm_year = defaults->tm_year + (((tp->tm_mon - defaults->tm_mon) < 0) ? 1 : 0);
+        }
+        tp->tm_mday = defaults->tm_mday;
+    }
+
+    /*
+        Get date, if before current time then make tomorrow
+     */
+    if (tp->tm_hour >= 0 && tp->tm_year == -MAXINT && tp->tm_mon < 0 && tp->tm_mday < 0) {
+        tp->tm_mday = defaults->tm_mday + ((tp->tm_hour - defaults->tm_hour) < 0 ? 1 : 0);
+        tp->tm_mon = defaults->tm_mon;
+        tp->tm_year = defaults->tm_year;
+    }
+    if (tp->tm_year == -MAXINT) {
+        tp->tm_year = defaults->tm_year;
+    }
+    if (tp->tm_mon < 0) {
+        tp->tm_mon = defaults->tm_mon;
+    }
+    if (tp->tm_mday < 0) {
+        tp->tm_mday = defaults->tm_mday;
+    }
+    if (tp->tm_yday < 0) {
+        tp->tm_yday = (leapYear(tp->tm_year + 1900) ? 
+            leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
+    }
+    if (tp->tm_hour < 0) {
+        tp->tm_hour = defaults->tm_hour;
+    }
+    if (tp->tm_min < 0) {
+        tp->tm_min = defaults->tm_min;
+    }
+    if (tp->tm_sec < 0) {
+        tp->tm_sec = defaults->tm_sec;
+    }
+}
+
+
+/*
+    @copy   default
+
+    Copyright (c) Embedthis Software. All Rights Reserved.
+
+    This software is distributed under commercial and open source licenses.
+    You may use the Embedthis Open Source license or you may acquire a 
+    commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
 
