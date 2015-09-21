@@ -1747,14 +1747,14 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
-    code &= ~(WEBS_CLOSE | WEBS_NOLOG);
+    status = code & WEBS_CODE_MASK;
 #if !ME_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
     }
 #endif
-    if (wp->rxRemaining && code != 200 && code != 301 && code != 302 && code != 401) {
+    if (wp->rxRemaining && status != 200 && status != 301 && status != 302 && status != 401) {
         /* Close connection so we don't have to consume remaining content */
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
@@ -1792,6 +1792,7 @@ PUBLIC char *websErrorMsg(int code)
     WebsError   *ep;
 
     assert(code >= 0);
+    code &= WEBS_CODE_MASK;
     for (ep = websErrors; ep->code; ep++) {
         if (code == ep->code) {
             return ep->msg;
@@ -1845,7 +1846,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 
 PUBLIC void websSetStatus(Webs *wp, int code)
 {
-    wp->code = code & ~WEBS_CLOSE;
+    wp->code = (code & WEBS_CODE_MASK);
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
     }
@@ -2572,7 +2573,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 {
     char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
     ssize   buflen, ulen, len;
-    int     rc, sep;
+    int     sep;
 
     assert(pbuf);
     if (url == 0) {
@@ -2680,7 +2681,6 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     /*
         Pass back the requested fields
      */
-    rc = 0;
     *pbuf = buf;
     if (pscheme) {
         if (scheme == 0) {
@@ -2721,7 +2721,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 #endif
         *pext = ext;
     }
-    return rc;
+    return 0;
 }
 
 
@@ -2955,6 +2955,9 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
 }
 
 
+/*
+    Return the next token in the input stream. Does not allocate
+ */
 static char *getToken(Webs *wp, char *delim)
 {
     WebsBuf     *buf;
