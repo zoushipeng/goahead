@@ -337,6 +337,7 @@ typedef enum WebsType {
 
 /**
     System native time type. This is the time in seconds.
+    This may be 32 or 64 bits and may be signed or unsigned on some systems.
  */
 typedef time_t WebsTime;
 
@@ -1231,7 +1232,7 @@ PUBLIC void socketReservice(int sid);
     @ingroup WebsSocket
     @stability Evolving
  */
-PUBLIC int socketSelect(int sid, WebsTime timeout);
+PUBLIC int socketSelect(int sid, int timeout);
 
 /**
     Set the socket blocking mode
@@ -1643,10 +1644,10 @@ PUBLIC void websRestartEvent(int id, int delay);
 /**
     Run due events
     @ingroup WebsRuntime
-    @return Time till the next event
+    @return Time delay till the next event
     @internal
  */
-PUBLIC WebsTime websRunEvents();
+PUBLIC int websRunEvents();
 
 /* Forward declare */
 struct WebsRoute;
@@ -1775,8 +1776,8 @@ typedef struct Webs {
     WebsBuf         chunkbuf;           /**< Pre-chunking data buffer */
     WebsBuf         *txbuf;
     WebsTime        since;              /**< Parsed if-modified-since time */
-    WebsHash        vars;               /**< CGI standard variables */
     WebsTime        timestamp;          /**< Last transaction with browser */
+    WebsHash        vars;               /**< CGI standard variables */
     int             timeout;            /**< Timeout handle */
     char            ipaddr[ME_MAX_IP];  /**< Connecting ipaddress */
     char            ifaddr[ME_MAX_IP];  /**< Local interface ipaddress */
@@ -2030,7 +2031,7 @@ PUBLIC int websCgiHandler(Webs *wp);
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC WebsTime websCgiPoll();
+PUBLIC int websCgiPoll();
 
 /* Internal */
 PUBLIC bool cgiHandler(Webs *wp);
@@ -2843,7 +2844,7 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags);
+PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, int lifespan, int flags);
 
 /**
     Set the debug processing flag
@@ -3698,7 +3699,7 @@ PUBLIC bool websVerifyPasswordFromPam(Webs *wp);
  */
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
-    WebsTime        lifespan;               /**< Session inactivity timeout (msecs) */
+    int             lifespan;               /**< Session inactivity timeout (msecs) */
     WebsTime        expires;                /**< When the session expires */
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
@@ -3712,7 +3713,7 @@ typedef struct WebsSession {
     @ingroup WebsSession
     @stability Evolving
  */
-PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan);
+PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
 
 /**
     Get the session ID
