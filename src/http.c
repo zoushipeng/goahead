@@ -194,7 +194,7 @@ static int      pruneId;                            /* Callback ID */
 
 static void     checkTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
-static WebsTime getTimeSinceMark(Webs *wp);
+static int      getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
@@ -1309,7 +1309,7 @@ static bool filterChunkData(Webs *wp)
  */
 PUBLIC void websServiceEvents(int *finished)
 {
-    WebsTime    delay, nextEvent;
+    int     delay, nextEvent;
 
     if (finished) {
         *finished = 0;
@@ -1860,16 +1860,17 @@ PUBLIC void websSetStatus(Webs *wp, int code)
 PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
 {
     WebsKey     *key;
-    char        *date;
+    char        *date, *protoVersion;
 
     assert(websValid(wp));
 
     if (!(wp->flags & WEBS_HEADERS_CREATED)) {
-        if (!wp->protoVersion) {
-            wp->protoVersion = sclone("HTTP/1.0");
+        protoVersion = wp->protoVersion;
+        if (!protoVersion) {
+            protoVersion = "HTTP/1.0";
             wp->flags &= ~WEBS_KEEP_ALIVE;
         }
-        websWriteHeader(wp, NULL, "%s %d %s", wp->protoVersion, wp->code, websErrorMsg(wp->code));
+        websWriteHeader(wp, NULL, "%s %d %s", protoVersion, wp->code, websErrorMsg(wp->code));
         /*
             The Embedthis Open Source license does not permit modification of the Server header
          */
@@ -2328,7 +2329,7 @@ static void logRequest(Webs *wp, int code)
 static void checkTimeout(void *arg, int id)
 {
     Webs        *wp;
-    WebsTime    elapsed, delay;
+    int         elapsed, delay;
 
     wp = (Webs*) arg;
     assert(websValid(wp));
@@ -2339,7 +2340,6 @@ static void checkTimeout(void *arg, int id)
         return;
     } 
     if (wp->state == WEBS_BEGIN) {
-        // Idle connection websError(wp, HTTP_CODE_REQUEST_TIMEOUT | WEBS_CLOSE, "Request exceeded parse timeout");
         complete(wp, 0);
         websFree(wp);
         return;
@@ -2360,7 +2360,7 @@ static void checkTimeout(void *arg, int id)
     }
     delay = WEBS_TIMEOUT - elapsed;
     assert(delay > 0);
-    websRestartEvent(id, (int) delay);
+    websRestartEvent(id, delay);
 }
 
 
@@ -2543,9 +2543,9 @@ PUBLIC void websNoteRequestActivity(Webs *wp)
 /*
     Get the number of seconds since the last mark.
  */
-static WebsTime getTimeSinceMark(Webs *wp)
+static int getTimeSinceMark(Webs *wp)
 {
-    return time(0) - wp->timestamp;
+    return (int) (time(0) - wp->timestamp);
 }
 
 
@@ -2889,7 +2889,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin)
 }
 
 
-PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, WebsTime lifespan, int flags)
+PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, int lifespan, int flags)
 {
     WebsTime    when;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
@@ -3024,7 +3024,7 @@ static char *makeSessionID(Webs *wp)
 }
 
 
-WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
+WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
 {
     WebsSession     *sp;
 

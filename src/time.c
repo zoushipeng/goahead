@@ -185,11 +185,11 @@ static int leapYear(int year)
 }
 
 
-static WebsTime daysSinceEpoch(int year)
+static int daysSinceEpoch(int year)
 {
-    WebsTime     days;
+    int     days;
 
-    days = ((WebsTime) 365) * (year - 1970);
+    days = 365 * (year - 1970);
     days += ((year-1) / 4) - (1970 / 4);
     days -= ((year-1) / 100) - (1970 / 100);
     days += ((year-1) / 400) - (1970 / 400);
@@ -199,8 +199,7 @@ static WebsTime daysSinceEpoch(int year)
 
 static WebsTime makeTime(struct tm *tp)
 {
-    WebsTime    days;
-    int         year, month;
+    int     days, year, month;
 
     year = tp->tm_year + 1900 + tp->tm_mon / 12;
     month = tp->tm_mon % 12;
