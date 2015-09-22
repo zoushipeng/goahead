@@ -424,8 +424,8 @@
       <type>int</type>
       <name>socketSelect</name>
       <anchorfile>group___webs_socket.html</anchorfile>
-      <anchor>gaaae04fe85c99febd353fafe97f1fd11f</anchor>
-      <arglist>(int sid, WebsTime timeout)</arglist>
+      <anchor>gaa4d7c7dee5c5104c2f19b7b702ee8c4f</anchor>
+      <arglist>(int sid, int timeout)</arglist>
     </member>
     <member kind="function">
       <type>int</type>
@@ -636,10 +636,10 @@
       <arglist>(int id, int delay)</arglist>
     </member>
     <member kind="function">
-      <type>WebsTime</type>
+      <type>int</type>
       <name>websRunEvents</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga7fea65d6ecddb364c0522fe075dabe0c</anchor>
+      <anchor>ga5fb0d295f0027b2d45d685b2cf74558e</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -833,10 +833,10 @@
       <arglist>()</arglist>
     </member>
     <member kind="function">
-      <type>WebsTime</type>
+      <type>int</type>
       <name>websCgiPoll</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga763d15e8e4fbb271d596cfc96b81b2d5</anchor>
+      <anchor>ga2ba15b61fb46c880fa4f443ac69976c2</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -1431,8 +1431,8 @@
       <type>void</type>
       <name>websSetCookie</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga1db4d8829a30eb04308568b6e7c63bb6</anchor>
-      <arglist>(Webs *wp, char *name, char *value, char *path, char *domain, WebsTime lifespan, int flags)</arglist>
+      <anchor>gaa56b71d8ac7c2c5f6543ebe473d4963d</anchor>
+      <arglist>(Webs *wp, char *name, char *value, char *path, char *domain, int lifespan, int flags)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -1861,8 +1861,8 @@
       <type>WebsSession *</type>
       <name>websAllocSession</name>
       <anchorfile>group___webs_session.html</anchorfile>
-      <anchor>ga69b6c95bd3d6a7ed5fde4cdefb8e4dcc</anchor>
-      <arglist>(Webs *wp, char *id, WebsTime lifespan)</arglist>
+      <anchor>ga66fc8260c9163b24fae7cd75e9b8b2b7</anchor>
+      <arglist>(Webs *wp, char *id, int lifespan)</arglist>
     </member>
     <member kind="function">
       <type>WebsSession *</type>

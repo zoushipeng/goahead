@@ -1915,7 +1915,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
     Any entry in the cgiList need to be checked to see if it has completed, and if so, process its output and clean up.
     Return time till next poll.
  */
-WebsTime websCgiPoll()
+int websCgiPoll()
 {
     Webs    *wp;
     Cgi     *cgip;
@@ -4065,7 +4065,7 @@ static int      pruneId;                            /* Callback ID */
 
 static void     checkTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
-static WebsTime getTimeSinceMark(Webs *wp);
+static int      getTimeSinceMark(Webs *wp);
 static char     *getToken(Webs *wp, char *delim);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
@@ -5180,7 +5180,7 @@ static bool filterChunkData(Webs *wp)
  */
 PUBLIC void websServiceEvents(int *finished)
 {
-    WebsTime    delay, nextEvent;
+    int     delay, nextEvent;
 
     if (finished) {
         *finished = 0;
@@ -5731,16 +5731,17 @@ PUBLIC void websSetStatus(Webs *wp, int code)
 PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
 {
     WebsKey     *key;
-    char        *date;
+    char        *date, *protoVersion;
 
     assert(websValid(wp));
 
     if (!(wp->flags & WEBS_HEADERS_CREATED)) {
-        if (!wp->protoVersion) {
-            wp->protoVersion = sclone("HTTP/1.0");
+        protoVersion = wp->protoVersion;
+        if (!protoVersion) {
+            protoVersion = "HTTP/1.0";
             wp->flags &= ~WEBS_KEEP_ALIVE;
         }
-        websWriteHeader(wp, NULL, "%s %d %s", wp->protoVersion, wp->code, websErrorMsg(wp->code));
+        websWriteHeader(wp, NULL, "%s %d %s", protoVersion, wp->code, websErrorMsg(wp->code));
         /*
             The Embedthis Open Source license does not permit modification of the Server header
          */
@@ -6199,7 +6200,7 @@ static void logRequest(Webs *wp, int code)
 static void checkTimeout(void *arg, int id)
 {
     Webs        *wp;
-    WebsTime    elapsed, delay;
+    int         elapsed, delay;
 
     wp = (Webs*) arg;
     assert(websValid(wp));
@@ -6210,7 +6211,6 @@ static void checkTimeout(void *arg, int id)
         return;
     } 
     if (wp->state == WEBS_BEGIN) {
-        // Idle connection websError(wp, HTTP_CODE_REQUEST_TIMEOUT | WEBS_CLOSE, "Request exceeded parse timeout");
         complete(wp, 0);
         websFree(wp);
         return;
@@ -6231,7 +6231,7 @@ static void checkTimeout(void *arg, int id)
     }
     delay = WEBS_TIMEOUT - elapsed;
     assert(delay > 0);
-    websRestartEvent(id, (int) delay);
+    websRestartEvent(id, delay);
 }
 
 
@@ -6414,9 +6414,9 @@ PUBLIC void websNoteRequestActivity(Webs *wp)
 /*
     Get the number of seconds since the last mark.
  */
-static WebsTime getTimeSinceMark(Webs *wp)
+static int getTimeSinceMark(Webs *wp)
 {
-    return time(0) - wp->timestamp;
+    return (int) (time(0) - wp->timestamp);
 }
 
 
@@ -6760,7 +6760,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin)
 }
 
 
-PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, WebsTime lifespan, int flags)
+PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *cookieDomain, int lifespan, int flags)
 {
     WebsTime    when;
     char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
@@ -6895,7 +6895,7 @@ static char *makeSessionID(Webs *wp)
 }
 
 
-WebsSession *websAllocSession(Webs *wp, char *id, WebsTime lifespan)
+WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
 {
     WebsSession     *sp;
 
@@ -11116,22 +11116,24 @@ PUBLIC void websStopEvent(int id)
 }
 
 
-WebsTime websRunEvents()
+int websRunEvents()
 {
     Callback    *s;
-    WebsTime    delay, now, nextEvent;
-    int         i;
+    WebsTime    now;
+    int         i, delay, nextEvent;
 
     nextEvent = (MAXINT / 1000);
     now = time(0);
 
     for (i = 0; i < callbackMax; i++) {
         if ((s = callbacks[i]) != NULL) {
-            if ((delay = s->at - now) <= 0) {
+            if (s->at <= now) {
                 callEvent(i);
                 delay = MAXINT / 1000;
                 /* Rescan incase event scheduled or modified an event */
                 i = -1;
+            } else {
+                delay = (int) min(s->at - now, MAXINT);
             }
             nextEvent = min(delay, nextEvent);
         }
@@ -14029,7 +14031,7 @@ PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir)
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
 #if ME_WIN_LIKE
-PUBLIC int socketSelect(int sid, WebsTime timeout)
+PUBLIC int socketSelect(int sid, int timeout)
 {
     struct timeval  tv;
     WebsSocket      *sp;
@@ -14132,7 +14134,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
 #else /* !ME_WIN_LIKE */
 
 
-PUBLIC int socketSelect(int sid, WebsTime timeout)
+PUBLIC int socketSelect(int sid, int timeout)
 {
     WebsSocket      *sp;
     struct timeval  tv;
@@ -15225,11 +15227,11 @@ static int leapYear(int year)
 }
 
 
-static WebsTime daysSinceEpoch(int year)
+static int daysSinceEpoch(int year)
 {
-    WebsTime     days;
+    int     days;
 
-    days = ((WebsTime) 365) * (year - 1970);
+    days = 365 * (year - 1970);
     days += ((year-1) / 4) - (1970 / 4);
     days -= ((year-1) / 100) - (1970 / 100);
     days += ((year-1) / 400) - (1970 / 400);
@@ -15239,8 +15241,7 @@ static WebsTime daysSinceEpoch(int year)
 
 static WebsTime makeTime(struct tm *tp)
 {
-    WebsTime    days;
-    int         year, month;
+    int     days, year, month;
 
     year = tp->tm_year + 1900 + tp->tm_mon / 12;
     month = tp->tm_mon % 12;
