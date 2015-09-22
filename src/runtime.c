@@ -273,22 +273,24 @@ PUBLIC void websStopEvent(int id)
 }
 
 
-WebsTime websRunEvents()
+int websRunEvents()
 {
     Callback    *s;
-    WebsTime    delay, now, nextEvent;
-    int         i;
+    WebsTime    now;
+    int         i, delay, nextEvent;
 
     nextEvent = (MAXINT / 1000);
     now = time(0);
 
     for (i = 0; i < callbackMax; i++) {
         if ((s = callbacks[i]) != NULL) {
-            if ((delay = s->at - now) <= 0) {
+            if (s->at <= now) {
                 callEvent(i);
                 delay = MAXINT / 1000;
                 /* Rescan incase event scheduled or modified an event */
                 i = -1;
+            } else {
+                delay = (int) min(s->at - now, MAXINT);
             }
             nextEvent = min(delay, nextEvent);
         }

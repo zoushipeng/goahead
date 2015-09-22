@@ -395,7 +395,7 @@ PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir)
     Wait for a handle to become readable or writable and return a number of noticed events. Timeout is in milliseconds.
  */
 #if ME_WIN_LIKE
-PUBLIC int socketSelect(int sid, WebsTime timeout)
+PUBLIC int socketSelect(int sid, int timeout)
 {
     struct timeval  tv;
     WebsSocket      *sp;
@@ -498,7 +498,7 @@ PUBLIC int socketSelect(int sid, WebsTime timeout)
 #else /* !ME_WIN_LIKE */
 
 
-PUBLIC int socketSelect(int sid, WebsTime timeout)
+PUBLIC int socketSelect(int sid, int timeout)
 {
     WebsSocket      *sp;
     struct timeval  tv;
