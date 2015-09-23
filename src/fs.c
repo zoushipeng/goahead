@@ -114,8 +114,8 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
     }
     sbuf->size = (ssize) s.st_size;
     sbuf->mtime = s.st_mtime;
-    sbuf->isDir = s.st_mode & S_IFDIR;                                                                     
-    return 0;  
+    sbuf->isDir = s.st_mode & S_IFDIR;
+    return 0;
 #endif
 }
 
@@ -220,7 +220,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

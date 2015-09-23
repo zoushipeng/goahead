@@ -71,7 +71,7 @@ PUBLIC char *websTempFile(char *dir, char *prefix)
 /*
     Get absolute path.  In VxWorks, functions like chdir, ioctl for mkdir and ioctl for rmdir, require an absolute path.
     This function will take the path argument and convert it to an absolute path.  It is the caller's responsibility to
-    deallocate the returned string. 
+    deallocate the returned string.
  */
 static char *getAbsolutePath(char *path)
 {
@@ -171,14 +171,14 @@ PUBLIC void syslog(int priority, char *fmt, ...)
         if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, logName, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &exists) ==
                 ERROR_SUCCESS) {
             value = "%SystemRoot%\\System32\\netmsg.dll";
-            if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+            if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ,
                     (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
                 RegCloseKey(hkey);
                 wfree(buf);
                 return;
             }
             errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-            if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
+            if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) !=
                     ERROR_SUCCESS) {
                 RegCloseKey(hkey);
                 wfree(buf);
@@ -229,11 +229,11 @@ PUBLIC char *basename(char *name)
 
 
 #if TIDSP
-char *inet_ntoa(struct in_addr addr) 
+char *inet_ntoa(struct in_addr addr)
 {
     char    result[16];
     uchar   *bytes;
-   
+
     bytes = (uchar*) &addr;
     sprintf(result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
     return result;
@@ -285,7 +285,7 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

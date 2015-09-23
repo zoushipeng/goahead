@@ -48,7 +48,7 @@ PUBLIC int socketOpen()
     socketList = NULL;
     socketMax = 0;
     socketHighestFd = -1;
-    if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) { 
+    if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) {
         hasIPv6 = 1;
         closesocket(fd);
     } else {
@@ -73,7 +73,7 @@ PUBLIC void socketClose()
 }
 
 
-PUBLIC bool socketHasDualNetworkStack() 
+PUBLIC bool socketHasDualNetworkStack()
 {
     bool dual;
 
@@ -86,7 +86,7 @@ PUBLIC bool socketHasDualNetworkStack()
 }
 
 
-PUBLIC bool socketHasIPv6() 
+PUBLIC bool socketHasIPv6()
 {
     return hasIPv6;
 }
@@ -201,7 +201,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     assert(sp);
 
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
-        return -1;       
+        return -1;
     }
     if ((sp->sock = socket(AF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR) {
         socketFree(sid);
@@ -231,7 +231,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
         socketSetBlock(sid, 1);
 #endif
     }
-    if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 && 
+    if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 &&
         (rc = tryAlternateConnect(sp->sock, (struct sockaddr*) &addr)) < 0) {
 #if ME_WIN_LIKE
         if (socketGetError() != EWOULDBLOCK) {
@@ -450,8 +450,8 @@ PUBLIC int socketSelect(int sid, int timeout)
         }
     }
     /*
-        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. 
-        So, if WINDOWS, sleep.  
+        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls.
+        So, if WINDOWS, sleep.
      */
     if (nEvents == 0) {
         Sleep((DWORD) timeout);
@@ -637,11 +637,11 @@ static void socketDoEvent(WebsSocket *sp)
 
     sid = sp->sid;
     if (sp->currentEvents & SOCKET_READABLE) {
-        if (sp->flags & SOCKET_LISTENING) { 
+        if (sp->flags & SOCKET_LISTENING) {
             socketAccept(sp);
             sp->currentEvents = 0;
             return;
-        } 
+        }
     }
     /*
         Now invoke the users socket handler. NOTE: the handler may delete the
@@ -651,7 +651,7 @@ static void socketDoEvent(WebsSocket *sp)
         (sp->handler)(sid, sp->handlerMask & sp->currentEvents, sp->handler_data);
         /*
             Make sure socket pointer is still valid, then reset the currentEvents.
-         */ 
+         */
         if (socketList && sid < socketMax && socketList[sid] == sp) {
             sp->currentEvents = 0;
         }
@@ -722,7 +722,7 @@ PUBLIC int socketSetBlock(int sid, int on)
 }
 
 
-/*  
+/*
     Set the TCP delay behavior (nagle algorithm)
  */
 PUBLIC int socketSetNoDelay(int sid, bool on)
@@ -782,7 +782,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
                 if (sofar) {
-                    /* 
+                    /*
                         If some data was written, we mask the EAGAIN for this time. Caller should recall and then
                         will get a negative return code with EAGAIN.
                      */
@@ -952,7 +952,7 @@ PUBLIC void socketFree(int sid)
     for (i = 0; i < socketMax; i++) {
         if ((sp = socketList[i]) == NULL) {
             continue;
-        } 
+        }
         socketHighestFd = max(socketHighestFd, sp->sock);
     }
 }
@@ -1074,8 +1074,8 @@ PUBLIC int socketGetPort(int sid)
 
 
 #if ME_UNIX_LIKE || WINDOWS
-/*  
-    Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
+/*
+    Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses,
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
@@ -1105,7 +1105,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     }
     itosbuf(portBuf, sizeof(portBuf), port, 10);
 
-    /*  
+    /*
         Try to sleuth the address to avoid duplicate address lookups. Then try IPv4 first then IPv6.
      */
     res = 0;
@@ -1184,7 +1184,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
 #endif
 
 
-/*  
+/*
     Return a numerical IP address and port for the given socket info
  */
 PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
@@ -1257,8 +1257,8 @@ static int ipv6(char *ip)
 }
 
 
-/*  
-    Parse address and return the IP address and port components. Handles ipv4 and ipv6 addresses. 
+/*
+    Parse address and return the IP address and port components. Handles ipv4 and ipv6 addresses.
     If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
     If a ":*" port specifier is used, *pport is set to -1;
     When an address contains an ipv6 port it should be written as:
@@ -1285,7 +1285,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         address = &cp[3];
     }
     if (ipv6(address)) {
-        /*  
+        /*
             IPv6. If port is present, it will follow a closing bracket ']'
          */
         if ((cp = strchr(address, ']')) != 0) {
@@ -1319,8 +1319,8 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         }
 
     } else {
-        /*  
-            ipv4 
+        /*
+            ipv4
          */
         ip = sclone(address);
         if ((cp = strchr(ip, ':')) != 0) {
@@ -1334,10 +1334,10 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
                 wfree(ip);
                 ip = 0;
             }
-            
+
         } else if (strchr(ip, '.')) {
             *pport = defaultPort;
-            
+
         } else {
             if (isdigit((uchar) *ip)) {
                 *pport = atoi(ip);
@@ -1374,7 +1374,7 @@ PUBLIC bool socketAddressIsV6(char *ip)
 }
 
 
-PUBLIC WebsSocket **socketGetList() 
+PUBLIC WebsSocket **socketGetList()
 {
     return socketList;
 }
@@ -1385,7 +1385,7 @@ PUBLIC WebsSocket **socketGetList()
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

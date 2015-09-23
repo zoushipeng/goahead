@@ -199,7 +199,7 @@ static void usage() {
 }
 
 
-static void initPlatform() 
+static void initPlatform()
 {
 #if ME_UNIX_LIKE
     signal(SIGTERM, sigHandler);
@@ -248,7 +248,7 @@ static int windowsInit()
     /*
         Create a window just so we can have a taskbar to close this web server
      */
-    hwnd = CreateWindow(ME_NAME, ME_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 
+    hwnd = CreateWindow(ME_NAME, ME_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT,
         0, 0, 0, NULL, NULL, inst, NULL);
     if (hwnd == NULL) {
         return -1;
@@ -340,7 +340,7 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

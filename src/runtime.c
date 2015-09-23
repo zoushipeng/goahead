@@ -59,7 +59,7 @@ PUBLIC char stateMap[] = {
 
 /*
     Format:         %[modifier][width][precision][bits][type]
-  
+
     The Class map will map from a specifier letter to a state.
  */
 PUBLIC char classMap[] = {
@@ -138,7 +138,7 @@ typedef struct Format {
         } else { \
             *(fmt)->end = '\0'; \
         } \
-    } else 
+    } else
 
 /*
     The handle list stores the length of the list and the number of used handles in the first two words.  These are
@@ -300,7 +300,7 @@ int websRunEvents()
 
 
 /*
-    Allocating secure replacement for sprintf and vsprintf. 
+    Allocating secure replacement for sprintf and vsprintf.
  */
 PUBLIC char *sfmt(char *format, ...)
 {
@@ -852,8 +852,8 @@ static void outFloat(Format *fmt, char specChar, double value)
 
 
 /*
-    Grow the buffer to fit new data. Return 1 if the buffer can grow. 
-    Grow using the growBy size specified when creating the buffer. 
+    Grow the buffer to fit new data. Return 1 if the buffer can grow.
+    Grow using the growBy size specified when creating the buffer.
  */
 static int growBuf(Format *fmt)
 {
@@ -992,7 +992,7 @@ PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...)
     va_start(args, fmt);
     fmtBuf = sfmtv(fmt, args);
 
-    message = sfmt("Assertion %s, failed at %s %d\n", fmtBuf, WEBS_ARGS); 
+    message = sfmt("Assertion %s, failed at %s %d\n", fmtBuf, WEBS_ARGS);
     va_end(args);
     wfree(fmtBuf);
     if (logHandler) {
@@ -1032,7 +1032,7 @@ PUBLIC void traceProc(int level, char *fmt, ...)
 }
 
 
-PUBLIC int websGetLogLevel() 
+PUBLIC int websGetLogLevel()
 {
     return logLevel;
 }
@@ -1085,16 +1085,16 @@ PUBLIC int logOpen()
 PUBLIC void logClose()
 {
     if (logFd >= 0) {
-        close(logFd);                                                                              
-        logFd = -1;                                                                                
-    }                                                                                                    
+        close(logFd);
+        logFd = -1;
+    }
 }
 
 
 PUBLIC void logSetPath(char *path)
 {
     char  *lp;
-    
+
     wfree(logPath);
     logPath = sclone(path);
     if ((lp = strchr(logPath, ':')) != 0) {
@@ -1126,7 +1126,7 @@ PUBLIC char *slower(char *string)
 }
 
 
-/* 
+/*
     Convert a string to upper case
  */
 PUBLIC char *supper(char *string)
@@ -1316,7 +1316,7 @@ PUBLIC int wallocObject(void *listArg, int *max, int size)
     return id;
 }
 
-    
+
 /*
     Create a new buf. "increment" is the amount to increase the size of the buf should it need to grow to accomodate
     data being added. "maxsize" is an upper limit (sanity level) beyond which the buffer must not grow. Set maxsize to -1 to
@@ -1327,7 +1327,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     int increment;
 
     assert(bp);
-    
+
     if (initSize <= 0) {
         initSize = ME_GOAHEAD_LIMIT_BUFFER;
     }
@@ -1370,7 +1370,7 @@ PUBLIC void bufFree(WebsBuf *bp)
 
 /*
     Return the length of the data in the buf. Users must fill the queue to a high water mark of at most one less than
-    the queue size.  
+    the queue size.
  */
 PUBLIC ssize bufLen(WebsBuf *bp)
 {
@@ -1421,7 +1421,7 @@ PUBLIC int bufGetc(WebsBuf *bp)
 
 /*
     Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the buffer as
-    required.  
+    required.
  */
 PUBLIC int bufPutc(WebsBuf *bp, char c)
 {
@@ -1545,7 +1545,7 @@ PUBLIC int bufGetcA(WebsBuf *bp)
 
 
 /*
-    Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. 
+    Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'.
     Grow the buffer as required.
  */
 PUBLIC int bufPutcA(WebsBuf *bp, char c)
@@ -1676,7 +1676,7 @@ PUBLIC ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
 
 /*
     Return the maximum number of bytes the buffer can accept via a single block copy. Useful if the user is doing their
-    own data insertion. 
+    own data insertion.
  */
 PUBLIC ssize bufRoom(WebsBuf *bp)
 {
@@ -1684,7 +1684,7 @@ PUBLIC ssize bufRoom(WebsBuf *bp)
 
     assert(bp);
     assert(bp->buflen == (bp->endbuf - bp->buf));
-    
+
     space = bp->buflen - RINGQ_LEN(bp) - 1;
     in_a_line = bp->endbuf - bp->endp;
 
@@ -1694,7 +1694,7 @@ PUBLIC ssize bufRoom(WebsBuf *bp)
 
 /*
     Return the maximum number of bytes the buffer can provide via a single block copy. Useful if the user is doing their
-    own data retrieval.  
+    own data retrieval.
  */
 PUBLIC ssize bufGetBlkMax(WebsBuf *bp)
 {
@@ -1777,7 +1777,7 @@ PUBLIC void bufFlush(WebsBuf *bp)
 PUBLIC void bufCompact(WebsBuf *bp)
 {
     ssize   len;
-    
+
     if (bp->buf) {
         if ((len = bufLen(bp)) > 0) {
             if (bp->servp < bp->endp && bp->servp > bp->buf) {
@@ -1911,7 +1911,7 @@ WebsHash hashCreate(int size)
 
 /*
     Close this symbol table. Call a cleanup function to allow the caller to free resources associated with each symbol
-    table entry.  
+    table entry.
  */
 PUBLIC void hashFree(WebsHash sd)
 {
@@ -2059,7 +2059,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
-        for the symbol.  
+        for the symbol.
      */
     last = NULL;
     hindex = hashIndex(tp, name);
@@ -2135,7 +2135,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
-        for the symbol.  
+        for the symbol.
      */
     last = NULL;
     hindex = hashIndex(tp, name);
@@ -2168,7 +2168,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
 
 /*
     Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
-    the hash table itself) 
+    the hash table itself)
  */
 static WebsKey *hash(HashTable *tp, char *name)
 {
@@ -2240,10 +2240,10 @@ static int calcPrime(int size)
 
 
 /*
-    Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length 
-    in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1 
-    characters will be stored. The dest buffer will always have a trailing null appended.  If dest is NULL, don't copy 
-    the string, just return the length of characters. Return a count of bytes copied to the destination or -1 if an 
+    Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length
+    in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1
+    characters will be stored. The dest buffer will always have a trailing null appended.  If dest is NULL, don't copy
+    the string, just return the length of characters. Return a count of bytes copied to the destination or -1 if an
     invalid unicode sequence was provided in src.
     NOTE: does not allocate.
  */
@@ -2282,13 +2282,13 @@ PUBLIC ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
 
 /*
     Convert a multibyte string to a unicode string. If count is supplied, it is used as the source length in bytes.
-    Otherwise set to -1. DestCount is the max size of the dest buffer in characters. At most destCount - 1 
-    characters will be stored. The dest buffer will always have a trailing null characters appended.  If dest is NULL, 
-    don't copy the string, just return the length of characters. Return a count of characters copied to the destination 
+    Otherwise set to -1. DestCount is the max size of the dest buffer in characters. At most destCount - 1
+    characters will be stored. The dest buffer will always have a trailing null characters appended.  If dest is NULL,
+    don't copy the string, just return the length of characters. Return a count of characters copied to the destination
     or -1 if an invalid multibyte sequence was provided in src.
     NOTE: does not allocate.
  */
-PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count) 
+PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count)
 {
     ssize      len;
 
@@ -2492,7 +2492,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
 
 
 /*
-    This routine copies at most "count" characters from a string. It ensures the result is always null terminated and 
+    This routine copies at most "count" characters from a string. It ensures the result is always null terminated and
     the buffer does not overflow. Returns -1 if the buffer is too small.
  */
 PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
@@ -2517,7 +2517,7 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
     } else {
         *dest = '\0';
         len = 0;
-    } 
+    }
     return len;
 }
 
@@ -2711,7 +2711,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
         start = dest = src;
         if (*src == '"' || *src == '\'') {
             quote = *src;
-            src++; 
+            src++;
             dest++;
         } else {
             quote = 0;
@@ -2720,7 +2720,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
             argv[argc] = src;
         }
         while (*src) {
-            if (*src == '\\' && src[1] && (src[1] == '\\' || src[1] == '"' || src[1] == '\'')) { 
+            if (*src == '\\' && src[1] && (src[1] == '\\' || src[1] == '"' || src[1] == '\'')) {
                 src++;
             } else {
                 if (quote) {
@@ -2772,7 +2772,7 @@ PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

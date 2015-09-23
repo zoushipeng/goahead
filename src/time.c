@@ -1,6 +1,6 @@
 /**
     time.c - Date and Time handling
- 
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -286,10 +286,10 @@ static void swapDayMonth(struct tm *tp)
 
 
 /*
-    Parse the a date/time string and return the result in *time. Missing date items may be provided 
-    via the defaults argument. This is a tolerant parser. It is not validating and will do its best 
+    Parse the a date/time string and return the result in *time. Missing date items may be provided
+    via the defaults argument. This is a tolerant parser. It is not validating and will do its best
     to parse any possible date string.
- */ 
+ */
 PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaults)
 {
     TimeToken       *tt;
@@ -347,7 +347,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
         if (snumber(token)) {
             /*
                 Parse either day of month or year. Priority to day of month. Format: <29> Jan <15> <2014>
-             */ 
+             */
             value = atoi(token);
             if (value > 3000) {
                 *time = value;
@@ -383,7 +383,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
         } else if (isalpha((uchar) *token)) {
             if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) != 0) {
                 kind = tt->value & TOKEN_MASK;
-                value = tt->value & ~TOKEN_MASK; 
+                value = tt->value & ~TOKEN_MASK;
                 switch (kind) {
 
                 case TOKEN_DAY:
@@ -395,7 +395,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
                     break;
 
                 case TOKEN_OFFSET:
-                    /* Named timezones or symbolic names like: tomorrow, yesterday, next week ... */ 
+                    /* Named timezones or symbolic names like: tomorrow, yesterday, next week ... */
                     /* Units are seconds */
                     offset += (int) value;
                     break;
@@ -448,8 +448,8 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
                     tm.tm_mday = value3;
 
                 } else if (value1 > 12 || alpha2) {
-                    /* 
-                        dd/mm/yy 
+                    /*
+                        dd/mm/yy
                         Cannot detect 01/02/03  This will be evaluated as Jan 2 2003 below.
                      */
                     tm.tm_mday = value1;
@@ -572,7 +572,7 @@ static void validateTime(struct tm *tp, struct tm *defaults)
         tp->tm_mday = defaults->tm_mday;
     }
     if (tp->tm_yday < 0) {
-        tp->tm_yday = (leapYear(tp->tm_year + 1900) ? 
+        tp->tm_yday = (leapYear(tp->tm_year + 1900) ?
             leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
     }
     if (tp->tm_hour < 0) {
@@ -593,7 +593,7 @@ static void validateTime(struct tm *tp, struct tm *defaults)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
