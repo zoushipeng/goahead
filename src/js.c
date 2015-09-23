@@ -139,12 +139,12 @@ PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
     }
     if (stat(path, &sbuf) < 0) {
         close(fd);
-        jsError(ep, "Cant stat %s", path);
+        jsError(ep, "Cannot stat %s", path);
         return NULL;
     }
     if ((script = walloc(sbuf.st_size + 1)) == NULL) {
         close(fd);
-        jsError(ep, "Cant malloc %d", sbuf.st_size);
+        jsError(ep, "Cannot allocate %d", sbuf.st_size);
         return NULL;
     }
     if (read(fd, script, sbuf.st_size) != (int)sbuf.st_size) {
