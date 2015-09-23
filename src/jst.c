@@ -61,7 +61,7 @@ static bool jstHandler(Webs *wp)
     buf[len] = '\0';
 
     if (websPageReadData(wp, buf, len) != len) {
-        websError(wp, HTTP_CODE_NOT_FOUND, "Cant read %s", wp->filename);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Cannot read %s", wp->filename);
         goto done;
     }
     websPageClose(wp);
