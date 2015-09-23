@@ -52,7 +52,7 @@ static uchar PADDING[64] = {
      FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
      Rotation is separate from addition to prevent recomputation.
  */
- 
+
 #define FF(a, b, c, d, x, s, ac) { \
  (a) += F ((b), (c), (d)) + (x) + (uint)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
@@ -108,7 +108,7 @@ static signed char decodeMap[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
     52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
     -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, 
+    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
     -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -171,7 +171,7 @@ PUBLIC char *websDecode64Block(char *s, ssize *len, int flags)
             c = decodeMap[*s & 0xff];
             if (c == -1) {
                 return NULL;
-            } 
+            }
             bitBuf = bitBuf | (c << shift);
             shift -= 6;
         }
@@ -234,7 +234,7 @@ PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix)
 
 /*
     MD5 initialization. Begins an MD5 operation, writing a new context.
- */ 
+ */
 static void initMD5(MD5CONTEXT *context)
 {
     context->count[0] = context->count[1] = 0;
@@ -246,7 +246,7 @@ static void initMD5(MD5CONTEXT *context)
 
 
 /*
-    MD5 block update operation. Continues an MD5 message-digest operation, processing another message block, 
+    MD5 block update operation. Continues an MD5 message-digest operation, processing another message block,
     and updating the context.
  */
 static void update(MD5CONTEXT *context, uchar *input, uint inputLen)
@@ -277,7 +277,7 @@ static void update(MD5CONTEXT *context, uchar *input, uint inputLen)
 
 /*
     MD5 finalization. Ends an MD5 message-digest operation, writing the message digest and zeroizing the context.
- */ 
+ */
 static void finalizeMD5(uchar digest[16], MD5CONTEXT *context)
 {
     uchar   bits[8];
@@ -416,7 +416,7 @@ static void decode(uint *output, uchar *input, uint len)
     uint    i, j;
 
     for (i = 0, j = 0; j < len; i++, j += 4)
-        output[i] = ((uint) input[j]) | (((uint) input[j+1]) << 8) | (((uint) input[j+2]) << 16) | 
+        output[i] = ((uint) input[j]) | (((uint) input[j+1]) << 8) | (((uint) input[j+2]) << 16) |
             (((uint) input[j+3]) << 24);
 }
 
@@ -474,7 +474,7 @@ PUBLIC char *websEncode64Block(char *s, ssize len)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

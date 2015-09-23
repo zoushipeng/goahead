@@ -1,8 +1,8 @@
 /*
     cgi.c -- CGI processing
-  
+
     This module implements the /cgi-bin handler. CGI processing differs from
-    goforms processing in that each CGI request is executed as a separate 
+    goforms processing in that each CGI request is executed as a separate
     process, rather than within the webserver process. For each CGI request the
     environment of the new process must be set to include all the CGI variables
     and its standard input and output must be directed to the socket.  This
@@ -57,7 +57,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     int         n, envpsize, argpsize, cid;
 
     assert(websValid(wp));
-    
+
     websSetEnv(wp);
 
     /*
@@ -73,7 +73,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     getcwd(cwd, ME_GOAHEAD_LIMIT_FILENAME);
     dir = wp->route->dir ? wp->route->dir : cwd;
     chdir(dir);
-    
+
     extraPath = 0;
     if ((cp = strchr(cgiName, '/')) != NULL) {
         extraPath = sclone(cp);
@@ -83,12 +83,12 @@ PUBLIC bool cgiHandler(Webs *wp)
         wfree(extraPath);
     } else {
         websSetVar(wp, "PATH_INFO", "");
-        websSetVar(wp, "PATH_TRANSLATED", "");        
+        websSetVar(wp, "PATH_TRANSLATED", "");
     }
     cgiPath = sfmt("%s%s/%s", dir, cgiPrefix, cgiName);
     websSetVarFmt(wp, "SCRIPT_NAME", "%s/%s", cgiPrefix, cgiName);
     websSetVar(wp, "SCRIPT_FILENAME", cgiPath);
-    
+
 /*
     See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
     may already be part of the OS image, rather than in the file system.
@@ -174,11 +174,11 @@ PUBLIC bool cgiHandler(Webs *wp)
 
     /*
         Create temporary file name(s) for the child's stdin and stdout. For POST data the stdin temp file (and name)
-        should already exist.  
+        should already exist.
      */
     if (wp->cgiStdin == NULL) {
         wp->cgiStdin = websGetCgiCommName();
-    } 
+    }
     stdIn = wp->cgiStdin;
     stdOut = websGetCgiCommName();
     if (wp->cgifd >= 0) {
@@ -188,7 +188,7 @@ PUBLIC bool cgiHandler(Webs *wp)
 
     /*
         Now launch the process.  If not successful, do the cleanup of resources.  If successful, the cleanup will be
-        done after the process completes.  
+        done after the process completes.
      */
     if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == (CgiPid) -1) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "failed to spawn CGI task");
@@ -338,7 +338,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
 
     /*
         OPT - currently polling and doing a stat each poll. Also doing open/close each chunk.
-        If the CGI process writes partial headers, this repeatedly reads the data until complete 
+        If the CGI process writes partial headers, this repeatedly reads the data until complete
         headers are written or more than ME_GOAHEAD_LIMIT_HEADERS of data is received.
      */
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
@@ -397,7 +397,7 @@ int websCgiPoll()
                 websCgiGatherOutput(cgip);
 
 #if WINDOWS
-                /*                  
+                /*
                      Windows can have delayed notification through the file system after process exit.
                  */
                 {
@@ -444,8 +444,8 @@ int websCgiPoll()
 
 
 /*
-    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with 
-    wfree().  
+    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with
+    wfree().
  */
 PUBLIC char *websGetCgiCommName()
 {
@@ -561,7 +561,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         }
         _exit(0);
     }
-    /* 
+    /*
         Parent
      */
     if (fdout >= 0) {
@@ -580,7 +580,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 static int checkCgi(CgiPid handle)
 {
     int     pid;
-    
+
     /*
         Check to see if the CGI child process has terminated or not yet.
      */
@@ -596,12 +596,12 @@ static int checkCgi(CgiPid handle)
 
 
 #if VXWORKS
-static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut); 
+static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut);
 /*
     Launch the CGI process and return a handle to it. Process spawning is not supported in VxWorks.  Instead, we spawn a
     "task".  A major difference is that we have to know the entry point for the taskSpawn API.  Also the module may have
     to be loaded before being executed; it may also be part of the OS image, in which case it cannot be loaded or
-    unloaded.  
+    unloaded.
     The following sequence is used:
     1. If the module is already loaded, unload it from memory.
     2. Search for a query string keyword=value pair in the environment variables where the keyword is cgientry.  If
@@ -642,7 +642,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 
     /*
          Set the entry point symbol name as described above.  Look for an already loaded entry point; if it exists, spawn
-         the task accordingly.  
+         the task accordingly.
      */
     for (pp = envp, pEntry = NULL; pp != NULL && *pp != NULL; pp++) {
         if (strncmp(*pp, "cgientry=", 9) == 0) {
@@ -660,7 +660,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         wfree(pname);
     }
     if (entryAddr != 0) {
-        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
+        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp,
             (int) envp, (int) stdIn, (int) stdOut, 0, 0, 0, 0, 0);
         goto done;
     }
@@ -678,7 +678,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         wfree(pname);
     }
     if (entryAddr != 0) {
-        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
+        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp,
             (int) envp, (int) stdIn, (int) stdOut, 0, 0, 0, 0, 0);
     }
 done:
@@ -770,7 +770,7 @@ static int checkCgi(CgiPid handle)
 }
 #endif /* VXWORKS */
 
-#if WINDOWS 
+#if WINDOWS
 /*
     Convert a table of strings into a single block of memory. The input table consists of an array of null-terminated
     strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the walloc()
@@ -785,15 +785,15 @@ static uchar *tableToBlock(char **table)
 
     assert(table);
 
-    /*  
-        Calculate the size of the data block.  Allow for final null byte. 
+    /*
+        Calculate the size of the data block.  Allow for final null byte.
      */
-    sizeBlock = 1;                    
+    sizeBlock = 1;
     for (index = 0; table[index]; index++) {
         sizeBlock += strlen(table[index]) + 1;
     }
     /*
-        Allocate the data block and fill it with the strings                   
+        Allocate the data block and fill it with the strings
      */
     pBlock = walloc(sizeBlock);
 
@@ -803,10 +803,10 @@ static uchar *tableToBlock(char **table)
             strcpy(pEntry, table[index]);
             pEntry += strlen(pEntry) + 1;
         }
-        /*      
-            Terminate the data block with an extra null string                
+        /*
+            Terminate the data block with an extra null string
          */
-        *pEntry = '\0';              
+        *pEntry = '\0';
     }
     return pBlock;
 }
@@ -883,7 +883,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         Stdin file should already exist.
      */
     newinfo.hStdInput = CreateFile(stdIn, GENERIC_READ, FILE_SHARE_READ, &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
-            NULL); 
+            NULL);
     if (newinfo.hStdOutput == (HANDLE) -1) {
         error("Cannot open CGI stdin file");
         return (CgiPid) -1;
@@ -892,7 +892,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
     /*
         Stdout file is created and file pointer is reset to start.
      */
-    newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE, 
+    newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE,
             &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (newinfo.hStdOutput == (HANDLE) -1) {
         error("Cannot create CGI stdout file");
@@ -970,7 +970,7 @@ static int checkCgi(CgiPid handle)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

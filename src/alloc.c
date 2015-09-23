@@ -42,7 +42,7 @@ static int wallocGetSize(ssize size, int *q);
 
 /********************************** Code **************************************/
 /*
-    Initialize the walloc module. wopenAlloc should be called the very first thing after the application starts and 
+    Initialize the walloc module. wopenAlloc should be called the very first thing after the application starts and
     wcloseAlloc should be called the last thing before exiting. If wopenAlloc is not called, it will be called on the first
     allocation with default values. "buf" points to memory to use of size "bufsize". If buf is NULL, memory is allocated
     using malloc. flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial
@@ -64,7 +64,7 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
         }
         bufsize = ROUNDUP4(bufsize);
         if ((buf = malloc(bufsize)) == NULL) {
-            /* 
+            /*
                 Resetting wopenCount so client code can decide to call wopenAlloc() again with a smaller memory request.
             */
              --wopenCount;
@@ -174,7 +174,7 @@ PUBLIC void *walloc(ssize size)
 
 /*
     Free a block back to the relevant free q. We don't free back to the O/S or run time system unless the block is
-    greater than the maximum class size. We also do not coalesce blocks.  
+    greater than the maximum class size. We also do not coalesce blocks.
  */
 PUBLIC void wfree(void *mp)
 {
@@ -265,7 +265,7 @@ PUBLIC void wcloseAlloc() { }
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

@@ -1,6 +1,6 @@
 /*
     jst.c -- JavaScript templates
-  
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -116,7 +116,7 @@ static bool jstHandler(Webs *wp)
 
                 if (jsEval(jid, nextp, &result) == 0) {
                     /*
-                         On an error, discard all output accumulated so far and store the error in the result buffer. 
+                         On an error, discard all output accumulated so far and store the error in the result buffer.
                          Be careful if the user has called websError() already.
                      */
                     rc = -1;
@@ -198,7 +198,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv)
     int     i;
 
     assert(websValid(wp));
-    
+
     for (i = 0; i < argc; ) {
         assert(argv);
         if (websWriteBlock(wp, argv[i], strlen(argv[i])) < 0) {
@@ -237,7 +237,7 @@ static char *strtokcmp(char *s1, char *s2)
 }
 
 
-static char *skipWhite(char *s) 
+static char *skipWhite(char *s)
 {
     assert(s);
 
@@ -258,7 +258,7 @@ static char *skipWhite(char *s)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

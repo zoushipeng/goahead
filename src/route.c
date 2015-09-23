@@ -196,7 +196,7 @@ static bool can(Webs *wp, char *ability)
 }
 
 
-PUBLIC bool websCan(Webs *wp, WebsHash abilities) 
+PUBLIC bool websCan(Webs *wp, WebsHash abilities)
 {
     WebsKey     *key;
     char        *ability, *cp, *start, abuf[ME_GOAHEAD_LIMIT_STRING];
@@ -226,7 +226,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
             if ((cp = strchr(ability, '|')) != 0) {
                 /*
                     Examine a set of alternative abilities. Need only one to match
-                 */ 
+                 */
                 start = ability;
                 do {
                     sncopy(abuf, sizeof(abuf), start, cp - start);
@@ -251,7 +251,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
 
 
 #if KEEP
-PUBLIC bool websCanString(Webs *wp, char *abilities) 
+PUBLIC bool websCanString(Webs *wp, char *abilities)
 {
     WebsUser    *user;
     char        *ability, *tok;
@@ -312,7 +312,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     growRoutes();
     if (pos < 0) {
         pos = routeCount;
-    } 
+    }
     if (pos < routeCount) {
         memmove(&routes[pos + 1], &routes[pos], sizeof(WebsRoute*) * routeCount - pos);
     }
@@ -322,7 +322,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
 }
 
 
-PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
+PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions,
         WebsHash abilities, WebsHash redirects)
 {
     assert(route);
@@ -350,7 +350,7 @@ static void growRoutes()
 }
 
 
-static int lookupRoute(char *uri) 
+static int lookupRoute(char *uri)
 {
     WebsRoute   *route;
     int         i;
@@ -391,7 +391,7 @@ static void freeRoute(WebsRoute *route)
 }
 
 
-PUBLIC int websRemoveRoute(char *uri) 
+PUBLIC int websRemoveRoute(char *uri)
 {
     int         i;
 
@@ -409,7 +409,7 @@ PUBLIC int websRemoveRoute(char *uri)
 }
 
 
-PUBLIC int websOpenRoute(char *path) 
+PUBLIC int websOpenRoute(char *path)
 {
     if ((handlers = hashCreate(-1)) < 0) {
         return -1;
@@ -420,7 +420,7 @@ PUBLIC int websOpenRoute(char *path)
 }
 
 
-PUBLIC void websCloseRoute() 
+PUBLIC void websCloseRoute()
 {
     WebsHandler *handler;
     WebsKey     *key;
@@ -496,7 +496,7 @@ PUBLIC int websLoad(char *path)
     char        *buf, *line, *kind, *next, *auth, *dir, *handler, *protocol, *uri, *option, *key, *value, *status;
     char        *redirectUri, *token;
     int         rc;
-    
+
     assert(path && *path);
 
     rc = 0;
@@ -596,7 +596,7 @@ PUBLIC int websLoad(char *path)
             }
 #endif
         } else {
-            error("Unknown route keyword %s", kind); 
+            error("Unknown route keyword %s", kind);
             rc = -1;
             break;
         }
@@ -610,7 +610,7 @@ PUBLIC int websLoad(char *path)
 
 
 /*
-    Handler to just continue matching other routes 
+    Handler to just continue matching other routes
  */
 static bool continueHandler(Webs *wp)
 {
@@ -670,7 +670,7 @@ PUBLIC int websPublish(char *prefix, char *dir)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

@@ -48,7 +48,7 @@ static bool uploadHandler(Webs *wp)
 static int initUpload(Webs *wp)
 {
     char    *boundary;
-    
+
     if (wp->uploadState == 0) {
         wp->uploadState = UPLOAD_BOUNDARY;
         if ((boundary = strstr(wp->contentType, "boundary=")) != 0) {
@@ -103,12 +103,12 @@ PUBLIC void websFreeUpload(Webs *wp)
 }
 
 
-PUBLIC int websProcessUploadData(Webs *wp) 
+PUBLIC int websProcessUploadData(Webs *wp)
 {
     char    *line, *nextTok;
     ssize   len, nbytes;
     int     done, rc;
-    
+
     for (done = 0, line = 0; !done; ) {
         if  (wp->uploadState == UPLOAD_BOUNDARY || wp->uploadState == UPLOAD_CONTENT_HEADER) {
             /*
@@ -203,14 +203,14 @@ static int processUploadHeader(Webs *wp, char *line)
     stok(line, ": ", &rest);
 
     if (scaselesscmp(headerTok, "Content-Disposition") == 0) {
-        /*  
+        /*
             The content disposition header describes either a form variable or an uploaded file.
-        
+
             Content-Disposition: form-data; name="field1"
             >>blank line
             Field Data
             ---boundary
-     
+
             Content-Disposition: form-data; name="field1" filename="user.file"
             >>blank line
             File data
@@ -243,11 +243,11 @@ static int processUploadHeader(Webs *wp, char *line)
                 wfree(wp->clientFilename);
                 wp->clientFilename = sclone(value);
 
-                /*  
+                /*
                     Create the file to hold the uploaded data
                  */
                 if ((wp->uploadTmp = websTempFile(uploadDir, "tmp")) == 0) {
-                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, 
+                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR,
                         "Cannot create upload temp file %s. Check upload temp dir %s", wp->uploadTmp, uploadDir);
                     return -1;
                 }
@@ -257,7 +257,7 @@ static int processUploadHeader(Webs *wp, char *line)
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot open upload temp file %s", wp->uploadTmp);
                     return -1;
                 }
-                /*  
+                /*
                     Create the files[id]
                  */
                 file = wp->currentFile = walloc(sizeof(WebsUpload));
@@ -310,7 +310,7 @@ static int writeToFile(Webs *wp, char *data, ssize len)
         return -1;
     }
     if (len > 0) {
-        /*  
+        /*
             File upload. Write the file data.
          */
         if ((rc = write(wp->upfd, data, (int) len)) != len) {
@@ -342,7 +342,7 @@ static int processContentData(Webs *wp)
     if ((bp = getBoundary(wp, content->servp, size)) == 0) {
         trace(7, "uploadFilter: Got boundary filename %x", wp->clientFilename);
         if (wp->clientFilename) {
-            /*  
+            /*
                 No signature found yet. probably more data to come. Must handle split boundaries.
              */
             data = content->servp;
@@ -360,14 +360,14 @@ static int processContentData(Webs *wp)
 
     if (nbytes > 0) {
         websConsumeInput(wp, nbytes);
-        /*  
+        /*
             This is the CRLF before the boundary
          */
         if (nbytes >= 2 && data[nbytes - 2] == '\r' && data[nbytes - 1] == '\n') {
             nbytes -= 2;
         }
         if (wp->clientFilename) {
-            /*  
+            /*
                 Write the last bit of file data and add to the list of files and define environment variables
              */
             if (writeToFile(wp, data, nbytes) < 0) {
@@ -377,10 +377,10 @@ static int processContentData(Webs *wp)
             defineUploadVars(wp);
 
         } else {
-            /*  
+            /*
                 Normal string form data variables
              */
-            data[nbytes] = '\0'; 
+            data[nbytes] = '\0';
             trace(5, "uploadFilter: form[%s] = %s", wp->uploadVar, data);
             websDecodeUrl(wp->uploadVar, wp->uploadVar, -1);
             websDecodeUrl(data, data, -1);
@@ -388,7 +388,7 @@ static int processContentData(Webs *wp)
         }
     }
     if (wp->clientFilename) {
-        /*  
+        /*
             Now have all the data (we've seen the boundary)
          */
         close(wp->upfd);
@@ -402,9 +402,9 @@ static int processContentData(Webs *wp)
 }
 
 
-/*  
+/*
     Find the boundary signature in memory. Returns pointer to the first match.
- */ 
+ */
 static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 {
     char    *cp, *endp;
@@ -475,7 +475,7 @@ PUBLIC void websUploadOpen()
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

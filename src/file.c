@@ -1,6 +1,6 @@
 /*
     file.c -- File handler
-  
+
     This module serves static file documents
  */
 
@@ -44,7 +44,7 @@ static bool fileHandler(Webs *wp)
         /* Code is already set for us by processContent() */
         websResponse(wp, wp->code, 0);
 
-    } else 
+    } else
 #endif /* !ME_ROM */
     {
         /*
@@ -225,7 +225,7 @@ PUBLIC void websSetDocuments(char *dir)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

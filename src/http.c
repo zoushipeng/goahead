@@ -54,7 +54,7 @@ static uchar charMatch[256] = {
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,
-    0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c 
+    0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c
 };
 
 /*
@@ -233,7 +233,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (sslOpen() < 0) {
         return -1;
     }
-#endif 
+#endif
     if ((sessions = hashCreate(-1)) < 0) {
         return -1;
     }
@@ -288,7 +288,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
 }
 
 
-PUBLIC void websClose() 
+PUBLIC void websClose()
 {
     Webs    *wp;
     int     i;
@@ -548,7 +548,7 @@ PUBLIC void websFree(Webs *wp)
 /*
     Called when the request is complete. Note: it may not have fully drained from the tx buffer.
  */
-PUBLIC void websDone(Webs *wp) 
+PUBLIC void websDone(Webs *wp)
 {
     WebsSocket  *sp;
 
@@ -580,7 +580,7 @@ PUBLIC void websDone(Webs *wp)
 }
 
 
-static void complete(Webs *wp, int reuse) 
+static void complete(Webs *wp, int reuse)
 {
     assert(wp);
     assert(websValid(wp));
@@ -663,7 +663,7 @@ PUBLIC int websListen(char *endpoint)
 
 
 /*
-    Accept a new connection from ipaddr:port 
+    Accept a new connection from ipaddr:port
  */
 PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
@@ -701,9 +701,9 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 #if ME_GOAHEAD_LEGACY
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
-        operations only for local access 
+        operations only for local access
      */
-    if (strcmp(wp->ipaddr, "127.0.0.1") == 0 || strcmp(wp->ipaddr, websIpAddr) == 0 || 
+    if (strcmp(wp->ipaddr, "127.0.0.1") == 0 || strcmp(wp->ipaddr, websIpAddr) == 0 ||
             strcmp(wp->ipaddr, websHost) == 0) {
         wp->flags |= WEBS_LOCAL;
     }
@@ -734,7 +734,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 
 /*
     The webs socket handler. Called in response to I/O. We just pass control to the relevant read or write handler. A
-    pointer to the webs structure is passed as a (void*) in wptr.  
+    pointer to the webs structure is passed as a (void*) in wptr.
  */
 static void socketEvent(int sid, int mask, void *wptr)
 {
@@ -749,10 +749,10 @@ static void socketEvent(int sid, int mask, void *wptr)
     }
     if (mask & SOCKET_READABLE) {
         readEvent(wp);
-    } 
+    }
     if (mask & SOCKET_WRITABLE) {
         writeEvent(wp);
-    } 
+    }
     if (wp->flags & WEBS_CLOSED) {
         websFree(wp);
         /* WARNING: wp not valid here */
@@ -808,7 +808,7 @@ static void readEvent(Webs *wp)
         wp->lastRead = nbytes;
         bufAdjustEnd(rxbuf, nbytes);
         bufAddNull(rxbuf);
-    } 
+    }
     if (nbytes > 0 || wp->state > WEBS_BEGIN) {
         websPump(wp);
     }
@@ -880,7 +880,7 @@ static bool parseIncoming(Webs *wp)
             return 1;
         }
         return 0;
-    }    
+    }
     trace(3 | WEBS_RAW_MSG, "\n<<< Request\n");
     c = *end;
     *end = '\0';
@@ -1021,7 +1021,7 @@ static void parseHeaders(Webs *wp)
 
     assert(websValid(wp));
 
-    /* 
+    /*
         Parse the header and create the Http header keyword variables
         We rewrite the header as we go for non-local requests.  NOTE: this
         modifies the header string directly and tokenizes each line with '\0'.
@@ -1172,8 +1172,8 @@ static bool processContent(Webs *wp)
 #endif
     if (wp->eof) {
         wp->state = WEBS_READY;
-        /* 
-            Prevent reading content from the next request 
+        /*
+            Prevent reading content from the next request
             The handler may not have been created if all the content was read in the initial read. No matter.
          */
         socketDeleteHandler(wp->sid);
@@ -1232,7 +1232,7 @@ static bool filterChunkData(Webs *wp)
             return 1;
 
         case WEBS_CHUNK_START:
-            /*  
+            /*
                 Expect: "\r\nSIZE.*\r\n"
              */
             if (bufLen(rxbuf) < 5) {
@@ -1428,7 +1428,7 @@ PUBLIC void websSetQueryVars(Webs *wp)
 
 /*
     Define a webs (CGI) variable for this connection. Also create in relevant scripting engines. Note: the incoming
-    value may be volatile.  
+    value may be volatile.
  */
 PUBLIC void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
 {
@@ -1488,7 +1488,7 @@ PUBLIC bool websTestVar(Webs *wp, char *var)
 
 /*
     Get a webs variable but return a default value if string not found.  Note, defaultGetValue can be NULL to permit
-    testing existence.  
+    testing existence.
  */
 PUBLIC char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 {
@@ -1496,7 +1496,7 @@ PUBLIC char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 
     assert(websValid(wp));
     assert(var && *var);
- 
+
     if ((sp = hashLookup(wp->vars, var)) != NULL) {
         assert(sp->content.type == string);
         if (sp->content.value.string) {
@@ -1516,7 +1516,7 @@ PUBLIC int websCompareVar(Webs *wp, char *var, char *value)
 {
     assert(websValid(wp));
     assert(var && *var);
- 
+
     if (strcmp(value, websGetVar(wp, var, " __UNDEF__ ")) == 0) {
         return 1;
     }
@@ -1544,7 +1544,7 @@ PUBLIC void websCancelTimeout(Webs *wp)
 PUBLIC void websResponse(Webs *wp, int code, char *message)
 {
     ssize   len;
-    
+
     assert(websValid(wp));
     websSetStatus(wp, code);
 
@@ -1670,7 +1670,7 @@ PUBLIC int websRedirectByStatus(Webs *wp, int status)
 }
 
 
-/*  
+/*
     Escape HTML to escape defined characters (prevent cross-site scripting)
  */
 PUBLIC char *websEscapeHtml(char *html)
@@ -1689,7 +1689,7 @@ PUBLIC char *websEscapeHtml(char *html)
     if ((result = walloc(len)) == 0) {
         return 0;
     }
-    /*  
+    /*
         Leave room for the biggest expansion
      */
     op = result;
@@ -1733,7 +1733,7 @@ PUBLIC char *websEscapeHtml(char *html)
 }
 
 
-/*  
+/*
     Output an error message and cleanup
  */
 PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
@@ -1806,7 +1806,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 {
     va_list     vargs;
     char        *buf;
-    
+
     assert(websValid(wp));
 
     if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
@@ -1883,11 +1883,12 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (wp->authResponse) {
             websWriteHeader(wp, "WWW-Authenticate", "%s", wp->authResponse);
         }
-        if (smatch(wp->method, "HEAD")) {
-            websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
-        } else if (length >= 0) {                                                                                    
-            if (!((100 <= wp->code && wp->code <= 199) || wp->code == 204 || wp->code == 304)) {
-                websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
+        if (length >= 0) {
+            if (smatch(wp->method, "HEAD")) {
+                websWriteHeader(wp, "Content-Length", "%d", (int) length);
+            } else if (!((100 <= wp->code && wp->code <= 199) || wp->code == 204 || wp->code == 304)) {
+                /* Server must not emit a content length header for 1XX, 204 and 304 status */
+                websWriteHeader(wp, "Content-Length", "%d", (int) length);
             }
         }
         wp->txLen = length;
@@ -1897,7 +1898,7 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (wp->flags & WEBS_KEEP_ALIVE) {
             websWriteHeader(wp, "Connection", "keep-alive");
         } else {
-            websWriteHeader(wp, "Connection", "close");   
+            websWriteHeader(wp, "Connection", "close");
         }
         if (location) {
             websWriteHeader(wp, "Location", "%s", location);
@@ -1952,7 +1953,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...)
     va_list     vargs;
     char        *buf;
     ssize       rc;
-    
+
     assert(websValid(wp));
     assert(fmt && *fmt);
 
@@ -1974,7 +1975,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...)
 
 
 /*
-    Non-blocking write to socket. 
+    Non-blocking write to socket.
     Returns number of bytes written. Returns -1 on errors. May return short.
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
@@ -1993,7 +1994,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
         if ((written = sslWrite(wp, buf, size)) < 0) {
             return written;
         }
-    } else 
+    } else
 #endif
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
         return written;
@@ -2203,7 +2204,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     op = (wp->flags & WEBS_CHUNKING) ? &wp->chunkbuf : &wp->output;
     written = len = 0;
 
-    while (size > 0 && wp->state < WEBS_COMPLETE) {  
+    while (size > 0 && wp->state < WEBS_COMPLETE) {
         if (bufRoom(op) < size) {
             /*
                 This will do a blocking I/O write. Will only ever fail for I/O errors.
@@ -2236,7 +2237,7 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len)
 {
     char    *ip,  *op;
     int     num, i, c;
-    
+
     assert(decoded);
     assert(input);
 
@@ -2294,7 +2295,7 @@ static void logRequest(Webs *wp, int code)
 #else
     localtime_r(&timer, &localt);
 #endif
-    strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt); 
+    strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt);
     timeStr[sizeof(timeStr) - 1] = '\0';
 #if WINDOWS
     dwRet = GetTimeZoneInformation(&tzi);
@@ -2312,7 +2313,7 @@ static void logRequest(Webs *wp, int code)
         dataStr[0] = '-'; dataStr[1] = '\0';
     }
     buf = NULL;
-    buf = sfmt("%s - %s [%s %s] \"%s %s %s\" %d %s\n", 
+    buf = sfmt("%s - %s [%s %s] \"%s %s %s\" %d %s\n",
         wp->ipaddr, wp->username == NULL ? "-" : wp->username,
         timeStr, zoneStr, wp->method, wp->path, wp->protoVersion, code, dataStr);
     len = strlen(buf);
@@ -2323,7 +2324,7 @@ static void logRequest(Webs *wp, int code)
 
 
 /*
-    Request and connection timeout. The timeout triggers if we have not read any data from the users browser in the last 
+    Request and connection timeout. The timeout triggers if we have not read any data from the users browser in the last
     WEBS_TIMEOUT period. If we have heard from the browser, simply re-issue the timeout.
  */
 static void checkTimeout(void *arg, int id)
@@ -2338,7 +2339,7 @@ static void checkTimeout(void *arg, int id)
     if (websDebug) {
         websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
-    } 
+    }
     if (wp->state == WEBS_BEGIN) {
         complete(wp, 0);
         websFree(wp);
@@ -2568,7 +2569,7 @@ PUBLIC bool websValidUriChars(char *uri)
 /*
     Parse the URL. A single buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
  */
-PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, char **pport, char **ppath, char **pext, 
+PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, char **pport, char **ppath, char **pext,
         char **preference, char **pquery)
 {
     char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
@@ -2633,10 +2634,10 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
         tok = delim;
 
     } else if (*tok && *tok != '/' && *tok != ':' && (scheme || strchr(tok, ':'))) {
-        /* 
+        /*
            Supported forms:
                scheme://hostname
-               hostname[:port][/path] 
+               hostname[:port][/path]
          */
         host = tok;
         if ((tok = strpbrk(tok, ":/")) == 0) {
@@ -2658,9 +2659,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 
     /* [/path] */
     if (*tok) {
-        /* 
+        /*
            Terminate hostname. This zeros the leading path slash.
-           This will be repaired before returning if ppath is set 
+           This will be repaired before returning if ppath is set
          */
         sep = *tok;
         *tok++ = '\0';
@@ -2717,7 +2718,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     }
     if (pext) {
 #if ME_WIN_LIKE
-        slower(ext);            
+        slower(ext);
 #endif
         *pext = ext;
     }
@@ -2726,8 +2727,8 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 
 
 /*
-    Normalize a URI path to remove "./",  "../" and redundant separators. 
-    Note: this does not make an abs path and does not map separators nor change case. 
+    Normalize a URI path to remove "./",  "../" and redundant separators.
+    Note: this does not make an abs path and does not map separators nor change case.
     This validates the URI and expects it to begin with "/".
  */
 PUBLIC char *websNormalizeUriPath(char *pathArg)
@@ -2936,12 +2937,12 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
         expiresAtt = "";
         expires = "";
     }
-    /* 
+    /*
        Allow multiple cookie headers. Even if the same name. Later definitions take precedence
      */
     secure = (flags & WEBS_COOKIE_SECURE) ? "; secure" : "";
     httponly = (flags & WEBS_COOKIE_HTTP) ?  "; httponly" : "";
-    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure, 
+    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
         httponly);
     if (wp->responseCookie) {
         old = wp->responseCookie;
@@ -2989,25 +2990,25 @@ static char *getToken(Webs *wp, char *delim)
 }
 
 
-PUBLIC int websGetBackground() 
+PUBLIC int websGetBackground()
 {
     return websBackground;
 }
 
 
-PUBLIC void websSetBackground(int on) 
+PUBLIC void websSetBackground(int on)
 {
     websBackground = on;
 }
 
 
-PUBLIC int websGetDebug() 
+PUBLIC int websGetDebug()
 {
     return websDebug;
 }
 
 
-PUBLIC void websSetDebug(int on) 
+PUBLIC void websSetDebug(int on)
 {
     websDebug = on;
 }
@@ -3063,7 +3064,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 {
     WebsKey     *sym;
     char        *id;
-    
+
     assert(wp);
 
     if (!wp->session) {
@@ -3213,7 +3214,7 @@ static void pruneCache()
             freeSession(sp);
         }
     }
-    if (oldCount != sessionCount || sessionCount) { 
+    if (oldCount != sessionCount || sessionCount) {
         trace(4, "Prune %d sessions. Remaining: %d", oldCount - sessionCount, sessionCount);
     }
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
@@ -3297,9 +3298,9 @@ PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
 PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
 PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
 PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
-PUBLIC char *websGetServer() { return websHost; } 
-PUBLIC char *websGetServerAddress() { return websIpAddr; } 
-PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; } 
+PUBLIC char *websGetServer() { return websHost; }
+PUBLIC char *websGetServerAddress() { return websIpAddr; }
+PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; }
 PUBLIC char *websGetServerUrl() { return websHostUrl; }
 PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
 PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
@@ -3311,7 +3312,7 @@ PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
