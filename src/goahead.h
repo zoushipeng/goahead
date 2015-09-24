@@ -690,6 +690,7 @@ typedef struct WebsAlloc {
 #define WEBS_USER_BUF          0x2             /* User supplied buffer for mem */
 #define WEBS_INTEGRITY         0x8124000       /* Integrity value */
 #define WEBS_INTEGRITY_MASK    0xFFFF000       /* Integrity mask */
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
 /**
     Close the GoAhead memory allocator
@@ -743,19 +744,28 @@ PUBLIC void wfree(void *blk);
  */
 PUBLIC void *wrealloc(void *blk, ssize newsize);
 
-#else /* !ME_GOAHEAD_REPLACE_MALLOC */
+typedef void (*WebsMemNotifier)(ssize size);
 
+/**
+    Define a global memory allocation notifier.
+    @description The notifier is called if any memory allocation fails. It is called with the requested allocation size
+        as its only parameter.
+    @param cback Callback function to invoke for allocation failures.
+    @ingroup WebsAlloc
+    @stability Prototype
+ */
+PUBLIC void websSetMemNotifier(WebsMemNotifier cback);
+
+#ifndef WEBS_SHIFT
     #define WEBS_SHIFT 4
-    #define walloc(num) malloc(num)
-    #define wfree(p) if (p) { free(p); } else {}
-    #define wrealloc(p, num) realloc(p, num)
-#endif /* ME_GOAHEAD_REPLACE_MALLOC */
+#endif
 
-//  FUTURE DOC
+#if DEPRECATE || 1
 PUBLIC ssize mtow(wchar *dest, ssize count, char *src, ssize len);
 PUBLIC ssize wtom(char *dest, ssize count, wchar *src, ssize len);
 PUBLIC wchar *amtow(char *src, ssize *len);
 PUBLIC char  *awtom(wchar *src, ssize *len);
+#endif
 
 /******************************* Hash Table *********************************/
 /**

@@ -2239,6 +2239,7 @@ static int calcPrime(int size)
 }
 
 
+#if DEPRECATE || 1
 /*
     Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length
     in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1
@@ -2340,8 +2341,6 @@ wchar *amtow(char *src, ssize *lenp)
 }
 
 
-//  FUTURE UNICODE - need a version that can supply a length
-
 PUBLIC char *awtom(wchar *src, ssize *lenp)
 {
     char    *dest;
@@ -2359,6 +2358,7 @@ PUBLIC char *awtom(wchar *src, ssize *lenp)
     }
     return dest;
 }
+#endif
 
 
 /*

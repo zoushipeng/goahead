@@ -16,8 +16,18 @@
 
 #include    "goahead.h"
 
-#if ME_GOAHEAD_REPLACE_MALLOC
+/********************************** Locals ************************************/
+
+static WebsMemNotifier memNotifier;
+
+PUBLIC void websSetMemNotifier(WebsMemNotifier cback)
+{
+    memNotifier = cback;
+}
+
+
 /********************************* Defines ************************************/
+#if ME_GOAHEAD_REPLACE_MALLOC
 /*
     ROUNDUP4(size) returns the next higher integer value of size that is divisible by 4, or the value of size if size is
     divisible by 4. ROUNDUP4() is used in aligning memory allocations on 4-byte boundaries.
@@ -36,9 +46,9 @@ static int          freeLeft;                           /* Size of free left for
 static int          controlFlags = WEBS_USE_MALLOC;     /* Default to auto-malloc */
 static int          wopenCount = 0;                     /* Num tasks using walloc */
 
-/*************************** Forward Declarations *****************************/
-
 static int wallocGetSize(ssize size, int *q);
+
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
 /********************************** Code **************************************/
 /*
@@ -50,6 +60,7 @@ static int wallocGetSize(ssize size, int *q);
  */
 PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
 {
+#if ME_GOAHEAD_REPLACE_MALLOC
     controlFlags = flags;
 
     /*
@@ -76,26 +87,30 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
     freeSize = freeLeft = bufsize;
     freeBuf = freeNext = buf;
     memset(qhead, 0, sizeof(qhead));
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
     return 0;
 }
 
 
 PUBLIC void wcloseAlloc()
 {
+#if ME_GOAHEAD_REPLACE_MALLOC
     if (--wopenCount <= 0 && !(controlFlags & WEBS_USER_BUF)) {
         free(freeBuf);
         wopenCount = 0;
     }
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
 }
 
 
+#if ME_GOAHEAD_REPLACE_MALLOC
 /*
     Allocate a block of the requested size. First check the block queues for a suitable one.
  */
 PUBLIC void *walloc(ssize size)
 {
     WebsAlloc   *bp;
-    int     q, memSize;
+    int         q, memSize;
 
     /*
         Call wopen with default values if the application has not yet done so
@@ -179,7 +194,7 @@ PUBLIC void *walloc(ssize size)
 PUBLIC void wfree(void *mp)
 {
     WebsAlloc   *bp;
-    int     q;
+    int         q;
 
     if (mp == 0) {
         return;
@@ -251,11 +266,36 @@ static int wallocGetSize(ssize size, int *q)
 
 #else /* !ME_GOAHEAD_REPLACE_MALLOC */
 
-/*
-    Stubs
- */
-PUBLIC int wopenAlloc(void *buf, int bufsize, int flags) { return 0; }
-PUBLIC void wcloseAlloc() { }
+PUBLIC void *walloc(ssize num) 
+{
+    void    *mem;
+
+    if ((mem = malloc(num)) == 0) {
+        if (memNotifier) {
+            (memNotifier)(num);
+        }
+    }
+    return mem;
+}
+
+
+PUBLIC void wfree(void *mem) 
+{
+    if (mem) { 
+        free(mem); 
+    }   
+}
+
+
+PUBLIC void *wrealloc(void *mem, ssize num) 
+{
+    if ((mem = realloc(mem, num)) == 0) {
+        if (memNotifier) {
+            (memNotifier)(num);
+        }
+    }
+    return mem;  
+}
 
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
 

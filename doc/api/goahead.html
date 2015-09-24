@@ -132,8 +132,10 @@
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_value" class="ref">WebsValue</a></td><td><a href="#goahead_8h_1aa27f5beea810d9124985ecf1c1fe41fa" class="nameRef">valueInteger</a>(long value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an integer value.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_value" class="ref">WebsValue</a></td><td><a href="#goahead_8h_1a52e422ee4bf93b1acf60b1e63df7e13e" class="nameRef">valueString</a>(char *value, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an string value.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_value" class="ref">WebsValue</a></td><td><a href="#goahead_8h_1aa9292efb92931035fbdb7e8cc9fc2a58" class="nameRef">valueSymbol</a>(void *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create an symbol value containing an object reference.</td></tr>
+<tr class="apiDef"><td class="apiType">void*</td><td><a href="#goahead_8h_1a8fcf6c446be29f4fa9e558cef4f62428" class="nameRef">walloc</a>(<a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate a block of the requested size.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1gaf7553e70a9cd19a472ed5af514776e09" class="nameRef">wallocHandle</a>(void *map)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate a handle from a map.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga5bdd5a92db14503e6bb55c5c37c7580d" class="nameRef">wallocObject</a>(void *map, int *max, int size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate an object in a halloc map.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a604d18757ac51fa67033e77941d80ca3" class="nameRef">wcloseAlloc</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the GoAhead memory allocator.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaae29f33a0907964a300fc66117b8051f" class="nameRef">websAccept</a>(int sid, char *ipaddr, int port, int listenSid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Accept a new connection.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga97f8e2c9c4943e01efc9c0f2c07a2133" class="nameRef">websActionOpen</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the action handler.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_role" class="ref">WebsRole*</a></td><td><a href="#group___webs_auth_1ga72b7facbd4c9fd33f8a168c7ce481634" class="nameRef">websAddRole</a>(char *role, <a href="#group___webs_hash" class="ref">WebsHash</a> abilities)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Add a role.</td></tr>
@@ -265,6 +267,7 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga14e26be7566acf00a61a1cbc6aecf8a8" class="nameRef">websSetHost</a>(char *host)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the host name for the server.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaa31f5754982a0892ec816789ad0fe761" class="nameRef">websSetIndex</a>(char *filename)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create and send a request response.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gad9e1768c40bf090739e5f1234dd0b589" class="nameRef">websSetIpAddr</a>(char *ipaddr)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the host IP address.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ae8c0353bf1c238af495fa5e4122b4af6" class="nameRef">websSetMemNotifier</a>(<a href="#goahead_8h_1a3780611857f602b4ea243836f54de556" class="ref">WebsMemNotifier</a> cback)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a global memory allocation notifier.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_auth_1gac050abeadb21db4a90197eab284b115b" class="nameRef">websSetPasswordStoreVerify</a>(<a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="ref">WebsVerify</a> verify)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the password store verify callback.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga9b7ae14718f40340d9621529f4587548" class="nameRef">websSetQueryVars</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create request variables for query string data.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_route_1ga6bb861b6e91c6263d789a34d9d488e99" class="nameRef">websSetRouteAuth</a>(<a href="#group___webs_route" class="ref">WebsRoute</a> *route, char *authType)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set route authentication scheme.</td></tr>
@@ -297,7 +300,10 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga3c10083a5aff35cd5052a91696d51c60" class="nameRef">websWriteHeader</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *key, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a response header.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga506c041a3eb2dfeaab1e9d1f322eea0b" class="nameRef">websWriteHeaders</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> contentLength, char *redirect)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a set of standard response headers.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1gad1bbea0e441d727f248127408ce745d6" class="nameRef">websWriteSocket</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Write a block of data to the network.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1acd2db135e5aacbdc8e6a1f766298b2dd" class="nameRef">wfree</a>(void *blk)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free an allocated block of memory.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga147dadfb8200bc1df51ea64bbaae5db2" class="nameRef">wfreeHandle</a>(void *map, int handle)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free a handle in the map.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1a0cdb01392e19df341254c5b2f593c654" class="nameRef">wopenAlloc</a>(void *buf, int bufsize, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Initialize the walloc module.</td></tr>
+<tr class="apiDef"><td class="apiType">void*</td><td><a href="#goahead_8h_1a7cf93f44c111affc69d877812da50bae" class="nameRef">wrealloc</a>(void *blk, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> newsize)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Reallocate a block of memory and grow its size.</td></tr>
 </table>
 <a name="Typedefs"></a><h1>Typedefs</h1>
 <table class="apiIndex" title="typedefs">
@@ -6329,6 +6335,35 @@ Uploaded file size.
     <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
   </div>
 </div>
+<a name="goahead_8h_1a8fcf6c446be29f4fa9e558cef4f62428"></a>
+<div class="api">
+  <div class="prototype">
+    void *
+    walloc
+(<a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)
+  </div>
+  <div class="apiDetail">
+<p>Allocate a block of the requested size.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">size</td><td>Memory size required.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>A reference to the allocated block.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a604d18757ac51fa67033e77941d80ca3"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    wcloseAlloc
+()
+  </div>
+  <div class="apiDetail">
+<p>Close the GoAhead memory allocator.</p>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+  </div>
+</div>
 <a name="goahead_8h_1a5a271ccc2e8fbc76a49f2f2022db21cc"></a>
 <div class="api">
   <div class="prototype">
@@ -6343,6 +6378,78 @@ Uploaded file size.
     <tr><td class="param">wp</td><td>Webs request object.</td>
     <tr><td class="param">proc</td><td>Write callback.</td>
     </table></dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1ae8c0353bf1c238af495fa5e4122b4af6"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websSetMemNotifier
+(<a href="#goahead_8h_1a3780611857f602b4ea243836f54de556" class="ref">WebsMemNotifier</a> cback)
+  </div>
+  <div class="apiDetail">
+<p>Define a global memory allocation notifier.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The notifier is called if any memory allocation fails. It is called with the requested allocation size as its only parameter.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">cback</td><td>Callback function to invoke for allocation failures.</td>
+    </table></dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1acd2db135e5aacbdc8e6a1f766298b2dd"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    wfree
+(void *blk)
+  </div>
+  <div class="apiDetail">
+<p>Free an allocated block of memory.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">blk</td><td>Reference to the memory block to free.</td>
+    </table></dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a0cdb01392e19df341254c5b2f593c654"></a>
+<div class="api">
+  <div class="prototype">
+    int
+    wopenAlloc
+(void *buf, int bufsize, int flags)
+  </div>
+  <div class="apiDetail">
+<p>Initialize the walloc module.</p>
+    <dl><dt><b>Description</b>:</dt><dd>The wopenAlloc function should be called the very first thing after the application starts and wclose should be called the last thing before exiting. If wopenAlloc is not called, it will be called on the first allocation with default values. &quot;buf&quot; points to memory to use of size &quot;bufsize&quot;. If buf is NULL, memory is allocated using malloc. flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate * an initial buffer of size bufsize for use by the application.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">buf</td><td>Optional user supplied block of memory to use for allocations.</td>
+    <tr><td class="param">bufsize</td><td>Size of buf.</td>
+    <tr><td class="param">flags</td><td>Allocation flags. Set to WEBS_USE_MALLOC to permit the use of malloc() to grow memory.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
+  </div>
+</div>
+<a name="goahead_8h_1a7cf93f44c111affc69d877812da50bae"></a>
+<div class="api">
+  <div class="prototype">
+    void *
+    wrealloc
+(void *blk, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> newsize)
+  </div>
+  <div class="apiDetail">
+<p>Reallocate a block of memory and grow its size.</p>
+    <dl><dt><b>Description</b>:</dt><dd>If the new size is larger than the existing block, a new block will be allocated and the old data will be copied to the new block.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">blk</td><td>Original block reference.</td>
+    <tr><td class="param">newsize</td><td>Size of the new block.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Reference to the new memory block.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
   </div>
 </div>
 <h2>Typedefs</h2>
