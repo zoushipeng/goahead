@@ -3042,6 +3042,8 @@ WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
         sp->id = sclone(id);
     }
     if ((sp->cache = hashCreate(WEBS_SESSION_HASH)) == 0) {
+        wfree(sp->id);
+        wfree(sp);
         return 0;
     }
     return sp;
