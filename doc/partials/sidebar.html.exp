@@ -1,21 +1,21 @@
     <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
             <div class="item">
-                <a href="@~/index.html" class="logo">GoAhead Docs</a>
+                <a href="@~/" class="logo">GoAhead Docs</a>
             </div>
             <div class="item">
-                <a href="@~/index.html">
+                <a href="@~/">
                     <b>General</b>
                 </a>
                 <div class="menu">
-                    <a class="item" href="@~/index.html">GoAhead Overview</a>
+                    <a class="item" href="@~/">GoAhead Overview</a>
                     <a class="item" href="@~/users/features.html">GoAhead Features</a>
                     <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
-                    <a class="item" href="@~/licensing/index.html">Licensing</a>
+                    <a class="item" href="@~/licensing/">Licensing</a>
                 </div>
             </div>
             <div class="item">
-                <a href="@~/start/index.html">
+                <a href="@~/start/">
                     <b>Getting Started</b>
                 </a>
                 <div class="menu">
@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="item">
-                <a href="@~/users/index.html"><b>User's Guide</b></a>
+                <a href="@~/users/"><b>User's Guide</b></a>
                 <div class="menu">
                     <a class="item" href="@~/users/ports.html">Ports and Binding</a>
                     <a class="item" href="@~/users/routing.html">Routing Requests</a>
@@ -45,7 +45,7 @@
                 </div>
             </div>
             <div class="item">
-                <a href="@~/developers/index.html">Developer's Guide</a>
+                <a href="@~/developers/">Developer's Guide</a>
                 <div class="menu">
                     <a class="item" href="@~/developers/embedding.html">Embedding GoAhead</a>
                     <a class="item" href="@~/developers/handlers.html">Creating GoAhead Handlers</a>
@@ -55,7 +55,7 @@
                 </div>
             </div>
             <div class="item">
-                <a href="@~/ref/index.html">Reference Guide</a>
+                <a href="@~/ref/">Reference Guide</a>
                 <div class="menu">
                     <a class="item" href="@~/ref/compatibility.html">Compatibility</a>
                     <a class="item" href="@~/ref/native.html">API Library</a>

@@ -4,7 +4,7 @@ Welcome to GoAhead -- the world's most popular embedded web server.
 
 This document contains details regarding the installation procedure for the binary Embedthis GoAhead package.  This package contains pre-built stand-alone web server and an embeddable HTTP library with headers. You can read the documentation for the latest release online at:
 
-https://embedthis.com/goahead/doc/index.html
+https://embedthis.com/goahead/doc/
 
 This software is copyrighted and distributed under license. Please read the LICENSE.TXT for details.
 
@@ -55,7 +55,7 @@ If you wish to embed GoAhead in your application or build GoAhead from source co
 
     * WindRiver Development Tools
 
-To build GoAhead, please download the source code distribution from the http://embedthis.com/goahead/download.html and read "Building from Source" in the GoAhead product documentation.
+To build GoAhead, please download the source code distribution from the https://embedthis.com/goahead/ and read "Building from Source" in the GoAhead product documentation.
 
 Running GoAhead
 
