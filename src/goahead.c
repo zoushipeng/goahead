@@ -128,6 +128,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (strstr(endpoint, "https")) continue;
 #endif
             if (websListen(endpoint) < 0) {
+                wfree(endpoints);
                 return -1;
             }
         }

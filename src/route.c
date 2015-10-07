@@ -302,6 +302,8 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     }
     if ((key = hashLookup(handlers, handler)) == 0) {
         error("Cannot find route handler %s", handler);
+        wfree(route->prefix);
+        wfree(route);
         return 0;
     }
     route->handler = key->content.value.symbol;
