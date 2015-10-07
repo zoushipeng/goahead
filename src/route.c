@@ -411,7 +411,7 @@ PUBLIC int websRemoveRoute(char *uri)
 }
 
 
-PUBLIC int websOpenRoute(char *path)
+PUBLIC int websOpenRoute()
 {
     if ((handlers = hashCreate(-1)) < 0) {
         return -1;

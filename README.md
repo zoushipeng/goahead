@@ -15,7 +15,7 @@ https://embedthis.com/goahead/licensing.html
 ### Building
 
 You can build with Make or with MakeMe. MakeMe is quicker and more flexible.
-To install MakeMe, download it from https://embedthis.com/makeme/download.html
+To install MakeMe, download it from https://embedthis.com/makeme/
 
 ### To build with make:
 
