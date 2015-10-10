@@ -137,7 +137,7 @@ PUBLIC void websFooter(Webs *wp)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -174,8 +174,18 @@ PUBLIC void websFooter(Webs *wp)
 
 
 
-#if ME_GOAHEAD_REPLACE_MALLOC
+/********************************** Locals ************************************/
+
+static WebsMemNotifier memNotifier;
+
+PUBLIC void websSetMemNotifier(WebsMemNotifier cback)
+{
+    memNotifier = cback;
+}
+
+
 /********************************* Defines ************************************/
+#if ME_GOAHEAD_REPLACE_MALLOC
 /*
     ROUNDUP4(size) returns the next higher integer value of size that is divisible by 4, or the value of size if size is
     divisible by 4. ROUNDUP4() is used in aligning memory allocations on 4-byte boundaries.
@@ -194,13 +204,13 @@ static int          freeLeft;                           /* Size of free left for
 static int          controlFlags = WEBS_USE_MALLOC;     /* Default to auto-malloc */
 static int          wopenCount = 0;                     /* Num tasks using walloc */
 
-/*************************** Forward Declarations *****************************/
-
 static int wallocGetSize(ssize size, int *q);
+
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
 /********************************** Code **************************************/
 /*
-    Initialize the walloc module. wopenAlloc should be called the very first thing after the application starts and 
+    Initialize the walloc module. wopenAlloc should be called the very first thing after the application starts and
     wcloseAlloc should be called the last thing before exiting. If wopenAlloc is not called, it will be called on the first
     allocation with default values. "buf" points to memory to use of size "bufsize". If buf is NULL, memory is allocated
     using malloc. flags may be set to WEBS_USE_MALLOC if using malloc is okay. This routine will allocate *  an initial
@@ -208,6 +218,7 @@ static int wallocGetSize(ssize size, int *q);
  */
 PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
 {
+#if ME_GOAHEAD_REPLACE_MALLOC
     controlFlags = flags;
 
     /*
@@ -222,7 +233,7 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
         }
         bufsize = ROUNDUP4(bufsize);
         if ((buf = malloc(bufsize)) == NULL) {
-            /* 
+            /*
                 Resetting wopenCount so client code can decide to call wopenAlloc() again with a smaller memory request.
             */
              --wopenCount;
@@ -234,26 +245,30 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
     freeSize = freeLeft = bufsize;
     freeBuf = freeNext = buf;
     memset(qhead, 0, sizeof(qhead));
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
     return 0;
 }
 
 
 PUBLIC void wcloseAlloc()
 {
+#if ME_GOAHEAD_REPLACE_MALLOC
     if (--wopenCount <= 0 && !(controlFlags & WEBS_USER_BUF)) {
         free(freeBuf);
         wopenCount = 0;
     }
+#endif /* ME_GOAHEAD_REPLACE_MALLOC */
 }
 
 
+#if ME_GOAHEAD_REPLACE_MALLOC
 /*
     Allocate a block of the requested size. First check the block queues for a suitable one.
  */
 PUBLIC void *walloc(ssize size)
 {
     WebsAlloc   *bp;
-    int     q, memSize;
+    int         q, memSize;
 
     /*
         Call wopen with default values if the application has not yet done so
@@ -332,12 +347,12 @@ PUBLIC void *walloc(ssize size)
 
 /*
     Free a block back to the relevant free q. We don't free back to the O/S or run time system unless the block is
-    greater than the maximum class size. We also do not coalesce blocks.  
+    greater than the maximum class size. We also do not coalesce blocks.
  */
 PUBLIC void wfree(void *mp)
 {
     WebsAlloc   *bp;
-    int     q;
+    int         q;
 
     if (mp == 0) {
         return;
@@ -409,11 +424,36 @@ static int wallocGetSize(ssize size, int *q)
 
 #else /* !ME_GOAHEAD_REPLACE_MALLOC */
 
-/*
-    Stubs
- */
-PUBLIC int wopenAlloc(void *buf, int bufsize, int flags) { return 0; }
-PUBLIC void wcloseAlloc() { }
+PUBLIC void *walloc(ssize num) 
+{
+    void    *mem;
+
+    if ((mem = malloc(num)) == 0) {
+        if (memNotifier) {
+            (memNotifier)(num);
+        }
+    }
+    return mem;
+}
+
+
+PUBLIC void wfree(void *mem) 
+{
+    if (mem) { 
+        free(mem); 
+    }   
+}
+
+
+PUBLIC void *wrealloc(void *mem, ssize num) 
+{
+    if ((mem = realloc(mem, num)) == 0) {
+        if (memNotifier) {
+            (memNotifier)(num);
+        }
+    }
+    return mem;  
+}
 
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
@@ -423,7 +463,7 @@ PUBLIC void wcloseAlloc() { }
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -449,13 +489,13 @@ PUBLIC void wcloseAlloc() { }
 
     In this scheme Users have passwords and can have multiple roles. A role is associated with the ability to do
     things like "admin" or "user" or "support". A role may have abilities (which are typically verbs) like "add",
-    "shutdown". 
+    "shutdown".
 
-    When the web server starts up, it loads a route and authentication configuration file that specifies the Users, 
+    When the web server starts up, it loads a route and authentication configuration file that specifies the Users,
     Roles and Routes.  Routes specify the required abilities to access URLs by specifying the URL prefix. Once logged
     in, the user's abilities are tested against the route abilities. When the web server receivess a request, the set of
     Routes is consulted to select the best route. If the routes requires abilities, the user must be logged in and
-    authenticated. 
+    authenticated.
 
     Three authentication backend protocols are supported:
         HTTP basic authentication which uses browser dialogs and clear text passwords (insecure unless over TLS)
@@ -570,10 +610,10 @@ PUBLIC bool websAuthenticate(Webs *wp)
             return 0;
         }
         /*
-            Store authentication state and user in session storage                                         
-         */                                                                                                
-        if (websGetSession(wp, 1) != 0) {                                                    
-            websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
+            Store authentication state and user in session storage
+         */
+        if (websGetSession(wp, 1) != 0) {
+            websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);
         }
     }
     return 1;
@@ -583,7 +623,7 @@ PUBLIC bool websAuthenticate(Webs *wp)
 PUBLIC int websOpenAuth(int minimal)
 {
     char    sbuf[64];
-    
+
     assert(minimal == 0 || minimal == 1);
 
     if ((users = hashCreate(-1)) < 0) {
@@ -612,7 +652,7 @@ PUBLIC int websOpenAuth(int minimal)
 }
 
 
-PUBLIC void websCloseAuth() 
+PUBLIC void websCloseAuth()
 {
     WebsKey     *key, *next;
 
@@ -723,10 +763,10 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
 }
 
 
-PUBLIC int websRemoveUser(char *username) 
+PUBLIC int websRemoveUser(char *username)
 {
     WebsKey     *key;
-    
+
     assert(username);
     if ((key = hashLookup(users, username)) != 0) {
         freeUser(key->content.value.symbol);
@@ -889,7 +929,7 @@ static void freeRole(WebsRole *rp)
 /*
     Does not recompute abilities for users that use this role
  */
-PUBLIC int websRemoveRole(char *name) 
+PUBLIC int websRemoveRole(char *name)
 {
     WebsRole    *rp;
     WebsKey     *sym;
@@ -940,7 +980,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
         return 0;
     }
     trace(2, "Login successful for %s", username);
-    websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);                                
+    websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);
     return 1;
 }
 
@@ -968,7 +1008,7 @@ static void loginServiceProc(Webs *wp)
     assert(wp);
     route = wp->route;
     assert(route);
-    
+
     if (websLoginUser(wp, websGetVar(wp, "username", ""), websGetVar(wp, "password", ""))) {
         /* If the application defines a referrer session var, redirect to that */
         char *referrer;
@@ -1061,7 +1101,7 @@ PUBLIC bool websVerifyPasswordFromPam(Webs *wp)
     struct pam_conv     conv = { pamChat, &info };
     struct group        *gp;
     int                 res, i;
-   
+
     assert(wp);
     assert(wp->username && wp->username);
     assert(wp->password);
@@ -1087,8 +1127,8 @@ PUBLIC bool websVerifyPasswordFromPam(Webs *wp)
     if (!wp->user) {
         Gid     groups[32];
         int     ngroups;
-        /* 
-            Create a temporary user with a abilities set to the groups 
+        /*
+            Create a temporary user with a abilities set to the groups
          */
         ngroups = sizeof(groups) / sizeof(Gid);
         if ((i = getgrouplist(wp->username, 99999, groups, &ngroups)) >= 0) {
@@ -1111,15 +1151,15 @@ PUBLIC bool websVerifyPasswordFromPam(Webs *wp)
 }
 
 
-/*  
+/*
     Callback invoked by the pam_authenticate function
  */
-static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data) 
+static int pamChat(int msgCount, const struct pam_message **msg, struct pam_response **resp, void *data)
 {
     UserInfo                *info;
     struct pam_response     *reply;
     int                     i;
-    
+
     i = 0;
     reply = 0;
     info = (UserInfo*) data;
@@ -1133,7 +1173,7 @@ static int pamChat(int msgCount, const struct pam_message **msg, struct pam_resp
     for (i = 0; i < msgCount; i++) {
         reply[i].resp_retcode = 0;
         reply[i].resp = 0;
-        
+
         switch (msg[i]->msg_style) {
         case PAM_PROMPT_ECHO_ON:
             reply[i].resp = sclone(info->name);
@@ -1166,7 +1206,7 @@ static int jsCan(int jsid, Webs *wp, int argc, char **argv)
         return 0;
     }
     return 1;
-} 
+}
 #endif
 
 
@@ -1327,7 +1367,7 @@ static bool parseDigestDetails(Webs *wp)
             if (scaselesscmp(key, "stale") == 0) {
                 break;
             }
-        
+
         case 'u':
             if (scaselesscmp(key, "uri") == 0) {
                 wp->digestUri = sclone(value);
@@ -1414,16 +1454,16 @@ static char *createDigestNonce(Webs *wp)
 
 static char *parseDigestNonce(char *nonce, char **secret, char **realm, WebsTime *when)
 {
-    char    *tok, *decoded, *whenStr;                                                                      
-                                                                                                           
+    char    *tok, *decoded, *whenStr;
+
     assert(nonce && *nonce);
     assert(secret);
     assert(realm);
     assert(when);
 
-    if ((decoded = websDecode64(nonce)) == 0) {                                                             
+    if ((decoded = websDecode64(nonce)) == 0) {
         return 0;
-    }                                                                                                      
+    }
     *secret = stok(decoded, ":", &tok);
     *realm = stok(NULL, ":", &tok);
     whenStr = stok(NULL, ":", &tok);
@@ -1444,7 +1484,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
     assert(password);
 
     /*
-        Compute HA1. If username == 0, then the password is already expected to be in the HA1 format 
+        Compute HA1. If username == 0, then the password is already expected to be in the HA1 format
         (MD5(username:realm:password).
      */
     if (username == 0) {
@@ -1456,7 +1496,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 
     /*
         HA2
-     */ 
+     */
     method = wp->method;
     fmt(a2Buf, sizeof(a2Buf), "%s:%s", method, wp->digestUri);
     ha2 = websMD5(a2Buf);
@@ -1516,7 +1556,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -1537,9 +1577,9 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
 
 /*
     cgi.c -- CGI processing
-  
+
     This module implements the /cgi-bin handler. CGI processing differs from
-    goforms processing in that each CGI request is executed as a separate 
+    goforms processing in that each CGI request is executed as a separate
     process, rather than within the webserver process. For each CGI request the
     environment of the new process must be set to include all the CGI variables
     and its standard input and output must be directed to the socket.  This
@@ -1594,7 +1634,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     int         n, envpsize, argpsize, cid;
 
     assert(websValid(wp));
-    
+
     websSetEnv(wp);
 
     /*
@@ -1610,7 +1650,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     getcwd(cwd, ME_GOAHEAD_LIMIT_FILENAME);
     dir = wp->route->dir ? wp->route->dir : cwd;
     chdir(dir);
-    
+
     extraPath = 0;
     if ((cp = strchr(cgiName, '/')) != NULL) {
         extraPath = sclone(cp);
@@ -1620,12 +1660,12 @@ PUBLIC bool cgiHandler(Webs *wp)
         wfree(extraPath);
     } else {
         websSetVar(wp, "PATH_INFO", "");
-        websSetVar(wp, "PATH_TRANSLATED", "");        
+        websSetVar(wp, "PATH_TRANSLATED", "");
     }
     cgiPath = sfmt("%s%s/%s", dir, cgiPrefix, cgiName);
     websSetVarFmt(wp, "SCRIPT_NAME", "%s/%s", cgiPrefix, cgiName);
     websSetVar(wp, "SCRIPT_FILENAME", cgiPath);
-    
+
 /*
     See if the file exists and is executable.  If not error out.  Don't do this step for VxWorks, since the module
     may already be part of the OS image, rather than in the file system.
@@ -1711,11 +1751,11 @@ PUBLIC bool cgiHandler(Webs *wp)
 
     /*
         Create temporary file name(s) for the child's stdin and stdout. For POST data the stdin temp file (and name)
-        should already exist.  
+        should already exist.
      */
     if (wp->cgiStdin == NULL) {
         wp->cgiStdin = websGetCgiCommName();
-    } 
+    }
     stdIn = wp->cgiStdin;
     stdOut = websGetCgiCommName();
     if (wp->cgifd >= 0) {
@@ -1725,7 +1765,7 @@ PUBLIC bool cgiHandler(Webs *wp)
 
     /*
         Now launch the process.  If not successful, do the cleanup of resources.  If successful, the cleanup will be
-        done after the process completes.  
+        done after the process completes.
      */
     if ((pHandle = launchCgi(cgiPath, argp, envp, stdIn, stdOut)) == (CgiPid) -1) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "failed to spawn CGI task");
@@ -1875,7 +1915,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
 
     /*
         OPT - currently polling and doing a stat each poll. Also doing open/close each chunk.
-        If the CGI process writes partial headers, this repeatedly reads the data until complete 
+        If the CGI process writes partial headers, this repeatedly reads the data until complete
         headers are written or more than ME_GOAHEAD_LIMIT_HEADERS of data is received.
      */
     if ((stat(cgip->stdOut, &sbuf) == 0) && (sbuf.st_size > cgip->fplacemark)) {
@@ -1934,7 +1974,7 @@ int websCgiPoll()
                 websCgiGatherOutput(cgip);
 
 #if WINDOWS
-                /*                  
+                /*
                      Windows can have delayed notification through the file system after process exit.
                  */
                 {
@@ -1981,8 +2021,8 @@ int websCgiPoll()
 
 
 /*
-    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with 
-    wfree().  
+    Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with
+    wfree().
  */
 PUBLIC char *websGetCgiCommName()
 {
@@ -2098,7 +2138,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         }
         _exit(0);
     }
-    /* 
+    /*
         Parent
      */
     if (fdout >= 0) {
@@ -2117,7 +2157,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 static int checkCgi(CgiPid handle)
 {
     int     pid;
-    
+
     /*
         Check to see if the CGI child process has terminated or not yet.
      */
@@ -2133,12 +2173,12 @@ static int checkCgi(CgiPid handle)
 
 
 #if VXWORKS
-static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut); 
+static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut);
 /*
     Launch the CGI process and return a handle to it. Process spawning is not supported in VxWorks.  Instead, we spawn a
     "task".  A major difference is that we have to know the entry point for the taskSpawn API.  Also the module may have
     to be loaded before being executed; it may also be part of the OS image, in which case it cannot be loaded or
-    unloaded.  
+    unloaded.
     The following sequence is used:
     1. If the module is already loaded, unload it from memory.
     2. Search for a query string keyword=value pair in the environment variables where the keyword is cgientry.  If
@@ -2179,7 +2219,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 
     /*
          Set the entry point symbol name as described above.  Look for an already loaded entry point; if it exists, spawn
-         the task accordingly.  
+         the task accordingly.
      */
     for (pp = envp, pEntry = NULL; pp != NULL && *pp != NULL; pp++) {
         if (strncmp(*pp, "cgientry=", 9) == 0) {
@@ -2197,7 +2237,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         wfree(pname);
     }
     if (entryAddr != 0) {
-        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
+        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp,
             (int) envp, (int) stdIn, (int) stdOut, 0, 0, 0, 0, 0);
         goto done;
     }
@@ -2215,7 +2255,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         wfree(pname);
     }
     if (entryAddr != 0) {
-        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp, 
+        rc = taskSpawn(pEntry, priority, 0, 20000, (void*) vxWebsCgiEntry, (int) entryAddr, (int) argp,
             (int) envp, (int) stdIn, (int) stdOut, 0, 0, 0, 0, 0);
     }
 done:
@@ -2307,7 +2347,7 @@ static int checkCgi(CgiPid handle)
 }
 #endif /* VXWORKS */
 
-#if WINDOWS 
+#if WINDOWS
 /*
     Convert a table of strings into a single block of memory. The input table consists of an array of null-terminated
     strings, terminated in a null pointer.  Returns the address of a block of memory allocated using the walloc()
@@ -2322,15 +2362,15 @@ static uchar *tableToBlock(char **table)
 
     assert(table);
 
-    /*  
-        Calculate the size of the data block.  Allow for final null byte. 
+    /*
+        Calculate the size of the data block.  Allow for final null byte.
      */
-    sizeBlock = 1;                    
+    sizeBlock = 1;
     for (index = 0; table[index]; index++) {
         sizeBlock += strlen(table[index]) + 1;
     }
     /*
-        Allocate the data block and fill it with the strings                   
+        Allocate the data block and fill it with the strings
      */
     pBlock = walloc(sizeBlock);
 
@@ -2340,10 +2380,10 @@ static uchar *tableToBlock(char **table)
             strcpy(pEntry, table[index]);
             pEntry += strlen(pEntry) + 1;
         }
-        /*      
-            Terminate the data block with an extra null string                
+        /*
+            Terminate the data block with an extra null string
          */
-        *pEntry = '\0';              
+        *pEntry = '\0';
     }
     return pBlock;
 }
@@ -2420,7 +2460,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         Stdin file should already exist.
      */
     newinfo.hStdInput = CreateFile(stdIn, GENERIC_READ, FILE_SHARE_READ, &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL,
-            NULL); 
+            NULL);
     if (newinfo.hStdOutput == (HANDLE) -1) {
         error("Cannot open CGI stdin file");
         return (CgiPid) -1;
@@ -2429,7 +2469,7 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
     /*
         Stdout file is created and file pointer is reset to start.
      */
-    newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE, 
+    newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ + FILE_SHARE_WRITE,
             &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     if (newinfo.hStdOutput == (HANDLE) -1) {
         error("Cannot create CGI stdout file");
@@ -2507,7 +2547,7 @@ static int checkCgi(CgiPid handle)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -2580,7 +2620,7 @@ static uchar PADDING[64] = {
      FF, GG, HH, and II transformations for rounds 1, 2, 3, and 4.
      Rotation is separate from addition to prevent recomputation.
  */
- 
+
 #define FF(a, b, c, d, x, s, ac) { \
  (a) += F ((b), (c), (d)) + (x) + (uint)(ac); \
  (a) = ROTATE_LEFT ((a), (s)); \
@@ -2636,7 +2676,7 @@ static signed char decodeMap[] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 62, -1, -1, -1, 63,
     52, 53, 54, 55, 56, 57, 58, 59, 60, 61, -1, -1, -1, -1, -1, -1,
     -1,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1, 
+    15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, -1, -1, -1, -1, -1,
     -1, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
     41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, -1, -1, -1, -1, -1,
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -2699,7 +2739,7 @@ PUBLIC char *websDecode64Block(char *s, ssize *len, int flags)
             c = decodeMap[*s & 0xff];
             if (c == -1) {
                 return NULL;
-            } 
+            }
             bitBuf = bitBuf | (c << shift);
             shift -= 6;
         }
@@ -2762,7 +2802,7 @@ PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix)
 
 /*
     MD5 initialization. Begins an MD5 operation, writing a new context.
- */ 
+ */
 static void initMD5(MD5CONTEXT *context)
 {
     context->count[0] = context->count[1] = 0;
@@ -2774,7 +2814,7 @@ static void initMD5(MD5CONTEXT *context)
 
 
 /*
-    MD5 block update operation. Continues an MD5 message-digest operation, processing another message block, 
+    MD5 block update operation. Continues an MD5 message-digest operation, processing another message block,
     and updating the context.
  */
 static void update(MD5CONTEXT *context, uchar *input, uint inputLen)
@@ -2805,7 +2845,7 @@ static void update(MD5CONTEXT *context, uchar *input, uint inputLen)
 
 /*
     MD5 finalization. Ends an MD5 message-digest operation, writing the message digest and zeroizing the context.
- */ 
+ */
 static void finalizeMD5(uchar digest[16], MD5CONTEXT *context)
 {
     uchar   bits[8];
@@ -2944,7 +2984,7 @@ static void decode(uint *output, uchar *input, uint len)
     uint    i, j;
 
     for (i = 0, j = 0; j < len; i++, j += 4)
-        output[i] = ((uint) input[j]) | (((uint) input[j+1]) << 8) | (((uint) input[j+2]) << 16) | 
+        output[i] = ((uint) input[j]) | (((uint) input[j+1]) << 8) | (((uint) input[j+2]) << 16) |
             (((uint) input[j+3]) << 24);
 }
 
@@ -3002,7 +3042,7 @@ PUBLIC char *websEncode64Block(char *s, ssize len)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -3023,7 +3063,7 @@ PUBLIC char *websEncode64Block(char *s, ssize len)
 
 /*
     file.c -- File handler
-  
+
     This module serves static file documents
  */
 
@@ -3067,7 +3107,7 @@ static bool fileHandler(Webs *wp)
         /* Code is already set for us by processContent() */
         websResponse(wp, wp->code, 0);
 
-    } else 
+    } else
 #endif /* !ME_ROM */
     {
         /*
@@ -3248,7 +3288,7 @@ PUBLIC void websSetDocuments(char *dir)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -3383,8 +3423,8 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
     }
     sbuf->size = (ssize) s.st_size;
     sbuf->mtime = s.st_mtime;
-    sbuf->isDir = s.st_mode & S_IFDIR;                                                                     
-    return 0;  
+    sbuf->isDir = s.st_mode & S_IFDIR;
+    return 0;
 #endif
 }
 
@@ -3489,7 +3529,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -3638,6 +3678,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
             if (strstr(endpoint, "https")) continue;
 #endif
             if (websListen(endpoint) < 0) {
+                wfree(endpoints);
                 return -1;
             }
         }
@@ -3709,7 +3750,7 @@ static void usage() {
 }
 
 
-static void initPlatform() 
+static void initPlatform()
 {
 #if ME_UNIX_LIKE
     signal(SIGTERM, sigHandler);
@@ -3758,7 +3799,7 @@ static int windowsInit()
     /*
         Create a window just so we can have a taskbar to close this web server
      */
-    hwnd = CreateWindow(ME_NAME, ME_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT, 
+    hwnd = CreateWindow(ME_NAME, ME_TITLE, WS_MINIMIZE | WS_POPUPWINDOW, CW_USEDEFAULT,
         0, 0, 0, NULL, NULL, inst, NULL);
     if (hwnd == NULL) {
         return -1;
@@ -3850,7 +3891,7 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -3925,7 +3966,7 @@ static uchar charMatch[256] = {
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,
     0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,
-    0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c 
+    0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c,0x3c
 };
 
 /*
@@ -4104,7 +4145,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (sslOpen() < 0) {
         return -1;
     }
-#endif 
+#endif
     if ((sessions = hashCreate(-1)) < 0) {
         return -1;
     }
@@ -4159,7 +4200,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
 }
 
 
-PUBLIC void websClose() 
+PUBLIC void websClose()
 {
     Webs    *wp;
     int     i;
@@ -4419,7 +4460,7 @@ PUBLIC void websFree(Webs *wp)
 /*
     Called when the request is complete. Note: it may not have fully drained from the tx buffer.
  */
-PUBLIC void websDone(Webs *wp) 
+PUBLIC void websDone(Webs *wp)
 {
     WebsSocket  *sp;
 
@@ -4451,7 +4492,7 @@ PUBLIC void websDone(Webs *wp)
 }
 
 
-static void complete(Webs *wp, int reuse) 
+static void complete(Webs *wp, int reuse)
 {
     assert(wp);
     assert(websValid(wp));
@@ -4534,7 +4575,7 @@ PUBLIC int websListen(char *endpoint)
 
 
 /*
-    Accept a new connection from ipaddr:port 
+    Accept a new connection from ipaddr:port
  */
 PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 {
@@ -4572,9 +4613,9 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 #if ME_GOAHEAD_LEGACY
     /*
         Check if this is a request from a browser on this system. This is useful to know for permitting administrative
-        operations only for local access 
+        operations only for local access
      */
-    if (strcmp(wp->ipaddr, "127.0.0.1") == 0 || strcmp(wp->ipaddr, websIpAddr) == 0 || 
+    if (strcmp(wp->ipaddr, "127.0.0.1") == 0 || strcmp(wp->ipaddr, websIpAddr) == 0 ||
             strcmp(wp->ipaddr, websHost) == 0) {
         wp->flags |= WEBS_LOCAL;
     }
@@ -4605,7 +4646,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
 
 /*
     The webs socket handler. Called in response to I/O. We just pass control to the relevant read or write handler. A
-    pointer to the webs structure is passed as a (void*) in wptr.  
+    pointer to the webs structure is passed as a (void*) in wptr.
  */
 static void socketEvent(int sid, int mask, void *wptr)
 {
@@ -4620,10 +4661,10 @@ static void socketEvent(int sid, int mask, void *wptr)
     }
     if (mask & SOCKET_READABLE) {
         readEvent(wp);
-    } 
+    }
     if (mask & SOCKET_WRITABLE) {
         writeEvent(wp);
-    } 
+    }
     if (wp->flags & WEBS_CLOSED) {
         websFree(wp);
         /* WARNING: wp not valid here */
@@ -4679,7 +4720,7 @@ static void readEvent(Webs *wp)
         wp->lastRead = nbytes;
         bufAdjustEnd(rxbuf, nbytes);
         bufAddNull(rxbuf);
-    } 
+    }
     if (nbytes > 0 || wp->state > WEBS_BEGIN) {
         websPump(wp);
     }
@@ -4751,7 +4792,7 @@ static bool parseIncoming(Webs *wp)
             return 1;
         }
         return 0;
-    }    
+    }
     trace(3 | WEBS_RAW_MSG, "\n<<< Request\n");
     c = *end;
     *end = '\0';
@@ -4892,7 +4933,7 @@ static void parseHeaders(Webs *wp)
 
     assert(websValid(wp));
 
-    /* 
+    /*
         Parse the header and create the Http header keyword variables
         We rewrite the header as we go for non-local requests.  NOTE: this
         modifies the header string directly and tokenizes each line with '\0'.
@@ -5043,8 +5084,8 @@ static bool processContent(Webs *wp)
 #endif
     if (wp->eof) {
         wp->state = WEBS_READY;
-        /* 
-            Prevent reading content from the next request 
+        /*
+            Prevent reading content from the next request
             The handler may not have been created if all the content was read in the initial read. No matter.
          */
         socketDeleteHandler(wp->sid);
@@ -5103,7 +5144,7 @@ static bool filterChunkData(Webs *wp)
             return 1;
 
         case WEBS_CHUNK_START:
-            /*  
+            /*
                 Expect: "\r\nSIZE.*\r\n"
              */
             if (bufLen(rxbuf) < 5) {
@@ -5299,7 +5340,7 @@ PUBLIC void websSetQueryVars(Webs *wp)
 
 /*
     Define a webs (CGI) variable for this connection. Also create in relevant scripting engines. Note: the incoming
-    value may be volatile.  
+    value may be volatile.
  */
 PUBLIC void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
 {
@@ -5359,7 +5400,7 @@ PUBLIC bool websTestVar(Webs *wp, char *var)
 
 /*
     Get a webs variable but return a default value if string not found.  Note, defaultGetValue can be NULL to permit
-    testing existence.  
+    testing existence.
  */
 PUBLIC char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 {
@@ -5367,7 +5408,7 @@ PUBLIC char *websGetVar(Webs *wp, char *var, char *defaultGetValue)
 
     assert(websValid(wp));
     assert(var && *var);
- 
+
     if ((sp = hashLookup(wp->vars, var)) != NULL) {
         assert(sp->content.type == string);
         if (sp->content.value.string) {
@@ -5387,7 +5428,7 @@ PUBLIC int websCompareVar(Webs *wp, char *var, char *value)
 {
     assert(websValid(wp));
     assert(var && *var);
- 
+
     if (strcmp(value, websGetVar(wp, var, " __UNDEF__ ")) == 0) {
         return 1;
     }
@@ -5415,7 +5456,7 @@ PUBLIC void websCancelTimeout(Webs *wp)
 PUBLIC void websResponse(Webs *wp, int code, char *message)
 {
     ssize   len;
-    
+
     assert(websValid(wp));
     websSetStatus(wp, code);
 
@@ -5541,7 +5582,7 @@ PUBLIC int websRedirectByStatus(Webs *wp, int status)
 }
 
 
-/*  
+/*
     Escape HTML to escape defined characters (prevent cross-site scripting)
  */
 PUBLIC char *websEscapeHtml(char *html)
@@ -5560,7 +5601,7 @@ PUBLIC char *websEscapeHtml(char *html)
     if ((result = walloc(len)) == 0) {
         return 0;
     }
-    /*  
+    /*
         Leave room for the biggest expansion
      */
     op = result;
@@ -5604,7 +5645,7 @@ PUBLIC char *websEscapeHtml(char *html)
 }
 
 
-/*  
+/*
     Output an error message and cleanup
  */
 PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
@@ -5677,7 +5718,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 {
     va_list     vargs;
     char        *buf;
-    
+
     assert(websValid(wp));
 
     if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
@@ -5754,11 +5795,12 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (wp->authResponse) {
             websWriteHeader(wp, "WWW-Authenticate", "%s", wp->authResponse);
         }
-        if (smatch(wp->method, "HEAD")) {
-            websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
-        } else if (length >= 0) {                                                                                    
-            if (!((100 <= wp->code && wp->code <= 199) || wp->code == 204 || wp->code == 304)) {
-                websWriteHeader(wp, "Content-Length", "%d", (int) length);                                           
+        if (length >= 0) {
+            if (smatch(wp->method, "HEAD")) {
+                websWriteHeader(wp, "Content-Length", "%d", (int) length);
+            } else if (!((100 <= wp->code && wp->code <= 199) || wp->code == 204 || wp->code == 304)) {
+                /* Server must not emit a content length header for 1XX, 204 and 304 status */
+                websWriteHeader(wp, "Content-Length", "%d", (int) length);
             }
         }
         wp->txLen = length;
@@ -5768,7 +5810,7 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
         if (wp->flags & WEBS_KEEP_ALIVE) {
             websWriteHeader(wp, "Connection", "keep-alive");
         } else {
-            websWriteHeader(wp, "Connection", "close");   
+            websWriteHeader(wp, "Connection", "close");
         }
         if (location) {
             websWriteHeader(wp, "Location", "%s", location);
@@ -5823,7 +5865,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...)
     va_list     vargs;
     char        *buf;
     ssize       rc;
-    
+
     assert(websValid(wp));
     assert(fmt && *fmt);
 
@@ -5845,7 +5887,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...)
 
 
 /*
-    Non-blocking write to socket. 
+    Non-blocking write to socket.
     Returns number of bytes written. Returns -1 on errors. May return short.
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
@@ -5864,7 +5906,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size)
         if ((written = sslWrite(wp, buf, size)) < 0) {
             return written;
         }
-    } else 
+    } else
 #endif
     if ((written = socketWrite(wp->sid, buf, size)) < 0) {
         return written;
@@ -6074,7 +6116,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size)
     op = (wp->flags & WEBS_CHUNKING) ? &wp->chunkbuf : &wp->output;
     written = len = 0;
 
-    while (size > 0 && wp->state < WEBS_COMPLETE) {  
+    while (size > 0 && wp->state < WEBS_COMPLETE) {
         if (bufRoom(op) < size) {
             /*
                 This will do a blocking I/O write. Will only ever fail for I/O errors.
@@ -6107,7 +6149,7 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len)
 {
     char    *ip,  *op;
     int     num, i, c;
-    
+
     assert(decoded);
     assert(input);
 
@@ -6165,7 +6207,7 @@ static void logRequest(Webs *wp, int code)
 #else
     localtime_r(&timer, &localt);
 #endif
-    strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt); 
+    strftime(timeStr, sizeof(timeStr), "%d/%b/%Y:%H:%M:%S", &localt);
     timeStr[sizeof(timeStr) - 1] = '\0';
 #if WINDOWS
     dwRet = GetTimeZoneInformation(&tzi);
@@ -6183,7 +6225,7 @@ static void logRequest(Webs *wp, int code)
         dataStr[0] = '-'; dataStr[1] = '\0';
     }
     buf = NULL;
-    buf = sfmt("%s - %s [%s %s] \"%s %s %s\" %d %s\n", 
+    buf = sfmt("%s - %s [%s %s] \"%s %s %s\" %d %s\n",
         wp->ipaddr, wp->username == NULL ? "-" : wp->username,
         timeStr, zoneStr, wp->method, wp->path, wp->protoVersion, code, dataStr);
     len = strlen(buf);
@@ -6194,7 +6236,7 @@ static void logRequest(Webs *wp, int code)
 
 
 /*
-    Request and connection timeout. The timeout triggers if we have not read any data from the users browser in the last 
+    Request and connection timeout. The timeout triggers if we have not read any data from the users browser in the last
     WEBS_TIMEOUT period. If we have heard from the browser, simply re-issue the timeout.
  */
 static void checkTimeout(void *arg, int id)
@@ -6209,7 +6251,7 @@ static void checkTimeout(void *arg, int id)
     if (websDebug) {
         websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
-    } 
+    }
     if (wp->state == WEBS_BEGIN) {
         complete(wp, 0);
         websFree(wp);
@@ -6439,7 +6481,7 @@ PUBLIC bool websValidUriChars(char *uri)
 /*
     Parse the URL. A single buffer is allocated to store the parsed URL in *pbuf. This must be freed by the caller.
  */
-PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, char **pport, char **ppath, char **pext, 
+PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, char **pport, char **ppath, char **pext,
         char **preference, char **pquery)
 {
     char    *tok, *delim, *host, *path, *port, *scheme, *reference, *query, *ext, *buf, *buf2;
@@ -6504,10 +6546,10 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
         tok = delim;
 
     } else if (*tok && *tok != '/' && *tok != ':' && (scheme || strchr(tok, ':'))) {
-        /* 
+        /*
            Supported forms:
                scheme://hostname
-               hostname[:port][/path] 
+               hostname[:port][/path]
          */
         host = tok;
         if ((tok = strpbrk(tok, ":/")) == 0) {
@@ -6529,9 +6571,9 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 
     /* [/path] */
     if (*tok) {
-        /* 
+        /*
            Terminate hostname. This zeros the leading path slash.
-           This will be repaired before returning if ppath is set 
+           This will be repaired before returning if ppath is set
          */
         sep = *tok;
         *tok++ = '\0';
@@ -6588,7 +6630,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     }
     if (pext) {
 #if ME_WIN_LIKE
-        slower(ext);            
+        slower(ext);
 #endif
         *pext = ext;
     }
@@ -6597,8 +6639,8 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
 
 
 /*
-    Normalize a URI path to remove "./",  "../" and redundant separators. 
-    Note: this does not make an abs path and does not map separators nor change case. 
+    Normalize a URI path to remove "./",  "../" and redundant separators.
+    Note: this does not make an abs path and does not map separators nor change case.
     This validates the URI and expects it to begin with "/".
  */
 PUBLIC char *websNormalizeUriPath(char *pathArg)
@@ -6807,12 +6849,12 @@ PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *c
         expiresAtt = "";
         expires = "";
     }
-    /* 
+    /*
        Allow multiple cookie headers. Even if the same name. Later definitions take precedence
      */
     secure = (flags & WEBS_COOKIE_SECURE) ? "; secure" : "";
     httponly = (flags & WEBS_COOKIE_HTTP) ?  "; httponly" : "";
-    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure, 
+    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
         httponly);
     if (wp->responseCookie) {
         old = wp->responseCookie;
@@ -6860,25 +6902,25 @@ static char *getToken(Webs *wp, char *delim)
 }
 
 
-PUBLIC int websGetBackground() 
+PUBLIC int websGetBackground()
 {
     return websBackground;
 }
 
 
-PUBLIC void websSetBackground(int on) 
+PUBLIC void websSetBackground(int on)
 {
     websBackground = on;
 }
 
 
-PUBLIC int websGetDebug() 
+PUBLIC int websGetDebug()
 {
     return websDebug;
 }
 
 
-PUBLIC void websSetDebug(int on) 
+PUBLIC void websSetDebug(int on)
 {
     websDebug = on;
 }
@@ -6912,6 +6954,8 @@ WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
         sp->id = sclone(id);
     }
     if ((sp->cache = hashCreate(WEBS_SESSION_HASH)) == 0) {
+        wfree(sp->id);
+        wfree(sp);
         return 0;
     }
     return sp;
@@ -6934,7 +6978,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 {
     WebsKey     *sym;
     char        *id;
-    
+
     assert(wp);
 
     if (!wp->session) {
@@ -7084,7 +7128,7 @@ static void pruneCache()
             freeSession(sp);
         }
     }
-    if (oldCount != sessionCount || sessionCount) { 
+    if (oldCount != sessionCount || sessionCount) {
         trace(4, "Prune %d sessions. Remaining: %d", oldCount - sessionCount, sessionCount);
     }
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
@@ -7168,9 +7212,9 @@ PUBLIC char *websGetPath(Webs *wp) { return wp->path; }
 PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
 PUBLIC char *websGetProtocol(Webs *wp) { return wp->protocol; }
 PUBLIC char *websGetQuery(Webs *wp) { return wp->query; }
-PUBLIC char *websGetServer() { return websHost; } 
-PUBLIC char *websGetServerAddress() { return websIpAddr; } 
-PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; } 
+PUBLIC char *websGetServer() { return websHost; }
+PUBLIC char *websGetServerAddress() { return websIpAddr; }
+PUBLIC char *websGetServerAddressUrl() { return websIpAddrUrl; }
 PUBLIC char *websGetServerUrl() { return websHostUrl; }
 PUBLIC char *websGetUrl(Webs *wp) { return wp->url; }
 PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
@@ -7182,7 +7226,7 @@ PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -7203,7 +7247,7 @@ PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
     js.c -- Mini JavaScript
-  
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -7342,12 +7386,12 @@ PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
     }
     if (stat(path, &sbuf) < 0) {
         close(fd);
-        jsError(ep, "Cant stat %s", path);
+        jsError(ep, "Cannot stat %s", path);
         return NULL;
     }
     if ((script = walloc(sbuf.st_size + 1)) == NULL) {
         close(fd);
-        jsError(ep, "Cant malloc %d", sbuf.st_size);
+        jsError(ep, "Cannot allocate %d", sbuf.st_size);
         return NULL;
     }
     if (read(fd, script, sbuf.st_size) != (int)sbuf.st_size) {
@@ -7431,13 +7475,13 @@ PUBLIC char *jsEval(int jid, char *script, char **emsg)
     int     state;
     void    *endlessLoopTest;
     int     loopCounter;
-    
-    
+
+
     assert(script);
 
     if (emsg) {
         *emsg = NULL;
-    } 
+    }
     if ((ep = jsPtr(jid)) == NULL) {
         return NULL;
     }
@@ -7849,7 +7893,7 @@ static int parseStmt(Js *ep, int state, int flags)
 
             /*
                 The first time through, we save the current input context just to each step: prior to the conditional,
-                the loop increment and the loop body.  
+                the loop increment and the loop body.
              */
             jsLexSaveInputState(ep, &condScript);
             if (parse(ep, STATE_COND, flags) != STATE_COND_DONE) {
@@ -8045,7 +8089,7 @@ static int parseDeclaration(Js *ep, int state, int flags)
                 var x;
                 var x, y, z;
                 var x = 1 + 2 / 3, y = 2 + 4;
-      
+
         We set the variable to NULL if there is no associated assignment.
      */
     do {
@@ -8191,7 +8235,7 @@ static int parseExpr(Js *ep, int state, int flags)
     do {
         /*
             This loop will handle an entire expression list. We call parse to evalutate each term which returns the
-            result in ep->result.  
+            result in ep->result.
          */
         if (tid == TOK_LOGICAL) {
             if ((state = parse(ep, STATE_RELEXP, flags)) != STATE_RELEXP_DONE) {
@@ -8567,9 +8611,9 @@ PUBLIC void *jsGetGlobalFunction(int jid, char *name)
 /*
     Utility routine to crack Javascript arguments. Return the number of args
     seen. This routine only supports %s and %d type args.
-  
+
     Typical usage:
-  
+
         if (jsArgs(argc, argv, "%s %d", &name, &age) < 2) {
             error("Insufficient args");
             return -1;
@@ -8672,7 +8716,7 @@ PUBLIC char *jsGetResult(int jid)
 
 /*
     Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
-    top-most variable frame.  
+    top-most variable frame.
  */
 PUBLIC void jsSetVar(int jid, char *var, char *value)
 {
@@ -8695,7 +8739,7 @@ PUBLIC void jsSetVar(int jid, char *var, char *value)
 
 /*
     Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
-    the top-most variable frame.  
+    the top-most variable frame.
  */
 PUBLIC void jsSetLocalVar(int jid, char *var, char *value)
 {
@@ -8718,7 +8762,7 @@ PUBLIC void jsSetLocalVar(int jid, char *var, char *value)
 
 /*
     Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
-    the global variable frame.  
+    the global variable frame.
  */
 PUBLIC void jsSetGlobalVar(int jid, char *var, char *value)
 {
@@ -9256,7 +9300,7 @@ static int getLexicalToken(Js *ep, int state)
             }
             return TOK_LITERAL;
 
-        case '0': case '1': case '2': case '3': case '4': 
+        case '0': case '1': case '2': case '3': case '4':
         case '5': case '6': case '7': case '8': case '9':
             do {
                 if (tokenAddChar(ep, c) < 0) {
@@ -9310,9 +9354,9 @@ static int getLexicalToken(Js *ep, int state)
                     return TOK_RETURN;
                 }
             }
-            /* 
+            /*
                 Skip white space after token to find out whether this is a function or not.
-             */ 
+             */
             while (c == ' ' || c == '\t' || c == '\r' || c == '\n') {
                 if ((c = inputGetc(ep)) < 0)
                     break;
@@ -9453,7 +9497,7 @@ static int charConvert(Js *ep, int base, int maxDig)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -9474,7 +9518,7 @@ static int charConvert(Js *ep, int base, int maxDig)
 
 /*
     jst.c -- JavaScript templates
-  
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -9535,7 +9579,7 @@ static bool jstHandler(Webs *wp)
     buf[len] = '\0';
 
     if (websPageReadData(wp, buf, len) != len) {
-        websError(wp, HTTP_CODE_NOT_FOUND, "Cant read %s", wp->filename);
+        websError(wp, HTTP_CODE_NOT_FOUND, "Cannot read %s", wp->filename);
         goto done;
     }
     websPageClose(wp);
@@ -9590,7 +9634,7 @@ static bool jstHandler(Webs *wp)
 
                 if (jsEval(jid, nextp, &result) == 0) {
                     /*
-                         On an error, discard all output accumulated so far and store the error in the result buffer. 
+                         On an error, discard all output accumulated so far and store the error in the result buffer.
                          Be careful if the user has called websError() already.
                      */
                     rc = -1;
@@ -9672,7 +9716,7 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv)
     int     i;
 
     assert(websValid(wp));
-    
+
     for (i = 0; i < argc; ) {
         assert(argv);
         if (websWriteBlock(wp, argv[i], strlen(argv[i])) < 0) {
@@ -9711,7 +9755,7 @@ static char *strtokcmp(char *s1, char *s2)
 }
 
 
-static char *skipWhite(char *s) 
+static char *skipWhite(char *s)
 {
     assert(s);
 
@@ -9732,7 +9776,7 @@ static char *skipWhite(char *s)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -9803,7 +9847,7 @@ PUBLIC int websOptionsOpen()
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -9895,7 +9939,7 @@ PUBLIC char *websTempFile(char *dir, char *prefix)
 /*
     Get absolute path.  In VxWorks, functions like chdir, ioctl for mkdir and ioctl for rmdir, require an absolute path.
     This function will take the path argument and convert it to an absolute path.  It is the caller's responsibility to
-    deallocate the returned string. 
+    deallocate the returned string.
  */
 static char *getAbsolutePath(char *path)
 {
@@ -9995,14 +10039,14 @@ PUBLIC void syslog(int priority, char *fmt, ...)
         if (RegCreateKeyEx(HKEY_LOCAL_MACHINE, logName, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hkey, &exists) ==
                 ERROR_SUCCESS) {
             value = "%SystemRoot%\\System32\\netmsg.dll";
-            if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ, 
+            if (RegSetValueEx(hkey, "EventMessageFile", 0, REG_EXPAND_SZ,
                     (uchar*) value, (int) slen(value) + 1) != ERROR_SUCCESS) {
                 RegCloseKey(hkey);
                 wfree(buf);
                 return;
             }
             errorType = EVENTLOG_ERROR_TYPE | EVENTLOG_WARNING_TYPE | EVENTLOG_INFORMATION_TYPE;
-            if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) != 
+            if (RegSetValueEx(hkey, "TypesSupported", 0, REG_DWORD, (uchar*) &errorType, sizeof(DWORD)) !=
                     ERROR_SUCCESS) {
                 RegCloseKey(hkey);
                 wfree(buf);
@@ -10053,11 +10097,11 @@ PUBLIC char *basename(char *name)
 
 
 #if TIDSP
-char *inet_ntoa(struct in_addr addr) 
+char *inet_ntoa(struct in_addr addr)
 {
     char    result[16];
     uchar   *bytes;
-   
+
     bytes = (uchar*) &addr;
     sprintf(result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
     return result;
@@ -10109,7 +10153,7 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -10129,7 +10173,7 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
 
 
 /*
-   rom-documents.c 
+   rom-documents.c
    Compiled by webcomp: Mon Jan 14 14:13:54 2013
  */
 
@@ -10348,7 +10392,7 @@ static bool can(Webs *wp, char *ability)
 }
 
 
-PUBLIC bool websCan(Webs *wp, WebsHash abilities) 
+PUBLIC bool websCan(Webs *wp, WebsHash abilities)
 {
     WebsKey     *key;
     char        *ability, *cp, *start, abuf[ME_GOAHEAD_LIMIT_STRING];
@@ -10378,7 +10422,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
             if ((cp = strchr(ability, '|')) != 0) {
                 /*
                     Examine a set of alternative abilities. Need only one to match
-                 */ 
+                 */
                 start = ability;
                 do {
                     sncopy(abuf, sizeof(abuf), start, cp - start);
@@ -10403,7 +10447,7 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
 
 
 #if KEEP
-PUBLIC bool websCanString(Webs *wp, char *abilities) 
+PUBLIC bool websCanString(Webs *wp, char *abilities)
 {
     WebsUser    *user;
     char        *ability, *tok;
@@ -10454,6 +10498,8 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     }
     if ((key = hashLookup(handlers, handler)) == 0) {
         error("Cannot find route handler %s", handler);
+        wfree(route->prefix);
+        wfree(route);
         return 0;
     }
     route->handler = key->content.value.symbol;
@@ -10464,7 +10510,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
     growRoutes();
     if (pos < 0) {
         pos = routeCount;
-    } 
+    }
     if (pos < routeCount) {
         memmove(&routes[pos + 1], &routes[pos], sizeof(WebsRoute*) * routeCount - pos);
     }
@@ -10474,7 +10520,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
 }
 
 
-PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions, 
+PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions,
         WebsHash abilities, WebsHash redirects)
 {
     assert(route);
@@ -10502,7 +10548,7 @@ static void growRoutes()
 }
 
 
-static int lookupRoute(char *uri) 
+static int lookupRoute(char *uri)
 {
     WebsRoute   *route;
     int         i;
@@ -10543,7 +10589,7 @@ static void freeRoute(WebsRoute *route)
 }
 
 
-PUBLIC int websRemoveRoute(char *uri) 
+PUBLIC int websRemoveRoute(char *uri)
 {
     int         i;
 
@@ -10561,7 +10607,7 @@ PUBLIC int websRemoveRoute(char *uri)
 }
 
 
-PUBLIC int websOpenRoute(char *path) 
+PUBLIC int websOpenRoute()
 {
     if ((handlers = hashCreate(-1)) < 0) {
         return -1;
@@ -10572,7 +10618,7 @@ PUBLIC int websOpenRoute(char *path)
 }
 
 
-PUBLIC void websCloseRoute() 
+PUBLIC void websCloseRoute()
 {
     WebsHandler *handler;
     WebsKey     *key;
@@ -10648,7 +10694,7 @@ PUBLIC int websLoad(char *path)
     char        *buf, *line, *kind, *next, *auth, *dir, *handler, *protocol, *uri, *option, *key, *value, *status;
     char        *redirectUri, *token;
     int         rc;
-    
+
     assert(path && *path);
 
     rc = 0;
@@ -10748,7 +10794,7 @@ PUBLIC int websLoad(char *path)
             }
 #endif
         } else {
-            error("Unknown route keyword %s", kind); 
+            error("Unknown route keyword %s", kind);
             rc = -1;
             break;
         }
@@ -10762,7 +10808,7 @@ PUBLIC int websLoad(char *path)
 
 
 /*
-    Handler to just continue matching other routes 
+    Handler to just continue matching other routes
  */
 static bool continueHandler(Webs *wp)
 {
@@ -10822,7 +10868,7 @@ PUBLIC int websPublish(char *prefix, char *dir)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -10902,7 +10948,7 @@ PUBLIC char stateMap[] = {
 
 /*
     Format:         %[modifier][width][precision][bits][type]
-  
+
     The Class map will map from a specifier letter to a state.
  */
 PUBLIC char classMap[] = {
@@ -10981,7 +11027,7 @@ typedef struct Format {
         } else { \
             *(fmt)->end = '\0'; \
         } \
-    } else 
+    } else
 
 /*
     The handle list stores the length of the list and the number of used handles in the first two words.  These are
@@ -11143,7 +11189,7 @@ int websRunEvents()
 
 
 /*
-    Allocating secure replacement for sprintf and vsprintf. 
+    Allocating secure replacement for sprintf and vsprintf.
  */
 PUBLIC char *sfmt(char *format, ...)
 {
@@ -11695,8 +11741,8 @@ static void outFloat(Format *fmt, char specChar, double value)
 
 
 /*
-    Grow the buffer to fit new data. Return 1 if the buffer can grow. 
-    Grow using the growBy size specified when creating the buffer. 
+    Grow the buffer to fit new data. Return 1 if the buffer can grow.
+    Grow using the growBy size specified when creating the buffer.
  */
 static int growBuf(Format *fmt)
 {
@@ -11835,7 +11881,7 @@ PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...)
     va_start(args, fmt);
     fmtBuf = sfmtv(fmt, args);
 
-    message = sfmt("Assertion %s, failed at %s %d\n", fmtBuf, WEBS_ARGS); 
+    message = sfmt("Assertion %s, failed at %s %d\n", fmtBuf, WEBS_ARGS);
     va_end(args);
     wfree(fmtBuf);
     if (logHandler) {
@@ -11875,7 +11921,7 @@ PUBLIC void traceProc(int level, char *fmt, ...)
 }
 
 
-PUBLIC int websGetLogLevel() 
+PUBLIC int websGetLogLevel()
 {
     return logLevel;
 }
@@ -11928,16 +11974,16 @@ PUBLIC int logOpen()
 PUBLIC void logClose()
 {
     if (logFd >= 0) {
-        close(logFd);                                                                              
-        logFd = -1;                                                                                
-    }                                                                                                    
+        close(logFd);
+        logFd = -1;
+    }
 }
 
 
 PUBLIC void logSetPath(char *path)
 {
     char  *lp;
-    
+
     wfree(logPath);
     logPath = sclone(path);
     if ((lp = strchr(logPath, ':')) != 0) {
@@ -11969,7 +12015,7 @@ PUBLIC char *slower(char *string)
 }
 
 
-/* 
+/*
     Convert a string to upper case
  */
 PUBLIC char *supper(char *string)
@@ -12159,7 +12205,7 @@ PUBLIC int wallocObject(void *listArg, int *max, int size)
     return id;
 }
 
-    
+
 /*
     Create a new buf. "increment" is the amount to increase the size of the buf should it need to grow to accomodate
     data being added. "maxsize" is an upper limit (sanity level) beyond which the buffer must not grow. Set maxsize to -1 to
@@ -12170,7 +12216,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     int increment;
 
     assert(bp);
-    
+
     if (initSize <= 0) {
         initSize = ME_GOAHEAD_LIMIT_BUFFER;
     }
@@ -12213,7 +12259,7 @@ PUBLIC void bufFree(WebsBuf *bp)
 
 /*
     Return the length of the data in the buf. Users must fill the queue to a high water mark of at most one less than
-    the queue size.  
+    the queue size.
  */
 PUBLIC ssize bufLen(WebsBuf *bp)
 {
@@ -12264,7 +12310,7 @@ PUBLIC int bufGetc(WebsBuf *bp)
 
 /*
     Add a char to the queue. Note if being used to store wide strings this does not add a trailing '\0'. Grow the buffer as
-    required.  
+    required.
  */
 PUBLIC int bufPutc(WebsBuf *bp, char c)
 {
@@ -12388,7 +12434,7 @@ PUBLIC int bufGetcA(WebsBuf *bp)
 
 
 /*
-    Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'. 
+    Add a byte to the queue. Note if being used to store strings this does not add a trailing '\0'.
     Grow the buffer as required.
  */
 PUBLIC int bufPutcA(WebsBuf *bp, char c)
@@ -12519,7 +12565,7 @@ PUBLIC ssize bufGetBlk(WebsBuf *bp, char *buf, ssize size)
 
 /*
     Return the maximum number of bytes the buffer can accept via a single block copy. Useful if the user is doing their
-    own data insertion. 
+    own data insertion.
  */
 PUBLIC ssize bufRoom(WebsBuf *bp)
 {
@@ -12527,7 +12573,7 @@ PUBLIC ssize bufRoom(WebsBuf *bp)
 
     assert(bp);
     assert(bp->buflen == (bp->endbuf - bp->buf));
-    
+
     space = bp->buflen - RINGQ_LEN(bp) - 1;
     in_a_line = bp->endbuf - bp->endp;
 
@@ -12537,7 +12583,7 @@ PUBLIC ssize bufRoom(WebsBuf *bp)
 
 /*
     Return the maximum number of bytes the buffer can provide via a single block copy. Useful if the user is doing their
-    own data retrieval.  
+    own data retrieval.
  */
 PUBLIC ssize bufGetBlkMax(WebsBuf *bp)
 {
@@ -12620,7 +12666,7 @@ PUBLIC void bufFlush(WebsBuf *bp)
 PUBLIC void bufCompact(WebsBuf *bp)
 {
     ssize   len;
-    
+
     if (bp->buf) {
         if ((len = bufLen(bp)) > 0) {
             if (bp->servp < bp->endp && bp->servp > bp->buf) {
@@ -12754,7 +12800,7 @@ WebsHash hashCreate(int size)
 
 /*
     Close this symbol table. Call a cleanup function to allow the caller to free resources associated with each symbol
-    table entry.  
+    table entry.
  */
 PUBLIC void hashFree(WebsHash sd)
 {
@@ -12902,7 +12948,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
-        for the symbol.  
+        for the symbol.
      */
     last = NULL;
     hindex = hashIndex(tp, name);
@@ -12978,7 +13024,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
 
     /*
         Calculate the first daisy-chain from the hash table. If non-zero, then we have daisy-chain, so scan it and look
-        for the symbol.  
+        for the symbol.
      */
     last = NULL;
     hindex = hashIndex(tp, name);
@@ -13011,7 +13057,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
 
 /*
     Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
-    the hash table itself) 
+    the hash table itself)
  */
 static WebsKey *hash(HashTable *tp, char *name)
 {
@@ -13082,11 +13128,12 @@ static int calcPrime(int size)
 }
 
 
+#if DEPRECATE || 1
 /*
-    Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length 
-    in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1 
-    characters will be stored. The dest buffer will always have a trailing null appended.  If dest is NULL, don't copy 
-    the string, just return the length of characters. Return a count of bytes copied to the destination or -1 if an 
+    Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length
+    in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1
+    characters will be stored. The dest buffer will always have a trailing null appended.  If dest is NULL, don't copy
+    the string, just return the length of characters. Return a count of bytes copied to the destination or -1 if an
     invalid unicode sequence was provided in src.
     NOTE: does not allocate.
  */
@@ -13125,13 +13172,13 @@ PUBLIC ssize wtom(char *dest, ssize destCount, wchar *src, ssize count)
 
 /*
     Convert a multibyte string to a unicode string. If count is supplied, it is used as the source length in bytes.
-    Otherwise set to -1. DestCount is the max size of the dest buffer in characters. At most destCount - 1 
-    characters will be stored. The dest buffer will always have a trailing null characters appended.  If dest is NULL, 
-    don't copy the string, just return the length of characters. Return a count of characters copied to the destination 
+    Otherwise set to -1. DestCount is the max size of the dest buffer in characters. At most destCount - 1
+    characters will be stored. The dest buffer will always have a trailing null characters appended.  If dest is NULL,
+    don't copy the string, just return the length of characters. Return a count of characters copied to the destination
     or -1 if an invalid multibyte sequence was provided in src.
     NOTE: does not allocate.
  */
-PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count) 
+PUBLIC ssize mtow(wchar *dest, ssize destCount, char *src, ssize count)
 {
     ssize      len;
 
@@ -13183,8 +13230,6 @@ wchar *amtow(char *src, ssize *lenp)
 }
 
 
-//  FUTURE UNICODE - need a version that can supply a length
-
 PUBLIC char *awtom(wchar *src, ssize *lenp)
 {
     char    *dest;
@@ -13202,6 +13247,7 @@ PUBLIC char *awtom(wchar *src, ssize *lenp)
     }
     return dest;
 }
+#endif
 
 
 /*
@@ -13335,7 +13381,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
 
 
 /*
-    This routine copies at most "count" characters from a string. It ensures the result is always null terminated and 
+    This routine copies at most "count" characters from a string. It ensures the result is always null terminated and
     the buffer does not overflow. Returns -1 if the buffer is too small.
  */
 PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
@@ -13360,7 +13406,7 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
     } else {
         *dest = '\0';
         len = 0;
-    } 
+    }
     return len;
 }
 
@@ -13554,7 +13600,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
         start = dest = src;
         if (*src == '"' || *src == '\'') {
             quote = *src;
-            src++; 
+            src++;
             dest++;
         } else {
             quote = 0;
@@ -13563,7 +13609,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
             argv[argc] = src;
         }
         while (*src) {
-            if (*src == '\\' && src[1] && (src[1] == '\\' || src[1] == '"' || src[1] == '\'')) { 
+            if (*src == '\\' && src[1] && (src[1] == '\\' || src[1] == '"' || src[1] == '\'')) {
                 src++;
             } else {
                 if (quote) {
@@ -13615,7 +13661,7 @@ PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -13684,7 +13730,7 @@ PUBLIC int socketOpen()
     socketList = NULL;
     socketMax = 0;
     socketHighestFd = -1;
-    if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) { 
+    if ((fd = socket(AF_INET6, SOCK_STREAM, 0)) != -1) {
         hasIPv6 = 1;
         closesocket(fd);
     } else {
@@ -13709,7 +13755,7 @@ PUBLIC void socketClose()
 }
 
 
-PUBLIC bool socketHasDualNetworkStack() 
+PUBLIC bool socketHasDualNetworkStack()
 {
     bool dual;
 
@@ -13722,7 +13768,7 @@ PUBLIC bool socketHasDualNetworkStack()
 }
 
 
-PUBLIC bool socketHasIPv6() 
+PUBLIC bool socketHasIPv6()
 {
     return hasIPv6;
 }
@@ -13837,7 +13883,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     assert(sp);
 
     if (socketInfo(ip, port, &family, &protocol, &addr, &addrlen) < 0) {
-        return -1;       
+        return -1;
     }
     if ((sp->sock = socket(AF_INET, SOCK_STREAM, 0)) == SOCKET_ERROR) {
         socketFree(sid);
@@ -13867,7 +13913,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
         socketSetBlock(sid, 1);
 #endif
     }
-    if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 && 
+    if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 &&
         (rc = tryAlternateConnect(sp->sock, (struct sockaddr*) &addr)) < 0) {
 #if ME_WIN_LIKE
         if (socketGetError() != EWOULDBLOCK) {
@@ -14086,8 +14132,8 @@ PUBLIC int socketSelect(int sid, int timeout)
         }
     }
     /*
-        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls. 
-        So, if WINDOWS, sleep.  
+        Windows select() fails if no descriptors are set, instead of just sleeping like other, nice select() calls.
+        So, if WINDOWS, sleep.
      */
     if (nEvents == 0) {
         Sleep((DWORD) timeout);
@@ -14273,11 +14319,11 @@ static void socketDoEvent(WebsSocket *sp)
 
     sid = sp->sid;
     if (sp->currentEvents & SOCKET_READABLE) {
-        if (sp->flags & SOCKET_LISTENING) { 
+        if (sp->flags & SOCKET_LISTENING) {
             socketAccept(sp);
             sp->currentEvents = 0;
             return;
-        } 
+        }
     }
     /*
         Now invoke the users socket handler. NOTE: the handler may delete the
@@ -14287,7 +14333,7 @@ static void socketDoEvent(WebsSocket *sp)
         (sp->handler)(sid, sp->handlerMask & sp->currentEvents, sp->handler_data);
         /*
             Make sure socket pointer is still valid, then reset the currentEvents.
-         */ 
+         */
         if (socketList && sid < socketMax && socketList[sid] == sp) {
             sp->currentEvents = 0;
         }
@@ -14358,7 +14404,7 @@ PUBLIC int socketSetBlock(int sid, int on)
 }
 
 
-/*  
+/*
     Set the TCP delay behavior (nagle algorithm)
  */
 PUBLIC int socketSetNoDelay(int sid, bool on)
@@ -14418,7 +14464,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
                 if (sofar) {
-                    /* 
+                    /*
                         If some data was written, we mask the EAGAIN for this time. Caller should recall and then
                         will get a negative return code with EAGAIN.
                      */
@@ -14588,7 +14634,7 @@ PUBLIC void socketFree(int sid)
     for (i = 0; i < socketMax; i++) {
         if ((sp = socketList[i]) == NULL) {
             continue;
-        } 
+        }
         socketHighestFd = max(socketHighestFd, sp->sock);
     }
 }
@@ -14710,8 +14756,8 @@ PUBLIC int socketGetPort(int sid)
 
 
 #if ME_UNIX_LIKE || WINDOWS
-/*  
-    Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses, 
+/*
+    Get a socket address from a host/port combination. If a host provides both IPv4 and IPv6 addresses,
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
@@ -14741,7 +14787,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     }
     itosbuf(portBuf, sizeof(portBuf), port, 10);
 
-    /*  
+    /*
         Try to sleuth the address to avoid duplicate address lookups. Then try IPv4 first then IPv6.
      */
     res = 0;
@@ -14820,7 +14866,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
 #endif
 
 
-/*  
+/*
     Return a numerical IP address and port for the given socket info
  */
 PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen, int *port)
@@ -14893,8 +14939,8 @@ static int ipv6(char *ip)
 }
 
 
-/*  
-    Parse address and return the IP address and port components. Handles ipv4 and ipv6 addresses. 
+/*
+    Parse address and return the IP address and port components. Handles ipv4 and ipv6 addresses.
     If the IP portion is absent, *pip is set to null. If the port portion is absent, port is set to the defaultPort.
     If a ":*" port specifier is used, *pport is set to -1;
     When an address contains an ipv6 port it should be written as:
@@ -14921,7 +14967,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         address = &cp[3];
     }
     if (ipv6(address)) {
-        /*  
+        /*
             IPv6. If port is present, it will follow a closing bracket ']'
          */
         if ((cp = strchr(address, ']')) != 0) {
@@ -14955,8 +15001,8 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         }
 
     } else {
-        /*  
-            ipv4 
+        /*
+            ipv4
          */
         ip = sclone(address);
         if ((cp = strchr(ip, ':')) != 0) {
@@ -14970,10 +15016,10 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
                 wfree(ip);
                 ip = 0;
             }
-            
+
         } else if (strchr(ip, '.')) {
             *pport = defaultPort;
-            
+
         } else {
             if (isdigit((uchar) *ip)) {
                 *pport = atoi(ip);
@@ -15010,7 +15056,7 @@ PUBLIC bool socketAddressIsV6(char *ip)
 }
 
 
-PUBLIC WebsSocket **socketGetList() 
+PUBLIC WebsSocket **socketGetList()
 {
     return socketList;
 }
@@ -15021,7 +15067,7 @@ PUBLIC WebsSocket **socketGetList()
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -15042,7 +15088,7 @@ PUBLIC WebsSocket **socketGetList()
 
 /**
     time.c - Date and Time handling
- 
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -15328,10 +15374,10 @@ static void swapDayMonth(struct tm *tp)
 
 
 /*
-    Parse the a date/time string and return the result in *time. Missing date items may be provided 
-    via the defaults argument. This is a tolerant parser. It is not validating and will do its best 
+    Parse the a date/time string and return the result in *time. Missing date items may be provided
+    via the defaults argument. This is a tolerant parser. It is not validating and will do its best
     to parse any possible date string.
- */ 
+ */
 PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaults)
 {
     TimeToken       *tt;
@@ -15389,7 +15435,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
         if (snumber(token)) {
             /*
                 Parse either day of month or year. Priority to day of month. Format: <29> Jan <15> <2014>
-             */ 
+             */
             value = atoi(token);
             if (value > 3000) {
                 *time = value;
@@ -15425,7 +15471,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
         } else if (isalpha((uchar) *token)) {
             if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) != 0) {
                 kind = tt->value & TOKEN_MASK;
-                value = tt->value & ~TOKEN_MASK; 
+                value = tt->value & ~TOKEN_MASK;
                 switch (kind) {
 
                 case TOKEN_DAY:
@@ -15437,7 +15483,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
                     break;
 
                 case TOKEN_OFFSET:
-                    /* Named timezones or symbolic names like: tomorrow, yesterday, next week ... */ 
+                    /* Named timezones or symbolic names like: tomorrow, yesterday, next week ... */
                     /* Units are seconds */
                     offset += (int) value;
                     break;
@@ -15490,8 +15536,8 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
                     tm.tm_mday = value3;
 
                 } else if (value1 > 12 || alpha2) {
-                    /* 
-                        dd/mm/yy 
+                    /*
+                        dd/mm/yy
                         Cannot detect 01/02/03  This will be evaluated as Jan 2 2003 below.
                      */
                     tm.tm_mday = value1;
@@ -15614,7 +15660,7 @@ static void validateTime(struct tm *tp, struct tm *defaults)
         tp->tm_mday = defaults->tm_mday;
     }
     if (tp->tm_yday < 0) {
-        tp->tm_yday = (leapYear(tp->tm_year + 1900) ? 
+        tp->tm_yday = (leapYear(tp->tm_year + 1900) ?
             leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
     }
     if (tp->tm_hour < 0) {
@@ -15635,7 +15681,7 @@ static void validateTime(struct tm *tp, struct tm *defaults)
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
+    You may use the Embedthis Open Source license or you may acquire a
     commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
@@ -15704,7 +15750,7 @@ static bool uploadHandler(Webs *wp)
 static int initUpload(Webs *wp)
 {
     char    *boundary;
-    
+
     if (wp->uploadState == 0) {
         wp->uploadState = UPLOAD_BOUNDARY;
         if ((boundary = strstr(wp->contentType, "boundary=")) != 0) {
@@ -15759,12 +15805,12 @@ PUBLIC void websFreeUpload(Webs *wp)
 }
 
 
-PUBLIC int websProcessUploadData(Webs *wp) 
+PUBLIC int websProcessUploadData(Webs *wp)
 {
     char    *line, *nextTok;
     ssize   len, nbytes;
     int     done, rc;
-    
+
     for (done = 0, line = 0; !done; ) {
         if  (wp->uploadState == UPLOAD_BOUNDARY || wp->uploadState == UPLOAD_CONTENT_HEADER) {
             /*
@@ -15859,14 +15905,14 @@ static int processUploadHeader(Webs *wp, char *line)
     stok(line, ": ", &rest);
 
     if (scaselesscmp(headerTok, "Content-Disposition") == 0) {
-        /*  
+        /*
             The content disposition header describes either a form variable or an uploaded file.
-        
+
             Content-Disposition: form-data; name="field1"
             >>blank line
             Field Data
             ---boundary
-     
+
             Content-Disposition: form-data; name="field1" filename="user.file"
             >>blank line
             File data
@@ -15899,11 +15945,11 @@ static int processUploadHeader(Webs *wp, char *line)
                 wfree(wp->clientFilename);
                 wp->clientFilename = sclone(value);
 
-                /*  
+                /*
                     Create the file to hold the uploaded data
                  */
                 if ((wp->uploadTmp = websTempFile(uploadDir, "tmp")) == 0) {
-                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, 
+                    websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR,
                         "Cannot create upload temp file %s. Check upload temp dir %s", wp->uploadTmp, uploadDir);
                     return -1;
                 }
@@ -15913,7 +15959,7 @@ static int processUploadHeader(Webs *wp, char *line)
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot open upload temp file %s", wp->uploadTmp);
                     return -1;
                 }
-                /*  
+                /*
                     Create the files[id]
                  */
                 file = wp->currentFile = walloc(sizeof(WebsUpload));
@@ -15966,7 +16012,7 @@ static int writeToFile(Webs *wp, char *data, ssize len)
         return -1;
     }
     if (len > 0) {
-        /*  
+        /*
             File upload. Write the file data.
          */
         if ((rc = write(wp->upfd, data, (int) len)) != len) {
@@ -15998,7 +16044,7 @@ static int processContentData(Webs *wp)
     if ((bp = getBoundary(wp, content->servp, size)) == 0) {
         trace(7, "uploadFilter: Got boundary filename %x", wp->clientFilename);
         if (wp->clientFilename) {
-            /*  
+            /*
                 No signature found yet. probably more data to come. Must handle split boundaries.
              */
             data = content->servp;
@@ -16016,14 +16062,14 @@ static int processContentData(Webs *wp)
 
     if (nbytes > 0) {
         websConsumeInput(wp, nbytes);
-        /*  
+        /*
             This is the CRLF before the boundary
          */
         if (nbytes >= 2 && data[nbytes - 2] == '\r' && data[nbytes - 1] == '\n') {
             nbytes -= 2;
         }
         if (wp->clientFilename) {
-            /*  
+            /*
                 Write the last bit of file data and add to the list of files and define environment variables
              */
             if (writeToFile(wp, data, nbytes) < 0) {
@@ -16033,10 +16079,10 @@ static int processContentData(Webs *wp)
             defineUploadVars(wp);
 
         } else {
-            /*  
+            /*
                 Normal string form data variables
              */
-            data[nbytes] = '\0'; 
+            data[nbytes] = '\0';
             trace(5, "uploadFilter: form[%s] = %s", wp->uploadVar, data);
             websDecodeUrl(wp->uploadVar, wp->uploadVar, -1);
             websDecodeUrl(data, data, -1);
@@ -16044,7 +16090,7 @@ static int processContentData(Webs *wp)
         }
     }
     if (wp->clientFilename) {
-        /*  
+        /*
             Now have all the data (we've seen the boundary)
          */
         close(wp->upfd);
@@ -16058,9 +16104,9 @@ static int processContentData(Webs *wp)
 }
 
 
-/*  
+/*
     Find the boundary signature in memory. Returns pointer to the first match.
- */ 
+ */
 static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 {
     char    *cp, *endp;
@@ -16131,7 +16177,7 @@ PUBLIC void websUploadOpen()
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
