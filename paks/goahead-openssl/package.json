@@ -2,7 +2,7 @@
     "name": "goahead-openssl",
     "title": "OpenSSL support for GoAhead",
     "description": "OpenSSL Support for GoAhead",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "keywords": [
         "me",
         "ssl",
