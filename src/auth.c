@@ -98,6 +98,7 @@ PUBLIC bool websAuthenticate(Webs *wp)
          */
         if ((username = (char*) websGetSessionVar(wp, WEBS_SESSION_USERNAME, 0)) != 0) {
             cached = 1;
+            wfree(wp->username);
             wp->username = sclone(username);
         }
     }
@@ -740,6 +741,8 @@ static bool parseBasicDetails(Webs *wp)
             *cp++ = '\0';
         }
     }
+    wfree(wp->username);
+    wfree(wp->password);
     if (cp) {
         wp->username = sclone(userAuth);
         wp->password = sclone(cp);
@@ -764,6 +767,7 @@ static void digestLogin(Webs *wp)
     nonce = createDigestNonce(wp);
     /* Opaque is unused. Set to anything */
     opaque = "5ccc069c403ebaf9f0171e9517f40e41";
+    wfree(wp->authResponse);
     wp->authResponse = sfmt(
         "Digest realm=\"%s\", domain=\"%s\", qop=\"%s\", nonce=\"%s\", opaque=\"%s\", algorithm=\"%s\", stale=\"%s\"",
         ME_GOAHEAD_REALM, websGetServerUrl(), "auth", nonce, opaque, "MD5", "FALSE");
@@ -839,6 +843,7 @@ static bool parseDigestDetails(Webs *wp)
 
         case 'c':
             if (scaselesscmp(key, "cnonce") == 0) {
+                wfree(wp->cnonce);
                 wp->cnonce = sclone(value);
             }
             break;
@@ -851,29 +856,35 @@ static bool parseDigestDetails(Webs *wp)
 
         case 'n':
             if (scaselesscmp(key, "nc") == 0) {
+                wfree(wp->nc);
                 wp->nc = sclone(value);
             } else if (scaselesscmp(key, "nonce") == 0) {
+                wfree(wp->nonce);
                 wp->nonce = sclone(value);
             }
             break;
 
         case 'o':
             if (scaselesscmp(key, "opaque") == 0) {
+                wfree(wp->opaque);
                 wp->opaque = sclone(value);
             }
             break;
 
         case 'q':
             if (scaselesscmp(key, "qop") == 0) {
+                wfree(wp->qop);
                 wp->qop = sclone(value);
             }
             break;
 
         case 'r':
             if (scaselesscmp(key, "realm") == 0) {
+                wfree(wp->realm);
                 wp->realm = sclone(value);
             } else if (scaselesscmp(key, "response") == 0) {
                 /* Store the response digest in the password field. This is MD5(user:realm:password) */
+                wfree(wp->password);
                 wp->password = sclone(value);
                 wp->encoded = 1;
             }
@@ -886,8 +897,10 @@ static bool parseDigestDetails(Webs *wp)
 
         case 'u':
             if (scaselesscmp(key, "uri") == 0) {
+                wfree(wp->digestUri);
                 wp->digestUri = sclone(value);
             } else if (scaselesscmp(key, "username") == 0 || scaselesscmp(key, "user") == 0) {
+                wfree(wp->username);
                 wp->username = sclone(value);
             }
             break;
@@ -947,6 +960,7 @@ static bool parseDigestDetails(Webs *wp)
         }
     }
     wfree(decoded);
+    wfree(wp->digest);
     wp->digest = calcDigest(wp, 0, wp->user->password);
     return 1;
 }

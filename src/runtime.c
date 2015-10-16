@@ -507,11 +507,13 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
                     //  UNICODE - not right wchar
                     safe = websEscapeHtml(va_arg(args, wchar*));
                     outWideString(&fmt, safe, -1);
+                    wfree(safe);
                 } else
 #endif
                 {
                     safe = websEscapeHtml(va_arg(args, char*));
                     outString(&fmt, safe, -1);
+                    wfree(safe);
                 }
                 break;
 
