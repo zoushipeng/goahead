@@ -462,7 +462,6 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->ext);
     wfree(wp->filename);
     wfree(wp->host);
-    wfree(wp->inputFile);
     wfree(wp->method);
     wfree(wp->password);
     wfree(wp->path);
@@ -920,6 +919,7 @@ static bool parseIncoming(Webs *wp)
     if (smatch(wp->method, "PUT")) {
         WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
+        wfree(wp->putname);
         wp->putname = websTempFile(ME_GOAHEAD_PUT_DIR, "put");
         if ((wp->putfd = open(wp->putname, O_BINARY | O_WRONLY | O_CREAT | O_BINARY, 0644)) < 0) {
             error("Cannot create PUT filename %s", wp->putname);
@@ -1063,11 +1063,14 @@ static void parseHeaders(Webs *wp)
             Track the requesting agent (browser) type
          */
         if (strcmp(key, "user-agent") == 0) {
+            wfree(wp->userAgent);
             wp->userAgent = sclone(value);
 
         } else if (scaselesscmp(key, "authorization") == 0) {
+            wfree(wp->authType);
             wp->authType = sclone(value);
             ssplit(wp->authType, " \t", &tok);
+            wfree(wp->authDetails);
             wp->authDetails = sclone(tok);
             slower(wp->authType);
 
@@ -1097,6 +1100,7 @@ static void parseHeaders(Webs *wp)
             }
 
         } else if (strcmp(key, "content-type") == 0) {
+            wfree(wp->contentType);
             wp->contentType = sclone(value);
             if (strstr(value, "application/x-www-form-urlencoded")) {
                 wp->flags |= WEBS_FORM;
@@ -1108,6 +1112,7 @@ static void parseHeaders(Webs *wp)
 
         } else if (strcmp(key, "cookie") == 0) {
             wp->flags |= WEBS_COOKIE;
+            wfree(wp->cookie);
             wp->cookie = sclone(value);
 
         } else if (strcmp(key, "host") == 0) {
@@ -1129,6 +1134,7 @@ static void parseHeaders(Webs *wp)
             Yes Veronica, the HTTP spec does misspell Referrer
          */
         } else if (strcmp(key, "referer") == 0) {
+            wfree(wp->referrer);
             wp->referrer = sclone(value);
 
         } else if (strcmp(key, "transfer-encoding") == 0) {
@@ -1272,6 +1278,7 @@ static bool filterChunkData(Webs *wp)
             wp->rxRemaining = chunkSize;
             if (chunkSize == 0) {
 #if ME_GOAHEAD_LEGACY
+                wfree(wp->query);
                 wp->query = sclone(bufStart(&wp->input));
 #endif
                 wp->eof = 1;
@@ -1420,6 +1427,7 @@ PUBLIC void websSetQueryVars(Webs *wp)
         split pairs at the '='.  Note: we rely on wp->decodedQuery preserving the decoded values in the symbol table.
      */
     if (wp->query && *wp->query) {
+        wfree(wp->decodedQuery);
         wp->decodedQuery = sclone(wp->query);
         addFormVars(wp, wp->decodedQuery);
     }
@@ -1672,6 +1680,7 @@ PUBLIC int websRedirectByStatus(Webs *wp, int status)
 
 /*
     Escape HTML to escape defined characters (prevent cross-site scripting)
+    Returns an allocated string.
  */
 PUBLIC char *websEscapeHtml(char *html)
 {
@@ -2460,6 +2469,7 @@ PUBLIC void websSetRequestFilename(Webs *wp, char *filename)
     if (wp->filename) {
         wfree(wp->filename);
     }
+    wfree(wp->filename);
     wp->filename = sclone(filename);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
 }

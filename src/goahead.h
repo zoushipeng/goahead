@@ -1814,7 +1814,6 @@ typedef struct Webs {
     char            *ext;               /**< Path extension */
     char            *filename;          /**< Document path name */
     char            *host;              /**< Requested host */
-    char            *inputFile;         /**< File name to write input body data */
     char            *method;            /**< HTTP request method */
     char            *password;          /**< Authorization password */
     char            *path;              /**< Path name without query. This is decoded. */

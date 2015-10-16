@@ -53,6 +53,7 @@ static int initUpload(Webs *wp)
         wp->uploadState = UPLOAD_BOUNDARY;
         if ((boundary = strstr(wp->contentType, "boundary=")) != 0) {
             boundary += 9;
+            wfree(wp->boundary);
             wp->boundary = sfmt("--%s", boundary);
             wp->boundaryLen = strlen(wp->boundary);
         }
@@ -217,6 +218,8 @@ static int processUploadHeader(Webs *wp, char *line)
             ---boundary
          */
         key = rest;
+        wfree(wp->uploadVar);
+        wfree(wp->clientFilename);
         wp->uploadVar = wp->clientFilename = 0;
         while (key && stok(key, ";\r\n", &nextPair)) {
 
@@ -246,6 +249,7 @@ static int processUploadHeader(Webs *wp, char *line)
                 /*
                     Create the file to hold the uploaded data
                  */
+                wfree(wp->uploadTmp);
                 if ((wp->uploadTmp = websTempFile(uploadDir, "tmp")) == 0) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR,
                         "Cannot create upload temp file %s. Check upload temp dir %s", wp->uploadTmp, uploadDir);
