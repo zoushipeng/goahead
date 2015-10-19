@@ -1112,8 +1112,13 @@ static void parseHeaders(Webs *wp)
 
         } else if (strcmp(key, "cookie") == 0) {
             wp->flags |= WEBS_COOKIE;
-            wfree(wp->cookie);
-            wp->cookie = sclone(value);
+            if (wp->cookie) {
+                char *prior = wp->cookie;
+                wp->cookie = sfmt("%s; %s", prior, value);
+                wfree(prior);
+            } else {
+                wp->cookie = sclone(value);
+            }
 
         } else if (strcmp(key, "host") == 0) {
             if ((int) strspn(value, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.[]:")
