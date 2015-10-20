@@ -1016,7 +1016,7 @@ static void parseFirstLine(Webs *wp)
  */
 static void parseHeaders(Webs *wp)
 {
-    char    *upperKey, *cp, *key, *value, *tok;
+    char    *combined, *prior, *upperKey, *cp, *key, *value, *tok;
     int     count;
 
     assert(websValid(wp));
@@ -1047,7 +1047,7 @@ static void parseHeaders(Webs *wp)
         slower(key);
 
         /*
-            Create a variable (CGI) for each line in the header
+            Create a header variable for each line in the header
          */
         upperKey = sfmt("HTTP_%s", key);
         for (cp = upperKey; *cp; cp++) {
@@ -1056,7 +1056,13 @@ static void parseHeaders(Webs *wp)
             }
         }
         supper(upperKey);
+        if ((prior = websGetVar(wp, upperKey, 0)) != 0) {
+            combined = sfmt("%s, %s", prior, value);
+            websSetVar(wp, upperKey, combined);
+            wfree(combined);
+        } else {
         websSetVar(wp, upperKey, value);
+        }
         wfree(upperKey);
 
         /*
