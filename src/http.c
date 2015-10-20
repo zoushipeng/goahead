@@ -1061,7 +1061,7 @@ static void parseHeaders(Webs *wp)
             websSetVar(wp, upperKey, combined);
             wfree(combined);
         } else {
-        websSetVar(wp, upperKey, value);
+            websSetVar(wp, upperKey, value);
         }
         wfree(upperKey);
 
@@ -2751,6 +2751,7 @@ PUBLIC int websUrlParse(char *url, char **pbuf, char **pscheme, char **phost, ch
     Normalize a URI path to remove "./",  "../" and redundant separators.
     Note: this does not make an abs path and does not map separators nor change case.
     This validates the URI and expects it to begin with "/".
+    Returns an allocated path, caller must free.
  */
 PUBLIC char *websNormalizeUriPath(char *pathArg)
 {
@@ -2830,7 +2831,7 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
     Validate a URI path for use in a HTTP request line
     The URI must contain only valid characters and must being with "/" both before and after decoding.
     A decoded, normalized URI path is returned.
-    The uri is modified.
+    The uri is modified. Returns an allocated path. Caller must free.
  */
 PUBLIC char *websValidateUriPath(char *uri)
 {

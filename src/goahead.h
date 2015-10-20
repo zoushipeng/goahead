@@ -3051,7 +3051,7 @@ PUBLIC bool websValid(Webs *wp);
     The URI is decoded, and normalized removing "../" and "." segments.
     The URI must begin with a "/" both before and after decoding and normalization.
     @param uri URI to validate.
-    @return A validated, normalized URI path
+    @return A validated, normalized URI path. Caller must free.
     @ingroup Webs
     @stability Evolving
  */
