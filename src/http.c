@@ -2846,6 +2846,7 @@ PUBLIC char *websValidateUriPath(char *uri)
         return 0;
     }
     if (*uri != '/' || strchr(uri, '\\')) {
+        wfree(uri);
         return 0;
     }
     return uri;
