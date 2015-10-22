@@ -52,16 +52,18 @@ static int legacyTest(Webs *wp, char *prefix, char *dir, int flags);
 #if ME_UNIX_LIKE
 static void sigHandler(int signo);
 #endif
+static void exitProc(void *data, int id);
 
 /*********************************** Code *************************************/
 
 MAIN(goahead, int argc, char **argv, char **envp)
 {
     char    *argp, *auth, *home, *documents, *endpoints, *endpoint, *route, *tok, *lspec;
-    int     argind;
+    int     argind, duration;
 
     route = "route.txt";
     auth = "auth.txt";
+    duration = 0;
 
     for (argind = 1; argind < argc; argind++) {
         argp = argv[argind];
@@ -79,6 +81,10 @@ MAIN(goahead, int argc, char **argv, char **envp)
 
         } else if (smatch(argp, "--debugger") || smatch(argp, "-d") || smatch(argp, "-D")) {
             websSetDebug(1);
+
+        } else if (smatch(argp, "--duration")) {
+            if (argind >= argc) usage();
+            duration = atoi(argv[++argind]);
 
         } else if (smatch(argp, "--home")) {
             if (argind >= argc) usage();
@@ -168,10 +174,21 @@ MAIN(goahead, int argc, char **argv, char **envp)
         }
     }
 #endif
+    if (duration) {
+        printf("Running for %d secs\n", duration);
+        websStartEvent(duration * 1000, (WebsEventProc) exitProc, 0);
+    }
     websServiceEvents(&finished);
     logmsg(1, "Instructed to exit\n");
     websClose();
     return 0;
+}
+
+
+static void exitProc(void *data, int id) 
+{
+    websStopEvent(id);
+    finished = 1;
 }
 
 

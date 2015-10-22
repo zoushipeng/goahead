@@ -10,6 +10,10 @@
 
 /*********************************** Code *************************************/
 
+/*
+    Handle OPTIONS and TRACE methods.
+    Return true to indicate the request was handled, even for errors.
+ */
 static bool optionsHandler(Webs *wp)
 {
     assert(wp);

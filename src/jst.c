@@ -23,6 +23,7 @@ static char *skipWhite(char *s);
 /*
     Process requests and expand all scripting commands. We read the entire web page into memory and then process. If
     you have really big documents, it is better to make them plain HTML files rather than Javascript web pages.
+    Return true to indicate the request was handled, even for errors.
  */
 static bool jstHandler(Webs *wp)
 {

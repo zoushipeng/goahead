@@ -297,14 +297,13 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
     char            *str, *next, *token, *cp, *sep;
     int64           value;
     int             kind, hour, min, negate, value1, value2, value3, alpha, alpha2, alpha3;
-    int             dateSep, offset, zoneOffset, explicitZone, fullYear;
+    int             dateSep, offset, zoneOffset, fullYear;
 
     if (!dateString) {
         dateString = "";
     }
     offset = 0;
     zoneOffset = 0;
-    explicitZone = 0;
     sep = ", \t";
     cp = 0;
     next = 0;
@@ -378,7 +377,6 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
             }
             min = getNum(&cp, timeSep);
             zoneOffset = negate * (hour * 60 + min);
-            explicitZone = 1;
 
         } else if (isalpha((uchar) *token)) {
             if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) != 0) {
@@ -402,7 +400,6 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
 
                 case TOKEN_ZONE:
                     zoneOffset = (int) value;
-                    explicitZone = 1;
                     break;
 
                 default:

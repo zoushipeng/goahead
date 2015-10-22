@@ -20,6 +20,7 @@ static void fileWriteEvent(Webs *wp);
 /*********************************** Code *************************************/
 /*
     Serve static files
+    Return true to indicate the request was handled, even for errors.
  */
 static bool fileHandler(Webs *wp)
 {

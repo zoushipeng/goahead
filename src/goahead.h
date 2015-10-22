@@ -792,7 +792,7 @@ typedef int WebsHash;                       /* Returned by symCreate */
 /**
     Create a hash table
     @param size Minimum size of the hash index
-    @return Hash table ID
+    @return Hash table ID. Negative if the hash cannot be created.
     @ingroup WebsHash
     @stability Evolving
  */
@@ -3441,7 +3441,7 @@ PUBLIC void websRouteRequest(Webs *wp);
         This routine is called internally by the request pipeline.
     @param wp Webs request object
     @return True if the handler serviced the request. Return false to test other routes to handle this request.
-    This is for legacy handlers that do not have a match callback.
+        This is for legacy handlers that do not have a match callback.
     @ingroup WebsRoute
     @stability Evolving
  */
