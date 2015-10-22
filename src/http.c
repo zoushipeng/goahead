@@ -1170,6 +1170,9 @@ static void parseHeaders(Webs *wp)
 static bool processContent(Webs *wp)
 {
     if (!filterChunkData(wp)) {
+        if (wp->flags & WEBS_FINALIZED) {
+            return 1;
+        }
         return 0;
     }
 #if ME_GOAHEAD_CGI && !ME_ROM
