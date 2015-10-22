@@ -3233,7 +3233,7 @@ It is not validating and will do its best to parse any possible date string
     <table class="parameters" title="Parameters">
     <tr><td class="param">uri</td><td>URI to validate.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>A validated, normalized URI path.</dd></dl>
+    <dl><dt>Returns:</dt><dd>A validated, normalized URI path. Caller must free.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
@@ -4241,7 +4241,7 @@ The end pointer is not changed
     <table class="parameters" title="Parameters">
     <tr><td class="param">size</td><td>Minimum size of the hash index.</td>
     </table></dd></dl>
-    <dl><dt>Returns:</dt><dd>Hash table ID.</dd></dl>
+    <dl><dt>Returns:</dt><dd>Hash table ID. Negative if the hash cannot be created.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     <a href="#group___webs_hash_1ga9897fc40715bc8645e35d4314bdf66d1" class="ref">hashDelete</a>, <a href="#group___webs_hash_1gae375baa6d25284d055122f683d3ae9c3" class="ref">hashEnter</a>, <a href="#group___webs_hash_1gac33b2f81aa5b83316a20dd6ea6da9bd1" class="ref">hashFirst</a>, <a href="#group___webs_hash_1gae27ba1e72086c5fbc0019882c88129ea" class="ref">hashFree</a>, <a href="#group___webs_hash_1gae35ff2d94467272c72ddd47daed16d5b" class="ref">hashLookup</a>, <a href="#group___webs_hash_1gad26ba48ce394674a7e026dcc876f4e21" class="ref">hashNext</a></dd></dl>
