@@ -32,16 +32,12 @@ static int processUploadHeader(Webs *wp, char *line);
 
 /************************************* Code ***********************************/
 /*
-    The upload handler functions as a filter. It never actually handles a request
+    The upload handler functions as a filter.
+    Return false because the upload handler is not a terminal handler.
  */
 static bool uploadHandler(Webs *wp)
 {
-    assert(websValid(wp));
-
-    if (!(wp->flags & WEBS_UPLOAD)) {
-        return 0;
-    }
-    return initUpload(wp);
+    return 0;
 }
 
 
@@ -85,14 +81,16 @@ PUBLIC void websFreeUpload(Webs *wp)
     WebsUpload  *up;
     WebsKey     *s;
 
-    for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
-        up = s->content.value.symbol;
-        freeUploadFile(up);
-        if (up == wp->currentFile) {
-            wp->currentFile = 0;
+    if (wp->files >= 0) {
+        for (s = hashFirst(wp->files); s; s = hashNext(wp->files, s)) {
+            up = s->content.value.symbol;
+            freeUploadFile(up);
+            if (up == wp->currentFile) {
+                wp->currentFile = 0;
+            }
         }
+        hashFree(wp->files);
     }
-    hashFree(wp->files);
     if (wp->currentFile) {
         freeUploadFile(wp->currentFile);
         wp->currentFile = 0;
@@ -192,7 +190,7 @@ static int processContentBoundary(Webs *wp, char *line)
 static int processUploadHeader(Webs *wp, char *line)
 {
     WebsUpload  *file;
-    char            *key, *headerTok, *rest, *nextPair, *value;
+    char        *key, *headerTok, *rest, *nextPair, *value;
 
     if (line[0] == '\0') {
         wp->uploadState = UPLOAD_CONTENT_DATA;
@@ -241,10 +239,11 @@ static int processUploadHeader(Webs *wp, char *line)
                 value = websNormalizeUriPath(value);
                 if (*value == '.' || !websValidUriChars(value) || strpbrk(value, "\\/:*?<>|~\"'%`^\n\r\t\f")) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Bad upload client filename");
+                    wfree(value);
                     return -1;
                 }
                 wfree(wp->clientFilename);
-                wp->clientFilename = sclone(value);
+                wp->clientFilename = value;
 
                 /*
                     Create the file to hold the uploaded data
@@ -397,6 +396,7 @@ static int processContentData(Webs *wp)
          */
         close(wp->upfd);
         wp->upfd = -1;
+        wfree(wp->clientFilename);
         wp->clientFilename = 0;
         wfree(wp->uploadTmp);
         wp->uploadTmp = 0;
@@ -441,7 +441,7 @@ WebsUpload *websLookupUpload(Webs *wp, char *key)
 {
     WebsKey     *sp;
 
-    if (wp->files) {
+    if (wp->files >= 0) {
         if ((sp = hashLookup(wp->files, key)) == 0) {
             return 0;
         }

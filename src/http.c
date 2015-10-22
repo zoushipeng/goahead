@@ -200,7 +200,8 @@ static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 static bool     parseIncoming(Webs *wp);
-static void     pruneCache();
+static void     pruneSessions();
+static void     freeSessions();
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
 static void     setFileLimits();
@@ -238,7 +239,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
         return -1;
     }
     if (!websDebug) {
-        pruneId = websStartEvent(WEBS_SESSION_PRUNE, (WebsEventProc) pruneCache, 0);
+        pruneId = websStartEvent(WEBS_SESSION_PRUNE, (WebsEventProc) pruneSessions, 0);
     }
     if (documents) {
         websSetDocuments(documents);
@@ -302,8 +303,7 @@ PUBLIC void websClose()
         pruneId = -1;
     }
     if (sessions >= 0) {
-        hashFree(sessions);
-        sessions = -1;
+        freeSessions();
     }
     for (i = 0; i < listenMax; i++) {
         if (listens[i] >= 0) {
@@ -368,6 +368,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
         ssl = 0;
     }
     memset(wp, 0, sizeof(Webs));
+    wp->files = -1;
     wp->flags = flags;
     wp->state = WEBS_BEGIN;
     wp->wid = wid;
@@ -455,6 +456,7 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->authDetails);
     wfree(wp->authResponse);
     wfree(wp->authType);
+    wfree(wp->clientFilename);
     wfree(wp->contentType);
     wfree(wp->cookie);
     wfree(wp->decodedQuery);
@@ -493,7 +495,7 @@ static void termWebs(Webs *wp, int reuse)
     hashFree(wp->vars);
 
 #if ME_GOAHEAD_UPLOAD
-    if (wp->files) {
+    if (wp->files >= 0) {
         websFreeUpload(wp);
     }
 #endif
@@ -572,14 +574,13 @@ PUBLIC void websDone(Webs *wp)
 #if ME_GOAHEAD_ACCESS_LOG
     logRequest(wp, wp->code);
 #endif
-    websPageClose(wp);
     if (!(wp->flags & WEBS_RESPONSE_TRACED)) {
         trace(3 | WEBS_RAW_MSG, "Request complete: code %d", wp->code);
     }
 }
 
 
-static void complete(Webs *wp, int reuse)
+static int complete(Webs *wp, int reuse)
 {
     assert(wp);
     assert(websValid(wp));
@@ -589,22 +590,12 @@ static void complete(Webs *wp, int reuse)
         reuseConn(wp);
         socketCreateHandler(wp->sid, SOCKET_READABLE, socketEvent, wp);
         trace(5, "Keep connection alive");
-        return;
+        return 1;
     }
     trace(5, "Close connection");
-    assert(wp->timeout >= 0);
-    websCancelTimeout(wp);
-#if ME_COM_SSL
-    sslFree(wp);
-#endif
-    if (wp->sid >= 0) {
-        socketDeleteHandler(wp->sid);
-        socketCloseConnection(wp->sid);
-        wp->sid = -1;
-    }
-    bufFlush(&wp->rxbuf);
     wp->state = WEBS_BEGIN;
     wp->flags |= WEBS_CLOSED;
+    return 0;
 }
 
 
@@ -819,8 +810,9 @@ static void readEvent(Webs *wp)
             if (wp->state > WEBS_BEGIN) {
                 websError(wp, HTTP_CODE_COMMS_ERROR, "Read error: connection lost");
                 websPump(wp);
+            } else {
+                complete(wp, 0);
             }
-            complete(wp, 0);
         } else {
             socketDeleteHandler(wp->sid);
         }
@@ -845,6 +837,7 @@ PUBLIC void websPump(Webs *wp)
             break;
         case WEBS_READY:
             if (!websRunRequest(wp)) {
+                /* Reroute if the handler re-wrote the request */
                 websRouteRequest(wp);
                 wp->state = WEBS_READY;
                 canProceed = 1;
@@ -856,8 +849,7 @@ PUBLIC void websPump(Webs *wp)
             /* Nothing to do until websDone is called */
             return;
         case WEBS_COMPLETE:
-            complete(wp, 1);
-            canProceed = bufLen(&wp->rxbuf) != 0;
+            canProceed = complete(wp, 1);
             break;
         }
     }
@@ -980,7 +972,6 @@ static void parseFirstLine(Webs *wp)
         return;
     }
     if ((wp->path = websValidateUriPath(path)) == 0) {
-        error("Cannot normalize URL: %s", url);
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         wfree(buf);
         return;
@@ -1601,7 +1592,7 @@ static char *makeUri(char *scheme, char *host, int port, char *path)
  */
 PUBLIC void websRedirect(Webs *wp, char *uri)
 {
-    char    *message, *location, *uribuf, *scheme, *host, *pstr;
+    char    *message, *location, *scheme, *host, *pstr;
     char    hostbuf[ME_GOAHEAD_LIMIT_STRING];
     bool    secure, fullyQualified;
     ssize   len;
@@ -1609,7 +1600,7 @@ PUBLIC void websRedirect(Webs *wp, char *uri)
 
     assert(websValid(wp));
     assert(uri);
-    message = location = uribuf = NULL;
+    message = location = NULL;
 
     originalPort = port = 0;
     if ((host = (wp->host ? wp->host : websHostUrl)) != 0) {
@@ -1661,7 +1652,6 @@ PUBLIC void websRedirect(Webs *wp, char *uri)
     websDone(wp);
     wfree(message);
     wfree(location);
-    wfree(uribuf);
 }
 
 
@@ -3047,7 +3037,7 @@ static char *makeSessionID(Webs *wp)
 
     assert(wp);
     fmt(idBuf, sizeof(idBuf), "%08x%08x%d", PTOI(wp) + PTOI(wp->url), (int) time(0), nextSession++);
-    return websMD5Block(idBuf, sizeof(idBuf), "::webs.session::");
+    return websMD5Block(idBuf, slen(idBuf), "::webs.session::");
 }
 
 
@@ -3082,6 +3072,7 @@ static void freeSession(WebsSession *sp)
 
     if (sp->cache >= 0) {
         hashFree(sp->cache);
+        sp->cache = -1;
     }
     wfree(sp->id);
     wfree(sp);
@@ -3224,28 +3215,48 @@ PUBLIC int websSetSessionVar(Webs *wp, char *key, char *value)
 }
 
 
-static void pruneCache()
+static void pruneSessions()
 {
     WebsSession     *sp;
     WebsTime        when;
     WebsKey         *sym, *next;
     int             oldCount;
 
-    oldCount = sessionCount;
-    when = time(0);
-    for (sym = hashFirst(sessions); sym; sym = next) {
-        next = hashNext(sessions, sym);
-        sp = (WebsSession*) sym->content.value.symbol;
-        if (sp->expires <= when) {
-            hashDelete(sessions, sp->id);
-            sessionCount--;
-            freeSession(sp);
+    if (sessions >= 0) {
+        oldCount = sessionCount;
+        when = time(0);
+        for (sym = hashFirst(sessions); sym; sym = next) {
+            next = hashNext(sessions, sym);
+            sp = (WebsSession*) sym->content.value.symbol;
+            if (sp->expires <= when) {
+                hashDelete(sessions, sp->id);
+                sessionCount--;
+                freeSession(sp);
+            }
+        }
+        if (oldCount != sessionCount || sessionCount) {
+            trace(4, "Prune %d sessions. Remaining: %d", oldCount - sessionCount, sessionCount);
         }
     }
-    if (oldCount != sessionCount || sessionCount) {
-        trace(4, "Prune %d sessions. Remaining: %d", oldCount - sessionCount, sessionCount);
-    }
     websRestartEvent(pruneId, WEBS_SESSION_PRUNE);
+}
+
+
+static void freeSessions()
+{
+    WebsSession     *sp;
+    WebsKey         *sym, *next;
+
+    if (sessions >= 0) {
+        for (sym = hashFirst(sessions); sym; sym = next) {
+            next = hashNext(sessions, sym);
+            sp = (WebsSession*) sym->content.value.symbol;
+            hashDelete(sessions, sp->id);
+            freeSession(sp);
+        }
+        hashFree(sessions);
+        sessions = -1;
+    }
 }
 
 

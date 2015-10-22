@@ -426,6 +426,7 @@ PUBLIC void websCloseRoute()
 {
     WebsHandler *handler;
     WebsKey     *key;
+    int         i;
 
     if (handlers >= 0) {
         for (key = hashFirst(handlers); key; key = hashNext(handlers, key)) {
@@ -434,11 +435,15 @@ PUBLIC void websCloseRoute()
                 (*handler->close)();
             }
             wfree(handler->name);
+            wfree(handler);
         }
         hashFree(handlers);
         handlers = -1;
     }
     if (routes) {
+        for (i = 0; i < routeCount; i++) {
+            freeRoute(routes[i]);
+        }
         wfree(routes);
         routes = 0;
     }

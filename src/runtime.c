@@ -1840,11 +1840,10 @@ PUBLIC bool bufGrow(WebsBuf *bp, ssize room)
     wfree((char*) bp->buf);
 
     bp->buflen += room;
-    bp->endp = newbuf;
-    bp->servp = newbuf;
     bp->buf = newbuf;
     bp->endbuf = &bp->buf[bp->buflen];
-    bufPutBlk(bp, newbuf, len);
+    bp->servp = newbuf;
+    bp->endp = &newbuf[len];
     return 1;
 }
 

@@ -45,7 +45,8 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
 
 /************************************* Code ***********************************/
 /*
-    Process a form request. Returns 1 always to indicate it handled the URL
+    Process a form request.
+    Return true to indicate the request was handled, even for errors.
  */
 PUBLIC bool cgiHandler(Webs *wp)
 {
@@ -430,6 +431,7 @@ int websCgiPoll()
                     wfree(*ep);
                 }
                 wfree(cgip->cgiPath);
+                wfree(cgip->stdOut);
                 wfree(cgip->argp);
                 wfree(cgip->envp);
                 wfree(cgip);
@@ -449,7 +451,7 @@ int websCgiPoll()
  */
 PUBLIC char *websGetCgiCommName()
 {
-    return sclone(websTempFile(NULL, "cgi"));
+    return websTempFile(NULL, "cgi");
 }
 
 

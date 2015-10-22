@@ -19,6 +19,7 @@ static WebsHash actionTable = -1;            /* Symbol table for actions */
 /************************************* Code ***********************************/
 /*
     Process an action request. Returns 1 always to indicate it handled the URL
+    Return true to indicate the request was handled, even for errors.
  */
 static bool actionHandler(Webs *wp)
 {
