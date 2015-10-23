@@ -8,7 +8,7 @@
 
 #include    "goahead.h"
 
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 /************************************ Locals **********************************/
 /*
     Upload states

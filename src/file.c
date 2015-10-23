@@ -139,7 +139,7 @@ static void fileWriteEvent(Webs *wp)
 
 
 #if !ME_ROM
-PUBLIC int websProcessPutData(Webs *wp)
+PUBLIC bool websProcessPutData(Webs *wp)
 {
     ssize   nbytes;
 

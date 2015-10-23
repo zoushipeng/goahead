@@ -176,6 +176,11 @@ Me.load({
         mbedtls: {
             compact: true,      /* Compact edition - Disable non-essential ciphers and features */
         },
+
+        /*
+            Build without a file system (from ROM)
+         */
+        rom: false,
     },
 
     usage: {
@@ -222,6 +227,7 @@ Me.load({
         'goahead.tune':               'Optimize (size|speed|balanced)',
         'goahead.upload':             'Enable file upload (true|false)',
         'goahead.uploadDir':          'Define directory for uploaded files (path)',
+        'rom':                        'Build without a file system (true|false)',
     },
 
     customize: [
@@ -313,7 +319,11 @@ Me.load({
         },
 
         rom: {
-            action: `Path('src/rom-documents.c').write(Cmd.run('webcomp --prefix / rom.files', {dir: 'test'}))`,
+            action: `
+                let path =Path('src/rom-documents.c')
+                trace('Create', path)
+                path.write(Cmd.run('webcomp rom.files', {dir: 'test'}))
+            `,
         },
 
         install: {

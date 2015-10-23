@@ -90,7 +90,11 @@ static char *getAbsolutePath(char *path)
         return sclone(path);
     }
     dev = walloc(ME_GOAHEAD_LIMIT_FILENAME);
+#if ME_ROM
+    dev[0] = '\0';
+#else
     getcwd(dev, ME_GOAHEAD_LIMIT_FILENAME);
+#endif
     strcat(dev, "/");
     strcat(dev, path);
     return dev;

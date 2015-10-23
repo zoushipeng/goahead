@@ -43,7 +43,7 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv);
 static void actionTest(Webs *wp);
 static void sessionTest(Webs *wp);
 static void showTest(Webs *wp);
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 static void uploadTest(Webs *wp);
 #endif
 #if ME_GOAHEAD_LEGACY
@@ -159,7 +159,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
     websDefineAction("test", actionTest);
     websDefineAction("sessionTest", sessionTest);
     websDefineAction("showTest", showTest);
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
     websDefineAction("uploadTest", uploadTest);
 #endif
 
@@ -356,14 +356,14 @@ static void showTest(Webs *wp)
 }
 
 
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 /*
     Dump the file upload details. Don't actually do anything with the uploaded file.
  */
 static void uploadTest(Webs *wp)
 {
     WebsKey         *s;
-    WebsUpload  *up;
+    WebsUpload      *up;
     char            *upfile;
 
     websSetStatus(wp, 200);

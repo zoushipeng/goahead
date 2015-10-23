@@ -142,7 +142,7 @@ static int compile(char *fileList, char *prefix)
         } else {
             cp = file;
         }
-        while((sl = strchr(file, '\\')) != NULL) {
+        while ((sl = strchr(file, '\\')) != NULL) {
             *sl = '/';
         }
         if (*cp == '/') {
@@ -150,10 +150,10 @@ static int compile(char *fileList, char *prefix)
         }
 
         if (stat(file, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) {
-            fprintf(stdout, "\t{ \"%s\", 0, 0 },\n", cp);
+            fprintf(stdout, "\t{ \"/%s\", 0, 0 },\n", cp);
             continue;
         }
-        fprintf(stdout, "\t{ \"%s\", p%d, %d },\n", cp, nFile, (int) sbuf.st_size);
+        fprintf(stdout, "\t{ \"/%s\", p%d, %d },\n", cp, nFile, (int) sbuf.st_size);
         nFile++;
     }
     fclose(lp); 

@@ -14,7 +14,7 @@ web/auth/form/index.html
 web/auth/form/login.html
 web/bench
 web/bench/bench.html
-web/big.asp
+web/big.jst
 web/big.txt
 web/caching
 web/caching/cache.ejs
@@ -50,7 +50,6 @@ web/My Documents/index.html
 web/notFound.html
 web/numbers.html
 web/numbers.txt
-web/put
 web/secure
 web/secure/index.html
 web/sub
@@ -58,7 +57,7 @@ web/sub/a.html
 web/sub/b.html
 web/sub/sub1
 web/sub/sub1/c.html
-web/test.asp
+web/test.jst
 web/test.dat
 web/test.html
 web/test.jst
@@ -70,4 +69,3 @@ web/upload
 web/upload/upload.html
 auth.txt
 route.txt
-trace.txt
