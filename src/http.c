@@ -253,7 +253,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     websOptionsOpen();
     websActionOpen();
     websFileOpen();
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
     websUploadOpen();
 #endif
 #if ME_GOAHEAD_JAVASCRIPT
@@ -368,7 +368,6 @@ static void initWebs(Webs *wp, int flags, int reuse)
         ssl = 0;
     }
     memset(wp, 0, sizeof(Webs));
-    wp->files = -1;
     wp->flags = flags;
     wp->state = WEBS_BEGIN;
     wp->wid = wid;
@@ -557,11 +556,14 @@ PUBLIC void websDone(Webs *wp)
     assert(wp);
     assert(websValid(wp));
 
-    if (wp->flags & WEBS_FINALIZED) {
+    if (wp->finalized) {
         return;
     }
     assert(WEBS_BEGIN <= wp->state && wp->state <= WEBS_COMPLETE);
+#if DEPRECATED || 1
     wp->flags |= WEBS_FINALIZED;
+#endif
+    wp->finalized = 1;
 
     if (wp->state < WEBS_COMPLETE) {
         /*
@@ -1161,26 +1163,35 @@ static void parseHeaders(Webs *wp)
 
 static bool processContent(Webs *wp)
 {
-    if (!filterChunkData(wp)) {
-        if (wp->flags & WEBS_FINALIZED) {
-            return 1;
-        }
-        return 0;
+    bool    canProceed;
+
+    canProceed = filterChunkData(wp);
+    if (!canProceed || wp->finalized) {
+        return canProceed;
     }
-#if ME_GOAHEAD_CGI && !ME_ROM
-    if (wp->cgifd >= 0 && websProcessCgiData(wp) < 0) {
-        return 0;
-    }
-#endif
-#if ME_GOAHEAD_UPLOAD
-    if ((wp->flags & WEBS_UPLOAD) && websProcessUploadData(wp) < 0) {
-        return 0;
-    }
-#endif
 #if !ME_ROM
-    if (wp->putfd >= 0 && websProcessPutData(wp) < 0) {
-        return 0;
+#if ME_GOAHEAD_UPLOAD
+    if (wp->flags & WEBS_UPLOAD) {
+        canProceed = websProcessUploadData(wp);
+        if (!canProceed || wp->finalized) {
+            return canProceed;
+        }
     }
+#endif
+    if (wp->putfd >= 0) {
+        canProceed = websProcessPutData(wp);
+        if (!canProceed || wp->finalized) {
+            return canProceed;
+        }
+    }
+#if ME_GOAHEAD_CGI
+    if (wp->cgifd >= 0) {
+        canProceed = websProcessCgiData(wp);
+        if (!canProceed || wp->finalized) {
+            return canProceed;
+        }
+    }
+#endif
 #endif
     if (wp->eof) {
         wp->state = WEBS_READY;
@@ -1189,9 +1200,8 @@ static bool processContent(Webs *wp)
             The handler may not have been created if all the content was read in the initial read. No matter.
          */
         socketDeleteHandler(wp->sid);
-        return 1;
     }
-    return 0;
+    return canProceed;
 }
 
 
@@ -1220,13 +1230,11 @@ static bool filterChunkData(Webs *wp)
     ssize       chunkSize;
     char        *start, *cp;
     ssize       len, nbytes;
-    bool        added;
     int         bad;
 
     assert(wp);
     assert(wp->rxbuf.buf);
     rxbuf = &wp->rxbuf;
-    added = 0;
 
     while (bufLen(rxbuf) > 0) {
         switch (wp->rxChunkState) {
@@ -1254,17 +1262,18 @@ static bool filterChunkData(Webs *wp)
             bad = (start[0] != '\r' || start[1] != '\n');
             for (cp = &start[2]; cp < rxbuf->endp && *cp != '\n'; cp++) {}
             if (*cp != '\n' && (cp - start) < 80) {
+                /* Insufficient data */
                 return 0;
             }
             bad += (cp[-1] != '\r' || cp[0] != '\n');
             if (bad) {
                 websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad chunk specification");
-                return 0;
+                return 1;
             }
             chunkSize = hextoi(&start[2]);
             if (!isxdigit((uchar) start[2]) || chunkSize < 0) {
                 websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad chunk specification");
-                return 0;
+                return 1;
             }
             if (chunkSize == 0) {
                 /* On the last chunk, consume the final "\r\n" */
@@ -1276,7 +1285,7 @@ static bool filterChunkData(Webs *wp)
                 bad += (cp[-1] != '\r' || cp[0] != '\n');
                 if (bad) {
                     websError(wp, WEBS_CLOSE | HTTP_CODE_BAD_REQUEST, "Bad final chunk specification");
-                    return 0;
+                    return 1;
                 }
             }
             bufAdjustStart(rxbuf, cp - start + 1);
@@ -1305,14 +1314,10 @@ static bool filterChunkData(Webs *wp)
                 wp->rxChunkState = WEBS_CHUNK_START;
                 bufCompact(rxbuf);
             }
-            added = 1;
-            if (nbytes < len) {
-                return added;
-            }
             break;
         }
     }
-    return added;
+    return 0;
 }
 
 
@@ -1747,75 +1752,6 @@ PUBLIC char *websEscapeHtml(char *html)
 }
 
 
-/*
-    Output an error message and cleanup
- */
-PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
-{
-    va_list     args;
-    char        *msg, *buf;
-    char        *encoded;
-    int         status;
-
-    assert(wp);
-    if (code & WEBS_CLOSE) {
-        wp->flags &= ~WEBS_KEEP_ALIVE;
-    }
-    status = code & WEBS_CODE_MASK;
-#if !ME_ROM
-    if (wp->putfd >= 0) {
-        close(wp->putfd);
-        wp->putfd = -1;
-    }
-#endif
-    if (wp->rxRemaining && status != 200 && status != 301 && status != 302 && status != 401) {
-        /* Close connection so we don't have to consume remaining content */
-        wp->flags &= ~WEBS_KEEP_ALIVE;
-    }
-    encoded = websEscapeHtml(wp->url);
-    wfree(wp->url);
-    wp->url = encoded;
-    if (fmt) {
-        if (!(code & WEBS_NOLOG)) {
-            va_start(args, fmt);
-            msg = sfmtv(fmt, args);
-            va_end(args);
-            trace(2, "%s", msg);
-            wfree(msg);
-        }
-        buf = sfmt("\
-<html>\r\n\
-    <head><title>Document Error: %s</title></head>\r\n\
-    <body>\r\n\
-        <h2>Access Error: %s</h2>\r\n\
-    </body>\r\n\
-</html>\r\n", websErrorMsg(code), websErrorMsg(code));
-    } else {
-        buf = 0;
-    }
-    websResponse(wp, code, buf);
-    wfree(buf);
-}
-
-
-/*
-    Return the error message for a given code
- */
-PUBLIC char *websErrorMsg(int code)
-{
-    WebsError   *ep;
-
-    assert(code >= 0);
-    code &= WEBS_CODE_MASK;
-    for (ep = websErrors; ep->code; ep++) {
-        if (code == ep->code) {
-            return ep->msg;
-        }
-    }
-    return websErrorMsg(HTTP_CODE_INTERNAL_SERVER_ERROR);
-}
-
-
 PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...)
 {
     va_list     vargs;
@@ -2103,8 +2039,8 @@ PUBLIC int websFlush(Webs *wp, bool block)
     }
     op = &wp->output;
     if (wp->flags & WEBS_CHUNKING) {
-        trace(6, "websFlush chunking finalized %d", wp->flags & WEBS_FINALIZED);
-        if (flushChunkData(wp) && wp->flags & WEBS_FINALIZED) {
+        trace(6, "websFlush chunking finalized %d", wp->finalized);
+        if (flushChunkData(wp) && wp->finalized) {
             trace(6, "websFlush: write chunk trailer");
             bufPutStr(op, "\r\n0\r\n\r\n");
             bufAddNull(op);
@@ -2138,7 +2074,7 @@ PUBLIC int websFlush(Webs *wp, bool block)
     }
     assert(websValid(wp));
 
-    if (bufLen(op) == 0 && wp->flags & WEBS_FINALIZED) {
+    if (bufLen(op) == 0 && wp->finalized) {
         wp->state = WEBS_COMPLETE;
     }
     if (block) {
@@ -3320,6 +3256,77 @@ static void setFileLimits()
     trace(6, "Max files soft %d, max %d", r.rlim_cur, r.rlim_max);
 #endif
 }
+
+/*
+    Output an error message and cleanup
+ */
+PUBLIC void websError(Webs *wp, int code, char *fmt, ...)
+{
+    va_list     args;
+    char        *msg, *buf;
+    char        *encoded;
+    int         status;
+
+    assert(wp);
+    wp->error++;
+    if (code & WEBS_CLOSE) {
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+        wp->connError++;
+    }
+    status = code & WEBS_CODE_MASK;
+#if !ME_ROM
+    if (wp->putfd >= 0) {
+        close(wp->putfd);
+        wp->putfd = -1;
+    }
+#endif
+    if (wp->rxRemaining && status != 200 && status != 301 && status != 302 && status != 401) {
+        /* Close connection so we don't have to consume remaining content */
+        wp->flags &= ~WEBS_KEEP_ALIVE;
+    }
+    encoded = websEscapeHtml(wp->url);
+    wfree(wp->url);
+    wp->url = encoded;
+    if (fmt) {
+        if (!(code & WEBS_NOLOG)) {
+            va_start(args, fmt);
+            msg = sfmtv(fmt, args);
+            va_end(args);
+            trace(2, "%s", msg);
+            wfree(msg);
+        }
+        buf = sfmt("\
+<html>\r\n\
+    <head><title>Document Error: %s</title></head>\r\n\
+    <body>\r\n\
+        <h2>Access Error: %s</h2>\r\n\
+    </body>\r\n\
+</html>\r\n", websErrorMsg(code), websErrorMsg(code));
+    } else {
+        buf = 0;
+    }
+    websResponse(wp, code, buf);
+    wfree(buf);
+}
+
+
+/*
+    Return the error message for a given code
+ */
+PUBLIC char *websErrorMsg(int code)
+{
+    WebsError   *ep;
+
+    assert(code >= 0);
+    code &= WEBS_CODE_MASK;
+    for (ep = websErrors; ep->code; ep++) {
+        if (code == ep->code) {
+            return ep->msg;
+        }
+    }
+    return websErrorMsg(HTTP_CODE_INTERNAL_SERVER_ERROR);
+}
+
 
 /*
     Accessors

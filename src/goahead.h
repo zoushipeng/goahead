@@ -1725,7 +1725,9 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_CHUNKING           0x2         /**< Currently chunking output body data */
 #define WEBS_CLOSED             0x4         /**< Connection closed, ready to free */
 #define WEBS_COOKIE             0x8         /**< Cookie supplied in request */
+#if DEPRECATED || 1
 #define WEBS_FINALIZED          0x10        /**< Output is finalized */
+#endif
 #define WEBS_FORM               0x20        /**< Request is a form (url encoded data) */
 #define WEBS_HEADERS_CREATED    0x40        /**< Headers have been created and buffered */
 #define WEBS_HTTP11             0x80        /**< Request is using HTTP/1.1 */
@@ -1848,6 +1850,10 @@ typedef struct Webs {
     int             docfd;              /**< File descriptor for document being served */
     ssize           written;            /**< Bytes actually transferred */
     ssize           putLen;             /**< Bytes read by a PUT request */
+
+    int             finalized: 1;          /**< Request has been completed */
+    int             error: 1;              /**< Request has an error */
+    int             connError: 1;          /**< Request has a connection error */
 
     struct WebsSession *session;        /**< Session record */
     struct WebsRoute *route;            /**< Request route */
@@ -2667,11 +2673,11 @@ PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
     Process request PUT body data
     @description This routine is called by the core HTTP engine to process request PUT data.
     @param wp Webs request object
-    @return Zero if successful, otherwise -1.
+    @return True if processing the request can proceed. 
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websProcessPutData(Webs *wp);
+PUBLIC bool websProcessPutData(Webs *wp);
 #endif
 
 /**
@@ -3036,7 +3042,7 @@ PUBLIC int websUrlParse(char *url, char **buf, char **protocol, char **host, cha
 /**
     Test if a webs object is valid
     @description After calling websDone, the websFree routine will have been called and the memory for the webs object
-        will be released. Call websValid to test an object hand for validity.
+        will be released. Call websValid to test a Webs object for validity.
     @param wp Webs request object
     @return True if the webs object is still valid and the request has not been completed.
     @ingroup Webs
@@ -3159,11 +3165,11 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
-    @return Zero if successful, otherwise -1.
+    @return True if processing the request can proceed. 
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websProcessUploadData(Webs *wp);
+PUBLIC bool websProcessUploadData(Webs *wp);
 
 /**
     Free file upload data structures.
@@ -3178,11 +3184,11 @@ PUBLIC void websFreeUpload(Webs *wp);
 /**
     Process CGI request body data.
     @param wp Webs request object
-    @return Zero if successful, otherwise -1.
+    @return True if processing the request can proceed. 
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websProcessCgiData(Webs *wp);
+PUBLIC bool websProcessCgiData(Webs *wp);
 #endif
 
 #if ME_GOAHEAD_JAVASCRIPT
