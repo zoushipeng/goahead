@@ -38,7 +38,6 @@ route uri=/auth/digest/ auth=digest abilities=view
 #
 route uri=/auth/form/login.html
 
-# MOB -- why two redirects?
 route uri=/action/login methods=POST handler=action redirect=200@/auth/form/index.html redirect=401@/auth/form/login.html
 route uri=/action/logout methods=GET|POST handler=action redirect=200@/auth/form/login.html
 route uri=/auth/form/ auth=form handler=continue abilities=manage redirect=401@/auth/form/login.html

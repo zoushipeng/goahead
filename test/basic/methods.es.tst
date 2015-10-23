@@ -5,7 +5,6 @@
 const HTTP = tget('TM_HTTP') || "127.0.0.1:8080"
 let http: Http = new Http
 
-/*
 //  Test methods are caseless
 http.connect("GeT", HTTP + "/index.html")
 ttrue(http.status == 200)
@@ -24,12 +23,12 @@ ttrue(http.status == 204)
 
 //  Options
 http.connect("OPTIONS", HTTP + "/index.html")
-ttrue(http.header("Allow") == "DELETE,GET,HEAD,OPTIONS,POST,PUT")
+ttrue(http.status == 406)
+// ttrue(http.header("Allow") == "DELETE,GET,HEAD,OPTIONS,POST,PUT")
 
 //  Trace - should be disabled
 http.connect("TRACE", HTTP + "/index.html")
 ttrue(http.status == 406)
-*/
 
 //  Post
 http.post(HTTP + "/index.html", "Some data")

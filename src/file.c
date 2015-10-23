@@ -151,14 +151,12 @@ PUBLIC bool websProcessPutData(Webs *wp)
     wp->putLen += nbytes;
     if (wp->putLen > ME_GOAHEAD_LIMIT_PUT) {
         websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Put file too large");
-        return -1;
-    }
-    if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
+
+    } else if (write(wp->putfd, wp->input.servp, (int) nbytes) != nbytes) {
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR | WEBS_CLOSE, "Cannot write to file");
-        return -1;
     }
     websConsumeInput(wp, nbytes);
-    return 0;
+    return 1;
 }
 #endif
 
