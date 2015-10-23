@@ -382,10 +382,11 @@ static void initWebs(Webs *wp, int flags, int reuse)
 #if !ME_ROM
     wp->putfd = -1;
 #endif
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
     wp->cgifd = -1;
 #endif
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
+    wp->files = -1;
     wp->upfd = -1;
 #endif
     if (reuse) {
@@ -433,13 +434,13 @@ static void termWebs(Webs *wp, int reuse)
             wp->sid = -1;
         }
     }
+#if !ME_ROM
 #if ME_GOAHEAD_CGI
     if (wp->cgifd >= 0) {
         close(wp->cgifd);
         wp->cgifd = -1;
     }
 #endif
-#if !ME_ROM
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
@@ -448,6 +449,7 @@ static void termWebs(Webs *wp, int reuse)
             error("Cannot rename PUT file from %s to %s", wp->putname, wp->filename);
         }
     }
+    wfree(wp->clientFilename);
 #endif
     websPageClose(wp);
     if (wp->timeout >= 0 && !reuse) {
@@ -456,7 +458,6 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->authDetails);
     wfree(wp->authResponse);
     wfree(wp->authType);
-    wfree(wp->clientFilename);
     wfree(wp->contentType);
     wfree(wp->cookie);
     wfree(wp->decodedQuery);
@@ -476,12 +477,12 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->url);
     wfree(wp->userAgent);
     wfree(wp->username);
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
     wfree(wp->boundary);
     wfree(wp->uploadTmp);
     wfree(wp->uploadVar);
 #endif
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
     wfree(wp->cgiStdin);
 #endif
 #if ME_GOAHEAD_DIGEST
@@ -494,7 +495,7 @@ static void termWebs(Webs *wp, int reuse)
 #endif
     hashFree(wp->vars);
 
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
     if (wp->files >= 0) {
         websFreeUpload(wp);
     }

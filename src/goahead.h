@@ -1666,7 +1666,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 
 /**
     File upload structure
@@ -1827,7 +1827,6 @@ typedef struct Webs {
     char            *url;               /**< Full request url. This is not decoded. */
     char            *userAgent;         /**< User agent (browser) */
     char            *username;          /**< Authorization username */
-
     int             sid;                /**< Socket id (handler) */
     int             listenSid;          /**< Listen Socket id */
     int             port;               /**< Request port number */
@@ -1839,7 +1838,7 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
@@ -1863,7 +1862,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -2016,7 +2015,7 @@ PUBLIC int websAlloc(int sid);
  */
 PUBLIC void websCancelTimeout(Webs *wp);
 
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -2230,7 +2229,7 @@ PUBLIC void websFree(Webs *wp);
  */
 PUBLIC int websGetBackground();
 
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
@@ -3156,7 +3155,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
@@ -3175,7 +3174,7 @@ PUBLIC int websProcessUploadData(Webs *wp);
 PUBLIC void websFreeUpload(Webs *wp);
 #endif
 
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
 /**
     Process CGI request body data.
     @param wp Webs request object
