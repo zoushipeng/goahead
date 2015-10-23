@@ -792,7 +792,7 @@ typedef int WebsHash;                       /* Returned by symCreate */
 /**
     Create a hash table
     @param size Minimum size of the hash index
-    @return Hash table ID
+    @return Hash table ID. Negative if the hash cannot be created.
     @ingroup WebsHash
     @stability Evolving
  */
@@ -1666,7 +1666,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 
 /**
     File upload structure
@@ -1725,7 +1725,9 @@ PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #define WEBS_CHUNKING           0x2         /**< Currently chunking output body data */
 #define WEBS_CLOSED             0x4         /**< Connection closed, ready to free */
 #define WEBS_COOKIE             0x8         /**< Cookie supplied in request */
+#if DEPRECATED || 1
 #define WEBS_FINALIZED          0x10        /**< Output is finalized */
+#endif
 #define WEBS_FORM               0x20        /**< Request is a form (url encoded data) */
 #define WEBS_HEADERS_CREATED    0x40        /**< Headers have been created and buffered */
 #define WEBS_HTTP11             0x80        /**< Request is using HTTP/1.1 */
@@ -1814,7 +1816,6 @@ typedef struct Webs {
     char            *ext;               /**< Path extension */
     char            *filename;          /**< Document path name */
     char            *host;              /**< Requested host */
-    char            *inputFile;         /**< File name to write input body data */
     char            *method;            /**< HTTP request method */
     char            *password;          /**< Authorization password */
     char            *path;              /**< Path name without query. This is decoded. */
@@ -1828,7 +1829,6 @@ typedef struct Webs {
     char            *url;               /**< Full request url. This is not decoded. */
     char            *userAgent;         /**< User agent (browser) */
     char            *username;          /**< Authorization username */
-
     int             sid;                /**< Socket id (handler) */
     int             listenSid;          /**< Listen Socket id */
     int             port;               /**< Request port number */
@@ -1840,7 +1840,7 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
@@ -1850,6 +1850,10 @@ typedef struct Webs {
     int             docfd;              /**< File descriptor for document being served */
     ssize           written;            /**< Bytes actually transferred */
     ssize           putLen;             /**< Bytes read by a PUT request */
+
+    int             finalized: 1;          /**< Request has been completed */
+    int             error: 1;              /**< Request has an error */
+    int             connError: 1;          /**< Request has a connection error */
 
     struct WebsSession *session;        /**< Session record */
     struct WebsRoute *route;            /**< Request route */
@@ -1864,7 +1868,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -2017,7 +2021,7 @@ PUBLIC int websAlloc(int sid);
  */
 PUBLIC void websCancelTimeout(Webs *wp);
 
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -2231,7 +2235,7 @@ PUBLIC void websFree(Webs *wp);
  */
 PUBLIC int websGetBackground();
 
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
@@ -2669,11 +2673,11 @@ PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
     Process request PUT body data
     @description This routine is called by the core HTTP engine to process request PUT data.
     @param wp Webs request object
-    @return Zero if successful, otherwise -1.
+    @return True if processing the request can proceed. 
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websProcessPutData(Webs *wp);
+PUBLIC bool websProcessPutData(Webs *wp);
 #endif
 
 /**
@@ -3038,7 +3042,7 @@ PUBLIC int websUrlParse(char *url, char **buf, char **protocol, char **host, cha
 /**
     Test if a webs object is valid
     @description After calling websDone, the websFree routine will have been called and the memory for the webs object
-        will be released. Call websValid to test an object hand for validity.
+        will be released. Call websValid to test a Webs object for validity.
     @param wp Webs request object
     @return True if the webs object is still valid and the request has not been completed.
     @ingroup Webs
@@ -3052,7 +3056,7 @@ PUBLIC bool websValid(Webs *wp);
     The URI is decoded, and normalized removing "../" and "." segments.
     The URI must begin with a "/" both before and after decoding and normalization.
     @param uri URI to validate.
-    @return A validated, normalized URI path
+    @return A validated, normalized URI path. Caller must free.
     @ingroup Webs
     @stability Evolving
  */
@@ -3157,15 +3161,15 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
-#if ME_GOAHEAD_UPLOAD
+#if ME_GOAHEAD_UPLOAD && !ME_ROM
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
-    @return Zero if successful, otherwise -1.
+    @return True if processing the request can proceed. 
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websProcessUploadData(Webs *wp);
+PUBLIC bool websProcessUploadData(Webs *wp);
 
 /**
     Free file upload data structures.
@@ -3176,15 +3180,15 @@ PUBLIC int websProcessUploadData(Webs *wp);
 PUBLIC void websFreeUpload(Webs *wp);
 #endif
 
-#if ME_GOAHEAD_CGI
+#if ME_GOAHEAD_CGI && !ME_ROM
 /**
     Process CGI request body data.
     @param wp Webs request object
-    @return Zero if successful, otherwise -1.
+    @return True if processing the request can proceed. 
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websProcessCgiData(Webs *wp);
+PUBLIC bool websProcessCgiData(Webs *wp);
 #endif
 
 #if ME_GOAHEAD_JAVASCRIPT
@@ -3442,7 +3446,7 @@ PUBLIC void websRouteRequest(Webs *wp);
         This routine is called internally by the request pipeline.
     @param wp Webs request object
     @return True if the handler serviced the request. Return false to test other routes to handle this request.
-    This is for legacy handlers that do not have a match callback.
+        This is for legacy handlers that do not have a match callback.
     @ingroup WebsRoute
     @stability Evolving
  */
