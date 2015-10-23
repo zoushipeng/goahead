@@ -246,6 +246,9 @@
 #ifndef ME_PREFIXES
     #define ME_PREFIXES "install-prefixes"
 #endif
+#ifndef ME_ROM
+    #define ME_ROM 0
+#endif
 #ifndef ME_TITLE
     #define ME_TITLE "Embedthis GoAhead"
 #endif

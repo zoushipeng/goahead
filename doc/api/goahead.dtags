@@ -665,32 +665,6 @@
     </member>
   </compound>
   <compound kind="group">
-    <name>WebsUpload</name>
-    <title>WebsUpload</title>
-    <filename>group___webs_upload.html</filename>
-    <member kind="function">
-      <type>WebsHash</type>
-      <name>websGetUpload</name>
-      <anchorfile>group___webs_upload.html</anchorfile>
-      <anchor>gaf80a429f3b30c1e621e917c8f04f0415</anchor>
-      <arglist>(struct Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>WebsUpload *</type>
-      <name>websLookupUpload</name>
-      <anchorfile>group___webs_upload.html</anchorfile>
-      <anchor>ga8bb8ede239760e2701c88e701ef1aee1</anchor>
-      <arglist>(struct Webs *wp, char *key)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
-      <name>websUploadOpen</name>
-      <anchorfile>group___webs_upload.html</anchorfile>
-      <anchor>ga1fc8250d601b18c880422178cfe81fd5</anchor>
-      <arglist>()</arglist>
-    </member>
-  </compound>
-  <compound kind="group">
     <name>Webs</name>
     <title>Webs</title>
     <filename>group___webs.html</filename>
@@ -817,27 +791,6 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gad02e7e70e4f3b7bca1ee2a318a336e80</anchor>
       <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>websCgiHandler</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gac05856f3dd04aeef0732570bedf044ad</anchor>
-      <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>websCgiOpen</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gafd0f480e0038ab974e96c009a9a83641</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>websCgiPoll</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga2ba15b61fb46c880fa4f443ac69976c2</anchor>
-      <arglist>()</arglist>
     </member>
     <member kind="function">
       <type>void</type>
@@ -974,13 +927,6 @@
     </member>
     <member kind="function">
       <type>void</type>
-      <name>websFreeUpload</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga54bd8e9073aca8fe5ac527e0b26ae738</anchor>
-      <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>void</type>
       <name>websFsClose</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gabf22d43f1a29726aa8bf1a91d1a709c6</anchor>
@@ -998,13 +944,6 @@
       <name>websGetBackground</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaaad30c26a4b0932d71f7d9a8ab4ce191</anchor>
-      <arglist>()</arglist>
-    </member>
-    <member kind="function">
-      <type>char *</type>
-      <name>websGetCgiCommName</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga736eaad151d7a8e1c0bf8eab0321394a</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -1321,20 +1260,6 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaff9d3f2f19119d5b42ae0e35a55781d3</anchor>
       <arglist>(WebsTime *time, char *date, struct tm *defaults)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>websProcessCgiData</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gac2b3fb36265e574114d52d2cb37b62b9</anchor>
-      <arglist>(Webs *wp)</arglist>
-    </member>
-    <member kind="function">
-      <type>int</type>
-      <name>websProcessUploadData</name>
-      <anchorfile>group___webs.html</anchorfile>
-      <anchor>gad6b26796bb47176098f6f27424cf0dd5</anchor>
-      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>

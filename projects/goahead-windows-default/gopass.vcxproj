@@ -14,7 +14,7 @@
       </ItemDefinitionGroup>
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{eb7bb2af-a65b-4660-a6ca-3f42bea8d19d}</ProjectGuid>
+        <ProjectGuid>{03872e3c-6d75-45ea-a3cb-6ba41e0fd071}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -135,7 +135,7 @@ cd projects\goahead-windows-default</Command>
 
     <ItemGroup>
       <ProjectReference Include="libgo.vcxproj">
-      <Project>7c17e307-cdf0-42ab-ac16-79c2b0661e35</Project>
+      <Project>2c29bee3-a1d1-494b-b20d-cd1dac24543f</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       </ProjectReference>
     </ItemGroup>
