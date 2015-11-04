@@ -1821,11 +1821,9 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
             wp->flags &= ~WEBS_KEEP_ALIVE;
         }
         websWriteHeader(wp, NULL, "%s %d %s", protoVersion, wp->code, websErrorMsg(wp->code));
-        /*
-            The Embedthis Open Source license does not permit modification of the Server header
-         */
+#if !ME_GOAHEAD_STEALTH
         websWriteHeader(wp, "Server", "GoAhead-http");
-
+#endif
         if ((date = websGetDateString(NULL)) != NULL) {
             websWriteHeader(wp, "Date", "%s", date);
             wfree(date);
