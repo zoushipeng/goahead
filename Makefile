@@ -114,9 +114,7 @@ help:
 	@echo '  ME_GOAHEAD_TUNE                   # Optimize (size|speed|balanced)' >&2
 	@echo '  ME_GOAHEAD_UPLOAD                 # Enable file upload (true|false)' >&2
 	@echo '  ME_GOAHEAD_UPLOAD_DIR             # Define directory for uploaded files (path)' >&2
-	@echo '  ME_COM_EST                        # Enable the EST SSL stack' >&2
-	@echo '  ME_COM_NANOSSL                    # Enable the Mocana NanoSSL stack' >&2
-	@echo '  ME_COM_MATRIXSSL                  # Enable the MatrixSSL SSL stack' >&2
+    @echo '  ME_COM_MBEDTLS                    # Enable the mbed TLS stack' >&2
 	@echo '  ME_COM_OPENSSL                    # Enable the OpenSSL SSL stack' >&2
 	@echo '  ME_ROM                            # Build for ROM without a file system' >&2
 	@echo '  ME_STACK_SIZE                     # Define the VxWorks stack size' >&2
