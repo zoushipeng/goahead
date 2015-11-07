@@ -224,6 +224,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     websOsOpen();
     websRuntimeOpen();
     websTimeOpen();
+    websFsOpen();
     logOpen();
     setFileLimits();
     socketOpen();
@@ -264,7 +265,6 @@ PUBLIC int websOpen(char *documents, char *routeFile)
         return -1;
     }
 #endif
-    websFsOpen();
     if (websLoad(routeFile) < 0) {
         return -1;
     }
