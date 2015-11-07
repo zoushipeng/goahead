@@ -148,11 +148,9 @@ Me.load({
             ssl: {
                 authority: '',           /* Root certificates for verifying client certificates */
                 cache: 512,              /* Set the session cache size (items) */
-                //certificate: 'self.crt', /* Server certificate file. A valid certificate must be obtained */
-certificate: '/certs/samples/self.crt', /* Server certificate file. A valid certificate must be obtained */
+                certificate: 'self.crt', /* Server certificate file. A valid certificate must be obtained */
                 ciphers: '',             /* Override cipher suite for SSL.  */
-key: '/certs/samples/self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
-                //key: 'self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
+                key: 'self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
                 logLevel: 5              /* Starting logging level for SSL messages */
                 renegotiate: true,       /* Enable/Disable SSL renegotiation (defaults to true) */
                 revoke: '',              /* List of revoked client certificates */
