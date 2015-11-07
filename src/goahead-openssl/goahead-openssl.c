@@ -198,7 +198,7 @@ PUBLIC int sslOpen()
     uchar       resume[16];
     char        *ciphers;
 
-    trace(7, "Initializing SSL"); 
+    trace(7, "Initializing SSL");
 
     randBuf.now = time(0);
     randBuf.pid = getpid();
@@ -208,8 +208,7 @@ PUBLIC int sslOpen()
     RAND_load_file("/dev/urandom", 256);
     trace(6, "OpenSsl: After calling RAND_load_file");
 #endif
-
-    CRYPTO_malloc_init(); 
+    CRYPTO_malloc_init();
 #if !ME_WIN_LIKE
     OpenSSL_add_all_algorithms();
 #endif
@@ -218,7 +217,7 @@ PUBLIC int sslOpen()
     SSLeay_add_ssl_algorithms();
 
     if ((sslctx = SSL_CTX_new(SSLv23_server_method())) == 0) {
-        error("Unable to create SSL context"); 
+        error("Unable to create SSL context");
         return -1;
     }
 
@@ -244,14 +243,14 @@ PUBLIC int sslOpen()
           Set the client certificate verification locations
      */
     if (ME_GOAHEAD_SSL_AUTHORITY && *ME_GOAHEAD_SSL_AUTHORITY) {
-        if ((!SSL_CTX_load_verify_locations(sslctx, ME_GOAHEAD_SSL_AUTHORITY, NULL)) || 
+        if ((!SSL_CTX_load_verify_locations(sslctx, ME_GOAHEAD_SSL_AUTHORITY, NULL)) ||
             (!SSL_CTX_set_default_verify_paths(sslctx))) {
             error("Unable to read cert verification locations");
             sslClose();
             return -1;
         }
         /*
-            Define the list of CA certificates to send to the client before they send their client 
+            Define the list of CA certificates to send to the client before they send their client
             certificate for validation
          */
         SSL_CTX_set_client_CA_list(sslctx, SSL_load_client_CA_file(ME_GOAHEAD_SSL_AUTHORITY));
@@ -294,7 +293,7 @@ PUBLIC int sslOpen()
      */
     SSL_CTX_set_options(sslctx, SSL_OP_ALL);
 
-    /* 
+    /*
         Ensure we generate a new private key for each connection
      */
     SSL_CTX_set_options(sslctx, SSL_OP_SINGLE_DH_USE);
@@ -457,7 +456,7 @@ PUBLIC int sslUpgrade(Webs *wp)
     SSL_set_app_data(wp->ssl, (void*) wp);
     return 0;
 }
-    
+
 
 PUBLIC void sslFree(Webs *wp)
 {
@@ -483,7 +482,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     if (wp->ssl == 0 || len <= 0) {
         return -1;
     }
-    /*  
+    /*
         Limit retries on WANT_READ. If non-blocking and no data, then this can spin forever.
      */
     sp = socketPtr(wp->sid);
@@ -553,7 +552,7 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
         totalWritten += rc;
         buf = (void*) ((char*) buf + rc);
         len -= rc;
-        trace(7, "OpenSSL: write: len %d, written %d, total %d", len, rc, totalWritten); 
+        trace(7, "OpenSSL: write: len %d, written %d, total %d", len, rc, totalWritten);
     } while (len > 0);
 
     if (totalWritten == 0 && error == SSL_ERROR_WANT_WRITE) {
@@ -569,26 +568,48 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
  */
 static int sslSetCertFile(char *certFile)
 {
+    X509    *cert;
+    BIO     *bio;
+    char    *buf;
+    int     rc;
+
     assert(sslctx);
     assert(certFile);
 
+    rc = -1;
+    bio = 0;
+    buf = 0;
+    cert = 0;
+
     if (sslctx == NULL) {
-        return -1;
+        return rc;
     }
-    if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_PEM) <= 0) {
-        if (SSL_CTX_use_certificate_file(sslctx, certFile, SSL_FILETYPE_ASN1) <= 0) {
-            error("Unable to read certificate file: %s", certFile); 
-            return -1;
-        }
-        return -1;
+    if ((buf = websReadWholeFile(certFile)) == 0) {
+        error("Unable to read certificate %s", certFile);
+
+    } else if ((bio = BIO_new_mem_buf(buf, -1)) == 0) {
+        error("Unable to allocate memory for certificate %s", certFile);
+
+    } else if ((cert = PEM_read_bio_X509(bio, NULL, 0, NULL)) == 0) {
+        error("Unable to parse certificate %s", certFile);
+
+    } else if (SSL_CTX_use_certificate(sslctx, cert) != 1) {
+        error("Unable to use certificate %s", certFile);
+        
+    } else if (!SSL_CTX_check_private_key(sslctx)) {
+        error("Unable to check certificate key %s", certFile);
+
+    } else {
+        rc = 0;
     }
-    /*        
-          Confirm that the certificate and the private key jive.
-     */
-    if (!SSL_CTX_check_private_key(sslctx)) {
-        return -1;
+    wfree(buf);
+    if (bio) {
+        BIO_free(bio);
     }
-    return 0;
+    if (cert) {
+        X509_free(cert);
+    }
+    return rc;
 }
 
 
@@ -597,20 +618,45 @@ static int sslSetCertFile(char *certFile)
  */
 static int sslSetKeyFile(char *keyFile)
 {
+    RSA     *key;
+    BIO     *bio;
+    char    *buf;
+    int     rc;
+
     assert(sslctx);
     assert(keyFile);
 
+    key = 0;
+    bio = 0;
+    buf = 0;
+    rc = -1;
+
     if (sslctx == NULL) {
-        return -1;
+        ;
+
+    } else if ((buf = websReadWholeFile(keyFile)) == 0) {
+        error("Unable to read certificate %s", keyFile);
+
+    } else if ((bio = BIO_new_mem_buf(buf, -1)) == 0) {
+        error("Unable to allocate memory for key %s", keyFile);
+
+    } else if ((key = PEM_read_bio_RSAPrivateKey(bio, NULL, 0, NULL)) == 0) {
+        error("Unable to parse key %s", keyFile);
+
+    } else if (SSL_CTX_use_RSAPrivateKey(sslctx, key) != 1) {
+        error("Unable to use key %s", keyFile);
+
+    } else {
+        rc = 0;
     }
-    if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_PEM) <= 0) {
-        if (SSL_CTX_use_PrivateKey_file(sslctx, keyFile, SSL_FILETYPE_ASN1) <= 0) {
-            error("Unable to read private key file: %s", keyFile); 
-            return -1;
-        }
-        return -1;
+    wfree(buf);
+    if (bio) {
+        BIO_free(bio);
     }
-    return 0;
+    if (key) {
+        RSA_free(key);
+    }
+    return rc;
 }
 
 
@@ -619,7 +665,7 @@ static int verifyClientCertificate(int ok, X509_STORE_CTX *xContext)
     X509    *cert;
     char    subject[260], issuer[260], peer[260];
     int     error, depth;
-    
+
     subject[0] = issuer[0] = '\0';
 
     cert = X509_STORE_CTX_get_current_cert(xContext);
@@ -633,7 +679,7 @@ static int verifyClientCertificate(int ok, X509_STORE_CTX *xContext)
     if (X509_NAME_oneline(X509_get_issuer_name(xContext->current_cert), issuer, sizeof(issuer) - 1) < 0) {
         ok = 0;
     }
-    if (X509_NAME_get_text_by_NID(X509_get_subject_name(xContext->current_cert), NID_commonName, peer, 
+    if (X509_NAME_get_text_by_NID(X509_get_subject_name(xContext->current_cert), NID_commonName, peer,
             sizeof(peer) - 1) < 0) {
         ok = 0;
     }
@@ -691,6 +737,7 @@ static int verifyClientCertificate(int ok, X509_STORE_CTX *xContext)
     trace(4, "OpenSSL: Peer: %s", peer);
     return ok;
 }
+
 
 
 /*
@@ -759,8 +806,8 @@ static DH *getDhKey()
     }
     dh->p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
     dh->g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
-    if ((dh->p == 0) || (dh->g == 0)) { 
-        DH_free(dh); 
+    if ((dh->p == 0) || (dh->g == 0)) {
+        DH_free(dh);
         return 0;
     }
 	return dh;
@@ -784,7 +831,7 @@ void opensslDummy() {}
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
