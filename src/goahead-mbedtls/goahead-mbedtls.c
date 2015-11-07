@@ -47,6 +47,9 @@ static int          mbedLogLevel = ME_GOAHEAD_SSL_LOG_LEVEL;
 
 static int *getCipherSuite(char *ciphers, int *len);
 static int  mbedHandshake(Webs *wp);
+static int  parseCert(mbedtls_x509_crt *cert, char *file);
+static int  parseCrl(mbedtls_x509_crl *crl, char *path);
+static int  parseKey(mbedtls_pk_context *key, char *path);
 static void merror(int rc, char *fmt, ...);
 static char *replaceHyphen(char *cipher, char from, char to);
 static void traceMbed(void *context, int level, cchar *file, int line, cchar *str);
@@ -87,8 +90,7 @@ PUBLIC int sslOpen()
         /*
             Load a decrypted PEM format private key. The last arg is the private key.
          */
-        if (mbedtls_pk_parse_keyfile(&cfg.pkey, ME_GOAHEAD_SSL_KEY, 0) < 0) {
-            error("mbedtls: Unable to read key file %s", ME_GOAHEAD_SSL_KEY); 
+        if (parseKey(&cfg.pkey, ME_GOAHEAD_SSL_KEY) < 0) {
             return -1;
         }
     }
@@ -96,14 +98,12 @@ PUBLIC int sslOpen()
         /*
             Load a PEM format certificate file
          */
-        if (mbedtls_x509_crt_parse_file(&cfg.cert, ME_GOAHEAD_SSL_CERTIFICATE) < 0) {
-            error("mbedtls: Unable to read certificate %s", ME_GOAHEAD_SSL_CERTIFICATE); 
+        if (parseCert(&cfg.cert, ME_GOAHEAD_SSL_CERTIFICATE) < 0) {
             return -1;
         }
     }
     if (*ME_GOAHEAD_SSL_AUTHORITY) {
-        if (mbedtls_x509_crt_parse_file(&cfg.ca, ME_GOAHEAD_SSL_AUTHORITY) != 0) {
-            error("Unable to parse certificate bundle %s", *ME_GOAHEAD_SSL_AUTHORITY); 
+        if (parseCert(&cfg.ca, ME_GOAHEAD_SSL_AUTHORITY) != 0) {
             return -1;
         }
     }
@@ -111,8 +111,7 @@ PUBLIC int sslOpen()
         /*
             Load a PEM format certificate file
          */
-        if (mbedtls_x509_crl_parse_file(&cfg.revoke, (char*) ME_GOAHEAD_SSL_REVOKE) != 0) {
-            error("Unable to parse revoke list %s", ME_GOAHEAD_SSL_REVOKE);
+        if (parseCrl(&cfg.revoke, (char*) ME_GOAHEAD_SSL_REVOKE) != 0) {
             return -1;
         }
     }
@@ -316,11 +315,19 @@ static int mbedHandshake(Webs *wp)
                 vrc = 0;
             }
 
+        } else if (vrc & MBEDTLS_X509_BADCERT_SKIP_VERIFY) {
+            /*
+                MBEDTLS_SSL_VERIFY_NONE requested, so ignore error
+             */
+            vrc = 0;
+
         } else {
             if (mb->ctx.client_auth && !*ME_GOAHEAD_SSL_CERTIFICATE) {
                 logmsg(2, "Server requires a client certificate");
+
             } else if (rc == MBEDTLS_ERR_NET_CONN_RESET) {
                 logmsg(2, "Peer disconnected");
+
             } else {
                 logmsg(2, "Cannot handshake: error -0x%x", -rc);
             }
@@ -457,6 +464,75 @@ static int *getCipherSuite(char *ciphers, int *len)
         *len = i;
     }
     return result;
+}
+
+
+static int parseCert(mbedtls_x509_crt *cert, char *path)
+{
+    char    *buf;
+    ssize   len;
+
+    if ((buf = websReadWholeFile(path)) == 0) {
+        error("Unable to read certificate %s", path); 
+        return -1;
+    }
+    len = slen(buf);
+    if (strstr(buf, "-----BEGIN ")) {
+        len++;
+    }
+    if (mbedtls_x509_crt_parse(cert, (uchar*) buf, len) != 0) {
+        memset(buf, 0, len);
+        error("Unable to parse certificate %s", path); 
+        return -1;
+    }
+    memset(buf, 0, len);
+    return 0;
+}
+
+
+static int parseKey(mbedtls_pk_context *key, char *path)
+{
+    char    *buf;
+    ssize   len;
+
+    if ((buf = websReadWholeFile(path)) == 0) {
+        error("Unable to read key %s", path); 
+        return -1;
+    }
+    len = slen(buf);
+    if (strstr(buf, "-----BEGIN ")) {
+        len++;
+    }
+    if (mbedtls_pk_parse_key(key, (uchar*) buf, len, NULL, 0) != 0) {
+        memset(buf, 0, len);
+        error("Unable to parse key %s", path); 
+        return -1;
+    }
+    memset(buf, 0, len);
+    return 0;
+}
+
+
+static int parseCrl(mbedtls_x509_crl *crl, char *path)
+{
+    char    *buf;
+    ssize   len;
+
+    if ((buf = websReadWholeFile(path)) == 0) {
+        error("Unable to read crl %s", path); 
+        return -1;
+    }
+    len = slen(buf);
+    if (strstr(buf, "-----BEGIN ")) {
+        len++;
+    }
+    if (mbedtls_x509_crl_parse(crl, (uchar*) buf, len) != 0) {
+        memset(buf, 0, len);
+        error("Unable to parse crl %s", path); 
+        return -1;
+    }
+    memset(buf, 0, len);
+    return 0;
 }
 
 

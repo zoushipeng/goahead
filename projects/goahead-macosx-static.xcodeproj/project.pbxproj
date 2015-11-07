@@ -332,6 +332,61 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		FB810D94FB8128B80000007D /* Frameworks and Libraries for goahead */ = {
+                isa = PBXFrameworksBuildPhase;
+                buildActionMask = 2147483647;
+                files = (
+    				FB810D94FB8128B800000045 /* libgo */,
+				FB810D94FB8128B800000047 /* libgoahead-mbedtls */,
+				FB810D94FB8128B800000049 /* libmbedtls */,				
+                );
+                runOnlyForDeploymentPostprocessing = 0;
+            };
+		FB810D94FB8128B80000007E /* Frameworks and Libraries for goahead-test */ = {
+                isa = PBXFrameworksBuildPhase;
+                buildActionMask = 2147483647;
+                files = (
+    				FB810D94FB8128B80000004B /* libgo */,
+				FB810D94FB8128B80000004C /* libgoahead-mbedtls */,
+				FB810D94FB8128B80000004D /* libmbedtls */,				
+                );
+                runOnlyForDeploymentPostprocessing = 0;
+            };
+		FB810D94FB8128B80000007F /* Frameworks and Libraries for gopass */ = {
+                isa = PBXFrameworksBuildPhase;
+                buildActionMask = 2147483647;
+                files = (
+    				FB810D94FB8128B80000004E /* libgo */,
+				FB810D94FB8128B80000004F /* libgoahead-mbedtls */,
+				FB810D94FB8128B800000050 /* libmbedtls */,				
+                );
+                runOnlyForDeploymentPostprocessing = 0;
+            };
+		FB810D94FB8128B800000080 /* Frameworks and Libraries for libgo */ = {
+                isa = PBXFrameworksBuildPhase;
+                buildActionMask = 2147483647;
+                files = (
+    				FB810D94FB8128B800000051 /* libgoahead-mbedtls */,
+				FB810D94FB8128B800000052 /* libmbedtls */,				
+                );
+                runOnlyForDeploymentPostprocessing = 0;
+            };
+		FB810D94FB8128B800000081 /* Frameworks and Libraries for libgoahead-mbedtls */ = {
+                isa = PBXFrameworksBuildPhase;
+                buildActionMask = 2147483647;
+                files = (
+    				FB810D94FB8128B800000053 /* libmbedtls */,				
+                );
+                runOnlyForDeploymentPostprocessing = 0;
+            };
+		FB810D94FB8128B800000082 /* Frameworks and Libraries for libmbedtls */ = {
+                isa = PBXFrameworksBuildPhase;
+                buildActionMask = 2147483647;
+                files = (
+    				
+                );
+                runOnlyForDeploymentPostprocessing = 0;
+            };
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
