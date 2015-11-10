@@ -7862,6 +7862,7 @@ static int parseStmt(Js *ep, int state, int flags)
             setString(&ep->result, "");
             if (jsLexGetToken(ep, state) != TOK_LPAREN) {
                 freeFunc(&func);
+                ep->func = saveFunc;
                 goto error;
             }
             if (parse(ep, STATE_ARG_LIST, flags) != STATE_ARG_LIST_DONE) {
