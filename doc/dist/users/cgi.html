@@ -1,17 +1,493 @@
-<!DOCTYPE html><html lang="en"><head><title>GI</title><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"><meta name="description" content="Simple, fast, secure embedded web server"><link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'><link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'><link href="../images/favicon.ico" rel="shortcut icon"><link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css"><link href="../css/all.min.css" rel="stylesheet" type="text/css"><link href="../css/api.min.css" rel="stylesheet" type="text/css"><body class="show-sidebar"><div class="sidebar"><div class="ui large left vertical inverted labeled menu"><div class="item"><a href="../" class="logo">GoAhead Docs</a></div><div class="item"><a href="../"><b>General</b></a><div class="menu"><a class="item" href="../">GoAhead Overview</a> <a class="item" href="../users/features.html">GoAhead Features</a> <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> <a class="item" href="../licensing/">Licensing</a></div></div><div class="item"><a href="../start/"><b>Getting Started</b></a><div class="menu"><a class="item" href="../start/quick.html">Quick Start</a> <a class="item" href="../start/installing.html">Installing GoAhead</a> <a class="item" href="../start/running.html">Running GoAhead</a> <a class="item" href="../start/releaseNotes.html">Release Notes</a> <a class="item" href="../start/faq.html">GoAhead FAQ</a> <a class="item" href="../start/source.html">Building from Source</a></div></div><div class="item"><a href="../users/"><b>User's Guide</b></a><div class="menu"><a class="item" href="../users/ports.html">Ports and Binding</a> <a class="item" href="../users/routing.html">Routing Requests</a> <a class="item" href="../users/handlers.html">Request Handlers</a> <a class="item" href="../users/js.html">Embedded Javascript</a> <a class="item" href="../users/jst.html">Javascript Templates</a> <a class="item" href="../users/goactions.html">GoActions</a> <a class="item" href="../users/cgi.html">CGI Programs</a> <a class="item" href="../users/authentication.html">User Authentication</a> <a class="item" href="../users/logFiles.html">Log Files</a> <a class="item" href="../users/ssl.html">Secure Sockets (SSL)</a> <a class="item" href="../users/security.html">Security Considerations</a> <a class="item" href="../users/man.html">Man Pages</a></div></div><div class="item"><a href="../developers/">Developer's Guide</a><div class="menu"><a class="item" href="../developers/embedding.html">Embedding GoAhead</a> <a class="item" href="../developers/handlers.html">Creating GoAhead Handlers</a> <a class="item" href="../developers/authstore.html">Creating Password Verifiers</a> <a class="item" href="../developers/migrating.html">Migrating to GoAhead 3</a> <a class="item" href="../developers/rom.html">Serving Pages from ROM</a></div></div><div class="item"><a href="../ref/">Reference Guide</a><div class="menu"><a class="item" href="../ref/compatibility.html">Compatibility</a> <a class="item" href="../ref/native.html">API Library</a> <a class="item" href="../ref/architecture.html">GoAhead Architecture</a> <a class="item" href="../standards/http.html">HTTP References</a></div></div><div class="item"><a href="../developers/project.html">Project Resources</a><div class="menu"><a class="item" href="http://goo.gl/IGbiio">Official GoAhead News</a> <a class="item" href="https://embedthis.com/goahead/">GoAhead Web Site</a> <a class="item" href="https://github.com/embedthis/goahead">Source Code Repository</a> <a class="item" href="https://github.com/embedthis/goahead/issues/99">GoAhead Security Alerts</a> <a class="item" href="https://github.com/embedthis/goahead/issues">Project Issue Database</a> <a class="item" href="https://github.com/embedthis/goahead/releases">Change Log</a> <a class="item" href="https://github.com/embedthis/goahead/milestones">Roadmap</a> <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a></div></div><div class="item"><b>Links</b><div class="menu"><a class="item" href="https://embedthis.com/">Embedthis Web Site</a> <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a> <a class="item" href="http://twitter.com/mobstream">Twitter</a></div></div></div></div><div class="ui inverted masthead"><div class="ui fixed inverted menu"><div class="ui sidebar-launch button"><i class="icon list layout"></i></div><div class="right menu"><a class="item" href="https://embedthis.com/">Embedthis</a> <a class="item" href="https://embedthis.com/goahead/">GoAhead Site</a> <span class="desktop-only"><a class="item" href="http://goo.gl/9bL9rM">GoAhead News</a> <a class="item" href="https://github.com/embedthis/goahead">Repository</a> <a class="item" href="https://embedthis.com/blog/">Blog</a> <a class="item" href="https://twitter.com/mobstream">Twitter</a></span></div></div><div class="ui breadcrumb"><a class="section" href="../">Home</a><div class="divider">/</div><a class="section" href="../users/">User's Guide</a><div class="divider">/</div><a class="active section" href="cgi.html">GI</a></div><iframe class="version desktop-only" src="../version.html"></iframe></div><div class="content"><h1>Using CGI Programs</h1><p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web servers. CGI was originally developed as part of the NCSA HTTP server and is an old standard for interfacing external applications with HTTP servers. It still enjoys considerable use.</p><p>CGI was created to allow dynamic data to be generated in response to HTTP requests and return the results to the clients's browser. Plain HTML documents are typically static, while a CGI program allows the response data to be dynamically created.</p><p>CGI scripts are written in any language that can read from the standard-input, write to the standard-output, and access environment variables. This means that virtually any programming language can be used, including C, Perl, or even Unix shell scripting.</p><p>However, since CGI was first developed, several better means of creating dynamic web pages have been created that are faster and more efficient. Read more about such replacements in <a href="goactions.html">Using GoActions</a>.</p><p>Embedthis GoAhead supports CGI so that existing CGI applications can be fully supported. GoAhead has a high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI setup.</p><a name="configuringCgi"></a><h2>Configuring CGI Programs</h2><p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is typically "cgi-bin". The CGI programs and scripts are stored in special CGI directories outside the document root.</p><p>When a URI is requested by a browser that includes the "<em>/cgi-bin/</em>" prefix, the script name immediately after "/cgi-bin/" will be run. For example:</p><pre class="ui code segment">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>GI</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="Simple, fast, secure embedded web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    
+
+
+<body class="show-sidebar">
+        <div class="sidebar">
+        <div class="ui large left vertical inverted labeled menu">
+            <div class="item">
+                <a href="../" class="logo">GoAhead Docs</a>
+            </div>
+            <div class="item">
+                <a href="../">
+                    <b>General</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../">GoAhead Overview</a>
+                    <a class="item" href="../users/features.html">GoAhead Features</a>
+                    <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
+                    <a class="item" href="../licensing/">Licensing</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../start/">
+                    <b>Getting Started</b>
+                </a>
+                <div class="menu">
+                    <a class="item" href="../start/quick.html">Quick Start</a>
+                    <a class="item" href="../start/installing.html">Installing GoAhead</a>
+                    <a class="item" href="../start/running.html">Running GoAhead</a>
+                    <a class="item" href="../start/releaseNotes.html">Release Notes</a>
+                    <a class="item" href="../start/faq.html">GoAhead FAQ</a>
+                    <a class="item" href="../start/source.html">Building from Source</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../users/"><b>User's Guide</b></a>
+                <div class="menu">
+                    <a class="item" href="../users/ports.html">Ports and Binding</a>
+                    <a class="item" href="../users/routing.html">Routing Requests</a>
+                    <a class="item" href="../users/handlers.html">Request Handlers</a>
+                    <a class="item" href="../users/js.html">Embedded Javascript</a>
+                    <a class="item" href="../users/jst.html">Javascript Templates</a>
+                    <a class="item" href="../users/goactions.html">GoActions</a>
+                    <a class="item" href="../users/cgi.html">CGI Programs</a>
+                    <a class="item" href="../users/authentication.html">User Authentication</a>
+                    <a class="item" href="../users/logFiles.html">Log Files</a>
+                    <a class="item" href="../users/ssl.html">Secure Sockets (SSL)</a>
+                    <a class="item" href="../users/security.html">Security Considerations</a>
+                    <a class="item" href="../users/man.html">Man Pages</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/">Developer's Guide</a>
+                <div class="menu">
+                    <a class="item" href="../developers/embedding.html">Embedding GoAhead</a>
+                    <a class="item" href="../developers/handlers.html">Creating GoAhead Handlers</a>
+                    <a class="item" href="../developers/authstore.html">Creating Password Verifiers</a>
+                    <a class="item" href="../developers/migrating.html">Migrating to GoAhead 3</a>
+                    <a class="item" href="../developers/rom.html">Serving Pages from ROM</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../ref/">Reference Guide</a>
+                <div class="menu">
+                    <a class="item" href="../ref/compatibility.html">Compatibility</a>
+                    <a class="item" href="../ref/native.html">API Library</a>
+                    <a class="item" href="../ref/architecture.html">GoAhead Architecture</a>
+                    <a class="item" href="../standards/http.html">HTTP References</a>
+                </div>
+            </div>
+            <div class="item">
+                <a href="../developers/project.html">Project Resources</a>
+                <div class="menu">
+                    <a class="item" href="http://goo.gl/IGbiio">Official GoAhead News</a>
+                    <a class="item" href="https://embedthis.com/goahead/">GoAhead Web Site</a>
+                    <a class="item" href="https://github.com/embedthis/goahead">Source Code Repository</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/issues/99">GoAhead Security Alerts</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/issues">Project Issue Database</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/releases">Change Log</a>
+                    <a class="item" href="https://github.com/embedthis/goahead/milestones">Roadmap</a>
+                    <a class="item" href="https://embedthis.com/developers/contributors.html">Contributors Agreement</a>
+                </div>
+            </div>
+            <div class="item">
+                <b>Links</b>
+                <div class="menu">
+                    <a class="item" href="https://embedthis.com/">Embedthis Web Site</a>
+                    <a class="item" href="https://embedthis.com/blog/">Embedthis Blog</a>
+                    <a class="item" href="http://twitter.com/mobstream">Twitter</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="ui inverted masthead">
+         
+        <div class="ui fixed inverted menu">
+            <div class="ui sidebar-launch button">
+                <i class="icon list layout"></i>
+            </div>
+            <div class="right menu">
+                 
+                    <a class="item" href="https://embedthis.com/">Embedthis</a>
+                    <a class="item" href="https://embedthis.com/goahead/">GoAhead Site</a>
+                    <span class="desktop-only">
+                        <a class="item" href="http://goo.gl/9bL9rM">GoAhead News</a>
+                        <a class="item" href="https://github.com/embedthis/goahead">Repository</a>
+                        <a class="item" href="https://embedthis.com/blog/">Blog</a>
+                        <a class="item" href="https://twitter.com/mobstream">Twitter</a>
+                    </span>
+
+            </div>
+        </div>
+        
+        <div class="ui breadcrumb">
+            <a class="section" href="../">Home</a>
+            
+            <div class="divider">/</div>
+            <a class="section" href="../users/">
+                User's Guide
+            </a>
+            
+            
+            <div class="divider">/</div>
+            <a class="active section" href="cgi.html">GI</a>
+            
+        </div>
+        
+        <iframe class="version desktop-only" src="../version.html"></iframe>
+
+    </div>
+    <div class="content">
+
+            <h1>Using CGI Programs</h1>
+            <p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web
+            servers. CGI was originally developed as part of the NCSA HTTP server and is an old standard for interfacing
+            external applications with HTTP servers. It still enjoys considerable use.</p> <p>CGI was created to allow
+            dynamic data to be generated in response to HTTP requests and return the results to the clients's browser. Plain
+            HTML documents are typically static, while a CGI program allows the response data to be dynamically created.</p>
+            <p>CGI scripts are written in any language that can read from the standard-input, write to the
+            standard-output, and access environment variables.  This means that virtually any programming language can be
+            used, including C, Perl, or even Unix shell scripting.</p>
+            <p>However, since CGI was first developed, several better means of creating dynamic web pages have been
+            created that are faster and more efficient. Read more about such replacements in 
+            <a href="goactions.html">Using GoActions</a>.</p>
+            <p>Embedthis GoAhead supports CGI so that existing CGI applications can be fully supported. GoAhead has a
+            high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI
+            setup.</p>
+            <a name="configuringCgi"></a>
+            <h2>Configuring CGI Programs</h2>
+            <p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is
+            typically "cgi-bin". The CGI programs and scripts are stored in special CGI directories outside the
+            document root.</p>
+            <p>When a URI is requested by a browser that includes the "<em>/cgi-bin/</em>" prefix, the 
+            script name immediately after "/cgi-bin/" will be run. For example:</p>
+<pre class="ui code segment">
 http://www.embedthis.com/cgi-bin/cgitest
-</pre><a name="invoking"></a><h2>Invoking CGI Programs</h2><p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program via Environment Variables.</p><a name="env"></a><h2>CGI Environment Variables</h2><p>CGI uses environment variables to send your program additional parameters. The following environment variables are defined:</p><table title="args" class="ui table segment"><thead><tr><th>Variable<th>Description<tbody><tr><td>AUTH_TYPE<td>Set to the value of the HTTP AUTHORIZATION header. Usually "basic", "digest" or "form".<tr><td>CONTENT_LENGTH<td>Set to the length of any associated posted content.<tr><td>CONTENT_TYPE<td>Set to the content mime type of any associated posted content.<tr><td>DOCUMENT_ROOT<td>Set to the path location of web documents. Defined by the DocumentRoot directive in the GoAhead configuration file.<tr><td>GATEWAY_INTERFACE<td>Set to "CGI/1.1"<tr><td>HTTP_ACCEPT<td>Set to the value of the HTTP ACCEPT header. This specifies what formats are acceptable and/or preferable for the client.<tr><td>HTTP_CONNECTION<td>Set to the value of the HTTP CONNECTION header. This specifies how the connection should be reused when the request completes. (Keep-alive)<tr><td>HTTP_HOST<td>Set to the value of the HTTP HOST header. This specifies the name of the server to process the request. When using Named virtual hosting, requests to different servers (hosts) may be processed by a single HTTP server on a single IP address. The HTTP_HOST field permits the server to determine which virtual host should process the request.<tr><td>HTTP_USER_AGENT<td>Set to the value of the HTTP USER_AGENT header.<tr><td>PATH_INFO<td>The PATH_INFO variable is set to extra path information after the script name.<tr><td>PATH_TRANSLATED<td>The physical on-disk path name corresponding to PATH_INFO.<tr><td>QUERY_STRING<td>The QUERY_STRING variable is set to the URI string portion that follows the first "?" in the URI. The QUERY_STRING is note decoded.<tr><td>REMOTE_ADDR<td>Set to the IP address of the requesting client.<tr><td>REMOTE_HOST<td>Set to the IP address of the requesting client (same as REMOTE_ADDR).<tr><td>REMOTE_USER<td>Set to the name of the authenticated user.<tr><td>REMOTE_METHOD<td>Set to the HTTP method used by the request. Typical values are: "DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", or "TRACE".<tr><td>REQUEST_URI<td>The complete request URI after the host name portion. It always begins with a leading "/".<tr><td>SCRIPT_NAME<td>The name of the CGI script being executed in a format suitable for self-referencing URL.<tr><td>SERVER_ADDR<td>The IP address of the server or virtual host responding to the request.<tr><td>SERVER_HOST<td>Set to server hostname without port.<tr><td>SERVER_NAME<td>The server's hostname, alias or IP address as it would appear in self-referencing URLs.<tr><td>SERVER_PORT<td>The HTTP port of the server or virtual host serving the request.<tr><td>SERVER_PROTOCOL<td>Set to "HTTP/1.0" or "HTTP/1.1" depending on the protocol used by the client.<tr><td>SERVER_URL<td>Set to server hostname with port. Suitable for use in a URL.<tr><td>SERVER_SOFTWARE<td>Set to "Embedthis GoAhead/VERSION"</table><h4>Example</h4><p>Consider the following URI which will run the Perl interpreter to execute the "pricelists.pl" script.</p><pre class="ui code segment">
+</pre>
+            <a name="invoking"></a>
+            <h2>Invoking CGI Programs</h2>
+            <p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program
+            via Environment Variables.</p>
+            
+            <a name="env"></a>
+            <h2>CGI Environment Variables</h2>
+            <p>CGI uses environment variables to send your program additional parameters. The following environment
+            variables are defined:</p>
+            <table title="args" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Variable
+                        <th>Description
+                    
+                
+                <tbody>
+                    <tr>
+                        <td>AUTH_TYPE
+                        <td>Set to the value of the HTTP AUTHORIZATION header. Usually "basic", "digest" or "form".
+                    
+                    <tr>
+                        <td>CONTENT_LENGTH
+                        <td>Set to the length of any associated posted content.
+                    
+                    <tr>
+                        <td>CONTENT_TYPE
+                        <td>Set to the content mime type of any associated posted content.
+                    
+                    <tr>
+                        <td>DOCUMENT_ROOT
+                        <td>Set to the path location of web documents. Defined by the DocumentRoot directive in the
+                        GoAhead configuration file.
+                    
+                    <tr>
+                        <td>GATEWAY_INTERFACE
+                        <td>Set to "CGI/1.1"
+                    
+                    <tr>
+                        <td>HTTP_ACCEPT
+                        <td>Set to the value of the HTTP ACCEPT header. This specifies what formats are acceptable
+                        and/or preferable for the client.
+                    
+                    <tr>
+                        <td>HTTP_CONNECTION
+                        <td>Set to the value of the HTTP CONNECTION header. This specifies how the connection should be
+                        reused when the request completes. (Keep-alive)
+                    
+                    <tr>
+                        <td>HTTP_HOST
+                        <td>Set to the value of the HTTP HOST header. This specifies the name of the server to process
+                        the request. When using Named virtual hosting, requests to different servers (hosts) may be
+                        processed by a single HTTP server on a single IP address. The HTTP_HOST field permits the
+                        server to determine which virtual host should process the request.
+                    
+                    <tr>
+                        <td>HTTP_USER_AGENT
+                        <td>Set to the value of the HTTP USER_AGENT header.
+                    
+                    <tr>
+                        <td>PATH_INFO
+                        <td>The PATH_INFO variable is set to extra path information after the script name.
+                    
+                    <tr>
+                        <td>PATH_TRANSLATED
+                        <td>The physical on-disk path name corresponding to PATH_INFO.
+                    
+                    <tr>
+                        <td>QUERY_STRING
+                        <td>The QUERY_STRING variable is set to the URI string portion that follows the first "?" in
+                            the URI. The QUERY_STRING is note decoded.
+                    
+                    <tr>
+                        <td>REMOTE_ADDR
+                        <td>Set to the IP address of the requesting client.
+                    
+                    <tr>
+                        <td>REMOTE_HOST
+                        <td>Set to the IP address of the requesting client (same as REMOTE_ADDR).
+                    
+                    <tr>
+                        <td>REMOTE_USER
+                        <td>Set to the name of the authenticated user.
+                    
+                    <tr>
+                        <td>REMOTE_METHOD
+                        <td>Set to the HTTP method used by the request. Typical values are: "DELETE", "GET", "HEAD",
+                            "OPTIONS", "POST", "PUT", or "TRACE".
+                    
+                    <tr>
+                        <td>REQUEST_URI
+                        <td>The complete request URI after the host name portion. It always begins with a leading
+                        "/".
+                    
+                    <tr>
+                        <td>SCRIPT_NAME
+                        <td>The name of the CGI script being executed in a format suitable for self-referencing URL.
+                    
+                    <tr>
+                        <td>SERVER_ADDR
+                        <td>The IP address of the server or virtual host responding to the request.
+                    
+                    <tr>
+                        <td>SERVER_HOST
+                        <td>Set to server hostname without port.
+                    
+                    <tr>
+                        <td>SERVER_NAME
+                        <td>The server's hostname, alias or IP address as it would appear in self-referencing URLs.
+                    
+                    <tr>
+                        <td>SERVER_PORT
+                        <td>The HTTP port of the server or virtual host serving the request.
+                    
+                    <tr>
+                        <td>SERVER_PROTOCOL
+                        <td>Set to "HTTP/1.0" or "HTTP/1.1" depending on the protocol used by the client.
+                    
+                    <tr>
+                        <td>SERVER_URL
+                        <td>Set to server hostname with port. Suitable for use in a URL.
+                    
+                    <tr>
+                        <td>SERVER_SOFTWARE
+                        <td>Set to "Embedthis GoAhead/VERSION"
+                    
+                
+            </table>
+            <h4>Example</h4>
+            <p>Consider the following URI which will run the Perl interpreter to execute the "pricelists.pl"
+            script.</p>
+            <pre class="ui code segment">
 http://hostname/cgi-bin/myScript/products/pricelists.pl?id=23&amp;payment=creditCard
-</pre><p>This URI will cause the following environment settings:</p><table title="evn" class="ui table segment"><thead><tr><th>Variable<th>Value<tbody><tr><td>PATH_INFO<td>/products/pricelists<tr><td>PATH_TRANSLATED<td>/var/goahead/web/products/pricelists<br>Where /var/goahead/web is the DocumentRoot<tr><td>QUERY_STRING<td>id=23&amp;payment=credit+Card<tr><td>REQUEST_URI<td>/cgi-bin/myScript/products/pricelists?id=23&amp;payment=credit+Card<tr><td>SCRIPT_NAME<td>myScript</table><p>This URI below demonstrates some rather cryptic encoding of URIs. The hex encoding %20, is the encoding for the space character. Once passed to the CGI program, the convention is for CGI variables to be delimited by "&amp;".</p><pre class="ui code segment">
+</pre>
+            <p>This URI will cause the following environment settings:</p>
+            <table title="evn" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Variable
+                        <th>Value
+                    
+                
+                <tbody>
+                    <tr>
+                        <td>PATH_INFO
+                        <td>/products/pricelists
+                    
+                    <tr>
+                        <td>PATH_TRANSLATED
+                        <td>/var/goahead/web/products/pricelists <br>Where /var/goahead/web is the DocumentRoot
+                    
+                    <tr>
+                        <td>QUERY_STRING
+                        <td>id=23&amp;payment=credit+Card
+                    
+                    <tr>
+                        <td>REQUEST_URI
+                        <td>/cgi-bin/myScript/products/pricelists?id=23&amp;payment=credit+Card
+                    
+                    <tr>
+                        <td>SCRIPT_NAME
+                        <td>myScript
+                    
+                
+            </table>
+            <p>This URI below demonstrates some rather cryptic encoding of URIs. 
+            The hex encoding %20, is the encoding for the space
+            character. Once passed to the CGI program, the convention is for CGI variables to be delimited by
+            "&amp;".</p>
+            <pre class="ui code segment">
 http://hostname/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
-</pre><p>This URI will cause the following environment settings:</p><table title="env" class="ui table segment"><thead><tr><th>Variable<th>Value<tbody><tr><td>PATH_INFO<td>/extra/Path<tr><td>PATH_TRANSLATED<td>/var/goahead/web/extra/Path<tr><td>QUERY_STRING<td>var1=a+a&amp;var2=b%20b&amp;var3=c<tr><td>REQUEST_URI<td>/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c<tr><td>SCRIPT_NAME<td>cgiProgram</table><h3>URI Encoding</h3><p>When a URI is sent via HTTP, certain special characters must be escaped so the URI can be processed unambiguously by the server. To escape the special characters, the HTTP client should convert them to their %hex equivalent. Form and query variables are separated by "&amp;". For example: a=1&amp;b=2 defines two form variables "a" and "b" with their values equal to "1" and "2" respectively.</p><a id="cgiProgramming"></a><h2>CGI Programming</h2><p>CGI program can return almost any possible content type back to the client's browser: plain HTML, audio, video or any other format. CGI programs can also control the user's browser and redirect it to another URI. To do this, CGI programs return pseudo-HTTP headers that are interpreted by GoAhead before passing the data on to the client.</p><p>GoAhead understands the following CGI headers that can be output by the CGI program. They are case-insensitive.</p><table title="headers" class="ui table segment"><thead><tr><th>Header<th>Description<tbody><tr><td class="nowrap">Content-type<td>Nominate the content Mime Type. Typically "text/html". See the mime.types for a list of possible mime types.<tr><td>Status<td>Set to a HTTP response code. Success is 200. Server error is 500.<tr><td>Location<td>Set to the URI of a new document to which to redirect the client's browser.<tr><td>ANY<td>Pass any other header back to the client.</table><p>For example:</p><pre class="ui code segment">
+</pre>
+            <p>This URI will cause the following environment settings:</p>
+            <table title="env" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Variable
+                        <th>Value
+                    
+                
+                <tbody>
+                    <tr>
+                        <td>PATH_INFO
+                        <td>/extra/Path
+                    
+                    <tr>
+                        <td>PATH_TRANSLATED
+                        <td>/var/goahead/web/extra/Path
+                    
+                    <tr>
+                        <td>QUERY_STRING
+                        <td>var1=a+a&amp;var2=b%20b&amp;var3=c
+                    
+                    <tr>
+                        <td>REQUEST_URI
+                        <td>/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
+                    
+                    <tr>
+                        <td>SCRIPT_NAME
+                        <td>cgiProgram
+                    
+                
+            </table>
+            <h3>URI Encoding</h3>
+            <p>When a URI is sent via HTTP, certain special characters must be escaped so the URI can be processed
+            unambiguously by the server. To escape the special characters, the HTTP client should convert them to their
+            %hex equivalent. Form and query variables are separated by "&amp;". For example: a=1&amp;b=2 defines two
+            form variables "a" and "b" with their values equal to "1" and "2" respectively.</p><a id="cgiProgramming"></a>
+            <h2>CGI Programming</h2>
+            <p>CGI program can return almost any possible content type back to the client's browser: plain HTML, audio,
+            video or any other format. CGI programs can also control the user's browser and redirect it to another URI.
+            To do this, CGI programs return pseudo-HTTP headers that are interpreted by GoAhead before passing the data
+            on to the client.</p>
+            <p>GoAhead understands the following CGI headers that can be output by the CGI program. They are
+            case-insensitive.</p>
+            <table title="headers" class="ui table segment">
+                <thead>
+                    <tr>
+                        <th>Header
+                        <th>Description
+                    
+                
+                <tbody>
+                    <tr>
+                        <td class="nowrap">Content-type
+                        <td>Nominate the content Mime Type. Typically "text/html". See the mime.types for a list of
+                        possible mime types.
+                    
+                    <tr>
+                        <td>Status
+                        <td>Set to a HTTP response code. Success is 200. Server error is 500.
+                    
+                    <tr>
+                        <td>Location
+                        <td>Set to the URI of a new document to which to redirect the client's browser.
+                    
+                    <tr>
+                        <td>ANY
+                        <td>Pass any other header back to the client.
+                    
+                
+            </table>
+            <p>For example:</p>
+            <pre class="ui code segment">
 Content-type: text/html
 &lt;HTML&gt;&lt;HEAD&gt;&lt;TITLE&gt;Sample CGI Output&lt;/TITLE&gt;&lt;/HEAD&gt;
 &lt;BODY&gt;
 &lt;H1&gt;Hello World&lt;/H1&gt;
 &lt;/BODY&gt;&lt;/HTML&gt;
-</pre><p>To redirect the browser to a new location:</p><pre class="ui code segment">
+</pre>
+            <p>To redirect the browser to a new location:</p>
+            <pre class="ui code segment">
 Location: /newUrl.html
-</pre>To signify an error in the server:<pre class="ui code segment">
+</pre>To signify an error in the server:
+            <pre class="ui code segment">
 Status: 500
-</pre><h2>CGI for VxWorks</h2><p>CGI's standard implementation requires that standalone processes be executed and their outputs returned to the browser via the WebServer. In VxWorks, processes are not implemented, but rather tasks are. In addition to understanding the mechanisms used in the implementation of VxWorks CGI tasks, developers of CGI processes must be aware of the differences between processes on other operating systems and tasks on VxWorks.</p><ul><li>VxWorks tasks can be spawned using code already loaded in memory. On VxWorks systems with no file system, the CGI task code can be included in the operating system image and is not necessarily contained in a file.</li><li>If the CGI code is contained in a file, a browser request for it will cause it to be loaded into memory prior to its execution. It will be unloaded and reloaded each time it is invoked, which allows the upgrading to a new version between invocations.</li><li>The VxWorks taskSpawn API is used to spawn the CGI task.</li><li>An entry point symbol name must be used to spawn the task. The request for the CGI process can define this entry point name in the request by including the query string keyword=value pair "cgientry=symbolname", where symbolname is a function name in the CGI code that is to be executed. If cgientry is not defined in this way, a default entry name will be searched for in the loaded code. The default name is "basename_cgientry", where basename is the name of the requested CGI process minus any file extension or path information (e.g., if the request is for "cgi-bin/cgitest.out", the default entry point symbol name will be "cgitest_cgientry"). If the entry point symbol name is not found or if the requested module cannot be loaded, the CGI request will fail.</li><li>The priority of the spawned task will be the same priority at which WebServer is running.</li><li>The stack size of the spawned task is 20K.</li><li>The task name will be the same as the entry point name.</li><li>The standard CGI environment variables are copied to the task environment. They can be retrieved/modified by the getenv/putenv APIs.</li><li>Command line arguments (if any) are passed to the user's entry point via a (int argc, char **argv) standard convention, where argc is the number of arguments and argv is an array of strings.</li><li>As in standard CGI processes, the VxWorks CGI task can retrieve additional POST data from the standard input device and must write any output to be returned to the client to the standard output device. These devices are actually temporary files where stdin and stdout have been redirected.</li><li>User-defined CGI task codes should always be terminated with a return rather than an exit API. This allows environment space and redirected I/O files used by the task to be cleaned up and released back to the operating system appropriately.</li></ul><a id="hints"></a><h2>Hints and Tips</h2><p>If you have special data or environment variables that must be passed to your CGI program, you can wrap it with a script that defines that environment before invoking your script.</p><a id="otherResources"></a><h2>Other Resources</h2><p>The following URIs may be helpful in further reading about CGI:</p><ul><li>For an introduction to CGI: <a href=http://en.wikipedia.org/wiki/Common_Gateway_Interface>http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li><li>For the actual CGI specification: <a href=http://tools.ietf.org/html/draft-robinson-www-interface-00>http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li><li>Other CGI resources: <a href="http://www.cgi-resources.com">http://www.cgi-resources.com</a></li></ul></div><div class="terms ui basic center aligned segment"><p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p></div><script src="../lib/jquery/jquery.min.js"></script><script src="../lib/semantic-ui/semantic.min.js"></script><script src="../scripts/sidebar.min.js"></script>
+</pre>
+        <h2>CGI for VxWorks</h2>
+        <p>CGI's standard implementation requires that standalone processes be executed and their outputs returned to the
+        browser via the WebServer. In VxWorks, processes are not implemented, but rather tasks are. In addition to
+        understanding the mechanisms used in the implementation of VxWorks CGI tasks, developers of CGI processes must be
+        aware of the differences between processes on other operating systems and tasks on VxWorks.</p>
+        <ul>
+            <li>VxWorks tasks can be spawned using code already loaded in memory. On VxWorks systems with no file system,
+            the CGI task code can be included in the operating system image and is not necessarily contained in a file.</li>
+            <li>If the CGI code is contained in a file, a browser request for it will cause it to be loaded into memory
+            prior to its execution. It will be unloaded and reloaded each time it is invoked, which allows the upgrading to
+            a new version between invocations.</li>
+            <li>The VxWorks taskSpawn API is used to spawn the CGI task.</li>
+            <li> An entry point symbol name must be used to spawn the task. The request for the CGI process can define this
+            entry point name in the request by including the query string keyword=value pair "cgientry=symbolname", where
+            symbolname is a function name in the CGI code that is to be executed. If cgientry is not defined in this way, a
+            default entry name will be searched for in the loaded code. The default name is "basename_cgientry", where
+            basename is the name of the requested CGI process minus any file extension or path information (e.g., if the
+            request is for "cgi-bin/cgitest.out", the default entry point symbol name will be "cgitest_cgientry"). If the
+            entry point symbol name is not found or if the requested module cannot be loaded, the CGI request will fail.</li>
+            <li>The priority of the spawned task will be the same priority at which WebServer is running.</li>
+            <li>The stack size of the spawned task is 20K.</li>
+            <li>The task name will be the same as the entry point name.</li>
+            <li>The standard CGI environment variables are copied to the task environment. They can be retrieved/modified by
+            the getenv/putenv APIs.</li>
+            <li>Command line arguments (if any) are passed to the user's entry point via a (int argc, char **argv) standard
+            convention, where argc is the number of arguments and argv is an array of strings.</li>
+            <li>As in standard CGI processes, the VxWorks CGI task can retrieve additional POST data from the standard input
+            device and must write any output to be returned to the client to the standard output device. These devices are
+            actually temporary files where stdin and stdout have been redirected.</li>
+            <li>User-defined CGI task codes should always be terminated with a return rather than an exit API. This allows
+            environment space and redirected I/O files used by the task to be cleaned up and released back to the operating
+            system appropriately.</li>
+        </ul>
+            <a id="hints"></a>
+            <h2>Hints and Tips</h2>
+            <p>If you have special data or environment variables that must be passed to your CGI program, you can wrap
+            it with a script that defines that environment before invoking your script.</p><a id="otherResources"></a>
+            <h2>Other Resources</h2>
+            <p>The following URIs may be helpful in further reading about CGI:</p>
+            <ul>
+                <li>For an introduction to CGI: <a href=http://en.wikipedia.org/wiki/Common_Gateway_Interface>http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li>
+                <li>For the actual CGI specification: <a href=http://tools.ietf.org/html/draft-robinson-www-interface-00>http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li>
+                <li>Other CGI resources: <a href="http://www.cgi-resources.com">http://www.cgi-resources.com</a></li>
+            </ul>
+
+    </div>
+    <div class="terms ui basic center aligned segment">
+        <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
+    </div>
+
+    <script src="../lib/jquery/jquery.min.js"></script>
+    <script src="../lib/semantic-ui/semantic.min.js"></script>
+    <script src="../scripts/sidebar.min.js"></script>
+     
+
+        
+
+
+
