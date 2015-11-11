@@ -4818,7 +4818,9 @@ static bool parseIncoming(Webs *wp)
 
     rxbuf = &wp->rxbuf;
     while (*rxbuf->servp == '\r' || *rxbuf->servp == '\n') {
-        bufGetc(rxbuf);
+        if (bufGetc(rxbuf) < 0) {
+            break;
+        }
     }
     if ((end = strstr((char*) wp->rxbuf.servp, "\r\n\r\n")) == 0) {
         if (bufLen(&wp->rxbuf) >= ME_GOAHEAD_LIMIT_HEADER) {
