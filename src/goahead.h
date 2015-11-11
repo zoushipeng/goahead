@@ -132,6 +132,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 
 #define WEBS_MAX_LISTEN     8           /**< Maximum number of listen endpoints */
 #define WEBS_SMALL_HASH     31          /**< General small hash size */
+#define WEBS_MAX_PASSWORD   32          /**< Default maximum password */
 
 /************************************* Error **********************************/
 
@@ -743,6 +744,15 @@ PUBLIC void wfree(void *blk);
     @stability Evolving
  */
 PUBLIC void *wrealloc(void *blk, ssize newsize);
+
+/**
+    Duplicate memory
+    @param ptr Original block reference
+    @param usize Size to allocate
+    @return Reference to the new memory block
+    @ingroup WebsAlloc
+ */
+PUBLIC void *wdup(cvoid *ptr, size_t usize);
 
 typedef void (*WebsMemNotifier)(ssize size);
 
@@ -3190,6 +3200,71 @@ PUBLIC void websFreeUpload(Webs *wp);
  */
 PUBLIC bool websProcessCgiData(Webs *wp);
 #endif
+
+/************************************** Crypto ********************************/
+
+/**
+    Get some random data
+    @param buf Reference to a buffer to hold the random data
+    @param size Size of the buffer
+    @param block Set to true if it is acceptable to block while accumulating entropy sufficient to provide good
+        random data. Setting to false will cause this API to not block and may return random data of a lower quality.
+    @ingroup Crypto
+    @stability Prototype.
+  */
+PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block);
+
+/**
+    Encrypt a password using the Blowfish algorithm
+    @param password User's password to encrypt
+    @param salt Salt text to add to password. Helps to make each user's password unique.
+    @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
+    @return The encrypted password.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websCryptPassword(char *password, char *salt, int rounds);
+
+/**
+    Make salt for adding to a password.
+    @param size Size in bytes of the salt text.
+    @return The random salt text.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websMakeSalt(ssize size);
+
+/**
+    Make a password hash for a plain-text password using the Blowfish algorithm.
+    @param password User's password to encrypt
+    @param saltLength Length of salt text to add to password. Helps to make each user's password unique.
+    @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
+    @return The encrypted password.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websMakePassword(char *password, int saltLength, int rounds);
+
+/**
+    Check a plain-text password against the defined hashed password.
+    @param plainTextPassword User's plain-text-password to check
+    @param passwordHash Required password in hashed format previously computed by websMakePassword.
+    @return True if the password is correct.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash);
+
+/**
+    Get a password from the terminal console
+    @param prompt Text prompt to display before reading the password
+    @return The entered password.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websReadPassword(char *prompt);
+
+/*************************************** JST ***********************************/
 
 #if ME_GOAHEAD_JAVASCRIPT
 /**

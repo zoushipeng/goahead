@@ -299,6 +299,18 @@ PUBLIC void *wrealloc(void *mem, ssize num)
 
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
+
+PUBLIC void *wdup(cvoid *ptr, size_t usize)
+{
+    char    *newp;
+
+    if ((newp = walloc(usize)) != 0) {
+        memcpy(newp, ptr, usize);
+    }
+    return newp;
+}
+
+
 /*
     @copy   default
 
