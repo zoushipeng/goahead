@@ -31,10 +31,10 @@ int main(int argc, char *argv[])
 {
     WebsBuf     buf;
     char        *cipher, *password, *authFile, *username, *encodedPassword, *realm, *cp, *roles;
-    int         i, errflg, create, nextArg;
+    int         i, errflg, nextArg;
 
     username = 0;
-    create = errflg = 0;
+    errflg = 0;
     password = 0;
     authFile = 0;
     cipher = "blowfish";
