@@ -3198,7 +3198,6 @@ PUBLIC bool websProcessCgiData(Webs *wp);
     @param wp Webs request object
     @param argc Count of function arguments
     @param argv Array of function arguments
-    @param defaultValue Default value to return if the variable is not defined
     @return Return zero if successful, otherwise -1.
     @ingroup Webs
     @stability Evolving
