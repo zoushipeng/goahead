@@ -6,27 +6,45 @@ NAME
        gopass - Create and manage passwords
 
 SYNOPSIS
-       gopass [-c] [-p password] authFile realm user roles...
-
-OPTIONS
-       -p password
-              Specifies a password to use to for the user.
-
-       -c     Create the specified file
+       gopass  [--cipher blowfish|md5] [--file filename] [--password password]
+       realm username roles...
 
 
 DESCRIPTION
-       The  gopass  program  is  used  to create user passwords in a nominated
-       authentication configuration file.  GoAhead uses the same authorization
-       file  and  format  for  Basic, Digest and web-form authentication. This
-       simplifies administration.
+       The gopass program creates authentication passwords for GoAhead in  the
+       nominated  authentication  configuration  file.   GoAhead uses the same
+       authorization file and format for Basic, Digest and web-form  authenti-
+       cation. This simplifies           administration.
 
-       The optional roles specified define the  abilities  of  the  user.  The
-       roles may those defined in auth.txt file via the "role" keyword. Alter-
-       natively, the roles may be pure ability strings.
+            gopass --file auth.conf --password pass1 example.com joshua admin-
+            istrator buyer
+
+       To calculate the passwword only, omit the "--file" option and the pass-
+       word will be displayed to the standard output.
+
+            gopass --password pass1 example.com joshua administrator buyer
+
+
+OPTIONS
+       --cipher blowfish|md5
+              Specifies  the  cipher  to  use to hash the password. Default is
+              blowfish. Blowfish is substantially more secure.   MD5  must  be
+              used for digest authentication.
+
+       --password password
+              Specifies a password to use to for the user.
+
+       --file filename
+              Update the specified password configuration file.
+
+
+DESCRIPTION
+       The  gopass  program is used to create and manage user passwords.  GoA-
+       head uses the same authorization file and format for Basic, Digest  and
+       Post authentication stores. This simplifies administration.
 
 REPORTING BUGS
-       Report bugs to <dev@embedthis.com>.
+       Report bugs to dev@embedthis.com.
 
 COPYRIGHT
        Copyright (C) Embedthis Software.

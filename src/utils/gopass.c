@@ -1,8 +1,10 @@
 /*
     gopass.c -- Authorization password management.
 
+    gopass [--cipher md5|blowfish] [--file filename] [--password password] realm user roles...
+
     This file provides facilities for creating passwords in a route configuration file. 
-    It uses basic encoding and decoding using the base64 encoding scheme and MD5 Message-Digest algorithms.
+    It supports either MD5 or Blowfish ciphers.
  */
 
 /********************************* Includes ***********************************/
@@ -28,22 +30,42 @@ static char *getpass(char *prompt);
 int main(int argc, char *argv[])
 {
     WebsBuf     buf;
-    char        *password, *authFile, *username, *encodedPassword, *realm, *cp, *roles;
+    char        *cipher, *password, *authFile, *username, *encodedPassword, *realm, *cp, *roles;
     int         i, errflg, create, nextArg;
 
     username = 0;
     create = errflg = 0;
     password = 0;
+    authFile = 0;
+    cipher = "blowfish";
 
     for (i = 1; i < argc && !errflg; i++) {
         if (argv[i][0] != '-') {
             break;
         }
         for (cp = &argv[i][1]; *cp && !errflg; cp++) {
-            if (*cp == 'c') {
-                create++;
+            if (*cp == '-') {
+                cp++;
+            }
+            if (smatch(cp, "cipher")) {
+                if (++i == argc) {
+                    errflg++;
+                } else {
+                    cipher = argv[i];
+                    if (!smatch(cipher, "md5") && !smatch(cipher, "blowfish")) {
+                        error("Unknown cipher \"%s\". Use \"md5\" or \"blowfish\".", cipher);
+                    }
+                    break;
+                }
+            } else if (smatch(cp, "file") || smatch(cp, "f")) {
+                if (++i == argc) {
+                    errflg++;
+                } else {
+                    authFile = argv[i];
+                    break;
+                }
 
-            } else if (*cp == 'p') {
+            } else if (smatch(cp, "password") || smatch(cp, "p")) {
                 if (++i == argc) {
                     errflg++;
                 } else {
@@ -65,7 +87,6 @@ int main(int argc, char *argv[])
         printUsage();
         exit(2);
     }   
-    authFile = argv[nextArg++];
     realm = argv[nextArg++];
     username = argv[nextArg++];
 
@@ -81,7 +102,7 @@ int main(int argc, char *argv[])
     logOpen();
     websOpenAuth(1);
     
-    if (!create) {
+    if (authFile && access(authFile, R_OK) == 0) {
         if (websLoad(authFile) < 0) {
             exit(2);
         }
@@ -89,21 +110,28 @@ int main(int argc, char *argv[])
             error("Cannot write to %s", authFile);
             exit(4);
         }
-    } else if (access(authFile, R_OK) == 0) {
-        error("Cannot create %s, already exists", authFile);
-        exit(5);
     }
     if (!password && (password = getPassword()) == 0) {
         exit(1);
     }
     encodedPassword = websMD5(sfmt("%s:%s:%s", username, realm, password));
 
-    websRemoveUser(username);
-    if (websAddUser(username, encodedPassword, roles) < 0) {
-        exit(7);
+    if (smatch(cipher, "md5")) {
+        encodedPassword = websMD5(sfmt("%s:%s:%s", username, realm, password));
+    } else {
+        /* This uses the more secure blowfish cipher */
+        encodedPassword = websMakePassword(sfmt("%s:%s:%s", username, realm, password), 16, 128);
     }
-    if (writeAuthFile(authFile) < 0) {
-        exit(6);
+    if (authFile) {
+        websRemoveUser(username);
+        if (websAddUser(username, encodedPassword, roles) == 0) {
+            exit(7);
+        }
+        if (writeAuthFile(authFile) < 0) {
+            exit(6);
+        }
+    } else {
+        printf("%s\n", encodedPassword);
     }
     websCloseAuth();
     return 0;
@@ -229,12 +257,12 @@ static char *getpass(char *prompt)
 
 static void printUsage()
 {
-    error("usage: gopass [-c] [-p password] authFile realm user roles...\n"
+    error("usage: gopass [--cipher cipher] [--file path] [--password password] realm user roles...\n"
         "Options:\n"
-        "    -c              Create the password file\n"
-        "    -p passWord     Use the specified password\n"
-        "    -e              Enable (default)\n"
-        "    -d              Disable\n");
+        "    --cipher md5|blowfish Select the encryption cipher. Defaults to md5\n"
+        "    --file filename       Modify the password file\n"
+        "    --password password   Use the specified password\n"
+        "\n");
 }
 
 
