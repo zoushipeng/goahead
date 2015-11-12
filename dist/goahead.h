@@ -132,6 +132,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 
 #define WEBS_MAX_LISTEN     8           /**< Maximum number of listen endpoints */
 #define WEBS_SMALL_HASH     31          /**< General small hash size */
+#define WEBS_MAX_PASSWORD   32          /**< Default maximum password */
 
 /************************************* Error **********************************/
 
@@ -167,7 +168,7 @@ PUBLIC_DATA int logLevel;
 /**
     Assure that an assert condition is true
     @param cond Boolean result of a conditional test
-    @stability Evolving
+    @stability Stable
  */
 extern void assert(bool cond);
 #elif ME_GOAHEAD_DEBUG
@@ -198,7 +199,7 @@ typedef void (*WebsLogHandler)(int level, char *msg);
 /**
     Emit an error message
     @return Zero if successful
-    @stability Evolving
+    @stability Stable
 */
 PUBLIC void error(char *fmt, ...);
 
@@ -218,7 +219,7 @@ PUBLIC void logClose();
 /**
     Get the  log callback
     @return handler Callback handler function of type WebsLogHandler
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsLogHandler logGetHandler();
 
@@ -226,14 +227,14 @@ PUBLIC WebsLogHandler logGetHandler();
     Set a log callback
     @param handler Callback handler function of type WebsLogHandler
     @return The previous callback function
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsLogHandler logSetHandler(WebsLogHandler handler);
 
 /**
     Set the filename to save logging output
     @param path Filename path to use
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void logSetPath(char *path);
 
@@ -246,7 +247,7 @@ PUBLIC void logSetPath(char *path);
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
     @param ... Arguments for the format string
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void logmsgProc(int level, char *fmt, ...);
 
@@ -260,7 +261,7 @@ PUBLIC void logmsgProc(int level, char *fmt, ...);
     @param level Integer verbosity level (0-9).
     @param fmt Printf style format string
     @param ... Arguments for the format string
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void traceProc(int level, char *fmt, ...);
 
@@ -391,7 +392,7 @@ typedef struct WebsValue {
     Create an integer value
     @param value Integer long value
     @return Value object containing the integer
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsValue valueInteger(long value);
 
@@ -400,7 +401,7 @@ PUBLIC WebsValue valueInteger(long value);
     @param value String long value
     @param flags Set to VALUE_ALLOCATE to store a copy of the string reference
     @return Value object containing the string
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsValue valueString(char *value, int flags);
 
@@ -408,14 +409,14 @@ PUBLIC WebsValue valueString(char *value, int flags);
     Create an symbol value containing an object reference
     @param value Value reference
     @return Value object containing the symbol reference
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsValue valueSymbol(void *value);
 
 /**
     Free any allocated string in a value
     @param value Value object
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void valueFree(WebsValue *value);
 
@@ -456,7 +457,7 @@ PUBLIC void valueFree(WebsValue *value);
     consumers responsibility to "wrap" the servp when it steps to bp->endbuf.
     The bufPutc and bufGetc routines will do this automatically.
     @defgroup WebsBuf WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsBuf {
     char    *buf;               /**< Holding buffer for data */
@@ -472,7 +473,7 @@ typedef struct WebsBuf {
     Add a trailing null to the buffer. The end pointer is not changed.
     @param bp Buffer reference
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufAddNull(WebsBuf *bp);
 
@@ -482,7 +483,7 @@ PUBLIC void bufAddNull(WebsBuf *bp);
     @param bp Buffer reference
     @param size Size of adjustment. May be positive or negative value.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size);
 
@@ -491,7 +492,7 @@ PUBLIC void bufAdjustEnd(WebsBuf *bp, ssize size);
     @param bp Buffer reference
     @param count Number of bytes to adjust
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufAdjustStart(WebsBuf *bp, ssize count);
 
@@ -499,7 +500,7 @@ PUBLIC void bufAdjustStart(WebsBuf *bp, ssize count);
     Compact the data in the buffer and move to the start of the buffer
     @param bp Buffer reference
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufCompact(WebsBuf *bp);
 
@@ -511,7 +512,7 @@ PUBLIC void bufCompact(WebsBuf *bp);
     @param maxsize Maximum size of the buffer
     @return Zero if successful
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int bufCreate(WebsBuf *bp, int increment, int maxsize);
 
@@ -519,7 +520,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int increment, int maxsize);
     Flush all data in the buffer and reset the pointers.
     @param bp Buffer reference
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufFlush(WebsBuf *bp);
 
@@ -528,7 +529,7 @@ PUBLIC void bufFlush(WebsBuf *bp);
     @param bp Buffer reference
     @return Zero if successful
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufFree(WebsBuf *bp);
 
@@ -539,7 +540,7 @@ PUBLIC void bufFree(WebsBuf *bp);
     @param len Length of the block
     @return Number of bytes copied.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufGetBlk(WebsBuf *bp, char *blk, ssize len);
 
@@ -549,7 +550,7 @@ PUBLIC ssize bufGetBlk(WebsBuf *bp, char *blk, ssize len);
     @param bp Buffer reference
     @return Number of bytes available for copying.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufGetBlkMax(WebsBuf *bp);
 
@@ -558,7 +559,7 @@ PUBLIC ssize bufGetBlkMax(WebsBuf *bp);
     @param bp Buffer reference
     @return The next character or -1 if the buffer is empty
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int bufGetc(WebsBuf *bp);
 
@@ -568,7 +569,7 @@ PUBLIC int bufGetc(WebsBuf *bp);
     @param room Available size required after growing the buffer
     @return True if the buffer can be grown to have the required amount of room.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool bufGrow(WebsBuf *bp, ssize room);
 
@@ -577,7 +578,7 @@ PUBLIC bool bufGrow(WebsBuf *bp, ssize room);
     @param bp Buffer reference
     @return Size of available data in bytes
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufLen(WebsBuf *bp);
 
@@ -587,7 +588,7 @@ PUBLIC ssize bufLen(WebsBuf *bp);
     @param c Character to insert
     @return Zero if successful
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int bufInsertc(WebsBuf *bp, char c);
 
@@ -597,7 +598,7 @@ PUBLIC int bufInsertc(WebsBuf *bp, char c);
     @param c Character to append
     @return Zero if successful
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int bufPutc(WebsBuf *bp, char c);
 /**
@@ -607,7 +608,7 @@ PUBLIC int bufPutc(WebsBuf *bp, char c);
     @param len Size of the block
     @return Length of data appended. Should equal len.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
 
@@ -618,7 +619,7 @@ PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
     @param ... Variable arguments for the format string
     @return Count of characters appended. Returns negative if there is an allocation error.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
@@ -628,7 +629,7 @@ PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...) PRINTF_ATTRIBUTE(2,3);
     @param str String to append
     @return Count of characters appended. Returns negative if there is an allocation error.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufPutStr(WebsBuf *bp, char *str);
 
@@ -636,7 +637,7 @@ PUBLIC ssize bufPutStr(WebsBuf *bp, char *str);
     Reset the buffer pointers to the start of the buffer if empty
     @param bp Buffer reference
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void bufReset(WebsBuf *bp);
 
@@ -646,7 +647,7 @@ PUBLIC void bufReset(WebsBuf *bp);
     @param bp Buffer reference
     @return Number of bytes of availble space.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize bufRoom(WebsBuf *bp);
 
@@ -655,7 +656,7 @@ PUBLIC ssize bufRoom(WebsBuf *bp);
     @param bp Buffer reference
     @return A string pointer.
     @ingroup WebsBuf
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *bufStart(WebsBuf *bp);
 
@@ -665,7 +666,7 @@ PUBLIC char *bufStart(WebsBuf *bp);
     GoAhead allocator memory block
     Memory block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536.
     @defgroup WebsAlloc WebsAlloc
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsAlloc {
     union {
@@ -695,7 +696,7 @@ typedef struct WebsAlloc {
 /**
     Close the GoAhead memory allocator
     @ingroup WebsAlloc
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void wcloseAlloc();
 
@@ -711,7 +712,7 @@ PUBLIC void wcloseAlloc();
     @param flags Allocation flags. Set to WEBS_USE_MALLOC to permit the use of malloc() to grow memory.
     @return Zero if successful, otherwise -1.
     @ingroup WebsAlloc
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int wopenAlloc(void *buf, int bufsize, int flags);
 
@@ -720,7 +721,7 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags);
     @param size Memory size required
     @return A reference to the allocated block
     @ingroup WebsAlloc
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *walloc(ssize size);
 
@@ -728,7 +729,7 @@ PUBLIC void *walloc(ssize size);
     Free an allocated block of memory
     @param blk Reference to the memory block to free.
     @ingroup WebsAlloc
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void wfree(void *blk);
 
@@ -740,9 +741,18 @@ PUBLIC void wfree(void *blk);
     @param newsize Size of the new block.
     @return Reference to the new memory block
     @ingroup WebsAlloc
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void *wrealloc(void *blk, ssize newsize);
+
+/**
+    Duplicate memory
+    @param ptr Original block reference
+    @param usize Size to allocate
+    @return Reference to the new memory block
+    @ingroup WebsAlloc
+ */
+PUBLIC void *wdup(cvoid *ptr, size_t usize);
 
 typedef void (*WebsMemNotifier)(ssize size);
 
@@ -752,7 +762,7 @@ typedef void (*WebsMemNotifier)(ssize size);
         as its only parameter.
     @param cback Callback function to invoke for allocation failures.
     @ingroup WebsAlloc
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void websSetMemNotifier(WebsMemNotifier cback);
 
@@ -774,7 +784,7 @@ PUBLIC char  *awtom(wchar *src, ssize *len);
     Each hash entry has a descriptor entry. This is used to manage the hash table link chains.
     @see hashCreate hashFree hashLookup hashEnter hashDelete hashWalk hashFirst hashNext
     @defgroup WebsHash WebsHash
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsKey {
     struct WebsKey  *forw;                  /* Pointer to next hash list */
@@ -794,7 +804,7 @@ typedef int WebsHash;                       /* Returned by symCreate */
     @param size Minimum size of the hash index
     @return Hash table ID. Negative if the hash cannot be created.
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsHash hashCreate(int size);
 
@@ -802,7 +812,7 @@ PUBLIC WebsHash hashCreate(int size);
     Free a hash table
     @param id Hash table id returned by hashCreate
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void hashFree(WebsHash id);
 
@@ -812,7 +822,7 @@ PUBLIC void hashFree(WebsHash id);
     @param name Key name to search for
     @return Reference to the WebKey object storing the key and value
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsKey *hashLookup(WebsHash id, char *name);
 
@@ -822,7 +832,7 @@ PUBLIC WebsKey *hashLookup(WebsHash id, char *name);
     @param name Key name to search for
     @return Reference to the symbole
     @ingroup WebsHash
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC void *hashLookupSymbol(WebsHash sd, char *name);
 
@@ -834,7 +844,7 @@ PUBLIC void *hashLookupSymbol(WebsHash sd, char *name);
     @param arg Optional extra argument to store with the value
     @return Reference to the WebKey object storing the key and value
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsKey *hashEnter(WebsHash id, char *name, WebsValue value, int arg);
 
@@ -844,7 +854,7 @@ PUBLIC WebsKey *hashEnter(WebsHash id, char *name, WebsValue value, int arg);
     @param name Key name to delete
     @return Zero if the delete was successful. Otherwise -1 if the key was not found.
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int hashDelete(WebsHash id, char *name);
 
@@ -853,7 +863,7 @@ PUBLIC int hashDelete(WebsHash id, char *name);
     @param id Hash table id returned by hashCreate
     @return Reference to the first WebKey object. Return null if there are no keys in the hash.
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsKey *hashFirst(WebsHash id);
 
@@ -863,7 +873,7 @@ PUBLIC WebsKey *hashFirst(WebsHash id);
     @param last Reference to a WebsKey to hold the current traversal key state.
     @return Reference to the next WebKey object. Returns null if no more keys exist to be traversed.
     @ingroup WebsHash
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsKey *hashNext(WebsHash id, WebsKey *last);
 
@@ -914,7 +924,7 @@ PUBLIC WebsKey *hashNext(WebsHash id, WebsKey *last);
     @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
     @param data Data argument to pass to the callback function.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*SocketHandler)(int sid, int mask, void *data);
 
@@ -925,7 +935,7 @@ typedef void (*SocketHandler)(int sid, int mask, void *data);
     @param port Port of the connecting client.
     @param listenSid Socket ID for the listening socket
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
 
@@ -937,7 +947,7 @@ typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
     socketSelect socketGetHandle socketSetBlock socketGetBlock socketAlloc socketFree socketGetError
     socketSetError socketPtr socketWaitForEvent socketRegisterInterest
     @defgroup WebsSocket WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsSocket {
     WebsBuf         lineBuf;            /**< Line ring queue */
@@ -969,7 +979,7 @@ typedef struct WebsSocket {
     @param port Reference to an integer to hold the parsed port.
     @return Zero if successful. Otherwise -1 for parse errors.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port);
 
@@ -978,7 +988,7 @@ PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ipbuf, int ip
     @param ip String IP address.
     @return True if the address is an IPv6 address.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool socketAddressIsV6(char *ip);
 
@@ -990,14 +1000,14 @@ PUBLIC bool socketAddressIsV6(char *ip);
     @param flags Control flags
     @return Socket ID handle to use with other APIs.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketAlloc(char *host, int port, SocketAccept accept, int flags);
 
 /**
     Close the socket module
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketClose();
 
@@ -1005,7 +1015,7 @@ PUBLIC void socketClose();
     Close a socket connection
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketCloseConnection(int sid);
 
@@ -1017,7 +1027,7 @@ PUBLIC void socketCloseConnection(int sid);
     @return True if the address is an IPv6 address.
     @ingroup WebsSocket
     @internal
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketConnect(char *host, int port, int flags);
 
@@ -1029,7 +1039,7 @@ PUBLIC int socketConnect(char *host, int port, int flags);
     @param arg Arbitrary object reference to pass to the SocketHandler callback function.
     @return True if the address is an IPv6 address.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketCreateHandler(int sid, int mask, SocketHandler handler, void *arg);
 
@@ -1037,7 +1047,7 @@ PUBLIC void socketCreateHandler(int sid, int mask, SocketHandler handler, void *
     Delete a socket handler created via socketCreateHandler
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketDeleteHandler(int sid);
 
@@ -1046,7 +1056,7 @@ PUBLIC void socketDeleteHandler(int sid);
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return True if the address is at EOF
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool socketEof(int sid);
 
@@ -1054,7 +1064,7 @@ PUBLIC bool socketEof(int sid);
     Free (and close) the socket
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketFree(int sid);
 
@@ -1063,7 +1073,7 @@ PUBLIC void socketFree(int sid);
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return True if the socket is in blocking mode.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketGetBlock(int sid);
 
@@ -1071,7 +1081,7 @@ PUBLIC int socketGetBlock(int sid);
     Get the error code for the last socket operation on this thread.
     @return Integer error code. See errno or GetLastError() on windows.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketGetError();
 
@@ -1080,7 +1090,7 @@ PUBLIC int socketGetError();
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return The socket handle
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC Socket socketGetHandle(int sid);
 
@@ -1088,7 +1098,7 @@ PUBLIC Socket socketGetHandle(int sid);
     Get the list of sockets
     @return The socket list pointer
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsSocket **socketGetList();
 
@@ -1097,7 +1107,7 @@ PUBLIC WebsSocket **socketGetList();
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return The TCP/IP port for this socket
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketGetPort(int sid);
 
@@ -1105,7 +1115,7 @@ PUBLIC int socketGetPort(int sid);
     Indicate if the system has a dual IPv4 and IPv6 stack
     @return True if IPv4 and IPv6 are supported on a single stack
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool socketHasDualNetworkStack();
 
@@ -1113,7 +1123,7 @@ PUBLIC bool socketHasDualNetworkStack();
     Indicate if the system has IPv6 support
     @return True if IPv6 is supported on this system
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool socketHasIPv6();
 
@@ -1124,7 +1134,7 @@ PUBLIC bool socketHasIPv6();
     @param len Length of buffered data in bytes
     @param dir Buffer direction. Set to MPR_READABLE for buffered read data and MPR_WRITABLE for buffered write data.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir);
 
@@ -1139,7 +1149,7 @@ PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir);
     @param addrlen Reference to an integer to hold the address structure length
     @return Zero if successful, otherwise -1.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen);
 
@@ -1148,7 +1158,7 @@ PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct soc
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return True if the socket is using IPv6.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool socketIsV6(int sid);
 
@@ -1160,7 +1170,7 @@ PUBLIC bool socketIsV6(int sid);
     @param flags Reserved
     @return Zero if successful, otherwise -1.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketListen(char *host, int port, SocketAccept accept, int flags);
 
@@ -1168,7 +1178,7 @@ PUBLIC int socketListen(char *host, int port, SocketAccept accept, int flags);
     Open the socket module
     @return Zero if successful, otherwise -1.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketOpen();
 
@@ -1189,14 +1199,14 @@ PUBLIC int socketOpen();
     @param defaultPort Default port number to use if no port specifier is included in ipAddrPort.
     @return Zero if successful, otherwise -1.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketParseAddress(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
 
 /**
     Process pending socket I/O events.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
     @internal
  */
 PUBLIC void socketProcess();
@@ -1209,7 +1219,7 @@ PUBLIC void socketProcess();
     @return Count of bytes actually read. Returns -1 for errors and EOF. Distinguish between errors and EOF
         via socketEof().
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize socketRead(int sid, void *buf, ssize len);
 
@@ -1218,7 +1228,7 @@ PUBLIC ssize socketRead(int sid, void *buf, ssize len);
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketRegisterInterest(int sid, int mask);
 
@@ -1228,7 +1238,7 @@ PUBLIC void socketRegisterInterest(int sid, int mask);
         This routine will cause the socket I/O callback handler to be invoked soon in the future.
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketReservice(int sid);
 
@@ -1240,7 +1250,7 @@ PUBLIC void socketReservice(int sid);
     @param timeout Timeout in milliseconds.
     @return Number of I/O events.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketSelect(int sid, int timeout);
 
@@ -1250,7 +1260,7 @@ PUBLIC int socketSelect(int sid, int timeout);
     @param on Set to 1 to enable blocking
     @return The previous blocking mode
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketSetBlock(int sid, int on);
 
@@ -1258,7 +1268,7 @@ PUBLIC int socketSetBlock(int sid, int on);
     Set the error code for the last socket operation on this thread.
     @param error Integer error code. See errno or GetLastError() on windows.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void socketSetError(int error);
 
@@ -1269,7 +1279,7 @@ PUBLIC void socketSetError(int error);
     @param on Set to 1 to disable the Nagle algorithm
     @return The previous blocking mode
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketSetNoDelay(int sid, bool on);
 
@@ -1279,7 +1289,7 @@ PUBLIC int socketSetNoDelay(int sid, bool on);
     @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
     @return Zero if successful in waiting for the desired event, othewise return -1.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int socketWaitForEvent(WebsSocket *sp, int mask);
 
@@ -1292,7 +1302,7 @@ PUBLIC int socketWaitForEvent(WebsSocket *sp, int mask);
         Returns -1 for errors and if the socket cannot absorb any more data. If the transport is saturated,
         will return a negative error and errno will be set to EAGAIN or EWOULDBLOCK.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize socketWrite(int sid, void *buf, ssize len);
 
@@ -1301,7 +1311,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize len);
     @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return Corresponding socket object.
     @ingroup WebsSocket
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsSocket *socketPtr(int sid);
 
@@ -1314,7 +1324,7 @@ PUBLIC WebsSocket *socketPtr(int sid);
     @defgroup WebsRuntime WebsRuntime
     @see fmt wallocHandle wallocObject wfreeHandle hextoi itosbuf scaselesscmp scaselessmatch
         sclone scmp scopy sfmt sfmtv slen slower smatch sncaselesscmp sncmp sncopy stok strim supper
-    @stability Evolving
+    @stability Stable
  */
 
 /**
@@ -1327,7 +1337,7 @@ PUBLIC WebsSocket *socketPtr(int sid);
     @param ... Variable arguments to format
     @return Returns the buffer.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *fmt(char *buf, ssize maxSize, char *format, ...);
 
@@ -1336,7 +1346,7 @@ PUBLIC char *fmt(char *buf, ssize maxSize, char *format, ...);
     @param map Reference to a location holding the map reference. On the first call, the map is allocated.
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int wallocHandle(void *map);
 
@@ -1347,7 +1357,7 @@ PUBLIC int wallocHandle(void *map);
     @param size Size of the object to allocate.
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int wallocObject(void *map, int *max, int size);
 
@@ -1357,7 +1367,7 @@ PUBLIC int wallocObject(void *map, int *max, int size);
     @param handle Handle to free in the map.
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int wfreeHandle(void *map, int handle);
 
@@ -1367,7 +1377,7 @@ PUBLIC int wfreeHandle(void *map, int handle);
     @param str Pointer to the string to parse.
     @return Returns the integer equivalent value of the string.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC uint hextoi(char *str);
 
@@ -1381,7 +1391,7 @@ PUBLIC uint hextoi(char *str);
     @param radix The base radix to use when encoding the number
     @return Returns a reference to the string.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
 
@@ -1393,7 +1403,7 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
     @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence
         or > 0 if it sorts higher.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int scaselesscmp(char *s1, char *s2);
 
@@ -1404,7 +1414,7 @@ PUBLIC int scaselesscmp(char *s1, char *s2);
     @param s2 Second string to compare.
     @return Returns true if the strings are equivalent, otherwise false.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool scaselessmatch(char *s1, char *s2);
 
@@ -1414,7 +1424,7 @@ PUBLIC bool scaselessmatch(char *s1, char *s2);
     @param str Pointer to the block to duplicate.
     @return Returns a newly allocated string.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *sclone(char *str);
 
@@ -1426,7 +1436,7 @@ PUBLIC char *sclone(char *str);
     @return Returns zero if the strings are identical. Return -1 if the first string is less than the second. Return 1
         if the first string is greater than the second.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int scmp(char *s1, char *s2);
 
@@ -1441,7 +1451,7 @@ PUBLIC int scmp(char *s1, char *s2);
     @param src String to copy
     @return Returns the number of characters in the target string.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize scopy(char *dest, ssize destMax, char *src);
 
@@ -1460,7 +1470,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src);
     @param ... Variable arguments for the format string
     @return Returns a newly allocated string
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *sfmt(char *format, ...);
 
@@ -1472,7 +1482,7 @@ PUBLIC char *sfmt(char *format, ...);
     @param args Varargs argument obtained from va_start.
     @return Returns a newly allocated string
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *sfmtv(char *format, va_list args);
 
@@ -1483,7 +1493,7 @@ PUBLIC char *sfmtv(char *format, va_list args);
     @param str String to measure.
     @return Returns the length of the string
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize slen(char *str);
 
@@ -1493,7 +1503,7 @@ PUBLIC ssize slen(char *str);
     @param str String to convert. This string is modified.
     @return Reference to the supplied str.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *slower(char *str);
 
@@ -1504,7 +1514,7 @@ PUBLIC char *slower(char *str);
     @param s2 Second string to compare.
     @return Returns true if the strings are equivalent, otherwise false.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool smatch(char *s1, char *s2);
 
@@ -1518,7 +1528,7 @@ PUBLIC bool smatch(char *s1, char *s2);
     @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence
         or > 0 if it sorts higher.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int sncaselesscmp(char *s1, char *s2, ssize len);
 
@@ -1531,7 +1541,7 @@ PUBLIC int sncaselesscmp(char *s1, char *s2, ssize len);
     @return Returns zero if the strings are equivalent, < 0 if s1 sorts lower than s2 in the collating sequence
         or > 0 if it sorts higher.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int sncmp(char *s1, char *s2, ssize len);
 
@@ -1547,7 +1557,7 @@ PUBLIC int sncmp(char *s1, char *s2, ssize len);
     @param count Maximum count of characters to copy
     @return Returns a reference to the destination if successful or NULL if the string won't fit.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
 
@@ -1573,7 +1583,7 @@ PUBLIC bool snumber(cchar *s);
     @return Returns a pointer to the first part before the delimiters. If the string begins with delimiters, the empty
         string will be returned.
     @ingroup WebsRuntime
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC char *ssplit(char *str, cchar *delim, char **last);
 
@@ -1585,7 +1595,7 @@ PUBLIC char *ssplit(char *str, cchar *delim, char **last);
     @param last Last token pointer.
     @return Returns a pointer to the next token.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *stok(char *str, char *delim, char **last);
 
@@ -1597,7 +1607,7 @@ PUBLIC char *stok(char *str, char *delim, char **last);
     @param where Flags to indicate trim from the start, end or both. Use WEBS_TRIM_START, WEBS_TRIM_END, WEBS_TRIM_BOTH.
     @return Returns a pointer to the trimmed string. May not equal \a str.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *strim(char *str, char *set, int where);
 
@@ -1607,7 +1617,7 @@ PUBLIC char *strim(char *str, char *set, int where);
     @param str String to convert. This string is modified.
     @return Returns a pointer to the converted string. Will always equal str.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *supper(char *str);
 
@@ -1616,7 +1626,7 @@ PUBLIC char *supper(char *str);
     @param data Opaque data argument
     @param id Event ID
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*WebsEventProc)(void *data, int id);
 
@@ -1629,7 +1639,7 @@ typedef void (*WebsEventProc)(void *data, int id);
     @param data Data reference to pass to the callback
     @return A positive integer event ID
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websStartEvent(int delay, WebsEventProc proc, void *data);
 
@@ -1638,7 +1648,7 @@ PUBLIC int websStartEvent(int delay, WebsEventProc proc, void *data);
     @param id Event id allocated by websStartEvent
     @return Integer handle index. Otherwise return -1 on allocation errors.
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websStopEvent(int id);
 
@@ -1647,7 +1657,7 @@ PUBLIC void websStopEvent(int id);
     @param id Event id allocated by websStartEvent
     @param delay Delay in milliseconds till the event next runs
     @ingroup WebsRuntime
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websRestartEvent(int id, int delay);
 
@@ -1683,7 +1693,7 @@ typedef struct WebsUpload {
 /**
     Open the file upload filter
     @ingroup WebsUpload
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websUploadOpen();
 
@@ -1692,7 +1702,7 @@ PUBLIC void websUploadOpen();
     @param wp Webs request object
     @return Hash table of uploaded files
     @ingroup WebsUpload
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsHash websGetUpload(struct Webs *wp);
 
@@ -1702,7 +1712,7 @@ PUBLIC WebsHash websGetUpload(struct Webs *wp);
     @param key Form upload name
     @return Upload object for the uploaded file
     @ingroup WebsUpload
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
 #endif
@@ -1892,7 +1902,7 @@ typedef struct Webs {
     @param wp Webs request object
     @return True if the handler serviced the request
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef bool (*WebsHandlerProc)(Webs *wp);
 
@@ -1900,14 +1910,14 @@ typedef bool (*WebsHandlerProc)(Webs *wp);
     GoAhead handler close to release memory prior to shutdown.
     @description This callback is invoked when GoAhead is shutting down.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*WebsHandlerClose)();
 
 /**
     GoAhead handler object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsHandler {
     char                *name;              /**< Handler name */
@@ -1921,7 +1931,7 @@ typedef struct WebsHandler {
     Action callback
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*WebsAction)(Webs *wp);
 
@@ -1932,7 +1942,7 @@ typedef void (*WebsAction)(Webs *wp);
 /**
     Error code list
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsError {
     int     code;                           /**< HTTP error code */
@@ -1942,7 +1952,7 @@ typedef struct WebsError {
 /**
     Mime type list
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsMime {
     char    *type;                          /**< Mime type */
@@ -1952,7 +1962,7 @@ typedef struct WebsMime {
 /**
     File information structure.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsFileInfo {
     ulong           size;                   /**< File length */
@@ -1963,7 +1973,7 @@ typedef struct WebsFileInfo {
 /**
     Compiled Rom Page Index
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsRomIndex {
     char            *path;                  /**< Web page URL path */
@@ -1976,7 +1986,7 @@ typedef struct WebsRomIndex {
     /**
         List of documents to service when built with ROM support
         @ingroup Webs
-        @stability Evolving
+        @stability Stable
      */
     PUBLIC_DATA WebsRomIndex websRomIndex[];
 #endif
@@ -1991,14 +2001,14 @@ typedef struct WebsRomIndex {
     @param listenSid Socket ID of the listening socket
     @return Zero if successful, otherwise -1
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid);
 
 /**
     Open the action handler
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websActionOpen();
 
@@ -2007,7 +2017,7 @@ PUBLIC void websActionOpen();
     @param sid Socket ID handle for the newly accepted socket
     @return The webs[] handle index for the allocated Webs object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websAlloc(int sid);
 
@@ -2017,7 +2027,7 @@ PUBLIC int websAlloc(int sid);
         centralized management of the timeout for this request.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websCancelTimeout(Webs *wp);
 
@@ -2026,7 +2036,7 @@ PUBLIC void websCancelTimeout(Webs *wp);
     Open the CGI handler
     @return Zero if successful, otherwise -1
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websCgiOpen();
 
@@ -2035,7 +2045,7 @@ PUBLIC int websCgiOpen();
     @param wp Webs object
     @return Returns 1 if the request was handled.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websCgiHandler(Webs *wp);
 
@@ -2043,7 +2053,7 @@ PUBLIC int websCgiHandler(Webs *wp);
     Poll for output from CGI processes and output.
     @return Time delay till next poll
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websCgiPoll();
 
@@ -2056,7 +2066,7 @@ PUBLIC bool cgiHandler(Webs *wp);
     Close the core GoAhead web server module
     @description Invoked when GoAhead is shutting down.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websClose();
 
@@ -2064,7 +2074,7 @@ PUBLIC void websClose();
     Close an open file
     @param fd Open file handle returned by websOpenFile
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websCloseFile(int fd);
 
@@ -2075,7 +2085,7 @@ PUBLIC void websCloseFile(int fd);
     @param value Value to compare with
     @return True if the value matches. Otherwise return 0
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websCompareVar(Webs *wp, char *var, char *value);
 
@@ -2086,7 +2096,7 @@ PUBLIC int websCompareVar(Webs *wp, char *var, char *value);
     @param wp Webs request object
     @param nbytes Number of bytes the handler has consumed from the input buffer.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websConsumeInput(Webs *wp, ssize nbytes);
 
@@ -2096,7 +2106,7 @@ PUBLIC void websConsumeInput(Webs *wp, ssize nbytes);
     @param str String to decode
     @return The original string.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websDecode64(char *str);
 
@@ -2107,7 +2117,7 @@ PUBLIC char *websDecode64(char *str);
     @param flags Reserved.
     @return The original string.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websDecode64Block(char *str, ssize *len, int flags);
 
@@ -2118,7 +2128,7 @@ PUBLIC char *websDecode64Block(char *str, ssize *len, int flags);
     @param input Input URL or buffer to decode
     @param len Length of the decoded buffer.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len);
 
@@ -2132,7 +2142,7 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len);
     @param flags Set to WEBS_LEGACY_HANDLER to support the legacy handler API calling sequence.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websDefineHandler(char *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags);
 
@@ -2141,7 +2151,7 @@ PUBLIC int websDefineHandler(char *name, WebsHandlerProc match, WebsHandlerProc 
     @description A handler should call websDone() to complete the request.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websDone(Webs *wp);
 
@@ -2151,7 +2161,7 @@ PUBLIC void websDone(Webs *wp);
     @param str String to encode
     @return The original string.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websEncode64(char *str);
 
@@ -2162,7 +2172,7 @@ PUBLIC char *websEncode64(char *str);
     @param len Length of string to encode
     @return The original string.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websEncode64Block(char *str, ssize len);
 
@@ -2171,7 +2181,7 @@ PUBLIC char *websEncode64Block(char *str, ssize len);
     @param str String to escape
     @return An allocated block containing the escaped string. Caller must free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websEscapeHtml(char *str);
 
@@ -2182,7 +2192,7 @@ PUBLIC char *websEscapeHtml(char *str);
     @param fmt Message printf style format
     @param ... Format args
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websError(Webs *wp, int code, char *fmt, ...);
 
@@ -2191,14 +2201,14 @@ PUBLIC void websError(Webs *wp, int code, char *fmt, ...);
     @param code HTTP status code
     @return Http status message
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websErrorMsg(int code);
 
 /**
     Open and initialize the file handler
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websFileOpen();
 
@@ -2213,7 +2223,7 @@ PUBLIC void websFileOpen();
     @return -1 for I/O errors. Return zero if there is more data remaining in the buffer. Return 1 if the
         contents of the transmit buffer are fully written and the buffer is now empty.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websFlush(Webs *wp, bool block);
 
@@ -2222,7 +2232,7 @@ PUBLIC int websFlush(Webs *wp, bool block);
     @description Callers should call websDone to complete requests prior to invoking websFree.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websFree(Webs *wp);
 
@@ -2231,7 +2241,7 @@ PUBLIC void websFree(Webs *wp);
     @description If GoAhead is invoked with --background, it will run as a daemon in the background.
     @return True if GoAhead is running in the background.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websGetBackground();
 
@@ -2240,7 +2250,7 @@ PUBLIC int websGetBackground();
     Get a unique temporary filename for CGI communications
     @return Filename string
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetCgiCommName();
 #endif /* ME_GOAHEAD_CGI */
@@ -2250,7 +2260,7 @@ PUBLIC char *websGetCgiCommName();
     @param wp Webs request object
     @return Cookie string if defined, otherwise null.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetCookie(Webs *wp);
 
@@ -2260,7 +2270,7 @@ PUBLIC char *websGetCookie(Webs *wp);
     @param sbuf File info object
     @return An allocated date string. Caller should free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetDateString(WebsFileInfo *sbuf);
 
@@ -2269,7 +2279,7 @@ PUBLIC char *websGetDateString(WebsFileInfo *sbuf);
     @description If GoAhead is invoked with --debugger, the debug flag will be set to true
     @return True if GoAhead is running in debug mode.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websGetDebug();
 
@@ -2279,7 +2289,7 @@ PUBLIC int websGetDebug();
     @param wp Webs request object
     @return Path name string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetDir(Webs *wp);
 
@@ -2288,7 +2298,7 @@ PUBLIC char *websGetDir(Webs *wp);
     @description The documents directory is defined at build time and may be overridden by the GoAhead command line.
     @return Path string for the documents directory.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetDocuments();
 
@@ -2298,7 +2308,7 @@ PUBLIC char *websGetDocuments();
     @param wp Webs request object
     @return True if all the request body data has been received.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websGetEof(Webs *wp);
 
@@ -2307,7 +2317,7 @@ PUBLIC int websGetEof(Webs *wp);
     @param wp Webs request object
     @return The URI filename extension component. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetExt(Webs *wp);
 
@@ -2317,7 +2327,7 @@ PUBLIC char *websGetExt(Webs *wp);
     @param wp Webs request object
     @return Filename string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetFilename(Webs *wp);
 
@@ -2328,7 +2338,7 @@ PUBLIC char *websGetFilename(Webs *wp);
     @param wp Webs request object
     @return Host string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetHost(Webs *wp);
 
@@ -2337,7 +2347,7 @@ PUBLIC char *websGetHost(Webs *wp);
     @param wp Webs request object
     @return Network interface string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetIfaddr(Webs *wp);
 
@@ -2346,7 +2356,7 @@ PUBLIC char *websGetIfaddr(Webs *wp);
     @description The default index is "index.html" and can be updated via websSetIndex.
     @return Index name string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetIndex();
 
@@ -2355,7 +2365,7 @@ PUBLIC char *websGetIndex();
     @param wp Webs request object
     @return HTTP method string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetMethod(Webs *wp);
 
@@ -2366,7 +2376,7 @@ PUBLIC char *websGetMethod(Webs *wp);
     @param wp Webs request object
     @return Password string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetPassword(Webs *wp);
 
@@ -2377,7 +2387,7 @@ PUBLIC char *websGetPassword(Webs *wp);
     @param wp Webs request object
     @return Request path string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetPath(Webs *wp);
 
@@ -2386,7 +2396,7 @@ PUBLIC char *websGetPath(Webs *wp);
     @param wp Webs request object
     @return TCP/IP Port integer
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websGetPort(Webs *wp);
 
@@ -2396,7 +2406,7 @@ PUBLIC int websGetPort(Webs *wp);
     @param wp Webs request object
     @return Protocol string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetProtocol(Webs *wp);
 
@@ -2405,7 +2415,7 @@ PUBLIC char *websGetProtocol(Webs *wp);
     @param wp Webs request object
     @return Request query string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetQuery(Webs *wp);
 
@@ -2413,7 +2423,7 @@ PUBLIC char *websGetQuery(Webs *wp);
     Get the server host name
     @return Host name string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetServer();
 
@@ -2421,7 +2431,7 @@ PUBLIC char *websGetServer();
     Get the server host name with port number.
     @return Host name string with port number. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetServerUrl();
 
@@ -2429,7 +2439,7 @@ PUBLIC char *websGetServerUrl();
     Get the server IP address
     @return Server IP address string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetServerAddress();
 
@@ -2437,7 +2447,7 @@ PUBLIC char *websGetServerAddress();
     Get the server IP address with port number
     @return Server IP:PORT address string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetServerAddressUrl();
 
@@ -2445,7 +2455,7 @@ PUBLIC char *websGetServerAddressUrl();
     Get the current trace log level
     @return Number between 0 and 9
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websGetLogLevel();
 
@@ -2455,7 +2465,7 @@ PUBLIC int websGetLogLevel();
     @param wp Webs request object
     @return URI string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetUrl(Webs *wp);
 
@@ -2464,7 +2474,7 @@ PUBLIC char *websGetUrl(Webs *wp);
     @param wp Webs request object
     @return User-Agent string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetUserAgent(Webs *wp);
 
@@ -2474,7 +2484,7 @@ PUBLIC char *websGetUserAgent(Webs *wp);
     @param wp Webs request object
     @return Username string if defined, otherwise null. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetUsername(Webs *wp);
 
@@ -2487,7 +2497,7 @@ PUBLIC char *websGetUsername(Webs *wp);
     @param defaultValue Default value to return if the variable is not defined
     @return Variable value string. Caller should not free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetVar(Webs *wp, char *name, char *defaultValue);
 
@@ -2498,7 +2508,7 @@ PUBLIC char *websGetVar(Webs *wp, char *name, char *defaultValue);
     @param endpoint IPv4 or IPv6 address on which to listen.
     @return Positive integer holding a Socket ID handle if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websListen(char *endpoint);
 
@@ -2507,7 +2517,7 @@ PUBLIC int websListen(char *endpoint);
     @param str String to analyze.
     @return Allocated MD5 checksum. Caller should free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websMD5(char *str);
 
@@ -2518,7 +2528,7 @@ PUBLIC char *websMD5(char *str);
     @param prefix Optional prefix to prepend to the MD5 sum.
     @return Allocated MD5 checksum. Caller should free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix);
 
@@ -2528,7 +2538,7 @@ PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix);
     @param path URI path to normalize
     @return An allocated normalized URI path. Caller must free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websNormalizeUriPath(char *path);
 
@@ -2537,7 +2547,7 @@ PUBLIC char *websNormalizeUriPath(char *path);
     @description This is used to defer the request timeout whenever there is request I/O activity.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websNoteRequestActivity(Webs *wp);
 
@@ -2568,7 +2578,7 @@ PUBLIC int websRuntimeOpen();
     @param routes Webs request object
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websOpen(char *documents, char *routes);
 
@@ -2596,7 +2606,7 @@ PUBLIC int websOsOpen();
     @param mode Permissions mask
     @return Positive file handle if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websOpenFile(char *path, int flags, int mode);
 
@@ -2604,7 +2614,7 @@ PUBLIC int websOpenFile(char *path, int flags, int mode);
     Open the options handler
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websOptionsOpen();
 
@@ -2612,7 +2622,7 @@ PUBLIC int websOptionsOpen();
     Close the document page
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websPageClose(Webs *wp);
 
@@ -2621,7 +2631,7 @@ PUBLIC void websPageClose(Webs *wp);
     @param wp Webs request object
     @return True if the filename is a directory
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websPageIsDirectory(Webs *wp);
 
@@ -2632,7 +2642,7 @@ PUBLIC int websPageIsDirectory(Webs *wp);
     @param perms Ignored
     @return File handle if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websPageOpen(Webs *wp, int mode, int perms);
 
@@ -2643,7 +2653,7 @@ PUBLIC int websPageOpen(Webs *wp, int mode, int perms);
     @param size Size of buf
     @return Count of bytes read if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize websPageReadData(Webs *wp, char *buf, ssize size);
 
@@ -2654,7 +2664,7 @@ PUBLIC ssize websPageReadData(Webs *wp, char *buf, ssize size);
     @param origin Set to SEEK_CUR, SEEK_SET or SEEK_END to position relative to the current position,
         beginning or end of the document.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin);
 
@@ -2664,7 +2674,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin);
     @param sbuf File information structure to modify with file status
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
 
@@ -2675,7 +2685,7 @@ PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
     @param wp Webs request object
     @return True if processing the request can proceed. 
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websProcessPutData(Webs *wp);
 #endif
@@ -2685,7 +2695,7 @@ PUBLIC bool websProcessPutData(Webs *wp);
     @description This routine will advance the connection state machine in response to events.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websPump(Webs *wp);
 
@@ -2696,7 +2706,7 @@ PUBLIC void websPump(Webs *wp);
     @param fun Callback function. The signature is void (*WebsAction)(Webs *wp);
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websDefineAction(cchar *name, void *fun);
 
@@ -2707,7 +2717,7 @@ PUBLIC int websDefineAction(cchar *name, void *fun);
     @param size Size of buf
     @return Count of bytes read if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize websReadFile(int fd, char *buf, ssize size);
 
@@ -2716,7 +2726,7 @@ PUBLIC ssize websReadFile(int fd, char *buf, ssize size);
     @param path File path to read from
     @return An allocated buffer containing the file data with an appended null. Caller must free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websReadWholeFile(char *path);
 
@@ -2727,7 +2737,7 @@ PUBLIC char *websReadWholeFile(char *path);
     @param wp Webs request object
     @param url URL to direct the client to.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websRedirect(Webs *wp, char *url);
 
@@ -2739,7 +2749,7 @@ PUBLIC void websRedirect(Webs *wp, char *url);
     @param status HTTP status code to use in selecting the route redirection.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websRedirectByStatus(Webs *wp, int status);
 
@@ -2752,7 +2762,7 @@ PUBLIC int websRedirectByStatus(Webs *wp, int status);
     @param msg Response message body
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websResponse(Webs *wp, int status, char *msg);
 
@@ -2763,7 +2773,7 @@ PUBLIC void websResponse(Webs *wp, int status, char *msg);
     @param url New request URL.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websRewriteRequest(Webs *wp, char *url);
 
@@ -2771,14 +2781,14 @@ PUBLIC int websRewriteRequest(Webs *wp, char *url);
     Open the file system module
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websFsOpen();
 
 /**
     Close the file system module
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websFsClose();
 
@@ -2789,7 +2799,7 @@ PUBLIC void websFsClose();
     @param origin Set to SEEK_CUR, SEEK_SET or SEEK_END to position relative to the current position,
         beginning or end of the document.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC Offset websSeekFile(int fd, Offset offset, int origin);
 
@@ -2799,7 +2809,7 @@ PUBLIC Offset websSeekFile(int fd, Offset offset, int origin);
     @param sbuf File information structure to modify with file status
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf);
 
@@ -2809,7 +2819,7 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf);
     @param endpoint IP:PORT address on which to listen
     @param documents Directory containing web documents to serve
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websServer(char *endpoint, char *documents);
 
@@ -2819,7 +2829,7 @@ PUBLIC int websServer(char *endpoint, char *documents);
     @param finished Integer location to test. If set to true, then exit. Note: setting finished will not
         automatically wake up the service routine.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websServiceEvents(int *finished);
 
@@ -2856,7 +2866,7 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
         Otherwise the cookie applies to both http and https requests.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, int lifespan, int flags);
 
@@ -2873,7 +2883,7 @@ PUBLIC void websSetDebug(int on);
     @description The web documents directory is used when resolving request URIs into filenames.
     @param dir Directory path to use
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetDocuments(char *dir);
 
@@ -2881,7 +2891,7 @@ PUBLIC void websSetDocuments(char *dir);
     Create the CGI environment variables for the current request.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetEnv(Webs *wp);
 
@@ -2891,7 +2901,7 @@ PUBLIC void websSetEnv(Webs *wp);
         application/x-www-form-urlencoded). The POST body data is consumed from the input buffer.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetFormVars(Webs *wp);
 
@@ -2899,7 +2909,7 @@ PUBLIC void websSetFormVars(Webs *wp);
     Define the host name for the server
     @param host String host name
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetHost(char *host);
 
@@ -2907,7 +2917,7 @@ PUBLIC void websSetHost(char *host);
     Define the host IP address
     @param ipaddr Host IP address
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetIpAddr(char *ipaddr);
 
@@ -2917,7 +2927,7 @@ PUBLIC void websSetIpAddr(char *ipaddr);
         the supplied message.
     @param filename Web document name to use as the index. This should not contain any directory components.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetIndex(char *filename);
 
@@ -2925,7 +2935,7 @@ PUBLIC void websSetIndex(char *filename);
     Create request variables for query string data
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetQueryVars(Webs *wp);
 
@@ -2934,7 +2944,7 @@ PUBLIC void websSetQueryVars(Webs *wp);
     @param wp Webs request object
     @param status HTTP status code
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetStatus(Webs *wp, int status);
 
@@ -2943,7 +2953,7 @@ PUBLIC void websSetStatus(Webs *wp, int status);
     @param wp Webs request object
     @param length Length value to use
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetTxLength(Webs *wp, ssize length);
 
@@ -2956,7 +2966,7 @@ PUBLIC void websSetTxLength(Webs *wp, ssize length);
     @param fmt Value format string
     @param ... Args to format
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
 
@@ -2968,7 +2978,7 @@ PUBLIC void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
     @param name Variable name to set
     @param value Value to set
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetVar(Webs *wp, char *name, char *value);
 
@@ -2978,7 +2988,7 @@ PUBLIC void websSetVar(Webs *wp, char *name, char *value);
     @param name Variable name
     @return True if the variable is defined
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websTestVar(Webs *wp, char *name);
 
@@ -2989,7 +2999,7 @@ PUBLIC bool websTestVar(Webs *wp, char *name);
     @param prefix Filename prefix
     @return An allocated filename string
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
   */
 PUBLIC char *websTempFile(char *dir, char *prefix);
 
@@ -2997,14 +3007,14 @@ PUBLIC char *websTempFile(char *dir, char *prefix);
     Open the date/time parsing module
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Prototype
+    @stability Evolving
  */
 PUBLIC int websTimeOpen();
 
 /**
     Close the date/time parsing module
     @ingroup Webs
-    @stability Prototype
+    @stability Evolving
 */
 PUBLIC void websTimeClose();
 
@@ -3016,7 +3026,7 @@ PUBLIC void websTimeClose();
     @param defaults Optionally supply missing components for the date/time. Set to NULL if not used.
     @return Zero if successful, otherwise -1
     @ingroup Webs
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC int websParseDateTime(WebsTime *time, char *date, struct tm *defaults);
 
@@ -3046,7 +3056,7 @@ PUBLIC int websUrlParse(char *url, char **buf, char **protocol, char **host, cha
     @param wp Webs request object
     @return True if the webs object is still valid and the request has not been completed.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websValid(Webs *wp);
 
@@ -3058,7 +3068,7 @@ PUBLIC bool websValid(Webs *wp);
     @param uri URI to validate.
     @return A validated, normalized URI path. Caller must free.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websValidateUriPath(char *uri);
 
@@ -3071,7 +3081,7 @@ PUBLIC char *websValidateUriPath(char *uri);
     @param uri Uri to test
     @return True if the URI string is comprised of legal URI characters.
     @ingroup Webs
-    @stability Prototype
+    @stability Evolving
   */
 PUBLIC bool websValidUriChars(char *uri);
 
@@ -3082,7 +3092,7 @@ PUBLIC bool websValidUriChars(char *uri);
     @param redirect Value for the Location header which redirects the client to a new URL.
     @ingroup Webs
     @see websSetStatus
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websWriteHeaders(Webs *wp, ssize contentLength, char *redirect);
 
@@ -3091,7 +3101,7 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize contentLength, char *redirect);
     @description This call concludes the response headers and writes a blank line to the response.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websWriteEndHeaders(Webs *wp);
 
@@ -3106,7 +3116,7 @@ PUBLIC void websWriteEndHeaders(Webs *wp);
     @param ... Arguments to the format string.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...);
 
@@ -3119,7 +3129,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...);
     @param ... Arguments to the format string.
     @return Count of bytes written
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize websWrite(Webs *wp, char *fmt, ...);
 
@@ -3130,7 +3140,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...);
     @param size Size of buf
     @return Count of bytes read if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize websWriteFile(int fd, char *buf, ssize size);
 
@@ -3143,7 +3153,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size);
     @param size Length of buf
     @return Count of bytes written or -1. This will always equal size if there are no errors.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
 
@@ -3157,7 +3167,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
         Returns -1 for errors and if the socket cannot absorb any more data. If the transport is saturated,
         will return a negative error and errno will be set to EAGAIN or EWOULDBLOCK.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
@@ -3167,7 +3177,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
     @param wp Webs request object
     @return True if processing the request can proceed. 
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websProcessUploadData(Webs *wp);
 
@@ -3175,7 +3185,7 @@ PUBLIC bool websProcessUploadData(Webs *wp);
     Free file upload data structures.
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websFreeUpload(Webs *wp);
 #endif
@@ -3186,10 +3196,75 @@ PUBLIC void websFreeUpload(Webs *wp);
     @param wp Webs request object
     @return True if processing the request can proceed. 
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websProcessCgiData(Webs *wp);
 #endif
+
+/************************************** Crypto ********************************/
+
+/**
+    Get some random data
+    @param buf Reference to a buffer to hold the random data
+    @param length Size of the buffer
+    @param block Set to true if it is acceptable to block while accumulating entropy sufficient to provide good
+        random data. Setting to false will cause this API to not block and may return random data of a lower quality.
+    @ingroup Crypto
+    @stability Prototype.
+  */
+PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block);
+
+/**
+    Encrypt a password using the Blowfish algorithm
+    @param password User's password to encrypt
+    @param salt Salt text to add to password. Helps to make each user's password unique.
+    @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
+    @return The encrypted password.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websCryptPassword(char *password, char *salt, int rounds);
+
+/**
+    Make salt for adding to a password.
+    @param size Size in bytes of the salt text.
+    @return The random salt text.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websMakeSalt(ssize size);
+
+/**
+    Make a password hash for a plain-text password using the Blowfish algorithm.
+    @param password User's password to encrypt
+    @param saltLength Length of salt text to add to password. Helps to make each user's password unique.
+    @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
+    @return The encrypted password.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websMakePassword(char *password, int saltLength, int rounds);
+
+/**
+    Check a plain-text password against the defined hashed password.
+    @param plainTextPassword User's plain-text-password to check
+    @param passwordHash Required password in hashed format previously computed by websMakePassword.
+    @return True if the password is correct.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash);
+
+/**
+    Get a password from the terminal console
+    @param prompt Text prompt to display before reading the password
+    @return The entered password.
+    @ingroup Crypto
+    @stability Prototype
+ */
+PUBLIC char *websReadPassword(char *prompt);
+
+/*************************************** JST ***********************************/
 
 #if ME_GOAHEAD_JAVASCRIPT
 /**
@@ -3198,9 +3273,10 @@ PUBLIC bool websProcessCgiData(Webs *wp);
     @param wp Webs request object
     @param argc Count of function arguments
     @param argv Array of function arguments
+    @param defaultValue Default value to return if the variable is not defined
     @return Return zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef int (*WebsJstProc)(int jid, Webs *wp, int argc, char **argv);
 
@@ -3212,7 +3288,7 @@ typedef int (*WebsJstProc)(int jid, Webs *wp, int argc, char **argv);
     @param fn C function to invoke
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websDefineJst(char *name, WebsJstProc fn);
 
@@ -3220,7 +3296,7 @@ PUBLIC int websDefineJst(char *name, WebsJstProc fn);
     Open the Javascript module.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websJstOpen();
 
@@ -3232,7 +3308,7 @@ PUBLIC int websJstOpen();
     @param argv Array arguments
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
 #endif
@@ -3284,14 +3360,14 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
     Open the ssl module
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int sslOpen();
 
 /**
     Close the ssl module
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void sslClose();
 
@@ -3299,7 +3375,7 @@ PUBLIC void sslClose();
     Free a ssl connection associated with a request
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void sslFree(Webs *wp);
 
@@ -3309,7 +3385,7 @@ PUBLIC void sslFree(Webs *wp);
     @param wp Webs request object
     @return Zero if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int sslUpgrade(Webs *wp);
 
@@ -3320,7 +3396,7 @@ PUBLIC int sslUpgrade(Webs *wp);
     @param len Size of buf
     @return Count of bytes read if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len);
 
@@ -3331,7 +3407,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len);
     @param len Size of buf
     @return Count of bytes written if successful, otherwise -1.
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len);
 #endif /* ME_COM_SSL */
@@ -3341,7 +3417,7 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len);
     Callback to prompt the user for their password
     @param wp Webs request object
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef void (*WebsAskLogin)(Webs *wp);
 
@@ -3350,7 +3426,7 @@ typedef void (*WebsAskLogin)(Webs *wp);
     @param wp Webs request object
     @return True if the password is verified
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef bool (*WebsVerify)(Webs *wp);
 
@@ -3359,7 +3435,7 @@ typedef bool (*WebsVerify)(Webs *wp);
     @param wp Webs request object
     @return True if the details can be parsed
     @ingroup Webs
-    @stability Evolving
+    @stability Stable
  */
 typedef bool (*WebsParseAuth)(Webs *wp);
 
@@ -3392,14 +3468,14 @@ typedef struct WebsRoute {
         end of the list.
     @return A route object
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsRoute *websAddRoute(char *uri, char *handler, int pos);
 
 /**
     Close the route module
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websCloseRoute();
 
@@ -3408,14 +3484,14 @@ PUBLIC void websCloseRoute();
     @param path Route configuration filename
     @return Zero if successful, otherwise -1.
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websLoad(char *path);
 
 /**
     Open the routing module
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websOpenRoute();
 
@@ -3424,7 +3500,7 @@ PUBLIC int websOpenRoute();
     @param uri Matching URI prefix
     @return Zero if successful, otherwise -1.
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websRemoveRoute(char *uri);
 
@@ -3435,7 +3511,7 @@ PUBLIC int websRemoveRoute(char *uri);
         This routine is called internally by the request pipeline.
     @param wp Webs request object
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websRouteRequest(Webs *wp);
 
@@ -3447,7 +3523,7 @@ PUBLIC void websRouteRequest(Webs *wp);
     @return True if the handler serviced the request. Return false to test other routes to handle this request.
         This is for legacy handlers that do not have a match callback.
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websRunRequest(Webs *wp);
 
@@ -3474,7 +3550,7 @@ PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHa
     @param authType Set to "basic", "digest" or "form".
     @return Zero if successful, otherwise -1.
     @ingroup WebsRoute
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websSetRouteAuth(WebsRoute *route, char *authType);
 
@@ -3490,7 +3566,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *authType);
 /**
     User definition structure
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsUser {
     char    *name;                          /**< User name */
@@ -3502,7 +3578,7 @@ typedef struct WebsUser {
 /**
     Role definition structure
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 typedef struct WebsRole {
     WebsHash  abilities;                    /**< Resolved role abilities */
@@ -3515,7 +3591,7 @@ typedef struct WebsRole {
     @param abilities Hash of abilities for the role
     @return The allocated role.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsRole *websAddRole(char *role, WebsHash abilities);
 
@@ -3527,7 +3603,7 @@ PUBLIC WebsRole *websAddRole(char *role, WebsHash abilities);
     @param roles Space separated list of roles. This may also contain abilities.
     @return User object.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsUser *websAddUser(char *username, char *password, char *roles);
 
@@ -3537,7 +3613,7 @@ PUBLIC WebsUser *websAddUser(char *username, char *password, char *roles);
     @param wp Webs request object
     @return True if the route does not require authentication or the user is authenticated successfully.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websAuthenticate(Webs *wp);
 
@@ -3547,21 +3623,21 @@ PUBLIC bool websAuthenticate(Webs *wp);
     @param ability Set of required abilities.
     @return True if the user has the required ability.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websCan(Webs *wp, WebsHash ability);
 
 /**
     Close the authentication module
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websCloseAuth();
 
 /**
     Compute the abilities for all users by resolving roles into abilities
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websComputeAllUserAbilities();
 
@@ -3569,7 +3645,7 @@ PUBLIC void websComputeAllUserAbilities();
     Set the password store verify callback
     @return verify WebsVerify callback function
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsVerify websGetPasswordStoreVerify();
 
@@ -3577,7 +3653,7 @@ PUBLIC WebsVerify websGetPasswordStoreVerify();
     Get the roles hash
     @return The roles hash object
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsHash websGetRoles();
 
@@ -3585,7 +3661,7 @@ PUBLIC WebsHash websGetRoles();
     Get the users hash
     @return The users hash object
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsHash websGetUsers();
 
@@ -3597,7 +3673,7 @@ PUBLIC WebsHash websGetUsers();
     @param password User password (encrypted)
     @return True if the user can be authenticated.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websLoginUser(Webs *wp, char *username, char *password);
 
@@ -3606,7 +3682,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password);
     @param wp Webs request object
     @return True if successful.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websLogoutUser(Webs *wp);
 
@@ -3615,7 +3691,7 @@ PUBLIC bool websLogoutUser(Webs *wp);
     @param username User name to search for
     @return User object or null if the user cannot be found
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsUser *websLookupUser(char *username);
 
@@ -3624,7 +3700,7 @@ PUBLIC WebsUser *websLookupUser(char *username);
     @param role Role name
     @return Zero if successful, otherwise -1
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websRemoveRole(char *role);
 
@@ -3633,7 +3709,7 @@ PUBLIC int websRemoveRole(char *role);
     @param name User name
     @return Zero if successful, otherwise -1
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websRemoveUser(char *name);
 
@@ -3642,7 +3718,7 @@ PUBLIC int websRemoveUser(char *name);
     @param minimal Reserved. Set to zero.
     @return True if the user has the required ability.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websOpenAuth(int minimal);
 
@@ -3650,7 +3726,7 @@ PUBLIC int websOpenAuth(int minimal);
     Set the password store verify callback
     @param verify WebsVerify callback function
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websSetPasswordStoreVerify(WebsVerify verify);
 
@@ -3660,7 +3736,7 @@ PUBLIC void websSetPasswordStoreVerify(WebsVerify verify);
     @param password Null terminated password string
     @return Zero if successful, otherwise -1.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websSetUserPassword(char *username, char *password);
 
@@ -3671,7 +3747,7 @@ PUBLIC int websSetUserPassword(char *username, char *password);
     @param roles Space separated list of roles or abilities
     @return Zero if successful, otherwise -1.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websSetUserRoles(char *username, char *roles);
 
@@ -3680,7 +3756,7 @@ PUBLIC int websSetUserRoles(char *username, char *roles);
     @param wp Webs request object
     @return True if the user password verifies.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websVerifyPasswordFromCustom(Webs *wp);
 
@@ -3689,7 +3765,7 @@ PUBLIC bool websVerifyPasswordFromCustom(Webs *wp);
     @param wp Webs request object
     @return True if the user password verifies.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websVerifyPasswordFromFile(Webs *wp);
 
@@ -3699,7 +3775,7 @@ PUBLIC bool websVerifyPasswordFromFile(Webs *wp);
     @param wp Webs request object
     @return True if the user password verifies.
     @ingroup WebsAuth
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC bool websVerifyPasswordFromPam(Webs *wp);
 #endif
@@ -3724,7 +3800,7 @@ typedef struct WebsSession {
     @param lifespan Lifespan of the session in seconds.
     @return Allocated session object
     @ingroup WebsSession
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
 
@@ -3733,7 +3809,7 @@ PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
     @param wp Webs request object
     @return The session ID if session state storage is defined for this request.
     @ingroup WebsSession
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetSessionID(Webs *wp);
 
@@ -3743,7 +3819,7 @@ PUBLIC char *websGetSessionID(Webs *wp);
     @param create Set to true to create a new session if one does not already exist.
     @return Session object
     @ingroup WebsSession
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC WebsSession *websGetSession(Webs *wp, int create);
 
@@ -3754,7 +3830,7 @@ PUBLIC WebsSession *websGetSession(Webs *wp, int create);
     @param defaultValue Default value to return if the variable does not exist
     @return Session variable value or default value if it does not exist
     @ingroup WebsSession
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
 
@@ -3763,7 +3839,7 @@ PUBLIC char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
     @param wp Webs request object
     @param name Session variable name
     @ingroup WebsSession
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC void websRemoveSessionVar(Webs *wp, char *name);
 
@@ -3774,7 +3850,7 @@ PUBLIC void websRemoveSessionVar(Webs *wp, char *name);
     @param value Value to set the variable to
     @return Zero if successful, otherwise -1
     @ingroup WebsSession
-    @stability Evolving
+    @stability Stable
  */
 PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 
