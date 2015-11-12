@@ -478,6 +478,7 @@ static int parseCert(mbedtls_x509_crt *cert, char *path)
     }
     len = slen(buf);
     if (strstr(buf, "-----BEGIN ")) {
+        /* Looks PEM encoded so count the null in the length */
         len++;
     }
     if (mbedtls_x509_crt_parse(cert, (uchar*) buf, len) != 0) {
@@ -486,6 +487,7 @@ static int parseCert(mbedtls_x509_crt *cert, char *path)
         return -1;
     }
     memset(buf, 0, len);
+    wfree(buf);
     return 0;
 }
 
@@ -509,6 +511,7 @@ static int parseKey(mbedtls_pk_context *key, char *path)
         return -1;
     }
     memset(buf, 0, len);
+    wfree(buf);
     return 0;
 }
 
@@ -532,6 +535,7 @@ static int parseCrl(mbedtls_x509_crl *crl, char *path)
         return -1;
     }
     memset(buf, 0, len);
+    wfree(buf);
     return 0;
 }
 
