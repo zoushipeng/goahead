@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.5.1
+VERSION               := 3.6.0
 PROFILE               ?= default
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
