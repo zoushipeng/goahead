@@ -292,11 +292,15 @@ PUBLIC void *walloc(ssize size)
             memSize = ROUNDUP4(memSize);
             bp = (WebsAlloc*) malloc(memSize);
             if (bp == NULL) {
-                printf("B: malloc failed\n");
+                if (memNotifier) {
+                    (memNotifier)(memSize);
+                }
                 return NULL;
             }
         } else {
-            printf("B: malloc failed\n");
+            if (memNotifier) {
+                (memNotifier)(memSize);
+            }
             return NULL;
         }
         /*
@@ -330,14 +334,18 @@ PUBLIC void *walloc(ssize size)
              */
             memSize = ROUNDUP4(memSize);
             if ((bp = (WebsAlloc*) malloc(memSize)) == NULL) {
-                printf("B: malloc failed\n");
+                if (memNotifier) {
+                    (memNotifier)(memSize);
+                }
                 return NULL;
             }
             bp->u.size = memSize - sizeof(WebsAlloc);
             bp->flags = WEBS_MALLOCED;
 
         } else {
-            printf("B: malloc failed\n");
+            if (memNotifier) {
+                (memNotifier)(memSize);
+            }
             return NULL;
         }
     }
