@@ -12,7 +12,7 @@ MAKEROM(1)                       User Commands                      MAKEROM(1)
 <B>SYNOPSIS</B>
        <B>webcomp [options] files ... &gt;output.c</B>
 
-       [<I>--files fileList</I>] [<I>--name structName</I>] [<I>--prefix prefix</I>]
+       [<I>--files fileList</I>] [<I>--name structName</I>] [<I>--strip prefix</I>]
 
 <B>DESCRIPTION</B>
        To  enable files to be accessed on embedded systems without a file sys-
@@ -28,19 +28,15 @@ MAKEROM(1)                       User Commands                      MAKEROM(1)
 <B>OPTIONS</B>
        <B>--files fileList</B>
               Option to provide a list of files that should be converted.  <B>--p</B>
-              <B>prefix </B>Specifies a prefix to remove from each  of  the  compiled
+              <B>strip </B>Specifies a prefix to remove from  each  of  the  compiled
               file names.
 
        <B>--name structName</B>
               Specifies  the name of top level C structure that holds the con-
               verted files.
 
-       <B>--prefix prefix</B>
-              Specifies a leading file name prefix to  remove  from  the  file
-              names.
-
 <B>EXAMPLE</B>
-       This  example  will  create  a list of web files and then convert these
+       This example will create a list of web files  and  then  convert  these
        files into C structures in the file romFiles.c.
 
            find web -type f -print &gt;fileList
