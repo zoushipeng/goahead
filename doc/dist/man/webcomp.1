@@ -6,7 +6,7 @@ webcomp - Compile files into C source code
 .P
 [\fI--files fileList\fR] 
 [\fI--name structName\fR]
-[\fI--prefix prefix\fR]
+[\fI--strip prefix\fR]
 .SH DESCRIPTION
 To enable files to be accessed on embedded systems without a file system, the
 \fBwebcomp\fR command converts arbitrary files into C code that
@@ -21,14 +21,11 @@ much as you would read any file on disk.
 .TP
 \fB\--files fileList\fR
 Option to provide a list of files that should be converted.
-\fB\--p prefix\fR 
+\fB\--p strip\fR 
 Specifies a prefix to remove from each of the compiled file names. 
 .TP
 \fB\--name structName\fR 
 Specifies the name of top level C structure that holds the converted files.
-.TP
-\fB\--prefix prefix\fR 
-Specifies a leading file name prefix to remove from the file names.
 .PP
 .SH "EXAMPLE"
 This example will create a list of web files and then convert these

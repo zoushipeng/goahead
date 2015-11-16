@@ -8,7 +8,7 @@ NAME
 SYNOPSIS
        webcomp [options] files ... >output.c
 
-       [--files fileList] [--name structName] [--prefix prefix]
+       [--files fileList] [--name structName] [--strip prefix]
 
 DESCRIPTION
        To  enable files to be accessed on embedded systems without a file sys-
@@ -24,20 +24,16 @@ DESCRIPTION
 OPTIONS
        --files fileList
               Option to provide a list of files that should be converted.  --p
-              prefix Specifies a prefix to remove from each  of  the  compiled
+              strip Specifies a prefix to remove from  each  of  the  compiled
               file names.
 
        --name structName
               Specifies  the name of top level C structure that holds the con-
               verted files.
 
-       --prefix prefix
-              Specifies a leading file name prefix to  remove  from  the  file
-              names.
-
 
 EXAMPLE
-       This  example  will  create  a list of web files and then convert these
+       This example will create a list of web files  and  then  convert  these
        files into C structures in the file romFiles.c.
 
 
