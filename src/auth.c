@@ -207,6 +207,7 @@ PUBLIC int websWriteAuthFile(char *path)
     tempFile = websTempFile(NULL, NULL);
     if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
         error("Cannot open %s", tempFile);
+        wfree(tempFile);
         return -1;
     }
     fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
@@ -233,8 +234,10 @@ PUBLIC int websWriteAuthFile(char *path)
     unlink(path);
     if (rename(tempFile, path) < 0) {
         error("Cannot create new %s", path);
+        wfree(tempFile);
         return -1;
     }
+    wfree(tempFile);
     return 0;
 }
 #endif
