@@ -1868,6 +1868,11 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
             wfree(etok);
         }
 #endif
+#ifdef ME_GOAHEAD_XFRAME_HEADER
+        if (*ME_GOAHEAD_XFRAME_HEADER) {
+            websWriteHeader(wp, "X-Frame-Options", "%s", ME_GOAHEAD_XFRAME_HEADER);
+        }
+#endif
     }
 }
 
