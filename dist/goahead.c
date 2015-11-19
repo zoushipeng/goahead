@@ -184,7 +184,6 @@ PUBLIC void websSetMemNotifier(WebsMemNotifier cback)
     memNotifier = cback;
 }
 
-
 /********************************* Defines ************************************/
 #if ME_GOAHEAD_REPLACE_MALLOC
 /*
@@ -712,6 +711,7 @@ PUBLIC int websWriteAuthFile(char *path)
     tempFile = websTempFile(NULL, NULL);
     if ((fp = fopen(tempFile, "w" FILE_TEXT)) == 0) {
         error("Cannot open %s", tempFile);
+        wfree(tempFile);
         return -1;
     }
     fprintf(fp, "#\n#   %s - Authorization data\n#\n\n", basename(path));
@@ -738,8 +738,10 @@ PUBLIC int websWriteAuthFile(char *path)
     unlink(path);
     if (rename(tempFile, path) < 0) {
         error("Cannot create new %s", path);
+        wfree(tempFile);
         return -1;
     }
+    wfree(tempFile);
     return 0;
 }
 #endif
@@ -6439,6 +6441,11 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, char *location)
                 websWriteHeader(wp, "Cache-Control", "public, max-age=%d", ME_GOAHEAD_CLIENT_CACHE_LIFESPAN);
             }
             wfree(etok);
+        }
+#endif
+#ifdef ME_GOAHEAD_XFRAME_HEADER
+        if (*ME_GOAHEAD_XFRAME_HEADER) {
+            websWriteHeader(wp, "X-Frame-Options", "%s", ME_GOAHEAD_XFRAME_HEADER);
         }
 #endif
     }
