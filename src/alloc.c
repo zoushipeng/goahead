@@ -25,7 +25,6 @@ PUBLIC void websSetMemNotifier(WebsMemNotifier cback)
     memNotifier = cback;
 }
 
-
 /********************************* Defines ************************************/
 #if ME_GOAHEAD_REPLACE_MALLOC
 /*
