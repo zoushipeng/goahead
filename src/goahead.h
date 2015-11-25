@@ -3020,7 +3020,22 @@ PUBLIC void websTimeClose();
 
 /**
     Parse a date/time string
+    @description Try to intelligently parse a date. 
     This is a tolerant parser. It is not validating and will do its best to parse any possible date string.
+    Supports the following date/time formats:
+    \n\n
+        ISO dates: 2009-05-21t16:06:05.000z
+    \n\n
+        Date:  07/28/2014, 07/28/08, Jan/28/2014, Jaunuary-28-2014, 28-jan-2014.
+    \n\n
+        Support date order: dd/mm/yy, mm/dd/yy and yyyy/mm/dd
+    \n\n
+        Support separators "/", ".", "-"
+    \n\n
+        Timezones: GMT|UTC[+-]NN[:]NN
+    \n\n
+        Time: 10:52[:23]
+    \n\n
     @param time Reference to a
     @param date Date/time string to parse
     @param defaults Optionally supply missing components for the date/time. Set to NULL if not used.
