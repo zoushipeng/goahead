@@ -230,7 +230,7 @@
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1ga412045a224b12fad35f3ccb0eba21309" class="nameRef">websPageReadData</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *buf, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Read data from the request page document.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gade99dac2cc10314deb754833298fc3af" class="nameRef">websPageSeek</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1a7bac74916a564105339bcd5a9323c366" class="ref">Offset</a> offset, int origin)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Seek to a position in the request page document.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gafa581d664b5cc3eacc073d1a5d113d7a" class="nameRef">websPageStat</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#struct_webs_file_info" class="ref">WebsFileInfo</a> *sbuf)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get file status for the current request document.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaff9d3f2f19119d5b42ae0e35a55781d3" class="nameRef">websParseDateTime</a>(<a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="ref">WebsTime</a> *time, char *date, struct tm *defaults)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Parse a date/time string This is a tolerant parser.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaff9d3f2f19119d5b42ae0e35a55781d3" class="nameRef">websParseDateTime</a>(<a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="ref">WebsTime</a> *time, char *date, struct tm *defaults)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Parse a date/time string.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaf8cbf1876923de6cacc9654cb89692dd" class="nameRef">websPump</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Pump the state machine.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_1ga648cc4a4536a44aefcffaa091b3ea37f" class="nameRef">websReadFile</a>(int fd, char *buf, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Read data from an open file.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#goahead_8h_1aa128f2f4b8d18e476813fc34ac84dfe0" class="nameRef">websReadPassword</a>(char *prompt)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a password from the terminal console.</td></tr>
@@ -2423,8 +2423,14 @@ Bytes actually transferred.
 (<a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="ref">WebsTime</a> *time, char *date, struct tm *defaults)
   </div>
   <div class="apiDetail">
-<p>Parse a date/time string This is a tolerant parser.</p>
-It is not validating and will do its best to parse any possible date string
+<p>Parse a date/time string.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Try to intelligently parse a date. This is a tolerant parser. It is not validating and will do its best to parse any possible date string. Supports the following date/time formats: <br/><br/>
+ ISO dates: 2009-05-21t16:06:05.000z <br/><br/>
+ Date: 07/28/2014, 07/28/08, Jan/28/2014, Jaunuary-28-2014, 28-jan-2014. <br/><br/>
+ Support date order: dd/mm/yy, mm/dd/yy and yyyy/mm/dd <br/><br/>
+ Support separators &quot;/&quot;, &quot;.&quot;, &quot;-&quot; <br/><br/>
+ Timezones: GMT|UTC[+-]NN[:]NN <br/><br/>
+ Time: 10:52[:23] <br/><br/></dd></dl>
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">time</td><td>Reference to a.</td>
