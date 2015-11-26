@@ -169,7 +169,7 @@ clean:
 	if exist "build\$(CONFIG)\obj\mbedtls.obj" del /Q "build\$(CONFIG)\obj\mbedtls.obj"
 	if exist "build\$(CONFIG)\obj\options.obj" del /Q "build\$(CONFIG)\obj\options.obj"
 	if exist "build\$(CONFIG)\obj\osdep.obj" del /Q "build\$(CONFIG)\obj\osdep.obj"
-	if exist "build\$(CONFIG)\obj\rom-documents.obj" del /Q "build\$(CONFIG)\obj\rom-documents.obj"
+	if exist "build\$(CONFIG)\obj\rom.obj" del /Q "build\$(CONFIG)\obj\rom.obj"
 	if exist "build\$(CONFIG)\obj\route.obj" del /Q "build\$(CONFIG)\obj\route.obj"
 	if exist "build\$(CONFIG)\obj\runtime.obj" del /Q "build\$(CONFIG)\obj\runtime.obj"
 	if exist "build\$(CONFIG)\obj\socket.obj" del /Q "build\$(CONFIG)\obj\socket.obj"
@@ -460,14 +460,14 @@ build\$(CONFIG)\obj\osdep.obj: \
 	"$(CC)" -c -Fo$(BUILD)\obj\osdep.obj -Fd$(BUILD)\obj\osdep.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\osdep.c $(LOG)
 
 #
-#   rom-documents.obj
+#   rom.obj
 #
 DEPS_27 = $(DEPS_27) build\$(CONFIG)\inc\goahead.h
 
-build\$(CONFIG)\obj\rom-documents.obj: \
-    src\rom-documents.c $(DEPS_27)
-	@echo .. [Compile] build\$(CONFIG)\obj\rom-documents.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\rom-documents.obj -Fd$(BUILD)\obj\rom-documents.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\rom-documents.c $(LOG)
+build\$(CONFIG)\obj\rom.obj: \
+    src\rom.c $(DEPS_27)
+	@echo .. [Compile] build\$(CONFIG)\obj\rom.obj
+	"$(CC)" -c -Fo$(BUILD)\obj\rom.obj -Fd$(BUILD)\obj\rom.pdb $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\rom.c $(LOG)
 
 #
 #   route.obj
@@ -543,7 +543,7 @@ DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\js.obj
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\jst.obj
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\options.obj
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\osdep.obj
-DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\rom-documents.obj
+DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\rom.obj
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\route.obj
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\runtime.obj
 DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\socket.obj
@@ -568,7 +568,7 @@ LIBS_33 = $(LIBS_33) libgoahead-mbedtls.lib
 
 build\$(CONFIG)\bin\libgo.dll: $(DEPS_33)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgo.dll
-	"$(LD)" -dll -out:$(BUILD)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\action.obj" "$(BUILD)\obj\alloc.obj" "$(BUILD)\obj\auth.obj" "$(BUILD)\obj\cgi.obj" "$(BUILD)\obj\crypt.obj" "$(BUILD)\obj\file.obj" "$(BUILD)\obj\fs.obj" "$(BUILD)\obj\http.obj" "$(BUILD)\obj\js.obj" "$(BUILD)\obj\jst.obj" "$(BUILD)\obj\options.obj" "$(BUILD)\obj\osdep.obj" "$(BUILD)\obj\rom-documents.obj" "$(BUILD)\obj\route.obj" "$(BUILD)\obj\runtime.obj" "$(BUILD)\obj\socket.obj" "$(BUILD)\obj\time.obj" "$(BUILD)\obj\upload.obj" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS)  $(LOG)
+	"$(LD)" -dll -out:$(BUILD)\bin\libgo.dll -entry:$(ENTRY) $(LDFLAGS) $(LIBPATHS) "$(BUILD)\obj\action.obj" "$(BUILD)\obj\alloc.obj" "$(BUILD)\obj\auth.obj" "$(BUILD)\obj\cgi.obj" "$(BUILD)\obj\crypt.obj" "$(BUILD)\obj\file.obj" "$(BUILD)\obj\fs.obj" "$(BUILD)\obj\http.obj" "$(BUILD)\obj\js.obj" "$(BUILD)\obj\jst.obj" "$(BUILD)\obj\options.obj" "$(BUILD)\obj\osdep.obj" "$(BUILD)\obj\rom.obj" "$(BUILD)\obj\route.obj" "$(BUILD)\obj\runtime.obj" "$(BUILD)\obj\socket.obj" "$(BUILD)\obj\time.obj" "$(BUILD)\obj\upload.obj" $(LIBPATHS_33) $(LIBS_33) $(LIBS_33) $(LIBS)  $(LOG)
 
 #
 #   install-certs
