@@ -320,7 +320,7 @@ Me.load({
 
         rom: {
             action: `
-                let path = Path('src/rom-documents.c')
+                let path = Path('src/rom.c')
                 trace('Create', path)
                 path.write(Cmd.run('webcomp rom.files', {dir: 'src'}))
             `,
