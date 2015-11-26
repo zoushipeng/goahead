@@ -125,7 +125,7 @@ clean:
 	rm -f "$(BUILD)/obj/mbedtls.o"
 	rm -f "$(BUILD)/obj/options.o"
 	rm -f "$(BUILD)/obj/osdep.o"
-	rm -f "$(BUILD)/obj/rom-documents.o"
+	rm -f "$(BUILD)/obj/rom.o"
 	rm -f "$(BUILD)/obj/route.o"
 	rm -f "$(BUILD)/obj/runtime.o"
 	rm -f "$(BUILD)/obj/socket.o"
@@ -390,14 +390,14 @@ $(BUILD)/obj/osdep.o: \
 	$(CC) -c -o $(BUILD)/obj/osdep.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src/osdep.c
 
 #
-#   rom-documents.o
+#   rom.o
 #
 DEPS_26 += $(BUILD)/inc/goahead.h
 
-$(BUILD)/obj/rom-documents.o: \
-    src/rom-documents.c $(DEPS_26)
-	@echo '   [Compile] $(BUILD)/obj/rom-documents.o'
-	$(CC) -c -o $(BUILD)/obj/rom-documents.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src/rom-documents.c
+$(BUILD)/obj/rom.o: \
+    src/rom.c $(DEPS_26)
+	@echo '   [Compile] $(BUILD)/obj/rom.o'
+	$(CC) -c -o $(BUILD)/obj/rom.o -arch $(CC_ARCH) $(CFLAGS) $(DFLAGS) -D_FILE_OFFSET_BITS=64 -D_FILE_OFFSET_BITS=64 -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src/rom.c
 
 #
 #   route.o
@@ -521,7 +521,7 @@ DEPS_36 += $(BUILD)/obj/js.o
 DEPS_36 += $(BUILD)/obj/jst.o
 DEPS_36 += $(BUILD)/obj/options.o
 DEPS_36 += $(BUILD)/obj/osdep.o
-DEPS_36 += $(BUILD)/obj/rom-documents.o
+DEPS_36 += $(BUILD)/obj/rom.o
 DEPS_36 += $(BUILD)/obj/route.o
 DEPS_36 += $(BUILD)/obj/runtime.o
 DEPS_36 += $(BUILD)/obj/socket.o
@@ -530,7 +530,7 @@ DEPS_36 += $(BUILD)/obj/upload.o
 
 $(BUILD)/bin/libgo.a: $(DEPS_36)
 	@echo '      [Link] $(BUILD)/bin/libgo.a'
-	ar -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom-documents.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/time.o" "$(BUILD)/obj/upload.o"
+	ar -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/time.o" "$(BUILD)/obj/upload.o"
 
 #
 #   install-certs
