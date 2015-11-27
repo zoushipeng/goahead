@@ -174,6 +174,7 @@ PUBLIC char *websDecode64Block(char *s, ssize *len, int flags)
         for (i = 0; i < 4 && (s < end && (*s != '=' || !(flags & WEBS_DECODE_TOKEQ))); i++, s++) {
             c = decodeMap[*s & 0xff];
             if (c == -1) {
+                wfree(buffer);
                 return NULL;
             }
             bitBuf = bitBuf | (c << shift);
@@ -923,6 +924,7 @@ PUBLIC char *websCryptPassword(char *password, char *salt, int rounds)
     result = websEncode64Block((char*) text, len);
     memset(&bf, 0, sizeof(bf));
     memset(text, 0, len);
+    wfree(text);
     return result;
 }
 
@@ -937,6 +939,8 @@ PUBLIC char *websMakeSalt(ssize size)
     random = walloc(size + 1);
     result = walloc(size + 1);
     if (websGetRandomBytes(random, size, 0) < 0) {
+        wfree(random);
+        wfree(result);
         return 0;
     }
     clen = slen(chars);
@@ -944,6 +948,7 @@ PUBLIC char *websMakeSalt(ssize size)
         *rp++ = chars[(random[i] & 0x7F) % clen];
     }
     *rp = '\0';
+    wfree(random);
     return result;
 }
 
