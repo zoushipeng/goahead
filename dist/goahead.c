@@ -2781,6 +2781,7 @@ PUBLIC char *websDecode64Block(char *s, ssize *len, int flags)
         for (i = 0; i < 4 && (s < end && (*s != '=' || !(flags & WEBS_DECODE_TOKEQ))); i++, s++) {
             c = decodeMap[*s & 0xff];
             if (c == -1) {
+                wfree(buffer);
                 return NULL;
             }
             bitBuf = bitBuf | (c << shift);
@@ -3530,6 +3531,7 @@ PUBLIC char *websCryptPassword(char *password, char *salt, int rounds)
     result = websEncode64Block((char*) text, len);
     memset(&bf, 0, sizeof(bf));
     memset(text, 0, len);
+    wfree(text);
     return result;
 }
 
@@ -3544,6 +3546,8 @@ PUBLIC char *websMakeSalt(ssize size)
     random = walloc(size + 1);
     result = walloc(size + 1);
     if (websGetRandomBytes(random, size, 0) < 0) {
+        wfree(random);
+        wfree(result);
         return 0;
     }
     clen = slen(chars);
@@ -3551,6 +3555,7 @@ PUBLIC char *websMakeSalt(ssize size)
         *rp++ = chars[(random[i] & 0x7F) % clen];
     }
     *rp = '\0';
+    wfree(random);
     return result;
 }
 
@@ -7278,6 +7283,7 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
     strcpy(dupPath, pathArg);
 
     if ((segments = walloc(sizeof(char*) * (len + 1))) == 0) {
+        wfree(dupPath);
         return NULL;
     }
     nseg = len = 0;
@@ -10892,7 +10898,7 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
 
 
 
-/********* Start of file ../../../src/rom-documents.c ************/
+/********* Start of file ../../../src/rom.c ************/
 
 
 /*
@@ -15752,6 +15758,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         } else {
             if (isdigit((uchar) *ip)) {
                 *pport = atoi(ip);
+                wfree(ip);
                 ip = 0;
             } else {
                 /* No port present, use callers default */
@@ -16650,6 +16657,7 @@ static void processUploadHeader(Webs *wp, char *line)
                 /* Nothing to do */
 
             } else if (scaselesscmp(key, "name") == 0) {
+                wfree(wp->uploadVar);
                 wp->uploadVar = sclone(value);
 
             } else if (scaselesscmp(key, "filename") == 0) {

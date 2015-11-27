@@ -2703,6 +2703,7 @@ PUBLIC char *websNormalizeUriPath(char *pathArg)
     strcpy(dupPath, pathArg);
 
     if ((segments = walloc(sizeof(char*) * (len + 1))) == 0) {
+        wfree(dupPath);
         return NULL;
     }
     nseg = len = 0;

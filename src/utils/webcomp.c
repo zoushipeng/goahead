@@ -74,7 +74,7 @@ static int compile(char *fileList, char *strip)
         return -1;
     }
     time(&now);
-    fprintf(stdout, "/*\n   rom-documents.c \n");
+    fprintf(stdout, "/*\n   rom.c \n");
     fprintf(stdout, "   Compiled by webcomp: %s */\n\n", ctime(&now));
     fprintf(stdout, "#include \"goahead.h\"\n\n");
     fprintf(stdout, "#if ME_ROM\n\n");

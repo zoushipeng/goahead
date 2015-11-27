@@ -218,6 +218,7 @@ static void processUploadHeader(Webs *wp, char *line)
                 /* Nothing to do */
 
             } else if (scaselesscmp(key, "name") == 0) {
+                wfree(wp->uploadVar);
                 wp->uploadVar = sclone(value);
 
             } else if (scaselesscmp(key, "filename") == 0) {

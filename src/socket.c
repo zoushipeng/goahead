@@ -1341,6 +1341,7 @@ PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure
         } else {
             if (isdigit((uchar) *ip)) {
                 *pport = atoi(ip);
+                wfree(ip);
                 ip = 0;
             } else {
                 /* No port present, use callers default */
