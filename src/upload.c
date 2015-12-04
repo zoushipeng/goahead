@@ -8,7 +8,7 @@
 
 #include    "goahead.h"
 
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
 /************************************ Locals **********************************/
 /*
     Upload states
@@ -462,7 +462,7 @@ PUBLIC void websUploadOpen()
     websDefineHandler("upload", 0, uploadHandler, 0, 0);
 }
 
-#endif
+#endif /* ME_GOAHEAD_UPLOAD */
 
 /*
     @copy   default

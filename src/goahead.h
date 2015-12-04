@@ -1676,7 +1676,7 @@ struct WebsSession;
 struct Webs;
 
 /********************************** Upload ************************************/
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
 
 /**
     File upload structure
@@ -1878,7 +1878,7 @@ typedef struct Webs {
     char            *opaque;            /**< opaque value passed from server */
     char            *qop;               /**< quality operator */
 #endif
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     int             upfd;               /**< Upload file handle */
     WebsHash        files;              /**< Uploaded files */
     char            *boundary;          /**< Mime boundary (static) */
@@ -3186,7 +3186,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
  */
 PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
