@@ -2412,9 +2412,6 @@ PUBLIC void websSetRequestFilename(Webs *wp, char *filename)
     assert(websValid(wp));
     assert(filename && *filename);
 
-    if (wp->filename) {
-        wfree(wp->filename);
-    }
     wfree(wp->filename);
     wp->filename = sclone(filename);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
