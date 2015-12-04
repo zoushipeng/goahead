@@ -1308,7 +1308,10 @@ static bool filterChunkData(Webs *wp)
         case WEBS_CHUNK_DATA:
             len = min(bufLen(rxbuf), wp->rxRemaining);
             nbytes = min(bufRoom(&wp->input), len);
-            nbytes = bufPutBlk(&wp->input, rxbuf->servp, nbytes);
+            if (len > 0 && (nbytes = bufPutBlk(&wp->input, rxbuf->servp, nbytes)) == 0) {
+                websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
+                return 1;
+            }
             bufAddNull(&wp->input);
             bufAdjustStart(rxbuf, nbytes);
             wp->rxRemaining -= nbytes;
