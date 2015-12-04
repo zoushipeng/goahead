@@ -4834,7 +4834,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     websOptionsOpen();
     websActionOpen();
     websFileOpen();
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     websUploadOpen();
 #endif
 #if ME_GOAHEAD_JAVASCRIPT
@@ -4964,7 +4964,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
 #if ME_GOAHEAD_CGI && !ME_ROM
     wp->cgifd = -1;
 #endif
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     wp->files = -1;
     wp->upfd = -1;
 #endif
@@ -5056,7 +5056,7 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->url);
     wfree(wp->userAgent);
     wfree(wp->username);
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     wfree(wp->boundary);
     wfree(wp->uploadTmp);
     wfree(wp->uploadVar);
@@ -5074,7 +5074,7 @@ static void termWebs(Webs *wp, int reuse)
 #endif
     hashFree(wp->vars);
 
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     if (wp->files >= 0) {
         websFreeUpload(wp);
     }
@@ -5888,7 +5888,10 @@ static bool filterChunkData(Webs *wp)
         case WEBS_CHUNK_DATA:
             len = min(bufLen(rxbuf), wp->rxRemaining);
             nbytes = min(bufRoom(&wp->input), len);
-            nbytes = bufPutBlk(&wp->input, rxbuf->servp, nbytes);
+            if (len > 0 && (nbytes = bufPutBlk(&wp->input, rxbuf->servp, nbytes)) == 0) {
+                websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
+                return 1;
+            }
             bufAddNull(&wp->input);
             bufAdjustStart(rxbuf, nbytes);
             wp->rxRemaining -= nbytes;
@@ -6992,9 +6995,6 @@ PUBLIC void websSetRequestFilename(Webs *wp, char *filename)
     assert(websValid(wp));
     assert(filename && *filename);
 
-    if (wp->filename) {
-        wfree(wp->filename);
-    }
     wfree(wp->filename);
     wp->filename = sclone(filename);
     websSetVar(wp, "PATH_TRANSLATED", wp->filename);
@@ -16447,7 +16447,7 @@ static void validateTime(struct tm *tp, struct tm *defaults)
 
 
 
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
 /************************************ Locals **********************************/
 /*
     Upload states
@@ -16901,7 +16901,7 @@ PUBLIC void websUploadOpen()
     websDefineHandler("upload", 0, uploadHandler, 0, 0);
 }
 
-#endif
+#endif /* ME_GOAHEAD_UPLOAD */
 
 /*
     @copy   default
