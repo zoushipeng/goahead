@@ -665,6 +665,32 @@
     </member>
   </compound>
   <compound kind="group">
+    <name>WebsUpload</name>
+    <title>WebsUpload</title>
+    <filename>group___webs_upload.html</filename>
+    <member kind="function">
+      <type>WebsHash</type>
+      <name>websGetUpload</name>
+      <anchorfile>group___webs_upload.html</anchorfile>
+      <anchor>gaf80a429f3b30c1e621e917c8f04f0415</anchor>
+      <arglist>(struct Webs *wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsUpload *</type>
+      <name>websLookupUpload</name>
+      <anchorfile>group___webs_upload.html</anchorfile>
+      <anchor>ga8bb8ede239760e2701c88e701ef1aee1</anchor>
+      <arglist>(struct Webs *wp, char *key)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websUploadOpen</name>
+      <anchorfile>group___webs_upload.html</anchorfile>
+      <anchor>ga1fc8250d601b18c880422178cfe81fd5</anchor>
+      <arglist>()</arglist>
+    </member>
+  </compound>
+  <compound kind="group">
     <name>Webs</name>
     <title>Webs</title>
     <filename>group___webs.html</filename>
@@ -923,6 +949,13 @@
       <name>websFree</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga34a9c871eaf4cba49ff81174318af979</anchor>
+      <arglist>(Webs *wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websFreeUpload</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga54bd8e9073aca8fe5ac527e0b26ae738</anchor>
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
@@ -1260,6 +1293,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaff9d3f2f19119d5b42ae0e35a55781d3</anchor>
       <arglist>(WebsTime *time, char *date, struct tm *defaults)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>websProcessUploadData</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gabf36424ddd2ef63ac20fc1419debc90e</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>void</type>
