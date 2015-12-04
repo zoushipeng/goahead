@@ -1,4 +1,4 @@
-/* 
+/*
     js.h -- JavaScript header
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
@@ -13,6 +13,9 @@
 
 #if ME_GOAHEAD_JAVASCRIPT
 /********************************** Defines ***********************************/
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
     Constants
  */
@@ -218,7 +221,7 @@ PUBLIC int jsGetVar(int jid, char *var, char **value);
 PUBLIC int jsOpenEngine(WebsHash variables, WebsHash functions);
 
 /**
-    Set a local variable 
+    Set a local variable
     @param jid Javascript ID allocated via jsOpenEngine
     @param var Variable name
     @param value Value to use
@@ -323,7 +326,9 @@ PUBLIC void     jsSetUserHandle(int jid, void *handle);
     #define ejGetVar jsGetVar
     #define ejEval jsEval
 #endif
-
+#ifdef __cplusplus
+}
+#endif
 #endif /* ME_GOAHEAD_JAVASCRIPT */
 #endif /* _h_JS */
 
@@ -333,7 +338,7 @@ PUBLIC void     jsSetUserHandle(int jid, void *handle);
     Copyright (c) Embedthis Software. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
