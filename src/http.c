@@ -254,7 +254,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     websOptionsOpen();
     websActionOpen();
     websFileOpen();
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     websUploadOpen();
 #endif
 #if ME_GOAHEAD_JAVASCRIPT
@@ -384,7 +384,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
 #if ME_GOAHEAD_CGI && !ME_ROM
     wp->cgifd = -1;
 #endif
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     wp->files = -1;
     wp->upfd = -1;
 #endif
@@ -476,7 +476,7 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->url);
     wfree(wp->userAgent);
     wfree(wp->username);
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     wfree(wp->boundary);
     wfree(wp->uploadTmp);
     wfree(wp->uploadVar);
@@ -494,7 +494,7 @@ static void termWebs(Webs *wp, int reuse)
 #endif
     hashFree(wp->vars);
 
-#if ME_GOAHEAD_UPLOAD && !ME_ROM
+#if ME_GOAHEAD_UPLOAD
     if (wp->files >= 0) {
         websFreeUpload(wp);
     }
