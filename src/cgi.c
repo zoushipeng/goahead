@@ -16,7 +16,7 @@
 #include    "goahead.h"
 
 /*********************************** Defines **********************************/
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
 
 #if ME_WIN_LIKE
     typedef HANDLE CgiPid;
@@ -964,7 +964,7 @@ static int checkCgi(CgiPid handle)
     return 1;
 }
 #endif /* WIN */
-#endif /* ME_GOAHEAD_CGI && !ME_ROM */
+#endif /* ME_GOAHEAD_CGI */
 
 /*
     @copy   default

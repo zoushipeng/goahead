@@ -819,6 +819,27 @@
       <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
+      <type>int</type>
+      <name>websCgiHandler</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gac05856f3dd04aeef0732570bedf044ad</anchor>
+      <arglist>(Webs *wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websCgiOpen</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>gafd0f480e0038ab974e96c009a9a83641</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>int</type>
+      <name>websCgiPoll</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga2ba15b61fb46c880fa4f443ac69976c2</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
       <type>void</type>
       <name>websClose</name>
       <anchorfile>group___webs.html</anchorfile>
@@ -977,6 +998,13 @@
       <name>websGetBackground</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaaad30c26a4b0932d71f7d9a8ab4ce191</anchor>
+      <arglist>()</arglist>
+    </member>
+    <member kind="function">
+      <type>char *</type>
+      <name>websGetCgiCommName</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga736eaad151d7a8e1c0bf8eab0321394a</anchor>
       <arglist>()</arglist>
     </member>
     <member kind="function">
@@ -1293,6 +1321,13 @@
       <anchorfile>group___webs.html</anchorfile>
       <anchor>gaff9d3f2f19119d5b42ae0e35a55781d3</anchor>
       <arglist>(WebsTime *time, char *date, struct tm *defaults)</arglist>
+    </member>
+    <member kind="function">
+      <type>bool</type>
+      <name>websProcessCgiData</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga0853e59f6f1dba6c94c8d3d659106e7f</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>bool</type>
