@@ -1850,7 +1850,7 @@ typedef struct Webs {
     ssize           rxRemaining;        /**< Remaining content to read from client */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
     char            *cgiStdin;          /**< Filename for CGI program input */
     int             cgifd;              /**< File handle for CGI program input */
 #endif
@@ -2031,7 +2031,7 @@ PUBLIC int websAlloc(int sid);
  */
 PUBLIC void websCancelTimeout(Webs *wp);
 
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
 /**
     Open the CGI handler
     @return Zero if successful, otherwise -1
@@ -2245,7 +2245,7 @@ PUBLIC void websFree(Webs *wp);
  */
 PUBLIC int websGetBackground();
 
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
 /**
     Get a unique temporary filename for CGI communications
     @return Filename string
@@ -3205,7 +3205,7 @@ PUBLIC bool websProcessUploadData(Webs *wp);
 PUBLIC void websFreeUpload(Webs *wp);
 #endif
 
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
 /**
     Process CGI request body data.
     @param wp Webs request object

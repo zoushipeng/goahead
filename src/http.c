@@ -248,7 +248,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (websOpenRoute() < 0) {
         return -1;
     }
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
     websCgiOpen();
 #endif
     websOptionsOpen();
@@ -381,7 +381,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
 #if !ME_ROM
     wp->putfd = -1;
 #endif
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
     wp->cgifd = -1;
 #endif
 #if ME_GOAHEAD_UPLOAD
@@ -434,12 +434,6 @@ static void termWebs(Webs *wp, int reuse)
         }
     }
 #if !ME_ROM
-#if ME_GOAHEAD_CGI
-    if (wp->cgifd >= 0) {
-        close(wp->cgifd);
-        wp->cgifd = -1;
-    }
-#endif
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
@@ -448,6 +442,15 @@ static void termWebs(Webs *wp, int reuse)
             error("Cannot rename PUT file from %s to %s", wp->putname, wp->filename);
         }
     }
+#endif
+#if ME_GOAHEAD_CGI
+    if (wp->cgifd >= 0) {
+        close(wp->cgifd);
+        wp->cgifd = -1;
+    }
+    wfree(wp->cgiStdin);
+#endif
+#if ME_GOAHEAD_UPLOAD
     wfree(wp->clientFilename);
 #endif
     websPageClose(wp);
@@ -480,9 +483,6 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->boundary);
     wfree(wp->uploadTmp);
     wfree(wp->uploadVar);
-#endif
-#if ME_GOAHEAD_CGI && !ME_ROM
-    wfree(wp->cgiStdin);
 #endif
 #if ME_GOAHEAD_DIGEST
     wfree(wp->cnonce);
@@ -901,7 +901,6 @@ static bool parseIncoming(Webs *wp)
     if (wp->state == WEBS_COMPLETE) {
         return 1;
     }
-#if !ME_ROM
 #if ME_GOAHEAD_CGI
     if (wp->route && wp->route->handler && wp->route->handler->service == cgiHandler) {
         if (smatch(wp->method, "POST")) {
@@ -913,6 +912,7 @@ static bool parseIncoming(Webs *wp)
         }
     }
 #endif
+#if !ME_ROM
     if (smatch(wp->method, "PUT")) {
         WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
@@ -1342,7 +1342,7 @@ PUBLIC void websServiceEvents(int *finished)
         if (socketSelect(-1, delay)) {
             socketProcess();
         }
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
         delay = websCgiPoll();
 #else
         delay = MAXINT;
