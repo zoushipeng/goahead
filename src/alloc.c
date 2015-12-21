@@ -296,10 +296,14 @@ PUBLIC void wfree(void *mem)
 
 PUBLIC void *wrealloc(void *mem, ssize num) 
 {
+    void    *old;
+
+    old = mem;
     if ((mem = realloc(mem, num)) == 0) {
         if (memNotifier) {
             (memNotifier)(num);
         }
+        free(old);
     }
     return mem;  
 }
