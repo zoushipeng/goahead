@@ -135,6 +135,7 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc);
 #define WEBS_MAX_PASSWORD   32          /**< Default maximum password */
 
 /************************************* Error **********************************/
+#if ME_GOAHEAD_LOGGING
 
 #define WEBS_L          __FILE__, __LINE__
 #define WEBS_ARGS_DEC   char *file, int line
@@ -161,6 +162,45 @@ PUBLIC_DATA int logLevel;
 #define WEBS_LOG_MSG        0x100       /**< Originated from logmsg */
 #define WEBS_RAW_MSG        0x200       /**< Raw message output */
 #define WEBS_TRACE_MSG      0x400       /**< Originated from trace */
+
+
+#if ME_GOAHEAD_TRACING && ME_GOAHEAD_LOGGING
+    #if ME_COMPILER_HAS_MACRO_VARARGS
+      #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else {}
+    #else
+        inline void trace(int level, cchar *fmt, ...) {
+            WebsLogHandler logHandler = logGetHandler();
+            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
+                va_list args; va_start(args, fmt);
+                char *message = sfmtv((char*) fmt, args);
+                logHandler(level | WEBS_TRACE_MSG, message);
+                wfree(message);
+                va_end(args);
+            }
+        }
+    #endif
+#else
+    #define trace(l, ...) if (1) ; else {}
+#endif
+
+#if ME_GOAHEAD_LOGGING
+    #if ME_COMPILER_HAS_MACRO_VARARGS
+        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else {}
+    #else
+        inline void logmsg(int level, cchar *fmt, ...) {
+            WebsLogHandler logHandler = logGetHandler();
+            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
+                va_list args; va_start(args, fmt);
+                char *message = sfmtv((char*) fmt, args);
+                logHandler(level | WEBS_TRACE_MSG, message);
+                wfree(message);
+                va_end(args);
+            }
+        }
+    #endif
+#else
+    #define logmsg(l, ...) if (1) ; else {}
+#endif
 
 
 #if DOXYGEN
@@ -232,6 +272,14 @@ PUBLIC WebsLogHandler logGetHandler();
 PUBLIC WebsLogHandler logSetHandler(WebsLogHandler handler);
 
 /**
+    Get the current trace log level
+    @return Number between 0 and 9
+    @ingroup Webs
+    @stability Stable
+ */
+PUBLIC int websGetLogLevel();
+
+/**
     Set the filename to save logging output
     @param path Filename path to use
     @stability Stable
@@ -264,6 +312,17 @@ PUBLIC void logmsgProc(int level, char *fmt, ...);
     @stability Stable
  */
 PUBLIC void traceProc(int level, char *fmt, ...);
+
+#else /*! ME_GOAHEAD_LOGGING */
+    #define assert(C) if (1) ; else {}
+    #define error(l, ...) if (1) ; else {}
+    #define trace(l, ...) if (1) ; else {}
+    #define logOpen() if (1) ; else {}
+    #define logClose() if (1) ; else {}
+    #define websGetLogLevel() 0
+    #define logmsg(l, ...) if (1) ; else {}
+    #define logSetPath(p) if (1) ; else {}
+#endif
 
 /*********************************** HTTP Codes *******************************/
 /*
@@ -2452,14 +2511,6 @@ PUBLIC char *websGetServerAddress();
 PUBLIC char *websGetServerAddressUrl();
 
 /**
-    Get the current trace log level
-    @return Number between 0 and 9
-    @ingroup Webs
-    @stability Stable
- */
-PUBLIC int websGetLogLevel();
-
-/**
     Get the request URI
     @description This returns the request URI. This may be modified if the request is rewritten via websRewrite
     @param wp Webs request object
@@ -3868,46 +3919,6 @@ PUBLIC void websRemoveSessionVar(Webs *wp, char *name);
     @stability Stable
  */
 PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
-
-/************************************ Macros **********************************/
-
-#if ME_GOAHEAD_TRACING
-    #if ME_COMPILER_HAS_MACRO_VARARGS
-      #define trace(l, ...) if (((l) & WEBS_LEVEL_MASK) <= websGetLogLevel()) { traceProc(l, __VA_ARGS__); } else {}
-    #else
-        inline void trace(int level, cchar *fmt, ...) {
-            WebsLogHandler logHandler = logGetHandler();
-            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
-                va_list args; va_start(args, fmt);
-                char *message = sfmtv((char*) fmt, args);
-                logHandler(level | WEBS_TRACE_MSG, message);
-                wfree(message);
-                va_end(args);
-            }
-        }
-    #endif
-#else
-    #define trace(l, ...) if (1) ; else {}
-#endif
-
-#if ME_GOAHEAD_LOGGING
-    #if ME_COMPILER_HAS_MACRO_VARARGS
-        #define logmsg(l, ...) if ((l) <= logLevel) { logmsgProc(l, __VA_ARGS__); } else {}
-    #else
-        inline void logmsg(int level, cchar *fmt, ...) {
-            WebsLogHandler logHandler = logGetHandler();
-            if ((level & WEBS_LEVEL_MASK) <= logLevel && logHandler) {
-                va_list args; va_start(args, fmt);
-                char *message = sfmtv((char*) fmt, args);
-                logHandler(level | WEBS_TRACE_MSG, message);
-                wfree(message);
-                va_end(args);
-            }
-        }
-    #endif
-#else
-    #define logmsg(l, ...) if (1) ; else {}
-#endif
 
 /************************************ Legacy **********************************/
 /*

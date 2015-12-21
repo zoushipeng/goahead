@@ -173,10 +173,13 @@ static int       callbackMax;
 
 static HashTable **sym;             /* List of symbol tables */
 static int       symMax;            /* One past the max symbol table */
-static char      *logPath;          /* Log file name */
-static int       logFd;             /* Log file handle */
 
 char *embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
+
+#if ME_GOAHEAD_LOGGING
+static char      *logPath;          /* Log file name */
+static int       logFd;             /* Log file handle */
+#endif
 
 /********************************** Forwards **********************************/
 
@@ -184,8 +187,11 @@ static int calcPrime(int size);
 static int getBinBlockSize(int size);
 static int hashIndex(HashTable *tp, char *name);
 static WebsKey *hash(HashTable *tp, char *name);
+
+#if ME_GOAHEAD_LOGGING
 static void defaultLogHandler(int level, char *buf);
 static WebsLogHandler logHandler = defaultLogHandler;
+#endif
 
 static int  getState(char c, int state);
 static int  growBuf(Format *fmt);
@@ -948,6 +954,7 @@ PUBLIC void valueFree(WebsValue* v)
 }
 
 
+#if ME_GOAHEAD_LOGGING
 static void defaultLogHandler(int flags, char *buf)
 {
     char    prefix[ME_GOAHEAD_LIMIT_STRING];
