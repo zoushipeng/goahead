@@ -455,10 +455,14 @@ PUBLIC void wfree(void *mem)
 
 PUBLIC void *wrealloc(void *mem, ssize num) 
 {
+    void    *old;
+
+    old = mem;
     if ((mem = realloc(mem, num)) == 0) {
         if (memNotifier) {
             (memNotifier)(num);
         }
+        free(old);
     }
     return mem;  
 }
@@ -1630,7 +1634,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
 
 
 /*********************************** Defines **********************************/
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
 
 #if ME_WIN_LIKE
     typedef HANDLE CgiPid;
@@ -2578,7 +2582,7 @@ static int checkCgi(CgiPid handle)
     return 1;
 }
 #endif /* WIN */
-#endif /* ME_GOAHEAD_CGI && !ME_ROM */
+#endif /* ME_GOAHEAD_CGI */
 
 /*
     @copy   default
@@ -4828,7 +4832,7 @@ PUBLIC int websOpen(char *documents, char *routeFile)
     if (websOpenRoute() < 0) {
         return -1;
     }
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
     websCgiOpen();
 #endif
     websOptionsOpen();
@@ -4961,7 +4965,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
 #if !ME_ROM
     wp->putfd = -1;
 #endif
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
     wp->cgifd = -1;
 #endif
 #if ME_GOAHEAD_UPLOAD
@@ -5014,12 +5018,6 @@ static void termWebs(Webs *wp, int reuse)
         }
     }
 #if !ME_ROM
-#if ME_GOAHEAD_CGI
-    if (wp->cgifd >= 0) {
-        close(wp->cgifd);
-        wp->cgifd = -1;
-    }
-#endif
     if (wp->putfd >= 0) {
         close(wp->putfd);
         wp->putfd = -1;
@@ -5028,6 +5026,15 @@ static void termWebs(Webs *wp, int reuse)
             error("Cannot rename PUT file from %s to %s", wp->putname, wp->filename);
         }
     }
+#endif
+#if ME_GOAHEAD_CGI
+    if (wp->cgifd >= 0) {
+        close(wp->cgifd);
+        wp->cgifd = -1;
+    }
+    wfree(wp->cgiStdin);
+#endif
+#if ME_GOAHEAD_UPLOAD
     wfree(wp->clientFilename);
 #endif
     websPageClose(wp);
@@ -5060,9 +5067,6 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->boundary);
     wfree(wp->uploadTmp);
     wfree(wp->uploadVar);
-#endif
-#if ME_GOAHEAD_CGI && !ME_ROM
-    wfree(wp->cgiStdin);
 #endif
 #if ME_GOAHEAD_DIGEST
     wfree(wp->cnonce);
@@ -5481,7 +5485,6 @@ static bool parseIncoming(Webs *wp)
     if (wp->state == WEBS_COMPLETE) {
         return 1;
     }
-#if !ME_ROM
 #if ME_GOAHEAD_CGI
     if (wp->route && wp->route->handler && wp->route->handler->service == cgiHandler) {
         if (smatch(wp->method, "POST")) {
@@ -5493,6 +5496,7 @@ static bool parseIncoming(Webs *wp)
         }
     }
 #endif
+#if !ME_ROM
     if (smatch(wp->method, "PUT")) {
         WebsStat    sbuf;
         wp->code = (stat(wp->filename, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) ? HTTP_CODE_NO_CONTENT : HTTP_CODE_CREATED;
@@ -5922,7 +5926,7 @@ PUBLIC void websServiceEvents(int *finished)
         if (socketSelect(-1, delay)) {
             socketProcess();
         }
-#if ME_GOAHEAD_CGI && !ME_ROM
+#if ME_GOAHEAD_CGI
         delay = websCgiPoll();
 #else
         delay = MAXINT;
@@ -10828,8 +10832,8 @@ PUBLIC char *basename(char *name)
 #if TIDSP
 char *inet_ntoa(struct in_addr addr)
 {
-    char    result[16];
-    uchar   *bytes;
+    static char result[16];
+    uchar       *bytes;
 
     bytes = (uchar*) &addr;
     sprintf(result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
@@ -11796,10 +11800,13 @@ static int       callbackMax;
 
 static HashTable **sym;             /* List of symbol tables */
 static int       symMax;            /* One past the max symbol table */
-static char      *logPath;          /* Log file name */
-static int       logFd;             /* Log file handle */
 
 char *embedthisGoAheadCopyright = EMBEDTHIS_GOAHEAD_COPYRIGHT;
+
+#if ME_GOAHEAD_LOGGING
+static char      *logPath;          /* Log file name */
+static int       logFd;             /* Log file handle */
+#endif
 
 /********************************** Forwards **********************************/
 
@@ -11807,8 +11814,11 @@ static int calcPrime(int size);
 static int getBinBlockSize(int size);
 static int hashIndex(HashTable *tp, char *name);
 static WebsKey *hash(HashTable *tp, char *name);
+
+#if ME_GOAHEAD_LOGGING
 static void defaultLogHandler(int level, char *buf);
 static WebsLogHandler logHandler = defaultLogHandler;
+#endif
 
 static int  getState(char c, int state);
 static int  growBuf(Format *fmt);
@@ -12571,6 +12581,7 @@ PUBLIC void valueFree(WebsValue* v)
 }
 
 
+#if ME_GOAHEAD_LOGGING
 static void defaultLogHandler(int flags, char *buf)
 {
     char    prefix[ME_GOAHEAD_LIMIT_STRING];
@@ -12709,10 +12720,12 @@ PUBLIC int logOpen()
 
 PUBLIC void logClose()
 {
-    if (logFd >= 0) {
+#if !ME_ROM
+    if (logFd > 2) {
         close(logFd);
         logFd = -1;
     }
+#endif
 }
 
 
@@ -12727,6 +12740,7 @@ PUBLIC void logSetPath(char *path)
         logLevel = atoi(lp);
     }
 }
+#endif
 
 
 /*
