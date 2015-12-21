@@ -1093,10 +1093,12 @@ PUBLIC int logOpen()
 
 PUBLIC void logClose()
 {
-    if (logFd >= 0) {
+#if !ME_ROM
+    if (logFd > 2) {
         close(logFd);
         logFd = -1;
     }
+#endif
 }
 
 
@@ -1111,6 +1113,7 @@ PUBLIC void logSetPath(char *path)
         logLevel = atoi(lp);
     }
 }
+#endif
 
 
 /*
