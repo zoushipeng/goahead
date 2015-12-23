@@ -877,6 +877,7 @@ static uint cipherText[6] = {
 
 PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block)
 {
+#if ME_UNIX_LIKE
     ssize   sofar, rc;
     int     fd;
 
@@ -895,6 +896,25 @@ PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block)
         sofar += rc;
     } while (length > 0);
     close(fd);
+#elif ME_WIN_LIKE
+    HCRYPTPROV      prov;
+    int             rc;
+
+    rc = 0;
+    if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | 0x40)) {
+        return mprGetError();
+    }
+    if (!CryptGenRandom(prov, (wsize) length, buf)) {
+        rc = mprGetError();
+    }
+    CryptReleaseContext(prov, 0);
+#else
+    int     i;
+
+    for (i = 0; i < length; i++) {
+        buf[i] = (char) (rand() & 0xff);
+    }
+#endif
     return 0;
 }
 

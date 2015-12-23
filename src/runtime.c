@@ -208,6 +208,7 @@ PUBLIC int websRuntimeOpen()
 {
     symMax = 0;
     sym = 0;
+    srand((uint) time(NULL));
     return 0;
 }
 
