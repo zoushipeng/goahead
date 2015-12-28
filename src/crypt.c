@@ -902,12 +902,13 @@ PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block)
 
     rc = 0;
     if (!CryptAcquireContext(&prov, NULL, NULL, PROV_RSA_FULL, CRYPT_VERIFYCONTEXT | 0x40)) {
-        return mprGetError();
+        return -1;
     }
     if (!CryptGenRandom(prov, (wsize) length, buf)) {
-        rc = mprGetError();
+        rc = -1;
     }
     CryptReleaseContext(prov, 0);
+    return rc;
 #else
     int     i;
 
