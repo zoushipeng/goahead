@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>SSL Overview</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Simple, fast, secure embedded web server">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
@@ -165,7 +166,7 @@
 
             <a href="ssl.html">SSL for GoAhead</a>.</p>
             <a id="cryptographicTechniques"></a>
-            <h2>Cryptographic Techniques</h2>
+            <h2 >Cryptographic Techniques</h2>
             <p>Understanding SSL requires an understanding of cryptographic algorithms, message digest functions (aka.
             one-way or hash functions), and digital signatures. The following section provides a brief introduction to
             the cryptographic foundations of SSL. If you are already familiar with this material, please skip forward
@@ -228,7 +229,7 @@
             contains a unique sequence number. This protects the bank from a fraudulent claim from Alice that she did
             not send the message &mdash; only she could have signed it (non-repudiation).</p><a id="certificates"></a>
 
-            <h2>Certificates</h2>
+            <h2 >Certificates</h2>
             <p>Although Alice could have sent a private message to the bank, signed it, and ensured the integrity of
             the message, she still needs to be sure that she is really communicating with the bank. This means that she
             needs to be sure that the public key she is using corresponds to the bank's private key. Similarly, the
@@ -250,26 +251,26 @@
             <table title="cert" class="ui table segment">
                 <tbody>
                     <tr>
-                        <td class="four wide">Subject
-                        <td>Distinguished Name, Public Key
-                    
+                        <td class="four wide">Subject</td>
+                        <td>Distinguished Name, Public Key</td>
+                    </tr>
                     <tr>
-                        <td>Issuer
-                        <td>Distinguished Name, Signature
-                    
+                        <td>Issuer</td>
+                        <td>Distinguished Name, Signature</td>
+                    </tr>
                     <tr>
-                        <td>Period of Validity
-                        <td>Not Before Date, Not After Date
-                    
+                        <td>Period of Validity</td>
+                        <td>Not Before Date, Not After Date</td>
+                    </tr>
                     <tr>
-                        <td class="pivot class">Administrative Information
-                        <td>Version, Serial Number
-                    
+                        <td class="pivot class">Administrative Information</td>
+                        <td>Version, Serial Number</td>
+                    </tr>
                     <tr>
-                        <td>Extended Information
-                        <td>Basic Constraints, Netscape Flags, etc.
-                    
-                
+                        <td>Extended Information</td>
+                        <td>Basic Constraints, Netscape Flags, etc.</td>
+                    </tr>
+                </tbody>
             </table>
             <p>A distinguished name is used to provide an identity in a specific context &mdash; for instance, an
             individual might have a personal certificate as well as one for their identity as an employee.
@@ -279,50 +280,50 @@
             <table title="info" class="ui table segment">
                 <thead>
                     <tr>
-                        <th>DN Field
-                        <th>Abbrev.
-                        <th>Description
-                        <th>Example
-                    
-                
+                        <th>DN Field</th>
+                        <th>Abbrev.</th>
+                        <th>Description</th>
+                        <th>Example</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
-                        <td>Common Name
-                        <td>CN
-                        <td>Name being certified
-                        <td>CN=Joe Average
-                    
+                        <td>Common Name</td>
+                        <td>CN</td>
+                        <td>Name being certified</td>
+                        <td>CN=Joe Average</td>
+                    </tr>
                     <tr>
-                        <td>Organization or Company
-                        <td>O
-                        <td>Name is associated with this organization
-                        <td>O=Snake Oil, Ltd.
-                    
+                        <td>Organization or Company</td>
+                        <td>O</td>
+                        <td>Name is associated with this organization</td>
+                        <td>O=Snake Oil, Ltd.</td>
+                    </tr>
                     <tr>
-                        <td>Organizational Unit
-                        <td>OU
-                        <td>Name is associated with this organization unit, such as a department
-                        <td>OU=Research Institute
-                    
+                        <td>Organizational Unit</td>
+                        <td>OU</td>
+                        <td>Name is associated with this organization unit, such as a department</td>
+                        <td>OU=Research Institute</td>
+                    </tr>
                     <tr>
-                        <td>City/Locality
-                        <td>L
-                        <td>Name is located in this City
-                        <td>L=Snake City
-                    
+                        <td>City/Locality</td>
+                        <td>L</td>
+                        <td>Name is located in this City</td>
+                        <td>L=Snake City</td>
+                    </tr>
                     <tr>
-                        <td>State/Province
-                        <td>ST
-                        <td>Name is located in this State/Province
-                        <td>ST=Desert
-                    
+                        <td>State/Province</td>
+                        <td>ST</td>
+                        <td>Name is located in this State/Province</td>
+                        <td>ST=Desert</td>
+                    </tr>
                     <tr>
-                        <td>Country
-                        <td>C
-                        <td>Name is located in this Country (ISO code)
-                        <td>C=XZ
-                    
-                
+                        <td>Country</td>
+                        <td>C</td>
+                        <td>Name is located in this Country (ISO code)</td>
+                        <td>C=XZ</td>
+                    </tr>
+                </tbody>
             </table>
             <p>A Certificate Authority may define a policy specifying which distinguished field names are optional, and
             which are required. It may also place requirements upon the field contents, as may users of certificates.
@@ -376,7 +377,8 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
             root authority reduces the risk in trusting this key &mdash; it would be obvious if someone else publicized
             a key claiming to be the authority. Browsers are preconfigured to trust well-known certificate
             authorities.</p>
-            <p>A number of companies, such as <a href="http://www.thawte.com/">Thawte</a> and <a href=http://www.verisign.com/>VeriSign</a> have established themselves as Certificate Authorities. These
+            <p>A number of companies, such as <a href="http://www.thawte.com/">Thawte</a> and <a href=
+            "http://www.verisign.com/">VeriSign</a> have established themselves as Certificate Authorities. These
             companies provide the following services:</p>
             <ul>
                 <li>Verifying certificate requests</li>
@@ -403,7 +405,7 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
             browser will accept all certificates signed by that Certificate Authority.</p>
         
         <a id="sslOverview"></a>
-        <h2>Secure Sockets Layer (SSL) Overview</h2>
+        <h2 >Secure Sockets Layer (SSL) Overview</h2>
         <p>The Secure Sockets Layer protocols designed to support a range of choices for specific algorithms used for
         cryptography, digests, and signatures. This allows algorithm selection for specific servers to be made based on
         legal, export or other concerns, and also enables the protocol to take advantage of new algorithms. Choices are
@@ -413,30 +415,30 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
         <table title="protocols" class="ui table segment">
             <thead>
                 <tr>
-                    <th>Version
-                    <th>Source
-                    <th>Description
-                
-            
+                    <th>Version</th>
+                    <th>Source</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
             <tbody>
                 <tr>
-                    <td>SSL v2.0
-                    <td>Vendor Standard (from Netscape Corp.)
-                    <td>First SSL protocol for which implementations exists
-                
+                    <td>SSL v2.0</td>
+                    <td>Vendor Standard (from Netscape Corp.)</td>
+                    <td>First SSL protocol for which implementations exists</td>
+                </tr>
                 <tr>
-                    <td>SSL v3.0
-                    <td>Expired Internet Draft (from Netscape Corp.)
+                    <td>SSL v3.0</td>
+                    <td>Expired Internet Draft (from Netscape Corp.)</td>
                     <td>Revisions to prevent specific security attacks, add non-RSA ciphers, and support for
-                    certificate chains
-                
+                    certificate chains</td>
+                </tr>
                 <tr>
-                    <td>TLS v1.0
-                    <td>Proposed Internet Standard (from IETF)
+                    <td>TLS v1.0</td>
+                    <td>Proposed Internet Standard (from IETF)</td>
                     <td>Revision of SSL 3.0 to update the MAC layer to HMAC, add block padding for block ciphers,
-                    message order standardization and more alert messages.
-                
-            
+                    message order standardization and more alert messages.</td>
+                </tr>
+            </tbody>
         </table>
         <p>There are a number of versions of the SSL protocol, as shown in <a href="#table4">Table 4</a>. As noted
         there, one of the benefits in SSL 3.0 is that it adds support of certificate chain loading. This feature allows
@@ -558,5 +560,5 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
 
         
 
-
-
+</body>
+</html>

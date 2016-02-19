@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.6.2
+VERSION               := 3.6.3
 PROFILE               ?= static
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
@@ -700,9 +700,15 @@ DEPS_46 += stop
 uninstall: $(DEPS_46)
 
 #
+#   uninstallBinary
+#
+
+uninstallBinary: $(DEPS_47)
+
+#
 #   version
 #
 
-version: $(DEPS_47)
+version: $(DEPS_48)
 	echo $(VERSION)
 

@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>GI</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Simple, fast, secure embedded web server">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
@@ -166,7 +167,7 @@
             high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI
             setup.</p>
             <a name="configuringCgi"></a>
-            <h2>Configuring CGI Programs</h2>
+            <h2 >Configuring CGI Programs</h2>
             <p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is
             typically "cgi-bin". The CGI programs and scripts are stored in special CGI directories outside the
             document root.</p>
@@ -176,132 +177,132 @@
 http://www.embedthis.com/cgi-bin/cgitest
 </pre>
             <a name="invoking"></a>
-            <h2>Invoking CGI Programs</h2>
+            <h2 >Invoking CGI Programs</h2>
             <p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program
             via Environment Variables.</p>
             
             <a name="env"></a>
-            <h2>CGI Environment Variables</h2>
+            <h2 >CGI Environment Variables</h2>
             <p>CGI uses environment variables to send your program additional parameters. The following environment
             variables are defined:</p>
             <table title="args" class="ui table segment">
                 <thead>
                     <tr>
-                        <th>Variable
-                        <th>Description
-                    
-                
+                        <th>Variable</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
-                        <td>AUTH_TYPE
-                        <td>Set to the value of the HTTP AUTHORIZATION header. Usually "basic", "digest" or "form".
-                    
+                        <td>AUTH_TYPE</td>
+                        <td>Set to the value of the HTTP AUTHORIZATION header. Usually "basic", "digest" or "form".</td>
+                    </tr>
                     <tr>
-                        <td>CONTENT_LENGTH
-                        <td>Set to the length of any associated posted content.
-                    
+                        <td>CONTENT_LENGTH</td>
+                        <td>Set to the length of any associated posted content.</td>
+                    </tr>
                     <tr>
-                        <td>CONTENT_TYPE
-                        <td>Set to the content mime type of any associated posted content.
-                    
+                        <td>CONTENT_TYPE</td>
+                        <td>Set to the content mime type of any associated posted content.</td>
+                    </tr>
                     <tr>
-                        <td>DOCUMENT_ROOT
+                        <td>DOCUMENT_ROOT</td>
                         <td>Set to the path location of web documents. Defined by the DocumentRoot directive in the
-                        GoAhead configuration file.
-                    
+                        GoAhead configuration file.</td>
+                    </tr>
                     <tr>
-                        <td>GATEWAY_INTERFACE
-                        <td>Set to "CGI/1.1"
-                    
+                        <td>GATEWAY_INTERFACE</td>
+                        <td>Set to "CGI/1.1"</td>
+                    </tr>
                     <tr>
-                        <td>HTTP_ACCEPT
+                        <td>HTTP_ACCEPT</td>
                         <td>Set to the value of the HTTP ACCEPT header. This specifies what formats are acceptable
-                        and/or preferable for the client.
-                    
+                        and/or preferable for the client.</td>
+                    </tr>
                     <tr>
-                        <td>HTTP_CONNECTION
+                        <td>HTTP_CONNECTION</td>
                         <td>Set to the value of the HTTP CONNECTION header. This specifies how the connection should be
-                        reused when the request completes. (Keep-alive)
-                    
+                        reused when the request completes. (Keep-alive)</td>
+                    </tr>
                     <tr>
-                        <td>HTTP_HOST
+                        <td>HTTP_HOST</td>
                         <td>Set to the value of the HTTP HOST header. This specifies the name of the server to process
                         the request. When using Named virtual hosting, requests to different servers (hosts) may be
                         processed by a single HTTP server on a single IP address. The HTTP_HOST field permits the
-                        server to determine which virtual host should process the request.
-                    
+                        server to determine which virtual host should process the request.</td>
+                    </tr>
                     <tr>
-                        <td>HTTP_USER_AGENT
-                        <td>Set to the value of the HTTP USER_AGENT header.
-                    
+                        <td>HTTP_USER_AGENT</td>
+                        <td>Set to the value of the HTTP USER_AGENT header.</td>
+                    </tr>
                     <tr>
-                        <td>PATH_INFO
-                        <td>The PATH_INFO variable is set to extra path information after the script name.
-                    
+                        <td>PATH_INFO</td>
+                        <td>The PATH_INFO variable is set to extra path information after the script name.</td>
+                    </tr>
                     <tr>
-                        <td>PATH_TRANSLATED
-                        <td>The physical on-disk path name corresponding to PATH_INFO.
-                    
+                        <td>PATH_TRANSLATED</td>
+                        <td>The physical on-disk path name corresponding to PATH_INFO.</td>
+                    </tr>
                     <tr>
-                        <td>QUERY_STRING
+                        <td>QUERY_STRING</td>
                         <td>The QUERY_STRING variable is set to the URI string portion that follows the first "?" in
-                            the URI. The QUERY_STRING is note decoded.
-                    
+                            the URI. The QUERY_STRING is note decoded.</td>
+                    </tr>
                     <tr>
-                        <td>REMOTE_ADDR
-                        <td>Set to the IP address of the requesting client.
-                    
+                        <td>REMOTE_ADDR</td>
+                        <td>Set to the IP address of the requesting client.</td>
+                    </tr>
                     <tr>
-                        <td>REMOTE_HOST
-                        <td>Set to the IP address of the requesting client (same as REMOTE_ADDR).
-                    
+                        <td>REMOTE_HOST</td>
+                        <td>Set to the IP address of the requesting client (same as REMOTE_ADDR).</td>
+                    </tr>
                     <tr>
-                        <td>REMOTE_USER
-                        <td>Set to the name of the authenticated user.
-                    
+                        <td>REMOTE_USER</td>
+                        <td>Set to the name of the authenticated user.</td>
+                    </tr>
                     <tr>
-                        <td>REMOTE_METHOD
+                        <td>REMOTE_METHOD</td>
                         <td>Set to the HTTP method used by the request. Typical values are: "DELETE", "GET", "HEAD",
-                            "OPTIONS", "POST", "PUT", or "TRACE".
-                    
+                            "OPTIONS", "POST", "PUT", or "TRACE".</td>
+                    </tr>
                     <tr>
-                        <td>REQUEST_URI
+                        <td>REQUEST_URI</td>
                         <td>The complete request URI after the host name portion. It always begins with a leading
-                        "/".
-                    
+                        "/".</td>
+                    </tr>
                     <tr>
-                        <td>SCRIPT_NAME
-                        <td>The name of the CGI script being executed in a format suitable for self-referencing URL.
-                    
+                        <td>SCRIPT_NAME</td>
+                        <td>The name of the CGI script being executed in a format suitable for self-referencing URL.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_ADDR
-                        <td>The IP address of the server or virtual host responding to the request.
-                    
+                        <td>SERVER_ADDR</td>
+                        <td>The IP address of the server or virtual host responding to the request.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_HOST
-                        <td>Set to server hostname without port.
-                    
+                        <td>SERVER_HOST</td>
+                        <td>Set to server hostname without port.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_NAME
-                        <td>The server's hostname, alias or IP address as it would appear in self-referencing URLs.
-                    
+                        <td>SERVER_NAME</td>
+                        <td>The server's hostname, alias or IP address as it would appear in self-referencing URLs.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_PORT
-                        <td>The HTTP port of the server or virtual host serving the request.
-                    
+                        <td>SERVER_PORT</td>
+                        <td>The HTTP port of the server or virtual host serving the request.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_PROTOCOL
-                        <td>Set to "HTTP/1.0" or "HTTP/1.1" depending on the protocol used by the client.
-                    
+                        <td>SERVER_PROTOCOL</td>
+                        <td>Set to "HTTP/1.0" or "HTTP/1.1" depending on the protocol used by the client.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_URL
-                        <td>Set to server hostname with port. Suitable for use in a URL.
-                    
+                        <td>SERVER_URL</td>
+                        <td>Set to server hostname with port. Suitable for use in a URL.</td>
+                    </tr>
                     <tr>
-                        <td>SERVER_SOFTWARE
-                        <td>Set to "Embedthis GoAhead/VERSION"
-                    
-                
+                        <td>SERVER_SOFTWARE</td>
+                        <td>Set to "Embedthis GoAhead/VERSION"</td>
+                    </tr>
+                </tbody>
             </table>
             <h4>Example</h4>
             <p>Consider the following URI which will run the Perl interpreter to execute the "pricelists.pl"
@@ -313,32 +314,32 @@ http://hostname/cgi-bin/myScript/products/pricelists.pl?id=23&amp;payment=credit
             <table title="evn" class="ui table segment">
                 <thead>
                     <tr>
-                        <th>Variable
-                        <th>Value
-                    
-                
+                        <th>Variable</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
-                        <td>PATH_INFO
-                        <td>/products/pricelists
-                    
+                        <td>PATH_INFO</td>
+                        <td>/products/pricelists</td>
+                    </tr>
                     <tr>
-                        <td>PATH_TRANSLATED
-                        <td>/var/goahead/web/products/pricelists <br>Where /var/goahead/web is the DocumentRoot
-                    
+                        <td>PATH_TRANSLATED</td>
+                        <td>/var/goahead/web/products/pricelists <br/>Where /var/goahead/web is the DocumentRoot</td>
+                    </tr>
                     <tr>
-                        <td>QUERY_STRING
-                        <td>id=23&amp;payment=credit+Card
-                    
+                        <td>QUERY_STRING</td>
+                        <td>id=23&amp;payment=credit+Card</td>
+                    </tr>
                     <tr>
-                        <td>REQUEST_URI
-                        <td>/cgi-bin/myScript/products/pricelists?id=23&amp;payment=credit+Card
-                    
+                        <td>REQUEST_URI</td>
+                        <td>/cgi-bin/myScript/products/pricelists?id=23&amp;payment=credit+Card</td>
+                    </tr>
                     <tr>
-                        <td>SCRIPT_NAME
-                        <td>myScript
-                    
-                
+                        <td>SCRIPT_NAME</td>
+                        <td>myScript</td>
+                    </tr>
+                </tbody>
             </table>
             <p>This URI below demonstrates some rather cryptic encoding of URIs. 
             The hex encoding %20, is the encoding for the space
@@ -351,39 +352,39 @@ http://hostname/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
             <table title="env" class="ui table segment">
                 <thead>
                     <tr>
-                        <th>Variable
-                        <th>Value
-                    
-                
+                        <th>Variable</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
-                        <td>PATH_INFO
-                        <td>/extra/Path
-                    
+                        <td>PATH_INFO</td>
+                        <td>/extra/Path</td>
+                    </tr>
                     <tr>
-                        <td>PATH_TRANSLATED
-                        <td>/var/goahead/web/extra/Path
-                    
+                        <td>PATH_TRANSLATED</td>
+                        <td>/var/goahead/web/extra/Path</td>
+                    </tr>
                     <tr>
-                        <td>QUERY_STRING
-                        <td>var1=a+a&amp;var2=b%20b&amp;var3=c
-                    
+                        <td>QUERY_STRING</td>
+                        <td>var1=a+a&amp;var2=b%20b&amp;var3=c</td>
+                    </tr>
                     <tr>
-                        <td>REQUEST_URI
-                        <td>/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
-                    
+                        <td>REQUEST_URI</td>
+                        <td>/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c</td>
+                    </tr>
                     <tr>
-                        <td>SCRIPT_NAME
-                        <td>cgiProgram
-                    
-                
+                        <td>SCRIPT_NAME</td>
+                        <td>cgiProgram</td>
+                    </tr>
+                </tbody>
             </table>
             <h3>URI Encoding</h3>
             <p>When a URI is sent via HTTP, certain special characters must be escaped so the URI can be processed
             unambiguously by the server. To escape the special characters, the HTTP client should convert them to their
             %hex equivalent. Form and query variables are separated by "&amp;". For example: a=1&amp;b=2 defines two
             form variables "a" and "b" with their values equal to "1" and "2" respectively.</p><a id="cgiProgramming"></a>
-            <h2>CGI Programming</h2>
+            <h2 >CGI Programming</h2>
             <p>CGI program can return almost any possible content type back to the client's browser: plain HTML, audio,
             video or any other format. CGI programs can also control the user's browser and redirect it to another URI.
             To do this, CGI programs return pseudo-HTTP headers that are interpreted by GoAhead before passing the data
@@ -393,29 +394,29 @@ http://hostname/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
             <table title="headers" class="ui table segment">
                 <thead>
                     <tr>
-                        <th>Header
-                        <th>Description
-                    
-                
+                        <th>Header</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                     <tr>
-                        <td class="nowrap">Content-type
+                        <td class="nowrap">Content-type</td>
                         <td>Nominate the content Mime Type. Typically "text/html". See the mime.types for a list of
-                        possible mime types.
-                    
+                        possible mime types.</td>
+                    </tr>
                     <tr>
-                        <td>Status
-                        <td>Set to a HTTP response code. Success is 200. Server error is 500.
-                    
+                        <td>Status</td>
+                        <td>Set to a HTTP response code. Success is 200. Server error is 500.</td>
+                    </tr>
                     <tr>
-                        <td>Location
-                        <td>Set to the URI of a new document to which to redirect the client's browser.
-                    
+                        <td>Location</td>
+                        <td>Set to the URI of a new document to which to redirect the client's browser.</td>
+                    </tr>
                     <tr>
-                        <td>ANY
-                        <td>Pass any other header back to the client.
-                    
-                
+                        <td>ANY</td>
+                        <td>Pass any other header back to the client.</td>
+                    </tr>
+                </tbody>
             </table>
             <p>For example:</p>
             <pre class="ui code segment">
@@ -466,14 +467,16 @@ Status: 500
             system appropriately.</li>
         </ul>
             <a id="hints"></a>
-            <h2>Hints and Tips</h2>
+            <h2 >Hints and Tips</h2>
             <p>If you have special data or environment variables that must be passed to your CGI program, you can wrap
             it with a script that defines that environment before invoking your script.</p><a id="otherResources"></a>
-            <h2>Other Resources</h2>
+            <h2 >Other Resources</h2>
             <p>The following URIs may be helpful in further reading about CGI:</p>
             <ul>
-                <li>For an introduction to CGI: <a href=http://en.wikipedia.org/wiki/Common_Gateway_Interface>http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li>
-                <li>For the actual CGI specification: <a href=http://tools.ietf.org/html/draft-robinson-www-interface-00>http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li>
+                <li>For an introduction to CGI: <a href=
+                "http://en.wikipedia.org/wiki/Common_Gateway_Interface">http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li>
+                <li>For the actual CGI specification: <a href=
+                "http://tools.ietf.org/html/draft-robinson-www-interface-00">http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li>
                 <li>Other CGI resources: <a href="http://www.cgi-resources.com">http://www.cgi-resources.com</a></li>
             </ul>
 
@@ -489,5 +492,5 @@ Status: 500
 
         
 
-
-
+</body>
+</html>

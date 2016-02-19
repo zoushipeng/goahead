@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Architecture</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Simple, fast, secure embedded web server">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
@@ -176,64 +177,64 @@
             second.</p> 
             
             <a id="components"></a>
-            <h2>Core Components</h2>
+            <h2 >Core Components</h2>
             <p>GoAhead has a modular architecture and clean source code. The key components of GoAhead are:</p>
             <table title="Components" class="ui table segment">
                 <thead>
                     <tr>
-                        <th class="four wide">Component
-                        <th>Description
-                    
-                
+                        <th class="four wide">Component</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
                 <tbody>
                 <tr>
-                    <td>GoAhead HTTP Core
+                    <td>GoAhead HTTP Core</td>
                     <td>Core HTTP server. Includes services for HTTP protocol handling, socket connection 
-                        management and logging.
-                
+                        management and logging.</td>
+                </tr>
                 <tr>
-                    <td class="nowrap">Request Router
+                    <td class="nowrap">Request Router</td>
                     <td>The request router directs client requests to the appropriate request handler. It 
-                        enforces user authentication and general redirection and URI rewriting instructions.
-                
+                        enforces user authentication and general redirection and URI rewriting instructions.</td>
+                </tr>
                 <tr>
-                    <td class="nowrap">Portable Runtime
+                    <td class="nowrap">Portable Runtime</td>
                     <td>Cross-platform, single-threaded, non-blocking event-based portable runtime. Includes services for
                         memory allocation, safe string handling, lists, hashing, command execution, socket
-                    communications, events, timers, debug trace and logging.
-                
+                    communications, events, timers, debug trace and logging.</td>
+                </tr>
                 <tr>
-                    <td>Authentication Framework
+                    <td>Authentication Framework</td>
                     <td>Pluggable authentication. Supports Basic, Digest and Web Form-based authentication schemes.
                         This includes a Role-based authorization scheme to access to resources can be controlled on 
-                       a granular basis.
-                
+                       a granular basis.</td>
+                </tr>
                 <tr>
-                    <td>Session State
-                    <td>Session state storage. This stores per-user state and cookie management.
-                
+                    <td>Session State</td>
+                    <td>Session state storage. This stores per-user state and cookie management.</td>
+                </tr>
                 <tr>
-                    <td>Action Handler
-                    <td>The Action handler binds URIs to C functions for simple, easy access to C-language code.
-                
+                    <td>Action Handler</td>
+                    <td>The Action handler binds URIs to C functions for simple, easy access to C-language code.</td>
+                </tr>
                 <tr>
-                    <td>File Handler
-                    <td>The File handler serves static content such as HTML pages, images and PDF files.
-                
+                    <td>File Handler</td>
+                    <td>The File handler serves static content such as HTML pages, images and PDF files.</td>
+                </tr>
                 <tr>
-                    <td>Javascript Handler
-                    <td>The Javascript web framework is supports embedded server-side javascript.
-                
+                    <td>Javascript Handler</td>
+                    <td>The Javascript web framework is supports embedded server-side javascript.</td>
+                </tr>
                 <tr>
-                    <td>CGI Handler
-                    <td>Common Gateway Interface handler for serving pages by running external CGI programs.
-                
+                    <td>CGI Handler</td>
+                    <td>Common Gateway Interface handler for serving pages by running external CGI programs.</td>
+                </tr>
                 <tr>
-                    <td>Secure Sockets Layer (SSL)
+                    <td>Secure Sockets Layer (SSL)</td>
                     <td>Secure Socket Layer protocol stack. This is a virtual interface that can selectively support a
-                    variety of SSL providers including: the MbedTLS and OpenSSL stacks.
-                
-                
+                    variety of SSL providers including: the MbedTLS and OpenSSL stacks.</td>
+                </tr>
+                </tbody>
             </table>
             
             <a id="core"></a>
@@ -277,7 +278,7 @@
             <p>The runtime includes an optional high performance memory allocator. 
             This allocator is useful when the native operating system allocator suffers from memory fragmentation.</p>
             <a id="dynamic"></a>
-            <h2>Dynamic Content</h2>
+            <h2 >Dynamic Content</h2>
             <a id="cgi"></a>
             <h3>CGI</h3>
             <p>The Common Gateway Interface (CGI) is a standard for interfacing external applications with web servers. CGI
@@ -308,7 +309,7 @@
             easily access device or system data.</p>
             <p>See <a href="../users/jst.html">Javascript Templates</a> for more details.</p>
             <a id="security"></a>
-            <h2>Security</h2>
+            <h2 >Security</h2>
             <p>GoAhead provides a suite of measures designed to increase the security of your web server:</p>
             <ul>
                 <li>Secure Sockets Layer</li>
@@ -329,68 +330,69 @@
             used.</p>
             
             <a name="apis"></a>
-            <h2>Embedding APIs</h2>
+            <h2 >Embedding APIs</h2>
             <p>GoAhead also provides a detailed API so you can create an embedded web server instance and control
-            virtual hosts, port binding, directory and location blocks and every other part of GoAhead. See the <a href=../ref/api/goahead.html>GoAhead API</a> for full details.</p>
+            virtual hosts, port binding, directory and location blocks and every other part of GoAhead. See the <a href=
+            "../ref/api/goahead.html">GoAhead API</a> for full details.</p>
             <a id="dirs"></a>
-            <h2>GoAhead Directories</h2>
+            <h2 >GoAhead Directories</h2>
             <p>Here is the list of top level directories in the GoAhead source code distribution.</p>
             <table title="dirs" class="ui table segment">
-                <thead><tr><th class="three wide">Name<th>Purpose
+                <thead><tr><th class="three wide">Name</th><th>Purpose</th></tr></thead>
                 <tbody>
-                <tr><td>doc<td>Documentation
-                <tr><td>package<td>Packaging scripts
-                <tr><td>projects<td>IDE and Makefile projects
-                <tr><td>releases<td>Release packages
-                <tr><td>test<td>Unit test directory
-                <tr><td>test/web<td>Unit test web documents
-                <tr><td>utils<td>Utility programs
-                <tr><td>web<td>Web documents directory
-                <tr><td>*/inc<td>Master include directory
-                <tr><td>*/bin<td>Output for binaries
-                <tr><td>*/obj<td>Output directory for objects
-                
+                <tr><td>doc</td><td>Documentation</td></tr>
+                <tr><td>package</td><td>Packaging scripts</td></tr>
+                <tr><td>projects</td><td>IDE and Makefile projects</td></tr>
+                <tr><td>releases</td><td>Release packages</td></tr>
+                <tr><td>test</td><td>Unit test directory</td></tr>
+                <tr><td>test/web</td><td>Unit test web documents</td></tr>
+                <tr><td>utils</td><td>Utility programs</td></tr>
+                <tr><td>web</td><td>Web documents directory</td></tr>
+                <tr><td>*/inc</td><td>Master include directory</td></tr>
+                <tr><td>*/bin</td><td>Output for binaries</td></tr>
+                <tr><td>*/obj</td><td>Output directory for objects</td></tr>
+                </tbody>
             </table>
             <a id="files"></a>
-            <h2>GoAhead Files</h2>
+            <h2 >GoAhead Files</h2>
             <p>Here is a list of the major files in the GoAhead source code distribution.</p>
             <table title="files" class="ui table segment">
-                <thead><tr><th class="three wide">Name<th>Purpose
+                <thead><tr><th class="three wide">Name</th><th>Purpose</th></tr></thead>
                 <tbody>
-                <tr><td>auth.c<td>Authorization management
-                <tr><td>cgi.c<td>CGI handler
-                <tr><td>crypt.c<td>Crypto routines
-                <tr><td>file.c<td>File handler for static documents
-                <tr><td>galloc.c<td>Optional fast memory allocator
-                <tr><td>goahead.c<td>GoAhead server main program
-                <tr><td>goahead.h<td>GoAhead master include header
-                <tr><td>http.c<td>HTTP core engine
-                <tr><td>js.c<td>GoAhead Javascript language
-                <tr><td>js.h<td>Javascript header
-                <tr><td>jst.c<td>Javascript Templates handler
-                <tr><td>options.c<td>Options and Trace method handlers
-                <tr><td>rom-documents.c<td>Compiled web pages into C code
-                <tr><td>rom.c<td>ROM file system
-                <tr><td>route.c<td>Request router
-                <tr><td>route.txt<td>Route configuration
-                <tr><td>runtime.c<td>Portable runtime layer
-                <tr><td>socket.c<td>Socket management
-                <tr><td>upload.c<td>File upload handler
-                
+                <tr><td>auth.c</td><td>Authorization management</td></tr>
+                <tr><td>cgi.c</td><td>CGI handler</td></tr>
+                <tr><td>crypt.c</td><td>Crypto routines</td></tr>
+                <tr><td>file.c</td><td>File handler for static documents</td></tr>
+                <tr><td>galloc.c</td><td>Optional fast memory allocator</td></tr>
+                <tr><td>goahead.c</td><td>GoAhead server main program</td></tr>
+                <tr><td>goahead.h</td><td>GoAhead master include header</td></tr>
+                <tr><td>http.c</td><td>HTTP core engine</td></tr>
+                <tr><td>js.c</td><td>GoAhead Javascript language</td></tr>
+                <tr><td>js.h</td><td>Javascript header</td></tr>
+                <tr><td>jst.c</td><td>Javascript Templates handler</td></tr>
+                <tr><td>options.c</td><td>Options and Trace method handlers</td></tr>
+                <tr><td>rom-documents.c</td><td>Compiled web pages into C code</td></tr>
+                <tr><td>rom.c</td><td>ROM file system</td></tr>
+                <tr><td>route.c</td><td>Request router</td></tr>
+                <tr><td>route.txt</td><td>Route configuration</td></tr>
+                <tr><td>runtime.c</td><td>Portable runtime layer</td></tr>
+                <tr><td>socket.c</td><td>Socket management</td></tr>
+                <tr><td>upload.c</td><td>File upload handler</td></tr>
+                </tbody>
             </table>
             <a id="additional"></a>
-            <h3>GoAhead Additional Files</h3>
+            <h3 >GoAhead Additional Files</h3>
             <table title="additional" class="ui table segment">
-                <thead><tr><th class="three wide">Name<th>Purpose
+                <thead><tr><th class="three wide">Name</th><th>Purpose</th></tr></thead>
                 <tbody>
-                <tr><td>configure<td>Configuration script
-                <tr><td>Makefile<td>Top-level Makefile
-                <tr><td>main.me<td>Primary MakeMe configuration
-                <tr><td>*/inc/me.h<td>Generated MakeMe include header
-                <tr><td>build/OS-ARCH-PROFILE/platform.me<td>Generated MakeMe configuration file
-                <tr><td>server.key.pem<td>Test SSL private key
-                <tr><td>server.crt<td>Test SSL certificate
-                
+                <tr><td>configure</td><td>Configuration script</td></tr>
+                <tr><td>Makefile</td><td>Top-level Makefile</td></tr>
+                <tr><td>main.me</td><td>Primary MakeMe configuration</td></tr>
+                <tr><td>*/inc/me.h</td><td>Generated MakeMe include header</td></tr>
+                <tr><td>build/OS-ARCH-PROFILE/platform.me</td><td>Generated MakeMe configuration file</td></tr>
+                <tr><td>server.key.pem</td><td>Test SSL private key</td></tr>
+                <tr><td>server.crt</td><td>Test SSL certificate</td></tr>
+                </tbody>
             </table>
 
     </div>
@@ -405,5 +407,5 @@
 
         
 
-
-
+</body>
+</html>
