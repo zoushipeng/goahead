@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.6.2
+VERSION               := 3.6.3
 PROFILE               ?= static
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -660,11 +660,12 @@ installBinary: $(DEPS_42)
 	mkdir -p "$(ME_APP_PREFIX)" ; \
 	rm -f "$(ME_APP_PREFIX)/latest" ; \
 	ln -s "$(VERSION)" "$(ME_APP_PREFIX)/latest" ; \
+	mkdir -p "$(ME_MAN_PREFIX)/man1" ; \
+	chmod 755 "$(ME_MAN_PREFIX)/man1" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/goahead $(ME_VAPP_PREFIX)/bin/goahead ; \
 	chmod 755 "$(ME_VAPP_PREFIX)/bin/goahead" ; \
 	mkdir -p "$(ME_BIN_PREFIX)" ; \
-	chmod 755 "$(ME_BIN_PREFIX)" ; \
 	rm -f "$(ME_BIN_PREFIX)/goahead" ; \
 	ln -s "$(ME_VAPP_PREFIX)/bin/goahead" "$(ME_BIN_PREFIX)/goahead" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
@@ -720,6 +721,12 @@ installPrep: $(DEPS_45)
 DEPS_46 += stop
 
 uninstall: $(DEPS_46)
+
+#
+#   uninstallBinary
+#
+
+uninstallBinary: $(DEPS_47)
 	rm -fr "$(ME_WEB_PREFIX)" ; \
 	rm -fr "$(ME_VAPP_PREFIX)" ; \
 	rmdir -p "$(ME_ETC_PREFIX)" 2>/dev/null ; true ; \
@@ -731,6 +738,6 @@ uninstall: $(DEPS_46)
 #   version
 #
 
-version: $(DEPS_47)
+version: $(DEPS_48)
 	echo $(VERSION)
 
