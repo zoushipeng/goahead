@@ -2,7 +2,7 @@
     "name": "goahead",
     "description": "Embedthis GoAhead Embedded Web Server",
     "title": "Embedthis GoAhead",
-    "version": "3.6.2",
+    "version": "3.6.3",
     "keywords": [
         "goahead",
         "http",
@@ -37,7 +37,7 @@
         "doc/api/"
     ],
     "dependencies": {
-        "osdep": "~0.8",
+        "osdep": "~0.9",
         "ssl": "~0.9"
     },
     "optionalDependencies": {
