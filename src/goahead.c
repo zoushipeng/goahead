@@ -109,10 +109,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error("Cannot initialize server. Exiting.");
         return -1;
     }
+#if ME_GOAHEAD_AUTH
     if (websLoad(auth) < 0) {
         error("Cannot load %s", auth);
         return -1;
     }
+#endif
     logHeader();
     if (argind < argc) {
         while (argind < argc) {
@@ -185,7 +187,9 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
+#if ME_GOAHEAD_AUTH
         "    --auth authFile        # User and role configuration\n"
+#endif
 #if ME_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
 #endif

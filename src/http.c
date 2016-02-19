@@ -1171,7 +1171,6 @@ static bool processContent(Webs *wp)
     if (!canProceed || wp->finalized) {
         return canProceed;
     }
-#if !ME_ROM
 #if ME_GOAHEAD_UPLOAD
     if (wp->flags & WEBS_UPLOAD) {
         canProceed = websProcessUploadData(wp);
@@ -1180,12 +1179,14 @@ static bool processContent(Webs *wp)
         }
     }
 #endif
+#if !ME_ROM
     if (wp->putfd >= 0) {
         canProceed = websProcessPutData(wp);
         if (!canProceed || wp->finalized) {
             return canProceed;
         }
     }
+#endif
 #if ME_GOAHEAD_CGI
     if (wp->cgifd >= 0) {
         canProceed = websProcessCgiData(wp);
@@ -1193,7 +1194,6 @@ static bool processContent(Webs *wp)
             return canProceed;
         }
     }
-#endif
 #endif
     if (wp->eof) {
         wp->state = WEBS_READY;
