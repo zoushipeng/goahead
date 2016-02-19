@@ -4353,10 +4353,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error("Cannot initialize server. Exiting.");
         return -1;
     }
+#if ME_GOAHEAD_AUTH
     if (websLoad(auth) < 0) {
         error("Cannot load %s", auth);
         return -1;
     }
+#endif
     logHeader();
     if (argind < argc) {
         while (argind < argc) {
@@ -4429,7 +4431,9 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
+#if ME_GOAHEAD_AUTH
         "    --auth authFile        # User and role configuration\n"
+#endif
 #if ME_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
 #endif
@@ -5776,7 +5780,6 @@ static bool processContent(Webs *wp)
     if (!canProceed || wp->finalized) {
         return canProceed;
     }
-#if !ME_ROM
 #if ME_GOAHEAD_UPLOAD
     if (wp->flags & WEBS_UPLOAD) {
         canProceed = websProcessUploadData(wp);
@@ -5785,12 +5788,14 @@ static bool processContent(Webs *wp)
         }
     }
 #endif
+#if !ME_ROM
     if (wp->putfd >= 0) {
         canProceed = websProcessPutData(wp);
         if (!canProceed || wp->finalized) {
             return canProceed;
         }
     }
+#endif
 #if ME_GOAHEAD_CGI
     if (wp->cgifd >= 0) {
         canProceed = websProcessCgiData(wp);
@@ -5798,7 +5803,6 @@ static bool processContent(Webs *wp)
             return canProceed;
         }
     }
-#endif
 #endif
     if (wp->eof) {
         wp->state = WEBS_READY;
