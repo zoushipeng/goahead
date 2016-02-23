@@ -637,7 +637,7 @@ install: $(DEPS_44)
 
 installPrep: $(DEPS_45)
 	if [ "`id -u`" != 0 ] ; \
-	then echo "Must run as root. Rerun with "sudo"" ; \
+	then echo "Must run as root. Rerun with sudo." ; \
 	exit 255 ; \
 	fi
 
