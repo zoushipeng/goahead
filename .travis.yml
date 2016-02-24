@@ -1,6 +1,5 @@
 language: c
 os:
-    - osx
     - linux
 install: 
     - mkdir -p build
