@@ -13,4 +13,4 @@ install:
 script:
     - ./configure
     - me -s
-    - me test
+    - TRAVIS=1 me test
