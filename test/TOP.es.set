@@ -15,7 +15,7 @@ if (tphase() == 'Setup') {
     tset('TM_HTTPSV6', HTTPSV6)
 
     let service
-/* FUTURE - VxWorks
+/* Extra testing for VxWorks
     if (test.hostOs == 'VXWORKS') {
         // Configuration for VxWorks simulator 
         if (!App.getenv('WIND_BASE')) {
