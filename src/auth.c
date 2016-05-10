@@ -500,6 +500,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
         return 0;
     }
     trace(2, "Login successful for %s", username);
+    websCreateSession(wp);
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);
     return 1;
 }
@@ -509,6 +510,7 @@ PUBLIC bool websLogoutUser(Webs *wp)
 {
     assert(wp);
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
+    websDestroySession(wp);
     if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
         websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
         return 0;
