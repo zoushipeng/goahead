@@ -133,23 +133,12 @@ PUBLIC void websFooter(Webs *wp)
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -482,23 +471,12 @@ PUBLIC void *wdup(cvoid *ptr, size_t usize)
 
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -1008,6 +986,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
         return 0;
     }
     trace(2, "Login successful for %s", username);
+    websCreateSession(wp);
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);
     return 1;
 }
@@ -1017,6 +996,7 @@ PUBLIC bool websLogoutUser(Webs *wp)
 {
     assert(wp);
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
+    websDestroySession(wp);
     if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
         websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
         return 0;
@@ -1590,25 +1570,13 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
 }
 #endif /* ME_GOAHEAD_AUTH */
 
-
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -2585,23 +2553,12 @@ static int checkCgi(CgiPid handle)
 #endif /* ME_GOAHEAD_CGI */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -3708,23 +3665,12 @@ PUBLIC char *websReadPassword(char *prompt)
 }
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -3953,23 +3899,12 @@ PUBLIC void websSetDocuments(char *dir)
 }
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -4218,23 +4153,12 @@ static WebsRomIndex *lookup(WebsHash fs, char *path)
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -4583,23 +4507,12 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -4810,6 +4723,7 @@ static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 static bool     parseIncoming(Webs *wp);
 static void     pruneSessions();
+static void     freeSession(WebsSession *sp);
 static void     freeSessions();
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
@@ -7593,6 +7507,23 @@ static char *makeSessionID(Webs *wp)
 }
 
 
+PUBLIC void websDestroySession(Webs *wp)
+{
+    websGetSession(wp, 0);
+    if (wp->session) {
+        freeSession(wp->session);
+        wp->session = 0;
+    }
+}
+
+
+PUBLIC WebsSession *websCreateSession(Webs *wp)
+{
+    websDestroySession(wp);
+    return websGetSession(wp, 1);
+}
+
+
 WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
 {
     WebsSession     *sp;
@@ -7673,48 +7604,61 @@ WebsSession *websGetSession(Webs *wp, int create)
 }
 
 
-PUBLIC char *websGetSessionID(Webs *wp)
+static char *websParseCookie(Webs *wp, char *name)
 {
-    char    *cookie, *cp, *value;
-    ssize   len;
+    cchar   *cookie;
+    char    *cp, *value;
+    ssize   nlen;
     int     quoted;
 
+    assert(wp);
+
+    if ((cookie = wp->cookie) == 0 || name == 0 || *name == '\0') {
+        return 0;
+    }
+    nlen = slen(name);
+    while ((value = strstr(cookie, name)) != 0) {
+        /* Ignore corrupt cookies of the form "name=;" */
+        if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=' && value[nlen+1] != ';') {
+            break;
+        }
+        cookie += nlen;
+    }
+    if (value == 0) {
+        return 0;
+    }
+    value += nlen;
+    while (isspace((uchar) *value) || *value == '=') {
+        value++;
+    }
+    quoted = 0;
+    if (*value == '"') {
+        value++;
+        quoted++;
+    }
+    for (cp = value; *cp; cp++) {
+        if (quoted) {
+            if (*cp == '"' && cp[-1] != '\\') {
+                break;
+            }
+        } else {
+            if ((*cp == ',' || *cp == ';') && cp[-1] != '\\') {
+                break;
+            }
+        }
+    }
+    return snclone(value, cp - value);
+}
+
+
+PUBLIC char *websGetSessionID(Webs *wp)
+{
     assert(wp);
 
     if (wp->session) {
         return wp->session->id;
     }
-    cookie = wp->cookie;
-    if (cookie && (value = strstr(cookie, WEBS_SESSION)) != 0) {
-        value += strlen(WEBS_SESSION);
-        while (isspace((uchar) *value) || *value == '=') {
-            value++;
-        }
-        quoted = 0;
-        if (*value == '"') {
-            value++;
-            quoted++;
-        }
-        for (cp = value; *cp; cp++) {
-            if (quoted) {
-                if (*cp == '"' && cp[-1] != '\\') {
-                    break;
-                }
-            } else {
-                if ((*cp == ',' || *cp == ';') && cp[-1] != '\\') {
-                    break;
-                }
-            }
-        }
-        len = cp - value;
-        if ((cp = walloc(len + 1)) == 0) {
-            return 0;
-        }
-        strncpy(cp, value, len);
-        cp[len] = '\0';
-        return cp;
-    }
-    return 0;
+    return websParseCookie(wp, WEBS_SESSION);
 }
 
 
@@ -7969,23 +7913,12 @@ PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -9375,11 +9308,11 @@ PUBLIC int jsArgs(int argc, char **argv, char *fmt, ...)
     int     *ip;
     int     argn;
 
-    va_start(vargs, fmt);
-
     if (argv == NULL) {
         return 0;
     }
+
+    va_start(vargs, fmt);
     for (argn = 0, cp = fmt; cp && *cp && argv[argn]; ) {
         if (*cp++ != '%') {
             continue;
@@ -10241,23 +10174,12 @@ static int charConvert(Js *ep, int base, int maxDig)
 #endif /* ME_GOAHEAD_JAVASCRIPT */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -10521,23 +10443,12 @@ static char *skipWhite(char *s)
 #endif /* ME_GOAHEAD_JAVASCRIPT */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -10596,23 +10507,12 @@ PUBLIC int websOptionsOpen()
 
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -10855,14 +10755,15 @@ PUBLIC char *basename(char *name)
 
 
 #if TIDSP
+static char _inet_result[16];
+
 char *inet_ntoa(struct in_addr addr)
 {
-    static char result[16];
     uchar       *bytes;
 
     bytes = (uchar*) &addr;
-    sprintf(result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
-    return result;
+    sprintf(_inet_result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
+    return _inet_result;
 }
 
 
@@ -10906,23 +10807,12 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
 #endif /* TIDSP */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -10939,11 +10829,11 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
 
 #if ME_ROM
 WebsRomIndex websRomIndex[] = {
-	{ 0, 0, 0 }
+	{ 0, 0, 0, 0 }
 };
 #else
 WebsRomIndex websRomIndex[] = {
-	{ 0, 0, 0 }
+	{ 0, 0, 0, 0 }
 };
 #endif
 
@@ -11626,23 +11516,12 @@ PUBLIC int websPublish(char *prefix, char *dir)
 
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -11770,7 +11649,7 @@ typedef struct Format {
 } Format;
 
 #define BPUT(fmt, c) \
-    if (1) { \
+    do { \
         /* Less one to allow room for the null */ \
         if ((fmt)->end >= ((fmt)->endbuf - sizeof(char))) { \
             if (growBuf(fmt) > 0) { \
@@ -11779,10 +11658,10 @@ typedef struct Format {
         } else { \
             *(fmt)->end++ = (c); \
         } \
-    } else
+    } while (0)
 
 #define BPUTNULL(fmt) \
-    if (1) { \
+    do { \
         if ((fmt)->end > (fmt)->endbuf) { \
             if (growBuf(fmt) > 0) { \
                 *(fmt)->end = '\0'; \
@@ -11790,7 +11669,7 @@ typedef struct Format {
         } else { \
             *(fmt)->end = '\0'; \
         } \
-    } else
+    } while (0)
 
 /*
     The handle list stores the length of the list and the number of used handles in the first two words.  These are
@@ -12697,6 +12576,12 @@ PUBLIC void traceProc(int level, char *fmt, ...)
 PUBLIC int websGetLogLevel()
 {
     return logLevel;
+}
+
+
+void websSetLogLevel(int level)
+{
+    logLevel = level;
 }
 
 
@@ -14071,6 +13956,30 @@ PUBLIC char *sclone(char *s)
 }
 
 
+
+/*
+    Clone a sub-string of a specified length. The null is added after the length. The given len can be longer than the
+    source string.
+ */
+PUBLIC char *snclone(char *str, ssize len)
+{
+    char    *ptr;
+    ssize   size, l;
+
+    if (str == 0) {
+        str = "";
+    }
+    l = slen(str);
+    len = min(l, len);
+    size = len + 1;
+    if ((ptr = walloc(size)) != 0) {
+        memcpy(ptr, str, len);
+        ptr[len] = '\0';
+    }
+    return ptr;
+}
+
+
 PUBLIC bool snumber(cchar *s)
 {
     if (!s) {
@@ -14431,23 +14340,12 @@ PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -15838,23 +15736,12 @@ PUBLIC WebsSocket **socketGetList()
 }
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -15880,106 +15767,106 @@ PUBLIC WebsSocket **socketGetList()
 #define SEC_PER_YEAR (INT64(31556952))
 
 /*
-    Token types or'd into the TimeToken value
+    Token types
  */
 #define TOKEN_DAY       0x01000000
 #define TOKEN_MONTH     0x02000000
 #define TOKEN_ZONE      0x04000000
 #define TOKEN_OFFSET    0x08000000
-#define TOKEN_MASK      0xFF000000
 
 typedef struct TimeToken {
     char    *name;
     int     value;
+    int     type;
 } TimeToken;
 
 static WebsHash timeTokens = -1;
 
 static TimeToken days[] = {
-    { "sun",  0 | TOKEN_DAY },
-    { "mon",  1 | TOKEN_DAY },
-    { "tue",  2 | TOKEN_DAY },
-    { "wed",  3 | TOKEN_DAY },
-    { "thu",  4 | TOKEN_DAY },
-    { "fri",  5 | TOKEN_DAY },
-    { "sat",  6 | TOKEN_DAY },
+    { "sun",  0, TOKEN_DAY },
+    { "mon",  1, TOKEN_DAY },
+    { "tue",  2, TOKEN_DAY },
+    { "wed",  3, TOKEN_DAY },
+    { "thu",  4, TOKEN_DAY },
+    { "fri",  5, TOKEN_DAY },
+    { "sat",  6, TOKEN_DAY },
     { 0, 0 },
-};
+ };
 
 static TimeToken fullDays[] = {
-    { "sunday",     0 | TOKEN_DAY },
-    { "monday",     1 | TOKEN_DAY },
-    { "tuesday",    2 | TOKEN_DAY },
-    { "wednesday",  3 | TOKEN_DAY },
-    { "thursday",   4 | TOKEN_DAY },
-    { "friday",     5 | TOKEN_DAY },
-    { "saturday",   6 | TOKEN_DAY },
+    { "sunday",     0, TOKEN_DAY },
+    { "monday",     1, TOKEN_DAY },
+    { "tuesday",    2, TOKEN_DAY },
+    { "wednesday",  3, TOKEN_DAY },
+    { "thursday",   4, TOKEN_DAY },
+    { "friday",     5, TOKEN_DAY },
+    { "saturday",   6, TOKEN_DAY },
     { 0, 0 },
-};
+ };
 
 /*
     Make origin 1 to correspond to user date entries 10/28/2014
  */
 static TimeToken months[] = {
-    { "jan",  1 | TOKEN_MONTH },
-    { "feb",  2 | TOKEN_MONTH },
-    { "mar",  3 | TOKEN_MONTH },
-    { "apr",  4 | TOKEN_MONTH },
-    { "may",  5 | TOKEN_MONTH },
-    { "jun",  6 | TOKEN_MONTH },
-    { "jul",  7 | TOKEN_MONTH },
-    { "aug",  8 | TOKEN_MONTH },
-    { "sep",  9 | TOKEN_MONTH },
-    { "oct", 10 | TOKEN_MONTH },
-    { "nov", 11 | TOKEN_MONTH },
-    { "dec", 12 | TOKEN_MONTH },
+    { "jan",  1, TOKEN_MONTH },
+    { "feb",  2, TOKEN_MONTH },
+    { "mar",  3, TOKEN_MONTH },
+    { "apr",  4, TOKEN_MONTH },
+    { "may",  5, TOKEN_MONTH },
+    { "jun",  6, TOKEN_MONTH },
+    { "jul",  7, TOKEN_MONTH },
+    { "aug",  8, TOKEN_MONTH },
+    { "sep",  9, TOKEN_MONTH },
+    { "oct", 10, TOKEN_MONTH },
+    { "nov", 11, TOKEN_MONTH },
+    { "dec", 12, TOKEN_MONTH },
     { 0, 0 },
-};
+ };
 
 static TimeToken fullMonths[] = {
-    { "january",    1 | TOKEN_MONTH },
-    { "february",   2 | TOKEN_MONTH },
-    { "march",      3 | TOKEN_MONTH },
-    { "april",      4 | TOKEN_MONTH },
-    { "may",        5 | TOKEN_MONTH },
-    { "june",       6 | TOKEN_MONTH },
-    { "july",       7 | TOKEN_MONTH },
-    { "august",     8 | TOKEN_MONTH },
-    { "september",  9 | TOKEN_MONTH },
-    { "october",   10 | TOKEN_MONTH },
-    { "november",  11 | TOKEN_MONTH },
-    { "december",  12 | TOKEN_MONTH },
+    { "january",    1, TOKEN_MONTH },
+    { "february",   2, TOKEN_MONTH },
+    { "march",      3, TOKEN_MONTH },
+    { "april",      4, TOKEN_MONTH },
+    { "may",        5, TOKEN_MONTH },
+    { "june",       6, TOKEN_MONTH },
+    { "july",       7, TOKEN_MONTH },
+    { "august",     8, TOKEN_MONTH },
+    { "september",  9, TOKEN_MONTH },
+    { "october",   10, TOKEN_MONTH },
+    { "november",  11, TOKEN_MONTH },
+    { "december",  12, TOKEN_MONTH },
     { 0, 0 }
-};
+ };
 
 static TimeToken ampm[] = {
-    { "am", 0 | TOKEN_OFFSET },
-    { "pm", (12 * 3600) | TOKEN_OFFSET },
+    { "am", 0, TOKEN_OFFSET },
+    { "pm", (12 * 3600), TOKEN_OFFSET },
     { 0, 0 },
-};
+ };
 
 
 static TimeToken zones[] = {
-    { "ut",      0 | TOKEN_ZONE},
-    { "utc",     0 | TOKEN_ZONE},
-    { "gmt",     0 | TOKEN_ZONE},
-    { "edt",  -240 | TOKEN_ZONE},
-    { "est",  -300 | TOKEN_ZONE},
-    { "cdt",  -300 | TOKEN_ZONE},
-    { "cst",  -360 | TOKEN_ZONE},
-    { "mdt",  -360 | TOKEN_ZONE},
-    { "mst",  -420 | TOKEN_ZONE},
-    { "pdt",  -420 | TOKEN_ZONE},
-    { "pst",  -480 | TOKEN_ZONE},
+    { "ut",      0, TOKEN_ZONE },
+    { "utc",     0, TOKEN_ZONE },
+    { "gmt",     0, TOKEN_ZONE },
+    { "edt",  -240, TOKEN_ZONE },
+    { "est",  -300, TOKEN_ZONE },
+    { "cdt",  -300, TOKEN_ZONE },
+    { "cst",  -360, TOKEN_ZONE },
+    { "mdt",  -360, TOKEN_ZONE },
+    { "mst",  -420, TOKEN_ZONE },
+    { "pdt",  -420, TOKEN_ZONE },
+    { "pst",  -480, TOKEN_ZONE },
     { 0, 0 },
-};
+ };
 
 
 static TimeToken offsets[] = {
-    { "tomorrow",    86400 | TOKEN_OFFSET},
-    { "yesterday",  -86400 | TOKEN_OFFSET},
-    { "next week",   (86400 * 7) | TOKEN_OFFSET},
-    { "last week",  -(86400 * 7) | TOKEN_OFFSET},
+    { "tomorrow",    86400, TOKEN_OFFSET },
+    { "yesterday",  -86400, TOKEN_OFFSET },
+    { "next week",  (86400 * 7), TOKEN_OFFSET },
+    { "last week", -(86400 * 7), TOKEN_OFFSET },
     { 0, 0 },
 };
 
@@ -16085,10 +15972,10 @@ static int lookupSym(char *token, int kind)
     if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) == 0) {
         return -1;
     }
-    if (kind != (tt->value & TOKEN_MASK)) {
+    if (kind != tt->type) {
         return -1;
     }
-    return tt->value & ~TOKEN_MASK;
+    return tt->value;
 }
 
 
@@ -16248,8 +16135,8 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
 
         } else if (isalpha((uchar) *token)) {
             if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) != 0) {
-                kind = tt->value & TOKEN_MASK;
-                value = tt->value & ~TOKEN_MASK;
+                kind = tt->type;
+                value = tt->value;
                 switch (kind) {
 
                 case TOKEN_DAY:
@@ -16453,23 +16340,12 @@ static void validateTime(struct tm *tp, struct tm *defaults)
 
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a
-    commercial license from Embedthis Software. You agree to be fully bound
+    You may use the Embedthis GoAhead open source license or you may acquire
+    a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 
@@ -16944,23 +16820,12 @@ PUBLIC void websUploadOpen()
 #endif /* ME_GOAHEAD_UPLOAD */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
 
 #endif /* ME_COM_GOAHEAD */
