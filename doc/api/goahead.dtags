@@ -573,6 +573,13 @@
       <arglist>(char *s1, char *s2, ssize len)</arglist>
     </member>
     <member kind="function">
+      <type>char *</type>
+      <name>snclone</name>
+      <anchorfile>group___webs_runtime.html</anchorfile>
+      <anchor>ga6e3aca9783c91eabb77220cd432c1a3a</anchor>
+      <arglist>(char *str, ssize len)</arglist>
+    </member>
+    <member kind="function">
       <type>int</type>
       <name>sncmp</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
@@ -1485,6 +1492,13 @@
     </member>
     <member kind="function">
       <type>void</type>
+      <name>websSetLogLevel</name>
+      <anchorfile>group___webs.html</anchorfile>
+      <anchor>ga46d153b401bb7fc47ae5b17203541644</anchor>
+      <arglist>(int level)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
       <name>websSetQueryVars</name>
       <anchorfile>group___webs.html</anchorfile>
       <anchor>ga9b7ae14718f40340d9621529f4587548</anchor>
@@ -1863,6 +1877,20 @@
       <anchorfile>group___webs_session.html</anchorfile>
       <anchor>ga66fc8260c9163b24fae7cd75e9b8b2b7</anchor>
       <arglist>(Webs *wp, char *id, int lifespan)</arglist>
+    </member>
+    <member kind="function">
+      <type>WebsSession *</type>
+      <name>websCreateSession</name>
+      <anchorfile>group___webs_session.html</anchorfile>
+      <anchor>ga69bb1da9a9f13651d5a6db9379cb37e9</anchor>
+      <arglist>(Webs *wp)</arglist>
+    </member>
+    <member kind="function">
+      <type>void</type>
+      <name>websDestroySession</name>
+      <anchorfile>group___webs_session.html</anchorfile>
+      <anchor>ga8f9464efab7e9045cab72863ccdb81db</anchor>
+      <arglist>(Webs *wp)</arglist>
     </member>
     <member kind="function">
       <type>WebsSession *</type>
