@@ -3872,6 +3872,26 @@ typedef struct WebsSession {
 PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
 
 /**
+    Test if a user possesses the required ability
+    @param wp Webs request object
+    @param id Session ID to use. Set to null to allocate a new session ID.
+    @param lifespan Lifespan of the session in seconds.
+    @return Allocated session object
+    @ingroup WebsSession
+    @stability Stable
+ */
+PUBLIC WebsSession *websCreateSession(Webs *wp);
+
+/**
+    Destroy the webs session object
+    @description Useful to be called as part of the user logout process
+    @param wp Webs request object
+    @ingroup WebsSession
+    @stability Prototype
+ */
+PUBLIC void websDestroySession(Webs *wp);
+
+/**
     Get the session ID
     @param wp Webs request object
     @return The session ID if session state storage is defined for this request.
