@@ -152,7 +152,7 @@ Me.load({
                 ciphers: '',             /* Override cipher suite for SSL.  */
                 key: 'self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
                 logLevel: 5              /* Starting logging level for SSL messages */
-                renegotiate: true,       /* Enable/Disable SSL renegotiation (defaults to true) */
+                handshakes: 1,           /* Set maximum number of renegotiations (zero means infinite) */
                 revoke: '',              /* List of revoked client certificates */
                 ticket: true,            /* Enable session resumption via ticketing - client side session caching */
                 timeout: 86400,          /* Session and ticketing duration in seconds */
