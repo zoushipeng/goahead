@@ -16,106 +16,106 @@
 #define SEC_PER_YEAR (INT64(31556952))
 
 /*
-    Token types or'd into the TimeToken value
+    Token types
  */
 #define TOKEN_DAY       0x01000000
 #define TOKEN_MONTH     0x02000000
 #define TOKEN_ZONE      0x04000000
 #define TOKEN_OFFSET    0x08000000
-#define TOKEN_MASK      0xFF000000
 
 typedef struct TimeToken {
     char    *name;
     int     value;
+    int     type;
 } TimeToken;
 
 static WebsHash timeTokens = -1;
 
 static TimeToken days[] = {
-    { "sun",  0 | TOKEN_DAY },
-    { "mon",  1 | TOKEN_DAY },
-    { "tue",  2 | TOKEN_DAY },
-    { "wed",  3 | TOKEN_DAY },
-    { "thu",  4 | TOKEN_DAY },
-    { "fri",  5 | TOKEN_DAY },
-    { "sat",  6 | TOKEN_DAY },
+    { "sun",  0, TOKEN_DAY },
+    { "mon",  1, TOKEN_DAY },
+    { "tue",  2, TOKEN_DAY },
+    { "wed",  3, TOKEN_DAY },
+    { "thu",  4, TOKEN_DAY },
+    { "fri",  5, TOKEN_DAY },
+    { "sat",  6, TOKEN_DAY },
     { 0, 0 },
-};
+ };
 
 static TimeToken fullDays[] = {
-    { "sunday",     0 | TOKEN_DAY },
-    { "monday",     1 | TOKEN_DAY },
-    { "tuesday",    2 | TOKEN_DAY },
-    { "wednesday",  3 | TOKEN_DAY },
-    { "thursday",   4 | TOKEN_DAY },
-    { "friday",     5 | TOKEN_DAY },
-    { "saturday",   6 | TOKEN_DAY },
+    { "sunday",     0, TOKEN_DAY },
+    { "monday",     1, TOKEN_DAY },
+    { "tuesday",    2, TOKEN_DAY },
+    { "wednesday",  3, TOKEN_DAY },
+    { "thursday",   4, TOKEN_DAY },
+    { "friday",     5, TOKEN_DAY },
+    { "saturday",   6, TOKEN_DAY },
     { 0, 0 },
-};
+ };
 
 /*
     Make origin 1 to correspond to user date entries 10/28/2014
  */
 static TimeToken months[] = {
-    { "jan",  1 | TOKEN_MONTH },
-    { "feb",  2 | TOKEN_MONTH },
-    { "mar",  3 | TOKEN_MONTH },
-    { "apr",  4 | TOKEN_MONTH },
-    { "may",  5 | TOKEN_MONTH },
-    { "jun",  6 | TOKEN_MONTH },
-    { "jul",  7 | TOKEN_MONTH },
-    { "aug",  8 | TOKEN_MONTH },
-    { "sep",  9 | TOKEN_MONTH },
-    { "oct", 10 | TOKEN_MONTH },
-    { "nov", 11 | TOKEN_MONTH },
-    { "dec", 12 | TOKEN_MONTH },
+    { "jan",  1, TOKEN_MONTH },
+    { "feb",  2, TOKEN_MONTH },
+    { "mar",  3, TOKEN_MONTH },
+    { "apr",  4, TOKEN_MONTH },
+    { "may",  5, TOKEN_MONTH },
+    { "jun",  6, TOKEN_MONTH },
+    { "jul",  7, TOKEN_MONTH },
+    { "aug",  8, TOKEN_MONTH },
+    { "sep",  9, TOKEN_MONTH },
+    { "oct", 10, TOKEN_MONTH },
+    { "nov", 11, TOKEN_MONTH },
+    { "dec", 12, TOKEN_MONTH },
     { 0, 0 },
-};
+ };
 
 static TimeToken fullMonths[] = {
-    { "january",    1 | TOKEN_MONTH },
-    { "february",   2 | TOKEN_MONTH },
-    { "march",      3 | TOKEN_MONTH },
-    { "april",      4 | TOKEN_MONTH },
-    { "may",        5 | TOKEN_MONTH },
-    { "june",       6 | TOKEN_MONTH },
-    { "july",       7 | TOKEN_MONTH },
-    { "august",     8 | TOKEN_MONTH },
-    { "september",  9 | TOKEN_MONTH },
-    { "october",   10 | TOKEN_MONTH },
-    { "november",  11 | TOKEN_MONTH },
-    { "december",  12 | TOKEN_MONTH },
+    { "january",    1, TOKEN_MONTH },
+    { "february",   2, TOKEN_MONTH },
+    { "march",      3, TOKEN_MONTH },
+    { "april",      4, TOKEN_MONTH },
+    { "may",        5, TOKEN_MONTH },
+    { "june",       6, TOKEN_MONTH },
+    { "july",       7, TOKEN_MONTH },
+    { "august",     8, TOKEN_MONTH },
+    { "september",  9, TOKEN_MONTH },
+    { "october",   10, TOKEN_MONTH },
+    { "november",  11, TOKEN_MONTH },
+    { "december",  12, TOKEN_MONTH },
     { 0, 0 }
-};
+ };
 
 static TimeToken ampm[] = {
-    { "am", 0 | TOKEN_OFFSET },
-    { "pm", (12 * 3600) | TOKEN_OFFSET },
+    { "am", 0, TOKEN_OFFSET },
+    { "pm", (12 * 3600), TOKEN_OFFSET },
     { 0, 0 },
-};
+ };
 
 
 static TimeToken zones[] = {
-    { "ut",      0 | TOKEN_ZONE},
-    { "utc",     0 | TOKEN_ZONE},
-    { "gmt",     0 | TOKEN_ZONE},
-    { "edt",  -240 | TOKEN_ZONE},
-    { "est",  -300 | TOKEN_ZONE},
-    { "cdt",  -300 | TOKEN_ZONE},
-    { "cst",  -360 | TOKEN_ZONE},
-    { "mdt",  -360 | TOKEN_ZONE},
-    { "mst",  -420 | TOKEN_ZONE},
-    { "pdt",  -420 | TOKEN_ZONE},
-    { "pst",  -480 | TOKEN_ZONE},
+    { "ut",      0, TOKEN_ZONE },
+    { "utc",     0, TOKEN_ZONE },
+    { "gmt",     0, TOKEN_ZONE },
+    { "edt",  -240, TOKEN_ZONE },
+    { "est",  -300, TOKEN_ZONE },
+    { "cdt",  -300, TOKEN_ZONE },
+    { "cst",  -360, TOKEN_ZONE },
+    { "mdt",  -360, TOKEN_ZONE },
+    { "mst",  -420, TOKEN_ZONE },
+    { "pdt",  -420, TOKEN_ZONE },
+    { "pst",  -480, TOKEN_ZONE },
     { 0, 0 },
-};
+ };
 
 
 static TimeToken offsets[] = {
-    { "tomorrow",    86400 | TOKEN_OFFSET},
-    { "yesterday",  -86400 | TOKEN_OFFSET},
-    { "next week",   (86400 * 7) | TOKEN_OFFSET},
-    { "last week",  -(86400 * 7) | TOKEN_OFFSET},
+    { "tomorrow",    86400, TOKEN_OFFSET },
+    { "yesterday",  -86400, TOKEN_OFFSET },
+    { "next week",  (86400 * 7), TOKEN_OFFSET },
+    { "last week", -(86400 * 7), TOKEN_OFFSET },
     { 0, 0 },
 };
 
@@ -221,10 +221,10 @@ static int lookupSym(char *token, int kind)
     if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) == 0) {
         return -1;
     }
-    if (kind != (tt->value & TOKEN_MASK)) {
+    if (kind != tt->type) {
         return -1;
     }
-    return tt->value & ~TOKEN_MASK;
+    return tt->value;
 }
 
 
@@ -384,8 +384,8 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
 
         } else if (isalpha((uchar) *token)) {
             if ((tt = (TimeToken*) hashLookupSymbol(timeTokens, token)) != 0) {
-                kind = tt->value & TOKEN_MASK;
-                value = tt->value & ~TOKEN_MASK;
+                kind = tt->type;
+                value = tt->value;
                 switch (kind) {
 
                 case TOKEN_DAY:
