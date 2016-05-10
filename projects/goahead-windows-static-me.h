@@ -180,14 +180,14 @@
 #ifndef ME_GOAHEAD_SSL_CIPHERS
     #define ME_GOAHEAD_SSL_CIPHERS ""
 #endif
+#ifndef ME_GOAHEAD_SSL_HANDSHAKES
+    #define ME_GOAHEAD_SSL_HANDSHAKES 1
+#endif
 #ifndef ME_GOAHEAD_SSL_KEY
     #define ME_GOAHEAD_SSL_KEY "self.key"
 #endif
 #ifndef ME_GOAHEAD_SSL_LOG_LEVEL
     #define ME_GOAHEAD_SSL_LOG_LEVEL 5
-#endif
-#ifndef ME_GOAHEAD_SSL_RENEGOTIATE
-    #define ME_GOAHEAD_SSL_RENEGOTIATE 1
 #endif
 #ifndef ME_GOAHEAD_SSL_REVOKE
     #define ME_GOAHEAD_SSL_REVOKE ""
