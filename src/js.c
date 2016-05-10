@@ -1380,11 +1380,11 @@ PUBLIC int jsArgs(int argc, char **argv, char *fmt, ...)
     int     *ip;
     int     argn;
 
-    va_start(vargs, fmt);
-
     if (argv == NULL) {
         return 0;
     }
+
+    va_start(vargs, fmt);
     for (argn = 0, cp = fmt; cp && *cp && argv[argn]; ) {
         if (*cp++ != '%') {
             continue;
