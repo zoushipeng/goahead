@@ -1026,6 +1026,7 @@ typedef struct WebsSocket {
     int             saveMask;           /**< saved Mask for socketFlush */
     int             error;              /**< Last error */
     int             secure;             /**< Socket is using SSL */
+    int             handshakes;         /**< Number of renegotiations */
 } WebsSocket;
 
 
