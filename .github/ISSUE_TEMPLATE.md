@@ -24,7 +24,9 @@ Please follow this template when submitting each and every issue. Issues without
 
 1. If built from source, what was your configure command line:
 
-    ./configure [options]
+```
+./configure [options]
+```
 
 ### Problem Description:
 
