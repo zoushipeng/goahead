@@ -118,7 +118,7 @@ typedef struct Format {
 } Format;
 
 #define BPUT(fmt, c) \
-    if (1) { \
+    do { \
         /* Less one to allow room for the null */ \
         if ((fmt)->end >= ((fmt)->endbuf - sizeof(char))) { \
             if (growBuf(fmt) > 0) { \
@@ -127,10 +127,10 @@ typedef struct Format {
         } else { \
             *(fmt)->end++ = (c); \
         } \
-    } else
+    } while (0)
 
 #define BPUTNULL(fmt) \
-    if (1) { \
+    do { \
         if ((fmt)->end > (fmt)->endbuf) { \
             if (growBuf(fmt) > 0) { \
                 *(fmt)->end = '\0'; \
@@ -138,7 +138,7 @@ typedef struct Format {
         } else { \
             *(fmt)->end = '\0'; \
         } \
-    } else
+    } while (0)
 
 /*
     The handle list stores the length of the list and the number of used handles in the first two words.  These are
