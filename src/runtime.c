@@ -1048,6 +1048,12 @@ PUBLIC int websGetLogLevel()
 }
 
 
+void websSetLogLevel(int level)
+{
+    logLevel = level;
+}
+
+
 WebsLogHandler logGetHandler()
 {
     return logHandler;
@@ -2416,6 +2422,30 @@ PUBLIC char *sclone(char *s)
         strcpy(buf, s);
     }
     return buf;
+}
+
+
+
+/*
+    Clone a sub-string of a specified length. The null is added after the length. The given len can be longer than the
+    source string.
+ */
+PUBLIC char *snclone(char *str, ssize len)
+{
+    char    *ptr;
+    ssize   size, l;
+
+    if (str == 0) {
+        str = "";
+    }
+    l = slen(str);
+    len = min(l, len);
+    size = len + 1;
+    if ((ptr = walloc(size)) != 0) {
+        memcpy(ptr, str, len);
+        ptr[len] = '\0';
+    }
+    return ptr;
 }
 
 

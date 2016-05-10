@@ -280,6 +280,14 @@ PUBLIC WebsLogHandler logSetHandler(WebsLogHandler handler);
 PUBLIC int websGetLogLevel();
 
 /**
+    Set the current trace log level
+    @return Number between 0 and 9
+    @ingroup Webs
+    @stability Prototype
+ */
+void websSetLogLevel(int level);
+
+/**
     Set the filename to save logging output
     @param path Filename path to use
     @stability Stable
@@ -1487,6 +1495,18 @@ PUBLIC bool scaselessmatch(char *s1, char *s2);
     @stability Stable
  */
 PUBLIC char *sclone(char *str);
+
+/**
+    Clone a substring.
+    @description Copy a substring into a newly allocated block.
+    @param str Pointer to the block to duplicate.
+    @param len Number of bytes to copy. The actual length copied is the minimum of the given length and the length of
+        the supplied string. The result is null terminated.
+    @return Returns a newly allocated string.
+    @ingroup WebsRuntime
+    @stability Stable
+ */
+PUBLIC char *snclone(char *str, ssize len);
 
 /**
     Compare strings.
@@ -2735,7 +2755,7 @@ PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
     Process request PUT body data
     @description This routine is called by the core HTTP engine to process request PUT data.
     @param wp Webs request object
-    @return True if processing the request can proceed. 
+    @return True if processing the request can proceed.
     @ingroup Webs
     @stability Stable
  */
@@ -3072,7 +3092,7 @@ PUBLIC void websTimeClose();
 
 /**
     Parse a date/time string
-    @description Try to intelligently parse a date. 
+    @description Try to intelligently parse a date.
     This is a tolerant parser. It is not validating and will do its best to parse any possible date string.
     Supports the following date/time formats:
     \n\n
@@ -3242,7 +3262,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
-    @return True if processing the request can proceed. 
+    @return True if processing the request can proceed.
     @ingroup Webs
     @stability Stable
  */
@@ -3261,7 +3281,7 @@ PUBLIC void websFreeUpload(Webs *wp);
 /**
     Process CGI request body data.
     @param wp Webs request object
-    @return True if processing the request can proceed. 
+    @return True if processing the request can proceed.
     @ingroup Webs
     @stability Stable
  */
