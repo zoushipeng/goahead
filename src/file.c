@@ -112,6 +112,7 @@ static void fileWriteEvent(Webs *wp)
 {
     char    *buf;
     ssize   len, wrote;
+    int     err;
 
     assert(wp);
     assert(websValid(wp));
@@ -122,8 +123,10 @@ static void fileWriteEvent(Webs *wp)
     }
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
-            /* May be an error or just socket full (EAGAIN) */
-            websPageSeek(wp, -len, SEEK_CUR);
+            err = socketGetError();
+            if (err == EWOULDBLOCK || err == EAGAIN) {
+                websPageSeek(wp, -len, SEEK_CUR);
+            }
             break;
         }
         if (wrote != len) {
