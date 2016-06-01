@@ -126,6 +126,9 @@ static void fileWriteEvent(Webs *wp)
             err = socketGetError();
             if (err == EWOULDBLOCK || err == EAGAIN) {
                 websPageSeek(wp, -len, SEEK_CUR);
+            } else {
+                /* Will call websDone below */
+                wp->state = WEBS_COMPLETE;
             }
             break;
         }
