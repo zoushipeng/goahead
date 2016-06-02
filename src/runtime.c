@@ -118,7 +118,7 @@ typedef struct Format {
 } Format;
 
 #define BPUT(fmt, c) \
-    if (1) { \
+    do { \
         /* Less one to allow room for the null */ \
         if ((fmt)->end >= ((fmt)->endbuf - sizeof(char))) { \
             if (growBuf(fmt) > 0) { \
@@ -127,10 +127,10 @@ typedef struct Format {
         } else { \
             *(fmt)->end++ = (c); \
         } \
-    } else
+    } while (0)
 
 #define BPUTNULL(fmt) \
-    if (1) { \
+    do { \
         if ((fmt)->end > (fmt)->endbuf) { \
             if (growBuf(fmt) > 0) { \
                 *(fmt)->end = '\0'; \
@@ -138,7 +138,7 @@ typedef struct Format {
         } else { \
             *(fmt)->end = '\0'; \
         } \
-    } else
+    } while (0)
 
 /*
     The handle list stores the length of the list and the number of used handles in the first two words.  These are
@@ -1045,6 +1045,12 @@ PUBLIC void traceProc(int level, char *fmt, ...)
 PUBLIC int websGetLogLevel()
 {
     return logLevel;
+}
+
+
+void websSetLogLevel(int level)
+{
+    logLevel = level;
 }
 
 
@@ -2419,6 +2425,30 @@ PUBLIC char *sclone(char *s)
 }
 
 
+
+/*
+    Clone a sub-string of a specified length. The null is added after the length. The given len can be longer than the
+    source string.
+ */
+PUBLIC char *snclone(char *str, ssize len)
+{
+    char    *ptr;
+    ssize   size, l;
+
+    if (str == 0) {
+        str = "";
+    }
+    l = slen(str);
+    len = min(l, len);
+    size = len + 1;
+    if ((ptr = walloc(size)) != 0) {
+        memcpy(ptr, str, len);
+        ptr[len] = '\0';
+    }
+    return ptr;
+}
+
+
 PUBLIC bool snumber(cchar *s)
 {
     if (!s) {
@@ -2779,21 +2809,10 @@ PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

@@ -3,16 +3,16 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-        <string>com.embedthis.appweb</string>
+        <string>com.embedthis.goahead</string>
     <key>KeepAlive</key>
         <true/>
     <key>WorkingDirectory</key>
-        <string>/etc/appweb</string>
+        <string>/etc/goahead</string>
     <key>RunAtLoad</key>
         <true/>
 	<key>ProgramArguments</key>
         <array>
-            <string>/usr/local/bin/appweb</string>
+            <string>/usr/local/bin/goahead</string>
         </array>
 </dict>
 </plist>

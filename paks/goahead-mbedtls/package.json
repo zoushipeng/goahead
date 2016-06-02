@@ -2,7 +2,7 @@
     "name": "goahead-mbedtls",
     "title": "MbedTLS support",
     "description": "MbedTLS Support for GoAhead",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "keywords": [
         "me",
         "ssl",
@@ -31,7 +31,7 @@
         }
     ],
     "dependencies": {
-        "mbedtls": "~2.1"
+        "mbedtls": "~2"
     },
     "devDependencies": {
         "makeme": ">=0.9.3"

@@ -38,6 +38,10 @@ Me.load({
             gendh: true
         },
 
+        compiler: {
+            fortify: true
+        },
+
         /*
             Set to true for a static link, or use 'configure --static'
             static: false,
@@ -152,7 +156,7 @@ Me.load({
                 ciphers: '',             /* Override cipher suite for SSL.  */
                 key: 'self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
                 logLevel: 5              /* Starting logging level for SSL messages */
-                renegotiate: true,       /* Enable/Disable SSL renegotiation (defaults to true) */
+                handshakes: 1,           /* Set maximum number of renegotiations (zero means infinite) */
                 revoke: '',              /* List of revoked client certificates */
                 ticket: true,            /* Enable session resumption via ticketing - client side session caching */
                 timeout: 86400,          /* Session and ticketing duration in seconds */
@@ -247,19 +251,6 @@ Me.load({
     },
 
     targets: {
-        init: {
-            first: true,
-            path: 'init',
-            'generate-make': `
-                if [ ! -d /usr/include/openssl ] ; then echo
-                    echo Install libssl-dev to get /usr/include/openssl
-                    exit 255
-                fi
-            `,
-            action: ' ',
-            enable: "me.platform.os == 'linux'",
-        },
-
         libgo: {
             type: 'lib',
             sources: [ 'src/*.c' ],

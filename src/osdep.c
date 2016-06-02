@@ -233,14 +233,15 @@ PUBLIC char *basename(char *name)
 
 
 #if TIDSP
+static char _inet_result[16];
+
 char *inet_ntoa(struct in_addr addr)
 {
-    static char result[16];
     uchar       *bytes;
 
     bytes = (uchar*) &addr;
-    sprintf(result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
-    return result;
+    sprintf(_inet_result, "%d.%d.%d.%d", bytes[0], bytes[1], bytes[2], bytes[3]);
+    return _inet_result;
 }
 
 
@@ -284,21 +285,10 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
 #endif /* TIDSP */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

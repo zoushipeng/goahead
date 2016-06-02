@@ -22,6 +22,13 @@
 /* Clashes with WinCrypt.h */
 #undef OCSP_RESPONSE
 
+#ifndef ME_GOAHEAD_SSL_HANDSHAKES
+    #define ME_GOAHEAD_SSL_HANDSHAKES 0     /* Defaults to infinite */
+#endif
+#ifndef ME_GOAHEAD_SSL_RENEGOTIATE
+    #define ME_GOAHEAD_SSL_RENEGOTIATE 1
+#endif
+
  /*
     Indent includes to bypass MakeMe dependencies
   */
@@ -177,6 +184,7 @@ typedef struct RandBuf {
     DH parameters
  */
 static DH *dhKey;
+static int maxHandshakes;
 
 /************************************ Forwards ********************************/
 
@@ -186,6 +194,7 @@ static char *mapCipherNames(char *ciphers);
 static int  sslSetCertFile(char *certFile);
 static int  sslSetKeyFile(char *keyFile);
 static int  verifyClientCertificate(int ok, X509_STORE_CTX *ctx);
+static void infoCallback(const SSL *ssl, int where, int rc);
 
 /************************************** Code **********************************/
 /*
@@ -385,6 +394,10 @@ PUBLIC int sslOpen()
     SSL_CTX_clear_options(sslctx, SSL_OP_NO_COMPRESSION);
 #endif
 
+#if defined(ME_GOAHEAD_SSL_HANDSHAKES)
+    maxHandshakes = ME_GOAHEAD_SSL_HANDSHAKES;
+#endif
+
 #if defined(SSL_OP_DONT_INSERT_EMPTY_FRAGMENTS)
     /*
         Disables a countermeasure against a SSL 3.0/TLS 1.0 protocol vulnerability affecting CBC ciphers.
@@ -454,7 +467,25 @@ PUBLIC int sslUpgrade(Webs *wp)
     SSL_set_bio(wp->ssl, bio, bio);
     SSL_set_accept_state(wp->ssl);
     SSL_set_app_data(wp->ssl, (void*) wp);
+    if (ME_GOAHEAD_SSL_HANDSHAKES) {
+        SSL_CTX_set_info_callback(sslctx, infoCallback);
+    }
     return 0;
+}
+
+static void infoCallback(const SSL *ssl, int where, int rc)
+{
+    Webs        *wp;
+    WebsSocket  *sp;
+
+    if (where & SSL_CB_HANDSHAKE_START) {
+        if ((wp = (Webs*) SSL_get_app_data(ssl)) == 0) {
+            return;
+        }
+        if ((sp = socketPtr(wp->sid)) != 0) {
+            sp->handshakes++;
+        }
+    }
 }
 
 
@@ -477,7 +508,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     WebsSocket      *sp;
     char            ebuf[ME_GOAHEAD_LIMIT_STRING];
     ulong           serror;
-    int             rc, error, retries, i;
+    int             rc, err, retries, i;
 
     if (wp->ssl == 0 || len <= 0) {
         return -1;
@@ -490,8 +521,8 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     for (i = 0; i < retries; i++) {
         rc = SSL_read(wp->ssl, buf, (int) len);
         if (rc < 0) {
-            error = SSL_get_error(wp->ssl, rc);
-            if (error == SSL_ERROR_WANT_READ || error == SSL_ERROR_WANT_CONNECT || error == SSL_ERROR_WANT_ACCEPT) {
+            err = SSL_get_error(wp->ssl, rc);
+            if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_CONNECT || err == SSL_ERROR_WANT_ACCEPT) {
                 continue;
             }
             serror = ERR_get_error();
@@ -500,19 +531,25 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         }
         break;
     }
+    if (maxHandshakes && sp->handshakes > maxHandshakes) {
+        error("TLS renegotiation attack");
+        rc = -1;
+        sp->flags |= SOCKET_EOF;
+        return -1;
+    }
     if (rc <= 0) {
-        error = SSL_get_error(wp->ssl, rc);
-        if (error == SSL_ERROR_WANT_READ) {
+        err = SSL_get_error(wp->ssl, rc);
+        if (err == SSL_ERROR_WANT_READ) {
             rc = 0;
-        } else if (error == SSL_ERROR_WANT_WRITE) {
+        } else if (err == SSL_ERROR_WANT_WRITE) {
             rc = 0;
-        } else if (error == SSL_ERROR_ZERO_RETURN) {
+        } else if (err == SSL_ERROR_ZERO_RETURN) {
             sp->flags |= SOCKET_EOF;
             rc = -1;
-        } else if (error == SSL_ERROR_SYSCALL) {
+        } else if (err == SSL_ERROR_SYSCALL) {
             sp->flags |= SOCKET_EOF;
             rc = -1;
-        } else if (error != SSL_ERROR_ZERO_RETURN) {
+        } else if (err != SSL_ERROR_ZERO_RETURN) {
             serror = ERR_get_error();
             ERR_error_string_n(serror, ebuf, sizeof(ebuf) - 1);
             trace(4, "OpenSSL: connection with protocol error: %s", ebuf);
@@ -528,25 +565,32 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
 
 PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
 {
-    ssize   totalWritten;
-    int     error, rc;
+    WebsSocket  *sp;
+    ssize       totalWritten;
+    int         err, rc;
 
     if (wp->ssl == 0 || len <= 0) {
         return -1;
     }
+    sp = socketPtr(wp->sid);
     totalWritten = 0;
-    error = 0;
+    err = 0;
     ERR_clear_error();
 
     do {
         rc = SSL_write(wp->ssl, buf, (int) len);
         trace(7, "OpenSSL: written %d, requested len %d", rc, len);
         if (rc <= 0) {
-            error = SSL_get_error(wp->ssl, rc);
-            if (error == SSL_ERROR_NONE || error == SSL_ERROR_WANT_WRITE) {
+            err = SSL_get_error(wp->ssl, rc);
+            if (err == SSL_ERROR_NONE || err == SSL_ERROR_WANT_WRITE) {
                 break;
             }
-            trace(7, "OpenSSL: error %d", error);
+            trace(7, "OpenSSL: error %d", err);
+            return -1;
+        } else if (maxHandshakes && sp->handshakes > maxHandshakes) {
+            error("TLS renegotiation attack");
+            rc = -1;
+            sp->flags |= SOCKET_EOF;
             return -1;
         }
         totalWritten += rc;
@@ -555,7 +599,7 @@ PUBLIC ssize sslWrite(Webs *wp, void *buf, ssize len)
         trace(7, "OpenSSL: write: len %d, written %d, total %d", len, rc, totalWritten);
     } while (len > 0);
 
-    if (totalWritten == 0 && error == SSL_ERROR_WANT_WRITE) {
+    if (totalWritten == 0 && err == SSL_ERROR_WANT_WRITE) {
         socketSetError(EAGAIN);
         return -1;
     }
@@ -826,21 +870,10 @@ void opensslDummy() {}
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

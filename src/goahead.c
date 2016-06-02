@@ -109,10 +109,12 @@ MAIN(goahead, int argc, char **argv, char **envp)
         error("Cannot initialize server. Exiting.");
         return -1;
     }
+#if ME_GOAHEAD_AUTH
     if (websLoad(auth) < 0) {
         error("Cannot load %s", auth);
         return -1;
     }
+#endif
     logHeader();
     if (argind < argc) {
         while (argind < argc) {
@@ -185,7 +187,9 @@ static void usage() {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
+#if ME_GOAHEAD_AUTH
         "    --auth authFile        # User and role configuration\n"
+#endif
 #if ME_UNIX_LIKE && !MACOSX
         "    --background           # Run as a Unix daemon\n"
 #endif
@@ -335,21 +339,10 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 #endif
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

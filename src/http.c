@@ -201,6 +201,7 @@ static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 static bool     parseIncoming(Webs *wp);
 static void     pruneSessions();
+static void     freeSession(WebsSession *sp);
 static void     freeSessions();
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
@@ -1171,7 +1172,6 @@ static bool processContent(Webs *wp)
     if (!canProceed || wp->finalized) {
         return canProceed;
     }
-#if !ME_ROM
 #if ME_GOAHEAD_UPLOAD
     if (wp->flags & WEBS_UPLOAD) {
         canProceed = websProcessUploadData(wp);
@@ -1180,12 +1180,14 @@ static bool processContent(Webs *wp)
         }
     }
 #endif
+#if !ME_ROM
     if (wp->putfd >= 0) {
         canProceed = websProcessPutData(wp);
         if (!canProceed || wp->finalized) {
             return canProceed;
         }
     }
+#endif
 #if ME_GOAHEAD_CGI
     if (wp->cgifd >= 0) {
         canProceed = websProcessCgiData(wp);
@@ -1193,7 +1195,6 @@ static bool processContent(Webs *wp)
             return canProceed;
         }
     }
-#endif
 #endif
     if (wp->eof) {
         wp->state = WEBS_READY;
@@ -2984,6 +2985,23 @@ static char *makeSessionID(Webs *wp)
 }
 
 
+PUBLIC void websDestroySession(Webs *wp)
+{
+    websGetSession(wp, 0);
+    if (wp->session) {
+        freeSession(wp->session);
+        wp->session = 0;
+    }
+}
+
+
+PUBLIC WebsSession *websCreateSession(Webs *wp)
+{
+    websDestroySession(wp);
+    return websGetSession(wp, 1);
+}
+
+
 WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
 {
     WebsSession     *sp;
@@ -3064,48 +3082,61 @@ WebsSession *websGetSession(Webs *wp, int create)
 }
 
 
-PUBLIC char *websGetSessionID(Webs *wp)
+static char *websParseCookie(Webs *wp, char *name)
 {
-    char    *cookie, *cp, *value;
-    ssize   len;
+    cchar   *cookie;
+    char    *cp, *value;
+    ssize   nlen;
     int     quoted;
 
+    assert(wp);
+
+    if ((cookie = wp->cookie) == 0 || name == 0 || *name == '\0') {
+        return 0;
+    }
+    nlen = slen(name);
+    while ((value = strstr(cookie, name)) != 0) {
+        /* Ignore corrupt cookies of the form "name=;" */
+        if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=' && value[nlen+1] != ';') {
+            break;
+        }
+        cookie += nlen;
+    }
+    if (value == 0) {
+        return 0;
+    }
+    value += nlen;
+    while (isspace((uchar) *value) || *value == '=') {
+        value++;
+    }
+    quoted = 0;
+    if (*value == '"') {
+        value++;
+        quoted++;
+    }
+    for (cp = value; *cp; cp++) {
+        if (quoted) {
+            if (*cp == '"' && cp[-1] != '\\') {
+                break;
+            }
+        } else {
+            if ((*cp == ',' || *cp == ';') && cp[-1] != '\\') {
+                break;
+            }
+        }
+    }
+    return snclone(value, cp - value);
+}
+
+
+PUBLIC char *websGetSessionID(Webs *wp)
+{
     assert(wp);
 
     if (wp->session) {
         return wp->session->id;
     }
-    cookie = wp->cookie;
-    if (cookie && (value = strstr(cookie, WEBS_SESSION)) != 0) {
-        value += strlen(WEBS_SESSION);
-        while (isspace((uchar) *value) || *value == '=') {
-            value++;
-        }
-        quoted = 0;
-        if (*value == '"') {
-            value++;
-            quoted++;
-        }
-        for (cp = value; *cp; cp++) {
-            if (quoted) {
-                if (*cp == '"' && cp[-1] != '\\') {
-                    break;
-                }
-            } else {
-                if ((*cp == ',' || *cp == ';') && cp[-1] != '\\') {
-                    break;
-                }
-            }
-        }
-        len = cp - value;
-        if ((cp = walloc(len + 1)) == 0) {
-            return 0;
-        }
-        strncpy(cp, value, len);
-        cp[len] = '\0';
-        return cp;
-    }
-    return 0;
+    return websParseCookie(wp, WEBS_SESSION);
 }
 
 
@@ -3360,21 +3391,10 @@ PUBLIC char *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 PUBLIC char *websGetUsername(Webs *wp) { return wp->username; }
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
