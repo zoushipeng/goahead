@@ -24,6 +24,9 @@
 #ifndef ME_COMPATIBLE
     #define ME_COMPATIBLE "3.6"
 #endif
+#ifndef ME_COMPILER_FORTIFY
+    #define ME_COMPILER_FORTIFY 1
+#endif
 #ifndef ME_COMPILER_HAS_ATOMIC
     #define ME_COMPILER_HAS_ATOMIC 1
 #endif
