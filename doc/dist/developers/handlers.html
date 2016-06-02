@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Creating Handlers</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Simple, fast, secure embedded web server">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
@@ -215,7 +216,7 @@ websError(conn, 404 | WEBS_CLOSE, "Protocol error");
             to redirect the client. For example:
             <pre class="ui code segment">websRedirect(wp, WEBS_CODE_MOVED_PERMANENTLY, uri);</pre>
             <h3>Generating Response Body</h3>
-            </p><p>The simplest way to generate a response is to use 
+            <p>The simplest way to generate a response is to use 
             <a href="../ref/api/goahead.html#group___webs_1ga8d5489a7fa2a2126bc0b6c703da4b964">websWrite</a>. 
             The websWrite routine will automatically flush data as required. This routine may block while data drains
             to the client if the data cannot be buffered. See the <i>main.bit</i> configuration limit:
@@ -229,7 +230,8 @@ websDone(wp);
 </pre>
         <a id="defining"></a>
         <h2>Defining a Handler</h2>
-        <p>To define an GoAhead handler, you need to call <a href=../ref/api/goahead.html#group___webs_1gaac26a36fb28e1486fd54443ad59674a5>websDefineHandler</a>. For example:
+        <p>To define an GoAhead handler, you need to call <a href=
+            "../ref/api/goahead.html#group___webs_1gaac26a36fb28e1486fd54443ad59674a5">websDefineHandler</a>. For example:
 <pre class="ui code segment">
 static bool matchFoo(Webs *wp)
 {
@@ -248,7 +250,7 @@ static void closeFoo() {
 websDefineHandler("foo", matchFoo, serviceFoo, closeFoo, 0);
 </pre>
 
-    </p></div>
+    </div>
     <div class="terms ui basic center aligned segment">
         <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
     </div>
@@ -260,5 +262,5 @@ websDefineHandler("foo", matchFoo, serviceFoo, closeFoo, 0);
 
         
 
-
-
+</body>
+</html>

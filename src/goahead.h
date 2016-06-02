@@ -280,6 +280,14 @@ PUBLIC WebsLogHandler logSetHandler(WebsLogHandler handler);
 PUBLIC int websGetLogLevel();
 
 /**
+    Set the current trace log level
+    @return Number between 0 and 9
+    @ingroup Webs
+    @stability Prototype
+ */
+void websSetLogLevel(int level);
+
+/**
     Set the filename to save logging output
     @param path Filename path to use
     @stability Stable
@@ -1026,6 +1034,7 @@ typedef struct WebsSocket {
     int             saveMask;           /**< saved Mask for socketFlush */
     int             error;              /**< Last error */
     int             secure;             /**< Socket is using SSL */
+    int             handshakes;         /**< Number of renegotiations */
 } WebsSocket;
 
 
@@ -1486,6 +1495,18 @@ PUBLIC bool scaselessmatch(char *s1, char *s2);
     @stability Stable
  */
 PUBLIC char *sclone(char *str);
+
+/**
+    Clone a substring.
+    @description Copy a substring into a newly allocated block.
+    @param str Pointer to the block to duplicate.
+    @param len Number of bytes to copy. The actual length copied is the minimum of the given length and the length of
+        the supplied string. The result is null terminated.
+    @return Returns a newly allocated string.
+    @ingroup WebsRuntime
+    @stability Stable
+ */
+PUBLIC char *snclone(char *str, ssize len);
 
 /**
     Compare strings.
@@ -2734,7 +2755,7 @@ PUBLIC int websPageStat(Webs *wp, WebsFileInfo *sbuf);
     Process request PUT body data
     @description This routine is called by the core HTTP engine to process request PUT data.
     @param wp Webs request object
-    @return True if processing the request can proceed. 
+    @return True if processing the request can proceed.
     @ingroup Webs
     @stability Stable
  */
@@ -3071,7 +3092,7 @@ PUBLIC void websTimeClose();
 
 /**
     Parse a date/time string
-    @description Try to intelligently parse a date. 
+    @description Try to intelligently parse a date.
     This is a tolerant parser. It is not validating and will do its best to parse any possible date string.
     Supports the following date/time formats:
     \n\n
@@ -3241,7 +3262,7 @@ PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
 /**
     Process upload data for form, multipart mime file upload.
     @param wp Webs request object
-    @return True if processing the request can proceed. 
+    @return True if processing the request can proceed.
     @ingroup Webs
     @stability Stable
  */
@@ -3260,7 +3281,7 @@ PUBLIC void websFreeUpload(Webs *wp);
 /**
     Process CGI request body data.
     @param wp Webs request object
-    @return True if processing the request can proceed. 
+    @return True if processing the request can proceed.
     @ingroup Webs
     @stability Stable
  */
@@ -3871,6 +3892,26 @@ typedef struct WebsSession {
 PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
 
 /**
+    Test if a user possesses the required ability
+    @param wp Webs request object
+    @param id Session ID to use. Set to null to allocate a new session ID.
+    @param lifespan Lifespan of the session in seconds.
+    @return Allocated session object
+    @ingroup WebsSession
+    @stability Stable
+ */
+PUBLIC WebsSession *websCreateSession(Webs *wp);
+
+/**
+    Destroy the webs session object
+    @description Useful to be called as part of the user logout process
+    @param wp Webs request object
+    @ingroup WebsSession
+    @stability Prototype
+ */
+PUBLIC void websDestroySession(Webs *wp);
+
+/**
     Get the session ID
     @param wp Webs request object
     @return The session ID if session state storage is defined for this request.
@@ -4113,21 +4154,10 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
 #endif /* _h_GOAHEAD */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

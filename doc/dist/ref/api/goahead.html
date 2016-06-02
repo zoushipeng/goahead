@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>GoAhead API</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Simple, fast, secure embedded web server">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../../images/favicon.ico" rel="shortcut icon">
-    <link href="../../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../../images/favicon.ico" rel="shortcut icon" />
+    <link href="../../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
@@ -238,6 +239,7 @@
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_runtime_1gaa3fe51647c6fd75aff0d6df508e664bf" class="nameRef">slower</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Convert a string to lower case.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_runtime_1gac50476906b8efa05f338d338fc387ef9" class="nameRef">smatch</a>(char *s1, char *s2)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compare strings.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga1a2b635a3aa41ab1d38e214fb1247822" class="nameRef">sncaselesscmp</a>(char *s1, char *s2, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compare strings ignoring case.</td></tr>
+<tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_runtime_1ga6e3aca9783c91eabb77220cd432c1a3a" class="nameRef">snclone</a>(char *str, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Clone a substring.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga6c6fe89a097f4829ca0f18337857352a" class="nameRef">sncmp</a>(char *s1, char *s2, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compare strings.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_runtime_1ga2bbfd8330cc2012858fb780ff304ea61" class="nameRef">sncopy</a>(char *dest, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> destMax, char *src, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> count)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Copy characters from a string.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gac14f3548201f71b558822b3c68153ebe" class="nameRef">socketAddress</a>(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Extract the numerical IP address and port for the given socket info.</td></tr>
@@ -315,6 +317,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga014740ccd3fe55e30e8188ee826d19ad" class="nameRef">websCompareVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *var, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compare a request variable.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_auth_1ga54110728b562a851143f090999eff6c7" class="nameRef">websComputeAllUserAbilities</a>()</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compute the abilities for all users by resolving roles into abilities.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga6e0b2ea7b62d847fd10d7bb761d1189e" class="nameRef">websConsumeInput</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> nbytes)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Consume input from the request input buffer.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___webs_session" class="ref">WebsSession*</a></td><td><a href="#group___webs_session_1ga69bb1da9a9f13651d5a6db9379cb37e9" class="nameRef">websCreateSession</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Test if a user possesses the required ability.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#goahead_8h_1aa9776a6370951693b05fa2d973f2cbea" class="nameRef">websCryptPassword</a>(char *password, char *salt, int rounds)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Encrypt a password using the Blowfish algorithm.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga762ed53bab0974c82bfa0fdcef22580d" class="nameRef">websDecode64</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Decode the string using base-64 encoding.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga3b21883f613ad05e48a9de43714bf67e" class="nameRef">websDecode64Block</a>(char *str, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> *len, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Decode a block using base-46 encoding.</td></tr>
@@ -322,6 +325,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga16df3436fa7bff9179b1d278c24beef5" class="nameRef">websDefineAction</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, void *fun)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define an action callback for use with the action handler.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga89a36e73774a8ed3e33b9088ecbccd89" class="nameRef">websDefineHandler</a>(char *name, <a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="ref">WebsHandlerProc</a> match, <a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="ref">WebsHandlerProc</a> service, <a href="#group___webs_1gaf6c91717f5b5f07d037ce21a8450dd54" class="ref">WebsHandlerClose</a> close, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a request handler.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaafb69f988b3093c4981fd7bc94f1a42a" class="nameRef">websDefineJst</a>(char *name, <a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="ref">WebsJstProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a Javscript native function.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_session_1ga8f9464efab7e9045cab72863ccdb81db" class="nameRef">websDestroySession</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Destroy the webs session object.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gac2af58b7a686cb33e44eb010cf755ce1" class="nameRef">websDone</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Complete a request.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga97f5bcd7b8aa8df838037f9cf2c55267" class="nameRef">websEncode64</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Encode a string using base-64 encoding.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga01aac3c460b2484e8f26f147e993846e" class="nameRef">websEncode64Block</a>(char *str, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Encode a block using base-64 encoding.</td></tr>
@@ -431,6 +435,7 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga14e26be7566acf00a61a1cbc6aecf8a8" class="nameRef">websSetHost</a>(char *host)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the host name for the server.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaa31f5754982a0892ec816789ad0fe761" class="nameRef">websSetIndex</a>(char *filename)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create and send a request response.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gad9e1768c40bf090739e5f1234dd0b589" class="nameRef">websSetIpAddr</a>(char *ipaddr)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the host IP address.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga46d153b401bb7fc47ae5b17203541644" class="nameRef">websSetLogLevel</a>(int level)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the current trace log level.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ae8c0353bf1c238af495fa5e4122b4af6" class="nameRef">websSetMemNotifier</a>(<a href="#goahead_8h_1a3780611857f602b4ea243836f54de556" class="ref">WebsMemNotifier</a> cback)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a global memory allocation notifier.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_auth_1gac050abeadb21db4a90197eab284b115b" class="nameRef">websSetPasswordStoreVerify</a>(<a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="ref">WebsVerify</a> verify)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the password store verify callback.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga9b7ae14718f40340d9621529f4587548" class="nameRef">websSetQueryVars</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create request variables for query string data.</td></tr>
@@ -3167,6 +3172,21 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
+<a name="group___webs_1ga46d153b401bb7fc47ae5b17203541644"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websSetLogLevel
+(int level)
+  </div>
+  <div class="apiDetail">
+<p>Set the current trace log level.</p>
+    <dl><dt>Returns:</dt><dd>Number between 0 and 9.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
 <a name="group___webs_1ga9b7ae14718f40340d9621529f4587548"></a>
 <div class="api">
   <div class="prototype">
@@ -5109,6 +5129,27 @@ This is a secure verion of printf that can handle null args
     <a href="#group___webs_runtime_1ga0059cf5f07c49990bb9905d0e6daa4c7" class="ref">fmt</a>, <a href="#group___webs_runtime_1ga3d11c786e27c9bfc66d1d80e6c8fe8af" class="ref">hextoi</a>, <a href="#group___webs_runtime_1gabe1fb7ce5588a9f2ccc311f1dad44780" class="ref">itosbuf</a>, <a href="#group___webs_runtime_1ga231526f7ff97800179b0320d134ba579" class="ref">scaselesscmp</a>, <a href="#group___webs_runtime_1ga5e9e26d874b8ea5574ef9a0d446da21e" class="ref">scaselessmatch</a>, <a href="#group___webs_runtime_1ga22f4f032918e6ad69388ceda213d21ce" class="ref">sclone</a>, <a href="#group___webs_runtime_1ga895ec226b77b85d9023342ef29213776" class="ref">scmp</a>, <a href="#group___webs_runtime_1gafb63cbf134e5c14b9e8b5157fc5e092c" class="ref">scopy</a>, <a href="#group___webs_runtime_1ga2b5e8ce11c4bafab151537b1de66be83" class="ref">sfmt</a>, <a href="#group___webs_runtime_1ga39875a30b87edda0277f4cc28b43b843" class="ref">sfmtv</a>, <a href="#group___webs_runtime_1ga7387330ceabd6c8d3e09edbab9fec1dd" class="ref">slen</a>, <a href="#group___webs_runtime_1gaa3fe51647c6fd75aff0d6df508e664bf" class="ref">slower</a>, <a href="#group___webs_runtime_1gac50476906b8efa05f338d338fc387ef9" class="ref">smatch</a>, <a href="#group___webs_runtime_1ga6c6fe89a097f4829ca0f18337857352a" class="ref">sncmp</a>, <a href="#group___webs_runtime_1ga2bbfd8330cc2012858fb780ff304ea61" class="ref">sncopy</a>, <a href="#group___webs_runtime_1ga08e9661f9903df60b89cccdb523804c4" class="ref">stok</a>, <a href="#group___webs_runtime_1ga9169827ad693bc412f22a9b6802deb65" class="ref">strim</a>, <a href="#group___webs_runtime_1ga7d25b31c850ea3535c0452a21ea14da4" class="ref">supper</a>, <a href="#group___webs_runtime_1gaf7553e70a9cd19a472ed5af514776e09" class="ref">wallocHandle</a>, <a href="#group___webs_runtime_1ga5bdd5a92db14503e6bb55c5c37c7580d" class="ref">wallocObject</a>, <a href="#group___webs_runtime_1ga147dadfb8200bc1df51ea64bbaae5db2" class="ref">wfreeHandle</a></dd></dl>
   </div>
 </div>
+<a name="group___webs_runtime_1ga6e3aca9783c91eabb77220cd432c1a3a"></a>
+<div class="api">
+  <div class="prototype">
+    char *
+    snclone
+(char *str, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)
+  </div>
+  <div class="apiDetail">
+<p>Clone a substring.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Copy a substring into a newly allocated block.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">str</td><td>Pointer to the block to duplicate.</td>
+    <tr><td class="param">len</td><td>Number of bytes to copy. The actual length copied is the minimum of the given length and the length of the supplied string. The result is null terminated.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Returns a newly allocated string.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    <a href="#group___webs_runtime_1ga0059cf5f07c49990bb9905d0e6daa4c7" class="ref">fmt</a>, <a href="#group___webs_runtime_1ga3d11c786e27c9bfc66d1d80e6c8fe8af" class="ref">hextoi</a>, <a href="#group___webs_runtime_1gabe1fb7ce5588a9f2ccc311f1dad44780" class="ref">itosbuf</a>, <a href="#group___webs_runtime_1ga231526f7ff97800179b0320d134ba579" class="ref">scaselesscmp</a>, <a href="#group___webs_runtime_1ga5e9e26d874b8ea5574ef9a0d446da21e" class="ref">scaselessmatch</a>, <a href="#group___webs_runtime_1ga22f4f032918e6ad69388ceda213d21ce" class="ref">sclone</a>, <a href="#group___webs_runtime_1ga895ec226b77b85d9023342ef29213776" class="ref">scmp</a>, <a href="#group___webs_runtime_1gafb63cbf134e5c14b9e8b5157fc5e092c" class="ref">scopy</a>, <a href="#group___webs_runtime_1ga2b5e8ce11c4bafab151537b1de66be83" class="ref">sfmt</a>, <a href="#group___webs_runtime_1ga39875a30b87edda0277f4cc28b43b843" class="ref">sfmtv</a>, <a href="#group___webs_runtime_1ga7387330ceabd6c8d3e09edbab9fec1dd" class="ref">slen</a>, <a href="#group___webs_runtime_1gaa3fe51647c6fd75aff0d6df508e664bf" class="ref">slower</a>, <a href="#group___webs_runtime_1gac50476906b8efa05f338d338fc387ef9" class="ref">smatch</a>, <a href="#group___webs_runtime_1ga1a2b635a3aa41ab1d38e214fb1247822" class="ref">sncaselesscmp</a>, <a href="#group___webs_runtime_1ga6c6fe89a097f4829ca0f18337857352a" class="ref">sncmp</a>, <a href="#group___webs_runtime_1ga2bbfd8330cc2012858fb780ff304ea61" class="ref">sncopy</a>, <a href="#group___webs_runtime_1ga08e9661f9903df60b89cccdb523804c4" class="ref">stok</a>, <a href="#group___webs_runtime_1ga9169827ad693bc412f22a9b6802deb65" class="ref">strim</a>, <a href="#group___webs_runtime_1ga7d25b31c850ea3535c0452a21ea14da4" class="ref">supper</a>, <a href="#group___webs_runtime_1gaf7553e70a9cd19a472ed5af514776e09" class="ref">wallocHandle</a>, <a href="#group___webs_runtime_1ga5bdd5a92db14503e6bb55c5c37c7580d" class="ref">wallocObject</a>, <a href="#group___webs_runtime_1ga147dadfb8200bc1df51ea64bbaae5db2" class="ref">wfreeHandle</a></dd></dl>
+  </div>
+</div>
 <a name="group___webs_runtime_1ga6c6fe89a097f4829ca0f18337857352a"></a>
 <div class="api">
   <div class="prototype">
@@ -5418,6 +5459,46 @@ Session inactivity timeout (msecs).
     </dd></dl>
   </div>
 </div>
+<a name="group___webs_session_1ga69bb1da9a9f13651d5a6db9379cb37e9"></a>
+<div class="api">
+  <div class="prototype">
+    <a href="#group___webs_session" class="ref">WebsSession</a> *
+    websCreateSession
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Test if a user possesses the required ability.</p>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    <tr><td class="param">id</td><td>Session ID to use. Set to null to allocate a new session ID.</td>
+    <tr><td class="param">lifespan</td><td>Lifespan of the session in seconds.</td>
+    </table></dd></dl>
+    <dl><dt>Returns:</dt><dd>Allocated session object.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
+<a name="group___webs_session_1ga8f9464efab7e9045cab72863ccdb81db"></a>
+<div class="api">
+  <div class="prototype">
+    void
+    websDestroySession
+(<a href="#group___webs" class="ref">Webs</a> *wp)
+  </div>
+  <div class="apiDetail">
+<p>Destroy the webs session object.</p>
+    <dl><dt><b>Description</b>:</dt><dd>Useful to be called as part of the user logout process.</dd></dl>
+    <dl><dt>Parameters:</dt><dd>
+    <table class="parameters" title="Parameters">
+    <tr><td class="param">wp</td><td>Webs request object.</td>
+    </table></dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Prototype.</dd></dl>
+    <dl><dt>See Also:</dt><dd>
+    </dd></dl>
+  </div>
+</div>
 <a name="group___webs_session_1gabaceff85a59337282e9807f62aa046a7"></a>
 <div class="api">
   <div class="prototype">
@@ -5552,6 +5633,9 @@ User handler data.
 </td>
     <tr><td class="param">int</td><td><td>handlerMask</td><td>
 Handler events of interest.
+</td>
+    <tr><td class="param">int</td><td><td>handshakes</td><td>
+Number of renegotiations.
 </td>
     <tr><td class="param">int</td><td><td>interestEvents</td><td>
 Mask of events to watch for.
@@ -7145,5 +7229,5 @@ User roles.
 
         
 
-
-
+</body>
+</html>

@@ -598,6 +598,33 @@ static int checkCgi(CgiPid handle)
 
 
 #if VXWORKS
+#if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
+static int findVxSym(SYMTAB_ID sid, char *name, char **pvalue)
+{
+    SYM_TYPE    type;
+
+    return symFindByName(sid, name, pvalue, &type);
+}
+#else
+
+static int findVxSym(SYMTAB_ID sid, char *name, char **pvalue)
+{
+    SYMBOL_DESC     symDesc;
+
+    memset(&symDesc, 0, sizeof(SYMBOL_DESC));
+    symDesc.mask = SYM_FIND_BY_NAME;
+    symDesc.name = name;
+
+    if (symFind(sid, &symDesc) == ERROR) {
+        return ERROR;
+    }
+    if (pvalue != NULL) {
+        *pvalue = (char*) symDesc.value;
+    }
+    return OK;
+}
+#endif
+
 static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut);
 /*
     Launch the CGI process and return a handle to it. Process spawning is not supported in VxWorks.  Instead, we spawn a
@@ -621,9 +648,8 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
  */
 static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
-    SYM_TYPE    ptype;
-    char      *p, *basename, *pEntry, *pname, *entryAddr, **pp;
-    int         priority, rc, fd;
+    char    *p, *basename, *pEntry, *pname, *entryAddr, **pp;
+    int     priority, rc, fd;
 
     /*
         Determine the basename, which is without path or the extension.
@@ -656,9 +682,9 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         pEntry = sfmt("%s_%s", basename, "cgientry");
     }
     entryAddr = 0;
-    if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {
+    if (findVxSym(sysSymTbl, pEntry, &entryAddr) == -1) {
         pname = sfmt("_%s", pEntry);
-        symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
+        findVxSym(sysSymTbl, pname, &entryAddr);
         wfree(pname);
     }
     if (entryAddr != 0) {
@@ -674,9 +700,9 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         loadModule(fd, LOAD_GLOBAL_SYMBOLS) == NULL) {
         goto done;
     }
-    if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
+    if ((findVxSym(sysSymTbl, pEntry, &entryAddr)) == -1) {
         pname = sfmt("_%s", pEntry);
-        symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
+        findVxSym(sysSymTbl, pname, &entryAddr);
         wfree(pname);
     }
     if (entryAddr != 0) {
@@ -967,21 +993,10 @@ static int checkCgi(CgiPid handle)
 #endif /* ME_GOAHEAD_CGI */
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

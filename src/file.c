@@ -112,6 +112,7 @@ static void fileWriteEvent(Webs *wp)
 {
     char    *buf;
     ssize   len, wrote;
+    int     err;
 
     assert(wp);
     assert(websValid(wp));
@@ -122,8 +123,13 @@ static void fileWriteEvent(Webs *wp)
     }
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
-            /* May be an error or just socket full (EAGAIN) */
-            websPageSeek(wp, -len, SEEK_CUR);
+            err = socketGetError();
+            if (err == EWOULDBLOCK || err == EAGAIN) {
+                websPageSeek(wp, -len, SEEK_CUR);
+            } else {
+                /* Will call websDone below */
+                wp->state = WEBS_COMPLETE;
+            }
             break;
         }
         if (wrote != len) {
@@ -219,21 +225,10 @@ PUBLIC void websSetDocuments(char *dir)
 }
 
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */

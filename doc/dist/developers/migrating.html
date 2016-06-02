@@ -2,22 +2,23 @@
 <html lang="en">
 <head>
     <title>Migrating to GoAhead 3</title>
-    
+    <!-- Copyright Embedthis Software. All Rights Reserved. -->
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-    <meta name="description" content="Simple, fast, secure embedded web server">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="description" content="Simple, fast, secure embedded web server" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
+        rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon">
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
+    <link href="../images/favicon.ico" rel="shortcut icon" />
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
     
 
-
+</head>
 <body class="show-sidebar">
         <div class="sidebar">
         <div class="ui large left vertical inverted labeled menu">
@@ -155,11 +156,12 @@
             to existing capabilities. It also changes many APIs and interfaces.</p>
             
             <a id="compatibility"></a>
-            <h2>Compatibility with GoAhead 3</h2>
+            <h2 >Compatibility with GoAhead 3</h2>
             <p>We make every effort to preserve compatibility, but with GoAhead 3, we needed to make some important
             improvements that necessitated breaking compatibility with GoAhead 2. Rather than make several ongoing
             compatibility breaks we decided to make all the changes in one release. In this way we can ensure
-            that GoAhead 3 quickly becomes a stable platform going forward. Please see our <a href=../ref/compatibility.html>Compatibility Policy</a>.</p>
+            that GoAhead 3 quickly becomes a stable platform going forward. Please see our <a href=
+                "../ref/compatibility.html">Compatibility Policy</a>.</p>
             <a name="legacy"></a>    
             <h3>Legacy Support</h3>
             <p>To aid migrating existing GoAhead 2.X applications, GoAhead 3.X can be built to support the old
@@ -170,12 +172,12 @@
                 <pre class="ui code segment">configure --set goahead.legacy=true</pre>
             or if building via make:
                 <pre class="ui code segment">make ME_GOAHEAD_LEGACY=1</pre>
-            </p><p>This will enable the legacy APIs and type names.  However, You are <span class="warn">strongly 
+            <p>This will enable the legacy APIs and type names.  However, You are <span class="warn">strongly 
                 encouraged to fully migrate your application to the GoAhead 3.X APIs</span>
                 and to transition off the old GoAhead 2.X APIs. Note: GoAhead 2 is now officially "end-of-life".</p>
             
             <a id="changes"></a>
-            <h2>Changes in GoAhead 3</h2>
+            <h2 >Changes in GoAhead 3</h2>
             <p>GoAhead 3 provides equivalent or greater functionality to that in GoAhead 2.
             While GoAhead 3 may have a different interface or API, the capabilities of GoAhead 2 have been continued 
             in GoAhead 3, and in many cases, the features have been enhanced.</p>
@@ -230,14 +232,14 @@
                 <li>ringq*() renamed to buf*</li>
                 <li>sym*() renamed to hash*</li>
             </ul>
-            </p><p>For a complete list, see the ME_GOAHEAD_LEGACY section at the end of goahead.h for a list of all the API name
+            <p>For a complete list, see the ME_GOAHEAD_LEGACY section at the end of goahead.h for a list of all the API name
             mappings. It is strongly recommended that you refactor your application to use the new API naming.</p>
             <h3>Routes</h3>
             <p>GoAhead 3 uses a flexible URI routing mechanism to direct client requests to the appropriate handler.
             In GoAhead 2, this was done by hard-coded handlers. The routing framework is controlled by the route.txt 
             configuration file.
             The routing framework has more flexibility and allows URI parsing and routing. 
-            </p><p>See <a href="../users/routing.html">Request Routing</a> for more details.</p>
+            <p>See <a href="../users/routing.html">Request Routing</a> for more details.</p>
 
     </div>
     <div class="terms ui basic center aligned segment">
@@ -251,5 +253,5 @@
 
         
 
-
-
+</body>
+</html>

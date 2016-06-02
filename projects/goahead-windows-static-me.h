@@ -24,6 +24,9 @@
 #ifndef ME_COMPATIBLE
     #define ME_COMPATIBLE "3.6"
 #endif
+#ifndef ME_COMPILER_FORTIFY
+    #define ME_COMPILER_FORTIFY 1
+#endif
 #ifndef ME_COMPILER_HAS_ATOMIC
     #define ME_COMPILER_HAS_ATOMIC 0
 #endif
@@ -180,14 +183,14 @@
 #ifndef ME_GOAHEAD_SSL_CIPHERS
     #define ME_GOAHEAD_SSL_CIPHERS ""
 #endif
+#ifndef ME_GOAHEAD_SSL_HANDSHAKES
+    #define ME_GOAHEAD_SSL_HANDSHAKES 1
+#endif
 #ifndef ME_GOAHEAD_SSL_KEY
     #define ME_GOAHEAD_SSL_KEY "self.key"
 #endif
 #ifndef ME_GOAHEAD_SSL_LOG_LEVEL
     #define ME_GOAHEAD_SSL_LOG_LEVEL 5
-#endif
-#ifndef ME_GOAHEAD_SSL_RENEGOTIATE
-    #define ME_GOAHEAD_SSL_RENEGOTIATE 1
 #endif
 #ifndef ME_GOAHEAD_SSL_REVOKE
     #define ME_GOAHEAD_SSL_REVOKE ""
@@ -244,7 +247,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.6.2"
+    #define ME_VERSION "3.6.3"
 #endif
 
 /* Prefixes */
@@ -342,10 +345,10 @@
     #define ME_MINOR_VERSION 6
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 2
+    #define ME_PATCH_VERSION 3
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 300060002
+    #define ME_VNUM 300060003
 #endif
 
 /* Components */

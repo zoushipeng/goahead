@@ -500,6 +500,7 @@ PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
         return 0;
     }
     trace(2, "Login successful for %s", username);
+    websCreateSession(wp);
     websSetSessionVar(wp, WEBS_SESSION_USERNAME, wp->username);
     return 1;
 }
@@ -509,6 +510,7 @@ PUBLIC bool websLogoutUser(Webs *wp)
 {
     assert(wp);
     websRemoveSessionVar(wp, WEBS_SESSION_USERNAME);
+    websDestroySession(wp);
     if (smatch(wp->authType, "basic") || smatch(wp->authType, "digest")) {
         websError(wp, HTTP_CODE_UNAUTHORIZED, "Logged out.");
         return 0;
@@ -1082,23 +1084,11 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
 }
 #endif /* ME_GOAHEAD_AUTH */
 
-
 /*
-    @copy   default
-
     Copyright (c) Embedthis Software. All Rights Reserved.
-
     This software is distributed under commercial and open source licenses.
     You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
  */
