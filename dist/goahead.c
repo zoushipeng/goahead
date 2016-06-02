@@ -2184,6 +2184,33 @@ static int checkCgi(CgiPid handle)
 
 
 #if VXWORKS
+#if _WRS_VXWORKS_MAJOR < 6 || (_WRS_VXWORKS_MAJOR == 6 && _WRS_VXWORKS_MINOR < 9)
+static int findVxSym(SYMTAB_ID sid, char *name, char **pvalue)
+{
+    SYM_TYPE    type;
+
+    return symFindByName(sid, name, pvalue, &type);
+}
+#else
+
+static int findVxSym(SYMTAB_ID sid, char *name, char **pvalue)
+{
+    SYMBOL_DESC     symDesc;
+
+    memset(&symDesc, 0, sizeof(SYMBOL_DESC));
+    symDesc.mask = SYM_FIND_BY_NAME;
+    symDesc.name = name;
+
+    if (symFind(sid, &symDesc) == ERROR) {
+        return ERROR;
+    }
+    if (pvalue != NULL) {
+        *pvalue = (char*) symDesc.value;
+    }
+    return OK;
+}
+#endif
+
 static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, char **envp, char *stdIn, char *stdOut);
 /*
     Launch the CGI process and return a handle to it. Process spawning is not supported in VxWorks.  Instead, we spawn a
@@ -2207,9 +2234,8 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argv, 
  */
 static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, char *stdOut)
 {
-    SYM_TYPE    ptype;
-    char      *p, *basename, *pEntry, *pname, *entryAddr, **pp;
-    int         priority, rc, fd;
+    char    *p, *basename, *pEntry, *pname, *entryAddr, **pp;
+    int     priority, rc, fd;
 
     /*
         Determine the basename, which is without path or the extension.
@@ -2242,9 +2268,9 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         pEntry = sfmt("%s_%s", basename, "cgientry");
     }
     entryAddr = 0;
-    if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {
+    if (findVxSym(sysSymTbl, pEntry, &entryAddr) == -1) {
         pname = sfmt("_%s", pEntry);
-        symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
+        findVxSym(sysSymTbl, pname, &entryAddr);
         wfree(pname);
     }
     if (entryAddr != 0) {
@@ -2260,9 +2286,9 @@ static CgiPid launchCgi(char *cgiPath, char **argp, char **envp, char *stdIn, ch
         loadModule(fd, LOAD_GLOBAL_SYMBOLS) == NULL) {
         goto done;
     }
-    if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
+    if ((findVxSym(sysSymTbl, pEntry, &entryAddr)) == -1) {
         pname = sfmt("_%s", pEntry);
-        symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
+        findVxSym(sysSymTbl, pname, &entryAddr);
         wfree(pname);
     }
     if (entryAddr != 0) {
@@ -3792,6 +3818,7 @@ static void fileWriteEvent(Webs *wp)
 {
     char    *buf;
     ssize   len, wrote;
+    int     err;
 
     assert(wp);
     assert(websValid(wp));
@@ -3802,8 +3829,13 @@ static void fileWriteEvent(Webs *wp)
     }
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
-            /* May be an error or just socket full (EAGAIN) */
-            websPageSeek(wp, -len, SEEK_CUR);
+            err = socketGetError();
+            if (err == EWOULDBLOCK || err == EAGAIN) {
+                websPageSeek(wp, -len, SEEK_CUR);
+            } else {
+                /* Will call websDone below */
+                wp->state = WEBS_COMPLETE;
+            }
             break;
         }
         if (wrote != len) {
