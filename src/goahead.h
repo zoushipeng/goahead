@@ -3894,8 +3894,6 @@ PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
 /**
     Test if a user possesses the required ability
     @param wp Webs request object
-    @param id Session ID to use. Set to null to allocate a new session ID.
-    @param lifespan Lifespan of the session in seconds.
     @return Allocated session object
     @ingroup WebsSession
     @stability Stable
