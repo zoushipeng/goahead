@@ -175,7 +175,7 @@ PUBLIC int sslOpen()
     /*
         Configure server cert and key
      */
-    if (*ME_GOAHEAD_SSL_KEY && *ME_GOAHEAD_SSL_CERTIFICATE) {
+    if (ME_GOAHEAD_SSL_KEY[0] != '\0' && ME_GOAHEAD_SSL_CERTIFICATE[0] != '\0') {
         if ((rc = mbedtls_ssl_conf_own_cert(conf, &cfg.cert, &cfg.pkey)) < 0) {
             merror(rc, "Cannot define certificate and private key");
             return -1;
@@ -282,7 +282,8 @@ static int mbedHandshake(Webs *wp)
         Analyze the handshake result
      */
     if (rc < 0) {
-        if (rc == MBEDTLS_ERR_SSL_PRIVATE_KEY_REQUIRED && !(*ME_GOAHEAD_SSL_KEY || *ME_GOAHEAD_SSL_CERTIFICATE)) {
+        if (rc == MBEDTLS_ERR_SSL_PRIVATE_KEY_REQUIRED && 
+                (ME_GOAHEAD_SSL_KEY[0] == '\0' || ME_GOAHEAD_SSL_CERTIFICATE[0] == '\0')) {
             error("Missing required certificate and key");
         } else {
             char ebuf[256];
