@@ -946,6 +946,7 @@ PUBLIC char *websCryptPassword(char *password, char *salt, int rounds)
     memset(&bf, 0, sizeof(bf));
     memset(text, 0, len);
     wfree(text);
+    wfree(key);
     return result;
 }
 
@@ -999,7 +1000,7 @@ PUBLIC char *websMakePassword(char *password, int saltLength, int rounds)
 
 PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash)
 {
-    char    *given, *rounds, *salt, *s1, *s2, *tok, *hash;
+    char    *given, *rounds, *salt, *s1, *s2, *tok, *hash, *ph;
     ssize   match;
 
     if (!passwordHash || !plainTextPassword) {
@@ -1008,11 +1009,13 @@ PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash)
     if (slen(plainTextPassword) > WEBS_MAX_PASSWORD) {
         return 0;
     }
-    stok(sclone(passwordHash), ":", &tok);
+    ph = sclone(passwordHash);
+    stok(ph, ":", &tok);
     rounds = stok(NULL, ":", &tok);
     salt = stok(NULL, ":", &tok);
     hash = stok(NULL, ":", &tok);
     if (!rounds || !salt || !hash) {
+        wfree(ph);
         return 0;
     }
     given = websCryptPassword(plainTextPassword, salt, atoi(rounds));
@@ -1021,6 +1024,7 @@ PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash)
     for (s1 = given, s2 = hash; *s1 && *s2; s1++, s2++) {
         match |= (*s1 & 0xFF) ^ (*s2 & 0xFF);
     }
+    wfree(ph);
     return !match;
 }
 

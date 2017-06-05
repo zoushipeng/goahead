@@ -409,7 +409,6 @@ static void initWebs(Webs *wp, int flags, int reuse)
     } else {
         bufCreate(&wp->rxbuf, ME_GOAHEAD_LIMIT_HEADERS, ME_GOAHEAD_LIMIT_HEADERS + ME_GOAHEAD_LIMIT_PUT);
     }
-    wp->rxbuf = wp->rxbuf;
 }
 
 
@@ -2283,8 +2282,9 @@ static void logRequest(Webs *wp, int code)
 
 
 /*
-    Request and connection timeout. The timeout triggers if we have not read any data from the users browser in the last
-    WEBS_TIMEOUT period. If we have heard from the browser, simply re-issue the timeout.
+    Request and connection timeout. The timeout triggers if we have not read any data from the
+    users browser in the last WEBS_TIMEOUT period. If we have heard from the browser, simply
+    re-issue the timeout.
  */
 static void checkTimeout(void *arg, int id)
 {

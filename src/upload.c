@@ -65,13 +65,15 @@ static void initUpload(Webs *wp)
 
 static void freeUploadFile(WebsUpload *up)
 {
-    if (up->filename) {
-        unlink(up->filename);
-        wfree(up->filename);
+    if (up) {
+        if (up->filename) {
+            unlink(up->filename);
+            wfree(up->filename);
+        }
+        wfree(up->clientFilename);
+        wfree(up->contentType);
+        wfree(up);
     }
-    wfree(up->clientFilename);
-    wfree(up->contentType);
-    wfree(up);
 }
 
 
@@ -108,7 +110,7 @@ PUBLIC bool websProcessUploadData(Webs *wp)
     bool    canProceed;
 
     line = 0;
-    canProceed = 1; 
+    canProceed = 1;
     while (canProceed && !wp->finalized && wp->uploadState != UPLOAD_CONTENT_END) {
         if  (wp->uploadState == UPLOAD_BOUNDARY || wp->uploadState == UPLOAD_CONTENT_HEADER) {
             /*
@@ -253,6 +255,7 @@ static void processUploadHeader(Webs *wp, char *line)
                 /*
                     Create the files[id]
                  */
+                freeUploadFile(wp->currentFile);
                 file = wp->currentFile = walloc(sizeof(WebsUpload));
                 memset(file, 0, sizeof(WebsUpload));
                 file->clientFilename = sclone(wp->clientFilename);
