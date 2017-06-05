@@ -2933,7 +2933,7 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
     @param value Cookie value
     @param path URI path prefix applicable for this cookie
     @param domain Domain applicable for this cookie
-    @param lifespan Cookie lifespan in secons
+    @param lifespan Cookie lifespan in seconds
     @param flags Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only.
         Otherwise the cookie applies to both http and https requests.
     @return Zero if successful, otherwise -1.
@@ -3875,7 +3875,7 @@ PUBLIC bool websVerifyPasswordFromPam(Webs *wp);
  */
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
-    int             lifespan;               /**< Session inactivity timeout (msecs) */
+    int             lifespan;               /**< Session inactivity timeout (secs) */
     WebsTime        expires;                /**< When the session expires */
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
