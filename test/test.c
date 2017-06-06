@@ -26,10 +26,18 @@ static int finished = 0;
 /*
     These must match TOP.es.set
  */
+#if TEST_IPV6
 #if ME_COM_SSL
     #define ME_GOAHEAD_LISTEN "http://127.0.0.1:18080, https://127.0.0.1:14443, http://[::1]:18090, https://[::1]:14453"
 #else
     #define ME_GOAHEAD_LISTEN "http://127.0.0.1:18080, http://[::1]:18090"
+#endif
+#else
+#if ME_COM_SSL
+    #define ME_GOAHEAD_LISTEN "http://127.0.0.1:18080, https://127.0.0.1:14443"
+#else
+    #define ME_GOAHEAD_LISTEN "http://127.0.0.1:18080"
+#endif
 #endif
 
 /********************************* Forwards ***********************************/
