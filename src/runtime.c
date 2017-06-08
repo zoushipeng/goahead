@@ -297,7 +297,7 @@ int websRunEvents()
                 /* Rescan incase event scheduled or modified an event */
                 i = -1;
             } else {
-                delay = (int) min(s->at - now, MAXINT);
+                delay = (int) min(s->at - now, MAXINT / 1000);
             }
             nextEvent = min(delay, nextEvent);
         }
@@ -544,8 +544,6 @@ static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
                 break;
 
             case 'i':
-                ;
-
             case 'd':
                 fmt.radix = 10;
                 if (fmt.flags & SPRINTF_SHORT) {

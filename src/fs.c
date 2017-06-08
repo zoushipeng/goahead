@@ -11,7 +11,7 @@
 /******************************** Local Data **********************************/
 
 #if ME_ROM
-/* 
+/*
     Symbol table for web pages and files
  */
 static WebsHash romFs;
@@ -87,6 +87,7 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
     }
     memset(sbuf, 0, sizeof(WebsFileInfo));
     sbuf->size = wip->size;
+    sbuf->mtime = 1;
     if (wip->page == NULL) {
         sbuf->isDir = 1;
     }
