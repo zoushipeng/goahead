@@ -2,7 +2,7 @@
     main.me -- Main MakeMe file for GoAhead
 
     This file contains the rules for targets to build and default settings for configuration.
-    The MakeMe utility (https://embedthis.com/me) may be used to build GoAhead instead of make. 
+    The MakeMe utility (https://embedthis.com/me) may be used to build GoAhead instead of make.
     MakeMe provides for configured builds and generates projects files.
 
     Alternatively, build using the 'make' utility in which case this file is not used.
@@ -53,7 +53,7 @@ Me.load({
             accessLog: false,
 
             /*
-                User authentication 
+                User authentication
              */
             auth: true,
 
@@ -75,6 +75,11 @@ Me.load({
                 Build with CGI support and directory for CGI programs.
              */
             cgi: true,
+
+            /*
+                Prefix for CGI environment variables
+             */
+            cgiPrefix: "CGI_"
 
             /*
                 Build with support for digest authentication
@@ -235,9 +240,9 @@ Me.load({
     },
 
     customize: [
-        /* 
+        /*
             The optional custom.me file is loaded after main.me is fully processed. It can
-            thus override any setting. Feel free to create and customize. 
+            thus override any setting. Feel free to create and customize.
          */
         'custom.me',
     ],
@@ -261,7 +266,7 @@ Me.load({
                 prebuild: `
                     if (me.settings.compiler.hasPam && me.settings.goahead.pam) {
                         me.target.libraries.push('pam')
-                    }                                                                                      
+                    }
                 `
             },
         },
@@ -275,10 +280,10 @@ Me.load({
                 prebuild: `
                     if (me.settings.compiler.hasPam) {
                         me.target.libraries.push('pam')
-                    }                                                                                      
+                    }
                     cp(['${BIN}/self.key', '${BIN}/self.crt'], 'src')
                     cp(['${BIN}/self.key', '${BIN}/self.crt'], 'test')
-                `,  
+                `,
             },
         },
 
@@ -353,4 +358,3 @@ Me.load({
         }
     },
 })
-
