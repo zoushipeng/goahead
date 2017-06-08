@@ -4,10 +4,10 @@
 require ejs.unix
 
 if (tphase() == 'Setup') {
-    const HTTP      = 'http://127.0.0.1:8080'
-    const HTTPS     = 'https://127.0.0.1:4443'
-    const HTTPV6    = 'http://[::1]:8090'
-    const HTTPSV6   = 'https://[::1]:4453'
+    const HTTP      = 'http://127.0.0.1:18080'
+    const HTTPS     = 'https://127.0.0.1:14443'
+    const HTTPV6    = 'http://[::1]:18090'
+    const HTTPSV6   = 'https://[::1]:14453'
 
     tset('TM_HTTP', HTTP)
     tset('TM_HTTPS', HTTPS)
