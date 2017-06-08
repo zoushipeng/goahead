@@ -1391,7 +1391,7 @@ PUBLIC WebsSocket *socketPtr(int sid);
         help prevent buffer overflows and other potential security traps.
     @defgroup WebsRuntime WebsRuntime
     @see fmt wallocHandle wallocObject wfreeHandle hextoi itosbuf scaselesscmp scaselessmatch
-        sclone scmp scopy sfmt sfmtv slen slower smatch sncaselesscmp sncmp sncopy stok strim supper
+        sclone scmp scopy sfmt sfmtv slen slower smatch sstarts sncaselesscmp sncmp sncopy stok strim supper
     @stability Stable
  */
 
@@ -1575,7 +1575,7 @@ PUBLIC char *sfmtv(char *format, va_list args);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC ssize slen(char *str);
+PUBLIC ssize slen(cchar *str);
 
 /**
     Convert a string to lower case.
@@ -1666,6 +1666,16 @@ PUBLIC bool snumber(cchar *s);
     @stability Evolving
  */
 PUBLIC char *ssplit(char *str, cchar *delim, char **last);
+
+/**
+    Test if the string starts with a given pattern.
+    @param str String to examine
+    @param prefix Pattern to search for
+    @return Returns TRUE if the pattern was found. Otherwise returns zero.
+    @ingroup MprString
+    @stability Stable
+ */
+PUBLIC bool sstarts(cchar *str, cchar *prefix);
 
 /**
     Tokenize a string

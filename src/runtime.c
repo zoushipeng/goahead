@@ -2495,6 +2495,18 @@ PUBLIC bool smatch(char *s1, char *s2)
 }
 
 
+PUBLIC bool sstarts(cchar *str, cchar *prefix)
+{
+    if (str == 0 || prefix == 0) {
+        return 0;
+    }
+    if (strncmp(str, prefix, slen(prefix)) == 0) {
+        return 1;
+    }
+    return 0;
+}
+
+
 PUBLIC int scmp(char *s1, char *s2)
 {
     if (s1 == s2) {
@@ -2508,7 +2520,7 @@ PUBLIC int scmp(char *s1, char *s2)
 }
 
 
-PUBLIC ssize slen(char *s)
+PUBLIC ssize slen(cchar *s)
 {
     return s ? strlen(s) : 0;
 }
