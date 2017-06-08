@@ -548,8 +548,8 @@
       <type>ssize</type>
       <name>slen</name>
       <anchorfile>group___webs_runtime.html</anchorfile>
-      <anchor>ga7387330ceabd6c8d3e09edbab9fec1dd</anchor>
-      <arglist>(char *str)</arglist>
+      <anchor>gade405095134ad54db6dc94fcd6216961</anchor>
+      <arglist>(cchar *str)</arglist>
     </member>
     <member kind="function">
       <type>char *</type>
