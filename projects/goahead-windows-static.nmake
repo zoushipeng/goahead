@@ -3,7 +3,7 @@
 #
 
 NAME                  = goahead
-VERSION               = 3.6.4
+VERSION               = 3.6.5
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -253,7 +253,7 @@ DEPS_7 = $(DEPS_7) src\mbedtls\mbedtls.h
 build\$(CONFIG)\obj\mbedtls.obj: \
     src\mbedtls\mbedtls.c $(DEPS_7)
 	@echo .. [Compile] build\$(CONFIG)\obj\mbedtls.obj
-	"$(CC)" -c -Fo$(BUILD)\obj\mbedtls.obj -Fd$(BUILD)\obj\mbedtls.pdb -nologo -GR- -Zi -Od -MDd $(DFLAGS) -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\mbedtls\mbedtls.c $(LOG)
+	"$(CC)" -c -Fo$(BUILD)\obj\mbedtls.obj -Fd$(BUILD)\obj\mbedtls.pdb -nologo -GR- -Zi -Od -MDd -Wno-format-zero-length $(DFLAGS) -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src\mbedtls\mbedtls.c $(LOG)
 
 !IF "$(ME_COM_MBEDTLS)" == "1"
 #
