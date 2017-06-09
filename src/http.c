@@ -687,6 +687,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
     len = sizeof(ifAddr);
     if (getsockname(socketPtr(sid)->sock, (struct sockaddr*) &ifAddr, (Socklen*) &len) < 0) {
         error("Cannot get sockname");
+        websFree(wp);
         return -1;
     }
     socketAddress((struct sockaddr*) &ifAddr, (int) len, wp->ifaddr, sizeof(wp->ifaddr), NULL);
@@ -714,6 +715,7 @@ PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid)
         trace(4, "Upgrade connection to TLS");
         if (sslUpgrade(wp) < 0) {
             error("Cannot upgrade to TLS");
+            websFree(wp);
             return -1;
         }
     }
