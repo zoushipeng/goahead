@@ -3047,10 +3047,11 @@ PUBLIC void websSetTxLength(Webs *wp, ssize length);
     @param name Variable name to set
     @param fmt Value format string
     @param ... Args to format
+    @return the allocated WebsKey
     @ingroup Webs
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
+PUBLIC WebsKey *websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
 
 /**
     Set a request variable to a string value
@@ -3059,10 +3060,11 @@ PUBLIC void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
     @param wp Webs request object
     @param name Variable name to set
     @param value Value to set
+    @return the allocated WebsKey
     @ingroup Webs
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void websSetVar(Webs *wp, char *name, char *value);
+PUBLIC WebsKey *websSetVar(Webs *wp, char *name, char *value);
 
 /**
     Test if  a request variable is defined
