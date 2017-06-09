@@ -87,6 +87,9 @@
 #ifndef ME_GOAHEAD_CGI
     #define ME_GOAHEAD_CGI 1
 #endif
+#ifndef ME_GOAHEAD_CGI_VAR_PREFIX
+    #define ME_GOAHEAD_CGI_VAR_PREFIX "CGI_"
+#endif
 #ifndef ME_GOAHEAD_CLIENT_CACHE
     #define ME_GOAHEAD_CLIENT_CACHE "css,gif,ico,jpg,js,png"
 #endif
@@ -244,7 +247,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.6.4"
+    #define ME_VERSION "3.6.5"
 #endif
 
 /* Prefixes */
@@ -342,10 +345,10 @@
     #define ME_MINOR_VERSION 6
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 4
+    #define ME_PATCH_VERSION 5
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 300060004
+    #define ME_VNUM 300060005
 #endif
 
 /* Components */

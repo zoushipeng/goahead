@@ -62,7 +62,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     websSetEnv(wp);
 
     /*
-        Extract the form name and then build the full path name.  The form name will follow the first '/' in path.
+        Extract the form name and then build the full path name. The form name will follow the first '/' in path.
      */
     scopy(cgiPrefix, sizeof(cgiPrefix), wp->path);
     if ((cgiName = strchr(&cgiPrefix[1], '/')) == NULL) {
@@ -151,20 +151,32 @@ PUBLIC bool cgiHandler(Webs *wp)
     *(argp+n) = NULL;
 
     /*
-        Add all CGI variables to the environment strings to be passed to the spawned CGI process. This includes a few
-        we don't already have in the symbol table, plus all those that are in the vars symbol table. envp will point
-        to a walloc'd array of pointers. Each pointer will point to a walloc'd string containing the keyword value pair
-        in the form keyword=value. Since we don't know ahead of time how many environment strings there will be the for
+        Add all CGI variables to the environment strings to be passed to the spawned CGI process.
+        This includes a few we don't already have in the symbol table, plus all those that are in
+        the vars symbol table. envp will point to a walloc'd array of pointers. Each pointer will
+        point to a walloc'd string containing the keyword value pair in the form keyword=value.
+        Since we don't know ahead of time how many environment strings there will be the for
         loop includes logic to grow the array size via wrealloc.
      */
     envpsize = 64;
     envp = walloc(envpsize * sizeof(char*));
     for (n = 0, s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
-        if (s->content.valid && s->content.type == string &&
-            strcmp(s->name.value.string, "REMOTE_HOST") != 0 &&
-            strcmp(s->name.value.string, "HTTP_AUTHORIZATION") != 0) {
-            envp[n++] = sfmt("%s=%s", s->name.value.string, s->content.value.string);
-            trace(5, "Env[%d] %s", n, envp[n-1]);
+        if (s->content.valid && s->content.type == string) {
+            if (smatch(s->name.value.string, "REMOTE_HOST") ||
+                smatch(s->name.value.string, "HTTP_AUTHORIZATION") ||
+                smatch(s->name.value.string, "IFS") ||
+                smatch(s->name.value.string, "CDPATH") ||
+                smatch(s->name.value.string, "PATH") ||
+                sstarts(s->name.value.string, "LD_")) {
+                continue;
+            }
+            if (s->arg != 0 && *ME_GOAHEAD_CGI_VAR_PREFIX != '\0') {
+                envp[n++] = sfmt("%s%s=%s", ME_GOAHEAD_CGI_VAR_PREFIX, s->name.value.string,
+                    s->content.value.string);
+            } else {
+                envp[n++] = sfmt("%s=%s", s->name.value.string, s->content.value.string);
+            }
+            trace(0, "Env[%d] %s", n, envp[n-1]);
             if (n >= envpsize) {
                 envpsize *= 2;
                 envp = wrealloc(envp, envpsize * sizeof(char *));
