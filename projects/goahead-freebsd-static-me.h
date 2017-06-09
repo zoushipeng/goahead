@@ -99,8 +99,8 @@
 #ifndef ME_GOAHEAD_CGI
     #define ME_GOAHEAD_CGI 1
 #endif
-#ifndef ME_GOAHEAD_CGI_PREFIX
-    #define ME_GOAHEAD_CGI_PREFIX "CGI_"
+#ifndef ME_GOAHEAD_CGI_VAR_PREFIX
+    #define ME_GOAHEAD_CGI_VAR_PREFIX "CGI_"
 #endif
 #ifndef ME_GOAHEAD_CLIENT_CACHE
     #define ME_GOAHEAD_CLIENT_CACHE "css,gif,ico,jpg,js,png"
