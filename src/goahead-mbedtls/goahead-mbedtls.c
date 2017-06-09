@@ -384,6 +384,9 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
                 sp->flags |= SOCKET_EOF;
                 return -1; 
             }
+        } else if (rc == 0) {
+            sp->flags |= SOCKET_EOF;
+            return -1; 
         }
         break;
     }
