@@ -1358,7 +1358,8 @@ PUBLIC void websServiceEvents(int *finished)
  */
 static void addFormVars(Webs *wp, char *vars)
 {
-    char  *keyword, *value, *prior, *tok;
+    WebsKey     *sp;
+    char        *keyword, *value, *prior, *tok;
 
     assert(wp);
     assert(vars);
@@ -1377,10 +1378,12 @@ static void addFormVars(Webs *wp, char *vars)
                 If keyword has already been set, append the new value to what has been stored.
              */
             if ((prior = websGetVar(wp, keyword, NULL)) != 0) {
-                websSetVarFmt(wp, keyword, "%s %s", prior, value);
+                sp = websSetVarFmt(wp, keyword, "%s %s", prior, value);
             } else {
-                websSetVar(wp, keyword, value);
+                sp = websSetVar(wp, keyword, value);
             }
+            /* Flag as untrusted keyword by setting arg to 1. This is used by CGI to prefix this keyword */
+            sp->arg = 1;
         }
         keyword = stok(NULL, "&", &tok);
     }
@@ -1454,7 +1457,7 @@ PUBLIC void websSetQueryVars(Webs *wp)
     Define a webs (CGI) variable for this connection. Also create in relevant scripting engines. Note: the incoming
     value may be volatile.
  */
-PUBLIC void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
+PUBLIC WebsKey *websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
 {
     WebsValue   v;
     va_list     args;
@@ -1470,11 +1473,11 @@ PUBLIC void websSetVarFmt(Webs *wp, char *var, char *fmt, ...)
     } else {
         v = valueString("", 0);
     }
-    hashEnter(wp->vars, var, v, 0);
+    return hashEnter(wp->vars, var, v, 0);
 }
 
 
-PUBLIC void websSetVar(Webs *wp, char *var, char *value)
+PUBLIC WebsKey *websSetVar(Webs *wp, char *var, char *value)
 {
     WebsValue   v;
 
@@ -1486,7 +1489,7 @@ PUBLIC void websSetVar(Webs *wp, char *var, char *value)
     } else {
         v = valueString("", 0);
     }
-    hashEnter(wp->vars, var, v, 0);
+    return hashEnter(wp->vars, var, v, 0);
 }
 
 
