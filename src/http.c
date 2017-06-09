@@ -2992,6 +2992,8 @@ PUBLIC void websDestroySession(Webs *wp)
 {
     websGetSession(wp, 0);
     if (wp->session) {
+        hashDelete(sessions, wp->session->id);
+        sessionCount--;
         freeSession(wp->session);
         wp->session = 0;
     }
@@ -3022,6 +3024,11 @@ WebsSession *websAllocSession(Webs *wp, char *id, int lifespan)
         sp->id = sclone(id);
     }
     if ((sp->cache = hashCreate(WEBS_SESSION_HASH)) == 0) {
+        wfree(sp->id);
+        wfree(sp);
+        return 0;
+    }
+    if (hashEnter(sessions, sp->id, valueSymbol(sp), 0) == 0) {
         wfree(sp->id);
         wfree(sp);
         return 0;
@@ -3067,11 +3074,6 @@ WebsSession *websGetSession(Webs *wp, int create)
                 wfree(id);
                 return 0;
             }
-            if ((sym = hashEnter(sessions, wp->session->id, valueSymbol(wp->session), 0)) == 0) {
-                wfree(id);
-                return 0;
-            }
-            wp->session = (WebsSession*) sym->content.value.symbol;
             websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, 0);
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
