@@ -289,8 +289,8 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga999bb54215bbc7d71c7d6e828fcf49c8" class="nameRef">websSetTxLength</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> length)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the response body content length.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1ga16a2790e0b9d56c9d748a9cd04b29ea8" class="nameRef">websSetUserPassword</a>(char *username, char *password)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a password for the user.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1ga696e28bbcd0692b8806759a1a1c3ab6e" class="nameRef">websSetUserRoles</a>(char *username, char *roles)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the set of roles for a user.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga4bdea6a000f895b450f81eb8dd2ea9a9" class="nameRef">websSetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a string value.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga12f0360e8d96ccb2b3f71223f06a4519" class="nameRef">websSetVarFmt</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a formatted string value.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_1ga4b332e5c2b5a0cb949e2532b5032fb4f" class="nameRef">websSetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a string value.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_1ga62231e62064d4534c16a8e9bd725cfe6" class="nameRef">websSetVarFmt</a>(<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a formatted string value.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga3d52faf06a56379bb23247aa9a0acb0f" class="nameRef">websStartEvent</a>(int delay, <a href="#group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a" class="ref">WebsEventProc</a> proc, void *data)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start a callback event.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga889ca9570c6a3bf282b59a5683df9aa7" class="nameRef">websStatFile</a>(char *path, <a href="#struct_webs_file_info" class="ref">WebsFileInfo</a> *sbuf)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get file status for a file.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_runtime_1ga9a6524bc11288246c84651f99fd24425" class="nameRef">websStopEvent</a>(int id)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop an event.</td></tr>
@@ -3086,10 +3086,10 @@ Bytes actually transferred.
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga4bdea6a000f895b450f81eb8dd2ea9a9"></a>
+<a name="group___webs_1ga4b332e5c2b5a0cb949e2532b5032fb4f"></a>
 <div class="api">
   <div class="prototype">
-    void
+    <a href="#struct_webs_key" class="ref">WebsKey</a> *
     websSetVar
 (<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *value)
   </div>
@@ -3102,15 +3102,16 @@ Bytes actually transferred.
     <tr><td class="param">name</td><td>Variable name to set.</td>
     <tr><td class="param">value</td><td>Value to set.</td>
     </table></dd></dl>
-    <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
+    <dl><dt>Returns:</dt><dd>The allocated WebsKey.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga12f0360e8d96ccb2b3f71223f06a4519"></a>
+<a name="group___webs_1ga62231e62064d4534c16a8e9bd725cfe6"></a>
 <div class="api">
   <div class="prototype">
-    void
+    <a href="#struct_webs_key" class="ref">WebsKey</a> *
     websSetVarFmt
 (<a href="#group___webs" class="ref">Webs</a> *wp, char *name, char *fmt, ...)
   </div>
@@ -3124,7 +3125,8 @@ Bytes actually transferred.
     <tr><td class="param">fmt</td><td>Value format string.</td>
     <tr><td class="param">...</td><td>Args to format.</td>
     </table></dd></dl>
-    <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
+    <dl><dt>Returns:</dt><dd>The allocated WebsKey.</dd></dl>
+    <dl><dt><b>API</b> Stability:</dt><dd>Evolving.</dd></dl>
     <dl><dt>See Also:</dt><dd>
     </dd></dl>
   </div>

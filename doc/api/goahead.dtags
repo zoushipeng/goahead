@@ -1519,17 +1519,17 @@
       <arglist>(Webs *wp, ssize length)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>WebsKey *</type>
       <name>websSetVar</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga4bdea6a000f895b450f81eb8dd2ea9a9</anchor>
+      <anchor>ga4b332e5c2b5a0cb949e2532b5032fb4f</anchor>
       <arglist>(Webs *wp, char *name, char *value)</arglist>
     </member>
     <member kind="function">
-      <type>void</type>
+      <type>WebsKey *</type>
       <name>websSetVarFmt</name>
       <anchorfile>group___webs.html</anchorfile>
-      <anchor>ga12f0360e8d96ccb2b3f71223f06a4519</anchor>
+      <anchor>ga62231e62064d4534c16a8e9bd725cfe6</anchor>
       <arglist>(Webs *wp, char *name, char *fmt,...)</arglist>
     </member>
     <member kind="function">
