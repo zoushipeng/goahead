@@ -7,13 +7,13 @@
 }
             <h1>Installing on Mac</h1>
             <p>The Embedthis GoAhead install distribution for Mac OS X is published as a an installable pkg file.</p>
-            
+
             <a id="pkg"></a>
             <h2 >Installing the PKG Image</h2>
             <ol>
                 <li>Double click on the PKG image.</li>
             </ol>
-            
+
             <a id="removing"></a>
             <h2 >Removing GoAhead</h2>
             <ol>
@@ -25,7 +25,7 @@
 <pre class="ui code segment">
 sudo ./uninstall
 </pre>
-            
+
             <a id="running"></a>
             <h2 >Running GoAhead</h2>
             <p>To start GoAhead type:</p>
