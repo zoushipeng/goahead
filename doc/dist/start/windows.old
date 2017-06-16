@@ -32,7 +32,7 @@
                 <div class="menu">
                     <a class="item" href="../">GoAhead Overview</a>
                     <a class="item" href="../users/features.html">GoAhead Features</a>
-                    <a class="item" href="https://embedthis.com/goahead/download.html">Download</a> 
+                    <a class="item" href="https://embedthis.com/goahead/download.html">Download</a>
                     <a class="item" href="../licensing/">Licensing</a>
                 </div>
             </div>
@@ -88,7 +88,7 @@
             <div class="item">
                 <a href="../developers/project.html">Project Resources</a>
                 <div class="menu">
-                    <a class="item" href="http://goo.gl/IGbiio">Official GoAhead News</a>
+                    <a class="item" href="https://embedthis.com/blog/categories/GoAhead/">GoAhead News</a>
                     <a class="item" href="https://embedthis.com/goahead/">GoAhead Web Site</a>
                     <a class="item" href="https://github.com/embedthis/goahead">Source Code Repository</a>
                     <a class="item" href="https://github.com/embedthis/goahead/issues/99">GoAhead Security Alerts</a>
@@ -121,7 +121,7 @@
                 <a class="item" href="https://embedthis.com/">Embedthis</a>
                     <a class="item" href="https://embedthis.com/goahead/">GoAhead Site</a>
                     <span class="desktop-only">
-                        <a class="item" href="http://goo.gl/9bL9rM">GoAhead News</a>
+                        <a class="item" href="https://embedthis.com/blog/categories/GoAhead/">GoAhead News</a>
                         <a class="item" href="https://github.com/embedthis/goahead">Repository</a>
                         <a class="item" href="https://embedthis.com/blog/">Blog</a>
                         <a class="item" href="https://twitter.com/embedthat">Twitter</a>
@@ -198,7 +198,7 @@ bin\goahead --help
 
     </div>
     <div class="terms ui basic center aligned segment">
-        <p>&copy; Embedthis Software, 2003-2015. All rights reserved.</p>
+        <p>&copy; Embedthis Software. All rights reserved.</p>
     </div>
 
     <script src="../lib/jquery/jquery.min.js"></script>
