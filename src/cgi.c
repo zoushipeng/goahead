@@ -143,6 +143,11 @@ PUBLIC bool cgiHandler(Webs *wp)
             n++;
             if (n >= argpsize) {
                 argpsize *= 2;
+                if (argpsize > ME_GOAHEAD_LIMIT_CGI_ARGS) {
+                    websError(wp, HTTP_CODE_REQUEST_TOO_LARGE, "Too many arguments");
+                    wfree(cgiPath);
+                    return 1;
+                }
                 argp = wrealloc(argp, argpsize * sizeof(char *));
             }
             cp = stok(NULL, " ", &tok);
