@@ -2202,6 +2202,13 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len)
     assert(decoded);
     assert(input);
 
+    if (!decoded) {
+        return;
+    }
+    if (!input) {
+        *decoded = '\0';
+        return;
+    }
     if (len < 0) {
         len = strlen(input);
     }
