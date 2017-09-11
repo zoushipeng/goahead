@@ -373,7 +373,7 @@ static bool processContentData(Webs *wp)
             hashEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
             defineUploadVars(wp);
 
-        } else {
+        } else if (wp->uploadVar) {
             /*
                 Normal string form data variables
              */
