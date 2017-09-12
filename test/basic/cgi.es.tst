@@ -118,7 +118,7 @@ if (thas('ME_GOAHEAD_CGI')) {
     function status() {
         let http = new Http
         http.setHeader("SWITCHES", "-s%20711")
-        http.get(HTTP + "/cgi-bin/cgitest?mob=111")
+        http.get(HTTP + "/cgi-bin/cgitest?pat=111")
         ttrue(http.status == 711)
         http.close()
     }
