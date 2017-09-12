@@ -218,15 +218,6 @@ extern void assert(bool cond);
     #define assert(C)       if (1) ; else {}
 #endif
 
-//  Deprecated 3.1
-#if DEPRECATED
-#define traceOpen logOpen
-#define traceClose logClose
-#define WebsTraceHandler WebLogHandler
-#define traceSetPath logSetPath
-#define websGetTraceLevel websGetLogLevel
-#endif
-
 /**
     Callback for emitting trace log output
     @param level Integer between 0 and 9. Zero is the lowest trace level used for the most important messages.
@@ -837,7 +828,10 @@ PUBLIC void websSetMemNotifier(WebsMemNotifier cback);
     #define WEBS_SHIFT 4
 #endif
 
-#if DEPRECATE || 1
+#if DEPRECATE
+/*
+    Deprecated in 4.0.0
+ */
 PUBLIC ssize mtow(wchar *dest, ssize count, char *src, ssize len);
 PUBLIC ssize wtom(char *dest, ssize count, wchar *src, ssize len);
 PUBLIC wchar *amtow(char *src, ssize *len);
