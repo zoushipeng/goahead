@@ -11,7 +11,6 @@ ttrue(http.status == 200)
 http.close()
 
 if (tdepth() >= 3) {
-    //  TODO - TEMP
     if (Config.OS != 'windows') {
         //  Try to crash with DOS attack
         for (i in 200) {
