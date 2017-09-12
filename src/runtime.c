@@ -2255,7 +2255,10 @@ static int calcPrime(int size)
 }
 
 
-#if DEPRECATE || 1
+#if DEPRECATE
+/*
+    Deprecated in 4.0.0
+ */
 /*
     Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length
     in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1
@@ -2374,7 +2377,7 @@ PUBLIC char *awtom(wchar *src, ssize *lenp)
     }
     return dest;
 }
-#endif
+#endif /* DEPRECATE */
 
 
 /*
