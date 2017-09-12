@@ -8,7 +8,7 @@
         build: 'me build',
         test: 'me test',
         package: 'me package',
-        publish: 'me publish',
+        publish: './publish',
     },
     config: {
         publish: {
