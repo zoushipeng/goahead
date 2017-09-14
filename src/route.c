@@ -30,7 +30,7 @@ static int routeMax = 0;
 static bool continueHandler(Webs *wp);
 static void freeRoute(WebsRoute *route);
 static void growRoutes();
-static int lookupRoute(char *uri);
+static int lookupRoute(cchar *uri);
 static bool redirectHandler(Webs *wp);
 
 /************************************ Code ************************************/
@@ -281,7 +281,7 @@ PUBLIC bool websCanString(Webs *wp, char *abilities)
 /*
     If pos is < 0, then add to the end. Otherwise insert at specified position
  */
-WebsRoute *websAddRoute(char *uri, char *handler, int pos)
+PUBLIC WebsRoute *websAddRoute(cchar *uri, cchar *handler, int pos)
 {
     WebsRoute   *route;
     WebsKey     *key;
@@ -324,7 +324,7 @@ WebsRoute *websAddRoute(char *uri, char *handler, int pos)
 }
 
 
-PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions,
+PUBLIC int websSetRouteMatch(WebsRoute *route, cchar *dir, cchar *protocol, WebsHash methods, WebsHash extensions,
         WebsHash abilities, WebsHash redirects)
 {
     assert(route);
@@ -352,7 +352,7 @@ static void growRoutes()
 }
 
 
-static int lookupRoute(char *uri)
+static int lookupRoute(cchar *uri)
 {
     WebsRoute   *route;
     int         i;
@@ -393,7 +393,7 @@ static void freeRoute(WebsRoute *route)
 }
 
 
-PUBLIC int websRemoveRoute(char *uri)
+PUBLIC int websRemoveRoute(cchar *uri)
 {
     int         i;
 
@@ -451,7 +451,7 @@ PUBLIC void websCloseRoute()
 }
 
 
-PUBLIC int websDefineHandler(char *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags)
+PUBLIC int websDefineHandler(cchar *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags)
 {
     WebsHandler     *handler;
 
@@ -496,7 +496,7 @@ static void addOption(WebsHash *hash, char *keys, char *value)
 /*
     Load route and authentication configuration files
  */
-PUBLIC int websLoad(char *path)
+PUBLIC int websLoad(cchar *path)
 {
     WebsRoute   *route;
     WebsHash    abilities, extensions, methods, redirects;
@@ -635,7 +635,7 @@ static bool redirectHandler(Webs *wp)
 
 
 #if ME_GOAHEAD_LEGACY
-PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags)
+PUBLIC int websUrlHandlerDefine(cchar *prefix, cchar *dir, int arg, WebsLegacyHandlerProc handler, int flags)
 {
     WebsRoute   *route;
     static int  legacyCount = 0;
@@ -658,7 +658,7 @@ PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHand
 }
 
 
-PUBLIC int websPublish(char *prefix, char *dir)
+PUBLIC int websPublish(cchar *prefix, cchar *dir)
 {
     WebsRoute   *route;
 

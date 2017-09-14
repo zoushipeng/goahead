@@ -21,16 +21,16 @@ static int  jsMax = -1;     /* Maximum size of  */
 
 static Js       *jsPtr(int jid);
 static void     clearString(char **ptr);
-static void     setString(char **ptr, char *s);
-static void     appendString(char **ptr, char *s);
+static void     setString(char **ptr, cchar *s);
+static void     appendString(char **ptr, cchar *s);
 static int      parse(Js *ep, int state, int flags);
 static int      parseStmt(Js *ep, int state, int flags);
 static int      parseDeclaration(Js *ep, int state, int flags);
 static int      parseCond(Js *ep, int state, int flags);
 static int      parseExpr(Js *ep, int state, int flags);
 static int      parseFunctionArgs(Js *ep, int state, int flags);
-static int      evalExpr(Js *ep, char *lhs, int rel, char *rhs);
-static int      evalCond(Js *ep, char *lhs, int rel, char *rhs);
+static int      evalExpr(Js *ep, cchar *lhs, int rel, cchar *rhs);
+static int      evalCond(Js *ep, cchar *lhs, int rel, cchar *rhs);
 static int      evalFunction(Js *ep);
 static void     freeFunc(JsFun *func);
 static void     jsRemoveNewlines(Js *ep, int state);
@@ -204,7 +204,7 @@ PUBLIC int jsCloseBlock(int jid, int vid)
     Create a new variable scope block and evaluate a script. All variables
     created during this context will be automatically deleted when complete.
  */
-PUBLIC char *jsEvalBlock(int jid, char *script, char **emsg)
+PUBLIC char *jsEvalBlock(int jid, cchar *script, char **emsg)
 {
     char* returnVal;
     int     vid;
@@ -221,7 +221,7 @@ PUBLIC char *jsEvalBlock(int jid, char *script, char **emsg)
 /*
     Parse and evaluate Javascript.
  */
-PUBLIC char *jsEval(int jid, char *script, char **emsg)
+PUBLIC char *jsEval(int jid, cchar *script, char **emsg)
 {
     Js      *ep;
     JsInput *oldBlock;
@@ -375,7 +375,8 @@ static int parseStmt(Js *ep, int state, int flags)
     JsFun       func;
     JsFun       *saveFunc;
     JsInput     condScript, endScript, bodyScript, incrScript;
-    char      *value, *identifier;
+    cchar       *value;
+    char        *identifier;
     int         done, expectSemi, thenFlags, elseFlags, tid, cond, forFlags;
     int         jsVarType;
 
@@ -1043,7 +1044,7 @@ static int parseExpr(Js *ep, int state, int flags)
 /*
     Evaluate a condition. Implements &&, ||, !
  */
-static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
+static int evalCond(Js *ep, cchar *lhs, int rel, cchar *rhs)
 {
     char  buf[16];
     int     l, r, lval;
@@ -1083,9 +1084,10 @@ static int evalCond(Js *ep, char *lhs, int rel, char *rhs)
 /*
     Evaluate an operation
  */
-static int evalExpr(Js *ep, char *lhs, int rel, char *rhs)
+static int evalExpr(Js *ep, cchar *lhs, int rel, cchar *rhs)
 {
-    char  *cp, buf[16];
+    cchar   *cp;
+    char    buf[16];
     int     numeric, l, r, lval;
 
     assert(lhs);
@@ -1241,7 +1243,7 @@ static int evalFunction(Js *ep)
 /*
     Output a parse js_error message
  */
-PUBLIC void jsError(Js *ep, char* fmt, ...)
+PUBLIC void jsError(Js *ep, cchar* fmt, ...)
 {
     va_list     args;
     JsInput     *ip;
@@ -1275,7 +1277,7 @@ static void clearString(char **ptr)
 }
 
 
-static void setString(char **ptr, char *s)
+static void setString(char **ptr, cchar *s)
 {
     assert(ptr);
 
@@ -1286,7 +1288,7 @@ static void setString(char **ptr, char *s)
 }
 
 
-static void appendString(char **ptr, char *s)
+static void appendString(char **ptr, cchar *s)
 {
     ssize   len, oldlen, size;
 
@@ -1307,7 +1309,7 @@ static void appendString(char **ptr, char *s)
 /*
     Define a function
  */
-PUBLIC int jsSetGlobalFunction(int jid, char *name, JsProc fn)
+PUBLIC int jsSetGlobalFunction(int jid, cchar *name, JsProc fn)
 {
     Js    *ep;
 
@@ -1321,7 +1323,7 @@ PUBLIC int jsSetGlobalFunction(int jid, char *name, JsProc fn)
 /*
     Define a function directly into the function symbol table.
  */
-PUBLIC int jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn)
+PUBLIC int jsSetGlobalFunctionDirect(WebsHash functions, cchar *name, JsProc fn)
 {
     if (hashEnter(functions, name, valueSymbol(fn), 0) == NULL) {
         return -1;
@@ -1333,7 +1335,7 @@ PUBLIC int jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn)
 /*
     Remove ("undefine") a function
  */
-PUBLIC int jsRemoveGlobalFunction(int jid, char *name)
+PUBLIC int jsRemoveGlobalFunction(int jid, cchar *name)
 {
     Js    *ep;
 
@@ -1344,7 +1346,7 @@ PUBLIC int jsRemoveGlobalFunction(int jid, char *name)
 }
 
 
-PUBLIC void *jsGetGlobalFunction(int jid, char *name)
+PUBLIC void *jsGetGlobalFunction(int jid, cchar *name)
 {
     Js      *ep;
     WebsKey *sp;
@@ -1373,10 +1375,11 @@ PUBLIC void *jsGetGlobalFunction(int jid, char *name)
             return -1;
         }
  */
-PUBLIC int jsArgs(int argc, char **argv, char *fmt, ...)
+PUBLIC int jsArgs(int argc, char **argv, cchar *fmt, ...)
 {
     va_list vargs;
-    char  *cp, **sp;
+    cchar   *cp;
+    char    **sp;
     int     *ip;
     int     argn;
 
@@ -1447,7 +1450,7 @@ PUBLIC int jsGetLineNumber(int jid)
 }
 
 
-PUBLIC void jsSetResult(int jid, char *s)
+PUBLIC void jsSetResult(int jid, cchar *s)
 {
     Js    *ep;
 
@@ -1458,7 +1461,7 @@ PUBLIC void jsSetResult(int jid, char *s)
 }
 
 
-PUBLIC char *jsGetResult(int jid)
+PUBLIC cchar *jsGetResult(int jid)
 {
     Js    *ep;
 
@@ -1472,7 +1475,7 @@ PUBLIC char *jsGetResult(int jid)
     Set a variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in the
     top-most variable frame.
  */
-PUBLIC void jsSetVar(int jid, char *var, char *value)
+PUBLIC void jsSetVar(int jid, cchar *var, cchar *value)
 {
     Js          *ep;
     WebsValue   v;
@@ -1495,7 +1498,7 @@ PUBLIC void jsSetVar(int jid, char *var, char *value)
     Set a local variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the top-most variable frame.
  */
-PUBLIC void jsSetLocalVar(int jid, char *var, char *value)
+PUBLIC void jsSetLocalVar(int jid, cchar *var, cchar *value)
 {
     Js          *ep;
     WebsValue   v;
@@ -1518,7 +1521,7 @@ PUBLIC void jsSetLocalVar(int jid, char *var, char *value)
     Set a global variable. Note: a variable with a value of NULL means declared but undefined. The value is defined in
     the global variable frame.
  */
-PUBLIC void jsSetGlobalVar(int jid, char *var, char *value)
+PUBLIC void jsSetGlobalVar(int jid, cchar *var, cchar *value)
 {
     Js          *ep;
     WebsValue   v;
@@ -1540,7 +1543,7 @@ PUBLIC void jsSetGlobalVar(int jid, char *var, char *value)
 /*
     Get a variable
  */
-PUBLIC int jsGetVar(int jid, char *var, char **value)
+PUBLIC int jsGetVar(int jid, cchar *var, cchar **value)
 {
     Js          *ep;
     WebsKey     *sp;
@@ -1645,7 +1648,7 @@ PUBLIC void jsLexClose(Js *ep)
 }
 
 
-PUBLIC int jsLexOpenScript(Js *ep, char *script)
+PUBLIC int jsLexOpenScript(Js *ep, cchar *script)
 {
     JsInput     *ip;
 
@@ -2129,7 +2132,7 @@ static int getLexicalToken(Js *ep, int state)
 }
 
 
-PUBLIC void jsLexPutbackToken(Js *ep, int tid, char *string)
+PUBLIC void jsLexPutbackToken(Js *ep, int tid, cchar *string)
 {
     JsInput *ip;
 

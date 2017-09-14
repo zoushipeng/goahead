@@ -186,7 +186,7 @@ PUBLIC void websFileOpen()
 /*
     Get the default page for URL requests ending in "/"
  */
-PUBLIC char *websGetIndex()
+PUBLIC cchar *websGetIndex()
 {
     return websIndex;
 }
@@ -201,7 +201,7 @@ PUBLIC char *websGetDocuments()
 /*
     Set the default page for URL requests ending in "/"
  */
-PUBLIC void websSetIndex(char *page)
+PUBLIC void websSetIndex(cchar *page)
 {
     assert(page && *page);
 
@@ -215,7 +215,7 @@ PUBLIC void websSetIndex(char *page)
 /*
     Set the default web directory
  */
-PUBLIC void websSetDocuments(char *dir)
+PUBLIC void websSetDocuments(cchar *dir)
 {
     assert(dir && *dir);
     if (websDocuments) {

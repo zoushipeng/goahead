@@ -202,7 +202,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
 }
 
 
-static void exitProc(void *data, int id) 
+static void exitProc(void *data, int id)
 {
     websStopEvent(id);
     finished = 1;
@@ -247,7 +247,7 @@ static void usage() {
 }
 
 
-void initPlatform() 
+void initPlatform()
 {
 #if ME_UNIX_LIKE
     signal(SIGINT, sigHandler);
@@ -326,7 +326,7 @@ static int bigTest(int eid, Webs *wp, int argc, char **argv)
  */
 static void actionTest(Webs *wp)
 {
-	char	*name, *address;
+	cchar	*name, *address;
 
 	name = websGetVar(wp, "name", NULL);
 	address = websGetVar(wp, "address", NULL);
@@ -341,7 +341,7 @@ static void actionTest(Webs *wp)
 
 static void sessionTest(Webs *wp)
 {
-	char	*number;
+	cchar	*number;
 
     if (scaselessmatch(wp->method, "POST")) {
         number = websGetVar(wp, "number", 0);
@@ -434,7 +434,7 @@ static int legacyTest(Webs *wp, char *prefix, char *dir, int flags)
     Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
 
     This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire 
+    You may use the Embedthis GoAhead open source license or you may acquire
     a commercial license from Embedthis Software. You agree to be fully bound
     by the terms of either license. Consult the LICENSE.md distributed with
     this software for full details and other copyrights.

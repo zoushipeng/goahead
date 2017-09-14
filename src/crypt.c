@@ -194,7 +194,7 @@ PUBLIC char *websDecode64Block(char *s, ssize *len, int flags)
 }
 
 
-PUBLIC char *websMD5(char *s)
+PUBLIC char *websMD5(cchar *s)
 {
     return websMD5Block(s, strlen(s), NULL);
 }
@@ -203,7 +203,7 @@ PUBLIC char *websMD5(char *s)
 /*
     Return the MD5 hash of a block. Returns allocated string. A prefix for the result can be supplied.
  */
-PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix)
+PUBLIC char *websMD5Block(cchar *buf, ssize length, cchar *prefix)
 {
     MD5CONTEXT      context;
     uchar           hash[CRYPT_HASH_SIZE];
@@ -920,7 +920,7 @@ PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block)
 }
 
 
-PUBLIC char *websCryptPassword(char *password, char *salt, int rounds)
+PUBLIC char *websCryptPassword(cchar *password, cchar *salt, int rounds)
 {
     WebsBlowfish    bf;
     char            *result, *key;
@@ -980,7 +980,7 @@ PUBLIC char *websMakeSalt(ssize size)
 
     Algorithm: Rounds: Salt: Hash
 */
-PUBLIC char *websMakePassword(char *password, int saltLength, int rounds)
+PUBLIC char *websMakePassword(cchar *password, int saltLength, int rounds)
 {
     char    *salt;
 
@@ -998,7 +998,7 @@ PUBLIC char *websMakePassword(char *password, int saltLength, int rounds)
 }
 
 
-PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash)
+PUBLIC bool websCheckPassword(cchar *plainTextPassword, cchar *passwordHash)
 {
     char    *given, *rounds, *salt, *s1, *s2, *tok, *hash, *ph;
     ssize   match;
@@ -1029,7 +1029,7 @@ PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash)
 }
 
 
-PUBLIC char *websReadPassword(char *prompt)
+PUBLIC char *websReadPassword(cchar *prompt)
 {
     char    *cp, *password, *result;
 
