@@ -19,7 +19,7 @@ static int          hasIPv6;                /* System supports IPv6 */
 
 /***************************** Forward Declarations ***************************/
 
-static int ipv6(char *ip);
+static int ipv6(cchar *ip);
 static void socketAccept(WebsSocket *sp);
 static void socketDoEvent(WebsSocket *sp);
 
@@ -92,12 +92,12 @@ PUBLIC bool socketHasIPv6()
 }
 
 
-PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
+PUBLIC int socketListen(cchar *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket              *sp;
     struct sockaddr_storage addr;
     Socklen                 addrlen;
-    char                    *sip;
+    cchar                   *sip;
     int                     family, protocol, sid, enable;
 
     if (port > SOCKET_PORT_MAX) {
@@ -893,7 +893,7 @@ PUBLIC void socketDeleteHandler(int sid)
 /*
     Allocate a new socket structure
  */
-PUBLIC int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
+PUBLIC int socketAlloc(cchar *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket    *sp;
     int         sid;
@@ -1079,7 +1079,7 @@ PUBLIC int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)
+PUBLIC int socketInfo(cchar *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -1236,7 +1236,7 @@ PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen
 /*
     Looks like an IPv6 address if it has 2 or more colons
  */
-static int ipv6(char *ip)
+static int ipv6(cchar *ip)
 {
     char  *cp;
     int     colons;
@@ -1272,7 +1272,7 @@ static int ipv6(char *ip)
     This routine parses any "https://" prefix.
     Caller must free *pip
  */
-PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)
+PUBLIC int socketParseAddress(cchar *address, char **pip, int *pport, int *secure, int defaultPort)
 {
     char    *ip, *cp;
 
@@ -1369,7 +1369,7 @@ PUBLIC bool socketIsV6(int sid)
 }
 
 
-PUBLIC bool socketAddressIsV6(char *ip)
+PUBLIC bool socketAddressIsV6(cchar *ip)
 {
     return ip && ipv6(ip);
 }

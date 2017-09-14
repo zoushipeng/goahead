@@ -290,7 +290,7 @@ static void swapDayMonth(struct tm *tp)
     via the defaults argument. This is a tolerant parser. It is not validating and will do its best
     to parse any possible date string.
  */
-PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaults)
+PUBLIC int websParseDateTime(WebsTime *time, cchar *dateString, struct tm *defaults)
 {
     TimeToken       *tt;
     struct tm       tm;
@@ -326,7 +326,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
         Set to -1 to try to determine if DST is in effect
      */
     tm.tm_isdst = -1;
-    str = slower(dateString);
+    str = slower(sclone(dateString));
 
     /*
         Handle ISO dates: 2009-05-21t16:06:05.000z
@@ -350,6 +350,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
             value = atoi(token);
             if (value > 3000) {
                 *time = value;
+                wfree(str);
                 return 0;
             } else if (value > 32 || (tm.tm_mday >= 0 && tm.tm_year == -MAXINT)) {
                 if (value >= 1000) {
@@ -498,6 +499,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *dateString, struct tm *defaul
     *time = makeTime(&tm);
     *time += -(zoneOffset * SEC_PER_MIN);
     *time += offset;
+    wfree(str);
     return 0;
 }
 

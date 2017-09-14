@@ -431,7 +431,7 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
 
 
 
-WebsUpload *websLookupUpload(Webs *wp, char *key)
+WebsUpload *websLookupUpload(Webs *wp, cchar *key)
 {
     WebsKey     *sp;
 

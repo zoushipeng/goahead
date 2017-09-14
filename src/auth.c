@@ -54,9 +54,9 @@ typedef struct {
 
 /********************************** Forwards **********************************/
 
-static void computeAbilities(WebsHash abilities, char *role, int depth);
+static void computeAbilities(WebsHash abilities, cchar *role, int depth);
 static void computeUserAbilities(WebsUser *user);
-static WebsUser *createUser(char *username, char *password, char *roles);
+static WebsUser *createUser(cchar *username, cchar *password, cchar *roles);
 static void freeRole(WebsRole *rp);
 static void freeUser(WebsUser *up);
 static void logoutServiceProc(Webs *wp);
@@ -243,7 +243,7 @@ PUBLIC int websWriteAuthFile(char *path)
 #endif
 
 
-static WebsUser *createUser(char *username, char *password, char *roles)
+static WebsUser *createUser(cchar *username, cchar *password, cchar *roles)
 {
     WebsUser    *user;
 
@@ -260,7 +260,7 @@ static WebsUser *createUser(char *username, char *password, char *roles)
 }
 
 
-WebsUser *websAddUser(char *username, char *password, char *roles)
+WebsUser *websAddUser(cchar *username, cchar *password, cchar *roles)
 {
     WebsUser    *user;
 
@@ -283,7 +283,7 @@ WebsUser *websAddUser(char *username, char *password, char *roles)
 }
 
 
-PUBLIC int websRemoveUser(char *username)
+PUBLIC int websRemoveUser(cchar *username)
 {
     WebsKey     *key;
 
@@ -306,7 +306,7 @@ static void freeUser(WebsUser *up)
 }
 
 
-PUBLIC int websSetUserPassword(char *username, char *password)
+PUBLIC int websSetUserPassword(cchar *username, cchar *password)
 {
     WebsUser    *user;
 
@@ -320,7 +320,7 @@ PUBLIC int websSetUserPassword(char *username, char *password)
 }
 
 
-PUBLIC int websSetUserRoles(char *username, char *roles)
+PUBLIC int websSetUserRoles(cchar *username, cchar *roles)
 {
     WebsUser    *user;
 
@@ -335,7 +335,7 @@ PUBLIC int websSetUserRoles(char *username, char *roles)
 }
 
 
-WebsUser *websLookupUser(char *username)
+WebsUser *websLookupUser(cchar *username)
 {
     WebsKey     *key;
 
@@ -347,7 +347,7 @@ WebsUser *websLookupUser(char *username)
 }
 
 
-static void computeAbilities(WebsHash abilities, char *role, int depth)
+static void computeAbilities(WebsHash abilities, cchar *role, int depth)
 {
     WebsRole    *rp;
     WebsKey     *key;
@@ -414,7 +414,7 @@ PUBLIC void websComputeAllUserAbilities()
 }
 
 
-WebsRole *websAddRole(char *name, WebsHash abilities)
+WebsRole *websAddRole(cchar *name, WebsHash abilities)
 {
     WebsRole    *rp;
 
@@ -449,7 +449,7 @@ static void freeRole(WebsRole *rp)
 /*
     Does not recompute abilities for users that use this role
  */
-PUBLIC int websRemoveRole(char *name)
+PUBLIC int websRemoveRole(cchar *name)
 {
     WebsRole    *rp;
     WebsKey     *sym;
@@ -480,7 +480,7 @@ PUBLIC WebsHash websGetRoles()
 }
 
 
-PUBLIC bool websLoginUser(Webs *wp, char *username, char *password)
+PUBLIC bool websLoginUser(Webs *wp, cchar *username, cchar *password)
 {
     assert(wp);
     assert(wp->route);
@@ -533,7 +533,7 @@ static void loginServiceProc(Webs *wp)
 
     if (websLoginUser(wp, websGetVar(wp, "username", ""), websGetVar(wp, "password", ""))) {
         /* If the application defines a referrer session var, redirect to that */
-        char *referrer;
+        cchar *referrer;
         if ((referrer = websGetSessionVar(wp, "referrer", 0)) != 0) {
             websRedirect(wp, referrer);
         } else {
@@ -1056,7 +1056,7 @@ static char *calcDigest(Webs *wp, char *username, char *password)
 #endif /* ME_GOAHEAD_DIGEST */
 
 
-PUBLIC int websSetRouteAuth(WebsRoute *route, char *auth)
+PUBLIC int websSetRouteAuth(WebsRoute *route, cchar *auth)
 {
     WebsParseAuth parseAuth;
     WebsAskLogin  askLogin;
