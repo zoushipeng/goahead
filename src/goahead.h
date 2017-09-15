@@ -4137,13 +4137,13 @@ PUBLIC int websSetSessionVar(Webs *wp, cchar *name, cchar *value);
     typedef WebsStat gstat_t;
     typedef WebsValue value_t;
 
-    PUBLIC int fmtValloc(char **s, int n, char *fmt, va_list arg);
-    PUBLIC int fmtAlloc(char **s, int n, char *fmt, ...);
+    PUBLIC int fmtValloc(char **s, int n, cchar *fmt, va_list arg);
+    PUBLIC int fmtAlloc(char **s, int n, cchar *fmt, ...);
     PUBLIC void websFooter(Webs *wp);
     PUBLIC void websHeader(Webs *wp);
-    PUBLIC int websPublish(char *prefix, char *path);
-    PUBLIC void websSetRequestFilename(Webs *wp, char *filename);
-    PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags);
+    PUBLIC int websPublish(cchar *prefix, cchar *path);
+    PUBLIC void websSetRequestFilename(Webs *wp, cchar *filename);
+    PUBLIC int websUrlHandlerDefine(cchar *prefix, cchar *dir, int arg, WebsLegacyHandlerProc handler, int flags);
 
 #if ME_ROM
     typedef WebsRomIndex websRomIndexType;
