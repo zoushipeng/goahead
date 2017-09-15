@@ -2312,11 +2312,6 @@ static void checkTimeout(void *arg, int id)
         websRestartEvent(id, (int) WEBS_TIMEOUT);
         return;
     }
-    if (wp->state == WEBS_BEGIN) {
-        complete(wp, 0);
-        websFree(wp);
-        return;
-    }
     if (elapsed >= WEBS_TIMEOUT) {
         if (!(wp->flags & WEBS_HEADERS_CREATED)) {
             if (wp->state > WEBS_BEGIN) {
