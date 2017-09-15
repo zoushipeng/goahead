@@ -2065,7 +2065,7 @@ PUBLIC int websFlush(Webs *wp, bool block)
     written = 0;
     while ((nbytes = bufLen(op)) > 0) {
         if ((written = websWriteSocket(wp, op->servp, nbytes)) < 0) {
-            errCode = socketGetError();
+            errCode = socketGetError(wp->sid);
             if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
                 /* Not an error */
                 written = 0;

@@ -123,7 +123,7 @@ static void fileWriteEvent(Webs *wp)
     }
     while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
-            err = socketGetError();
+            err = socketGetError(wp->sid);
             if (err == EWOULDBLOCK || err == EAGAIN) {
                 websPageSeek(wp, -len, SEEK_CUR);
             } else {

@@ -1141,11 +1141,12 @@ PUBLIC int socketGetBlock(int sid);
 
 /**
     Get the error code for the last socket operation on this thread.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return Integer error code. See errno or GetLastError() on windows.
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketGetError();
+PUBLIC int socketGetError(int sid);
 
 /**
     Get the underlying socket operating system socket/file handle
