@@ -87,7 +87,11 @@ PUBLIC int websStatFile(cchar *path, WebsFileInfo *sbuf)
     }
     memset(sbuf, 0, sizeof(WebsFileInfo));
     sbuf->size = wip->size;
+#if ME_ROM_TIME
+    sbuf->mtime = ME_ROM_TIME;
+#else
     sbuf->mtime = 1;
+#endif
     if (wip->page == NULL) {
         sbuf->isDir = 1;
     }

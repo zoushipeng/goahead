@@ -258,6 +258,9 @@
 #ifndef ME_ROM
     #define ME_ROM 0
 #endif
+#ifndef ME_ROM_TIME
+    #define ME_ROM_TIME 1505449519432
+#endif
 #ifndef ME_TITLE
     #define ME_TITLE "Embedthis GoAhead"
 #endif
