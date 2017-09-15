@@ -234,7 +234,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 &&
         (rc = tryAlternateConnect(sp->sock, (struct sockaddr*) &addr)) < 0) {
 #if ME_WIN_LIKE
-        if (socketGetError() != EWOULDBLOCK) {
+        if (socketGetError(sid) != EWOULDBLOCK) {
             socketFree(sid);
             return -1;
         }
@@ -777,7 +777,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
     sofar = 0;
     while (len > 0) {
         if ((written = send(sp->sock, (char*) buf + sofar, (int) len, 0)) < 0) {
-            errCode = socketGetError();
+            errCode = socketGetError(sid);
             if (errCode == EINTR) {
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
@@ -819,7 +819,7 @@ PUBLIC ssize socketRead(int sid, void *buf, ssize bufsize)
         return -1;
     }
     if ((bytes = recv(sp->sock, buf, (int) bufsize, 0)) < 0) {
-        errCode = socketGetError();
+        errCode = socketGetError(sid);
         if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
             bytes = 0;
         } else {
@@ -976,7 +976,7 @@ WebsSocket *socketPtr(int sid)
 /*
     Get the operating system error code
  */
-PUBLIC int socketGetError()
+PUBLIC int socketGetError(int sid)
 {
 #if ME_WIN_LIKE
     switch (WSAGetLastError()) {
