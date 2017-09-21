@@ -124,10 +124,11 @@ PUBLIC bool websProcessUploadData(Webs *wp)
             }
             *nextTok++ = '\0';
             nbytes = nextTok - line;
+            assert(nbytes > 0);
             websConsumeInput(wp, nbytes);
             strim(line, "\r", WEBS_TRIM_END);
             len = strlen(line);
-            if (line[len - 1] == '\r') {
+            if (len > 0 && line[len - 1] == '\r') {
                 line[len - 1] = '\0';
             }
         }
@@ -228,6 +229,7 @@ static void processUploadHeader(Webs *wp, char *line)
                     websError(wp, HTTP_CODE_BAD_REQUEST, "Bad upload state. Missing name field");
                     return;
                 }
+printf("FILENAME %s\n", value);
                 value = websNormalizeUriPath(value);
                 if (*value == '.' || !websValidUriChars(value) || strpbrk(value, "\\/:*?<>|~\"'%`^\n\r\t\f")) {
                     websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Bad upload client filename");
