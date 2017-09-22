@@ -7,9 +7,9 @@
 #   you can build using the MakeMe tool for for a fully configurable build. If you wish to
 #   cross-compile, you should use MakeMe.
 #
-#	See projects/$(OS)-$(ARCH)-$(PROFILE)-me.h for configuration default settings. Can override 
-#	via make environment variables. For example: make ME_COM_SQLITE=0. These are converted to 
-#	DFLAGS and will then override the me.h default values. Use "make help" for a list of available 
+#	See projects/$(OS)-$(ARCH)-$(PROFILE)-me.h for configuration default settings. Can override
+#	via make environment variables. For example: make ME_COM_SQLITE=0. These are converted to
+#	DFLAGS and will then override the me.h default values. Use "make help" for a list of available
 #	make variable options.
 #
 NAME    := goahead
@@ -60,7 +60,7 @@ deploy:
 install:
 	$(MAKE) -f projects/$(NAME)-$(OS)-$(PROFILE).$(EXT) $@
 ifneq ($(OS),windows)
-	@echo ; echo 'You can now run via "sudo goahead -v --home /etc/goahead /var/www/goahead-default"'
+	@echo ; echo 'You can now run via "sudo goahead -v --home /etc/goahead /var/www/goahead"'
 else
 	@echo ; echo 'You can now run via "goahead -v" in the goahead installation directory.'
 endif

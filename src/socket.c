@@ -19,7 +19,7 @@ static int          hasIPv6;                /* System supports IPv6 */
 
 /***************************** Forward Declarations ***************************/
 
-static int ipv6(char *ip);
+static int ipv6(cchar *ip);
 static void socketAccept(WebsSocket *sp);
 static void socketDoEvent(WebsSocket *sp);
 
@@ -92,12 +92,12 @@ PUBLIC bool socketHasIPv6()
 }
 
 
-PUBLIC int socketListen(char *ip, int port, SocketAccept accept, int flags)
+PUBLIC int socketListen(cchar *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket              *sp;
     struct sockaddr_storage addr;
     Socklen                 addrlen;
-    char                    *sip;
+    cchar                   *sip;
     int                     family, protocol, sid, enable;
 
     if (port > SOCKET_PORT_MAX) {
@@ -234,7 +234,7 @@ PUBLIC int socketConnect(char *ip, int port, int flags)
     if ((rc = connect(sp->sock, (struct sockaddr*) &addr, sizeof(addr))) < 0 &&
         (rc = tryAlternateConnect(sp->sock, (struct sockaddr*) &addr)) < 0) {
 #if ME_WIN_LIKE
-        if (socketGetError() != EWOULDBLOCK) {
+        if (socketGetError(sid) != EWOULDBLOCK) {
             socketFree(sid);
             return -1;
         }
@@ -777,7 +777,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
     sofar = 0;
     while (len > 0) {
         if ((written = send(sp->sock, (char*) buf + sofar, (int) len, 0)) < 0) {
-            errCode = socketGetError();
+            errCode = socketGetError(sid);
             if (errCode == EINTR) {
                 continue;
             } else if (errCode == EWOULDBLOCK || errCode == EAGAIN) {
@@ -819,7 +819,7 @@ PUBLIC ssize socketRead(int sid, void *buf, ssize bufsize)
         return -1;
     }
     if ((bytes = recv(sp->sock, buf, (int) bufsize, 0)) < 0) {
-        errCode = socketGetError();
+        errCode = socketGetError(sid);
         if (errCode == EAGAIN || errCode == EWOULDBLOCK) {
             bytes = 0;
         } else {
@@ -893,7 +893,7 @@ PUBLIC void socketDeleteHandler(int sid)
 /*
     Allocate a new socket structure
  */
-PUBLIC int socketAlloc(char *ip, int port, SocketAccept accept, int flags)
+PUBLIC int socketAlloc(cchar *ip, int port, SocketAccept accept, int flags)
 {
     WebsSocket    *sp;
     int         sid;
@@ -976,7 +976,7 @@ WebsSocket *socketPtr(int sid)
 /*
     Get the operating system error code
  */
-PUBLIC int socketGetError()
+PUBLIC int socketGetError(int sid)
 {
 #if ME_WIN_LIKE
     switch (WSAGetLastError()) {
@@ -1079,7 +1079,7 @@ PUBLIC int socketGetPort(int sid)
     prefer the IPv4 address. This routine uses getaddrinfo.
     Caller must free addr.
  */
-PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)
+PUBLIC int socketInfo(cchar *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen)
 {
     struct addrinfo     hints, *res, *r;
     char                portBuf[16];
@@ -1236,7 +1236,7 @@ PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ip, int ipLen
 /*
     Looks like an IPv6 address if it has 2 or more colons
  */
-static int ipv6(char *ip)
+static int ipv6(cchar *ip)
 {
     char  *cp;
     int     colons;
@@ -1272,7 +1272,7 @@ static int ipv6(char *ip)
     This routine parses any "https://" prefix.
     Caller must free *pip
  */
-PUBLIC int socketParseAddress(char *address, char **pip, int *pport, int *secure, int defaultPort)
+PUBLIC int socketParseAddress(cchar *address, char **pip, int *pport, int *secure, int defaultPort)
 {
     char    *ip, *cp;
 
@@ -1369,7 +1369,7 @@ PUBLIC bool socketIsV6(int sid)
 }
 
 
-PUBLIC bool socketAddressIsV6(char *ip)
+PUBLIC bool socketAddressIsV6(cchar *ip)
 {
     return ip && ipv6(ip);
 }

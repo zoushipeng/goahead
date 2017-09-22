@@ -28,7 +28,7 @@ static char *skipWhite(char *s);
 static bool jstHandler(Webs *wp)
 {
     WebsFileInfo    sbuf;
-    char            *token, *lang, *result, *ep, *cp, *buf, *nextp, *last;
+    char            *lang, *token, *result, *ep, *cp, *buf, *nextp, *last;
     ssize           len;
     int             rc, jid;
 
@@ -185,7 +185,7 @@ PUBLIC int websJstOpen()
 /*
     Define a Javascript function. Bind an Javascript name to a C procedure.
  */
-PUBLIC int websDefineJst(char *name, WebsJstProc fn)
+PUBLIC int websDefineJst(cchar *name, WebsJstProc fn)
 {
     return jsSetGlobalFunctionDirect(websJstFunctions, name, (JsProc) fn);
 }

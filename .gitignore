@@ -7,3 +7,4 @@ test/self.crt
 test/self.key
 dh.pem
 test/web/tmp/small.dat
+test/burp*

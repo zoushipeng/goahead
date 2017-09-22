@@ -12,19 +12,12 @@
                 <li><a href="http://www.ietf.org/rfc/rfc1867.txt">Form-based File Upload in HTML</a></li>
             </ul><a id="api"></a>
             <h2 >API Compatibility</h2>
-            <p>The GoAhead APIs are evolving, and are thus subject to change between minor releases. The documentation
-            provides a <a href="stability.html">Stability Classification</a> for each API group that reflects
-            their stability with regard to backwards compatibility.</p>
-            <p>We do <b>not</b> provide a blanket commitment to backward compatibility.  Rather, we adopt a more 
-            surgical approach on an API by API basis.</p>
-            
-            <h2>Migrating to GoAhead 3</h2>
-            <p>GoAhead 3 is major upgrade relative to GoAhead 2. Some APIs have changed and new APIs have
-            been added for increased functionality. Where the APIs have changed, their core functionality and 
-            operation typically remains similar. You can migrate code from GoAhead 2 to GoAhead 3 with 
-            simple refactoring.</p>
+            <p>The GoAhead APIs are evolving, and are thus subject to change between minor releases. The documentation provides a <a href="stability.html">Stability Classification</a> for each API group that reflects their stability with regard to backwards compatibility.</p>
+            <p>We do <b>not</b> provide a blanket commitment to backward compatibility.  Rather, we adopt a more surgical approach on an API by API basis.</p>
+
+            <h2>Migrating to GoAhead 3/4</h2>
+            <p>GoAhead 3 is major upgrade relative to GoAhead 2. Some APIs have changed and new APIs have been added for increased functionality. Where the APIs have changed, their core functionality and operation typically remains similar. You can migrate code from GoAhead 2 to GoAhead 3 with simple refactoring.</p>
+            <p>GoAhead 4 is highly compatible with GoAhead 3. A small number of deprecated APIs were removed and the contract of some APIS have been strengthened by adding "const". However, GoAhead 3 applications should run unmodified in GoAhead 4.</p>
             <a name="legacy"></a>
-            <h3>Legacy API Support</h3> 
-            <p>The configure command has an option to maximize backward 
-            compatibility and assist migration by supporting the legacy APIs. Use 
-            <em>configure --set legacy=true</em> to enable the legacy APIs.</p>
+            <h3>Legacy API Support</h3>
+            <p>The configure command has an option to maximize backward compatibility and assist migration by supporting the legacy APIs. Use <em>configure --set legacy=true</em> to enable the legacy APIs.</p>

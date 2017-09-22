@@ -49,7 +49,7 @@ PUBLIC void websFsClose()
 }
 
 
-PUBLIC int websOpenFile(char *path, int flags, int mode)
+PUBLIC int websOpenFile(cchar *path, int flags, int mode)
 {
 #if ME_ROM
     WebsRomIndex    *wip;
@@ -75,7 +75,7 @@ PUBLIC void websCloseFile(int fd)
 }
 
 
-PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
+PUBLIC int websStatFile(cchar *path, WebsFileInfo *sbuf)
 {
 #if ME_ROM
     WebsRomIndex    *wip;
@@ -87,7 +87,11 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf)
     }
     memset(sbuf, 0, sizeof(WebsFileInfo));
     sbuf->size = wip->size;
+#if ME_ROM_TIME
+    sbuf->mtime = ME_ROM_TIME;
+#else
     sbuf->mtime = 1;
+#endif
     if (wip->page == NULL) {
         sbuf->isDir = 1;
     }
@@ -140,7 +144,7 @@ PUBLIC ssize websReadFile(int fd, char *buf, ssize size)
 }
 
 
-PUBLIC char *websReadWholeFile(char *path)
+PUBLIC char *websReadWholeFile(cchar *path)
 {
     WebsFileInfo    sbuf;
     char            *buf;
@@ -202,7 +206,7 @@ Offset websSeekFile(int fd, Offset offset, int origin)
 }
 
 
-PUBLIC ssize websWriteFile(int fd, char *buf, ssize size)
+PUBLIC ssize websWriteFile(int fd, cchar *buf, ssize size)
 {
 #if ME_ROM
     error("Cannot write to a rom file system");

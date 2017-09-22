@@ -105,6 +105,7 @@ Me.load({
                 Sandbox limits and allocation sizes
              */
             limitBuffer:          1024,    /* I/O Buffer size. Also chunk size. */
+            limitCgiArgs:         4096,    /* Max number of CGI args */
             limitFiles:              0,    /* Maximum files/sockets. Set to zero for unlimited. Unix only */
             limitFilename:         256,    /* Maximum filename size */
             limitHeader:          2048,    /* Maximum HTTP single header size */
@@ -190,6 +191,12 @@ Me.load({
             Build without a file system (from ROM)
          */
         rom: false,
+
+        /*
+            Default modifiecation time for rommed files.
+            Set to the number of seconds since Jan 1 1970.
+         */
+        romTime: 1505449519432,
     },
 
     usage: {
@@ -358,3 +365,4 @@ Me.load({
         }
     },
 })
+

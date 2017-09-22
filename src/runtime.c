@@ -185,17 +185,17 @@ static int       logFd;             /* Log file handle */
 
 static int calcPrime(int size);
 static int getBinBlockSize(int size);
-static int hashIndex(HashTable *tp, char *name);
-static WebsKey *hash(HashTable *tp, char *name);
+static int hashIndex(HashTable *tp, cchar *name);
+static WebsKey *hash(HashTable *tp, cchar *name);
 
 #if ME_GOAHEAD_LOGGING
-static void defaultLogHandler(int level, char *buf);
+static void defaultLogHandler(int level, cchar *buf);
 static WebsLogHandler logHandler = defaultLogHandler;
 #endif
 
 static int  getState(char c, int state);
 static int  growBuf(Format *fmt);
-static char *sprintfCore(char *buf, ssize maxsize, char *fmt, va_list arg);
+static char *sprintfCore(char *buf, ssize maxsize, cchar *fmt, va_list arg);
 static void outNum(Format *fmt, char *prefix, uint64 val);
 static void outString(Format *fmt, char *str, ssize len);
 #if ME_FLOAT
@@ -309,7 +309,7 @@ int websRunEvents()
 /*
     Allocating secure replacement for sprintf and vsprintf.
  */
-PUBLIC char *sfmt(char *format, ...)
+PUBLIC char *sfmt(cchar *format, ...)
 {
     va_list     ap;
     char        *result;
@@ -326,7 +326,7 @@ PUBLIC char *sfmt(char *format, ...)
 /*
     Replacement for sprintf
  */
-PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
+PUBLIC char *fmt(char *buf, ssize bufsize, cchar *format, ...)
 {
     va_list     ap;
     char        *result;
@@ -347,7 +347,7 @@ PUBLIC char *fmt(char *buf, ssize bufsize, char *format, ...)
 /*
     Scure vsprintf replacement
  */
-PUBLIC char *sfmtv(char *fmt, va_list arg)
+PUBLIC char *sfmtv(cchar *fmt, va_list arg)
 {
     assert(fmt);
     return sprintfCore(NULL, -1, fmt, arg);
@@ -370,7 +370,7 @@ static int getState(char c, int state)
 }
 
 
-static char *sprintfCore(char *buf, ssize maxsize, char *spec, va_list args)
+static char *sprintfCore(char *buf, ssize maxsize, cchar *spec, va_list args)
 {
     Format        fmt;
     ssize         len;
@@ -924,7 +924,7 @@ WebsValue valueSymbol(void *value)
 }
 
 
-WebsValue valueString(char *value, int flags)
+WebsValue valueString(cchar *value, int flags)
 {
     WebsValue v;
 
@@ -936,7 +936,7 @@ WebsValue valueString(char *value, int flags)
         v.value.string = sclone(value);
     } else {
         v.allocated = 0;
-        v.value.string = value;
+        v.value.string = (char*) value;
     }
     return v;
 }
@@ -954,7 +954,7 @@ PUBLIC void valueFree(WebsValue* v)
 
 
 #if ME_GOAHEAD_LOGGING
-static void defaultLogHandler(int flags, char *buf)
+static void defaultLogHandler(int flags, cchar *buf)
 {
     char    prefix[ME_GOAHEAD_LIMIT_STRING];
 
@@ -976,7 +976,7 @@ static void defaultLogHandler(int flags, char *buf)
 }
 
 
-PUBLIC void error(char *fmt, ...)
+PUBLIC void error(cchar *fmt, ...)
 {
     va_list     args;
     char        *message;
@@ -1010,7 +1010,7 @@ PUBLIC void assertError(WEBS_ARGS_DEC, char *fmt, ...)
 }
 
 
-PUBLIC void logmsgProc(int level, char *fmt, ...)
+PUBLIC void logmsgProc(int level, cchar *fmt, ...)
 {
     va_list     args;
     char        *message;
@@ -1025,7 +1025,7 @@ PUBLIC void logmsgProc(int level, char *fmt, ...)
 }
 
 
-PUBLIC void traceProc(int level, char *fmt, ...)
+PUBLIC void traceProc(int level, cchar *fmt, ...)
 {
     va_list     args;
     char        *message;
@@ -1107,7 +1107,7 @@ PUBLIC void logClose()
 }
 
 
-PUBLIC void logSetPath(char *path)
+PUBLIC void logSetPath(cchar *path)
 {
     char  *lp;
 
@@ -1483,7 +1483,7 @@ PUBLIC int bufInsertc(WebsBuf *bp, char c)
 }
 
 
-PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...)
+PUBLIC ssize bufPut(WebsBuf *bp, cchar *fmt, ...)
 {
     va_list     ap;
     char        *str;
@@ -1508,7 +1508,7 @@ PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...)
 /*
     Add a string to the queue. Add a trailing null (maybe two nulls)
  */
-PUBLIC ssize bufPutStr(WebsBuf *bp, char *str)
+PUBLIC ssize bufPutStr(WebsBuf *bp, cchar *str)
 {
     ssize   rc;
 
@@ -1621,7 +1621,7 @@ PUBLIC int bufPutStrA(WebsBuf *bp, char *str)
 /*
     Add a block of data to the buf. Return the number of bytes added. Grow the buffer as required.
  */
-PUBLIC ssize bufPutBlk(WebsBuf *bp, char *buf, ssize size)
+PUBLIC ssize bufPutBlk(WebsBuf *bp, cchar *buf, ssize size)
 {
     ssize   this, added;
 
@@ -2019,7 +2019,7 @@ WebsKey *hashNext(WebsHash sd, WebsKey *last)
 /*
     Lookup a symbol and return a pointer to the symbol entry. If not present then return a NULL.
  */
-WebsKey *hashLookup(WebsHash sd, char *name)
+WebsKey *hashLookup(WebsHash sd, cchar *name)
 {
     HashTable   *tp;
     WebsKey     *sp;
@@ -2045,7 +2045,7 @@ WebsKey *hashLookup(WebsHash sd, char *name)
 }
 
 
-void *hashLookupSymbol(WebsHash sd, char *name)
+void *hashLookupSymbol(WebsHash sd, cchar *name)
 {
     WebsKey     *kp;
 
@@ -2061,7 +2061,7 @@ void *hashLookupSymbol(WebsHash sd, char *name)
     a copy of "name" here so it can be a volatile variable. The value "v" is just a copy of the passed in value, so it
     MUST be persistent.
  */
-WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
+WebsKey *hashEnter(WebsHash sd, cchar *name, WebsValue v, int arg)
 {
     HashTable   *tp;
     WebsKey     *sp, *last;
@@ -2137,7 +2137,7 @@ WebsKey *hashEnter(WebsHash sd, char *name, WebsValue v, int arg)
 /*
     Delete a symbol from a table
  */
-PUBLIC int hashDelete(WebsHash sd, char *name)
+PUBLIC int hashDelete(WebsHash sd, cchar *name)
 {
     HashTable   *tp;
     WebsKey     *sp, *last;
@@ -2186,7 +2186,7 @@ PUBLIC int hashDelete(WebsHash sd, char *name)
     Hash a symbol and return a pointer to the hash daisy-chain list. All symbols reside on the chain (ie. none stored in
     the hash table itself)
  */
-static WebsKey *hash(HashTable *tp, char *name)
+static WebsKey *hash(HashTable *tp, cchar *name)
 {
     assert(tp);
 
@@ -2198,7 +2198,7 @@ static WebsKey *hash(HashTable *tp, char *name)
     Compute the hash function and return an index into the hash table We use a basic additive function that is then made
     modulo the size of the table.
  */
-static int hashIndex(HashTable *tp, char *name)
+static int hashIndex(HashTable *tp, cchar *name)
 {
     uint        sum;
     int         i;
@@ -2255,7 +2255,10 @@ static int calcPrime(int size)
 }
 
 
-#if DEPRECATE || 1
+#if DEPRECATE
+/*
+    Deprecated in 4.0.0
+ */
 /*
     Convert a wide unicode string into a multibyte string buffer. If count is supplied, it is used as the source length
     in characters. Otherwise set to -1. DestCount is the max size of the dest buffer in bytes. At most destCount - 1
@@ -2374,16 +2377,16 @@ PUBLIC char *awtom(wchar *src, ssize *lenp)
     }
     return dest;
 }
-#endif
+#endif /* DEPRECATE */
 
 
 /*
     Convert a hex string to an integer
  */
-uint hextoi(char *hexstring)
+uint hextoi(cchar *hexstring)
 {
-    char      *h;
-    uint        c, v;
+    cchar   *h;
+    uint    c, v;
 
     if (!hexstring) {
         return 0;
@@ -2409,7 +2412,7 @@ uint hextoi(char *hexstring)
 }
 
 
-PUBLIC char *sclone(char *s)
+PUBLIC char *sclone(cchar *s)
 {
     char    *buf;
 
@@ -2428,7 +2431,7 @@ PUBLIC char *sclone(char *s)
     Clone a sub-string of a specified length. The null is added after the length. The given len can be longer than the
     source string.
  */
-PUBLIC char *snclone(char *str, ssize len)
+PUBLIC char *snclone(cchar *str, ssize len)
 {
     char    *ptr;
     ssize   size, l;
@@ -2472,7 +2475,7 @@ uint strtoi(char *s)
 }
 
 
-PUBLIC int scaselesscmp(char *s1, char *s2)
+PUBLIC int scaselesscmp(cchar *s1, cchar *s2)
 {
     if (s1 == 0) {
         return -1;
@@ -2483,13 +2486,13 @@ PUBLIC int scaselesscmp(char *s1, char *s2)
 }
 
 
-PUBLIC bool scaselessmatch(char *s1, char *s2)
+PUBLIC bool scaselessmatch(cchar *s1, cchar *s2)
 {
     return scaselesscmp(s1, s2) == 0;
 }
 
 
-PUBLIC bool smatch(char *s1, char *s2)
+PUBLIC bool smatch(cchar *s1, cchar *s2)
 {
     return scmp(s1, s2) == 0;
 }
@@ -2507,7 +2510,7 @@ PUBLIC bool sstarts(cchar *str, cchar *prefix)
 }
 
 
-PUBLIC int scmp(char *s1, char *s2)
+PUBLIC int scmp(cchar *s1, cchar *s2)
 {
     if (s1 == s2) {
         return 0;
@@ -2526,7 +2529,7 @@ PUBLIC ssize slen(cchar *s)
 }
 
 
-PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
+PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src)
 {
     ssize      len;
 
@@ -2547,7 +2550,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src)
     This routine copies at most "count" characters from a string. It ensures the result is always null terminated and
     the buffer does not overflow. Returns -1 if the buffer is too small.
  */
-PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
+PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize count)
 {
     ssize      len;
 
@@ -2578,7 +2581,7 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count)
 /*
     Return the length of a string limited by a given length
  */
-PUBLIC ssize strnlen(char *s, ssize n)
+PUBLIC ssize strnlen(cchar *s, ssize n)
 {
     ssize   len;
 
@@ -2591,7 +2594,7 @@ PUBLIC ssize strnlen(char *s, ssize n)
 /*
     Case sensitive string comparison. Limited by length
  */
-PUBLIC int sncmp(char *s1, char *s2, ssize n)
+PUBLIC int sncmp(cchar *s1, cchar *s2, ssize n)
 {
     int     rc;
 
@@ -2622,7 +2625,7 @@ PUBLIC int sncmp(char *s1, char *s2, ssize n)
 }
 
 
-PUBLIC int sncaselesscmp(char *s1, char *s2, ssize n)
+PUBLIC int sncaselesscmp(cchar *s1, cchar *s2, ssize n)
 {
     int     rc;
 
@@ -2687,7 +2690,7 @@ PUBLIC char *ssplit(char *str, cchar *delim, char **last)
     Note "str" is modifed as per strtok()
     WARNING:  this does not allocate
  */
-PUBLIC char *stok(char *str, char *delim, char **last)
+PUBLIC char *stok(char *str, cchar *delim, char **last)
 {
     char  *start, *end;
     ssize   i;
@@ -2714,7 +2717,7 @@ PUBLIC char *stok(char *str, char *delim, char **last)
 }
 
 
-PUBLIC char *strim(char *str, char *set, int where)
+PUBLIC char *strim(char *str, cchar *set, int where)
 {
     char    *s;
     ssize   len, i;
@@ -2800,14 +2803,14 @@ PUBLIC int websParseArgs(char *args, char **argv, int maxArgc)
 
 
 #if ME_GOAHEAD_LEGACY
-PUBLIC int fmtValloc(char **sp, int n, char *format, va_list args)
+PUBLIC int fmtValloc(char **sp, int n, cchar *format, va_list args)
 {
     *sp = sfmtv(format, args);
     return (int) slen(*sp);
 }
 
 
-PUBLIC int fmtAlloc(char **sp, int n, char *format, ...)
+PUBLIC int fmtAlloc(char **sp, int n, cchar *format, ...)
 {
     va_list     args;
 
