@@ -3,7 +3,7 @@
 #
 
 NAME                  := goahead
-VERSION               := 3.6.5
+VERSION               := 4.0.0
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')
@@ -367,7 +367,7 @@ DEPS_23 += src/mbedtls/mbedtls.h
 $(BUILD)/obj/mbedtls.o: \
     src/mbedtls/mbedtls.c $(DEPS_23)
 	@echo '   [Compile] $(BUILD)/obj/mbedtls.o'
-	$(CC) -c -o $(BUILD)/obj/mbedtls.o $(LDFLAGS) $(CFLAGS) -Wno-format-zero-length $(DFLAGS) -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src/mbedtls/mbedtls.c
+	$(CC) -c -o $(BUILD)/obj/mbedtls.o $(LDFLAGS) $(CFLAGS) $(DFLAGS) -DMBEDTLS_USER_CONFIG_FILE=\"embedtls.h\" $(IFLAGS) src/mbedtls/mbedtls.c
 
 #
 #   options.o
@@ -686,6 +686,8 @@ installBinary: $(DEPS_42)
 	ln -s "$(ME_VAPP_PREFIX)/bin/goahead" "$(ME_BIN_PREFIX)/goahead" ; \
 	mkdir -p "$(ME_VAPP_PREFIX)/bin" ; \
 	cp $(BUILD)/bin/roots.crt $(ME_VAPP_PREFIX)/bin/roots.crt ; \
+	mkdir -p "$(ME_ETC_PREFIX)" ; \
+	cp $(BUILD)/bin/self.* $(ME_ETC_PREFIX)/self.* ; \
 	mkdir -p "$(ME_WEB_PREFIX)" ; \
 	cp src/web/index.html $(ME_WEB_PREFIX)/index.html ; \
 	cp src/web/favicon.ico $(ME_WEB_PREFIX)/favicon.ico ; \

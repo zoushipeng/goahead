@@ -22,7 +22,7 @@
     #define ME_COMPANY "embedthis"
 #endif
 #ifndef ME_COMPATIBLE
-    #define ME_COMPATIBLE "3.6"
+    #define ME_COMPATIBLE "4.0"
 #endif
 #ifndef ME_COMPILER_FORTIFY
     #define ME_COMPILER_FORTIFY 1
@@ -122,6 +122,9 @@
 #endif
 #ifndef ME_GOAHEAD_LIMIT_BUFFER
     #define ME_GOAHEAD_LIMIT_BUFFER 1024
+#endif
+#ifndef ME_GOAHEAD_LIMIT_CGI_ARGS
+    #define ME_GOAHEAD_LIMIT_CGI_ARGS 4096
 #endif
 #ifndef ME_GOAHEAD_LIMIT_FILENAME
     #define ME_GOAHEAD_LIMIT_FILENAME 256
@@ -255,6 +258,9 @@
 #ifndef ME_ROM
     #define ME_ROM 0
 #endif
+#ifndef ME_ROM_TIME
+    #define ME_ROM_TIME 1505449519432
+#endif
 #ifndef ME_STATIC
     #define ME_STATIC 1
 #endif
@@ -262,7 +268,7 @@
     #define ME_TITLE "Embedthis GoAhead"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "3.6.5"
+    #define ME_VERSION "4.0.0"
 #endif
 
 /* Prefixes */
@@ -315,7 +321,7 @@
     #define ME_VAPP_PREFIX "deploy"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "/usr/src/goahead-3.6.5"
+    #define ME_SRC_PREFIX "/usr/src/goahead-4.0.0"
 #endif
 
 /* Suffixes */
@@ -351,16 +357,16 @@
 
 /* Miscellaneous */
 #ifndef ME_MAJOR_VERSION
-    #define ME_MAJOR_VERSION 3
+    #define ME_MAJOR_VERSION 4
 #endif
 #ifndef ME_MINOR_VERSION
-    #define ME_MINOR_VERSION 6
+    #define ME_MINOR_VERSION 0
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 5
+    #define ME_PATCH_VERSION 0
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 300060005
+    #define ME_VNUM 400000000
 #endif
 
 /* Components */

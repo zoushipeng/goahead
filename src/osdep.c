@@ -41,7 +41,7 @@ PUBLIC void websOsClose()
 }
 
 
-PUBLIC char *websTempFile(char *dir, char *prefix)
+PUBLIC char *websTempFile(cchar *dir, cchar *prefix)
 {
     static int count = 0;
     char   sep;

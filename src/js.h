@@ -166,7 +166,7 @@ typedef int (*JsProc)(int jid, void *handle, int argc, char **argv);
     @return Count of the arguments parsed
     @ingroup Js
  */
-PUBLIC int jsArgs(int argc, char **argv, char *fmt, ...);
+PUBLIC int jsArgs(int argc, char **argv, cchar *fmt, ...);
 
 /**
     Close a javascript engine
@@ -181,7 +181,7 @@ PUBLIC void jsCloseEngine(int jid);
     @param fmt Error message format string
     @ingroup Js
  */
-PUBLIC void jsError(Js *js, char *fmt, ...);
+PUBLIC void jsError(Js *js, cchar *fmt, ...);
 
 /**
     Parse and evaluate a script. Return the last function return value.
@@ -191,7 +191,7 @@ PUBLIC void jsError(Js *js, char *fmt, ...);
     @param str String value to use as the result. Set to null for errors.
     @ingroup Js
  */
-PUBLIC char *jsEval(int jid, char *script, char **emsg);
+PUBLIC char *jsEval(int jid, cchar *script, char **emsg);
 
 /**
     Get the function result value
@@ -199,7 +199,7 @@ PUBLIC char *jsEval(int jid, char *script, char **emsg);
     @return Function return value string. Caller must not free.
     @ingroup Js
  */
-PUBLIC char *jsGetResult(int jid);
+PUBLIC cchar *jsGetResult(int jid);
 
 /**
     Get a variable value
@@ -210,7 +210,7 @@ PUBLIC char *jsGetResult(int jid);
         and > 0 for local variables.
     @ingroup Js
  */
-PUBLIC int jsGetVar(int jid, char *var, char **value);
+PUBLIC int jsGetVar(int jid, cchar *var, cchar **value);
 
 /**
     Open a new javascript engine
@@ -227,7 +227,7 @@ PUBLIC int jsOpenEngine(WebsHash variables, WebsHash functions);
     @param value Value to use
     @ingroup Js
  */
-PUBLIC void jsSetLocalVar(int jid, char *var, char *value);
+PUBLIC void jsSetLocalVar(int jid, cchar *var, cchar *value);
 
 /**
     Set a global variable
@@ -236,7 +236,7 @@ PUBLIC void jsSetLocalVar(int jid, char *var, char *value);
     @param value value to use
     @ingroup Js
  */
-PUBLIC void jsSetGlobalVar(int jid, char *var, char *value);
+PUBLIC void jsSetGlobalVar(int jid, cchar *var, cchar *value);
 
 /**
     Set the function return result
@@ -244,7 +244,7 @@ PUBLIC void jsSetGlobalVar(int jid, char *var, char *value);
     @param str String value to use as the result
     @ingroup Js
  */
-PUBLIC void jsSetResult(int jid, char *str);
+PUBLIC void jsSetResult(int jid, cchar *str);
 
 /**
     Set a variable value in the top most variable frame
@@ -253,7 +253,7 @@ PUBLIC void jsSetResult(int jid, char *str);
     @param value Value to set
     @ingroup Js
  */
-PUBLIC void jsSetVar(int jid, char *var, char *value);
+PUBLIC void jsSetVar(int jid, cchar *var, cchar *value);
 
 /**
     Set a global function
@@ -262,30 +262,30 @@ PUBLIC void jsSetVar(int jid, char *var, char *value);
     @param fn C function providing the implementation.
     @ingroup Js
  */
-PUBLIC int jsSetGlobalFunction(int jid, char *name, JsProc fn);
+PUBLIC int jsSetGlobalFunction(int jid, cchar *name, JsProc fn);
 
 /*
     Internal API
  */
 PUBLIC int      jsCloseBlock(int jid, int vid);
-PUBLIC char     *jsEvalBlock(int jid, char *script, char **emsg);
+PUBLIC char     *jsEvalBlock(int jid, cchar *script, char **emsg);
 PUBLIC WebsHash jsGetFunctionTable(int jid);
-PUBLIC void     *jsGetGlobalFunction(int jid, char *name);
+PUBLIC void     *jsGetGlobalFunction(int jid, cchar *name);
 PUBLIC int      jsGetLineNumber(int jid);
 PUBLIC void     *jsGetUserHandle(int jid);
 PUBLIC WebsHash jsGetVariableTable(int jid);
 PUBLIC int      jsLexOpen(Js *ep);
 PUBLIC void     jsLexClose(Js *ep);
-PUBLIC int      jsLexOpenScript(Js *ep, char *script);
+PUBLIC int      jsLexOpenScript(Js *ep, cchar *script);
 PUBLIC void     jsLexCloseScript(Js *ep);
 PUBLIC void     jsLexSaveInputState(Js *ep, JsInput *state);
 PUBLIC void     jsLexFreeInputState(Js *ep, JsInput *state);
 PUBLIC void     jsLexRestoreInputState(Js *ep, JsInput *state);
 PUBLIC int      jsLexGetToken(Js *ep, int state);
-PUBLIC void     jsLexPutbackToken(Js *ep, int tid, char *string);
+PUBLIC void     jsLexPutbackToken(Js *ep, int tid, cchar *string);
 PUBLIC int      jsOpenBlock(int jid);
-PUBLIC int      jsRemoveGlobalFunction(int jid, char *name);
-PUBLIC int      jsSetGlobalFunctionDirect(WebsHash functions, char *name, JsProc fn);
+PUBLIC int      jsRemoveGlobalFunction(int jid, cchar *name);
+PUBLIC int      jsSetGlobalFunctionDirect(WebsHash functions, cchar *name, JsProc fn);
 PUBLIC void     jsSetUserHandle(int jid, void *handle);
 
 #if ME_GOAHEAD_LEGACY
