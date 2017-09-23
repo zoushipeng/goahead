@@ -143,6 +143,19 @@ MAIN(goahead, int argc, char **argv, char **envp)
      */
     websAddRoute("/", "file", 0);
 #endif
+#ifdef GOAHEAD_INIT
+    /*
+        Define your init function in main.me goahead.init, or
+        configure with DFLAGS=GOAHEAD_INIT=myInitFunction
+     */
+    {
+        extern int GOAHEAD_INIT();
+
+        if (GOAHEAD_INIT() < 0) {
+            exit(1);
+        }
+    }
+#endif
 #if ME_UNIX_LIKE && !MACOSX
     /*
         Service events till terminated
