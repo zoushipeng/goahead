@@ -929,9 +929,9 @@ typedef int64 Ticks;
     Deprecated API warnings
  */
 #if ((__GNUC__ >= 3) || MACOSX) && !VXWORKS
-    #define ME_DEPRECATED(MSG) __attribute__ ((deprecated(MSG)))
+    #define ME_DEPRECATE(MSG) __attribute__ ((deprecated(MSG)))
 #else
-    #define ME_DEPRECATED(MSG) 
+    #define ME_DEPRECATE(MSG)
 #endif
 
 /********************************** Tunables *********************************/
@@ -948,15 +948,16 @@ typedef int64 Ticks;
 #ifndef ME_MAX_PATH
     #define ME_MAX_PATH         1024        /**< Reasonable filename size */
 #endif
-#if DEPRECATE || 1
-/* This is not a maximum, but a default size */
-#ifndef ME_MAX_BUFFER
-    #define ME_MAX_BUFFER       4096        /**< Reasonable size for buffers */
-#endif
-#endif
 #ifndef ME_BUFSIZE
     #define ME_BUFSIZE          4096        /**< Reasonable size for buffers */
 #endif
+#if DEPRECATE || 1
+/* Use ME_BUFSIZE instead. This is not a maximum, but a default size. This can be deprecated after one more cycle. */
+#ifndef ME_MAX_BUFFER
+    #define ME_MAX_BUFFER       ME_BUFSIZE  /**< Reasonable size for buffers */
+#endif
+#endif
+
 #ifndef ME_MAX_ARGC
     #define ME_MAX_ARGC         32          /**< Maximum number of command line args if using MAIN()*/
 #endif
