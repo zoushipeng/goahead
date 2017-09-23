@@ -374,6 +374,14 @@ PUBLIC void traceProc(int level, cchar *fmt, ...);
 #define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
 
 /************************************* WebsValue ******************************/
+
+#ifdef WITH_QT
+/*
+    QT creates a global "hex" -- Ugh!
+ */
+#define hex hexvalue
+#endif
+
 /**
     Value types.
  */
