@@ -130,6 +130,7 @@ PUBLIC bool cgiHandler(Webs *wp)
      */
     argpsize = 10;
     argp = walloc(argpsize * sizeof(char *));
+    assert(argp);
     *argp = cgiPath;
     n = 1;
     query = 0;
