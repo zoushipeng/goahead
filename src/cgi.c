@@ -137,7 +137,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     if (strchr(wp->query, '=') == NULL) {
         query = sclone(wp->query);
         websDecodeUrl(query, query, strlen(query));
-        for (cp = stok(query, " ", &tok); cp != NULL; ) {
+        for (cp = stok(query, " ", &tok); cp != NULL && argp != NULL; ) {
             *(argp+n) = cp;
             trace(5, "ARG[%d] %s", n, argp[n-1]);
             n++;
