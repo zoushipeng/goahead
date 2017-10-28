@@ -1093,12 +1093,12 @@ static void parseHeaders(Webs *wp)
                 return;
             }
             if (smatch(wp->method, "PUT")) {
-                if (wp->rxLen > ME_GOAHEAD_LIMIT_PUT) {
+                if (wp->rxLen > ME_GOAHEAD_LIMIT_PUT || wp->rxLen < 0) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
                     return;
                 }
             } else {
-                if (wp->rxLen > ME_GOAHEAD_LIMIT_POST) {
+                if (wp->rxLen > ME_GOAHEAD_LIMIT_POST || wp->rxLen < 0) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
                     return;
                 }
