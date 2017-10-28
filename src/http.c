@@ -1088,7 +1088,10 @@ static void parseHeaders(Webs *wp)
             }
 
         } else if (strcmp(key, "content-length") == 0) {
-            wp->rxLen = atoi(value);
+            if ((wp->rxLen = atoi(value)) < 0) {
+                websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Invalid content length");
+                return;
+            }
             if (smatch(wp->method, "PUT")) {
                 if (wp->rxLen > ME_GOAHEAD_LIMIT_PUT) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
