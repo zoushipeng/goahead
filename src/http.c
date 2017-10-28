@@ -1093,17 +1093,17 @@ static void parseHeaders(Webs *wp)
                 return;
             }
             if (smatch(wp->method, "PUT")) {
-                if (wp->rxLen > ME_GOAHEAD_LIMIT_PUT || wp->rxLen < 0) {
+                if (wp->rxLen > ME_GOAHEAD_LIMIT_PUT) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
                     return;
                 }
             } else {
-                if (wp->rxLen > ME_GOAHEAD_LIMIT_POST || wp->rxLen < 0) {
+                if (wp->rxLen > ME_GOAHEAD_LIMIT_POST) {
                     websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too big");
                     return;
                 }
             }
-            if (wp->rxLen > 0 && !smatch(wp->method, "HEAD")) {
+            if (!smatch(wp->method, "HEAD")) {
                 wp->rxRemaining = wp->rxLen;
             }
 

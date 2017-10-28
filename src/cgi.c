@@ -129,7 +129,11 @@ PUBLIC bool cgiHandler(Webs *wp)
         in the query string, the for loop includes logic to grow the array size via wrealloc.
      */
     argpsize = 10;
-    argp = walloc(argpsize * sizeof(char *));
+    if ((argp = walloc(argpsize * sizeof(char *))) == 0) {
+        websError(wp, HTTP_CODE_NOT_FOUND, "Cannot allocate CGI args");
+        wfree(cgiPath);
+        return 1;
+    }
     assert(argp);
     *argp = cgiPath;
     n = 1;
