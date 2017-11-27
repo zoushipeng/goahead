@@ -220,7 +220,6 @@ PUBLIC bool websCan(Webs *wp, WebsHash abilities)
         if (!wp->user && wp->username) {
             wp->user = websLookupUser(wp->username);
         }
-        assert(abilities);
         for (key = hashFirst(abilities); key; key = hashNext(abilities, key)) {
             ability = key->name.value.string;
             if ((cp = strchr(ability, '|')) != 0) {

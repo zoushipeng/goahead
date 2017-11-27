@@ -1971,6 +1971,9 @@ WebsKey *hashFirst(WebsHash sd)
     int         i;
 
     assert(0 <= sd && sd < symMax);
+    if (sd < 0 || sd >=symMax) {
+        return 0;
+    }
     tp = sym[sd];
     assert(tp);
 
