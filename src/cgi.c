@@ -170,26 +170,28 @@ PUBLIC bool cgiHandler(Webs *wp)
      */
     envpsize = 64;
     envp = walloc(envpsize * sizeof(char*));
-    for (n = 0, s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
-        if (s->content.valid && s->content.type == string) {
-            if (smatch(s->name.value.string, "REMOTE_HOST") ||
-                smatch(s->name.value.string, "HTTP_AUTHORIZATION") ||
-                smatch(s->name.value.string, "IFS") ||
-                smatch(s->name.value.string, "CDPATH") ||
-                smatch(s->name.value.string, "PATH") ||
-                sstarts(s->name.value.string, "LD_")) {
-                continue;
-            }
-            if (s->arg != 0 && *ME_GOAHEAD_CGI_VAR_PREFIX != '\0') {
-                envp[n++] = sfmt("%s%s=%s", ME_GOAHEAD_CGI_VAR_PREFIX, s->name.value.string,
-                    s->content.value.string);
-            } else {
-                envp[n++] = sfmt("%s=%s", s->name.value.string, s->content.value.string);
-            }
-            trace(0, "Env[%d] %s", n, envp[n-1]);
-            if (n >= envpsize) {
-                envpsize *= 2;
-                envp = wrealloc(envp, envpsize * sizeof(char *));
+    if (wp->vars) {
+        for (n = 0, s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
+            if (s->content.valid && s->content.type == string) {
+                if (smatch(s->name.value.string, "REMOTE_HOST") ||
+                    smatch(s->name.value.string, "HTTP_AUTHORIZATION") ||
+                    smatch(s->name.value.string, "IFS") ||
+                    smatch(s->name.value.string, "CDPATH") ||
+                    smatch(s->name.value.string, "PATH") ||
+                    sstarts(s->name.value.string, "LD_")) {
+                    continue;
+                }
+                if (s->arg != 0 && *ME_GOAHEAD_CGI_VAR_PREFIX != '\0') {
+                    envp[n++] = sfmt("%s%s=%s", ME_GOAHEAD_CGI_VAR_PREFIX, s->name.value.string,
+                        s->content.value.string);
+                } else {
+                    envp[n++] = sfmt("%s=%s", s->name.value.string, s->content.value.string);
+                }
+                trace(0, "Env[%d] %s", n, envp[n-1]);
+                if (n >= envpsize) {
+                    envpsize *= 2;
+                    envp = wrealloc(envp, envpsize * sizeof(char *));
+                }
             }
         }
     }
