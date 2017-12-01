@@ -100,15 +100,17 @@ PUBLIC int websStatFile(cchar *path, WebsFileInfo *sbuf)
     WebsStat    s;
     int         rc;
 #if ME_WIN_LIKE
+{
     ssize       len = slen(path) - 1;
-    path = sclone(path);
-    if (path[len] == '/') {
-        path[len] = '\0';
-    } else if (path[len] == '\\') {
-        path[len] = '\0';
+    cchar       *p = sclone(path);
+    if (p[len] == '/') {
+        p[len] = '\0';
+    } else if (p[len] == '\\') {
+        p[len] = '\0';
     }
-    rc = stat(path, &s);
-    wfree(path);
+    rc = stat(p, &s);
+    wfree(p);
+}
 #else
     rc = stat(path, &s);
 #endif
