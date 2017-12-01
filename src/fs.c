@@ -102,7 +102,7 @@ PUBLIC int websStatFile(cchar *path, WebsFileInfo *sbuf)
 #if ME_WIN_LIKE
 {
     ssize       len = slen(path) - 1;
-    cchar       *p = sclone(path);
+    char        *p = sclone(path);
     if (p[len] == '/') {
         p[len] = '\0';
     } else if (p[len] == '\\') {
