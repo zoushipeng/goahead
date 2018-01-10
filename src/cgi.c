@@ -53,7 +53,7 @@ PUBLIC bool cgiHandler(Webs *wp)
     Cgi         *cgip;
     WebsKey     *s;
     char        cgiPrefix[ME_GOAHEAD_LIMIT_FILENAME], *stdIn, *stdOut, cwd[ME_GOAHEAD_LIMIT_FILENAME];
-    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath, *exe;
+    char        *cp, *cgiName, *cgiPath, **argp, **envp, **ep, *tok, *query, *dir, *extraPath, *exe, *vp;
     CgiPid      pHandle;
     int         n, envpsize, argpsize, cid;
 
@@ -173,12 +173,10 @@ PUBLIC bool cgiHandler(Webs *wp)
     if (wp->vars) {
         for (n = 0, s = hashFirst(wp->vars); s != NULL; s = hashNext(wp->vars, s)) {
             if (s->content.valid && s->content.type == string) {
-                if (smatch(s->name.value.string, "REMOTE_HOST") ||
-                    smatch(s->name.value.string, "HTTP_AUTHORIZATION") ||
-                    smatch(s->name.value.string, "IFS") ||
-                    smatch(s->name.value.string, "CDPATH") ||
-                    smatch(s->name.value.string, "PATH") ||
-                    sstarts(s->name.value.string, "LD_")) {
+                vp = strim(s->name.value.string, 0, WEBS_TRIM_START);
+                if (smatch(vp, "REMOTE_HOST") || smatch(vp, "HTTP_AUTHORIZATION") ||
+                    smatch(vp, "IFS") || smatch(vp, "CDPATH") ||
+                    smatch(vp, "PATH") || sstarts(vp, "LD_")) {
                     continue;
                 }
                 if (s->arg != 0 && *ME_GOAHEAD_CGI_VAR_PREFIX != '\0') {
