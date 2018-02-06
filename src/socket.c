@@ -1295,8 +1295,9 @@ PUBLIC int socketParseAddress(cchar *address, char **pip, int *pport, int *secur
 
                 /* Set ipAddr to ipv6 address without brackets */
                 ip = sclone(address + 1);
-                cp = strchr(ip, ']');
-                *cp = '\0';
+                if ((cp = strchr(ip, ']')) != 0) {
+                    *cp = '\0';
+                }
 
             } else {
                 /* Handles [a:b:c:d:e:f:g:h:i] case (no port)- should not occur */
