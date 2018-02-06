@@ -351,7 +351,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     WebsBuf     rxbuf;
     void        *ssl;
     char        ipaddr[ME_MAX_IP], ifaddr[ME_MAX_IP];
-    int         wid, sid, timeout;
+    int         wid, sid, timeout, listenSid;
 
     assert(wp);
 
@@ -361,12 +361,14 @@ static void initWebs(Webs *wp, int flags, int reuse)
         sid = wp->sid;
         timeout = wp->timeout;
         ssl = wp->ssl;
+        listenSid = wp->listenSid;
         scopy(ipaddr, sizeof(ipaddr), wp->ipaddr);
         scopy(ifaddr, sizeof(ifaddr), wp->ifaddr);
     } else {
         wid = sid = -1;
         timeout = -1;
         ssl = 0;
+        listenSid = -1;
     }
     memset(wp, 0, sizeof(Webs));
     wp->flags = flags;
@@ -379,6 +381,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->rxLen = -1;
     wp->code = HTTP_CODE_OK;
     wp->ssl = ssl;
+    wp->listenSid = listenSid;
 #if !ME_ROM
     wp->putfd = -1;
 #endif
