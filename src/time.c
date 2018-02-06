@@ -518,10 +518,37 @@ static void validateTime(struct tm *tp, struct tm *defaults)
         swapDayMonth(tp);
     }
 
+    /*
+        Check for overflow. Underflow validated below.
+     */
+    if (tp->tm_sec > 60) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_min > 60) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_hour > 24) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_mday > 31) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_mon > 11) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_wday > 6) {
+        tp->tm_sec = -1;
+    }
+    if (tp->tm_yday > 366) {
+        tp->tm_sec = -1;
+    }
+
+#if UNUSED
     if (tp->tm_year != -MAXINT && tp->tm_mon >= 0 && tp->tm_mday >= 0 && tp->tm_hour >= 0) {
         /*  Everything defined */
         return;
     }
+#endif
 
     /*
         Use empty time if missing
@@ -575,8 +602,12 @@ static void validateTime(struct tm *tp, struct tm *defaults)
         tp->tm_mday = defaults->tm_mday;
     }
     if (tp->tm_yday < 0) {
-        tp->tm_yday = (leapYear(tp->tm_year + 1900) ?
-            leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
+        if (tp->tm_mon <= 11) {
+            tp->tm_yday = (leapYear(tp->tm_year + 1900) ?
+                leapMonthStart[tp->tm_mon] : normalMonthStart[tp->tm_mon]) + tp->tm_mday - 1;
+        } else {
+            tp->tm_yday = defaults->tm_yday;
+        }
     }
     if (tp->tm_hour < 0) {
         tp->tm_hour = defaults->tm_hour;
