@@ -218,15 +218,6 @@ extern void assert(bool cond);
     #define assert(C)       if (1) ; else {}
 #endif
 
-//  Deprecated 3.1
-#if DEPRECATED
-#define traceOpen logOpen
-#define traceClose logClose
-#define WebsTraceHandler WebLogHandler
-#define traceSetPath logSetPath
-#define websGetTraceLevel websGetLogLevel
-#endif
-
 /**
     Callback for emitting trace log output
     @param level Integer between 0 and 9. Zero is the lowest trace level used for the most important messages.
@@ -234,14 +225,14 @@ extern void assert(bool cond);
     @return Zero if successful
     @internal
  */
-typedef void (*WebsLogHandler)(int level, char *msg);
+typedef void (*WebsLogHandler)(int level, cchar *msg);
 
 /**
     Emit an error message
     @return Zero if successful
     @stability Stable
 */
-PUBLIC void error(char *fmt, ...);
+PUBLIC void error(cchar *fmt, ...);
 
 /**
     Open the log logging module
@@ -292,7 +283,7 @@ void websSetLogLevel(int level);
     @param path Filename path to use
     @stability Stable
  */
-PUBLIC void logSetPath(char *path);
+PUBLIC void logSetPath(cchar *path);
 
 /**
     Emit a message to the log
@@ -305,7 +296,7 @@ PUBLIC void logSetPath(char *path);
     @param ... Arguments for the format string
     @stability Stable
  */
-PUBLIC void logmsgProc(int level, char *fmt, ...);
+PUBLIC void logmsgProc(int level, cchar *fmt, ...);
 
 /**
     Emit a debug trace message to the log
@@ -319,7 +310,7 @@ PUBLIC void logmsgProc(int level, char *fmt, ...);
     @param ... Arguments for the format string
     @stability Stable
  */
-PUBLIC void traceProc(int level, char *fmt, ...);
+PUBLIC void traceProc(int level, cchar *fmt, ...);
 
 #else /*! ME_GOAHEAD_LOGGING */
     #define assert(C) if (1) ; else {}
@@ -383,6 +374,14 @@ PUBLIC void traceProc(int level, char *fmt, ...);
 #define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
 
 /************************************* WebsValue ******************************/
+
+#ifdef WITH_QT
+/*
+    QT creates a global "hex" -- Ugh!
+ */
+#define hex hexvalue
+#endif
+
 /**
     Value types.
  */
@@ -470,7 +469,7 @@ PUBLIC WebsValue valueInteger(long value);
     @return Value object containing the string
     @stability Stable
  */
-PUBLIC WebsValue valueString(char *value, int flags);
+PUBLIC WebsValue valueString(cchar *value, int flags);
 
 /**
     Create an symbol value containing an object reference
@@ -677,7 +676,7 @@ PUBLIC int bufPutc(WebsBuf *bp, char c);
     @ingroup WebsBuf
     @stability Stable
  */
-PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
+PUBLIC ssize bufPutBlk(WebsBuf *bp, cchar *blk, ssize len);
 
 /**
     Append a formatted string to the buffer at the endp position and increment the endp
@@ -688,7 +687,7 @@ PUBLIC ssize bufPutBlk(WebsBuf *bp, char *blk, ssize len);
     @ingroup WebsBuf
     @stability Stable
  */
-PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...) PRINTF_ATTRIBUTE(2,3);
+PUBLIC ssize bufPut(WebsBuf *bp, cchar *fmt, ...) PRINTF_ATTRIBUTE(2,3);
 
 /**
     Append a string to the buffer at the endp position and increment the endp
@@ -698,7 +697,7 @@ PUBLIC ssize bufPut(WebsBuf *bp, char *fmt, ...) PRINTF_ATTRIBUTE(2,3);
     @ingroup WebsBuf
     @stability Stable
  */
-PUBLIC ssize bufPutStr(WebsBuf *bp, char *str);
+PUBLIC ssize bufPutStr(WebsBuf *bp, cchar *str);
 
 /**
     Reset the buffer pointers to the start of the buffer if empty
@@ -837,7 +836,10 @@ PUBLIC void websSetMemNotifier(WebsMemNotifier cback);
     #define WEBS_SHIFT 4
 #endif
 
-#if DEPRECATE || 1
+#if DEPRECATE
+/*
+    Deprecated in 4.0.0
+ */
 PUBLIC ssize mtow(wchar *dest, ssize count, char *src, ssize len);
 PUBLIC ssize wtom(char *dest, ssize count, wchar *src, ssize len);
 PUBLIC wchar *amtow(char *src, ssize *len);
@@ -891,7 +893,7 @@ PUBLIC void hashFree(WebsHash id);
     @ingroup WebsHash
     @stability Stable
  */
-PUBLIC WebsKey *hashLookup(WebsHash id, char *name);
+PUBLIC WebsKey *hashLookup(WebsHash id, cchar *name);
 
 /**
     Lookup a name in the hash table and return a symbol reference
@@ -901,7 +903,7 @@ PUBLIC WebsKey *hashLookup(WebsHash id, char *name);
     @ingroup WebsHash
     @stability Evolving
  */
-PUBLIC void *hashLookupSymbol(WebsHash sd, char *name);
+PUBLIC void *hashLookupSymbol(WebsHash sd, cchar *name);
 
 /**
     Enter a new key and value into the hash table
@@ -913,7 +915,7 @@ PUBLIC void *hashLookupSymbol(WebsHash sd, char *name);
     @ingroup WebsHash
     @stability Stable
  */
-PUBLIC WebsKey *hashEnter(WebsHash id, char *name, WebsValue value, int arg);
+PUBLIC WebsKey *hashEnter(WebsHash id, cchar *name, WebsValue value, int arg);
 
 /**
     Delete a key by name
@@ -923,7 +925,7 @@ PUBLIC WebsKey *hashEnter(WebsHash id, char *name, WebsValue value, int arg);
     @ingroup WebsHash
     @stability Stable
  */
-PUBLIC int hashDelete(WebsHash id, char *name);
+PUBLIC int hashDelete(WebsHash id, cchar *name);
 
 /**
     Start walking the hash keys by returning the first key entry in the hash
@@ -1004,7 +1006,7 @@ typedef void (*SocketHandler)(int sid, int mask, void *data);
     @ingroup WebsSocket
     @stability Stable
  */
-typedef int (*SocketAccept)(int sid, char *ipaddr, int port, int listenSid);
+typedef int (*SocketAccept)(int sid, cchar *ipaddr, int port, int listenSid);
 
 /**
     Socket control structure
@@ -1058,7 +1060,7 @@ PUBLIC int socketAddress(struct sockaddr *addr, int addrlen, char *ipbuf, int ip
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC bool socketAddressIsV6(char *ip);
+PUBLIC bool socketAddressIsV6(cchar *ip);
 
 /**
     Allocate a socket object
@@ -1070,7 +1072,7 @@ PUBLIC bool socketAddressIsV6(char *ip);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketAlloc(char *host, int port, SocketAccept accept, int flags);
+PUBLIC int socketAlloc(cchar *host, int port, SocketAccept accept, int flags);
 
 /**
     Close the socket module
@@ -1097,7 +1099,7 @@ PUBLIC void socketCloseConnection(int sid);
     @internal
     @stability Stable
  */
-PUBLIC int socketConnect(char *host, int port, int flags);
+PUBLIC int socketConnect(cchar *host, int port, int flags);
 
 /**
     Create a socket handler that will be invoked when I/O events occur.
@@ -1147,11 +1149,12 @@ PUBLIC int socketGetBlock(int sid);
 
 /**
     Get the error code for the last socket operation on this thread.
+    @param sid Socket ID handle returned from socketConnect or socketAccept.
     @return Integer error code. See errno or GetLastError() on windows.
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketGetError();
+PUBLIC int socketGetError(int sid);
 
 /**
     Get the underlying socket operating system socket/file handle
@@ -1219,7 +1222,7 @@ PUBLIC void socketHiddenData(WebsSocket *sp, ssize len, int dir);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketInfo(char *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen);
+PUBLIC int socketInfo(cchar *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, Socklen *addrlen);
 
 /**
     Determine if a socket is bound to an IPv6 address.
@@ -1240,7 +1243,7 @@ PUBLIC bool socketIsV6(int sid);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketListen(char *host, int port, SocketAccept accept, int flags);
+PUBLIC int socketListen(cchar *host, int port, SocketAccept accept, int flags);
 
 /**
     Open the socket module
@@ -1269,7 +1272,7 @@ PUBLIC int socketOpen();
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketParseAddress(char *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
+PUBLIC int socketParseAddress(cchar *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort);
 
 /**
     Process pending socket I/O events.
@@ -1391,7 +1394,7 @@ PUBLIC WebsSocket *socketPtr(int sid);
         help prevent buffer overflows and other potential security traps.
     @defgroup WebsRuntime WebsRuntime
     @see fmt wallocHandle wallocObject wfreeHandle hextoi itosbuf scaselesscmp scaselessmatch
-        sclone scmp scopy sfmt sfmtv slen slower smatch sncaselesscmp sncmp sncopy stok strim supper
+        sclone scmp scopy sfmt sfmtv slen slower smatch sstarts sncaselesscmp sncmp sncopy stok strim supper
     @stability Stable
  */
 
@@ -1407,7 +1410,7 @@ PUBLIC WebsSocket *socketPtr(int sid);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *fmt(char *buf, ssize maxSize, char *format, ...);
+PUBLIC char *fmt(char *buf, ssize maxSize, cchar *format, ...);
 
 /**
     Allocate a handle from a map
@@ -1447,7 +1450,7 @@ PUBLIC int wfreeHandle(void *map, int handle);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC uint hextoi(char *str);
+PUBLIC uint hextoi(cchar *str);
 
 /**
     Convert an integer to a string buffer.
@@ -1473,7 +1476,7 @@ PUBLIC char *itosbuf(char *buf, ssize size, int64 value, int radix);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC int scaselesscmp(char *s1, char *s2);
+PUBLIC int scaselesscmp(cchar *s1, cchar *s2);
 
 /**
     Compare strings ignoring case. This is similar to scaselesscmp but it returns a boolean.
@@ -1484,7 +1487,7 @@ PUBLIC int scaselesscmp(char *s1, char *s2);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC bool scaselessmatch(char *s1, char *s2);
+PUBLIC bool scaselessmatch(cchar *s1, cchar *s2);
 
 /**
     Clone a string
@@ -1494,7 +1497,7 @@ PUBLIC bool scaselessmatch(char *s1, char *s2);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *sclone(char *str);
+PUBLIC char *sclone(cchar *str);
 
 /**
     Clone a substring.
@@ -1506,7 +1509,7 @@ PUBLIC char *sclone(char *str);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *snclone(char *str, ssize len);
+PUBLIC char *snclone(cchar *str, ssize len);
 
 /**
     Compare strings.
@@ -1518,7 +1521,7 @@ PUBLIC char *snclone(char *str, ssize len);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC int scmp(char *s1, char *s2);
+PUBLIC int scmp(cchar *s1, cchar *s2);
 
 /**
     Copy a string.
@@ -1533,7 +1536,7 @@ PUBLIC int scmp(char *s1, char *s2);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC ssize scopy(char *dest, ssize destMax, char *src);
+PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src);
 
 /*
     String trim flags
@@ -1552,7 +1555,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, char *src);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *sfmt(char *format, ...);
+PUBLIC char *sfmt(cchar *format, ...);
 
 /**
     Format a string with varargs. This is a secure verion of printf that can handle null args.
@@ -1564,7 +1567,7 @@ PUBLIC char *sfmt(char *format, ...);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *sfmtv(char *format, va_list args);
+PUBLIC char *sfmtv(cchar *format, va_list args);
 
 /**
     Return the length of a string.
@@ -1575,13 +1578,13 @@ PUBLIC char *sfmtv(char *format, va_list args);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC ssize slen(char *str);
+PUBLIC ssize slen(cchar *str);
 
 /**
     Convert a string to lower case.
     @description Convert a string to its lower case equivalent.
     @param str String to convert. This string is modified.
-    @return Reference to the supplied str.
+    @return Reference to the supplied str. Caller must not free.
     @ingroup WebsRuntime
     @stability Stable
  */
@@ -1596,7 +1599,7 @@ PUBLIC char *slower(char *str);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC bool smatch(char *s1, char *s2);
+PUBLIC bool smatch(cchar *s1, cchar *s2);
 
 /**
     Compare strings ignoring case.
@@ -1610,7 +1613,7 @@ PUBLIC bool smatch(char *s1, char *s2);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC int sncaselesscmp(char *s1, char *s2, ssize len);
+PUBLIC int sncaselesscmp(cchar *s1, cchar *s2, ssize len);
 
 /**
     Compare strings.
@@ -1623,7 +1626,7 @@ PUBLIC int sncaselesscmp(char *s1, char *s2, ssize len);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC int sncmp(char *s1, char *s2, ssize len);
+PUBLIC int sncmp(cchar *s1, cchar *s2, ssize len);
 
 /**
     Copy characters from a string.
@@ -1639,7 +1642,7 @@ PUBLIC int sncmp(char *s1, char *s2, ssize len);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC ssize sncopy(char *dest, ssize destMax, char *src, ssize count);
+PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize count);
 
 /*
     Test if a string is a radix 10 number.
@@ -1668,6 +1671,16 @@ PUBLIC bool snumber(cchar *s);
 PUBLIC char *ssplit(char *str, cchar *delim, char **last);
 
 /**
+    Test if the string starts with a given pattern.
+    @param str String to examine
+    @param prefix Pattern to search for
+    @return Returns TRUE if the pattern was found. Otherwise returns zero.
+    @ingroup MprString
+    @stability Stable
+ */
+PUBLIC bool sstarts(cchar *str, cchar *prefix);
+
+/**
     Tokenize a string
     @description Split a string into tokens.
     @param str String to tokenize.
@@ -1677,7 +1690,7 @@ PUBLIC char *ssplit(char *str, cchar *delim, char **last);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *stok(char *str, char *delim, char **last);
+PUBLIC char *stok(char *str, cchar *delim, char **last);
 
 /**
     Trim a string.
@@ -1689,13 +1702,13 @@ PUBLIC char *stok(char *str, char *delim, char **last);
     @ingroup WebsRuntime
     @stability Stable
  */
-PUBLIC char *strim(char *str, char *set, int where);
+PUBLIC char *strim(char *str, cchar *set, int where);
 
 /**
     Convert a string to upper case.
     @description Convert a string to its upper case equivalent.
     @param str String to convert. This string is modified.
-    @return Returns a pointer to the converted string. Will always equal str.
+    @return Returns a pointer to the converted string. Will always equal str. Caller must not free.
     @ingroup WebsRuntime
     @stability Stable
  */
@@ -1794,7 +1807,7 @@ PUBLIC WebsHash websGetUpload(struct Webs *wp);
     @ingroup WebsUpload
     @stability Stable
  */
-PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, char *key);
+PUBLIC WebsUpload *websLookupUpload(struct Webs *wp, cchar *key);
 #endif
 /********************************** Defines ***********************************/
 
@@ -2083,7 +2096,7 @@ typedef struct WebsRomIndex {
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websAccept(int sid, char *ipaddr, int port, int listenSid);
+PUBLIC int websAccept(int sid, cchar *ipaddr, int port, int listenSid);
 
 /**
     Open the action handler
@@ -2167,7 +2180,7 @@ PUBLIC void websCloseFile(int fd);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websCompareVar(Webs *wp, char *var, char *value);
+PUBLIC int websCompareVar(Webs *wp, cchar *var, cchar *value);
 
 /**
     Consume input from the request input buffer.
@@ -2184,7 +2197,7 @@ PUBLIC void websConsumeInput(Webs *wp, ssize nbytes);
     Decode the string using base-64 encoding
     @description This modifies the original string
     @param str String to decode
-    @return The original string.
+    @return The original string. Caller must not free.
     @ingroup Webs
     @stability Stable
  */
@@ -2210,6 +2223,7 @@ PUBLIC char *websDecode64Block(char *str, ssize *len, int flags);
     @ingroup Webs
     @stability Stable
  */
+
 PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len);
 
 /**
@@ -2224,7 +2238,7 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websDefineHandler(char *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags);
+PUBLIC int websDefineHandler(cchar *name, WebsHandlerProc match, WebsHandlerProc service, WebsHandlerClose close, int flags);
 
 /**
     Complete a request.
@@ -2263,7 +2277,7 @@ PUBLIC char *websEncode64Block(char *str, ssize len);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websEscapeHtml(char *str);
+PUBLIC char *websEscapeHtml(cchar *str);
 
 /**
     Complete a request with an error response
@@ -2274,16 +2288,16 @@ PUBLIC char *websEscapeHtml(char *str);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websError(Webs *wp, int code, char *fmt, ...);
+PUBLIC void websError(Webs *wp, int code, cchar *fmt, ...);
 
 /**
     Get a message for a HTTP status code
     @param code HTTP status code
-    @return Http status message
+    @return Http status message. Caller must not free.
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websErrorMsg(int code);
+PUBLIC cchar *websErrorMsg(int code);
 
 /**
     Open and initialize the file handler
@@ -2328,7 +2342,7 @@ PUBLIC int websGetBackground();
 #if ME_GOAHEAD_CGI
 /**
     Get a unique temporary filename for CGI communications
-    @return Filename string
+    @return Allocated filename string. Caller must free.
     @ingroup Webs
     @stability Stable
  */
@@ -2338,11 +2352,11 @@ PUBLIC char *websGetCgiCommName();
 /**
     Get the request cookie if supplied
     @param wp Webs request object
-    @return Cookie string if defined, otherwise null.
+    @return Cookie string if defined, otherwise null. Caller must not free.
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetCookie(Webs *wp);
+PUBLIC cchar *websGetCookie(Webs *wp);
 
 /**
     Get a date as a string
@@ -2371,7 +2385,7 @@ PUBLIC int websGetDebug();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetDir(Webs *wp);
+PUBLIC cchar *websGetDir(Webs *wp);
 
 /**
     Get the GoAhead base documents directory
@@ -2399,7 +2413,7 @@ PUBLIC int websGetEof(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetExt(Webs *wp);
+PUBLIC cchar *websGetExt(Webs *wp);
 
 /**
     Get the request filename
@@ -2409,7 +2423,7 @@ PUBLIC char *websGetExt(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetFilename(Webs *wp);
+PUBLIC cchar *websGetFilename(Webs *wp);
 
 /**
     Get the request host
@@ -2420,7 +2434,7 @@ PUBLIC char *websGetFilename(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetHost(Webs *wp);
+PUBLIC cchar *websGetHost(Webs *wp);
 
 /**
     Get the request interface address
@@ -2429,7 +2443,7 @@ PUBLIC char *websGetHost(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetIfaddr(Webs *wp);
+PUBLIC cchar *websGetIfaddr(Webs *wp);
 
 /**
     Get the default index document name
@@ -2438,7 +2452,7 @@ PUBLIC char *websGetIfaddr(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetIndex();
+PUBLIC cchar *websGetIndex();
 
 /**
     Get the request method
@@ -2447,7 +2461,7 @@ PUBLIC char *websGetIndex();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetMethod(Webs *wp);
+PUBLIC cchar *websGetMethod(Webs *wp);
 
 /**
     Get the request password
@@ -2458,7 +2472,7 @@ PUBLIC char *websGetMethod(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetPassword(Webs *wp);
+PUBLIC cchar *websGetPassword(Webs *wp);
 
 /**
     Get the request path
@@ -2469,7 +2483,7 @@ PUBLIC char *websGetPassword(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetPath(Webs *wp);
+PUBLIC cchar *websGetPath(Webs *wp);
 
 /**
     Get the request TCP/IP port
@@ -2488,7 +2502,7 @@ PUBLIC int websGetPort(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetProtocol(Webs *wp);
+PUBLIC cchar *websGetProtocol(Webs *wp);
 
 /**
     Get the request query component
@@ -2497,7 +2511,7 @@ PUBLIC char *websGetProtocol(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetQuery(Webs *wp);
+PUBLIC cchar *websGetQuery(Webs *wp);
 
 /**
     Get the server host name
@@ -2505,7 +2519,7 @@ PUBLIC char *websGetQuery(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetServer();
+PUBLIC cchar *websGetServer();
 
 /**
     Get the server host name with port number.
@@ -2513,7 +2527,7 @@ PUBLIC char *websGetServer();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetServerUrl();
+PUBLIC cchar *websGetServerUrl();
 
 /**
     Get the server IP address
@@ -2521,7 +2535,7 @@ PUBLIC char *websGetServerUrl();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetServerAddress();
+PUBLIC cchar *websGetServerAddress();
 
 /**
     Get the server IP address with port number
@@ -2529,7 +2543,7 @@ PUBLIC char *websGetServerAddress();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetServerAddressUrl();
+PUBLIC cchar *websGetServerAddressUrl();
 
 /**
     Get the request URI
@@ -2539,7 +2553,7 @@ PUBLIC char *websGetServerAddressUrl();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetUrl(Webs *wp);
+PUBLIC cchar *websGetUrl(Webs *wp);
 
 /**
     Get the client User-Agent HTTP header
@@ -2548,7 +2562,7 @@ PUBLIC char *websGetUrl(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetUserAgent(Webs *wp);
+PUBLIC cchar *websGetUserAgent(Webs *wp);
 
 /**
     Get the request username
@@ -2558,7 +2572,7 @@ PUBLIC char *websGetUserAgent(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetUsername(Webs *wp);
+PUBLIC cchar *websGetUsername(Webs *wp);
 
 /**
     Get a request variable
@@ -2571,7 +2585,7 @@ PUBLIC char *websGetUsername(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetVar(Webs *wp, char *name, char *defaultValue);
+PUBLIC cchar *websGetVar(Webs *wp, cchar *name, cchar *defaultValue);
 
 /**
     Listen on a TCP/IP address endpoint
@@ -2582,7 +2596,7 @@ PUBLIC char *websGetVar(Webs *wp, char *name, char *defaultValue);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websListen(char *endpoint);
+PUBLIC int websListen(cchar *endpoint);
 
 /**
     Get an MD5 digest of a string
@@ -2591,7 +2605,7 @@ PUBLIC int websListen(char *endpoint);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websMD5(char *str);
+PUBLIC char *websMD5(cchar *str);
 
 /**
     Get an MD5 digest of a block and optionally prepend a prefix.
@@ -2602,7 +2616,7 @@ PUBLIC char *websMD5(char *str);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix);
+PUBLIC char *websMD5Block(cchar *buf, ssize length, cchar *prefix);
 
 /**
     Normalize a URI path
@@ -2612,7 +2626,7 @@ PUBLIC char *websMD5Block(char *buf, ssize length, char *prefix);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websNormalizeUriPath(char *path);
+PUBLIC char *websNormalizeUriPath(cchar *path);
 
 /**
     Take not of the request activity and mark the time.
@@ -2652,7 +2666,7 @@ PUBLIC int websRuntimeOpen();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websOpen(char *documents, char *routes);
+PUBLIC int websOpen(cchar *documents, cchar *routes);
 
 /**
     Close the O/S dependant code.
@@ -2680,7 +2694,7 @@ PUBLIC int websOsOpen();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websOpenFile(char *path, int flags, int mode);
+PUBLIC int websOpenFile(cchar *path, int flags, int mode);
 
 /**
     Open the options handler
@@ -2800,7 +2814,7 @@ PUBLIC ssize websReadFile(int fd, char *buf, ssize size);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websReadWholeFile(char *path);
+PUBLIC char *websReadWholeFile(cchar *path);
 
 /**
     Redirect the client to a new URL.
@@ -2811,7 +2825,7 @@ PUBLIC char *websReadWholeFile(char *path);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websRedirect(Webs *wp, char *url);
+PUBLIC void websRedirect(Webs *wp, cchar *url);
 
 /**
     Redirect the client to a new URI
@@ -2836,7 +2850,7 @@ PUBLIC int websRedirectByStatus(Webs *wp, int status);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websResponse(Webs *wp, int status, char *msg);
+PUBLIC void websResponse(Webs *wp, int status, cchar *msg);
 
 /**
     Rewrite a request
@@ -2847,7 +2861,7 @@ PUBLIC void websResponse(Webs *wp, int status, char *msg);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websRewriteRequest(Webs *wp, char *url);
+PUBLIC int websRewriteRequest(Webs *wp, cchar *url);
 
 /**
     Open the file system module
@@ -2883,7 +2897,7 @@ PUBLIC Offset websSeekFile(int fd, Offset offset, int origin);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf);
+PUBLIC int websStatFile(cchar *path, WebsFileInfo *sbuf);
 
 /**
     One line embedding API.
@@ -2893,7 +2907,7 @@ PUBLIC int websStatFile(char *path, WebsFileInfo *sbuf);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websServer(char *endpoint, char *documents);
+PUBLIC int websServer(cchar *endpoint, cchar *documents);
 
 /**
     Service I/O events until finished
@@ -2933,14 +2947,14 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
     @param value Cookie value
     @param path URI path prefix applicable for this cookie
     @param domain Domain applicable for this cookie
-    @param lifespan Cookie lifespan in secons
+    @param lifespan Cookie lifespan in seconds
     @param flags Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only.
         Otherwise the cookie applies to both http and https requests.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websSetCookie(Webs *wp, char *name, char *value, char *path, char *domain, int lifespan, int flags);
+PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, cchar *domain, int lifespan, int flags);
 
 /**
     Set the debug processing flag
@@ -2957,7 +2971,7 @@ PUBLIC void websSetDebug(int on);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websSetDocuments(char *dir);
+PUBLIC void websSetDocuments(cchar *dir);
 
 /**
     Create the CGI environment variables for the current request.
@@ -2983,7 +2997,7 @@ PUBLIC void websSetFormVars(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websSetHost(char *host);
+PUBLIC void websSetHost(cchar *host);
 
 /**
     Define the host IP address
@@ -2991,7 +3005,7 @@ PUBLIC void websSetHost(char *host);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websSetIpAddr(char *ipaddr);
+PUBLIC void websSetIpAddr(cchar *ipaddr);
 
 /**
     Create and send a request response
@@ -3001,7 +3015,7 @@ PUBLIC void websSetIpAddr(char *ipaddr);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websSetIndex(char *filename);
+PUBLIC void websSetIndex(cchar *filename);
 
 /**
     Create request variables for query string data
@@ -3037,10 +3051,11 @@ PUBLIC void websSetTxLength(Webs *wp, ssize length);
     @param name Variable name to set
     @param fmt Value format string
     @param ... Args to format
+    @return the allocated WebsKey
     @ingroup Webs
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
+PUBLIC WebsKey *websSetVarFmt(Webs *wp, cchar *name, cchar *fmt, ...);
 
 /**
     Set a request variable to a string value
@@ -3049,10 +3064,11 @@ PUBLIC void websSetVarFmt(Webs *wp, char *name, char *fmt, ...);
     @param wp Webs request object
     @param name Variable name to set
     @param value Value to set
+    @return the allocated WebsKey
     @ingroup Webs
-    @stability Stable
+    @stability Evolving
  */
-PUBLIC void websSetVar(Webs *wp, char *name, char *value);
+PUBLIC WebsKey *websSetVar(Webs *wp, cchar *name, cchar *value);
 
 /**
     Test if  a request variable is defined
@@ -3062,7 +3078,7 @@ PUBLIC void websSetVar(Webs *wp, char *name, char *value);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC bool websTestVar(Webs *wp, char *name);
+PUBLIC bool websTestVar(Webs *wp, cchar *name);
 
 /**
     Create a temporary filename
@@ -3073,7 +3089,7 @@ PUBLIC bool websTestVar(Webs *wp, char *name);
     @ingroup Webs
     @stability Stable
   */
-PUBLIC char *websTempFile(char *dir, char *prefix);
+PUBLIC char *websTempFile(cchar *dir, cchar *prefix);
 
 /**
     Open the date/time parsing module
@@ -3115,7 +3131,7 @@ PUBLIC void websTimeClose();
     @ingroup Webs
     @stability Evolving
   */
-PUBLIC int websParseDateTime(WebsTime *time, char *date, struct tm *defaults);
+PUBLIC int websParseDateTime(WebsTime *time, cchar *date, struct tm *defaults);
 
 /**
     Parse a URL into its components
@@ -3133,7 +3149,7 @@ PUBLIC int websParseDateTime(WebsTime *time, char *date, struct tm *defaults);
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websUrlParse(char *url, char **buf, char **protocol, char **host, char **port, char **path, char **ext,
+PUBLIC int websUrlParse(cchar *url, char **buf, char **protocol, char **host, char **port, char **path, char **ext,
     char **reference, char **query);
 
 /**
@@ -3157,7 +3173,7 @@ PUBLIC bool websValid(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websValidateUriPath(char *uri);
+PUBLIC char *websValidateUriPath(cchar *uri);
 
 /**
     Test if a URI is using only valid characters
@@ -3170,7 +3186,7 @@ PUBLIC char *websValidateUriPath(char *uri);
     @ingroup Webs
     @stability Evolving
   */
-PUBLIC bool websValidUriChars(char *uri);
+PUBLIC bool websValidUriChars(cchar *uri);
 
 /**
     Write a set of standard response headers
@@ -3181,7 +3197,7 @@ PUBLIC bool websValidUriChars(char *uri);
     @see websSetStatus
     @stability Stable
  */
-PUBLIC void websWriteHeaders(Webs *wp, ssize contentLength, char *redirect);
+PUBLIC void websWriteHeaders(Webs *wp, ssize contentLength, cchar *redirect);
 
 /**
     Signify the end of the response headers
@@ -3205,7 +3221,7 @@ PUBLIC void websWriteEndHeaders(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...);
+PUBLIC int websWriteHeader(Webs *wp, cchar *key, cchar *fmt, ...);
 
 /**
     Write data to the response
@@ -3218,7 +3234,7 @@ PUBLIC int websWriteHeader(Webs *wp, char *key, char *fmt, ...);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC ssize websWrite(Webs *wp, char *fmt, ...);
+PUBLIC ssize websWrite(Webs *wp, cchar *fmt, ...);
 
 /**
     Write data to the open file
@@ -3229,7 +3245,7 @@ PUBLIC ssize websWrite(Webs *wp, char *fmt, ...);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC ssize websWriteFile(int fd, char *buf, ssize size);
+PUBLIC ssize websWriteFile(int fd, cchar *buf, ssize size);
 
 /**
     Write a block of data to the response
@@ -3242,7 +3258,7 @@ PUBLIC ssize websWriteFile(int fd, char *buf, ssize size);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
+PUBLIC ssize websWriteBlock(Webs *wp, cchar *buf, ssize size);
 
 /**
     Write a block of data to the network
@@ -3256,7 +3272,7 @@ PUBLIC ssize websWriteBlock(Webs *wp, char *buf, ssize size);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC ssize websWriteSocket(Webs *wp, char *buf, ssize size);
+PUBLIC ssize websWriteSocket(Webs *wp, cchar *buf, ssize size);
 
 #if ME_GOAHEAD_UPLOAD
 /**
@@ -3310,12 +3326,12 @@ PUBLIC int websGetRandomBytes(char *buf, ssize length, bool block);
     @ingroup Crypto
     @stability Prototype
  */
-PUBLIC char *websCryptPassword(char *password, char *salt, int rounds);
+PUBLIC char *websCryptPassword(cchar *password, cchar *salt, int rounds);
 
 /**
     Make salt for adding to a password.
     @param size Size in bytes of the salt text.
-    @return The random salt text.
+    @return The random salt text. Caller must free.
     @ingroup Crypto
     @stability Prototype
  */
@@ -3326,11 +3342,11 @@ PUBLIC char *websMakeSalt(ssize size);
     @param password User's password to encrypt
     @param saltLength Length of salt text to add to password. Helps to make each user's password unique.
     @param rounds Number of times to encrypt. More times, makes the routine slower and passwords harder to crack.
-    @return The encrypted password.
+    @return The encrypted password. Caller must free.
     @ingroup Crypto
     @stability Prototype
  */
-PUBLIC char *websMakePassword(char *password, int saltLength, int rounds);
+PUBLIC char *websMakePassword(cchar *password, int saltLength, int rounds);
 
 /**
     Check a plain-text password against the defined hashed password.
@@ -3340,16 +3356,16 @@ PUBLIC char *websMakePassword(char *password, int saltLength, int rounds);
     @ingroup Crypto
     @stability Prototype
  */
-PUBLIC bool websCheckPassword(char *plainTextPassword, char *passwordHash);
+PUBLIC bool websCheckPassword(cchar *plainTextPassword, cchar *passwordHash);
 
 /**
     Get a password from the terminal console
     @param prompt Text prompt to display before reading the password
-    @return The entered password.
+    @return The entered password. Caller must free.
     @ingroup Crypto
     @stability Prototype
  */
-PUBLIC char *websReadPassword(char *prompt);
+PUBLIC char *websReadPassword(cchar *prompt);
 
 /*************************************** JST ***********************************/
 
@@ -3377,7 +3393,7 @@ typedef int (*WebsJstProc)(int jid, Webs *wp, int argc, char **argv);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websDefineJst(char *name, WebsJstProc fn);
+PUBLIC int websDefineJst(cchar *name, WebsJstProc fn);
 
 /**
     Open the Javascript module.
@@ -3557,7 +3573,7 @@ typedef struct WebsRoute {
     @ingroup WebsRoute
     @stability Stable
  */
-PUBLIC WebsRoute *websAddRoute(char *uri, char *handler, int pos);
+PUBLIC WebsRoute *websAddRoute(cchar *uri, cchar *handler, int pos);
 
 /**
     Close the route module
@@ -3573,7 +3589,7 @@ PUBLIC void websCloseRoute();
     @ingroup WebsRoute
     @stability Stable
  */
-PUBLIC int websLoad(char *path);
+PUBLIC int websLoad(cchar *path);
 
 /**
     Open the routing module
@@ -3589,7 +3605,7 @@ PUBLIC int websOpenRoute();
     @ingroup WebsRoute
     @stability Stable
  */
-PUBLIC int websRemoveRoute(char *uri);
+PUBLIC int websRemoveRoute(cchar *uri);
 
 /**
     Route a request
@@ -3628,7 +3644,7 @@ PUBLIC bool websRunRequest(Webs *wp);
     @ingroup WebsRoute
     @stability Evolving
  */
-PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHash methods, WebsHash extensions,
+PUBLIC int websSetRouteMatch(WebsRoute *route, cchar *dir, cchar *protocol, WebsHash methods, WebsHash extensions,
         WebsHash abilities, WebsHash redirects);
 
 /**
@@ -3639,7 +3655,7 @@ PUBLIC int websSetRouteMatch(WebsRoute *route, char *dir, char *protocol, WebsHa
     @ingroup WebsRoute
     @stability Stable
  */
-PUBLIC int websSetRouteAuth(WebsRoute *route, char *authType);
+PUBLIC int websSetRouteAuth(WebsRoute *route, cchar *authType);
 
 /*************************************** Auth **********************************/
 #if ME_GOAHEAD_AUTH
@@ -3680,7 +3696,7 @@ typedef struct WebsRole {
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC WebsRole *websAddRole(char *role, WebsHash abilities);
+PUBLIC WebsRole *websAddRole(cchar *role, WebsHash abilities);
 
 /**
     Add a user
@@ -3692,7 +3708,7 @@ PUBLIC WebsRole *websAddRole(char *role, WebsHash abilities);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC WebsUser *websAddUser(char *username, char *password, char *roles);
+PUBLIC WebsUser *websAddUser(cchar *username, cchar *password, cchar *roles);
 
 /**
     Authenticate a user
@@ -3762,7 +3778,7 @@ PUBLIC WebsHash websGetUsers();
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC bool websLoginUser(Webs *wp, char *username, char *password);
+PUBLIC bool websLoginUser(Webs *wp, cchar *username, cchar *password);
 
 /**
     Logout a user and remove the user login session.
@@ -3780,7 +3796,7 @@ PUBLIC bool websLogoutUser(Webs *wp);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC WebsUser *websLookupUser(char *username);
+PUBLIC WebsUser *websLookupUser(cchar *username);
 
 /**
     Remove a role from the system
@@ -3789,7 +3805,7 @@ PUBLIC WebsUser *websLookupUser(char *username);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC int websRemoveRole(char *role);
+PUBLIC int websRemoveRole(cchar *role);
 
 /**
     Remove a user from the system
@@ -3798,7 +3814,7 @@ PUBLIC int websRemoveRole(char *role);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC int websRemoveUser(char *name);
+PUBLIC int websRemoveUser(cchar *name);
 
 /**
     Open the authentication module
@@ -3825,7 +3841,7 @@ PUBLIC void websSetPasswordStoreVerify(WebsVerify verify);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC int websSetUserPassword(char *username, char *password);
+PUBLIC int websSetUserPassword(cchar *username, cchar *password);
 
 
 /**
@@ -3836,7 +3852,7 @@ PUBLIC int websSetUserPassword(char *username, char *password);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC int websSetUserRoles(char *username, char *roles);
+PUBLIC int websSetUserRoles(cchar *username, cchar *roles);
 
 /**
     User password verification routine from a custom password back-end store.
@@ -3875,7 +3891,7 @@ PUBLIC bool websVerifyPasswordFromPam(Webs *wp);
  */
 typedef struct WebsSession {
     char            *id;                    /**< Session ID key */
-    int             lifespan;               /**< Session inactivity timeout (msecs) */
+    int             lifespan;               /**< Session inactivity timeout (secs) */
     WebsTime        expires;                /**< When the session expires */
     WebsHash        cache;                  /**< Cache of session variables */
 } WebsSession;
@@ -3889,7 +3905,7 @@ typedef struct WebsSession {
     @ingroup WebsSession
     @stability Stable
  */
-PUBLIC WebsSession *websAllocSession(Webs *wp, char *id, int lifespan);
+PUBLIC WebsSession *websAllocSession(Webs *wp, cchar *id, int lifespan);
 
 /**
     Test if a user possesses the required ability
@@ -3912,7 +3928,7 @@ PUBLIC void websDestroySession(Webs *wp);
 /**
     Get the session ID
     @param wp Webs request object
-    @return The session ID if session state storage is defined for this request.
+    @return The session ID if session state storage is defined for this request. Caller must free.
     @ingroup WebsSession
     @stability Stable
  */
@@ -3937,7 +3953,7 @@ PUBLIC WebsSession *websGetSession(Webs *wp, int create);
     @ingroup WebsSession
     @stability Stable
  */
-PUBLIC char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
+PUBLIC cchar *websGetSessionVar(Webs *wp, cchar *name, cchar *defaultValue);
 
 /**
     Remove a session variable
@@ -3946,7 +3962,7 @@ PUBLIC char *websGetSessionVar(Webs *wp, char *name, char *defaultValue);
     @ingroup WebsSession
     @stability Stable
  */
-PUBLIC void websRemoveSessionVar(Webs *wp, char *name);
+PUBLIC void websRemoveSessionVar(Webs *wp, cchar *name);
 
 /**
     Set a session variable name value
@@ -3957,7 +3973,7 @@ PUBLIC void websRemoveSessionVar(Webs *wp, char *name);
     @ingroup WebsSession
     @stability Stable
  */
-PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
+PUBLIC int websSetSessionVar(Webs *wp, cchar *name, cchar *value);
 
 /************************************ Legacy **********************************/
 /*
@@ -4129,13 +4145,13 @@ PUBLIC int websSetSessionVar(Webs *wp, char *name, char *value);
     typedef WebsStat gstat_t;
     typedef WebsValue value_t;
 
-    PUBLIC int fmtValloc(char **s, int n, char *fmt, va_list arg);
-    PUBLIC int fmtAlloc(char **s, int n, char *fmt, ...);
+    PUBLIC int fmtValloc(char **s, int n, cchar *fmt, va_list arg);
+    PUBLIC int fmtAlloc(char **s, int n, cchar *fmt, ...);
     PUBLIC void websFooter(Webs *wp);
     PUBLIC void websHeader(Webs *wp);
-    PUBLIC int websPublish(char *prefix, char *path);
-    PUBLIC void websSetRequestFilename(Webs *wp, char *filename);
-    PUBLIC int websUrlHandlerDefine(char *prefix, char *dir, int arg, WebsLegacyHandlerProc handler, int flags);
+    PUBLIC int websPublish(cchar *prefix, cchar *path);
+    PUBLIC void websSetRequestFilename(Webs *wp, cchar *filename);
+    PUBLIC int websUrlHandlerDefine(cchar *prefix, cchar *dir, int arg, WebsLegacyHandlerProc handler, int flags);
 
 #if ME_ROM
     typedef WebsRomIndex websRomIndexType;
