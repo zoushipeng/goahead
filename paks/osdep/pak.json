@@ -34,7 +34,5 @@
     "devDependencies": {
         "pak": ">=0.11.3"
     },
-    "pak": {
-        "origin": "embedthis/osdep"
-    }
+    "origin": "embedthis/osdep"
 }
