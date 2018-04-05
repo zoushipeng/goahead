@@ -273,7 +273,7 @@ static int wallocGetSize(ssize size, int *q)
 
 #else /* !ME_GOAHEAD_REPLACE_MALLOC */
 
-PUBLIC void *walloc(ssize num) 
+PUBLIC void *walloc(ssize num)
 {
     void    *mem;
 
@@ -286,15 +286,15 @@ PUBLIC void *walloc(ssize num)
 }
 
 
-PUBLIC void wfree(void *mem) 
+PUBLIC void wfree(void *mem)
 {
-    if (mem) { 
-        free(mem); 
-    }   
+    if (mem) {
+        free(mem);
+    }
 }
 
 
-PUBLIC void *wrealloc(void *mem, ssize num) 
+PUBLIC void *wrealloc(void *mem, ssize num)
 {
     void    *old;
 
@@ -305,7 +305,7 @@ PUBLIC void *wrealloc(void *mem, ssize num)
         }
         free(old);
     }
-    return mem;  
+    return mem;
 }
 
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
