@@ -11,7 +11,7 @@
             default.</p>
             <p>The GoAhead command line usage is:</p>
             <pre class="ui code segment">
-goahead [options] [documents] [IP]:[PORT] 
+goahead [options] [documents] [IP]:[PORT]
 </pre>
             <p>If the PORT component is omitted, GoAhead will listen on port 80. If the IP address is omitted and a port is
             supplied, GoAhead will listen on all network interfaces. An optional document root directory can be supplied for
@@ -30,7 +30,7 @@ goahead [options] [documents] [IP]:[PORT]
                         <td>--auth filename</td>
                         <td>Define the name of the authentication configuration file. This is by default auth.txt. If
                             GoAhead is built with PAM support (Unix Pluggable Authentication Modules), then passwords will
-                            be authenticated from the system password database.</td> 
+                            be authenticated from the system password database.</td>
                     </tr>
                     <tr>
                         <td class="nowrap">--debugger</td>
@@ -39,7 +39,7 @@ goahead [options] [documents] [IP]:[PORT]
                     <tr>
                         <td class="nowrap">--log logSpec</td>
                         <td>Specify a file to log messages. This will override the ErrorLog directive in the
-                        configuration file. The logSpec syntax is logName[:logLevel][.maxSize]. When the maximum size
+                        configuration file. The logSpec syntax is logName[:logLevel]. When the maximum size
                         is exceeded, the log file will be rotated to logName.old and a new log file will be started.
                         The log level is a number between 0 and 9 where 0 is the least verbose. The -l option is an
                         alias for --log.</td>
@@ -53,7 +53,7 @@ goahead [options] [documents] [IP]:[PORT]
                         <td class="nowrap">--route routeFile</td>
                         <td>This option overrides the default route configuration file name of "route.txt". When
                             GoAhead starts, it reads the route configuration file to load URI routes. These routes define
-                            what actions should be taken when various client requests are received.</td> 
+                            what actions should be taken when various client requests are received.</td>
                     </tr>
                     <tr>
                         <td>--verbose</td>

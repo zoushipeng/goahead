@@ -1,18 +1,6 @@
 {
     "name": "goaheaddoc",
-    "title": "GoAhead Documenation",
-    "description": "Simple, fast, secure embedded web server",
-    "dependencies": {
-        "me-docstyle": "~0.9"
-    },
-    "devDependencies": {
-        "expansive": ">=0.6.0"
-    },
-    "directories": {
-        "export": "contents/lib"
-    },
-    "pak": {
-        "import": true,
-        "mode": "debug"
-    }
+    "version": undefined,
+    "repository": undefined,
+    "pak": "debug"
 }
