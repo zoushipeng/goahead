@@ -3087,7 +3087,7 @@ WebsSession *websGetSession(Webs *wp, int create)
                 wfree(id);
                 return 0;
             }
-            if (sessionCount > ME_GOAHEAD_LIMIT_SESSION_COUNT) {
+            if (sessionCount >= ME_GOAHEAD_LIMIT_SESSION_COUNT) {
                 error("Too many sessions %d/%d", sessionCount, ME_GOAHEAD_LIMIT_SESSION_COUNT);
                 wfree(id);
                 return 0;
@@ -3258,6 +3258,7 @@ static void freeSessions()
         }
         hashFree(sessions);
         sessions = -1;
+        sessionCount = 0;
     }
 }
 
