@@ -23,9 +23,9 @@
             keys: ['aws-embedthis-ops', 'gpg'],
             profiles: {
                 prod: {
-                    primary: true,
-                },
+                    primary: true
+                }
             }
-        },
-    },
+        }
+    }
 } 
