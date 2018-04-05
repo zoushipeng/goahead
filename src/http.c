@@ -349,6 +349,7 @@ PUBLIC void websClose()
 static void initWebs(Webs *wp, int flags, int reuse)
 {
     WebsBuf     rxbuf;
+    WebsTime    timestamp;
     void        *ssl;
     char        ipaddr[ME_MAX_IP], ifaddr[ME_MAX_IP];
     int         wid, sid, timeout, listenSid;
@@ -364,11 +365,13 @@ static void initWebs(Webs *wp, int flags, int reuse)
         listenSid = wp->listenSid;
         scopy(ipaddr, sizeof(ipaddr), wp->ipaddr);
         scopy(ifaddr, sizeof(ifaddr), wp->ifaddr);
+        timestamp = wp->timestamp;
     } else {
         wid = sid = -1;
         timeout = -1;
         ssl = 0;
         listenSid = -1;
+        timestamp = 0;
     }
     memset(wp, 0, sizeof(Webs));
     wp->flags = flags;
@@ -382,6 +385,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->code = HTTP_CODE_OK;
     wp->ssl = ssl;
     wp->listenSid = listenSid;
+    wp->timestamp = timestamp;
 #if !ME_ROM
     wp->putfd = -1;
 #endif
