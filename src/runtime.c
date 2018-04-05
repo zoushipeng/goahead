@@ -1352,6 +1352,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
         maxsize = initSize;
     }
     assert(initSize >= 0);
+    memset(bp, 0, sizeof(WebsBuf));
 
     increment = getBinBlockSize(initSize);
     if ((bp->buf = walloc((increment))) == NULL) {
@@ -1500,7 +1501,9 @@ PUBLIC ssize bufPut(WebsBuf *bp, cchar *fmt, ...)
     va_end(ap);
 
     rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
-    *((char*) bp->endp) = (char) '\0';
+    if (rc) {
+        *((char*) bp->endp) = (char) '\0';
+    }
     return rc;
 }
 
@@ -1517,7 +1520,9 @@ PUBLIC ssize bufPutStr(WebsBuf *bp, cchar *str)
     assert(bp->buflen == (bp->endbuf - bp->buf));
 
     rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
-    *((char*) bp->endp) = (char) '\0';
+    if (rc) {
+        *((char*) bp->endp) = (char) '\0';
+    }
     return rc;
 }
 
