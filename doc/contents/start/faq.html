@@ -35,7 +35,7 @@
             <a id="answers"></a>
             <div class="answers">
                 <h2>Answers</h2>
-                <p class="question"><a id="history"></a>Why is Embedthis Software supporting and distributing 
+                <p class="question"><a id="history"></a>Why is Embedthis Software supporting and distributing
                     the GoAhead WebServer?</p>
                 <div class="answer">
                     The GoAhead WebServer was originally written by Michael O'Brien, CEO of Embedthis and it remains a very
@@ -53,14 +53,14 @@
                 <a id="runTimeModules"></a>
                 <p class="question">Can I disable features to minimize memory footprint at run-time?</p>
                 <div class="answer">
-                    <p>Yes. GoAhead has build-time configuration settings to select required features and minimize 
+                    <p>Yes. GoAhead has build-time configuration settings to select required features and minimize
                     memory footprint. See <a href="source.html">Building from Source</a> for details of
-                    the configuration options.</p> 
+                    the configuration options.</p>
                 </div>
                 <p class="question"><a id="upload"></a>How can I upload large files?</p>
                 <div class="answer">
                     <p>You need to increase the LimitRequestBody limit in the goahead.conf file. This imposes a maximum
-                    upload file size. Some samples have a MAX_FILE_SIZE input field in the HTML form. This however, is 
+                    upload file size. Some samples have a MAX_FILE_SIZE input field in the HTML form. This however, is
                     just a hint to the browser, and is only processed by some browsers.</p>
                 </div>
                 <p class="question"><a id="disableFeatures"></a>When I build from the source, can I
@@ -75,11 +75,8 @@
                 <div class="answer">
                     <p>Run goahead or winGoAhead with the logging switch "-l". The logging switch takes the following
                     parameters:</p>
-                    <code>goahead -l logName[:logLevel][.maxSize]</code>
-                    <p>Where logLevel is a number between 0 and 9. Zero is the least verbose. To debug HTTP requests, a
-                    level of 6 provides the detail of all the request / response exchanges. MaxSize is the maximum size of
-                    the log file in MB. When the maximum size is exceeded, the log file will be rotated to logName.old and
-                    a new log file will be started.</p>
+                    <code>goahead -l logName[:logLevel]</code>
+                    <p>Where logLevel is a number between 0 and 9. Zero is the least verbose. To debug HTTP requests, a level of 6 provides the detail of all the request / response exchanges.</p>
                 </div>
                 <p class="question"><a id="minimalFootprint"></a>How small can I make GoAhead?</p>
                 <div class="answer">
@@ -114,8 +111,8 @@
     STRIP=$DIR/strip.exe \
     CFLAGS="-I$DIR/include \
     ./configure --debug --platform linux-arm</code>
-                    <p>For more details, please read: 
-                    <a href="https://embedthis.com/makeme/doc/users/cross.html">Cross-Compiling</a> in the MakeMe 
+                    <p>For more details, please read:
+                    <a href="https://embedthis.com/makeme/doc/users/cross.html">Cross-Compiling</a> in the MakeMe
                     online documentation.</p>
                 </div>
             </div>

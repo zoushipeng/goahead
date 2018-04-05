@@ -372,7 +372,8 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
              */
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
-            while ((nbytes = read(fdout, buf, sizeof(buf))) > 0) {
+            while ((nbytes = read(fdout, buf, sizeof(buf) - 1)) > 0) {
+                buf[nbytes] = 0;
                 skip = 0;
                 if (!(wp->flags & WEBS_HEADERS_CREATED)) {
                     if ((skip = parseCgiHeaders(wp, buf)) == 0) {
