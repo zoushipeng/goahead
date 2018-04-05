@@ -459,8 +459,10 @@ int websCgiPoll()
                 wfree(cgip->envp);
                 wfree(cgip);
                 websPump(wp);
-                websFree(wp);
-                /* wp no longer valid */
+                if ((wp->flags & WEBS_KEEP_ALIVE) == 0) {
+                    websFree(wp);
+                    /* wp no longer valid */
+                }
             }
         }
     }
