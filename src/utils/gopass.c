@@ -179,7 +179,7 @@ static int writeAuthFile(char *path)
     fclose(fp);
     unlink(path);
     if (rename(tempFile, path) < 0) {
-        error("Cannot create new %s", path);
+        error("Cannot create new %s from %s errno %d", path, tempFile, errno);
         return -1;
     }
     return 0;
