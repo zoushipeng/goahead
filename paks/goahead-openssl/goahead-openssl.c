@@ -217,7 +217,9 @@ PUBLIC int sslOpen()
     RAND_load_file("/dev/urandom", 256);
     trace(6, "OpenSsl: After calling RAND_load_file");
 #endif
+#if UNUSED
     CRYPTO_malloc_init();
+#endif
 #if !ME_WIN_LIKE
     OpenSSL_add_all_algorithms();
 #endif
@@ -720,11 +722,10 @@ static int verifyClientCertificate(int ok, X509_STORE_CTX *xContext)
     if (X509_NAME_oneline(X509_get_subject_name(cert), subject, sizeof(subject) - 1) < 0) {
         ok = 0;
     }
-    if (X509_NAME_oneline(X509_get_issuer_name(xContext->current_cert), issuer, sizeof(issuer) - 1) < 0) {
+    if (X509_NAME_oneline(X509_get_issuer_name(cert), issuer, sizeof(issuer) - 1) < 0) {
         ok = 0;
     }
-    if (X509_NAME_get_text_by_NID(X509_get_subject_name(xContext->current_cert), NID_commonName, peer,
-            sizeof(peer) - 1) < 0) {
+    if (X509_NAME_get_text_by_NID(X509_get_subject_name(cert), NID_commonName, peer, sizeof(peer) - 1) < 0) {
         ok = 0;
     }
     if (ok && VERIFY_DEPTH < depth) {
@@ -844,13 +845,16 @@ static DH *getDhKey()
 		0x02,
     };
 	DH      *dh;
+    BIGNUM  *p, *g;
 
     if ((dh = DH_new()) == 0) {
         return 0;
     }
-    dh->p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
-    dh->g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
-    if ((dh->p == 0) || (dh->g == 0)) {
+    p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
+    g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
+    if (!DH_set0_pqg(dh, p, NULL, g)) {
+        BN_free(p);
+        BN_free(g);
         DH_free(dh);
         return 0;
     }
