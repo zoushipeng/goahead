@@ -126,6 +126,7 @@ PUBLIC int sslOpen()
     }
     mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, &cfg.ctr);
 
+#if DEPRECATED
     /*
         Configure larger DH parameters
      */
@@ -133,6 +134,7 @@ PUBLIC int sslOpen()
         merror(rc, "Cannot set DH params");
         return -1;
     }
+#endif
 
     /*
         Set auth mode if peer cert should be verified
@@ -370,7 +372,8 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
         trace(5, "mbedtls: mbedtls_ssl_read %d", rc);
         if (rc < 0) {
             if (rc == MBEDTLS_ERR_SSL_WANT_READ || rc == MBEDTLS_ERR_SSL_WANT_WRITE)  {
-                continue;
+                rc = 0;
+                break;
             } else if (rc == MBEDTLS_ERR_SSL_PEER_CLOSE_NOTIFY) {
                 trace(5, "mbedtls: connection was closed gracefully");
                 sp->flags |= SOCKET_EOF;

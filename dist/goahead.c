@@ -7,9 +7,7 @@
 #if ME_COM_GOAHEAD
 
 
-
 /********* Start of file ../../../src/action.c ************/
-
 
 /*
     action.c -- Action handler
@@ -142,9 +140,7 @@ PUBLIC void websFooter(Webs *wp)
  */
 
 
-
 /********* Start of file ../../../src/alloc.c ************/
-
 
 /*
     alloc.c -- Optional WebServer memory allocator
@@ -421,7 +417,7 @@ static int wallocGetSize(ssize size, int *q)
 
 #else /* !ME_GOAHEAD_REPLACE_MALLOC */
 
-PUBLIC void *walloc(ssize num) 
+PUBLIC void *walloc(ssize num)
 {
     void    *mem;
 
@@ -434,15 +430,15 @@ PUBLIC void *walloc(ssize num)
 }
 
 
-PUBLIC void wfree(void *mem) 
+PUBLIC void wfree(void *mem)
 {
-    if (mem) { 
-        free(mem); 
-    }   
+    if (mem) {
+        free(mem);
+    }
 }
 
 
-PUBLIC void *wrealloc(void *mem, ssize num) 
+PUBLIC void *wrealloc(void *mem, ssize num)
 {
     void    *old;
 
@@ -453,7 +449,7 @@ PUBLIC void *wrealloc(void *mem, ssize num)
         }
         free(old);
     }
-    return mem;  
+    return mem;
 }
 
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
@@ -480,9 +476,7 @@ PUBLIC void *wdup(cvoid *ptr, size_t usize)
  */
 
 
-
 /********* Start of file ../../../src/auth.c ************/
-
 
 /*
     auth.c -- Authorization Management
@@ -1580,9 +1574,7 @@ PUBLIC int websSetRouteAuth(WebsRoute *route, cchar *auth)
  */
 
 
-
 /********* Start of file ../../../src/cgi.c ************/
-
 
 /*
     cgi.c -- CGI processing
@@ -1958,7 +1950,8 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
              */
             wp = cgip->wp;
             lseek(fdout, cgip->fplacemark, SEEK_SET);
-            while ((nbytes = read(fdout, buf, sizeof(buf))) > 0) {
+            while ((nbytes = read(fdout, buf, sizeof(buf) - 1)) > 0) {
+                buf[nbytes] = 0;
                 skip = 0;
                 if (!(wp->flags & WEBS_HEADERS_CREATED)) {
                     if ((skip = parseCgiHeaders(wp, buf)) == 0) {
@@ -2044,8 +2037,10 @@ int websCgiPoll()
                 wfree(cgip->envp);
                 wfree(cgip);
                 websPump(wp);
-                websFree(wp);
-                /* wp no longer valid */
+                if ((wp->flags & WEBS_KEEP_ALIVE) == 0) {
+                    websFree(wp);
+                    /* wp no longer valid */
+                }
             }
         }
     }
@@ -2610,9 +2605,7 @@ static int checkCgi(CgiPid handle)
  */
 
 
-
 /********* Start of file ../../../src/crypt.c ************/
-
 
 /*
     crypt.c - Base-64 encoding and decoding and MD5 support.
@@ -3726,9 +3719,7 @@ PUBLIC char *websReadPassword(cchar *prompt)
  */
 
 
-
 /********* Start of file ../../../src/file.c ************/
-
 
 /*
     file.c -- File handler
@@ -3966,9 +3957,7 @@ PUBLIC void websSetDocuments(cchar *dir)
  */
 
 
-
 /********* Start of file ../../../src/fs.c ************/
-
 
 /*
     fs.c -- File System support and support for ROM-based file systems.
@@ -4227,9 +4216,7 @@ static WebsRomIndex *lookup(WebsHash fs, char *path)
  */
 
 
-
 /********* Start of file ../../../src/goahead.c ************/
-
 
 /*
     goahead.c -- Main program for GoAhead
@@ -4594,9 +4581,7 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
  */
 
 
-
 /********* Start of file ../../../src/http.c ************/
-
 
 /*
     http.c -- GoAhead HTTP engine
@@ -4949,6 +4934,7 @@ PUBLIC void websClose()
 static void initWebs(Webs *wp, int flags, int reuse)
 {
     WebsBuf     rxbuf;
+    WebsTime    timestamp;
     void        *ssl;
     char        ipaddr[ME_MAX_IP], ifaddr[ME_MAX_IP];
     int         wid, sid, timeout, listenSid;
@@ -4964,11 +4950,13 @@ static void initWebs(Webs *wp, int flags, int reuse)
         listenSid = wp->listenSid;
         scopy(ipaddr, sizeof(ipaddr), wp->ipaddr);
         scopy(ifaddr, sizeof(ifaddr), wp->ifaddr);
+        timestamp = wp->timestamp;
     } else {
         wid = sid = -1;
         timeout = -1;
         ssl = 0;
         listenSid = -1;
+        timestamp = 0;
     }
     memset(wp, 0, sizeof(Webs));
     wp->flags = flags;
@@ -4982,6 +4970,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->code = HTTP_CODE_OK;
     wp->ssl = ssl;
     wp->listenSid = listenSid;
+    wp->timestamp = timestamp;
 #if !ME_ROM
     wp->putfd = -1;
 #endif
@@ -7683,7 +7672,7 @@ WebsSession *websGetSession(Webs *wp, int create)
                 wfree(id);
                 return 0;
             }
-            if (sessionCount > ME_GOAHEAD_LIMIT_SESSION_COUNT) {
+            if (sessionCount >= ME_GOAHEAD_LIMIT_SESSION_COUNT) {
                 error("Too many sessions %d/%d", sessionCount, ME_GOAHEAD_LIMIT_SESSION_COUNT);
                 wfree(id);
                 return 0;
@@ -7854,6 +7843,7 @@ static void freeSessions()
         }
         hashFree(sessions);
         sessions = -1;
+        sessionCount = 0;
     }
 }
 
@@ -8024,9 +8014,7 @@ PUBLIC cchar *websGetUsername(Webs *wp) { return wp->username; }
  */
 
 
-
 /********* Start of file ../../../src/js.c ************/
-
 
 /*
     js.c -- Mini JavaScript
@@ -10288,9 +10276,7 @@ static int charConvert(Js *ep, int base, int maxDig)
  */
 
 
-
 /********* Start of file ../../../src/jst.c ************/
-
 
 /*
     jst.c -- JavaScript templates
@@ -10557,9 +10543,7 @@ static char *skipWhite(char *s)
  */
 
 
-
 /********* Start of file ../../../src/options.c ************/
-
 
 /*
     options.c -- Options and Trace handler
@@ -10621,9 +10605,7 @@ PUBLIC int websOptionsOpen()
  */
 
 
-
 /********* Start of file ../../../src/osdep.c ************/
-
 
 /*
     osdep.c -- O/S dependant code
@@ -10921,9 +10903,7 @@ int select(int maxfds, fd_set *readFds, fd_set *writeFds, fd_set *exceptFds, str
  */
 
 
-
 /********* Start of file ../../../src/rom.c ************/
-
 
 /*
    rom.c
@@ -10943,9 +10923,7 @@ WebsRomIndex websRomIndex[] = {
 #endif
 
 
-
 /********* Start of file ../../../src/route.c ************/
-
 
 /*
     route.c -- Route Management
@@ -11629,9 +11607,7 @@ PUBLIC int websPublish(cchar *prefix, cchar *dir)
  */
 
 
-
 /********* Start of file ../../../src/runtime.c ************/
-
 
 /*
     runtime.c -- Runtime support
@@ -12987,6 +12963,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
         maxsize = initSize;
     }
     assert(initSize >= 0);
+    memset(bp, 0, sizeof(WebsBuf));
 
     increment = getBinBlockSize(initSize);
     if ((bp->buf = walloc((increment))) == NULL) {
@@ -13135,7 +13112,9 @@ PUBLIC ssize bufPut(WebsBuf *bp, cchar *fmt, ...)
     va_end(ap);
 
     rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
-    *((char*) bp->endp) = (char) '\0';
+    if (rc) {
+        *((char*) bp->endp) = (char) '\0';
+    }
     return rc;
 }
 
@@ -13152,7 +13131,9 @@ PUBLIC ssize bufPutStr(WebsBuf *bp, cchar *str)
     assert(bp->buflen == (bp->endbuf - bp->buf));
 
     rc = bufPutBlk(bp, str, strlen(str) * sizeof(char));
-    *((char*) bp->endp) = (char) '\0';
+    if (rc) {
+        *((char*) bp->endp) = (char) '\0';
+    }
     return rc;
 }
 
@@ -14469,9 +14450,7 @@ PUBLIC int fmtAlloc(char **sp, int n, cchar *format, ...)
  */
 
 
-
 /********* Start of file ../../../src/socket.c ************/
-
 
 /*
     socket.c -- Sockets layer
@@ -15866,9 +15845,7 @@ PUBLIC WebsSocket **socketGetList()
  */
 
 
-
 /********* Start of file ../../../src/time.c ************/
-
 
 /**
     time.c - Date and Time handling
@@ -16503,9 +16480,7 @@ static void validateTime(struct tm *tp, struct tm *defaults)
  */
 
 
-
 /********* Start of file ../../../src/upload.c ************/
-
 
 /*
     upload.c -- File upload handler

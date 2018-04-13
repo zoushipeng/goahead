@@ -1,12 +1,12 @@
 {
-    "name": "goahead-openssl",
-    "title": "OpenSSL support for GoAhead",
-    "description": "OpenSSL Support for GoAhead",
-    "version": "0.2.0",
+    "name": "goahead-mbedtls",
+    "title": "MbedTLS support",
+    "description": "MbedTLS Support for GoAhead",
+    "version": "2.8.0",
     "keywords": [
         "me",
         "ssl",
-        "openssl"
+        "mbedtls"
     ],
     "author": {
         "name": "Embedthis Software",
@@ -15,10 +15,10 @@
     },
     "repository": {
         "type": "git",
-        "url": "git://github.com/embedthis/goahead-openssl.git"
+        "url": "git://github.com/embedthis/goahead-mbedtls.git"
     },
     "bugs": {
-        "url": "http://github.com/embedthis/goahead-openssl/issues"
+        "url": "http://github.com/embedthis/goahead-mbedtls/issues"
     },
     "licenses": [
         {
@@ -30,14 +30,15 @@
             "url": "https://embedthis.com/licensing/"
         }
     ],
-    "devDependencies": {
-        "makeme": ">=0.9.2"
+    "dependencies": {
+        "mbedtls": "~2"
     },
-    "pak": {
-        "export": [
-            "*.c",
-            "*.me"
-        ],
-        "origin": "embedthis/goahead-openssl"
-    }
+    "devDependencies": {
+        "makeme": ">=0.9.3"
+    },
+    "export": [
+        "*.c",
+        "*.me"
+    ],
+    "origin": "embedthis/goahead-mbedtls"
 }
