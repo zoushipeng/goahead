@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>SSL Overview</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
+    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="SSL Overview" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="GoAhead web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="../lib/semantic-ui/semantic.css" rel="stylesheet" type="text/css" />
-    <link href="../css/all.css" rel="stylesheet" type="text/css" />
-    <link href="../css/api.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="/lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -164,7 +163,7 @@
 
             <a href="ssl.html">SSL for GoAhead</a>.</p>
             <a id="cryptographicTechniques"></a>
-            <h2 >Cryptographic Techniques</h2>
+            <h2>Cryptographic Techniques</h2>
             <p>Understanding SSL requires an understanding of cryptographic algorithms, message digest functions (aka.
             one-way or hash functions), and digital signatures. The following section provides a brief introduction to
             the cryptographic foundations of SSL. If you are already familiar with this material, please skip forward
@@ -227,7 +226,7 @@
             contains a unique sequence number. This protects the bank from a fraudulent claim from Alice that she did
             not send the message &mdash; only she could have signed it (non-repudiation).</p><a id="certificates"></a>
 
-            <h2 >Certificates</h2>
+            <h2>Certificates</h2>
             <p>Although Alice could have sent a private message to the bank, signed it, and ensured the integrity of
             the message, she still needs to be sure that she is really communicating with the bank. This means that she
             needs to be sure that the public key she is using corresponds to the bank's private key. Similarly, the
@@ -375,8 +374,7 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
             root authority reduces the risk in trusting this key &mdash; it would be obvious if someone else publicized
             a key claiming to be the authority. Browsers are preconfigured to trust well-known certificate
             authorities.</p>
-            <p>A number of companies, such as <a href="http://www.thawte.com/">Thawte</a> and <a href=
-            "http://www.verisign.com/">VeriSign</a> have established themselves as Certificate Authorities. These
+            <p>A number of companies, such as <a href="http://www.thawte.com/">Thawte</a> and <a href="http://www.verisign.com/">VeriSign</a> have established themselves as Certificate Authorities. These
             companies provide the following services:</p>
             <ul>
                 <li>Verifying certificate requests</li>
@@ -403,7 +401,7 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
             browser will accept all certificates signed by that Certificate Authority.</p>
         
         <a id="sslOverview"></a>
-        <h2 >Secure Sockets Layer (SSL) Overview</h2>
+        <h2>Secure Sockets Layer (SSL) Overview</h2>
         <p>The Secure Sockets Layer protocols designed to support a range of choices for specific algorithms used for
         cryptography, digests, and signatures. This allows algorithm selection for specific servers to be made based on
         legal, export or other concerns, and also enables the protocol to take advantage of new algorithms. Choices are
@@ -551,12 +549,14 @@ dUHzICxBVC1lnHyYGjDuAMhe396lYAn8bCld1/L4NMGBCQ==
         <p>&copy; Embedthis Software. All rights reserved.</p>
     </div>
 
-    <script src="../lib/jquery/jquery.min.js"></script>
-    <script src="../lib/semantic-ui/semantic.js"></script>
-    <script src="../scripts/sidebar.js"></script>
+    <script src="/lib/jquery/jquery.min.js"></script>
+    <script src="/lib/jquery/pak.min.js"></script>
+    <script src="/lib/semantic-ui/semantic.min.js"></script>
+    <script src="/scripts/sidebar.min.js"></script>
      
 
     
 
-</body>
-</html>
+
+
+

@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>SSL</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
+    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="SSL" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="GoAhead web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="../lib/semantic-ui/semantic.css" rel="stylesheet" type="text/css" />
-    <link href="../css/all.css" rel="stylesheet" type="text/css" />
-    <link href="../css/api.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="/lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -162,7 +161,7 @@
             <a href="http://l:5000/start/source.html">Building From Source</a> for details on configuring GoAhead to 
             use SSL.</p>
 
-            <h2 >SSL Quick Start</h2>
+            <h2>SSL Quick Start</h2>
             <p>The default build of GoAhead will support SSL on port 443 for all network interfaces. You
             can immediately test SSL access to documents by using the <b>https://</b> scheme and <b>443</b> as the
             port. For example, to access the home page using SSL, use this URL in your browser:</p>
@@ -172,9 +171,8 @@ https://127.0.0.1
             <h2>Self-Signed Certificate</h2>
             <p>GoAhead is shipped with a self-signed certificate to identify the web server. This certificate is
             suitable for testing purposes only and your browser will issue a warning when you access the server. For
-            production use, you should obtain your own service certificate from signing authorities such as <a href=
-            "http://www.verisign.com">Verisign</a>.</p><a id="sslConfigurationDirectives"></a>
-            <h2 >Build-time SSL Configuration Directives</h2>
+            production use, you should obtain your own service certificate from signing authorities such as <a href="http://www.verisign.com">Verisign</a>.</p><a id="sslConfigurationDirectives"></a>
+            <h2>Build-time SSL Configuration Directives</h2>
             <p>GoAhead uses several <i>main.bit</i> configuration directives to control SSL and manage secure access to the
             server.
             <p>The relevant SSL directives are:</p>
@@ -189,9 +187,8 @@ https://127.0.0.1
             <a id="sslConfigurationExample"></a>
             
             <a id="generatingKeys"></a>
-            <h2 >Generating Keys and Certificates</h2>
-            <p>To generate a request file that you can send to a certificate issuing authority such as <a href=
-            "http://www.verisign.com">Verisign</a>, use the following openssl command or equivalent command from your
+            <h2>Generating Keys and Certificates</h2>
+            <p>To generate a request file that you can send to a certificate issuing authority such as <a href="http://www.verisign.com">Verisign</a>, use the following openssl command or equivalent command from your
             SSL provider:</p>
             <pre class="ui code segment">
 openssl genrsa -des3 -out server.key 1024
@@ -206,7 +203,7 @@ openssl req -new -key server.key -out server.csr
             <p><b>SECURITY WARNING</b>: Safeguard the "server.key" private key jealously. If this falls into malicious
             hands, then your server identity may be hijacked by another site.</p>
 
-            <h2 >SSL Providers</h2>
+            <h2>SSL Providers</h2>
             <p>GoAhead employs an open architecture SSL Provider interface so that customers can select the ideal SSL
             provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
             fast and some are extensive in their cipher support.</p>
@@ -217,9 +214,9 @@ openssl req -new -key server.key -out server.csr
             <ul>
                 <li>MbedTLS &mdash; designed for embedded use. See 
                     <a href="https://embedthis.com/catalog/#/?keywords=goahead-mbedtls">goahead-mbedtls</a>.
-                    Integrated with GoAhead and enabled by default</em>.</li>
+                    Integrated with GoAhead and enabled by default.</li>
                 <li>OpenSSL &mdash; large and complete. Designed for enterprise use.
-                    See <a href= "http://www.openssl.org">http://www.openssl.org</a>.</li>
+                    See <a href="http://www.openssl.org">http://www.openssl.org</a>.</li>
                 <li>MatrixSSL &mdash; designed for embedded use. See 
                     <a href="https://embedthis.com/catalog/#/?keywords=goahead-matrixssl">goahead-matrixssl</a>.
                     Install via <em>pak install goahead-matrixssl</em>.</li>
@@ -234,12 +231,14 @@ openssl req -new -key server.key -out server.csr
         <p>&copy; Embedthis Software. All rights reserved.</p>
     </div>
 
-    <script src="../lib/jquery/jquery.min.js"></script>
-    <script src="../lib/semantic-ui/semantic.js"></script>
-    <script src="../scripts/sidebar.js"></script>
+    <script src="/lib/jquery/jquery.min.js"></script>
+    <script src="/lib/jquery/pak.min.js"></script>
+    <script src="/lib/semantic-ui/semantic.min.js"></script>
+    <script src="/scripts/sidebar.min.js"></script>
      
 
     
 
-</body>
-</html>
+
+
+

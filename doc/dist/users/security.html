@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>Security</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
+    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="Security" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="GoAhead web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="../lib/semantic-ui/semantic.css" rel="stylesheet" type="text/css" />
-    <link href="../css/all.css" rel="stylesheet" type="text/css" />
-    <link href="../css/api.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="/lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -154,7 +153,7 @@
             <p>Securing applications that are accessible to the Internet is not a trivial task. This page outlines some
             of the issues, and offers tips to help you secure your application using the Embedthis GoAhead
             product.</p><a id="updates"></a>
-            <h2 >Updates</h2>
+            <h2>Updates</h2>
             <p>Even the best application or HTTP server can experience some security vulnerabilities that are
             discovered after being deployed in the field. It is highly recommended that you stay up to date with the
             latest version of GoAhead.</p>
@@ -163,12 +162,12 @@
             workarounds to minimize the vulnerability.</p>
             
             <a id="account"></a>
-            <h2 >GoAhead User Account</h2>
+            <h2>GoAhead User Account</h2>
             <p>It is important that you run GoAhead with the lowest system privilege that will get the job done. If any
             application is compromised, including GoAhead, then the system will be safest if the compromised application
             has as few privileges as possible.</p>
             <a id="directoryPermissions"></a>
-            <h2 >Directory and File Permissions</h2>
+            <h2>Directory and File Permissions</h2>
             <p>This section explains the policy should you need to move or modify files and directories.</p>
             <p>To enhance security you need to consider the directory and file permissions for three classes of
             content:</p>
@@ -190,14 +189,14 @@
             in the group <b>root</b> or administrators. They should only be writable by this specific user and group.</p>
             
             <a id="authentication"></a>
-            <h2 >Authentication</h2>
+            <h2>Authentication</h2>
             <p>It is highly recommended that you use Form-based <a href="authentication.html#formAuthentication">Form</a>
             authentication and not Basic authentication. As implemented in GoAhead, Form authentication over SSL 
             provides many safeguards against known exploits including; man-in-the-middle attacks, client spoofing, 
             and replay attacks.</p>
             
             <a id="sandBoxing"></a>
-            <h2 >Sandboxing</h2>
+            <h2>Sandboxing</h2>
             <p>Sandboxing is the term applied to running GoAhead in a confined environment. When embedding a HTTP server
             in an application, the profile of client access is often well known. This profile includes the rate of
             accesses, the length of URLs and the size of pages returned to the user.</p>
@@ -210,7 +209,7 @@
             <table title="sandbox" class="ui table segment">
                 <thead>
                     <tr>
-                        <th>Directive</th><th>Purpose</th>
+                        <th>Directive<th>Purpose</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -278,12 +277,14 @@
         <p>&copy; Embedthis Software. All rights reserved.</p>
     </div>
 
-    <script src="../lib/jquery/jquery.min.js"></script>
-    <script src="../lib/semantic-ui/semantic.js"></script>
-    <script src="../scripts/sidebar.js"></script>
+    <script src="/lib/jquery/jquery.min.js"></script>
+    <script src="/lib/jquery/pak.min.js"></script>
+    <script src="/lib/semantic-ui/semantic.min.js"></script>
+    <script src="/scripts/sidebar.min.js"></script>
      
 
     
 
-</body>
-</html>
+
+
+

@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>Request Routing</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
+    
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="Request Routing" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="GoAhead web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="../lib/semantic-ui/semantic.css" rel="stylesheet" type="text/css" />
-    <link href="../css/all.css" rel="stylesheet" type="text/css" />
-    <link href="../css/api.css" rel="stylesheet" type="text/css" />
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="/lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="/css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -157,14 +156,14 @@
             file is loaded when GoAhead starts. When a request is received, the router tests various routes and selects
             the best route to handle the request. In the process, routes may redirect or rewrite the request 
             as required.</p>
-            <img src="../images/routing.jpg" alt="routing" class="centered" />
+            <img src="../images/routing.jpg" alt="routing" class="centered">
             <p>A GoAhead configuration will typically have many routes. The configured routes 
             are tested in-order by matching the route URI pattern against the request URL. 
             A route may require that further preconditions be met before it is suitable to process the
             request. If the required conditions are not met, the next route in the configuration will be tested. There 
             is always a catch-all route that will process the request if all prior routes fail to qualify.</p>
             <a id="configuration"></a>
-            <h2 >Route Configuration</h2>
+            <h2>Route Configuration</h2>
             <p>Routes are defined in the <i>route.txt</i> configuration file via a series of route directives. For 
             example:</p>
 <pre class="ui code segment">
@@ -183,7 +182,7 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             For routes with similar leading characters, define the route with the longer URI first in the 
             route.txt file.</p>
             <a id="keywords"></a>
-            <h2 >Route Keywords</h2>
+            <h2>Route Keywords</h2>
             <p>A route directive is comprised of a collection of keyword=value pairs. All routes must have a <i>uri</i> 
             keyword, other keywords are optional. Here are the supported route keywords:</p>
             <a name="abilities"></a>
@@ -252,7 +251,7 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             separated by "|".</p>
             
             <a id="processing"></a>
-            <h2 >Route Processing</h2>
+            <h2>Route Processing</h2>
             <p>To process a request, the GoAhead route engine examines each of the configured routes to determine the 
             best matching route for a request. It does this by considering each route in the order they are defined in
             the configuration file. Each route is tested over a sequence of steps. If a route fails to match at a step, the
@@ -282,7 +281,7 @@ route uri=/ methods=OPTIONS|TRACE handler=options
             <h3>URI Matching</h3>
             <p>URI matching is a mandatory stop. The route URI is tested against the start of the request URI.</p>
             <a id="examples"></a>
-            <h2 >Route Examples</h2>
+            <h2>Route Examples</h2>
             <h3>Redirecting Requests</h3>
             <p>To redirect requests for old documents to newer versions:</p>
 <pre class="ui code segment">
@@ -320,12 +319,14 @@ route uri=/ extensions=jst,asp handler=jst
         <p>&copy; Embedthis Software. All rights reserved.</p>
     </div>
 
-    <script src="../lib/jquery/jquery.min.js"></script>
-    <script src="../lib/semantic-ui/semantic.js"></script>
-    <script src="../scripts/sidebar.js"></script>
+    <script src="/lib/jquery/jquery.min.js"></script>
+    <script src="/lib/jquery/pak.min.js"></script>
+    <script src="/lib/semantic-ui/semantic.min.js"></script>
+    <script src="/scripts/sidebar.min.js"></script>
      
 
     
 
-</body>
-</html>
+
+
+
