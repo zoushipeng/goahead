@@ -11,6 +11,8 @@ if (thas('ME_GOAHEAD_UPLOAD')) {
 
     //  Upload a small file
     http.upload(HTTP + '/action/uploadTest', { myfile: 'small.dat'} )
+print('STATUS', http.status)
+dump(http.response)
     ttrue(http.status == 200)
     ttrue(http.response.contains('CLIENT=small.dat'))
     ttrue(http.response.contains('SIZE=29'))
