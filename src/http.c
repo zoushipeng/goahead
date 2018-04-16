@@ -1221,7 +1221,7 @@ static bool processContent(Webs *wp)
 
 
 /*
-    Always called when data is consumed from the input buffer
+    Always called after data is consumed from the input buffer
  */
 PUBLIC void websConsumeInput(Webs *wp, ssize nbytes)
 {
