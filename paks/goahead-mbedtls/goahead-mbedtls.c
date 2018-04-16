@@ -59,6 +59,8 @@ static void traceMbed(void *context, int level, cchar *file, int line, cchar *st
 PUBLIC int sslOpen()
 {
     mbedtls_ssl_config  *conf;
+    cuchar              dhm_p[] = MBEDTLS_DHM_RFC3526_MODP_2048_P_BIN;
+    cuchar              dhm_g[] = MBEDTLS_DHM_RFC3526_MODP_2048_G_BIN;
     int                 rc;
 
     trace(7, "Initializing MbedTLS SSL"); 
@@ -126,15 +128,13 @@ PUBLIC int sslOpen()
     }
     mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, &cfg.ctr);
 
-#if DEPRECATED
     /*
         Configure larger DH parameters
      */
-    if ((rc = mbedtls_ssl_conf_dh_param(conf, MBEDTLS_DHM_RFC5114_MODP_2048_P, MBEDTLS_DHM_RFC5114_MODP_2048_G)) < 0) {
+    if ((rc = mbedtls_ssl_conf_dh_param_bin(conf, dhm_p, sizeof(dhm_g), dhm_g, sizeof(dhm_g))) < 0) {
         merror(rc, "Cannot set DH params");
         return -1;
     }
-#endif
 
     /*
         Set auth mode if peer cert should be verified
