@@ -106,7 +106,7 @@ PUBLIC void websFreeUpload(Webs *wp)
 PUBLIC bool websProcessUploadData(Webs *wp)
 {
     char    *line, *nextTok;
-    ssize   len, nbytes;
+    ssize   nbytes;
     bool    canProceed;
 
     line = 0;
@@ -127,10 +127,6 @@ PUBLIC bool websProcessUploadData(Webs *wp)
             assert(nbytes > 0);
             websConsumeInput(wp, nbytes);
             strim(line, "\r", WEBS_TRIM_END);
-            len = strlen(line);
-            if (len > 0 && line[len - 1] == '\r') {
-                line[len - 1] = '\0';
-            }
         }
         switch (wp->uploadState) {
         case 0:
@@ -324,7 +320,7 @@ static bool processContentData(Webs *wp)
 {
     WebsUpload  *file;
     WebsBuf     *content;
-    ssize       size, nbytes;
+    ssize       size, nbytes, len;
     char        *data, *bp;
 
     content = &wp->input;
@@ -356,19 +352,20 @@ static bool processContentData(Webs *wp)
     nbytes = (bp) ? (bp - data) : bufLen(content);
 
     if (nbytes > 0) {
-        websConsumeInput(wp, nbytes);
         /*
             This is the CRLF before the boundary
          */
-        if (nbytes >= 2 && data[nbytes - 2] == '\r' && data[nbytes - 1] == '\n') {
-            nbytes -= 2;
+        len = nbytes;
+        if (len >= 2 && data[len - 2] == '\r' && data[len - 1] == '\n') {
+            len -= 2;
         }
         if (wp->clientFilename) {
             /*
                 Write the last bit of file data and add to the list of files and define environment variables
              */
-            if (writeToFile(wp, data, nbytes) < 0) {
+            if (writeToFile(wp, data, len) < 0) {
                 /* Proceed to handle error */
+                websConsumeInput(wp, nbytes);
                 return 1;
             }
             hashEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
@@ -378,12 +375,13 @@ static bool processContentData(Webs *wp)
             /*
                 Normal string form data variables
              */
-            data[nbytes] = '\0';
+            data[len] = '\0';
             trace(5, "uploadFilter: form[%s] = %s", wp->uploadVar, data);
             websDecodeUrl(wp->uploadVar, wp->uploadVar, -1);
             websDecodeUrl(data, data, -1);
             websSetVar(wp, wp->uploadVar, data);
         }
+        websConsumeInput(wp, nbytes);
     }
     if (wp->clientFilename) {
         /*
