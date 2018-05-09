@@ -10,12 +10,12 @@ Licensing
 See LICENSE.md for details and read:
 
 
-https://embedthis.com/goahead/licensing.html
+https://www.embedthis.com/goahead/licensing.html
 
 ### Building
 
 You can build with Make or with MakeMe. MakeMe is quicker and more flexible.
-To install MakeMe, download it from https://embedthis.com/makeme/
+To install MakeMe, download it from https://www.embedthis.com/makeme/
 
 ### To build with make:
 
@@ -64,5 +64,5 @@ or
 
 Resources
 ---
-  - [Embedthis web site](https://embedthis.com/)
+  - [Embedthis web site](https://www.embedthis.com/)
   - [GoAhead GitHub repository](http://github.com/embedthis/goahead)
