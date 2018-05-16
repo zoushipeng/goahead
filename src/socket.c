@@ -311,7 +311,9 @@ static void socketAccept(WebsSocket *sp)
     /*
         Create a socket structure and insert into the socket list
      */
-    nid = socketAlloc(sp->ip, sp->port, sp->accept, sp->flags);
+    if ((nid = socketAlloc(sp->ip, sp->port, sp->accept, sp->flags)) < 0) {
+        return;
+    }
     if ((nsp = socketList[nid]) == 0) {
         return;
     }
@@ -898,6 +900,9 @@ PUBLIC int socketAlloc(cchar *ip, int port, SocketAccept accept, int flags)
     WebsSocket    *sp;
     int         sid;
 
+    if (socketMax >= FD_SETSIZE) {
+        return -1;
+    }
     if ((sid = wallocObject(&socketList, &socketMax, sizeof(WebsSocket))) < 0) {
         return -1;
     }
