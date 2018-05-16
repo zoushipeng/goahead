@@ -70,11 +70,13 @@ static WebsMime websMimeList[] = {
     { "image/gif", ".gif" },
     { "image/jpeg", ".jpg" },
     { "image/png", ".png" },
+    { "image/svg+xml", ".svg" },
     { "image/vnd.microsoft.icon", ".ico" },
     { "text/css", ".css" },
     { "text/plain", ".txt" },
     { "application/x-javascript", ".js" },
     { "application/x-shockwave-flash", ".swf" },
+    { "application/json", ".json" },
 
     { "application/binary", ".exe" },
     { "application/compress", ".z" },
