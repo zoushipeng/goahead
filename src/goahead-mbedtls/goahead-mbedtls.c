@@ -56,7 +56,7 @@ static void traceMbed(void *context, int level, cchar *file, int line, cchar *st
 
 /************************************** Code **********************************/
 
-PUBLIC int sslOpen()
+PUBLIC int sslOpen(void)
 {
     mbedtls_ssl_config  *conf;
     cuchar              dhm_p[] = MBEDTLS_DHM_RFC3526_MODP_2048_P_BIN;
@@ -197,7 +197,7 @@ PUBLIC int sslOpen()
 }
 
 
-PUBLIC void sslClose()
+PUBLIC void sslClose(void)
 {
     mbedtls_ctr_drbg_free(&cfg.ctr);
     mbedtls_pk_free(&cfg.pkey);

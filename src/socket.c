@@ -25,7 +25,7 @@ static void socketDoEvent(WebsSocket *sp);
 
 /*********************************** Code *************************************/
 
-PUBLIC int socketOpen()
+PUBLIC int socketOpen(void)
 {
     Socket  fd;
 
@@ -58,7 +58,7 @@ PUBLIC int socketOpen()
 }
 
 
-PUBLIC void socketClose()
+PUBLIC void socketClose(void)
 {
     int     i;
 
@@ -73,7 +73,7 @@ PUBLIC void socketClose()
 }
 
 
-PUBLIC bool socketHasDualNetworkStack()
+PUBLIC bool socketHasDualNetworkStack(void)
 {
     bool dual;
 
@@ -86,7 +86,7 @@ PUBLIC bool socketHasDualNetworkStack()
 }
 
 
-PUBLIC bool socketHasIPv6()
+PUBLIC bool socketHasIPv6(void)
 {
     return hasIPv6;
 }
@@ -614,7 +614,7 @@ PUBLIC int socketSelect(int sid, int timeout)
 #endif /* WINDOWS || CE */
 
 
-PUBLIC void socketProcess()
+PUBLIC void socketProcess(void)
 {
     WebsSocket    *sp;
     int         sid;
@@ -1376,7 +1376,7 @@ PUBLIC bool socketAddressIsV6(cchar *ip)
 }
 
 
-PUBLIC WebsSocket **socketGetList()
+PUBLIC WebsSocket **socketGetList(void)
 {
     return socketList;
 }

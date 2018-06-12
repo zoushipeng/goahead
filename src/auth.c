@@ -169,7 +169,7 @@ PUBLIC int websOpenAuth(int minimal)
 }
 
 
-PUBLIC void websCloseAuth()
+PUBLIC void websCloseAuth(void)
 {
     WebsKey     *key, *next;
 
@@ -400,7 +400,7 @@ static void computeUserAbilities(WebsUser *user)
 }
 
 
-PUBLIC void websComputeAllUserAbilities()
+PUBLIC void websComputeAllUserAbilities(void)
 {
     WebsUser    *user;
     WebsKey     *sym;
@@ -468,13 +468,13 @@ PUBLIC int websRemoveRole(cchar *name)
 }
 
 
-PUBLIC WebsHash websGetUsers()
+PUBLIC WebsHash websGetUsers(void)
 {
     return users;
 }
 
 
-PUBLIC WebsHash websGetRoles()
+PUBLIC WebsHash websGetRoles(void)
 {
     return roles;
 }
@@ -571,7 +571,7 @@ void websSetPasswordStoreVerify(WebsVerify verify)
 }
 
 
-WebsVerify websGetPasswordStoreVerify()
+WebsVerify websGetPasswordStoreVerify(void)
 {
     return verifyPassword;
 }

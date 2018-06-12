@@ -91,7 +91,7 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
 }
 
 
-PUBLIC void wcloseAlloc()
+PUBLIC void wcloseAlloc(void)
 {
 #if ME_GOAHEAD_REPLACE_MALLOC
     if (--wopenCount <= 0 && !(controlFlags & WEBS_USER_BUF)) {

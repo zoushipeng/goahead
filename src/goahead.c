@@ -24,9 +24,9 @@ static int finished = 0;
 
 /********************************* Forwards ***********************************/
 
-static void initPlatform();
-static void logHeader();
-static void usage();
+static void initPlatform(void);
+static void logHeader(void);
+static void usage(void);
 
 #if WINDOWS
 static void windowsClose();
@@ -177,7 +177,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
 }
 
 
-static void logHeader()
+static void logHeader(void)
 {
     char    home[ME_GOAHEAD_LIMIT_STRING];
 
@@ -196,7 +196,7 @@ static void logHeader()
 }
 
 
-static void usage() {
+static void usage(void) {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [[IPaddress][:port] ...]\n\n"
         "  Options:\n"
@@ -217,7 +217,7 @@ static void usage() {
 }
 
 
-static void initPlatform()
+static void initPlatform(void)
 {
 #if ME_UNIX_LIKE
     signal(SIGTERM, sigHandler);
