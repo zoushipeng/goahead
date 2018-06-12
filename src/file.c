@@ -176,7 +176,7 @@ static void fileClose()
 }
 
 
-PUBLIC void websFileOpen()
+PUBLIC void websFileOpen(void)
 {
     websIndex = sclone("index.html");
     websDefineHandler("file", 0, fileHandler, fileClose, 0);
@@ -186,13 +186,13 @@ PUBLIC void websFileOpen()
 /*
     Get the default page for URL requests ending in "/"
  */
-PUBLIC cchar *websGetIndex()
+PUBLIC cchar *websGetIndex(void)
 {
     return websIndex;
 }
 
 
-PUBLIC char *websGetDocuments()
+PUBLIC char *websGetDocuments(void)
 {
     return websDocuments;
 }

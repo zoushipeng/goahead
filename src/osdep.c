@@ -17,7 +17,7 @@
 
 /************************************* Code ***********************************/
 
-PUBLIC int websOsOpen()
+PUBLIC int websOsOpen(void)
 {
 #if SOLARIS
     openlog(ME_NAME, LOG_LOCAL0);
@@ -33,7 +33,7 @@ PUBLIC int websOsOpen()
 }
 
 
-PUBLIC void websOsClose()
+PUBLIC void websOsClose(void)
 {
 #if ME_UNIX_LIKE
     closelog();

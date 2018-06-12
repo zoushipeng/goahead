@@ -450,7 +450,7 @@ WebsHash websGetUpload(Webs *wp)
 }
 
 
-PUBLIC void websUploadOpen()
+PUBLIC void websUploadOpen(void)
 {
     uploadDir = ME_GOAHEAD_UPLOAD_DIR;
     if (*uploadDir == '\0') {

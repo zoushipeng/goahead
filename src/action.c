@@ -89,7 +89,7 @@ static void closeAction()
 }
 
 
-PUBLIC void websActionOpen()
+PUBLIC void websActionOpen(void)
 {
     actionTable = hashCreate(WEBS_HASH_INIT);
     websDefineHandler("action", 0, actionHandler, closeAction, 0);
