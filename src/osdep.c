@@ -1,5 +1,5 @@
 /*
-    osdep.c -- O/S dependant code
+    osdep.c -- O/S dependent code
 
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */

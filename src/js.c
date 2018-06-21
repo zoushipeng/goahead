@@ -163,7 +163,7 @@ PUBLIC char *jsEvalFile(int jid, char *path, char **emsg)
 
 
 /*
-    Create a new variable scope block so that consecutive jsEval calls may be made with the same varible scope. This
+    Create a new variable scope block so that consecutive jsEval calls may be made with the same variable scope. This
     space MUST be closed with jsCloseBlock when the evaluations are complete.
  */
 PUBLIC int jsOpenBlock(int jid)
@@ -989,7 +989,7 @@ static int parseExpr(Js *ep, int state, int flags)
 
     do {
         /*
-            This loop will handle an entire expression list. We call parse to evalutate each term which returns the
+            This loop will handle an entire expression list. We call parse to evaluate each term which returns the
             result in ep->result.
          */
         if (tid == TOK_LOGICAL) {
