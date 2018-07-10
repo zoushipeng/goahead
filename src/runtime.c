@@ -204,7 +204,7 @@ static void outFloat(Format *fmt, char specChar, double value);
 
 /************************************* Code ***********************************/
 
-PUBLIC int websRuntimeOpen()
+PUBLIC int websRuntimeOpen(void)
 {
     symMax = 0;
     sym = 0;
@@ -213,7 +213,7 @@ PUBLIC int websRuntimeOpen()
 }
 
 
-PUBLIC void websRuntimeClose()
+PUBLIC void websRuntimeClose(void)
 {
 }
 
@@ -280,7 +280,7 @@ PUBLIC void websStopEvent(int id)
 }
 
 
-int websRunEvents()
+int websRunEvents(void)
 {
     Callback    *s;
     WebsTime    now;
@@ -1040,7 +1040,7 @@ PUBLIC void traceProc(int level, cchar *fmt, ...)
 }
 
 
-PUBLIC int websGetLogLevel()
+PUBLIC int websGetLogLevel(void)
 {
     return logLevel;
 }
@@ -1052,7 +1052,7 @@ void websSetLogLevel(int level)
 }
 
 
-WebsLogHandler logGetHandler()
+WebsLogHandler logGetHandler(void)
 {
     return logHandler;
 }
@@ -1073,7 +1073,7 @@ WebsLogHandler logSetHandler(WebsLogHandler handler)
 }
 
 
-PUBLIC int logOpen()
+PUBLIC int logOpen(void)
 {
     if (!logPath) {
         /* This definition comes from main.me goahead.logfile */
@@ -1096,7 +1096,7 @@ PUBLIC int logOpen()
 }
 
 
-PUBLIC void logClose()
+PUBLIC void logClose(void)
 {
 #if !ME_ROM
     if (logFd > 2) {

@@ -164,7 +164,7 @@ done:
 }
 
 
-static void closeJst()
+static void closeJst(void)
 {
     if (websJstFunctions != -1) {
         hashFree(websJstFunctions);
@@ -173,7 +173,7 @@ static void closeJst()
 }
 
 
-PUBLIC int websJstOpen()
+PUBLIC int websJstOpen(void)
 {
     websJstFunctions = hashCreate(WEBS_HASH_INIT * 2);
     websDefineJst("write", websJstWrite);

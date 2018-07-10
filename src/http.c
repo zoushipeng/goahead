@@ -200,13 +200,13 @@ static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
 static bool     parseIncoming(Webs *wp);
-static void     pruneSessions();
+static void     pruneSessions(void);
 static void     freeSession(WebsSession *sp);
-static void     freeSessions();
+static void     freeSessions(void);
 static void     readEvent(Webs *wp);
 static void     reuseConn(Webs *wp);
-static void     setFileLimits();
-static int      setLocalHost();
+static void     setFileLimits(void);
+static int      setLocalHost(void);
 static void     socketEvent(int sid, int mask, void *data);
 static void     writeEvent(Webs *wp);
 #if ME_GOAHEAD_ACCESS_LOG
@@ -290,7 +290,7 @@ PUBLIC int websOpen(cchar *documents, cchar *routeFile)
 }
 
 
-PUBLIC void websClose()
+PUBLIC void websClose(void)
 {
     Webs    *wp;
     int     i;
@@ -2344,7 +2344,7 @@ static void checkTimeout(void *arg, int id)
 }
 
 
-static int setLocalHost()
+static int setLocalHost(void)
 {
     struct in_addr  intaddr;
     char            host[128], *ipaddr;
@@ -2976,7 +2976,7 @@ static char *getToken(Webs *wp, char *delim)
 }
 
 
-PUBLIC int websGetBackground()
+PUBLIC int websGetBackground(void)
 {
     return websBackground;
 }
@@ -2988,7 +2988,7 @@ PUBLIC void websSetBackground(int on)
 }
 
 
-PUBLIC int websGetDebug()
+PUBLIC int websGetDebug(void)
 {
     return websDebug;
 }
@@ -3217,7 +3217,7 @@ PUBLIC int websSetSessionVar(Webs *wp, cchar *key, cchar *value)
 }
 
 
-static void pruneSessions()
+static void pruneSessions(void)
 {
     WebsSession     *sp;
     WebsTime        when;
@@ -3244,7 +3244,7 @@ static void pruneSessions()
 }
 
 
-static void freeSessions()
+static void freeSessions(void)
 {
     WebsSession     *sp;
     WebsKey         *sym, *next;
@@ -3287,7 +3287,7 @@ PUBLIC int websServer(cchar *endpoint, cchar *documents)
 }
 
 
-static void setFileLimits()
+static void setFileLimits(void)
 {
 #if ME_UNIX_LIKE
     struct rlimit r;
@@ -3411,10 +3411,10 @@ PUBLIC cchar *websGetPath(Webs *wp) { return wp->path; }
 PUBLIC int   websGetPort(Webs *wp) { return wp->port; }
 PUBLIC cchar *websGetProtocol(Webs *wp) { return wp->protocol; }
 PUBLIC cchar *websGetQuery(Webs *wp) { return wp->query; }
-PUBLIC cchar *websGetServer() { return websHost; }
-PUBLIC cchar *websGetServerAddress() { return websIpAddr; }
-PUBLIC cchar *websGetServerAddressUrl() { return websIpAddrUrl; }
-PUBLIC cchar *websGetServerUrl() { return websHostUrl; }
+PUBLIC cchar *websGetServer(void) { return websHost; }
+PUBLIC cchar *websGetServerAddress(void) { return websIpAddr; }
+PUBLIC cchar *websGetServerAddressUrl(void) { return websIpAddrUrl; }
+PUBLIC cchar *websGetServerUrl(void) { return websHostUrl; }
 PUBLIC cchar *websGetUrl(Webs *wp) { return wp->url; }
 PUBLIC cchar *websGetUserAgent(Webs *wp) { return wp->userAgent; }
 PUBLIC cchar *websGetUsername(Webs *wp) { return wp->username; }

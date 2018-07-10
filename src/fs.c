@@ -20,7 +20,7 @@ static WebsRomIndex *lookup(WebsHash fs, char *path);
 
 /*********************************** Code *************************************/
 
-PUBLIC int websFsOpen()
+PUBLIC int websFsOpen(void)
 {
 #if ME_ROM
     WebsRomIndex    *wip;
@@ -41,7 +41,7 @@ PUBLIC int websFsOpen()
 }
 
 
-PUBLIC void websFsClose()
+PUBLIC void websFsClose(void)
 {
 #if ME_ROM
     hashFree(romFs);
