@@ -371,7 +371,7 @@ PUBLIC void traceProc(int level, cchar *fmt, ...);
     Proprietary HTTP status codes
  */
 #define HTTP_CODE_START_LOCAL_ERRORS        550
-#define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
+#define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communications error responding to the client */
 
 /************************************* WebsValue ******************************/
 
@@ -489,7 +489,7 @@ PUBLIC void valueFree(WebsValue *value);
 /************************************* Ringq **********************************/
 /**
     A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is
-    ideal for input/output buffering. This module provides a highly effecient
+    ideal for input/output buffering. This module provides a highly efficient
     implementation and a vehicle for dynamic strings.
     \n\n
     WARNING:  This is a public implementation and callers have full access to
@@ -711,7 +711,7 @@ PUBLIC void bufReset(WebsBuf *bp);
     Determine the room available in the buffer.
     @description This returns the maximum number of bytes the buffer can absorb in a single block copy.
     @param bp Buffer reference
-    @return Number of bytes of availble space.
+    @return Number of bytes of available space.
     @ingroup WebsBuf
     @stability Stable
  */
@@ -1358,7 +1358,7 @@ PUBLIC int socketSetNoDelay(int sid, bool on);
     Wait for a socket I/O event
     @param sp Socket object
     @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
-    @return Zero if successful in waiting for the desired event, othewise return -1.
+    @return Zero if successful in waiting for the desired event, otherwise return -1.
     @ingroup WebsSocket
     @stability Stable
  */
@@ -1546,7 +1546,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src);
 #define WEBS_TRIM_BOTH   0x3             /**< Flag for strim to trim from both the start and the end of the string */
 
 /**
-    Format a string. This is a secure verion of printf that can handle null args.
+    Format a string. This is a secure version of printf that can handle null args.
     @description Format the given arguments according to the printf style format. See fmt() for a full list of the
         format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
     @param format Printf style format string
@@ -1558,7 +1558,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src);
 PUBLIC char *sfmt(cchar *format, ...);
 
 /**
-    Format a string with varargs. This is a secure verion of printf that can handle null args.
+    Format a string with varargs. This is a secure version of printf that can handle null args.
     @description Format the given arguments according to the printf style format. See fmt() for a full list of the
         format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
     @param format Printf style format string
@@ -2669,7 +2669,7 @@ PUBLIC int websRuntimeOpen();
 PUBLIC int websOpen(cchar *documents, cchar *routes);
 
 /**
-    Close the O/S dependant code.
+    Close the O/S dependent code.
     @description Called from websClose
     @ingroup Webs
     @internal
@@ -2677,7 +2677,7 @@ PUBLIC int websOpen(cchar *documents, cchar *routes);
 PUBLIC void websOsClose();
 
 /**
-    Open the O/S dependant code.
+    Open the O/S dependent code.
     @description Called from websOpen
     @return Zero if successful, otherwise -1.
     @ingroup Webs

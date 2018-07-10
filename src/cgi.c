@@ -777,7 +777,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argp, 
     for (argc = 0, p = argp; p != NULL && *p != NULL; p++, argc++) { }
 
     /*
-        Create a private envirnonment and copy the envp strings to it.
+        Create a private environment and copy the envp strings to it.
      */
     if (envPrivateCreate(taskId, -1) != OK) {
         printf("content-type: text/html\n\n" "Can not create CGI environment space\n");
