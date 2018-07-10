@@ -29,7 +29,7 @@ static int routeMax = 0;
 
 static bool continueHandler(Webs *wp);
 static void freeRoute(WebsRoute *route);
-static void growRoutes();
+static void growRoutes(void);
 static int lookupRoute(cchar *uri);
 static bool redirectHandler(Webs *wp);
 
@@ -340,7 +340,7 @@ PUBLIC int websSetRouteMatch(WebsRoute *route, cchar *dir, cchar *protocol, Webs
 }
 
 
-static void growRoutes()
+static void growRoutes(void)
 {
     if (routeCount >= routeMax) {
         routeMax += 16;
@@ -410,7 +410,7 @@ PUBLIC int websRemoveRoute(cchar *uri)
 }
 
 
-PUBLIC int websOpenRoute()
+PUBLIC int websOpenRoute(void)
 {
     if ((handlers = hashCreate(-1)) < 0) {
         return -1;
@@ -421,7 +421,7 @@ PUBLIC int websOpenRoute()
 }
 
 
-PUBLIC void websCloseRoute()
+PUBLIC void websCloseRoute(void)
 {
     WebsHandler *handler;
     WebsKey     *key;
