@@ -58,7 +58,7 @@ static uchar charMatch[256] = {
 };
 
 /*
-    Addd entries to the MimeList as required for your content
+    Add entries to the MimeList as required for your content
  */
 static WebsMime websMimeList[] = {
     { "application/java", ".class" },
@@ -2965,7 +2965,7 @@ static char *getToken(Webs *wp, char *delim)
     } else {
         if ((endToken = strstr(token, delim)) != 0) {
             *endToken = '\0';
-            /* Only eat one occurence of the delimiter */
+            /* Only eat one occurrence of the delimiter */
             nextToken = endToken + strlen(delim);
         } else {
             nextToken = buf->endp;

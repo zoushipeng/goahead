@@ -119,7 +119,7 @@
 #endif
 
 /*
-    Operating system defines. Use compiler standard defintions to sleuth.  Works for all except VxWorks which does not
+    Operating system defines. Use compiler standard definitions to sleuth.  Works for all except VxWorks which does not
     define any special symbol.  NOTE: Support for SCOV Unix, LynxOS and UnixWare is deprecated.
  */
 #if defined(__APPLE__)
