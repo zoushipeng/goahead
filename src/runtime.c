@@ -1348,7 +1348,7 @@ PUBLIC int bufCreate(WebsBuf *bp, int initSize, int maxsize)
     if (initSize <= 0) {
         initSize = ME_GOAHEAD_LIMIT_BUFFER;
     }
-    if (maxsize <= 0) {
+    if (maxsize == 0) {
         maxsize = initSize;
     }
     assert(initSize >= 0);
