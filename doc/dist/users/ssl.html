@@ -155,10 +155,10 @@
             <p>This document provides step-by-step instructions for configuring SSL in GoAhead. If you are unfamiliar
             with SSL, please read the <a href="sslOverview.html">SSL Overview</a> first.</p><a id="sslQuickStart"></a>
 
-            <p>Except for the MbedTLS stack which is integrated, GoAhead includes only the interface to the SSL 
-            stack and not the SSL library itself. You need to build your required SSL stack and then configure 
-            GoAhead to use that SSL stack. See 
-            <a href="http://l:5000/start/source.html">Building From Source</a> for details on configuring GoAhead to 
+            <p>Except for the MbedTLS stack which is integrated, GoAhead includes only the interface to the SSL
+            stack and not the SSL library itself. You need to build your required SSL stack and then configure
+            GoAhead to use that SSL stack. See
+            <a href="http://l:5000/start/source.html">Building From Source</a> for details on configuring GoAhead to
             use SSL.</p>
 
             <h2>SSL Quick Start</h2>
@@ -183,9 +183,9 @@ https://127.0.0.1
                 <li>caFile &mdash; File of certificates if verifying client certificates</li>
                 <li>caPath &mdash; Directory of certificates if verifying client certificates</li>
             </ul>
-            
+
             <a id="sslConfigurationExample"></a>
-            
+
             <a id="generatingKeys"></a>
             <h2>Generating Keys and Certificates</h2>
             <p>To generate a request file that you can send to a certificate issuing authority such as <a href="http://www.verisign.com">Verisign</a>, use the following openssl command or equivalent command from your
@@ -208,23 +208,17 @@ openssl req -new -key server.key -out server.csr
             provider for their needs. Different SSL implementations excel in various ways. Some are compact, others are
             fast and some are extensive in their cipher support.</p>
 
-            <p>The MbedTLS SSL stack and interface are included with GoAhead. Other SSL interfaces are installed using the 
+            <p>The MbedTLS SSL stack and interface are included with GoAhead. Other SSL interfaces are installed using the
             <a href="https://embedthis.com/pak/">Pak Package manager</a>.</p>
 
             <ul>
-                <li>MbedTLS &mdash; designed for embedded use. See 
+                <li>MbedTLS &mdash; designed for embedded use. See
                     <a href="https://embedthis.com/catalog/#/?keywords=goahead-mbedtls">goahead-mbedtls</a>.
                     Integrated with GoAhead and enabled by default.</li>
                 <li>OpenSSL &mdash; large and complete. Designed for enterprise use.
                     See <a href="http://www.openssl.org">http://www.openssl.org</a>.</li>
-                <li>MatrixSSL &mdash; designed for embedded use. See 
-                    <a href="https://embedthis.com/catalog/#/?keywords=goahead-matrixssl">goahead-matrixssl</a>.
-                    Install via <em>pak install goahead-matrixssl</em>.</li>
-                <li>Mocana NanoSSL &mdash; designed for embedded use. See 
-                    <a href="https://embedthis.com/catalog/#/?keywords=goahead-nanossl">goahead-nanossl</a>.
-                    Install via <em>pak install goahead-nanossl</em>.</li>
+                
             </ul>
-
 
     </div>
     <div class="terms ui basic center aligned segment">
