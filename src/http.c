@@ -3127,10 +3127,10 @@ static char *websParseCookie(Webs *wp, char *name)
     nlen = slen(name);
     while ((value = strstr(cookie, name)) != 0) {
         /* Ignore corrupt cookies of the form "name=;" */
-        if ((value == cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=' && value[nlen+1] != ';') {
+        if ((value == wp->cookie || value[-1] == ' ' || value[-1] == ';') && value[nlen] == '=' && value[nlen+1] != ';') {
             break;
         }
-        cookie += nlen;
+        cookie += (value - cookie) + nlen;
     }
     if (value == 0) {
         return 0;
