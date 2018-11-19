@@ -1250,6 +1250,10 @@ typedef int64 Ticks;
     struct sockaddr_storage { char pad[1024]; };
 #endif /* TIDSP */
 
+#ifndef NBBY
+    #define NBBY 8
+#endif
+
 /*********************************** Externs **********************************/
 
 #ifdef __cplusplus
