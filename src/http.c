@@ -384,6 +384,7 @@ static void initWebs(Webs *wp, int flags, int reuse)
     wp->docfd = -1;
     wp->txLen = -1;
     wp->rxLen = -1;
+    wp->responseCookies = hashCreate(7);
     wp->code = HTTP_CODE_OK;
     wp->ssl = ssl;
     wp->listenSid = listenSid;
@@ -484,7 +485,6 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->query);
     wfree(wp->realm);
     wfree(wp->referrer);
-    wfree(wp->responseCookie);
     wfree(wp->url);
     wfree(wp->userAgent);
     wfree(wp->username);
@@ -502,6 +502,7 @@ static void termWebs(Webs *wp, int reuse)
     wfree(wp->qop);
 #endif
     hashFree(wp->vars);
+    hashFree(wp->responseCookies);
 
 #if ME_GOAHEAD_UPLOAD
     if (wp->files >= 0) {
@@ -1128,6 +1129,7 @@ static void parseHeaders(Webs *wp)
             }
 
         } else if (strcmp(key, "cookie") == 0) {
+            /* Should be only one cookie header really with semicolon delimmited key/value pairs */
             wp->flags |= WEBS_COOKIE;
             if (wp->cookie) {
                 char *prior = wp->cookie;
@@ -1834,7 +1836,7 @@ PUBLIC void websSetStatus(Webs *wp, int code)
  */
 PUBLIC void websWriteHeaders(Webs *wp, ssize length, cchar *location)
 {
-    WebsKey     *key;
+    WebsKey     *cookie, *key, *next;
     char        *date, *protoVersion;
 
     assert(websValid(wp));
@@ -1878,9 +1880,10 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, cchar *location)
         } else if ((key = hashLookup(websMime, wp->ext)) != 0) {
             websWriteHeader(wp, "Content-Type", "%s", key->content.value.string);
         }
-        if (wp->responseCookie) {
-            websWriteHeader(wp, "Set-Cookie", "%s", wp->responseCookie);
+        for (cookie = hashFirst(wp->responseCookies); cookie; cookie = next) {
+            websWriteHeader(wp, "Set-Cookie", "%s=%s", cookie->name, cookie->content.value.string);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
+            next = hashNext(wp->responseCookies, cookie);
         }
 #if defined(ME_GOAHEAD_CLIENT_CACHE)
         if (wp->ext) {
@@ -2881,7 +2884,7 @@ PUBLIC void websPageSeek(Webs *wp, Offset offset, int origin)
 PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, cchar *cookieDomain, int lifespan, int flags)
 {
     WebsTime    when;
-    char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old;
+    char        *cp, *expiresAtt, *expires, *domainAtt, *domain, *secure, *httponly, *cookie, *old, *sameSite;
 
     assert(wp);
     assert(name && *name);
@@ -2930,16 +2933,15 @@ PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, ccha
      */
     secure = (flags & WEBS_COOKIE_SECURE) ? "; secure" : "";
     httponly = (flags & WEBS_COOKIE_HTTP) ?  "; httponly" : "";
-    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
-        httponly);
-    if (wp->responseCookie) {
-        old = wp->responseCookie;
-        wp->responseCookie = sfmt("%s %s", wp->responseCookie, cookie);
-        wfree(old);
-        wfree(cookie);
-    } else {
-        wp->responseCookie = cookie;
+    sameSite = "";
+    if (flags & WEBS_COOKIE_SAME_LAX) {
+        sameSite = "; SameSite=Lax";
+    } else if (flags & WEBS_COOKIE_SAME_STRICT) {
+        sameSite = "; SameSite=Strict";
     }
+    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
+        httponly, sameSite);
+    hashEnter(wp->responseCookies, name, valueString(cookie, 0), 0);
     wfree(domain);
 }
 
@@ -3079,6 +3081,7 @@ WebsSession *websGetSession(Webs *wp, int create)
 {
     WebsKey     *sym;
     char        *id;
+    int         flags;
 
     assert(wp);
 
@@ -3099,7 +3102,11 @@ WebsSession *websGetSession(Webs *wp, int create)
                 wfree(id);
                 return 0;
             }
-            websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, 0);
+            flags = WEBS_COOKIE_SAME_LAX | WEBS_COOKIE_HTTP;
+            if (wp->flags & WEBS_SECURE) {
+                flags |= WEBS_COOKIE_SECURE;
+            }
+            websSetCookie(wp, WEBS_SESSION, wp->session->id, "/", NULL, 0, flags);
         } else {
             wp->session = (WebsSession*) sym->content.value.symbol;
         }

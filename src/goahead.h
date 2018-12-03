@@ -1928,7 +1928,6 @@ typedef struct Webs {
     char            *query;             /**< Request query. This is decoded. */
     char            *realm;             /**< Realm field supplied in auth header */
     char            *referrer;          /**< The referring page */
-    char            *responseCookie;    /**< Outgoing cookie */
     char            *url;               /**< Full request url. This is not decoded. */
     char            *userAgent;         /**< User agent (browser) */
     char            *username;          /**< Authorization username */
@@ -1954,10 +1953,11 @@ typedef struct Webs {
     ssize           written;            /**< Bytes actually transferred */
     ssize           putLen;             /**< Bytes read by a PUT request */
 
-    int             finalized: 1;          /**< Request has been completed */
-    int             error: 1;              /**< Request has an error */
-    int             connError: 1;          /**< Request has a connection error */
+    int             finalized: 1;       /**< Request has been completed */
+    int             error: 1;           /**< Request has an error */
+    int             connError: 1;       /**< Request has a connection error */
 
+    WebsHash        responseCookies;    /**< Outgoing cookies */
     struct WebsSession *session;        /**< Session record */
     struct WebsRoute *route;            /**< Request route */
     struct WebsUser *user;              /**< User auth record */
@@ -2937,8 +2937,10 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
 /*
     Flags for websSetCookie
  */
-#define WEBS_COOKIE_SECURE   0x1         /**< Flag for websSetCookie for secure cookies (https only) */
-#define WEBS_COOKIE_HTTP     0x2         /**< Flag for websSetCookie for http cookies (http only) */
+#define WEBS_COOKIE_SECURE      0x1         /**< Flag for websSetCookie for secure cookies (https only) */
+#define WEBS_COOKIE_HTTP        0x2         /**< Flag for websSetCookie for http cookies (http only) */
+#define WEBS_COOKIE_SAME_LAX    0x4         /**< Flag for websSetCookie for SameSite=Lax */
+#define WEBS_COOKIE_SAME_STRICT 0x8         /**< Flag for websSetCookie for SameSite=Strict */
 
 /**
     Define a cookie to include in the response
@@ -2949,7 +2951,8 @@ PUBLIC void websSetBackgroundWriter(Webs *wp, WebsWriteProc proc);
     @param domain Domain applicable for this cookie
     @param lifespan Cookie lifespan in seconds
     @param flags Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only.
-        Otherwise the cookie applies to both http and https requests.
+        Otherwise the cookie applies to both http and https requests. Or in WEBS_COOKIE_SAME_LAX for SameSite=Lax
+        and WEBS_COOKIE_SAME_STRICT for SameSite=Strict.
     @return Zero if successful, otherwise -1.
     @ingroup Webs
     @stability Stable
