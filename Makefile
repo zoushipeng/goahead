@@ -18,7 +18,7 @@ PROFILE := default
 
 ifeq ($(ARCH),)
 	ifeq ($(OS),windows)
-		ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+		ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
 			ARCH?=x64
 		else
 			ARCH?=x86
@@ -115,7 +115,7 @@ help:
 	@echo '  ME_GOAHEAD_UPLOAD                 # Enable file upload (true|false)' >&2
 	@echo '  ME_GOAHEAD_UPLOAD_DIR             # Define directory for uploaded files (path)' >&2
 	@echo '  ME_COM_MBEDTLS                    # Enable the mbed TLS stack' >&2
-	@echo '  ME_COM_OPENSSL                    # Enable the OpenSSL SSL stack' >&2
+	@echo '  ME_COM_OPENSSL                    # Enable the OpenSSL SSL stack, must set ME_COM_OPENSS_PATH' >&2
 	@echo '  ME_ROM                            # Build for ROM without a file system' >&2
 	@echo '  ME_STACK_SIZE                     # Define the VxWorks stack size' >&2
 	@echo '' >&2
