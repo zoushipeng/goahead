@@ -2,7 +2,7 @@
     "name": "goahead",
     "description": "Embedthis GoAhead Embedded Web Server",
     "title": "Embedthis GoAhead",
-    "version": "4.0.3",
+    "version": "4.1.0",
     "keywords": [
         "goahead",
         "http",
@@ -37,15 +37,14 @@
         "doc/api/"
     ],
     "dependencies": {
-        "osdep": "~0.9",
-        "ssl": "~0.9"
+        "osdep": "~1.0",
+        "ssl": "~1",
+        "goahead-mbedtls": "~2"
     },
     "optionalDependencies": {
         "certs": "~0.1",
         "goahead-matrixssl": "~0.1",
-        "goahead-mbedtls": "~2",
-        "goahead-nanossl": "~0.1",
-        "goahead-openssl": "~0.2"
+        "goahead-openssl": "~1"
     },
     "devDependencies": {
         "makeme": ">=0.9.0",

@@ -47,17 +47,20 @@
 
     Rationale:
 
-    * AES256-GCM is prioritized above its 128 bits variant, and ChaCha20 because we assume that most modern 
+    * AES256-GCM is prioritized above its 128 bits variant, and ChaCha20 because we assume that most modern
       devices support AESNI instructions and thus benefit from fast and constant time AES.
-    * We recommend ECDSA certificates with P256 as other curves may not be supported everywhere. RSA signatures 
+    * We recommend ECDSA certificates with P256 as other curves may not be supported everywhere. RSA signatures
       on ECDSA certificates are permitted because very few CAs sign with ECDSA at the moment.
-    * DHE is removed entirely because it is slow in comparison with ECDHE, and all modern clients support 
+    * DHE is removed entirely because it is slow in comparison with ECDHE, and all modern clients support
       elliptic curve key exchanges.
     * SHA1 signature algorithm is removed in favor of SHA384 for AES256 and SHA256 for AES128.
  */
-#define OPENSSL_DEFAULT_CIPHERS "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
 
-#define OLD_OPENSSL_DEFAULT_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!SSLv3"
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    #define OPENSSL_DEFAULT_CIPHERS "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256"
+#else
+    #define OPENSSL_DEFAULT_CIPHERS "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4:!SSLv3"
+#endif
 
 /*
     Map Iana names to OpenSSL names
@@ -230,9 +233,6 @@ PUBLIC int sslOpen()
     trace(6, "OpenSsl: Before calling RAND_load_file");
     RAND_load_file("/dev/urandom", 256);
     trace(6, "OpenSsl: After calling RAND_load_file");
-#endif
-#if UNUSED
-    CRYPTO_malloc_init();
 #endif
 #if !ME_WIN_LIKE
     OpenSSL_add_all_algorithms();
@@ -655,7 +655,7 @@ static int sslSetCertFile(char *certFile)
 
     } else if (SSL_CTX_use_certificate(sslctx, cert) != 1) {
         error("Unable to use certificate %s", certFile);
-        
+
     } else if (!SSL_CTX_check_private_key(sslctx)) {
         error("Unable to check certificate key %s", certFile);
 
@@ -859,11 +859,14 @@ static DH *getDhKey()
 		0x02,
     };
 	DH      *dh;
-    BIGNUM  *p, *g;
 
     if ((dh = DH_new()) == 0) {
         return 0;
     }
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+{
+    BIGNUM  *p, *g;
+
     p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
     g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
     if (!DH_set0_pqg(dh, p, NULL, g)) {
@@ -872,6 +875,15 @@ static DH *getDhKey()
         DH_free(dh);
         return 0;
     }
+}
+#else
+    dh->p = BN_bin2bn(dh2048_p, sizeof(dh2048_p), NULL);
+    dh->g = BN_bin2bn(dh2048_g, sizeof(dh2048_g), NULL);
+    if ((dh->p == 0) || (dh->g == 0)) {
+        DH_free(dh);
+        return 0;
+    }
+#endif
 	return dh;
 }
 
