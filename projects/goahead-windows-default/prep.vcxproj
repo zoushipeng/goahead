@@ -29,22 +29,22 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
         <ConfigurationType></ConfigurationType>
         <CharacterSet>NotSet</CharacterSet>
-        <PlatformToolset>v120</PlatformToolset>
+        <PlatformToolset>v141</PlatformToolset>
       </PropertyGroup>
 
       <Import Project="$(VCTargetsPath)Microsoft.Cpp.Default.props" />
@@ -101,8 +101,10 @@ if not exist "$(ObjDir)" md "$(ObjDir)"
 if not exist "$(BinDir)" md "$(BinDir)"
 if not exist "$(IncDir)" md "$(IncDir)"
 if not exist "$(IncDir)\me.h" copy "..\goahead-windows-default-me.h" "$(IncDir)\me.h"
+copy /Y /B ..\..\src\mbedtls\embedtls.h $(IncDir)
 copy /Y /B ..\..\src\goahead.h $(IncDir)
 copy /Y /B ..\..\src\js.h $(IncDir)
+copy /Y /B ..\..\src\mbedtls\mbedtls.h $(IncDir)
 copy /Y /B ..\..\src\osdep\osdep.h $(IncDir)
 cd .</Command>
         <Outputs>always</Outputs>
