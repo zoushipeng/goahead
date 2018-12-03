@@ -162,7 +162,7 @@ Me.load({
                 ciphers: '',             /* Override cipher suite for SSL.  */
                 key: 'self.key',         /* Server SSL key. This is by default set to a test key. This must be regenerated */
                 logLevel: 5              /* Starting logging level for SSL messages */
-                handshakes: 1,           /* Set maximum number of renegotiations (zero means infinite) */
+                handshakes: 3,           /* Set maximum number of renegotiations (zero means infinite) */
                 revoke: '',              /* List of revoked client certificates */
                 ticket: true,            /* Enable session resumption via ticketing - client side session caching */
                 timeout: 86400,          /* Session and ticketing duration in seconds */
@@ -185,6 +185,10 @@ Me.load({
 
         mbedtls: {
             compact: true,      /* Compact edition - Disable non-essential ciphers and features */
+        },
+
+        openssl: {
+            version: '1.0',     /* Base edition */
         },
 
         /*
@@ -349,7 +353,12 @@ Me.load({
         },
 
         projects: {
-            action: `genProjects('')`,
+            action: `
+                genProjects('--set openssl.version=1.0 --with openssl', 'openssl_10', 'windows-x64')
+                genProjects('--set openssl.version=1.1 --with openssl', 'openssl_11', 'windows-x64')
+                genProjects('--with openssl', 'openssl', 'macosx-x64')
+                genProjects('')
+            `
         },
 
         publish: {
