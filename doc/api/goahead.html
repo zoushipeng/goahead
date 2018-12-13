@@ -678,6 +678,14 @@
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Flag for websSetCookie for http cookies (http only).</td></tr>
 <tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1ac781b97e1ab0c4c56f9c260503845574" class="nameRef">WEBS_COOKIE_SAME_LAX</a>&nbsp;&nbsp;&nbsp;0x4</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for websSetCookie for SameSite=Lax.</td></tr>
+<tr class="apiDef">
+<td>#define</td><td><a href="#goahead_8h_1a84086482ebed4821bc2304f1319ecf12" class="nameRef">WEBS_COOKIE_SAME_STRICT</a>&nbsp;&nbsp;&nbsp;0x8</td>
+</tr>
+<tr class="apiBrief"><td>&nbsp;</td><td>Flag for websSetCookie for SameSite=Strict.</td></tr>
+<tr class="apiDef">
 <td>#define</td><td><a href="#goahead_8h_1ab4d2a11360e7f9acdfc46d917d6c2695" class="nameRef">WEBS_COOKIE_SECURE</a>&nbsp;&nbsp;&nbsp;0x1</td>
 </tr>
 <tr class="apiBrief"><td>&nbsp;</td><td>Flag for websSetCookie for secure cookies (https only).</td></tr>
@@ -937,8 +945,8 @@ Realm field supplied in auth header.
     <tr><td class="param">char *</td><td><td>referrer</td><td>
 The referring page.
 </td>
-    <tr><td class="param">char *</td><td><td>responseCookie</td><td>
-Outgoing cookie.
+    <tr><td class="param">WebsHash</td><td><td>responseCookies</td><td>
+Outgoing cookies.
 </td>
     <tr><td class="param">struct WebsRoute *</td><td><td>route</td><td>
 Request route.
@@ -2879,7 +2887,7 @@ Bytes actually transferred.
     <tr><td class="param">path</td><td>URI path prefix applicable for this cookie.</td>
     <tr><td class="param">domain</td><td>Domain applicable for this cookie.</td>
     <tr><td class="param">lifespan</td><td>Cookie lifespan in seconds.</td>
-    <tr><td class="param">flags</td><td>Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only. Otherwise the cookie applies to both http and https requests.</td>
+    <tr><td class="param">flags</td><td>Set to WEBS_COOKIE_SECURE for https only. Set to WEBS_COOKIE_HTTP for http only. Otherwise the cookie applies to both http and https requests. Or in WEBS_COOKIE_SAME_LAX for SameSite=Lax and WEBS_COOKIE_SAME_STRICT for SameSite=Strict.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
