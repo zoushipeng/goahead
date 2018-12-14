@@ -204,7 +204,7 @@ static void outFloat(Format *fmt, char specChar, double value);
 
 /************************************* Code ***********************************/
 
-PUBLIC int websRuntimeOpen()
+PUBLIC int websRuntimeOpen(void)
 {
     symMax = 0;
     sym = 0;
@@ -213,7 +213,7 @@ PUBLIC int websRuntimeOpen()
 }
 
 
-PUBLIC void websRuntimeClose()
+PUBLIC void websRuntimeClose(void)
 {
 }
 
@@ -280,7 +280,7 @@ PUBLIC void websStopEvent(int id)
 }
 
 
-int websRunEvents()
+int websRunEvents(void)
 {
     Callback    *s;
     WebsTime    now;
@@ -294,7 +294,7 @@ int websRunEvents()
             if (s->at <= now) {
                 callEvent(i);
                 delay = MAXINT / 1000;
-                /* Rescan incase event scheduled or modified an event */
+                /* Rescan in case event scheduled or modified an event */
                 i = -1;
             } else {
                 delay = (int) min(s->at - now, MAXINT / 1000);
@@ -1040,7 +1040,7 @@ PUBLIC void traceProc(int level, cchar *fmt, ...)
 }
 
 
-PUBLIC int websGetLogLevel()
+PUBLIC int websGetLogLevel(void)
 {
     return logLevel;
 }
@@ -1052,7 +1052,7 @@ void websSetLogLevel(int level)
 }
 
 
-WebsLogHandler logGetHandler()
+WebsLogHandler logGetHandler(void)
 {
     return logHandler;
 }
@@ -1073,10 +1073,10 @@ WebsLogHandler logSetHandler(WebsLogHandler handler)
 }
 
 
-PUBLIC int logOpen()
+PUBLIC int logOpen(void)
 {
     if (!logPath) {
-        /* This defintion comes from main.me goahead.logfile */
+        /* This definition comes from main.me goahead.logfile */
         logSetPath(ME_GOAHEAD_LOGFILE);
     }
     if (smatch(logPath, "stdout")) {
@@ -1096,7 +1096,7 @@ PUBLIC int logOpen()
 }
 
 
-PUBLIC void logClose()
+PUBLIC void logClose(void)
 {
 #if !ME_ROM
     if (logFd > 2) {
@@ -1335,7 +1335,7 @@ PUBLIC int wallocObject(void *listArg, int *max, int size)
 
 
 /*
-    Create a new buf. "increment" is the amount to increase the size of the buf should it need to grow to accomodate
+    Create a new buf. "increment" is the amount to increase the size of the buf should it need to grow to accommodate
     data being added. "maxsize" is an upper limit (sanity level) beyond which the buffer must not grow. Set maxsize to -1 to
     imply no upper limit. The buffer for the buf is always *  dynamically allocated. Set maxsize
  */
@@ -2471,7 +2471,7 @@ PUBLIC bool snumber(cchar *s)
 
 
 /*
-    Convert a string to an integer. If the string starts with "0x" or "0X" a hexidecimal conversion is done.
+    Convert a string to an integer. If the string starts with "0x" or "0X" a hexadecimal conversion is done.
  */
 uint strtoi(char *s)
 {
@@ -2695,7 +2695,7 @@ PUBLIC char *ssplit(char *str, cchar *delim, char **last)
 
 
 /*
-    Note "str" is modifed as per strtok()
+    Note "str" is modified as per strtok()
     WARNING:  this does not allocate
  */
 PUBLIC char *stok(char *str, cchar *delim, char **last)

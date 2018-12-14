@@ -17,8 +17,8 @@
 
 /********************************* Forwards ***********************************/
 
-static char *getPassword();
-static void printUsage();
+static char *getPassword(void);
+static void printUsage(void);
 static int writeAuthFile(char *path);
 
 #if ME_WIN_LIKE || VXWORKS
@@ -186,7 +186,7 @@ static int writeAuthFile(char *path)
 }
 
 
-static char *getPassword()
+static char *getPassword(void)
 {
     char    *password, *confirm;
 
@@ -255,7 +255,7 @@ static char *getpass(char *prompt)
     Display the usage
  */
 
-static void printUsage()
+static void printUsage(void)
 {
     error("usage: gopass [--cipher cipher] [--file path] [--password password] realm user roles...\n"
         "Options:\n"
