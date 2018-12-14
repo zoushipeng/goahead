@@ -1881,7 +1881,7 @@ PUBLIC void websWriteHeaders(Webs *wp, ssize length, cchar *location)
             websWriteHeader(wp, "Content-Type", "%s", key->content.value.string);
         }
         for (cookie = hashFirst(wp->responseCookies); cookie; cookie = next) {
-            websWriteHeader(wp, "Set-Cookie", "%s=%s", cookie->name, cookie->content.value.string);
+            websWriteHeader(wp, "Set-Cookie", "%s", cookie->content.value.string);
             websWriteHeader(wp, "Cache-Control", "%s", "no-cache=\"set-cookie\"");
             next = hashNext(wp->responseCookies, cookie);
         }
