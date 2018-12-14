@@ -248,7 +248,7 @@ PUBLIC bool cgiHandler(Webs *wp)
 }
 
 
-PUBLIC int websCgiOpen()
+PUBLIC int websCgiOpen(void)
 {
     websDefineHandler("cgi", 0, cgiHandler, 0, 0);
     return 0;
@@ -402,7 +402,7 @@ PUBLIC void websCgiGatherOutput(Cgi *cgip)
     Any entry in the cgiList need to be checked to see if it has completed, and if so, process its output and clean up.
     Return time till next poll.
  */
-int websCgiPoll()
+int websCgiPoll(void)
 {
     Webs    *wp;
     Cgi     *cgip;
@@ -474,7 +474,7 @@ int websCgiPoll()
     Returns a pointer to an allocated qualified unique temporary file name. This filename must eventually be deleted with
     wfree().
  */
-PUBLIC char *websGetCgiCommName()
+PUBLIC char *websGetCgiCommName(void)
 {
     return websTempFile(NULL, "cgi");
 }
@@ -777,7 +777,7 @@ static void vxWebsCgiEntry(void *entryAddr(int argc, char **argv), char **argp, 
     for (argc = 0, p = argp; p != NULL && *p != NULL; p++, argc++) { }
 
     /*
-        Create a private envirnonment and copy the envp strings to it.
+        Create a private environment and copy the envp strings to it.
      */
     if (envPrivateCreate(taskId, -1) != OK) {
         printf("content-type: text/html\n\n" "Can not create CGI environment space\n");

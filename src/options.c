@@ -41,7 +41,7 @@ static bool optionsHandler(Webs *wp)
 }
 
 
-PUBLIC int websOptionsOpen()
+PUBLIC int websOptionsOpen(void)
 {
     websDefineHandler("options", 0, optionsHandler, 0, 0);
     return 0;

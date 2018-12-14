@@ -1,7 +1,7 @@
 /*
     alloc.c -- Optional WebServer memory allocator
 
-    This file implements a fast block allocation scheme suitable for operating systems whoes malloc suffers from
+    This file implements a fast block allocation scheme suitable for operating systems whose malloc suffers from
     fragmentation.  This allocator maintains block class queues for rapid allocation and minimal fragmentation. This
     allocator does not coalesce blocks. The storage space may be populated statically or via the traditional malloc
     mechanisms. Large blocks greater than the maximum class size may be allocated from the O/S or run-time system via
@@ -91,7 +91,7 @@ PUBLIC int wopenAlloc(void *buf, int bufsize, int flags)
 }
 
 
-PUBLIC void wcloseAlloc()
+PUBLIC void wcloseAlloc(void)
 {
 #if ME_GOAHEAD_REPLACE_MALLOC
     if (--wopenCount <= 0 && !(controlFlags & WEBS_USER_BUF)) {

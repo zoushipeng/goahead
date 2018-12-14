@@ -42,9 +42,9 @@ static int finished = 0;
 
 /********************************* Forwards ***********************************/
 
-static void initPlatform();
-static void logHeader();
-static void usage();
+static void initPlatform(void);
+static void logHeader(void);
+static void usage(void);
 
 static bool testHandler(Webs *wp);
 #if ME_GOAHEAD_JAVASCRIPT
@@ -209,7 +209,7 @@ static void exitProc(void *data, int id)
 }
 
 
-static void logHeader()
+static void logHeader(void)
 {
     char    home[ME_GOAHEAD_LIMIT_STRING];
 
@@ -228,7 +228,7 @@ static void logHeader()
 }
 
 
-static void usage() {
+static void usage(void) {
     fprintf(stderr, "\n%s Usage:\n\n"
         "  %s [options] [documents] [IPaddress][:port]...\n\n"
         "  Options:\n"
@@ -247,7 +247,7 @@ static void usage() {
 }
 
 
-void initPlatform()
+void initPlatform(void)
 {
 #if ME_UNIX_LIKE
     signal(SIGINT, sigHandler);

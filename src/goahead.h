@@ -239,20 +239,20 @@ PUBLIC void error(cchar *fmt, ...);
     @return Zero if successful
     @internal
  */
-PUBLIC int logOpen();
+PUBLIC int logOpen(void);
 
 /**
     Close the log logging module
     @internal
  */
-PUBLIC void logClose();
+PUBLIC void logClose(void);
 
 /**
     Get the  log callback
     @return handler Callback handler function of type WebsLogHandler
     @stability Stable
  */
-PUBLIC WebsLogHandler logGetHandler();
+PUBLIC WebsLogHandler logGetHandler(void);
 
 /**
     Set a log callback
@@ -268,7 +268,7 @@ PUBLIC WebsLogHandler logSetHandler(WebsLogHandler handler);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websGetLogLevel();
+PUBLIC int websGetLogLevel(void);
 
 /**
     Set the current trace log level
@@ -371,7 +371,7 @@ PUBLIC void traceProc(int level, cchar *fmt, ...);
     Proprietary HTTP status codes
  */
 #define HTTP_CODE_START_LOCAL_ERRORS        550
-#define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communicationss error responding to the client */
+#define HTTP_CODE_COMMS_ERROR               550     /**< The server had a communications error responding to the client */
 
 /************************************* WebsValue ******************************/
 
@@ -489,7 +489,7 @@ PUBLIC void valueFree(WebsValue *value);
 /************************************* Ringq **********************************/
 /**
     A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is
-    ideal for input/output buffering. This module provides a highly effecient
+    ideal for input/output buffering. This module provides a highly efficient
     implementation and a vehicle for dynamic strings.
     \n\n
     WARNING:  This is a public implementation and callers have full access to
@@ -711,7 +711,7 @@ PUBLIC void bufReset(WebsBuf *bp);
     Determine the room available in the buffer.
     @description This returns the maximum number of bytes the buffer can absorb in a single block copy.
     @param bp Buffer reference
-    @return Number of bytes of availble space.
+    @return Number of bytes of available space.
     @ingroup WebsBuf
     @stability Stable
  */
@@ -764,7 +764,7 @@ typedef struct WebsAlloc {
     @ingroup WebsAlloc
     @stability Stable
  */
-PUBLIC void wcloseAlloc();
+PUBLIC void wcloseAlloc(void);
 
 /**
     Initialize the walloc module.
@@ -1079,7 +1079,7 @@ PUBLIC int socketAlloc(cchar *host, int port, SocketAccept accept, int flags);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC void socketClose();
+PUBLIC void socketClose(void);
 
 /**
     Close a socket connection
@@ -1171,7 +1171,7 @@ PUBLIC Socket socketGetHandle(int sid);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC WebsSocket **socketGetList();
+PUBLIC WebsSocket **socketGetList(void);
 
 /**
     Get the IP port associated with this socket.
@@ -1188,7 +1188,7 @@ PUBLIC int socketGetPort(int sid);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC bool socketHasDualNetworkStack();
+PUBLIC bool socketHasDualNetworkStack(void);
 
 /**
     Indicate if the system has IPv6 support
@@ -1196,7 +1196,7 @@ PUBLIC bool socketHasDualNetworkStack();
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC bool socketHasIPv6();
+PUBLIC bool socketHasIPv6(void);
 
 /**
     Indicate that the application layer has buffered data for the socket.
@@ -1251,7 +1251,7 @@ PUBLIC int socketListen(cchar *host, int port, SocketAccept accept, int flags);
     @ingroup WebsSocket
     @stability Stable
  */
-PUBLIC int socketOpen();
+PUBLIC int socketOpen(void);
 
 /**
     Parse an IP address into its constituent parts.
@@ -1280,7 +1280,7 @@ PUBLIC int socketParseAddress(cchar *ipAddrPort, char **pip, int *pport, int *se
     @stability Stable
     @internal
  */
-PUBLIC void socketProcess();
+PUBLIC void socketProcess(void);
 
 /**
     Read data from a socket
@@ -1358,7 +1358,7 @@ PUBLIC int socketSetNoDelay(int sid, bool on);
     Wait for a socket I/O event
     @param sp Socket object
     @param mask Mask of events of interest. Set to SOCKET_READABLE | SOCKET_WRITABLE | SOCKET_EXCEPTION.
-    @return Zero if successful in waiting for the desired event, othewise return -1.
+    @return Zero if successful in waiting for the desired event, otherwise return -1.
     @ingroup WebsSocket
     @stability Stable
  */
@@ -1546,7 +1546,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src);
 #define WEBS_TRIM_BOTH   0x3             /**< Flag for strim to trim from both the start and the end of the string */
 
 /**
-    Format a string. This is a secure verion of printf that can handle null args.
+    Format a string. This is a secure version of printf that can handle null args.
     @description Format the given arguments according to the printf style format. See fmt() for a full list of the
         format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
     @param format Printf style format string
@@ -1558,7 +1558,7 @@ PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src);
 PUBLIC char *sfmt(cchar *format, ...);
 
 /**
-    Format a string with varargs. This is a secure verion of printf that can handle null args.
+    Format a string with varargs. This is a secure version of printf that can handle null args.
     @description Format the given arguments according to the printf style format. See fmt() for a full list of the
         format specifies. This is a secure replacement for sprintf, it can handle null arguments without crashes.
     @param format Printf style format string
@@ -1760,7 +1760,7 @@ PUBLIC void websRestartEvent(int id, int delay);
     @return Time delay till the next event
     @internal
  */
-PUBLIC int websRunEvents();
+PUBLIC int websRunEvents(void);
 
 /* Forward declare */
 struct WebsRoute;
@@ -1788,7 +1788,7 @@ typedef struct WebsUpload {
     @ingroup WebsUpload
     @stability Stable
  */
-PUBLIC void websUploadOpen();
+PUBLIC void websUploadOpen(void);
 
 /**
     Get the hash of uploaded files for the request
@@ -2005,7 +2005,7 @@ typedef bool (*WebsHandlerProc)(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-typedef void (*WebsHandlerClose)();
+typedef void (*WebsHandlerClose)(void);
 
 /**
     GoAhead handler object
@@ -2103,7 +2103,7 @@ PUBLIC int websAccept(int sid, cchar *ipaddr, int port, int listenSid);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websActionOpen();
+PUBLIC void websActionOpen(void);
 
 /**
     Allocate a new Webs object
@@ -2131,7 +2131,7 @@ PUBLIC void websCancelTimeout(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websCgiOpen();
+PUBLIC int websCgiOpen(void);
 
 /**
     CGI handler service callback
@@ -2148,7 +2148,7 @@ PUBLIC int websCgiHandler(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websCgiPoll();
+PUBLIC int websCgiPoll(void);
 
 /* Internal */
 PUBLIC bool cgiHandler(Webs *wp);
@@ -2161,7 +2161,7 @@ PUBLIC bool cgiHandler(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websClose();
+PUBLIC void websClose(void);
 
 /**
     Close an open file
@@ -2304,7 +2304,7 @@ PUBLIC cchar *websErrorMsg(int code);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websFileOpen();
+PUBLIC void websFileOpen(void);
 
 /**
     Flush buffered transmit data and compact the transmit buffer to make room for more data
@@ -2337,7 +2337,7 @@ PUBLIC void websFree(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websGetBackground();
+PUBLIC int websGetBackground(void);
 
 #if ME_GOAHEAD_CGI
 /**
@@ -2346,7 +2346,7 @@ PUBLIC int websGetBackground();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetCgiCommName();
+PUBLIC char *websGetCgiCommName(void);
 #endif /* ME_GOAHEAD_CGI */
 
 /**
@@ -2375,7 +2375,7 @@ PUBLIC char *websGetDateString(WebsFileInfo *sbuf);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websGetDebug();
+PUBLIC int websGetDebug(void);
 
 /**
     Get the base file directory for a request
@@ -2394,7 +2394,7 @@ PUBLIC cchar *websGetDir(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC char *websGetDocuments();
+PUBLIC char *websGetDocuments(void);
 
 /**
     Get the request EOF status
@@ -2452,7 +2452,7 @@ PUBLIC cchar *websGetIfaddr(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC cchar *websGetIndex();
+PUBLIC cchar *websGetIndex(void);
 
 /**
     Get the request method
@@ -2519,7 +2519,7 @@ PUBLIC cchar *websGetQuery(Webs *wp);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC cchar *websGetServer();
+PUBLIC cchar *websGetServer(void);
 
 /**
     Get the server host name with port number.
@@ -2527,7 +2527,7 @@ PUBLIC cchar *websGetServer();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC cchar *websGetServerUrl();
+PUBLIC cchar *websGetServerUrl(void);
 
 /**
     Get the server IP address
@@ -2535,7 +2535,7 @@ PUBLIC cchar *websGetServerUrl();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC cchar *websGetServerAddress();
+PUBLIC cchar *websGetServerAddress(void);
 
 /**
     Get the server IP address with port number
@@ -2543,7 +2543,7 @@ PUBLIC cchar *websGetServerAddress();
     @ingroup Webs
     @stability Stable
  */
-PUBLIC cchar *websGetServerAddressUrl();
+PUBLIC cchar *websGetServerAddressUrl(void);
 
 /**
     Get the request URI
@@ -2643,7 +2643,7 @@ PUBLIC void websNoteRequestActivity(Webs *wp);
     @ingroup Webs
     @internal
  */
-PUBLIC void websRuntimeClose();
+PUBLIC void websRuntimeClose(void);
 
 /**
     Open the runtime code.
@@ -2652,7 +2652,7 @@ PUBLIC void websRuntimeClose();
     @ingroup Webs
     @internal
  */
-PUBLIC int websRuntimeOpen();
+PUBLIC int websRuntimeOpen(void);
 
 /**
     Open the web server
@@ -2669,21 +2669,21 @@ PUBLIC int websRuntimeOpen();
 PUBLIC int websOpen(cchar *documents, cchar *routes);
 
 /**
-    Close the O/S dependant code.
+    Close the O/S dependent code.
     @description Called from websClose
     @ingroup Webs
     @internal
  */
-PUBLIC void websOsClose();
+PUBLIC void websOsClose(void);
 
 /**
-    Open the O/S dependant code.
+    Open the O/S dependent code.
     @description Called from websOpen
     @return Zero if successful, otherwise -1.
     @ingroup Webs
     @internal
  */
-PUBLIC int websOsOpen();
+PUBLIC int websOsOpen(void);
 
 /**
     Open the web page document for the current request
@@ -2702,7 +2702,7 @@ PUBLIC int websOpenFile(cchar *path, int flags, int mode);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websOptionsOpen();
+PUBLIC int websOptionsOpen(void);
 
 /**
     Close the document page
@@ -2869,14 +2869,14 @@ PUBLIC int websRewriteRequest(Webs *wp, cchar *url);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websFsOpen();
+PUBLIC int websFsOpen(void);
 
 /**
     Close the file system module
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void websFsClose();
+PUBLIC void websFsClose(void);
 
 /**
     Seek to a position in the current request page document
@@ -3100,14 +3100,14 @@ PUBLIC char *websTempFile(cchar *dir, cchar *prefix);
     @ingroup Webs
     @stability Evolving
  */
-PUBLIC int websTimeOpen();
+PUBLIC int websTimeOpen(void);
 
 /**
     Close the date/time parsing module
     @ingroup Webs
     @stability Evolving
 */
-PUBLIC void websTimeClose();
+PUBLIC void websTimeClose(void);
 
 /**
     Parse a date/time string
@@ -3404,7 +3404,7 @@ PUBLIC int websDefineJst(cchar *name, WebsJstProc fn);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int websJstOpen();
+PUBLIC int websJstOpen(void);
 
 /**
     Write data to the response
@@ -3468,14 +3468,14 @@ PUBLIC int websJstWrite(int jid, Webs *wp, int argc, char **argv);
     @ingroup Webs
     @stability Stable
  */
-PUBLIC int sslOpen();
+PUBLIC int sslOpen(void);
 
 /**
     Close the ssl module
     @ingroup Webs
     @stability Stable
  */
-PUBLIC void sslClose();
+PUBLIC void sslClose(void);
 
 /**
     Free a ssl connection associated with a request
@@ -3583,7 +3583,7 @@ PUBLIC WebsRoute *websAddRoute(cchar *uri, cchar *handler, int pos);
     @ingroup WebsRoute
     @stability Stable
  */
-PUBLIC void websCloseRoute();
+PUBLIC void websCloseRoute(void);
 
 /**
     Load routing tables from the specified filename
@@ -3599,7 +3599,7 @@ PUBLIC int websLoad(cchar *path);
     @ingroup WebsRoute
     @stability Stable
  */
-PUBLIC int websOpenRoute();
+PUBLIC int websOpenRoute(void);
 
 /**
     Remove a route from the routing tables
@@ -3738,14 +3738,14 @@ PUBLIC bool websCan(Webs *wp, WebsHash ability);
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC void websCloseAuth();
+PUBLIC void websCloseAuth(void);
 
 /**
     Compute the abilities for all users by resolving roles into abilities
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC void websComputeAllUserAbilities();
+PUBLIC void websComputeAllUserAbilities(void);
 
 /**
     Set the password store verify callback
@@ -3753,7 +3753,7 @@ PUBLIC void websComputeAllUserAbilities();
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC WebsVerify websGetPasswordStoreVerify();
+PUBLIC WebsVerify websGetPasswordStoreVerify(void);
 
 /**
     Get the roles hash
@@ -3761,7 +3761,7 @@ PUBLIC WebsVerify websGetPasswordStoreVerify();
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC WebsHash websGetRoles();
+PUBLIC WebsHash websGetRoles(void);
 
 /**
     Get the users hash
@@ -3769,7 +3769,7 @@ PUBLIC WebsHash websGetRoles();
     @ingroup WebsAuth
     @stability Stable
  */
-PUBLIC WebsHash websGetUsers();
+PUBLIC WebsHash websGetUsers(void);
 
 /**
     Login a user by verifying the login credentials.

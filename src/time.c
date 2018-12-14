@@ -133,7 +133,7 @@ static void validateTime(struct tm *tm, struct tm *defaults);
 
 /************************************ Code ************************************/
 
-PUBLIC int websTimeOpen()
+PUBLIC int websTimeOpen(void)
 {
     TimeToken           *tt;
 
@@ -163,7 +163,7 @@ PUBLIC int websTimeOpen()
 }
 
 
-PUBLIC void websTimeClose()
+PUBLIC void websTimeClose(void)
 {
     if (timeTokens >= 0) {
         hashFree(timeTokens);

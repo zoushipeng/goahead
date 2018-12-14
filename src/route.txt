@@ -9,7 +9,7 @@
 #   The abilities, extensions, methods and redirect keywords use comma separated tokens to express a set of 
 #       required options, or use "|" separated tokens for a set of alternative options. This implements AND/OR.
 #   The protocol keyword may be set to http or https. The redirect status may be "*" to match all HTTP status codes.
-#   Multiple redirect fields are permissable
+#   Multiple redirect fields are permissible.
 #
 #   Examples:
 #
