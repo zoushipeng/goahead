@@ -1,19 +1,19 @@
 Embedthis GoAhead Community Edition Licenses
 ===
 
-Embedthis GoAhead Community Edition is distributed under a GPL open source license. The GPL License does not generally permit incorporating this software into non-open source programs. Commercial licenses for GoAhead Enterprise Edition and support     services are available from [Embedthis Software](mailto@sales@embedthis.com).
+Embedthis GoAhead Community Edition is distributed under a GPL open source license. The GPL License does not generally permit incorporating this software into non-open source programs. Commercial licenses for GoAhead Enterprise Edition and support services are available from [Embedthis Software](mailto@sales@embedthis.com).
 
-The GPL license requires that all software linked with a GPL licensed component, be itself licensed via the GPL. If you use  GoAhead Community Edition, you must also license all your software that modifies, links with or is combined with GoAhead via   the GPL. This means you must offer your source code to the general public and anyone who requests it.
+The GPL license requires that all software linked with a GPL licensed component, be itself licensed via the GPL. If you use GoAhead Community Edition, you must also license all your software that modifies, links with or is combined with GoAhead via the GPL. This means you must offer your source code to the general public and anyone who requests it.
 
 If you release products that use GoAhead Community Edition, according to the GPL license, Embedthis herein requests a copy of your source code that is used in combination with GoAhead. Please provide a copy of your source code by contacting [licensing@embedthis.com](mailto:licensing@embedthis.com).
 
-Please consult the GPL license for license details. Contact Embedthis at [licensing@embedthis.com](mailto:licensing@         embedthis.com) if you have any licensing questions.
+The GPL license requires that all software that links with a GPL licensed component, be itself licensed as GPL. If you use GoAhead with the GPL license, you must also license all your software that modifies, links with or is combined with GoAhead via GPL license. This means you must offer your source code to the general public and anyone who requests it.
 
 * [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
 
 ## Commercial License
 
-An enhanced version of GoAhead is available called Embedthis GoAhead Enterprise Edition. This edition uses a commercial license and provides a royalty free, license to embed the software into your products with options for ongoing maintenance   and support. Contact [sales@embedthis.com](mailto:dev@embdthis.com) for details.
+An enhanced version of GoAhead is available called Embedthis GoAhead Enterprise Edition. This edition uses a commercial license and provides a royalty free, license to embed the software into your products with options for ongoing maintenance and support. Contact [sales@embedthis.com](mailto:dev@embdthis.com) for details.
 
 Third Party Licenses
 ---
