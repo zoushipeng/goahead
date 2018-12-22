@@ -4,7 +4,7 @@
       <ItemDefinitionGroup>
         <ClCompile>
           <PreprocessorDefinitions>ME_DEBUG=1;_FILE_OFFSET_BITS=64;_FILE_OFFSET_BITS=64;MBEDTLS_USER_CONFIG_FILE="embedtls.h";%(PreprocessorDefinitions)</PreprocessorDefinitions>
-          <AdditionalIncludeDirectories>/Users/mob/dev/goahead/build/windows-x64-default/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+          <AdditionalIncludeDirectories>/Users/mob/dev/goahead-gpl/build/windows-x64-default/inc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
           <AdditionalDependencies>ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -14,7 +14,7 @@
       </ItemDefinitionGroup>
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{03872e3c-6d75-45ea-a3cb-6ba41e0fd071}</ProjectGuid>
+        <ProjectGuid>{fb40f94d-a72c-40cf-9e31-0c71f40e24c3}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -135,7 +135,7 @@ cd projects\goahead-windows-default</Command>
 
     <ItemGroup>
       <ProjectReference Include="libgo.vcxproj">
-      <Project>2c29bee3-a1d1-494b-b20d-cd1dac24543f</Project>
+      <Project>301957e4-58c5-4e43-b600-6079a2c2c160</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       </ProjectReference>
     </ItemGroup>
