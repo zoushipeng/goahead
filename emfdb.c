@@ -1,10 +1,11 @@
 /*
  * emfdb.c -- EMF database compatability functions for GoAhead WebServer.
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: emfdb.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -237,7 +238,6 @@ int dbSearchStr(int did, char_t *tablename,
 	char_t *colName, char_t *value, int flags)
 {
 	int			tid, nRows, nColumns, column;
-   int match = 0;
 	dbTable_t	*pTable;
 
 	a_assert(tablename);
@@ -270,25 +270,13 @@ int dbSearchStr(int did, char_t *tablename,
 			pRow = pTable->rows[row];
 			if (pRow) {
 				compareVal = (char_t *)(pRow[column]); 
-            if (NULL != compareVal)
-            {
-              if (DB_CASE_INSENSITIVE == flags)
-              {
-                 match = gstricmp(compareVal, value);
-              }
-              else
-              {
-                 match = gstrcmp(compareVal, value);
-              }
-              if (0 == match)
-              {
-                 return row;
-              }
-            }
+				if (compareVal && (gstrcmp(compareVal, value) == 0)) {
+					return row;
+				}
 			}
 			row++;
 		}
-	} else { 
+	} else {
 /*
  *		Return -2 if search column was not found
  */
@@ -708,14 +696,8 @@ int dbSave(int did, char_t *filename, int flags)
  *	First write to a temporary file, then switch around later.
  */
 	fmtAlloc(&tmpFile, FNAMESIZE, T("%s/data.tmp"), basicGetProductDir());
-#if !defined(WIN32)
-	fd = gopen(tmpFile, 
-		O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0666);
-#else
-	_sopen_s(&fd, tmpFile, O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
-	
-	if (fd < 0) {
+	if ((fd = gopen(tmpFile, 
+		O_CREAT | O_TRUNC | O_WRONLY | O_BINARY, 0666)) < 0) {
 		trace(1, T("WARNING: Failed to open file %s\n"), tmpFile);
 		bfree(B_L, tmpFile);
 		return -1;
@@ -854,11 +836,7 @@ int dbLoad(int did, char_t *filename, int flags)
 		return -1;
 	}
 
-#if !defined(WIN32)
 	fd = gopen(path, O_RDONLY | O_BINARY, 0666);
-#else
-	_sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
 	bfree(B_L, path);
 
 	if (fd < 0) {

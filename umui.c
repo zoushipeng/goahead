@@ -1,10 +1,11 @@
 /*
  * umui.c -- User Management GoForm Processing
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ *	$Id: umui.c,v 1.2 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/

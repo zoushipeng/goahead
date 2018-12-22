@@ -1,8 +1,9 @@
 /*
  * sock.c -- Posix Socket upper layer support module for general posix use
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
+ * $Id: sock.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -17,7 +18,14 @@
 #include	<string.h>
 #include	<stdlib.h>
 
-#include	"uemf.h"
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	<socket.h>
+	#include	<types.h>
+	#include	<unistd.h>
+	#include	"emfInternal.h"
+#endif
 
 /************************************ Locals **********************************/
 
@@ -234,13 +242,6 @@ int	socketGets(int sid, char_t **buf)
 				return -1;
 			}
 		}
-/* 
- * 		Validate length of request.  Ignore long strings without newlines to
- * 		safeguard against long URL attacks.
- */
-		if (ringqLen(lq) > E_MAX_REQUEST) {
-			c = '\n';
-		}
 /*
  *		If a newline is seen, return the data excluding the new line to the
  *		caller. If carriage return is seen, just eat it.
@@ -361,7 +362,7 @@ int socketInputBuffered(int sid)
 	if (socketEof(sid)) {
 		return -1;
 	}
-	return ringqLen(&sp->inBuf);
+	return ringqLen(&sp->lineBuf) + ringqLen(&sp->inBuf);
 }
 
 /******************************************************************************/
@@ -433,7 +434,7 @@ void socketSetBufferSize(int sid, int in, int line, int out)
  */
 
 void socketCreateHandler(int sid, int handlerMask, socketHandler_t handler, 
-		void* data)
+		int data)
 {
 	socket_t	*sp;
 
@@ -491,7 +492,11 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
  */
 	if (sp->flags & SOCKET_BROADCAST) {
 		server.sin_family = AF_INET;
+#if (defined (UEMF) || defined (LITTLEFOOT))
 		server.sin_addr.s_addr = INADDR_BROADCAST;
+#else
+		server.sin_addr.s_addr = inet_addr(basicGetBroadcastAddress());
+#endif
 		server.sin_port = htons((short)(sp->port & 0xFFFF));
 		if ((bytes = sendto(sp->sock, buf, toWrite, 0,
 			(struct sockaddr *) &server, sizeof(server))) < 0) {
@@ -529,6 +534,14 @@ static int socketDoOutput(socket_t *sp, char *buf, int toWrite, int *errCode)
  *	Ensure we get to write some more data real soon if the socket can absorb
  *	more data
  */
+#ifndef UEMF
+#ifdef WIN 
+	if (sp->interestEvents & FD_WRITE) {
+		emfTime_t blockTime = { 0, 0 };
+		emfSetMaxBlockTime(&blockTime);
+	}
+#endif /* WIN */
+#endif
 	return bytes;
 }
 
@@ -585,19 +598,14 @@ int socketAlloc(char *host, int port, socketAccept_t accept, int flags)
  */
 	a_assert((flags & ~(SOCKET_BROADCAST|SOCKET_DATAGRAM|SOCKET_BLOCK|
 						SOCKET_LISTENING)) == 0);
-	sp->flags = flags & (SOCKET_BROADCAST | SOCKET_DATAGRAM | SOCKET_BLOCK |
-						SOCKET_LISTENING | SOCKET_MYOWNBUFFERS);
+	sp->flags = flags & (SOCKET_BROADCAST | SOCKET_DATAGRAM | SOCKET_BLOCK|
+						SOCKET_LISTENING);
 
-	if (!(flags & SOCKET_MYOWNBUFFERS)) { 
 /*
- *		Add one to allow the user to write exactly SOCKET_BUFSIZ
+ *	Add one to allow the user to write exactly SOCKET_BUFSIZ
  */
-		ringqOpen(&sp->inBuf, SOCKET_BUFSIZ, SOCKET_BUFSIZ);
-		ringqOpen(&sp->outBuf, SOCKET_BUFSIZ + 1, SOCKET_BUFSIZ + 1);
-	} else {
-		memset(&sp->inBuf, 0x0, sizeof(ringq_t));
-		memset(&sp->outBuf, 0x0, sizeof(ringq_t));
-	}
+	ringqOpen(&sp->inBuf, SOCKET_BUFSIZ, SOCKET_BUFSIZ);
+	ringqOpen(&sp->outBuf, SOCKET_BUFSIZ + 1, SOCKET_BUFSIZ + 1);
 	ringqOpen(&sp->lineBuf, SOCKET_BUFSIZ, -1);
 
 	return sid;
@@ -639,10 +647,8 @@ void socketFree(int sid)
 #endif
 	}
 
-	if (!(sp->flags & SOCKET_MYOWNBUFFERS)) { 
-		ringqClose(&sp->inBuf);
-		ringqClose(&sp->outBuf);
-	}
+	ringqClose(&sp->inBuf);
+	ringqClose(&sp->outBuf);
 	ringqClose(&sp->lineBuf);
 
 	bfree(B_L, sp);

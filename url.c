@@ -1,10 +1,11 @@
 /*
  * url.c -- Parse URLs
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: url.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -76,7 +77,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath,
 	char_t **pext)
 {
 	char_t		*tok, *cp, *host, *path, *port, *proto, *tag, *query, *ext;
-	char_t		*hostbuf, *portbuf, *buf;
+	char_t		*last_delim, *hostbuf, *portbuf, *buf;
 	int			c, len, ulen;
 
 	a_assert(url);
@@ -94,12 +95,7 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath,
 	}
 	portbuf = &buf[len - MAX_PORT_LEN - 1];
 	hostbuf = &buf[ulen+1];
-   /*
-   Handle any URL encoding.
-   Otherwise a URL ending in ".as%70", for example, causes trouble.
-   */
- 	websDecodeUrl(buf, url, ulen);
-
+	gstrcpy(buf, url);
 	url = buf;
 
 /*
@@ -175,24 +171,19 @@ int websUrlParse(char_t *url, char_t **pbuf, char_t **phost, char_t **ppath,
  *	Only do the following if asked for the extension
  */
 	if (pext) {
-		/*
-		Later the path will be cleaned up for trailing slashes and so on.
-		To be ready, we need to clean up here, much as in websValidateUrl.
-		Otherwise a URL ending in "asp/" or "asP" sends Ejscript source
-		to the browser.
-		*/
 		if ((cp = gstrrchr(path, '.')) != NULL) {
-			const char_t* garbage = T("/\\");
-			int length = gstrcspn(cp, garbage);
-			int garbageLength = gstrspn(cp + length, garbage);
-			int ok = (length + garbageLength == (int) gstrlen(cp));
-
-			if (ok) {
-				cp[length] = '\0';
-#ifdef WIN32
-				strlower(cp);            
-#endif
+			if ((last_delim = gstrrchr(path, '/')) != NULL) {
+				if (last_delim > cp) {
+					ext = htmExt;
+				} else {
+					ext = cp;
+				}
+			} else {
 				ext = cp;
+			}
+		} else {
+			if (path[gstrlen(path) - 1] == '/') {
+				ext = htmExt;
 			}
 		}
 	}

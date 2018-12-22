@@ -1,10 +1,11 @@
 /*
  *	um.h -- GoAhead User Management public header
  *
- *	Copyright (c) GoAhead Software Inc., 1992-2010. All Rights Reserved.
+ *	Copyright (c) GoAhead Software Inc., 1992-2000. All Rights Reserved.
  *
  *	See the file "license.txt" for information on usage and redistribution
  *
+ * $Id: um.h,v 1.2 2002/10/24 14:44:50 bporter Exp $
  */
 
 #ifndef _h_UM
@@ -20,7 +21,12 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#ifndef UEMF
+	#include	"basic/basic.h"
+	#include	"emf/emf.h"
+#else
+	#include	"uemf.h"
+#endif
 
 /********************************** Defines ***********************************/
 

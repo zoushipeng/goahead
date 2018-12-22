@@ -1,20 +1,17 @@
 /*
  * default.c -- Default URL handler. Includes support for ASP.
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
- * Whitelist Copyright (c) PeerSec Networks Inc., 2009. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: default.c,v 1.8 2003/03/20 19:49:45 bporter Exp $
  */
 
 /******************************** Description *********************************/
+
 /*
  *	This module provides default URL handling and Active Server Page support.
- *
- *	Validate the incoming URL request by both standard path rules, as well as
- *	a very tight whitelist that is automatically built based on the files under
- *	the websDefaultDir directory.
  *
  *	In many cases we don't check the return code of calls to websWrite as
  *	it is easier, smaller and non-fatal to continue even when the requesting
@@ -31,43 +28,6 @@ static char_t	*websDefaultPage;			/* Default page name */
 static char_t	*websDefaultDir;			/* Default Web page directory */
 
 /**************************** Forward Declarations ****************************/
-#define MAX_URL_DEPTH			8	/* Max directory depth of websDefaultDir */
-
-#ifdef WEBS_WHITELIST_SUPPORT
-
-#ifndef WIN
-#include <dirent.h>
-#endif
-
-/* Whitelist flags (more flags in wsIntrn.h) */
-#define WHITELIST_BLOCKED	0x100	/* File is in list, but inaccessible */
-#define WHITELIST_DIR		0x200	/* Node is a Directory */
-
-#ifdef WEBS_SSL_SUPPORT
-typedef struct _sslList {
-	struct _sslList *next;
-	char			*url;
-} sslList_t;
-
-static sslList_t	*sslList;
-#endif /* WEBS_SSL_SUPPORT */
-
-typedef struct _fileNode {
-	struct _fileNode *next;		/* Next file/dir on same level (NULL if last) */
-	struct _fileNode *child;	/* Non-NULL if this is a directory with child */
-	char	*name;				/* path segment with trailing '/' or filename */
-	int		flags;				/* Flags pertaining to this list entry */
-} fileNode_t;
-
-static fileNode_t	*whitelist = NULL; /* Global tree of files in list */
-
-static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level);
-static fileNode_t* websWhitelistCheckRecursive(fileNode_t *n, char *path);
-static void websDeleteWhitelistRecursive(fileNode_t *dir);
-static void websMakePath(char *d, char *src, char *subdir, int wildcard);
-#else
-#define websBuildWhitelist()
-#endif /* WEBS_WHITELIST_SUPPORT */
 
 static void websDefaultWriteEvent(webs_t wp);
 
@@ -84,45 +44,26 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 {
 	websStatType	sbuf;
 	char_t			*lpath, *tmp, *date;
-	int				bytes, flags, nchars, rc;
+	int				bytes, flags, nchars;
 
 	a_assert(websValid(wp));
 	a_assert(url && *url);
 	a_assert(path);
 	a_assert(query);
 
-	flags = websGetRequestFlags(wp);
-/*
- *	We do whitelist validation in addition to standard URL validation.
- *	The whitelist should really catch anything invalid first.
- *	If the whitelist check fails, rebuild the list and try again.
- *	Also validate if we are not on a secure connection, but the whitelist
- *	entry has the SSL flag set, do not serve the page.
- */
-#ifdef WEBS_WHITELIST_SUPPORT
-	if ((rc = websWhitelistCheck(wp->url)) < 0) {
-		websBuildWhitelist();
-		if ((rc = websWhitelistCheck(wp->url)) < 0) {
-			websError(wp, 404, T("Cannot open URL"));
-			return 1;
-		}
-	}
-	if (!(flags & WEBS_SECURE) && (rc & WHITELIST_SSL)) {
-		websError(wp, 500, T("HTTPS access required"));
-		return 1;
-	}
-#endif /* WEBS_WHITELIST_SUPPORT */
 /*
  *	Validate the URL and ensure that ".."s don't give access to unwanted files
  */
-	if (websValidateUrl(wp, path) < 0) {
+	flags = websGetRequestFlags(wp);
+
+	if (websValidateUrl(wp, path) < 0) 
+   {
       /* 
        * preventing a cross-site scripting exploit -- you may restore the
        * following line of code to revert to the original behavior...
-		websError(wp, 500, T("Invalid URL %s"), url);
        */
-		websError(wp, 500, T("Invalid URL"));
-		websBuildWhitelist();
+		/*websError(wp, 500, T("Invalid URL %s"), url);*/
+      websError(wp, 500, T("Invalid URL"));
 		return 1;
 	}
 	lpath = websGetRequestLpath(wp);
@@ -149,7 +90,7 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 /*
  *	Open the document. Stat for later use.
  */
-	if (websPageOpen(wp, lpath, path, O_RDONLY | O_BINARY, 
+	if (websPageOpen(wp, lpath, path, SOCKET_RDONLY | SOCKET_BINARY, 
 		0666) < 0) 
    {
       /* 10 Dec 02 BgP -- according to 
@@ -164,7 +105,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
        */
       
 		websError(wp, 404, T("Cannot open URL"));
-		websBuildWhitelist();
 		return 1;
 	} 
 
@@ -175,7 +115,6 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		websError(wp, 400, T("Cannot stat page for URL %s"), url);
        */
 		websError(wp, 400, T("Cannot stat page for URL"));
-		websBuildWhitelist();
 		return 1;
 	}
 
@@ -212,16 +151,11 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
  */
 	if ((date = websGetDateString(NULL)) != NULL) {
 		websWrite(wp, T("HTTP/1.0 200 OK\r\nDate: %s\r\n"), date);
+
 /*
- *		The Server HTTP header below must not be modified unless
- *		explicitly allowed by licensing terms.
+ *		By license terms the following line of code must not be modified.
  */
-#ifdef WEBS_SSL_SUPPORT
-		websWrite(wp, T("Server: %s/%s %s/%s\r\n"), 
-			WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
-#else
-		websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
-#endif
+		websWrite(wp, T("Server: %s\r\n"), WEBS_NAME);
 		bfree(B_L, date);
 	}
 	flags |= WEBS_HEADER_DONE;
@@ -271,12 +205,22 @@ int websDefaultHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 		websDone(wp, 200);
 		return 1;
 	}
+
+#ifdef WEBS_SSL_SUPPORT
+	if (wp->flags & WEBS_SECURE) {
+		websDefaultWriteEvent(wp);
+	} else {
+		websSetRequestSocketHandler(wp, SOCKET_WRITABLE, websDefaultWriteEvent);
+	}
+#else
 /*
- *	Return the data via background write
+ *	For normal web documents, return the data via background write
  */
 	websSetRequestSocketHandler(wp, SOCKET_WRITABLE, websDefaultWriteEvent);
+#endif
 	return 1;
 }
+
 
 #ifdef WIN32
 
@@ -312,8 +256,10 @@ static int badPath(char_t* path, char_t* badPath, int badLen)
          }
       }
    }
+
    return retval;
 }
+
 
 static int isBadWindowsPath(char_t** parts, int partCount)
 {
@@ -325,18 +271,19 @@ static int isBadWindowsPath(char_t** parts, int partCount)
     * for paths with any of these elements before 
     * trying to access them. If any of the subdirectory names match one
     * of our prohibited links, we declare this to be a 'bad' path, and return 
-    * 1 to indicate this. This may be a heavy-handed approach, but should 
+    * 1 to indicate this. This may be an overly heavy-handed approach, but should 
     * prevent the DOS attack.
     * NOTE that this function is only compiled in when we are running on Win32, 
-    * and only has an effect when running on Win95/98, or ME. On all other 
+    * and only has an effect when we are running on Win95/98, or ME. On all other 
     * versions of Windows, we check the version info, and return 0 immediately.
     *
     * According to http://packetstormsecurity.nl/0003-exploits/SCX-SA-01.txt:
+
     *  II.  Problem Description
     *   When the Microsoft Windows operating system is parsing a path that 
     *   is being crafted like "c:\[device]\[device]" it will halt, and crash 
     *   the entire operating system.  
-	*   Four device drivers have been found to crash the system.  The CON,
+    *   Four device drivers have been found to crash the system.  The CON,
     *   NUL, AUX, CLOCK$ and CONFIG$ are the two device drivers which are 
     *   known to crash.  Other devices as LPT[x]:, COM[x]: and PRN have not 
     *   been found to crash the system.  
@@ -365,14 +312,15 @@ static int isBadWindowsPath(char_t** parts, int partCount)
              * check against the prohibited names. If any of our requested 
              * subdirectories match any of these, return '1' immediately.
              */
+
             if ( 
-             (badPath(parts[i], T("con"), 3)) ||
-             (badPath(parts[i], T("com"), 3)) ||
-             (badPath(parts[i], T("nul"), 3)) ||
-             (badPath(parts[i], T("aux"), 3)) ||
-             (badPath(parts[i], T("clock$"), 6)) ||
-             (badPath(parts[i], T("config$"), 7)) ) {
-				return 1;
+             (badPath(parts[i], "con", 3)) ||
+             (badPath(parts[i], "nul", 3)) ||
+             (badPath(parts[i], "aux", 3)) ||
+             (badPath(parts[i], "clock$", 6)) ||
+             (badPath(parts[i], "config$", 7)) )
+            {
+               return 1;
             }
          }
       }
@@ -384,6 +332,7 @@ static int isBadWindowsPath(char_t** parts, int partCount)
    return 0;
 }
 #endif
+
 
 /******************************************************************************/
 /*
@@ -398,11 +347,12 @@ int websValidateUrl(webs_t wp, char_t *path)
      if an URL was requested having more than (the hardcoded) 64 parts,
      the webServer would experience a hard crash as it attempted to
      write past the end of the array 'parts'.
-	 Also fixes: http://www.securiteam.com/securitynews/5MP0C1580W.html
     */
-	char_t	*parts[MAX_URL_DEPTH];	/* Array of ptr's to URL parts */
+
+#define kMaxUrlParts 64
+	char_t	*parts[kMaxUrlParts];	/* Array of ptr's to URL parts */
 	char_t	*token, *dir, *lpath; 
-	int	      i, len, npart;
+   int	      i, len, npart;
 
 	a_assert(websValid(wp));
 	a_assert(path);
@@ -422,11 +372,7 @@ int websValidateUrl(webs_t wp, char_t *path)
 	parts[0] = NULL;
 
    /*
-    * Fixed by Matt Moore, 22 Jul 02
-	* http://www.securiteam.com/securitynews/5RP0I007PG.html
-	* http://www.securiteam.com/securitynews/5QP010U3FS.html
-	* 
-	* There were reports that a directory traversal exploit was
+    * 22 Jul 02 -- there were reports that a directory traversal exploit was
     * possible in the WebServer running under Windows if directory paths
     * outside the server's specified root web were given by URL-encoding the
     * backslash character, like:
@@ -435,8 +381,10 @@ int websValidateUrl(webs_t wp, char_t *path)
     *  
     *  GoAhead-server/../../../../../../../ results in an error message
     *  'Cannot open URL'.
+
     *  However, by encoding the '/' character, it is possible to break out of
-    *  the web root and read arbitrary files from the server.
+    *  the
+    *  web root and read arbitrary files from the server.
     *  Hence a request like:
     * 
     *  GoAhead-server/..%5C..%5C..%5C..%5C..%5C..%5C/winnt/win.ini returns the
@@ -447,11 +395,13 @@ int websValidateUrl(webs_t wp, char_t *path)
     * slashes for backslashes before attempting to validate that there are no
     * unauthorized paths being accessed.
     */
-	token = gstrchr(path, '\\');
-	while (token != NULL) {
-		*token = '/';
-		token = gstrchr(token, '\\');
-	}
+   token = gstrchr(path, '\\');
+   while (token != NULL)
+   {
+      *token = '/';
+      token = gstrchr(token, '\\');
+   }
+   
 	token = gstrtok(path, T("/"));
 
 /*
@@ -460,7 +410,7 @@ int websValidateUrl(webs_t wp, char_t *path)
  */
 	while (token != NULL) 
    {
-      if (npart >= MAX_URL_DEPTH)
+      if (npart >= kMaxUrlParts)
       {
          /*
           * malformed URL -- too many parts for us to process.
@@ -474,7 +424,10 @@ int websValidateUrl(webs_t wp, char_t *path)
          {
 				npart--;
 			}
-		} else if (gstrcmp(token, T(".")) != 0) {
+
+		} 
+      else if (gstrcmp(token, T(".")) != 0) 
+      {
 			parts[npart] = token;
 			len += gstrlen(token) + 1;
 			npart++;
@@ -494,18 +447,23 @@ int websValidateUrl(webs_t wp, char_t *path)
 /*
  *	Create local path for document. Need extra space all "/" and null.
  */
-	if (npart || (gstrcmp(path, T("/")) == 0) || (path[0] == '\0')) {
+	if (npart || (gstrcmp(path, T("/")) == 0) || (path[0] == '\0')) 
+   {
 		lpath = balloc(B_L, (gstrlen(dir) + 1 + len + 1) * sizeof(char_t));
 		gstrcpy(lpath, dir);
 
-		for (i = 0; i < npart; i++) {
+		for (i = 0; i < npart; i++) 
+      {
 			gstrcat(lpath, T("/"));
 			gstrcat(lpath, parts[i]);
 		}
 		websSetRequestLpath(wp, lpath);
 		bfree(B_L, path);
 		bfree(B_L, lpath);
-	} else {
+
+	} 
+   else 
+   {
 		bfree(B_L, path);
 		return -1;
 	}
@@ -576,39 +534,11 @@ static void websDefaultWriteEvent(webs_t wp)
 
 /******************************************************************************/
 /* 
- *	Initialize variables and data for the default URL handler module
- */
-
-void websDefaultOpen()
-{
-#ifdef WEBS_WHITELIST_SUPPORT
-#ifdef WEBS_SSL_SUPPORT
-	sslList = NULL;
-#endif
-	whitelist = NULL;
-	websBuildWhitelist();
-#endif /* WEBS_WHITELIST_SUPPORT */
-}
-
-/******************************************************************************/
-/* 
  *	Closing down. Free resources.
  */
 
 void websDefaultClose()
 {
-#ifdef WEBS_WHITELIST_SUPPORT
-#ifdef WEBS_SSL_SUPPORT
-	sslList_t	*l;
-	while (sslList != NULL) {
-		l = sslList;
-		sslList = sslList->next;
-		bfreeSafe(B_L, l->url);
-		bfree(B_L, l);
-	}	
-#endif
-	websDeleteWhitelist();
-#endif /* WEBS_WHITELIST_SUPPORT */
 	if (websDefaultPage) {
 		bfree(B_L, websDefaultPage);
 		websDefaultPage = NULL;
@@ -668,317 +598,6 @@ void websSetDefaultDir(char_t *dir)
 	websDefaultDir = bstrdup(B_L, dir);
 }
 
-#ifdef WEBS_WHITELIST_SUPPORT
 /******************************************************************************/
-/*
- *	Build a whitelist by recursing the root www directory
- *	Matches are NOT case sensitive
- *	Returns < 0 if not found, else returns whitelist flags
- */
-int websWhitelistCheck(char *url)
-{
-	fileNode_t	*n;
-	if ((n = websWhitelistCheckRecursive(whitelist, url)) == NULL) {
-		return -1;
-	}
-	return n->flags;
-}
 
-static fileNode_t* websWhitelistCheckRecursive(fileNode_t *n, char *path)
-{
-	char	*c, *p;
 
-	if (n == NULL) return NULL;
-	if ((n->flags & WHITELIST_BLOCKED) != 0) {
-		return websWhitelistCheckRecursive(n->next, path);
-	}
-	if (n->name) {
-		for (c = n->name, p = path; *c != '\0' && *p != '\0'; c++, p++) {
-			if (tolower(*c) != tolower(*p)) {
-				break;	/* not a match */
-			}
-		}
-	}
-	if (*p == '\0' && (*c == '\0' || (*c == '/' && *(c+1) == '\0'))) {
-		return n;	/* We've matched to the end of the path */
-	}
-	if (*c == '\0' && (n->flags & WHITELIST_DIR)) {
-		return websWhitelistCheckRecursive(n->child, p);
-	}
-	return websWhitelistCheckRecursive(n->next, path);
-}
-
-/*
- *	Add a DIRECTORY url to the ssl-only urls list, and rebuild the whitelist
- *	This API can be called multiple times, but should only be called
- *		AFTER websOpenServer()
- *	URL should contain trailing '/', eg. "/matrixssl/"
- */
-#ifdef WEBS_SSL_SUPPORT
-int websRequireSSL(char *url)
-{
-	sslList_t	*l;
-	int			sz;
-	
-	l = balloc(B_L, sizeof(sslList_t));
-	memset(l, 0x0, sizeof(sslList_t));
-	sz = strlen(url) + 1;
-	if (url[sz - 2] == '/') {
-		l->url = bstrdup(B_L, url);
-	} else {
-		sz++;
-		l->url = balloc(B_L, sz);
-		memcpy(l->url, url, sz - 1);
-		l->url[sz - 2] = '/';
-		l->url[sz - 1] = '\0';
-	}
-	l->next = sslList;
-	sslList = l;
-	websBuildWhitelist();
-	return 0;
-}
-#endif /* WEBS_SSL_SUPPORT */
-
-/******************************************************************************/
-/*
- *	Free all allocated memory in whitelist
- */
-void websDeleteWhitelist(void)
-{
-	websDeleteWhitelistRecursive(whitelist);
-	whitelist = NULL;
-}
-
-static void websDeleteWhitelistRecursive(fileNode_t *dir)
-{
-	if (dir == NULL) return;
-	if (dir->child) {	/* Depth first recursion to delete leaves */
-		websDeleteWhitelistRecursive(dir->child);
-	}
-	if (dir->next) {
-		websDeleteWhitelistRecursive(dir->next);
-	}
-	if (dir->name) {
-		bfree(B_L, dir->name);
-	}
-	memset(dir, 0x0, sizeof(fileNode_t));
-	bfree(B_L, dir);
-}
-
-/******************************************************************************/
-/*
- *	Build or rebuild whitelist
- */
-int websBuildWhitelist(void)
-{
-	if (websDefaultDir == NULL || *websDefaultDir == '\0') {
-		return -1;
-	}
-	websDeleteWhitelistRecursive(whitelist);
-	whitelist = balloc(B_L, sizeof(fileNode_t));
-	memset(whitelist, 0x0, sizeof(fileNode_t));
-	whitelist->name = bstrdup(B_L, "/");
-	whitelist->flags |= WHITELIST_DIR;
-	return websBuildWhitelistRecursive(websDefaultDir, whitelist, 0);
-}
-
-/******************************************************************************/
-/*
- *	WINDOWS: Build whitelist
- */
-#ifdef WIN32
-static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
-{
-	WIN32_FIND_DATA	findData;
-	HANDLE	fh;
-	fileNode_t	*cnode, *nnode; /* current node, next node */
-#ifdef WEBS_SSL_SUPPORT
-	sslList_t	*l;
-#endif
-	int		rc = 0;
-	int		firstTime;
-	char	path[MAX_PATH];
-	char	tmppath[MAX_PATH];
-
-	firstTime = 1;
-	cnode = dir;
-	websMakePath(path, _path, NULL, 1);
-	fh = FindFirstFile((LPCSTR)path, &findData);
-	while (fh != INVALID_HANDLE_VALUE) {
-		if ((strcmp(findData.cFileName, ".") == 0) ||
-				(strcmp(findData.cFileName, "..") == 0) ||
-				(findData.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) ||
-				(findData.dwFileAttributes & FILE_ATTRIBUTE_SYSTEM)) {
-			goto nextFile;
-		}
-		nnode = balloc(B_L, sizeof(fileNode_t));
-		memset(nnode, 0x0, sizeof(fileNode_t));
-		if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			fmtAlloc(&(nnode->name), MAX_PATH, "%s/", findData.cFileName);
-			nnode->flags |= WHITELIST_DIR;
-		} else {
-			nnode->name = bstrdup(B_L, findData.cFileName);
-		}
-		if (firstTime) {
-			cnode->child = nnode;
-			firstTime = 0;
-		} else {
-			cnode->next = nnode;
-		}
-		cnode = nnode;
-		if (strncmp(path + strlen(websDefaultDir), "/" CGI_BIN, 
-				strlen(CGI_BIN) + 1) == 0) {
-			cnode->flags |= WHITELIST_CGI;
-		}
-#ifdef WEBS_SSL_SUPPORT
-		for (l = sslList; l != NULL; l = l->next) {
-			if (strncmp(path + strlen(websDefaultDir), l->url, 
-					strlen(l->url)) == 0) {
-				cnode->flags |= WHITELIST_SSL;
-			}
-		}
-#endif /* WEBS_SSL_SUPPORT */
-		if (findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
-			websMakePath(tmppath, path, findData.cFileName, 1);
-			if (level < MAX_URL_DEPTH) {
-				if (websBuildWhitelistRecursive(tmppath, cnode, level + 1) < 0){
-					cnode->flags |= WHITELIST_BLOCKED;
-				}
-			}
-		}
-nextFile:
-		if (FindNextFile(fh, &findData) == 0) {
-			if (GetLastError() != ERROR_NO_MORE_FILES) {
-				rc = -1;
-			}
-			break;
-		}
-	}
-	FindClose(fh);
-	return rc;
-}
-
-/******************************************************************************/
-/*
- *	LINUX, MACOSX, ETC: Build whitelist
- */
-#else /* !WIN */
-static int websBuildWhitelistRecursive(char *_path, fileNode_t *dir, int level)
-{
-	struct dirent	*findData, *result;
-	DIR				*fh;
-	fileNode_t		*cnode, *nnode; /* current node, next node */
-	int		firstTime;
-	char	path[PATH_MAX];
-	char	tmppath[PATH_MAX];
-
-	firstTime = 1;
-	cnode = dir;
-	/* On some platforms such as Solaris, struct dirent includes only one
-	 * byte for d_name field, meaning we would overflow the field when
-	 * readdir_r is called.  So we check for this here.
-	 * Another potential issue is if somehow a filesystem is mounted or linked
-	 * in a subdirectory or file that has name longer than PATH_MAX.  We 
-	 * ignore that possibility here, and leave it to the user to ensure that
-	 * the wwwroot directory does not contain this configuration.
-	 * http://womble.decadentplace.org.uk/readdir_r-advisory.html
-	 */ 
-	if (sizeof(struct dirent) > PATH_MAX) {
-		findData = balloc(B_L, sizeof(struct dirent));
-	} else {
-		findData = balloc(B_L, sizeof(struct dirent) + PATH_MAX);
-	}
-	websMakePath(path, _path, NULL, 0);
-	if ((fh = opendir(path)) == NULL) {
-		bfree(B_L, findData);
-		return -1;	/* Likely no permission to access this directory */
-	}
-	while ((readdir_r(fh, findData, &result) == 0) && result) {
-		if ((strcmp(findData->d_name, ".") == 0) ||
-				(strcmp(findData->d_name, "..") == 0) ||
-				(findData->d_type != DT_REG && findData->d_type != DT_DIR)) {
-			continue;
-		}
-		nnode = balloc(B_L, sizeof(fileNode_t));
-		memset(nnode, 0x0, sizeof(fileNode_t));
-		if (findData->d_type == DT_DIR) {
-			fmtAlloc(&(nnode->name), PATH_MAX, "%s/", findData->d_name);
-			nnode->flags |= WHITELIST_DIR;
-		} else {
-			nnode->name = bstrdup(B_L, findData->d_name);
-		}
-		if (firstTime) {
-			cnode->child = nnode;
-			firstTime = 0;
-		} else {
-			cnode->next = nnode;
-		}
-		cnode = nnode;
-		if (strncmp(path + strlen(websDefaultDir), "/" CGI_BIN, 
-				strlen(CGI_BIN) + 1) == 0) {
-			cnode->flags |= WHITELIST_CGI;
-		}
-#ifdef WEBS_SSL_SUPPORT
-		sslList_t	*l;
-		for (l = sslList; l != NULL; l = l->next) {
-			if (strncmp(path + strlen(websDefaultDir), l->url, 
-					strlen(l->url)) == 0) {
-				cnode->flags |= WHITELIST_SSL;
-				break;
-			}
-		}
-#endif /* WEBS_SSL_SUPPORT */
-		if (findData->d_type == DT_DIR) {
-			websMakePath(tmppath, path, findData->d_name, 0);
-			if (level < MAX_URL_DEPTH) {
-				if (websBuildWhitelistRecursive(tmppath, cnode, level + 1) < 0){
-					cnode->flags |= WHITELIST_BLOCKED;
-				}
-			}
-		}
-	}
-	bfree(B_L, findData);
-	closedir(fh);
-	return 0;
-}
-#endif /* WIN, LINUX, ETC */
-
-/*
-	Copy src to d,
-	Append subdir, if subdir != NULL,
-	Append '/' and '*' if wildcard != 0
-*/
-static void websMakePath(char *d, char *src, char *subdir, int wildcard)
-{
-	int		max;
-	char	*a;
-
-#if WIN
-	max = MAX_PATH - 4 - (subdir ? strlen(subdir) : 0);
-#else
-	max = PATH_MAX - 4 - (subdir ? strlen(subdir) : 0);
-#endif
-	for (a = src; *a != '\0' && (int)(a - src) < max; a++, d++) {
-		*d = *a;
-	}
-	if (*(d - 1) == '*') d -= 1;
-	if (subdir) {
-		if (*(d - 1) != '/') {
-			*d = '/'; d++;
-		}
-		for (a = subdir; *a != '\0'; a++) {
-			*d = *a; d++;
-		}
-	}
-	if (*(d - 1) != '/') {
-		*d = '/'; d++;
-	}
-	if (wildcard) {
-		*d = '*'; d++;
-	}
-	*d = '\0';
-}
-
-#endif /* WEBS_WHITELIST_SUPPORT */
-
-/******************************************************************************/

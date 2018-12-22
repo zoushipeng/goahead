@@ -1,10 +1,11 @@
 /*
  * Page.c -- Support for page retrieval.
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: page.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -26,16 +27,10 @@
 
 int websPageOpen(webs_t wp, char_t *lpath, char_t *path, int mode, int perm)
 {
-#if defined(WIN32)
-	errno_t	error;
-#endif
 	a_assert(websValid(wp));
 
 #ifdef WEBS_PAGE_ROM
 	return websRomPageOpen(wp, path, mode, perm);
-#elif defined(WIN32)
-	error = _sopen_s(&(wp->docfd), lpath, mode, _SH_DENYNO, _S_IREAD);
-	return (wp->docfd = gopen(lpath, mode, _S_IREAD));
 #else
 	return (wp->docfd = gopen(lpath, mode, perm));
 #endif /* WEBS_PAGE_ROM */

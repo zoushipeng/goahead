@@ -1,9 +1,4 @@
-#
-# Makefile for the GoAhead web server reference source base
-#  for the eCos OS
-#
-# Copyright (c) GoAhead Software, Inc. 1995-2010
-# 
+# eCos makefile
 
 all: compile
 
@@ -54,21 +49,15 @@ EXTRACXXFLAGS = $(EXTRACFLAGS) -fno-exceptions -fno-rtti -fvtable-gc -finit-prio
 #------------------- GoAheadWebServer stuff --------------------
 ARCH	= libwebs.a
 NAME	= webs
-OBJ_FILES	= ../asp.o ../balloc.o ../mime64.o ../default.o  \
+OBJ_FILES	= ../asp.o ../balloc.o ../base64.o ../default.o  \
 		  ../ejlex.o ../ejparse.o ../form.o \
 		  ../h.o ../handler.o ../mime.o ../misc.o ../page.o  \
 		  ../ringq.o ../rom.o \
 		  ../sock.o ../sockGen.o \
-          ../websSSL.o ../matrixSSLSocket.o \
 		  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
-          ../md5c.o ../um.o ../umui.o ../websda.o ../emfdb.o \
-		  ../webrom.o ../webs.o ../websuemf.o
+		  webrom.o ../webs.o ../websuemf.o
 DEPEND_FILES = $(patsubst %.o,%.d,$(OBJ_FILES) main.o)
-CFLAGS	+= -DWEBS -DWEBS_PAGE_ROM -DOS="eCos" -DECOS -D__ECOS -D__NO_FCNTL=1 -I..
-
-#SSLINC = ../../matrixssl
-#SSLLIB = ../../matrixssl/src/libmatrixsslstatic.a
-#CFLAGS += -DUSER_MANAGEMENT_SUPPORT -DDIGEST_ACCESS_SUPPORT -DWEBS_SSL_SUPPORT -I$(SSLINC)
+CFLAGS	+= -DWEBS -DUEMF -DWEBS_PAGE_ROM -DOS="eCos" -DECOS -D__ECOS -D__NO_FCNTL=1 -I..
 
 .PHONY: depend clean
 
@@ -98,7 +87,7 @@ clean:
 # This tool needs to be built using the native C compiler
 #
 webcomp:
-	cc -o webcomp -O2 -DWEBS -DOS="Linux" -DLINUX -I.. ../webcomp.c
+	cc -o webcomp -O2 -DWEBS -DUEMF -DOS="Linux" -DLINUX -I.. ../webcomp.c
 
 #
 # Build a set of ROMable pages

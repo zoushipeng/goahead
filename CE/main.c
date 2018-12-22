@@ -1,10 +1,11 @@
 /*
  * main.c -- Main program for the GoAhead WebServer
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: main.c,v 1.3 2002/01/24 21:57:47 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -38,8 +39,7 @@ static HWND			hwnd;							/* Window handle */
 static int			sockServiceTime = 1000;			/* milliseconds */
 static char_t		*title = T("GoAhead WebServer");/* Window title */
 static char_t		*name = T("gowebs");			/* Window name */
-static char_t		*rootWeb = T("/www");			/* Root web directory */
-static char_t		*demoWeb = T("/wwwdemo");		/* Root web directory */
+static char_t		*rootWeb = T("web");			/* Root web directory */
 static char_t		*password = T("");				/* Security password */
 static int			port = 80;						/* Server port */
 static int			retries = 5;					/* Server port retries */
@@ -47,7 +47,7 @@ static int			finished;						/* Finished flag */
 
 /****************************** Forward Declarations **************************/
 
-static int 	initWebs(int demo);
+static int 	initWebs();
 static long	CALLBACK websWindProc(HWND hwnd, unsigned int msg, 
 				unsigned int wp, long lp);
 static int	aspTest(int eid, webs_t wp, int argc, char_t **argv);
@@ -55,6 +55,8 @@ static void formTest(webs_t wp, char_t *path, char_t *query);
 static int	windowsInit(HINSTANCE hinstance);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 			int arg, char_t *url, char_t *path, char_t *query);
+extern void defaultErrorHandler(int etype, char_t *msg);
+extern void defaultTraceHandler(int level, char_t *buf);
 static void printMemStats(int handle, char_t *fmt, ...);
 static void memLeaks();
 
@@ -66,14 +68,6 @@ static void memLeaks();
 int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
 					LPTSTR args, int cmd_show)
 {
-	int i, demo = 0;
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-demo") == 0) {
-			demo++;
-		}
-	}
-
 /*
  *	Initialize the memory allocator. Allow use of malloc and start 
  *	with a 60K heap.  For each page request approx 8KB is allocated.
@@ -92,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
 /*
  *	Initialize the web server
  */
-	if (initWebs(demo) < 0) {
+	if (initWebs() < 0) {
 		return FALSE;
 	}
 
@@ -141,7 +135,7 @@ int WINAPI WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
  *	Initialize the web server.
  */
 
-static int initWebs(int demo)
+static int initWebs()
 {
 	struct hostent *hp;
 	struct in_addr	intaddr;
@@ -180,11 +174,7 @@ static int initWebs(int demo)
 /*
  *	Set /web as the root web. Modify this to suit your needs
  */
-	if (demo) {
-		websSetDefaultDir(demoWeb);
-	} else {
-		websSetDefaultDir(rootWeb);
-	}
+	websSetDefaultDir(T("/web"));
 
 /*
  *	Set the IP address and host name.
@@ -359,6 +349,151 @@ static int websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 		return 1;
 	}
 	return 0;
+}
+
+/******************************************************************************/
+/*
+ *	Default error handler.  The developer should insert code to handle
+ *	error messages in the desired manner.
+ */
+
+void defaultErrorHandler(int etype, char_t *msg)
+{
+#if 0
+	write(1, msg, gstrlen(msg));
+#endif
+}
+
+/******************************************************************************/
+/*
+ *	Trace log. Customize this function to log trace output
+ */
+
+void defaultTraceHandler(int level, char_t *buf)
+{
+/*
+ *	The following code would write all trace regardless of level
+ *	to stdout.
+ */
+#if 0
+	if (buf) {
+		write(1, buf, gstrlen(buf));
+	}
+#endif
+}
+
+/******************************************************************************/
+/*
+ *	Returns a pointer to an allocated qualified unique temporary file name.
+ *	This filename must eventually be deleted with bfree().
+ */
+
+char_t *websGetCgiCommName()
+{
+/* 
+ *	tmpnam, tempnam, tmpfile not supported for CE 2.12 or lower.  The Win32 API
+ *	GetTempFileName is scheduled to be part of CE 3.0.
+ */
+#if 0	
+	char_t	*pname1, *pname2;
+
+	pname1 = gtmpnam(NULL, T("cgi"));
+	pname2 = bstrdup(B_L, pname1);
+	free(pname1);
+	return pname2;
+#endif
+	return NULL;
+}
+
+/******************************************************************************/
+/*
+ *	Launch the CGI process and return a handle to it.
+ *	CE note: This function is not complete.  The missing piece is the ability
+ *	to redirect stdout.
+ */
+
+int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, 
+					  char_t *stdIn, char_t *stdOut)
+{
+    PROCESS_INFORMATION	procinfo;		/*  Information about created proc   */
+    DWORD				dwCreateFlags;
+    char				*fulldir;
+	BOOL				bReturn;
+	int					i, nLen;
+
+/*
+ *	Replace directory delimiters with Windows-friendly delimiters
+ */
+	nLen = gstrlen(cgiPath);
+	for (i = 0; i < nLen; i++) {
+		if (cgiPath[i] == '/') {
+			cgiPath[i] = '\\';
+		}
+	}
+
+    fulldir = NULL;
+	dwCreateFlags = CREATE_NEW_CONSOLE;
+
+/*
+ *	CreateProcess returns errors sometimes, even when the process was    
+ *	started correctly.  The cause is not evident.  For now: we detect    
+ *	an error by checking the value of procinfo.hProcess after the call.  
+ */
+    procinfo.hThread = NULL;
+    bReturn = CreateProcess(
+        cgiPath,			/*  Name of executable module        */
+        NULL,				/*  Command line string              */
+        NULL,				/*  Process security attributes      */
+        NULL,				/*  Thread security attributes       */
+        0,					/*  Handle inheritance flag          */
+        dwCreateFlags,		/*  Creation flags                   */
+        NULL,				/*  New environment block            */
+        NULL,				/*  Current directory name           */
+        NULL,				/*  STARTUPINFO                      */
+        &procinfo);			/*  PROCESS_INFORMATION              */
+
+	if (bReturn == 0) {
+		DWORD dw;
+		dw = GetLastError();
+		return -1;
+	} else {
+		CloseHandle(procinfo.hThread);
+	}
+    return (int) procinfo.dwProcessId;
+}
+
+/******************************************************************************/
+/*
+ *	Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
+ */
+
+int websCheckCgiProc(int handle)
+{
+#if 0
+	HANDLE	hCgi;
+
+	hCgi = OpenProcess(0, FALSE, (DWORD)handle);
+	if (hCgi != NULL) {
+		CloseHandle(hCgi);
+		return 1;
+	}
+	return 0;
+#endif
+
+	int		nReturn;
+	DWORD	exitCode;
+
+	nReturn = GetExitCodeProcess((HANDLE)handle, &exitCode);
+/*
+ *	We must close process handle to free up the window resource, but only
+ *  when we're done with it.
+ */
+	if ((nReturn == 0) || (exitCode != STILL_ACTIVE)) {
+		CloseHandle((HANDLE)handle);
+		return 0;
+	}
+
+	return 1;
 }
 
 /******************************************************************************/

@@ -1,10 +1,11 @@
 /*
  * main.c -- Main program for the GoAhead WebServer (eCos version)
  *
- * Copyright (c) Go Ahead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) Go Ahead Software Inc., 1995-1999. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: main.c,v 1.3 2002/01/24 21:57:47 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -38,6 +39,8 @@ static int	aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 				int arg, char_t* url, char_t* path, char_t* query);
+extern void defaultErrorHandler(int etype, char_t *msg);
+extern void defaultTraceHandler(int level, char_t *buf);
 
 #ifdef B_STATS
 #error WARNING:  B_STATS directive is not supported in this OS!
@@ -111,7 +114,7 @@ static int initWebs()
 /*
  *	Configure the web server options before opening the web server
  */
-	websSetDefaultDir("/www");
+	websSetDefaultDir("/");
 	cp = inet_ntoa(eth0_bootp_data.bp_yiaddr);
 	ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
 	websSetIpaddr(wbuf);
@@ -121,7 +124,7 @@ static int initWebs()
 /*
  *	Configure the web server options before opening the web server
  */
-	websSetDefaultPage(T("home.htm"));
+	websSetDefaultPage(T("default.asp"));
 	websSetPassword(password);
 
 /* 
@@ -209,6 +212,35 @@ static int websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 		return 1;
 	}
 	return 0;
+}
+
+/******************************************************************************/
+/*
+ *	Default error handler.  The developer should insert code to handle
+ *	error messages in the desired manner.
+ */
+
+void defaultErrorHandler(int etype, char_t *msg)
+{
+	diag_printf(msg);
+}
+
+/******************************************************************************/
+/*
+ *	Trace log. Customize this function to log trace output
+ */
+
+void defaultTraceHandler(int level, char_t *buf)
+{
+/*
+ *	The following code would write all trace regardless of level
+ *	to stdout.
+ */
+#if 0
+	if (buf) {
+		write(1, buf, gstrlen(buf));
+	}
+#endif
 }
 
 /******************************************************************************/

@@ -1,10 +1,11 @@
 /*
  *	emfdb.h -- EMF database compatability functions for GoAhead WebServer.
  *
- *	Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ *	Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  *	See the file "license.txt" for usage and redistribution license requirements
  *
+ *	$Id: emfdb.h,v 1.2 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -17,7 +18,12 @@
 #ifndef _h_EMFDB
 #define _h_EMFDB 1
 
-#include	"uemf.h"
+#ifndef UEMF
+	#include	"basic/basic.h"
+	#include	"emf/emf.h"
+#else
+	#include	"uemf.h"
+#endif
 
 
 /********************************* Defines ************************************/
@@ -34,12 +40,6 @@
 #define		DB_ERR_TABLE_NOT_FOUND	-6
 #define		DB_ERR_TABLE_DELETED	-7
 #define		DB_ERR_BAD_FORMAT		-8
-
-/*
- * 30 Jun 03 BgP -- pass DB_CASE_INSENSITIVE as the "flags" argument to
- * dbSearchString() to force a case-insensitive search.
- */
-#define     DB_CASE_INSENSITIVE  1
 
 typedef struct dbTable_s {
 	char_t	*name;
@@ -87,8 +87,6 @@ extern int		dbLoad(int did, char_t *filename, int flags);
 
 /*
  *	Search for a data in a given column
- *	30 Jun 03 BgP: If the value of 'flags' is DB_CASE_INSENSITIVE, use a
- *	case-insensitive string compare when searching.
  */
 extern int		dbSearchStr(int did, char_t *table, char_t *column,
 					char_t *value, int flags);

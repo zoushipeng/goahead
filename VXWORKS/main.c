@@ -1,10 +1,11 @@
 /*
  * main.c -- Main program for the GoAhead WebServer (VxWorks version)
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: main.c,v 1.3 2002/01/24 21:57:47 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -42,8 +43,7 @@ void	formDefineUserMgmt(void);
  */
 #define				ROOT_DIR		T("/ata0/webs")
 
-static char_t		*rootWeb = T("www");			/* Root web directory */
-static char_t		*demoWeb = T("wwwdemo");		/* Root web directory */
+static char_t		*rootWeb = T("web");			/* Root web directory */
 static char_t		*password = T("");				/* Security password */
 static int			port = 80;						/* Server port */
 static int			retries = 5;					/* Server port retries */
@@ -51,12 +51,16 @@ static int			finished;						/* Finished flag */
 
 /****************************** Forward Declarations **************************/
 
-static int 	initWebs(int demo);
+static int 	initWebs();
 static int	aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 				int arg, char_t *url, char_t *path, char_t *query);
+static void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv),
+				char_t **argv, char_t **envp, char_t *stdIn, char_t *stdOut);
 static void websTermSigHandler(int signo);
+extern void defaultErrorHandler(int etype, char_t *msg);
+extern void defaultTraceHandler(int level, char_t *buf);
 #ifdef B_STATS
 static void printMemStats(int handle, char_t *fmt, ...);
 static void memLeaks();
@@ -69,14 +73,6 @@ static void memLeaks();
 
 int websvxmain(int argc, char **argv)
 {
-	int i, demo = 0;
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-demo") == 0) {
-			demo++;
-		}
-	}
-
 /*
  *	Initialize the memory allocator. Allow use of malloc and start 
  *	with a 60K heap.  For each page request approx 8KB is allocated.
@@ -89,7 +85,7 @@ int websvxmain(int argc, char **argv)
  *	Initialize the web server
  */
 	finished = 0;
-	if (initWebs(demo) < 0) {
+	if (initWebs() < 0) {
 		return -1;
 	}
 
@@ -122,6 +118,7 @@ int websvxmain(int argc, char **argv)
  *	Close the socket module, report memory leaks and close the memory allocator
  */
 	websCloseServer();
+	websDefaultClose();
 	socketClose();
 	symSubClose();
 #ifdef B_STATS
@@ -136,7 +133,7 @@ int websvxmain(int argc, char **argv)
  *	Initialize the web server.
  */
 
-static int initWebs(int demo)
+static int initWebs()
 {
 	struct in_addr	intaddr;
 	char			*pString;
@@ -171,11 +168,7 @@ static int initWebs(int demo)
 /*
  *	Set ../web as the root web. Modify this to suit your needs
  */
-	if (demo) {
-		sprintf(webdir, "%s/%s", ROOT_DIR, demoWeb);
-	} else {
-		sprintf(webdir, "%s/%s", ROOT_DIR, rootWeb);
-	}
+	sprintf(webdir, "%s/%s", ROOT_DIR, rootWeb);
 
 /*
  *	Configure the web server options before opening the web server
@@ -296,6 +289,252 @@ static int websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 
 /******************************************************************************/
 /*
+ *	Returns a pointer to an allocated qualified unique temporary file name.
+ *	This filename must eventually be deleted with bfree();
+ */
+
+char_t *websGetCgiCommName()
+{
+	char_t	*tname, buf[FNAMESIZE];
+
+	fmtAlloc(&tname,FNAMESIZE, T("%s/%s"), ggetcwd(buf, FNAMESIZE),
+			tmpnam(NULL));
+	return tname;
+}
+
+/******************************************************************************/
+/*
+ *	Launch the CGI process and return a handle to it. Process spawning
+ *	is not supported in VxWorks.  Instead, we spawn a "task".  A major
+ *	difference is that we have to know the entry point for the taskSpawn
+ *	API.  Also the module may have to be loaded before being executed;
+ *	it may also be part of the OS image, in which case it cannot be 
+ *	loaded or unloaded.  The following sequence is used:
+ *	1. If the module is already loaded, unload it from memory.
+ *	2. Search for a query string keyword=value pair in the environment 
+ *		variables where the keyword	is cgientry.  If found use its value
+ *		as the the entry point name.  If there is no such pair set 
+ *		the entry point name to the default: basename_cgientry, where
+ *		basename is the name of the cgi file without the extension.  Use
+ *		the	entry point name in a symbol table search for that name to
+ *		use as the entry point address.  If successful go to step 5.
+ *	3. Try to load the module into memory.  If not successful error out.
+ *	4. If step 3 is successful repeat the entry point search from step
+ *		2.  If the entry point exists, go to step 5.  If it does not,
+ *		error out.
+ *	5. Use taskSpawn to start a new task which uses vxWebsCgiEntry 
+ *		as its starting point.  The five arguments to vxWebsCgiEntry
+ *		will be the user entry point address, argp, envp, stdIn
+ *		and stdOut.  vxWebsCgiEntry will convert argp to an argc
+ *		argv pair to pass to the user entry, it will initialize the
+ *		task environment with envp, it will open and redirect stdin
+ *		and stdout to stdIn and stdOut, and	then it will call the
+ *		user entry.
+ *	6.	Return the taskSpawn return value.
+ */
+
+int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp,
+					  char_t *stdIn, char_t *stdOut)
+{
+	SYM_TYPE	ptype;
+	char_t		*p, *basename, *pEntry, *pname, *entryAddr, **pp;
+	int			priority, rc, fd;
+
+/*
+ *	Determine the basename, which is without path or the extension.
+ */
+	if ((int)(p = gstrrchr(cgiPath, '/') + 1) == 1) {
+		p = cgiPath;
+	}
+	basename = bstrdup(B_L, p);
+	if ((p = gstrrchr(basename, '.')) != NULL) {
+		*p = '\0';
+	}
+
+/*
+ *	Unload the module, if it is already loaded.  Get the current task
+ *	priority.
+ */
+	unld(cgiPath, 0);
+	taskPriorityGet(taskIdSelf(), &priority);
+	rc = fd = -1;
+
+/*
+ *	Set the entry point symbol name as described above.  Look for an already
+ *	loaded entry point; if it exists, spawn the task accordingly.
+ */
+	for (pp = envp, pEntry = NULL; pp != NULL && *pp != NULL; pp++) {
+		if (gstrncmp(*pp, T("cgientry="), 9) == 0) {
+			pEntry = bstrdup(B_L, *pp + 9);
+			break;
+		}
+	}
+	if (pEntry == NULL) {
+		fmtAlloc(&pEntry, LF_PATHSIZE, T("%s_%s"), basename, T("cgientry"));
+	}
+
+	entryAddr = 0;
+	if (symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype) == -1) {
+		fmtAlloc(&pname, VALUE_MAX_STRING, T("_%s"), pEntry);
+		symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
+		bfreeSafe(B_L, pname);
+	}
+	if (entryAddr != 0) {
+		rc = taskSpawn(pEntry, priority, 0, 20000, (void *)vxWebsCgiEntry,
+			(int)entryAddr, (int)argp, (int)envp, (int)stdIn, (int)stdOut,
+			0, 0, 0, 0, 0);
+		goto DONE;
+	}
+
+/*
+ *	Try to load the module.
+ */
+	if ((fd = gopen(cgiPath, O_RDONLY | O_BINARY, 0666)) < 0 ||
+		loadModule(fd, LOAD_GLOBAL_SYMBOLS) == NULL) {
+		goto DONE;
+	}
+	if ((symFindByName(sysSymTbl, pEntry, &entryAddr, &ptype)) == -1) {
+		fmtAlloc(&pname, VALUE_MAX_STRING, T("_%s"), pEntry);
+		symFindByName(sysSymTbl, pname, &entryAddr, &ptype);
+		bfreeSafe(B_L, pname);
+	}
+	if (entryAddr != 0) {
+		rc = taskSpawn(pEntry, priority, 0, 20000, (void *)vxWebsCgiEntry,
+			(int)entryAddr, (int)argp, (int)envp, (int)stdIn, (int)stdOut,
+			0, 0, 0, 0, 0);
+	}
+
+DONE:
+	if (fd != -1) {
+		gclose(fd);
+	}
+	bfree(B_L, basename);
+	bfree(B_L, pEntry);
+	return rc;
+}
+
+/******************************************************************************/
+/*
+ *	This is the CGI process wrapper.  It will open and redirect stdin
+ *	and stdout to stdIn and stdOut.  It converts argv to an argc, argv
+ *	pair to pass to the user entry. It initializes the task environment
+ *	with envp strings.  Then it will call the user entry. 
+ */
+
+void vxWebsCgiEntry(void *entryAddr(int argc, char_t **argv),
+					char_t **argp, char_t **envp,
+					char_t *stdIn, char_t *stdOut)
+{
+	char_t	**p;
+	int		argc, taskId, fdin, fdout;
+
+/*
+ *	Open the stdIn and stdOut files and redirect stdin and stdout
+ *	to them.
+ */
+	taskId = taskIdSelf();
+	if ((fdout = gopen(stdOut, O_RDWR | O_CREAT, 0666)) < 0 &&
+		(fdout = creat(stdOut, O_RDWR)) < 0) {
+			exit(0);
+	}
+	ioTaskStdSet(taskId, 1, fdout);
+
+	if ((fdin = gopen(stdIn, O_RDONLY | O_CREAT, 0666)) < 0 &&
+		(fdin = creat(stdIn, O_RDWR)) < 0) {
+		printf("content-type: text/html\n\n"
+				"Can not create CGI stdin to %s\n", stdIn);
+		gclose(fdout);
+		exit (0);
+	}
+	ioTaskStdSet(taskId, 0, fdin);
+	
+/*
+ *	Count the number of entries in argv
+ */
+	for (argc = 0, p = argp; p != NULL && *p != NULL; p++, argc++) {
+	}
+
+/*
+ *	Create a private envirnonment and copy the envp strings to it.
+ */
+	if (envPrivateCreate(taskId, -1) != OK) {
+		printf("content-type: text/html\n\n"
+				"Can not create CGI environment space\n");
+		gclose(fdin);
+		gclose(fdout);
+		exit (0);
+	}
+	for (p = envp; p != NULL && *p != NULL; p++) {
+		putenv(*p);
+	}
+
+/*
+ *	Call the user entry.
+ */
+	(*entryAddr)(argc, argp);
+
+/*
+ *	The user code should return here for cleanup.
+ */
+
+	envPrivateDestroy(taskId);
+	gclose(fdin);
+	gclose(fdout);
+	exit(0);
+}
+
+/******************************************************************************/
+/*
+ *	Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
+ */
+
+int websCheckCgiProc(int handle)
+{
+	STATUS stat;
+/*
+ *	Verify the existence of a VxWorks task
+ */
+	stat = taskIdVerify(handle);
+
+	if (stat == OK) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+/******************************************************************************/
+/*
+ *	Default error handler.  The developer should insert code to handle
+ *	error messages in the desired manner.
+ */
+void defaultErrorHandler(int etype, char_t *msg)
+{
+#if 0
+	write(1, msg, gstrlen(msg));
+#endif
+}
+
+/******************************************************************************/
+/*
+ *	Trace log. Customize this function to log trace output
+ */
+
+void defaultTraceHandler(int level, char_t *buf)
+{
+/*
+ *	The following code would write all trace regardless of level
+ *	to stdout.
+ */
+#if 0
+	if (buf) {
+		write(1, buf, gstrlen(buf));
+	}
+#endif
+}
+
+/******************************************************************************/
+/*
  *	Signal handler.  Process the terminate signals SIGTERM and SIGKILL.
  *	If the signal is SIGTERM, just set the flag so the next time
  *	through the event loop, the webserver will terminate itself cleanly.
@@ -315,6 +554,7 @@ static void websTermSigHandler(int signo)
 		umClose();
 #endif
 		websCloseServer();
+		websDefaultClose();
 		socketClose();
 		symSubClose();
 #ifdef B_STATS

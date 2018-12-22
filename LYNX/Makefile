@@ -1,53 +1,47 @@
 #
 # Makefile for the GoAhead web server reference source base
 #
-# Copyright (c) GoAhead Software, Inc. 1995-2010
+# Copyright (c) GoAhead Software, Inc. 1995-2000
 #
 # Lynx Platform
 #
+# $Id: Makefile,v 1.2 2002/11/01 16:23:13 mmitchell Exp $
 #
 
 all:	compile 
 
 # User Management switch
 UMSW	= -DUSER_MANAGEMENT_SUPPORT
-
 # Digest Access switch
 DASW	= -DDIGEST_ACCESS_SUPPORT
-
 ARCH	= libwebs.a
 NAME	= webs
 
-#
-# This is set by the debug target below
-#
-ifdef WEBS_DEBUG
-DFLAGS  = -g -Wall -Winline -Wdisabled-optimization -DDEBUG
-else
-DFLAGS  = -Os
-endif
-
-debug:
-	@$(MAKE) compile "WEBS_DEBUG = 1"
-
-gold:
-	@$(MAKE) compile
-
-default: gold
 
 #
-#   Enable SSL build if MatrixSSL package found in root source directory
-#   (if automation is not working, simply define SSLINC, SSLLIB, and SSLSW)
+#	SSL switches
 #
-matrixsslDir:=$(shell ls -d ../matrixssl-3-1*/)
-ifdef matrixsslDir
-SSLINC = $(matrixsslDir)
-SSLLIB = $(matrixsslDir)libmatrixssl.a
-SSLSW = -DWEBS_SSL_SUPPORT -DPOSIX -I$(SSLINC)
-OPT_FILES = ../matrixSSLSocket.o ../websSSL.o
-else
-OPT_FILES = ../md5c.o
-endif
+# You must uncomment this line to enable SSL
+# SSLPATCHFILE = ../websSSL.o
+#
+# Then uncomment these three lines if you are using the RSAREF library
+# and set them to the correct path.
+#
+# SSLINC = /RSASSL/library/include
+# SSLLIB = /RSASSL/library/lib/libsslc.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC)
+#
+# Or alternatively,
+#
+# Uncomment these three lines if you are using the OpenSSL library.
+# Change the value of SSLINC to the path where your OpenSSL header
+# files reside, and change the value of SSLLIB to the path to your
+# OpenSSL libssl.a and libcrypto.a.
+#
+# SSLINC = /usr/include/openssl
+# SSLLIB = /usr/lib/libssl.a /usr/lib/libcrypto.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC) -DOPENSSL
+
 
 # If-Modified-Support switches (requires math library, libm.a)
 # IFMODSW = -DWEBS_IF_MODIFIED_SUPPORT
@@ -55,17 +49,19 @@ endif
 
 
 # Dependencies
-DEPEND_FILES	= $(OPT_FILES) ../asp.o ../balloc.o ../mime64.o \
-				../cgi.o ../default.o  ../ejlex.o ../ejparse.o ../form.o \
+DEPEND_FILES	= ../asp.o ../balloc.o ../base64.o ../cgi.o ../default.o  \
+				  ../ejlex.o ../ejparse.o ../form.o \
 				  ../h.o ../handler.o ../mime.o ../misc.o ../page.o  \
-				  ../ringq.o ../rom.o ../sock.o ../sockGen.o \
+				  ../ringq.o ../rom.o \
+				  ../sock.o ../sockGen.o $(SSLPATCHFILE) \
 				  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
-				  ../um.o ../umui.o ../websda.o ../emfdb.o \
+				  ../md5c.o ../um.o ../umui.o ../websda.o ../emfdb.o \
 				  ../webrom.o ../webs.o ../websuemf.o main.o
-CFLAGS	= -DWEBS -DOS="LYNX" -DLYNX $(UMSW) $(DASW) $(SSLSW) $(IFMODSW)
-OTHERS	= -DB_STATS -DB_FILL
+CFLAGS	= -DWEBS -DUEMF -DOS="LYNX" -DLYNX $(UMSW) $(DASW)
+OTHERS	= -DB_STATS -DB_FILL -DDEBUG
+DEBUG	= -g -Wall
 IFLAGS 	= -I.. 
-LDFLAGS	= -Wl -lbsd $(SSLLIB) $(IFMODLIB)
+LDFLAGS	= -Wl -lbsd 
 
 compile: $(NAME)
 
@@ -79,7 +75,7 @@ $(ARCH): $(DEPEND_FILES)
 #	Primary link
 #
 $(NAME): Makefile $(ARCH)
-	$(CC) -o $(NAME) $(DFLAGS) \
+	$(CC) -o $(NAME) $(DEBUG) \
 		$(CFLAGS) $(IFLAGS) \
 		main.o $(ARCH) $(LDFLAGS) 
 
@@ -93,7 +89,7 @@ clean:
 
 ../balloc.o: ../balloc.c ../uemf.h
 
-../mime64.o:  ../mime64.c ../webs.h ../wsIntrn.h  ../ej.h ../ejIntrn.h ../uemf.h
+../base64.o:  ../base64.c ../webs.h ../wsIntrn.h  ../ej.h ../ejIntrn.h ../uemf.h
 
 ../cgi.o:  ../webs.h ../wsIntrn.h ../uemf.h
 
@@ -129,10 +125,6 @@ clean:
 
 ../security.o:  ../security.c ../webs.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
 
-../sock.o:  ../sock.c ../uemf.h
-
-../sockGen.o:  ../sockGen.c ../uemf.h
-
 ../sym.o:  ../sym.c ../uemf.h
 
 ../uemf.o:  ../uemf.c ../uemf.h
@@ -153,7 +145,7 @@ clean:
 
 ../websuemf.o:  ../websuemf.c ../webs.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
 
-../websSSL.o:  ../websSSL.c ../websSSL.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
+socket.o:  socket.c ./../uemf.h
 
 main.o:  main.c ../wsIntrn.h ../webs.h ../ej.h ../ejIntrn.h ../uemf.h
 
@@ -161,4 +153,4 @@ main.o:  main.c ../wsIntrn.h ../webs.h ../ej.h ../ejIntrn.h ../uemf.h
 #	Transition rules (add -o to put object in right directory)
 #
 .c.o:
-	cc -c -o $@ $(DFLAGS) $(CFLAGS) $(IFLAGS) $<
+	cc -c -o $@ $(DEBUG) $(CFLAGS) $(IFLAGS) $<

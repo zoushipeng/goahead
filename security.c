@@ -1,10 +1,11 @@
 /*
  * security.c -- Security handler
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: security.c,v 1.8 2002/12/30 15:36:35 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -157,15 +158,9 @@ int websSecurityHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
 			a_assert(digestCalc);
 
 			if (gstrcmp(wp->digest, digestCalc) != 0) {
-				bfree (B_L, digestCalc);
-				digestCalc = websCalcUrlDigest(wp);
-				a_assert(digestCalc);
-				if (gstrcmp(wp->digest, digestCalc) != 0) {
-					websStats.access++;
-
-					websError(wp, 401, T("Access Denied\nWrong Password"));
-					nRet = 1;
-				}
+				websStats.access++;
+				websError(wp, 405, T("Access Denied\nWrong Password"));
+				nRet = 1;
 			}
 
 			bfree (B_L, digestCalc);

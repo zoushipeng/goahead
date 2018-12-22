@@ -1,8 +1,10 @@
 /*
- *	wincompat.h -- GoAhead compatibility header for CE
+ *	wincompat.h -- Go Ahead compatibility header for CE
  *
- *	Copyright (c) Go Ahead Software, Inc., 1995-2010
+ *	Copyright (c) Go Ahead Software, Inc., 1995-2000
  *
+ *
+ * $Id: wincompat.h,v 1.2 2001/12/06 16:28:24 bporter Exp $
  */
 
 #ifndef _h_WINCOMPAT
@@ -88,29 +90,19 @@ int _waccess(const unsigned short* path, int mode);
 int _wchdir(unsigned short* path);
 int _wexecvp(unsigned short *path, unsigned short** argv);
 int umask(int mode);
-#if 0
-/* 10 Apr 03 BgP -- CE.NET work. The following functions are now directly supported by CE, 
-   so we do not need these compatibility versions.
-*/
 int	isupper(int c);
 int	islower(int c);
 int	isdigit(int c);
 int	isspace(int c);
 int	isprint(int c);
 int isxdigit(int c);
-#endif
+
 /*
  * the following replaces stat.h
  */
 struct _stat {
-#if 0
 	unsigned long st_size;	/* file size in bytes				*/
 	unsigned long st_mode;
-#else
-   /* 11 Apr 03 BgP -- fixing an unsigned/signed comparison error */
-	long st_size;	/* file size in bytes				*/
-	long st_mode;
-#endif
 	time_t st_atime;		/* time of last access				*/
 	time_t st_mtime;		/* time of last data modification	*/
 	time_t st_ctime;		/* time of last file status change	*/

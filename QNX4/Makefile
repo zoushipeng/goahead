@@ -1,10 +1,10 @@
 #
 # Makefile for the GoAhead web server reference source base
 #
-# Copyright (c) GoAhead Software, Inc. 1995-2010
+# Copyright (c) GoAhead Software, Inc. 1995-2000
 #
-# Ported to QNX by Chooho Lee, Brown Computer Company.
-# (http://www.browncomputer.com)
+# Ported to QNX by Chooho Lee, Brown Computer Company. (http://www.browncomputer.com)
+#
 # Email to chlee@browncomputer.com (Chooho Lee) for any question and bug report.
 # 
 
@@ -20,24 +20,40 @@ UMSW	= -DUSER_MANAGEMENT_SUPPORT
 DASW	= -DDIGEST_ACCESS_SUPPORT
 
 #
-#   SSL switches
-#   Comment the following 3 lines out to disable SSL
+#	SSL switches
 #
-SSLINC = ../../matrixssl
-SSLLIB = ../../matrixssl/src/libmatrixsslstatic.a
-SSLSW   = -DWEBS_SSL_SUPPORT -I$(SSLINC)
+# You must uncomment this line to enable SSL
+# SSLPATCHFILE = ../websSSL.o
+#
+# Then uncomment these three lines if you are using the RSAREF library
+# and set them to the correct path.
+#
+# SSLINC = /RSASSL/library/include
+# SSLLIB = /RSASSL/library/lib/libsslc.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC)
+#
+# Or alternatively,
+#
+# Uncomment these three lines if you are using the OpenSSL library.
+# Change the value of SSLINC to the path where your OpenSSL header
+# files reside, and change the value of SSLLIB to the path to your
+# OpenSSL libssl.a and libcrypto.a.
+#
+# SSLINC = /usr/include/openssl
+# SSLLIB = /usr/lib/libssl.a /usr/lib/libcrypto.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC) -DOPENSSL
+
 
 # Dependencies
-DEPEND_FILES	= ../asp.o ../balloc.o ../mime64.o ../cgi.o ../default.o  \
+DEPEND_FILES	= ../asp.o ../balloc.o ../base64.o ../cgi.o ../default.o  \
 				  ../ejlex.o ../ejparse.o ../form.o \
 				  ../h.o ../handler.o ../mime.o ../misc.o ../page.o  \
 				  ../ringq.o ../rom.o \
-				  ../sock.o ../sockGen.o \
-				  ../websSSL.o ../matrixSSLSocket.o \
+				  ../sock.o ../sockGen.o $(SSLPATCHFILE) \
 				  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
 				  ../md5c.o ../um.o ../umui.o ../websda.o ../emfdb.o \
 				  ../webrom.o ../webs.o ../websuemf.o main.o
-CFLAGS	= -DWEBS -DOS="QNX4" -DQNX4 $(UMSW) $(DASW) $(SSLSW)
+CFLAGS	= -DWEBS -DUEMF -DOS="QNX4" -DQNX4 $(UMSW) $(DASW) $(SSLSW)
 OTHERS	= -DB_STATS -DB_FILL -DDEBUG
 DEBUG	= -g -w2
 IFLAGS 	= -I.. 
@@ -69,7 +85,7 @@ clean:
 
 ./balloc.o: ../balloc.c ../uemf.h
 
-./mime64.o:  ../mime64.c ../webs.h ../wsIntrn.h  ../ej.h ../ejIntrn.h ../uemf.h
+./base64.o:  ../base64.c ../webs.h ../wsIntrn.h  ../ej.h ../ejIntrn.h ../uemf.h
 
 ./cgi.o:  ../cgi.c ../webs.h ../wsIntrn.h ../uemf.h
 

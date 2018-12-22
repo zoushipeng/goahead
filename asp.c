@@ -1,10 +1,11 @@
 /*
  * asp.c -- Active Server Page Support
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: asp.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -98,10 +99,10 @@ int websAspRequest(webs_t wp, char_t *lpath)
 		websError(wp, 200, T("Can't create Ejscript engine"));
 		goto done;
 	}
-	ejSetUserHandle(ejid, wp);
+	ejSetUserHandle(ejid, (int) wp);
 
 	if (websPageStat(wp, lpath, path, &sbuf) < 0) {
-		websError(wp, 404, T("Can't stat %s"), lpath);
+		websError(wp, 200, T("Can't stat %s"), lpath);
 		goto done;
 	}
 
@@ -181,9 +182,9 @@ int websAspRequest(webs_t wp, char_t *lpath)
 			if (*nextp) {
 				result = NULL;
 				if (engine == EMF_SCRIPT_EJSCRIPT) {
-					rc = scriptEval(engine, nextp, &result, (void *) ejid);
+					rc = scriptEval(engine, nextp, &result, ejid);
 				} else {
-					rc = scriptEval(engine, nextp, &result, wp);
+					rc = scriptEval(engine, nextp, &result, (int) wp);
 				}
 				if (rc < 0) {
 /*

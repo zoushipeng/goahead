@@ -2,8 +2,9 @@
 /*
  *	sockGen.c -- Posix Socket support module for general posix use
  *
- *	Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ *	Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
+ * $Id: sockGen.c,v 1.5 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -16,14 +17,20 @@
 #if (!defined (WIN) || defined (LITTLEFOOT) || defined (WEBS))
 
 /********************************** Includes **********************************/
-#ifndef CE
+
 #include	<errno.h>
 #include	<fcntl.h>
 #include	<string.h>
 #include	<stdlib.h>
-#endif
 
-#include	"uemf.h"
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	<socket.h>
+	#include	<types.h>
+	#include	<unistd.h>
+	#include	"emfInternal.h"
+#endif
 
 #ifdef VXWORKS
 	#include	<hostLib.h>
@@ -221,8 +228,9 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 			if (! (sp->flags & SOCKET_BLOCK)) {
 /*
  *				sockGen.c is only used for Windows products when blocking
- *				connects are expected.  This applies to webserver connectws. 
- *				Therefore the asynchronous connect code here is not compiled.
+ *				connects are expected.  This applies to FieldUpgrader
+ *				agents and open source webserver connectws.  Therefore the
+ *				asynchronous connect code here is not compiled.
  */
 #if (defined (WIN) || defined (CE)) && (!defined (LITTLEFOOT) && !defined (WEBS))
 				int flag;
@@ -275,7 +283,12 @@ int socketOpenConnection(char *host, int port, socketAccept_t accept, int flags)
 				socketFree(sid);
 				return -1;
 			}
+#ifndef UEMF
+			sp->fileHandle = emfCreateFileHandler(sp->sock, SOCKET_READABLE,
+				(emfFileProc *) socketAccept, (void *) sp);
+#else
 			sp->flags |= SOCKET_LISTENING;
+#endif
 		}
 		sp->handlerMask |= SOCKET_READABLE;
 	}
@@ -354,8 +367,7 @@ static void socketAccept(socket_t *sp)
  *	Accept the connection and prevent inheriting by children (F_SETFD)
  */
 	len = sizeof(struct sockaddr_in);
-	if ((newSock = 
-		accept(sp->sock, (struct sockaddr *) &addr, (socklen_t *) &len)) < 0) {
+	if ((newSock = accept(sp->sock, (struct sockaddr *) &addr, (int *) &len)) < 0) {
 		return;
 	}
 #ifndef __NO_FCNTL
@@ -435,7 +447,7 @@ int socketGetInput(int sid, char *buf, int toRead, int *errCode)
 	if (sp->flags & SOCKET_DATAGRAM) {
 		len = sizeof(server);
 		bytesRead = recvfrom(sp->sock, buf, toRead, 0,
-			(struct sockaddr *) &server, (socklen_t *) &len);
+			(struct sockaddr *) &server, &len);
 	} else {
 		bytesRead = recv(sp->sock, buf, toRead, 0);
 	}
@@ -467,6 +479,50 @@ int socketGetInput(int sid, char *buf, int toRead, int *errCode)
  *	Process an event on the event queue
  */
 
+#ifndef UEMF
+
+static int socketEventProc(void *data, int mask)
+{
+	socket_t		*sp;
+	ringq_t			*rq;
+	int 			sid;
+
+	sid = (int) data;
+
+	a_assert(sid >= 0 && sid < socketMax);
+	a_assert(socketList[sid]);
+
+	if ((sp = socketPtr(sid)) == NULL) {
+		return 1;
+	}
+
+/*
+ *	If now writable and flushing in the background, continue flushing
+ */
+	if (mask & SOCKET_WRITABLE) {
+		if (sp->flags & SOCKET_FLUSHING) {
+			rq = &sp->outBuf;
+			if (ringqLen(rq) > 0) {
+				socketFlush(sp->sid);
+			} else {
+				sp->flags &= ~SOCKET_FLUSHING;
+			}
+		}
+	}
+
+/*
+ *	Now invoke the users socket handler. NOTE: the handler may delete the
+ *	socket, so we must be very careful after calling the handler.
+ */
+	if (sp->handler && (sp->handlerMask & mask)) {
+		(sp->handler)(sid, mask & sp->handlerMask, sp->handler_data);
+	}
+	if (socketList && sid < socketMax && socketList[sid] == sp) {
+		socketRegisterInterest(sp, sp->handlerMask);
+	}
+	return 1;
+}
+#endif /* ! UEMF */
 
 /******************************************************************************/
 /*
@@ -478,6 +534,15 @@ void socketRegisterInterest(socket_t *sp, int handlerMask)
 	a_assert(sp);
 
 	sp->handlerMask = handlerMask;
+#ifndef UEMF
+	if (handlerMask) {
+		sp->fileHandle = emfCreateFileHandler(sp->sock, handlerMask,
+			(emfFileProc *) socketEventProc, (void *) sp->sid);
+	} else {
+		emfDeleteFileHandler(sp->fileHandle);
+		sp->fileHandle = -1;
+	}
+#endif /* ! UEMF */
 }
 
 /******************************************************************************/
@@ -671,7 +736,7 @@ int socketSelect(int sid, int timeout)
  *	Allocate and zero the select masks
  */
 	nwords = (socketHighestFd + NFDBITS) / NFDBITS;
-	len = nwords * sizeof(fd_mask);
+	len = nwords * sizeof(int);
 
 	readFds = balloc(B_L, len);
 	memset(readFds, 0, len);
@@ -929,11 +994,6 @@ int socketSetBlock(int sid, int on)
 		fcntl(sp->sock, F_SETFL, fcntl(sp->sock, F_GETFL) | O_NONBLOCK);
 #endif
 	}
-	/* Prevent SIGPIPE when writing to closed socket on OS X */
-#ifdef MACOSX
-	iflag = 1;
-	setsockopt(sp->sock, SOL_SOCKET, SO_NOSIGPIPE, (void *)&iflag, sizeof(iflag));
-#endif
 	return oldBlock;
 }
 

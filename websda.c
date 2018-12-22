@@ -1,16 +1,18 @@
 /*
  * websda.c -- Digest Access Authentication routines
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: websda.c,v 1.2 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
 
 /*
- *	Routines for generating DAA data.
+ *	Routines for generating DAA data.	The module uses the
+ *	"RSA Data Security, Inc. MD5 Message-Digest Algorithm" found in md5c.c
  */
 
 /********************************* Includes ***********************************/
@@ -21,7 +23,6 @@
 #include	"websda.h"
 #include	"md5.h"
 
-#ifdef DIGEST_ACCESS_SUPPORT
 /******************************** Local Data **********************************/
 
 #define RANDOMKEY	T("onceuponatimeinparadise")
@@ -36,7 +37,7 @@
 char *websMD5binary(unsigned char *buf, int length)
 {
     const char		*hex = "0123456789abcdef";
-    psDigestContext_t	md5ctx;
+    MD5_CONTEXT		md5ctx;
     unsigned char	hash[HASH_SIZE];
     char			*r, *strReturn;
 	char			result[(HASH_SIZE * 2) + 1];
@@ -45,9 +46,9 @@ char *websMD5binary(unsigned char *buf, int length)
 /*
  *	Take the MD5 hash of the string argument.
  */
-	psMd5Init(&md5ctx);
-	psMd5Update(&md5ctx, buf, (unsigned int)length);
-	psMd5Final(&md5ctx, hash);
+    MD5Init(&md5ctx);
+    MD5Update(&md5ctx, buf, (unsigned int)length);
+    MD5Final(hash, &md5ctx);
 
 /*
  *	Prepare the resulting hash string
@@ -65,9 +66,8 @@ char *websMD5binary(unsigned char *buf, int length)
 /*
  *	Allocate a new copy of the hash string
  */
-	i = elementsof(result);
-	strReturn = balloc(B_L, i);
-	strncpy(strReturn, result, i);
+	strReturn = balloc(B_L, sizeof(result));
+	strcpy(strReturn, result);
 
     return strReturn;
 }
@@ -123,14 +123,8 @@ char_t *websMD5(char_t *string)
 char_t *websCalcNonce(webs_t wp)
 {
 	char_t		*nonce, *prenonce;
-	time_t		longTime;
-#if defined(WIN32)
-	char_t		buf[26];
-	errno_t	error;
-	struct tm	newtime;
-#else
 	struct tm	*newtime;
-#endif
+	time_t		longTime;
 
 	a_assert(wp);
 /*
@@ -140,25 +134,18 @@ char_t *websCalcNonce(webs_t wp)
 /*
  *	Convert to local time.
  */
-#if !defined(WIN32)
 	newtime = localtime(&longTime);
-#else
-	
-	error = localtime_s(&newtime, &longTime);
-#endif
 /*
  *	Create prenonce string.
  */
-#if !defined(WIN32)
 	prenonce = NULL;
+#ifdef DIGEST_ACCESS_SUPPORT
 	fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime),
 		wp->realm); 
 #else
-	asctime_s(buf, elementsof(buf), &newtime);
-	fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, buf, 
+	fmtAlloc(&prenonce, 256, T("%s:%s:%s"), RANDOMKEY, gasctime(newtime), 
 		RANDOMKEY); 
 #endif
-
 	a_assert(prenonce);
 /*
  *	Create the nonce
@@ -196,6 +183,7 @@ char_t *websCalcOpaque(webs_t wp)
 
 char_t *websCalcDigest(webs_t wp)
 {
+#ifdef DIGEST_ACCESS_SUPPORT
 	char_t	*digest, *a1, *a1prime, *a2, *a2prime, *preDigest, *method;
 
 	a_assert(wp);
@@ -215,7 +203,7 @@ char_t *websCalcDigest(webs_t wp)
 	method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
 	a_assert(method);
 	a2 = NULL;
-	fmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri); 
+	fmtAlloc(&a2, 255, T("%s:%s"), method, wp->uri);
 	a_assert(a2);
 	a2prime = websMD5(a2);
 	bfreeSafe(B_L, a2);
@@ -248,72 +236,10 @@ char_t *websCalcDigest(webs_t wp)
 	bfreeSafe(B_L, a2prime);
 	bfreeSafe(B_L, preDigest);
 	return digest;
-}
-
-/******************************************************************************/
-/*
- *	Get a Digest value using the MD5 algorithm
- *	Digest is based on the full URL rather than the URI as above
- *	This alternate way of calculating is what most browsers use
- */
-
-char_t *websCalcUrlDigest(webs_t wp)
-{
-	char_t	*digest, *a1, *a1prime, *a2, *a2prime, *preDigest, *method;
-
-	a_assert(wp);
-	digest = NULL;
-
-/*
- *	Calculate first portion of digest H(A1)
- */
-	a1 = NULL;
-	fmtAlloc(&a1, 255, T("%s:%s:%s"), wp->userName, wp->realm, wp->password);
-	a_assert(a1);
-	a1prime = websMD5(a1);
-	bfreeSafe(B_L, a1);
-/*
- *	Calculate second portion of digest H(A2)
- */
-	method = websGetVar(wp, T("REQUEST_METHOD"), NULL);
-	a_assert(method);
-	/* Fixes by Richard Laing, 2003/7/15 */
-	a2 = balloc(B_L, (gstrlen(method) +2 + gstrlen(wp->url) ) * sizeof(char_t));
-	a_assert(a2);
-	gsprintf(a2, T("%s:%s"), method, wp->url);
-	a2prime = websMD5(a2);
-	bfreeSafe(B_L, a2);
-/*
- *	Construct final digest KD(H(A1):nonce:H(A2))
- */
-	a_assert(a1prime);
-	a_assert(a2prime);
-	a_assert(wp->nonce);
-
-	preDigest = NULL;
-	if (!wp->qop) {
-		fmtAlloc(&preDigest, 255, T("%s:%s:%s"), a1prime, wp->nonce, a2prime);
-	} else {
-		fmtAlloc(&preDigest, 255, T("%s:%s:%s:%s:%s:%s"), 
-			a1prime, 
-			wp->nonce,
-			wp->nc,
-			wp->cnonce,
-			wp->qop,
-			a2prime);
-	}
-
-	a_assert(preDigest);
-	digest = websMD5(preDigest);
-/*
- *	Now clean up
- */
-	bfreeSafe(B_L, a1prime);
-	bfreeSafe(B_L, a2prime);
-	bfreeSafe(B_L, preDigest);
-	return digest;
-}
-
+#else
+	return NULL;
 #endif /* DIGEST_ACCESS_SUPPORT */
+}
+
 /******************************************************************************/
 

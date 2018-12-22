@@ -1,10 +1,11 @@
 /*
  *	wincompat.c -- UNIX compatibility module for windows CE.
  *
- *	Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ *	Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  *	See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: wincompat.c,v 1.2 2001/12/06 16:28:24 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -761,10 +762,7 @@ long lseek(int handle, long offset, int origin)
 /*
  *	Our implementation of isupper.
  */
-#if 0
-/* 10 Apr 03 BgP -- CE.NET work. The following functions are now directly supported by CE, 
-   so we do not need these compatibility versions.
-*/
+
 int isupper(int c)
 {
 	if (c >= 'A' && c <= 'Z') {
@@ -839,8 +837,6 @@ int isxdigit(int c)
 	}
 	return 0;
 }
-
-#endif
 
 /******************************************************************************/
 #ifndef LITTLEFOOT

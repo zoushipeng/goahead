@@ -1,49 +1,54 @@
 /* 
- *	websSSL.h -- MatrixSSL Layer Header
-
+ *	websSSL.h -- SSL Patch header
  *
- *	(C)Copyright 2002-2010 PeerSec Networks
- *	All Rights Reserved
+ * Copyright (c) GoAhead Software Inc., 1992-2000. All Rights Reserved.
+ *
+ *	See the file "license.txt" for information on usage and redistribution
+ *
+ *	$Id: websSSL.h,v 1.2 2002/10/24 14:44:50 bporter Exp $
  */
-/******************************************************************************/
 
 #ifndef _h_websSSL
 #define _h_websSSL 1
 
 /******************************** Description *********************************/
+
 /* 
- *	Header file for the PeerSec MatrixSSL layer. This defines the interface to 
- *	integrate MatrixSSL into the GoAhead Webserver.
+ *	Header file for the GoAhead Patch for SSL. This defines the interface to 
+ *	integrate SSL into the GoAhead Webserver.
  */
 
 /********************************* Includes ***********************************/
 
-#ifdef WEBS_SSL_SUPPORT
 
-#include "webs.h"
-#include "matrixSSLSocket.h"
-#include "uemf.h"
+#ifdef OPENSSL
+#define SSLEAY		/* turn off a few special case MONOLITH macros */
+#define USE_SOCKETS /* needed for the _O_BINARY defs in the MS world */
+#include <openssl/ssl.h>
+#else
+#include <sslc.h>
+#endif
+
+#ifndef UEMF
+	#include	"basic/basic.h"
+	#include	"emf/emf.h"
+#else
+	#include	"uemf.h"
+#endif
 
 /********************************** Defines ***********************************/
 
-#define DEFAULT_CERT_FILE   "./certSrv.pem"		/* Public key certificate */
-#define DEFAULT_KEY_FILE    "./privkeySrv.pem"	/* Private key file */
-
 typedef struct {
-	sslConn_t* sslConn;
-	struct websRec* wp;
+	SSL	*ssl;
+	BIO	*bio;
 } websSSL_t;
 
-/*************************** User Code Prototypes *****************************/
+
+/******************************** Prototypes **********************************/
 
 extern int	websSSLOpen();
 extern int	websSSLIsOpen();
 extern void websSSLClose();
-#ifdef WEBS_WHITELIST_SUPPORT
-extern int	websRequireSSL(char *url);
-#endif /* WEBS_WHITELIST_SUPPORT */
-
-/*************************** Internal Prototypes *****************************/
 
 extern int	websSSLWrite(websSSL_t *wsp, char_t *buf, int nChars);
 extern int	websSSLGets(websSSL_t *wsp, char_t **buf);
@@ -56,8 +61,8 @@ extern int	websSSLFlush(websSSL_t *wsp);
 extern int	websSSLSetKeyFile(char_t *keyFile);
 extern int	websSSLSetCertFile(char_t *certFile);
 
-#endif /* WEBS_SSL_SUPPORT */
 
 #endif /* _h_websSSL */
 
 /*****************************************************************************/
+

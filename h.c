@@ -1,10 +1,10 @@
 /*
  * h.c -- Handle allocation module
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  * See the file "license.txt" for usage and redistribution license requirements
  *
- * 
+ * $Id: h.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -17,7 +17,11 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	"basic/basicInternal.h"
+#endif
 
 /********************************** Defines ***********************************/
 /*

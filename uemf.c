@@ -1,16 +1,19 @@
 /*
  * uemf.c -- GoAhead Micro Embedded Management Framework
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: uemf.c,v 1.4 2002/10/24 14:44:50 bporter Exp $
  */
 
 /********************************** Description *******************************/
 
 /*
- *	Micro embedded management framework
+ *	This module provides compatibility with the full GoAhead EMF.
+ *	It is a collection of routines which permits the GoAhead WebServer to
+ *	run stand-alone and to also load as a solution pack under the GoAhead EMF.
  */
 
 /*********************************** Includes *********************************/
@@ -261,41 +264,6 @@ char_t *stritoa(int n, char_t *string, int width)
 
 	*s++ = '\0';
 	return string;
-}
-
-/******************************************************************************/
-/*
- *	Default error and trace	
- */
-/******************************************************************************/
-/*
- *  Default error handler.  The developer should insert code to handle
- *  error messages in the desired manner.
- */
-
-void defaultErrorHandler(int etype, char_t *msg)
-{
-#if 0
-    write(1, msg, gstrlen(msg));
-#endif
-}
-
-/******************************************************************************/
-/*
- *  Trace log. Customize this function to log trace output
- */
-
-void defaultTraceHandler(int level, char_t *buf)
-{
-/*
- *  The following code would write all trace regardless of level
- *  to stdout.
- */
-#if 0
-    if (buf) {
-        write(1, buf, gstrlen(buf));
-    }
-#endif
 }
 
 /******************************************************************************/

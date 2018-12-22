@@ -1,10 +1,11 @@
 /* 
  *	wsIntrn.h -- Internal GoAhead Web server header
  *
- * Copyright (c) GoAhead Software Inc., 1992-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1992-2000. All Rights Reserved.
  *
  *	See the file "license.txt" for information on usage and redistribution
  *
+ * $Id: wsIntrn.h,v 1.4 2002/10/24 14:44:50 bporter Exp $
  */
  
 #ifndef _h_WEBS_INTERNAL
@@ -18,6 +19,27 @@
  */
 
 /*********************************** Defines **********************************/
+
+/*
+ *	Define this to enable logging of web accesses to a file 
+ *		#define WEBS_LOG_SUPPORT 1
+ *
+ *	Define this to enable HTTP/1.1 keep alive support
+ *		#define WEBS_KEEP_ALIVE_SUPPORT 1
+ *
+ *	Define this to enable if-modified-since support
+ *		#define WEBS_IF_MODIFIED_SUPPORT 1
+ *
+ *	Define this to support proxy capability and track local vs remote request
+ *		Note: this is not yet fully implemented.
+ *		#define WEBS_PROXY_SUPPORT 1
+ *
+ *	Define this to support reading pages from ROM
+ *		#define WEBS_PAGE_ROM 1
+ *
+ *	Define this to enable memory allocation and stack usage tracking
+ *		#define B_STATS 1
+ */
 
 /********************************** Includes **********************************/
 
@@ -37,9 +59,12 @@
 	#include	<fcntl.h>
 	#include	<sys/stat.h>
 	#include	<io.h>
-#define localtime_r(A, B)	localtime_s(B,A)
-	#include	<share.h>
-#define snprintf			_snprintf
+#endif
+
+#ifdef CE
+#ifndef UEMF
+	#include	<io.h>
+#endif
 #endif
 
 #ifdef NW
@@ -93,8 +118,14 @@
 	#include	<sys/stat.h>
 #endif
 
-#include	"uemf.h"
-#include	"ejIntrn.h"
+#ifdef UEMF
+	#include	"uemf.h"
+	#include	"ejIntrn.h"
+#else
+	#include	"emf/emfInternal.h"
+	#include	"ej/ejIntrn.h"
+#endif
+
 #include	"webs.h"
 
 /********************************** Defines ***********************************/
@@ -212,20 +243,12 @@ extern void		 websAspClose();
 extern void		 websFormOpen();
 extern void		 websFormClose();
 extern int		 websAspWrite(int ejid, webs_t wp, int argc, char_t **argv);
-
-extern void  	 websDefaultOpen();
 extern void  	 websDefaultClose();
-#ifdef WEBS_WHITELIST_SUPPORT
-#define WHITELIST_SSL       0x001   /* File only accessible through https */
-#define WHITELIST_CGI       0x002   /* Node is in the cgi-bin dir */
-extern int		websBuildWhitelist(void);
-extern int		websWhitelistCheck(char *path);
-extern void		websDeleteWhitelist(void);
-#endif /* WEBS_WHITELIST_SUPPORT */
 extern int 		 websDefaultHandler(webs_t wp, char_t *urlPrefix, 
 					char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query);
-extern int 		 websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg, char_t *url, char_t *path, char_t *query);
+extern int 		 websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
+					int arg, char_t *url, char_t *path, char_t *query);
 extern int 		 websCgiHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
 					int arg, char_t *url, char_t *path, char_t *query);
 extern void		 websCgiCleanup();
@@ -265,6 +288,16 @@ extern void 	 websCloseServer();
 extern char_t*	 websGetDateString(websStatType* sbuf);
 
 extern int		strcmpci(char_t* s1, char_t* s2);
+
+/*
+ *	Prototypes for functions available when running as part of the 
+ *	GoAhead Embedded Management Framework (EMF)
+ */
+#ifdef EMF
+extern int 		 websEmfOpen();
+extern void 	 websEmfClose();
+extern void 	 websSetEmfEnvironment(webs_t wp);
+#endif
 
 #ifdef CE
 extern int writeUniToAsc(int fid, void *buf, unsigned int len);

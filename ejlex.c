@@ -1,10 +1,11 @@
 /*
  * ejlex.c -- Ejscript(TM) Lexical Analyser
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: ejlex.c,v 1.4 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -18,7 +19,11 @@
 
 #include	"ejIntrn.h"
 
-#include "uemf.h"
+#ifdef UEMF
+	#include "uemf.h"
+#else
+	#include "basic/basicInternal.h"
+#endif
 
 /********************************** Defines ***********************************/
 #define		OCTAL	8
@@ -671,10 +676,7 @@ static void inputPutback(ej_t* ep, int c)
 
 	ip = ep->input;
 	ringqInsertc(&ip->script, (char_t) c);
-	/* Fix by Fred Sauer, 2002/12/23 */
-	if (ip->lineColumn > 0) {
-	    ip->lineColumn-- ;
-	}
+	ip->lineColumn--;
 	ip->line[ip->lineColumn] = '\0';
 }
 

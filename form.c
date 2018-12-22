@@ -1,11 +1,11 @@
 /*
  * form.c -- Form processing (in-memory CGI) for the GoAhead Web server
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
- * 
+ * $Id: form.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /********************************** Description *******************************/
@@ -63,7 +63,7 @@ int websFormHandler(webs_t wp, char_t *urlPrefix, char_t *webDir, int arg,
  */
 	sp = symLookup(formSymtab, formName);
 	if (sp == NULL) {
-		websError(wp, 404, T("Form %s is not defined"), formName);
+		websError(wp, 200, T("Form %s is not defined"), formName);
 	} else {
 		fn = (int (*)(void *, char_t *, char_t *)) sp->content.value.integer;
 		a_assert(fn);
@@ -142,15 +142,9 @@ void websHeader(webs_t wp)
 	websWrite(wp, T("HTTP/1.0 200 OK\n"));
 
 /*
- *	The Server HTTP header below must not be modified unless
- *	explicitly allowed by licensing terms.
+ *	By license terms the following line of code must not be modified
  */
-#ifdef WEBS_SSL_SUPPORT
-	websWrite(wp, T("Server: %s/%s %s/%s\r\n"), 
-		WEBS_NAME, WEBS_VERSION, SSL_NAME, SSL_VERSION);
-#else
-	websWrite(wp, T("Server: %s/%s\r\n"), WEBS_NAME, WEBS_VERSION);
-#endif
+	websWrite(wp, T("Server: %s\r\n"), WEBS_NAME);
 
 	websWrite(wp, T("Pragma: no-cache\n"));
 	websWrite(wp, T("Cache-control: no-cache\n"));

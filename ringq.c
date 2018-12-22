@@ -1,10 +1,11 @@
 /*
  * ringq.c -- Ring queue buffering module
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: ringq.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -48,7 +49,11 @@
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	"basic/basicInternal.h"
+#endif
 
 /*********************************** Defines **********************************/
 /*
@@ -157,17 +162,7 @@ int ringqGetc(ringq_t *rq)
 	if (rq->servp >= rq->endbuf) {
 		rq->servp = rq->buf;
 	}
-   /*
-    * 17 Sep 03 BgP -- using the implicit conversion from signed char to
-    * signed int in the return below makes this function work incorrectly when
-    * dealing with UTF-8 encoded text. UTF-8 may include characters that are >
-    * 127, which a signed char treats as negative. When we return a 'negative'
-    * value from this function, it gets converted to a negative 
-    * integer, instead of a small positive integer, which is what we want. 
-    * So, we cast to (unsigned char) before returning, and the problem goes
-    * away...
-    */
-	return (int) ((unsigned char) c);
+	return c;
 }
 
 /******************************************************************************/
@@ -545,6 +540,12 @@ static int ringqGrow(ringq_t *rq)
 	ringqGetBlk(rq, newbuf, ringqLen(rq));
 	bfree(B_L, (char*) rq->buf);
 
+#ifdef OLD
+	rq->endp = &newbuf[endp];
+	rq->servp = &newbuf[servp];
+	rq->endbuf = &newbuf[rq->buflen];
+	rq->buf = newbuf;
+#endif
 
 	rq->buflen += rq->increment;
 	rq->endp = newbuf;

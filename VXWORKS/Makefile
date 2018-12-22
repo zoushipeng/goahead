@@ -2,8 +2,9 @@
 # Makefile for the GoAhead web server reference source base
 #  for the VxWorks 486 OS
 #
-# Copyright (c) Go Ahead, 1995-2010
+# Copyright (c) Go Ahead, 1995-2000
 #
+# $Id: Makefile,v 1.2 2002/11/01 16:25:29 mmitchell Exp $
 #
 
 all:	compile 
@@ -22,25 +23,40 @@ UMSW			= -DUSER_MANAGEMENT_SUPPORT
 DASW			= -DDIGEST_ACCESS_SUPPORT
 
 #
-#   SSL switches
-#   Comment the following 3 lines out to disable SSL
+#	SSL switches
 #
-SSLINC = ../../matrixssl
-SSLLIB = ../../matrixssl/src/libmatrixsslstatic.a
-SSLSW   = -DWEBS_SSL_SUPPORT -I$(SSLINC)
+# You must uncomment this line to enable SSL
+# SSLPATCHFILE = ../websSSL.o
+#
+# Then uncomment these three lines if you are using the RSAREF library
+# and set them to the correct path.
+#
+# SSLINC = /RSASSL/library/include
+# SSLLIB = /RSASSL/library/lib/libsslc.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC)
+#
+# Or alternatively,
+#
+# Uncomment these three lines if you are using the OpenSSL library.
+# Change the value of SSLINC to the path where your OpenSSL header
+# files reside, and change the value of SSLLIB to the path to your
+# OpenSSL libssl.a and libcrypto.a.
+#
+# SSLINC = /usr/include/openssl
+# SSLLIB = /usr/lib/libssl.a /usr/lib/libcrypto.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC) -DOPENSSL
+
 
 WEBCOMP			= webcomp
-DEPEND_FILES	= ../asp.o ../balloc.o ../mime64.o ../cgi.o ../default.o  \
+DEPEND_FILES	= ../asp.o ../balloc.o ../base64.o ../cgi.o ../default.o  \
 				  ../ejlex.o ../ejparse.o ../form.o \
 				  ../h.o ../handler.o ../mime.o ../misc.o ../page.o  \
-				  ../ringq.o ../rom.o \
-				  ../sock.o ../sockGen.o \
-				  ../websSSL.o ../matrixSSLSocket.o \
-				  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
+				  ../ringq.o ../rom.o $(SSLPATCHFILE) \
 				  ../md5c.o ../um.o ../umui.o ../websda.o ../emfdb.o \
+				  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
 				  ../webrom.o ../webs.o ../websuemf.o \
-				  main.o
-CFLAGS			= -DWEBS -DOS="VXWORKS" -DVXWORKS $(UMSW) $(DASW) -Wall $(SSLSW)
+				  ../sock.o ../sockGen.o main.o
+CFLAGS			= -DWEBS -DUEMF -DOS="VXWORKS" -DVXWORKS $(UMSW) $(DASW) -Wall $(SSLSW)
 BSP_CFLAGS		= -DCPU=I80486 -fno-builtin -fno-defer-pop -nostdinc -m486
 IFLAGS			= -I/tornado2/target/h -I../
 OTHERS			= -DB_STATS -DB_FILL -DDEBUG
@@ -75,7 +91,7 @@ clean:
 
 ../balloc.o: ../balloc.c ../uemf.h
 
-../mime64.o:  ../mime64.c ../webs.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
+../base64.o:  ../base64.c ../webs.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
 
 ../cgi.o:  ../webs.h ../wsIntrn.h ../uemf.h
 

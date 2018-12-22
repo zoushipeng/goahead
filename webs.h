@@ -1,16 +1,18 @@
 /* 
  *	webs.h -- GoAhead Web public header
  *
- * Copyright (c) GoAhead Software Inc., 1992-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1992-2000. All Rights Reserved.
  *
  *	See the file "license.txt" for information on usage and redistribution
  *
+ * $Id: webs.h,v 1.7 2003/01/15 18:17:56 bporter Exp $
  */
 
 #ifndef _h_WEBS
 #define _h_WEBS 1
 
 /******************************** Description *********************************/
+
 /* 
  *	GoAhead Web Server header. This defines the Web public APIs.
  *	Include this header for files that contain ASP or Form procedures.
@@ -24,54 +26,21 @@
 	#include	"websSSL.h"
 #endif
 
-/*************************** User Configurable Defines ************************/
-
-#define WEBS_DEFAULT_HOME		T("home.htm") /* Default home page */
-#define WEBS_DEFAULT_PORT		8080		/* Default HTTP port */
-#define WEBS_DEFAULT_SSL_PORT	4433		/* Default HTTPS port */
-
-/* Enable Whitelist access to files */
-#define WEBS_WHITELIST_SUPPORT	1
-
-/* Enable logging of web accesses to a file */
-#define WEBS_LOG_SUPPORT 1
-
-/* Enable trace APIs to a file */
-#define WEBS_TRACE_SUPPORT 1
-#define WEBS_TRACE_LEVEL 3
-
-/* Enable HTTP/1.1 keep-alive support */
-/* #define WEBS_KEEP_ALIVE_SUPPORT 1 */
-
-/* Experimental support proxy capability and track local vs remote request */
-/* #define WEBS_PROXY_SUPPORT 1 */
-
-/* Support reading pages from ROM (with webcomp.c) */
-/* #define WEBS_PAGE_ROM 1 */
-
-/****************************** Immutable Defines *****************************/
+/********************************** Defines ***********************************/
 /*
- *	By license terms the software name and version defined in this section of
+ *	By license terms the server software name defined in the following line of
  *	code must not be modified.
  */
-#define WEBS_NAME				T("GoAhead")
-#define WEBS_VERSION			T("2.5.0")
-#ifdef WEBS_SSL_SUPPORT
-#define SSL_NAME				T("PeerSec-MatrixSSL")
-#define SSL_VERSION				T(MATRIXSSL_VERSION)
-#endif /* WEBS_SSL_SUPPORT */
-
-/********************************** Defines ***********************************/
+#define WEBS_NAME				T("GoAhead-Webs")
+#define WEBS_VERSION			T("2.1.5")
 
 #define WEBS_HEADER_BUFINC 		512			/* Header buffer size */
 #define WEBS_ASP_BUFINC			512			/* Asp expansion increment */
 #define WEBS_MAX_PASS			32			/* Size of password */
-#define WEBS_BUFSIZE			960		/* websWrite max output string */
+#define WEBS_BUFSIZE			1000		/* websWrite max output string */
 #define WEBS_MAX_HEADER			(5 * 1024)	/* Sanity check header */
-#define WEBS_MAX_URL			2048		/* Maximum URL size for sanity */
+#define WEBS_MAX_URL			4096		/* Maximum URL size for sanity */
 #define WEBS_SOCKET_BUFSIZ		256			/* Bytes read from socket */
-
-
 
 #define WEBS_HTTP_PORT			T("httpPort")
 #define CGI_BIN					T("cgi-bin")
@@ -116,7 +85,6 @@ typedef struct websRec {
 	time_t			timestamp;			/* Last transaction with browser */
 	int				timeout;			/* Timeout handle */
 	char_t			ipaddr[32];			/* Connecting ipaddress */
-	char_t			ifaddr[32];			/* Local interface ipaddress */
 	char_t			type[64];			/* Mime type */
 	char_t			*dir;				/* Directory containing the page */
 	char_t			*path;				/* Path name without query */
@@ -209,31 +177,31 @@ extern void 	 websSecurityDelete();
 extern int 		 websSecurityHandler(webs_t wp, char_t *urlPrefix, 
 					char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query);
-extern void 	websSetDefaultDir(char_t *dir);
-extern void 	websSetDefaultPage(char_t *page);
-extern void 	websSetEnv(webs_t wp);
-extern void 	websSetHost(char_t *host);
-extern void 	websSetIpaddr(char_t *ipaddr);
-extern void 	websSetPassword(char_t *password);
-extern void 	websSetRealm(char_t *realmName);
-extern void 	websSetRequestBytes(webs_t wp, int bytes);
-extern void		websSetRequestFlags(webs_t wp, int flags);
-extern void 	websSetRequestLpath(webs_t wp, char_t *lpath);
-extern void 	websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
-extern char_t  *websGetRequestUserName(webs_t wp);
-extern void 	websSetRequestWritten(webs_t wp, int written);
-extern void 	websSetVar(webs_t wp, char_t *var, char_t *value);
-extern int 		websTestVar(webs_t wp, char_t *var);
-extern void		websTimeoutCancel(webs_t wp);
-extern int 		websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, 
+extern void 	 websSetDefaultDir(char_t *dir);
+extern void 	 websSetDefaultPage(char_t *page);
+extern void 	 websSetEnv(webs_t wp);
+extern void 	 websSetHost(char_t *host);
+extern void 	 websSetIpaddr(char_t *ipaddr);
+extern void 	 websSetPassword(char_t *password);
+extern void 	 websSetRealm(char_t *realmName);
+extern void 	 websSetRequestBytes(webs_t wp, int bytes);
+extern void		 websSetRequestFlags(webs_t wp, int flags);
+extern void 	 websSetRequestLpath(webs_t wp, char_t *lpath);
+extern void 	 websSetRequestPath(webs_t wp, char_t *dir, char_t *path);
+extern char_t	*websGetRequestUserName(webs_t wp);
+extern void 	 websSetRequestWritten(webs_t wp, int written);
+extern void 	 websSetVar(webs_t wp, char_t *var, char_t *value);
+extern int 		 websTestVar(webs_t wp, char_t *var);
+extern void		 websTimeoutCancel(webs_t wp);
+extern int 		 websUrlHandlerDefine(char_t *urlPrefix, char_t *webDir, 
 					int arg, int (*fn)(webs_t wp, char_t *urlPrefix, 
 					char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query), int flags);
-extern int 		websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix,
+extern int 		 websUrlHandlerDelete(int (*fn)(webs_t wp, char_t *urlPrefix,
 					char_t *webDir, int arg, char_t *url, char_t *path, 
 					char_t *query));
-extern int		websUrlHandlerRequest(webs_t wp);
-extern int 		websUrlParse(char_t *url, char_t **buf, char_t **host, 
+extern int		 websUrlHandlerRequest(webs_t wp);
+extern int 		 websUrlParse(char_t *url, char_t **buf, char_t **host, 
 					char_t **path, char_t **port, char_t **query, 
 					char_t **proto, char_t **tag, char_t **ext);
 extern char_t 	*websUrlType(char_t *webs, char_t *buf, int charCnt);
@@ -245,13 +213,20 @@ extern int 		 websValidateUrl(webs_t wp, char_t *path);
 extern void		websSetTimeMark(webs_t wp);
 
 /*
- *	The following prototypes are used by the SSL layer websSSL.c
+ *	The following prototypes are used by the SSL patch found in websSSL.c
  */
 extern int 		websAlloc(int sid);
 extern void 	websFree(webs_t wp);
 extern void 	websTimeout(void *arg, int id);
 extern void 	websReadEvent(webs_t wp);
 
+/*
+ *	Prototypes for functions available when running as part of the 
+ *	GoAhead Embedded Management Framework (EMF)
+ */
+#ifdef EMF
+extern void 	 websFormExplain(webs_t wp, char_t *path, char_t *query);
+#endif
 
 #endif /* _h_WEBS */
 

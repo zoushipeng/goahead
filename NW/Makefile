@@ -2,13 +2,15 @@
 # Makefile for the GoAhead web server reference source base
 #  for the NetWare OS
 #
-# Copyright (c) GoAhead Software, Inc. 1995-2010
+# Copyright (c) GoAhead Software, Inc. 1995-2000
 #
+# $Id: Makefile,v 1.0.0.0 2000/06/01 18:00:00 
 #
 
+
 pvmaj       = 2           # major version number
-pvmin       = 5           # minor version number
-pvrev       = 0           # revision number e.g. 0,1,2, ...
+pvmin       = 1           # minor version number
+pvrev       = 1           # revision number e.g. 0,1,2, ...
 
 description = GoAhead web server 
 
@@ -19,7 +21,7 @@ all:	compile
 
 NAME	= webs
 
-copyright = Copyright (c) GoAhead Software, Inc. 1995-2010
+copyright = Copyright (c) GoAhead Software, Inc. 1995-2000
 
 # User Management switch
 UMSW	= -DUSER_MANAGEMENT_SUPPORT
@@ -27,13 +29,13 @@ UMSW	= -DUSER_MANAGEMENT_SUPPORT
 # Digest Access switch
 DASW	= -DDIGEST_ACCESS_SUPPORT
 
-#	SSL switches
-#   Comment the following 3 lines out to disable SSL
-#
-SSLINC = ../../matrixssl
-SSLLIB = ../../matrixssl/src/libmatrixsslstatic.a
-SSLSW   = -DWEBS_SSL_SUPPORT -I$(SSLINC)
+# SSL switches (enable all to activate)
+# SSLINC = /RSASSL/library/include
+# SSLLIB = /RSASSL/library/lib/libsslc.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC)
+# SSLPATCHFILE = ..\websSSL.obj
 
+# If-Modified-Support switches (requires math library, libm.a)
 # IFMODSW = -DWEBS_IF_MODIFIED_SUPPORT
 # IFMODLIB = /usr/lib/libm.a
 
@@ -41,7 +43,7 @@ SSLSW   = -DWEBS_SSL_SUPPORT -I$(SSLINC)
 DEPEND_FILES	=                     main.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\asp.obj
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\balloc.obj 
-DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\mime64.obj 
+DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\base64.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\cgi.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\default.obj  
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\ejlex.obj 
@@ -56,8 +58,6 @@ DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\ringq.obj
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\rom.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\sock.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\sockGen.obj 
-DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\websSSL.obj 
-DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\matrixSSLSocket.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\security.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\sym.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\uemf.obj 
@@ -71,6 +71,7 @@ DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\emfdb.obj
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\webrom.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\webs.obj 
 DEPEND_FILES	= $+$(DEPEND_FILES)$- ..\websuemf.obj 
+
               
 !ifndef %qmkver
 !   define version d                # use 'd' or 'p' here
@@ -111,8 +112,8 @@ build_msg = Building a $(lversion) version of $(description) ($(program))
 #pgm_ver = /dvMAJ="$(pvmaj)" /dvMIN="$(pvmin)" /dvREV="$(pvrev)"
 pgm_ver = 
 
-d_wcc386opt = /dNW /ez /ms /w4 /e99 /zp1 /3s /ot /d1 /zq $(debug)
-p_wcc386opt = /dNW /ez /ms /w4 /s /zp1 /3s /oaxt /zq 
+d_wcc386opt = /dNW /dUEMF /ez /ms /w4 /e99 /zp1 /3s /ot /d1 /zq $(debug)
+p_wcc386opt = /dNW /dUEMF /ez /ms /w4 /s /zp1 /3s /oaxt /zq 
 x_wcc386opt = $($(version)_wcc386opt) $(pgm_ver)
 
 compiler_cmd = $(wcc386) $(x_wcc386opt) $[*.c
@@ -191,7 +192,7 @@ clean:
 
 ..\balloc.obj: ..\balloc.c ..\uemf.h
 
-..\mime64.obj:  ..\mime64.c ..\webs.h ..\wsIntrn.h  ..\ej.h ..\ejIntrn.h ..\uemf.h
+..\base64.obj:  ..\base64.c ..\webs.h ..\wsIntrn.h  ..\ej.h ..\ejIntrn.h ..\uemf.h
 
 ..\cgi.obj:  ..\cgi.c ..\webs.h ..\wsIntrn.h ..\uemf.h
 

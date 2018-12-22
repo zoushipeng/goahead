@@ -1,22 +1,20 @@
 /*
  * misc.c -- Miscellaneous routines.
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: misc.c,v 1.5 2002/10/24 14:44:50 bporter Exp $
  */
 
 /********************************* Includes ***********************************/
 
-#include	"uemf.h"
-
-/*
- * 16 Sep 03 -- added option to use memcpy() instead of strncpy() in the
- * ascToUni and uniToAsc functions. 
- */
-#define kUseMemcopy
-
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	"basic/basicInternal.h"
+#endif
 
 /********************************* Defines ************************************/
 /*
@@ -53,12 +51,12 @@ enum flag {
 
 static int 	dsnprintf(char_t **s, int size, char_t *fmt, va_list arg,
 				int msize);
+static int	strnlen(char_t *s, unsigned int n);
 static void	put_char(strbuf_t *buf, char_t c);
 static void	put_string(strbuf_t *buf, char_t *s, int len,
 				int width, int prec, enum flag f);
 static void	put_ulong(strbuf_t *buf, unsigned long int value, int base,
 				int upper, char_t *prefix, int width, int prec, enum flag f);
-static int	gstrnlen(char_t *s, unsigned int n);
 
 /************************************ Code ************************************/
 /*
@@ -419,7 +417,8 @@ static int dsnprintf(char_t **s, int size, char_t *fmt, va_list arg, int msize)
 /*
  *	Return the length of a string limited by a given length
  */
-static int gstrnlen(char_t *s, unsigned int n)
+
+static int strnlen(char_t *s, unsigned int n)
 {
 	unsigned int 	len;
 
@@ -469,7 +468,7 @@ static void put_string(strbuf_t *buf, char_t *s, int len, int width,
 	int		i;
 
 	if (len < 0) { 
-		len = gstrnlen(s, prec >= 0 ? prec : ULONG_MAX); 
+		len = strnlen(s, prec >= 0 ? prec : ULONG_MAX); 
 	} else if (prec >= 0 && prec < len) { 
 		len = prec; 
 	}
@@ -508,7 +507,7 @@ static void put_ulong(strbuf_t *buf, unsigned long int value, int base,
 	zeros = (prec > len) ? prec - len : 0;
 	width -= zeros + len;
 	if (prefix != NULL) { 
-		width -= gstrnlen(prefix, ULONG_MAX); 
+		width -= strnlen(prefix, ULONG_MAX); 
 	}
 	if (!(f & flag_minus)) {
 		if (f & flag_zero) {
@@ -554,12 +553,7 @@ char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
 		return (char_t*) str;
 	}
 #else
-
-#ifdef kUseMemcopy
-   memcpy(ubuf, str, nBytes);
-#else
 	strncpy(ubuf, str, nBytes);
-#endif /*kUseMemcopy*/
 #endif
 	return ubuf;
 }
@@ -574,19 +568,14 @@ char_t *ascToUni(char_t *ubuf, char *str, int nBytes)
 char *uniToAsc(char *buf, char_t *ustr, int nBytes)
 {
 #ifdef UNICODE
-   if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, 
-    NULL, NULL) < 0) 
-   {
-      return (char*) ustr;
-   }
+	if (WideCharToMultiByte(CP_ACP, 0, ustr, nBytes, buf, nBytes, NULL,
+			NULL) < 0) {
+		return (char*) ustr;
+	}
 #else
-#ifdef kUseMemcopy
-   memcpy(buf, ustr, nBytes);
-#else
-   strncpy(buf, ustr, nBytes);
-#endif /* kUseMemcopy */
+	strncpy(buf, ustr, nBytes);
 #endif
-   return (char*) buf;
+	return (char*) buf;
 }
 
 /******************************************************************************/

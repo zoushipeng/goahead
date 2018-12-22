@@ -1,10 +1,11 @@
 /*
  * main.c -- Main program for the GoAhead WebServer
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: main.c,v 1.3 2002/07/29 15:28:33 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -33,39 +34,33 @@ void		formDefineUserMgmt(void);
 #endif
 
 /********************************** Defines ***********************************/
-/*
-	Enable USE_DEMO_MODE to run Webs with the documentation tree and examples 
-*/
-/* #define USE_DEMO_MODE		1 */
 
-#define	IDM_ABOUTBOX		0xF200
-#define	IDS_ABOUTBOX		"AboutBox"
-#define	IDC_VERSION			101
-#define	IDC_BUILDDATE		102
-#define	IDC_DISMISS			103
-#define	SOCK_DFT_SVC_TIME	20
+#define		IDM_ABOUTBOX		0xF200
+#define		IDS_ABOUTBOX		"AboutBox"
+#define		IDC_VERSION			101
+#define		IDC_BUILDDATE		102
+#define		IDC_DISMISS			103
+#define		SOCK_DFT_SVC_TIME	20
 
-/*********************************** Globals **********************************/
+/*********************************** Locals ***********************************/
 /*
- *	User configurable globals	
+ *	Change configuration here
  */
-static char_t	*rootWeb = T("www");			/* Root web directory */
-static char_t	*demoWeb = T("wwwdemo");		/* Root web directory */
-static char_t	*password = T("");				/* Security password */
 
-/* Globals */
-static int		port = WEBS_DEFAULT_PORT;		/* Server port */
-static char_t	*title = T("GoAhead WebServer");/* Window title */
-static char_t	*name = T("gowebs");			/* Window name */
 static HWND		hwnd;							/* Main Window handle */
 static HWND		hwndAbout;						/* About Window handle */
+static char_t	*title = T("GoAhead WebServer");/* Window title */
+static char_t	*name = T("gowebs");			/* Window name */
+static char_t	*rootWeb = T("web");			/* Root web directory */
+static char_t	*password = T("");				/* Security password */
+static int		port = 80;						/* Server port */
 static int		retries = 5;					/* Server port retries */
 static int		finished;						/* Finished flag */
 static int		sockServiceTime;				/* in milliseconds */
 
 /****************************** Forward Declarations **************************/
 
-static int		initWebs(int demo);
+static int		initWebs();
 static long		CALLBACK websWindProc(HWND hwnd, unsigned int msg, 
 				unsigned int wp, long lp);
 static long		CALLBACK websAboutProc(HWND hwnd, unsigned int msg, 
@@ -80,6 +75,8 @@ static int		windowsClose(HINSTANCE hinstance);
 static int		websHomePageHandler(webs_t wp, char_t *urlPrefix,
 					char_t *webDir, int arg, char_t *url, char_t *path,
 					char_t *query);
+extern void		defaultErrorHandler(int etype, char_t *msg);
+extern void		defaultTraceHandler(int level, char_t *buf);
 static void		printMemStats(int handle, char_t *fmt, ...);
 static void		memLeaks();
 
@@ -87,19 +84,17 @@ static LPWORD	lpwAlign(LPWORD);
 static int		nCopyAnsiToWideChar(LPWORD, LPSTR);
 static void		centerWindowOnDisplay(HWND hwndCenter);
 
+static unsigned char	*tableToBlock(char **table);
+
 /*********************************** Code *************************************/
 /*
  *	WinMain -- entry point from Windows
  */
+
 int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
 						char *args, int cmd_show)
 {
 	WPARAM	rc;
-#ifdef USE_DEMO_MODE
-	int demo = 1;
-#else
-	int demo = 0;
-#endif /* USE_DEMO_MODE */
 
 /*
  *	Initialize the memory allocator. Allow use of malloc and start 
@@ -120,13 +115,12 @@ int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
 /*
  *	Initialize the web server
  */
-	if (initWebs(demo) < 0) {
+	if (initWebs() < 0) {
 		return FALSE;
 	}
 
 #ifdef WEBS_SSL_SUPPORT
 	websSSLOpen();
-/*	websRequireSSL("/"); */ /* Require all files be served via https */
 #endif
 
 /*
@@ -179,7 +173,7 @@ int APIENTRY WinMain(HINSTANCE hinstance, HINSTANCE hprevinstance,
  *	Initialize the web server.
  */
 
-static int initWebs(int demo)
+static int initWebs()
 {
 	struct hostent	*hp;
 	struct in_addr	intaddr;
@@ -228,12 +222,7 @@ static int initWebs(int demo)
 		*cp = '\0';
 	}
 	ascToUni(dir_t, dir, sizeof(dir_t));
-
-	if (demo) {
-		gsprintf(wbuf, T("%s/%s"), dir_t, demoWeb);
-	} else {
-		gsprintf(wbuf, T("%s/%s"), dir_t, rootWeb);
-	}
+	gsprintf(wbuf, T("%s/%s"), dir_t, rootWeb);
 	websSetDefaultDir(wbuf);
 	cp = inet_ntoa(intaddr);
 	ascToUni(wbuf, cp, min(strlen(cp) + 1, sizeof(wbuf)));
@@ -565,7 +554,7 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
 /* 
  *	Copy the title of the dialog 
  */
-	nchar = nCopyAnsiToWideChar(p, WEBS_NAME);
+	nchar = nCopyAnsiToWideChar(p, "GoAhead WebServer");
 	p += nchar;
 
 /*	
@@ -604,14 +593,9 @@ static int createAboutBox(HINSTANCE hInstance, HWND hwnd)
  *	Copy the text of the first item
  */
 	nchar = nCopyAnsiToWideChar(p, 
-		TEXT("GoAhead WebServer ") WEBS_VERSION);
+		TEXT("GoAhead WebServer 2.1.3"));
 	p += nchar;
-#ifdef WEBS_SSL_SUPPORT
-	p -= sizeof(char_t);
-	nchar = nCopyAnsiToWideChar(p, 
-		TEXT("\n") SSL_NAME TEXT(" ") SSL_VERSION);
-	p += nchar;
-#endif
+
 /*
  *	Advance pointer over nExtraStuff WORD
  */
@@ -810,10 +794,260 @@ static int websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
  *	If the empty or "/" URL is invoked, redirect default URLs to the home page
  */
 	if (*url == '\0' || gstrcmp(url, T("/")) == 0) {
-		websRedirect(wp, WEBS_DEFAULT_HOME);
+		websRedirect(wp, T("home.asp"));
 		return 1;
 	}
 	return 0;
+}
+
+/******************************************************************************/
+/*
+ *	Default error handler.  The developer should insert code to handle
+ *	error messages in the desired manner.
+ */
+
+void defaultErrorHandler(int etype, char_t *msg)
+{
+#if 0
+	write(1, msg, gstrlen(msg));
+#endif
+}
+
+/******************************************************************************/
+/*
+ *	Trace log. Customize this function to log trace output
+ */
+
+void defaultTraceHandler(int level, char_t *buf)
+{
+/*
+ *	The following code would write all trace regardless of level
+ *	to stdout.
+ */
+#if 0
+	if (buf) {
+		write(1, buf, gstrlen(buf));
+	}
+#endif
+}
+
+/******************************************************************************/
+/*
+ *	Returns a pointer to an allocated qualified unique temporary file name.
+ *	This filename must eventually be deleted with bfree().
+ */
+
+char_t *websGetCgiCommName()
+{
+	char_t	*pname1, *pname2;
+
+	pname1 = tempnam(NULL, T("cgi"));
+	pname2 = bstrdup(B_L, pname1);
+	free(pname1);
+	return pname2;
+}
+
+/******************************************************************************/
+/*
+ *	Convert a table of strings into a single block of memory.
+ *	The input table consists of an array of null-terminated strings,
+ *	terminated in a null pointer.
+ *	Returns the address of a block of memory allocated using the balloc() 
+ *	function.  The returned pointer must be deleted using bfree().
+ *	Returns NULL on error.
+ */
+
+static unsigned char *tableToBlock(char **table)
+{
+    unsigned char	*pBlock;		/*  Allocated block */
+    char			*pEntry;		/*  Pointer into block      */
+    size_t			sizeBlock;		/*  Size of table           */
+    int				index;			/*  Index into string table */
+
+    a_assert(table);
+
+/*  
+ *	Calculate the size of the data block.  Allow for final null byte. 
+ */
+    sizeBlock = 1;                    
+    for (index = 0; table[index]; index++) {
+        sizeBlock += strlen(table[index]) + 1;
+	}
+
+/*
+ *	Allocate the data block and fill it with the strings                   
+ */
+    pBlock = balloc(B_L, sizeBlock);
+
+	if (pBlock != NULL) {
+		pEntry = (char *) pBlock;
+
+        for (index = 0; table[index]; index++) {
+			strcpy(pEntry, table[index]);
+			pEntry += strlen(pEntry) + 1;
+		}
+
+/*		
+ *		Terminate the data block with an extra null string                
+ */
+		*pEntry = '\0';              
+	}
+
+	return pBlock;
+}
+
+
+/******************************************************************************/
+/*
+ *	Create a temporary stdout file and launch the CGI process.
+ *	Returns a handle to the spawned CGI process.
+ */
+
+int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp, 
+					  char_t *stdIn, char_t *stdOut)
+{
+    STARTUPINFO			newinfo;	
+	SECURITY_ATTRIBUTES security;
+    PROCESS_INFORMATION	procinfo;		/*  Information about created proc   */
+    DWORD				dwCreateFlags;
+    char_t				*cmdLine;
+	char_t				**pArgs;
+	BOOL				bReturn;
+	int					i, nLen;
+	unsigned char		*pEnvData;
+
+/*
+ *	Replace directory delimiters with Windows-friendly delimiters
+ */
+	nLen = gstrlen(cgiPath);
+	for (i = 0; i < nLen; i++) {
+		if (cgiPath[i] == '/') {
+			cgiPath[i] = '\\';
+		}
+	}
+/*
+ *	Calculate length of command line
+ */
+	nLen = 0;
+	pArgs = argp;
+	while (pArgs && *pArgs && **pArgs) {
+		nLen += gstrlen(*pArgs) + 1;
+		pArgs++;
+	}
+
+/*
+ *	Construct command line
+ */
+	cmdLine = balloc(B_L, sizeof(char_t) * nLen);
+	a_assert (cmdLine);
+	gstrcpy(cmdLine, "");
+
+	pArgs = argp;
+	while (pArgs && *pArgs && **pArgs) {
+		gstrcat(cmdLine, *pArgs);
+		gstrcat(cmdLine, T(" "));
+		pArgs++;
+	}
+
+ /*
+ *	Create the process start-up information 
+ */
+	memset (&newinfo, 0, sizeof(newinfo));
+    newinfo.cb          = sizeof(newinfo);
+    newinfo.dwFlags     = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+    newinfo.wShowWindow = SW_HIDE;
+    newinfo.lpTitle     = NULL;
+
+/*
+ *	Create file handles for the spawned processes stdin and stdout files
+ */
+	security.nLength = sizeof(SECURITY_ATTRIBUTES);
+	security.lpSecurityDescriptor = NULL;
+	security.bInheritHandle = TRUE;
+
+/*
+ *	Stdin file should already exist.
+ */
+	newinfo.hStdInput = CreateFile(stdIn, GENERIC_READ,
+		FILE_SHARE_READ, &security, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+/*
+ *	Stdout file is created and file pointer is reset to start.
+ */
+	newinfo.hStdOutput = CreateFile(stdOut, GENERIC_READ | GENERIC_WRITE,
+		FILE_SHARE_READ + FILE_SHARE_WRITE, &security, OPEN_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL, NULL);
+	SetFilePointer (newinfo.hStdOutput, 0, NULL, FILE_END);
+
+/*
+ *	Stderr file is set to Stdout.
+ */
+	newinfo.hStdError =	newinfo.hStdOutput;
+
+	dwCreateFlags = CREATE_NEW_CONSOLE;
+	pEnvData = tableToBlock(envp);
+
+/*
+ *	CreateProcess returns errors sometimes, even when the process was    
+ *	started correctly.  The cause is not evident.  For now: we detect    
+ *	an error by checking the value of procinfo.hProcess after the call.  
+ */
+    procinfo.hProcess = NULL;
+    bReturn = CreateProcess(
+        NULL,				/*  Name of executable module        */
+        cmdLine,			/*  Command line string              */
+        NULL,				/*  Process security attributes      */
+        NULL,				/*  Thread security attributes       */
+        TRUE,				/*  Handle inheritance flag          */
+        dwCreateFlags,		/*  Creation flags                   */
+        pEnvData,			/*  New environment block            */
+        NULL,				/*  Current directory name           */
+        &newinfo,			/*  STARTUPINFO                      */
+        &procinfo);			/*  PROCESS_INFORMATION              */
+
+	if (procinfo.hThread != NULL)  {
+		CloseHandle(procinfo.hThread);
+	}
+
+	if (newinfo.hStdInput) {
+		CloseHandle(newinfo.hStdInput);
+	}
+
+	if (newinfo.hStdOutput) {
+		CloseHandle(newinfo.hStdOutput);
+	}
+
+	bfree(B_L, pEnvData);
+	bfree(B_L, cmdLine);
+
+	if (bReturn == 0) {
+		return -1;
+	} else {
+		return (int) procinfo.hProcess;
+	}
+}
+
+/******************************************************************************/
+/*
+ *	Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
+ */
+
+int websCheckCgiProc(int handle)
+{
+	int		nReturn;
+	DWORD	exitCode;
+
+	nReturn = GetExitCodeProcess((HANDLE)handle, &exitCode);
+/*
+ *	We must close process handle to free up the window resource, but only
+ *  when we're done with it.
+ */
+	if ((nReturn == 0) || (exitCode != STILL_ACTIVE)) {
+		CloseHandle((HANDLE)handle);
+		return 0;
+	}
+
+	return 1;
 }
 
 /******************************************************************************/

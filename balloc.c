@@ -1,10 +1,11 @@
 /*
  * balloc.c -- Block allocation module
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: balloc.c,v 1.4 2002/12/02 15:34:19 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -27,7 +28,11 @@
 
 #define IN_BALLOC
 
-#include	"uemf.h"
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	"basic/basicInternal.h"
+#endif
 
 #include	<stdarg.h>
 #include	<stdlib.h>
@@ -455,7 +460,7 @@ char_t *bstrdup(B_ARGS_DEC, char_t *s)
 	}
 	len = gstrlen(s) + 1;
 	if ((cp = balloc(B_ARGS, len * sizeof(char_t))) != NULL) {
-		gstrncpy(cp, s, len * sizeof(char_t));
+		gstrcpy(cp, s);
 	}
 	return cp;
 }

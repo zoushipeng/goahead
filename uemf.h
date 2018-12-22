@@ -1,10 +1,11 @@
 /*
  * uemf.h -- GoAhead Micro Embedded Management Framework Header
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: uemf.h,v 1.6 2002/11/22 18:46:50 bporter Exp $
  */
 
 #ifndef _h_UEMF
@@ -35,7 +36,7 @@
 #endif /* WIN */
 
 #ifdef CE
-	/*#include	<errno.h>*/
+	#include	<errno.h>
 	#include	<limits.h>
 	#include	<tchar.h>
 	#include	<windows.h>
@@ -118,9 +119,6 @@
 #endif /* LYNX */
 
 #ifdef MACOSX
-	#include	<limits.h>
-	#include	<sys/select.h>
-	#include	<sys/types.h>
 	#include	<sys/stat.h>
 	#include	<stdio.h>
 	#include	<stdlib.h>
@@ -131,7 +129,6 @@
 	#include 	<netdb.h>
 	#include	<fcntl.h>
 	#include	<errno.h>
-	#include	<time.h>
 #endif /* MACOSX */
 
 #ifdef UW
@@ -232,9 +229,6 @@
 #define X_OK	1
 #undef F_OK
 #define F_OK	0
-
-typedef int socklen_t;
-
 #endif /* WIN || CE */
 
 #if (defined (LINUX) && !defined (_STRUCT_TIMEVAL))
@@ -267,10 +261,6 @@ struct timeval
     #define NFDBITS (sizeof (fd_mask) * NBBY)   /* bits per mask */
 #endif /* QNX4 */
 
-#ifdef MACOSX
-	typedef int32_t			fd_mask;
-#endif
-
 #ifdef NW
 	#define fd_mask			fd_set
 	#define INADDR_NONE		-1l
@@ -296,12 +286,9 @@ struct timeval
 #define TRACE_MAX			(4096 - 48)
 #define VALUE_MAX_STRING	(4096 - 48)
 #define SYM_MAX				(512)
-#define XML_MAX				4096	/* Maximum size for tags/tokens */
-#define BUF_MAX				4096	/* General sanity check for bufs */
-#ifndef LINE_MAX
-#define LINE_MAX			2048	/* General sanity check for a single line */
-#endif /* LINE_MAX */
-#define FMT_STATIC_MAX		256		/* Maximum for fmtStatic calls */
+#define XML_MAX				4096			/* Maximum size for tags/tokens */
+#define BUF_MAX				4096			/* General sanity check for bufs */
+#define FMT_STATIC_MAX		256				/* Maximum for fmtStatic calls */
 
 #if (defined (LITTLEFOOT) || defined (WEBS))
 #define LF_BUF_MAX		(510)
@@ -310,7 +297,8 @@ struct timeval
 #define	LF_BUF_MAX		BUF_MAX
 #define LF_PATHSIZE		PATHSIZE
 #define UPPATHSIZE		PATHSIZE
-#endif /* LITTLEFOOT || WEBS */ 
+#endif /* LITTLEFOOT || WEBS */
+
 #ifndef CHAR_T_DEFINED
 #define CHAR_T_DEFINED 1
 #ifdef UNICODE
@@ -363,7 +351,7 @@ typedef unsigned char		uchar_t;
  *	GoAhead Copyright.
  */
 #define GOAHEAD_COPYRIGHT \
-	T("Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.")
+	T("Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.")
 
 /*
  *	The following include has to be after the unicode defines.  By putting it
@@ -400,8 +388,6 @@ typedef unsigned char		uchar_t;
 #define gstrtok		wcstok
 #define gstrnset	wcsnset
 #define gstrrchr	wcsrchr
-#define gstrspn	wcsspn
-#define gstrcspn	wcscspn
 #define gstrstr		wcsstr
 #define gstrtol		wcstol
 
@@ -511,8 +497,6 @@ typedef struct _stat gstat_t;
 #define gstrtok		strtok
 #define gstrnset	strnset
 #define gstrrchr	strrchr
-#define gstrspn	strspn
-#define gstrcspn	strcspn
 #define gstrstr		strstr
 #define gstrtol		strtol
 
@@ -556,22 +540,6 @@ typedef struct stat gstat_t;
 #endif /* VXWORKS */
 #endif /* ! UNICODE */
 
-#ifdef WIN32
-#define getcwd	_getcwd
-#define tempnam	_tempnam
-#define open	_open
-#define close	_close
-#define read	_read
-#define write	_write
-#define chdir	_chdir
-#define lseek	_lseek
-#define unlink	_unlink
-//#define strtok(x, y) strtok_s(x, y, NULL)
-#define localtime localtime_s
-//#define strcat(x, y) strcat_s(x, elementsof(x), y)
-#endif
-
-
 /*
  *	Include inmem.h here because it redefines many of the file access fucntions.
  *	Otherwise there would be lots more #if-#elif-#else-#endif ugliness.
@@ -588,7 +556,6 @@ typedef struct stat gstat_t;
 
 #define E_MAX_ERROR			4096
 #define URL_MAX				4096
-#define E_MAX_REQUEST		2048		/* Request safeguard max */
 
 /*
  * Error types
@@ -606,8 +573,6 @@ typedef struct stat gstat_t;
 #else
 	#define a_assert(C)		if (1) ; else
 #endif /* ASSERT || ASSERT_CE */
-
-#define elementsof(X) sizeof(X) / sizeof(X[0])
 
 /******************************************************************************/
 /*                                 VALUE                                      */
@@ -791,9 +756,7 @@ typedef int sym_fd_t;						/* Returned by symOpen */
 #define EMF_SCRIPT_EJSCRIPT 		2		/* Ejscript */
 #define EMF_SCRIPT_MAX	 			3
 
-#if !defined(HAVE_MAXINT)
 #define	MAXINT		INT_MAX
-#endif
 #define BITSPERBYTE 8
 #define BITS(type)	(BITSPERBYTE * (int) sizeof(type))
 #define	STRSPACE	T("\t \n\r\t")
@@ -829,17 +792,10 @@ extern int		cronFree(cron_t *cp);
  *	Socket flags 
  */
 
-#if ((defined (WIN) || defined (CE)) && defined (WEBS) && !defined(WIN32))
-
-#ifndef EWOULDBLOCK
+#if ((defined (WIN) || defined (CE)) && defined (WEBS))
 #define EWOULDBLOCK             WSAEWOULDBLOCK
-#endif
-#ifndef ENETDOWN
 #define ENETDOWN                WSAENETDOWN
-#endif
-#ifndef ECONNRESET
 #define ECONNRESET              WSAECONNRESET
-#endif
 #endif /* (WIN || CE) && WEBS) */
 
 #define SOCKET_EOF				0x1		/* Seen end of file */
@@ -853,7 +809,6 @@ extern int		cronFree(cron_t *cp);
 #define SOCKET_LISTENING		0x100	/* Socket is server listener */
 #define SOCKET_CLOSING			0x200	/* Socket is closing */
 #define SOCKET_CONNRESET		0x400	/* Socket connection was reset */
-#define SOCKET_MYOWNBUFFERS		0x800	/* Not using inBuf/outBuf ringq */
 
 #define SOCKET_PORT_MAX			0xffff	/* Max Port size */
 
@@ -875,15 +830,13 @@ extern int		cronFree(cron_t *cp);
 #define SOCKET_EXCEPTION		0x8		/* Interested in exceptions */
 #define EMF_SOCKET_MESSAGE		(WM_USER+13)
 
-#define WEBS_MAX_REQUEST		2048		/* Request safeguard max */
-
 #ifdef LITTLEFOOT
 #define SOCKET_BUFSIZ			510		/* Underlying buffer size */
 #else
 #define SOCKET_BUFSIZ			1024	/* Underlying buffer size */
 #endif /* LITTLEFOOT */
 
-typedef void 	(*socketHandler_t)(int sid, int mask, void* data);
+typedef void 	(*socketHandler_t)(int sid, int mask, int data);
 typedef int		(*socketAccept_t)(int sid, char *ipaddr, int port, 
 					int listenSid);
 typedef struct {
@@ -893,7 +846,7 @@ typedef struct {
 	ringq_t			lineBuf;				/* Line ring queue */
 	socketAccept_t	accept;					/* Accept handler */
 	socketHandler_t	handler;				/* User I/O handler */
-	void			*handler_data;			/* User handler data */
+	int				handler_data;			/* User handler data */
 	int				handlerMask;			/* Handler events of interest */
 	int				sid;					/* Index into socket[] */
 	int				port;					/* Port to listen on */
@@ -972,9 +925,22 @@ extern void bstats(int handle, void (*writefn)(int handle, char_t *fmt, ...));
 #define B_USE_MALLOC		0x1				/* Okay to use malloc if required */
 #define B_USER_BUF			0x2				/* User supplied buffer for mem */
 
+
 #ifndef LINUX
 extern char_t	*basename(char_t *name);
 #endif /* !LINUX */
+
+#if (defined (UEMF) && defined (WEBS))
+/*
+ *	The open source webserver uses a different callback/timer mechanism
+ *	than other emf derivative products such as FieldUpgrader agents
+ *	so redefine those API for webserver so that they can coexist in the
+ *	same address space as the others.
+ */
+#define emfSchedCallback	websSchedCallBack
+#define emfUnschedCallback	websUnschedCallBack
+#define emfReschedCallback	websReschedCallBack
+#endif /* UEMF && WEBS */
 
 typedef void	(emfSchedProc)(void *data, int id);
 extern int		emfSchedCallback(int delay, emfSchedProc *proc, void *arg);
@@ -1034,12 +1000,12 @@ extern void 	ringqFlush(ringq_t *rq);
 extern void 	ringqAddNull(ringq_t *rq);
 
 extern int		scriptSetVar(int engine, char_t *var, char_t *value);
-extern int		scriptEval(int engine, char_t *cmd, char_t **rslt, void* chan);
+extern int		scriptEval(int engine, char_t *cmd, char_t **rslt, int chan);
 
 extern void		socketClose();
 extern void		socketCloseConnection(int sid);
 extern void		socketCreateHandler(int sid, int mask, socketHandler_t 
-					handler, void* arg);
+					handler, int arg);
 extern void		socketDeleteHandler(int sid);
 extern int		socketEof(int sid);
 extern int 		socketCanWrite(int sid);

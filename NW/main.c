@@ -1,10 +1,11 @@
 /*
  * main.c -- Main program for the GoAhead WebServer (NetWareversion)
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: main.c,v 1.3 2002/01/24 21:57:47 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -36,9 +37,8 @@ void  formDefineUserMgmt(void);
  * Change configuration here
  */
 
-static char_t     *rootWeb = T("www");       /* Root web directory */
-static char_t     *demoWeb = T("wwwdemo");   /* Root web directory */
-static char_t     *password = T("");         /* Security password */
+static char_t     *rootWeb = T("web");       /* Root web directory */
+static char_t     *password = T("");            /* Security password */
 static int        port = 80;                 /* Server port */
 static int        retries = 5;               /* Server port retries */
 static int        finished;                  /* Finished flag */
@@ -62,11 +62,13 @@ NETINET_DEFINE_CONTEXT ;
 /****************************** Forward Declarations **************************/
 
 static void NLMcleanup( void ) ;
-static int  initWebs(int demo);
+static int  initWebs();
 static int  aspTest(int eid, webs_t wp, int argc, char_t **argv);
 static void formTest(webs_t wp, char_t *path, char_t *query);
 static int  websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
             int arg, char_t *url, char_t *path, char_t *query);
+extern void defaultErrorHandler(int etype, char_t *msg);
+extern void defaultTraceHandler(int level, char_t *buf);
 
 #ifdef B_STATS
 static void printMemStats(int handle, char_t *fmt, ...);
@@ -83,14 +85,6 @@ void NLMcleanup( void );
 
 int main(int argc, char** argv)
 {
-	int i, demo = 0;
-
-	for (i = 1; i < argc; i++) {
-		if (strcmp(argv[i], "-demo") == 0) {
-			demo++;
-		}
-	}
-
 /*
  *	Hook the unload routine in
  */
@@ -115,7 +109,7 @@ int main(int argc, char** argv)
 /*
  * Initialize the web server
  */
-   if (initWebs(demo) < 0) {
+   if (initWebs() < 0) {
       return -1;
    }
 
@@ -149,7 +143,7 @@ int main(int argc, char** argv)
  * Initialize the web server.
  */
 
-static int initWebs(int demo)
+static int initWebs()
 {
    struct hostent *hp;
    struct in_addr intaddr;
@@ -207,12 +201,7 @@ static int initWebs(int demo)
       cp = dir ;
 
    Ps( 6, cp ) ;
-
-	if (demo) {
-	   sprintf(webdir, "%s/%s", cp, demoWeb);
-	} else {
-	   sprintf(webdir, "%s/%s", cp, rootWeb);
-	}
+   sprintf(webdir, "%s/%s", cp, rootWeb);
 
    Ps( 6, webdir ) ;
 
@@ -386,6 +375,112 @@ static int websHomePageHandler(webs_t wp, char_t *urlPrefix, char_t *webDir,
       return 1;
    }
    return 0;
+}
+
+/******************************************************************************/
+/*
+ * Default error handler.  The developer should insert code to handle
+ * error messages in the desired manner.
+ */
+
+void defaultErrorHandler(int etype, char_t *msg)
+{
+#if 0
+   write(1, msg, gstrlen(msg));
+#endif
+}
+
+/******************************************************************************/
+/*
+ * Trace log. Customize this function to log trace output
+ */
+
+void defaultTraceHandler(int level, char_t *buf)
+{
+/*
+ * The following code would write all trace regardless of level
+ * to stdout.
+ */
+#if 0
+   if (buf) {
+      write(1, buf, gstrlen(buf));
+   }
+#endif
+}
+
+/******************************************************************************/
+/*
+ * Returns a pointer to an allocated qualified unique temporary file name.
+ * This filename must eventually be deleted with bfree();
+ */
+
+char_t *websGetCgiCommName()
+{
+   char_t   *pname;
+
+   pname = bstrdup(B_L, tmpnam( NULL ) );
+   return pname;
+}
+
+
+
+/******************************************************************************/
+/*
+ * Launch the CGI process and return a handle to it.
+ */
+
+int websLaunchCgiProc(char_t *cgiPath, char_t **argp, char_t **envp,
+                 char_t *stdIn, char_t *stdOut)
+{
+   int   pid, fdin, fdout, hstdin, hstdout, rc;
+
+   fdin = fdout = -1; 
+   if ((fdin = open(stdIn, O_RDWR | O_CREAT, 0666)) < 0 ||
+      (fdout = open(stdOut, O_RDWR | O_CREAT, 0666)) < 0 )
+      goto DONE;
+
+/*	COMMENTED BLOCK שששששששששששששששששששששששששששששששששששששששששששששששששששששש
+ *	   printf( "[%s]\n[", cgiPath ) ;
+ *	{
+ *	   char \**x = argp;
+ *	   while( *argp ) printf( "%s-", *argp ++ ) ;
+ *	
+ *	}
+ *	   printf( "]\n" ) ;
+ *	END COMMENTS ששששששששששששששששששששששששששששששששששששששששששששששששששששששששש 
+ */
+
+   rc = spawnvp( P_NOWAIT, cgiPath, argp ) ;
+
+   if( rc != 0) {
+      exit (0);
+   } 
+
+DONE:
+   if (fdout >= 0) {
+      close(fdout);
+   }
+   if (fdin >= 0) {
+      close(fdin);
+   }
+   return rc;
+}
+
+/******************************************************************************/
+/*
+ * Check the CGI process.  Return 0 if it does not exist; non 0 if it does.
+ */
+
+int websCheckCgiProc(int handle)
+{
+/*
+ * Check to see if the CGI child process has terminated or not yet.  
+ */
+   if( handle ) {
+      return 0;
+   } else {
+      return 1;
+   }
 }
 
 /******************************************************************************/

@@ -1,10 +1,11 @@
 /*
  * handler.c -- URL handler support
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: handler.c,v 1.4 2003/03/17 22:21:41 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -263,13 +264,6 @@ int websUrlHandlerRequest(webs_t wp)
  	websCondenseMultipleChars(wp->path, '/');
 	websCondenseMultipleChars(wp->url, '/');
 
-	/* Fix by Luigi Auriemma 19 Jan 2004 */
-	/* http://aluigi.altervista.org/adv/goahead-adv2.txt */
-	if ((wp->path[0] != '/') || strchr(wp->path, '\\')) {
-		websError(wp, 400, T("Bad request"));
-		return 0;
-	}
-
 /*
  *	We loop over each handler in order till one accepts the request. 
  *	The security handler will handle the request if access is NOT allowed.
@@ -309,6 +303,74 @@ int websUrlHandlerRequest(webs_t wp)
 	return 0;
 }
 
+#ifdef OBSOLETE_CODE
+
+/******************************************************************************/
+/*
+ *	Tidy up the URL path. Return -1 if the URL is bad.
+ *  Used to eliminate repeated directory delimiters ('/').
+ */
+
+static int websTidyUrl(webs_t wp)
+{
+	char_t	*parts[64];					/* Array of ptr's to URL parts */
+	char_t	*token, *url, *tidyurl;
+	int		i, len, npart;
+
+	a_assert(websValid(wp));
+
+/*
+ *	Copy the string so we don't destroy the original (yet)
+ */
+	url = bstrdup(B_L, wp->url);
+	websDecodeUrl(url, url, gstrlen(url));
+
+	len = npart = 0;
+	parts[0] = NULL;
+	token = gstrtok(url, T("/"));
+
+/*
+ *	Look at each directory segment and process "." and ".." segments
+ *	Don't allow the browser to pop outside the root web. 
+ */
+	while (token != NULL) {
+		if (gstrcmp(token, T("..")) == 0) {
+			if (npart > 0) {
+				npart--;
+			}
+
+		} else if (gstrcmp(token, T(".")) != 0) {
+			parts[npart] = token;
+			len += gstrlen(token) + 1;
+			npart++;
+		}
+		token = gstrtok(NULL, T("/"));
+	}
+
+/*
+ *	Re-construct URL. Need extra space all "/" and null.
+ */
+	if (npart || (gstrcmp(url, T("/")) == 0) || (url[0] == '\0')) {
+		tidyurl = balloc(B_L, (len + 2) * sizeof(char_t));
+		*tidyurl = '\0';
+
+		for (i = 0; i < npart; i++) {
+			gstrcat(tidyurl, T("/"));
+			gstrcat(tidyurl, parts[i]);
+		}
+
+		bfree(B_L, url);
+
+		bfree(B_L, wp->url);
+		wp->url = tidyurl;
+		return 0;
+	} else {
+		bfree(B_L, url);
+		return -1;
+	}
+}
+
+#endif
 
 /******************************************************************************/
 /*

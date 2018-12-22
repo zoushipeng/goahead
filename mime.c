@@ -1,10 +1,11 @@
 /*
  * mime.c -- Web server mime types
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: mime.c,v 1.7 2003/03/17 20:12:33 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -22,7 +23,8 @@
 /*
  *	Addd entries to the MimeList as required for your content
  */
-#define MORE_MIME_TYPES	1
+
+
 websMimeType websMimeList[] = {
 	{ T("application/java"), T(".class") },
 	{ T("application/java"), T(".jar") },
@@ -32,8 +34,6 @@ websMimeType websMimeList[] = {
 	{ T("text/xml"), T(".xml") },
 	{ T("image/gif"), T(".gif") },
 	{ T("image/jpeg"), T(".jpg") },
-	{ T("image/png"), T(".png") },
-	{ T("image/vnd.microsoft.icon"), T(".ico") },
 	{ T("text/css"), T(".css") },
 	{ T("text/plain"), T(".txt") },
    { T("application/x-javascript"), T(".js") },
@@ -67,7 +67,6 @@ websMimeType websMimeList[] = {
 	{ T("application/x-sv4cpio"), T(".sv4cpio") },
 	{ T("application/x-sv4crc"), T(".sv4crc") },
 	{ T("application/x-tar"), T(".tar") },
-	{ T("application/x-tgz"), T(".tgz") },
 	{ T("application/x-tcl"), T(".tcl") },
 	{ T("application/x-tex"), T(".tex") },
 	{ T("application/x-texinfo"), T(".texinfo") },

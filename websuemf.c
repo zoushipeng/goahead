@@ -1,10 +1,17 @@
 /*
  * websuemf.c -- GoAhead Micro Embedded Management Framework
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: websuemf.c,v 1.4 2002/10/24 14:44:50 bporter Exp $
+ */
+
+/********************************** Description *******************************/
+
+/*
+ *	This modules provides compatibility with the full GoAhead EMF.
  */
 
 /*********************************** Includes *********************************/
@@ -34,7 +41,7 @@ static int			schedMax;
  *	Evaluate a script
  */
 
-int scriptEval(int engine, char_t *cmd, char_t **result, void* chan)
+int scriptEval(int engine, char_t *cmd, char_t **result, int chan)
 {
 	int		ejid;
 

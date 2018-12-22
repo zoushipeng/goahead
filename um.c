@@ -1,10 +1,11 @@
 /*
  *	um.c -- User Management
  *
- *	Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ *	Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  *	See the file "license.txt" for usage and redistribution license requirements
  *
+ *	$Id: um.c,v 1.5 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -52,6 +53,14 @@
 
 /******************************** Local Data **********************************/
 
+#ifdef qHierarchicalAccess
+/*
+ * user-provided function to allow hierarchical access protection. See below.
+ * for details.
+ */
+extern bool_t dmfCanAccess(const char_t* usergroup, const char_t* group);
+#endif
+#ifdef UEMF
 /*
  *	User table definition
  */
@@ -117,6 +126,7 @@ dbTable_t accessTable = {
 	0,
 	NULL
 };
+#endif	/* #ifdef UEMF */
 
 /* 
  *	Database Identifier returned from dbOpen()
@@ -149,9 +159,11 @@ int umOpen()
  */
 	if (didUM == -1) {
 		didUM = dbOpen(UM_USER_TABLENAME, UM_DB_FILENAME, NULL, 0);
+#ifdef UEMF
 		dbRegisterDBSchema(&userTable);
 		dbRegisterDBSchema(&groupTable);
 		dbRegisterDBSchema(&accessTable);
+#endif
 	}
 
 	if (saveFilename == NULL) {
@@ -1372,10 +1384,21 @@ bool_t umUserCanAccessURL(char_t *user, char_t *url)
  *	member of that group
  */
 	if (group && *group) {
+#ifdef qHierarchicalAccess
+      /*
+       * If we are compiling with the hierarchical access extensions, we
+       * instead call the user-provided function that checks to see whether
+       * the current user's access level is greater than or equal to the
+       * access level required for this URL.
+       */
+      return dmfCanAccess(usergroup, group);
+
+#else
 		if (usergroup && (gstrcmp(group, usergroup) != 0)) {
 			return FALSE;
 
 		}
+#endif
 	} 
 
 /*

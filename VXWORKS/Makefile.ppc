@@ -1,9 +1,10 @@
 #
 # Makefile for the GoAhead web server reference source base
-#  for the VxWorks PPC OS
+#  for the VxWorks 486 OS
 #
-# Copyright (c) Go Ahead, 1995-2010
+# Copyright (c) Go Ahead, 1995-2000
 #
+# $Id: Makefile.ppc,v 1.1 2001/12/05 21:51:04 bporter Exp $
 #
 
 all:	compile 
@@ -14,32 +15,25 @@ LD				= ldppc
 
 ARCH			= libwebs.a
 NAME			= webs
-
 # User Management switch
 UMSW			= -DUSER_MANAGEMENT_SUPPORT
-
 # Digest Access switch
 DASW			= -DDIGEST_ACCESS_SUPPORT
-
-#
-#   SSL switches
-#   Comment the following 3 lines out to disable SSL
-#
-SSLINC = ../../matrixssl
-SSLLIB = ../../matrixssl/src/libmatrixsslstatic.a
-SSLSW   = -DWEBS_SSL_SUPPORT -I$(SSLINC)
+# SSL switches, uncomment to activate (SSL paths may require modification)
+# SSLINC = /RSASSL/library/include
+# SSLLIB = /RSASSL/library/lib/libsslc.a
+# SSLSW	= -DWEBS_SSL_SUPPORT -I$(SSLINC)
+# SSLPATCHFILE = ../websSSL.o
 
 WEBCOMP			= webcomp
-DEPEND_FILES	= ../asp.o ../balloc.o ../mime64.o ../cgi.o ../default.o  \
+DEPEND_FILES	= ../asp.o ../balloc.o ../base64.o ../cgi.o ../default.o  \
 				  ../ejlex.o ../ejparse.o ../form.o \
 				  ../h.o ../handler.o ../mime.o ../misc.o ../page.o  \
-				  ../ringq.o ../rom.o \
-				  ../sock.o ../sockGen.o \
-				  ../websSSL.o ../matrixSSLSocket.o \
-				  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
+				  ../ringq.o ../rom.o $(SSLPATCHFILE) \
 				  ../md5c.o ../um.o ../umui.o ../websda.o ../emfdb.o \
+				  ../security.o ../sym.o ../uemf.o ../url.o ../value.o \
 				  ../webrom.o ../webs.o ../websuemf.o \
-				  main.o
+				  ../sock.o ../sockGen.o main.o
 CFLAGS			= -DWEBS -DUEMF -DOS="VXWORKS" -DVXWORKS $(UMSW) $(DASW) -Wall $(SSLSW)
 BSP_CFLAGS		= -DNATIVE64 -DBIGENDIAN -DMCP750 -DCPU=PPC604 -mpowerpc -ansi -nostdinc -fvolatile -nostdlib -fno-builtin -fno-defer-pop -mlongcall
 IFLAGS			= -I/tornado2/target/h -I../
@@ -75,7 +69,7 @@ clean:
 
 ../balloc.o: ../balloc.c ../uemf.h
 
-../mime64.o:  ../mime64.c ../webs.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
+../base64.o:  ../base64.c ../webs.h ../wsIntrn.h ../ej.h ../ejIntrn.h ../uemf.h
 
 ../cgi.o:  ../webs.h ../wsIntrn.h ../uemf.h
 

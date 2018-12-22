@@ -1,43 +1,50 @@
-/*
- *	md5.h
- *	Release $Name: WEBSERVER-2-5 $
+/* MD5.H - header file for MD5C.C
  *
- *	(C)Copyright 2002-2010 PeerSec Networks
- *	All Rights Reserved
- *
+ * $Id: md5.h,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
-/******************************************************************************/
+
+/* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
+rights reserved.
+
+License to copy and use this software is granted provided that it
+is identified as the "RSA Data Security, Inc. MD5 Message-Digest
+Algorithm" in all material mentioning or referencing this software
+or this function.
+
+License is also granted to make and use derivative works provided
+that such works are identified as "derived from the RSA Data
+Security, Inc. MD5 Message-Digest Algorithm" in all material
+mentioning or referencing the derived work.
+
+RSA Data Security, Inc. makes no representations concerning either
+the merchantability of this software or the suitability of this
+software for any particular purpose. It is provided "as is"
+without express or implied warranty of any kind.
+
+These notices must be retained in any copies of any part of this
+documentation and/or software.
+ */
 
 #ifndef _h_MD5
 #define _h_MD5 1
 
-#ifndef WEBS_SSL_SUPPORT
-
-#ifndef ulong32
-typedef unsigned int	ulong32;
+#ifndef UINT4
+#define UINT4 unsigned long
 #endif
 
+#ifndef POINTER
+#define POINTER unsigned char *
+#endif
+
+/* MD5 context. */
 typedef struct {
-    ulong32 lengthHi;
-    ulong32 lengthLo;
-    ulong32 state[4], curlen;
-    unsigned char buf[64];
-} psDigestContext_t;
+  UINT4 state[4];                                   /* state (ABCD) */
+  UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
+  unsigned char buffer[64];                         /* input buffer */
+} MD5_CONTEXT;
 
-typedef psDigestContext_t	psMd5Context_t;
+extern void MD5Init (MD5_CONTEXT *);
+extern void MD5Update (MD5_CONTEXT *, unsigned char *, unsigned int);
+extern void MD5Final (unsigned char [16], MD5_CONTEXT *);
 
-extern void psMd5Init(psMd5Context_t *md);
-extern void psMd5Update(psMd5Context_t *md, unsigned char *buf,
-			unsigned int len);
-extern int	psMd5Final(psMd5Context_t *md, unsigned char *hash);
-
-/* Uncomment below for old API Compatibility */
-/*
-typedef psMdContext_t		MD5_CONTEXT;
-#define MD5Init(A)			psMd5Init(A)
-#define MD5Update(A, B, C)	psMd5Update(A, B, C);
-#define MD5Final(A, B)		psMd5Final(B, A);
-*/
-
-#endif /* WEBS_SSL_SUPPORT */
 #endif /* _h_MD5 */

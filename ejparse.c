@@ -1,10 +1,11 @@
 /*
  * ejparse.c -- Ejscript(TM) Parser
  *
- * Copyright (c) GoAhead Software Inc., 1995-2010. All Rights Reserved.
+ * Copyright (c) GoAhead Software Inc., 1995-2000. All Rights Reserved.
  *
  * See the file "license.txt" for usage and redistribution license requirements
  *
+ * $Id: ejparse.c,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 /******************************** Description *********************************/
@@ -99,6 +100,9 @@ int ejOpenEngine(sym_fd_t variables, sym_fd_t functions)
  */
 	ejSetGlobalVar(ep->eid, T("null"), NULL);
 
+#ifdef EMF
+	ejEmfOpen(ep->eid);
+#endif
 	return ep->eid;
 }
 
@@ -115,6 +119,10 @@ void ejCloseEngine(int eid)
 	if ((ep = ejPtr(eid)) == NULL) {
 		return;
 	}
+
+#ifdef EMF
+	ejEmfClose(eid);
+#endif
 
 	bfreeSafe(B_L, ep->error);
 	ep->error = NULL;
@@ -161,14 +169,8 @@ char_t *ejEvalFile(int eid, char_t *path, char_t **emsg)
 	if ((ep = ejPtr(eid)) == NULL) {
 		return NULL;
 	}
-	
-#if !defined(WIN32)
-	fd = gopen(path, O_RDONLY | O_BINARY, 0666);
-#else
-	_sopen_s(&fd, path, O_RDONLY | O_BINARY, _SH_DENYNO, 0666);
-#endif
 
-	if (fd  < 0) {
+	if ((fd = gopen(path, O_RDONLY | O_BINARY, 0666)) < 0) {
 		ejError(ep, T("Bad handle %d"), eid);
 		return NULL;
 	}
@@ -1332,7 +1334,7 @@ static int evalFunction(ej_t *ep)
 		return -1;
 	}
 
-	return (*fn)(ep->eid, ep->userHandle, ep->func->nArgs,
+	return (*fn)(ep->eid, (void*) ep->userHandle, ep->func->nArgs,
 		ep->func->args);
 }
 
@@ -1402,20 +1404,15 @@ static void setString(B_ARGS_DEC, char_t **ptr, char_t *s)
 
 static void appendString(char_t **ptr, char_t *s)
 {
-	int	len, oldlen, size;
+	int	len, oldlen;
 
 	a_assert(ptr);
 
 	if (*ptr) {
 		len = gstrlen(s);
 		oldlen = gstrlen(*ptr);
-		size = (len + oldlen + 1) * sizeof(char_t);
-		*ptr = brealloc(B_L, *ptr, size);
-#if !defined(WIN32)
+		*ptr = brealloc(B_L, *ptr, (len + oldlen + 1) * sizeof(char_t));
 		gstrcpy(&(*ptr)[oldlen], s);
-#else
-		strcpy_s(&(*ptr)[oldlen], size - oldlen, s);
-#endif
 	} else {
 		*ptr = bstrdup(B_L, s);
 	}
@@ -1548,7 +1545,7 @@ int ejArgs(int argc, char_t **argv, char_t *fmt, ...)
  *	Define the user handle
  */
 
-void ejSetUserHandle(int eid, void* handle)
+void ejSetUserHandle(int eid, int handle)
 {
 	ej_t	*ep;
 
@@ -1563,12 +1560,12 @@ void ejSetUserHandle(int eid, void* handle)
  *	Get the user handle
  */
 
-void* ejGetUserHandle(int eid)
+int ejGetUserHandle(int eid)
 {
 	ej_t	*ep;
 
 	if ((ep = ejPtr(eid)) == NULL) {
-		return NULL;
+		return -1;
 	}
 	return ep->userHandle;
 }

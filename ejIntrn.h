@@ -1,10 +1,11 @@
 /* 
  *	ejIntrn.h -- Ejscript(TM) header
  *
- *	Copyright (c) GoAhead Software, Inc., 1992-2010
+ *	Copyright (c) GoAhead Software, Inc., 1992-2000
  *
  *	See the file "license.txt" for information on usage and redistribution
  *
+ * $Id: ejIntrn.h,v 1.3 2002/10/24 14:44:50 bporter Exp $
  */
 
 #ifndef _h_EJINTERNAL
@@ -23,8 +24,10 @@
 #include	<stdarg.h>
 #include	<stdlib.h>
 
-#ifdef WIN32
-	#include	<share.h>
+#ifdef CE
+#ifndef UEMF
+	#include	<io.h>
+#endif
 #endif
 
 #ifdef LYNX
@@ -35,8 +38,16 @@
 	#include	<dirent.h>
 #endif
 
-#include	"uemf.h"
-#include	"ej.h"
+#ifdef UEMF
+	#include	"uemf.h"
+#else
+	#include	<param.h>
+	#include	<stat.h>
+	#include	"basic/basicInternal.h"
+	#include	"emf/emfInternal.h"
+#endif
+
+#include		"ej.h"
 
 /********************************** Defines ***********************************/
 /*
@@ -169,7 +180,7 @@ typedef struct ej {
 	int			tid;							/* Current token id */
 	int			eid;							/* Halloc handle */
 	int			flags;							/* Flags */
-	void		*userHandle;					/* User defined handle */
+	int			userHandle;						/* User defined handle */
 } ej_t;
 
 /******************************** Prototypes **********************************/
@@ -185,8 +196,8 @@ extern void		*ejGetGlobalFunction(int eid, char_t *name);
 extern int 		ejSetGlobalFunctionDirect(sym_fd_t functions, char_t *name, 
 					int (*fn)(int eid, void *handle, int argc, char_t **argv));
 extern void 	ejError(ej_t* ep, char_t* fmt, ...);
-extern void		ejSetUserHandle(int eid, void* handle);
-extern void		*ejGetUserHandle(int eid);
+extern void		ejSetUserHandle(int eid, int handle);
+extern int		ejGetUserHandle(int eid);
 extern int		ejGetLineNumber(int eid);
 extern char_t	*ejGetResult(int eid);
 extern void		ejSetLocalVar(int eid, char_t *var, char_t *value);
