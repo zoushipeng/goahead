@@ -1,8 +1,6 @@
 Embedthis GoAhead
 ===
 
-[![Build Status](https://travis-ci.org/embedthis/goahead.png)](https://travis-ci.org/embedthis/goahead)
-
 The most popular little embedded web server.
 
 Branches
@@ -25,7 +23,7 @@ See [LICENSE.md](LICENSE.md) and https://www.embedthis.com/goahead/licensing.htm
 
 You can build GoAhead with make, Visual Studio, Xcode or [MakeMe](https://www.embedthis.com/makeme/).
 
-The IDE projects and Makefiles will build with [ESP](https://www.embedthis.com/esp/) and SSL using the [MbedTLS](https://github.com/ARMmbed/mbedtls) TLS stack. To build with CGI, OpenSSL or other modules, read the [projects/README.md](projects/README.md) for details.
+The IDE projects and Makefiles will build with SSL using the [MbedTLS](https://github.com/ARMmbed/mbedtls) TLS stack. To build with CGI, OpenSSL or other modules, read the [projects/README.md](projects/README.md) for details.
 
 ### To Build with Make
 
