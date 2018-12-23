@@ -1,5 +1,5 @@
 #
-#   goahead-macosx-openssl.mk -- Makefile to build Embedthis GoAhead for macosx
+#   goahead-macosx-openssl.mk -- Makefile to build Embedthis GoAhead Community Edition for macosx
 #
 
 NAME                  := goahead

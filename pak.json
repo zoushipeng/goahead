@@ -37,9 +37,10 @@
         "doc/api/"
     ],
     "dependencies": {
+        "goahead-mbedtls": "~2",
+        "me-win": "~0.1",
         "osdep": "~1.0",
-        "ssl": "~1",
-        "goahead-mbedtls": "~2"
+        "ssl": "~1"
     },
     "optionalDependencies": {
         "certs": "~0.1",
