@@ -45,11 +45,11 @@ To run
 
 #### Windows
 
-First open a Windows cmd prompt window and then set your Visual Studio environment variables by running vcvarsall.bat from your Visual Studio installation folder.
-
-Then run a Windows cmd prompt window and type:
-
     make
+
+The make.bat script runs projects/windows.bat to locate the Visual Studio compiler. If you have setup
+your CMD environment for Visual Studio by running the Visual Studio vsvarsall.bat, then that edition of
+Visual Studio will be used. If not, windows.bat will attempt to locate the most recent Visual Studio version.
 
 ### To Build with Visual Studio
 
