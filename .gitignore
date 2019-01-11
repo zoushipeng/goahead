@@ -9,3 +9,4 @@ dh.pem
 test/web/tmp/small.dat
 test/burp*
 test/web/tmp/a.dat
+/start.me
