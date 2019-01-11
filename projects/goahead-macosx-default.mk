@@ -1,9 +1,9 @@
 #
-#   goahead-macosx-default.mk -- Makefile to build Embedthis GoAhead Community Edition for macosx
+#   goahead-macosx-default.mk -- Makefile to build Embedthis GoAhead Core for macosx
 #
 
 NAME                  := goahead
-VERSION               := 4.1.1
+VERSION               := 4.1.2
 PROFILE               ?= default
 ARCH                  ?= $(shell uname -m | sed 's/i.86/x86/;s/x86_64/x64/;s/arm.*/arm/;s/mips.*/mips/')
 CC_ARCH               ?= $(shell echo $(ARCH) | sed 's/x86/i686/;s/x64/x86_64/')

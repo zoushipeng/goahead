@@ -1,9 +1,9 @@
 #
-#   goahead-windows-openssl_11.nmake -- Makefile to build Embedthis GoAhead Community Edition for windows
+#   goahead-windows-openssl_11.nmake -- Makefile to build Embedthis GoAhead Core for windows
 #
 
 NAME                  = goahead
-VERSION               = 4.1.1
+VERSION               = 4.1.2
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -101,7 +101,7 @@ LIBS                  = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames
 
 ME_ROOT_PREFIX        = C:
 ME_BASE_PREFIX        = $(ME_ROOT_PREFIX)\Program Files
-ME_APP_PREFIX         = $(ME_BASE_PREFIX)\Embedthis GoAhead Community Edition
+ME_APP_PREFIX         = $(ME_BASE_PREFIX)\Embedthis GoAhead Core
 ME_VAPP_PREFIX        = $(ME_APP_PREFIX)
 ME_DATA_PREFIX        = $(ME_VAPP_PREFIX)
 ME_STATE_PREFIX       = $(ME_VAPP_PREFIX)

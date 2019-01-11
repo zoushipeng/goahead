@@ -1,9 +1,9 @@
 #
-#   goahead-vxworks-default.mk -- Makefile to build Embedthis GoAhead Community Edition for vxworks
+#   goahead-vxworks-default.mk -- Makefile to build Embedthis GoAhead Core for vxworks
 #
 
 NAME                  := goahead
-VERSION               := 4.1.1
+VERSION               := 4.1.2
 PROFILE               ?= default
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))

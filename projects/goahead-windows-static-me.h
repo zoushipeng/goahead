@@ -70,7 +70,7 @@
     #define ME_DEPTH 1
 #endif
 #ifndef ME_DESCRIPTION
-    #define ME_DESCRIPTION "Embedthis GoAhead Community Edition"
+    #define ME_DESCRIPTION "Embedthis GoAhead Core"
 #endif
 #ifndef ME_GOAHEAD_ACCESS_LOG
     #define ME_GOAHEAD_ACCESS_LOG 0
@@ -243,8 +243,14 @@
 #ifndef ME_OPENSSL_VERSION
     #define ME_OPENSSL_VERSION "1.0"
 #endif
+#ifndef ME_PARTS
+    #define ME_PARTS "undefined"
+#endif
 #ifndef ME_PREFIXES
     #define ME_PREFIXES "install-prefixes"
+#endif
+#ifndef ME_PROFILE
+    #define ME_PROFILE "undefined"
 #endif
 #ifndef ME_ROM
     #define ME_ROM 0
@@ -256,10 +262,10 @@
     #define ME_STATIC 1
 #endif
 #ifndef ME_TITLE
-    #define ME_TITLE "Embedthis GoAhead Community Edition"
+    #define ME_TITLE "Embedthis GoAhead Core"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "4.1.1"
+    #define ME_VERSION "4.1.2"
 #endif
 
 /* Prefixes */
@@ -276,46 +282,46 @@
     #define ME_BASE_PREFIX "C:/Program Files"
 #endif
 #ifndef ME_APP_PREFIX
-    #define ME_APP_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition"
+    #define ME_APP_PREFIX "C:/Program Files/Embedthis GoAhead Core"
 #endif
 #ifndef ME_VAPP_PREFIX
-    #define ME_VAPP_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition"
+    #define ME_VAPP_PREFIX "C:/Program Files/Embedthis GoAhead Core"
 #endif
 #ifndef ME_DATA_PREFIX
-    #define ME_DATA_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition"
+    #define ME_DATA_PREFIX "C:/Program Files/Embedthis GoAhead Core"
 #endif
 #ifndef ME_STATE_PREFIX
-    #define ME_STATE_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition"
+    #define ME_STATE_PREFIX "C:/Program Files/Embedthis GoAhead Core"
 #endif
 #ifndef ME_BIN_PREFIX
-    #define ME_BIN_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/bin"
+    #define ME_BIN_PREFIX "C:/Program Files/Embedthis GoAhead Core/bin"
 #endif
 #ifndef ME_INC_PREFIX
-    #define ME_INC_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/inc"
+    #define ME_INC_PREFIX "C:/Program Files/Embedthis GoAhead Core/inc"
 #endif
 #ifndef ME_LIB_PREFIX
-    #define ME_LIB_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/lib"
+    #define ME_LIB_PREFIX "C:/Program Files/Embedthis GoAhead Core/lib"
 #endif
 #ifndef ME_MAN_PREFIX
-    #define ME_MAN_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/man"
+    #define ME_MAN_PREFIX "C:/Program Files/Embedthis GoAhead Core/man"
 #endif
 #ifndef ME_ETC_PREFIX
-    #define ME_ETC_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition"
+    #define ME_ETC_PREFIX "C:/Program Files/Embedthis GoAhead Core"
 #endif
 #ifndef ME_WEB_PREFIX
-    #define ME_WEB_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/web"
+    #define ME_WEB_PREFIX "C:/Program Files/Embedthis GoAhead Core/web"
 #endif
 #ifndef ME_LOG_PREFIX
-    #define ME_LOG_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/log"
+    #define ME_LOG_PREFIX "C:/Program Files/Embedthis GoAhead Core/log"
 #endif
 #ifndef ME_SPOOL_PREFIX
-    #define ME_SPOOL_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/tmp"
+    #define ME_SPOOL_PREFIX "C:/Program Files/Embedthis GoAhead Core/tmp"
 #endif
 #ifndef ME_CACHE_PREFIX
-    #define ME_CACHE_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/cache"
+    #define ME_CACHE_PREFIX "C:/Program Files/Embedthis GoAhead Core/cache"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "C:/Program Files/Embedthis GoAhead Community Edition/src"
+    #define ME_SRC_PREFIX "C:/Program Files/Embedthis GoAhead Core/src"
 #endif
 
 /* Suffixes */
@@ -357,10 +363,10 @@
     #define ME_MINOR_VERSION 1
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 1
+    #define ME_PATCH_VERSION 2
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 400010001
+    #define ME_VNUM 400010002
 #endif
 
 /* Components */
