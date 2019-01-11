@@ -1,9 +1,9 @@
 #
-#   goahead-vxworks-static.mk -- Makefile to build Embedthis GoAhead for vxworks
+#   goahead-vxworks-static.mk -- Makefile to build Embedthis GoAhead Core for vxworks
 #
 
 NAME                  := goahead
-VERSION               := 5.0.0
+VERSION               := 4.1.2
 PROFILE               ?= static
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
