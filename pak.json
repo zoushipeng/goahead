@@ -37,6 +37,7 @@
         "doc/api/"
     ],
     "dependencies": {
+        "assist": "~0.1",
         "goahead-mbedtls": "~2",
         "me-win": "~0.1",
         "osdep": "~1.0",
