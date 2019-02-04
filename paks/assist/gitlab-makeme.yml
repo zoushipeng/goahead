@@ -14,7 +14,9 @@ stages:
 
 before_script:
     - ./configure --profile ${PROFILE}
+    - echo eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_PROFILE}" get)
     - eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_PROFILE}" get)
+    - env | grep AWS
 
 .build: &build
     stage: build
