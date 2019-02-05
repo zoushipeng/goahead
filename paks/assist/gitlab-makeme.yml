@@ -42,7 +42,6 @@ build-linux:
 build-macosx:
     extends: .build
     tags: ['macosx']
-    when: manual
 
 build-windows:
     extends: .build
