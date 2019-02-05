@@ -13,10 +13,9 @@ stages:
     - publish
 
 before_script:
+    - set -e
     - ./configure --profile ${PROFILE}
-    - echo eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_PROFILE}" get)
     - eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_PROFILE}" get)
-    - env | grep AWS
 
 .build: &build
     stage: build
@@ -30,7 +29,7 @@ before_script:
 .publish: &publish
     stage: publish
     script:
-        - me publish
+        - echo me publish
     only: [ 'tags', 'triggers', 'schedules', 'web', 'api' ]
     environment:
         name: ${PROFILE}

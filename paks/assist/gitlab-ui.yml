@@ -17,6 +17,7 @@ variables:
     UI: 'ui'
 
 before_script:
+    - set -e
     - ./configure --profile ${PROFILE}
     - eval $(paks/assist/secrets --env '' --profile "${PROFILE}" --aws-profile "${AWS_PROFILE}" get)
 
