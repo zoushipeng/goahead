@@ -1173,7 +1173,10 @@ static void parseHeaders(Webs *wp)
             Step over "\r\n" after headers.
             Don't do this if chunked so that chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
-        assert(bufLen(&wp->rxbuf) >= 2);
+        if (bufLen(&wp->rxbuf) < 2 || wp->rxbuf.servp[0] != '\r' || wp->rxbuf.servp[1] != '\n') {
+            websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header termination");
+            return;
+        }
         wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
