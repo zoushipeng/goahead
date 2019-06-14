@@ -3,13 +3,14 @@
 #
 
 NAME                  := goahead
-VERSION               := 4.1.2
+VERSION               := 4.1.1
 PROFILE               ?= static
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
 OS                    ?= vxworks
 CC                    ?= cc$(subst x86,pentium,$(ARCH))
 LD                    ?= ldundefined
+AR                    ?= arundefined
 CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)
 BUILD                 ?= build/$(CONFIG)
 LBIN                  ?= $(BUILD)/bin
@@ -480,7 +481,7 @@ DEPS_33 += $(BUILD)/obj/mbedtls.o
 
 $(BUILD)/bin/libmbedtls.a: $(DEPS_33)
 	@echo '      [Link] $(BUILD)/bin/libmbedtls.a'
-	arundefined -cr $(BUILD)/bin/libmbedtls.a "$(BUILD)/obj/mbedtls.o"
+	$(AR) -cr $(BUILD)/bin/libmbedtls.a "$(BUILD)/obj/mbedtls.o"
 endif
 
 ifeq ($(ME_COM_MBEDTLS),1)
@@ -492,7 +493,7 @@ DEPS_34 += $(BUILD)/obj/goahead-mbedtls.o
 
 $(BUILD)/bin/libgoahead-mbedtls.a: $(DEPS_34)
 	@echo '      [Link] $(BUILD)/bin/libgoahead-mbedtls.a'
-	arundefined -cr $(BUILD)/bin/libgoahead-mbedtls.a "$(BUILD)/obj/goahead-mbedtls.o"
+	$(AR) -cr $(BUILD)/bin/libgoahead-mbedtls.a "$(BUILD)/obj/goahead-mbedtls.o"
 endif
 
 ifeq ($(ME_COM_OPENSSL),1)
@@ -503,7 +504,7 @@ DEPS_35 += $(BUILD)/obj/goahead-openssl.o
 
 $(BUILD)/bin/libgoahead-openssl.a: $(DEPS_35)
 	@echo '      [Link] $(BUILD)/bin/libgoahead-openssl.a'
-	arundefined -cr $(BUILD)/bin/libgoahead-openssl.a "$(BUILD)/obj/goahead-openssl.o"
+	$(AR) -cr $(BUILD)/bin/libgoahead-openssl.a "$(BUILD)/obj/goahead-openssl.o"
 endif
 
 #
@@ -539,7 +540,7 @@ DEPS_36 += $(BUILD)/obj/upload.o
 
 $(BUILD)/bin/libgo.a: $(DEPS_36)
 	@echo '      [Link] $(BUILD)/bin/libgo.a'
-	arundefined -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/time.o" "$(BUILD)/obj/upload.o"
+	$(AR) -cr $(BUILD)/bin/libgo.a "$(BUILD)/obj/action.o" "$(BUILD)/obj/alloc.o" "$(BUILD)/obj/auth.o" "$(BUILD)/obj/cgi.o" "$(BUILD)/obj/crypt.o" "$(BUILD)/obj/file.o" "$(BUILD)/obj/fs.o" "$(BUILD)/obj/http.o" "$(BUILD)/obj/js.o" "$(BUILD)/obj/jst.o" "$(BUILD)/obj/options.o" "$(BUILD)/obj/osdep.o" "$(BUILD)/obj/rom.o" "$(BUILD)/obj/route.o" "$(BUILD)/obj/runtime.o" "$(BUILD)/obj/socket.o" "$(BUILD)/obj/time.o" "$(BUILD)/obj/upload.o"
 
 #
 #   install-certs

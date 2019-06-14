@@ -3,7 +3,7 @@
 #
 
 NAME                  = goahead
-VERSION               = 4.1.2
+VERSION               = 4.1.1
 
 OS                    = windows
 PA                    = $(PROCESSOR_ARCHITECTURE)
@@ -524,7 +524,7 @@ DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\mbedtls.obj
 
 build\$(CONFIG)\bin\libmbedtls.lib: $(DEPS_33)
 	@echo ..... [Link] build\$(CONFIG)\bin\libmbedtls.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libmbedtls.lib "$(BUILD)\obj\mbedtls.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libmbedtls.lib "$(BUILD)\obj\mbedtls.obj" $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_MBEDTLS)" == "1"
@@ -536,7 +536,7 @@ DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\goahead-mbedtls.obj
 
 build\$(CONFIG)\bin\libgoahead-mbedtls.lib: $(DEPS_34)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgoahead-mbedtls.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libgoahead-mbedtls.lib "$(BUILD)\obj\goahead-mbedtls.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libgoahead-mbedtls.lib "$(BUILD)\obj\goahead-mbedtls.obj" $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_OPENSSL)" == "1"
@@ -547,7 +547,7 @@ DEPS_35 = $(DEPS_35) build\$(CONFIG)\obj\goahead-openssl.obj
 
 build\$(CONFIG)\bin\libgoahead-openssl.lib: $(DEPS_35)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgoahead-openssl.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libgoahead-openssl.lib "$(BUILD)\obj\goahead-openssl.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libgoahead-openssl.lib "$(BUILD)\obj\goahead-openssl.obj" $(LOG)
 !ENDIF
 
 #
