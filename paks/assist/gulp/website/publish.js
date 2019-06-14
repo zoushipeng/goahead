@@ -1,7 +1,7 @@
 /*
     publish.js - Publish package
  */
- 
+
 import * as spawn from 'child_process'
 import * as gulp from 'gulp'
 import * as log from 'fancy-log'
