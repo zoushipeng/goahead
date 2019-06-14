@@ -1,15 +1,16 @@
 #
-#   goahead-vxworks-default.mk -- Makefile to build Embedthis GoAhead Core for vxworks
+#   goahead-vxworks-default.mk -- Makefile to build Embedthis GoAhead Community Edition for vxworks
 #
 
 NAME                  := goahead
-VERSION               := 5.0.0
+VERSION               := 5.0.1
 PROFILE               ?= default
 ARCH                  ?= $(shell echo $(WIND_HOST_TYPE) | sed 's/-.*$(ME_ROOT_PREFIX)/')
 CPU                   ?= $(subst X86,PENTIUM,$(shell echo $(ARCH) | tr a-z A-Z))
 OS                    ?= vxworks
 CC                    ?= cc$(subst x86,pentium,$(ARCH))
 LD                    ?= ldundefined
+AR                    ?= arundefined
 CONFIG                ?= $(OS)-$(ARCH)-$(PROFILE)
 BUILD                 ?= build/$(CONFIG)
 LBIN                  ?= $(BUILD)/bin
@@ -480,7 +481,7 @@ DEPS_33 += $(BUILD)/obj/mbedtls.o
 
 $(BUILD)/bin/libmbedtls.a: $(DEPS_33)
 	@echo '      [Link] $(BUILD)/bin/libmbedtls.a'
-	arundefined -cr $(BUILD)/bin/libmbedtls.a "$(BUILD)/obj/mbedtls.o"
+	$(AR) -cr $(BUILD)/bin/libmbedtls.a "$(BUILD)/obj/mbedtls.o"
 endif
 
 ifeq ($(ME_COM_MBEDTLS),1)
@@ -492,7 +493,7 @@ DEPS_34 += $(BUILD)/obj/goahead-mbedtls.o
 
 $(BUILD)/bin/libgoahead-mbedtls.a: $(DEPS_34)
 	@echo '      [Link] $(BUILD)/bin/libgoahead-mbedtls.a'
-	arundefined -cr $(BUILD)/bin/libgoahead-mbedtls.a "$(BUILD)/obj/goahead-mbedtls.o"
+	$(AR) -cr $(BUILD)/bin/libgoahead-mbedtls.a "$(BUILD)/obj/goahead-mbedtls.o"
 endif
 
 ifeq ($(ME_COM_OPENSSL),1)
@@ -503,7 +504,7 @@ DEPS_35 += $(BUILD)/obj/goahead-openssl.o
 
 $(BUILD)/bin/libgoahead-openssl.a: $(DEPS_35)
 	@echo '      [Link] $(BUILD)/bin/libgoahead-openssl.a'
-	arundefined -cr $(BUILD)/bin/libgoahead-openssl.a "$(BUILD)/obj/goahead-openssl.o"
+	$(AR) -cr $(BUILD)/bin/libgoahead-openssl.a "$(BUILD)/obj/goahead-openssl.o"
 endif
 
 #
