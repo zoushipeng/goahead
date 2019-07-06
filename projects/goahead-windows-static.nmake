@@ -521,7 +521,7 @@ DEPS_33 = $(DEPS_33) build\$(CONFIG)\obj\mbedtls.obj
 
 build\$(CONFIG)\bin\libmbedtls.lib: $(DEPS_33)
 	@echo ..... [Link] build\$(CONFIG)\bin\libmbedtls.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libmbedtls.lib "$(BUILD)\obj\mbedtls.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libmbedtls.lib "$(BUILD)\obj\mbedtls.obj" $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_MBEDTLS)" == "1"
@@ -533,7 +533,7 @@ DEPS_34 = $(DEPS_34) build\$(CONFIG)\obj\goahead-mbedtls.obj
 
 build\$(CONFIG)\bin\libgoahead-mbedtls.lib: $(DEPS_34)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgoahead-mbedtls.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libgoahead-mbedtls.lib "$(BUILD)\obj\goahead-mbedtls.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libgoahead-mbedtls.lib "$(BUILD)\obj\goahead-mbedtls.obj" $(LOG)
 !ENDIF
 
 !IF "$(ME_COM_OPENSSL)" == "1"
@@ -544,7 +544,7 @@ DEPS_35 = $(DEPS_35) build\$(CONFIG)\obj\goahead-openssl.obj
 
 build\$(CONFIG)\bin\libgoahead-openssl.lib: $(DEPS_35)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgoahead-openssl.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libgoahead-openssl.lib "$(BUILD)\obj\goahead-openssl.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libgoahead-openssl.lib "$(BUILD)\obj\goahead-openssl.obj" $(LOG)
 !ENDIF
 
 #
@@ -580,7 +580,7 @@ DEPS_36 = $(DEPS_36) build\$(CONFIG)\obj\upload.obj
 
 build\$(CONFIG)\bin\libgo.lib: $(DEPS_36)
 	@echo ..... [Link] build\$(CONFIG)\bin\libgo.lib
-	"lib.exe" -nologo -out:$(BUILD)\bin\libgo.lib "$(BUILD)\obj\action.obj" "$(BUILD)\obj\alloc.obj" "$(BUILD)\obj\auth.obj" "$(BUILD)\obj\cgi.obj" "$(BUILD)\obj\crypt.obj" "$(BUILD)\obj\file.obj" "$(BUILD)\obj\fs.obj" "$(BUILD)\obj\http.obj" "$(BUILD)\obj\js.obj" "$(BUILD)\obj\jst.obj" "$(BUILD)\obj\options.obj" "$(BUILD)\obj\osdep.obj" "$(BUILD)\obj\rom.obj" "$(BUILD)\obj\route.obj" "$(BUILD)\obj\runtime.obj" "$(BUILD)\obj\socket.obj" "$(BUILD)\obj\time.obj" "$(BUILD)\obj\upload.obj" $(LOG)
+	"$(AR)" -nologo -out:$(BUILD)\bin\libgo.lib "$(BUILD)\obj\action.obj" "$(BUILD)\obj\alloc.obj" "$(BUILD)\obj\auth.obj" "$(BUILD)\obj\cgi.obj" "$(BUILD)\obj\crypt.obj" "$(BUILD)\obj\file.obj" "$(BUILD)\obj\fs.obj" "$(BUILD)\obj\http.obj" "$(BUILD)\obj\js.obj" "$(BUILD)\obj\jst.obj" "$(BUILD)\obj\options.obj" "$(BUILD)\obj\osdep.obj" "$(BUILD)\obj\rom.obj" "$(BUILD)\obj\route.obj" "$(BUILD)\obj\runtime.obj" "$(BUILD)\obj\socket.obj" "$(BUILD)\obj\time.obj" "$(BUILD)\obj\upload.obj" $(LOG)
 
 #
 #   install-certs

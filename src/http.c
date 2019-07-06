@@ -15,7 +15,9 @@
 
 #define WEBS_TIMEOUT (ME_GOAHEAD_LIMIT_TIMEOUT * 1000)
 #define PARSE_TIMEOUT (ME_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
-#define CHUNK_LOW   128                 /* Low water mark for chunking */
+#define CHUNK_LOW       128                     /* Low water mark for chunking */
+#define HEADER_KEY      0x1                     /* Validate token as a header key */
+#define HEADER_VALUE    0x2                     /* Validate token as a header value */
 
 /************************************ Locals **********************************/
 
@@ -197,7 +199,7 @@ static int      pruneId;                            /* Callback ID */
 static void     checkTimeout(void *arg, int id);
 static bool     filterChunkData(Webs *wp);
 static int      getTimeSinceMark(Webs *wp);
-static char     *getToken(Webs *wp, char *delim);
+static char     *getToken(Webs *wp, char *delim, int validation);
 static void     parseFirstLine(Webs *wp);
 static void     parseHeaders(Webs *wp);
 static bool     processContent(Webs *wp);
@@ -956,14 +958,14 @@ static void parseFirstLine(Webs *wp)
     /*
         Determine the request type: GET, HEAD or POST
      */
-    op = getToken(wp, 0);
+    op = getToken(wp, NULL, 0);
     if (op == NULL || *op == '\0') {
         websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Bad HTTP request");
         return;
     }
     wp->method = supper(sclone(op));
 
-    url = getToken(wp, 0);
+    url = getToken(wp, NULL, 0);
     if (url == NULL || *url == '\0') {
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
         return;
@@ -972,7 +974,11 @@ static void parseFirstLine(Webs *wp)
         websError(wp, HTTP_CODE_REQUEST_URL_TOO_LARGE | WEBS_CLOSE, "URI too big");
         return;
     }
-    protoVer = getToken(wp, "\r\n");
+    protoVer = getToken(wp, "\r\n", 0);
+    if (protoVer == NULL || *protoVer == '\0') {
+        websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
+        return;
+    }
     if (websGetLogLevel() == 2) {
         trace(2, "%s %s %s", wp->method, url, protoVer);
     }
@@ -1040,18 +1046,15 @@ static void parseHeaders(Webs *wp)
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too many headers");
             return;
         }
-        if ((key = getToken(wp, ":")) == NULL) {
-            continue;
-        }
-        if ((value = getToken(wp, "\r\n")) == NULL) {
-            value = "";
-        }
-        if (!key || !value) {
+        key = getToken(wp, ":", HEADER_KEY);
+        if (key == NULL || *key == '\0' || bufLen(&wp->rxbuf) == 0) {
             websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
         }
-        while (isspace((uchar) *value)) {
-            value++;
+        value = getToken(wp, "\r\n", HEADER_VALUE);
+        if (value == NULL || bufLen(&wp->rxbuf) == 0 || wp->rxbuf.servp[0] == '\0') {
+            websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
+            return;
         }
         slower(key);
 
@@ -1173,7 +1176,10 @@ static void parseHeaders(Webs *wp)
             Step over "\r\n" after headers.
             Don't do this if chunked so that chunking can parse a single chunk delimiter of "\r\nSIZE ...\r\n"
          */
-        assert(bufLen(&wp->rxbuf) >= 2);
+        if (bufLen(&wp->rxbuf) < 2 || wp->rxbuf.servp[0] != '\r' || wp->rxbuf.servp[1] != '\n') {
+            websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header termination");
+            return;
+        }
         wp->rxbuf.servp += 2;
     }
     wp->eof = (wp->rxRemaining == 0);
@@ -2947,19 +2953,27 @@ PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, ccha
 
 
 /*
-    Return the next token in the input stream. Does not allocate
+    Return the next token in the input stream. Does not allocate.
+    The content buffer is advanced to the next token.
+    The delimiter is a string to match and not a set of characters.
+    If the delimeter null, it means use white space (space or tab) as a delimiter.
  */
-static char *getToken(Webs *wp, char *delim)
+static char *getToken(Webs *wp, char *delim, int validation)
 {
     WebsBuf     *buf;
-    char        *token, *nextToken, *endToken;
+    char        *t, *token, *nextToken, *endToken;
 
     assert(wp);
     buf = &wp->rxbuf;
     nextToken = (char*) buf->endp;
 
     for (token = (char*) buf->servp; (*token == ' ' || *token == '\t') && token < (char*) buf->endp; token++) {}
-
+    if (token >= nextToken) {
+        if (validation == HEADER_KEY) {
+            return NULL;
+        }
+        return "";
+    }
     if (delim == 0) {
         delim = " \t";
         if ((endToken = strpbrk(token, delim)) != 0) {
@@ -2973,6 +2987,35 @@ static char *getToken(Webs *wp, char *delim)
             nextToken = endToken + strlen(delim);
         } else {
             nextToken = buf->endp;
+        }
+    }
+    if (validation == HEADER_KEY) {
+        if (strpbrk(token, "\"\\/ \t\r\n(),:;<=>?@[]{}")) {
+            return NULL;
+        }
+        for (t = token; *t; t++) {
+            if (!isprint(*t)) {
+                return NULL;
+            }
+        }
+    } else if (validation == HEADER_VALUE) {
+        /* Trim white space */
+        if (slen(token) > 0) {
+            for (t = &token[slen(token) - 1]; t >= token; t--) {
+                if (isspace((uchar) *t)) {
+                    *t = '\0';
+                } else {
+                    break;
+                }
+            }
+        }
+        while (isspace((uchar) *token)) {
+            token++;
+        }
+        for (t = token; *t; t++) {
+            if (!isprint(*t)) {
+                return NULL;
+            }
         }
     }
     buf->servp = nextToken;

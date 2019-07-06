@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+      <PropertyGroup Label="Globals">
+        <ProjectGuid>{211ff66b-65ac-4bfb-bb32-dff2699c31b3}</ProjectGuid>
+        <RootNamespace />
+        <Keyword>Win32Proj</Keyword>
+      </PropertyGroup>
+
+      <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+          <Configuration>Debug</Configuration>
+          <Platform>Win32</Platform>
+        </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+          <Configuration>Release</Configuration>
+          <Platform>Win32</Platform>
+        </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+          <Configuration>Debug</Configuration>
+          <Platform>x64</Platform>
+        </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+          <Configuration>Release</Configuration>
+          <Platform>x64</Platform>
+        </ProjectConfiguration>
+  </ItemGroup>
+    
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+        <ConfigurationType></ConfigurationType>
+        <CharacterSet>NotSet</CharacterSet>
+        <PlatformToolset>v141</PlatformToolset>
+      </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+        <ConfigurationType></ConfigurationType>
+        <CharacterSet>NotSet</CharacterSet>
+        <PlatformToolset>v141</PlatformToolset>
+      </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+        <ConfigurationType></ConfigurationType>
+        <CharacterSet>NotSet</CharacterSet>
+        <PlatformToolset>v141</PlatformToolset>
+      </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+        <ConfigurationType></ConfigurationType>
+        <CharacterSet>NotSet</CharacterSet>
+        <PlatformToolset>v141</PlatformToolset>
+      </PropertyGroup>
+
+      <Import Project="$(VCTargetsPath)Microsoft.Cpp.Default.props" />
+      <Import Project="$(VCTargetsPath)Microsoft.Cpp.props" />
+
+      <ImportGroup Label="PropertySheets" />
+      <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+        <Import Project="product.props" />
+        <Import Project="debug.props" />
+        <Import Project="x86.props" />
+      </ImportGroup>
+      <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+        <Import Project="product.props" />
+        <Import Project="release.props" />
+        <Import Project="x86.props" />
+      </ImportGroup>
+      <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+        <Import Project="product.props" />
+        <Import Project="debug.props" />
+        <Import Project="x64.props" />
+      </ImportGroup>
+      <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+        <Import Project="product.props" />
+        <Import Project="release.props" />
+        <Import Project="x64.props" />
+      </ImportGroup>
+
+      <PropertyGroup>
+        <_ProjectFileVersion>10</_ProjectFileVersion>
+
+        <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(BinDir)\</OutDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ObjDir)\install-certs\</IntDir>
+        <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
+
+        <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(BinDir)\</OutDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ObjDir)\install-certs\</IntDir>
+        <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">PreBuildEvent</CustomBuildBeforeTargets>
+
+        <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(BinDir)\</OutDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ObjDir)\install-certs\</IntDir>
+        <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PreBuildEvent</CustomBuildBeforeTargets>
+
+        <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(BinDir)\</OutDir>
+        <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ObjDir)\install-certs\</IntDir>
+        <CustomBuildBeforeTargets Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PreBuildEvent</CustomBuildBeforeTargets>
+  </PropertyGroup>
+    <PropertyGroup>
+        <TargetName></TargetName>
+    </PropertyGroup>
+
+      <ItemDefinitionGroup>
+        
+
+      <CustomBuildStep>
+        <Command>cd ..\..\src\certs
+if exist $(BinDir)\ca.crt del /Q $(BinDir)\ca.crt
+copy /Y samples\ca.crt $(BinDir)\ca.crt
+if exist $(BinDir)\ca.key del /Q $(BinDir)\ca.key
+copy /Y samples\ca.key $(BinDir)\ca.key
+if exist $(BinDir)\ec.crt del /Q $(BinDir)\ec.crt
+copy /Y samples\ec.crt $(BinDir)\ec.crt
+if exist $(BinDir)\ec.key del /Q $(BinDir)\ec.key
+copy /Y samples\ec.key $(BinDir)\ec.key
+if exist $(BinDir)\roots.crt del /Q $(BinDir)\roots.crt
+copy /Y samples\roots.crt $(BinDir)\roots.crt
+if exist $(BinDir)\self.crt del /Q $(BinDir)\self.crt
+copy /Y samples\self.crt $(BinDir)\self.crt
+if exist $(BinDir)\self.key del /Q $(BinDir)\self.key
+copy /Y samples\self.key $(BinDir)\self.key
+if exist $(BinDir)\test.crt del /Q $(BinDir)\test.crt
+copy /Y samples\test.crt $(BinDir)\test.crt
+if exist $(BinDir)\test.key del /Q $(BinDir)\test.key
+copy /Y samples\test.key $(BinDir)\test.key
+cd ..\..\projects\goahead-core-windows-static</Command>
+        <Outputs>$(BinDir)</Outputs>
+      </CustomBuildStep>
+  </ItemDefinitionGroup>
+
+  <Import Project="$(VCTargetsPath)Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+
+</Project>
