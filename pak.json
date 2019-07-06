@@ -2,12 +2,12 @@
     "name": "goahead-core",
     "description": "Embedthis GoAhead Core",
     "title": "Embedthis GoAhead Core",
-    "version": "5.0.1",
     "keywords": [
         "goahead",
         "http",
         "webserver"
     ],
+    "version": "5.0.1",
     "homepage": "https://embedthis.com/goahead/",
     "author": {
         "name": "Embedthis Software",
