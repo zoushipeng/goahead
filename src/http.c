@@ -975,6 +975,10 @@ static void parseFirstLine(Webs *wp)
         return;
     }
     protoVer = getToken(wp, "\r\n", 0);
+    if (protoVer == NULL || *protoVer == '\0') {
+        websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
+        return;
+    }
     if (websGetLogLevel() == 2) {
         trace(2, "%s %s %s", wp->method, url, protoVer);
     }
@@ -1042,15 +1046,13 @@ static void parseHeaders(Webs *wp)
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too many headers");
             return;
         }
-        if ((key = getToken(wp, ":", HEADER_KEY)) == NULL) {
-            continue;
-        }
-        if (key == 0 || *key == '\0' || bufLen(&wp->rxbuf) == 0) {
+        key = getToken(wp, ":", HEADER_KEY);
+        if (key == NULL || *key == '\0' || bufLen(&wp->rxbuf) == 0) {
             websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
         }
         value = getToken(wp, "\r\n", HEADER_VALUE);
-        if (value == 0 || bufLen(&wp->rxbuf) == 0 || wp->rxbuf.servp[0] == '\0') {
+        if (value == NULL || bufLen(&wp->rxbuf) == 0 || wp->rxbuf.servp[0] == '\0') {
             websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
         }
