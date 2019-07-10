@@ -15,6 +15,12 @@ The GPL license requires that all software that links with a GPL licensed compon
 
 An enhanced version of GoAhead is available called Embedthis GoAhead Enterprise Edition. This edition uses a commercial license and provides a royalty free, license to embed the software into your products with options for ongoing maintenance and support. Contact [sales@embedthis.com](mailto:dev@embdthis.com) for details.
 
+## GoAhead 2.X License
+
+GoAhead version 2.X is obsolete.  If you are using version 2, you cannot apply code or patches from the GoAhead version 4 code base as the GoAhead 2.X license is incompatible. You must either adopt a commercial license for GoAhead version 4 or the use GPL. You cannot extract patches from this repository and apply to GoAhead 2 code.
+
+While the GoAhead 3/4 APIs are different in syntax, the underlying functionality is the same, the upgrade to version 4 is quite easy.
+
 Third Party Licenses
 ---
 
