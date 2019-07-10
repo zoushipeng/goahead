@@ -18,6 +18,12 @@ An Embedthis commercial license provides a royalty free, commercial license to e
 
 If have a commercial license with an active maintenance agreement you can incorporate new releases, updates and patches for the software into your products. If you do not have active maintenance agreement, you cannot use the GPL license for applying these updates without also fully complying with all the terms of the GPL license for your entire product including publicly offering your source code to the general public. If you choose this option, please provide notification and a copy of your source code to [licensing@embedthis.com](mailto:licensing@embedthis.com).
 
+## GoAhead 2.X License
+
+GoAhead version 2.X is obsolete.  If you are using version 2, you cannot apply code or patches from the GoAhead version 4 code base as the GoAhead 2.X license is incompatible. You must either adopt a commercial license for GoAhead version 4 or the use GPL. You cannot extract patches from this repository and apply to GoAhead 2 code.
+
+While the GoAhead 3/4 APIs are different in syntax, the underlying functionality is the same, the upgrade to version 4 is quite easy.
+
 Third Party Licenses
 ---
 
