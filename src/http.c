@@ -1631,7 +1631,6 @@ static char *makeUri(cchar *scheme, cchar *host, int port, cchar *path)
 PUBLIC void websRedirect(Webs *wp, cchar *uri)
 {
     char    *message, *location, *scheme, *host, *pstr;
-    char    hostbuf[ME_GOAHEAD_LIMIT_STRING];
     bool    secure, fullyQualified;
     ssize   len;
     int     originalPort, port;
@@ -1639,21 +1638,19 @@ PUBLIC void websRedirect(Webs *wp, cchar *uri)
     assert(websValid(wp));
     assert(uri);
     message = location = NULL;
-
     originalPort = port = 0;
-    if ((host = (wp->host ? wp->host : websHostUrl)) != 0) {
-        scopy(hostbuf, sizeof(hostbuf), host);
-        pstr = strchr(hostbuf, ']');
-        pstr = pstr ? pstr : hostbuf;
-        if ((pstr = strchr(pstr, ':')) != 0) {
-            *pstr++ = '\0';
-            originalPort = atoi(pstr);
-        }
+
+    host = sclone(wp->host ? wp->host : websHostUrl);
+    pstr = strchr(host, ']');
+    pstr = pstr ? pstr : host;
+    if ((pstr = strchr(pstr, ':')) != 0) {
+        *pstr++ = '\0';
+        originalPort = atoi(pstr);
     }
     if (smatch(uri, "http://") || smatch(uri, "https://")) {
         /* Protocol switch with existing Uri */
         scheme = sncmp(uri, "https", 5) == 0 ? "https" : "http";
-        uri = location = makeUri(scheme, hostbuf, 0, wp->url);
+        uri = location = makeUri(scheme, host, 0, wp->url);
     }
     secure = strstr(uri, "https://") != 0;
     fullyQualified = strstr(uri, "http://") || strstr(uri, "https://");
@@ -1669,13 +1666,13 @@ PUBLIC void websRedirect(Webs *wp, cchar *uri)
     }
     if (strstr(uri, "https:///")) {
         /* Short-hand for redirect to https */
-        uri = location = makeUri(scheme, hostbuf, port, &uri[8]);
+        uri = location = makeUri(scheme, host, port, &uri[8]);
 
     } else if (strstr(uri, "http:///")) {
-        uri = location = makeUri(scheme, hostbuf, port, &uri[7]);
+        uri = location = makeUri(scheme, host, port, &uri[7]);
 
     } else if (!fullyQualified) {
-        uri = location = makeUri(scheme, hostbuf, port, uri);
+        uri = location = makeUri(scheme, host, port, uri);
     }
     message = sfmt("<html><head></head><body>\r\n\
         This document has moved to a new <a href=\"%s\">location</a>.\r\n\
@@ -1688,6 +1685,7 @@ PUBLIC void websRedirect(Webs *wp, cchar *uri)
     websWriteBlock(wp, message, len);
     websWriteBlock(wp, "\r\n", 2);
     websDone(wp);
+    wfree(host);
     wfree(message);
     wfree(location);
 }
