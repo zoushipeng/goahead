@@ -16,8 +16,13 @@
 #define WEBS_TIMEOUT (ME_GOAHEAD_LIMIT_TIMEOUT * 1000)
 #define PARSE_TIMEOUT (ME_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
 #define CHUNK_LOW       128                     /* Low water mark for chunking */
-#define HEADER_KEY      0x1                     /* Validate token as a header key */
-#define HEADER_VALUE    0x2                     /* Validate token as a header value */
+
+#define TOKEN_HEADER_KEY        0x1     /* Validate token as a header key */
+#define TOKEN_HEADER_VALUE      0x2     /* Validate token as a header value */
+#define TOKEN_URI_VALUE         0x4     /* Validate token as a URI value */
+#define TOKEN_NUMBER            0x8     /* Validate token as a number */
+#define TOKEN_WORD              0x10    /* Validate token as single word with no spaces */
+#define TOKEN_LINE              0x20    /* Validate token as line with no newlines */
 
 /************************************ Locals **********************************/
 
@@ -213,6 +218,8 @@ static void     setFileLimits(void);
 static int      setLocalHost(void);
 static void     socketEvent(int sid, int mask, void *data);
 static void     writeEvent(Webs *wp);
+static char     *validateToken(char *token, char *endToken, int validation);
+
 #if ME_GOAHEAD_ACCESS_LOG
 static void     logRequest(Webs *wp, int code);
 #endif
@@ -958,14 +965,14 @@ static void parseFirstLine(Webs *wp)
     /*
         Determine the request type: GET, HEAD or POST
      */
-    op = getToken(wp, NULL, 0);
+    op = getToken(wp, NULL, TOKEN_WORD);
     if (op == NULL || *op == '\0') {
         websError(wp, HTTP_CODE_NOT_FOUND | WEBS_CLOSE, "Bad HTTP request");
         return;
     }
     wp->method = supper(sclone(op));
 
-    url = getToken(wp, NULL, 0);
+    url = getToken(wp, NULL, TOKEN_URI_VALUE);
     if (url == NULL || *url == '\0') {
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
         return;
@@ -974,7 +981,7 @@ static void parseFirstLine(Webs *wp)
         websError(wp, HTTP_CODE_REQUEST_URL_TOO_LARGE | WEBS_CLOSE, "URI too big");
         return;
     }
-    protoVer = getToken(wp, "\r\n", 0);
+    protoVer = getToken(wp, "\r\n", TOKEN_WORD);
     if (protoVer == NULL || *protoVer == '\0') {
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad HTTP request");
         return;
@@ -1046,12 +1053,12 @@ static void parseHeaders(Webs *wp)
             websError(wp, HTTP_CODE_REQUEST_TOO_LARGE | WEBS_CLOSE, "Too many headers");
             return;
         }
-        key = getToken(wp, ":", HEADER_KEY);
+        key = getToken(wp, ":", TOKEN_HEADER_KEY);
         if (key == NULL || *key == '\0' || bufLen(&wp->rxbuf) == 0) {
             websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
         }
-        value = getToken(wp, "\r\n", HEADER_VALUE);
+        value = getToken(wp, "\r\n", TOKEN_HEADER_VALUE);
         if (value == NULL || bufLen(&wp->rxbuf) == 0 || wp->rxbuf.servp[0] == '\0') {
             websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE, "Bad header format");
             return;
@@ -2959,35 +2966,50 @@ PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, ccha
 static char *getToken(Webs *wp, char *delim, int validation)
 {
     WebsBuf     *buf;
-    char        *t, *token, *nextToken, *endToken;
+    char        *token, *endToken;
 
     assert(wp);
-    buf = &wp->rxbuf;
-    nextToken = (char*) buf->endp;
 
-    for (token = (char*) buf->servp; (*token == ' ' || *token == '\t') && token < (char*) buf->endp; token++) {}
-    if (token >= nextToken) {
-        if (validation == HEADER_KEY) {
+    buf = &wp->rxbuf;
+    /* Already null terminated but for safety */
+    bufAddNull(buf);
+    token = (char*) buf->servp;
+    endToken = (char*) buf->endp;
+
+    /*
+        Eat white space before token
+     */
+    for (; token < (char*) buf->endp && (*token == ' ' || *token == '\t'); token++) {}
+
+    if (delim) {
+        if ((endToken = strstr(token, delim)) == NULL) {
             return NULL;
         }
-        return "";
-    }
-    if (delim == 0) {
-        delim = " \t";
-        if ((endToken = strpbrk(token, delim)) != 0) {
-            nextToken = endToken + strspn(endToken, delim);
-            *endToken = '\0';
-        }
+        /* Only eat one occurrence of the delimiter */
+        buf->servp = endToken + strlen(delim);
+        *endToken = '\0';
+
     } else {
-        if ((endToken = strstr(token, delim)) != 0) {
-            *endToken = '\0';
-            /* Only eat one occurrence of the delimiter */
-            nextToken = endToken + strlen(delim);
-        } else {
-            nextToken = buf->endp;
+        delim = " \t";
+        if ((endToken = strpbrk(token, delim)) == NULL) {
+            return NULL;
         }
+        buf->servp = endToken + strspn(endToken, delim);
+        *endToken = '\0';
     }
-    if (validation == HEADER_KEY) {
+    token = validateToken(token, endToken, validation);
+    return token;
+}
+
+
+static char *validateToken(char *token, char *endToken, int validation)
+{
+    char    *t;
+
+    if (validation == TOKEN_HEADER_KEY) {
+        if (token == '\0') {
+            return NULL;
+        }
         if (strpbrk(token, "\"\\/ \t\r\n(),:;<=>?@[]{}")) {
             return NULL;
         }
@@ -2996,9 +3018,9 @@ static char *getToken(Webs *wp, char *delim, int validation)
                 return NULL;
             }
         }
-    } else if (validation == HEADER_VALUE) {
-        /* Trim white space */
-        if (slen(token) > 0) {
+    } else if (validation == TOKEN_HEADER_VALUE) {
+        if (token < endToken) {
+            /* Trim white space */
             for (t = &token[slen(token) - 1]; t >= token; t--) {
                 if (isspace((uchar) *t)) {
                     *t = '\0';
@@ -3015,8 +3037,23 @@ static char *getToken(Webs *wp, char *delim, int validation)
                 return NULL;
             }
         }
+    } else if (validation == TOKEN_URI_VALUE) {
+        if (!websValidUriChars(token)) {
+            return NULL;
+        }
+    } else if (validation == TOKEN_NUMBER) {
+        if (!snumber(token)) {
+            return NULL;
+        }
+    } else if (validation == TOKEN_WORD) {
+        if (strpbrk(token, " \t\r\n") != NULL) {
+            return NULL;
+        }
+    } else {
+        if (strpbrk(token, "\r\n") != NULL) {
+            return NULL;
+        }
     }
-    buf->servp = nextToken;
     return token;
 }
 
