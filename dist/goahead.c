@@ -4600,7 +4600,7 @@ static LRESULT CALLBACK websAboutProc(HWND hwndDlg, uint msg, uint wp, long lp)
 
 #define WEBS_TIMEOUT (ME_GOAHEAD_LIMIT_TIMEOUT * 1000)
 #define PARSE_TIMEOUT (ME_GOAHEAD_LIMIT_PARSE_TIMEOUT * 1000)
-#define CHUNK_LOW       128                     /* Low water mark for chunking */
+#define CHUNK_LOW               128     /* Low water mark for chunking */
 
 #define TOKEN_HEADER_KEY        0x1     /* Validate token as a header key */
 #define TOKEN_HEADER_VALUE      0x2     /* Validate token as a header value */
@@ -16199,7 +16199,7 @@ static int getNumOrSym(char **token, int sep, int kind, int *isAlpah)
 
     assert(token && *token);
 
-    if (*token == 0) {
+    if (token == NULL || *token == NULL || **token == '\0') {
         return 0;
     }
     if (isalpha((uchar) **token)) {
