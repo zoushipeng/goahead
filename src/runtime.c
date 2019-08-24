@@ -2547,6 +2547,9 @@ PUBLIC ssize scopy(char *dest, ssize destMax, cchar *src)
 
     len = slen(src);
     if (destMax <= len) {
+        if (destMax > 0) {
+            *dest = '\0';
+        }
         return -1;
     }
     strcpy(dest, src);
@@ -2572,6 +2575,9 @@ PUBLIC ssize sncopy(char *dest, ssize destMax, cchar *src, ssize count)
     len = slen(src);
     len = min(len, count);
     if (destMax <= len) {
+        if (destMax > 0) {
+            *dest = '\0';
+        }
         return -1;
     }
     if (len > 0) {

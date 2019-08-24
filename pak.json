@@ -1,5 +1,5 @@
 {
-    "name": "goahead",
+    "name": "goahead-core",
     "description": "Embedthis GoAhead Core",
     "title": "Embedthis GoAhead Core",
     "keywords": [
@@ -7,7 +7,7 @@
         "http",
         "webserver"
     ],
-    "version": "4.1.2",
+    "version": "4.1.1",
     "homepage": "https://embedthis.com/goahead/",
     "author": {
         "name": "Embedthis Software",
@@ -37,6 +37,7 @@
         "doc/api/"
     ],
     "dependencies": {
+        "assist": "~0.1",
         "goahead-mbedtls": "~2",
         "me-win": "~0.1",
         "osdep": "~1.0",

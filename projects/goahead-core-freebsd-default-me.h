@@ -22,7 +22,7 @@
     #define ME_COMPANY "embedthis"
 #endif
 #ifndef ME_COMPATIBLE
-    #define ME_COMPATIBLE "5.0"
+    #define ME_COMPATIBLE "4.1"
 #endif
 #ifndef ME_COMPILER_FORTIFY
     #define ME_COMPILER_FORTIFY 1
@@ -274,7 +274,7 @@
     #define ME_TITLE "Embedthis GoAhead Core"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "5.0.1"
+    #define ME_VERSION "4.1.1"
 #endif
 
 /* Prefixes */
@@ -294,7 +294,7 @@
     #define ME_APP_PREFIX "/usr/local/lib/goahead-core"
 #endif
 #ifndef ME_VAPP_PREFIX
-    #define ME_VAPP_PREFIX "/usr/local/lib/goahead-core/5.0.1"
+    #define ME_VAPP_PREFIX "/usr/local/lib/goahead-core/4.1.1"
 #endif
 #ifndef ME_BIN_PREFIX
     #define ME_BIN_PREFIX "/usr/local/bin"
@@ -327,7 +327,7 @@
     #define ME_CACHE_PREFIX "/var/spool/goahead-core/cache"
 #endif
 #ifndef ME_SRC_PREFIX
-    #define ME_SRC_PREFIX "goahead-core-5.0.1"
+    #define ME_SRC_PREFIX "goahead-core-4.1.1"
 #endif
 
 /* Suffixes */
@@ -363,16 +363,16 @@
 
 /* Miscellaneous */
 #ifndef ME_MAJOR_VERSION
-    #define ME_MAJOR_VERSION 5
+    #define ME_MAJOR_VERSION 4
 #endif
 #ifndef ME_MINOR_VERSION
-    #define ME_MINOR_VERSION 0
+    #define ME_MINOR_VERSION 1
 #endif
 #ifndef ME_PATCH_VERSION
     #define ME_PATCH_VERSION 1
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 500000001
+    #define ME_VNUM 400010001
 #endif
 
 /* Components */
