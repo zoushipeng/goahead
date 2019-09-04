@@ -1953,9 +1953,9 @@ typedef struct Webs {
     ssize           written;            /**< Bytes actually transferred */
     ssize           putLen;             /**< Bytes read by a PUT request */
 
-    int             finalized: 1;       /**< Request has been completed */
-    int             error: 1;           /**< Request has an error */
-    int             connError: 1;       /**< Request has a connection error */
+    uint            finalized: 1;       /**< Request has been completed */
+    uint            error: 1;           /**< Request has an error */
+    uint            connError: 1;       /**< Request has a connection error */
 
     WebsHash        responseCookies;    /**< Outgoing cookies */
     struct WebsSession *session;        /**< Session record */
