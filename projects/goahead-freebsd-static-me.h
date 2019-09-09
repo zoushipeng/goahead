@@ -78,6 +78,9 @@
 #ifndef ME_DEBUG
     #define ME_DEBUG 1
 #endif
+#ifndef ME_DEPRECATED_WARNINGS
+    #define ME_DEPRECATED_WARNINGS 0
+#endif
 #ifndef ME_DEPTH
     #define ME_DEPTH 1
 #endif
