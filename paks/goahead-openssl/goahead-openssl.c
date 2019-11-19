@@ -386,6 +386,9 @@ PUBLIC int sslOpen()
 #if defined(SSL_OP_NO_TLSv1_2) && ME_GOAHEAD_SSL_NO_V1_2
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_2);
 #endif
+#if defined(SSL_OP_NO_TLSv1_3) && ME_GOAHEAD_SSL_NO_V1_3
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_3);
+#endif
 
 
 #if defined(SSL_OP_NO_TICKET)
