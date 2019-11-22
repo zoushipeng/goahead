@@ -1,5 +1,5 @@
 /*
- * Embedthis GoAhead Core Library Source
+ * Embedthis GoAhead Community Edition Library Source
  */
 
 #include "goahead.h"
