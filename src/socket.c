@@ -691,7 +691,7 @@ PUBLIC int socketSetBlock(int sid, int on)
         ioctl(sp->sock, FIONBIO, &off);
 #elif VXWORKS
         int iflag = !on;
-        ioctl(sp->sock, FIONBIO, (int) &iflag);
+        ioctl(sp->sock, FIONBIO, &iflag);
 #elif TIDSP
         setsockopt((SOCKET)sp->sock, SOL_SOCKET, SO_BLOCKING, &on, sizeof(on));
 #else
@@ -708,7 +708,7 @@ PUBLIC int socketSetBlock(int sid, int on)
         ioctl(sp->sock, FIONBIO, &on);
 #elif VXWORKS
         int iflag = !on;
-        ioctl(sp->sock, FIONBIO, (int) &iflag);
+        ioctl(sp->sock, FIONBIO, &iflag);
 #elif TIDSP
         setsockopt((SOCKET)sp->sock, SOL_SOCKET, SO_BLOCKING, &on, sizeof(on));
 #else
