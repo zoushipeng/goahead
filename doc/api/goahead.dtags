@@ -2107,17 +2107,4 @@
       <arglist>(void)</arglist>
     </member>
   </compound>
-<<<<<<< HEAD
-  <compound kind="struct">
-    <name>WebsValue</name>
-    <filename>struct_webs_value.html</filename>
-  </compound>
-  <compound kind="dir">
-    <name>src</name>
-    <path>/Users/mob/dev/goahead-gpl/src/</path>
-    <filename>dir_68267d1309a1af8e8297ef4c3efbcdba.html</filename>
-    <file>goahead.h</file>
-  </compound>
-=======
->>>>>>> upstream/master
 </tagfile>

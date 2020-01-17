@@ -268,7 +268,7 @@
     #define ME_TITLE "Embedthis GoAhead Community Edition"
 #endif
 #ifndef ME_VERSION
-    #define ME_VERSION "5.1.0"
+    #define ME_VERSION "5.1.1"
 #endif
 
 /* Prefixes */
@@ -366,10 +366,10 @@
     #define ME_MINOR_VERSION 1
 #endif
 #ifndef ME_PATCH_VERSION
-    #define ME_PATCH_VERSION 0
+    #define ME_PATCH_VERSION 1
 #endif
 #ifndef ME_VNUM
-    #define ME_VNUM 500010000
+    #define ME_VNUM 500010001
 #endif
 
 /* Components */
