@@ -1,5 +1,5 @@
 #
-#   goahead-linux-default.mk -- Makefile to build Embedthis GoAhead Community Edition for linux
+#   goahead-linux-default.mk -- Makefile to build Embedthis GoAhead Enterprise Edition for linux
 #
 
 NAME                  := goahead

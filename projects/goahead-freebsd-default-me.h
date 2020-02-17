@@ -85,7 +85,7 @@
     #define ME_DEPTH 1
 #endif
 #ifndef ME_DESCRIPTION
-    #define ME_DESCRIPTION "Embedthis GoAhead Community Edition"
+    #define ME_DESCRIPTION "Embedthis GoAhead Enterprise Edition"
 #endif
 #ifndef ME_GOAHEAD_ACCESS_LOG
     #define ME_GOAHEAD_ACCESS_LOG 0
@@ -274,7 +274,7 @@
     #define ME_ROM_TIME 1505449519432
 #endif
 #ifndef ME_TITLE
-    #define ME_TITLE "Embedthis GoAhead Community Edition"
+    #define ME_TITLE "Embedthis GoAhead Enterprise Edition"
 #endif
 #ifndef ME_VERSION
     #define ME_VERSION "5.1.1"

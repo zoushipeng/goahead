@@ -1,5 +1,5 @@
 #
-#   goahead-windows-default.nmake -- Makefile to build Embedthis GoAhead Community Edition for windows
+#   goahead-windows-default.nmake -- Makefile to build Embedthis GoAhead Enterprise Edition for windows
 #
 
 NAME                  = goahead
@@ -102,7 +102,7 @@ LIBS                  = ws2_32.lib advapi32.lib user32.lib kernel32.lib oldnames
 
 ME_ROOT_PREFIX        = C:
 ME_BASE_PREFIX        = $(ME_ROOT_PREFIX)\Program Files
-ME_APP_PREFIX         = $(ME_BASE_PREFIX)\Embedthis GoAhead Community Edition
+ME_APP_PREFIX         = $(ME_BASE_PREFIX)\Embedthis GoAhead Enterprise Edition
 ME_VAPP_PREFIX        = $(ME_APP_PREFIX)
 ME_DATA_PREFIX        = $(ME_VAPP_PREFIX)
 ME_STATE_PREFIX       = $(ME_VAPP_PREFIX)

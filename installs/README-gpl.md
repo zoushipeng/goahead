@@ -1,4 +1,4 @@
-Embedthis GoAhead Enterprise Edition
+Embedthis GoAhead Community Edition
 ===
 
 The most popular little embedded web server.

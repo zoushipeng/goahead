@@ -182,16 +182,17 @@ TAB_SIZE               = 4
 # You can put \n's in the value part of an alias to insert newlines.
 
 ALIASES                = "reminder=\xrefitem reminders \"Reminder\" \"Reminders\"" \
-                         "overview=\par \b Overview:" \
-                         "scope=\par \b Scope:" \
-                         "library=\par \b Library:" \
-                         "options=\par \b Options:" \
-                         "description=\par \b Description:" \
-                         "example=\par \b Example:" \
-                         "elements=\par \b Elements:" \
-                         "stability=\par \b API Stability:" \
-                         "examples=\par \b Examples:"
-
+                         "overview=\par \b Overview:^^" \
+                         "scope=\par \b Scope:^^" \
+                         "library=\par \b Library:^^" \
+                         "options=\par \b Options:^^" \
+                         "description=\par \b Description:^^" \
+                         "elements=\par \b Elements:^^" \
+                         "stability=\par \b API Stability:^^" \
+                         "example=\par \b Example:^^" \
+                         "examples=\par \b Examples:^^" \
+                         "l=\link" \
+                         "el=\endlink"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
 # sources only. Doxygen will then generate output that is more tailored for C. 
