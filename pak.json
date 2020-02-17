@@ -1,7 +1,7 @@
 {
     "name": "goahead",
-    "description": "Embedthis GoAhead Community Edition",
-    "title": "Embedthis GoAhead Community Edition",
+    "description": "Embedthis GoAhead Enterprise Edition",
+    "title": "Embedthis GoAhead Enterprise Edition",
     "keywords": [
         "goahead",
         "http",
@@ -22,30 +22,24 @@
         "email": "dev@embedthis.com",
         "url": "http://github.com/embedthis/goahead/issues"
     },
-    "licenses": [
-        {
-            "type": "GPL",
-            "url": "http://www.gnu.org/licenses/gpl-2.0.html"
-        },
-        {
-            "type": "Commercial",
-            "url": "https://embedthis.com/licensing/"
-        }
-    ],
+    "license": {
+        "type": "Commercial",
+        "url": "https://embedthis.com/licensing/"
+    },
     "files": [
         "dist/",
         "doc/api/"
     ],
     "dependencies": {
-        "assist": "~0.1",
+        "assist": "~1",
         "goahead-mbedtls": "~2",
-        "me-win": "~0.1",
-        "osdep": "~1.0",
+        "mbedtls": "~2.8",
+        "me-win": "~1",
+        "osdep": "~1",
         "ssl": "~1"
     },
     "optionalDependencies": {
-        "certs": "~0.1",
-        "goahead-matrixssl": "~0.1",
+        "certs": "~1",
         "goahead-openssl": "~1"
     },
     "devDependencies": {

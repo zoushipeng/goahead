@@ -1,5 +1,5 @@
 #
-#   goahead-macosx-default.mk -- Makefile to build Embedthis GoAhead Community Edition for macosx
+#   goahead-macosx-default.mk -- Makefile to build Embedthis GoAhead Enterprise Edition for macosx
 #
 
 NAME                  := goahead

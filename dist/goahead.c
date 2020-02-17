@@ -1,5 +1,5 @@
 /*
- * Embedthis GoAhead Community Edition Library Source
+ * Embedthis GoAhead Enterprise Edition Library Source
  */
 
 #include "goahead.h"
@@ -455,7 +455,7 @@ PUBLIC void *wrealloc(void *mem, ssize num)
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
 
-PUBLIC void *wdup(cvoid *ptr, size_t usize)
+PUBLIC void *wdup(cvoid *ptr, ssize usize)
 {
     char    *newp;
 
@@ -7544,7 +7544,7 @@ PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, ccha
     } else if (flags & WEBS_COOKIE_SAME_STRICT) {
         sameSite = "; SameSite=Strict";
     }
-    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
+    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
         httponly, sameSite);
     hashEnter(wp->responseCookies, name, valueString(cookie, 0), 0);
     wfree(domain);
@@ -15247,7 +15247,7 @@ PUBLIC int socketSetBlock(int sid, int on)
         ioctl(sp->sock, FIONBIO, &off);
 #elif VXWORKS
         int iflag = !on;
-        ioctl(sp->sock, FIONBIO, (int) &iflag);
+        ioctl(sp->sock, FIONBIO, &iflag);
 #elif TIDSP
         setsockopt((SOCKET)sp->sock, SOL_SOCKET, SO_BLOCKING, &on, sizeof(on));
 #else
@@ -15264,7 +15264,7 @@ PUBLIC int socketSetBlock(int sid, int on)
         ioctl(sp->sock, FIONBIO, &on);
 #elif VXWORKS
         int iflag = !on;
-        ioctl(sp->sock, FIONBIO, (int) &iflag);
+        ioctl(sp->sock, FIONBIO, &iflag);
 #elif TIDSP
         setsockopt((SOCKET)sp->sock, SOL_SOCKET, SO_BLOCKING, &on, sizeof(on));
 #else
@@ -16476,14 +16476,15 @@ static void validateTime(struct tm *tp, struct tm *defaults)
 
     /*
         Check for overflow. Underflow validated below.
+        tm_sec can be 61 for leap seconds.
      */
-    if (tp->tm_sec > 60) {
+    if (tp->tm_sec > 61) {
         tp->tm_sec = -1;
     }
-    if (tp->tm_min > 60) {
+    if (tp->tm_min > 59) {
         tp->tm_sec = -1;
     }
-    if (tp->tm_hour > 24) {
+    if (tp->tm_hour > 23) {
         tp->tm_sec = -1;
     }
     if (tp->tm_mday > 31) {
