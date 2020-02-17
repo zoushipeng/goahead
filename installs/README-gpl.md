@@ -5,11 +5,12 @@ The most popular little embedded web server.
 
 Branches
 ---
-The repository has several branches:
 
-* master - Most recent release of the software.
-* dev - Current ongoing development.
-* X.X - Archived prior release branches for maintenance.
+The purpose of this repository is for evaluating the GoAhead web server. This GPL licensed version is an 
+earlier verion of the GoAhead Enterprise Edition Web Server and does not have all the features or fixes
+of the Enterprise Edition. 
+
+This version is suitable for evaluation and not for production use.
 
 Licensing
 ---
@@ -122,4 +123,4 @@ Resources
 ---
   - [GoAhead web site](https://www.embedthis.com/goahead/)
   - [Embedthis web site](https://www.embedthis.com/)
-  - [GoAhead GitHub repository](http://github.com/embedthis/goahead)
+  - [GoAhead GitHub repository](http://github.com/embedthis/goahead-gpl)
