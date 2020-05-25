@@ -24,6 +24,12 @@ Me.load({
                 sets:       [ 'core', 'libs', 'doc', 'package' ],
                 platforms:  [ 'freebsd', 'linux', 'macosx', 'windows' ]
             },
+            gpl: {
+                inherit:    'package-manifest',
+                prefixes:   [ 'root', 'src' ],
+                formats:    [ 'tar' ],
+                sets:       [ 'gpl' ],
+            },
             source: {
                 inherit:    'package-manifest',
                 prefixes:   [ 'root', 'src' ],
@@ -88,6 +94,36 @@ Me.load({
                     symlink:    '${man}/man1/',
                     enable:     "me.platform.like == 'unix'",
                 }
+            ],
+            gpl: [
+                {
+                    from:       '${TOP}/*.md',
+                    to:         '${src}/',
+                    fold:       true,
+                    patch:      true,
+
+                }, {
+                    from:       '${TOP}/configure',
+                    to:         '${src}/',
+                    permissions: 0755,
+
+                }, {
+                    home:       '${TOP}',
+                    from: [
+                                'Makefile',
+                                'make.bat',
+                                'main.me',
+                                'pak.json',
+                                'paks',
+                                'src',
+                                'projects',
+                                'installs',
+                                'test'
+                    ],
+                    exclude:    /\.old$|\.tmp$|xcuserdata|xcworkspace|project.guid|-mine/,
+                    to:         '${src}/',
+                    flatten:    false,
+                },
             ],
             source: [
                 {
