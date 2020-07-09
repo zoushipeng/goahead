@@ -3,4 +3,77 @@
 <head>
 <title>Webcomp Man Page</title>
 </head>
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>webcomp</B> <B>[options]</B> <B>files</B> <B>...</B> <B>&gt;;output.c</B>
+
+       [<I>--files</I> <I>fileList</I>] [<I>--name</I> <I>structName</I>] [<I>--strip</I> <I>prefix</I>]
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       To  enable files to be accessed on embedded systems without a file sys-
+       tem, the <B>webcomp</B> command converts arbitrary files into C code that  can
+       be  compiled and linked into a program. This is useful for applications
+       that must execute completely from ROM and not  access  a  file  system.
+       This  facility can also enhance security by preventing the modification
+       of files.
+
+       The MPR portable runtime provides routines which can  then  read  these
+       files much as you would read any file on disk.
+
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       <B>--files</B> <B>fileList</B>
+              Option to provide a list of files that should be converted.  <B>--p</B>
+              <B>strip</B> Specifies a prefix to remove from  each  of  the  compiled
+              file names.
+
+       <B>--name</B> <B>structName</B>
+              Specifies  the name of top level C structure that holds the con-
+              verted files.
+
+
+
+</PRE>
+<H2>EXAMPLE</H2><PRE>
+       This example will create a list of web files  and  then  convert  these
+       files into C structures in the file romFiles.c.
+
+
+           find web -type f -print &gt;;fileList
+
+           webcomp --files filelist &gt;;romFiles.c
+
+           cc -o romFiles.o romFiles.c
+
+
+
+</PRE>
+<H2>REPORTING BUGS</H2><PRE>
+       Report bugs to &lt;;dev@embedthis.com&gt;;.
+
+
+</PRE>
+<H2>COPYRIGHT</H2><PRE>
+       Copyright (C) Embedthis Software.
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+makerom                           March 2014                        <B>MAKEROM(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>
 </html>

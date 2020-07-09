@@ -3,4 +3,76 @@
 <head>
 <title>Gopass Man Page</title>
 </head>
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
+
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>gopass</B>  [<I>--cipher</I> <I>blowfish|md5</I>] [<I>--file</I> <I>filename</I>] [<I>--password</I> <I>password</I>]
+       realm username roles...
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       The gopass program creates authentication passwords for GoAhead in  the
+       nominated  authentication  configuration  file.   GoAhead uses the same
+       authorization file and format for Basic, Digest and web-form  authenti-
+       cation. This simplifies           administration.
+
+            gopass --file auth.conf --password pass1 example.com joshua admin-
+            istrator buyer
+
+       To calculate the passwword only, omit the "--file" option and the pass-
+       word will be displayed to the standard output.
+
+            gopass --password pass1 example.com joshua administrator buyer
+
+
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       <B>--cipher</B> <B>blowfish|md5</B>
+              Specifies  the  cipher  to  use to hash the password. Default is
+              blowfish. Blowfish is substantially more secure.   MD5  must  be
+              used for digest authentication.
+
+       <B>--password</B> <B>password</B>
+              Specifies a password to use to for the user.
+
+       <B>--file</B> <B>filename</B>
+              Update the specified password configuration file.
+
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
+       The  gopass  program is used to create and manage user passwords.  GoA-
+       head uses the same authorization file and format for Basic, Digest  and
+       Post authentication stores. This simplifies administration.
+
+
+</PRE>
+<H2>REPORTING BUGS</H2><PRE>
+       Report bugs to dev@embedthis.com.
+
+
+</PRE>
+<H2>COPYRIGHT</H2><PRE>
+       Copyright (C) Embedthis Software.
+
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+auth                             February 2014                         <B>AUTH(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>
 </html>
