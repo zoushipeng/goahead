@@ -39,6 +39,10 @@ static char *masterSecret;
 static int autoLogin = ME_GOAHEAD_AUTO_LOGIN;
 static WebsVerify verifyPassword = websVerifyPasswordFromFile;
 
+#ifndef ME_GOAHEAD_NONCE_DURATION
+    #define ME_GOAHEAD_NONCE_DURATION 5
+#endif
+
 #if ME_COMPILER_HAS_PAM
 typedef struct {
     char    *name;
@@ -952,7 +956,7 @@ static bool parseDigestDetails(Webs *wp)
         trace(2, "Access denied: Bad qop");
         wfree(decoded);
         return 0;
-    } else if ((when + (5 * 60)) < time(0)) {
+    } else if ((when + ME_GOAHEAD_NONCE_DURATION) < time(0)) {
         trace(2, "Access denied: Nonce is stale");
         wfree(decoded);
         return 0;
