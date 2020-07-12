@@ -220,9 +220,9 @@
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a91ad9478d81a7aaf2593e8d9c3d06a14" class="ref">uint</a></td><td><a href="#group___webs_runtime_1ga0870ca42c7fd1330d5316792d9a9a04c" class="nameRef">hextoi</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Convert a hex string to an integer.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_runtime_1gabe1fb7ce5588a9f2ccc311f1dad44780" class="nameRef">itosbuf</a>(char *buf, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> size, <a href="osdep.html#osdep_8h_1a168afaa12b2c08e4ae1d11ea4c296e64" class="ref">int64</a> value, int radix)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Convert an integer to a string buffer.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a95bd348305d4a3044216ec4d694cd1d4" class="nameRef">logClose</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the log logging module.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="ref">WebsLogHandler</a></td><td><a href="#goahead_8h_1af07cb7c6e3a418059b33eb2243e0e945" class="nameRef">logGetHandler</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the log callback.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="ref">WebsLogHandler</a></td><td><a href="#goahead_8h_1af07cb7c6e3a418059b33eb2243e0e945" class="nameRef">logGetHandler</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the log callback.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#goahead_8h_1a2c0c1dd956ebfaf981553f5a99cd7bb7" class="nameRef">logOpen</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the log logging module.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="ref">WebsLogHandler</a></td><td><a href="#goahead_8h_1a69d48d711cafc09c257c41705b29eb6a" class="nameRef">logSetHandler</a>(<a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="ref">WebsLogHandler</a> handler)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a log callback.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="ref">WebsLogHandler</a></td><td><a href="#goahead_8h_1a69d48d711cafc09c257c41705b29eb6a" class="nameRef">logSetHandler</a>(<a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="ref">WebsLogHandler</a> handler)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a log callback.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a973f65430b9ee826c6906891d2173bd3" class="nameRef">logSetPath</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the filename to save logging output.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a02f3703e8699520d66c2477e225af267" class="nameRef">logmsgProc</a>(int level, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Emit a message to the log.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1gaf9cb27956141ddc4724cca9903fa69b2" class="nameRef">scaselesscmp</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *s1, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *s2)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Compare strings ignoring case.</td></tr>
@@ -241,11 +241,11 @@
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a></td><td><a href="#group___webs_runtime_1ga7750a3b5b71a637c1ba2b7d98d7997d0" class="nameRef">sncopy</a>(char *dest, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> destMax, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *src, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> count)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Copy characters from a string.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gac14f3548201f71b558822b3c68153ebe" class="nameRef">socketAddress</a>(struct sockaddr *addr, int addrlen, char *ipbuf, int ipLen, int *port)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Extract the numerical IP address and port for the given socket info.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_socket_1ga0c7d4452b77a1bb3095b24e2a61973d5" class="nameRef">socketAddressIsV6</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Determine if an IP address is an IPv6 address.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gadc4743b09e663cfa4fa59ad8679cf047" class="nameRef">socketAlloc</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92" class="ref">SocketAccept</a> accept, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate a socket object.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gadc4743b09e663cfa4fa59ad8679cf047" class="nameRef">socketAlloc</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032" class="ref">SocketAccept</a> accept, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate a socket object.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1gad7e885e55895fca1a1cdb9657d628959" class="nameRef">socketClose</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the socket module.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1ga08b16008980854d2aa6d1ebf588724a7" class="nameRef">socketCloseConnection</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close a socket connection.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gada07f74963867ae158f0289c8483f846" class="nameRef">socketConnect</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Connect to a server and create a new socket.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1ga860aa94cb98a3f2c67426695060dba0c" class="nameRef">socketCreateHandler</a>(int sid, int mask, <a href="#group___webs_socket_1ga657e287f5f61294f65c3092a0e0b5e18" class="ref">SocketHandler</a> handler, void *arg)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a socket handler that will be invoked when I/O events occur.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1ga860aa94cb98a3f2c67426695060dba0c" class="nameRef">socketCreateHandler</a>(int sid, int mask, <a href="#group___webs_socket_1gabc472a96ad52eed12682302d4f0f5077" class="ref">SocketHandler</a> handler, void *arg)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a socket handler that will be invoked when I/O events occur.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1ga8844ac81357964309fd7e9f872ad1bd7" class="nameRef">socketDeleteHandler</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Delete a socket handler created via socketCreateHandler.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_socket_1gab7e5de92ef3adf4262ccf4e5faacf150" class="nameRef">socketEof</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Determine if the socket is at end-of-file for input.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1gaff7039dc3fc07516017caf5a2b434dad" class="nameRef">socketFree</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Free (and close) the socket.</td></tr>
@@ -259,7 +259,7 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1ga22d77c01e3349be30f4a24e790b72499" class="nameRef">socketHiddenData</a>(<a href="#group___webs_socket" class="ref">WebsSocket</a> *sp, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len, int dir)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Indicate that the application layer has buffered data for the socket.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gabd3226bb7b28114550f997df00067f8c" class="nameRef">socketInfo</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ip, int port, int *family, int *protocol, struct sockaddr_storage *addr, <a href="#goahead_8h_1a7e81f05ea37d05efc10e7c45c1111d0d" class="ref">Socklen</a> *addrlen)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get a socket address structure for the specified IP:Port.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1ad5c9d4ba3dc37783a528b0925dc981a0" class="ref">bool</a></td><td><a href="#group___webs_socket_1ga4f30ba4ad13456067e09eef36778caba" class="nameRef">socketIsV6</a>(int sid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Determine if a socket is bound to an IPv6 address.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1ga0a776cf248c686363c87658082170a16" class="nameRef">socketListen</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92" class="ref">SocketAccept</a> accept, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open a listening socket.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1ga0a776cf248c686363c87658082170a16" class="nameRef">socketListen</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032" class="ref">SocketAccept</a> accept, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open a listening socket.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1ga1865f03055c014b5382e8d4a16ae9522" class="nameRef">socketOpen</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the socket module.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_socket_1gab341c6634c368ce4163bd88ccd2abcbd" class="nameRef">socketParseAddress</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ipAddrPort, char **pip, int *pport, int *secure, int defaultPort)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Parse an IP address into its constituent parts.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_socket_1gaa5aac3322c1eb29911e40c7b3058be15" class="nameRef">socketProcess</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Process pending socket I/O events.</td></tr>
@@ -293,7 +293,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1gaf7553e70a9cd19a472ed5af514776e09" class="nameRef">wallocHandle</a>(void *map)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate a handle from a map.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga5bdd5a92db14503e6bb55c5c37c7580d" class="nameRef">wallocObject</a>(void *map, int *max, int size)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Allocate an object in a halloc map.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ab07b7c0b89520599c586358086c52568" class="nameRef">wcloseAlloc</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Close the GoAhead memory allocator.</td></tr>
-<tr class="apiDef"><td class="apiType">void*</td><td><a href="#goahead_8h_1a1a8530408eb04ac2cfe964c0be322e7d" class="nameRef">wdup</a>(<a href="osdep.html#osdep_8h_1a5272042f7e0f5c53e2fd4b49ff47d92d" class="ref">cvoid</a> *ptr, size_t usize)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Duplicate memory.</td></tr>
+<tr class="apiDef"><td class="apiType">void*</td><td><a href="#goahead_8h_1a364829588ded7824a6226c71dda5bd43" class="nameRef">wdup</a>(<a href="osdep.html#osdep_8h_1a5272042f7e0f5c53e2fd4b49ff47d92d" class="ref">cvoid</a> *ptr, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> usize)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Duplicate memory.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga0a02508940140401b730219dba7295d5" class="nameRef">websAccept</a>(int sid, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ipaddr, int port, int listenSid)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Accept a new connection.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaf903a6d7928616f803d294de73f8cd11" class="nameRef">websActionOpen</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Open the action handler.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_role" class="ref">WebsRole*</a></td><td><a href="#group___webs_auth_1ga637ac17c1c1d24cafa5589b00e4ef82b" class="nameRef">websAddRole</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *role, <a href="#group___webs_hash" class="ref">WebsHash</a> abilities)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Add a role.</td></tr>
@@ -321,8 +321,8 @@
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga3b21883f613ad05e48a9de43714bf67e" class="nameRef">websDecode64Block</a>(char *str, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> *len, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Decode a block using base-46 encoding.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gab121f04477c839b0750fb24db5f25d8b" class="nameRef">websDecodeUrl</a>(char *decoded, char *input, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> len)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Decode a URL expanding NN encoding.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga16df3436fa7bff9179b1d278c24beef5" class="nameRef">websDefineAction</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, void *fun)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define an action callback for use with the action handler.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gabfae07af8717f3e8080cc4738db4ae1e" class="nameRef">websDefineHandler</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="ref">WebsHandlerProc</a> match, <a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="ref">WebsHandlerProc</a> service, <a href="#group___webs_1gaaf026187015f50b6c6068f996cad29fc" class="ref">WebsHandlerClose</a> close, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a request handler.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga7f4aa0888bf456eab90a010bcbcdb770" class="nameRef">websDefineJst</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="ref">WebsJstProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a Javscript native function.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gabfae07af8717f3e8080cc4738db4ae1e" class="nameRef">websDefineHandler</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412" class="ref">WebsHandlerProc</a> match, <a href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412" class="ref">WebsHandlerProc</a> service, <a href="#group___webs_1ga6b8f7c9a8138c1c585ec1c2b7aa7a954" class="ref">WebsHandlerClose</a> close, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a request handler.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga7f4aa0888bf456eab90a010bcbcdb770" class="nameRef">websDefineJst</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga35aa7f7f128a9d1a4c4f3eeb7849d638" class="ref">WebsJstProc</a> fn)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a Javscript native function.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_session_1ga8f9464efab7e9045cab72863ccdb81db" class="nameRef">websDestroySession</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Destroy the webs session object.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gac2af58b7a686cb33e44eb010cf755ce1" class="nameRef">websDone</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Complete a request.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga97f5bcd7b8aa8df838037f9cf2c55267" class="nameRef">websEncode64</a>(char *str)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Encode a string using base-64 encoding.</td></tr>
@@ -352,7 +352,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga2746a02538e42a71d4ef272a9971f986" class="nameRef">websGetLogLevel</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the current trace log level.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar*</a></td><td><a href="#group___webs_1ga899fcb60a5afe215e7c56bc1f3c00961" class="nameRef">websGetMethod</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request method.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar*</a></td><td><a href="#group___webs_1gaf36ce4de6a4772ed13ef1f6073d9cb7a" class="nameRef">websGetPassword</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request password.</td></tr>
-<tr class="apiDef"><td class="apiType"><a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="ref">WebsVerify</a></td><td><a href="#group___webs_auth_1gac59e51db50106639503b066a95258b75" class="nameRef">websGetPasswordStoreVerify</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the password store verify callback.</td></tr>
+<tr class="apiDef"><td class="apiType"><a href="#group___webs_1ga196a6343b64e6944f3b77b8af709a7e8" class="ref">WebsVerify</a></td><td><a href="#group___webs_auth_1gac59e51db50106639503b066a95258b75" class="nameRef">websGetPasswordStoreVerify</a>(void)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the password store verify callback.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar*</a></td><td><a href="#group___webs_1ga4c8b947cea7d8077f51d023aec7cd603" class="nameRef">websGetPath</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request path.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gaee772cdbaee60ec39567c47e9a83c2c6" class="nameRef">websGetPort</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request TCP/IP port.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar*</a></td><td><a href="#group___webs_1gaa18fd6e345dee2e99c47f02471978177" class="nameRef">websGetProtocol</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get the request HTTP protocol.</td></tr>
@@ -424,7 +424,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1gae1e0fc3c37a3050a6da804a42637b32e" class="nameRef">websServer</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *endpoint, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *documents)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>One line embedding API.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga81d8a2cfbe5360e1a46011172470368a" class="nameRef">websServiceEvents</a>(int *finished)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Service I/O events until finished.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaed3bf51e30277fe1b56379bb6a1b6699" class="nameRef">websSetBackground</a>(int on)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the background processing flag.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a5a271ccc2e8fbc76a49f2f2022db21cc" class="nameRef">websSetBackgroundWriter</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d" class="ref">WebsWriteProc</a> proc)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a background write I/O event callback.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1a5a271ccc2e8fbc76a49f2f2022db21cc" class="nameRef">websSetBackgroundWriter</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1ab831e30480b27feb88a15c09f382719f" class="ref">WebsWriteProc</a> proc)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a background write I/O event callback.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga628ad13f465a4c67339e2b53540ad01a" class="nameRef">websSetCookie</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *value, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *domain, int lifespan, int flags)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a cookie to include in the response.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gae3b839fa0c223b457f109c61c177da96" class="nameRef">websSetDebug</a>(int on)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the debug processing flag.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1gaf0802eca30adb2cc9d2b7d2ccc2badc6" class="nameRef">websSetDocuments</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *dir)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the web documents directory.</td></tr>
@@ -434,8 +434,8 @@
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga346178ebf1361d67acab6a62ff15adc2" class="nameRef">websSetIndex</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *filename)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create and send a request response.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga7528ade178ede9cd6fe6abe011869dc1" class="nameRef">websSetIpAddr</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *ipaddr)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the host IP address.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga46d153b401bb7fc47ae5b17203541644" class="nameRef">websSetLogLevel</a>(int level)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the current trace log level.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ae8c0353bf1c238af495fa5e4122b4af6" class="nameRef">websSetMemNotifier</a>(<a href="#goahead_8h_1a3780611857f602b4ea243836f54de556" class="ref">WebsMemNotifier</a> cback)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a global memory allocation notifier.</td></tr>
-<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_auth_1gac050abeadb21db4a90197eab284b115b" class="nameRef">websSetPasswordStoreVerify</a>(<a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="ref">WebsVerify</a> verify)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the password store verify callback.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#goahead_8h_1ae8c0353bf1c238af495fa5e4122b4af6" class="nameRef">websSetMemNotifier</a>(<a href="#goahead_8h_1afba3dd63a743f10ca6c166335f2ba7a9" class="ref">WebsMemNotifier</a> cback)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define a global memory allocation notifier.</td></tr>
+<tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_auth_1gac050abeadb21db4a90197eab284b115b" class="nameRef">websSetPasswordStoreVerify</a>(<a href="#group___webs_1ga196a6343b64e6944f3b77b8af709a7e8" class="ref">WebsVerify</a> verify)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set the password store verify callback.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_1ga9b7ae14718f40340d9621529f4587548" class="nameRef">websSetQueryVars</a>(<a href="#group___webs" class="ref">Webs</a> *wp)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create request variables for query string data.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_route_1ga0326b013f41e0911bfd8c28f7041f209" class="nameRef">websSetRouteAuth</a>(<a href="#group___webs_route" class="ref">WebsRoute</a> *route, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *authType)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set route authentication scheme.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_route_1ga02ded6cfc279652c2dca6d86f2adc8d8" class="nameRef">websSetRouteMatch</a>(<a href="#group___webs_route" class="ref">WebsRoute</a> *route, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *dir, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *protocol, <a href="#group___webs_hash" class="ref">WebsHash</a> methods, <a href="#group___webs_hash" class="ref">WebsHash</a> extensions, <a href="#group___webs_hash" class="ref">WebsHash</a> abilities, <a href="#group___webs_hash" class="ref">WebsHash</a> redirects)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Configure a route by adding matching criteria.</td></tr>
@@ -446,7 +446,7 @@
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_auth_1gad77d33b025ea6680b2172f2dac62639b" class="nameRef">websSetUserRoles</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *username, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *roles)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Define the set of roles for a user.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_1ga7bc119287019bd62d1db463ea72505b5" class="nameRef">websSetVar</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *value)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a string value.</td></tr>
 <tr class="apiDef"><td class="apiType"><a href="#struct_webs_key" class="ref">WebsKey*</a></td><td><a href="#group___webs_1gae224484206da359d0c9e0a11469d4b4f" class="nameRef">websSetVarFmt</a>(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *fmt, ...)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Set a request variable to a formatted string value.</td></tr>
-<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga3d52faf06a56379bb23247aa9a0acb0f" class="nameRef">websStartEvent</a>(int delay, <a href="#group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a" class="ref">WebsEventProc</a> proc, void *data)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start a callback event.</td></tr>
+<tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_runtime_1ga3d52faf06a56379bb23247aa9a0acb0f" class="nameRef">websStartEvent</a>(int delay, <a href="#group___webs_runtime_1gacc671375a3241fd84d5151c9dd001dc7" class="ref">WebsEventProc</a> proc, void *data)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Start a callback event.</td></tr>
 <tr class="apiDef"><td class="apiType">int</td><td><a href="#group___webs_1ga040b642a888cc259456bacfec4227217" class="nameRef">websStatFile</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *path, <a href="#struct_webs_file_info" class="ref">WebsFileInfo</a> *sbuf)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Get file status for a file.</td></tr>
 <tr class="apiDef"><td class="apiType">void</td><td><a href="#group___webs_runtime_1ga9a6524bc11288246c84651f99fd24425" class="nameRef">websStopEvent</a>(int id)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Stop an event.</td></tr>
 <tr class="apiDef"><td class="apiType">char*</td><td><a href="#group___webs_1ga7c1b3749d9f6644db2c7a60d44c453db" class="nameRef">websTempFile</a>(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *dir, <a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *prefix)</td></tr><tr class="apiBrief"><td>&nbsp;</td><td>Create a temporary filename This does not guarantee the filename is unique or that it is not already in use by another application.</td></tr>
@@ -474,29 +474,29 @@
 </table>
 <a name="Typedefs"></a><h1>Typedefs</h1>
 <table class="apiIndex" title="typedefs">
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92" class="nameRef">SocketAccept</a></td><td class="apiBrief">Socket accept callback.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_socket_1ga657e287f5f61294f65c3092a0e0b5e18" class="nameRef">SocketHandler</a></td><td class="apiBrief">Socket I/O callback.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1gaef2ecde6d7702a3510c2848ee0fc5934" class="nameRef">WebsAction</a></td><td class="apiBrief">Action callback.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga6e48901e1591eed982ca02059748538b" class="nameRef">WebsAskLogin</a></td><td class="apiBrief">Callback to prompt the user for their password.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032" class="nameRef">SocketAccept</a></td><td class="apiBrief">Socket accept callback.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_socket_1gabc472a96ad52eed12682302d4f0f5077" class="nameRef">SocketHandler</a></td><td class="apiBrief">Socket I/O callback.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1gacbbbea4092b366e954f77916957cf6c5" class="nameRef">WebsAction</a></td><td class="apiBrief">Action callback.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga00798847832d6e6b032e7423a3bf5bb2" class="nameRef">WebsAskLogin</a></td><td class="apiBrief">Callback to prompt the user for their password.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_error" class="nameRef">WebsError</a></td><td class="apiBrief">Error code list.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a" class="nameRef">WebsEventProc</a></td><td class="apiBrief">Callback function for events.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_runtime_1gacc671375a3241fd84d5151c9dd001dc7" class="nameRef">WebsEventProc</a></td><td class="apiBrief">Callback function for events.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_file_info" class="nameRef">WebsFileInfo</a></td><td class="apiBrief">File information structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_handler" class="nameRef">WebsHandler</a></td><td class="apiBrief">GoAhead handler object.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1gaaf026187015f50b6c6068f996cad29fc" class="nameRef">WebsHandlerClose</a></td><td class="apiBrief">GoAhead handler close to release memory prior to shutdown.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="nameRef">WebsHandlerProc</a></td><td class="apiBrief">GoAhead handler service callback.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga6b8f7c9a8138c1c585ec1c2b7aa7a954" class="nameRef">WebsHandlerClose</a></td><td class="apiBrief">GoAhead handler close to release memory prior to shutdown.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412" class="nameRef">WebsHandlerProc</a></td><td class="apiBrief">GoAhead handler service callback.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a8b29ad60e66971115b4c4dbbc655ae67" class="nameRef">WebsHash</a></td><td class="apiBrief">Hash table ID returned by hashCreate.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="nameRef">WebsJstProc</a></td><td class="apiBrief">Javascript native function.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="nameRef">WebsLogHandler</a></td><td class="apiBrief">Callback for emitting trace log output.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga35aa7f7f128a9d1a4c4f3eeb7849d638" class="nameRef">WebsJstProc</a></td><td class="apiBrief">Javascript native function.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="nameRef">WebsLogHandler</a></td><td class="apiBrief">Callback for emitting trace log output.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_mime" class="nameRef">WebsMime</a></td><td class="apiBrief">Mime type list.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga15af4264d6a7f06686169c0ca2fd397e" class="nameRef">WebsParseAuth</a></td><td class="apiBrief">Callback to parse authentication details submitted with the web request.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga8813a82488191e0cb2df0f7cafcd1414" class="nameRef">WebsParseAuth</a></td><td class="apiBrief">Callback to parse authentication details submitted with the web request.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_role" class="nameRef">WebsRole</a></td><td class="apiBrief">Role definition structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_rom_index" class="nameRef">WebsRomIndex</a></td><td class="apiBrief">Compiled Rom Page Index.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1a3a874b92bbb07540254ed16567db3aa3" class="nameRef">WebsStat</a></td><td class="apiBrief">File status structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1acdd9aaf80c8e9b08b3cf94200c91a6ae" class="nameRef">WebsTime</a></td><td class="apiBrief">System native time type.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_user" class="nameRef">WebsUser</a></td><td class="apiBrief">User definition structure.</td></tr>
 <tr class="apiDef"><td class="apiName"><a href="#struct_webs_value" class="nameRef">WebsValue</a></td><td class="apiBrief">Value union to store primitive value types.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="nameRef">WebsVerify</a></td><td class="apiBrief">Callback to verify the username and password.</td></tr>
-<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d" class="nameRef">WebsWriteProc</a></td><td class="apiBrief">Callback for write I/O events.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#group___webs_1ga196a6343b64e6944f3b77b8af709a7e8" class="nameRef">WebsVerify</a></td><td class="apiBrief">Callback to verify the username and password.</td></tr>
+<tr class="apiDef"><td class="apiName"><a href="#goahead_8h_1ab831e30480b27feb88a15c09f382719f" class="nameRef">WebsWriteProc</a></td><td class="apiBrief">Callback for write I/O events.</td></tr>
 </table>
 <a name="Defines"></a><h1>Defines</h1>
 <table class="apiIndex" title="Defines">
@@ -999,7 +999,7 @@ Current file filename.
     <tr><td class="param">int</td><td><td>code</td><td>
 Response status code.
 </td>
-    <tr><td class="param">int</td><td><td>connError</td><td>
+    <tr><td class="param">uint</td><td><td>connError</td><td>
 Request has a connection error.
 </td>
     <tr><td class="param">char *</td><td><td>contentType</td><td>
@@ -1026,7 +1026,7 @@ True if the password is MD5(username:realm:password).
     <tr><td class="param">bool</td><td><td>eof</td><td>
 If at the end of the request content.
 </td>
-    <tr><td class="param">int</td><td><td>error</td><td>
+    <tr><td class="param">uint</td><td><td>error</td><td>
 Request has an error.
 </td>
     <tr><td class="param">char *</td><td><td>ext</td><td>
@@ -1038,7 +1038,7 @@ Document path name.
     <tr><td class="param">WebsHash</td><td><td>files</td><td>
 Uploaded files.
 </td>
-    <tr><td class="param">int</td><td><td>finalized</td><td>
+    <tr><td class="param">uint</td><td><td>finalized</td><td>
 Request has been completed.
 </td>
     <tr><td class="param">int</td><td><td>flags</td><td>
@@ -1601,7 +1601,7 @@ Bytes actually transferred.
   <div class="prototype">
     int
     websDefineHandler
-(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="ref">WebsHandlerProc</a> match, <a href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442" class="ref">WebsHandlerProc</a> service, <a href="#group___webs_1gaaf026187015f50b6c6068f996cad29fc" class="ref">WebsHandlerClose</a> close, int flags)
+(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412" class="ref">WebsHandlerProc</a> match, <a href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412" class="ref">WebsHandlerProc</a> service, <a href="#group___webs_1ga6b8f7c9a8138c1c585ec1c2b7aa7a954" class="ref">WebsHandlerClose</a> close, int flags)
   </div>
   <div class="apiDetail">
 <p>Define a request handler.</p>
@@ -1624,7 +1624,7 @@ Bytes actually transferred.
   <div class="prototype">
     int
     websDefineJst
-(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga95d129571903557ca1817968430bafd9" class="ref">WebsJstProc</a> fn)
+(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *name, <a href="#group___webs_1ga35aa7f7f128a9d1a4c4f3eeb7849d638" class="ref">WebsJstProc</a> fn)
   </div>
   <div class="apiDetail">
 <p>Define a Javscript native function.</p>
@@ -2519,7 +2519,6 @@ Bytes actually transferred.
     <table class="parameters" title="Parameters">
     <tr><td class="param">documents</td><td>Optional web documents directory. If set to null, the build time ME_GOAHEAD_DOCUMENTS value is used for the documents directory.</td>
     <tr><td class="param">routes</td><td>Optional filename for a route configuration file to load. Additional route or authentication configuration files can be loaded via websLoad.</td>
-    <tr><td class="param">routes</td><td>Webs request object.</td>
     </table></dd></dl>
     <dl><dt>Returns:</dt><dd>Zero if successful, otherwise -1.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
@@ -3744,7 +3743,7 @@ Some components of the URI have restricted character sets that this routine does
 <a name="group___webs_auth_1gac59e51db50106639503b066a95258b75"></a>
 <div class="api">
   <div class="prototype">
-    <a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="ref">WebsVerify</a>
+    <a href="#group___webs_1ga196a6343b64e6944f3b77b8af709a7e8" class="ref">WebsVerify</a>
     websGetPasswordStoreVerify
 (void )
   </div>
@@ -3908,7 +3907,7 @@ Some components of the URI have restricted character sets that this routine does
   <div class="prototype">
     void
     websSetPasswordStoreVerify
-(<a href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c" class="ref">WebsVerify</a> verify)
+(<a href="#group___webs_1ga196a6343b64e6944f3b77b8af709a7e8" class="ref">WebsVerify</a> verify)
   </div>
   <div class="apiDetail">
 <p>Set the password store verify callback.</p>
@@ -4005,6 +4004,18 @@ Some components of the URI have restricted character sets that this routine does
   <div class="prototype">WebsBuf</div>
   <div class="apiDetail">
 <p>A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering.</p>
+    <dl><dt><b>Description</b>:</dt><dd>This module provides a highly efficient implementation and a vehicle for dynamic strings. WARNING: This is a public implementation and callers have full access to the queue structure and pointers. Change this module very carefully. <br/><br/>
+ This module follows the open/close model. <br/><br/>
+ Operation of a WebsBuf where bp is a pointer to a WebsBuf : <verbatim>bp-&gt;buflen contains the size of the buffer.
+bp-&gt;buf will point to the start of the buffer.
+bp-&gt;servp will point to the first (un-consumed) data byte.
+bp-&gt;endp will point to the next free location to which new data is added
+bp-&gt;endbuf will point to one past the end of the buffer.
+</verbatim><br/><br/>
+ Eg. If the WebsBuf contains the data &quot;abcdef&quot;, it might look like : <br/><br/>
+ +&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<mdash/>+ | | | | | | | | a | b | c | d | e | f | | | | | +&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<mdash/>+ ^ ^ ^ ^ | | | | bp-&gt;buf bp-&gt;servp bp-&gt;endp bp-&gt;enduf <br/><br/>
+ The queue is empty when servp == endp. This means that the queue will hold at most bp-&gt;buflen -1 bytes. It is the fillers responsibility to ensure the WebsBuf is never filled such that servp == endp. <br/><br/>
+ It is the fillers responsibility to &quot;wrap&quot; the endp back to point to bp-&gt;buf when the pointer steps past the end. Correspondingly it is the consumers responsibility to &quot;wrap&quot; the servp when it steps to bp-&gt;endbuf. The bufPutc and bufGetc routines will do this automatically.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
     <dl><dt>Fields:</dt><dd>
     <table class="parameters" title="Parameters">
@@ -4608,7 +4619,7 @@ The end pointer is not changed
     <tr><td class="param">WebsHash</td><td><td>abilities</td><td>
 Required user abilities.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___webs_1ga6e48901e1591eed982ca02059748538b">WebsAskLogin</a></td><td><td>askLogin</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_1ga00798847832d6e6b032e7423a3bf5bb2">WebsAskLogin</a></td><td><td>askLogin</td><td>
 Route path prefix.
 </td>
     <tr><td class="param">char *</td><td><td>authType</td><td>
@@ -4629,7 +4640,7 @@ Request handler to service requests.
     <tr><td class="param">WebsHash</td><td><td>methods</td><td>
 Supported HTTP methods.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___webs_1ga15af4264d6a7f06686169c0ca2fd397e">WebsParseAuth</a></td><td><td>parseAuth</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_1ga8813a82488191e0cb2df0f7cafcd1414">WebsParseAuth</a></td><td><td>parseAuth</td><td>
 Parse authentication details callback.
 </td>
     <tr><td class="param">char *</td><td><td>prefix</td><td>
@@ -4644,7 +4655,7 @@ HTTP protocol to use for this route.
     <tr><td class="param">WebsHash</td><td><td>redirects</td><td>
 Response redirections.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___webs_1ga51bf732cb5d04090e77cfa66eeca394c">WebsVerify</a></td><td><td>verify</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_1ga196a6343b64e6944f3b77b8af709a7e8">WebsVerify</a></td><td><td>verify</td><td>
 Verify password callback.
 </td>
     </table></dd></dl>
@@ -4812,7 +4823,6 @@ Verify password callback.
     <tr><td class="param">protocol</td><td>Set the matching HTTP protocol (http or https).</td>
     <tr><td class="param">methods</td><td>Hash of permissible HTTP methods. (GET, HEAD, POST, PUT).</td>
     <tr><td class="param">extensions</td><td>Hash of permissible URI filename extensions.</td>
-    <tr><td class="param">abilities</td><td>Required user abilities. The user must be authenticated.</td>
     <tr><td class="param">abilities</td><td>Required user abilities. If abilities are required, the user must be authenticated.</td>
     <tr><td class="param">redirects</td><td>Set of applicable response redirections when completing the request.</td>
     </table></dd></dl>
@@ -5367,7 +5377,7 @@ This is a secure version of printf that can handle null args
   <div class="prototype">
     int
     websStartEvent
-(int delay, <a href="#group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a" class="ref">WebsEventProc</a> proc, void *data)
+(int delay, <a href="#group___webs_runtime_1gacc671375a3241fd84d5151c9dd001dc7" class="ref">WebsEventProc</a> proc, void *data)
   </div>
   <div class="apiDetail">
 <p>Start a callback event.</p>
@@ -5616,7 +5626,7 @@ Session inactivity timeout (secs).
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
     <dl><dt>Fields:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param"><a class="ref" href="#group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92">SocketAccept</a></td><td><td>accept</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032">SocketAccept</a></td><td><td>accept</td><td>
 Accept handler.
 </td>
     <tr><td class="param">int</td><td><td>currentEvents</td><td>
@@ -5631,7 +5641,7 @@ ID of the file handler.
     <tr><td class="param">int</td><td><td>flags</td><td>
 Current state flags.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___webs_socket_1ga657e287f5f61294f65c3092a0e0b5e18">SocketHandler</a></td><td><td>handler</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_socket_1gabc472a96ad52eed12682302d4f0f5077">SocketHandler</a></td><td><td>handler</td><td>
 User I/O handler.
 </td>
     <tr><td class="param">void *</td><td><td>handler_data</td><td>
@@ -5720,7 +5730,7 @@ Actual socket handle.
   <div class="prototype">
     int
     socketAlloc
-(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92" class="ref">SocketAccept</a> accept, int flags)
+(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032" class="ref">SocketAccept</a> accept, int flags)
   </div>
   <div class="apiDetail">
 <p>Allocate a socket object.</p>
@@ -5794,7 +5804,7 @@ Actual socket handle.
   <div class="prototype">
     void
     socketCreateHandler
-(int sid, int mask, <a href="#group___webs_socket_1ga657e287f5f61294f65c3092a0e0b5e18" class="ref">SocketHandler</a> handler, void *arg)
+(int sid, int mask, <a href="#group___webs_socket_1gabc472a96ad52eed12682302d4f0f5077" class="ref">SocketHandler</a> handler, void *arg)
   </div>
   <div class="apiDetail">
 <p>Create a socket handler that will be invoked when I/O events occur.</p>
@@ -6057,7 +6067,7 @@ Actual socket handle.
   <div class="prototype">
     int
     socketListen
-(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92" class="ref">SocketAccept</a> accept, int flags)
+(<a href="osdep.html#osdep_8h_1a0f128c3e0c83721af0220c00554e9c4e" class="ref">cchar</a> *host, int port, <a href="#group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032" class="ref">SocketAccept</a> accept, int flags)
   </div>
   <div class="apiDetail">
 <p>Open a listening socket.</p>
@@ -6098,7 +6108,8 @@ Actual socket handle.
   </div>
   <div class="apiDetail">
 <p>Parse an IP address into its constituent parts.</p>
-    <dl><dt><b>Description</b>:</dt><dd>Parse the IP address and return the IP address and port components. Handles ipv4 and ipv6 addresses. If the IP portion is absent, pip is set to null. If the port portion is absent, port is set to the defaultPort. If a &quot;:*&quot; port specifier is used, pport is set to -1; When an address contains an ipv6 port it should be written as aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii or If supplied an IPv6 address, the backets are stripped in the returned IP address.</dd></dl>
+    <dl><dt><b>Description</b>:</dt><dd>Parse the IP address and return the IP address and port components. Handles ipv4 and ipv6 addresses. If the IP portion is absent, pip is set to null. If the port portion is absent, port is set to the defaultPort. If a &quot;:*&quot; port specifier is used, pport is set to -1; When an address contains an ipv6 port it should be written as aaaa:bbbb:cccc:dddd:eeee:ffff:gggg:hhhh:iiii or.</dd></dl>
+If supplied an IPv6 address, the backets are stripped in the returned IP address
     <dl><dt>Parameters:</dt><dd>
     <table class="parameters" title="Parameters">
     <tr><td class="param">ipAddrPort</td><td>IP address which may contain an optional &quot;:port&quot; component.</td>
@@ -6448,7 +6459,7 @@ Uploaded file size.
 <a name="goahead_8h_1af07cb7c6e3a418059b33eb2243e0e945"></a>
 <div class="api">
   <div class="prototype">
-    <a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="ref">WebsLogHandler</a>
+    <a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="ref">WebsLogHandler</a>
     logGetHandler
 (void )
   </div>
@@ -6492,9 +6503,9 @@ Uploaded file size.
 <a name="goahead_8h_1a69d48d711cafc09c257c41705b29eb6a"></a>
 <div class="api">
   <div class="prototype">
-    <a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="ref">WebsLogHandler</a>
+    <a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="ref">WebsLogHandler</a>
     logSetHandler
-(<a href="#goahead_8h_1aac2b25d0de54f2f4e282158b066fd523" class="ref">WebsLogHandler</a> handler)
+(<a href="#goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb" class="ref">WebsLogHandler</a> handler)
   </div>
   <div class="apiDetail">
 <p>Set a log callback.</p>
@@ -6656,12 +6667,12 @@ Uploaded file size.
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
   </div>
 </div>
-<a name="goahead_8h_1a1a8530408eb04ac2cfe964c0be322e7d"></a>
+<a name="goahead_8h_1a364829588ded7824a6226c71dda5bd43"></a>
 <div class="api">
   <div class="prototype">
     void *
     wdup
-(<a href="osdep.html#osdep_8h_1a5272042f7e0f5c53e2fd4b49ff47d92d" class="ref">cvoid</a> *ptr, size_t usize)
+(<a href="osdep.html#osdep_8h_1a5272042f7e0f5c53e2fd4b49ff47d92d" class="ref">cvoid</a> *ptr, <a href="osdep.html#osdep_8h_1a7d08ccc1e981eb4d5a238641ac4ccfc1" class="ref">ssize</a> usize)
   </div>
   <div class="apiDetail">
 <p>Duplicate memory.</p>
@@ -6786,7 +6797,7 @@ Uploaded file size.
   <div class="prototype">
     void
     websSetBackgroundWriter
-(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d" class="ref">WebsWriteProc</a> proc)
+(<a href="#group___webs" class="ref">Webs</a> *wp, <a href="#goahead_8h_1ab831e30480b27feb88a15c09f382719f" class="ref">WebsWriteProc</a> proc)
   </div>
   <div class="apiDetail">
 <p>Define a background write I/O event callback.</p>
@@ -6802,7 +6813,7 @@ Uploaded file size.
   <div class="prototype">
     void
     websSetMemNotifier
-(<a href="#goahead_8h_1a3780611857f602b4ea243836f54de556" class="ref">WebsMemNotifier</a> cback)
+(<a href="#goahead_8h_1afba3dd63a743f10ca6c166335f2ba7a9" class="ref">WebsMemNotifier</a> cback)
   </div>
   <div class="apiDetail">
 <p>Define a global memory allocation notifier.</p>
@@ -6879,10 +6890,10 @@ Uploaded file size.
 <p>Hash table ID returned by hashCreate.</p>
   </div>
 </div>
-<a name="goahead_8h_1aac2b25d0de54f2f4e282158b066fd523"></a>
+<a name="goahead_8h_1ab4a2aa1bcdb9d47e37c84baa32cbf5fb"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* WebsLogHandler)(int level, cchar *msg).
+    typedef void(* WebsLogHandler) (int level, cchar *msg).
   </div>
   <div class="apiDetail">
 <p>Callback for emitting trace log output.</p>
@@ -6913,19 +6924,19 @@ Uploaded file size.
 This is the time in seconds. This may be 32 or 64 bits and may be signed or unsigned on some systems
   </div>
 </div>
-<a name="goahead_8h_1ae4404fa7b2ae18e39956ddbb6d78974d"></a>
+<a name="goahead_8h_1ab831e30480b27feb88a15c09f382719f"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* WebsWriteProc)(struct Webs *wp).
+    typedef void(* WebsWriteProc) (struct Webs *wp).
   </div>
   <div class="apiDetail">
 <p>Callback for write I/O events.</p>
   </div>
 </div>
-<a name="group___webs_1gaef2ecde6d7702a3510c2848ee0fc5934"></a>
+<a name="group___webs_1gacbbbea4092b366e954f77916957cf6c5"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* WebsAction)(Webs *wp).
+    typedef void(* WebsAction) (Webs *wp).
   </div>
   <div class="apiDetail">
 <p>Action callback.</p>
@@ -6938,10 +6949,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga6e48901e1591eed982ca02059748538b"></a>
+<a name="group___webs_1ga00798847832d6e6b032e7423a3bf5bb2"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* WebsAskLogin)(Webs *wp).
+    typedef void(* WebsAskLogin) (Webs *wp).
   </div>
   <div class="apiDetail">
 <p>Callback to prompt the user for their password.</p>
@@ -6954,10 +6965,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1gaaf026187015f50b6c6068f996cad29fc"></a>
+<a name="group___webs_1ga6b8f7c9a8138c1c585ec1c2b7aa7a954"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* WebsHandlerClose)(void).
+    typedef void(* WebsHandlerClose) (void).
   </div>
   <div class="apiDetail">
 <p>GoAhead handler close to release memory prior to shutdown.</p>
@@ -6967,10 +6978,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga6bc0396b0693e1501f5af39cab73e442"></a>
+<a name="group___webs_1ga1b14d912d52adc694c3c713ec0a17412"></a>
 <div class="api">
   <div class="prototype">
-    typedef bool(* WebsHandlerProc)(Webs *wp).
+    typedef bool(* WebsHandlerProc) (Webs *wp).
   </div>
   <div class="apiDetail">
 <p>GoAhead handler service callback.</p>
@@ -6984,10 +6995,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga95d129571903557ca1817968430bafd9"></a>
+<a name="group___webs_1ga35aa7f7f128a9d1a4c4f3eeb7849d638"></a>
 <div class="api">
   <div class="prototype">
-    typedef int(* WebsJstProc)(int jid, Webs *wp, int argc, char **argv).
+    typedef int(* WebsJstProc) (int jid, Webs *wp, int argc, char **argv).
   </div>
   <div class="apiDetail">
 <p>Javascript native function.</p>
@@ -7005,10 +7016,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga15af4264d6a7f06686169c0ca2fd397e"></a>
+<a name="group___webs_1ga8813a82488191e0cb2df0f7cafcd1414"></a>
 <div class="api">
   <div class="prototype">
-    typedef bool(* WebsParseAuth)(Webs *wp).
+    typedef bool(* WebsParseAuth) (Webs *wp).
   </div>
   <div class="apiDetail">
 <p>Callback to parse authentication details submitted with the web request.</p>
@@ -7022,10 +7033,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_1ga51bf732cb5d04090e77cfa66eeca394c"></a>
+<a name="group___webs_1ga196a6343b64e6944f3b77b8af709a7e8"></a>
 <div class="api">
   <div class="prototype">
-    typedef bool(* WebsVerify)(Webs *wp).
+    typedef bool(* WebsVerify) (Webs *wp).
   </div>
   <div class="apiDetail">
 <p>Callback to verify the username and password.</p>
@@ -7039,10 +7050,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     </dd></dl>
   </div>
 </div>
-<a name="group___webs_runtime_1ga1d4b3f68e80ae2c0095153a94aed1d4a"></a>
+<a name="group___webs_runtime_1gacc671375a3241fd84d5151c9dd001dc7"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* WebsEventProc)(void *data, int id).
+    typedef void(* WebsEventProc) (void *data, int id).
   </div>
   <div class="apiDetail">
 <p>Callback function for events.</p>
@@ -7056,10 +7067,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     <a href="#group___webs_runtime_1ga73379454c6c7b60b4a69aff3f912466f" class="ref">fmt</a>, <a href="#group___webs_runtime_1ga0870ca42c7fd1330d5316792d9a9a04c" class="ref">hextoi</a>, <a href="#group___webs_runtime_1gabe1fb7ce5588a9f2ccc311f1dad44780" class="ref">itosbuf</a>, <a href="#group___webs_runtime_1gaf9cb27956141ddc4724cca9903fa69b2" class="ref">scaselesscmp</a>, <a href="#group___webs_runtime_1ga021eac46fe21719fb1f9c9d257f64280" class="ref">scaselessmatch</a>, <a href="#group___webs_runtime_1ga9f21afff72f27c5504c4188324a8ff46" class="ref">sclone</a>, <a href="#group___webs_runtime_1ga130862b0d455d9584014457bfeb4c139" class="ref">scmp</a>, <a href="#group___webs_runtime_1ga96df0c576bf6004507a3d0d11e18599a" class="ref">scopy</a>, <a href="#group___webs_runtime_1ga389593b572e23cb0823c83f0cb613eed" class="ref">sfmt</a>, <a href="#group___webs_runtime_1gafb88d66d14c7b5c824214b4c5d221417" class="ref">sfmtv</a>, <a href="#group___webs_runtime_1gade405095134ad54db6dc94fcd6216961" class="ref">slen</a>, <a href="#group___webs_runtime_1gaa3fe51647c6fd75aff0d6df508e664bf" class="ref">slower</a>, <a href="#group___webs_runtime_1gabe7d2af6c4afc8a57904b9276a43ffea" class="ref">smatch</a>, <a href="#group___webs_runtime_1ga30d6259caa94ed51abd25be83c0c4972" class="ref">sncaselesscmp</a>, <a href="#group___webs_runtime_1ga5217429e3f1dd3731530fe287bd893a7" class="ref">sncmp</a>, <a href="#group___webs_runtime_1ga7750a3b5b71a637c1ba2b7d98d7997d0" class="ref">sncopy</a>, <a href="#group___webs_runtime_1gad8ce8e873964777734fcf16459fcd177" class="ref">stok</a>, <a href="#group___webs_runtime_1gaa134dea5fb1197e6c989bb848e7cd657" class="ref">strim</a>, <a href="#group___webs_runtime_1ga7d25b31c850ea3535c0452a21ea14da4" class="ref">supper</a>, <a href="#group___webs_runtime_1gaf7553e70a9cd19a472ed5af514776e09" class="ref">wallocHandle</a>, <a href="#group___webs_runtime_1ga5bdd5a92db14503e6bb55c5c37c7580d" class="ref">wallocObject</a>, <a href="#group___webs_runtime_1ga147dadfb8200bc1df51ea64bbaae5db2" class="ref">wfreeHandle</a></dd></dl>
   </div>
 </div>
-<a name="group___webs_socket_1ga92d28da02bc2d5a00940a3ee24070b92"></a>
+<a name="group___webs_socket_1gae03359f7e0b6d71d55a625ae867c0032"></a>
 <div class="api">
   <div class="prototype">
-    typedef int(* SocketAccept)(int sid, cchar *ipaddr, int port, int listenSid).
+    typedef int(* SocketAccept) (int sid, cchar *ipaddr, int port, int listenSid).
   </div>
   <div class="apiDetail">
 <p>Socket accept callback.</p>
@@ -7075,10 +7086,10 @@ This is the time in seconds. This may be 32 or 64 bits and may be signed or unsi
     <a href="#group___webs_socket_1gac14f3548201f71b558822b3c68153ebe" class="ref">socketAddress</a>, <a href="#group___webs_socket_1ga0c7d4452b77a1bb3095b24e2a61973d5" class="ref">socketAddressIsV6</a>, <a href="#group___webs_socket_1gadc4743b09e663cfa4fa59ad8679cf047" class="ref">socketAlloc</a>, <a href="#group___webs_socket_1gad7e885e55895fca1a1cdb9657d628959" class="ref">socketClose</a>, <a href="#group___webs_socket_1ga08b16008980854d2aa6d1ebf588724a7" class="ref">socketCloseConnection</a>, <a href="#group___webs_socket_1ga860aa94cb98a3f2c67426695060dba0c" class="ref">socketCreateHandler</a>, <a href="#group___webs_socket_1gab7e5de92ef3adf4262ccf4e5faacf150" class="ref">socketEof</a>, <a href="#group___webs_socket_1gaff7039dc3fc07516017caf5a2b434dad" class="ref">socketFree</a>, <a href="#group___webs_socket_1ga19ea155313fd58c2f9842185388e60f7" class="ref">socketGetBlock</a>, <a href="#group___webs_socket_1gad5f2ef131f0ca1222ee4897589f9dc04" class="ref">socketGetError</a>, <a href="#group___webs_socket_1ga089eca4cadf481a213f44dcb783afe83" class="ref">socketGetHandle</a>, <a href="#group___webs_socket_1ga41ef4201ad35371958671487b56689e3" class="ref">socketGetPort</a>, <a href="#group___webs_socket_1gabd3226bb7b28114550f997df00067f8c" class="ref">socketInfo</a>, <a href="#group___webs_socket_1ga4f30ba4ad13456067e09eef36778caba" class="ref">socketIsV6</a>, <a href="#group___webs_socket_1ga0a776cf248c686363c87658082170a16" class="ref">socketListen</a>, <a href="#group___webs_socket_1ga1865f03055c014b5382e8d4a16ae9522" class="ref">socketOpen</a>, <a href="#group___webs_socket_1gab341c6634c368ce4163bd88ccd2abcbd" class="ref">socketParseAddress</a>, <a href="#group___webs_socket_1gaa5aac3322c1eb29911e40c7b3058be15" class="ref">socketProcess</a>, <a href="#group___webs_socket_1gaf627805ebf8640d0ae8d81684e07f67f" class="ref">socketPtr</a>, <a href="#group___webs_socket_1ga19822e9bedff6170ab41c053a9ee29f8" class="ref">socketRead</a>, <a href="#group___webs_socket_1gad9ad9874969bd051043a41147f5a9f01" class="ref">socketRegisterInterest</a>, <a href="#group___webs_socket_1ga84620d0cf38e9279f91e6c71364233ac" class="ref">socketReservice</a>, <a href="#group___webs_socket_1gaa4d7c7dee5c5104c2f19b7b702ee8c4f" class="ref">socketSelect</a>, <a href="#group___webs_socket_1ga87a2c90218477d33c088510d629174c7" class="ref">socketSetBlock</a>, <a href="#group___webs_socket_1ga5c81a3a08f01ced0e6346142663c0bac" class="ref">socketSetError</a>, <a href="#group___webs_socket_1gafeb307811160403ba50be3739ddaf5f9" class="ref">socketWaitForEvent</a>, <a href="#group___webs_socket_1gab6d98261221e514d69b3f4e411fdea4a" class="ref">socketWrite</a></dd></dl>
   </div>
 </div>
-<a name="group___webs_socket_1ga657e287f5f61294f65c3092a0e0b5e18"></a>
+<a name="group___webs_socket_1gabc472a96ad52eed12682302d4f0f5077"></a>
 <div class="api">
   <div class="prototype">
-    typedef void(* SocketHandler)(int sid, int mask, void *data).
+    typedef void(* SocketHandler) (int sid, int mask, void *data).
   </div>
   <div class="apiDetail">
 <p>Socket I/O callback.</p>
@@ -7138,19 +7149,19 @@ File length.
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
     <dl><dt>Fields:</dt><dd>
     <table class="parameters" title="Parameters">
-    <tr><td class="param"><a class="ref" href="#group___webs_1gaaf026187015f50b6c6068f996cad29fc">WebsHandlerClose</a></td><td><td>close</td><td>
-Handler close callback.
+    <tr><td class="param"><a class="ref" href="#group___webs_1ga6b8f7c9a8138c1c585ec1c2b7aa7a954">WebsHandlerClose</a></td><td><td>close</td><td>
+Handler close callback <br/>
 </td>
     <tr><td class="param">int</td><td><td>flags</td><td>
 Handler control flags.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442">WebsHandlerProc</a></td><td><td>match</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412">WebsHandlerProc</a></td><td><td>match</td><td>
 Handler match callback.
 </td>
     <tr><td class="param">char *</td><td><td>name</td><td>
 Handler name.
 </td>
-    <tr><td class="param"><a class="ref" href="#group___webs_1ga6bc0396b0693e1501f5af39cab73e442">WebsHandlerProc</a></td><td><td>service</td><td>
+    <tr><td class="param"><a class="ref" href="#group___webs_1ga1b14d912d52adc694c3c713ec0a17412">WebsHandlerProc</a></td><td><td>service</td><td>
 Handler service callback.
 </td>
     </table></dd></dl>

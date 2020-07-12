@@ -3,27 +3,29 @@
 <head>
 <title>Goahead Man Page</title>
 </head>
-<BODY><PRE>
-GOAHEAD(1)                       User Commands                      GOAHEAD(1)
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
 
-<B>NAME</B>
-       goahead- Embedded HTTP Web Server
-
-<B>SYNOPSIS</B>
-       <B>goahead [options] [documents] [[IP][:port] ...]</B>
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>goahead</B> <B>[options]</B> <B>[documents]</B> <B>[[IP][:port]</B> <B>...]</B>
 
        <B>goahead</B>
-           <B>--auth authFile</B>
+           <B>--auth</B> <B>authFile</B>
            <B>--background</B>
            <B>--debugger</B>
-           <B>--home directory</B>
-           <B>--log logSpec</B>
-           <B>--route routeFile</B>
+           <B>--home</B> <B>directory</B>
+           <B>--log</B> <B>logSpec</B>
+           <B>--route</B> <B>routeFile</B>
            <B>--version</B>
            <B>--verbose</B>
-           <B>[IP][:port] [documents]</B>
+           <B>[IP][:port]</B> <B>[documents]</B>
 
-<B>DESCRIPTION</B>
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
        GoAhead  is  popular,  simple  embedded HTTP web server.  It is a fast,
        small-footprint,  single-threaded,  standards-based,  portable   server
        developed  for use by embedded devices and applications.  It can run as
@@ -40,8 +42,10 @@ GOAHEAD(1)                       User Commands                      GOAHEAD(1)
        head will listen on port 80. If the IP address is omitted and a port is
        supplied, GoAhead will listen on all network interfaces.
 
-<B>OPTIONS</B>
-       <B>--auth filename</B>
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       <B>--auth</B> <B>filename</B>
               Define  the  name of the authentication configuration file. This
               is by default <B>auth.txt</B>.  If GoAhead is built  with  PAM  support
               (Unix  Pluggable Authentication Modules), then passwords will be
@@ -49,43 +53,44 @@ GOAHEAD(1)                       User Commands                      GOAHEAD(1)
 
        <B>--debugger</B>
               Run GoAhead in debug mode and disable all  timeouts.  This  dis-
-              ables  request  and session timeouts.  The <B>-d </B>option is an alias
+              ables  request  and session timeouts.  The <B>-d</B> option is an alias
               for --debugger.
 
-       <B>--log logSpec</B>
+       <B>--log</B> <B>logSpec</B>
               Name the GoAhead log  file.  This  will  override  the  ErrorLog
               directive  in  the configuration file.  When the maximum size is
               exceeded, the log file will be rotated to logName.old and a  new
-              log  file  will be started. The <B>-l </B>option is an alias for --log.
+              log  file  will be started. The <B>-l</B> option is an alias for --log.
               The syntax is:
 
               --log logName[:logLevel]
 
-       <B>--home directory</B>
-              Define the server home directory for GoAhead.
-
-       <B>--route routeFile</B>
-              This option overrides the default route configuration file  name
-              of "route.txt". When GoAhead starts, it reads the route configu-
-              ration file to load URI routes. These routes define what actions
-              should be taken when various client requests are received.
-
-       <B>--verbose</B>
-              Shorthand  for  --log  stdout:4.  The  <B>-v </B>option is an alias for
-              --verbose.
-
-       <B>--version</B>
               Output the product version number.
 
-<B>REPORTING BUGS</B>
-       Report bugs to &lt;dev@embedthis.com&gt;.
 
-<B>COPYRIGHT</B>
+</PRE>
+<H2>REPORTING BUGS</H2><PRE>
+       Report bugs to &lt;;dev@embedthis.com&gt;;.
+
+
+</PRE>
+<H2>COPYRIGHT</H2><PRE>
        Copyright (C) Embedthis Software.
 
-<B>SEE ALSO</B>
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
        gopass, webcomp
 
-goahead                           March 2014                        GOAHEAD(1)
-</PRE></BODY>
+
+
+goahead                           March 2014                        <B>GOAHEAD(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>
 </html>

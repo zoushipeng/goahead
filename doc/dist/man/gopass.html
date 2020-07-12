@@ -3,17 +3,20 @@
 <head>
 <title>Gopass Man Page</title>
 </head>
-<BODY><PRE>
-AUTH(1)                          User Commands                         AUTH(1)
+<HTML>
+<BODY>
+<PRE>
+<!-- Manpage converted by man2html 3.0.1 -->
 
-<B>NAME</B>
-       gopass - Create and manage passwords
-
-<B>SYNOPSIS</B>
-       <B>gopass  </B>[<I>--cipher blowfish|md5</I>] [<I>--file filename</I>] [<I>--password password</I>]
+</PRE>
+<H2>SYNOPSIS</H2><PRE>
+       <B>gopass</B>  [<I>--cipher</I> <I>blowfish|md5</I>] [<I>--file</I> <I>filename</I>] [<I>--password</I> <I>password</I>]
        realm username roles...
 
-<B>DESCRIPTION</B>
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
        The gopass program creates authentication passwords for GoAhead in  the
        nominated  authentication  configuration  file.   GoAhead uses the same
        authorization file and format for Basic, Digest and web-form  authenti-
@@ -27,30 +30,49 @@ AUTH(1)                          User Commands                         AUTH(1)
 
             gopass --password pass1 example.com joshua administrator buyer
 
-<B>OPTIONS</B>
-       <B>--cipher blowfish|md5</B>
+
+
+</PRE>
+<H2>OPTIONS</H2><PRE>
+       <B>--cipher</B> <B>blowfish|md5</B>
               Specifies  the  cipher  to  use to hash the password. Default is
               blowfish. Blowfish is substantially more secure.   MD5  must  be
               used for digest authentication.
 
-       <B>--password password</B>
+       <B>--password</B> <B>password</B>
               Specifies a password to use to for the user.
 
-       <B>--file filename</B>
+       <B>--file</B> <B>filename</B>
               Update the specified password configuration file.
 
-<B>DESCRIPTION</B>
+
+
+</PRE>
+<H2>DESCRIPTION</H2><PRE>
        The  gopass  program is used to create and manage user passwords.  GoA-
        head uses the same authorization file and format for Basic, Digest  and
        Post authentication stores. This simplifies administration.
 
-<B>REPORTING BUGS</B>
+
+</PRE>
+<H2>REPORTING BUGS</H2><PRE>
        Report bugs to dev@embedthis.com.
 
-<B>COPYRIGHT</B>
+
+</PRE>
+<H2>COPYRIGHT</H2><PRE>
        Copyright (C) Embedthis Software.
 
-<B>SEE ALSO</B>
-auth                             February 2014                         AUTH(1)
-</PRE></BODY>
+
+</PRE>
+<H2>SEE ALSO</H2><PRE>
+auth                             February 2014                         <B>AUTH(1)</B>
+</PRE>
+<HR>
+<ADDRESS>
+Man(1) output converted with
+<a href="http://www.oac.uci.edu/indiv/ehood/man2html.html">man2html</a>
+</ADDRESS>
+</BODY>
+</HTML>
 </html>

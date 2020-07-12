@@ -182,16 +182,17 @@ TAB_SIZE               = 4
 # You can put \n's in the value part of an alias to insert newlines.
 
 ALIASES                = "reminder=\xrefitem reminders \"Reminder\" \"Reminders\"" \
-                         "overview=\par \b Overview:\n" \
-                         "scope=\par \b Scope:\n" \
-                         "library=\par \b Library:\n" \
-                         "options=\par \b Options:\n" \
-                         "description=\par \b Description:\n" \
-                         "example=\par \b Example:\n" \
-                         "elements=\par \b Elements:\n" \
-                         "stability=\par \b API Stability:\n" \
-                         "examples=\par \b Examples:\n"
-
+                         "overview=\par \b Overview:^^" \
+                         "scope=\par \b Scope:^^" \
+                         "library=\par \b Library:^^" \
+                         "options=\par \b Options:^^" \
+                         "description=\par \b Description:^^" \
+                         "elements=\par \b Elements:^^" \
+                         "stability=\par \b API Stability:^^" \
+                         "example=\par \b Example:^^" \
+                         "examples=\par \b Examples:^^" \
+                         "l=\link" \
+                         "el=\endlink"
 
 # Set the OPTIMIZE_OUTPUT_FOR_C tag to YES if your project consists of C 
 # sources only. Doxygen will then generate output that is more tailored for C. 
@@ -298,7 +299,7 @@ TYPEDEF_HIDES_STRUCT   = YES
 # 2^(16+SYMBOL_CACHE_SIZE). The valid range is 0..9, the default is 0, 
 # corresponding to a cache size of 2^16 = 65536 symbols
 
-SYMBOL_CACHE_SIZE      = 0
+# SYMBOL_CACHE_SIZE      = 0
 
 #---------------------------------------------------------------------------
 # Build related configuration options
@@ -1145,13 +1146,13 @@ XML_OUTPUT             = xml
 # which can be used by a validating XML parser to check the 
 # syntax of the XML files.
 
-XML_SCHEMA             = 
+# XML_SCHEMA             = 
 
 # The XML_DTD tag can be used to specify an XML DTD, 
 # which can be used by a validating XML parser to check the 
 # syntax of the XML files.
 
-XML_DTD                = 
+# XML_DTD                = 
 
 # If the XML_PROGRAMLISTING tag is set to YES Doxygen will 
 # dump the program listings (including syntax highlighting 
@@ -1336,7 +1337,7 @@ EXTERNAL_GROUPS        = YES
 # The PERL_PATH should be the absolute path and name of the perl script 
 # interpreter (i.e. the result of `which perl').
 
-PERL_PATH              = /usr/bin/perl
+# PERL_PATH              = /usr/bin/perl
 
 #---------------------------------------------------------------------------
 # Configuration options related to the dot tool   
@@ -1358,7 +1359,7 @@ CLASS_DIAGRAMS         = YES
 # the mscgen tool resides. If left empty the tool is assumed to be found in the 
 # default search path.
 
-MSCGEN_PATH            = 
+# MSCGEN_PATH            = 
 
 # If set to YES, the inheritance and collaboration graphs will hide 
 # inheritance and usage relations if the target is undocumented 
@@ -1382,7 +1383,7 @@ HAVE_DOT               = NO
 # DOTFONTPATH environment variable or by setting DOT_FONTPATH to the directory 
 # containing the font.
 
-DOT_FONTNAME           = FreeSans
+# DOT_FONTNAME           = FreeSans
 
 # The DOT_FONTSIZE tag can be used to set the size of the font of dot graphs. 
 # The default size is 10pt.
