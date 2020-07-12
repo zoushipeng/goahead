@@ -372,19 +372,22 @@ PUBLIC int sslOpen()
 
     /*
         Select the required protocols
-        Disable both SSLv2 and SSLv3 by default - they are insecure
+        Disable both SSLv2, SSLv3 and TLSv1.0 by default - they are insecure
      */
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv2);
     SSL_CTX_set_options(sslctx, SSL_OP_NO_SSLv3);
-
-#if defined(SSL_OP_NO_TLSv1) && ME_GOAHEAD_SSL_NO_V1
+#if defined(SSL_OP_NO_TLSv1)
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1);
 #endif
+
 #if defined(SSL_OP_NO_TLSv1_1) && ME_GOAHEAD_SSL_NO_V1_1
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_1);
 #endif
 #if defined(SSL_OP_NO_TLSv1_2) && ME_GOAHEAD_SSL_NO_V1_2
     SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_2);
+#endif
+#if defined(SSL_OP_NO_TLSv1_3) && ME_GOAHEAD_SSL_NO_V1_3
+    SSL_CTX_set_options(sslctx, SSL_OP_NO_TLSv1_3);
 #endif
 
 
