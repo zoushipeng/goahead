@@ -15,9 +15,9 @@ Me.load({
 
     blend: [
         'src/*/*.me',
-        'test/test.me',
+        '?test/test.me',
         'paks/ssl/*.me',
-        'doc/doc.me',
+        '?doc/doc.me',
     ],
 
     configure: {
@@ -26,6 +26,11 @@ Me.load({
     },
 
     settings: {
+        /*
+            Set to true to emit warnings about deprecated APIs
+         */
+        deprecatedWarnings: false,
+
         integrate: true,
 
         /*
@@ -354,10 +359,14 @@ Me.load({
 
         projects: {
             action: `
-                genProjects('--set openssl.version=1.0 --with openssl', 'openssl_10', 'windows-x64')
-                genProjects('--set openssl.version=1.1 --with openssl', 'openssl_11', 'windows-x64')
-                genProjects('--with openssl', 'openssl', 'macosx-x64')
-                genProjects('')
+                if (me.settings.description != 'Embedthis GoAhead Community Edition') {
+                    genProjects('--set openssl.version=1.0 --with openssl', 'openssl_10', 'windows-x64')
+                    genProjects('--set openssl.version=1.1 --with openssl', 'openssl_11', 'windows-x64')
+                    genProjects('--with openssl', 'openssl', 'macosx-x64')
+                    genProjects('')
+                } else {
+                    genProjects('', ['default'])
+                }
             `
         },
 
@@ -374,4 +383,3 @@ Me.load({
         }
     },
 })
-

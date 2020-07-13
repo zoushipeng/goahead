@@ -1,31 +1,21 @@
-Embedthis GoAhead Community Edition Licenses
+Embedthis GoAhead Enterprise Edition Licenses
 ===
 
-Embedthis GoAhead Community Edition is distributed under a GPL open source license. The GPL License does not generally permit incorporating this software into non-open source programs. Commercial licenses for GoAhead Enterprise Edition and support services are available from [Embedthis Software](mailto@sales@embedthis.com).
+Embedthis GoAhead Enterprise Edition is distributed under a commercial license.
 
-The GPL license requires that all software linked with a GPL licensed component, be itself licensed via the GPL. If you use GoAhead Community Edition, you must also license all your software that modifies, links with or is combined with GoAhead via the GPL. This means you must offer your source code to the general public and anyone who requests it.
+An Embedthis commercial license provides a royalty free, commercial license to embed the software into your products with options for ongoing maintenance and support. Contact [sales@embedthis.com](mailto:dev@embdthis.com) for details.
 
-If you release products that use GoAhead Community Edition, according to the GPL license, Embedthis herein requests a copy of your source code that is used in combination with GoAhead. Please provide a copy of your source code by contacting [licensing@embedthis.com](mailto:licensing@embedthis.com).
+If have a commercial license with an active maintenance agreement you can incorporate new releases, updates and patches for the software into your products. If you do not have active maintenance agreement, you cannot use the GPL license for applying these updates without also fully complying with all the terms of the GPL license for your entire product including publicly offering your source code to the general public. If you choose this option, please provide notification and a copy of your source code to [licensing@embedthis.com](mailto:licensing@embedthis.com).
 
-The GPL license requires that all software that links with a GPL licensed component, be itself licensed as GPL. If you use GoAhead with the GPL license, you must also license all your software that modifies, links with or is combined with GoAhead via GPL license. This means you must offer your source code to the general public and anyone who requests it.
+Please read the following document for more information:
 
-* [GPL License](http://www.gnu.org/licenses/gpl-2.0.html)
-
-## Commercial License
-
-An enhanced version of GoAhead is available called Embedthis GoAhead Enterprise Edition. This edition uses a commercial license and provides a royalty free, license to embed the software into your products with options for ongoing maintenance and support. Contact [sales@embedthis.com](mailto:dev@embdthis.com) for details.
+* [Embedthis Commercial License](https://www.embedthis.com/licensing/)
 
 ## GoAhead 2.X License
 
-GoAhead version 2.X is obsolete.  If you are using version 2, you cannot apply code or patches from the GoAhead version 4 code base as the GoAhead 2.X license is incompatible. You must either adopt a commercial license for GoAhead version 4 or the use GPL. You cannot extract patches from this repository and apply to GoAhead 2 code.
+GoAhead version 2.X is obsolete.  If you are using version 2, you cannot apply code or patches from the GoAhead version 4+ code base as the GoAhead 2.X license is incompatible. You must either adopt a commercial license for GoAhead version 4+ or use the GPL license. You cannot extract patches from this repository and apply to GoAhead 2 code.
 
-While the GoAhead 3/4 APIs are different in syntax, the underlying functionality is the same, the upgrade to version 4 is quite easy.
-
-## GoAhead 2.X License
-
-GoAhead version 2.X is obsolete.  If you are using version 2, you cannot apply code or patches from the GoAhead version 4 code base as the GoAhead 2.X license is incompatible. You must either adopt a commercial license for GoAhead version 4 or use the GPL license. You cannot extract patches from this repository and apply to GoAhead 2 code.
-
-While the GoAhead 3/4 APIs are different in syntax, the underlying functionality is the same, the upgrade to version 4 is quite easy.
+While the GoAhead 3/4+ APIs are different in syntax, the underlying functionality is the same, the upgrade to version 4+ is quite easy.
 
 Third Party Licenses
 ---

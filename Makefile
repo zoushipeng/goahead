@@ -37,7 +37,7 @@ else
 endif
 
 BIN 	:= $(OS)-$(ARCH)-$(PROFILE)/bin
-PATH	:= $(BIN):$(PATH)
+PATH    := $(PWD)/build/$(BIN):$(PATH)
 
 .EXPORT_ALL_VARIABLES:
 
@@ -140,3 +140,9 @@ help:
 	@echo '' >&2
 	@echo 'Use "SHOW=1 make" to show executed commands.' >&2
 	@echo '' >&2
+
+LOCAL_MAKEFILE := $(strip $(wildcard ./.local.mk))
+
+ifneq ($(LOCAL_MAKEFILE),)
+include $(LOCAL_MAKEFILE)
+endif

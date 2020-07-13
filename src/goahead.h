@@ -488,15 +488,14 @@ PUBLIC void valueFree(WebsValue *value);
 
 /************************************* Ringq **********************************/
 /**
-    A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is
-    ideal for input/output buffering. This module provides a highly efficient
-    implementation and a vehicle for dynamic strings.
-    \n\n
-    WARNING:  This is a public implementation and callers have full access to
-    the queue structure and pointers.  Change this module very carefully.
-    \n\n
+    A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering. 
+    @description
+    This module provides a highly efficient implementation and a vehicle for dynamic strings.
+    WARNING: This is a public implementation and callers have full access to
+    the queue structure and pointers. Change this module very carefully.
+    \n\n 
     This module follows the open/close model.
-    \n\n
+    \n\n 
     Operation of a WebsBuf where bp is a pointer to a WebsBuf :
 
         bp->buflen contains the size of the buffer.
@@ -504,20 +503,20 @@ PUBLIC void valueFree(WebsValue *value);
         bp->servp will point to the first (un-consumed) data byte.
         bp->endp will point to the next free location to which new data is added
         bp->endbuf will point to one past the end of the buffer.
-    \n\n
+    \n\n 
     Eg. If the WebsBuf contains the data "abcdef", it might look like :
-    \n\n
+    \n\n 
     +-------------------------------------------------------------------+
     |   |   |   |   |   |   |   | a | b | c | d | e | f |   |   |   |   |
     +-------------------------------------------------------------------+
       ^                           ^                       ^               ^
       |                           |                       |               |
     bp->buf                    bp->servp               bp->endp      bp->enduf
-    \n\n
+    \n\n 
     The queue is empty when servp == endp.  This means that the queue will hold
     at most bp->buflen -1 bytes.  It is the fillers responsibility to ensure
     the WebsBuf is never filled such that servp == endp.
-    \n\n
+    \n\n 
     It is the fillers responsibility to "wrap" the endp back to point to
     bp->buf when the pointer steps past the end. Correspondingly it is the
     consumers responsibility to "wrap" the servp when it steps to bp->endbuf.
@@ -730,6 +729,7 @@ PUBLIC char *bufStart(WebsBuf *bp);
 #if ME_GOAHEAD_REPLACE_MALLOC
 /**
     GoAhead allocator memory block
+    @description
     Memory block classes are: 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536.
     @defgroup WebsAlloc WebsAlloc
     @stability Stable
@@ -818,7 +818,7 @@ PUBLIC void *wrealloc(void *blk, ssize newsize);
     @return Reference to the new memory block
     @ingroup WebsAlloc
  */
-PUBLIC void *wdup(cvoid *ptr, size_t usize);
+PUBLIC void *wdup(cvoid *ptr, ssize usize);
 
 typedef void (*WebsMemNotifier)(ssize size);
 
@@ -1953,9 +1953,9 @@ typedef struct Webs {
     ssize           written;            /**< Bytes actually transferred */
     ssize           putLen;             /**< Bytes read by a PUT request */
 
-    int             finalized: 1;       /**< Request has been completed */
-    int             error: 1;           /**< Request has an error */
-    int             connError: 1;       /**< Request has a connection error */
+    uint            finalized: 1;       /**< Request has been completed */
+    uint            error: 1;           /**< Request has an error */
+    uint            connError: 1;       /**< Request has a connection error */
 
     WebsHash        responseCookies;    /**< Outgoing cookies */
     struct WebsSession *session;        /**< Session record */
@@ -2661,7 +2661,6 @@ PUBLIC int websRuntimeOpen(void);
         is used for the documents directory.
     @param routes Optional filename for a route configuration file to load. Additional route or
         authentication configuration files can be loaded via websLoad.
-    @param routes Webs request object
     @return Zero if successful, otherwise -1.
     @ingroup Webs
     @stability Stable
@@ -3640,7 +3639,6 @@ PUBLIC bool websRunRequest(Webs *wp);
     @param protocol Set the matching HTTP protocol (http or https)
     @param methods Hash of permissible HTTP methods. (GET, HEAD, POST, PUT)
     @param extensions Hash of permissible URI filename extensions.
-    @param abilities Required user abilities. The user must be authenticated.
     @param abilities Required user abilities. If abilities are required, the user must be authenticated.
     @param redirects Set of applicable response redirections when completing the request.
     @return Zero if successful, otherwise -1.
