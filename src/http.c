@@ -584,6 +584,12 @@ PUBLIC void websDone(Webs *wp)
 #endif
     wp->finalized = 1;
 
+    /*
+        Once running, it is the handlers responsibility to conclude the request.
+     */
+    if (wp->connError && wp->state < WEBS_RUNNING) {
+        wp->state = WEBS_COMPLETE;
+    }
     if (wp->state < WEBS_COMPLETE) {
         /*
             Initiate flush. If not all flushed, wait for output to drain via a socket event.
@@ -831,8 +837,8 @@ static void readEvent(Webs *wp)
     } else if (nbytes < 0 && socketEof(wp->sid)) {
         /* EOF or error. Allow running requests to continue. */
         if (wp->state < WEBS_READY) {
-            if (wp->state > WEBS_BEGIN) {
-                websError(wp, HTTP_CODE_COMMS_ERROR, "Read error: connection lost");
+            if (wp->state >= WEBS_BEGIN) {
+                websError(wp, HTTP_CODE_COMMS_ERROR | WEBS_CLOSE, "Read error: connection lost");
                 websPump(wp);
             } else {
                 complete(wp, 0);
@@ -1197,34 +1203,36 @@ static bool processContent(Webs *wp)
 {
     bool    canProceed;
 
-    canProceed = filterChunkData(wp);
-    if (!canProceed || wp->finalized) {
-        return canProceed;
-    }
-#if ME_GOAHEAD_UPLOAD
-    if (wp->flags & WEBS_UPLOAD) {
-        canProceed = websProcessUploadData(wp);
+    if (!wp->eof) {
+        canProceed = filterChunkData(wp);
         if (!canProceed || wp->finalized) {
             return canProceed;
         }
-    }
+#if ME_GOAHEAD_UPLOAD
+        if (wp->flags & WEBS_UPLOAD) {
+            canProceed = websProcessUploadData(wp);
+            if (!canProceed || wp->finalized) {
+                return canProceed;
+            }
+        }
 #endif
 #if !ME_ROM
-    if (wp->putfd >= 0) {
-        canProceed = websProcessPutData(wp);
-        if (!canProceed || wp->finalized) {
-            return canProceed;
+        if (wp->putfd >= 0) {
+            canProceed = websProcessPutData(wp);
+            if (!canProceed || wp->finalized) {
+                return canProceed;
+            }
         }
-    }
 #endif
 #if ME_GOAHEAD_CGI
-    if (wp->cgifd >= 0) {
-        canProceed = websProcessCgiData(wp);
-        if (!canProceed || wp->finalized) {
-            return canProceed;
+        if (wp->cgifd >= 0) {
+            canProceed = websProcessCgiData(wp);
+            if (!canProceed || wp->finalized) {
+                return canProceed;
+            }
         }
-    }
 #endif
+    }
     if (wp->eof) {
         wp->state = WEBS_READY;
         /*
@@ -1232,6 +1240,7 @@ static bool processContent(Webs *wp)
             The handler may not have been created if all the content was read in the initial read. No matter.
          */
         socketDeleteHandler(wp->sid);
+        canProceed = 1;
     }
     return canProceed;
 }
@@ -3421,7 +3430,7 @@ PUBLIC void websError(Webs *wp, int code, cchar *fmt, ...)
     int         status;
 
     assert(wp);
-    wp->error++;
+    wp->error = 1;
     if (code & WEBS_CLOSE) {
         wp->flags &= ~WEBS_KEEP_ALIVE;
         wp->connError++;
