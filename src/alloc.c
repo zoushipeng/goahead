@@ -311,7 +311,7 @@ PUBLIC void *wrealloc(void *mem, ssize num)
 #endif /* ME_GOAHEAD_REPLACE_MALLOC */
 
 
-PUBLIC void *wdup(cvoid *ptr, size_t usize)
+PUBLIC void *wdup(cvoid *ptr, ssize usize)
 {
     char    *newp;
 
