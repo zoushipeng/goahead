@@ -370,6 +370,7 @@ static bool processContentData(Webs *wp)
             }
             hashEnter(wp->files, wp->uploadVar, valueSymbol(file), 0);
             defineUploadVars(wp);
+            wp->currentFile = 0;
 
         } else if (wp->uploadVar) {
             /*
@@ -427,7 +428,6 @@ static char *getBoundary(Webs *wp, char *buf, ssize bufLen)
     }
     return 0;
 }
-
 
 
 WebsUpload *websLookupUpload(Webs *wp, cchar *key)
