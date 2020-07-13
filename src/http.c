@@ -2950,7 +2950,7 @@ PUBLIC void websSetCookie(Webs *wp, cchar *name, cchar *value, cchar *path, ccha
     } else if (flags & WEBS_COOKIE_SAME_STRICT) {
         sameSite = "; SameSite=Strict";
     }
-    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
+    cookie = sfmt("%s=%s; path=%s%s%s%s%s%s%s%s", name, value, path, domainAtt, domain, expiresAtt, expires, secure,
         httponly, sameSite);
     hashEnter(wp->responseCookies, name, valueString(cookie, 0), 0);
     wfree(domain);
