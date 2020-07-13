@@ -29,4 +29,4 @@ ttrue(response.toString().contains('Bad Request'))
 */
 
 response = get('\\index.html')
-ttrue(response.toString().contains('Bad Request'))
+ttrue(response.toString() == '')

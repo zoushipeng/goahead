@@ -14,7 +14,7 @@
       </ItemDefinitionGroup>
 
       <PropertyGroup Label="Globals">
-        <ProjectGuid>{128c1f2a-2d8b-473f-83f5-c269c96a6247}</ProjectGuid>
+        <ProjectGuid>{95ab2d18-88dc-419c-bc00-0170458b382d}</ProjectGuid>
         <RootNamespace />
         <Keyword>Win32Proj</Keyword>
       </PropertyGroup>
@@ -119,7 +119,7 @@
 
     <ItemGroup>
       <ProjectReference Include="libmbedtls.vcxproj">
-      <Project>1f62ab51-3635-4062-814a-a0a05371c555</Project>
+      <Project>3f7ba358-b4a2-402b-b30b-f7a767eea557</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       </ProjectReference>
     </ItemGroup>

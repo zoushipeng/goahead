@@ -135,7 +135,7 @@ cd projects\goahead-windows-openssl_10</Command>
 
     <ItemGroup>
       <ProjectReference Include="libgo.vcxproj">
-      <Project>081f69df-1db4-41f3-ad24-e0b663fa5e73</Project>
+      <Project>9ed725e0-59f2-44d3-8fbf-5f7f1215f1da</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       </ProjectReference>
     </ItemGroup>
