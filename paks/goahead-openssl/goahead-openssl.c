@@ -539,7 +539,7 @@ PUBLIC ssize sslRead(Webs *wp, void *buf, ssize len)
     retries = 5;
     for (i = 0; i < retries; i++) {
         rc = SSL_read(wp->ssl, buf, (int) len);
-        if (rc < 0) {
+        if (rc <= 0) {
             err = SSL_get_error(wp->ssl, rc);
             if (err == SSL_ERROR_WANT_READ || err == SSL_ERROR_WANT_CONNECT || err == SSL_ERROR_WANT_ACCEPT) {
                 continue;
