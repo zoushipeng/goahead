@@ -40,7 +40,7 @@ static int autoLogin = ME_GOAHEAD_AUTO_LOGIN;
 static WebsVerify verifyPassword = websVerifyPasswordFromFile;
 
 #ifndef ME_GOAHEAD_NONCE_DURATION
-    #define ME_GOAHEAD_NONCE_DURATION 5
+    #define ME_GOAHEAD_NONCE_DURATION 60
 #endif
 
 #if ME_COMPILER_HAS_PAM
