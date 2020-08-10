@@ -892,7 +892,10 @@ static bool parseDigestDetails(Webs *wp)
                 wfree(wp->realm);
                 wp->realm = sclone(value);
             } else if (scaselesscmp(key, "response") == 0) {
-                /* Store the response digest in the password field. This is MD5(user:realm:password) */
+                /*
+                    Store the response digest in the password field. This is MD5(HA1:nonce:HA2) where
+                    HA1 is MD5(user:realm:password) and HA2 is MD5(method:digestUri)
+                 */
                 wfree(wp->password);
                 wp->password = sclone(value);
                 wp->encoded = 1;
