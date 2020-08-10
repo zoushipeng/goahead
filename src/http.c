@@ -2709,7 +2709,7 @@ PUBLIC int websUrlParse(cchar *url, char **pbuf, char **pscheme, char **phost, c
             path = buf2;
             *path = sep;
         }
-        websDecodeUrl(path, path, -1);
+        // websDecodeUrl(path, path, -1);
         *ppath = path;
     }
     if (pquery) {
@@ -2719,10 +2719,12 @@ PUBLIC int websUrlParse(cchar *url, char **pbuf, char **pscheme, char **phost, c
         *preference = reference;
     }
     if (pext) {
-        websDecodeUrl(ext, ext, -1);
+        if (ext) {
+            websDecodeUrl(ext, ext, -1);
 #if ME_WIN_LIKE || MACOSX
-        slower(ext);
+            slower(ext);
 #endif
+        }
         *pext = ext;
     }
     return 0;
