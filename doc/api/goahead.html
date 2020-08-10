@@ -3850,17 +3850,17 @@ Some components of the URI have restricted character sets that this routine does
   <div class="apiDetail">
 <p>A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering.</p>
     <dl><dt><b>Description</b>:</dt><dd>This module provides a highly efficient implementation and a vehicle for dynamic strings. WARNING: This is a public implementation and callers have full access to the queue structure and pointers. Change this module very carefully. <br/><br/>
- This module follows the open/close model. <br/><br/>
- Operation of a WebsBuf where bp is a pointer to a WebsBuf : <verbatim>bp-&gt;buflen contains the size of the buffer.
+This module follows the open/close model. <br/><br/>
+Operation of a WebsBuf where bp is a pointer to a WebsBuf : <verbatim>bp-&gt;buflen contains the size of the buffer.
 bp-&gt;buf will point to the start of the buffer.
 bp-&gt;servp will point to the first (un-consumed) data byte.
 bp-&gt;endp will point to the next free location to which new data is added
 bp-&gt;endbuf will point to one past the end of the buffer.
 </verbatim><br/><br/>
- Eg. If the WebsBuf contains the data &quot;abcdef&quot;, it might look like : <br/><br/>
- +&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<mdash/>+ | | | | | | | | a | b | c | d | e | f | | | | | +&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<mdash/>+ ^ ^ ^ ^ | | | | bp-&gt;buf bp-&gt;servp bp-&gt;endp bp-&gt;enduf <br/><br/>
- The queue is empty when servp == endp. This means that the queue will hold at most bp-&gt;buflen -1 bytes. It is the fillers responsibility to ensure the WebsBuf is never filled such that servp == endp. <br/><br/>
- It is the fillers responsibility to &quot;wrap&quot; the endp back to point to bp-&gt;buf when the pointer steps past the end. Correspondingly it is the consumers responsibility to &quot;wrap&quot; the servp when it steps to bp-&gt;endbuf. The bufPutc and bufGetc routines will do this automatically.</dd></dl>
+Eg. If the WebsBuf contains the data &quot;abcdef&quot;, it might look like : <br/><br/>
++&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<mdash/>+ | | | | | | | | a | b | c | d | e | f | | | | | +&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;<mdash/>+ ^ ^ ^ ^ | | | | bp-&gt;buf bp-&gt;servp bp-&gt;endp bp-&gt;enduf <br/><br/>
+The queue is empty when servp == endp. This means that the queue will hold at most bp-&gt;buflen -1 bytes. It is the fillers responsibility to ensure the WebsBuf is never filled such that servp == endp. <br/><br/>
+It is the fillers responsibility to &quot;wrap&quot; the endp back to point to bp-&gt;buf when the pointer steps past the end. Correspondingly it is the consumers responsibility to &quot;wrap&quot; the servp when it steps to bp-&gt;endbuf. The bufPutc and bufGetc routines will do this automatically.</dd></dl>
     <dl><dt><b>API</b> Stability:</dt><dd>Stable.</dd></dl>
     <dl><dt>Fields:</dt><dd>
     <table class="parameters" title="Parameters">
