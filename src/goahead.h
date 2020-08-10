@@ -114,6 +114,7 @@ typedef struct stat WebsStat;
             int largc; \
             largc = websParseArgs(command, &largv[1], ME_MAX_ARGC - 1); \
             largv[0] = #name; \
+            websSetInst(inst); \
             main(largc, largv, NULL); \
         } \
         int main(_argc, _argv, _envp)
@@ -488,14 +489,14 @@ PUBLIC void valueFree(WebsValue *value);
 
 /************************************* Ringq **********************************/
 /**
-    A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering. 
+    A WebsBuf (ring queue) allows maximum utilization of memory for data storage and is ideal for input/output buffering.
     @description
     This module provides a highly efficient implementation and a vehicle for dynamic strings.
     WARNING: This is a public implementation and callers have full access to
     the queue structure and pointers. Change this module very carefully.
-    \n\n 
+    \n\n
     This module follows the open/close model.
-    \n\n 
+    \n\n
     Operation of a WebsBuf where bp is a pointer to a WebsBuf :
 
         bp->buflen contains the size of the buffer.
@@ -503,20 +504,20 @@ PUBLIC void valueFree(WebsValue *value);
         bp->servp will point to the first (un-consumed) data byte.
         bp->endp will point to the next free location to which new data is added
         bp->endbuf will point to one past the end of the buffer.
-    \n\n 
+    \n\n
     Eg. If the WebsBuf contains the data "abcdef", it might look like :
-    \n\n 
+    \n\n
     +-------------------------------------------------------------------+
     |   |   |   |   |   |   |   | a | b | c | d | e | f |   |   |   |   |
     +-------------------------------------------------------------------+
       ^                           ^                       ^               ^
       |                           |                       |               |
     bp->buf                    bp->servp               bp->endp      bp->enduf
-    \n\n 
+    \n\n
     The queue is empty when servp == endp.  This means that the queue will hold
     at most bp->buflen -1 bytes.  It is the fillers responsibility to ensure
     the WebsBuf is never filled such that servp == endp.
-    \n\n 
+    \n\n
     It is the fillers responsibility to "wrap" the endp back to point to
     bp->buf when the pointer steps past the end. Correspondingly it is the
     consumers responsibility to "wrap" the servp when it steps to bp->endbuf.
