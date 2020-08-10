@@ -1826,7 +1826,6 @@ PUBLIC int websWriteHeader(Webs *wp, cchar *key, cchar *fmt, ...)
             return -1;
         }
         va_end(vargs);
-        assert(strstr(buf, "UNION") == 0);
         trace(3 | WEBS_RAW_MSG, "%s", buf);
         if (websWriteBlock(wp, buf, strlen(buf)) < 0) {
             return -1;
@@ -2710,6 +2709,7 @@ PUBLIC int websUrlParse(cchar *url, char **pbuf, char **pscheme, char **phost, c
             path = buf2;
             *path = sep;
         }
+        websDecodeUrl(path, path, -1);
         *ppath = path;
     }
     if (pquery) {
@@ -2719,7 +2719,8 @@ PUBLIC int websUrlParse(cchar *url, char **pbuf, char **pscheme, char **phost, c
         *preference = reference;
     }
     if (pext) {
-#if ME_WIN_LIKE
+        websDecodeUrl(ext, ext, -1);
+#if ME_WIN_LIKE || MACOSX
         slower(ext);
 #endif
         *pext = ext;
