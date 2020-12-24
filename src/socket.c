@@ -770,9 +770,11 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
     int         errCode;
 
     if (buf == 0 || (sp = socketPtr(sid)) == NULL) {
+        socketSetError(EBADF);
         return -1;
     }
     if (sp->flags & SOCKET_EOF) {
+        socketSetError(EBADF);
         return -1;
     }
     len = bufsize;
