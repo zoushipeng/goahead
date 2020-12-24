@@ -8,7 +8,6 @@ Branches
 The repository has several branches:
 
 * master - Most recent release of the software.
-* dev - Current ongoing development.
 * X.X - Archived prior release branches for maintenance.
 
 Licensing
