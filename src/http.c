@@ -277,7 +277,7 @@ PUBLIC int websOpen(cchar *documents, cchar *routeFile)
         return -1;
     }
 #endif
-    if (websLoad(routeFile) < 0) {
+    if (routeFile && websLoad(routeFile) < 0) {
         return -1;
     }
     /*
