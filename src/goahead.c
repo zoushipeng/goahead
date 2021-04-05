@@ -110,7 +110,7 @@ MAIN(goahead, int argc, char **argv, char **envp)
         return -1;
     }
 #if ME_GOAHEAD_AUTH
-    if (websLoad(auth) < 0) {
+    if (auth && websLoad(auth) < 0) {
         error("Cannot load %s", auth);
         return -1;
     }
