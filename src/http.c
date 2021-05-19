@@ -3391,7 +3391,7 @@ static void setFileLimits(void)
 {
 #if ME_UNIX_LIKE
     struct rlimit r;
-    int           i, limit;
+    int           limit;
 
     limit = ME_GOAHEAD_LIMIT_FILES;
     if (limit) {
