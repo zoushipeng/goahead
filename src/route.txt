@@ -31,10 +31,10 @@
 #
 #   Standard routes
 #
-route uri=/cgi-bin dir=cgi-bin handler=cgi
+#   route uri=/cgi-bin dir=cgi-bin handler=cgi
 route uri=/action handler=action
 route uri=/ extensions=jst handler=jst
-route uri=/ methods=OPTIONS|TRACE handler=options
+#   route uri=/ methods=OPTIONS|TRACE handler=options
 
 #   For legacy GoAhead applications using /goform
 route uri=/goform handler=action
