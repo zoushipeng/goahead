@@ -186,7 +186,7 @@ PUBLIC int socketListen(cchar *ip, int port, SocketAccept accept, int flags)
 #if KEEP
 PUBLIC int socketConnect(char *ip, int port, int flags)
 {
-    WebsSocket                *sp;
+    WebsSocket              *sp;
     struct sockaddr_storage addr;
     socklen_t               addrlen;
     int                     family, protocol, sid, rc;
@@ -505,7 +505,8 @@ PUBLIC int socketSelect(int sid, int timeout)
     WebsSocket      *sp;
     struct timeval  tv;
     fd_mask         *readFds, *writeFds, *exceptFds;
-    int             all, len, nwords, index, bit, nEvents;
+    ssize           bit, index;
+    int             all, len, nwords, nEvents;
 
     /*
         Allocate and zero the select masks
@@ -618,7 +619,7 @@ PUBLIC int socketSelect(int sid, int timeout)
 
 PUBLIC void socketProcess(void)
 {
-    WebsSocket    *sp;
+    WebsSocket  *sp;
     int         sid;
 
     for (sid = 0; sid < socketMax; sid++) {
@@ -765,7 +766,7 @@ PUBLIC int socketSetNoDelay(int sid, bool on)
  */
 PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
 {
-    WebsSocket    *sp;
+    WebsSocket  *sp;
     ssize       len, written, sofar;
     int         errCode;
 
@@ -809,7 +810,7 @@ PUBLIC ssize socketWrite(int sid, void *buf, ssize bufsize)
  */
 PUBLIC ssize socketRead(int sid, void *buf, ssize bufsize)
 {
-    WebsSocket    *sp;
+    WebsSocket  *sp;
     ssize       bytes;
     int         errCode;
 
@@ -899,7 +900,7 @@ PUBLIC void socketDeleteHandler(int sid)
  */
 PUBLIC int socketAlloc(cchar *ip, int port, SocketAccept accept, int flags)
 {
-    WebsSocket    *sp;
+    WebsSocket  *sp;
     int         sid;
 
     if (socketMax >= FD_SETSIZE) {
