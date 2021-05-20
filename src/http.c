@@ -3016,7 +3016,7 @@ static char *validateToken(char *token, char *endToken, int validation)
     char    *t;
 
     if (validation == TOKEN_HEADER_KEY) {
-        if (token == '\0') {
+        if (token == NULL || *token == '\0') {
             return NULL;
         }
         if (strpbrk(token, "\"\\/ \t\r\n(),:;<=>?@[]{}")) {
