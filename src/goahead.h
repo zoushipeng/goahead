@@ -1941,6 +1941,7 @@ typedef struct Webs {
     int             routeCount;         /**< Route count limiter */
     ssize           rxLen;              /**< Rx content length */
     ssize           rxRemaining;        /**< Remaining content to read from client */
+    ssize           txRemaining;        /**< Remaining content to write */
     ssize           txLen;              /**< Tx content length header value */
     int             wid;                /**< Index into webs */
 #if ME_GOAHEAD_CGI
