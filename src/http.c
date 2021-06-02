@@ -1002,18 +1002,20 @@ static void parseFirstLine(Webs *wp)
         start of the URL. Non-proxied will just be local path names.
      */
     host = path = port = query = ext = NULL;
-    if (websUrlParse(url, &buf, NULL, &host, &port, &path, &ext, NULL, &query) < 0) {
+    if (websUrlParse(url, &buf, NULL, &host, &port, &path, NULL, NULL, &query) < 0) {
         error("Cannot parse URL: %s", url);
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         return;
     }
+
+    //  Decode the path and save. This includes the extension.
     if ((wp->path = websValidateUriPath(path)) == 0) {
         websError(wp, HTTP_CODE_BAD_REQUEST | WEBS_CLOSE | WEBS_NOLOG, "Bad URL");
         wfree(buf);
         return;
     }
     wp->url = sclone(url);
-    if (ext) {
+    if ((ext = strrchr(wp->path, '.')) != NULL) {
         wp->ext = sclone(slower(ext));
     }
     wp->filename = sfmt("%s%s", websGetDocuments(), wp->path);
