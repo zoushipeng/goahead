@@ -95,6 +95,7 @@ static bool fileHandler(Webs *wp)
             return 1;
         }
         if (info.size > 0) {
+            wp->txRemaining = info.size;
             websSetBackgroundWriter(wp, fileWriteEvent);
         } else {
             websDone(wp);
@@ -111,7 +112,7 @@ static bool fileHandler(Webs *wp)
 static void fileWriteEvent(Webs *wp)
 {
     char    *buf;
-    ssize   len, wrote;
+    ssize   size, len, wrote;
     int     err;
 
     assert(wp);
@@ -121,7 +122,14 @@ static void fileWriteEvent(Webs *wp)
         websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot get memory");
         return;
     }
-    while ((len = websPageReadData(wp, buf, ME_GOAHEAD_LIMIT_BUFFER)) > 0) {
+    while (wp->txRemaining > 0) {
+        size = min(wp->txRemaining, ME_GOAHEAD_LIMIT_BUFFER);
+        len = websPageReadData(wp, buf, size);
+        if (len <= 0) {
+            websError(wp, HTTP_CODE_INTERNAL_SERVER_ERROR, "Cannot read file content");
+            return;
+        }
+        wp->txRemaining -= len;
         if ((wrote = websWriteSocket(wp, buf, len)) < 0) {
             err = socketGetError(wp->sid);
             if (err == EWOULDBLOCK || err == EAGAIN) {
@@ -138,7 +146,7 @@ static void fileWriteEvent(Webs *wp)
         }
     }
     wfree(buf);
-    if (len <= 0) {
+    if (wp->txRemaining <= 0) {
         websDone(wp);
     }
 }
