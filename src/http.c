@@ -2256,7 +2256,8 @@ PUBLIC void websDecodeUrl(char *decoded, char *input, ssize len)
     for (ip = input; *ip && len > 0; ip++, op++) {
         if (*ip == '+') {
             *op = ' ';
-        } else if (*ip == '%' && isxdigit((uchar) ip[1]) && isxdigit((uchar) ip[2])) {
+        } else if (*ip == '%' && isxdigit((uchar) ip[1]) && isxdigit((uchar) ip[2]) &&
+                  !(ip[1] == '0' && ip[2] == '0')) {
             /*
                 Convert %nn to a single character
              */
