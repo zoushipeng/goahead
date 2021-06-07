@@ -2,7 +2,7 @@
     webcomp -- Compile web pages into C source
 
     Usage: webcomp --strip strip filelist >webrom.c
-    Where: 
+    Where:
         filelist is a file containing the pathnames of all web pages
         strip is a path prefix to remove from all the web page pathnames
         webrom.c is the resulting C source file to compile and link.
@@ -92,7 +92,7 @@ static int compile(char *fileList, char *strip)
         }
         if (stat(file, &sbuf) == 0 && sbuf.st_mode & S_IFDIR) {
             continue;
-        } 
+        }
         if ((fd = open(file, O_RDONLY | O_BINARY, 0644)) < 0) {
             fprintf(stderr, "Cannot open file %s\n", file);
             return -1;
@@ -156,7 +156,7 @@ static int compile(char *fileList, char *strip)
         fprintf(stdout, "\t{ \"/%s\", p%d, %d },\n", cp, nFile, (int) sbuf.st_size);
         nFile++;
     }
-    fclose(lp); 
+    fclose(lp);
     fprintf(stdout, "\t{ 0, 0, 0 }\n");
     fprintf(stdout, "};\n");
     fprintf(stdout, "#else\n");
@@ -169,9 +169,6 @@ static int compile(char *fileList, char *strip)
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire
-    a commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
+    This software is distributed under a commercial license. Consult the LICENSE.md
+    distributed with this software for full details and copyrights.
  */

@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>User Authentication</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="GoAhead web server" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="GoAhead web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="https://embedthis.com/goahead/doc/users/authentication.html" rel="canonical">
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -122,7 +121,7 @@
                     <a class="item" href="https://embedthis.com/goahead/">GoAhead Site</a>
                     <span class="desktop-only">
                         <a class="item" href="https://embedthis.com/blog/categories/GoAhead/">GoAhead News</a>
-                        <a class="item" href="https://github.com/embedthis/goahead-gpl">Repository</a>
+                        <a class="item" href="https://github.com/embedthis/goahead">Repository</a>
                         <a class="item" href="https://embedthis.com/blog/">Blog</a>
                         <a class="item" href="https://twitter.com/embedthat">Twitter</a>
                     </span>
@@ -169,8 +168,7 @@
                 programmatically va HTTP POST requests.</p>
             <p>
 
-            <p>The Basic and Digest authentication are HTTP protocol mechanisms defined by the <a href=
-            "http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP/1.1 RFC2616</a> specification. Because they operate
+            <p>The Basic and Digest authentication are HTTP protocol mechanisms defined by the <a href="http://www.w3.org/Protocols/rfc2616/rfc2616.html">HTTP/1.1 RFC2616</a> specification. Because they operate
             at the protocol level, they offer a lower level of capability and flexibility. When a client attempts to access
             secured content, the client's browser displays a generic pop-up dialog box to prompt for the user's
             credentials.</p>
@@ -231,7 +229,7 @@ route uri=/cgi-bin handler=cgi
 
 
             <a id="form"></a>
-            <h2 >Form Authentication</h2>
+            <h2>Form Authentication</h2>
             <p>The Form authentication scheme uses a standard web page form that prompts for the user to enter their
             name and password. This scheme allows the user login interface to have the same look and feel as the rest of the
             web application. </p>
@@ -362,7 +360,7 @@ route uri=/machinery auth=basic abilities=start,stop
 
 
             <a id="stores"></a>
-            <h2 >Password Stores</h2>
+            <h2>Password Stores</h2>
             <p>GoAhead can be built to retrieve passwords from the Unix system password database or from password text
             configuration file.
             The Unix system password database is managed via the <a href="http://kb.iu.edu/data/anpn.html">PAM</a>
@@ -382,7 +380,7 @@ Role staff add,edit,delete
 </pre>
 
             <a name="gopass"></a>
-            <h2 >Password Program</h2>
+            <h2>Password Program</h2>
             <p>To create the required encrypted password fields for <i>user</i> definitions, the  <em>gopass</em> program
             is used. It can generate passwords and edit the <i>auth.txt</i> with updated user definitions.
             The command line syntax for gopass is:</p>
@@ -417,5 +415,6 @@ gopass [--cipher cipher] [--file path] [--password password] realm user roles...
 
     
 
-</body>
-</html>
+
+
+

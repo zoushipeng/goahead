@@ -2,20 +2,19 @@
 <html lang="en">
 <head>
     <title>GI</title>
-    <!-- Copyright Embedthis Software. All Rights Reserved. -->
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-    <meta name="description" content="GoAhead web server" />
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700'
-        rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
     
-    <link href="../images/favicon.ico" rel="shortcut icon" />
-    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css" />
-    <link href="../css/all.min.css" rel="stylesheet" type="text/css" />
-    <link href="../css/api.min.css" rel="stylesheet" type="text/css" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+    <meta name="description" content="GoAhead web server">
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Open+Sans:300italic,400,300,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Julius+Sans+One' rel='stylesheet' type='text/css'>
+    <link href="https://embedthis.com/goahead/doc/users/cgi.html" rel="canonical">
+    <link href="../images/favicon.ico" rel="shortcut icon">
+    <link href="../lib/semantic-ui/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/all.min.css" rel="stylesheet" type="text/css">
+    <link href="../css/api.min.css" rel="stylesheet" type="text/css">
     
 
 </head>
@@ -122,7 +121,7 @@
                     <a class="item" href="https://embedthis.com/goahead/">GoAhead Site</a>
                     <span class="desktop-only">
                         <a class="item" href="https://embedthis.com/blog/categories/GoAhead/">GoAhead News</a>
-                        <a class="item" href="https://github.com/embedthis/goahead-gpl">Repository</a>
+                        <a class="item" href="https://github.com/embedthis/goahead">Repository</a>
                         <a class="item" href="https://embedthis.com/blog/">Blog</a>
                         <a class="item" href="https://twitter.com/embedthat">Twitter</a>
                     </span>
@@ -165,7 +164,7 @@
             high-performance and fully featured CGI Handler that alleviates many of the pains with configuring CGI
             setup.</p>
             <a name="configuringCgi"></a>
-            <h2 >Configuring CGI Programs</h2>
+            <h2>Configuring CGI Programs</h2>
             <p>Requests for CGI programs are identified by a unique URI prefix specified at build time. This is
             typically "cgi-bin". The CGI programs and scripts are stored in special CGI directories outside the
             document root.</p>
@@ -175,12 +174,12 @@
 http://www.embedthis.com/cgi-bin/cgitest
 </pre>
             <a name="invoking"></a>
-            <h2 >Invoking CGI Programs</h2>
+            <h2>Invoking CGI Programs</h2>
             <p>When a CGI program is run, the GoAhead CGI handler communicates request information to the CGI program
             via Environment Variables.</p>
             
             <a name="env"></a>
-            <h2 >CGI Environment Variables</h2>
+            <h2>CGI Environment Variables</h2>
             <p>CGI uses environment variables to send your program additional parameters. The following environment
             variables are defined:</p>
             <table title="args" class="ui table segment">
@@ -323,7 +322,7 @@ http://hostname/cgi-bin/myScript/products/pricelists.pl?id=23&amp;payment=credit
                     </tr>
                     <tr>
                         <td>PATH_TRANSLATED</td>
-                        <td>/var/goahead/web/products/pricelists <br/>Where /var/goahead/web is the DocumentRoot</td>
+                        <td>/var/goahead/web/products/pricelists <br>Where /var/goahead/web is the DocumentRoot</td>
                     </tr>
                     <tr>
                         <td>QUERY_STRING</td>
@@ -382,7 +381,7 @@ http://hostname/cgi-bin/cgiProgram/extra/Path?var1=a+a&amp;var2=b%20b&amp;var3=c
             unambiguously by the server. To escape the special characters, the HTTP client should convert them to their
             %hex equivalent. Form and query variables are separated by "&amp;". For example: a=1&amp;b=2 defines two
             form variables "a" and "b" with their values equal to "1" and "2" respectively.</p><a id="cgiProgramming"></a>
-            <h2 >CGI Programming</h2>
+            <h2>CGI Programming</h2>
             <p>CGI program can return almost any possible content type back to the client's browser: plain HTML, audio,
             video or any other format. CGI programs can also control the user's browser and redirect it to another URI.
             To do this, CGI programs return pseudo-HTTP headers that are interpreted by GoAhead before passing the data
@@ -465,16 +464,14 @@ Status: 500
             system appropriately.</li>
         </ul>
             <a id="hints"></a>
-            <h2 >Hints and Tips</h2>
+            <h2>Hints and Tips</h2>
             <p>If you have special data or environment variables that must be passed to your CGI program, you can wrap
             it with a script that defines that environment before invoking your script.</p><a id="otherResources"></a>
-            <h2 >Other Resources</h2>
+            <h2>Other Resources</h2>
             <p>The following URIs may be helpful in further reading about CGI:</p>
             <ul>
-                <li>For an introduction to CGI: <a href=
-                "http://en.wikipedia.org/wiki/Common_Gateway_Interface">http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li>
-                <li>For the actual CGI specification: <a href=
-                "http://tools.ietf.org/html/draft-robinson-www-interface-00">http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li>
+                <li>For an introduction to CGI: <a href="http://en.wikipedia.org/wiki/Common_Gateway_Interface">http://en.wikipedia.org/wiki/Common_Gateway_Interface</a></li>
+                <li>For the actual CGI specification: <a href="http://tools.ietf.org/html/draft-robinson-www-interface-00">http://tools.ietf.org/html/draft-robinson-www-interface-00</a></li>
                 <li>Other CGI resources: <a href="http://www.cgi-resources.com">http://www.cgi-resources.com</a></li>
             </ul>
 
@@ -490,5 +487,6 @@ Status: 500
 
     
 
-</body>
-</html>
+
+
+

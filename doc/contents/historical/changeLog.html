@@ -9,9 +9,9 @@
             <p>Brief GoAhead change log of the the major features and changes for each release.</p>
             <h4>Note to security researchers:</h4>
             <p>Please do not mine this list and create security advisories.
-            Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a> 
+            Please see the <a href="http://github.com/embedthis/goahead/issues">GoAhead Issue Database</a>
             for the official product issue list and for comprehensive CVE dispositions.</p>
-        
+
             <a id="3.3.5"></a>
             <h2 >Changes in 3.3.5</h2>
             <h3>Fixes</h3>
@@ -62,7 +62,7 @@
                     <a href="https://github.com/embedthis/goahead/issues/83">[issue 83]</a></li>
                 <li>Fix bad memory free in websListen.
                     <a href="https://github.com/embedthis/goahead/issues/82">[issue 82]</a></li>
-                <li>Fix parsing request URI. 
+                <li>Fix parsing request URI.
                     <a href="https://github.com/embedthis/goahead/issues/81">[issue 81]</a>
                     <ul>
                         <li>Fix case when URL has ":" but no port. strncpy with src == dest.</li>
@@ -77,27 +77,26 @@
                     their match callback instead of returning true/false from their service callback.
                     See: <a href="../api/goahead.html#group___webs_1ga89a36e73774a8ed3e33b9088ecbccd89">webDefineHandler</a>.
                 </li>
-                <li>The GoAhead request router will now select the route for a request, run authentication and then the 
+                <li>The GoAhead request router will now select the route for a request, run authentication and then the
                 invoke the handler match callback. After all request content is received, the the handler service routine
-                will be called. Previously, authentication was run after receiving body content.</li> 
+                will be called. Previously, authentication was run after receiving body content.</li>
             </ul>
-            
+
             <a id="3.2.1"></a>
             <h2 >Changes in 3.2.1</h2>
             <h3>Fixes</h3>
             <ul>
-                <li>Fix redirection for URIs ending in "/" on windows 
+                <li>Fix redirection for URIs ending in "/" on windows
                     <a href="https://github.com/embedthis/goahead/issues/78">[issue 78]</a></li>
             </ul>
-            
+
             <a id="3.2.0"></a>
             <h2 >Changes in 3.2.0</h2>
             <h3>Minor Features</h3>
             <ul>
-                <li>Update license to GPLv2
-                    <a href="https://github.com/embedthis/goahead/issues/70">[issue 70]</a></li>
+                <li>Update license.</li>
             </ul>
-            
+
             <a id="3.1.4"></a>
             <h2 >Changes in 3.1.4</h2>
             <h3>Minor Features</h3>
@@ -271,6 +270,6 @@
             <a id="2.0.0"></a>
             <h2 >Changes in 2.X</h2>
             <p>The GoAhead web server was originally written by Michael O'Brien when he founded GoAhead Software.
-            Since the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing GoAhead customers 
+            Since the acquisition of GoAhead by Oracle, Oracle asked Embedthis to support existing GoAhead customers
             and to offer commercial licenses for GoAhead. Embedthis has now significantly upgraded
             GoAhead with features and security fixes. GoAhead is now more popular than ever.</p>

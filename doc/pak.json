@@ -3,7 +3,7 @@
     "title": "Embedthis GoAhead Documentation",
     "description": "GoAhead web server",
     "dependencies": {
-        "me-docstyle": "~0.9"
+        "me-docstyle": "~1"
     },
     "devDependencies": {
         "expansive": ">=0.6.0"

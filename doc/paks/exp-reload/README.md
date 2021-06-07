@@ -30,4 +30,4 @@ Ensure you include the reload partial before calling renderScripts().
 
 ### Get Pak from
 
-[https://embedthis.com/pak/](https://embedthis.com/pak/)
+[https://www.embedthis.com/pak/](https://www.embedthis.com/pak/)

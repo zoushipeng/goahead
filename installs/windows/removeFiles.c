@@ -1,6 +1,6 @@
-/** 
+/**
     remove.c - Remove files safely on Windows
-  
+
     Copyright (c) All Rights Reserved. See details at the end of the file.
  */
 
@@ -104,7 +104,7 @@ int APIENTRY WinMain(HINSTANCE inst, HINSTANCE junk, char *args, int junk2)
     if (errflg || !removeOk) {
         fprintf(stderr, "Bad Usage");
         return FALSE;
-    }   
+    }
 
     cleanup();
 
@@ -154,7 +154,7 @@ static void recursiveRemove(char *dir, char *pattern)
     handle = FindFirstFile("*.*", &data);
 
     while (FindNextFile(handle, &data)) {
-        if (strcmp(data.cFileName, "..") == 0 || 
+        if (strcmp(data.cFileName, "..") == 0 ||
             strcmp(data.cFileName, ".") == 0) {
             continue;
         }
@@ -265,26 +265,12 @@ static int mprStrcpy(char *dest, int destMax, const char *src)
     } else {
         *dest = '\0';
         len = 0;
-    } 
+    }
     return len;
 }
 
 /*
-    @copy   default
-
-    Copyright (c) Embedthis Software LLC, 2003-2014. All Rights Reserved.
-
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis Open Source license or you may acquire a 
-    commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
-
-    Local variables:
-    tab-width: 4
-    c-basic-offset: 4
-    End:
-    vim: sw=4 ts=4 expandtab
-
-    @end
+    Copyright (c) Embedthis Software. All Rights Reserved.
+    This software is distributed under a commercial license. Consult the LICENSE.md
+    distributed with this software for full details and copyrights.
  */

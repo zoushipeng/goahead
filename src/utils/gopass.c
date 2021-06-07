@@ -3,7 +3,7 @@
 
     gopass [--cipher md5|blowfish] [--file filename] [--password password] realm user roles...
 
-    This file provides facilities for creating passwords in a route configuration file. 
+    This file provides facilities for creating passwords in a route configuration file.
     It supports either MD5 or Blowfish ciphers.
  */
 
@@ -86,7 +86,7 @@ int main(int argc, char *argv[])
     if (errflg) {
         printUsage();
         exit(2);
-    }   
+    }
     realm = argv[nextArg++];
     username = argv[nextArg++];
 
@@ -101,7 +101,7 @@ int main(int argc, char *argv[])
 
     logOpen();
     websOpenAuth(1);
-    
+
     if (authFile && access(authFile, R_OK) == 0) {
         if (websLoad(authFile) < 0) {
             exit(2);
@@ -250,7 +250,7 @@ static char *getpass(char *prompt)
 }
 
 #endif /* ME_WIN_LIKE */
- 
+
 /*
     Display the usage
  */
@@ -268,9 +268,6 @@ static void printUsage(void)
 
 /*
     Copyright (c) Embedthis Software. All Rights Reserved.
-    This software is distributed under commercial and open source licenses.
-    You may use the Embedthis GoAhead open source license or you may acquire
-    a commercial license from Embedthis Software. You agree to be fully bound
-    by the terms of either license. Consult the LICENSE.md distributed with
-    this software for full details and other copyrights.
+    This software is distributed under a commercial license. Consult the LICENSE.md
+    distributed with this software for full details and copyrights.
  */
