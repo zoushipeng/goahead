@@ -142,6 +142,7 @@ static void fileWriteEvent(Webs *wp)
         }
         if (wrote != len) {
             websPageSeek(wp, - (len - wrote), SEEK_CUR);
+            wp->txRemaining += (len - wrote);
             break;
         }
     }
